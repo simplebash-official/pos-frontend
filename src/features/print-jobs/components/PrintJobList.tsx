@@ -1,36 +1,21 @@
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob } from '../types';
+import { fetchPrintJobs } from '../api/mockPrintJobs';
+import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/config/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 
-const SAMPLE_PRINT_JOBS: PrintJob[] = [
-  {
-    id: '1',
-    ticketNumber: 'PRT-2001',
-    customerName: 'Nimali Fernanado',
-    jobType: 'mug',
-    quantity: 50,
-    status: 'diagnosing',
-    estimatedCostCents: 3750000,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    ticketNumber: 'PRT-2002',
-    customerName: 'ABC Enterprises',
-    jobType: 'handbill',
-    quantity: 1000,
-    status: 'in_repair',
-    estimatedCostCents: 1500000,
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export function PrintJobList() {
+  const { data: printJobs = [], isLoading } = useQuery({
+    queryKey: queryKeys.printJobs.all,
+    queryFn: fetchPrintJobs,
+  });
+
   const columns: Column<PrintJob>[] = [
     {
       key: 'ticketNumber',
@@ -80,11 +65,13 @@ export function PrintJobList() {
       />
 
       <DataTable
-        data={SAMPLE_PRINT_JOBS}
+        data={printJobs}
         columns={columns}
+        loading={isLoading}
         keyExtractor={(job) => job.id}
         emptyText="No print orders recorded yet"
       />
     </div>
   );
 }
+

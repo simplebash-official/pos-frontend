@@ -1,36 +1,19 @@
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { Product } from '../types';
+import { fetchProducts } from '../api/mockProducts';
+import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 
-const SAMPLE_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'USB-C Fast Charger Cable (2m)',
-    sku: 'ACC-001',
-    barcode: '8901234567890',
-    category: 'Accessories',
-    costPriceCents: 45000,
-    sellingPriceCents: 120000,
-    stockQuantity: 45,
-    minStockThreshold: 10,
-  },
-  {
-    id: '2',
-    name: 'Tempered Glass Screen Guard (Universal)',
-    sku: 'ACC-002',
-    barcode: '8901234567891',
-    category: 'Accessories',
-    costPriceCents: 15000,
-    sellingPriceCents: 65000,
-    stockQuantity: 5,
-    minStockThreshold: 15,
-  },
-];
-
 export function ProductTable() {
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: queryKeys.inventory.all,
+    queryFn: fetchProducts,
+  });
+
   const columns: Column<Product>[] = [
     {
       key: 'sku',
@@ -81,11 +64,13 @@ export function ProductTable() {
       />
 
       <DataTable
-        data={SAMPLE_PRODUCTS}
+        data={products}
         columns={columns}
+        loading={isLoading}
         keyExtractor={(p) => p.id}
         emptyText="No inventory products added"
       />
     </div>
   );
 }
+

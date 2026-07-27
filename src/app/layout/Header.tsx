@@ -10,8 +10,7 @@ import {
 } from '@mantine/core';
 import { IconShoppingCart, IconUserCheck, IconSun, IconMoon } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '@/store/hooks';
-import { selectCartItemsCount } from '@/store/slices/cartSlice';
+import { useCart } from '@/features/billing/hooks/useCart';
 
 export interface HeaderProps {
   opened: boolean;
@@ -20,7 +19,7 @@ export interface HeaderProps {
 
 export function Header({ opened, toggle }: HeaderProps) {
   const navigate = useNavigate();
-  const cartItemsCount = useAppSelector(selectCartItemsCount);
+  const { itemCount: cartItemsCount } = useCart();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   return (
@@ -73,3 +72,4 @@ export function Header({ opened, toggle }: HeaderProps) {
     </Group>
   );
 }
+

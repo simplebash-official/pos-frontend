@@ -1,42 +1,23 @@
 import { PageHeader } from '@/shared/components/PageHeader';
-import { Paper, Grid, Title, Text, Button, Group, Stack, Badge, Box } from '@mantine/core';
-import { IconShoppingCart, IconPlus, IconTrash, IconPrinter } from '@tabler/icons-react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  addItem,
-  removeItem,
-  updateQuantity,
-  setDiscountCents,
-  clearCart,
-  selectCartItems,
-  selectCartDiscountCents,
-  selectSubtotalCents,
-  selectTaxCents,
-  selectTotalCents,
-} from '@/store/slices/cartSlice';
-import { formatMoney } from '@/shared/lib/money';
-import { MoneyInput } from '@/shared/components/MoneyInput';
+import { Grid, Button, Group, Box } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
+import { useCart } from '../hooks/useCart';
+import { CartItemList } from './CartItemList';
+import { OrderSummary } from './OrderSummary';
 
 export function BillingCounter() {
-  const dispatch = useAppDispatch();
-  const items = useAppSelector(selectCartItems);
-  const discountCents = useAppSelector(selectCartDiscountCents);
-  const subtotalCents = useAppSelector(selectSubtotalCents);
-  const taxCents = useAppSelector(selectTaxCents);
-  const totalCents = useAppSelector(selectTotalCents);
+  const { items, add, clear } = useCart();
 
   const handleAddSampleItem = () => {
     const sampleId = String(Date.now());
-    dispatch(
-      addItem({
-        id: sampleId,
-        productId: `prod-${sampleId}`,
-        name: 'Sample Item #' + (items.length + 1),
-        unitPriceCents: 1500, // Rs. 15.00
-        quantity: 1,
-        discountCents: 0,
-      })
-    );
+    add({
+      id: sampleId,
+      productId: `prod-${sampleId}`,
+      name: 'Sample Item #' + (items.length + 1),
+      unitPriceCents: 1500, // Rs. 15.00
+      quantity: 1,
+      discountCents: 0,
+    });
   };
 
   return (
@@ -56,7 +37,7 @@ export function BillingCounter() {
             <Button
               color="red"
               variant="subtle"
-              onClick={() => dispatch(clearCart())}
+              onClick={clear}
               disabled={items.length === 0}
             >
               Clear Cart
@@ -67,135 +48,14 @@ export function BillingCounter() {
 
       <Grid>
         <Grid.Col span={{ base: 12, md: 7, lg: 8 }}>
-          <Paper p="md" withBorder style={{ minHeight: 400 }}>
-            <Group justify="space-between" mb="md">
-              <Title order={4}>Current Cart ({items.length} items)</Title>
-              <Badge color="blue">Active Session</Badge>
-            </Group>
-
-            {items.length === 0 ? (
-              <Stack align="center" justify="center" py="xl" style={{ minHeight: 250 }}>
-                <IconShoppingCart size={48} color="var(--text-muted)" />
-                <Text c="dimmed" size="sm">
-                  Cart is empty. Click "Quick Add Item" or scan a barcode to begin.
-                </Text>
-              </Stack>
-            ) : (
-              <Stack gap="sm">
-                {items.map((item) => (
-                  <Paper
-                    key={item.id}
-                    p="sm"
-                    withBorder
-                    style={{ backgroundColor: 'var(--bg-hover)' }}
-                  >
-                    <Group justify="space-between">
-                      <Box style={{ flex: 1 }}>
-                        <Text fw={600} size="sm">
-                          {item.name}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {formatMoney(item.unitPriceCents)} each
-                        </Text>
-                      </Box>
-
-                      <Group gap="xs">
-                        <Button
-                          size="xs"
-                          variant="default"
-                          onClick={() =>
-                            dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }))
-                          }
-                        >
-                          -
-                        </Button>
-                        <Text size="sm" fw={600} style={{ minWidth: 24, textAlign: 'center' }}>
-                          {item.quantity}
-                        </Text>
-                        <Button
-                          size="xs"
-                          variant="default"
-                          onClick={() =>
-                            dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))
-                          }
-                        >
-                          +
-                        </Button>
-                        <Text size="sm" fw={700} style={{ minWidth: 80, textAlign: 'right' }}>
-                          {formatMoney(item.totalCents)}
-                        </Text>
-                        <Button
-                          size="xs"
-                          color="red"
-                          variant="subtle"
-                          onClick={() => dispatch(removeItem(item.id))}
-                        >
-                          <IconTrash size={14} />
-                        </Button>
-                      </Group>
-                    </Group>
-                  </Paper>
-                ))}
-              </Stack>
-            )}
-          </Paper>
+          <CartItemList />
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
-            <Title order={4} mb="md">
-              Order Summary
-            </Title>
-            <Stack gap="xs">
-              <Group justify="space-between">
-                <Text size="sm">Subtotal:</Text>
-                <Text size="sm" fw={600}>
-                  {formatMoney(subtotalCents)}
-                </Text>
-              </Group>
-
-              <Group justify="space-between">
-                <Text size="sm">Tax (8%):</Text>
-                <Text size="sm" fw={600}>
-                  {formatMoney(taxCents)}
-                </Text>
-              </Group>
-
-              <Box my="xs">
-                <MoneyInput
-                  label="Discount"
-                  size="sm"
-                  valueCents={discountCents}
-                  onChangeCents={(cents) => dispatch(setDiscountCents(cents))}
-                />
-              </Box>
-
-              <Group
-                justify="space-between"
-                mt="sm"
-                pt="sm"
-                style={{ borderTop: '2px solid var(--border-strong)' }}
-              >
-                <Title order={3}>Total:</Title>
-                <Title order={3} c="indigo">
-                  {formatMoney(totalCents)}
-                </Title>
-              </Group>
-
-              <Button
-                fullWidth
-                size="md"
-                color="indigo"
-                mt="md"
-                leftSection={<IconPrinter size={18} />}
-                disabled={items.length === 0}
-              >
-                Complete Payment & Print Receipt
-              </Button>
-            </Stack>
-          </Paper>
+          <OrderSummary />
         </Grid.Col>
       </Grid>
     </Box>
   );
 }
+

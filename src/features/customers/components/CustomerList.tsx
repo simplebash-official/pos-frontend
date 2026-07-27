@@ -1,30 +1,19 @@
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge } from '@mantine/core';
 import { IconUserPlus } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { Customer } from '../types';
+import { fetchCustomers } from '../api/mockCustomers';
+import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 
-const SAMPLE_CUSTOMERS: Customer[] = [
-  {
-    id: '1',
-    name: 'Saman Perera',
-    phone: '0771234567',
-    email: 'saman@example.com',
-    outstandingBalanceCents: 150000,
-    totalPurchasesCents: 8500000,
-  },
-  {
-    id: '2',
-    name: 'ABC Enterprises',
-    phone: '0112345678',
-    email: 'contact@abcenterprises.lk',
-    outstandingBalanceCents: 0,
-    totalPurchasesCents: 24500000,
-  },
-];
-
 export function CustomerList() {
+  const { data: customers = [], isLoading } = useQuery({
+    queryKey: queryKeys.customers.all,
+    queryFn: fetchCustomers,
+  });
+
   const columns: Column<Customer>[] = [
     {
       key: 'name',
@@ -67,11 +56,13 @@ export function CustomerList() {
       />
 
       <DataTable
-        data={SAMPLE_CUSTOMERS}
+        data={customers}
         columns={columns}
+        loading={isLoading}
         keyExtractor={(c) => c.id}
         emptyText="No customer profiles registered"
       />
     </div>
   );
 }
+
