@@ -1,13 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { Center, Loader } from '@mantine/core';
 import { AppShell } from './layout/AppShell';
-
-const DefaultLoader = () => (
-  <Center h="70vh">
-    <Loader size="md" color="indigo" />
-  </Center>
-);
+import { PageSkeleton } from '@/shared/components/PageSkeleton';
 
 // Code-split features using dynamic imports
 const BillingCounter = lazy(() =>
@@ -44,7 +38,7 @@ export const router = createBrowserRouter([
       {
         path: 'billing',
         element: (
-          <Suspense fallback={<DefaultLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <BillingCounter />
           </Suspense>
         ),
@@ -52,7 +46,7 @@ export const router = createBrowserRouter([
       {
         path: 'repairs',
         element: (
-          <Suspense fallback={<DefaultLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <RepairJobList />
           </Suspense>
         ),
@@ -60,7 +54,7 @@ export const router = createBrowserRouter([
       {
         path: 'print-jobs',
         element: (
-          <Suspense fallback={<DefaultLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <PrintJobList />
           </Suspense>
         ),
@@ -68,7 +62,7 @@ export const router = createBrowserRouter([
       {
         path: 'inventory',
         element: (
-          <Suspense fallback={<DefaultLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <ProductTable />
           </Suspense>
         ),
@@ -76,7 +70,7 @@ export const router = createBrowserRouter([
       {
         path: 'customers',
         element: (
-          <Suspense fallback={<DefaultLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <CustomerList />
           </Suspense>
         ),
@@ -84,7 +78,7 @@ export const router = createBrowserRouter([
       {
         path: 'reports',
         element: (
-          <Suspense fallback={<DefaultLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <ReportsDashboard />
           </Suspense>
         ),
@@ -94,7 +88,7 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: (
-      <Suspense fallback={<DefaultLoader />}>
+      <Suspense fallback={<PageSkeleton />}>
         <EmailLoginScreen />
       </Suspense>
     ),
