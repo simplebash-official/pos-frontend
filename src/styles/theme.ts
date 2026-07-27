@@ -35,7 +35,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     '2xl': rem('28px'),
     '3xl': rem('32px'),
   },
-  primaryColor: 'blue',
+  primaryColor: 'indigo',
   defaultRadius: 'lg',
   colors: {
     // near-black neutral scale for dark color scheme (replaces Mantine's default mid-gray dark palette).

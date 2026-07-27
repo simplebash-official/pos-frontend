@@ -1,11 +1,24 @@
 import { useState } from 'react';
-import { Box, Title, Text, TextInput, PasswordInput, Button, Anchor, Stack } from '@mantine/core';
+import {
+  Box,
+  Title,
+  Text,
+  TextInput,
+  PasswordInput,
+  Button,
+  Anchor,
+  Stack,
+  Portal,
+  Overlay,
+} from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
+import { PageLoader } from '@/shared/components/PageLoader';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = (e?: React.FormEvent) => {
@@ -20,18 +33,38 @@ export function LoginForm() {
       return;
     }
 
+    setIsLoggingIn(true);
+
     notifications.show({
       title: 'Logged In Successfully',
       message: `Welcome back, ${email.split('@')[0]}! Redirecting to POS console...`,
       color: 'green',
     });
-    navigate('/billing');
+
+    setTimeout(() => {
+      navigate('/billing', { state: { fromLogin: true } });
+    }, 1000);
   };
 
   return (
-    <Stack w="100%" align="center" gap={0} style={{ maxWidth: '340px' }}>
-      {/* Brand Header */}
-      <Text
+    <>
+      {isLoggingIn && (
+        <Portal>
+          <Overlay
+            color="#000"
+            backgroundOpacity={0.65}
+            blur={4}
+            zIndex={9999}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <PageLoader size={45} title="Signing in..." height="auto" />
+          </Overlay>
+        </Portal>
+      )}
+
+      <Stack w="100%" align="center" gap={0} style={{ maxWidth: '340px' }}>
+        {/* Brand Header */}
+        <Text
         fz={24}
         fw={900}
         c="indigo"
@@ -156,5 +189,6 @@ export function LoginForm() {
         </Anchor>
       </Text>
     </Stack>
+    </>
   );
 }
