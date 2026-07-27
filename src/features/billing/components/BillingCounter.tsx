@@ -75,7 +75,7 @@ export function BillingCounter() {
 
             {items.length === 0 ? (
               <Stack align="center" justify="center" py="xl" style={{ minHeight: 250 }}>
-                <IconShoppingCart size={48} color="var(--mantine-color-gray-4)" />
+                <IconShoppingCart size={48} color="var(--text-muted)" />
                 <Text c="dimmed" size="sm">
                   Cart is empty. Click "Quick Add Item" or scan a barcode to begin.
                 </Text>
@@ -87,7 +87,7 @@ export function BillingCounter() {
                     key={item.id}
                     p="sm"
                     withBorder
-                    style={{ backgroundColor: 'var(--mantine-color-default)' }}
+                    style={{ backgroundColor: 'var(--bg-hover)' }}
                   >
                     <Group justify="space-between">
                       <Box style={{ flex: 1 }}>
@@ -142,7 +142,7 @@ export function BillingCounter() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
             <Title order={4} mb="md">
               Order Summary
             </Title>
@@ -174,7 +174,7 @@ export function BillingCounter() {
                 justify="space-between"
                 mt="sm"
                 pt="sm"
-                style={{ borderTop: '2px solid var(--mantine-color-default-border)' }}
+                style={{ borderTop: '2px solid var(--border-strong)' }}
               >
                 <Title order={3}>Total:</Title>
                 <Title order={3} c="indigo">

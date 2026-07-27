@@ -17,16 +17,16 @@ export function AppShell() {
       }}
       padding="md"
     >
-      <MantineAppShell.Header>
+      <MantineAppShell.Header bg="var(--bg-sidebar)">
         <Header opened={opened} toggle={toggle} />
       </MantineAppShell.Header>
 
-      <MantineAppShell.Navbar>
+      <MantineAppShell.Navbar bg="var(--bg-sidebar)">
         <Sidebar closeMobile={close} />
       </MantineAppShell.Navbar>
 
       <MantineAppShell.Main
-        style={{ backgroundColor: 'var(--mantine-color-body)', minHeight: 'calc(100vh - 60px)' }}
+        style={{ backgroundColor: 'var(--bg-app)', minHeight: 'calc(100vh - 60px)' }}
       >
         <Outlet />
       </MantineAppShell.Main>

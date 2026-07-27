@@ -15,7 +15,7 @@ export function EmptyState({ icon, title, description, actionLabel, onAction }: 
     <Paper p="xl" withBorder radius="lg">
       <Center py="lg">
         <Stack align="center" gap="sm">
-          {icon || <IconInbox size={48} stroke={1.5} color="var(--mantine-color-gray-5)" />}
+          {icon || <IconInbox size={48} stroke={1.5} color="var(--text-muted)" />}
           <Title order={4}>{title}</Title>
           {description && (
             <Text size="sm" c="dimmed" ta="center" style={{ maxWidth: 400 }}>
