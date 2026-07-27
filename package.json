@@ -13,7 +13,8 @@
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "vite-tsconfig-paths": "^6.1.1"
   },
   "dependencies": {
     "@mantine/carousel": "^9.5.0",
@@ -29,6 +30,8 @@
     "@mantine/nprogress": "^9.5.0",
     "@mantine/spotlight": "^9.5.0",
     "@mantine/tiptap": "^9.5.0",
+    "@tabler/icons-react": "^3.45.0",
+    "@tanstack/react-query": "^5.101.4",
     "@tiptap/extension-link": "^3.29.1",
     "@tiptap/pm": "^3.29.1",
     "@tiptap/react": "^3.29.1",
@@ -41,6 +44,9 @@
     "embla-carousel-react": "^8.6.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "recharts": "^3.10.1"
+    "react-router-dom": "^7.18.1",
+    "recharts": "^3.10.1",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
   }
 }

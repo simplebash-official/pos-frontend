@@ -5,13 +5,17 @@
     "lib": ["ES2023", "DOM"],
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
     "jsx": "react-jsx",
 
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Bundler mode */
+    "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "moduleDetection": "force",
     "noEmit": true,
 
