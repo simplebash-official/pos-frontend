@@ -23,12 +23,7 @@ export function CartItemList() {
       ) : (
         <Stack gap="sm">
           {items.map((item) => (
-            <Paper
-              key={item.id}
-              p="sm"
-              withBorder
-              style={{ backgroundColor: 'var(--bg-hover)' }}
-            >
+            <Paper key={item.id} p="sm" withBorder style={{ backgroundColor: 'var(--bg-hover)' }}>
               <Group justify="space-between">
                 <Box style={{ flex: 1 }}>
                   <Text fw={600} size="sm">
@@ -60,12 +55,7 @@ export function CartItemList() {
                   <Text size="sm" fw={700} style={{ minWidth: 80, textAlign: 'right' }}>
                     {formatMoney(item.totalCents)}
                   </Text>
-                  <Button
-                    size="xs"
-                    color="red"
-                    variant="subtle"
-                    onClick={() => remove(item.id)}
-                  >
+                  <Button size="xs" color="red" variant="subtle" onClick={() => remove(item.id)}>
                     <IconTrash size={14} />
                   </Button>
                 </Group>

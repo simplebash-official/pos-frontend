@@ -15,7 +15,6 @@ import {
 } from '@/store/slices/cartSlice';
 
 export function useCart() {
-
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectCartItems);
   const discountCents = useAppSelector(selectCartDiscountCents);

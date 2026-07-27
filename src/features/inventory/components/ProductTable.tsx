@@ -18,16 +18,19 @@ export function ProductTable() {
     {
       key: 'sku',
       header: 'SKU',
+      align: 'left',
       render: (product) => <strong>{product.sku}</strong>,
     },
     {
       key: 'name',
       header: 'Product Name',
+      align: 'left',
       render: (product) => product.name,
     },
     {
       key: 'category',
       header: 'Category',
+      align: 'left',
       render: (product) => product.category,
     },
     {
@@ -73,4 +76,3 @@ export function ProductTable() {
     </div>
   );
 }
-

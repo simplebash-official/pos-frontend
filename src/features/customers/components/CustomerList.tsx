@@ -18,11 +18,13 @@ export function CustomerList() {
     {
       key: 'name',
       header: 'Customer Name',
+      align: 'left',
       render: (c) => <strong>{c.name}</strong>,
     },
     {
       key: 'contact',
       header: 'Phone / Email',
+      align: 'left',
       render: (c) => `${c.phone}${c.email ? ` • ${c.email}` : ''}`,
     },
     {
@@ -65,4 +67,3 @@ export function CustomerList() {
     </div>
   );
 }
-

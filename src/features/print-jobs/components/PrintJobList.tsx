@@ -20,21 +20,25 @@ export function PrintJobList() {
     {
       key: 'ticketNumber',
       header: 'Job Ticket #',
+      align: 'left',
       render: (job) => <strong>{job.ticketNumber}</strong>,
     },
     {
       key: 'customerName',
       header: 'Customer',
+      align: 'left',
       render: (job) => job.customerName,
     },
     {
       key: 'jobType',
       header: 'Type & Qty',
+      align: 'left',
       render: (job) => `${job.jobType.toUpperCase()} (${job.quantity} units)`,
     },
     {
       key: 'status',
       header: 'Status',
+      align: 'left',
       render: (job) => (
         <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
       ),
@@ -48,6 +52,7 @@ export function PrintJobList() {
     {
       key: 'createdAt',
       header: 'Created',
+      align: 'left',
       render: (job) => formatDate(job.createdAt),
     },
   ];
@@ -74,4 +79,3 @@ export function PrintJobList() {
     </div>
   );
 }
-

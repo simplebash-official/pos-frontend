@@ -5,7 +5,7 @@ export interface Column<T> {
   key: string;
   header: ReactNode;
   render: (item: T, index: number) => ReactNode;
-  align?: 'left' | 'center' | 'right';
+  align: 'left' | 'center' | 'right';
   width?: string | number;
 }
 
@@ -62,7 +62,7 @@ export function DataTable<T>({
                 <Table.Th
                   key={col.key}
                   style={{
-                    textAlign: col.align || 'left',
+                    textAlign: col.align,
                     width: col.width,
                   }}
                 >
@@ -75,7 +75,7 @@ export function DataTable<T>({
             {data.map((item, index) => (
               <Table.Tr key={keyExtractor(item, index)}>
                 {columns.map((col) => (
-                  <Table.Td key={col.key} style={{ textAlign: col.align || 'left' }}>
+                  <Table.Td key={col.key} style={{ textAlign: col.align }}>
                     {col.render(item, index)}
                   </Table.Td>
                 ))}

@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from '@/app/App';
 
-const container = document.getElementById('root') || document.getElementById('app');
+const container = document.getElementById('root');
 
 if (!container) {
   throw new Error('Root container element not found in index.html');

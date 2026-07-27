@@ -20,21 +20,25 @@ export function RepairJobList() {
     {
       key: 'ticketNumber',
       header: 'Ticket #',
+      align: 'left',
       render: (job) => <strong>{job.ticketNumber}</strong>,
     },
     {
       key: 'customer',
       header: 'Customer',
+      align: 'left',
       render: (job) => `${job.customerName} (${job.customerPhone})`,
     },
     {
       key: 'deviceModel',
       header: 'Device & Issue',
+      align: 'left',
       render: (job) => `${job.deviceModel} - ${job.issueDescription}`,
     },
     {
       key: 'status',
       header: 'Status',
+      align: 'left',
       render: (job) => (
         <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
       ),
@@ -48,6 +52,7 @@ export function RepairJobList() {
     {
       key: 'createdAt',
       header: 'Received',
+      align: 'left',
       render: (job) => formatDate(job.createdAt),
     },
   ];
@@ -74,4 +79,3 @@ export function RepairJobList() {
     </div>
   );
 }
-

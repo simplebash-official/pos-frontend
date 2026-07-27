@@ -1,9 +1,8 @@
 import { ReactNode } from 'react';
 import { Paper, Stack, Title, Text, Button, Center } from '@mantine/core';
-import { IconInbox } from '@tabler/icons-react';
 
 export interface EmptyStateProps {
-  icon?: ReactNode;
+  icon: ReactNode;
   title: string;
   description?: string;
   actionLabel?: string;
@@ -15,7 +14,7 @@ export function EmptyState({ icon, title, description, actionLabel, onAction }: 
     <Paper p="xl" withBorder radius="lg">
       <Center py="lg">
         <Stack align="center" gap="sm">
-          {icon || <IconInbox size={48} stroke={1.5} color="var(--text-muted)" />}
+          {icon}
           <Title order={4}>{title}</Title>
           {description && (
             <Text size="sm" c="dimmed" ta="center" style={{ maxWidth: 400 }}>

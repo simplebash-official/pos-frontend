@@ -72,4 +72,3 @@ export function Header({ opened, toggle }: HeaderProps) {
     </Group>
   );
 }
-

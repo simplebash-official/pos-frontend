@@ -34,12 +34,7 @@ export function BillingCounter() {
             >
               Quick Add Item
             </Button>
-            <Button
-              color="red"
-              variant="subtle"
-              onClick={clear}
-              disabled={items.length === 0}
-            >
+            <Button color="red" variant="subtle" onClick={clear} disabled={items.length === 0}>
               Clear Cart
             </Button>
           </Group>
@@ -58,4 +53,3 @@ export function BillingCounter() {
     </Box>
   );
 }
-
