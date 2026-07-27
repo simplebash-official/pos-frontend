@@ -27,7 +27,7 @@ export function ReportsDashboard() {
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   {stat.title}
                 </Text>
-                <ThemeIcon color={stat.color} variant="light" size="md" radius="md">
+                <ThemeIcon color={stat.color} variant="light" size="md" radius="lg">
                   <Icon size={18} />
                 </ThemeIcon>
               </Group>

@@ -26,7 +26,7 @@ export function PinLoginScreen() {
 
   return (
     <Center style={{ minHeight: '80vh' }}>
-      <Paper p="xl" withBorder radius="md" style={{ width: 380 }}>
+      <Paper p="xl" withBorder radius="lg" style={{ width: 380 }}>
         <Stack align="center" gap="sm">
           <Box style={{ fontSize: 36 }}>🔐</Box>
           <Title order={3}>Cashier PIN Access</Title>

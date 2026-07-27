@@ -76,7 +76,7 @@ export function Sidebar({ closeMobile }: SidebarProps) {
               color={item.color}
               variant="light"
               onClick={closeMobile}
-              style={{ borderRadius: 'var(--mantine-radius-md)' }}
+              style={{ borderRadius: 'var(--mantine-radius-lg)' }}
             />
           );
         })}
@@ -92,7 +92,7 @@ export function Sidebar({ closeMobile }: SidebarProps) {
           color="gray"
           variant="subtle"
           onClick={closeMobile}
-          style={{ borderRadius: 'var(--mantine-radius-md)' }}
+          style={{ borderRadius: 'var(--mantine-radius-lg)' }}
         />
       </Stack>
     </Box>

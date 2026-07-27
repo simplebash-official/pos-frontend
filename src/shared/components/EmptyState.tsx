@@ -12,7 +12,7 @@ export interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
-    <Paper p="xl" withBorder radius="md">
+    <Paper p="xl" withBorder radius="lg">
       <Center py="lg">
         <Stack align="center" gap="sm">
           {icon || <IconInbox size={48} stroke={1.5} color="var(--mantine-color-gray-5)" />}
