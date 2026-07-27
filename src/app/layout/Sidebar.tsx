@@ -86,7 +86,7 @@ export function Sidebar({ closeMobile }: SidebarProps) {
         <NavLink
           component={RouterNavLink}
           to="/login"
-          label="PIN Lock"
+          label="Lock POS"
           leftSection={<IconLock size={20} stroke={1.5} />}
           active={location.pathname === '/login'}
           color="gray"

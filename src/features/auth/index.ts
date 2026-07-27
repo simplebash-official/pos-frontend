@@ -1,2 +1,2 @@
-export { PinLoginScreen } from './components/PinLoginScreen';
+export { EmailLoginScreen } from './components/EmailLoginScreen';
 export * from './types';

@@ -6,7 +6,7 @@ import { PrintJobList } from '@/features/print-jobs';
 import { ProductTable } from '@/features/inventory';
 import { CustomerList } from '@/features/customers';
 import { ReportsDashboard } from '@/features/reports';
-import { PinLoginScreen } from '@/features/auth';
+import { EmailLoginScreen } from '@/features/auth';
 
 export const router = createBrowserRouter([
   {
@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <PinLoginScreen />,
+    element: <EmailLoginScreen />,
   },
   {
     path: '*',
