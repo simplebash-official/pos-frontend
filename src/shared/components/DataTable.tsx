@@ -89,7 +89,7 @@ export function DataTable<T>({
         <Group
           justify="flex-end"
           p="md"
-          style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}
+          style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
           <Pagination value={page} onChange={onPageChange} total={totalPages} size="sm" />
         </Group>

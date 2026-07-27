@@ -1,34 +1,42 @@
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Paper, Grid, Title, Text, Button, Group, Stack, Badge, Box } from '@mantine/core';
 import { IconShoppingCart, IconPlus, IconTrash, IconPrinter } from '@tabler/icons-react';
-import { useCartStore } from '@/stores/cartStore';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  addItem,
+  removeItem,
+  updateQuantity,
+  setDiscountCents,
+  clearCart,
+  selectCartItems,
+  selectCartDiscountCents,
+  selectSubtotalCents,
+  selectTaxCents,
+  selectTotalCents,
+} from '@/store/slices/cartSlice';
 import { formatMoney } from '@/shared/lib/money';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 
 export function BillingCounter() {
-  const {
-    items,
-    addItem,
-    removeItem,
-    updateQuantity,
-    discountCents,
-    setDiscountCents,
-    getSubtotalCents,
-    getTaxCents,
-    getTotalCents,
-    clearCart,
-  } = useCartStore();
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(selectCartItems);
+  const discountCents = useAppSelector(selectCartDiscountCents);
+  const subtotalCents = useAppSelector(selectSubtotalCents);
+  const taxCents = useAppSelector(selectTaxCents);
+  const totalCents = useAppSelector(selectTotalCents);
 
   const handleAddSampleItem = () => {
     const sampleId = String(Date.now());
-    addItem({
-      id: sampleId,
-      productId: `prod-${sampleId}`,
-      name: 'Sample Item #' + (items.length + 1),
-      unitPriceCents: 1500, // Rs. 15.00
-      quantity: 1,
-      discountCents: 0,
-    });
+    dispatch(
+      addItem({
+        id: sampleId,
+        productId: `prod-${sampleId}`,
+        name: 'Sample Item #' + (items.length + 1),
+        unitPriceCents: 1500, // Rs. 15.00
+        quantity: 1,
+        discountCents: 0,
+      })
+    );
   };
 
   return (
@@ -45,7 +53,12 @@ export function BillingCounter() {
             >
               Quick Add Item
             </Button>
-            <Button color="red" variant="subtle" onClick={clearCart} disabled={items.length === 0}>
+            <Button
+              color="red"
+              variant="subtle"
+              onClick={() => dispatch(clearCart())}
+              disabled={items.length === 0}
+            >
               Clear Cart
             </Button>
           </Group>
@@ -70,7 +83,12 @@ export function BillingCounter() {
             ) : (
               <Stack gap="sm">
                 {items.map((item) => (
-                  <Paper key={item.id} p="sm" withBorder style={{ backgroundColor: '#fafafa' }}>
+                  <Paper
+                    key={item.id}
+                    p="sm"
+                    withBorder
+                    style={{ backgroundColor: 'var(--mantine-color-default)' }}
+                  >
                     <Group justify="space-between">
                       <Box style={{ flex: 1 }}>
                         <Text fw={600} size="sm">
@@ -85,7 +103,9 @@ export function BillingCounter() {
                         <Button
                           size="xs"
                           variant="default"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() =>
+                            dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }))
+                          }
                         >
                           -
                         </Button>
@@ -95,7 +115,9 @@ export function BillingCounter() {
                         <Button
                           size="xs"
                           variant="default"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() =>
+                            dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))
+                          }
                         >
                           +
                         </Button>
@@ -106,7 +128,7 @@ export function BillingCounter() {
                           size="xs"
                           color="red"
                           variant="subtle"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => dispatch(removeItem(item.id))}
                         >
                           <IconTrash size={14} />
                         </Button>
@@ -120,7 +142,7 @@ export function BillingCounter() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
-          <Paper p="md" withBorder style={{ backgroundColor: '#fff' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Title order={4} mb="md">
               Order Summary
             </Title>
@@ -128,14 +150,14 @@ export function BillingCounter() {
               <Group justify="space-between">
                 <Text size="sm">Subtotal:</Text>
                 <Text size="sm" fw={600}>
-                  {formatMoney(getSubtotalCents())}
+                  {formatMoney(subtotalCents)}
                 </Text>
               </Group>
 
               <Group justify="space-between">
                 <Text size="sm">Tax (8%):</Text>
                 <Text size="sm" fw={600}>
-                  {formatMoney(getTaxCents())}
+                  {formatMoney(taxCents)}
                 </Text>
               </Group>
 
@@ -144,7 +166,7 @@ export function BillingCounter() {
                   label="Discount"
                   size="sm"
                   valueCents={discountCents}
-                  onChangeCents={setDiscountCents}
+                  onChangeCents={(cents) => dispatch(setDiscountCents(cents))}
                 />
               </Box>
 
@@ -152,11 +174,11 @@ export function BillingCounter() {
                 justify="space-between"
                 mt="sm"
                 pt="sm"
-                style={{ borderTop: '2px solid var(--mantine-color-gray-3)' }}
+                style={{ borderTop: '2px solid var(--mantine-color-default-border)' }}
               >
                 <Title order={3}>Total:</Title>
                 <Title order={3} c="indigo">
-                  {formatMoney(getTotalCents())}
+                  {formatMoney(totalCents)}
                 </Title>
               </Group>
 

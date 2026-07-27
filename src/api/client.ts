@@ -1,4 +1,5 @@
 import { env } from '@/config/env';
+import { STORAGE_KEYS } from '@/config/constants';
 import { ApiError } from '@/shared/types/common';
 
 export interface RequestOptions extends RequestInit {
@@ -34,7 +35,7 @@ class ApiClient {
     const { params, headers, ...restOptions } = options;
     const url = this.buildUrl(endpoint, params);
 
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
     const config: RequestInit = {
       ...restOptions,

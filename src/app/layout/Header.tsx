@@ -1,7 +1,17 @@
-import { Group, Burger, Title, Button, Badge, ActionIcon, Tooltip } from '@mantine/core';
-import { IconShoppingCart, IconUserCheck } from '@tabler/icons-react';
+import {
+  Group,
+  Burger,
+  Title,
+  Button,
+  Badge,
+  ActionIcon,
+  Tooltip,
+  useMantineColorScheme,
+} from '@mantine/core';
+import { IconShoppingCart, IconUserCheck, IconSun, IconMoon } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore } from '@/stores/cartStore';
+import { useAppSelector } from '@/store/hooks';
+import { selectCartItemsCount } from '@/store/slices/cartSlice';
 
 export interface HeaderProps {
   opened: boolean;
@@ -10,7 +20,8 @@ export interface HeaderProps {
 
 export function Header({ opened, toggle }: HeaderProps) {
   const navigate = useNavigate();
-  const cartItemsCount = useCartStore((state) => state.items.length);
+  const cartItemsCount = useAppSelector(selectCartItemsCount);
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   return (
     <Group h="100%" px="md" justify="space-between">
@@ -39,6 +50,19 @@ export function Header({ opened, toggle }: HeaderProps) {
             </Badge>
           )}
         </Button>
+
+        <Tooltip label={colorScheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+          <ActionIcon
+            variant="light"
+            color="gray"
+            size="lg"
+            radius="xl"
+            aria-label="Toggle color scheme"
+            onClick={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}
+          >
+            {colorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
+          </ActionIcon>
+        </Tooltip>
 
         <Tooltip label="Active Cashier: Admin">
           <ActionIcon variant="light" color="gray" size="lg" radius="xl">

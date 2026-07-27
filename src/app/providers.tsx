@@ -1,8 +1,11 @@
 import { ReactNode, useState } from 'react';
+import { Provider as ReduxProvider } from 'react-redux';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { store } from '@/store';
+import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
 import '@mantine/core/styles.css';
@@ -28,15 +31,18 @@ export function AppProviders({ children }: AppProvidersProps) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <MantineProvider
-        theme={mantineTheme}
-        cssVariablesResolver={mantineCssVariableResolver}
-        defaultColorScheme="light"
-      >
-        <Notifications position="top-right" zIndex={1000} />
-        <ModalsProvider>{children}</ModalsProvider>
-      </MantineProvider>
-    </QueryClientProvider>
+    <ReduxProvider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider
+          theme={mantineTheme}
+          cssVariablesResolver={mantineCssVariableResolver}
+          colorSchemeManager={reduxColorSchemeManager}
+          defaultColorScheme="light"
+        >
+          <Notifications position="top-right" zIndex={1000} />
+          <ModalsProvider>{children}</ModalsProvider>
+        </MantineProvider>
+      </QueryClientProvider>
+    </ReduxProvider>
   );
 }
