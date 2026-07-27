@@ -25,7 +25,9 @@ export function AppShell() {
         <Sidebar closeMobile={close} />
       </MantineAppShell.Navbar>
 
-      <MantineAppShell.Main style={{ backgroundColor: 'var(--mantine-color-gray-0)', minHeight: 'calc(100vh - 60px)' }}>
+      <MantineAppShell.Main
+        style={{ backgroundColor: 'var(--mantine-color-gray-0)', minHeight: 'calc(100vh - 60px)' }}
+      >
         <Outlet />
       </MantineAppShell.Main>
     </MantineAppShell>

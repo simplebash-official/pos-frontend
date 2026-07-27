@@ -10,13 +10,7 @@ export interface EmptyStateProps {
   onAction?: () => void;
 }
 
-export function EmptyState({
-  icon,
-  title,
-  description,
-  actionLabel,
-  onAction,
-}: EmptyStateProps) {
+export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
     <Paper p="xl" withBorder radius="md">
       <Center py="lg">

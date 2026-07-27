@@ -52,7 +52,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         const updated = [...state.items];
         const existing = updated[existingIndex];
         const newQty = existing.quantity + item.quantity;
-        const newTotal = (existing.unitPriceCents * newQty) - existing.discountCents;
+        const newTotal = existing.unitPriceCents * newQty - existing.discountCents;
         updated[existingIndex] = {
           ...existing,
           quantity: newQty,
@@ -61,7 +61,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         return { items: updated };
       }
 
-      const totalCents = Math.max(0, (item.unitPriceCents * item.quantity) - item.discountCents);
+      const totalCents = Math.max(0, item.unitPriceCents * item.quantity - item.discountCents);
       return {
         items: [...state.items, { ...item, totalCents }],
       };
@@ -82,7 +82,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     set((state) => ({
       items: state.items.map((item) => {
         if (item.id === id) {
-          const totalCents = Math.max(0, (item.unitPriceCents * quantity) - item.discountCents);
+          const totalCents = Math.max(0, item.unitPriceCents * quantity - item.discountCents);
           return { ...item, quantity, totalCents };
         }
         return item;

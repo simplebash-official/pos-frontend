@@ -148,7 +148,12 @@ export function BillingCounter() {
                 />
               </Box>
 
-              <Group justify="space-between" mt="sm" pt="sm" style={{ borderTop: '2px solid var(--mantine-color-gray-3)' }}>
+              <Group
+                justify="space-between"
+                mt="sm"
+                pt="sm"
+                style={{ borderTop: '2px solid var(--mantine-color-gray-3)' }}
+              >
                 <Title order={3}>Total:</Title>
                 <Title order={3} c="indigo">
                   {formatMoney(getTotalCents())}

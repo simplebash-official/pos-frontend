@@ -51,9 +51,7 @@ export function PrintJobList() {
       key: 'status',
       header: 'Status',
       render: (job) => (
-        <Badge color={JOB_STATUS_COLORS[job.status]}>
-          {JOB_STATUS_LABELS[job.status]}
-        </Badge>
+        <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
       ),
     },
     {

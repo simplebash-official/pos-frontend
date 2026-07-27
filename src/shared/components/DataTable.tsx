@@ -86,7 +86,11 @@ export function DataTable<T>({
       </Box>
 
       {totalPages > 1 && onPageChange && (
-        <Group justify="flex-end" p="md" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
+        <Group
+          justify="flex-end"
+          p="md"
+          style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}
+        >
           <Pagination value={page} onChange={onPageChange} total={totalPages} size="sm" />
         </Group>
       )}
