@@ -38,7 +38,7 @@ export function Header({ opened, toggle }: HeaderProps) {
         <Button
           leftSection={<IconShoppingCart size={18} />}
           variant="filled"
-          color="indigo"
+          color="blue"
           size="sm"
           onClick={() => navigate('/billing')}
         >
