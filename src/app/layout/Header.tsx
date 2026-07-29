@@ -25,11 +25,8 @@ export function Header({ opened, toggle }: HeaderProps) {
       <Group gap="sm">
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         <Title order={3} style={{ cursor: 'pointer' }} onClick={() => navigate('/billing')}>
-          ⚡ POS Core
+          Jana2U Service Center
         </Title>
-        <Badge variant="light" color="blue" size="sm">
-          Phase 1: Retail & Core
-        </Badge>
       </Group>
 
       <Group gap="xs">

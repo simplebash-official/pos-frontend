@@ -66,9 +66,8 @@ export function LoginForm() {
       )}
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
-        {/* Brand Header */}
         <Text fz="xl" fw={900} c="blue">
-          ⚡ POS Core
+          Jana2U Service Center
         </Text>
 
         <Title
