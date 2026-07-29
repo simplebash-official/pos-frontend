@@ -1,6 +1,7 @@
 import { Paper, Title, Text, Button, Group, Stack, Badge, Box } from '@mantine/core';
 import { IconShoppingCart, IconTrash } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
+import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useCart } from '../hooks/useCart';
 
 export function CartItemList() {
@@ -35,25 +36,12 @@ export function CartItemList() {
                 </Box>
 
                 <Group gap="xs">
-                  <Button
+                  <QuantityInput
+                    value={item.quantity}
+                    onChange={(val) => updateQty(item.id, val)}
+                    min={1}
                     size="xs"
-                    variant="default"
-                    aria-label="Decrease quantity"
-                    onClick={() => updateQty(item.id, item.quantity - 1)}
-                  >
-                    -
-                  </Button>
-                  <Text size="sm" fw={600} style={{ minWidth: 24, textAlign: 'center' }}>
-                    {item.quantity}
-                  </Text>
-                  <Button
-                    size="xs"
-                    variant="default"
-                    aria-label="Increase quantity"
-                    onClick={() => updateQty(item.id, item.quantity + 1)}
-                  >
-                    +
-                  </Button>
+                  />
                   <Text size="sm" fw={700} style={{ minWidth: 80, textAlign: 'right' }}>
                     {formatMoney(item.totalCents)}
                   </Text>

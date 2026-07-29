@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
+import { QuantityInput } from '@/shared/components/QuantityInput';
 import {
   Button,
   Badge,
@@ -19,7 +20,6 @@ import {
   Box,
   Drawer,
   Divider,
-  NumberInput,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -193,7 +193,7 @@ export function ProductTable() {
       {/* Summary KPI Bar */}
       <Grid>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="md">
+          <Card withBorder padding="sm">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -203,7 +203,7 @@ export function ProductTable() {
                   {totalProducts}
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="blue" size="lg" radius="md">
+              <ThemeIcon variant="light" color="blue" size="lg">
                 <IconPackage size={22} />
               </ThemeIcon>
             </Group>
@@ -211,7 +211,7 @@ export function ProductTable() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="md">
+          <Card withBorder padding="sm">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -221,7 +221,7 @@ export function ProductTable() {
                   {categoriesCount} Categories
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="grape" size="lg" radius="md">
+              <ThemeIcon variant="light" color="grape" size="lg">
                 <IconBuildingStore size={22} />
               </ThemeIcon>
             </Group>
@@ -229,7 +229,7 @@ export function ProductTable() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="md">
+          <Card withBorder padding="sm">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -243,7 +243,6 @@ export function ProductTable() {
                 variant="light"
                 color={lowStockCount > 0 ? 'red' : 'green'}
                 size="lg"
-                radius="md"
               >
                 <IconAlertTriangle size={22} />
               </ThemeIcon>
@@ -253,7 +252,7 @@ export function ProductTable() {
       </Grid>
 
       {/* Filter and Control Bar */}
-      <Paper p="sm" withBorder radius="md">
+      <Paper p="sm" withBorder>
         <Group justify="space-between" align="center">
           <Group gap="sm" style={{ flex: 1 }}>
             <TextInput
@@ -631,42 +630,59 @@ export function ProductTable() {
             <Divider my="xs" />
 
             {/* Stock Level & Adjustments */}
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
               Stock Level & Threshold
             </Text>
 
-            <Paper>
-              <Group justify="space-between" mb="xs">
-                <Text size="sm" fw={600}>
-                  Current Stock Level:
-                </Text>
-                <Text size="sm" fw={800} c="blue">
-                  {selectedProduct.stockQuantity} units
-                </Text>
-              </Group>
+            <Paper p="md" withBorder>
+              <Stack gap="sm">
+                <Group justify="space-between" align="center">
+                  <Box>
+                    <Text size="xs" c="dimmed" fw={500}>
+                      Current Stock Level
+                    </Text>
+                    <Group gap={6} align="baseline">
+                      <Text size="xl" fw={800} c="blue">
+                        {selectedProduct.stockQuantity}
+                      </Text>
+                      <Text size="xs" c="dimmed" fw={500}>
+                        units
+                      </Text>
+                    </Group>
+                  </Box>
 
-              <Group justify="space-between" mb="sm">
-                <Text size="xs" c="dimmed">
-                  Minimum Warning Threshold:
-                </Text>
-                <Text size="xs" fw={700} c="dimmed">
-                  {selectedProduct.minStockThreshold} units
-                </Text>
-              </Group>
+                  <Badge
+                    variant="light"
+                    color={selectedProduct.stockQuantity <= selectedProduct.minStockThreshold ? 'red' : 'gray'}
+                    size="sm"
+                  >
+                    Min Threshold: {selectedProduct.minStockThreshold} units
+                  </Badge>
+                </Group>
 
-              <Group gap="xs" align="flex-end">
-                <NumberInput
-                  label="Quick Stock Adjustment (+/-)"
-                  placeholder="e.g. 5 or -2"
-                  value={stockAdjustment}
-                  onChange={(val) => setStockAdjustment(Number(val) || 0)}
-                  size="xs"
-                  style={{ flex: 1 }}
-                />
-                <Button size="xs" color="blue" onClick={handleUpdateStockInDrawer}>
-                  Apply
-                </Button>
-              </Group>
+                <Divider color="var(--mantine-color-default-border)" />
+
+                <Box>
+                  <Text size="xs" fw={600} mb={6} c="dimmed">
+                    Quick Stock Adjustment (+/-)
+                  </Text>
+                  <Group gap="sm" align="center">
+                    <QuantityInput
+                      value={stockAdjustment}
+                      onChange={(val) => setStockAdjustment(Number(val) || 0)}
+                      size="sm"
+                    />
+                    <Button
+                      size="sm"
+                      color="blue"
+                      onClick={handleUpdateStockInDrawer}
+                      style={{ height: 36 }}
+                    >
+                      Apply Adjustment
+                    </Button>
+                  </Group>
+                </Box>
+              </Stack>
             </Paper>
 
             <Divider my="xs" />
