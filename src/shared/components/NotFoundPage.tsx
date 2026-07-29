@@ -1,6 +1,7 @@
 import { Container, Title, Text, Button, Stack, Paper } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { IconFileOff } from '@tabler/icons-react';
+import { ROUTES } from '@/constants';
 
 export function NotFoundPage() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export function NotFoundPage() {
           <Text size="sm" c="dimmed">
             The page you are trying to access does not exist or has been moved.
           </Text>
-          <Button size="md" mt="md" onClick={() => navigate('/billing')}>
+          <Button size="md" mt="md" onClick={() => navigate(ROUTES.BILLING)}>
             Go to Billing Console
           </Button>
         </Stack>

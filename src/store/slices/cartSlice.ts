@@ -1,6 +1,6 @@
 import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
 import { calculateTaxCents, calculateTotalCents } from '@/shared/lib/money';
-import { PAYMENT_METHODS, type PaymentMethod } from '@/config/constants';
+import { PAYMENT_METHODS, type PaymentMethod } from '@/constants';
 import type { RootState } from '@/store';
 
 export interface CartItem {

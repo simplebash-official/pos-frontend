@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { PageLoader } from '@/shared/components/PageLoader';
-import { STORAGE_KEYS } from '@/config/constants';
+import { STORAGE_KEYS, ROUTES } from '@/constants';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -45,7 +45,7 @@ export function LoginForm() {
     });
 
     setTimeout(() => {
-      navigate('/billing', { state: { fromLogin: true } });
+      navigate(ROUTES.BILLING, { state: { fromLogin: true } });
     }, 1000);
   };
 

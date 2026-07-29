@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { STORAGE_KEYS } from '@/config/constants';
+import { STORAGE_KEYS } from '@/constants';
 
 export type ColorScheme = 'light' | 'dark';
 

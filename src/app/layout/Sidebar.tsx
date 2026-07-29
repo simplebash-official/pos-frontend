@@ -2,6 +2,7 @@ import { NavLink as RouterNavLink, useLocation } from 'react-router-dom';
 import { Stack, NavLink, Text, Divider, Switch, useMantineColorScheme } from '@mantine/core';
 import { IconLock, IconMoon, IconSun } from '@tabler/icons-react';
 import { NAV_ITEMS } from '@/config/navigation';
+import { ROUTES } from '@/constants';
 
 export interface SidebarProps {
   closeMobile?: () => void;
@@ -41,10 +42,10 @@ export function Sidebar({ closeMobile }: SidebarProps) {
 
         <NavLink
           component={RouterNavLink}
-          to="/login"
+          to={ROUTES.LOGIN}
           label="Lock POS"
           leftSection={<IconLock size={20} stroke={1.5} />}
-          active={location.pathname === '/login'}
+          active={location.pathname === ROUTES.LOGIN}
           color="gray"
           variant="subtle"
           onClick={closeMobile}

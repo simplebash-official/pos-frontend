@@ -6,7 +6,7 @@ import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob } from '../types';
 import { fetchRepairs } from '../api/mockRepairs';
 import { queryKeys } from '@/api/queryKeys';
-import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/config/constants';
+import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 

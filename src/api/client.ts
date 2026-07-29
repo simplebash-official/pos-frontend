@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { env } from '@/config/env';
-import { STORAGE_KEYS } from '@/config/constants';
+import { STORAGE_KEYS } from '@/constants';
 import { ApiError } from '@/shared/types/common';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {

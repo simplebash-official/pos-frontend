@@ -10,6 +10,7 @@ import {
 import { IconShoppingCart, IconUserCheck } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/billing/hooks/useCart';
+import { ROUTES } from '@/constants';
 
 export interface HeaderProps {
   opened: boolean;
@@ -24,7 +25,7 @@ export function Header({ opened, toggle }: HeaderProps) {
     <Group h="100%" px="md" justify="space-between">
       <Group gap="sm">
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-        <Title order={3} style={{ cursor: 'pointer' }} onClick={() => navigate('/billing')}>
+        <Title order={3} style={{ cursor: 'pointer' }} onClick={() => navigate(ROUTES.BILLING)}>
           Jana2U Service Center
         </Title>
       </Group>
@@ -35,7 +36,7 @@ export function Header({ opened, toggle }: HeaderProps) {
           variant="filled"
           color="blue"
           size="sm"
-          onClick={() => navigate('/billing')}
+          onClick={() => navigate(ROUTES.BILLING)}
         >
           Billing Counter
           {cartItemsCount > 0 && (

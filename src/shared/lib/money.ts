@@ -1,4 +1,4 @@
-import { CURRENCY, TAX_RATE } from '@/config/constants';
+import { CURRENCY, TAX_RATE } from '@/constants';
 
 /**
  * Converts a floating point currency value (e.g. 15.50) into integer cents/paisa (1550).

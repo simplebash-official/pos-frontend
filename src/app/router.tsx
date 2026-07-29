@@ -4,6 +4,7 @@ import { AppShell } from './layout/AppShell';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { NotFoundPage } from '@/shared/components/NotFoundPage';
+import { ROUTES, ROUTE_PATHS } from '@/constants';
 
 // Code-split features using dynamic imports
 const BillingCounter = lazy(() =>
@@ -30,16 +31,16 @@ const EmailLoginScreen = lazy(() =>
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: ROUTES.HOME,
     element: <AppShell />,
     errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
-        element: <Navigate to="/billing" replace />,
+        element: <Navigate to={ROUTES.BILLING} replace />,
       },
       {
-        path: 'billing',
+        path: ROUTE_PATHS.BILLING,
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <BillingCounter />
@@ -47,7 +48,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'repairs',
+        path: ROUTE_PATHS.REPAIRS,
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <RepairJobList />
@@ -55,7 +56,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'print-jobs',
+        path: ROUTE_PATHS.PRINT_JOBS,
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <PrintJobList />
@@ -63,7 +64,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'inventory',
+        path: ROUTE_PATHS.INVENTORY,
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <ProductTable />
@@ -71,7 +72,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'customers',
+        path: ROUTE_PATHS.CUSTOMERS,
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <CustomerList />
@@ -79,7 +80,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'reports',
+        path: ROUTE_PATHS.REPORTS,
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <ReportsDashboard />
@@ -93,7 +94,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '/login',
+    path: ROUTES.LOGIN,
     element: (
       <Suspense fallback={<PageSkeleton />}>
         <EmailLoginScreen />

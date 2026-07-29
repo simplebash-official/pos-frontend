@@ -1,4 +1,4 @@
-import type { JobStatus } from '@/config/constants';
+import type { JobStatus } from '@/constants';
 
 export interface RepairJob {
   id: string;

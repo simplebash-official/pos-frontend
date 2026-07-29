@@ -1,5 +1,5 @@
 import { NumberInput, NumberInputProps } from '@mantine/core';
-import { CURRENCY } from '@/config/constants';
+import { CURRENCY } from '@/constants';
 import { fromCents, toCents } from '@/shared/lib/money';
 
 export interface MoneyInputProps extends Omit<NumberInputProps, 'value' | 'onChange'> {

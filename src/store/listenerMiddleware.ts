@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit';
-import { STORAGE_KEYS } from '@/config/constants';
+import { STORAGE_KEYS } from '@/constants';
 import { setColorScheme } from '@/store/slices/themeSlice';
 
 export const listenerMiddleware = createListenerMiddleware();

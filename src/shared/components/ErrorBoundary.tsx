@@ -1,6 +1,7 @@
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom';
 import { Container, Title, Text, Button, Stack, Paper } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
+import { ROUTES } from '@/constants';
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -30,7 +31,7 @@ export function ErrorBoundary() {
           <Button
             size="md"
             mt="md"
-            onClick={() => (window.location.href = '/billing')}
+            onClick={() => (window.location.href = ROUTES.BILLING)}
           >
             Return to Dashboard
           </Button>
