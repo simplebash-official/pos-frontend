@@ -17,6 +17,9 @@ import {
   ActionIcon,
   Collapse,
   Box,
+  Drawer,
+  Divider,
+  NumberInput,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -32,8 +35,14 @@ import {
   IconEdit,
   IconPackage,
   IconBuildingStore,
+  IconBarcode,
+  IconClock,
+  IconTag,
+  IconTrendingUp,
+  IconCheck,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { Product } from '../types';
 import { fetchProducts } from '../api/mockProducts';
 import { queryKeys } from '@/api/queryKeys';
@@ -54,13 +63,19 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function ProductTable() {
-  const { data: products = [], isLoading } = useQuery({
+  const { data: initialProducts = [], isLoading } = useQuery({
     queryKey: queryKeys.inventory.all,
     queryFn: fetchProducts,
   });
 
   const [search, setSearch] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+
+  // Selected item for Right-Side Drawer
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Quick stock adjustment in drawer
+  const [stockAdjustment, setStockAdjustment] = useState<number>(0);
 
   // Subcategory collapse state map (key format: `${category}::${subcategory}`)
   const [collapsedSubcategories, setCollapsedSubcategories] = useState<Record<string, boolean>>({});
@@ -75,7 +90,7 @@ export function ProductTable() {
 
   // Group products hierarchically: Category -> Subcategory -> Product[]
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
+    return initialProducts.filter((p) => {
       const matchesSearch =
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.sku.toLowerCase().includes(search.toLowerCase()) ||
@@ -87,7 +102,7 @@ export function ProductTable() {
 
       return matchesSearch && matchesStockFilter;
     });
-  }, [products, search, showLowStockOnly]);
+  }, [initialProducts, search, showLowStockOnly]);
 
   const hierarchy = useMemo(() => {
     const map = new Map<string, Map<string, Product[]>>();
@@ -134,9 +149,34 @@ export function ProductTable() {
   };
 
   // Stats calculation
-  const totalProducts = products.length;
-  const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
-  const categoriesCount = new Set(products.map((p) => p.category)).size;
+  const totalProducts = initialProducts.length;
+  const lowStockCount = initialProducts.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+  const categoriesCount = new Set(initialProducts.map((p) => p.category)).size;
+
+  const handleUpdateStockInDrawer = () => {
+    if (!selectedProduct) return;
+    const newQty = selectedProduct.stockQuantity + stockAdjustment;
+    if (newQty < 0) {
+      notifications.show({
+        title: 'Invalid Stock',
+        message: 'Stock quantity cannot be negative',
+        color: 'red',
+      });
+      return;
+    }
+
+    selectedProduct.stockQuantity = newQty;
+    selectedProduct.updatedAt = new Date().toISOString();
+
+    notifications.show({
+      title: 'Stock Updated',
+      message: `Updated stock level for ${selectedProduct.name} to ${newQty} units`,
+      color: 'green',
+      icon: <IconCheck size={16} />,
+    });
+
+    setStockAdjustment(0);
+  };
 
   return (
     <Stack gap="lg">
@@ -348,6 +388,10 @@ export function ProductTable() {
                                 color="gray"
                                 size="sm"
                                 aria-label="Toggle subcategory items"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleSubcategory(subKey);
+                                }}
                               >
                                 {isSubCollapsed ? (
                                   <IconChevronRight size={16} />
@@ -396,7 +440,11 @@ export function ProductTable() {
                                     const isLow = prod.stockQuantity <= prod.minStockThreshold;
 
                                     return (
-                                      <Table.Tr key={prod.id}>
+                                      <Table.Tr
+                                        key={prod.id}
+                                        onClick={() => setSelectedProduct(prod)}
+                                        style={{ cursor: 'pointer' }}
+                                      >
                                         <Table.Td>
                                           <Text size="xs" fw={700} c="blue">
                                             {prod.sku}
@@ -427,8 +475,16 @@ export function ProductTable() {
                                           </Text>
                                         </Table.Td>
                                         <Table.Td style={{ textAlign: 'right' }}>
-                                          <Tooltip label="Edit item details">
-                                            <ActionIcon variant="subtle" color="gray" size="sm">
+                                          <Tooltip label="View details in Drawer">
+                                            <ActionIcon
+                                              variant="subtle"
+                                              color="gray"
+                                              size="sm"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedProduct(prod);
+                                              }}
+                                            >
                                               <IconEdit size={14} />
                                             </ActionIcon>
                                           </Tooltip>
@@ -450,6 +506,248 @@ export function ProductTable() {
           })}
         </Accordion>
       )}
+
+      {/* Right-Side Item Details Drawer */}
+      <Drawer
+        opened={selectedProduct !== null}
+        onClose={() => {
+          setSelectedProduct(null);
+          setStockAdjustment(0);
+        }}
+        position="right"
+        size="md"
+        padding="lg"
+        title={
+          <Group gap="xs">
+            <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+              <IconPackage size={20} />
+            </ThemeIcon>
+            <div>
+              <Text fw={800} size="md">
+                Item Specifications
+              </Text>
+              <Text size="xs" c="dimmed">
+                JANA2U Main Inventory Detail
+              </Text>
+            </div>
+          </Group>
+        }
+      >
+        {selectedProduct && (
+          <Stack gap="md" pt="xs">
+            {/* Title Banner */}
+            <Paper bg="var(--mantine-color-body)">
+              <Group justify="space-between" align="flex-start" mb="xs">
+                <Badge color="blue" variant="filled" size="sm">
+                  {selectedProduct.sku}
+                </Badge>
+                <Badge
+                  color={
+                    selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
+                      ? 'red'
+                      : 'green'
+                  }
+                  variant="light"
+                  size="sm"
+                >
+                  {selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
+                    ? 'Low Stock Alert'
+                    : 'In Stock'}
+                </Badge>
+              </Group>
+
+              <Text fw={800} size="lg" mb="xs">
+                {selectedProduct.name}
+              </Text>
+
+              <Group gap="xs">
+                <Badge color="gray" variant="outline" size="xs">
+                  {selectedProduct.category}
+                </Badge>
+                <Badge color="blue" variant="light" size="xs">
+                  {selectedProduct.subcategory}
+                </Badge>
+              </Group>
+            </Paper>
+
+            {/* Financials & Margins */}
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+              Financial Breakdown
+            </Text>
+
+            <Grid>
+              <Grid.Col span={6}>
+                <Paper>
+                  <Text size="xs" c="dimmed">
+                    Selling Price
+                  </Text>
+                  <Text fw={800} size="md" c="blue">
+                    {formatMoney(selectedProduct.sellingPriceCents)}
+                  </Text>
+                </Paper>
+              </Grid.Col>
+
+              <Grid.Col span={6}>
+                <Paper>
+                  <Text size="xs" c="dimmed">
+                    Cost Price
+                  </Text>
+                  <Text fw={700} size="md">
+                    {formatMoney(selectedProduct.costPriceCents)}
+                  </Text>
+                </Paper>
+              </Grid.Col>
+            </Grid>
+
+            {/* Est. Profit Margin */}
+            {selectedProduct.sellingPriceCents > 0 && (
+              <Card>
+                <Group justify="space-between">
+                  <Group gap="xs">
+                    <IconTrendingUp size={16} style={{ color: 'var(--mantine-color-teal-6)' }} />
+                    <Text size="xs" fw={700}>
+                      Estimated Profit per Unit
+                    </Text>
+                  </Group>
+                  <Group gap="xs">
+                    <Text size="xs" fw={800} c="teal">
+                      {formatMoney(
+                        selectedProduct.sellingPriceCents - selectedProduct.costPriceCents
+                      )}
+                    </Text>
+                    <Badge color="teal" size="xs" variant="light">
+                      {Math.round(
+                        ((selectedProduct.sellingPriceCents - selectedProduct.costPriceCents) /
+                          selectedProduct.sellingPriceCents) *
+                          100
+                      )}
+                      % Margin
+                    </Badge>
+                  </Group>
+                </Group>
+              </Card>
+            )}
+
+            <Divider my="xs" />
+
+            {/* Stock Level & Adjustments */}
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+              Stock Level & Threshold
+            </Text>
+
+            <Paper>
+              <Group justify="space-between" mb="xs">
+                <Text size="sm" fw={600}>
+                  Current Stock Level:
+                </Text>
+                <Text size="sm" fw={800} c="blue">
+                  {selectedProduct.stockQuantity} units
+                </Text>
+              </Group>
+
+              <Group justify="space-between" mb="sm">
+                <Text size="xs" c="dimmed">
+                  Minimum Warning Threshold:
+                </Text>
+                <Text size="xs" fw={700} c="dimmed">
+                  {selectedProduct.minStockThreshold} units
+                </Text>
+              </Group>
+
+              <Group gap="xs" align="flex-end">
+                <NumberInput
+                  label="Quick Stock Adjustment (+/-)"
+                  placeholder="e.g. 5 or -2"
+                  value={stockAdjustment}
+                  onChange={(val) => setStockAdjustment(Number(val) || 0)}
+                  size="xs"
+                  style={{ flex: 1 }}
+                />
+                <Button size="xs" color="blue" onClick={handleUpdateStockInDrawer}>
+                  Apply
+                </Button>
+              </Group>
+            </Paper>
+
+            <Divider my="xs" />
+
+            {/* System Metadata */}
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+              Metadata
+            </Text>
+
+            <Stack gap="xs">
+              <Group justify="space-between">
+                <Group gap="xs">
+                  <IconBarcode size={16} style={{ opacity: 0.6 }} />
+                  <Text size="xs" c="dimmed">
+                    Barcode
+                  </Text>
+                </Group>
+                <Text size="xs" fw={700}>
+                  {selectedProduct.barcode || `${selectedProduct.sku}-890123`}
+                </Text>
+              </Group>
+
+              <Group justify="space-between">
+                <Group gap="xs">
+                  <IconClock size={16} style={{ opacity: 0.6 }} />
+                  <Text size="xs" c="dimmed">
+                    Last Updated
+                  </Text>
+                </Group>
+                <Text size="xs" fw={700}>
+                  {formatDateTime(selectedProduct.updatedAt || '')}
+                </Text>
+              </Group>
+
+              <Group justify="space-between">
+                <Group gap="xs">
+                  <IconTag size={16} style={{ opacity: 0.6 }} />
+                  <Text size="xs" c="dimmed">
+                    Item Internal ID
+                  </Text>
+                </Group>
+                <Text size="xs" fw={600} c="dimmed">
+                  {selectedProduct.id}
+                </Text>
+              </Group>
+            </Stack>
+
+            <Divider my="xs" />
+
+            {/* Action Buttons */}
+            <Group justify="flex-end" gap="sm" mt="md">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  setSelectedProduct(null);
+                  setStockAdjustment(0);
+                }}
+              >
+                Close
+              </Button>
+
+              <Button
+                variant="filled"
+                color="blue"
+                size="sm"
+                leftSection={<IconEdit size={16} />}
+                onClick={() => {
+                  notifications.show({
+                    title: 'Edit Modal',
+                    message: `Opened edit form for ${selectedProduct.name}`,
+                    color: 'blue',
+                  });
+                }}
+              >
+                Edit Item
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Drawer>
     </Stack>
   );
 }
