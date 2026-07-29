@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppShell } from './layout/AppShell';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
+import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { NotFoundPage } from '@/shared/components/NotFoundPage';
 
 // Code-split features using dynamic imports
 const BillingCounter = lazy(() =>
@@ -30,6 +32,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <AppShell />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -83,6 +86,10 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: '*',
+        element: <NotFoundPage />,
+      },
     ],
   },
   {
@@ -92,9 +99,10 @@ export const router = createBrowserRouter([
         <EmailLoginScreen />
       </Suspense>
     ),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: '*',
-    element: <Navigate to="/billing" replace />,
+    element: <NotFoundPage />,
   },
 ]);

@@ -35,7 +35,7 @@ A point-of-sale system for a repair/retail shop (billing, repairs, print jobs, i
 
 **Cross-cutting layers**:
 
-- `src/api/client.ts` — a single `ApiClient` class (`apiClient` singleton) wrapping `fetch`, base URL from `env.apiBaseUrl`, auto-attaches `Bearer` token from `localStorage[STORAGE_KEYS.AUTH_TOKEN]`, normalizes failures into the `ApiError` shape (`src/shared/types/common.ts`).
+- `src/api/client.ts` — a single `ApiClient` class (`apiClient` singleton) wrapping `axios`, base URL from `env.apiBaseUrl`, auto-attaches `Bearer` token from `localStorage[STORAGE_KEYS.AUTH_TOKEN]`, normalizes failures into the `ApiError` shape (`src/shared/types/common.ts`).
 - `src/api/queryKeys.ts` — centralized TanStack Query key factory, one namespace per feature (`billing`, `repairs`, `printJobs`, `inventory`, `customers`, `reports`). Add new query keys here rather than inlining key arrays in components/hooks.
 - `src/config/constants.ts` — shared business constants: currency (`CURRENCY`, LKR/"Rs."), `TAX_RATE`, repair job status enum + labels + colors (`JOB_STATUS*`), `PAYMENT_METHODS`, default pagination, `STORAGE_KEYS` (localStorage key names — add new keys here rather than inlining string literals).
 - `src/config/env.ts` — typed wrapper over `import.meta.env`.

@@ -38,6 +38,7 @@ export function CartItemList() {
                   <Button
                     size="xs"
                     variant="default"
+                    aria-label="Decrease quantity"
                     onClick={() => updateQty(item.id, item.quantity - 1)}
                   >
                     -
@@ -48,6 +49,7 @@ export function CartItemList() {
                   <Button
                     size="xs"
                     variant="default"
+                    aria-label="Increase quantity"
                     onClick={() => updateQty(item.id, item.quantity + 1)}
                   >
                     +
@@ -55,7 +57,13 @@ export function CartItemList() {
                   <Text size="sm" fw={700} style={{ minWidth: 80, textAlign: 'right' }}>
                     {formatMoney(item.totalCents)}
                   </Text>
-                  <Button size="xs" color="red" variant="subtle" onClick={() => remove(item.id)}>
+                  <Button
+                    size="xs"
+                    color="red"
+                    variant="subtle"
+                    aria-label="Remove item"
+                    onClick={() => remove(item.id)}
+                  >
                     <IconTrash size={14} />
                   </Button>
                 </Group>

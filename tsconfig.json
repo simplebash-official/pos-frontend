@@ -10,6 +10,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "strict": true,
 
     /* Bundler mode */
     "skipLibCheck": true,

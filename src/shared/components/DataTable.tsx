@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { Table, Text, Box, Paper, Group, Pagination, Skeleton, Center } from '@mantine/core';
+import { getSkeletonWidthPercent } from '@/shared/lib/utils';
 
 export interface Column<T> {
   key: string;
@@ -19,19 +20,6 @@ export interface DataTableProps<T> {
   totalPages?: number;
   onPageChange?: (page: number) => void;
   skeletonRows?: number;
-}
-
-// Deterministic per-cell placeholder widths — cycles by (row + column) index so every
-// cell looks slightly different without any randomness (no jitter on re-render).
-const SKELETON_WIDTH_PATTERN = [90, 65, 78, 55, 85, 60] as const;
-
-function getSkeletonWidthPercent(
-  rowIndex: number,
-  colIndex: number,
-  align: Column<unknown>['align']
-): number {
-  const base = SKELETON_WIDTH_PATTERN[(rowIndex + colIndex) % SKELETON_WIDTH_PATTERN.length];
-  return align === 'left' ? base : Math.round(base * 0.55);
 }
 
 export function DataTable<T>({
@@ -100,7 +88,7 @@ export function DataTable<T>({
     return (
       <Paper p="xl" withBorder>
         <Center style={{ minHeight: 160 }}>
-          <Text color="dimmed" size="sm">
+          <Text c="dimmed" size="sm">
             {emptyText}
           </Text>
         </Center>

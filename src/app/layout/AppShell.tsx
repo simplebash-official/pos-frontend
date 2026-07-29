@@ -1,11 +1,17 @@
 import { AppShell as MantineAppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { STORAGE_KEYS } from '@/config/constants';
 
 export function AppShell() {
   const [opened, { toggle, close }] = useDisclosure();
+  const isAuthenticated = Boolean(localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN));
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <MantineAppShell
