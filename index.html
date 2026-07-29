@@ -6,12 +6,7 @@
       (function () {
         var key = 'pos-color-scheme';
         var stored = localStorage.getItem(key);
-        var scheme =
-          stored === 'light' || stored === 'dark'
-            ? stored
-            : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light';
+        var scheme = stored === 'light' || stored === 'dark' ? stored : 'light';
         document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
       })();
     </script>

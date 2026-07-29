@@ -11,7 +11,6 @@ interface ThemeState {
 function getInitialColorScheme(): ColorScheme {
   const stored = localStorage.getItem(STORAGE_KEYS.COLOR_SCHEME);
   if (stored === 'light' || stored === 'dark') return stored;
-  if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark';
   return 'light';
 }
 

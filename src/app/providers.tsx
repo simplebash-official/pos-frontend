@@ -37,7 +37,7 @@ export function AppProviders({ children }: AppProvidersProps) {
           theme={mantineTheme}
           cssVariablesResolver={mantineCssVariableResolver}
           colorSchemeManager={reduxColorSchemeManager}
-          defaultColorScheme="dark"
+          defaultColorScheme="light"
         >
           <Notifications position="top-right" zIndex={1000} />
           <ModalsProvider>{children}</ModalsProvider>
