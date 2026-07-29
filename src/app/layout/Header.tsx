@@ -29,7 +29,7 @@ export function Header({ opened, toggle }: HeaderProps) {
         <Title order={3} style={{ cursor: 'pointer' }} onClick={() => navigate('/billing')}>
           ⚡ POS Core
         </Title>
-        <Badge variant="light" color="indigo" size="sm">
+        <Badge variant="light" color="blue" size="sm">
           Phase 1: Retail & Core
         </Badge>
       </Group>
@@ -44,7 +44,7 @@ export function Header({ opened, toggle }: HeaderProps) {
         >
           Billing Counter
           {cartItemsCount > 0 && (
-            <Badge color="white" c="indigo" size="xs" ml="xs">
+            <Badge color="white" c="blue" size="xs" ml="xs">
               {cartItemsCount}
             </Badge>
           )}

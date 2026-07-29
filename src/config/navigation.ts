@@ -20,7 +20,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
     label: 'Billing Counter',
     icon: IconReceipt,
     to: '/billing',
-    color: 'indigo',
+    color: 'blue',
   },
   {
     label: 'Repair Jobs',

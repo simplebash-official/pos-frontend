@@ -20,7 +20,7 @@ export function NotFoundPage() {
           <Text size="sm" c="dimmed">
             The page you are trying to access does not exist or has been moved.
           </Text>
-          <Button color="indigo" size="md" mt="md" onClick={() => navigate('/billing')}>
+          <Button size="md" mt="md" onClick={() => navigate('/billing')}>
             Go to Billing Console
           </Button>
         </Stack>

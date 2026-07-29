@@ -10,7 +10,7 @@ export function PageLoader({ title, size = 45, height = '70vh' }: PageLoaderProp
   return (
     <Center h={height} style={{ width: '100%', transition: 'all 0.2s ease' }}>
       <Stack align="center" gap="sm">
-        <Loader size={size} type="dots" color="indigo" />
+        <Loader size={size} type="dots" />
         {title && (
           <Text size="sm" fw={600} c="var(--text-primary)">
             {title}

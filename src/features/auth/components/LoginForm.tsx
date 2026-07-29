@@ -67,7 +67,7 @@ export function LoginForm() {
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
         {/* Brand Header */}
-        <Text fz="xl" fw={900} c="indigo">
+        <Text fz="xl" fw={900} c="blue">
           ⚡ POS Core
         </Text>
 
@@ -110,7 +110,7 @@ export function LoginForm() {
               size="md"
             />
 
-            <Button type="submit" fullWidth color="indigo" size="md" mt="sm">
+            <Button type="submit" fullWidth size="md" mt="sm">
               Log in
             </Button>
           </Stack>

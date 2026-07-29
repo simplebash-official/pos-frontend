@@ -43,7 +43,7 @@ export function OrderSummary() {
           style={{ borderTop: '2px solid var(--border-strong)' }}
         >
           <Title order={3}>Total:</Title>
-          <Title order={3} c="indigo">
+          <Title order={3} c="blue">
             {formatMoney(totalCents)}
           </Title>
         </Group>
@@ -51,7 +51,6 @@ export function OrderSummary() {
         <Button
           fullWidth
           size="md"
-          color="indigo"
           mt="md"
           leftSection={<IconPrinter size={18} />}
           disabled={items.length === 0}

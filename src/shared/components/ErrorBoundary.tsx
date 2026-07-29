@@ -28,7 +28,6 @@ export function ErrorBoundary() {
             {errorMessage}
           </Text>
           <Button
-            color="indigo"
             size="md"
             mt="md"
             onClick={() => (window.location.href = '/billing')}
