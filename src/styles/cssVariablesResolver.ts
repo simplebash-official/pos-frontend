@@ -28,20 +28,20 @@ const lightTokens: Record<string, string> = {
 
 const darkTokens: Record<string, string> = {
   // Surfaces
-  '--bg-app': '#0F0F10',
-  '--bg-sidebar': '#141416',
-  '--bg-card': '#18181A',
-  '--bg-hover': '#1F1F22',
-  '--bg-active': '#232326',
+  '--bg-app': 'var(--mantine-color-body)',
+  '--bg-sidebar': 'var(--mantine-color-dark-8)',
+  '--bg-card': 'var(--mantine-color-default)',
+  '--bg-hover': 'var(--mantine-color-default-hover)',
+  '--bg-active': 'var(--mantine-color-dark-5)',
 
   // Borders
-  '--border': '#2E2E30',
-  '--border-strong': '#3A3A3D',
+  '--border': 'var(--mantine-color-default-border)',
+  '--border-strong': 'var(--mantine-color-dark-4)',
 
   // Text
-  '--text-primary': '#FAFAFA',
-  '--text-secondary': '#A1A1A6',
-  '--text-muted': '#6E6E73',
+  '--text-primary': 'var(--mantine-color-text)',
+  '--text-secondary': 'var(--mantine-color-dimmed)',
+  '--text-muted': 'var(--mantine-color-placeholder)',
 };
 
 /** Mantine's scheme-adaptive semantic vars, expressed in terms of the tokens above. */
@@ -66,6 +66,5 @@ export const mantineCssVariableResolver: CSSVariablesResolver = () => ({
   },
   dark: {
     ...darkTokens,
-    ...semanticVars,
   },
 });
