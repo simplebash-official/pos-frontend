@@ -211,7 +211,7 @@ export function SupplierList() {
       width: '22%',
       render: (s) => (
         <Group gap="xs" wrap="nowrap">
-          <ThemeIcon variant="light" color="blue" size="sm" radius="md">
+          <ThemeIcon variant="light" color="blue" size="sm" radius="var(--mantine-radius-default)">
             <IconBuildingStore size={14} />
           </ThemeIcon>
           <div>
@@ -244,7 +244,7 @@ export function SupplierList() {
       render: (s) => (
         <Stack gap={4}>
           <Group gap={6} wrap="nowrap" align="center">
-            <Badge size="xs" variant="light" color="teal" radius="xs" fw={700} w={60} style={{ justifyContent: 'center' }}>
+            <Badge size="xs" variant="light" color="teal" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
               Primary
             </Badge>
             <Group gap={4} wrap="nowrap" align="center">
@@ -265,7 +265,7 @@ export function SupplierList() {
           </Group>
           {s.secondaryPhone && (
             <Group gap={6} wrap="nowrap" align="center">
-              <Badge size="xs" variant="light" color="orange" radius="xs" fw={700} w={60} style={{ justifyContent: 'center' }}>
+              <Badge size="xs" variant="light" color="orange" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
                 Backup
               </Badge>
               <Group gap={4} wrap="nowrap" align="center">
@@ -310,12 +310,12 @@ export function SupplierList() {
       render: (s) => (
         <Group gap={4}>
           {s.suppliedCategories.slice(0, 3).map((cat) => (
-            <Badge key={cat} color="blue" variant="light" size="xs">
+            <Badge key={cat} color="blue" variant="light" size="xs" radius="var(--mantine-radius-default)">
               {cat}
             </Badge>
           ))}
           {s.suppliedCategories.length > 3 && (
-            <Badge color="gray" variant="outline" size="xs">
+            <Badge color="gray" variant="outline" size="xs" radius="var(--mantine-radius-default)">
               +{s.suppliedCategories.length - 3} more
             </Badge>
           )}
@@ -348,7 +348,7 @@ export function SupplierList() {
       {/* KPI Cards */}
       <Grid>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="md">
+          <Card withBorder padding="sm" radius="var(--mantine-radius-default)">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -358,7 +358,7 @@ export function SupplierList() {
                   {totalSuppliersCount}
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="blue" size="lg" radius="md">
+              <ThemeIcon variant="light" color="blue" size="lg" radius="var(--mantine-radius-default)">
                 <IconTruckDelivery size={22} />
               </ThemeIcon>
             </Group>
@@ -366,7 +366,7 @@ export function SupplierList() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="md">
+          <Card withBorder padding="sm" radius="var(--mantine-radius-default)">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -376,7 +376,7 @@ export function SupplierList() {
                   {uniqueCategoriesCount} Categories
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="teal" size="lg" radius="md">
+              <ThemeIcon variant="light" color="teal" size="lg" radius="var(--mantine-radius-default)">
                 <IconTag size={22} />
               </ThemeIcon>
             </Group>
@@ -384,7 +384,7 @@ export function SupplierList() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="md">
+          <Card withBorder padding="sm" radius="var(--mantine-radius-default)">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -394,7 +394,7 @@ export function SupplierList() {
                   {backupContactsCount} / {totalSuppliersCount}
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="blue" size="lg" radius="md">
+              <ThemeIcon variant="light" color="blue" size="lg" radius="var(--mantine-radius-default)">
                 <IconPhone size={22} />
               </ThemeIcon>
             </Group>
@@ -403,7 +403,7 @@ export function SupplierList() {
       </Grid>
 
       {/* Controls & Filter Bar */}
-      <Paper p="sm" withBorder radius="md">
+      <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
         <Stack gap="sm">
           <Group justify="space-between" align="center">
             <TextInput
@@ -509,12 +509,12 @@ export function SupplierList() {
           ) : (
             filteredSuppliers.map((s) => (
               <Grid.Col key={s.id} span={{ base: 12, sm: 6, md: 4 }}>
-                <Card withBorder radius="md" padding="md" h="100%">
+                <Card withBorder radius="var(--mantine-radius-default)" padding="md" h="100%">
                   <Stack justify="space-between" h="100%">
                     <Stack gap="xs">
                       <Group justify="space-between" align="flex-start">
                         <Group gap="xs">
-                          <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+                          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
                             <IconBuildingStore size={20} />
                           </ThemeIcon>
                           <div>
@@ -532,34 +532,50 @@ export function SupplierList() {
                       </Group>
 
                       {/* Phones */}
-                      <Paper p="xs" bg="var(--mantine-color-body)" radius="sm" withBorder>
-                        <Stack gap={4}>
-                          <Group justify="space-between">
-                            <Group gap={4}>
-                              <IconPhone size={14} style={{ color: 'var(--mantine-color-teal-6)' }} />
-                              <Text size="xs" fw={700}>
-                                {s.primaryPhone}
-                              </Text>
-                            </Group>
-                            <Badge size="xs" variant="light" color="teal">
-                              Primary
-                            </Badge>
+                      <Group gap="md">
+                        <Group gap={6} wrap="nowrap" align="center">
+                          <Badge size="xs" variant="light" color="teal" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
+                            Primary
+                          </Badge>
+                          <Group gap={4} wrap="nowrap" align="center">
+                            <Text size="xs" fw={700}>
+                              {s.primaryPhone}
+                            </Text>
+                            <Tooltip label="Copy Primary Phone" withArrow position="top">
+                              <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                onClick={(e) => handleCopyPhone(e, s.primaryPhone, 'Primary')}
+                                style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+                              >
+                                <IconCopy size={10} />
+                              </ActionIcon>
+                            </Tooltip>
                           </Group>
-                          {s.secondaryPhone && (
-                            <Group justify="space-between">
-                              <Group gap={4}>
-                                <IconPhone size={14} style={{ opacity: 0.5 }} />
-                                <Text size="xs" c="dimmed">
-                                  {s.secondaryPhone}
-                                </Text>
-                              </Group>
-                              <Badge size="xs" variant="subtle" color="gray">
-                                Backup
-                              </Badge>
+                        </Group>
+                        {s.secondaryPhone && (
+                          <Group gap={6} wrap="nowrap" align="center">
+                            <Badge size="xs" variant="light" color="orange" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
+                              Backup
+                            </Badge>
+                            <Group gap={4} wrap="nowrap" align="center">
+                              <Text size="xs" fw={600} c="dimmed">
+                                {s.secondaryPhone}
+                              </Text>
+                              <Tooltip label="Copy Backup Phone" withArrow position="top">
+                                <ActionIcon
+                                  variant="subtle"
+                                  color="gray"
+                                  onClick={(e) => handleCopyPhone(e, s.secondaryPhone!, 'Backup')}
+                                  style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+                                >
+                                  <IconCopy size={10} />
+                                </ActionIcon>
+                              </Tooltip>
                             </Group>
-                          )}
-                        </Stack>
-                      </Paper>
+                          </Group>
+                        )}
+                      </Group>
 
                       {/* Address */}
                       <Group gap={4} align="flex-start">
@@ -572,7 +588,7 @@ export function SupplierList() {
                       {/* What They Supply Tags */}
                       <Group gap={4} mt={4}>
                         {s.suppliedCategories.map((cat) => (
-                          <Badge key={cat} color="blue" variant="light" size="xs">
+                          <Badge key={cat} color="blue" variant="light" size="xs" radius="var(--mantine-radius-default)">
                             {cat}
                           </Badge>
                         ))}
