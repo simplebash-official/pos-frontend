@@ -22,6 +22,9 @@ const ProductTable = lazy(() =>
 const CustomerList = lazy(() =>
   import('@/features/customers').then((m) => ({ default: m.CustomerList }))
 );
+const SupplierList = lazy(() =>
+  import('@/features/suppliers').then((m) => ({ default: m.SupplierList }))
+);
 const ReportsDashboard = lazy(() =>
   import('@/features/reports').then((m) => ({ default: m.ReportsDashboard }))
 );
@@ -76,6 +79,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <CustomerList />
+          </Suspense>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.SUPPLIERS,
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <SupplierList />
           </Suspense>
         ),
       },

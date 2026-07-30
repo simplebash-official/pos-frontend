@@ -9,11 +9,9 @@ import {
   Stack,
   Portal,
   Overlay,
-  Alert,
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { IconInfoCircle } from '@tabler/icons-react';
 import { PageLoader } from '@/shared/components/PageLoader';
 import { STORAGE_KEYS, ROUTES } from '@/constants';
 
@@ -79,16 +77,6 @@ export function LoginForm() {
         >
           Sign in to POS Console
         </Title>
-
-        <Alert
-          variant="light"
-          color="blue"
-          title="Development Mode"
-          icon={<IconInfoCircle size={16} />}
-          w="100%"
-        >
-          Any email and password are accepted during pre-backend development.
-        </Alert>
 
         {/* Form Fields */}
         <Box component="form" onSubmit={handleLogin} w="100%">

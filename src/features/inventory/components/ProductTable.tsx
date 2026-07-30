@@ -165,8 +165,11 @@ export function ProductTable() {
       return;
     }
 
-    selectedProduct.stockQuantity = newQty;
-    selectedProduct.updatedAt = new Date().toISOString();
+    setSelectedProduct({
+      ...selectedProduct,
+      stockQuantity: newQty,
+      updatedAt: new Date().toISOString(),
+    });
 
     notifications.show({
       title: 'Stock Updated',

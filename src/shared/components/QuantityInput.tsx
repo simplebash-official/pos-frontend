@@ -19,7 +19,7 @@ export function QuantityInput({
   size = 'sm',
   radius,
   ...props
-}: QuantityInputProps & { label?: string; style?: any; className?: string }) {
+}: QuantityInputProps & { label?: string; style?: React.CSSProperties; className?: string }) {
   const handleDecrement = () => {
     if (min === undefined || value > min) {
       onChange(value - 1);

@@ -5,6 +5,7 @@ import {
   IconPrinter,
   IconPackage,
   IconUsers,
+  IconTruckDelivery,
   IconChartBar,
 } from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
@@ -46,6 +47,12 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconUsers,
     to: ROUTES.CUSTOMERS,
     color: 'violet',
+  },
+  {
+    label: 'Suppliers',
+    icon: IconTruckDelivery,
+    to: ROUTES.SUPPLIERS,
+    color: 'blue',
   },
   {
     label: 'Reports & Profit',

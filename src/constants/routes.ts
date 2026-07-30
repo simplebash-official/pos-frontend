@@ -6,6 +6,7 @@ export const ROUTES = {
   PRINT_JOBS: '/print-jobs',
   INVENTORY: '/inventory',
   CUSTOMERS: '/customers',
+  SUPPLIERS: '/suppliers',
   REPORTS: '/reports',
 } as const;
 
@@ -18,5 +19,6 @@ export const ROUTE_PATHS = {
   PRINT_JOBS: 'print-jobs',
   INVENTORY: 'inventory',
   CUSTOMERS: 'customers',
+  SUPPLIERS: 'suppliers',
   REPORTS: 'reports',
 } as const;
