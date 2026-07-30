@@ -7,6 +7,7 @@ export const ROUTES = {
   INVENTORY: '/inventory',
   CUSTOMERS: '/customers',
   SUPPLIERS: '/suppliers',
+  EMPLOYEES: '/employees',
   REPORTS: '/reports',
 } as const;
 
@@ -20,5 +21,6 @@ export const ROUTE_PATHS = {
   INVENTORY: 'inventory',
   CUSTOMERS: 'customers',
   SUPPLIERS: 'suppliers',
+  EMPLOYEES: 'employees',
   REPORTS: 'reports',
 } as const;

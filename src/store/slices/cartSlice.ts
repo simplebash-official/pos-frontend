@@ -1,7 +1,6 @@
 import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
 import { calculateTaxCents, calculateTotalCents } from '@/shared/lib/money';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/constants';
-import type { RootState } from '@/store';
 
 export interface CartItem {
   id: string;
@@ -107,8 +106,8 @@ export const {
   clearCart,
 } = cartSlice.actions;
 
-export const selectCartItems = (state: RootState) => state.cart.items;
-export const selectCartDiscountCents = (state: RootState) => state.cart.discountCents;
+export const selectCartItems = (state: { cart: CartState }) => state.cart.items;
+export const selectCartDiscountCents = (state: { cart: CartState }) => state.cart.discountCents;
 
 export const selectCartItemsCount = createSelector([selectCartItems], (items) => items.length);
 

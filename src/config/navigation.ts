@@ -6,6 +6,7 @@ import {
   IconPackage,
   IconUsers,
   IconTruckDelivery,
+  IconUserCheck,
   IconChartBar,
 } from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
@@ -53,6 +54,12 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconTruckDelivery,
     to: ROUTES.SUPPLIERS,
     color: 'blue',
+  },
+  {
+    label: 'Employees',
+    icon: IconUserCheck,
+    to: ROUTES.EMPLOYEES,
+    color: 'indigo',
   },
   {
     label: 'Reports & Profit',
