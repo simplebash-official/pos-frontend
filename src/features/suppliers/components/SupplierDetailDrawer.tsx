@@ -45,8 +45,15 @@ export function SupplierDetailDrawer({
   onDelete,
 }: SupplierDetailDrawerProps) {
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
+  const [cachedSupplier, setCachedSupplier] = useState<Supplier | null>(supplier);
 
-  if (!supplier) return null;
+  if (supplier && supplier !== cachedSupplier) {
+    setCachedSupplier(supplier);
+  }
+
+  const activeSupplier = supplier || cachedSupplier;
+
+  if (!activeSupplier) return null;
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -69,7 +76,7 @@ export function SupplierDetailDrawer({
       padding="lg"
       title={
         <Group gap="xs">
-          <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
             <IconBuildingStore size={20} />
           </ThemeIcon>
           <div>
@@ -85,24 +92,24 @@ export function SupplierDetailDrawer({
     >
       <Stack gap="md" pt="xs">
         {/* Header Banner */}
-        <Paper p="md" radius="md" withBorder bg="var(--mantine-color-body)">
+        <Paper p="md" radius="var(--mantine-radius-default)" withBorder bg="var(--mantine-color-body)">
           <Text fw={800} size="lg" mb={4}>
-            {supplier.name}
+            {activeSupplier.name}
           </Text>
           <Group gap="xs" mb="xs">
             <IconUser size={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
             <Text size="sm" fw={600} c="blue">
-              {supplier.contactPerson}
+              {activeSupplier.contactPerson}
             </Text>
             <Text size="xs" c="dimmed">
               (Representative Contact)
             </Text>
           </Group>
-          {supplier.email && (
+          {activeSupplier.email && (
             <Group gap="xs">
               <IconMail size={14} style={{ opacity: 0.6 }} />
               <Text size="xs" c="dimmed">
-                {supplier.email}
+                {activeSupplier.email}
               </Text>
             </Group>
           )}
@@ -112,7 +119,7 @@ export function SupplierDetailDrawer({
         <Text size="xs" fw={700} c="dimmed" tt="uppercase">
           Contact Phone Numbers
         </Text>
-        <Paper p="sm" withBorder radius="md">
+        <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
           <Stack gap="xs">
             <Group justify="space-between">
               <Group gap="xs">
@@ -122,22 +129,22 @@ export function SupplierDetailDrawer({
                     Primary Phone
                   </Text>
                   <Text size="sm" fw={700}>
-                    {supplier.primaryPhone}
+                    {activeSupplier.primaryPhone}
                   </Text>
                 </div>
               </Group>
               <Tooltip label="Copy Primary Phone">
                 <ActionIcon
                   variant="light"
-                  color={copiedPhone === supplier.primaryPhone ? 'teal' : 'gray'}
-                  onClick={() => copyToClipboard(supplier.primaryPhone, 'Primary Phone')}
+                  color={copiedPhone === activeSupplier.primaryPhone ? 'teal' : 'gray'}
+                  onClick={() => copyToClipboard(activeSupplier.primaryPhone, 'Primary Phone')}
                 >
-                  {copiedPhone === supplier.primaryPhone ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                  {copiedPhone === activeSupplier.primaryPhone ? <IconCheck size={16} /> : <IconCopy size={16} />}
                 </ActionIcon>
               </Tooltip>
             </Group>
 
-            {supplier.secondaryPhone && (
+            {activeSupplier.secondaryPhone && (
               <>
                 <Divider />
                 <Group justify="space-between">
@@ -148,17 +155,17 @@ export function SupplierDetailDrawer({
                         Backup / Secondary Phone
                       </Text>
                       <Text size="sm" fw={600}>
-                        {supplier.secondaryPhone}
+                        {activeSupplier.secondaryPhone}
                       </Text>
                     </div>
                   </Group>
                   <Tooltip label="Copy Backup Phone">
                     <ActionIcon
                       variant="light"
-                      color={copiedPhone === supplier.secondaryPhone ? 'teal' : 'gray'}
-                      onClick={() => copyToClipboard(supplier.secondaryPhone!, 'Backup Phone')}
+                      color={copiedPhone === activeSupplier.secondaryPhone ? 'teal' : 'gray'}
+                      onClick={() => copyToClipboard(activeSupplier.secondaryPhone!, 'Backup Phone')}
                     >
-                      {copiedPhone === supplier.secondaryPhone ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                      {copiedPhone === activeSupplier.secondaryPhone ? <IconCheck size={16} /> : <IconCopy size={16} />}
                     </ActionIcon>
                   </Tooltip>
                 </Group>
@@ -171,12 +178,12 @@ export function SupplierDetailDrawer({
         <Text size="xs" fw={700} c="dimmed" tt="uppercase">
           Physical Location / Address
         </Text>
-        <Paper p="sm" withBorder radius="md">
+        <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
           <Group gap="xs" align="flex-start">
             <IconMapPin size={18} style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }} />
             <div>
               <Text size="sm" fw={500}>
-                {supplier.address}
+                {activeSupplier.address}
               </Text>
             </div>
           </Group>
@@ -186,11 +193,11 @@ export function SupplierDetailDrawer({
         <Text size="xs" fw={700} c="dimmed" tt="uppercase">
           What They Supply (Categories & Tags)
         </Text>
-        <Paper p="sm" withBorder radius="md">
+        <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
           <Group gap={6}>
             <IconTag size={16} style={{ opacity: 0.6 }} />
-            {supplier.suppliedCategories.map((cat) => (
-              <Badge key={cat} color="blue" variant="light" size="sm">
+            {activeSupplier.suppliedCategories.map((cat) => (
+              <Badge key={cat} color="blue" variant="light" size="sm" radius="var(--mantine-radius-default)">
                 {cat}
               </Badge>
             ))}
@@ -198,14 +205,14 @@ export function SupplierDetailDrawer({
         </Paper>
 
         {/* Notes */}
-        {supplier.notes && (
+        {activeSupplier.notes && (
           <>
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
               Notes & Special Instructions
             </Text>
-            <Paper p="sm" withBorder radius="md" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+            <Paper p="sm" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
               <Text size="sm" c="dimmed" style={{ whitespace: 'pre-wrap' }}>
-                {supplier.notes}
+                {activeSupplier.notes}
               </Text>
             </Paper>
           </>
@@ -223,7 +230,7 @@ export function SupplierDetailDrawer({
               </Text>
             </Group>
             <Text size="xs" fw={600}>
-              {formatDateTime(supplier.createdAt)}
+              {formatDateTime(activeSupplier.createdAt)}
             </Text>
           </Group>
 
@@ -235,7 +242,7 @@ export function SupplierDetailDrawer({
               </Text>
             </Group>
             <Text size="xs" fw={600}>
-              {formatDateTime(supplier.updatedAt)}
+              {formatDateTime(activeSupplier.updatedAt)}
             </Text>
           </Group>
         </Stack>
@@ -249,7 +256,7 @@ export function SupplierDetailDrawer({
             color="red"
             size="sm"
             leftSection={<IconTrash size={16} />}
-            onClick={() => onDelete(supplier)}
+            onClick={() => onDelete(activeSupplier)}
           >
             Delete
           </Button>
@@ -262,7 +269,7 @@ export function SupplierDetailDrawer({
               color="blue"
               size="sm"
               leftSection={<IconEdit size={16} />}
-              onClick={() => onEdit(supplier)}
+              onClick={() => onEdit(activeSupplier)}
             >
               Edit Details
             </Button>
