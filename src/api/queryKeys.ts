@@ -36,6 +36,11 @@ export const queryKeys = {
     bySupplier: (supplierId: string) => ['supplierProducts', 'bySupplier', supplierId] as const,
     byProduct: (productId: string) => ['supplierProducts', 'byProduct', productId] as const,
   },
+  purchases: {
+    all: ['purchases'] as const,
+    bySupplier: (supplierId: string) => ['purchases', 'bySupplier', supplierId] as const,
+    byProduct: (productId: string) => ['purchases', 'byProduct', productId] as const,
+  },
   reports: {
     dailySales: (date: string) => ['reports', 'dailySales', date] as const,
     outstanding: () => ['reports', 'outstanding'] as const,

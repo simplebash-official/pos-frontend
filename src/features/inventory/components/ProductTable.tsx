@@ -45,6 +45,7 @@ import {
   IconCheck,
   IconLink,
   IconUnlink,
+  IconReceipt,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -54,11 +55,13 @@ import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { SupplierPickerModal } from '@/shared/components/SupplierPickerModal';
+import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import {
   useSuppliersForProduct,
   useLinkProduct,
   useUnlinkProduct,
 } from '@/features/supplier-products/hooks/useSupplierProducts';
+import { usePurchasesByProduct } from '@/features/purchases/hooks/usePurchases';
 
 // Mapping categories to distinct visual icons
 const CATEGORY_ICONS: Record<string, typeof IconDeviceMobile> = {
@@ -90,10 +93,14 @@ export function ProductTable() {
 
   // Supplier picker modal
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
+  const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
   // Supplier-product linking
   const { data: linkedSuppliers = [], isLoading: loadingSuppliers } = useSuppliersForProduct(
-    selectedProduct?.id,
+    selectedProduct?.id || '',
+  );
+  const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesByProduct(
+    selectedProduct?.id || '',
   );
   const linkMutation = useLinkProduct();
   const unlinkMutation = useUnlinkProduct();
@@ -778,7 +785,7 @@ export function ProductTable() {
             ) : (
               <ScrollArea.Autosize mah={320} offsetScrollbars>
                 <Stack gap={6} pt={4} pb={4} px={2}>
-                  {linkedSuppliers.map((ls) => (
+                  {linkedSuppliers.map((ls: any) => (
                     <Paper
                       key={ls.supplierId}
                       p="xs"
@@ -815,6 +822,72 @@ export function ProductTable() {
                             <IconUnlink size={14} />
                           </ActionIcon>
                         </Tooltip>
+                      </Group>
+                    </Paper>
+                  ))}
+                </Stack>
+              </ScrollArea.Autosize>
+            )}
+
+            {/* Stock Intake History */}
+            <Group justify="space-between" align="center" mt="sm">
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                Stock Intake History <Text component="span" c="blue" fw={800}>({purchases.length})</Text>
+              </Text>
+              <Tooltip label="Receive Stock" withArrow>
+                <ActionIcon
+                  variant="light"
+                  color="teal"
+                  size="sm"
+                  onClick={() => setReceiveStockOpen(true)}
+                >
+                  <IconPlus size={14} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+
+            {loadingPurchases ? (
+              <Center py="md">
+                <Loader size="sm" />
+              </Center>
+            ) : purchases.length === 0 ? (
+              <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+                <Center py="xs">
+                  <Stack gap={4} align="center">
+                    <IconReceipt size={20} style={{ opacity: 0.4 }} />
+                    <Text size="xs" c="dimmed" ta="center">
+                      No stock intakes recorded. Click + to receive stock.
+                    </Text>
+                  </Stack>
+                </Center>
+              </Paper>
+            ) : (
+              <ScrollArea.Autosize mah={320} offsetScrollbars>
+                <Stack gap={6} pt={4} pb={4} px={2}>
+                  {purchases.map((purchase) => (
+                    <Paper
+                      key={purchase.id}
+                      p="xs"
+                      withBorder
+                      radius="var(--mantine-radius-default)"
+                    >
+                      <Group justify="space-between" align="center" wrap="nowrap">
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <Text size="sm" fw={700} lineClamp={1}>
+                            {purchase.supplier.name}
+                          </Text>
+                          <Group gap={6} mt={2}>
+                            <Badge size="xs" variant="filled" color="blue">
+                              Qty: {purchase.quantity}
+                            </Badge>
+                            <Badge size="xs" variant="light" color="teal">
+                              {formatMoney(purchase.totalCostCents)}
+                            </Badge>
+                          </Group>
+                          <Text size="xs" c="dimmed" mt={4}>
+                            {formatDateTime(purchase.date)} {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                          </Text>
+                        </div>
                       </Group>
                     </Paper>
                   ))}
@@ -905,9 +978,17 @@ export function ProductTable() {
       <SupplierPickerModal
         opened={supplierPickerOpen}
         onClose={() => setSupplierPickerOpen(false)}
-        onSelect={handleLinkSupplier}
-        excludeIds={linkedSuppliers.map((ls) => ls.supplierId)}
+        onSelect={(supplierId) => handleLinkSupplier(supplierId)}
+        excludeIds={linkedSuppliers.map((ls: any) => ls.supplierId)}
       />
+
+      {selectedProduct && (
+        <ReceiveStockModal
+          opened={receiveStockOpen}
+          onClose={() => setReceiveStockOpen(false)}
+          initialProductId={selectedProduct.id}
+        />
+      )}
     </Stack>
   );
 }

@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
   SUPPLIERS: 'pos_suppliers_data',
   CUSTOMERS: 'pos_customers_data',
   SUPPLIER_PRODUCTS: 'pos_supplier_products_data',
+  PURCHASES: 'pos_stock_purchases_data',
 } as const;

@@ -26,19 +26,18 @@ import {
   IconPlus,
   IconLink,
   IconUnlink,
+  IconReceipt,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Supplier } from '../types';
 import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
+import { useProductsForSupplier, useUnlinkProduct, useLinkProduct } from '@/features/supplier-products/hooks/useSupplierProducts';
+import { usePurchasesBySupplier } from '@/features/purchases/hooks/usePurchases';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { ProductPickerModal } from '@/shared/components/ProductPickerModal';
-import {
-  useProductsForSupplier,
-  useLinkProduct,
-  useUnlinkProduct,
-} from '@/features/supplier-products/hooks/useSupplierProducts';
+import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 
 export interface SupplierDetailDrawerProps {
   supplier: Supplier | null;
@@ -56,12 +55,16 @@ export function SupplierDetailDrawer({
   onDelete,
 }: SupplierDetailDrawerProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
   const { data: linkedProducts = [], isLoading: loadingProducts } = useProductsForSupplier(
-    supplier?.id,
+    supplier?.id || '',
   );
-  const linkMutation = useLinkProduct();
+  const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesBySupplier(
+    supplier?.id || '',
+  );
   const unlinkMutation = useUnlinkProduct();
+  const linkMutation = useLinkProduct();
 
   const handleLink = (productId: string) => {
     if (!supplier) return;
@@ -220,7 +223,7 @@ export function SupplierDetailDrawer({
             ) : (
               <ScrollArea.Autosize mah={320} offsetScrollbars>
                 <Stack gap={6} pt={4} pb={4} px={2}>
-                  {linkedProducts.map((lp) => (
+                  {linkedProducts.map((lp: any) => (
                     <Paper
                       key={lp.productId}
                       p="xs"
@@ -262,6 +265,72 @@ export function SupplierDetailDrawer({
                             <IconUnlink size={14} />
                           </ActionIcon>
                         </Tooltip>
+                      </Group>
+                    </Paper>
+                  ))}
+                </Stack>
+              </ScrollArea.Autosize>
+            )}
+
+            {/* Purchase History */}
+            <Group justify="space-between" align="center" mt="sm">
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                Stock Purchase History <Text component="span" c="blue" fw={800}>({purchases.length})</Text>
+              </Text>
+              <Tooltip label="Receive Stock" withArrow>
+                <ActionIcon
+                  variant="light"
+                  color="teal"
+                  size="sm"
+                  onClick={() => setReceiveStockOpen(true)}
+                >
+                  <IconPlus size={14} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+
+            {loadingPurchases ? (
+              <Center py="md">
+                <Loader size="sm" />
+              </Center>
+            ) : purchases.length === 0 ? (
+              <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+                <Center py="xs">
+                  <Stack gap={4} align="center">
+                    <IconReceipt size={20} style={{ opacity: 0.4 }} />
+                    <Text size="xs" c="dimmed" ta="center">
+                      No purchase history yet. Click + to receive stock.
+                    </Text>
+                  </Stack>
+                </Center>
+              </Paper>
+            ) : (
+              <ScrollArea.Autosize mah={320} offsetScrollbars>
+                <Stack gap={6} pt={4} pb={4} px={2}>
+                  {purchases.map((purchase) => (
+                    <Paper
+                      key={purchase.id}
+                      p="xs"
+                      withBorder
+                      radius="var(--mantine-radius-default)"
+                    >
+                      <Group justify="space-between" align="center" wrap="nowrap">
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <Text size="sm" fw={700} lineClamp={1}>
+                            {purchase.product.name}
+                          </Text>
+                          <Group gap={6} mt={2}>
+                            <Badge size="xs" variant="filled" color="blue">
+                              Qty: {purchase.quantity}
+                            </Badge>
+                            <Badge size="xs" variant="light" color="teal">
+                              {formatMoney(purchase.totalCostCents)}
+                            </Badge>
+                          </Group>
+                          <Text size="xs" c="dimmed" mt={4}>
+                            {formatDateTime(purchase.date)} {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                          </Text>
+                        </div>
                       </Group>
                     </Paper>
                   ))}
@@ -347,9 +416,17 @@ export function SupplierDetailDrawer({
       <ProductPickerModal
         opened={pickerOpen}
         onClose={() => setPickerOpen(false)}
-        onSelect={handleLink}
-        excludeIds={linkedProducts.map((lp) => lp.productId)}
+        onSelect={(productId) => handleLink(productId)}
+        excludeIds={linkedProducts.map((lp: any) => lp.productId)}
       />
+
+      {supplier && (
+        <ReceiveStockModal
+          opened={receiveStockOpen}
+          onClose={() => setReceiveStockOpen(false)}
+          initialSupplierId={supplier.id}
+        />
+      )}
     </>
   );
 }
