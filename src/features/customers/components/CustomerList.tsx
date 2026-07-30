@@ -43,8 +43,8 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
-  PRESET_CUSTOMER_TAGS,
 } from '../api/mockCustomers';
+import { PRESET_CUSTOMER_TAGS } from '../constants';
 import { CustomerFormModal } from './CustomerFormModal';
 import { CustomerDetailDrawer } from './CustomerDetailDrawer';
 import { formatMoney } from '@/shared/lib/money';

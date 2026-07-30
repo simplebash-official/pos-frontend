@@ -23,7 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { fetchSuppliers } from '@/features/suppliers/api/mockSuppliers';
+import { fetchSuppliers } from '../api/mockSuppliers';
 
 export interface SupplierPickerModalProps {
   opened: boolean;

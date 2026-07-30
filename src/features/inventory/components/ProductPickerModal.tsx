@@ -19,14 +19,12 @@ import {
   IconPackage,
   IconPlus,
   IconX,
-  IconDeviceMobile,
-  IconShirt,
-  IconPrinter,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { fetchProducts } from '../api/mockProducts';
 import { formatMoney } from '@/shared/lib/money';
+import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
 
 export interface ProductPickerModalProps {
   opened: boolean;
@@ -36,18 +34,6 @@ export interface ProductPickerModalProps {
   excludeIds?: string[];
   title?: string;
 }
-
-const CATEGORY_ICONS: Record<string, typeof IconDeviceMobile> = {
-  'Phone Repairs': IconDeviceMobile,
-  'Mug, T-Shirt & Print Customization': IconShirt,
-  'General Printing': IconPrinter,
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  'Phone Repairs': 'blue',
-  'Mug, T-Shirt & Print Customization': 'grape',
-  'General Printing': 'teal',
-};
 
 export function ProductPickerModal({
   opened,

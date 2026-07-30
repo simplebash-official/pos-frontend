@@ -1,0 +1,15 @@
+export const DEFAULT_SUGGESTED_TAGS = [
+  'Phone Parts',
+  'Mug Blanks',
+  'Paper & Ink',
+  'General Stationery',
+  'T-Shirt Blanks',
+  'Display Assemblies',
+  'Batteries',
+  'Screen Protectors',
+  'Charging Cables',
+  'Receipt Rolls',
+  'Packaging Boxes',
+  'Solvent Inks',
+  'Repair Tools',
+];

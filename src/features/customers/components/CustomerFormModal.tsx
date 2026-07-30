@@ -10,7 +10,7 @@ import {
 } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { Customer, CustomerInput } from '../types';
-import { PRESET_CUSTOMER_TAGS } from '../api/mockCustomers';
+import { PRESET_CUSTOMER_TAGS } from '../constants';
 
 export interface CustomerFormModalProps {
   opened: boolean;

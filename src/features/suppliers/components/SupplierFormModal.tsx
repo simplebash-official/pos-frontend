@@ -34,6 +34,7 @@ import { fetchProducts } from '@/features/inventory/api/mockProducts';
 import { getLinksForSupplier, setLinksForSupplier } from '@/features/supplier-products/api/mockSupplierProducts';
 import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
+import { DEFAULT_SUGGESTED_TAGS } from '../constants';
 
 export interface SupplierFormModalProps {
   opened: boolean;
@@ -42,22 +43,6 @@ export interface SupplierFormModalProps {
   supplierToEdit?: Supplier | null;
   loading?: boolean;
 }
-
-const DEFAULT_SUGGESTED_TAGS = [
-  'Phone Parts',
-  'Mug Blanks',
-  'Paper & Ink',
-  'General Stationery',
-  'T-Shirt Blanks',
-  'Display Assemblies',
-  'Batteries',
-  'Screen Protectors',
-  'Charging Cables',
-  'Receipt Rolls',
-  'Packaging Boxes',
-  'Solvent Inks',
-  'Repair Tools',
-];
 
 interface FormContentProps {
   supplierToEdit?: Supplier | null;

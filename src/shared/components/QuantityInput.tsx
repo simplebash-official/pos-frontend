@@ -8,6 +8,14 @@ export interface QuantityInputProps extends Omit<NumberInputProps, 'value' | 'on
   max?: number;
 }
 
+const HEIGHT_MAP: Record<string, number> = {
+  xs: 30,
+  sm: 36,
+  md: 42,
+  lg: 50,
+  xl: 60,
+};
+
 export function QuantityInput({
   value,
   onChange,
@@ -32,14 +40,7 @@ export function QuantityInput({
     }
   };
 
-  const heightMap: Record<string, number> = {
-    xs: 30,
-    sm: 36,
-    md: 42,
-    lg: 50,
-    xl: 60,
-  };
-  const controlHeight = typeof size === 'string' && heightMap[size] ? heightMap[size] : 36;
+  const controlHeight = typeof size === 'string' && HEIGHT_MAP[size] ? HEIGHT_MAP[size] : 36;
   const iconSize = size === 'xs' ? 12 : 14;
 
   const borderRadiusStyle = radius

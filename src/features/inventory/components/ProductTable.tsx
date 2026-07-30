@@ -27,9 +27,6 @@ import {
 import {
   IconPlus,
   IconSearch,
-  IconDeviceMobile,
-  IconPrinter,
-  IconShirt,
   IconAlertTriangle,
   IconChevronRight,
   IconChevronDown,
@@ -54,7 +51,8 @@ import { fetchProducts } from '../api/mockProducts';
 import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
-import { SupplierPickerModal } from '@/shared/components/SupplierPickerModal';
+import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
+import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
 import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import {
   useSuppliersForProduct,
@@ -63,18 +61,7 @@ import {
 } from '@/features/supplier-products/hooks/useSupplierProducts';
 import { usePurchasesByProduct } from '@/features/purchases/hooks/usePurchases';
 
-// Mapping categories to distinct visual icons
-const CATEGORY_ICONS: Record<string, typeof IconDeviceMobile> = {
-  'Phone Repairs': IconDeviceMobile,
-  'Mug, T-Shirt & Print Customization': IconShirt,
-  'General Printing': IconPrinter,
-};
 
-const CATEGORY_COLORS: Record<string, string> = {
-  'Phone Repairs': 'blue',
-  'Mug, T-Shirt & Print Customization': 'grape',
-  'General Printing': 'teal',
-};
 
 export function ProductTable() {
   const { data: initialProducts = [], isLoading } = useQuery({

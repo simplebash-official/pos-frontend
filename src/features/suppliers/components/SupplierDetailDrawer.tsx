@@ -36,7 +36,7 @@ import { useProductsForSupplier, useUnlinkProduct, useLinkProduct } from '@/feat
 import { usePurchasesBySupplier } from '@/features/purchases/hooks/usePurchases';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
-import { ProductPickerModal } from '@/shared/components/ProductPickerModal';
+import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
 import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 
 export interface SupplierDetailDrawerProps {

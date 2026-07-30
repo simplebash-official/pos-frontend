@@ -12,8 +12,8 @@ import {
 import { DateInput } from '@mantine/dates';
 import { IconPackage, IconBuildingStore, IconX } from '@tabler/icons-react';
 import { useCreatePurchase } from '../hooks/usePurchases';
-import { SupplierPickerModal } from '@/shared/components/SupplierPickerModal';
-import { ProductPickerModal } from '@/shared/components/ProductPickerModal';
+import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
+import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchProducts } from '@/features/inventory/api/mockProducts';
