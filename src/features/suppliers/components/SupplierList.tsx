@@ -458,7 +458,14 @@ export function SupplierList() {
           ) : (
             filteredSuppliers.map((s) => (
               <Grid.Col key={s.id} span={{ base: 12, sm: 6, md: 4 }}>
-                <Card withBorder radius="var(--mantine-radius-default)" padding="md" h="100%">
+                <Card
+                  className="hover-card"
+                  withBorder
+                  radius="var(--mantine-radius-default)"
+                  padding="md"
+                  h="100%"
+                  onClick={() => setSelectedSupplierForDrawer(s)}
+                >
                   <Stack justify="space-between" h="100%">
                     <Stack gap="xs">
                       <Group justify="space-between" align="flex-start">
@@ -511,7 +518,10 @@ export function SupplierList() {
                         color="blue"
                         size="xs"
                         leftSection={<IconEye size={14} />}
-                        onClick={() => setSelectedSupplierForDrawer(s)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSupplierForDrawer(s);
+                        }}
                       >
                         Details
                       </Button>
@@ -519,7 +529,10 @@ export function SupplierList() {
                         variant="default"
                         size="xs"
                         leftSection={<IconEdit size={14} />}
-                        onClick={() => handleOpenEditModal(s)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditModal(s);
+                        }}
                       >
                         Edit
                       </Button>
@@ -527,7 +540,10 @@ export function SupplierList() {
                         variant="subtle"
                         color="red"
                         size="sm"
-                        onClick={() => setSupplierToDelete(s)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSupplierToDelete(s);
+                        }}
                       >
                         <IconTrash size={14} />
                       </ActionIcon>

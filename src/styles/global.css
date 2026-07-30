@@ -1,0 +1,10 @@
+.hover-card {
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.hover-card:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-strong) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}

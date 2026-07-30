@@ -13,8 +13,8 @@ const lightTokens: Record<string, string> = {
   '--bg-app': '#F5F5F7',
   '--bg-sidebar': '#FAFAFA',
   '--bg-card': '#FFFFFF',
-  '--bg-hover': '#F0F0F2',
-  '--bg-active': '#E8E8EB',
+  '--bg-hover': '#F8F9FA',
+  '--bg-active': '#F1F3F5',
 
   // Borders
   '--border': '#E5E5E8',
@@ -54,6 +54,8 @@ const semanticVars: Record<string, string> = {
   '--mantine-color-default-color': 'var(--text-primary)',
   '--mantine-color-dimmed': 'var(--text-secondary)',
   '--mantine-color-placeholder': 'var(--text-muted)',
+  '--mantine-color-table-hover-color': 'var(--bg-hover)',
+  '--table-hover-color': 'var(--bg-hover)',
 };
 
 export const mantineCssVariableResolver: CSSVariablesResolver = () => ({

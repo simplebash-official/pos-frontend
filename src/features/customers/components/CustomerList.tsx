@@ -446,7 +446,14 @@ export function CustomerList() {
           ) : (
             filteredCustomers.map((c) => (
               <Grid.Col key={c.id} span={{ base: 12, sm: 6, md: 4 }}>
-                <Card withBorder radius="var(--mantine-radius-default)" padding="md" h="100%">
+                <Card
+                  className="hover-card"
+                  withBorder
+                  radius="var(--mantine-radius-default)"
+                  padding="md"
+                  h="100%"
+                  onClick={() => setSelectedCustomerForDrawer(c)}
+                >
                   <Stack justify="space-between" h="100%">
                     <Stack gap="xs">
                       <Group justify="space-between" align="flex-start">
@@ -508,7 +515,10 @@ export function CustomerList() {
                         color="violet"
                         size="xs"
                         leftSection={<IconEye size={14} />}
-                        onClick={() => setSelectedCustomerForDrawer(c)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCustomerForDrawer(c);
+                        }}
                       >
                         Details
                       </Button>
@@ -516,7 +526,10 @@ export function CustomerList() {
                         variant="default"
                         size="xs"
                         leftSection={<IconEdit size={14} />}
-                        onClick={() => handleOpenEditModal(c)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditModal(c);
+                        }}
                       >
                         Edit
                       </Button>
@@ -524,7 +537,10 @@ export function CustomerList() {
                         variant="subtle"
                         color="red"
                         size="sm"
-                        onClick={() => setCustomerToDelete(c)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCustomerToDelete(c);
+                        }}
                       >
                         <IconTrash size={14} />
                       </ActionIcon>

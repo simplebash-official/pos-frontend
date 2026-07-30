@@ -11,6 +11,7 @@ import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
+import '@/styles/global.css';
 
 export interface AppProvidersProps {
   children: ReactNode;
