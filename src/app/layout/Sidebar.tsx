@@ -33,7 +33,7 @@ export function Sidebar({ closeMobile }: SidebarProps) {
               color={item.color}
               variant="light"
               onClick={closeMobile}
-              style={{ borderRadius: 'var(--mantine-radius-lg)' }}
+              style={{ borderRadius: 'var(--mantine-radius-default)' }}
             />
           );
         })}
@@ -49,7 +49,7 @@ export function Sidebar({ closeMobile }: SidebarProps) {
           color="gray"
           variant="subtle"
           onClick={closeMobile}
-          style={{ borderRadius: 'var(--mantine-radius-lg)' }}
+          style={{ borderRadius: 'var(--mantine-radius-default)' }}
         />
       </Stack>
 
@@ -70,7 +70,7 @@ export function Sidebar({ closeMobile }: SidebarProps) {
           variant="subtle"
           color="gray"
           onClick={() => setColorScheme(isDark ? 'light' : 'dark')}
-          style={{ borderRadius: 'var(--mantine-radius-lg)', cursor: 'pointer' }}
+          style={{ borderRadius: 'var(--mantine-radius-default)' }}
         />
       </Stack>
     </Stack>
