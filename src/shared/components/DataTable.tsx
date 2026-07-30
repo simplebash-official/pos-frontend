@@ -20,6 +20,7 @@ export interface DataTableProps<T> {
   totalPages?: number;
   onPageChange?: (page: number) => void;
   skeletonRows?: number;
+  onRowClick?: (item: T) => void;
 }
 
 export function DataTable<T>({
@@ -32,6 +33,7 @@ export function DataTable<T>({
   totalPages = 1,
   onPageChange,
   skeletonRows = 6,
+  onRowClick,
 }: DataTableProps<T>) {
   const tableHead = (
     <Table.Thead>
@@ -102,15 +104,22 @@ export function DataTable<T>({
         <Table verticalSpacing="sm" horizontalSpacing="md" striped highlightOnHover>
           {tableHead}
           <Table.Tbody>
-            {data.map((item, index) => (
-              <Table.Tr key={keyExtractor(item, index)}>
-                {columns.map((col) => (
-                  <Table.Td key={col.key} style={{ textAlign: col.align }}>
-                    {col.render(item, index)}
-                  </Table.Td>
-                ))}
-              </Table.Tr>
-            ))}
+            {data.map((item, index) => {
+              const rowClickable = !!onRowClick;
+              return (
+                <Table.Tr 
+                  key={keyExtractor(item, index)}
+                  onClick={rowClickable ? () => onRowClick(item) : undefined}
+                  style={rowClickable ? { cursor: 'pointer' } : undefined}
+                >
+                  {columns.map((col) => (
+                    <Table.Td key={col.key} style={{ textAlign: col.align }}>
+                      {col.render(item, index)}
+                    </Table.Td>
+                  ))}
+                </Table.Tr>
+              );
+            })}
           </Table.Tbody>
         </Table>
       </Box>

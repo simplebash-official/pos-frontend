@@ -10,7 +10,6 @@ import {
   Card,
   Grid,
   ThemeIcon,
-  Tooltip,
   ActionIcon,
   SegmentedControl,
   Chip,
@@ -281,48 +280,6 @@ export function SupplierList() {
         </Group>
       ),
     },
-    {
-      key: 'actions',
-      header: 'Actions',
-      align: 'right',
-      width: '100px',
-      render: (s) => (
-        <Group gap={4} justify="flex-end" wrap="nowrap">
-          <Tooltip label="View Full Details">
-            <ActionIcon
-              variant="subtle"
-              color="blue"
-              size="sm"
-              onClick={() => setSelectedSupplierForDrawer(s)}
-            >
-              <IconEye size={16} />
-            </ActionIcon>
-          </Tooltip>
-
-          <Tooltip label="Edit Supplier">
-            <ActionIcon
-              variant="subtle"
-              color="blue"
-              size="sm"
-              onClick={() => handleOpenEditModal(s)}
-            >
-              <IconEdit size={16} />
-            </ActionIcon>
-          </Tooltip>
-
-          <Tooltip label="Delete Supplier">
-            <ActionIcon
-              variant="subtle"
-              color="red"
-              size="sm"
-              onClick={() => setSupplierToDelete(s)}
-            >
-              <IconTrash size={16} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
-      ),
-    },
   ];
 
   // Stats calculation
@@ -486,6 +443,7 @@ export function SupplierList() {
           columns={columns}
           loading={isLoading}
           keyExtractor={(s) => s.id}
+          onRowClick={(s) => setSelectedSupplierForDrawer(s)}
           emptyText={
             search || selectedTag
               ? 'No suppliers match your current filter criteria.'
@@ -656,9 +614,9 @@ export function SupplierList() {
 
 function CenterLabel({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <Group gap={6} justify="center">
+    <Group gap={6} justify="center" wrap="nowrap">
       {icon}
-      <span>{text}</span>
+      <Box component="span" style={{ whiteSpace: 'nowrap' }}>{text}</Box>
     </Group>
   );
 }

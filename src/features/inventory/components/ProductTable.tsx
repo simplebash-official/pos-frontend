@@ -184,7 +184,7 @@ export function ProductTable() {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="JANA2U Service Center (Main Inventory)"
+        title="Main Inventory"
         description="Nested catalog across Phone Repairs, Custom Print & Raw Materials, and General Printing"
         action={
           <Button leftSection={<IconPlus size={16} />} color="blue">
