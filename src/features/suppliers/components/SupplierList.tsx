@@ -229,18 +229,23 @@ export function SupplierList() {
       align: 'left',
       width: '20%',
       render: (s) => (
-        <Stack gap={2}>
-          <Group gap={4}>
-            <IconPhone size={13} style={{ color: 'var(--mantine-color-teal-6)' }} />
+        <Stack gap={4}>
+          <Group gap={6} wrap="nowrap" align="center">
+            <Badge size="xs" variant="light" color="teal" radius="xs" fw={700} w={60} style={{ justifyContent: 'center' }}>
+              Primary
+            </Badge>
             <Text size="xs" fw={700}>
               {s.primaryPhone}
             </Text>
           </Group>
           {s.secondaryPhone && (
-            <Group gap={4}>
-              <Badge size="xs" variant="light" color="gray">
-                Backup: {s.secondaryPhone}
+            <Group gap={6} wrap="nowrap" align="center">
+              <Badge size="xs" variant="light" color="orange" radius="xs" fw={700} w={60} style={{ justifyContent: 'center' }}>
+                Backup
               </Badge>
+              <Text size="xs" fw={600} c="dimmed">
+                {s.secondaryPhone}
+              </Text>
             </Group>
           )}
         </Stack>
