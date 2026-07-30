@@ -1,0 +1,106 @@
+import { Group, Stack, Badge, Text, ActionIcon, Tooltip } from '@mantine/core';
+import { IconCopy, IconCheck } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+
+export interface PhoneDisplayProps {
+  primaryPhone: string;
+  secondaryPhone?: string;
+  layout?: 'stack' | 'row';
+  badgeWidth?: number;
+}
+
+export function PhoneDisplay({
+  primaryPhone,
+  secondaryPhone,
+  layout = 'stack',
+  badgeWidth = 60,
+}: PhoneDisplayProps) {
+  const handleCopyPhone = (e: React.MouseEvent, phone: string, label: string) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(phone);
+    notifications.show({
+      title: 'Copied!',
+      message: `${label} phone (${phone}) copied to clipboard`,
+      color: 'teal',
+      icon: <IconCheck size={16} />,
+    });
+  };
+
+  const primaryItem = (
+    <Group gap={6} wrap="nowrap" align="center">
+      <Badge
+        size="xs"
+        variant="light"
+        color="teal"
+        radius="var(--mantine-radius-default)"
+        fw={700}
+        w={badgeWidth}
+        style={{ justifyContent: 'center' }}
+      >
+        Primary
+      </Badge>
+      <Group gap={4} wrap="nowrap" align="center">
+        <Text size="xs" fw={700}>
+          {primaryPhone}
+        </Text>
+        <Tooltip label="Copy Primary Phone" withArrow position="top">
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            onClick={(e) => handleCopyPhone(e, primaryPhone, 'Primary')}
+            style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+          >
+            <IconCopy size={10} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+    </Group>
+  );
+
+  const secondaryItem = secondaryPhone ? (
+    <Group gap={6} wrap="nowrap" align="center">
+      <Badge
+        size="xs"
+        variant="light"
+        color="orange"
+        radius="var(--mantine-radius-default)"
+        fw={700}
+        w={badgeWidth}
+        style={{ justifyContent: 'center' }}
+      >
+        Backup
+      </Badge>
+      <Group gap={4} wrap="nowrap" align="center">
+        <Text size="xs" fw={600} c="dimmed">
+          {secondaryPhone}
+        </Text>
+        <Tooltip label="Copy Backup Phone" withArrow position="top">
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            onClick={(e) => handleCopyPhone(e, secondaryPhone, 'Backup')}
+            style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+          >
+            <IconCopy size={10} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+    </Group>
+  ) : null;
+
+  if (layout === 'row') {
+    return (
+      <Group gap="md">
+        {primaryItem}
+        {secondaryItem}
+      </Group>
+    );
+  }
+
+  return (
+    <Stack gap={4}>
+      {primaryItem}
+      {secondaryItem}
+    </Stack>
+  );
+}

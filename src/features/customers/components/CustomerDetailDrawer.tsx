@@ -9,7 +9,6 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import {
-  IconBuildingStore,
   IconUser,
   IconMapPin,
   IconTag,
@@ -18,71 +17,102 @@ import {
   IconTrash,
   IconCalendar,
 } from '@tabler/icons-react';
-import { Supplier } from '../types';
+import { Customer } from '../types';
 import { formatDateTime } from '@/shared/lib/date';
+import { formatMoney } from '@/shared/lib/money';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 
-export interface SupplierDetailDrawerProps {
-  supplier: Supplier | null;
+export interface CustomerDetailDrawerProps {
+  customer: Customer | null;
   opened: boolean;
   onClose: () => void;
-  onEdit: (supplier: Supplier) => void;
-  onDelete: (supplier: Supplier) => void;
+  onEdit: (customer: Customer) => void;
+  onDelete: (customer: Customer) => void;
 }
 
-export function SupplierDetailDrawer({
-  supplier,
+export function CustomerDetailDrawer({
+  customer,
   opened,
   onClose,
   onEdit,
   onDelete,
-}: SupplierDetailDrawerProps) {
+}: CustomerDetailDrawerProps) {
   return (
     <DetailDrawer
-      data={supplier}
+      data={customer}
       opened={opened}
       onClose={onClose}
       title={
         <Group gap="xs">
-          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
-            <IconBuildingStore size={20} />
+          <ThemeIcon color="violet" variant="light" size="lg" radius="var(--mantine-radius-default)">
+            <IconUser size={20} />
           </ThemeIcon>
           <div>
             <Text fw={800} size="md">
-              Supplier Profile
+              Customer Profile
             </Text>
             <Text size="xs" c="dimmed">
-              Vendor Specifications & Contacts
+              Client Specifications & Account History
             </Text>
           </div>
         </Group>
       }
     >
-      {(sup) => (
+      {(c) => (
         <Stack gap="md" pt="xs">
           {/* Header Banner */}
           <Paper p="md" radius="var(--mantine-radius-default)" withBorder bg="var(--mantine-color-body)">
             <Text fw={800} size="lg" mb={4}>
-              {sup.name}
+              {c.name}
             </Text>
             <Group gap="xs" mb="xs">
-              <IconUser size={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
-              <Text size="sm" fw={600} c="blue">
-                {sup.contactPerson}
+              <IconUser size={16} style={{ color: 'var(--mantine-color-violet-6)' }} />
+              <Text size="sm" fw={600} c="violet">
+                {c.contactPerson}
               </Text>
               <Text size="xs" c="dimmed">
-                (Representative Contact)
+                (Primary Contact)
               </Text>
             </Group>
-            {sup.email && (
+            {c.email && (
               <Group gap="xs">
                 <IconMail size={14} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  {sup.email}
+                  {c.email}
                 </Text>
               </Group>
             )}
+          </Paper>
+
+          {/* Financial Summary */}
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+            Financial & Account Volume
+          </Text>
+          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+            <Group justify="space-between">
+              <div>
+                <Text size="xs" c="dimmed">
+                  Total Purchases
+                </Text>
+                <Text fw={800} size="md">
+                  {formatMoney(c.totalPurchasesCents)}
+                </Text>
+              </div>
+              <div>
+                <Text size="xs" c="dimmed">
+                  Balance Due
+                </Text>
+                <Badge
+                  color={c.outstandingBalanceCents > 0 ? 'red' : 'green'}
+                  variant="light"
+                  size="md"
+                  radius="var(--mantine-radius-default)"
+                >
+                  {formatMoney(c.outstandingBalanceCents)}
+                </Badge>
+              </div>
+            </Group>
           </Paper>
 
           {/* Contact Numbers */}
@@ -91,8 +121,8 @@ export function SupplierDetailDrawer({
           </Text>
           <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <PhoneDisplay
-              primaryPhone={sup.primaryPhone}
-              secondaryPhone={sup.secondaryPhone}
+              primaryPhone={c.primaryPhone}
+              secondaryPhone={c.secondaryPhone}
               layout="stack"
             />
           </Paper>
@@ -106,36 +136,36 @@ export function SupplierDetailDrawer({
               <IconMapPin size={18} style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }} />
               <div>
                 <Text size="sm" fw={500}>
-                  {sup.address}
+                  {c.address}
                 </Text>
               </div>
             </Group>
           </Paper>
 
-          {/* What They Supply Tags */}
+          {/* Customer Tags */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            What They Supply (Categories & Tags)
+            Account Type & Tags
           </Text>
           <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <Group gap={6}>
               <IconTag size={16} style={{ opacity: 0.6 }} />
-              {sup.suppliedCategories.map((cat) => (
-                <Badge key={cat} color="blue" variant="light" size="sm" radius="var(--mantine-radius-default)">
-                  {cat}
+              {c.tags.map((tag) => (
+                <Badge key={tag} color="violet" variant="light" size="sm" radius="var(--mantine-radius-default)">
+                  {tag}
                 </Badge>
               ))}
             </Group>
           </Paper>
 
           {/* Notes */}
-          {sup.notes && (
+          {c.notes && (
             <>
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Notes & Special Instructions
+                Notes & Client Preferences
               </Text>
               <Paper p="sm" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
                 <Text size="sm" c="dimmed" style={{ whitespace: 'pre-wrap' }}>
-                  {sup.notes}
+                  {c.notes}
                 </Text>
               </Paper>
             </>
@@ -153,7 +183,7 @@ export function SupplierDetailDrawer({
                 </Text>
               </Group>
               <Text size="xs" fw={600}>
-                {formatDateTime(sup.createdAt)}
+                {formatDateTime(c.createdAt)}
               </Text>
             </Group>
 
@@ -165,7 +195,7 @@ export function SupplierDetailDrawer({
                 </Text>
               </Group>
               <Text size="xs" fw={600}>
-                {formatDateTime(sup.updatedAt)}
+                {formatDateTime(c.updatedAt)}
               </Text>
             </Group>
           </Stack>
@@ -179,9 +209,9 @@ export function SupplierDetailDrawer({
               color="red"
               size="sm"
               leftSection={<IconTrash size={16} />}
-              onClick={() => onDelete(sup)}
+              onClick={() => onDelete(c)}
             >
-              Delete
+              Delete Profile
             </Button>
 
             <Group gap="sm">
@@ -189,10 +219,10 @@ export function SupplierDetailDrawer({
                 Close
               </Button>
               <Button
-                color="blue"
+                color="violet"
                 size="sm"
                 leftSection={<IconEdit size={16} />}
-                onClick={() => onEdit(sup)}
+                onClick={() => onEdit(c)}
               >
                 Edit Details
               </Button>

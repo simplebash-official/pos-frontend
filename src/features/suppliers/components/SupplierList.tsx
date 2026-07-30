@@ -11,7 +11,6 @@ import {
   Grid,
   ThemeIcon,
   ActionIcon,
-  Tooltip,
   SegmentedControl,
   Chip,
   Box,
@@ -32,13 +31,13 @@ import {
   IconList,
   IconCheck,
   IconFilter,
-  IconCopy,
 } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { Supplier, SupplierInput } from '../types';
 import {
   fetchSuppliers,
@@ -191,17 +190,6 @@ export function SupplierList() {
     }
   };
 
-  const handleCopyPhone = (e: React.MouseEvent, phone: string, label: string) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(phone);
-    notifications.show({
-      title: 'Copied!',
-      message: `${label} phone (${phone}) copied to clipboard`,
-      color: 'teal',
-      icon: <IconCheck size={16} />,
-    });
-  };
-
   // Table Columns Definition
   const columns: Column<Supplier>[] = [
     {
@@ -242,50 +230,11 @@ export function SupplierList() {
       align: 'left',
       width: '20%',
       render: (s) => (
-        <Stack gap={4}>
-          <Group gap={6} wrap="nowrap" align="center">
-            <Badge size="xs" variant="light" color="teal" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
-              Primary
-            </Badge>
-            <Group gap={4} wrap="nowrap" align="center">
-              <Text size="xs" fw={700}>
-                {s.primaryPhone}
-              </Text>
-              <Tooltip label="Copy Primary Phone" withArrow position="top">
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={(e) => handleCopyPhone(e, s.primaryPhone, 'Primary')}
-                  style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
-                >
-                  <IconCopy size={10} />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
-          </Group>
-          {s.secondaryPhone && (
-            <Group gap={6} wrap="nowrap" align="center">
-              <Badge size="xs" variant="light" color="orange" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
-                Backup
-              </Badge>
-              <Group gap={4} wrap="nowrap" align="center">
-                <Text size="xs" fw={600} c="dimmed">
-                  {s.secondaryPhone}
-                </Text>
-                <Tooltip label="Copy Backup Phone" withArrow position="top">
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    onClick={(e) => handleCopyPhone(e, s.secondaryPhone!, 'Backup')}
-                    style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
-                  >
-                    <IconCopy size={10} />
-                  </ActionIcon>
-                </Tooltip>
-              </Group>
-            </Group>
-          )}
-        </Stack>
+        <PhoneDisplay
+          primaryPhone={s.primaryPhone}
+          secondaryPhone={s.secondaryPhone}
+          layout="stack"
+        />
       ),
     },
     {
@@ -532,50 +481,11 @@ export function SupplierList() {
                       </Group>
 
                       {/* Phones */}
-                      <Group gap="md">
-                        <Group gap={6} wrap="nowrap" align="center">
-                          <Badge size="xs" variant="light" color="teal" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
-                            Primary
-                          </Badge>
-                          <Group gap={4} wrap="nowrap" align="center">
-                            <Text size="xs" fw={700}>
-                              {s.primaryPhone}
-                            </Text>
-                            <Tooltip label="Copy Primary Phone" withArrow position="top">
-                              <ActionIcon
-                                variant="subtle"
-                                color="gray"
-                                onClick={(e) => handleCopyPhone(e, s.primaryPhone, 'Primary')}
-                                style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
-                              >
-                                <IconCopy size={10} />
-                              </ActionIcon>
-                            </Tooltip>
-                          </Group>
-                        </Group>
-                        {s.secondaryPhone && (
-                          <Group gap={6} wrap="nowrap" align="center">
-                            <Badge size="xs" variant="light" color="orange" radius="var(--mantine-radius-default)" fw={700} w={60} style={{ justifyContent: 'center' }}>
-                              Backup
-                            </Badge>
-                            <Group gap={4} wrap="nowrap" align="center">
-                              <Text size="xs" fw={600} c="dimmed">
-                                {s.secondaryPhone}
-                              </Text>
-                              <Tooltip label="Copy Backup Phone" withArrow position="top">
-                                <ActionIcon
-                                  variant="subtle"
-                                  color="gray"
-                                  onClick={(e) => handleCopyPhone(e, s.secondaryPhone!, 'Backup')}
-                                  style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
-                                >
-                                  <IconCopy size={10} />
-                                </ActionIcon>
-                              </Tooltip>
-                            </Group>
-                          </Group>
-                        )}
-                      </Group>
+                      <PhoneDisplay
+                        primaryPhone={s.primaryPhone}
+                        secondaryPhone={s.secondaryPhone}
+                        layout="row"
+                      />
 
                       {/* Address */}
                       <Group gap={4} align="flex-start">
