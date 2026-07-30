@@ -43,6 +43,7 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  deleteCustomers,
 } from '../api/mockCustomers';
 import { PRESET_CUSTOMER_TAGS } from '../constants';
 import { CustomerFormModal } from './CustomerFormModal';
@@ -81,8 +82,7 @@ export function CustomerList() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: CustomerInput }) =>
-      updateCustomer(id, input),
+    mutationFn: ({ id, input }: { id: string; input: CustomerInput }) => updateCustomer(id, input),
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       notifications.show({
@@ -105,6 +105,19 @@ export function CustomerList() {
         icon: <IconCheck size={16} />,
       });
       setCustomerToDelete(null);
+    },
+  });
+
+  const deleteBatchMutation = useMutation({
+    mutationFn: deleteCustomers,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      notifications.show({
+        title: 'Customers Deleted',
+        message: 'Selected customer profiles removed',
+        color: 'red',
+        icon: <IconCheck size={16} />,
+      });
     },
   });
 
@@ -161,7 +174,12 @@ export function CustomerList() {
       width: '22%',
       render: (c) => (
         <Group gap="xs" wrap="nowrap">
-          <ThemeIcon variant="light" color="violet" size="sm" radius="var(--mantine-radius-default)">
+          <ThemeIcon
+            variant="light"
+            color="violet"
+            size="sm"
+            radius="var(--mantine-radius-default)"
+          >
             <IconUser size={14} />
           </ThemeIcon>
           <div>
@@ -242,7 +260,13 @@ export function CustomerList() {
       render: (c) => (
         <Group gap={4}>
           {c.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} color="violet" variant="light" size="xs" radius="var(--mantine-radius-default)">
+            <Badge
+              key={tag}
+              color="violet"
+              variant="light"
+              size="xs"
+              radius="var(--mantine-radius-default)"
+            >
               {tag}
             </Badge>
           ))}
@@ -293,7 +317,12 @@ export function CustomerList() {
                   {totalCustomersCount}
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="violet" size="lg" radius="var(--mantine-radius-default)">
+              <ThemeIcon
+                variant="light"
+                color="violet"
+                size="lg"
+                radius="var(--mantine-radius-default)"
+              >
                 <IconUsers size={22} />
               </ThemeIcon>
             </Group>
@@ -334,7 +363,12 @@ export function CustomerList() {
                   {corporateAccountsCount} Accounts
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="violet" size="lg" radius="var(--mantine-radius-default)">
+              <ThemeIcon
+                variant="light"
+                color="violet"
+                size="lg"
+                radius="var(--mantine-radius-default)"
+              >
                 <IconTag size={22} />
               </ThemeIcon>
             </Group>
@@ -364,7 +398,9 @@ export function CustomerList() {
                   label: (
                     <Group gap={6} justify="center" wrap="nowrap">
                       <IconList size={14} />
-                      <Box component="span" style={{ whiteSpace: 'nowrap' }}>Table</Box>
+                      <Box component="span" style={{ whiteSpace: 'nowrap' }}>
+                        Table
+                      </Box>
                     </Group>
                   ),
                 },
@@ -373,7 +409,9 @@ export function CustomerList() {
                   label: (
                     <Group gap={6} justify="center" wrap="nowrap">
                       <IconLayoutGrid size={14} />
-                      <Box component="span" style={{ whiteSpace: 'nowrap' }}>Cards</Box>
+                      <Box component="span" style={{ whiteSpace: 'nowrap' }}>
+                        Cards
+                      </Box>
                     </Group>
                   ),
                 },
@@ -423,6 +461,7 @@ export function CustomerList() {
           loading={isLoading}
           keyExtractor={(c) => c.id}
           onRowClick={(c) => setSelectedCustomerForDrawer(c)}
+          onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
           emptyText={
             search || selectedTag
               ? 'No customers match your current filter criteria.'
@@ -458,7 +497,12 @@ export function CustomerList() {
                     <Stack gap="xs">
                       <Group justify="space-between" align="flex-start">
                         <Group gap="xs">
-                          <ThemeIcon color="violet" variant="light" size="lg" radius="var(--mantine-radius-default)">
+                          <ThemeIcon
+                            color="violet"
+                            variant="light"
+                            size="lg"
+                            radius="var(--mantine-radius-default)"
+                          >
                             <IconUser size={20} />
                           </ThemeIcon>
                           <div>
@@ -493,7 +537,10 @@ export function CustomerList() {
 
                       {/* Address */}
                       <Group gap={4} align="flex-start">
-                        <IconMapPin size={14} style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }} />
+                        <IconMapPin
+                          size={14}
+                          style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }}
+                        />
                         <Text size="xs" c="dimmed" lineClamp={2}>
                           {c.address}
                         </Text>
@@ -502,14 +549,25 @@ export function CustomerList() {
                       {/* What They Supply / Customer Tags */}
                       <Group gap={4} mt={4}>
                         {c.tags.map((tag) => (
-                          <Badge key={tag} color="violet" variant="light" size="xs" radius="var(--mantine-radius-default)">
+                          <Badge
+                            key={tag}
+                            color="violet"
+                            variant="light"
+                            size="xs"
+                            radius="var(--mantine-radius-default)"
+                          >
                             {tag}
                           </Badge>
                         ))}
                       </Group>
                     </Stack>
 
-                    <Group justify="flex-end" gap="xs" pt="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+                    <Group
+                      justify="flex-end"
+                      gap="xs"
+                      pt="xs"
+                      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+                    >
                       <Button
                         variant="light"
                         color="violet"

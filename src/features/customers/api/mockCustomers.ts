@@ -29,10 +29,7 @@ export const createCustomer = async (input: CustomerInput): Promise<Customer> =>
   });
 };
 
-export const updateCustomer = async (
-  id: string,
-  input: CustomerInput
-): Promise<Customer> => {
+export const updateCustomer = async (id: string, input: CustomerInput): Promise<Customer> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const index = customersStore.findIndex((c) => c.id === id);
@@ -55,6 +52,16 @@ export const deleteCustomer = async (id: string): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       customersStore = customersStore.filter((c) => c.id !== id);
+      resolve();
+    }, 300);
+  });
+};
+
+export const deleteCustomers = async (ids: string[]): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const idSet = new Set(ids);
+      customersStore = customersStore.filter((c) => !idSet.has(c.id));
       resolve();
     }, 300);
   });

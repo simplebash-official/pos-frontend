@@ -1,13 +1,4 @@
-import {
-  Stack,
-  Group,
-  Text,
-  Badge,
-  Paper,
-  Divider,
-  Button,
-  ThemeIcon,
-} from '@mantine/core';
+import { Stack, Group, Text, Badge, Paper, Divider, Button, ThemeIcon } from '@mantine/core';
 import {
   IconUser,
   IconMapPin,
@@ -45,7 +36,12 @@ export function CustomerDetailDrawer({
       onClose={onClose}
       title={
         <Group gap="xs">
-          <ThemeIcon color="violet" variant="light" size="lg" radius="var(--mantine-radius-default)">
+          <ThemeIcon
+            color="violet"
+            variant="light"
+            size="lg"
+            radius="var(--mantine-radius-default)"
+          >
             <IconUser size={20} />
           </ThemeIcon>
           <div>
@@ -62,7 +58,12 @@ export function CustomerDetailDrawer({
       {(c) => (
         <Stack gap="md" pt="xs">
           {/* Header Banner */}
-          <Paper p="md" radius="var(--mantine-radius-default)" withBorder bg="var(--mantine-color-body)">
+          <Paper
+            p="md"
+            radius="var(--mantine-radius-default)"
+            withBorder
+            bg="var(--mantine-color-body)"
+          >
             <Text fw={800} size="lg" mb={4}>
               {c.name}
             </Text>
@@ -150,7 +151,13 @@ export function CustomerDetailDrawer({
             <Group gap={6}>
               <IconTag size={16} style={{ opacity: 0.6 }} />
               {c.tags.map((tag) => (
-                <Badge key={tag} color="violet" variant="light" size="sm" radius="var(--mantine-radius-default)">
+                <Badge
+                  key={tag}
+                  color="violet"
+                  variant="light"
+                  size="sm"
+                  radius="var(--mantine-radius-default)"
+                >
                   {tag}
                 </Badge>
               ))}
@@ -163,7 +170,12 @@ export function CustomerDetailDrawer({
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 Notes & Client Preferences
               </Text>
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+              <Paper
+                p="sm"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                style={{ backgroundColor: 'var(--mantine-color-body)' }}
+              >
                 <Text size="sm" c="dimmed" style={{ whitespace: 'pre-wrap' }}>
                   {c.notes}
                 </Text>

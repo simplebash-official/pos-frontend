@@ -25,6 +25,18 @@ export const SAMPLE_REPAIRS: RepairJob[] = [
   },
 ];
 
+let repairsStore: RepairJob[] = [...SAMPLE_REPAIRS];
+
 export const fetchRepairs = async (): Promise<RepairJob[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve(SAMPLE_REPAIRS), 300));
+  return new Promise((resolve) => setTimeout(() => resolve([...repairsStore]), 300));
+};
+
+export const deleteRepairs = async (ids: string[]): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const idSet = new Set(ids);
+      repairsStore = repairsStore.filter((r) => !idSet.has(r.id));
+      resolve();
+    }, 300);
+  });
 };

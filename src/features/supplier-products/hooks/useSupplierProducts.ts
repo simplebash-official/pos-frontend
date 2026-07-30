@@ -86,8 +86,12 @@ export function useLinkProduct() {
   return useMutation({
     mutationFn: (input: SupplierProductInput) => linkSupplierProduct(input),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.supplierProducts.byProduct(variables.productId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierProducts.byProduct(variables.productId),
+      });
     },
   });
 }
@@ -99,8 +103,12 @@ export function useUnlinkProduct() {
     mutationFn: ({ supplierId, productId }: { supplierId: string; productId: string }) =>
       unlinkSupplierProduct(supplierId, productId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.supplierProducts.byProduct(variables.productId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierProducts.byProduct(variables.productId),
+      });
     },
   });
 }

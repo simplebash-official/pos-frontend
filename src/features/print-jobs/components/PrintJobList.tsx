@@ -1,19 +1,35 @@
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { IconPlus, IconCheck } from '@tabler/icons-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob } from '../types';
-import { fetchPrintJobs } from '../api/mockPrintJobs';
+import { fetchPrintJobs, deletePrintJobs } from '../api/mockPrintJobs';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 
 export function PrintJobList() {
+  const queryClient = useQueryClient();
+
   const { data: printJobs = [], isLoading } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: fetchPrintJobs,
+  });
+
+  const deleteBatchMutation = useMutation({
+    mutationFn: deletePrintJobs,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+      notifications.show({
+        title: 'Print Jobs Deleted',
+        message: 'Selected print orders removed',
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
+    },
   });
 
   const columns: Column<PrintJob>[] = [
@@ -74,6 +90,7 @@ export function PrintJobList() {
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
+        onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
         emptyText="No print orders recorded yet"
       />
     </div>

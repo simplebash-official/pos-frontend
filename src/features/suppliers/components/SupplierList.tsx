@@ -44,6 +44,7 @@ import {
   createSupplier,
   updateSupplier,
   deleteSupplier,
+  deleteSuppliers,
 } from '../api/mockSuppliers';
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
@@ -132,6 +133,25 @@ export function SupplierList() {
       notifications.show({
         title: 'Error',
         message: err.message || 'Failed to delete supplier',
+        color: 'red',
+      });
+    },
+  });
+
+  const deleteBatchMutation = useMutation({
+    mutationFn: deleteSuppliers,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+      notifications.show({
+        title: 'Suppliers Deleted',
+        message: 'Selected supplier records removed successfully',
+        color: 'blue',
+      });
+    },
+    onError: (err: Error) => {
+      notifications.show({
+        title: 'Error',
+        message: err.message || 'Failed to delete suppliers',
         color: 'red',
       });
     },
@@ -259,7 +279,13 @@ export function SupplierList() {
       render: (s) => (
         <Group gap={4}>
           {s.suppliedCategories.slice(0, 3).map((cat) => (
-            <Badge key={cat} color="blue" variant="light" size="xs" radius="var(--mantine-radius-default)">
+            <Badge
+              key={cat}
+              color="blue"
+              variant="light"
+              size="xs"
+              radius="var(--mantine-radius-default)"
+            >
               {cat}
             </Badge>
           ))}
@@ -284,11 +310,7 @@ export function SupplierList() {
         title="Supplier Directory"
         description="Track supplier details, contact persons, phone numbers, locations, and supply categories"
         action={
-          <Button
-            leftSection={<IconPlus size={16} />}
-            color="blue"
-            onClick={handleOpenAddModal}
-          >
+          <Button leftSection={<IconPlus size={16} />} color="blue" onClick={handleOpenAddModal}>
             Add New Supplier
           </Button>
         }
@@ -307,7 +329,12 @@ export function SupplierList() {
                   {totalSuppliersCount}
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="blue" size="lg" radius="var(--mantine-radius-default)">
+              <ThemeIcon
+                variant="light"
+                color="blue"
+                size="lg"
+                radius="var(--mantine-radius-default)"
+              >
                 <IconTruckDelivery size={22} />
               </ThemeIcon>
             </Group>
@@ -325,7 +352,12 @@ export function SupplierList() {
                   {uniqueCategoriesCount} Categories
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="teal" size="lg" radius="var(--mantine-radius-default)">
+              <ThemeIcon
+                variant="light"
+                color="teal"
+                size="lg"
+                radius="var(--mantine-radius-default)"
+              >
                 <IconTag size={22} />
               </ThemeIcon>
             </Group>
@@ -343,7 +375,12 @@ export function SupplierList() {
                   {backupContactsCount} / {totalSuppliersCount}
                 </Text>
               </div>
-              <ThemeIcon variant="light" color="blue" size="lg" radius="var(--mantine-radius-default)">
+              <ThemeIcon
+                variant="light"
+                color="blue"
+                size="lg"
+                radius="var(--mantine-radius-default)"
+              >
                 <IconPhone size={22} />
               </ThemeIcon>
             </Group>
@@ -369,15 +406,11 @@ export function SupplierList() {
               onChange={(val) => setViewMode(val as 'table' | 'grid')}
               data={[
                 {
-                  label: (
-                    <CenterLabel icon={<IconList size={16} />} text="Table" />
-                  ),
+                  label: <CenterLabel icon={<IconList size={16} />} text="Table" />,
                   value: 'table',
                 },
                 {
-                  label: (
-                    <CenterLabel icon={<IconLayoutGrid size={16} />} text="Cards" />
-                  ),
+                  label: <CenterLabel icon={<IconLayoutGrid size={16} />} text="Cards" />,
                   value: 'grid',
                 },
               ]}
@@ -435,6 +468,7 @@ export function SupplierList() {
           loading={isLoading}
           keyExtractor={(s) => s.id}
           onRowClick={(s) => setSelectedSupplierForDrawer(s)}
+          onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
           emptyText={
             search || selectedTag
               ? 'No suppliers match your current filter criteria.'
@@ -470,7 +504,12 @@ export function SupplierList() {
                     <Stack gap="xs">
                       <Group justify="space-between" align="flex-start">
                         <Group gap="xs">
-                          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
+                          <ThemeIcon
+                            color="blue"
+                            variant="light"
+                            size="lg"
+                            radius="var(--mantine-radius-default)"
+                          >
                             <IconBuildingStore size={20} />
                           </ThemeIcon>
                           <div>
@@ -496,7 +535,10 @@ export function SupplierList() {
 
                       {/* Address */}
                       <Group gap={4} align="flex-start">
-                        <IconMapPin size={14} style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }} />
+                        <IconMapPin
+                          size={14}
+                          style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }}
+                        />
                         <Text size="xs" c="dimmed" lineClamp={2}>
                           {s.address}
                         </Text>
@@ -505,14 +547,25 @@ export function SupplierList() {
                       {/* What They Supply Tags */}
                       <Group gap={4} mt={4}>
                         {s.suppliedCategories.map((cat) => (
-                          <Badge key={cat} color="blue" variant="light" size="xs" radius="var(--mantine-radius-default)">
+                          <Badge
+                            key={cat}
+                            color="blue"
+                            variant="light"
+                            size="xs"
+                            radius="var(--mantine-radius-default)"
+                          >
                             {cat}
                           </Badge>
                         ))}
                       </Group>
                     </Stack>
 
-                    <Group justify="flex-end" gap="xs" pt="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+                    <Group
+                      justify="flex-end"
+                      gap="xs"
+                      pt="xs"
+                      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+                    >
                       <Button
                         variant="light"
                         color="blue"
@@ -590,7 +643,8 @@ export function SupplierList() {
         confirmColor="red"
         loading={deleteMutation.isPending}
       >
-        Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>? This action cannot be undone.
+        Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>? This action
+        cannot be undone.
       </ConfirmDialog>
     </Stack>
   );
@@ -600,7 +654,9 @@ function CenterLabel({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <Group gap={6} justify="center" wrap="nowrap">
       {icon}
-      <Box component="span" style={{ whiteSpace: 'nowrap' }}>{text}</Box>
+      <Box component="span" style={{ whiteSpace: 'nowrap' }}>
+        {text}
+      </Box>
     </Group>
   );
 }

@@ -16,8 +16,18 @@ const INITIAL_SUPPLIER_PRODUCTS: SupplierProduct[] = [
   { supplierId: 'sup-1', productId: 'p-01', addedAt: '2026-01-20T10:00:00Z' },
   { supplierId: 'sup-1', productId: 'p-02', addedAt: '2026-01-20T10:00:00Z' },
   { supplierId: 'sup-1', productId: 'p-03', addedAt: '2026-01-20T10:00:00Z' },
-  { supplierId: 'sup-1', productId: 'p-05', costPriceCents: 350000, addedAt: '2026-01-20T10:00:00Z' },
-  { supplierId: 'sup-1', productId: 'p-06', costPriceCents: 680000, addedAt: '2026-01-20T10:00:00Z' },
+  {
+    supplierId: 'sup-1',
+    productId: 'p-05',
+    costPriceCents: 350000,
+    addedAt: '2026-01-20T10:00:00Z',
+  },
+  {
+    supplierId: 'sup-1',
+    productId: 'p-06',
+    costPriceCents: 680000,
+    addedAt: '2026-01-20T10:00:00Z',
+  },
   { supplierId: 'sup-1', productId: 'p-07', addedAt: '2026-01-20T10:00:00Z' },
   { supplierId: 'sup-1', productId: 'p-09', addedAt: '2026-02-05T10:00:00Z' },
   { supplierId: 'sup-1', productId: 'p-10', addedAt: '2026-02-05T10:00:00Z' },
@@ -50,8 +60,19 @@ const INITIAL_SUPPLIER_PRODUCTS: SupplierProduct[] = [
   { supplierId: 'sup-3', productId: 'p-42', addedAt: '2026-04-01T10:00:00Z' },
 
   // sup-4 → Phone accessories (overlaps with sup-1 for some items)
-  { supplierId: 'sup-4', productId: 'p-01', costPriceCents: 75000, notes: 'Bulk discount on 100+ units', addedAt: '2026-04-10T10:00:00Z' },
-  { supplierId: 'sup-4', productId: 'p-02', costPriceCents: 115000, addedAt: '2026-04-10T10:00:00Z' },
+  {
+    supplierId: 'sup-4',
+    productId: 'p-01',
+    costPriceCents: 75000,
+    notes: 'Bulk discount on 100+ units',
+    addedAt: '2026-04-10T10:00:00Z',
+  },
+  {
+    supplierId: 'sup-4',
+    productId: 'p-02',
+    costPriceCents: 115000,
+    addedAt: '2026-04-10T10:00:00Z',
+  },
   { supplierId: 'sup-4', productId: 'p-04', addedAt: '2026-04-10T10:00:00Z' },
   { supplierId: 'sup-4', productId: 'p-15', addedAt: '2026-04-10T10:00:00Z' },
   { supplierId: 'sup-4', productId: 'p-16', addedAt: '2026-04-10T10:00:00Z' },
@@ -59,8 +80,19 @@ const INITIAL_SUPPLIER_PRODUCTS: SupplierProduct[] = [
   { supplierId: 'sup-4', productId: 'p-20', addedAt: '2026-04-10T10:00:00Z' },
 
   // sup-5 → Inks (overlaps with sup-2 and sup-3 for ink items)
-  { supplierId: 'sup-5', productId: 'p-29', costPriceCents: 70000, notes: 'Premium eco-solvent grade', addedAt: '2026-05-15T10:00:00Z' },
-  { supplierId: 'sup-5', productId: 'p-30', costPriceCents: 70000, addedAt: '2026-05-15T10:00:00Z' },
+  {
+    supplierId: 'sup-5',
+    productId: 'p-29',
+    costPriceCents: 70000,
+    notes: 'Premium eco-solvent grade',
+    addedAt: '2026-05-15T10:00:00Z',
+  },
+  {
+    supplierId: 'sup-5',
+    productId: 'p-30',
+    costPriceCents: 70000,
+    addedAt: '2026-05-15T10:00:00Z',
+  },
   { supplierId: 'sup-5', productId: 'p-39', addedAt: '2026-05-15T10:00:00Z' },
   { supplierId: 'sup-5', productId: 'p-40', addedAt: '2026-05-15T10:00:00Z' },
   { supplierId: 'sup-5', productId: 'p-41', addedAt: '2026-05-15T10:00:00Z' },
@@ -75,7 +107,10 @@ const loadFromStorage = (): SupplierProduct[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SUPPLIER_PRODUCTS);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.SUPPLIER_PRODUCTS, JSON.stringify(INITIAL_SUPPLIER_PRODUCTS));
+      localStorage.setItem(
+        STORAGE_KEYS.SUPPLIER_PRODUCTS,
+        JSON.stringify(INITIAL_SUPPLIER_PRODUCTS)
+      );
       return INITIAL_SUPPLIER_PRODUCTS;
     }
     return JSON.parse(raw);
@@ -107,7 +142,7 @@ export const getLinksForSupplier = async (supplierId: string): Promise<SupplierP
     setTimeout(() => {
       const all = loadFromStorage();
       resolve(all.filter((l) => l.supplierId === supplierId));
-    }, 100),
+    }, 100)
   );
 
 /** Get links for a single product. */
@@ -116,7 +151,7 @@ export const getLinksForProduct = async (productId: string): Promise<SupplierPro
     setTimeout(() => {
       const all = loadFromStorage();
       resolve(all.filter((l) => l.productId === productId));
-    }, 100),
+    }, 100)
   );
 
 /** Create a new link. Duplicate composite keys are silently ignored. */
@@ -125,12 +160,12 @@ export const linkSupplierProduct = async (input: SupplierProductInput): Promise<
     setTimeout(() => {
       const current = loadFromStorage();
       const exists = current.some(
-        (l) => l.supplierId === input.supplierId && l.productId === input.productId,
+        (l) => l.supplierId === input.supplierId && l.productId === input.productId
       );
       if (exists) {
         // Update existing link
         const idx = current.findIndex(
-          (l) => l.supplierId === input.supplierId && l.productId === input.productId,
+          (l) => l.supplierId === input.supplierId && l.productId === input.productId
         );
         const updated: SupplierProduct = {
           ...current[idx],
@@ -148,29 +183,29 @@ export const linkSupplierProduct = async (input: SupplierProductInput): Promise<
       const updatedList = [...current, link];
       saveToStorage(updatedList);
       resolve(link);
-    }, 100),
+    }, 100)
   );
 
 /** Remove a link by composite key. */
 export const unlinkSupplierProduct = async (
   supplierId: string,
-  productId: string,
+  productId: string
 ): Promise<boolean> =>
   new Promise((resolve) =>
     setTimeout(() => {
       const current = loadFromStorage();
       const filtered = current.filter(
-        (l) => !(l.supplierId === supplierId && l.productId === productId),
+        (l) => !(l.supplierId === supplierId && l.productId === productId)
       );
       saveToStorage(filtered);
       resolve(true);
-    }, 100),
+    }, 100)
   );
 
 /** Bulk-set links for a supplier (used by the form modal). Replaces ALL links for this supplier. */
 export const setLinksForSupplier = async (
   supplierId: string,
-  productIds: string[],
+  productIds: string[]
 ): Promise<SupplierProduct[]> =>
   new Promise((resolve) =>
     setTimeout(() => {
@@ -179,7 +214,7 @@ export const setLinksForSupplier = async (
       const otherLinks = current.filter((l) => l.supplierId !== supplierId);
       // Preserve existing link metadata where possible
       const existingMap = new Map(
-        current.filter((l) => l.supplierId === supplierId).map((l) => [l.productId, l]),
+        current.filter((l) => l.supplierId === supplierId).map((l) => [l.productId, l])
       );
       const newLinks: SupplierProduct[] = productIds.map((productId) => {
         const existing = existingMap.get(productId);
@@ -192,5 +227,5 @@ export const setLinksForSupplier = async (
       });
       saveToStorage([...otherLinks, ...newLinks]);
       resolve(newLinks);
-    }, 100),
+    }, 100)
   );

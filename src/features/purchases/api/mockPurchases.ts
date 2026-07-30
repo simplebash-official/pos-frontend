@@ -42,12 +42,12 @@ const MOCK_PURCHASES: StockPurchase[] = [
     totalCostCents: 8500000,
     date: '2023-12-05T09:15:00Z',
     referenceNo: 'INV-5501',
-  }
+  },
 ];
 
 export const mockPurchasesApi = {
   getPurchases: async (): Promise<StockPurchase[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     const data = localStorage.getItem(STORAGE_KEYS.PURCHASES);
     if (!data) {
       localStorage.setItem(STORAGE_KEYS.PURCHASES, JSON.stringify(MOCK_PURCHASES));
@@ -57,30 +57,34 @@ export const mockPurchasesApi = {
   },
 
   createPurchase: async (input: StockPurchaseInput): Promise<StockPurchase> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     const current = await mockPurchasesApi.getPurchases();
-    
+
     const newPurchase: StockPurchase = {
       ...input,
       id: `pur-${Date.now()}`,
       date: input.date || new Date().toISOString(),
       totalCostCents: input.unitCostCents * input.quantity,
     };
-    
+
     const updated = [...current, newPurchase];
     localStorage.setItem(STORAGE_KEYS.PURCHASES, JSON.stringify(updated));
     return newPurchase;
   },
-  
+
   getPurchasesBySupplier: async (supplierId: string): Promise<StockPurchase[]> => {
     const all = await mockPurchasesApi.getPurchases();
     // Sort descending by date
-    return all.filter(p => p.supplierId === supplierId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return all
+      .filter((p) => p.supplierId === supplierId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
-  
+
   getPurchasesByProduct: async (productId: string): Promise<StockPurchase[]> => {
     const all = await mockPurchasesApi.getPurchases();
     // Sort descending by date
-    return all.filter(p => p.productId === productId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }
+    return all
+      .filter((p) => p.productId === productId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  },
 };

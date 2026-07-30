@@ -121,7 +121,12 @@ export function SupplierPickerModal({
         <ScrollArea.Autosize mah={440} offsetScrollbars>
           <Stack gap="xs" pt={6} pb={6} px={4}>
             {filtered.length === 0 ? (
-              <Paper p="xl" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="xl"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Center>
                   <Stack gap={6} align="center">
                     <IconBuildingStore size={32} style={{ opacity: 0.3 }} />
@@ -144,7 +149,12 @@ export function SupplierPickerModal({
                 >
                   <Group justify="space-between" align="center" wrap="nowrap" gap="md">
                     {/* Left Icon & Info */}
-                    <Group gap="md" wrap="nowrap" style={{ minWidth: 0, flex: 1 }} align="flex-start">
+                    <Group
+                      gap="md"
+                      wrap="nowrap"
+                      style={{ minWidth: 0, flex: 1 }}
+                      align="flex-start"
+                    >
                       <ThemeIcon
                         color="blue"
                         variant="light"
@@ -182,12 +192,23 @@ export function SupplierPickerModal({
 
                         <Group gap={4} mt={6} wrap="wrap">
                           {s.suppliedCategories.slice(0, 3).map((cat) => (
-                            <Badge key={cat} size="xs" variant="light" color="blue" radius="var(--mantine-radius-default)">
+                            <Badge
+                              key={cat}
+                              size="xs"
+                              variant="light"
+                              color="blue"
+                              radius="var(--mantine-radius-default)"
+                            >
                               {cat}
                             </Badge>
                           ))}
                           {s.suppliedCategories.length > 3 && (
-                            <Badge size="xs" variant="light" color="gray" radius="var(--mantine-radius-default)">
+                            <Badge
+                              size="xs"
+                              variant="light"
+                              color="gray"
+                              radius="var(--mantine-radius-default)"
+                            >
                               +{s.suppliedCategories.length - 3}
                             </Badge>
                           )}
@@ -218,7 +239,12 @@ export function SupplierPickerModal({
         </ScrollArea.Autosize>
 
         {/* Footer */}
-        <Group justify="space-between" align="center" pt="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+        <Group
+          justify="space-between"
+          align="center"
+          pt="xs"
+          style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+        >
           <Text size="xs" c="dimmed" fw={500}>
             Showing {filtered.length} of {suppliers.length - excludeIds.length} available vendors
           </Text>

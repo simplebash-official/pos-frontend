@@ -1,19 +1,35 @@
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { IconPlus, IconCheck } from '@tabler/icons-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob } from '../types';
-import { fetchRepairs } from '../api/mockRepairs';
+import { fetchRepairs, deleteRepairs } from '../api/mockRepairs';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 
 export function RepairJobList() {
+  const queryClient = useQueryClient();
+
   const { data: repairJobs = [], isLoading } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: fetchRepairs,
+  });
+
+  const deleteBatchMutation = useMutation({
+    mutationFn: deleteRepairs,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
+      notifications.show({
+        title: 'Repair Tickets Deleted',
+        message: 'Selected repair tickets removed',
+        color: 'orange',
+        icon: <IconCheck size={16} />,
+      });
+    },
   });
 
   const columns: Column<RepairJob>[] = [
@@ -74,6 +90,7 @@ export function RepairJobList() {
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
+        onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
         emptyText="No repair jobs recorded yet"
       />
     </div>

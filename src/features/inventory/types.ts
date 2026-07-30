@@ -1,7 +1,5 @@
 export type MainCategory =
-  | 'Phone Repairs'
-  | 'Mug, T-Shirt & Print Customization'
-  | 'General Printing';
+  'Phone Repairs' | 'Mug, T-Shirt & Print Customization' | 'General Printing';
 
 export type SubCategory =
   // Phone Repairs

@@ -4,7 +4,6 @@ import { INITIAL_SUPPLIERS } from './data';
 
 export { INITIAL_SUPPLIERS };
 
-
 const loadSuppliersFromStorage = (): Supplier[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SUPPLIERS);
@@ -82,6 +81,18 @@ export const deleteSupplier = async (id: string): Promise<boolean> => {
     setTimeout(() => {
       const current = loadSuppliersFromStorage();
       const filtered = current.filter((s) => s.id !== id);
+      saveSuppliersToStorage(filtered);
+      resolve(true);
+    }, 200);
+  });
+};
+
+export const deleteSuppliers = async (ids: string[]): Promise<boolean> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const current = loadSuppliersFromStorage();
+      const idSet = new Set(ids);
+      const filtered = current.filter((s) => !idSet.has(s.id));
       saveSuppliersToStorage(filtered);
       resolve(true);
     }, 200);

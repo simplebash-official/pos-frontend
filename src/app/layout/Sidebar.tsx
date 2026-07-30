@@ -57,7 +57,9 @@ export function Sidebar({ closeMobile }: SidebarProps) {
         <Divider my="xs" />
         <NavLink
           label="Dark Mode"
-          leftSection={isDark ? <IconMoon size={20} stroke={1.5} /> : <IconSun size={20} stroke={1.5} />}
+          leftSection={
+            isDark ? <IconMoon size={20} stroke={1.5} /> : <IconSun size={20} stroke={1.5} />
+          }
           rightSection={
             <Switch
               checked={isDark}

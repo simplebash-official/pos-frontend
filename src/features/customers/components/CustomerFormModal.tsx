@@ -1,13 +1,4 @@
-import {
-  Modal,
-  TextInput,
-  Textarea,
-  Button,
-  Group,
-  Stack,
-  MultiSelect,
-  Grid,
-} from '@mantine/core';
+import { Modal, TextInput, Textarea, Button, Group, Stack, MultiSelect, Grid } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { Customer, CustomerInput } from '../types';
 import { PRESET_CUSTOMER_TAGS } from '../constants';
@@ -39,6 +30,7 @@ export function CustomerFormModal({
 
   useEffect(() => {
     if (customerToEdit) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(customerToEdit.name);
       setContactPerson(customerToEdit.contactPerson || '');
       setPrimaryPhone(customerToEdit.primaryPhone);

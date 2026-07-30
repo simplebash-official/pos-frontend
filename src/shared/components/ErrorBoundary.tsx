@@ -28,11 +28,7 @@ export function ErrorBoundary() {
           <Text size="sm" c="dimmed">
             {errorMessage}
           </Text>
-          <Button
-            size="md"
-            mt="md"
-            onClick={() => (window.location.href = ROUTES.BILLING)}
-          >
+          <Button size="md" mt="md" onClick={() => (window.location.href = ROUTES.BILLING)}>
             Return to Dashboard
           </Button>
         </Stack>

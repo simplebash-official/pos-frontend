@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
+import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import {
   Button,
   Badge,
@@ -23,6 +24,7 @@ import {
   Center,
   Loader,
   ScrollArea,
+  Checkbox,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -32,7 +34,6 @@ import {
   IconChevronDown,
   IconArrowsMaximize,
   IconArrowsMinimize,
-  IconEdit,
   IconPackage,
   IconBuildingStore,
   IconBarcode,
@@ -43,11 +44,13 @@ import {
   IconLink,
   IconUnlink,
   IconReceipt,
+  IconTrash,
+  IconEdit,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { Product } from '../types';
-import { fetchProducts } from '../api/mockProducts';
+import { fetchProducts, deleteProducts } from '../api/mockProducts';
 import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
@@ -58,12 +61,12 @@ import {
   useSuppliersForProduct,
   useLinkProduct,
   useUnlinkProduct,
+  EnrichedLinkedSupplier,
 } from '@/features/supplier-products/hooks/useSupplierProducts';
 import { usePurchasesByProduct } from '@/features/purchases/hooks/usePurchases';
 
-
-
 export function ProductTable() {
+  const queryClient = useQueryClient();
   const { data: initialProducts = [], isLoading } = useQuery({
     queryKey: queryKeys.inventory.all,
     queryFn: fetchProducts,
@@ -71,6 +74,25 @@ export function ProductTable() {
 
   const [search, setSearch] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+
+  // Multi-selection state & delete modal
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  const deleteBatchMutation = useMutation({
+    mutationFn: deleteProducts,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      notifications.show({
+        title: 'Products Deleted',
+        message: 'Selected inventory items removed successfully',
+        color: 'red',
+        icon: <IconCheck size={16} />,
+      });
+      setSelectedProductIds([]);
+      setConfirmDeleteOpen(false);
+    },
+  });
 
   // Selected item for Right-Side Drawer
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -84,10 +106,10 @@ export function ProductTable() {
 
   // Supplier-product linking
   const { data: linkedSuppliers = [], isLoading: loadingSuppliers } = useSuppliersForProduct(
-    selectedProduct?.id || '',
+    selectedProduct?.id || ''
   );
   const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesByProduct(
-    selectedProduct?.id || '',
+    selectedProduct?.id || ''
   );
   const linkMutation = useLinkProduct();
   const unlinkMutation = useUnlinkProduct();
@@ -104,7 +126,7 @@ export function ProductTable() {
             color: 'teal',
           });
         },
-      },
+      }
     );
   };
 
@@ -120,7 +142,7 @@ export function ProductTable() {
             color: 'orange',
           });
         },
-      },
+      }
     );
   };
 
@@ -197,7 +219,9 @@ export function ProductTable() {
 
   // Stats calculation
   const totalProducts = initialProducts.length;
-  const lowStockCount = initialProducts.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+  const lowStockCount = initialProducts.filter(
+    (p) => p.stockQuantity <= p.minStockThreshold
+  ).length;
   const categoriesCount = new Set(initialProducts.map((p) => p.category)).size;
 
   const handleUpdateStockInDrawer = () => {
@@ -289,11 +313,7 @@ export function ProductTable() {
                   {lowStockCount} {lowStockCount === 1 ? 'Item' : 'Items'}
                 </Text>
               </div>
-              <ThemeIcon
-                variant="light"
-                color={lowStockCount > 0 ? 'red' : 'green'}
-                size="lg"
-              >
+              <ThemeIcon variant="light" color={lowStockCount > 0 ? 'red' : 'green'} size="lg">
                 <IconAlertTriangle size={22} />
               </ThemeIcon>
             </Group>
@@ -338,12 +358,40 @@ export function ProductTable() {
               )
             }
           >
-            {expandedCategories.length === categoryNames.length
-              ? 'Collapse All'
-              : 'Expand All'}
+            {expandedCategories.length === categoryNames.length ? 'Collapse All' : 'Expand All'}
           </Button>
         </Group>
       </Paper>
+
+      {/* Batch Action Bar when items are selected */}
+      {selectedProductIds.length > 0 && (
+        <Paper p="xs" px="md" bg="var(--mantine-color-blue-light)" withBorder radius="md">
+          <Group justify="space-between" align="center">
+            <Group gap="sm">
+              <Badge color="blue" size="md" variant="filled">
+                {selectedProductIds.length} items selected
+              </Badge>
+              <Button
+                variant="subtle"
+                size="xs"
+                color="gray"
+                onClick={() => setSelectedProductIds([])}
+              >
+                Deselect All
+              </Button>
+            </Group>
+
+            <Button
+              color="red"
+              size="xs"
+              leftSection={<IconTrash size={14} />}
+              onClick={() => setConfirmDeleteOpen(true)}
+            >
+              Delete Selected ({selectedProductIds.length})
+            </Button>
+          </Group>
+        </Paper>
+      )}
 
       {/* Accordion Tree Table View */}
       {hierarchy.size === 0 ? (
@@ -372,7 +420,9 @@ export function ProductTable() {
 
             subcategoriesMap.forEach((prods) => {
               catTotalItems += prods.length;
-              catLowStockCount += prods.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+              catLowStockCount += prods.filter(
+                (p) => p.stockQuantity <= p.minStockThreshold
+              ).length;
             });
 
             return (
@@ -414,6 +464,26 @@ export function ProductTable() {
                       const subLowStock = items.filter(
                         (i) => i.stockQuantity <= i.minStockThreshold
                       ).length;
+
+                      const subItemIds = items.map((i) => i.id);
+                      const isAllSubSelected =
+                        subItemIds.length > 0 &&
+                        subItemIds.every((id) => selectedProductIds.includes(id));
+                      const isSomeSubSelected =
+                        subItemIds.some((id) => selectedProductIds.includes(id)) &&
+                        !isAllSubSelected;
+
+                      const toggleSubAll = () => {
+                        if (isAllSubSelected) {
+                          setSelectedProductIds(
+                            selectedProductIds.filter((id) => !subItemIds.includes(id))
+                          );
+                        } else {
+                          setSelectedProductIds(
+                            Array.from(new Set([...selectedProductIds, ...subItemIds]))
+                          );
+                        }
+                      };
 
                       return (
                         <Paper
@@ -468,9 +538,23 @@ export function ProductTable() {
                           {/* Collapsible Subcategory Table */}
                           <Collapse expanded={!isSubCollapsed}>
                             <Box pt="xs">
-                              <Table verticalSpacing="xs" horizontalSpacing="sm" highlightOnHover striped>
+                              <Table
+                                verticalSpacing="xs"
+                                horizontalSpacing="sm"
+                                highlightOnHover
+                                striped
+                              >
                                 <Table.Thead>
                                   <Table.Tr>
+                                    <Table.Th style={{ width: 40, textAlign: 'center' }}>
+                                      <Checkbox
+                                        size="xs"
+                                        aria-label="Select all subcategory items"
+                                        checked={isAllSubSelected}
+                                        indeterminate={isSomeSubSelected}
+                                        onChange={toggleSubAll}
+                                      />
+                                    </Table.Th>
                                     <Table.Th style={{ width: 110 }}>SKU</Table.Th>
                                     <Table.Th>Product / Material Name</Table.Th>
                                     <Table.Th style={{ textAlign: 'right', width: 130 }}>
@@ -480,20 +564,44 @@ export function ProductTable() {
                                       Stock Level
                                     </Table.Th>
                                     <Table.Th style={{ width: 170 }}>Updated At</Table.Th>
-                                    <Table.Th style={{ textAlign: 'right', width: 80 }}>Action</Table.Th>
                                   </Table.Tr>
                                 </Table.Thead>
 
                                 <Table.Tbody>
                                   {items.map((prod) => {
                                     const isLow = prod.stockQuantity <= prod.minStockThreshold;
+                                    const isSelected = selectedProductIds.includes(prod.id);
 
                                     return (
                                       <Table.Tr
                                         key={prod.id}
+                                        bg={
+                                          isSelected ? 'var(--mantine-color-blue-light)' : undefined
+                                        }
                                         onClick={() => setSelectedProduct(prod)}
                                         style={{ cursor: 'pointer' }}
                                       >
+                                        <Table.Td
+                                          style={{ textAlign: 'center' }}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <Checkbox
+                                            size="xs"
+                                            checked={isSelected}
+                                            onChange={() => {
+                                              if (isSelected) {
+                                                setSelectedProductIds(
+                                                  selectedProductIds.filter((id) => id !== prod.id)
+                                                );
+                                              } else {
+                                                setSelectedProductIds([
+                                                  ...selectedProductIds,
+                                                  prod.id,
+                                                ]);
+                                              }
+                                            }}
+                                          />
+                                        </Table.Td>
                                         <Table.Td>
                                           <Text size="xs" fw={700} c="blue">
                                             {prod.sku}
@@ -523,21 +631,6 @@ export function ProductTable() {
                                             {formatDateTime(prod.updatedAt || '')}
                                           </Text>
                                         </Table.Td>
-                                        <Table.Td style={{ textAlign: 'right' }}>
-                                          <Tooltip label="View details in Drawer">
-                                            <ActionIcon
-                                              variant="subtle"
-                                              color="gray"
-                                              size="sm"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedProduct(prod);
-                                              }}
-                                            >
-                                              <IconEdit size={14} />
-                                            </ActionIcon>
-                                          </Tooltip>
-                                        </Table.Td>
                                       </Table.Tr>
                                     );
                                   })}
@@ -555,6 +648,19 @@ export function ProductTable() {
           })}
         </Accordion>
       )}
+
+      <ConfirmDialog
+        opened={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        onConfirm={() => deleteBatchMutation.mutate(selectedProductIds)}
+        title="Delete Selected Products"
+        confirmLabel={`Delete ${selectedProductIds.length} Products`}
+        confirmColor="red"
+        loading={deleteBatchMutation.isPending}
+      >
+        Are you sure you want to delete <strong>{selectedProductIds.length}</strong> selected
+        product(s)? This action cannot be undone.
+      </ConfirmDialog>
 
       {/* Right-Side Item Details Drawer */}
       <Drawer
@@ -703,7 +809,11 @@ export function ProductTable() {
 
                   <Badge
                     variant="light"
-                    color={selectedProduct.stockQuantity <= selectedProduct.minStockThreshold ? 'red' : 'gray'}
+                    color={
+                      selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
+                        ? 'red'
+                        : 'gray'
+                    }
                     size="sm"
                   >
                     Min Threshold: {selectedProduct.minStockThreshold} units
@@ -740,7 +850,10 @@ export function ProductTable() {
             {/* Linked Suppliers */}
             <Group justify="space-between" align="center">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Linked Suppliers <Text component="span" c="blue" fw={800}>({linkedSuppliers.length})</Text>
+                Linked Suppliers{' '}
+                <Text component="span" c="blue" fw={800}>
+                  ({linkedSuppliers.length})
+                </Text>
               </Text>
               <Tooltip label="Link a supplier" withArrow>
                 <ActionIcon
@@ -772,7 +885,7 @@ export function ProductTable() {
             ) : (
               <ScrollArea.Autosize mah={320} offsetScrollbars>
                 <Stack gap={6} pt={4} pb={4} px={2}>
-                  {linkedSuppliers.map((ls: any) => (
+                  {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
                     <Paper
                       key={ls.supplierId}
                       p="xs"
@@ -819,7 +932,10 @@ export function ProductTable() {
             {/* Stock Intake History */}
             <Group justify="space-between" align="center" mt="sm">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Stock Intake History <Text component="span" c="blue" fw={800}>({purchases.length})</Text>
+                Stock Intake History{' '}
+                <Text component="span" c="blue" fw={800}>
+                  ({purchases.length})
+                </Text>
               </Text>
               <Tooltip label="Receive Stock" withArrow>
                 <ActionIcon
@@ -838,7 +954,12 @@ export function ProductTable() {
                 <Loader size="sm" />
               </Center>
             ) : purchases.length === 0 ? (
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="sm"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Center py="xs">
                   <Stack gap={4} align="center">
                     <IconReceipt size={20} style={{ opacity: 0.4 }} />
@@ -872,7 +993,8 @@ export function ProductTable() {
                             </Badge>
                           </Group>
                           <Text size="xs" c="dimmed" mt={4}>
-                            {formatDateTime(purchase.date)} {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                            {formatDateTime(purchase.date)}{' '}
+                            {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
                           </Text>
                         </div>
                       </Group>
@@ -966,7 +1088,7 @@ export function ProductTable() {
         opened={supplierPickerOpen}
         onClose={() => setSupplierPickerOpen(false)}
         onSelect={(supplierId) => handleLinkSupplier(supplierId)}
-        excludeIds={linkedSuppliers.map((ls: any) => ls.supplierId)}
+        excludeIds={linkedSuppliers.map((ls: EnrichedLinkedSupplier) => ls.supplierId)}
       />
 
       {selectedProduct && (

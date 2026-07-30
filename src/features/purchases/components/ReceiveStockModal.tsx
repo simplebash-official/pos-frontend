@@ -38,17 +38,24 @@ export const ReceiveStockModal = ({
   const [unitCost, setUnitCost] = useState<number | string>(''); // in rupees
   const [date, setDate] = useState<Date | null>(new Date());
   const [referenceNo, setReferenceNo] = useState('');
-  
+
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
 
-  const { data: products } = useQuery({ queryKey: queryKeys.inventory.all, queryFn: fetchProducts });
-  const { data: suppliers } = useQuery({ queryKey: queryKeys.suppliers.all, queryFn: fetchSuppliers });
+  const { data: products } = useQuery({
+    queryKey: queryKeys.inventory.all,
+    queryFn: fetchProducts,
+  });
+  const { data: suppliers } = useQuery({
+    queryKey: queryKeys.suppliers.all,
+    queryFn: fetchSuppliers,
+  });
   const { mutate: createPurchase, isPending } = useCreatePurchase();
 
   // Reset state when modal opens
   useEffect(() => {
     if (opened) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProductId(initialProductId);
       setSupplierId(initialSupplierId);
       setQuantity(1);
@@ -58,8 +65,8 @@ export const ReceiveStockModal = ({
     }
   }, [opened, initialProductId, initialSupplierId]);
 
-  const selectedProduct = products?.find(p => p.id === productId);
-  const selectedSupplier = suppliers?.find(s => s.id === supplierId);
+  const selectedProduct = products?.find((p) => p.id === productId);
+  const selectedSupplier = suppliers?.find((s) => s.id === supplierId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,9 +91,9 @@ export const ReceiveStockModal = ({
 
   return (
     <>
-      <Modal 
-        opened={opened} 
-        onClose={onClose} 
+      <Modal
+        opened={opened}
+        onClose={onClose}
         title={<Text fw={600}>Receive Stock</Text>}
         size="md"
       >
@@ -95,19 +102,33 @@ export const ReceiveStockModal = ({
             {/* Product Selection */}
             {!initialProductId && (
               <Stack gap={4}>
-                <Text size="sm" fw={500}>Product</Text>
+                <Text size="sm" fw={500}>
+                  Product
+                </Text>
                 {selectedProduct ? (
-                  <Group justify="space-between" p="xs" style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: '4px' }}>
+                  <Group
+                    justify="space-between"
+                    p="xs"
+                    style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: '4px' }}
+                  >
                     <Group>
                       <IconPackage size={16} />
                       <Text size="sm">{selectedProduct.name}</Text>
                     </Group>
-                    <ActionIcon variant="subtle" color="red" onClick={() => setProductId(undefined)}>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      onClick={() => setProductId(undefined)}
+                    >
                       <IconX size={16} />
                     </ActionIcon>
                   </Group>
                 ) : (
-                  <Button variant="light" leftSection={<IconPackage size={16} />} onClick={() => setProductPickerOpen(true)}>
+                  <Button
+                    variant="light"
+                    leftSection={<IconPackage size={16} />}
+                    onClick={() => setProductPickerOpen(true)}
+                  >
                     Select Product
                   </Button>
                 )}
@@ -117,19 +138,33 @@ export const ReceiveStockModal = ({
             {/* Supplier Selection */}
             {!initialSupplierId && (
               <Stack gap={4}>
-                <Text size="sm" fw={500}>Supplier</Text>
+                <Text size="sm" fw={500}>
+                  Supplier
+                </Text>
                 {selectedSupplier ? (
-                  <Group justify="space-between" p="xs" style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: '4px' }}>
+                  <Group
+                    justify="space-between"
+                    p="xs"
+                    style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: '4px' }}
+                  >
                     <Group>
                       <IconBuildingStore size={16} />
                       <Text size="sm">{selectedSupplier.name}</Text>
                     </Group>
-                    <ActionIcon variant="subtle" color="red" onClick={() => setSupplierId(undefined)}>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      onClick={() => setSupplierId(undefined)}
+                    >
                       <IconX size={16} />
                     </ActionIcon>
                   </Group>
                 ) : (
-                  <Button variant="light" leftSection={<IconBuildingStore size={16} />} onClick={() => setSupplierPickerOpen(true)}>
+                  <Button
+                    variant="light"
+                    leftSection={<IconBuildingStore size={16} />}
+                    onClick={() => setSupplierPickerOpen(true)}
+                  >
                     Select Supplier
                   </Button>
                 )}
@@ -172,7 +207,9 @@ export const ReceiveStockModal = ({
             </Group>
 
             <Group justify="flex-end" mt="md">
-              <Button variant="subtle" onClick={onClose}>Cancel</Button>
+              <Button variant="subtle" onClick={onClose}>
+                Cancel
+              </Button>
               <Button type="submit" loading={isPending} disabled={!productId || !supplierId}>
                 Receive Stock
               </Button>

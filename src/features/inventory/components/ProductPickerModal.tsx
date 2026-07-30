@@ -14,12 +14,7 @@ import {
   ActionIcon,
   Box,
 } from '@mantine/core';
-import {
-  IconSearch,
-  IconPackage,
-  IconPlus,
-  IconX,
-} from '@tabler/icons-react';
+import { IconSearch, IconPackage, IconPlus, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchProducts } from '../api/mockProducts';
@@ -123,7 +118,12 @@ export function ProductPickerModal({
         <ScrollArea.Autosize mah={440} offsetScrollbars>
           <Stack gap="xs" pt={6} pb={6} px={4}>
             {filtered.length === 0 ? (
-              <Paper p="xl" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="xl"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Center>
                   <Stack gap={6} align="center">
                     <IconPackage size={32} style={{ opacity: 0.3 }} />
@@ -151,7 +151,12 @@ export function ProductPickerModal({
                   >
                     <Group justify="space-between" align="center" wrap="nowrap" gap="md">
                       {/* Left Icon & Info */}
-                      <Group gap="md" wrap="nowrap" style={{ minWidth: 0, flex: 1 }} align="flex-start">
+                      <Group
+                        gap="md"
+                        wrap="nowrap"
+                        style={{ minWidth: 0, flex: 1 }}
+                        align="flex-start"
+                      >
                         <ThemeIcon
                           color={catColor}
                           variant="light"
@@ -168,10 +173,20 @@ export function ProductPickerModal({
                           </Text>
 
                           <Group gap={6} mt={6} wrap="wrap">
-                            <Badge size="xs" variant="filled" color="blue" radius="var(--mantine-radius-default)">
+                            <Badge
+                              size="xs"
+                              variant="filled"
+                              color="blue"
+                              radius="var(--mantine-radius-default)"
+                            >
                               {p.sku}
                             </Badge>
-                            <Badge size="xs" variant="light" color={catColor} radius="var(--mantine-radius-default)">
+                            <Badge
+                              size="xs"
+                              variant="light"
+                              color={catColor}
+                              radius="var(--mantine-radius-default)"
+                            >
                               {p.subcategory}
                             </Badge>
                             <Badge
@@ -220,7 +235,12 @@ export function ProductPickerModal({
         </ScrollArea.Autosize>
 
         {/* Footer */}
-        <Group justify="space-between" align="center" pt="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+        <Group
+          justify="space-between"
+          align="center"
+          pt="xs"
+          style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+        >
           <Text size="xs" c="dimmed" fw={500}>
             Showing {filtered.length} of {products.length - excludeIds.length} available items
           </Text>

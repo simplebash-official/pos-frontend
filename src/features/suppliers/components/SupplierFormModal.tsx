@@ -31,7 +31,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchProducts } from '@/features/inventory/api/mockProducts';
-import { getLinksForSupplier, setLinksForSupplier } from '@/features/supplier-products/api/mockSupplierProducts';
+import {
+  getLinksForSupplier,
+  setLinksForSupplier,
+} from '@/features/supplier-products/api/mockSupplierProducts';
 import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
@@ -85,7 +88,7 @@ function SupplierFormContent({
   });
 
   const [linkedProductIds, setLinkedProductIds] = useState<string[]>(
-    existingLinks.map((l) => l.productId),
+    existingLinks.map((l) => l.productId)
   );
 
   // Sync once existingLinks loads
@@ -114,13 +117,12 @@ function SupplierFormContent({
 
   const linkedProducts = useMemo(() => {
     const productMap = new Map(allProducts.map((p) => [p.id, p]));
-    return linkedProductIds
-      .map((id) => productMap.get(id))
-      .filter(Boolean) as typeof allProducts;
+    return linkedProductIds.map((id) => productMap.get(id)).filter(Boolean) as typeof allProducts;
   }, [allProducts, linkedProductIds]);
 
   const addProduct = (id: string) => setLinkedProductIds((prev) => [...prev, id]);
-  const removeProduct = (id: string) => setLinkedProductIds((prev) => prev.filter((pid) => pid !== id));
+  const removeProduct = (id: string) =>
+    setLinkedProductIds((prev) => prev.filter((pid) => pid !== id));
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -285,12 +287,7 @@ function SupplierFormContent({
           {linkedProducts.length > 0 && (
             <Stack gap={4}>
               {linkedProducts.map((p) => (
-                <Paper
-                  key={p.id}
-                  p="xs"
-                  withBorder
-                  radius="var(--mantine-radius-default)"
-                >
+                <Paper key={p.id} p="xs" withBorder radius="var(--mantine-radius-default)">
                   <Group justify="space-between" align="center" wrap="nowrap">
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <Text size="xs" fw={700} lineClamp={1}>

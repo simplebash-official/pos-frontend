@@ -13,7 +13,9 @@ export interface StockPurchase {
   notes?: string;
 }
 
-export type StockPurchaseInput = Omit<StockPurchase, 'id' | 'totalCostCents' | 'date'> & { date?: string };
+export type StockPurchaseInput = Omit<StockPurchase, 'id' | 'totalCostCents' | 'date'> & {
+  date?: string;
+};
 
 // Enriched type for UI
 export interface EnrichedStockPurchase extends StockPurchase {

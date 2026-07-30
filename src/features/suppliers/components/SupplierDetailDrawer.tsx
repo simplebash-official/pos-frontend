@@ -32,7 +32,12 @@ import { notifications } from '@mantine/notifications';
 import { Supplier } from '../types';
 import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
-import { useProductsForSupplier, useUnlinkProduct, useLinkProduct } from '@/features/supplier-products/hooks/useSupplierProducts';
+import {
+  useProductsForSupplier,
+  useUnlinkProduct,
+  useLinkProduct,
+  EnrichedLinkedProduct,
+} from '@/features/supplier-products/hooks/useSupplierProducts';
 import { usePurchasesBySupplier } from '@/features/purchases/hooks/usePurchases';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
@@ -58,10 +63,10 @@ export function SupplierDetailDrawer({
   const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
   const { data: linkedProducts = [], isLoading: loadingProducts } = useProductsForSupplier(
-    supplier?.id || '',
+    supplier?.id || ''
   );
   const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesBySupplier(
-    supplier?.id || '',
+    supplier?.id || ''
   );
   const unlinkMutation = useUnlinkProduct();
   const linkMutation = useLinkProduct();
@@ -78,7 +83,7 @@ export function SupplierDetailDrawer({
             color: 'teal',
           });
         },
-      },
+      }
     );
   };
 
@@ -94,7 +99,7 @@ export function SupplierDetailDrawer({
             color: 'orange',
           });
         },
-      },
+      }
     );
   };
 
@@ -106,7 +111,12 @@ export function SupplierDetailDrawer({
         onClose={onClose}
         title={
           <Group gap="xs">
-            <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
+            <ThemeIcon
+              color="blue"
+              variant="light"
+              size="lg"
+              radius="var(--mantine-radius-default)"
+            >
               <IconBuildingStore size={20} />
             </ThemeIcon>
             <div>
@@ -123,7 +133,12 @@ export function SupplierDetailDrawer({
         {(sup) => (
           <Stack gap="md" pt="xs">
             {/* Header Banner */}
-            <Paper p="md" radius="var(--mantine-radius-default)" withBorder bg="var(--mantine-color-body)">
+            <Paper
+              p="md"
+              radius="var(--mantine-radius-default)"
+              withBorder
+              bg="var(--mantine-color-body)"
+            >
               <Text fw={800} size="lg" mb={4}>
                 {sup.name}
               </Text>
@@ -164,7 +179,10 @@ export function SupplierDetailDrawer({
             </Text>
             <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
               <Group gap="xs" align="flex-start">
-                <IconMapPin size={18} style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }} />
+                <IconMapPin
+                  size={18}
+                  style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }}
+                />
                 <div>
                   <Text size="sm" fw={500}>
                     {sup.address}
@@ -181,7 +199,13 @@ export function SupplierDetailDrawer({
               <Group gap={6}>
                 <IconTag size={16} style={{ opacity: 0.6 }} />
                 {sup.suppliedCategories.map((cat) => (
-                  <Badge key={cat} color="blue" variant="light" size="sm" radius="var(--mantine-radius-default)">
+                  <Badge
+                    key={cat}
+                    color="blue"
+                    variant="light"
+                    size="sm"
+                    radius="var(--mantine-radius-default)"
+                  >
                     {cat}
                   </Badge>
                 ))}
@@ -191,7 +215,10 @@ export function SupplierDetailDrawer({
             {/* Linked Products */}
             <Group justify="space-between" align="center">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Linked Inventory Products <Text component="span" c="blue" fw={800}>({linkedProducts.length})</Text>
+                Linked Inventory Products{' '}
+                <Text component="span" c="blue" fw={800}>
+                  ({linkedProducts.length})
+                </Text>
               </Text>
               <Tooltip label="Link a product" withArrow>
                 <ActionIcon
@@ -210,7 +237,12 @@ export function SupplierDetailDrawer({
                 <Loader size="sm" />
               </Center>
             ) : linkedProducts.length === 0 ? (
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="sm"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Center py="xs">
                   <Stack gap={4} align="center">
                     <IconLink size={20} style={{ opacity: 0.4 }} />
@@ -223,7 +255,7 @@ export function SupplierDetailDrawer({
             ) : (
               <ScrollArea.Autosize mah={320} offsetScrollbars>
                 <Stack gap={6} pt={4} pb={4} px={2}>
-                  {linkedProducts.map((lp: any) => (
+                  {linkedProducts.map((lp: EnrichedLinkedProduct) => (
                     <Paper
                       key={lp.productId}
                       p="xs"
@@ -275,7 +307,10 @@ export function SupplierDetailDrawer({
             {/* Purchase History */}
             <Group justify="space-between" align="center" mt="sm">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Stock Purchase History <Text component="span" c="blue" fw={800}>({purchases.length})</Text>
+                Stock Purchase History{' '}
+                <Text component="span" c="blue" fw={800}>
+                  ({purchases.length})
+                </Text>
               </Text>
               <Tooltip label="Receive Stock" withArrow>
                 <ActionIcon
@@ -294,7 +329,12 @@ export function SupplierDetailDrawer({
                 <Loader size="sm" />
               </Center>
             ) : purchases.length === 0 ? (
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="sm"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Center py="xs">
                   <Stack gap={4} align="center">
                     <IconReceipt size={20} style={{ opacity: 0.4 }} />
@@ -328,7 +368,8 @@ export function SupplierDetailDrawer({
                             </Badge>
                           </Group>
                           <Text size="xs" c="dimmed" mt={4}>
-                            {formatDateTime(purchase.date)} {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                            {formatDateTime(purchase.date)}{' '}
+                            {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
                           </Text>
                         </div>
                       </Group>
@@ -344,7 +385,12 @@ export function SupplierDetailDrawer({
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   Notes & Special Instructions
                 </Text>
-                <Paper p="sm" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+                <Paper
+                  p="sm"
+                  withBorder
+                  radius="var(--mantine-radius-default)"
+                  style={{ backgroundColor: 'var(--mantine-color-body)' }}
+                >
                   <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
                     {sup.notes}
                   </Text>
@@ -417,7 +463,7 @@ export function SupplierDetailDrawer({
         opened={pickerOpen}
         onClose={() => setPickerOpen(false)}
         onSelect={(productId) => handleLink(productId)}
-        excludeIds={linkedProducts.map((lp: any) => lp.productId)}
+        excludeIds={linkedProducts.map((lp: EnrichedLinkedProduct) => lp.productId)}
       />
 
       {supplier && (

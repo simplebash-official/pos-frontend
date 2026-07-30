@@ -1,12 +1,4 @@
-import {
-  Group,
-  Burger,
-  Title,
-  Button,
-  Badge,
-  ActionIcon,
-  Tooltip,
-} from '@mantine/core';
+import { Group, Burger, Title, Button, Badge, ActionIcon, Tooltip } from '@mantine/core';
 import { IconShoppingCart, IconUserCheck } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/billing/hooks/useCart';

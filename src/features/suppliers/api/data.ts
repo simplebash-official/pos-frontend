@@ -10,7 +10,8 @@ export const INITIAL_SUPPLIERS: Supplier[] = [
     address: 'No. 45, First Cross Street, Pettah, Colombo 11',
     suppliedCategories: ['Phone Parts', 'Display Assemblies', 'Batteries', 'Repair Tools'],
     email: 'sales@colombomobileparts.lk',
-    notes: 'Preferred supplier for iPhone and Samsung original displays. Delivery on Tuesdays & Fridays.',
+    notes:
+      'Preferred supplier for iPhone and Samsung original displays. Delivery on Tuesdays & Fridays.',
     createdAt: '2026-01-15T09:00:00.000Z',
     updatedAt: '2026-07-20T14:30:00.000Z',
   },
@@ -23,7 +24,8 @@ export const INITIAL_SUPPLIERS: Supplier[] = [
     address: 'No. 120, High Level Road, Maharagama',
     suppliedCategories: ['Mug Blanks', 'Sublimation Inks', 'Heat Transfer Paper', 'T-Shirt Blanks'],
     email: 'info@lankasublimation.com',
-    notes: 'Grade-A white ceramic 11oz mugs and Epson sublimation ink. Free delivery on orders over 50 units.',
+    notes:
+      'Grade-A white ceramic 11oz mugs and Epson sublimation ink. Free delivery on orders over 50 units.',
     createdAt: '2026-02-01T10:15:00.000Z',
     updatedAt: '2026-07-25T11:20:00.000Z',
   },
@@ -36,7 +38,8 @@ export const INITIAL_SUPPLIERS: Supplier[] = [
     address: 'No. 88, Main Street, Kandy',
     suppliedCategories: ['Paper & Ink', 'General Stationery', 'Receipt Rolls', 'Packaging Boxes'],
     email: 'orders@citypaperdepot.lk',
-    notes: '80gsm A4 paper reams, thermal POS receipt rolls (80mm x 80mm), and cardboard packing boxes.',
+    notes:
+      '80gsm A4 paper reams, thermal POS receipt rolls (80mm x 80mm), and cardboard packing boxes.',
     createdAt: '2026-03-10T11:00:00.000Z',
     updatedAt: '2026-07-18T16:45:00.000Z',
   },

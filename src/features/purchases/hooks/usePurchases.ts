@@ -11,13 +11,13 @@ export const usePurchasesBySupplier = (supplierId: string) => {
     queryFn: async () => {
       const purchases = await mockPurchasesApi.getPurchasesBySupplier(supplierId);
       const allSuppliers = await fetchSuppliers();
-      const supplier = allSuppliers.find(s => s.id === supplierId);
+      const supplier = allSuppliers.find((s) => s.id === supplierId);
       const allProducts = await fetchProducts();
-      
-      const enriched: EnrichedStockPurchase[] = purchases.map(p => ({
+
+      const enriched: EnrichedStockPurchase[] = purchases.map((p) => ({
         ...p,
         supplier: supplier!,
-        product: allProducts.find(prod => prod.id === p.productId)!,
+        product: allProducts.find((prod) => prod.id === p.productId)!,
       }));
       return enriched;
     },
@@ -31,13 +31,13 @@ export const usePurchasesByProduct = (productId: string) => {
     queryFn: async () => {
       const purchases = await mockPurchasesApi.getPurchasesByProduct(productId);
       const allProducts = await fetchProducts();
-      const product = allProducts.find(p => p.id === productId);
+      const product = allProducts.find((p) => p.id === productId);
       const allSuppliers = await fetchSuppliers();
-      
-      const enriched: EnrichedStockPurchase[] = purchases.map(p => ({
+
+      const enriched: EnrichedStockPurchase[] = purchases.map((p) => ({
         ...p,
         product: product!,
-        supplier: allSuppliers.find(sup => sup.id === p.supplierId)!,
+        supplier: allSuppliers.find((sup) => sup.id === p.supplierId)!,
       }));
       return enriched;
     },
@@ -52,16 +52,20 @@ export const useCreatePurchase = () => {
     mutationFn: async (input: StockPurchaseInput) => {
       // 1. Log the purchase
       const purchase = await mockPurchasesApi.createPurchase(input);
-      
-      // Note: We'd normally update the inventory stock quantity here, 
+
+      // Note: We'd normally update the inventory stock quantity here,
       // but mockProducts.ts currently uses a static array without localStorage persistence.
-      
+
       return purchase;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.purchases.bySupplier(variables.supplierId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.purchases.byProduct(variables.productId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.purchases.bySupplier(variables.supplierId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.purchases.byProduct(variables.productId),
+      });
     },
   });
 };

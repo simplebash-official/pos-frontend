@@ -23,6 +23,18 @@ export const SAMPLE_PRINT_JOBS: PrintJob[] = [
   },
 ];
 
+let printJobsStore: PrintJob[] = [...SAMPLE_PRINT_JOBS];
+
 export const fetchPrintJobs = async (): Promise<PrintJob[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve(SAMPLE_PRINT_JOBS), 300));
+  return new Promise((resolve) => setTimeout(() => resolve([...printJobsStore]), 300));
+};
+
+export const deletePrintJobs = async (ids: string[]): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const idSet = new Set(ids);
+      printJobsStore = printJobsStore.filter((p) => !idSet.has(p.id));
+      resolve();
+    }, 300);
+  });
 };
