@@ -11,6 +11,7 @@ import {
   Grid,
   ThemeIcon,
   ActionIcon,
+  Tooltip,
   SegmentedControl,
   Chip,
   Box,
@@ -31,6 +32,7 @@ import {
   IconList,
   IconCheck,
   IconFilter,
+  IconCopy,
 } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -189,6 +191,17 @@ export function SupplierList() {
     }
   };
 
+  const handleCopyPhone = (e: React.MouseEvent, phone: string, label: string) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(phone);
+    notifications.show({
+      title: 'Copied!',
+      message: `${label} phone (${phone}) copied to clipboard`,
+      color: 'teal',
+      icon: <IconCheck size={16} />,
+    });
+  };
+
   // Table Columns Definition
   const columns: Column<Supplier>[] = [
     {
@@ -234,18 +247,42 @@ export function SupplierList() {
             <Badge size="xs" variant="light" color="teal" radius="xs" fw={700} w={60} style={{ justifyContent: 'center' }}>
               Primary
             </Badge>
-            <Text size="xs" fw={700}>
-              {s.primaryPhone}
-            </Text>
+            <Group gap={4} wrap="nowrap" align="center">
+              <Text size="xs" fw={700}>
+                {s.primaryPhone}
+              </Text>
+              <Tooltip label="Copy Primary Phone" withArrow position="top">
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  onClick={(e) => handleCopyPhone(e, s.primaryPhone, 'Primary')}
+                  style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+                >
+                  <IconCopy size={10} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
           </Group>
           {s.secondaryPhone && (
             <Group gap={6} wrap="nowrap" align="center">
               <Badge size="xs" variant="light" color="orange" radius="xs" fw={700} w={60} style={{ justifyContent: 'center' }}>
                 Backup
               </Badge>
-              <Text size="xs" fw={600} c="dimmed">
-                {s.secondaryPhone}
-              </Text>
+              <Group gap={4} wrap="nowrap" align="center">
+                <Text size="xs" fw={600} c="dimmed">
+                  {s.secondaryPhone}
+                </Text>
+                <Tooltip label="Copy Backup Phone" withArrow position="top">
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    onClick={(e) => handleCopyPhone(e, s.secondaryPhone!, 'Backup')}
+                    style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+                  >
+                    <IconCopy size={10} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
             </Group>
           )}
         </Stack>
