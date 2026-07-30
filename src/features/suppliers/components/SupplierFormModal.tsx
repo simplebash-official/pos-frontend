@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Modal,
   TextInput,
@@ -8,6 +8,13 @@ import {
   Group,
   Stack,
   Grid,
+  Text,
+  Badge,
+  Paper,
+  ActionIcon,
+  Tooltip,
+  Center,
+  ScrollArea,
 } from '@mantine/core';
 import {
   IconBuildingStore,
@@ -16,7 +23,16 @@ import {
   IconMapPin,
   IconTag,
   IconMail,
+  IconPackage,
+  IconPlus,
+  IconX,
+  IconSearch,
 } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { getLinksForSupplier, setLinksForSupplier } from '@/features/supplier-products/api/mockSupplierProducts';
+import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 
 export interface SupplierFormModalProps {
@@ -71,6 +87,56 @@ function SupplierFormContent({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Product linking
+  const { data: allProducts = [] } = useQuery({
+    queryKey: queryKeys.inventory.all,
+    queryFn: fetchProducts,
+  });
+
+  const { data: existingLinks = [] } = useQuery({
+    queryKey: queryKeys.supplierProducts.bySupplier(supplierToEdit?.id ?? ''),
+    queryFn: () => getLinksForSupplier(supplierToEdit!.id),
+    enabled: !!supplierToEdit?.id,
+  });
+
+  const [linkedProductIds, setLinkedProductIds] = useState<string[]>(
+    existingLinks.map((l) => l.productId),
+  );
+
+  // Sync once existingLinks loads
+  const [synced, setSynced] = useState(false);
+  if (existingLinks.length > 0 && !synced) {
+    setLinkedProductIds(existingLinks.map((l) => l.productId));
+    setSynced(true);
+  }
+
+  const [productSearch, setProductSearch] = useState('');
+
+  const availableProducts = useMemo(() => {
+    const linkedSet = new Set(linkedProductIds);
+    return allProducts
+      .filter((p) => !linkedSet.has(p.id))
+      .filter((p) => {
+        if (!productSearch) return true;
+        const q = productSearch.toLowerCase();
+        return (
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          p.subcategory.toLowerCase().includes(q)
+        );
+      });
+  }, [allProducts, linkedProductIds, productSearch]);
+
+  const linkedProducts = useMemo(() => {
+    const productMap = new Map(allProducts.map((p) => [p.id, p]));
+    return linkedProductIds
+      .map((id) => productMap.get(id))
+      .filter(Boolean) as typeof allProducts;
+  }, [allProducts, linkedProductIds]);
+
+  const addProduct = (id: string) => setLinkedProductIds((prev) => [...prev, id]);
+  const removeProduct = (id: string) => setLinkedProductIds((prev) => prev.filter((pid) => pid !== id));
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -99,6 +165,14 @@ function SupplierFormContent({
     if (!validate()) return;
 
     await onSubmit(formData);
+
+    // Save product links after the supplier is created/updated
+    if (supplierToEdit) {
+      await setLinksForSupplier(supplierToEdit.id, linkedProductIds);
+    }
+    // For new suppliers, the caller needs to handle linking after creation
+    // since we don't have the ID yet. We store the IDs on the form for now.
+
     onClose();
   };
 
@@ -213,6 +287,104 @@ function SupplierFormContent({
           value={formData.notes}
           onChange={(e) => handleChange('notes', e.currentTarget.value)}
         />
+
+        {/* Linked Products */}
+        <Stack gap="xs">
+          <Group justify="space-between" align="center">
+            <Text size="sm" fw={700}>
+              <IconPackage size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+              Linked Products ({linkedProducts.length})
+            </Text>
+          </Group>
+
+          {linkedProducts.length > 0 && (
+            <Stack gap={4}>
+              {linkedProducts.map((p) => (
+                <Paper
+                  key={p.id}
+                  p="xs"
+                  withBorder
+                  radius="var(--mantine-radius-default)"
+                >
+                  <Group justify="space-between" align="center" wrap="nowrap">
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <Text size="xs" fw={700} lineClamp={1}>
+                        {p.name}
+                      </Text>
+                      <Group gap={4} mt={2}>
+                        <Badge size="xs" variant="filled" color="blue">
+                          {p.sku}
+                        </Badge>
+                        <Badge size="xs" variant="light" color="gray">
+                          {p.subcategory}
+                        </Badge>
+                      </Group>
+                    </div>
+                    <Tooltip label="Remove" withArrow>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        size="sm"
+                        onClick={() => removeProduct(p.id)}
+                      >
+                        <IconX size={14} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+
+          {/* Quick product search and add */}
+          <TextInput
+            placeholder="Search products to link…"
+            leftSection={<IconSearch size={14} />}
+            size="xs"
+            value={productSearch}
+            onChange={(e) => setProductSearch(e.currentTarget.value)}
+          />
+
+          {productSearch && (
+            <ScrollArea.Autosize mah={150}>
+              <Stack gap={2}>
+                {availableProducts.length === 0 ? (
+                  <Center py="xs">
+                    <Text size="xs" c="dimmed">
+                      No matching products found.
+                    </Text>
+                  </Center>
+                ) : (
+                  availableProducts.slice(0, 8).map((p) => (
+                    <Paper
+                      key={p.id}
+                      p="4px 8px"
+                      radius="var(--mantine-radius-default)"
+                      className="hover-card"
+                      onClick={() => {
+                        addProduct(p.id);
+                        setProductSearch('');
+                      }}
+                      style={{ border: '1px solid var(--mantine-color-default-border)' }}
+                    >
+                      <Group gap={6} wrap="nowrap">
+                        <IconPlus size={12} style={{ opacity: 0.5, flexShrink: 0 }} />
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <Text size="xs" fw={600} lineClamp={1}>
+                            {p.name}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {p.sku} · {formatMoney(p.costPriceCents)}
+                          </Text>
+                        </div>
+                      </Group>
+                    </Paper>
+                  ))
+                )}
+              </Stack>
+            </ScrollArea.Autosize>
+          )}
+        </Stack>
 
         <Group justify="flex-end" gap="sm" mt="md">
           <Button variant="default" onClick={onClose} disabled={loading}>

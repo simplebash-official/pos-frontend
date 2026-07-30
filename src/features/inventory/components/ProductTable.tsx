@@ -20,6 +20,8 @@ import {
   Box,
   Drawer,
   Divider,
+  Center,
+  Loader,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -40,6 +42,8 @@ import {
   IconTag,
   IconTrendingUp,
   IconCheck,
+  IconLink,
+  IconUnlink,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -48,6 +52,12 @@ import { fetchProducts } from '../api/mockProducts';
 import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
+import { SupplierPickerModal } from '@/shared/components/SupplierPickerModal';
+import {
+  useSuppliersForProduct,
+  useLinkProduct,
+  useUnlinkProduct,
+} from '@/features/supplier-products/hooks/useSupplierProducts';
 
 // Mapping categories to distinct visual icons
 const CATEGORY_ICONS: Record<string, typeof IconDeviceMobile> = {
@@ -76,6 +86,48 @@ export function ProductTable() {
 
   // Quick stock adjustment in drawer
   const [stockAdjustment, setStockAdjustment] = useState<number>(0);
+
+  // Supplier picker modal
+  const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
+
+  // Supplier-product linking
+  const { data: linkedSuppliers = [], isLoading: loadingSuppliers } = useSuppliersForProduct(
+    selectedProduct?.id,
+  );
+  const linkMutation = useLinkProduct();
+  const unlinkMutation = useUnlinkProduct();
+
+  const handleLinkSupplier = (supplierId: string) => {
+    if (!selectedProduct) return;
+    linkMutation.mutate(
+      { supplierId, productId: selectedProduct.id },
+      {
+        onSuccess: () => {
+          notifications.show({
+            title: 'Supplier Linked',
+            message: 'Supplier has been linked to this product.',
+            color: 'teal',
+          });
+        },
+      },
+    );
+  };
+
+  const handleUnlinkSupplier = (supplierId: string) => {
+    if (!selectedProduct) return;
+    unlinkMutation.mutate(
+      { supplierId, productId: selectedProduct.id },
+      {
+        onSuccess: () => {
+          notifications.show({
+            title: 'Supplier Unlinked',
+            message: 'Supplier has been removed from this product.',
+            color: 'orange',
+          });
+        },
+      },
+    );
+  };
 
   // Subcategory collapse state map (key format: `${category}::${subcategory}`)
   const [collapsedSubcategories, setCollapsedSubcategories] = useState<Record<string, boolean>>({});
@@ -690,6 +742,85 @@ export function ProductTable() {
 
             <Divider my="xs" />
 
+            {/* Linked Suppliers */}
+            <Group justify="space-between" align="center">
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                Linked Suppliers ({linkedSuppliers.length})
+              </Text>
+              <Tooltip label="Link a supplier" withArrow>
+                <ActionIcon
+                  variant="light"
+                  color="blue"
+                  size="sm"
+                  onClick={() => setSupplierPickerOpen(true)}
+                >
+                  <IconPlus size={14} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+
+            {loadingSuppliers ? (
+              <Center py="md">
+                <Loader size="sm" />
+              </Center>
+            ) : linkedSuppliers.length === 0 ? (
+              <Paper p="sm" withBorder bg="var(--mantine-color-body)">
+                <Center py="xs">
+                  <Stack gap={4} align="center">
+                    <IconLink size={20} style={{ opacity: 0.4 }} />
+                    <Text size="xs" c="dimmed" ta="center">
+                      No suppliers linked yet. Click + to link a supplier.
+                    </Text>
+                  </Stack>
+                </Center>
+              </Paper>
+            ) : (
+              <Stack gap={6}>
+                {linkedSuppliers.map((ls) => (
+                  <Paper
+                    key={ls.supplierId}
+                    p="xs"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                  >
+                    <Group justify="space-between" align="center" wrap="nowrap">
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Text size="sm" fw={700} lineClamp={1}>
+                          {ls.supplier.name}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
+                        </Text>
+                        {ls.costPriceCents && (
+                          <Badge size="xs" variant="light" color="teal" mt={2}>
+                            Supplier Cost: {formatMoney(ls.costPriceCents)}
+                          </Badge>
+                        )}
+                        {ls.notes && (
+                          <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
+                            {ls.notes}
+                          </Text>
+                        )}
+                      </div>
+                      <Tooltip label="Unlink supplier" withArrow>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={() => handleUnlinkSupplier(ls.supplierId)}
+                          loading={unlinkMutation.isPending}
+                        >
+                          <IconUnlink size={14} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            <Divider my="xs" />
+
             {/* System Metadata */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
               Metadata
@@ -767,6 +898,13 @@ export function ProductTable() {
           </Stack>
         )}
       </Drawer>
+
+      <SupplierPickerModal
+        opened={supplierPickerOpen}
+        onClose={() => setSupplierPickerOpen(false)}
+        onSelect={handleLinkSupplier}
+        excludeIds={linkedSuppliers.map((ls) => ls.supplierId)}
+      />
     </Stack>
   );
 }
