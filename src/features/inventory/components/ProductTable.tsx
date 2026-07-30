@@ -22,6 +22,7 @@ import {
   Divider,
   Center,
   Loader,
+  ScrollArea,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -745,7 +746,7 @@ export function ProductTable() {
             {/* Linked Suppliers */}
             <Group justify="space-between" align="center">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Linked Suppliers ({linkedSuppliers.length})
+                Linked Suppliers <Text component="span" c="blue" fw={800}>({linkedSuppliers.length})</Text>
               </Text>
               <Tooltip label="Link a supplier" withArrow>
                 <ActionIcon
@@ -775,48 +776,50 @@ export function ProductTable() {
                 </Center>
               </Paper>
             ) : (
-              <Stack gap={6}>
-                {linkedSuppliers.map((ls) => (
-                  <Paper
-                    key={ls.supplierId}
-                    p="xs"
-                    withBorder
-                    radius="var(--mantine-radius-default)"
-                  >
-                    <Group justify="space-between" align="center" wrap="nowrap">
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <Text size="sm" fw={700} lineClamp={1}>
-                          {ls.supplier.name}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
-                        </Text>
-                        {ls.costPriceCents && (
-                          <Badge size="xs" variant="light" color="teal" mt={2}>
-                            Supplier Cost: {formatMoney(ls.costPriceCents)}
-                          </Badge>
-                        )}
-                        {ls.notes && (
-                          <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                            {ls.notes}
+              <ScrollArea.Autosize mah={320} offsetScrollbars>
+                <Stack gap={6} pt={4} pb={4} px={2}>
+                  {linkedSuppliers.map((ls) => (
+                    <Paper
+                      key={ls.supplierId}
+                      p="xs"
+                      withBorder
+                      radius="var(--mantine-radius-default)"
+                    >
+                      <Group justify="space-between" align="center" wrap="nowrap">
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <Text size="sm" fw={700} lineClamp={1}>
+                            {ls.supplier.name}
                           </Text>
-                        )}
-                      </div>
-                      <Tooltip label="Unlink supplier" withArrow>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          onClick={() => handleUnlinkSupplier(ls.supplierId)}
-                          loading={unlinkMutation.isPending}
-                        >
-                          <IconUnlink size={14} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Paper>
-                ))}
-              </Stack>
+                          <Text size="xs" c="dimmed">
+                            {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
+                          </Text>
+                          {ls.costPriceCents && (
+                            <Badge size="xs" variant="light" color="teal" mt={2}>
+                              Supplier Cost: {formatMoney(ls.costPriceCents)}
+                            </Badge>
+                          )}
+                          {ls.notes && (
+                            <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
+                              {ls.notes}
+                            </Text>
+                          )}
+                        </div>
+                        <Tooltip label="Unlink supplier" withArrow>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            size="sm"
+                            onClick={() => handleUnlinkSupplier(ls.supplierId)}
+                            loading={unlinkMutation.isPending}
+                          >
+                            <IconUnlink size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </Paper>
+                  ))}
+                </Stack>
+              </ScrollArea.Autosize>
             )}
 
             <Divider my="xs" />

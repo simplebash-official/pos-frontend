@@ -12,6 +12,7 @@ import {
   Tooltip,
   Center,
   Loader,
+  ScrollArea,
 } from '@mantine/core';
 import {
   IconBuildingStore,
@@ -187,7 +188,7 @@ export function SupplierDetailDrawer({
             {/* Linked Products */}
             <Group justify="space-between" align="center">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Linked Inventory Products ({linkedProducts.length})
+                Linked Inventory Products <Text component="span" c="blue" fw={800}>({linkedProducts.length})</Text>
               </Text>
               <Tooltip label="Link a product" withArrow>
                 <ActionIcon
@@ -217,53 +218,55 @@ export function SupplierDetailDrawer({
                 </Center>
               </Paper>
             ) : (
-              <Stack gap={6}>
-                {linkedProducts.map((lp) => (
-                  <Paper
-                    key={lp.productId}
-                    p="xs"
-                    withBorder
-                    radius="var(--mantine-radius-default)"
-                  >
-                    <Group justify="space-between" align="center" wrap="nowrap">
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <Text size="sm" fw={700} lineClamp={1}>
-                          {lp.product.name}
-                        </Text>
-                        <Group gap={6} mt={2}>
-                          <Badge size="xs" variant="filled" color="blue">
-                            {lp.product.sku}
-                          </Badge>
-                          <Badge size="xs" variant="light" color="gray">
-                            {lp.product.subcategory}
-                          </Badge>
-                          {lp.costPriceCents && (
-                            <Badge size="xs" variant="light" color="teal">
-                              Cost: {formatMoney(lp.costPriceCents)}
-                            </Badge>
-                          )}
-                        </Group>
-                        {lp.notes && (
-                          <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                            {lp.notes}
+              <ScrollArea.Autosize mah={320} offsetScrollbars>
+                <Stack gap={6} pt={4} pb={4} px={2}>
+                  {linkedProducts.map((lp) => (
+                    <Paper
+                      key={lp.productId}
+                      p="xs"
+                      withBorder
+                      radius="var(--mantine-radius-default)"
+                    >
+                      <Group justify="space-between" align="center" wrap="nowrap">
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <Text size="sm" fw={700} lineClamp={1}>
+                            {lp.product.name}
                           </Text>
-                        )}
-                      </div>
-                      <Tooltip label="Unlink product" withArrow>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          onClick={() => handleUnlink(lp.productId)}
-                          loading={unlinkMutation.isPending}
-                        >
-                          <IconUnlink size={14} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Paper>
-                ))}
-              </Stack>
+                          <Group gap={6} mt={2}>
+                            <Badge size="xs" variant="filled" color="blue">
+                              {lp.product.sku}
+                            </Badge>
+                            <Badge size="xs" variant="light" color="gray">
+                              {lp.product.subcategory}
+                            </Badge>
+                            {lp.costPriceCents && (
+                              <Badge size="xs" variant="light" color="teal">
+                                Cost: {formatMoney(lp.costPriceCents)}
+                              </Badge>
+                            )}
+                          </Group>
+                          {lp.notes && (
+                            <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
+                              {lp.notes}
+                            </Text>
+                          )}
+                        </div>
+                        <Tooltip label="Unlink product" withArrow>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            size="sm"
+                            onClick={() => handleUnlink(lp.productId)}
+                            loading={unlinkMutation.isPending}
+                          >
+                            <IconUnlink size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </Paper>
+                  ))}
+                </Stack>
+              </ScrollArea.Autosize>
             )}
 
             {/* Notes */}
