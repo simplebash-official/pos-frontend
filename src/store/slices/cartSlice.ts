@@ -8,6 +8,8 @@ export interface CartItem {
   productId: string;
   name: string;
   sku?: string;
+  category?: string;
+  subcategory?: string;
   unitPriceCents: number;
   quantity: number;
   discountCents: number;

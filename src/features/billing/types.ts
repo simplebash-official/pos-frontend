@@ -6,6 +6,8 @@ export interface InvoiceItem {
   name: string;
   productName?: string;
   sku?: string;
+  category?: string;
+  subcategory?: string;
   unitPriceCents: number;
   quantity: number;
   discountCents: number;

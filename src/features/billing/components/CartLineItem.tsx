@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Paper, Group, Box, Text, ActionIcon, Tooltip, Stack, Badge } from '@mantine/core';
+import { Paper, Group, Box, Text, ActionIcon, Tooltip, Stack, Badge, ThemeIcon } from '@mantine/core';
 import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { CartItem } from '@/store/slices/cartSlice';
 import { DiscountPopover } from './DiscountPopover';
+import { getCategoryIconInfo } from '../lib/categoryIcons';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -27,13 +28,22 @@ export function CartLineItem({
   const sourceType = item.sourceType || 'retail';
   const isServiceJob = sourceType === 'repair' || sourceType === 'print';
 
+  const iconInfo = getCategoryIconInfo({
+    category: item.category,
+    subcategory: item.subcategory,
+    sourceType: item.sourceType,
+    name: item.name,
+  });
+  const CatIcon = iconInfo.Icon;
+  const catColor = iconInfo.color;
+
   // Stripe color assignment
   const stripeColor =
     sourceType === 'repair'
       ? 'var(--mantine-color-orange-6)'
       : sourceType === 'print'
         ? 'var(--mantine-color-teal-6)'
-        : 'var(--mantine-color-blue-6)';
+        : `var(--mantine-color-${catColor}-6)`;
 
   // Calculated values
   const hasLineDiscount = item.discountCents > 0;
@@ -57,47 +67,64 @@ export function CartLineItem({
       }}
     >
       <Group justify="space-between" align="center" wrap="nowrap">
-        {/* Left: Product Name, SKU / Ticket, Stock warning & Tech note */}
-        <Box style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
-          <Group gap={6} align="center" wrap="nowrap">
-            <Text fw={600} size="sm" lineClamp={1}>
-              {item.name}
-            </Text>
-            {sourceType === 'repair' && (
-              <Badge size="xs" color="orange" variant="light" leftSection={<IconTools size={10} />}>
-                Repair
-              </Badge>
-            )}
-            {sourceType === 'print' && (
-              <Badge size="xs" color="teal" variant="light" leftSection={<IconPrinter size={10} />}>
-                Print
-              </Badge>
-            )}
-          </Group>
+        {/* Left: Category Icon, Product Name, SKU / Ticket, Stock warning & Tech note */}
+        <Group gap="xs" style={{ flex: 1, minWidth: 0, paddingRight: 8 }} wrap="nowrap">
+          <ThemeIcon size="md" radius="md" color={catColor} variant="light">
+            <CatIcon size={16} />
+          </ThemeIcon>
 
-          <Group gap="xs" align="center" mt={2}>
-            {item.sku && (
-              <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', fontSize: 11 }}>
-                {item.sku}
+          <Box style={{ flex: 1, minWidth: 0 }}>
+            <Group gap={6} align="center" wrap="nowrap">
+              <Text fw={600} size="sm" lineClamp={1}>
+                {item.name}
               </Text>
-            )}
-
-            {item.assignedEmployeeName && (
-              <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10 }}>
-                Technician: {item.assignedEmployeeName}
-              </Text>
-            )}
-          </Group>
-
-          {isStockNegative && (
-            <Group gap={4} mt={2}>
-              <IconAlertTriangle size={12} color="var(--mantine-color-amber-6)" />
-              <Text size="xs" c="amber.7" fw={600} style={{ fontSize: 10 }}>
-                Stock will go negative ({item.stockQuantity ?? 0} in stock)
-              </Text>
+              {sourceType === 'repair' && (
+                <Badge size="xs" color="orange" variant="light" leftSection={<IconTools size={10} />}>
+                  Repair
+                </Badge>
+              )}
+              {sourceType === 'print' && (
+                <Badge size="xs" color="teal" variant="light" leftSection={<IconPrinter size={10} />}>
+                  Print
+                </Badge>
+              )}
+              {sourceType === 'retail' && (item.subcategory || item.category || iconInfo.label) && (
+                <Badge
+                  size="xs"
+                  color={catColor}
+                  variant="light"
+                  leftSection={<CatIcon size={10} />}
+                  style={{ textTransform: 'none', fontWeight: 600, fontSize: 9 }}
+                >
+                  {item.subcategory || item.category || iconInfo.label}
+                </Badge>
+              )}
             </Group>
-          )}
-        </Box>
+
+            <Group gap="xs" align="center" mt={2}>
+              {item.sku && (
+                <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', fontSize: 11 }}>
+                  {item.sku}
+                </Text>
+              )}
+
+              {item.assignedEmployeeName && (
+                <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10 }}>
+                  Technician: {item.assignedEmployeeName}
+                </Text>
+              )}
+            </Group>
+
+            {isStockNegative && (
+              <Group gap={4} mt={2}>
+                <IconAlertTriangle size={12} color="var(--mantine-color-amber-6)" />
+                <Text size="xs" c="amber.7" fw={600} style={{ fontSize: 10 }}>
+                  Stock will go negative ({item.stockQuantity ?? 0} in stock)
+                </Text>
+              </Group>
+            )}
+          </Box>
+        </Group>
 
         {/* Center-Right: Quantity Input or Locked Qty */}
         <Group gap="xs" align="center" wrap="nowrap">

@@ -13,7 +13,15 @@ import {
   Box,
   Anchor,
 } from '@mantine/core';
-import { IconBarcode, IconAlertTriangle } from '@tabler/icons-react';
+import {
+  IconBarcode,
+  IconAlertTriangle,
+  IconLayoutGrid,
+  IconDeviceMobile,
+  IconShirt,
+  IconPrinter,
+  IconTools,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
@@ -24,6 +32,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { Product } from '@/features/inventory/types';
 import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
+import { getCategoryIconInfo } from '../lib/categoryIcons';
 
 // Top frequent SKUs for 1-tap strip
 const FREQUENT_SKUS = ['COV-001', 'SCR-001', 'CAB-001', 'CHG-001', 'TMP-001', 'MUG-001'];
@@ -99,6 +108,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       productId: p.id,
       name: p.name,
       sku: p.sku,
+      category: p.category,
+      subcategory: p.subcategory,
       unitPriceCents: p.sellingPriceCents,
       originalUnitPriceCents: p.sellingPriceCents,
       quantity: 1,
@@ -290,6 +301,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             size="xs"
             checked={selectedCategory === 'all'}
             onChange={() => setSelectedCategory('all')}
+            icon={<IconLayoutGrid size={13} />}
           >
             All
           </Chip>
@@ -298,6 +310,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             color="blue"
             checked={selectedCategory === 'repairs'}
             onChange={() => setSelectedCategory('repairs')}
+            icon={<IconDeviceMobile size={13} />}
           >
             Phone Repairs
           </Chip>
@@ -306,6 +319,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             color="grape"
             checked={selectedCategory === 'print'}
             onChange={() => setSelectedCategory('print')}
+            icon={<IconShirt size={13} />}
           >
             Print Customization
           </Chip>
@@ -314,10 +328,17 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             color="teal"
             checked={selectedCategory === 'general'}
             onChange={() => setSelectedCategory('general')}
+            icon={<IconPrinter size={13} />}
           >
             General Printing
           </Chip>
-          <Chip size="xs" color="orange" checked={false} onClick={onOpenServicePicker}>
+          <Chip
+            size="xs"
+            color="orange"
+            checked={false}
+            onClick={onOpenServicePicker}
+            icon={<IconTools size={13} />}
+          >
             + Services (F4)
           </Chip>
         </Group>
@@ -330,18 +351,27 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             Frequent 1-Tap Items
           </Text>
           <Group gap={6} wrap="nowrap" style={{ overflowX: 'auto', pb: 4 }}>
-            {frequentItems.map((p) => (
-              <Badge
-                key={p.id}
-                size="sm"
-                variant="light"
-                color="blue"
-                style={{ cursor: 'pointer', padding: '6px 8px' }}
-                onClick={() => handleAddProduct(p)}
-              >
-                + {p.name.split(' ')[0]} ({formatMoney(p.sellingPriceCents)})
-              </Badge>
-            ))}
+            {frequentItems.map((p) => {
+              const { Icon: ItemIcon, color: itemColor } = getCategoryIconInfo({
+                category: p.category,
+                subcategory: p.subcategory,
+                name: p.name,
+              });
+
+              return (
+                <Badge
+                  key={p.id}
+                  size="sm"
+                  variant="light"
+                  color={itemColor}
+                  leftSection={<ItemIcon size={12} />}
+                  style={{ cursor: 'pointer', padding: '6px 8px' }}
+                  onClick={() => handleAddProduct(p)}
+                >
+                  + {p.name.split(' ')[0]} ({formatMoney(p.sellingPriceCents)})
+                </Badge>
+              );
+            })}
           </Group>
         </Box>
       )}
@@ -353,6 +383,11 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             const isZeroStock = p.stockQuantity <= 0;
             const isLowStock = p.stockQuantity > 0 && p.stockQuantity <= p.minStockThreshold;
             const isSelected = index === selectedIndex;
+            const { Icon: CatIcon, color: catColor } = getCategoryIconInfo({
+              category: p.category,
+              subcategory: p.subcategory,
+              name: p.name,
+            });
 
             return (
               <Grid.Col key={p.id} span={{ base: 6, sm: 4 }}>
@@ -361,7 +396,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                   withBorder
                   radius="var(--mantine-radius-default)"
                   style={{
-                    height: 130,
+                    height: 132,
                     cursor: 'pointer',
                     opacity: isZeroStock ? 0.55 : 1,
                     borderColor: isSelected
@@ -376,16 +411,26 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                 >
                   <Stack justify="space-between" h="100%" gap={4}>
                     <div>
+                      <Group justify="space-between" align="center" gap={4} mb={3}>
+                        <Badge
+                          size="xs"
+                          color={catColor}
+                          variant="light"
+                          leftSection={<CatIcon size={10} />}
+                          style={{ textTransform: 'none', fontWeight: 600, fontSize: 9 }}
+                        >
+                          {p.subcategory || p.category}
+                        </Badge>
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          style={{ fontFamily: 'monospace', fontSize: 10 }}
+                        >
+                          {p.sku}
+                        </Text>
+                      </Group>
                       <Text size="xs" fw={700} lineClamp={2} style={{ lineHeight: 1.25 }}>
                         {p.name}
-                      </Text>
-                      <Text
-                        size="xs"
-                        c="dimmed"
-                        style={{ fontFamily: 'monospace', fontSize: 10 }}
-                        mt={2}
-                      >
-                        {p.sku}
                       </Text>
                     </div>
 
