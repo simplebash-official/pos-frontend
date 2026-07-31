@@ -9,7 +9,7 @@ import {
   Grid,
   Card,
   ScrollArea,
-  Chip,
+  Button,
   Box,
   Anchor,
 } from '@mantine/core';
@@ -34,8 +34,7 @@ import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 
-// Top frequent SKUs for 1-tap strip
-const FREQUENT_SKUS = ['COV-001', 'SCR-001', 'CAB-001', 'CHG-001', 'TMP-001', 'MUG-001'];
+// Top frequent items section removed per request
 
 export interface CatalogPanelProps {
   onOpenServicePicker: () => void;
@@ -97,10 +96,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     });
   }, [products, selectedCategory, search]);
 
-  // Frequent Items list
-  const frequentItems = useMemo(() => {
-    return products.filter((p) => FREQUENT_SKUS.includes(p.sku));
-  }, [products]);
+
 
   const handleAddProduct = (p: Product) => {
     add({
@@ -294,89 +290,65 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
         )}
       </Paper>
 
-      {/* 2. Category Chips Row */}
+      {/* 2. Category Chips / Filter Pills Row */}
       <ScrollArea scrollbars="x" type="never">
         <Group gap={6} wrap="nowrap" py={2}>
-          <Chip
+          <Button
             size="xs"
-            checked={selectedCategory === 'all'}
-            onChange={() => setSelectedCategory('all')}
-            icon={<IconLayoutGrid size={13} />}
+            variant={selectedCategory === 'all' ? 'filled' : 'light'}
+            color="blue"
+            leftSection={<IconLayoutGrid size={15} />}
+            onClick={() => setSelectedCategory('all')}
+            radius="xl"
           >
             All
-          </Chip>
-          <Chip
+          </Button>
+          <Button
             size="xs"
+            variant={selectedCategory === 'repairs' ? 'filled' : 'light'}
             color="blue"
-            checked={selectedCategory === 'repairs'}
-            onChange={() => setSelectedCategory('repairs')}
-            icon={<IconDeviceMobile size={13} />}
+            leftSection={<IconDeviceMobile size={15} />}
+            onClick={() => setSelectedCategory('repairs')}
+            radius="xl"
           >
             Phone Repairs
-          </Chip>
-          <Chip
+          </Button>
+          <Button
             size="xs"
+            variant={selectedCategory === 'print' ? 'filled' : 'light'}
             color="grape"
-            checked={selectedCategory === 'print'}
-            onChange={() => setSelectedCategory('print')}
-            icon={<IconShirt size={13} />}
+            leftSection={<IconShirt size={15} />}
+            onClick={() => setSelectedCategory('print')}
+            radius="xl"
           >
             Print Customization
-          </Chip>
-          <Chip
+          </Button>
+          <Button
             size="xs"
+            variant={selectedCategory === 'general' ? 'filled' : 'light'}
             color="teal"
-            checked={selectedCategory === 'general'}
-            onChange={() => setSelectedCategory('general')}
-            icon={<IconPrinter size={13} />}
+            leftSection={<IconPrinter size={15} />}
+            onClick={() => setSelectedCategory('general')}
+            radius="xl"
           >
             General Printing
-          </Chip>
-          <Chip
+          </Button>
+          <Button
             size="xs"
+            variant="outline"
             color="orange"
-            checked={false}
+            leftSection={<IconTools size={15} />}
             onClick={onOpenServicePicker}
-            icon={<IconTools size={13} />}
+            radius="xl"
           >
             + Services (F4)
-          </Chip>
+          </Button>
         </Group>
       </ScrollArea>
 
-      {/* 3. Frequent Items Strip (Pinned above grid when no search active) */}
-      {!search.trim() && (
-        <Box>
-          <Text size="xs" fw={700} c="dimmed" mb={4} tt="uppercase" style={{ fontSize: 10 }}>
-            Frequent 1-Tap Items
-          </Text>
-          <Group gap={6} wrap="nowrap" style={{ overflowX: 'auto', pb: 4 }}>
-            {frequentItems.map((p) => {
-              const { Icon: ItemIcon, color: itemColor } = getCategoryIconInfo({
-                category: p.category,
-                subcategory: p.subcategory,
-                name: p.name,
-              });
 
-              return (
-                <Badge
-                  key={p.id}
-                  size="sm"
-                  variant="light"
-                  color={itemColor}
-                  leftSection={<ItemIcon size={12} />}
-                  style={{ cursor: 'pointer', padding: '6px 8px' }}
-                  onClick={() => handleAddProduct(p)}
-                >
-                  + {p.name.split(' ')[0]} ({formatMoney(p.sellingPriceCents)})
-                </Badge>
-              );
-            })}
-          </Group>
-        </Box>
-      )}
 
-      {/* 4. Product Grid (3-4 columns, 120-140px tiles) */}
+      {/* 4. Product Grid (Zero overlap, crisp cards with clear category icons) */}
       <ScrollArea style={{ flex: 1 }} offsetScrollbars p={4}>
         <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
           {filteredProducts.map((p, index) => {
@@ -396,7 +368,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                   withBorder
                   radius="var(--mantine-radius-default)"
                   style={{
-                    height: 132,
+                    height: 128,
                     cursor: 'pointer',
                     opacity: isZeroStock ? 0.55 : 1,
                     borderColor: isSelected
@@ -410,32 +382,53 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                   onClick={() => handleAddProduct(p)}
                 >
                   <Stack justify="space-between" h="100%" gap={4}>
-                    <div>
-                      <Group justify="space-between" align="center" gap={4} mb={3}>
-                        <Badge
-                          size="xs"
-                          color={catColor}
-                          variant="light"
-                          leftSection={<CatIcon size={10} />}
-                          style={{ textTransform: 'none', fontWeight: 600, fontSize: 9 }}
-                        >
-                          {p.subcategory || p.category}
-                        </Badge>
-                        <Text
-                          size="xs"
-                          c="dimmed"
-                          style={{ fontFamily: 'monospace', fontSize: 10 }}
-                        >
-                          {p.sku}
-                        </Text>
-                      </Group>
-                      <Text size="xs" fw={700} lineClamp={2} style={{ lineHeight: 1.25 }}>
+                    {/* Top Header Row: Category Badge with Icon + SKU */}
+                    <Group justify="space-between" align="center" wrap="nowrap">
+                      <Badge
+                        size="xs"
+                        color={catColor}
+                        variant="light"
+                        leftSection={<CatIcon size={13} />}
+                        style={{
+                          textTransform: 'none',
+                          fontWeight: 700,
+                          fontSize: 10,
+                          paddingLeft: 6,
+                          paddingRight: 8,
+                        }}
+                      >
+                        {p.subcategory || p.category}
+                      </Badge>
+
+                      <Text
+                        size="xs"
+                        c="dimmed"
+                        style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
+                      >
+                        {p.sku}
+                      </Text>
+                    </Group>
+
+                    {/* Middle Row: Full width Product Name */}
+                    <Box style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                      <Text
+                        size="xs"
+                        fw={700}
+                        lineClamp={2}
+                        style={{ lineHeight: 1.3, fontSize: 12 }}
+                      >
                         {p.name}
                       </Text>
-                    </div>
+                    </Box>
 
+                    {/* Bottom Row: Price & Stock Badge */}
                     <Group justify="space-between" align="flex-end">
-                      <Text size="xs" fw={800} c="blue">
+                      <Text
+                        size="sm"
+                        fw={800}
+                        c="blue.7"
+                        style={{ fontSize: 14, fontFamily: 'monospace' }}
+                      >
                         {formatMoney(p.sellingPriceCents)}
                       </Text>
 
@@ -449,7 +442,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                         </Badge>
                       ) : (
                         <Badge size="xs" color="gray" variant="light">
-                          {p.stockQuantity}
+                          {p.stockQuantity} Left
                         </Badge>
                       )}
                     </Group>

@@ -69,8 +69,14 @@ export function CartLineItem({
       <Group justify="space-between" align="center" wrap="nowrap">
         {/* Left: Category Icon, Product Name, SKU / Ticket, Stock warning & Tech note */}
         <Group gap="xs" style={{ flex: 1, minWidth: 0, paddingRight: 8 }} wrap="nowrap">
-          <ThemeIcon size="md" radius="md" color={catColor} variant="light">
-            <CatIcon size={16} />
+          <ThemeIcon
+            size={40}
+            radius="md"
+            color={catColor}
+            variant="light"
+            style={{ minWidth: 40, flexShrink: 0 }}
+          >
+            <CatIcon size={24} />
           </ThemeIcon>
 
           <Box style={{ flex: 1, minWidth: 0 }}>
