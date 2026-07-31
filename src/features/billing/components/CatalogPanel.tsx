@@ -45,7 +45,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
 
   const { add, attachCustomer, soundEnabled, customerId } = useCart();
@@ -212,19 +212,23 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     if (filteredProducts.length === 0) return;
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      setSelectedIndex((prev) => Math.min(filteredProducts.length - 1, prev + 1));
+      setSelectedIndex((prev) =>
+        prev === null ? 0 : Math.min(filteredProducts.length - 1, prev + 1)
+      );
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      setSelectedIndex((prev) => Math.max(0, prev - 1));
+      setSelectedIndex((prev) => (prev === null ? 0 : Math.max(0, prev - 1)));
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((prev) => Math.min(filteredProducts.length - 1, prev + 3));
+      setSelectedIndex((prev) =>
+        prev === null ? 0 : Math.min(filteredProducts.length - 1, prev + 3)
+      );
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) => Math.max(0, prev - 3));
+      setSelectedIndex((prev) => (prev === null ? 0 : Math.max(0, prev - 3)));
     } else if (e.key === 'Enter' && e.target !== scanInputRef.current) {
       e.preventDefault();
-      if (filteredProducts[selectedIndex]) {
+      if (selectedIndex !== null && filteredProducts[selectedIndex]) {
         handleAddProduct(filteredProducts[selectedIndex]);
       }
     }
@@ -354,7 +358,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
           {filteredProducts.map((p, index) => {
             const isZeroStock = p.stockQuantity <= 0;
             const isLowStock = p.stockQuantity > 0 && p.stockQuantity <= p.minStockThreshold;
-            const isSelected = index === selectedIndex;
+            const isSelected = selectedIndex !== null && index === selectedIndex;
             const { Icon: CatIcon, color: catColor } = getCategoryIconInfo({
               category: p.category,
               subcategory: p.subcategory,
@@ -366,18 +370,15 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                 <Card
                   p="xs"
                   withBorder
+                  className="product-catalog-card"
                   radius="var(--mantine-radius-default)"
                   style={{
                     height: 128,
-                    cursor: 'pointer',
                     opacity: isZeroStock ? 0.55 : 1,
                     borderColor: isSelected
                       ? 'var(--mantine-color-blue-6)'
-                      : 'var(--mantine-color-default-border)',
+                      : undefined,
                     boxShadow: isSelected ? '0 0 0 2px var(--mantine-color-blue-4)' : undefined,
-                    transition: 'all 0.12s ease',
-                    transform: isSelected ? 'translateY(-2px)' : undefined,
-                    backgroundColor: 'var(--bg-card)',
                   }}
                   onClick={() => handleAddProduct(p)}
                 >

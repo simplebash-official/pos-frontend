@@ -26,6 +26,18 @@
   transform: translateY(-1px);
 }
 
+.product-catalog-card {
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.product-catalog-card:hover {
+  background-color: var(--mantine-color-blue-0) !important;
+  border-color: var(--mantine-color-blue-4) !important;
+  box-shadow: 0 4px 14px rgba(34, 139, 230, 0.15) !important;
+  transform: translateY(-2px);
+}
+
 /* Billing Counter Animations */
 @keyframes shake {
   0%,
