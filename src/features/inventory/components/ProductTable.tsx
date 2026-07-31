@@ -50,7 +50,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { Product } from '../types';
-import { fetchProducts, deleteProducts } from '../api/mockProducts';
+import { fetchProducts, deleteProducts, adjustStock } from '../api/mockProducts';
 import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
@@ -195,13 +195,35 @@ export function ProductTable() {
 
   // Category expand state management
   const categoryNames = useMemo(() => Array.from(hierarchy.keys()), [hierarchy]);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(categoryNames);
+  const [userCollapsedCategories, setUserCollapsedCategories] = useState<string[]>([]);
+  const expandedCategories = useMemo(
+    () => categoryNames.filter((cat) => !userCollapsedCategories.includes(cat)),
+    [categoryNames, userCollapsedCategories]
+  );
+
+  // Stock adjustment mutation
+  const adjustStockMutation = useMutation({
+    mutationFn: ({ id, delta }: { id: string; delta: number }) => adjustStock(id, delta),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      if (updated) {
+        setSelectedProduct(updated);
+        notifications.show({
+          title: 'Stock Updated',
+          message: `Updated stock level for ${updated.name} to ${updated.stockQuantity} units`,
+          color: 'green',
+          icon: <IconCheck size={16} />,
+        });
+      }
+      setStockAdjustment(0);
+    },
+  });
 
   // Expand all / Collapse all helper for both Categories and Subcategories
   const handleToggleExpandAll = () => {
     if (expandedCategories.length === categoryNames.length) {
       // Collapse all categories
-      setExpandedCategories([]);
+      setUserCollapsedCategories(categoryNames);
       // Collapse all subcategories as well
       const allSubKeys: Record<string, boolean> = {};
       hierarchy.forEach((subMap, cat) => {
@@ -212,7 +234,7 @@ export function ProductTable() {
       setCollapsedSubcategories(allSubKeys);
     } else {
       // Expand all categories and subcategories
-      setExpandedCategories(categoryNames);
+      setUserCollapsedCategories([]);
       setCollapsedSubcategories({});
     }
   };
@@ -225,7 +247,7 @@ export function ProductTable() {
   const categoriesCount = new Set(initialProducts.map((p) => p.category)).size;
 
   const handleUpdateStockInDrawer = () => {
-    if (!selectedProduct) return;
+    if (!selectedProduct || stockAdjustment === 0) return;
     const newQty = selectedProduct.stockQuantity + stockAdjustment;
     if (newQty < 0) {
       notifications.show({
@@ -236,20 +258,7 @@ export function ProductTable() {
       return;
     }
 
-    setSelectedProduct({
-      ...selectedProduct,
-      stockQuantity: newQty,
-      updatedAt: new Date().toISOString(),
-    });
-
-    notifications.show({
-      title: 'Stock Updated',
-      message: `Updated stock level for ${selectedProduct.name} to ${newQty} units`,
-      color: 'green',
-      icon: <IconCheck size={16} />,
-    });
-
-    setStockAdjustment(0);
+    adjustStockMutation.mutate({ id: selectedProduct.id, delta: stockAdjustment });
   };
 
   return (
@@ -406,7 +415,7 @@ export function ProductTable() {
         <Accordion
           multiple
           value={expandedCategories}
-          onChange={setExpandedCategories}
+          onChange={(val) => setUserCollapsedCategories(categoryNames.filter((c) => !val.includes(c)))}
           variant="separated"
           radius="md"
         >

@@ -1,5 +1,10 @@
 import { PrintJob, PrintJobInput } from '../types';
-import { addEarningRecord } from '@/features/employees/api/mockEmployees';
+import { LocalStorageStore } from '@/shared/lib/localStorageStore';
+import {
+  addEarningRecord,
+  updateEarningRecordForWork,
+  deleteEarningRecordsForWork,
+} from '@/features/employees/api/mockEmployees';
 
 export const calculatePrintEarnings = (input: {
   estimatedCostCents: number;
@@ -56,16 +61,16 @@ export const SAMPLE_PRINT_JOBS: PrintJob[] = [
   },
 ];
 
-let printJobsStore: PrintJob[] = [...SAMPLE_PRINT_JOBS];
+export const printJobsStore = new LocalStorageStore<PrintJob>('pos_print_jobs', SAMPLE_PRINT_JOBS);
 
 export const fetchPrintJobs = async (): Promise<PrintJob[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve([...printJobsStore]), 200));
+  return new Promise((resolve) => setTimeout(() => resolve(printJobsStore.getAll()), 200));
 };
 
 export const createPrintJob = async (input: PrintJobInput): Promise<PrintJob> => {
   return new Promise((resolve) => {
     setTimeout(async () => {
-      const ticketNumber = `PRT-${2000 + printJobsStore.length + 1}`;
+      const ticketNumber = `PRT-${2000 + printJobsStore.getAll().length + 1}`;
       const earnings = calculatePrintEarnings({
         estimatedCostCents: input.estimatedCostCents,
         materialCostCents: input.materialCostCents,
@@ -81,7 +86,7 @@ export const createPrintJob = async (input: PrintJobInput): Promise<PrintJob> =>
         createdAt: new Date().toISOString(),
       };
 
-      printJobsStore = [newJob, ...printJobsStore];
+      printJobsStore.add(newJob);
 
       if (newJob.assignedEmployeeId && newJob.assignedEmployeeName && earnings > 0) {
         const profit = Math.max(0, newJob.estimatedCostCents - (newJob.materialCostCents || 0));
@@ -104,7 +109,7 @@ export const createPrintJob = async (input: PrintJobInput): Promise<PrintJob> =>
       }
 
       resolve(newJob);
-    }, 300);
+    }, 200);
   });
 };
 
@@ -113,13 +118,12 @@ export const updatePrintJob = async (
   input: Partial<PrintJobInput>
 ): Promise<PrintJob> => {
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = printJobsStore.findIndex((p) => p.id === id);
-      if (index === -1) {
+    setTimeout(async () => {
+      const existing = printJobsStore.getById(id);
+      if (!existing) {
         reject(new Error('Print job not found'));
         return;
       }
-      const existing = printJobsStore[index];
       const mergedInput = { ...existing, ...input };
       const earnings = calculatePrintEarnings({
         estimatedCostCents: mergedInput.estimatedCostCents,
@@ -128,23 +132,44 @@ export const updatePrintJob = async (
         splitValue: mergedInput.splitValue,
       });
 
-      const updatedJob: PrintJob = {
+      const updatedJob = printJobsStore.update(id, {
         ...mergedInput,
         employeeEarningsCents: earnings,
-      };
+      })!;
 
-      printJobsStore[index] = updatedJob;
+      if (updatedJob.assignedEmployeeId && updatedJob.assignedEmployeeName) {
+        const profit = Math.max(0, updatedJob.estimatedCostCents - (updatedJob.materialCostCents || 0));
+        await updateEarningRecordForWork(id, 'print', {
+          employeeId: updatedJob.assignedEmployeeId,
+          employeeName: updatedJob.assignedEmployeeName,
+          workId: updatedJob.id,
+          ticketOrInvoiceNumber: updatedJob.ticketNumber,
+          workType: 'print',
+          description: `${updatedJob.jobType.toUpperCase()} Printing (${updatedJob.quantity} units)`,
+          customerName: updatedJob.customerName,
+          totalAmountCents: updatedJob.estimatedCostCents,
+          costCents: updatedJob.materialCostCents,
+          profitCents: profit,
+          splitType: updatedJob.splitType || 'fixed',
+          splitValue: updatedJob.splitValue || 0,
+          earnedAmountCents: earnings,
+          status: updatedJob.status === 'delivered' ? 'completed' : 'pending',
+        });
+      } else {
+        await deleteEarningRecordsForWork([id], 'print');
+      }
+
       resolve(updatedJob);
-    }, 300);
+    }, 200);
   });
 };
 
 export const deletePrintJobs = async (ids: string[]): Promise<void> => {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      const idSet = new Set(ids);
-      printJobsStore = printJobsStore.filter((p) => !idSet.has(p.id));
+    setTimeout(async () => {
+      ids.forEach((id) => printJobsStore.remove(id));
+      await deleteEarningRecordsForWork(ids, 'print');
       resolve();
-    }, 300);
+    }, 200);
   });
 };

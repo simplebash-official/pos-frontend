@@ -1,7 +1,7 @@
 export const CURRENCY = {
   symbol: 'Rs.',
   code: 'LKR',
-  decimals: 2,
+  decimals: 0,
 };
 
 export const TAX_RATE = 0.08; // 8% default tax rate

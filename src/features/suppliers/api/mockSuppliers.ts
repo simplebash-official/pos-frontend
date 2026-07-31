@@ -1,52 +1,58 @@
 import { Supplier, SupplierInput } from '../types';
-import { STORAGE_KEYS } from '@/constants';
 import { INITIAL_SUPPLIERS } from './data';
+import { LocalStorageStore } from '@/shared/lib/localStorageStore';
 
 export { INITIAL_SUPPLIERS };
 
-const loadSuppliersFromStorage = (): Supplier[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SUPPLIERS);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.SUPPLIERS, JSON.stringify(INITIAL_SUPPLIERS));
-      return INITIAL_SUPPLIERS;
-    }
-    return JSON.parse(raw);
-  } catch (error) {
-    console.error('Failed to parse suppliers from localStorage:', error);
-    return INITIAL_SUPPLIERS;
-  }
-};
+export function normalizeSupplier(rawInput: unknown): Supplier {
+  const raw = (rawInput && typeof rawInput === 'object' ? rawInput : {}) as Record<string, unknown>;
+  return {
+    id: typeof raw.id === 'string' ? raw.id : `sup-${Date.now()}`,
+    name: String(
+      raw.name ||
+      raw.companyName ||
+      raw.supplierName ||
+      raw.businessName ||
+      'Unnamed Supplier'
+    ),
+    contactPerson: String(raw.contactPerson || raw.contactName || 'N/A'),
+    primaryPhone: String(raw.primaryPhone || raw.phone || raw.contactPhone || ''),
+    secondaryPhone: String(raw.secondaryPhone || raw.backupPhone || ''),
+    address: String(raw.address || raw.location || ''),
+    suppliedCategories:
+      Array.isArray(raw.suppliedCategories) && raw.suppliedCategories.length > 0
+        ? (raw.suppliedCategories as string[])
+        : raw.category
+          ? [String(raw.category)]
+          : ['General'],
+    email: String(raw.email || ''),
+    notes: String(raw.notes || ''),
+    createdAt: String(raw.createdAt || new Date().toISOString()),
+    updatedAt: String(raw.updatedAt || new Date().toISOString()),
+  };
+}
 
-const saveSuppliersToStorage = (suppliers: Supplier[]): void => {
-  try {
-    localStorage.setItem(STORAGE_KEYS.SUPPLIERS, JSON.stringify(suppliers));
-  } catch (error) {
-    console.error('Failed to save suppliers to localStorage:', error);
-  }
-};
+export const suppliersStore = new LocalStorageStore<Supplier>(
+  'pos_suppliers',
+  INITIAL_SUPPLIERS,
+  normalizeSupplier
+);
 
 export const fetchSuppliers = async (): Promise<Supplier[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(loadSuppliersFromStorage());
-    }, 200);
-  });
+  return new Promise((resolve) => setTimeout(() => resolve(suppliersStore.getAll()), 200));
 };
 
 export const createSupplier = async (input: SupplierInput): Promise<Supplier> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const current = loadSuppliersFromStorage();
       const now = new Date().toISOString();
-      const newSupplier: Supplier = {
+      const newSupplier: Supplier = normalizeSupplier({
         ...input,
         id: `sup-${Date.now()}`,
         createdAt: now,
         updatedAt: now,
-      };
-      const updatedList = [newSupplier, ...current];
-      saveSuppliersToStorage(updatedList);
+      });
+      suppliersStore.add(newSupplier);
       resolve(newSupplier);
     }, 200);
   });
@@ -58,20 +64,12 @@ export const updateSupplier = async (
 ): Promise<Supplier> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const current = loadSuppliersFromStorage();
-      const index = current.findIndex((s) => s.id === id);
-      if (index === -1) {
-        reject(new Error('Supplier not found'));
-        return;
-      }
-      const updatedSupplier: Supplier = {
-        ...current[index],
+      const updated = suppliersStore.update(id, {
         ...input,
         updatedAt: new Date().toISOString(),
-      };
-      current[index] = updatedSupplier;
-      saveSuppliersToStorage(current);
-      resolve(updatedSupplier);
+      });
+      if (!updated) return reject(new Error('Supplier not found'));
+      resolve(updated);
     }, 200);
   });
 };
@@ -79,10 +77,8 @@ export const updateSupplier = async (
 export const deleteSupplier = async (id: string): Promise<boolean> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const current = loadSuppliersFromStorage();
-      const filtered = current.filter((s) => s.id !== id);
-      saveSuppliersToStorage(filtered);
-      resolve(true);
+      const removed = suppliersStore.remove(id);
+      resolve(removed);
     }, 200);
   });
 };
@@ -90,10 +86,7 @@ export const deleteSupplier = async (id: string): Promise<boolean> => {
 export const deleteSuppliers = async (ids: string[]): Promise<boolean> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const current = loadSuppliersFromStorage();
-      const idSet = new Set(ids);
-      const filtered = current.filter((s) => !idSet.has(s.id));
-      saveSuppliersToStorage(filtered);
+      ids.forEach((id) => suppliersStore.remove(id));
       resolve(true);
     }, 200);
   });

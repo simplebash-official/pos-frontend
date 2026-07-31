@@ -1,5 +1,10 @@
 import { RepairJob, RepairJobInput } from '../types';
-import { addEarningRecord } from '@/features/employees/api/mockEmployees';
+import { LocalStorageStore } from '@/shared/lib/localStorageStore';
+import {
+  addEarningRecord,
+  updateEarningRecordForWork,
+  deleteEarningRecordsForWork,
+} from '@/features/employees/api/mockEmployees';
 
 export const calculateRepairEarnings = (input: {
   estimatedCostCents: number;
@@ -56,16 +61,16 @@ export const SAMPLE_REPAIRS: RepairJob[] = [
   },
 ];
 
-let repairsStore: RepairJob[] = [...SAMPLE_REPAIRS];
+export const repairsStore = new LocalStorageStore<RepairJob>('pos_repairs', SAMPLE_REPAIRS);
 
 export const fetchRepairs = async (): Promise<RepairJob[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve([...repairsStore]), 200));
+  return new Promise((resolve) => setTimeout(() => resolve(repairsStore.getAll()), 200));
 };
 
 export const createRepairJob = async (input: RepairJobInput): Promise<RepairJob> => {
   return new Promise((resolve) => {
     setTimeout(async () => {
-      const ticketNumber = `REP-${1000 + repairsStore.length + 1}`;
+      const ticketNumber = `REP-${1000 + repairsStore.getAll().length + 1}`;
       const earnings = calculateRepairEarnings({
         estimatedCostCents: input.estimatedCostCents,
         materialCostCents: input.materialCostCents,
@@ -81,7 +86,7 @@ export const createRepairJob = async (input: RepairJobInput): Promise<RepairJob>
         createdAt: new Date().toISOString(),
       };
 
-      repairsStore = [newJob, ...repairsStore];
+      repairsStore.add(newJob);
 
       if (newJob.assignedEmployeeId && newJob.assignedEmployeeName && earnings > 0) {
         const profit = Math.max(0, newJob.estimatedCostCents - (newJob.materialCostCents || 0));
@@ -104,7 +109,7 @@ export const createRepairJob = async (input: RepairJobInput): Promise<RepairJob>
       }
 
       resolve(newJob);
-    }, 300);
+    }, 200);
   });
 };
 
@@ -113,13 +118,12 @@ export const updateRepairJob = async (
   input: Partial<RepairJobInput>
 ): Promise<RepairJob> => {
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = repairsStore.findIndex((r) => r.id === id);
-      if (index === -1) {
+    setTimeout(async () => {
+      const existing = repairsStore.getById(id);
+      if (!existing) {
         reject(new Error('Repair job not found'));
         return;
       }
-      const existing = repairsStore[index];
       const mergedInput = { ...existing, ...input };
       const earnings = calculateRepairEarnings({
         estimatedCostCents: mergedInput.estimatedCostCents,
@@ -128,23 +132,44 @@ export const updateRepairJob = async (
         splitValue: mergedInput.splitValue,
       });
 
-      const updatedJob: RepairJob = {
+      const updatedJob = repairsStore.update(id, {
         ...mergedInput,
         employeeEarningsCents: earnings,
-      };
+      })!;
 
-      repairsStore[index] = updatedJob;
+      if (updatedJob.assignedEmployeeId && updatedJob.assignedEmployeeName) {
+        const profit = Math.max(0, updatedJob.estimatedCostCents - (updatedJob.materialCostCents || 0));
+        await updateEarningRecordForWork(id, 'repair', {
+          employeeId: updatedJob.assignedEmployeeId,
+          employeeName: updatedJob.assignedEmployeeName,
+          workId: updatedJob.id,
+          ticketOrInvoiceNumber: updatedJob.ticketNumber,
+          workType: 'repair',
+          description: `${updatedJob.deviceModel} - ${updatedJob.issueDescription}`,
+          customerName: updatedJob.customerName,
+          totalAmountCents: updatedJob.estimatedCostCents,
+          costCents: updatedJob.materialCostCents,
+          profitCents: profit,
+          splitType: updatedJob.splitType || 'percentage',
+          splitValue: updatedJob.splitValue || 0,
+          earnedAmountCents: earnings,
+          status: updatedJob.status === 'delivered' ? 'completed' : 'pending',
+        });
+      } else {
+        await deleteEarningRecordsForWork([id], 'repair');
+      }
+
       resolve(updatedJob);
-    }, 300);
+    }, 200);
   });
 };
 
 export const deleteRepairs = async (ids: string[]): Promise<void> => {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      const idSet = new Set(ids);
-      repairsStore = repairsStore.filter((r) => !idSet.has(r.id));
+    setTimeout(async () => {
+      ids.forEach((id) => repairsStore.remove(id));
+      await deleteEarningRecordsForWork(ids, 'repair');
       resolve();
-    }, 300);
+    }, 200);
   });
 };

@@ -223,9 +223,9 @@ export function EmployeeDetailDrawer({
                   <Table.Tr>
                     <Table.Th>Ticket / Work</Table.Th>
                     <Table.Th>Customer & Description</Table.Th>
-                    <Table.Th align="right">Job Total</Table.Th>
-                    <Table.Th align="right">Split Rule</Table.Th>
-                    <Table.Th align="right">Earned Split</Table.Th>
+                    <Table.Th ta="right">Job Total</Table.Th>
+                    <Table.Th ta="right">Split Rule</Table.Th>
+                    <Table.Th ta="right">Earned Split</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -262,10 +262,10 @@ export function EmployeeDetailDrawer({
                             {rec.customerName}
                           </Text>
                         </Table.Td>
-                        <Table.Td align="right">
+                        <Table.Td ta="right">
                           <Text size="xs">{formatMoney(rec.totalAmountCents)}</Text>
                         </Table.Td>
-                        <Table.Td align="right">
+                        <Table.Td ta="right">
                           <Badge
                             size="xs"
                             variant="light"
@@ -276,7 +276,7 @@ export function EmployeeDetailDrawer({
                               : formatMoney(rec.splitValue)}
                           </Badge>
                         </Table.Td>
-                        <Table.Td align="right">
+                        <Table.Td ta="right">
                           <Text size="xs" fw={800} c="indigo">
                             {formatMoney(rec.earnedAmountCents)}
                           </Text>

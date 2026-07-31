@@ -11,16 +11,22 @@ import {
   Text,
   Paper,
   Badge,
+  Alert,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
-import { IconPrinter, IconUser, IconPhone, IconPercentage, IconCoin } from '@tabler/icons-react';
-import { PrintJob, PrintJobInput, PrintJobType } from '../types';
+import { IconPrinter, IconUser, IconPhone, IconPercentage, IconCoin, IconAlertTriangle } from '@tabler/icons-react';
+import { PrintJob, PrintJobInput } from '../types';
 import { fetchEmployees } from '@/features/employees/api/mockEmployees';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
-import { formatMoney } from '@/shared/lib/money';
+import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
+import {
+  PrintJobFormValues,
+  fromPrintJob,
+  toPrintJobInput,
+} from '@/shared/lib/moneyFormUtils';
 
 interface PrintJobFormModalProps {
   opened: boolean;
@@ -44,45 +50,18 @@ export function PrintJobFormModal({
     queryFn: fetchEmployees,
   });
 
-  const form = useForm<PrintJobInput>({
-    initialValues: {
-      customerName: '',
-      customerPhone: '',
-      jobType: 'mug' as PrintJobType,
-      quantity: 1,
-      status: 'received' as JobStatus,
-      estimatedCostCents: 0,
-      materialCostCents: 0,
-      assignedEmployeeId: '',
-      assignedEmployeeName: '',
-      splitType: 'fixed' as SplitType,
-      splitValue: 0,
-    },
+  const form = useForm<PrintJobFormValues>({
+    initialValues: fromPrintJob(null),
     validate: {
       customerName: (val) => (val.trim() ? null : 'Customer name is required'),
       quantity: (val) => (val >= 1 ? null : 'Quantity must be at least 1'),
-      estimatedCostCents: (val) => (val >= 0 ? null : 'Total cost must be 0 or greater'),
+      estimatedPriceRupees: (val) => (val >= 0 ? null : 'Total price must be 0 or greater'),
     },
   });
 
   useEffect(() => {
-    if (jobToEdit) {
-      form.setValues({
-        customerName: jobToEdit.customerName,
-        customerPhone: jobToEdit.customerPhone || '',
-        jobType: jobToEdit.jobType,
-        quantity: jobToEdit.quantity,
-        status: jobToEdit.status,
-        estimatedCostCents: jobToEdit.estimatedCostCents / 100, // convert cents to LKR
-        materialCostCents: (jobToEdit.materialCostCents || 0) / 100,
-        assignedEmployeeId: jobToEdit.assignedEmployeeId || '',
-        assignedEmployeeName: jobToEdit.assignedEmployeeName || '',
-        splitType: jobToEdit.splitType || 'fixed',
-        splitValue:
-          jobToEdit.splitType === 'fixed'
-            ? (jobToEdit.splitValue || 0) / 100
-            : jobToEdit.splitValue || 0,
-      });
+    if (opened) {
+      form.setValues(fromPrintJob(jobToEdit));
     } else {
       form.reset();
     }
@@ -96,7 +75,7 @@ export function PrintJobFormModal({
       form.setFieldValue('assignedEmployeeName', emp.name);
       form.setFieldValue('splitType', emp.defaultSplitType);
       form.setFieldValue(
-        'splitValue',
+        'splitValueRupeesOrPercent',
         emp.defaultSplitType === 'fixed' ? emp.defaultSplitValue / 100 : emp.defaultSplitValue
       );
     } else {
@@ -105,33 +84,28 @@ export function PrintJobFormModal({
     }
   };
 
-  // Real-time calculation of profit and employee split
-  const estCostCents = Math.round((form.values.estimatedCostCents || 0) * 100);
-  const matCostCents = Math.round((form.values.materialCostCents || 0) * 100);
-  const calculatedProfitCents = Math.max(0, estCostCents - matCostCents);
+  const estPriceRupees = form.values.estimatedPriceRupees || 0;
+  const matCostRupees = form.values.materialCostRupees || 0;
+  const profitRupees = Math.max(0, estPriceRupees - matCostRupees);
 
+  const profitCents = toCents(profitRupees);
   let calculatedEarningsCents = 0;
-  const splitVal = form.values.splitValue || 0;
+  const splitVal = form.values.splitValueRupeesOrPercent || 0;
+  const isFixedSplitCapped =
+    form.values.splitType === 'fixed' && splitVal > profitRupees && profitRupees > 0;
+
   if (form.values.assignedEmployeeId && splitVal > 0) {
     if (form.values.splitType === 'percentage') {
-      calculatedEarningsCents = Math.round((calculatedProfitCents * splitVal) / 100);
+      calculatedEarningsCents = Math.round((profitCents * splitVal) / 100);
     } else {
-      const fixedCents = Math.round(splitVal * 100);
-      calculatedEarningsCents = Math.min(calculatedProfitCents, fixedCents);
+      const fixedCents = toCents(splitVal);
+      calculatedEarningsCents = Math.min(profitCents, fixedCents);
     }
   }
 
-  const handleSubmit = async (values: PrintJobInput) => {
-    const finalValues: PrintJobInput = {
-      ...values,
-      estimatedCostCents: Math.round(values.estimatedCostCents * 100),
-      materialCostCents: Math.round((values.materialCostCents || 0) * 100),
-      splitValue:
-        values.splitType === 'fixed'
-          ? Math.round((values.splitValue || 0) * 100)
-          : values.splitValue || 0,
-    };
-    await onSubmit(finalValues);
+  const handleSubmit = async (values: PrintJobFormValues) => {
+    const payload = toPrintJobInput(values);
+    await onSubmit(payload);
     form.reset();
     onClose();
   };
@@ -207,12 +181,7 @@ export function PrintJobFormModal({
           </Group>
 
           {/* Pricing & Cost */}
-          <Paper
-            p="sm"
-            withBorder
-            bg="var(--mantine-color-gray-light)"
-            radius="var(--mantine-radius-default)"
-          >
+          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <Stack gap="xs">
               <Text size="xs" fw={700} tt="uppercase" c="dimmed">
                 Pricing & Material Blank Costs (LKR)
@@ -222,17 +191,17 @@ export function PrintJobFormModal({
                   label="Total Print Order Price (LKR)"
                   placeholder="e.g. 25000"
                   min={0}
-                  prefix="LKR "
+                  prefix="Rs. "
                   required
-                  {...form.getInputProps('estimatedCostCents')}
+                  {...form.getInputProps('estimatedPriceRupees')}
                 />
 
                 <NumberInput
                   label="Blank Stock / Ink Cost (LKR)"
                   placeholder="e.g. 13000"
                   min={0}
-                  prefix="LKR "
-                  {...form.getInputProps('materialCostCents')}
+                  prefix="Rs. "
+                  {...form.getInputProps('materialCostRupees')}
                 />
               </Group>
 
@@ -241,19 +210,14 @@ export function PrintJobFormModal({
                   Estimated Print Net Profit:
                 </Text>
                 <Text size="sm" fw={800} c="green">
-                  {formatMoney(calculatedProfitCents)}
+                  {formatMoney(profitCents)}
                 </Text>
               </Group>
             </Stack>
           </Paper>
 
           {/* Assigned Employee & Profit Split */}
-          <Paper
-            p="sm"
-            withBorder
-            bg="var(--mantine-color-indigo-light)"
-            radius="var(--mantine-radius-default)"
-          >
+          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <Stack gap="xs">
               <Group justify="space-between" align="center">
                 <Text size="xs" fw={700} tt="uppercase" c="indigo">
@@ -321,17 +285,22 @@ export function PrintJobFormModal({
                       }
                       min={0}
                       max={form.values.splitType === 'percentage' ? 100 : 1000000}
-                      {...form.getInputProps('splitValue')}
+                      {...form.getInputProps('splitValueRupeesOrPercent')}
                     />
                   </Group>
 
-                  <Paper
-                    p="xs"
-                    withBorder
-                    bg="var(--mantine-color-body)"
-                    radius="var(--mantine-radius-default)"
-                    mt="xs"
-                  >
+                  {isFixedSplitCapped && (
+                    <Alert
+                      color="orange"
+                      icon={<IconAlertTriangle size={16} />}
+                      title="Fixed Commission Capped"
+                      p="xs"
+                    >
+                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the job net profit (Rs. {profitRupees.toLocaleString()}). Commission will be capped at the total profit.
+                    </Alert>
+                  )}
+
+                  <Paper p="xs" withBorder radius="var(--mantine-radius-default)" mt="xs">
                     <Group justify="space-between">
                       <Text size="xs" fw={600}>
                         Employee Commission Payout:

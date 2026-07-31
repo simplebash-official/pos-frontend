@@ -5,36 +5,24 @@ import {
   Group,
   Text,
   Paper,
-  TextInput,
   Stack,
   Card,
   Grid,
   ThemeIcon,
   ActionIcon,
-  SegmentedControl,
-  Chip,
-  Box,
 } from '@mantine/core';
 import {
   IconPlus,
-  IconSearch,
   IconBuildingStore,
-  IconUser,
-  IconPhone,
-  IconMapPin,
-  IconTag,
-  IconTruckDelivery,
   IconEdit,
   IconTrash,
   IconEye,
-  IconLayoutGrid,
-  IconList,
   IconCheck,
-  IconFilter,
+  IconTruckDelivery,
 } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { PageHeader } from '@/shared/components/PageHeader';
+import { EntityListPage } from '@/shared/components/EntityListPage';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
@@ -49,17 +37,10 @@ import {
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
 import { queryKeys } from '@/api/queryKeys';
+import { setLinksForSupplier } from '@/features/supplier-products/api/mockSupplierProducts';
 
 export function SupplierList() {
   const queryClient = useQueryClient();
-
-  // Queries
-  const { data: suppliers = [], isLoading } = useQuery({
-    queryKey: queryKeys.suppliers.all,
-    queryFn: fetchSuppliers,
-  });
-
-  // State
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -70,7 +51,12 @@ export function SupplierList() {
   const [selectedSupplierForDrawer, setSelectedSupplierForDrawer] = useState<Supplier | null>(null);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
-  // Mutations
+  // Queries & Mutations
+  const { data: suppliers = [], isLoading } = useQuery({
+    queryKey: queryKeys.suppliers.all,
+    queryFn: fetchSuppliers,
+  });
+
   const createMutation = useMutation({
     mutationFn: createSupplier,
     onSuccess: (newSup) => {
@@ -80,13 +66,6 @@ export function SupplierList() {
         message: `Registered ${newSup.name} successfully`,
         color: 'green',
         icon: <IconCheck size={16} />,
-      });
-    },
-    onError: (err: Error) => {
-      notifications.show({
-        title: 'Error',
-        message: err.message || 'Failed to create supplier',
-        color: 'red',
       });
     },
   });
@@ -101,16 +80,6 @@ export function SupplierList() {
         message: `Updated details for ${updatedSup.name}`,
         color: 'teal',
         icon: <IconCheck size={16} />,
-      });
-      if (selectedSupplierForDrawer?.id === updatedSup.id) {
-        setSelectedSupplierForDrawer(updatedSup);
-      }
-    },
-    onError: (err: Error) => {
-      notifications.show({
-        title: 'Error',
-        message: err.message || 'Failed to update supplier',
-        color: 'red',
       });
     },
   });
@@ -129,13 +98,6 @@ export function SupplierList() {
       }
       setSupplierToDelete(null);
     },
-    onError: (err: Error) => {
-      notifications.show({
-        title: 'Error',
-        message: err.message || 'Failed to delete supplier',
-        color: 'red',
-      });
-    },
   });
 
   const deleteBatchMutation = useMutation({
@@ -148,16 +110,8 @@ export function SupplierList() {
         color: 'blue',
       });
     },
-    onError: (err: Error) => {
-      notifications.show({
-        title: 'Error',
-        message: err.message || 'Failed to delete suppliers',
-        color: 'red',
-      });
-    },
   });
 
-  // Extract all unique supply tags across suppliers
   const allSupplyTags = useMemo(() => {
     const tagSet = new Set<string>();
     suppliers.forEach((s) => {
@@ -166,26 +120,21 @@ export function SupplierList() {
     return Array.from(tagSet).sort();
   }, [suppliers]);
 
-  // Filtered suppliers based on search query and selected tag pill
   const filteredSuppliers = useMemo(() => {
     return suppliers.filter((s) => {
-      const query = search.toLowerCase().trim();
+      const q = search.toLowerCase().trim();
       const matchesSearch =
-        !query ||
-        s.name.toLowerCase().includes(query) ||
-        s.contactPerson.toLowerCase().includes(query) ||
-        s.primaryPhone.toLowerCase().includes(query) ||
-        (s.secondaryPhone && s.secondaryPhone.toLowerCase().includes(query)) ||
-        s.address.toLowerCase().includes(query) ||
-        s.suppliedCategories.some((tag) => tag.toLowerCase().includes(query));
+        !q ||
+        s.name.toLowerCase().includes(q) ||
+        s.contactPerson.toLowerCase().includes(q) ||
+        s.primaryPhone.toLowerCase().includes(q) ||
+        s.address.toLowerCase().includes(q);
 
       const matchesTag = !selectedTag || s.suppliedCategories.includes(selectedTag);
-
       return matchesSearch && matchesTag;
     });
   }, [suppliers, search, selectedTag]);
 
-  // Handlers
   const handleOpenAddModal = () => {
     setSupplierToEdit(null);
     setFormModalOpen(true);
@@ -196,11 +145,17 @@ export function SupplierList() {
     setFormModalOpen(true);
   };
 
-  const handleFormSubmit = async (values: SupplierInput) => {
+  const handleFormSubmit = async (values: SupplierInput, linkedProductIds: string[] = []) => {
     if (supplierToEdit) {
       await updateMutation.mutateAsync({ id: supplierToEdit.id, input: values });
+      if (linkedProductIds.length > 0) {
+        await setLinksForSupplier(supplierToEdit.id, linkedProductIds);
+      }
     } else {
-      await createMutation.mutateAsync(values);
+      const newSup = await createMutation.mutateAsync(values);
+      if (newSup?.id && linkedProductIds.length > 0) {
+        await setLinksForSupplier(newSup.id, linkedProductIds);
+      }
     }
   };
 
@@ -210,21 +165,23 @@ export function SupplierList() {
     }
   };
 
-  // Table Columns Definition
   const columns: Column<Supplier>[] = [
     {
       key: 'name',
       header: 'Business Name',
       align: 'left',
-      width: '22%',
+      width: '25%',
       render: (s) => (
         <Group gap="xs" wrap="nowrap">
-          <ThemeIcon variant="light" color="blue" size="sm" radius="var(--mantine-radius-default)">
+          <ThemeIcon variant="light" color="blue" size="sm">
             <IconBuildingStore size={14} />
           </ThemeIcon>
           <div>
             <Text size="sm" fw={700} c="blue">
-              {s.name}
+              {s.name ||
+                (s as unknown as Record<string, string>).companyName ||
+                (s as unknown as Record<string, string>).supplierName ||
+                'Unnamed Supplier'}
             </Text>
           </div>
         </Group>
@@ -232,382 +189,190 @@ export function SupplierList() {
     },
     {
       key: 'contactPerson',
-      header: 'Contact Person',
+      header: 'Contact Representative',
       align: 'left',
-      width: '16%',
+      width: '22%',
       render: (s) => (
-        <Group gap={6} wrap="nowrap">
-          <IconUser size={14} style={{ opacity: 0.6 }} />
-          <Text size="sm" fw={600}>
-            {s.contactPerson}
-          </Text>
-        </Group>
+        <Text size="xs" fw={600}>
+          {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
+        </Text>
       ),
     },
     {
-      key: 'phone',
-      header: 'Phone Number(s)',
+      key: 'primaryPhone',
+      header: 'Phone Contact',
       align: 'left',
       width: '20%',
       render: (s) => (
         <PhoneDisplay
-          primaryPhone={s.primaryPhone}
+          primaryPhone={
+            s.primaryPhone ||
+            (s as unknown as Record<string, string>).phone ||
+            (s as unknown as Record<string, string>).contactPhone ||
+            ''
+          }
           secondaryPhone={s.secondaryPhone}
-          layout="stack"
         />
       ),
     },
     {
-      key: 'address',
-      header: 'Address / Location',
+      key: 'category',
+      header: 'Main Category',
       align: 'left',
-      width: '22%',
-      render: (s) => (
-        <Group gap={4} wrap="nowrap">
-          <IconMapPin size={14} style={{ color: 'var(--mantine-color-red-6)', flexShrink: 0 }} />
-          <Text size="xs" c="dimmed" lineClamp={2}>
-            {s.address}
-          </Text>
-        </Group>
-      ),
+      width: '18%',
+      render: (s) => {
+        const cat =
+          (s.suppliedCategories && s.suppliedCategories[0]) ||
+          (s as unknown as Record<string, string>).category ||
+          'General';
+        return (
+          <Badge size="xs" variant="light" color="blue">
+            {cat}
+          </Badge>
+        );
+      },
     },
     {
-      key: 'categories',
-      header: 'What They Supply',
-      align: 'left',
-      width: '20%',
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      width: '15%',
       render: (s) => (
-        <Group gap={4}>
-          {s.suppliedCategories.slice(0, 3).map((cat) => (
-            <Badge
-              key={cat}
-              color="blue"
-              variant="light"
-              size="xs"
-              radius="var(--mantine-radius-default)"
-            >
-              {cat}
-            </Badge>
-          ))}
-          {s.suppliedCategories.length > 3 && (
-            <Badge color="gray" variant="outline" size="xs" radius="var(--mantine-radius-default)">
-              +{s.suppliedCategories.length - 3} more
-            </Badge>
-          )}
+        <Group gap={4} justify="flex-end" onClick={(e) => e.stopPropagation()}>
+          <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setSelectedSupplierForDrawer(s)}>
+            <IconEye size={16} />
+          </ActionIcon>
+          <ActionIcon variant="subtle" color="blue" size="sm" onClick={() => handleOpenEditModal(s)}>
+            <IconEdit size={16} />
+          </ActionIcon>
+          <ActionIcon variant="subtle" color="red" size="sm" onClick={() => setSupplierToDelete(s)}>
+            <IconTrash size={16} />
+          </ActionIcon>
         </Group>
       ),
     },
   ];
 
-  // Stats calculation
-  const totalSuppliersCount = suppliers.length;
-  const uniqueCategoriesCount = allSupplyTags.length;
-  const backupContactsCount = suppliers.filter((s) => Boolean(s.secondaryPhone)).length;
+  const kpiCards = (
+    <Grid>
+      <Grid.Col span={{ base: 12, sm: 4 }}>
+        <Card withBorder padding="sm">
+          <Group justify="space-between">
+            <div>
+              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                Active Vendors
+              </Text>
+              <Text fw={800} size="xl">
+                {suppliers.length}
+              </Text>
+            </div>
+            <ThemeIcon variant="light" color="blue" size="lg">
+              <IconTruckDelivery size={22} />
+            </ThemeIcon>
+          </Group>
+        </Card>
+      </Grid.Col>
+    </Grid>
+  );
 
   return (
-    <Stack gap="lg">
-      <PageHeader
-        title="Supplier Directory"
-        description="Track supplier details, contact persons, phone numbers, locations, and supply categories"
+    <>
+      <EntityListPage
+        title="Suppliers & Distributors"
+        description="Vendor directory, contact persons, and supply product mappings"
         action={
           <Button leftSection={<IconPlus size={16} />} color="blue" onClick={handleOpenAddModal}>
-            Add New Supplier
+            Register New Supplier
           </Button>
         }
-      />
-
-      {/* KPI Cards */}
-      <Grid>
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="var(--mantine-radius-default)">
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Total Registered Suppliers
-                </Text>
-                <Text fw={800} size="xl">
-                  {totalSuppliersCount}
-                </Text>
-              </div>
-              <ThemeIcon
-                variant="light"
-                color="blue"
-                size="lg"
-                radius="var(--mantine-radius-default)"
-              >
-                <IconTruckDelivery size={22} />
-              </ThemeIcon>
-            </Group>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="var(--mantine-radius-default)">
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Supply Categories / Tags
-                </Text>
-                <Text fw={800} size="xl">
-                  {uniqueCategoriesCount} Categories
-                </Text>
-              </div>
-              <ThemeIcon
-                variant="light"
-                color="teal"
-                size="lg"
-                radius="var(--mantine-radius-default)"
-              >
-                <IconTag size={22} />
-              </ThemeIcon>
-            </Group>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm" radius="var(--mantine-radius-default)">
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Backup Contact Numbers
-                </Text>
-                <Text fw={800} size="xl">
-                  {backupContactsCount} / {totalSuppliersCount}
-                </Text>
-              </div>
-              <ThemeIcon
-                variant="light"
-                color="blue"
-                size="lg"
-                radius="var(--mantine-radius-default)"
-              >
-                <IconPhone size={22} />
-              </ThemeIcon>
-            </Group>
-          </Card>
-        </Grid.Col>
-      </Grid>
-
-      {/* Controls & Filter Bar */}
-      <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-        <Stack gap="sm">
-          <Group justify="space-between" align="center">
-            <TextInput
-              placeholder="Search by business name, contact person, phone, address, or supply tag..."
-              leftSection={<IconSearch size={16} />}
-              value={search}
-              onChange={(e) => setSearch(e.currentTarget.value)}
-              style={{ minWidth: 300, flex: 1 }}
-              size="sm"
-            />
-
-            <SegmentedControl
-              value={viewMode}
-              onChange={(val) => setViewMode(val as 'table' | 'grid')}
-              data={[
-                {
-                  label: <CenterLabel icon={<IconList size={16} />} text="Table" />,
-                  value: 'table',
-                },
-                {
-                  label: <CenterLabel icon={<IconLayoutGrid size={16} />} text="Cards" />,
-                  value: 'grid',
-                },
-              ]}
-              size="sm"
-            />
-          </Group>
-
-          {/* Quick Tag Filtering Pills */}
-          {allSupplyTags.length > 0 && (
-            <Box>
-              <Group gap="xs" align="center">
-                <Group gap={4}>
-                  <IconFilter size={14} style={{ opacity: 0.6 }} />
-                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                    Filter by Supply Tag:
-                  </Text>
-                </Group>
-
-                <Chip
-                  checked={selectedTag === null}
-                  onChange={() => setSelectedTag(null)}
-                  size="xs"
-                  variant="light"
-                  color="blue"
-                >
-                  All Tags ({suppliers.length})
-                </Chip>
-
-                {allSupplyTags.map((tag) => {
-                  const count = suppliers.filter((s) => s.suppliedCategories.includes(tag)).length;
-                  return (
-                    <Chip
-                      key={tag}
-                      checked={selectedTag === tag}
-                      onChange={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                      size="xs"
-                      variant="light"
-                      color="blue"
-                    >
-                      {tag} ({count})
-                    </Chip>
-                  );
-                })}
-              </Group>
-            </Box>
-          )}
-        </Stack>
-      </Paper>
-
-      {/* Main Content Area */}
-      {viewMode === 'table' ? (
-        <DataTable
-          data={filteredSuppliers}
-          columns={columns}
-          loading={isLoading}
-          keyExtractor={(s) => s.id}
-          onRowClick={(s) => setSelectedSupplierForDrawer(s)}
-          onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
-          emptyText={
-            search || selectedTag
-              ? 'No suppliers match your current filter criteria.'
-              : 'No suppliers registered yet. Click "Add New Supplier" to get started.'
-          }
-        />
-      ) : (
-        <Grid>
-          {filteredSuppliers.length === 0 ? (
-            <Grid.Col span={12}>
-              <Paper p="xl" withBorder radius="md">
-                <Text ta="center" c="dimmed" size="sm">
-                  {isLoading
-                    ? 'Loading suppliers...'
-                    : search || selectedTag
-                      ? 'No suppliers match your current filter criteria.'
-                      : 'No suppliers registered yet.'}
-                </Text>
-              </Paper>
-            </Grid.Col>
-          ) : (
-            filteredSuppliers.map((s) => (
+        kpiCards={kpiCards}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search suppliers by business name, contact person, or phone..."
+        filterTags={allSupplyTags}
+        selectedTag={selectedTag}
+        onSelectTag={setSelectedTag}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      >
+        {viewMode === 'table' ? (
+          <DataTable
+            data={filteredSuppliers}
+            columns={columns}
+            keyExtractor={(s) => s.id}
+            loading={isLoading}
+            onRowClick={(s) => setSelectedSupplierForDrawer(s)}
+            onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
+          />
+        ) : (
+          <Grid gap="md">
+            {filteredSuppliers.map((s) => (
               <Grid.Col key={s.id} span={{ base: 12, sm: 6, md: 4 }}>
                 <Card
-                  className="hover-card"
                   withBorder
-                  radius="var(--mantine-radius-default)"
-                  padding="md"
-                  h="100%"
+                  p="md"
+                  style={{ cursor: 'pointer' }}
                   onClick={() => setSelectedSupplierForDrawer(s)}
+                  tabIndex={0}
+                  role="button"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedSupplierForDrawer(s);
+                    }
+                  }}
                 >
-                  <Stack justify="space-between" h="100%">
-                    <Stack gap="xs">
-                      <Group justify="space-between" align="flex-start">
-                        <Group gap="xs">
-                          <ThemeIcon
-                            color="blue"
-                            variant="light"
-                            size="lg"
-                            radius="var(--mantine-radius-default)"
-                          >
-                            <IconBuildingStore size={20} />
-                          </ThemeIcon>
-                          <div>
-                            <Text fw={800} size="md" c="blue" lineClamp={1}>
-                              {s.name}
-                            </Text>
-                            <Group gap={4}>
-                              <IconUser size={13} style={{ opacity: 0.6 }} />
-                              <Text size="xs" fw={600}>
-                                {s.contactPerson}
-                              </Text>
-                            </Group>
-                          </div>
-                        </Group>
+                  <Stack gap="xs">
+                    <Group justify="space-between" align="flex-start" wrap="nowrap">
+                      <Group gap="xs">
+                        <ThemeIcon variant="light" color="blue" size="md">
+                          <IconBuildingStore size={18} />
+                        </ThemeIcon>
+                        <div>
+                          <Text size="sm" fw={700}>
+                            {s.name || (s as unknown as Record<string, string>).companyName || 'Unnamed Supplier'}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
+                          </Text>
+                        </div>
                       </Group>
 
-                      {/* Phones */}
+                      {/* Primary signal badge */}
+                      <Badge color="blue" variant="light" size="sm">
+                        {(s.suppliedCategories && s.suppliedCategories[0]) ||
+                          (s as unknown as Record<string, string>).category ||
+                          'Supplier'}
+                      </Badge>
+                    </Group>
+
+                    <Paper p="xs" withBorder bg="var(--bg-app)" mt="xs">
                       <PhoneDisplay
-                        primaryPhone={s.primaryPhone}
+                        primaryPhone={
+                          s.primaryPhone ||
+                          (s as unknown as Record<string, string>).phone ||
+                          (s as unknown as Record<string, string>).contactPhone ||
+                          ''
+                        }
                         secondaryPhone={s.secondaryPhone}
-                        layout="row"
                       />
+                    </Paper>
 
-                      {/* Address */}
-                      <Group gap={4} align="flex-start">
-                        <IconMapPin
-                          size={14}
-                          style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }}
-                        />
-                        <Text size="xs" c="dimmed" lineClamp={2}>
-                          {s.address}
-                        </Text>
-                      </Group>
-
-                      {/* What They Supply Tags */}
-                      <Group gap={4} mt={4}>
-                        {s.suppliedCategories.map((cat) => (
-                          <Badge
-                            key={cat}
-                            color="blue"
-                            variant="light"
-                            size="xs"
-                            radius="var(--mantine-radius-default)"
-                          >
-                            {cat}
-                          </Badge>
-                        ))}
-                      </Group>
-                    </Stack>
-
-                    <Group
-                      justify="flex-end"
-                      gap="xs"
-                      pt="xs"
-                      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
-                    >
-                      <Button
-                        variant="light"
-                        color="blue"
-                        size="xs"
-                        leftSection={<IconEye size={14} />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedSupplierForDrawer(s);
-                        }}
-                      >
-                        Details
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="xs"
-                        leftSection={<IconEdit size={14} />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenEditModal(s);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSupplierToDelete(s);
-                        }}
-                      >
-                        <IconTrash size={14} />
+                    <Group justify="flex-end" gap="xs" mt="xs" onClick={(e) => e.stopPropagation()}>
+                      <ActionIcon variant="subtle" color="blue" onClick={() => handleOpenEditModal(s)}>
+                        <IconEdit size={16} />
+                      </ActionIcon>
+                      <ActionIcon variant="subtle" color="red" onClick={() => setSupplierToDelete(s)}>
+                        <IconTrash size={16} />
                       </ActionIcon>
                     </Group>
                   </Stack>
                 </Card>
               </Grid.Col>
-            ))
-          )}
-        </Grid>
-      )}
+            ))}
+          </Grid>
+        )}
+      </EntityListPage>
 
       {/* Form Modal */}
       <SupplierFormModal
@@ -615,48 +380,34 @@ export function SupplierList() {
         onClose={() => setFormModalOpen(false)}
         onSubmit={handleFormSubmit}
         supplierToEdit={supplierToEdit}
-        loading={createMutation.isPending || updateMutation.isPending}
       />
 
       {/* Detail Drawer */}
       <SupplierDetailDrawer
         supplier={selectedSupplierForDrawer}
-        opened={selectedSupplierForDrawer !== null}
+        opened={Boolean(selectedSupplierForDrawer)}
         onClose={() => setSelectedSupplierForDrawer(null)}
-        onEdit={(sup) => {
+        onEdit={(s) => {
           setSelectedSupplierForDrawer(null);
-          handleOpenEditModal(sup);
+          handleOpenEditModal(s);
         }}
-        onDelete={(sup) => {
+        onDelete={(s) => {
           setSelectedSupplierForDrawer(null);
-          setSupplierToDelete(sup);
+          setSupplierToDelete(s);
         }}
       />
 
-      {/* Delete Confirmation */}
+      {/* Confirm Delete */}
       <ConfirmDialog
-        opened={supplierToDelete !== null}
+        opened={Boolean(supplierToDelete)}
         onClose={() => setSupplierToDelete(null)}
         onConfirm={handleConfirmDelete}
         title="Delete Supplier"
         confirmLabel="Delete Supplier"
         confirmColor="red"
-        loading={deleteMutation.isPending}
       >
-        Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>? This action
-        cannot be undone.
+        Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>?
       </ConfirmDialog>
-    </Stack>
-  );
-}
-
-function CenterLabel({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <Group gap={6} justify="center" wrap="nowrap">
-      {icon}
-      <Box component="span" style={{ whiteSpace: 'nowrap' }}>
-        {text}
-      </Box>
-    </Group>
+    </>
   );
 }

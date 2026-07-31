@@ -304,6 +304,18 @@ export function DataTable<T>({
                     key={key}
                     bg={isSelected ? 'var(--mantine-color-blue-light)' : undefined}
                     onClick={rowClickable ? () => onRowClick(item) : undefined}
+                    tabIndex={rowClickable ? 0 : undefined}
+                    role={rowClickable ? 'button' : undefined}
+                    onKeyDown={
+                      rowClickable
+                        ? (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              onRowClick(item);
+                            }
+                          }
+                        : undefined
+                    }
                     style={rowClickable ? { cursor: 'pointer' } : undefined}
                   >
                     {selectable && (

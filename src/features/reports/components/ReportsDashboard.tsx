@@ -21,7 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { formatMoney } from '@/shared/lib/money';
-import { fetchEmployees, fetchEmployeeEarnings } from '@/features/employees/api/mockEmployees';
+import { fetchEmployees, fetchAllEmployeeEarnings } from '@/features/employees/api/mockEmployees';
 import { queryKeys } from '@/api/queryKeys';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
 
@@ -32,8 +32,8 @@ export function ReportsDashboard() {
   });
 
   const { data: earnings = [] } = useQuery({
-    queryKey: ['all-employee-earnings'],
-    queryFn: () => fetchEmployeeEarnings(),
+    queryKey: queryKeys.employees.allEarnings(),
+    queryFn: () => fetchAllEmployeeEarnings(),
   });
 
   const totalCommissionsCents = earnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
@@ -133,11 +133,11 @@ export function ReportsDashboard() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Employee Name & Role</Table.Th>
-                <Table.Th align="center">Default Split Rule</Table.Th>
-                <Table.Th align="right">Assigned Jobs</Table.Th>
-                <Table.Th align="right">Revenue Generated</Table.Th>
-                <Table.Th align="right">Employee Commission Payout</Table.Th>
-                <Table.Th align="right">Net Shop Owner Profit</Table.Th>
+                <Table.Th ta="center">Default Split Rule</Table.Th>
+                <Table.Th ta="right">Assigned Jobs</Table.Th>
+                <Table.Th ta="right">Revenue Generated</Table.Th>
+                <Table.Th ta="right">Employee Commission Payout</Table.Th>
+                <Table.Th ta="right">Net Shop Owner Profit</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -154,7 +154,7 @@ export function ReportsDashboard() {
                         </Text>
                       </div>
                     </Table.Td>
-                    <Table.Td align="center">
+                    <Table.Td ta="center">
                       <Badge
                         size="xs"
                         variant="light"
@@ -173,22 +173,22 @@ export function ReportsDashboard() {
                         )}
                       </Badge>
                     </Table.Td>
-                    <Table.Td align="right">
+                    <Table.Td ta="right">
                       <Text size="sm" fw={600}>
                         {jobsCount} jobs
                       </Text>
                     </Table.Td>
-                    <Table.Td align="right">
+                    <Table.Td ta="right">
                       <Text size="sm" fw={600}>
                         {formatMoney(revCents)}
                       </Text>
                     </Table.Td>
-                    <Table.Td align="right">
+                    <Table.Td ta="right">
                       <Text size="sm" fw={800} c="indigo">
                         {formatMoney(earnedSplitCents)}
                       </Text>
                     </Table.Td>
-                    <Table.Td align="right">
+                    <Table.Td ta="right">
                       <Text size="sm" fw={800} c="green">
                         {formatMoney(netShopContributionCents)}
                       </Text>

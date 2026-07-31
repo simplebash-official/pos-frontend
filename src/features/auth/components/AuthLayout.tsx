@@ -52,7 +52,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               backgroundImage: `url(${wallLoginImg})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+              boxShadow: '0 20px 40px var(--border-strong)',
             }}
           />
         </Box>

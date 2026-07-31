@@ -1,9 +1,10 @@
+import React from 'react';
 import { Group, Stack, Badge, Text, ActionIcon, Tooltip } from '@mantine/core';
 import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 
 export interface PhoneDisplayProps {
-  primaryPhone: string;
+  primaryPhone?: string;
   secondaryPhone?: string;
   layout?: 'stack' | 'row';
   badgeWidth?: number;
@@ -15,8 +16,11 @@ export function PhoneDisplay({
   layout = 'stack',
   badgeWidth = 60,
 }: PhoneDisplayProps) {
+  const displayPrimary = primaryPhone?.trim() || 'N/A';
+
   const handleCopyPhone = (e: React.MouseEvent, phone: string, label: string) => {
     e.stopPropagation();
+    if (!phone || phone === 'N/A') return;
     navigator.clipboard.writeText(phone);
     notifications.show({
       title: 'Copied!',
@@ -31,7 +35,7 @@ export function PhoneDisplay({
       <Badge
         size="xs"
         variant="light"
-        color="teal"
+        color={displayPrimary === 'N/A' ? 'gray' : 'teal'}
         radius="var(--mantine-radius-default)"
         fw={700}
         w={badgeWidth}
@@ -41,23 +45,25 @@ export function PhoneDisplay({
       </Badge>
       <Group gap={4} wrap="nowrap" align="center">
         <Text size="xs" fw={700}>
-          {primaryPhone}
+          {displayPrimary}
         </Text>
-        <Tooltip label="Copy Primary Phone" withArrow position="top">
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            onClick={(e) => handleCopyPhone(e, primaryPhone, 'Primary')}
-            style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
-          >
-            <IconCopy size={10} />
-          </ActionIcon>
-        </Tooltip>
+        {displayPrimary !== 'N/A' && (
+          <Tooltip label="Copy Primary Phone" withArrow position="top">
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              onClick={(e) => handleCopyPhone(e, displayPrimary, 'Primary')}
+              style={{ width: 14, height: 14, minWidth: 14, minHeight: 14, opacity: 0.6 }}
+            >
+              <IconCopy size={10} />
+            </ActionIcon>
+          </Tooltip>
+        )}
       </Group>
     </Group>
   );
 
-  const secondaryItem = secondaryPhone ? (
+  const secondaryItem = secondaryPhone?.trim() ? (
     <Group gap={6} wrap="nowrap" align="center">
       <Badge
         size="xs"

@@ -3,7 +3,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { mockPurchasesApi } from '../api/mockPurchases';
 import { StockPurchaseInput, EnrichedStockPurchase } from '../types';
 import { fetchSuppliers } from '@/features/suppliers/api/mockSuppliers';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { fetchProducts, adjustStock } from '@/features/inventory/api/mockProducts';
 
 export const usePurchasesBySupplier = (supplierId: string) => {
   return useQuery({
@@ -14,11 +14,36 @@ export const usePurchasesBySupplier = (supplierId: string) => {
       const supplier = allSuppliers.find((s) => s.id === supplierId);
       const allProducts = await fetchProducts();
 
-      const enriched: EnrichedStockPurchase[] = purchases.map((p) => ({
-        ...p,
-        supplier: supplier!,
-        product: allProducts.find((prod) => prod.id === p.productId)!,
-      }));
+      const defaultSupplier = supplier || {
+        id: supplierId,
+        name: 'Deleted Supplier',
+        contactPerson: 'N/A',
+        primaryPhone: 'N/A',
+        email: '',
+        address: '',
+        suppliedCategories: [],
+        createdAt: '',
+        updatedAt: '',
+      };
+
+      const enriched: EnrichedStockPurchase[] = purchases.map((p) => {
+        const prod = allProducts.find((prod) => prod.id === p.productId);
+        return {
+          ...p,
+          supplier: defaultSupplier,
+          product: prod || {
+            id: p.productId,
+            name: 'Deleted Product',
+            sku: 'DELETED',
+            category: 'Phone Repairs',
+            subcategory: 'Phone Covers',
+            costPriceCents: 0,
+            sellingPriceCents: 0,
+            stockQuantity: 0,
+            minStockThreshold: 0,
+          },
+        };
+      });
       return enriched;
     },
     enabled: !!supplierId,
@@ -34,11 +59,36 @@ export const usePurchasesByProduct = (productId: string) => {
       const product = allProducts.find((p) => p.id === productId);
       const allSuppliers = await fetchSuppliers();
 
-      const enriched: EnrichedStockPurchase[] = purchases.map((p) => ({
-        ...p,
-        product: product!,
-        supplier: allSuppliers.find((sup) => sup.id === p.supplierId)!,
-      }));
+      const defaultProduct = product || {
+        id: productId,
+        name: 'Deleted Product',
+        sku: 'DELETED',
+        category: 'Phone Repairs',
+        subcategory: 'Phone Covers',
+        costPriceCents: 0,
+        sellingPriceCents: 0,
+        stockQuantity: 0,
+        minStockThreshold: 0,
+      };
+
+      const enriched: EnrichedStockPurchase[] = purchases.map((p) => {
+        const sup = allSuppliers.find((s) => s.id === p.supplierId);
+        return {
+          ...p,
+          product: defaultProduct,
+          supplier: sup || {
+            id: p.supplierId,
+            name: 'Deleted Supplier',
+            contactPerson: 'N/A',
+            primaryPhone: 'N/A',
+            email: '',
+            address: '',
+            suppliedCategories: [],
+            createdAt: '',
+            updatedAt: '',
+          },
+        };
+      });
       return enriched;
     },
     enabled: !!productId,
@@ -50,12 +100,9 @@ export const useCreatePurchase = () => {
 
   return useMutation({
     mutationFn: async (input: StockPurchaseInput) => {
-      // 1. Log the purchase
       const purchase = await mockPurchasesApi.createPurchase(input);
-
-      // Note: We'd normally update the inventory stock quantity here,
-      // but mockProducts.ts currently uses a static array without localStorage persistence.
-
+      // Mutate inventory stock quantity and append movement ledger entry
+      await adjustStock(input.productId, input.quantity, 'purchase_receipt');
       return purchase;
     },
     onSuccess: (_, variables) => {
@@ -66,6 +113,7 @@ export const useCreatePurchase = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.purchases.byProduct(variables.productId),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 };

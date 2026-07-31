@@ -5,7 +5,7 @@ import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useCart } from '../hooks/useCart';
 
 export function OrderSummary() {
-  const { subtotalCents, taxCents, discountCents, totalCents, items, setDiscount } = useCart();
+  const { subtotalCents, discountCents, totalCents, items, setDiscount } = useCart();
 
   return (
     <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
@@ -17,13 +17,6 @@ export function OrderSummary() {
           <Text size="sm">Subtotal:</Text>
           <Text size="sm" fw={600}>
             {formatMoney(subtotalCents)}
-          </Text>
-        </Group>
-
-        <Group justify="space-between">
-          <Text size="sm">Tax (8%):</Text>
-          <Text size="sm" fw={600}>
-            {formatMoney(taxCents)}
           </Text>
         </Group>
 

@@ -1,5 +1,4 @@
 import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
-import { calculateTaxCents, calculateTotalCents } from '@/shared/lib/money';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/constants';
 
 export interface CartItem {
@@ -13,6 +12,17 @@ export interface CartItem {
   totalCents: number;
 }
 
+export interface HeldCart {
+  id: string;
+  items: CartItem[];
+  customerId: string | null;
+  customerName: string | null;
+  discountCents: number;
+  paymentMethod: PaymentMethod;
+  notes: string;
+  heldAt: string;
+}
+
 interface CartState {
   items: CartItem[];
   customerId: string | null;
@@ -20,6 +30,7 @@ interface CartState {
   discountCents: number;
   paymentMethod: PaymentMethod;
   notes: string;
+  heldCarts: HeldCart[];
 }
 
 const initialState: CartState = {
@@ -29,6 +40,7 @@ const initialState: CartState = {
   discountCents: 0,
   paymentMethod: PAYMENT_METHODS.CASH,
   notes: '',
+  heldCarts: [],
 };
 
 const cartSlice = createSlice({
@@ -89,8 +101,48 @@ const cartSlice = createSlice({
       state.notes = action.payload;
     },
 
+    parkCart: (state) => {
+      if (state.items.length === 0) return;
+      const held: HeldCart = {
+        id: `held-${Date.now()}`,
+        items: [...state.items],
+        customerId: state.customerId,
+        customerName: state.customerName,
+        discountCents: state.discountCents,
+        paymentMethod: state.paymentMethod,
+        notes: state.notes,
+        heldAt: new Date().toISOString(),
+      };
+      state.heldCarts.push(held);
+      state.items = [];
+      state.customerId = null;
+      state.customerName = null;
+      state.discountCents = 0;
+      state.notes = '';
+    },
+
+    restoreCart: (state, action: PayloadAction<string>) => {
+      const target = state.heldCarts.find((h) => h.id === action.payload);
+      if (!target) return;
+      state.items = [...target.items];
+      state.customerId = target.customerId;
+      state.customerName = target.customerName;
+      state.discountCents = target.discountCents;
+      state.paymentMethod = target.paymentMethod;
+      state.notes = target.notes;
+      state.heldCarts = state.heldCarts.filter((h) => h.id !== action.payload);
+    },
+
+    deleteHeldCart: (state, action: PayloadAction<string>) => {
+      state.heldCarts = state.heldCarts.filter((h) => h.id !== action.payload);
+    },
+
     clearCart: (state) => {
-      Object.assign(state, initialState);
+      state.items = [];
+      state.customerId = null;
+      state.customerName = null;
+      state.discountCents = 0;
+      state.notes = '';
     },
   },
 });
@@ -103,25 +155,27 @@ export const {
   setDiscountCents,
   setPaymentMethod,
   setNotes,
+  parkCart,
+  restoreCart,
+  deleteHeldCart,
   clearCart,
 } = cartSlice.actions;
 
 export const selectCartItems = (state: { cart: CartState }) => state.cart.items;
 export const selectCartDiscountCents = (state: { cart: CartState }) => state.cart.discountCents;
+export const selectHeldCarts = (state: { cart: CartState }) => state.cart.heldCarts;
 
-export const selectCartItemsCount = createSelector([selectCartItems], (items) => items.length);
+export const selectCartItemsCount = createSelector([selectCartItems], (items) =>
+  items.reduce((acc, item) => acc + item.quantity, 0)
+);
 
 export const selectSubtotalCents = createSelector([selectCartItems], (items) =>
   items.reduce((acc, item) => acc + item.totalCents, 0)
 );
 
-export const selectTaxCents = createSelector([selectSubtotalCents], (subtotal) =>
-  calculateTaxCents(subtotal)
-);
-
 export const selectTotalCents = createSelector(
-  [selectSubtotalCents, selectTaxCents, selectCartDiscountCents],
-  (subtotal, tax, discount) => calculateTotalCents(subtotal, tax, discount)
+  [selectSubtotalCents, selectCartDiscountCents],
+  (subtotal, discount) => Math.max(0, subtotal - discount)
 );
 
 export default cartSlice.reducer;

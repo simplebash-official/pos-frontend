@@ -1,8 +1,12 @@
 import { NavLink as RouterNavLink, useLocation } from 'react-router-dom';
-import { Stack, NavLink, Text, Divider, Switch, useMantineColorScheme } from '@mantine/core';
+import { Stack, NavLink, Text, Divider, Switch, useMantineColorScheme, Badge } from '@mantine/core';
 import { IconLock, IconMoon, IconSun } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+
 import { NAV_ITEMS } from '@/config/navigation';
 import { ROUTES } from '@/constants';
+import { queryKeys } from '@/api/queryKeys';
+import { fetchProducts } from '@/features/inventory/api/mockProducts';
 
 export interface SidebarProps {
   closeMobile?: () => void;
@@ -13,6 +17,13 @@ export function Sidebar({ closeMobile }: SidebarProps) {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
 
+  const { data: products = [] } = useQuery({
+    queryKey: queryKeys.inventory.all,
+    queryFn: fetchProducts,
+  });
+
+  const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+
   return (
     <Stack h="100%" justify="space-between" p="sm">
       <Stack gap="xs">
@@ -22,6 +33,8 @@ export function Sidebar({ closeMobile }: SidebarProps) {
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.to);
+          const isInventory = item.to === ROUTES.INVENTORY;
+
           return (
             <NavLink
               key={item.to}
@@ -29,6 +42,13 @@ export function Sidebar({ closeMobile }: SidebarProps) {
               to={item.to}
               label={item.label}
               leftSection={<Icon size={20} stroke={1.5} />}
+              rightSection={
+                isInventory && lowStockCount > 0 ? (
+                  <Badge size="xs" color="red" variant="filled">
+                    {lowStockCount}
+                  </Badge>
+                ) : undefined
+              }
               active={isActive}
               color={item.color}
               variant="light"

@@ -42,7 +42,7 @@ import { DEFAULT_SUGGESTED_TAGS } from '../constants';
 export interface SupplierFormModalProps {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (values: SupplierInput) => Promise<void>;
+  onSubmit: (values: SupplierInput, linkedProductIds?: string[]) => Promise<void>;
   supplierToEdit?: Supplier | null;
   loading?: boolean;
 }
@@ -50,7 +50,7 @@ export interface SupplierFormModalProps {
 interface FormContentProps {
   supplierToEdit?: Supplier | null;
   onClose: () => void;
-  onSubmit: (values: SupplierInput) => Promise<void>;
+  onSubmit: (values: SupplierInput, linkedProductIds?: string[]) => Promise<void>;
   loading?: boolean;
 }
 
@@ -151,14 +151,12 @@ function SupplierFormContent({
     e.preventDefault();
     if (!validate()) return;
 
-    await onSubmit(formData);
+    await onSubmit(formData, linkedProductIds);
 
     // Save product links after the supplier is created/updated
     if (supplierToEdit) {
       await setLinksForSupplier(supplierToEdit.id, linkedProductIds);
     }
-    // For new suppliers, the caller needs to handle linking after creation
-    // since we don't have the ID yet. We store the IDs on the form for now.
 
     onClose();
   };

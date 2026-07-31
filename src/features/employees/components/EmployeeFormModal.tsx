@@ -16,6 +16,11 @@ import {
 import { useForm } from '@mantine/form';
 import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/icons-react';
 import { Employee, EmployeeInput, SplitType } from '../types';
+import {
+  EmployeeFormValues,
+  fromEmployee,
+  toEmployeeInput,
+} from '@/shared/lib/moneyFormUtils';
 
 interface EmployeeFormModalProps {
   opened: boolean;
@@ -34,24 +39,15 @@ export function EmployeeFormModal({
 }: EmployeeFormModalProps) {
   const isEditing = Boolean(employeeToEdit);
 
-  const form = useForm<EmployeeInput>({
-    initialValues: {
-      name: '',
-      phone: '',
-      nicOrId: '',
-      role: 'technician',
-      defaultSplitType: 'percentage',
-      defaultSplitValue: 25,
-      status: 'active',
-      notes: '',
-    },
+  const form = useForm<EmployeeFormValues>({
+    initialValues: fromEmployee(null),
     validate: {
       name: (val) => (val.trim().length >= 2 ? null : 'Full name is required (min 2 chars)'),
       phone: (val) =>
         /^[0-9+\s-]{9,15}$/.test(val.trim())
           ? null
           : 'Enter a valid phone number (e.g. 0771234567)',
-      defaultSplitValue: (val, values) => {
+      defaultSplitValueRupeesOrPercent: (val, values) => {
         if (val === undefined || val === null || val < 0) {
           return 'Split value must be 0 or greater';
         }
@@ -64,37 +60,17 @@ export function EmployeeFormModal({
   });
 
   useEffect(() => {
-    if (employeeToEdit) {
-      form.setValues({
-        name: employeeToEdit.name,
-        phone: employeeToEdit.phone,
-        nicOrId: employeeToEdit.nicOrId || '',
-        role: employeeToEdit.role,
-        defaultSplitType: employeeToEdit.defaultSplitType,
-        // Convert cents to LKR if fixed amount
-        defaultSplitValue:
-          employeeToEdit.defaultSplitType === 'fixed'
-            ? employeeToEdit.defaultSplitValue / 100
-            : employeeToEdit.defaultSplitValue,
-        status: employeeToEdit.status,
-        notes: employeeToEdit.notes || '',
-      });
+    if (opened) {
+      form.setValues(fromEmployee(employeeToEdit));
     } else {
       form.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeToEdit, opened]);
 
-  const handleSubmit = async (values: EmployeeInput) => {
-    // If split type is fixed, convert rupees to cents
-    const finalValues: EmployeeInput = {
-      ...values,
-      defaultSplitValue:
-        values.defaultSplitType === 'fixed'
-          ? Math.round(values.defaultSplitValue * 100)
-          : values.defaultSplitValue,
-    };
-    await onSubmit(finalValues);
+  const handleSubmit = async (values: EmployeeFormValues) => {
+    const payload = toEmployeeInput(values);
+    await onSubmit(payload);
     form.reset();
     onClose();
   };
@@ -152,12 +128,7 @@ export function EmployeeFormModal({
             />
           </Group>
 
-          <Paper
-            p="sm"
-            withBorder
-            bg="var(--mantine-color-gray-light)"
-            radius="var(--mantine-radius-default)"
-          >
+          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <Stack gap="xs">
               <Group justify="space-between" align="center">
                 <Text size="xs" fw={700} tt="uppercase" c="dimmed">
@@ -217,17 +188,17 @@ export function EmployeeFormModal({
                       <IconPercentage size={16} />
                     ) : (
                       <Text size="xs" fw={700}>
-                        LKR
+                        Rs.
                       </Text>
                     )
                   }
-                  {...form.getInputProps('defaultSplitValue')}
+                  {...form.getInputProps('defaultSplitValueRupeesOrPercent')}
                 />
               </Group>
               <Text size="xs" c="dimmed">
                 {form.values.defaultSplitType === 'percentage'
-                  ? `Employee receives ${form.values.defaultSplitValue}% of the profit on every completed task assigned to them.`
-                  : `Employee receives a flat LKR ${Number(form.values.defaultSplitValue || 0).toLocaleString()} payout for every job completed.`}
+                  ? `Employee receives ${form.values.defaultSplitValueRupeesOrPercent}% of the profit on every completed task assigned to them.`
+                  : `Employee receives a flat Rs. ${Number(form.values.defaultSplitValueRupeesOrPercent || 0).toLocaleString()} payout for every job completed.`}
               </Text>
             </Stack>
           </Paper>

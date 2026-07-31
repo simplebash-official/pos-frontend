@@ -1,4 +1,5 @@
 import { Employee, EmployeeInput, EmployeeEarningRecord } from '../types';
+import { LocalStorageStore } from '@/shared/lib/localStorageStore';
 
 export const INITIAL_EMPLOYEES: Employee[] = [
   {
@@ -52,11 +53,11 @@ export const INITIAL_EARNINGS: EmployeeEarningRecord[] = [
     workType: 'repair',
     description: 'iPhone 13 Pro Screen replacement',
     customerName: 'Saman Perera',
-    totalAmountCents: 4500000, // LKR 45,000
-    profitCents: 2000000, // LKR 20,000 net profit
+    totalAmountCents: 4500000,
+    profitCents: 2000000,
     splitType: 'percentage',
-    splitValue: 30, // 30%
-    earnedAmountCents: 600000, // LKR 6,000
+    splitValue: 30,
+    earnedAmountCents: 600000,
     status: 'completed',
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
@@ -69,55 +70,61 @@ export const INITIAL_EARNINGS: EmployeeEarningRecord[] = [
     workType: 'print',
     description: 'Custom Mug Printing (50 units)',
     customerName: 'Dhanushka Fernado',
-    totalAmountCents: 2500000, // LKR 25,000
-    profitCents: 1200000, // LKR 12,000 profit
+    totalAmountCents: 2500000,
+    profitCents: 1200000,
     splitType: 'fixed',
-    splitValue: 300000, // LKR 3,000 fixed split
-    earnedAmountCents: 300000, // LKR 3,000
+    splitValue: 300000,
+    earnedAmountCents: 300000,
     status: 'completed',
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   },
-  {
-    id: 'earn-3',
-    employeeId: 'emp-1',
-    employeeName: 'Nimal Perera',
-    workId: '2',
-    ticketOrInvoiceNumber: 'REP-1002',
-    workType: 'repair',
-    description: 'Samsung S22 Charging port replacement',
-    customerName: 'Kamal Silva',
-    totalAmountCents: 1800000, // LKR 18,000
-    profitCents: 1000000, // LKR 10,000 profit
-    splitType: 'percentage',
-    splitValue: 30, // 30%
-    earnedAmountCents: 300000, // LKR 3,000
-    status: 'completed',
-    createdAt: new Date().toISOString(),
-  },
 ];
 
-let employeesStore: Employee[] = [...INITIAL_EMPLOYEES];
-let earningsStore: EmployeeEarningRecord[] = [...INITIAL_EARNINGS];
+export function normalizeEmployee(rawInput: unknown): Employee {
+  const raw = (rawInput && typeof rawInput === 'object' ? rawInput : {}) as Record<string, unknown>;
+  return {
+    id: typeof raw.id === 'string' ? raw.id : `emp-${Date.now()}`,
+    name: String(raw.name || raw.employeeName || 'Unnamed Employee'),
+    phone: String(raw.phone || raw.primaryPhone || raw.contactPhone || ''),
+    nicOrId: String(raw.nicOrId || raw.nic || ''),
+    role: (raw.role as Employee['role']) || 'technician',
+    defaultSplitType: (raw.defaultSplitType as Employee['defaultSplitType']) || 'percentage',
+    defaultSplitValue: Number(raw.defaultSplitValue ?? 30),
+    status: (raw.status as Employee['status']) || 'active',
+    notes: String(raw.notes || ''),
+    createdAt: String(raw.createdAt || new Date().toISOString()),
+    updatedAt: String(raw.updatedAt || new Date().toISOString()),
+  };
+}
+
+export const employeesStore = new LocalStorageStore<Employee>(
+  'pos_employees',
+  INITIAL_EMPLOYEES,
+  normalizeEmployee
+);
+
+export const earningsStore = new LocalStorageStore<EmployeeEarningRecord>(
+  'pos_earnings',
+  INITIAL_EARNINGS
+);
 
 export const fetchEmployees = async (): Promise<Employee[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve([...employeesStore]), 200);
-  });
+  return new Promise((resolve) => setTimeout(() => resolve(employeesStore.getAll()), 200));
 };
 
 export const createEmployee = async (input: EmployeeInput): Promise<Employee> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const now = new Date().toISOString();
-      const newEmp: Employee = {
+      const newEmp: Employee = normalizeEmployee({
         ...input,
         id: `emp-${Date.now()}`,
         createdAt: now,
         updatedAt: now,
-      };
-      employeesStore = [newEmp, ...employeesStore];
+      });
+      employeesStore.add(newEmp);
       resolve(newEmp);
-    }, 300);
+    }, 200);
   });
 };
 
@@ -127,29 +134,24 @@ export const updateEmployee = async (
 ): Promise<Employee> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const index = employeesStore.findIndex((e) => e.id === id);
-      if (index === -1) {
-        reject(new Error('Employee not found'));
-        return;
-      }
-      const updated: Employee = {
-        ...employeesStore[index],
+      const updated = employeesStore.update(id, {
         ...input,
         updatedAt: new Date().toISOString(),
-      };
-      employeesStore[index] = updated;
+      });
+      if (!updated) return reject(new Error('Employee not found'));
       resolve(updated);
-    }, 300);
+    }, 200);
   });
 };
 
 export const deleteEmployee = async (id: string): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      employeesStore = employeesStore.filter((e) => e.id !== id);
-      earningsStore = earningsStore.filter((earn) => earn.employeeId !== id);
+      employeesStore.remove(id);
+      const toRemove = earningsStore.filter((earn) => earn.employeeId === id);
+      toRemove.forEach((e) => earningsStore.remove(e.id));
       resolve();
-    }, 300);
+    }, 200);
   });
 };
 
@@ -157,10 +159,11 @@ export const deleteEmployees = async (ids: string[]): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const idSet = new Set(ids);
-      employeesStore = employeesStore.filter((e) => !idSet.has(e.id));
-      earningsStore = earningsStore.filter((earn) => !idSet.has(earn.employeeId));
+      ids.forEach((id) => employeesStore.remove(id));
+      const toRemove = earningsStore.filter((earn) => idSet.has(earn.employeeId));
+      toRemove.forEach((e) => earningsStore.remove(e.id));
       resolve();
-    }, 300);
+    }, 200);
   });
 };
 
@@ -172,11 +175,13 @@ export const fetchEmployeeEarnings = async (
       if (employeeId) {
         resolve(earningsStore.filter((earn) => earn.employeeId === employeeId));
       } else {
-        resolve([...earningsStore]);
+        resolve(earningsStore.getAll());
       }
     }, 200);
   });
 };
+
+export const fetchAllEmployeeEarnings = fetchEmployeeEarnings;
 
 export const addEarningRecord = async (
   record: Omit<EmployeeEarningRecord, 'id' | 'createdAt'>
@@ -185,11 +190,49 @@ export const addEarningRecord = async (
     setTimeout(() => {
       const newRecord: EmployeeEarningRecord = {
         ...record,
-        id: `earn-${Date.now()}`,
+        id: `earn-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         createdAt: new Date().toISOString(),
       };
-      earningsStore = [newRecord, ...earningsStore];
+      earningsStore.add(newRecord);
       resolve(newRecord);
+    }, 200);
+  });
+};
+
+export const updateEarningRecordForWork = async (
+  workId: string,
+  workType: 'repair' | 'print' | 'sale',
+  record: Omit<EmployeeEarningRecord, 'id' | 'createdAt'>
+): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const existing = earningsStore.filter(
+        (e) => e.workId === workId && e.workType === workType
+      );
+      if (existing.length > 0) {
+        existing.forEach((e) => {
+          earningsStore.update(e.id, record);
+        });
+      } else {
+        addEarningRecord(record);
+      }
+      resolve();
+    }, 200);
+  });
+};
+
+export const deleteEarningRecordsForWork = async (
+  workIds: string[],
+  workType: 'repair' | 'print' | 'sale'
+): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const workIdSet = new Set(workIds);
+      const toRemove = earningsStore.filter(
+        (e) => e.workType === workType && workIdSet.has(e.workId)
+      );
+      toRemove.forEach((e) => earningsStore.remove(e.id));
+      resolve();
     }, 200);
   });
 };

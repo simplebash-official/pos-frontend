@@ -176,7 +176,7 @@ export function CustomerDetailDrawer({
                 radius="var(--mantine-radius-default)"
                 style={{ backgroundColor: 'var(--mantine-color-body)' }}
               >
-                <Text size="sm" c="dimmed" style={{ whitespace: 'pre-wrap' }}>
+                <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
                   {c.notes}
                 </Text>
               </Paper>

@@ -53,7 +53,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     Paper: Paper.extend({
       defaultProps: {
         p: 'md',
-        shadow: 'xl',
+        shadow: 'none',
         radius: 'var(--mantine-radius-default)',
         withBorder: true,
       },
@@ -62,7 +62,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     Card: Card.extend({
       defaultProps: {
         p: 'xl',
-        shadow: 'xl',
+        shadow: 'none',
         radius: 'var(--mantine-radius-default)',
         withBorder: true,
       },

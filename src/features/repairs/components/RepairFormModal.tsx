@@ -12,16 +12,22 @@ import {
   Text,
   Paper,
   Badge,
+  Alert,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
-import { IconHammer, IconUser, IconPhone, IconPercentage, IconCoin } from '@tabler/icons-react';
+import { IconHammer, IconUser, IconPhone, IconPercentage, IconCoin, IconAlertTriangle } from '@tabler/icons-react';
 import { RepairJob, RepairJobInput } from '../types';
 import { fetchEmployees } from '@/features/employees/api/mockEmployees';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
-import { formatMoney } from '@/shared/lib/money';
+import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
+import {
+  RepairFormValues,
+  fromRepairJob,
+  toRepairInput,
+} from '@/shared/lib/moneyFormUtils';
 
 interface RepairFormModalProps {
   opened: boolean;
@@ -45,57 +51,27 @@ export function RepairFormModal({
     queryFn: fetchEmployees,
   });
 
-  const form = useForm<RepairJobInput>({
-    initialValues: {
-      customerName: '',
-      customerPhone: '',
-      deviceModel: '',
-      serialNumber: '',
-      issueDescription: '',
-      status: 'received' as JobStatus,
-      estimatedCostCents: 0,
-      materialCostCents: 0,
-      assignedEmployeeId: '',
-      assignedEmployeeName: '',
-      splitType: 'percentage' as SplitType,
-      splitValue: 0,
-    },
+  const form = useForm<RepairFormValues>({
+    initialValues: fromRepairJob(null),
     validate: {
       customerName: (val) => (val.trim() ? null : 'Customer name is required'),
       customerPhone: (val) =>
         /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
       deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
       issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
-      estimatedCostCents: (val) => (val >= 0 ? null : 'Cost must be 0 or greater'),
+      estimatedPriceRupees: (val) => (val >= 0 ? null : 'Price must be 0 or greater'),
     },
   });
 
   useEffect(() => {
-    if (jobToEdit) {
-      form.setValues({
-        customerName: jobToEdit.customerName,
-        customerPhone: jobToEdit.customerPhone,
-        deviceModel: jobToEdit.deviceModel,
-        serialNumber: jobToEdit.serialNumber || '',
-        issueDescription: jobToEdit.issueDescription,
-        status: jobToEdit.status,
-        estimatedCostCents: jobToEdit.estimatedCostCents / 100, // convert cents to LKR
-        materialCostCents: (jobToEdit.materialCostCents || 0) / 100,
-        assignedEmployeeId: jobToEdit.assignedEmployeeId || '',
-        assignedEmployeeName: jobToEdit.assignedEmployeeName || '',
-        splitType: jobToEdit.splitType || 'percentage',
-        splitValue:
-          jobToEdit.splitType === 'fixed'
-            ? (jobToEdit.splitValue || 0) / 100
-            : jobToEdit.splitValue || 0,
-      });
+    if (opened) {
+      form.setValues(fromRepairJob(jobToEdit));
     } else {
       form.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobToEdit, opened]);
 
-  // Update employee default split when employee selection changes
   const handleEmployeeChange = (employeeId: string) => {
     const emp = employees.find((e) => e.id === employeeId);
     if (emp) {
@@ -103,7 +79,7 @@ export function RepairFormModal({
       form.setFieldValue('assignedEmployeeName', emp.name);
       form.setFieldValue('splitType', emp.defaultSplitType);
       form.setFieldValue(
-        'splitValue',
+        'splitValueRupeesOrPercent',
         emp.defaultSplitType === 'fixed' ? emp.defaultSplitValue / 100 : emp.defaultSplitValue
       );
     } else {
@@ -112,33 +88,28 @@ export function RepairFormModal({
     }
   };
 
-  // Real-time calculation of profit and employee split
-  const estCostCents = Math.round((form.values.estimatedCostCents || 0) * 100);
-  const matCostCents = Math.round((form.values.materialCostCents || 0) * 100);
-  const calculatedProfitCents = Math.max(0, estCostCents - matCostCents);
+  const estPriceRupees = form.values.estimatedPriceRupees || 0;
+  const matCostRupees = form.values.materialCostRupees || 0;
+  const profitRupees = Math.max(0, estPriceRupees - matCostRupees);
 
+  const profitCents = toCents(profitRupees);
   let calculatedEarningsCents = 0;
-  const splitVal = form.values.splitValue || 0;
+  const splitVal = form.values.splitValueRupeesOrPercent || 0;
+  const isFixedSplitCapped =
+    form.values.splitType === 'fixed' && splitVal > profitRupees && profitRupees > 0;
+
   if (form.values.assignedEmployeeId && splitVal > 0) {
     if (form.values.splitType === 'percentage') {
-      calculatedEarningsCents = Math.round((calculatedProfitCents * splitVal) / 100);
+      calculatedEarningsCents = Math.round((profitCents * splitVal) / 100);
     } else {
-      const fixedCents = Math.round(splitVal * 100);
-      calculatedEarningsCents = Math.min(calculatedProfitCents, fixedCents);
+      const fixedCents = toCents(splitVal);
+      calculatedEarningsCents = Math.min(profitCents, fixedCents);
     }
   }
 
-  const handleSubmit = async (values: RepairJobInput) => {
-    const finalValues: RepairJobInput = {
-      ...values,
-      estimatedCostCents: Math.round(values.estimatedCostCents * 100),
-      materialCostCents: Math.round((values.materialCostCents || 0) * 100),
-      splitValue:
-        values.splitType === 'fixed'
-          ? Math.round((values.splitValue || 0) * 100)
-          : values.splitValue || 0,
-    };
-    await onSubmit(finalValues);
+  const handleSubmit = async (values: RepairFormValues) => {
+    const payload = toRepairInput(values);
+    await onSubmit(payload);
     form.reset();
     onClose();
   };
@@ -188,22 +159,6 @@ export function RepairFormModal({
               {...form.getInputProps('deviceModel')}
             />
 
-            <TextInput
-              label="Serial / IMEI Number"
-              placeholder="e.g. SN-982347102"
-              {...form.getInputProps('serialNumber')}
-            />
-          </Group>
-
-          <Textarea
-            label="Issue & Diagnosis Description"
-            placeholder="e.g. Broken OLED panel, battery drain issues..."
-            rows={2}
-            required
-            {...form.getInputProps('issueDescription')}
-          />
-
-          <Group grow align="flex-start">
             <Select
               label="Ticket Status"
               data={Object.values(JOB_STATUS).map((status: JobStatus) => ({
@@ -215,13 +170,16 @@ export function RepairFormModal({
             />
           </Group>
 
+          <Textarea
+            label="Issue & Diagnosis Description"
+            placeholder="e.g. Broken OLED panel, battery drain issues..."
+            rows={2}
+            required
+            {...form.getInputProps('issueDescription')}
+          />
+
           {/* Pricing & Cost */}
-          <Paper
-            p="sm"
-            withBorder
-            bg="var(--mantine-color-gray-light)"
-            radius="var(--mantine-radius-default)"
-          >
+          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <Stack gap="xs">
               <Text size="xs" fw={700} tt="uppercase" c="dimmed">
                 Pricing & Material Cost (LKR)
@@ -231,17 +189,17 @@ export function RepairFormModal({
                   label="Repair Total Price (LKR)"
                   placeholder="e.g. 45000"
                   min={0}
-                  prefix="LKR "
+                  prefix="Rs. "
                   required
-                  {...form.getInputProps('estimatedCostCents')}
+                  {...form.getInputProps('estimatedPriceRupees')}
                 />
 
                 <NumberInput
                   label="Material / Spare Parts Cost (LKR)"
                   placeholder="e.g. 25000"
                   min={0}
-                  prefix="LKR "
-                  {...form.getInputProps('materialCostCents')}
+                  prefix="Rs. "
+                  {...form.getInputProps('materialCostRupees')}
                 />
               </Group>
 
@@ -250,19 +208,14 @@ export function RepairFormModal({
                   Estimated Repair Net Profit:
                 </Text>
                 <Text size="sm" fw={800} c="green">
-                  {formatMoney(calculatedProfitCents)}
+                  {formatMoney(profitCents)}
                 </Text>
               </Group>
             </Stack>
           </Paper>
 
           {/* Assigned Employee & Profit Split */}
-          <Paper
-            p="sm"
-            withBorder
-            bg="var(--mantine-color-indigo-light)"
-            radius="var(--mantine-radius-default)"
-          >
+          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
             <Stack gap="xs">
               <Group justify="space-between" align="center">
                 <Text size="xs" fw={700} tt="uppercase" c="indigo">
@@ -330,17 +283,22 @@ export function RepairFormModal({
                       }
                       min={0}
                       max={form.values.splitType === 'percentage' ? 100 : 1000000}
-                      {...form.getInputProps('splitValue')}
+                      {...form.getInputProps('splitValueRupeesOrPercent')}
                     />
                   </Group>
 
-                  <Paper
-                    p="xs"
-                    withBorder
-                    bg="var(--mantine-color-body)"
-                    radius="var(--mantine-radius-default)"
-                    mt="xs"
-                  >
+                  {isFixedSplitCapped && (
+                    <Alert
+                      color="orange"
+                      icon={<IconAlertTriangle size={16} />}
+                      title="Fixed Commission Capped"
+                      p="xs"
+                    >
+                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the repair net profit (Rs. {profitRupees.toLocaleString()}). Commission will be capped at the total profit.
+                    </Alert>
+                  )}
+
+                  <Paper p="xs" withBorder radius="var(--mantine-radius-default)" mt="xs">
                     <Group justify="space-between">
                       <Text size="xs" fw={600}>
                         Employee Commission Payout:
