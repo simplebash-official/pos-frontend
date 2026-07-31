@@ -112,7 +112,7 @@ export function EmployeeDetailDrawer({
                 </Group>
               </div>
 
-              <Paper p="xs" withBorder bg="var(--mantine-color-indigo-0)">
+              <Paper p="xs" withBorder bg="var(--mantine-color-indigo-light)">
                 <Text size="xs" fw={700} c="indigo" tt="uppercase">
                   Default Profit Split Rule
                 </Text>

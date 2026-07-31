@@ -219,7 +219,7 @@ export function RepairFormModal({
           <Paper
             p="sm"
             withBorder
-            bg="var(--mantine-color-gray-0)"
+            bg="var(--mantine-color-gray-light)"
             radius="var(--mantine-radius-default)"
           >
             <Stack gap="xs">
@@ -260,7 +260,7 @@ export function RepairFormModal({
           <Paper
             p="sm"
             withBorder
-            bg="var(--mantine-color-indigo-0)"
+            bg="var(--mantine-color-indigo-light)"
             radius="var(--mantine-radius-default)"
           >
             <Stack gap="xs">

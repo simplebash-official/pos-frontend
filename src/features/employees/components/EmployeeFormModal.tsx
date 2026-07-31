@@ -155,7 +155,7 @@ export function EmployeeFormModal({
           <Paper
             p="sm"
             withBorder
-            bg="var(--mantine-color-gray-0)"
+            bg="var(--mantine-color-gray-light)"
             radius="var(--mantine-radius-default)"
           >
             <Stack gap="xs">

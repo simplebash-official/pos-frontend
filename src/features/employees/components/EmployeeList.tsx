@@ -553,7 +553,7 @@ export function EmployeeList() {
                           </Text>
                         </Group>
 
-                        <Paper p="xs" withBorder bg="var(--mantine-color-gray-0)">
+                        <Paper p="xs" withBorder bg="var(--mantine-color-gray-light)">
                           <Group justify="space-between" align="center">
                             <Text size="xs" c="dimmed">
                               Split Rule:
