@@ -347,8 +347,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       )}
 
       {/* 4. Product Grid (3-4 columns, 120-140px tiles) */}
-      <ScrollArea style={{ flex: 1 }} offsetScrollbars>
-        <Grid gap="xs">
+      <ScrollArea style={{ flex: 1 }} offsetScrollbars p={4}>
+        <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
           {filteredProducts.map((p, index) => {
             const isZeroStock = p.stockQuantity <= 0;
             const isLowStock = p.stockQuantity > 0 && p.stockQuantity <= p.minStockThreshold;

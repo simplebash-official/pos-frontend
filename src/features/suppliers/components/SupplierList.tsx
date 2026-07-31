@@ -211,7 +211,12 @@ export function SupplierList() {
             (s as unknown as Record<string, string>).contactPhone ||
             ''
           }
-          secondaryPhone={s.secondaryPhone}
+          secondaryPhone={
+            s.secondaryPhone ||
+            (s as unknown as Record<string, string>).backupPhone ||
+            (s as unknown as Record<string, string>).altPhone ||
+            ''
+          }
         />
       ),
     },
@@ -368,7 +373,12 @@ export function SupplierList() {
                           (s as unknown as Record<string, string>).contactPhone ||
                           ''
                         }
-                        secondaryPhone={s.secondaryPhone}
+                        secondaryPhone={
+                          s.secondaryPhone ||
+                          (s as unknown as Record<string, string>).backupPhone ||
+                          (s as unknown as Record<string, string>).altPhone ||
+                          ''
+                        }
                       />
                     </Paper>
 
