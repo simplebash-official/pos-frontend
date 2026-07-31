@@ -229,13 +229,16 @@ export function PaymentPanel({
               },
               {
                 value: PAYMENT_METHODS.CARD,
+                disabled: true,
                 label: (
-                  <Group gap={4} justify="center" h={36}>
-                    <IconCreditCard size={18} />
-                    <Text size="xs" fw={700}>
-                      Card
-                    </Text>
-                  </Group>
+                  <Tooltip label="Card payment coming in a future update">
+                    <Group gap={4} justify="center" h={36} style={{ opacity: 0.5 }}>
+                      <IconCreditCard size={18} />
+                      <Text size="xs" fw={700}>
+                        Card
+                      </Text>
+                    </Group>
+                  </Tooltip>
                 ),
               },
               {
@@ -369,7 +372,7 @@ export function PaymentPanel({
                     onChange={(v) => handleUpdateSplitRow(sp.id, 'method', v as PaymentMethod)}
                     data={[
                       { label: 'Cash', value: PAYMENT_METHODS.CASH },
-                      { label: 'Card', value: PAYMENT_METHODS.CARD },
+                      { label: 'Card', value: PAYMENT_METHODS.CARD, disabled: true },
                       { label: 'Online', value: PAYMENT_METHODS.ONLINE },
                     ]}
                     style={{ flex: 1 }}
