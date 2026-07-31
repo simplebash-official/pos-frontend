@@ -16,7 +16,6 @@ import {
   IconBuildingStore,
   IconEdit,
   IconTrash,
-  IconEye,
   IconCheck,
   IconTruckDelivery,
 } from '@tabler/icons-react';
@@ -170,7 +169,7 @@ export function SupplierList() {
       key: 'name',
       header: 'Business Name',
       align: 'left',
-      width: '25%',
+      width: '30%',
       render: (s) => (
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon variant="light" color="blue" size="sm">
@@ -191,7 +190,7 @@ export function SupplierList() {
       key: 'contactPerson',
       header: 'Contact Representative',
       align: 'left',
-      width: '22%',
+      width: '25%',
       render: (s) => (
         <Text size="xs" fw={600}>
           {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
@@ -202,7 +201,7 @@ export function SupplierList() {
       key: 'primaryPhone',
       header: 'Phone Contact',
       align: 'left',
-      width: '20%',
+      width: '25%',
       render: (s) => (
         <PhoneDisplay
           primaryPhone={
@@ -224,7 +223,7 @@ export function SupplierList() {
       key: 'category',
       header: 'Main Category',
       align: 'left',
-      width: '18%',
+      width: '20%',
       render: (s) => {
         const cat =
           (s.suppliedCategories && s.suppliedCategories[0]) ||
@@ -236,35 +235,6 @@ export function SupplierList() {
           </Badge>
         );
       },
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      align: 'right',
-      width: '15%',
-      render: (s) => (
-        <Group gap={4} justify="flex-end" onClick={(e) => e.stopPropagation()}>
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            onClick={() => setSelectedSupplierForDrawer(s)}
-          >
-            <IconEye size={16} />
-          </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            color="blue"
-            size="sm"
-            onClick={() => handleOpenEditModal(s)}
-          >
-            <IconEdit size={16} />
-          </ActionIcon>
-          <ActionIcon variant="subtle" color="red" size="sm" onClick={() => setSupplierToDelete(s)}>
-            <IconTrash size={16} />
-          </ActionIcon>
-        </Group>
-      ),
     },
   ];
 
