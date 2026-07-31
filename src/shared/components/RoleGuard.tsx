@@ -18,7 +18,8 @@ export function RoleGuard({ allowedRoles, children, fallback }: RoleGuardProps) 
     if (fallback) return <>{fallback}</>;
     return (
       <Alert color="red" icon={<IconLock size={16} />} title="Access Restricted">
-        Your role ({currentRole}) does not have permission to view this section or financial details.
+        Your role ({currentRole}) does not have permission to view this section or financial
+        details.
       </Alert>
     );
   }

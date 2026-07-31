@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Stack,
-  Group,
-  TextInput,
-  SegmentedControl,
-  Chip,
-  Box,
-  Center,
-  Text,
-} from '@mantine/core';
+import { Stack, Group, TextInput, SegmentedControl, Chip, Box, Center, Text } from '@mantine/core';
 import { IconSearch, IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { PageHeader } from './PageHeader';
 

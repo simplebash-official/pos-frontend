@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppShell as MantineAppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { ROUTES } from '@/constants';
+import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
+import { HeldSalesDrawer } from '@/features/billing/components/HeldSalesDrawer';
+import { KeyboardShortcutsModal } from '@/features/billing/components/KeyboardShortcutsModal';
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
@@ -23,43 +25,79 @@ const ROUTE_TITLES: Record<string, string> = {
 
 export function AppShell() {
   const [opened, { toggle, close }] = useDisclosure();
+  const [focusMode, setFocusMode] = useState(false);
+  const [heldDrawerOpen, setHeldDrawerOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
   const location = useLocation();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isBillingPage = location.pathname === ROUTES.BILLING;
 
   useEffect(() => {
     const title = ROUTE_TITLES[location.pathname] || 'JANA2U POS System';
     document.title = title;
   }, [location.pathname]);
 
+  // F11 focus mode hotkey
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F11' && isBillingPage) {
+        e.preventDefault();
+        setFocusMode((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isBillingPage]);
+
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
+  const headerHeight = isBillingPage ? 48 : 60;
+  const navbarWidth = isBillingPage ? (focusMode ? 0 : 64) : 250;
+
   return (
     <MantineAppShell
-      header={{ height: 60 }}
+      header={{ height: headerHeight }}
       navbar={{
-        width: 250,
+        width: navbarWidth,
         breakpoint: 'sm',
-        collapsed: { mobile: !opened },
+        collapsed: { mobile: !opened, desktop: isBillingPage && focusMode },
       }}
-      padding="md"
+      padding={isBillingPage ? 0 : 'md'}
     >
       <MantineAppShell.Header bg="var(--bg-sidebar)">
-        <Header opened={opened} toggle={toggle} />
+        <Header
+          opened={opened}
+          toggle={toggle}
+          focusMode={focusMode}
+          onToggleFocusMode={() => setFocusMode((prev) => !prev)}
+          onOpenHeldDrawer={() => setHeldDrawerOpen(true)}
+          onOpenShortcuts={() => setShortcutsOpen(true)}
+        />
       </MantineAppShell.Header>
 
-      <MantineAppShell.Navbar bg="var(--bg-sidebar)">
-        <Sidebar closeMobile={close} />
-      </MantineAppShell.Navbar>
+      {(!isBillingPage || !focusMode) && (
+        <MantineAppShell.Navbar bg="var(--bg-sidebar)">
+          <Sidebar closeMobile={close} isRail={isBillingPage && !focusMode} />
+        </MantineAppShell.Navbar>
+      )}
 
       <MantineAppShell.Main
-        style={{ backgroundColor: 'var(--bg-app)', minHeight: 'calc(100vh - 60px)' }}
+        style={{
+          backgroundColor: 'var(--bg-app)',
+          minHeight: `calc(100vh - ${headerHeight}px)`,
+          overflow: isBillingPage ? 'hidden' : 'auto',
+        }}
       >
-        <Outlet />
+        <Outlet context={{ setHeldDrawerOpen, setShortcutsOpen }} />
       </MantineAppShell.Main>
 
       <GlobalQuickSearchModal />
+
+      <HeldSalesDrawer opened={heldDrawerOpen} onClose={() => setHeldDrawerOpen(false)} />
+      <KeyboardShortcutsModal opened={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </MantineAppShell>
   );
 }

@@ -415,7 +415,9 @@ export function ProductTable() {
         <Accordion
           multiple
           value={expandedCategories}
-          onChange={(val) => setUserCollapsedCategories(categoryNames.filter((c) => !val.includes(c)))}
+          onChange={(val) =>
+            setUserCollapsedCategories(categoryNames.filter((c) => !val.includes(c)))
+          }
           variant="separated"
           radius="md"
         >

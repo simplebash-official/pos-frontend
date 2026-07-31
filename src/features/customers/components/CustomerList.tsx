@@ -172,7 +172,9 @@ export function CustomerList() {
           </ThemeIcon>
           <div>
             <Text size="sm" fw={700}>
-              {c.name || (c as unknown as Record<string, string>).customerName || 'Unnamed Customer'}
+              {c.name ||
+                (c as unknown as Record<string, string>).customerName ||
+                'Unnamed Customer'}
             </Text>
           </div>
         </Group>
@@ -240,12 +242,7 @@ export function CustomerList() {
           >
             <IconEdit size={16} />
           </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            color="red"
-            size="sm"
-            onClick={() => setCustomerToDelete(c)}
-          >
+          <ActionIcon variant="subtle" color="red" size="sm" onClick={() => setCustomerToDelete(c)}>
             <IconTrash size={16} />
           </ActionIcon>
         </Group>
@@ -317,7 +314,11 @@ export function CustomerList() {
         title="Customer Directory"
         description="Client database, purchase histories, and credit balances"
         action={
-          <Button leftSection={<IconUserPlus size={16} />} color="violet" onClick={handleOpenAddModal}>
+          <Button
+            leftSection={<IconUserPlus size={16} />}
+            color="violet"
+            onClick={handleOpenAddModal}
+          >
             Add New Customer
           </Button>
         }
@@ -368,7 +369,10 @@ export function CustomerList() {
                           <Text size="sm" fw={700}>
                             {cust.name}
                           </Text>
-                          <PhoneDisplay primaryPhone={cust.primaryPhone} secondaryPhone={cust.secondaryPhone} />
+                          <PhoneDisplay
+                            primaryPhone={cust.primaryPhone}
+                            secondaryPhone={cust.secondaryPhone}
+                          />
                         </div>
                       </Group>
 
@@ -396,10 +400,18 @@ export function CustomerList() {
                     </Paper>
 
                     <Group justify="flex-end" gap="xs" mt="xs" onClick={(e) => e.stopPropagation()}>
-                      <ActionIcon variant="subtle" color="blue" onClick={() => handleOpenEditModal(cust)}>
+                      <ActionIcon
+                        variant="subtle"
+                        color="blue"
+                        onClick={() => handleOpenEditModal(cust)}
+                      >
                         <IconEdit size={16} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" onClick={() => setCustomerToDelete(cust)}>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        onClick={() => setCustomerToDelete(cust)}
+                      >
                         <IconTrash size={16} />
                       </ActionIcon>
                     </Group>

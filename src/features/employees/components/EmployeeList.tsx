@@ -211,9 +211,17 @@ export function EmployeeList() {
       render: (e) => (
         <RoleGuard
           allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.CASHIER]}
-          fallback={<Text size="xs" c="dimmed">Restricted</Text>}
+          fallback={
+            <Text size="xs" c="dimmed">
+              Restricted
+            </Text>
+          }
         >
-          <Badge size="xs" color={e.defaultSplitType === 'percentage' ? 'indigo' : 'teal'} variant="light">
+          <Badge
+            size="xs"
+            color={e.defaultSplitType === 'percentage' ? 'indigo' : 'teal'}
+            variant="light"
+          >
             {e.defaultSplitType === 'percentage'
               ? `${e.defaultSplitValue}% Profit`
               : formatMoney(e.defaultSplitValue)}
@@ -228,10 +236,20 @@ export function EmployeeList() {
       width: '17%',
       render: (e) => (
         <Group gap={4} justify="flex-end" onClick={(ev) => ev.stopPropagation()}>
-          <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setSelectedEmployeeForDrawer(e)}>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="sm"
+            onClick={() => setSelectedEmployeeForDrawer(e)}
+          >
             <IconEye size={16} />
           </ActionIcon>
-          <ActionIcon variant="subtle" color="blue" size="sm" onClick={() => handleOpenEditModal(e)}>
+          <ActionIcon
+            variant="subtle"
+            color="blue"
+            size="sm"
+            onClick={() => handleOpenEditModal(e)}
+          >
             <IconEdit size={16} />
           </ActionIcon>
           <ActionIcon variant="subtle" color="red" size="sm" onClick={() => setEmployeeToDelete(e)}>
@@ -346,11 +364,24 @@ export function EmployeeList() {
                       </Group>
                     </Paper>
 
-                    <Group justify="flex-end" gap="xs" mt="xs" onClick={(ev) => ev.stopPropagation()}>
-                      <ActionIcon variant="subtle" color="blue" onClick={() => handleOpenEditModal(emp)}>
+                    <Group
+                      justify="flex-end"
+                      gap="xs"
+                      mt="xs"
+                      onClick={(ev) => ev.stopPropagation()}
+                    >
+                      <ActionIcon
+                        variant="subtle"
+                        color="blue"
+                        onClick={() => handleOpenEditModal(emp)}
+                      >
                         <IconEdit size={16} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" onClick={() => setEmployeeToDelete(emp)}>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        onClick={() => setEmployeeToDelete(emp)}
+                      >
                         <IconTrash size={16} />
                       </ActionIcon>
                     </Group>

@@ -1,11 +1,7 @@
 import { LocalStorageStore } from '@/shared/lib/localStorageStore';
 
 export type StockMovementType =
-  | 'sale'
-  | 'purchase_receipt'
-  | 'repair_part_consumption'
-  | 'manual_adjustment'
-  | 'return';
+  'sale' | 'purchase_receipt' | 'repair_part_consumption' | 'manual_adjustment' | 'return';
 
 export interface StockMovement {
   id: string;

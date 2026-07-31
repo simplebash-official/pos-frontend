@@ -25,3 +25,39 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
+
+/* Billing Counter Animations */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes flashRow {
+  0% {
+    background-color: var(--mantine-color-yellow-light);
+    transform: scale(1.01);
+  }
+  100% {
+    background-color: var(--bg-card);
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

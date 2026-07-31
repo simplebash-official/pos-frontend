@@ -16,11 +16,7 @@ import {
 import { useForm } from '@mantine/form';
 import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/icons-react';
 import { Employee, EmployeeInput, SplitType } from '../types';
-import {
-  EmployeeFormValues,
-  fromEmployee,
-  toEmployeeInput,
-} from '@/shared/lib/moneyFormUtils';
+import { EmployeeFormValues, fromEmployee, toEmployeeInput } from '@/shared/lib/moneyFormUtils';
 
 interface EmployeeFormModalProps {
   opened: boolean;

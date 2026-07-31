@@ -206,9 +206,7 @@ export const updateEarningRecordForWork = async (
 ): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const existing = earningsStore.filter(
-        (e) => e.workId === workId && e.workType === workType
-      );
+      const existing = earningsStore.filter((e) => e.workId === workId && e.workType === workType);
       if (existing.length > 0) {
         existing.forEach((e) => {
           earningsStore.update(e.id, record);

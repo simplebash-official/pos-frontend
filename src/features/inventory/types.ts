@@ -12,10 +12,7 @@ export const SUBCATEGORIES_BY_CATEGORY = {
     'Sheets (for custom transfers)',
     'Sublimation Ink',
   ],
-  'General Printing': [
-    'Paper (documents, photocopies, handbills, and flyers)',
-    'Printer Ink',
-  ],
+  'General Printing': ['Paper (documents, photocopies, handbills, and flyers)', 'Printer Ink'],
 } as const;
 
 export type MainCategory = keyof typeof SUBCATEGORIES_BY_CATEGORY;

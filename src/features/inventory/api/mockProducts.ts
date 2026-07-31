@@ -42,7 +42,10 @@ export const createProduct = async (product: Omit<Product, 'id'>): Promise<Produ
   });
 };
 
-export const updateProduct = async (id: string, updates: Partial<Product>): Promise<Product | undefined> => {
+export const updateProduct = async (
+  id: string,
+  updates: Partial<Product>
+): Promise<Product | undefined> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const updated = productsStore.update(id, {
@@ -70,13 +73,7 @@ export const adjustStock = async (
         updatedAt: new Date().toISOString(),
       });
       if (actualDelta !== 0) {
-        recordStockMovement(
-          id,
-          actualDelta,
-          'manual_adjustment',
-          undefined,
-          reason
-        );
+        recordStockMovement(id, actualDelta, 'manual_adjustment', undefined, reason);
       }
       resolve(updated);
     }, 200);

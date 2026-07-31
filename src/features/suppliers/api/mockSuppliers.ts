@@ -9,11 +9,7 @@ export function normalizeSupplier(rawInput: unknown): Supplier {
   return {
     id: typeof raw.id === 'string' ? raw.id : `sup-${Date.now()}`,
     name: String(
-      raw.name ||
-      raw.companyName ||
-      raw.supplierName ||
-      raw.businessName ||
-      'Unnamed Supplier'
+      raw.name || raw.companyName || raw.supplierName || raw.businessName || 'Unnamed Supplier'
     ),
     contactPerson: String(raw.contactPerson || raw.contactName || 'N/A'),
     primaryPhone: String(raw.primaryPhone || raw.phone || raw.contactPhone || ''),

@@ -43,9 +43,7 @@ export function fromRepairJob(job?: RepairJob | null): RepairFormValues {
     assignedEmployeeName: job.assignedEmployeeName,
     splitType: job.splitType,
     splitValueRupeesOrPercent:
-      job.splitType === 'fixed'
-        ? fromCents(job.splitValue || 0)
-        : job.splitValue,
+      job.splitType === 'fixed' ? fromCents(job.splitValue || 0) : job.splitValue,
   };
 }
 
@@ -110,9 +108,7 @@ export function fromPrintJob(job?: PrintJob | null): PrintJobFormValues {
     assignedEmployeeName: job.assignedEmployeeName,
     splitType: job.splitType,
     splitValueRupeesOrPercent:
-      job.splitType === 'fixed'
-        ? fromCents(job.splitValue || 0)
-        : job.splitValue,
+      job.splitType === 'fixed' ? fromCents(job.splitValue || 0) : job.splitValue,
   };
 }
 
@@ -168,9 +164,7 @@ export function fromEmployee(emp?: Employee | null): EmployeeFormValues {
     role: emp.role,
     defaultSplitType: emp.defaultSplitType,
     defaultSplitValueRupeesOrPercent:
-      emp.defaultSplitType === 'fixed'
-        ? fromCents(emp.defaultSplitValue)
-        : emp.defaultSplitValue,
+      emp.defaultSplitType === 'fixed' ? fromCents(emp.defaultSplitValue) : emp.defaultSplitValue,
     status: emp.status,
     notes: emp.notes || '',
   };

@@ -23,7 +23,8 @@ const DEFAULT_USER: AuthUser = {
   role: USER_ROLES.ADMIN,
 };
 
-const savedToken = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) : null;
+const savedToken =
+  typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) : null;
 
 const initialState: AuthState = {
   user: savedToken ? DEFAULT_USER : DEFAULT_USER,
@@ -67,7 +68,8 @@ const authSlice = createSlice({
 export const { login, logout, lockPOS, unlockPOS, switchRole } = authSlice.actions;
 
 export const selectAuthUser = (state: { auth: AuthState }) => state.auth.user;
-export const selectUserRole = (state: { auth: AuthState }) => state.auth.user?.role || USER_ROLES.ADMIN;
+export const selectUserRole = (state: { auth: AuthState }) =>
+  state.auth.user?.role || USER_ROLES.ADMIN;
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
 export const selectIsPOSLocked = (state: { auth: AuthState }) => state.auth.isLocked;
 

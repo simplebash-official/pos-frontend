@@ -16,18 +16,21 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
-import { IconHammer, IconUser, IconPhone, IconPercentage, IconCoin, IconAlertTriangle } from '@tabler/icons-react';
+import {
+  IconHammer,
+  IconUser,
+  IconPhone,
+  IconPercentage,
+  IconCoin,
+  IconAlertTriangle,
+} from '@tabler/icons-react';
 import { RepairJob, RepairJobInput } from '../types';
 import { fetchEmployees } from '@/features/employees/api/mockEmployees';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
-import {
-  RepairFormValues,
-  fromRepairJob,
-  toRepairInput,
-} from '@/shared/lib/moneyFormUtils';
+import { RepairFormValues, fromRepairJob, toRepairInput } from '@/shared/lib/moneyFormUtils';
 
 interface RepairFormModalProps {
   opened: boolean;
@@ -294,7 +297,9 @@ export function RepairFormModal({
                       title="Fixed Commission Capped"
                       p="xs"
                     >
-                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the repair net profit (Rs. {profitRupees.toLocaleString()}). Commission will be capped at the total profit.
+                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the repair net profit
+                      (Rs. {profitRupees.toLocaleString()}). Commission will be capped at the total
+                      profit.
                     </Alert>
                   )}
 

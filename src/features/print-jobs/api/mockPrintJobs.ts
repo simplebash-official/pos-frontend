@@ -138,7 +138,10 @@ export const updatePrintJob = async (
       })!;
 
       if (updatedJob.assignedEmployeeId && updatedJob.assignedEmployeeName) {
-        const profit = Math.max(0, updatedJob.estimatedCostCents - (updatedJob.materialCostCents || 0));
+        const profit = Math.max(
+          0,
+          updatedJob.estimatedCostCents - (updatedJob.materialCostCents || 0)
+        );
         await updateEarningRecordForWork(id, 'print', {
           employeeId: updatedJob.assignedEmployeeId,
           employeeName: updatedJob.assignedEmployeeName,

@@ -1,18 +1,30 @@
 import { NavLink as RouterNavLink, useLocation } from 'react-router-dom';
-import { Stack, NavLink, Text, Divider, Switch, useMantineColorScheme, Badge } from '@mantine/core';
+import {
+  Stack,
+  NavLink,
+  Text,
+  Divider,
+  Switch,
+  useMantineColorScheme,
+  Badge,
+  Tooltip,
+  ActionIcon,
+  Box,
+} from '@mantine/core';
 import { IconLock, IconMoon, IconSun } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { NAV_ITEMS } from '@/config/navigation';
-import { ROUTES } from '@/constants';
+import { ROUTES } from '@/constants/routes';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchProducts } from '@/features/inventory/api/mockProducts';
 
 export interface SidebarProps {
   closeMobile?: () => void;
+  isRail?: boolean;
 }
 
-export function Sidebar({ closeMobile }: SidebarProps) {
+export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
   const location = useLocation();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
@@ -23,6 +35,86 @@ export function Sidebar({ closeMobile }: SidebarProps) {
   });
 
   const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+
+  if (isRail) {
+    return (
+      <Stack h="100%" justify="space-between" align="center" py="xs" px={4}>
+        <Stack gap="xs" align="center" style={{ width: '100%' }}>
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname.startsWith(item.to);
+            const isInventory = item.to === ROUTES.INVENTORY;
+
+            return (
+              <Tooltip key={item.to} label={item.label} position="right" withArrow>
+                <Box style={{ position: 'relative' }}>
+                  <ActionIcon
+                    component={RouterNavLink}
+                    to={item.to}
+                    size="lg"
+                    radius="md"
+                    variant={isActive ? 'filled' : 'subtle'}
+                    color={isActive ? item.color || 'blue' : 'gray'}
+                    onClick={closeMobile}
+                  >
+                    <Icon size={20} stroke={1.5} />
+                  </ActionIcon>
+                  {isInventory && lowStockCount > 0 && (
+                    <Badge
+                      size="xs"
+                      color="red"
+                      variant="filled"
+                      style={{
+                        position: 'absolute',
+                        top: -4,
+                        right: -4,
+                        padding: '0 4px',
+                        fontSize: 9,
+                        minWidth: 14,
+                        height: 14,
+                      }}
+                    >
+                      {lowStockCount}
+                    </Badge>
+                  )}
+                </Box>
+              </Tooltip>
+            );
+          })}
+
+          <Divider my="xs" style={{ width: '80%' }} />
+
+          <Tooltip label="Lock POS" position="right" withArrow>
+            <ActionIcon
+              component={RouterNavLink}
+              to={ROUTES.LOGIN}
+              size="lg"
+              radius="md"
+              variant="subtle"
+              color="gray"
+              onClick={closeMobile}
+            >
+              <IconLock size={20} stroke={1.5} />
+            </ActionIcon>
+          </Tooltip>
+        </Stack>
+
+        <Stack gap="xs" align="center">
+          <Tooltip label={isDark ? 'Light Mode' : 'Dark Mode'} position="right" withArrow>
+            <ActionIcon
+              size="lg"
+              radius="md"
+              variant="subtle"
+              color="gray"
+              onClick={() => setColorScheme(isDark ? 'light' : 'dark')}
+            >
+              {isDark ? <IconSun size={20} stroke={1.5} /> : <IconMoon size={20} stroke={1.5} />}
+            </ActionIcon>
+          </Tooltip>
+        </Stack>
+      </Stack>
+    );
+  }
 
   return (
     <Stack h="100%" justify="space-between" p="sm">

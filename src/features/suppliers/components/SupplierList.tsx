@@ -239,10 +239,20 @@ export function SupplierList() {
       width: '15%',
       render: (s) => (
         <Group gap={4} justify="flex-end" onClick={(e) => e.stopPropagation()}>
-          <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setSelectedSupplierForDrawer(s)}>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="sm"
+            onClick={() => setSelectedSupplierForDrawer(s)}
+          >
             <IconEye size={16} />
           </ActionIcon>
-          <ActionIcon variant="subtle" color="blue" size="sm" onClick={() => handleOpenEditModal(s)}>
+          <ActionIcon
+            variant="subtle"
+            color="blue"
+            size="sm"
+            onClick={() => handleOpenEditModal(s)}
+          >
             <IconEdit size={16} />
           </ActionIcon>
           <ActionIcon variant="subtle" color="red" size="sm" onClick={() => setSupplierToDelete(s)}>
@@ -330,10 +340,14 @@ export function SupplierList() {
                         </ThemeIcon>
                         <div>
                           <Text size="sm" fw={700}>
-                            {s.name || (s as unknown as Record<string, string>).companyName || 'Unnamed Supplier'}
+                            {s.name ||
+                              (s as unknown as Record<string, string>).companyName ||
+                              'Unnamed Supplier'}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
+                            {s.contactPerson ||
+                              (s as unknown as Record<string, string>).contactName ||
+                              'N/A'}
                           </Text>
                         </div>
                       </Group>
@@ -359,10 +373,18 @@ export function SupplierList() {
                     </Paper>
 
                     <Group justify="flex-end" gap="xs" mt="xs" onClick={(e) => e.stopPropagation()}>
-                      <ActionIcon variant="subtle" color="blue" onClick={() => handleOpenEditModal(s)}>
+                      <ActionIcon
+                        variant="subtle"
+                        color="blue"
+                        onClick={() => handleOpenEditModal(s)}
+                      >
                         <IconEdit size={16} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" onClick={() => setSupplierToDelete(s)}>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        onClick={() => setSupplierToDelete(s)}
+                      >
                         <IconTrash size={16} />
                       </ActionIcon>
                     </Group>

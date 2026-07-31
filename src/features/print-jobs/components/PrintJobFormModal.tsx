@@ -15,18 +15,21 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
-import { IconPrinter, IconUser, IconPhone, IconPercentage, IconCoin, IconAlertTriangle } from '@tabler/icons-react';
+import {
+  IconPrinter,
+  IconUser,
+  IconPhone,
+  IconPercentage,
+  IconCoin,
+  IconAlertTriangle,
+} from '@tabler/icons-react';
 import { PrintJob, PrintJobInput } from '../types';
 import { fetchEmployees } from '@/features/employees/api/mockEmployees';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
-import {
-  PrintJobFormValues,
-  fromPrintJob,
-  toPrintJobInput,
-} from '@/shared/lib/moneyFormUtils';
+import { PrintJobFormValues, fromPrintJob, toPrintJobInput } from '@/shared/lib/moneyFormUtils';
 
 interface PrintJobFormModalProps {
   opened: boolean;
@@ -296,7 +299,9 @@ export function PrintJobFormModal({
                       title="Fixed Commission Capped"
                       p="xs"
                     >
-                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the job net profit (Rs. {profitRupees.toLocaleString()}). Commission will be capped at the total profit.
+                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the job net profit (Rs.{' '}
+                      {profitRupees.toLocaleString()}). Commission will be capped at the total
+                      profit.
                     </Alert>
                   )}
 
