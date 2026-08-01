@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Paper,
   Group,
@@ -21,7 +21,6 @@ import {
   IconUser,
   IconPlus,
   IconUserCheck,
-  IconTag,
   IconNotes,
   IconUserPlus,
   IconChevronUp,
@@ -32,7 +31,6 @@ import { useCart } from '../hooks/useCart';
 import { CartLineItem } from './CartLineItem';
 import { formatMoney } from '@/shared/lib/money';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
-import { DiscountPopover } from './DiscountPopover';
 
 export interface CartPanelProps {
   onOpenCustomerPicker: () => void;
@@ -48,12 +46,9 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
     customerName,
     customerPhone,
     customerBalanceCents,
-    subtotalCents,
-    discountCents,
     notes,
     updateQty,
     updateLineDisc,
-    setDiscount,
     remove,
     undoRemove,
     clearUndo,
@@ -63,10 +58,61 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
   } = useCart();
 
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
-  const [orderDiscountOpen, setOrderDiscountOpen] = useState(false);
   const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
 
   const viewportRef = useRef<HTMLDivElement>(null);
+  const [scrollState, setScrollState] = useState({
+    hasScroll: false,
+    canScrollUp: false,
+    canScrollDown: false,
+  });
+
+  const updateScrollState = useCallback(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const hasScroll = scrollHeight > clientHeight + 2;
+    const canScrollUp = scrollTop > 2;
+    const canScrollDown = scrollTop + clientHeight < scrollHeight - 2;
+
+    setScrollState((prev) => {
+      if (
+        prev.hasScroll === hasScroll &&
+        prev.canScrollUp === canScrollUp &&
+        prev.canScrollDown === canScrollDown
+      ) {
+        return prev;
+      }
+      return { hasScroll, canScrollUp, canScrollDown };
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+
+    updateScrollState();
+
+    const handleScroll = () => {
+      updateScrollState();
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateScrollState();
+    });
+
+    resizeObserver.observe(el);
+    if (el.firstElementChild) {
+      resizeObserver.observe(el.firstElementChild);
+    }
+
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+      resizeObserver.disconnect();
+    };
+  }, [updateScrollState, items]);
 
   const scrollByAmount = (amount: number) => {
     if (viewportRef.current) {
@@ -141,12 +187,6 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item
-                leftSection={<IconTag size={14} />}
-                onClick={() => setOrderDiscountOpen(true)}
-              >
-                Order Discount (Ctrl+D)
-              </Menu.Item>
               <Menu.Item
                 leftSection={<IconNotes size={14} />}
                 onClick={() => {
@@ -266,7 +306,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
                   onOpenCustomerPicker();
                 }}
               >
-                + Attach (F3)
+                Attach (F3)
               </Button>
             </Group>
           </Paper>
@@ -328,12 +368,24 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
       </ScrollArea>
 
       {/* Scroll Controls */}
-      {items.length > 0 && (
+      {items.length > 0 && scrollState.hasScroll && (
         <Group justify="center" gap="xs" mt="xs">
-          <ActionIcon variant="light" color="gray" size="md" onClick={() => scrollByAmount(-200)}>
+          <ActionIcon
+            variant="light"
+            color="gray"
+            size="md"
+            disabled={!scrollState.canScrollUp}
+            onClick={() => scrollByAmount(-200)}
+          >
             <IconChevronUp size={18} />
           </ActionIcon>
-          <ActionIcon variant="light" color="gray" size="md" onClick={() => scrollByAmount(200)}>
+          <ActionIcon
+            variant="light"
+            color="gray"
+            size="md"
+            disabled={!scrollState.canScrollDown}
+            onClick={() => scrollByAmount(200)}
+          >
             <IconChevronDown size={18} />
           </ActionIcon>
         </Group>
@@ -364,18 +416,6 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
           </Group>
         </Box>
       )}
-
-      {/* Order Level Discount Popover Anchor */}
-      <DiscountPopover
-        opened={orderDiscountOpen}
-        onClose={() => setOrderDiscountOpen(false)}
-        targetName="Entire Order"
-        originalCents={subtotalCents}
-        currentDiscountCents={discountCents}
-        onApplyDiscount={setDiscount}
-      >
-        <span />
-      </DiscountPopover>
 
       {/* Clear Cart Confirmation Dialog */}
       <ConfirmDialog

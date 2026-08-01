@@ -11,7 +11,8 @@ import {
   ScrollArea,
   ActionIcon,
   Center,
-  Divider,
+  Box,
+  ThemeIcon,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -127,12 +128,34 @@ export function CustomerPickerModal({
         setIsCreatingInline(false);
         onClose();
       }}
-      title={<Text fw={700}>Select / Attach Customer (F3)</Text>}
-      size="md"
-      radius="var(--mantine-radius-default)"
+      title={
+        <Group gap="sm" align="center">
+          <ThemeIcon size={40} color="blue" variant="light">
+            <IconUser size={22} />
+          </ThemeIcon>
+          <Box>
+            <Text fw={700} size="md" lh={1.2}>
+              Select / attach customer
+            </Text>
+            <Text size="xs" c="dimmed" fw={500}>
+              Search by phone or name · F3
+            </Text>
+          </Box>
+        </Group>
+      }
+      size="lg"
+      padding={0}
     >
-      <Stack gap="md">
-        <Group justify="space-between">
+      {/* Search Bar Section with Top & Bottom Border Dividers */}
+      <Box
+        px="lg"
+        py="md"
+        style={{
+          borderTop: '1px solid var(--mantine-color-default-border)',
+          borderBottom: '1px solid var(--mantine-color-default-border)',
+        }}
+      >
+        <Group justify="space-between" gap="md" wrap="nowrap">
           <TextInput
             placeholder="Search by phone number or name..."
             leftSection={<IconSearch size={16} />}
@@ -141,23 +164,45 @@ export function CustomerPickerModal({
             style={{ flex: 1 }}
             autoFocus
           />
-          {selectedCustomerId && (
+          <Group gap="xs" wrap="nowrap">
+            {selectedCustomerId && (
+              <Button
+                variant="subtle"
+                color="red"
+                size="xs"
+                onClick={() => {
+                  onSelectCustomer(null);
+                  onClose();
+                }}
+              >
+                Detach Customer
+              </Button>
+            )}
             <Button
-              variant="subtle"
-              color="red"
+              variant="light"
+              color="blue"
               size="xs"
+              leftSection={<IconUserPlus size={14} />}
               onClick={() => {
-                onSelectCustomer(null);
-                onClose();
+                if (isPhonePattern) {
+                  setNewPhone(search.trim());
+                  setNewName('');
+                } else {
+                  setNewName(search.trim());
+                  setNewPhone('');
+                }
+                setIsCreatingInline(true);
               }}
             >
-              Detach Customer
+              New Customer
             </Button>
-          )}
+          </Group>
         </Group>
+      </Box>
 
+      <Box p="lg">
         {isCreatingInline ? (
-          <Paper p="sm" withBorder radius="md" style={{ backgroundColor: 'var(--bg-hover)' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-hover)' }}>
             <Stack gap="xs">
               <Text size="xs" fw={700} c="blue">
                 MINIMAL NEW CUSTOMER ENTRY
@@ -193,10 +238,10 @@ export function CustomerPickerModal({
             </Stack>
           </Paper>
         ) : (
-          <ScrollArea.Autosize mah={340} offsetScrollbars>
-            <Stack gap="xs">
+          <ScrollArea.Autosize mah={440} offsetScrollbars>
+            <Stack gap="sm">
               {filtered.length === 0 ? (
-                <Center py="md">
+                <Center py="xl">
                   <Text size="sm" c="dimmed">
                     No matching customer found for "{search}".
                   </Text>
@@ -209,11 +254,11 @@ export function CustomerPickerModal({
                   return (
                     <Paper
                       key={cust.id}
-                      p="sm"
+                      p="md"
                       withBorder
-                      radius="var(--mantine-radius-default)"
                       style={{
                         cursor: 'pointer',
+                        transition: 'all 0.15s ease',
                         borderColor: isSelected
                           ? 'var(--mantine-color-blue-6)'
                           : 'var(--mantine-color-default-border)',
@@ -226,20 +271,33 @@ export function CustomerPickerModal({
                         onClose();
                       }}
                     >
-                      <Group justify="space-between" align="center">
-                        <div>
-                          <Group gap="xs">
-                            <IconUser size={16} />
-                            <Text fw={700} size="sm">
-                              {cust.name}
-                            </Text>
-                            {hasDebt && (
-                              <Badge size="xs" color="red" variant="filled">
-                                Balance: {formatMoney(cust.outstandingBalanceCents)}
-                              </Badge>
-                            )}
-                          </Group>
-                          <Group gap="md" mt={4}>
+                      <Group justify="space-between" align="center" wrap="nowrap">
+                        <Group
+                          gap="md"
+                          align="center"
+                          style={{ flex: 1, minWidth: 0 }}
+                          wrap="nowrap"
+                        >
+                          <ThemeIcon
+                            size={48}
+                            color="blue"
+                            variant="light"
+                            style={{ minWidth: 48, flexShrink: 0 }}
+                          >
+                            <IconUser size={24} />
+                          </ThemeIcon>
+
+                          <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                            <Group gap="xs" align="center">
+                              <Text fw={700} size="sm" lineClamp={1}>
+                                {cust.name}
+                              </Text>
+                              {hasDebt && (
+                                <Badge size="xs" radius="xl" variant="light" color="red" fw={600}>
+                                  Balance: {formatMoney(cust.outstandingBalanceCents)}
+                                </Badge>
+                              )}
+                            </Group>
                             <Text size="xs" c="dimmed">
                               <IconPhone
                                 size={12}
@@ -247,15 +305,32 @@ export function CustomerPickerModal({
                               />
                               {cust.primaryPhone}
                             </Text>
-                          </Group>
-                        </div>
+                          </Stack>
+                        </Group>
 
                         {isSelected ? (
-                          <ActionIcon color="blue" variant="filled" radius="xl" size="sm">
+                          <ActionIcon
+                            color="blue"
+                            variant="filled"
+                            radius="xl"
+                            size="sm"
+                            style={{ flexShrink: 0 }}
+                          >
                             <IconCheck size={14} />
                           </ActionIcon>
                         ) : (
-                          <Button size="xs" variant="light" leftSection={<IconPlus size={14} />}>
+                          <Button
+                            size="xs"
+                            color="blue"
+                            leftSection={<IconPlus size={14} />}
+                            fw={600}
+                            style={{ flexShrink: 0 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectCustomer(cust);
+                              onClose();
+                            }}
+                          >
                             Select
                           </Button>
                         )}
@@ -264,32 +339,10 @@ export function CustomerPickerModal({
                   );
                 })
               )}
-
-              <Divider my="xs" />
-
-              <Button
-                variant="light"
-                color="blue"
-                size="sm"
-                fullWidth
-                leftSection={<IconUserPlus size={16} />}
-                onClick={() => {
-                  if (isPhonePattern) {
-                    setNewPhone(search.trim());
-                    setNewName('');
-                  } else {
-                    setNewName(search.trim());
-                    setNewPhone('');
-                  }
-                  setIsCreatingInline(true);
-                }}
-              >
-                + Create New Customer Inline
-              </Button>
             </Stack>
           </ScrollArea.Autosize>
         )}
-      </Stack>
+      </Box>
     </Modal>
   );
 }

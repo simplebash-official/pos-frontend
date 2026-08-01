@@ -88,3 +88,14 @@
     opacity: 1;
   }
 }
+
+/* NumberInput controls visibility */
+.mantine-NumberInput-controls {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.mantine-NumberInput-root:hover .mantine-NumberInput-controls,
+.mantine-NumberInput-root:focus-within .mantine-NumberInput-controls {
+  opacity: 1;
+}

@@ -153,7 +153,7 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
       onClose={onClose}
       title={
         <Group gap="sm" align="center">
-          <ThemeIcon size={40} radius="md" color="orange" variant="light">
+          <ThemeIcon size={40} color="orange" variant="light">
             <IconTools size={22} />
           </ThemeIcon>
           <Box>
@@ -167,7 +167,6 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
         </Group>
       }
       size="lg"
-      radius="lg"
       padding={0}
     >
       {/* Search & Filter Bar Section with Top & Bottom Border Dividers */}
@@ -185,12 +184,10 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
             leftSection={<IconSearch size={16} />}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
-            radius="md"
             style={{ flex: 1 }}
             autoFocus
           />
           <SegmentedControl
-            radius="md"
             size="sm"
             value={filterType}
             onChange={(val) => setFilterType(val as 'all' | 'repair' | 'print')}
@@ -229,7 +226,6 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
                     key={`${job.type}-${job.id}`}
                     p="md"
                     withBorder
-                    radius="lg"
                     style={{
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
@@ -241,7 +237,6 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
                       <Group gap="md" align="center" style={{ flex: 1, minWidth: 0 }} wrap="nowrap">
                         <ThemeIcon
                           size={48}
-                          radius="md"
                           color={catColor}
                           variant="light"
                           style={{ minWidth: 48, flexShrink: 0 }}
@@ -298,7 +293,6 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
                         </Text>
                         <Button
                           size="xs"
-                          radius="md"
                           color={isRepair ? 'orange' : 'green'}
                           leftSection={<IconPlus size={14} />}
                           onClick={(e) => {
