@@ -235,10 +235,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
         p="xs"
         withBorder
         style={{
-          borderColor: shakeError ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-blue-5)',
-          boxShadow: shakeError
-            ? '0 0 0 2px rgba(250, 82, 82, 0.3)'
-            : '0 0 0 2px rgba(34, 139, 230, 0.15)',
+          borderColor: shakeError ? 'var(--mantine-color-red-6)' : 'var(--border)',
+          boxShadow: shakeError ? '0 0 0 2px rgba(250, 82, 82, 0.3)' : undefined,
           animation: shakeError ? 'shake 0.3s ease-in-out' : undefined,
           transition: 'all 0.15s ease',
         }}
@@ -247,7 +245,28 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
           <TextInput
             ref={scanInputRef}
             placeholder="Scan barcode or type SKU / product name / REP-1001 (F1)"
-            leftSection={<IconBarcode size={22} color="var(--mantine-color-blue-6)" />}
+            leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
+            rightSection={
+              <Group gap="xs" wrap="nowrap" pr={4}>
+                <Box style={{ width: 1, height: 24, background: 'var(--border-strong)' }} />
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="yellow"
+                  leftSection={<IconTools size={14} />}
+                  onClick={onOpenServicePicker}
+                  radius="xl"
+                  px="sm"
+                  style={{
+                    height: 30,
+                    fontWeight: 600,
+                  }}
+                >
+                  Jobs (F4)
+                </Button>
+              </Group>
+            }
+            rightSectionWidth={150}
             value={scanQuery}
             onChange={(e) => {
               setScanQuery(e.currentTarget.value);
@@ -262,6 +281,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                 fontSize: 15,
                 fontWeight: 600,
                 border: 'none',
+                paddingRight: 150,
+                textOverflow: 'ellipsis',
               },
             }}
           />
@@ -314,16 +335,6 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
               {label}
             </Button>
           ))}
-          <Button
-            size="xs"
-            variant="outline"
-            color="orange"
-            leftSection={<IconTools size={15} />}
-            onClick={onOpenServicePicker}
-            radius="var(--mantine-radius-default)"
-          >
-            + Services (F4)
-          </Button>
         </Group>
       </ScrollArea.Autosize>
 
