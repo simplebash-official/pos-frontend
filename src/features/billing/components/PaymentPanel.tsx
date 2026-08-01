@@ -561,10 +561,17 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                       changeDueDate(d.toISOString().split('T')[0]);
                     }
                   }}
+                  popoverProps={{ width: 'target', position: 'bottom-start' }}
                   styles={{
                     input: {
                       borderRadius: 'var(--mantine-radius-default)',
                       fontFamily: 'monospace',
+                    },
+                    month: {
+                      width: '100%',
+                    },
+                    calendarHeader: {
+                      maxWidth: '100%',
                     },
                   }}
                 />
