@@ -55,7 +55,7 @@ export function DiscountPopover({
       <Popover.Dropdown p="sm" style={{ width: 280 }}>
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed">
-            DISCOUNT FOR: {targetName.toUpperCase()}
+            Discount For: {targetName}
           </Text>
 
           <SegmentedControl
