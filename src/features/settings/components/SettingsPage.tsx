@@ -60,6 +60,8 @@ export function SettingsPage() {
     invoiceCopies: printSettings.invoiceCopies,
     defaultDocumentForWalkIn: printSettings.defaultDocumentForWalkIn,
     defaultDocumentForAccountCustomer: printSettings.defaultDocumentForAccountCustomer,
+    previewBeforePrinting: printSettings.previewBeforePrinting ?? false,
+    defaultInvoicePaper: printSettings.defaultInvoicePaper ?? 'a4',
   });
 
   const handleSaveProfile = () => {
@@ -102,6 +104,8 @@ export function SettingsPage() {
         invoiceCopies: printForm.invoiceCopies,
         defaultDocumentForWalkIn: printForm.defaultDocumentForWalkIn,
         defaultDocumentForAccountCustomer: printForm.defaultDocumentForAccountCustomer,
+        previewBeforePrinting: printForm.previewBeforePrinting,
+        defaultInvoicePaper: printForm.defaultInvoicePaper,
       })
     );
 
@@ -386,6 +390,48 @@ export function SettingsPage() {
                     { label: 'None', value: 'none' },
                   ]}
                 />
+              </Box>
+
+              <Box>
+                <Text size="xs" fw={700} c="dimmed" mb={4}>
+                  DEFAULT INVOICE PAPER SIZE
+                </Text>
+                <SegmentedControl
+                  fullWidth
+                  value={printForm.defaultInvoicePaper}
+                  onChange={(v) =>
+                    setPrintForm({
+                      ...printForm,
+                      defaultInvoicePaper: v as 'a4' | 'a5',
+                    })
+                  }
+                  data={[
+                    { label: 'A4 Standard', value: 'a4' },
+                    { label: 'A5 Compact', value: 'a5' },
+                  ]}
+                />
+              </Box>
+
+              <Box style={{ gridColumn: 'span 2' }}>
+                <Group justify="space-between" align="center">
+                  <div>
+                    <Text fw={600} size="sm">
+                      Preview Before Printing
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Automatically open document preview modal after checkout instead of direct printing.
+                    </Text>
+                  </div>
+                  <Switch
+                    checked={printForm.previewBeforePrinting}
+                    onChange={(e) =>
+                      setPrintForm({
+                        ...printForm,
+                        previewBeforePrinting: e.currentTarget.checked,
+                      })
+                    }
+                  />
+                </Group>
               </Box>
             </SimpleGrid>
 

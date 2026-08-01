@@ -28,7 +28,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
   const shopProfileVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
 
-  const [paper, setPaper] = useState<'a4' | 'a5'>('a4');
+  const [paper, setPaper] = useState<'a4' | 'a5'>(printSettings.defaultInvoicePaper || 'a4');
   const [copyMode, setCopyMode] = useState<'customer' | 'office'>('customer');
 
   if (!invoice) return null;
@@ -67,7 +67,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
       title={
         <Group justify="space-between" style={{ width: '100%' }}>
           <Text fw={700} size="lg">
-            Invoice Preview — #{invoice.invoiceNumber}
+            Invoice Preview — #{invoice.invoiceNumber}{invoice.customerName ? ` · ${invoice.customerName}` : ''}
           </Text>
         </Group>
       }

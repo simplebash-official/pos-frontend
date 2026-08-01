@@ -17,6 +17,7 @@ import {
 } from '@mantine/core';
 import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 
 import { queryKeys } from '@/api/queryKeys';
 import { fetchProducts } from '@/features/inventory/api/mockProducts';
@@ -82,22 +83,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     scanInputRef.current?.focus();
   }, [keepScanInputFocused]);
 
-  // Filtered Products
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
-
-      const q = search.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        (p.barcode && p.barcode.toLowerCase().includes(q)) ||
-        p.subcategory.toLowerCase().includes(q);
-
-      return matchesCat && matchesSearch;
-    });
-  }, [products, selectedCategory, search]);
+  const [showInStockOnly, setShowInStockOnly] = useState(false);
 
   // Retail quantity already in the cart, per product — subtracted from stock so
   // the catalog badge reflects what's actually still available to add.
@@ -111,7 +97,38 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     return map;
   }, [items]);
 
+  // Filtered Products
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+      if (showInStockOnly && remainingStock <= 0) return false;
+
+      const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
+
+      const q = search.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        (p.barcode && p.barcode.toLowerCase().includes(q)) ||
+        p.subcategory.toLowerCase().includes(q);
+
+      return matchesCat && matchesSearch;
+    });
+  }, [products, selectedCategory, search, showInStockOnly, cartQuantityByProductId]);
+
   const handleAddProduct = (p: Product) => {
+    const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+    if (remainingStock <= 0) {
+      playErrorSound(soundEnabled);
+      notifications.show({
+        title: 'Out of Stock',
+        message: `"${p.name}" is currently out of stock.`,
+        color: 'red',
+      });
+      return;
+    }
+
     add({
       id: `item-${Date.now()}-${Math.random()}`,
       productId: p.id,
@@ -380,6 +397,15 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
               {label}
             </Button>
           ))}
+          <Button
+            size="xs"
+            variant={showInStockOnly ? 'filled' : 'outline'}
+            color={showInStockOnly ? 'teal' : 'gray'}
+            onClick={() => setShowInStockOnly(!showInStockOnly)}
+            radius="var(--mantine-radius-default)"
+          >
+            In stock only
+          </Button>
         </Group>
       </ScrollArea.Autosize>
 
@@ -406,7 +432,9 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                   radius="var(--mantine-radius-default)"
                   style={{
                     height: 128,
-                    opacity: isZeroStock ? 0.55 : 1,
+                    opacity: isZeroStock ? 0.5 : 1,
+                    filter: isZeroStock ? 'grayscale(1)' : undefined,
+                    cursor: isZeroStock ? 'not-allowed' : 'pointer',
                     borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
                     boxShadow: isSelected ? '0 0 0 2px var(--mantine-color-blue-4)' : undefined,
                   }}
@@ -464,8 +492,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                       </Text>
 
                       {isZeroStock ? (
-                        <Badge size="xs" color="red" variant="filled">
-                          0 Left
+                        <Badge size="xs" color="gray" variant="filled">
+                          Out of stock
                         </Badge>
                       ) : isLowStock ? (
                         <Badge size="xs" color="yellow" variant="filled">

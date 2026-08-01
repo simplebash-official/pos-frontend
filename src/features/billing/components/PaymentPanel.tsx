@@ -14,6 +14,7 @@ import {
   SimpleGrid,
   UnstyledButton,
   Badge,
+  ThemeIcon,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import {
@@ -28,9 +29,14 @@ import {
   IconAlertCircle,
   IconCalendar,
   IconX,
+  IconCheck,
+  IconPrinter,
+  IconShare,
+  IconRotate,
 } from '@tabler/icons-react';
 
 import { useCart } from '../hooks/useCart';
+import { usePrint } from '../hooks/usePrint';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney } from '@/shared/lib/money';
@@ -38,6 +44,7 @@ import { AmountInput } from '@/shared/components/AmountInput';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { SplitPaymentDetail } from '../types';
+import { notifications } from '@mantine/notifications';
 
 export interface PaymentPanelProps {
   isProcessing: boolean;
@@ -73,26 +80,45 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
     dueDate,
     changeDueDate,
     changeTenderedAmountCents,
+    completedSale,
+    startNextSale,
   } = useCart();
 
+  const { printReceipt, previewInvoiceDoc } = usePrint();
+
   const isMobile = useIsMobile();
-  // Theme spacing rather than a bare 16 — the panel is the full screen width on a phone, where the
-  // narrower gutter buys back a meaningful amount of room for the tender inputs.
   const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
   const checkoutKeyHint = isMobile ? '' : ' (F2)';
 
-  // Inline Order Discount State
+  // Collapsible Order Discount State
+  const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountMode, setDiscountMode] = useState<'percentage' | 'amount'>('percentage');
   const [discountInput, setDiscountInput] = useState<number | ''>('');
   const [hasEditedDiscount, setHasEditedDiscount] = useState(false);
+
+  // Auto-expand discount input if discountCents > 0
+  useEffect(() => {
+    if (discountCents > 0) {
+      setShowDiscountInput(true);
+    }
+  }, [discountCents]);
 
   // Guardrail 2-step inline confirmation state
   const [confirmCreditRequired, setConfirmCreditRequired] = useState(false);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // New Sale CTA button ref for auto-focusing in confirmation mode
+  const newSaleButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (completedSale) {
+      setTimeout(() => newSaleButtonRef.current?.focus(), 50);
+    }
+  }, [completedSale]);
+
   // Calculate order discount cents based on mode & input
   const calculatedDiscountCents = useMemo(() => {
-    if (typeof discountInput !== 'number' || discountInput <= 0 || subtotalCents <= 0) {
+    if (!showDiscountInput || typeof discountInput !== 'number' || discountInput <= 0 || subtotalCents <= 0) {
       return 0;
     }
     if (discountMode === 'percentage') {
@@ -103,7 +129,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
       const disc = Math.round(discountInput * 100);
       return Math.min(disc, subtotalCents);
     }
-  }, [discountInput, discountMode, subtotalCents]);
+  }, [showDiscountInput, discountInput, discountMode, subtotalCents]);
 
   // Sync calculated discount to cart store
   useEffect(() => {
@@ -156,10 +182,10 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
 
   // Focus cash input on payment method change to Cash
   useEffect(() => {
-    if (paymentMethod === PAYMENT_METHODS.CASH && !isCredit) {
+    if (paymentMethod === PAYMENT_METHODS.CASH && !isCredit && !completedSale) {
       setTimeout(() => cashInputRef.current?.focus(), 50);
     }
-  }, [paymentMethod, isCredit]);
+  }, [paymentMethod, isCredit, completedSale]);
 
   // Sync tendered amount to Redux store
   useEffect(() => {
@@ -239,6 +265,14 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
     (paymentMethod === PAYMENT_METHODS.CASH && isCashShort && !isCredit) ||
     (paymentMethod === PAYMENT_METHODS.SPLIT && isSplitIncomplete && !isCredit);
 
+  // Consequence helper label
+  const printConsequenceText = useMemo(() => {
+    if (documentSelection === 'receipt') return 'will print 80mm receipt';
+    if (documentSelection === 'invoice') return 'will print A4 invoice';
+    if (documentSelection === 'both') return 'will print receipt & invoice';
+    return 'no document will print';
+  }, [documentSelection]);
+
   // Handle Primary Action Click / F2
   const handlePrimaryAction = () => {
     if (isButtonDisabled) return;
@@ -273,6 +307,301 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
 
   const newCreditBalanceCents = (customerBalanceCents || 0) + totalCents;
 
+  // Render Confirmation Card if sale was completed
+  if (completedSale) {
+    const { invoice, changeDueCents: saleChangeCents } = completedSale;
+    const isCreditCompleted = invoice.isCredit || invoice.status === 'pending';
+
+    let printStatusText = 'No print requested';
+    if (invoice.documentSelection === 'receipt') printStatusText = 'Receipt sent to printer';
+    else if (invoice.documentSelection === 'invoice') printStatusText = 'Invoice sent to printer';
+    else if (invoice.documentSelection === 'both') printStatusText = 'Receipt & Invoice sent to printer';
+
+    return (
+      <Paper
+        radius="var(--mantine-radius-default)"
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'var(--bg-card)',
+          borderLeft: '1px solid var(--border)',
+          overflow: 'hidden',
+        }}
+      >
+        <Box style={{ flex: 1, overflowY: 'auto', padding: regionPadding }}>
+          <Stack gap="md">
+            {/* Header Badge */}
+            <Group justify="space-between" align="center">
+              <Group gap="xs" align="center">
+                <ThemeIcon
+                  size="md"
+                  radius="xl"
+                  color={isCreditCompleted ? 'amber' : 'green'}
+                  variant="filled"
+                >
+                  <IconCheck size={16} stroke={3} />
+                </ThemeIcon>
+                <Text fw={800} size="sm" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
+                  {isCreditCompleted ? 'Sale Recorded on Account' : 'Sale Completed'}
+                </Text>
+              </Group>
+              <Badge size="sm" variant="light" color="gray">
+                #{invoice.invoiceNumber}
+              </Badge>
+            </Group>
+
+            {/* BIG HERO NUMBER CARD (Priority #1) */}
+            {isCreditCompleted ? (
+              <Paper
+                p="md"
+                radius="var(--mantine-radius-default)"
+                style={{
+                  backgroundColor: 'var(--mantine-color-amber-light)',
+                  border: '1px solid var(--mantine-color-amber-filled)',
+                  textAlign: 'center',
+                }}
+              >
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="amber.9"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.06em' }}
+                >
+                  BALANCE DUE
+                </Text>
+                <Text
+                  fw={800}
+                  c="amber.9"
+                  style={{
+                    fontSize: 34,
+                    lineHeight: 1.1,
+                    fontFamily: 'monospace',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {formatMoney(invoice.totalCents)}
+                </Text>
+                {invoice.dueDate && (
+                  <Text size="xs" fw={600} c="amber.8" mt={4}>
+                    Payment Due by {invoice.dueDate}
+                  </Text>
+                )}
+              </Paper>
+            ) : saleChangeCents > 0 ? (
+              <Paper
+                p="md"
+                radius="var(--mantine-radius-default)"
+                style={{
+                  backgroundColor: 'var(--mantine-color-green-light)',
+                  border: '1px solid var(--mantine-color-green-filled)',
+                  textAlign: 'center',
+                }}
+              >
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="green.9"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.08em' }}
+                >
+                  CHANGE TO GIVE
+                </Text>
+                <Text
+                  fw={800}
+                  c="green.9"
+                  style={{
+                    fontSize: 36,
+                    lineHeight: 1.1,
+                    fontFamily: 'monospace',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {formatMoney(saleChangeCents)}
+                </Text>
+              </Paper>
+            ) : invoice.paymentMethod === PAYMENT_METHODS.CASH ? (
+              <Paper
+                p="md"
+                radius="var(--mantine-radius-default)"
+                style={{
+                  backgroundColor: 'var(--mantine-color-blue-light)',
+                  border: '1px solid var(--mantine-color-blue-filled)',
+                  textAlign: 'center',
+                }}
+              >
+                <Text size="xs" fw={700} c="blue.9" tt="uppercase" style={{ letterSpacing: '0.06em' }}>
+                  EXACT CASH RECEIVED
+                </Text>
+                <Text fw={700} size="sm" c="blue.8" mt={2}>
+                  No change to hand back
+                </Text>
+              </Paper>
+            ) : (
+              <Paper
+                p="md"
+                radius="var(--mantine-radius-default)"
+                style={{
+                  backgroundColor: 'var(--mantine-color-blue-light)',
+                  border: '1px solid var(--mantine-color-blue-filled)',
+                  textAlign: 'center',
+                }}
+              >
+                <Text size="xs" fw={700} c="blue.9" tt="uppercase" style={{ letterSpacing: '0.06em' }}>
+                  PAID VIA {invoice.paymentMethod.toUpperCase()}
+                </Text>
+                <Text fw={700} size="sm" c="blue.8" mt={2}>
+                  Paid in full ({formatMoney(invoice.totalCents)}) · No change
+                </Text>
+              </Paper>
+            )}
+
+            {/* Status Line */}
+            <Stack gap={4}>
+              <Group justify="space-between" align="center">
+                <Text size="xs" c="dimmed">
+                  Status
+                </Text>
+                <Text size="xs" fw={600} c="var(--text-primary)">
+                  {isCreditCompleted
+                    ? `On Account · INV-${invoice.invoiceNumber}`
+                    : `Paid in Full · ${invoice.paymentMethod.toUpperCase()} · INV-${invoice.invoiceNumber}`}
+                </Text>
+              </Group>
+
+              {invoice.customerName && (
+                <Group justify="space-between" align="center">
+                  <Text size="xs" c="dimmed">
+                    Customer
+                  </Text>
+                  <Text size="xs" fw={600} c="var(--text-primary)">
+                    {invoice.customerName}
+                  </Text>
+                </Group>
+              )}
+
+              {/* Split payment breakdown lines */}
+              {invoice.splitPayments && invoice.splitPayments.length > 0 && (
+                <Stack gap={2} mt={4}>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    Split Breakdown
+                  </Text>
+                  {invoice.splitPayments.map((sp) => (
+                    <Group key={sp.id} justify="space-between" align="center">
+                      <Text size="xs" c="dimmed">
+                        {sp.method.toUpperCase()}
+                      </Text>
+                      <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
+                        {formatMoney(sp.amountCents)}
+                      </Text>
+                    </Group>
+                  ))}
+                </Stack>
+              )}
+            </Stack>
+
+            <Divider color="var(--border-strong)" />
+
+            {/* Print status line */}
+            <Group justify="space-between" align="center">
+              <Group gap={6} align="center">
+                <IconPrinter size={16} color="var(--text-muted)" />
+                <Text size="xs" c="dimmed">
+                  {printStatusText}
+                </Text>
+              </Group>
+              <Button
+                size="xs"
+                variant="subtle"
+                color="blue"
+                leftSection={<IconRotate size={13} />}
+                onClick={() => printReceipt(invoice)}
+              >
+                Reprint
+              </Button>
+            </Group>
+          </Stack>
+        </Box>
+
+        {/* Footer Actions on Confirmation Card */}
+        <Box
+          style={{
+            padding: regionPadding,
+            borderTop: '1px solid var(--border)',
+            backgroundColor: 'var(--bg-card)',
+          }}
+        >
+          <Stack gap="xs">
+            {/* Primary focus button: New Sale (N / Enter) */}
+            <Button
+              ref={newSaleButtonRef}
+              fullWidth
+              size="lg"
+              color="blue"
+              leftSection={<IconPlus size={18} />}
+              onClick={() => startNextSale()}
+              style={{
+                height: isMobile ? 54 : 48,
+                fontSize: 16,
+                fontWeight: 700,
+                borderRadius: 'var(--mantine-radius-default)',
+              }}
+            >
+              New Sale (N)
+            </Button>
+
+            {/* Secondary row */}
+            <Group gap="xs" grow>
+              <Button
+                size="xs"
+                variant="outline"
+                color="gray"
+                leftSection={<IconPrinter size={14} />}
+                onClick={() => printReceipt(invoice)}
+              >
+                Reprint (R)
+              </Button>
+              <Button
+                size="xs"
+                variant="outline"
+                color="violet"
+                leftSection={<IconFileText size={14} />}
+                onClick={() => previewInvoiceDoc(invoice)}
+              >
+                Preview (I)
+              </Button>
+              <Button
+                size="xs"
+                variant="light"
+                color="gray"
+                leftSection={<IconShare size={14} />}
+                onClick={() => {
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(`Invoice #${invoice.invoiceNumber} - Total: ${formatMoney(invoice.totalCents)}`);
+                    notifications.show({
+                      title: 'Copied',
+                      message: 'Invoice info copied to clipboard',
+                      color: 'green',
+                    });
+                  }
+                }}
+              >
+                Share
+              </Button>
+            </Group>
+
+            {!isMobile && (
+              <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }}>
+                Press <strong>N</strong> or <strong>Enter</strong> to start next sale · <strong>R</strong> to reprint · <strong>I</strong> for preview
+              </Text>
+            )}
+          </Stack>
+        </Box>
+      </Paper>
+    );
+  }
+
   return (
     <Paper
       radius="var(--mantine-radius-default)"
@@ -298,86 +627,119 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
             </Text>
           </Group>
 
-          {/* 2. Embedded Order Discount Card */}
-          <Paper
-            p="xs"
-            withBorder
-            radius="md"
-            opacity={isCartEmpty ? 0.5 : 1}
-            style={{
-              pointerEvents: isCartEmpty ? 'none' : 'auto',
-              backgroundColor: 'light-dark(var(--mantine-color-red-0), rgba(239, 68, 68, 0.1))',
-              borderColor: 'light-dark(var(--mantine-color-red-3), rgba(239, 68, 68, 0.3))',
-            }}
-          >
-            <Stack gap="xs">
-              <Group justify="space-between" align="center">
-                <Group gap={6} align="center">
-                  <IconTag size={15} color="var(--mantine-color-red-6)" />
-                  <Text
-                    size="xs"
-                    fw={700}
-                    c="red.6"
-                    tt="uppercase"
-                    style={{ letterSpacing: '0.04em' }}
-                  >
-                    ORDER DISCOUNT
-                  </Text>
+          {/* 2. Collapsible Order Discount Control */}
+          {!showDiscountInput && discountCents === 0 ? (
+            <Group justify="space-between" align="center" py={2}>
+              <Text size="xs" c="dimmed">
+                Order Discount
+              </Text>
+              <Button
+                size="xs"
+                variant="subtle"
+                color="red"
+                leftSection={<IconTag size={13} />}
+                disabled={isCartEmpty}
+                onClick={() => setShowDiscountInput(true)}
+                style={{ height: 26, fontSize: 11 }}
+              >
+                + Add discount
+              </Button>
+            </Group>
+          ) : (
+            <Paper
+              p="xs"
+              withBorder
+              radius="md"
+              opacity={isCartEmpty ? 0.5 : 1}
+              style={{
+                pointerEvents: isCartEmpty ? 'none' : 'auto',
+                backgroundColor: 'light-dark(var(--mantine-color-red-0), rgba(239, 68, 68, 0.1))',
+                borderColor: 'light-dark(var(--mantine-color-red-3), rgba(239, 68, 68, 0.3))',
+              }}
+            >
+              <Stack gap="xs">
+                <Group justify="space-between" align="center">
+                  <Group gap={6} align="center">
+                    <IconTag size={15} color="var(--mantine-color-red-6)" />
+                    <Text
+                      size="xs"
+                      fw={700}
+                      c="red.6"
+                      tt="uppercase"
+                      style={{ letterSpacing: '0.04em' }}
+                    >
+                      ORDER DISCOUNT
+                    </Text>
+                  </Group>
+
+                  <Group gap={4}>
+                    <SegmentedControl
+                      size="xs"
+                      color="red"
+                      value={discountMode}
+                      onChange={(val) => {
+                        const newMode = val as 'percentage' | 'amount';
+                        setDiscountMode(newMode);
+                        if (
+                          newMode === 'percentage' &&
+                          typeof discountInput === 'number' &&
+                          discountInput > 100
+                        ) {
+                          setDiscountInput(100);
+                        }
+                      }}
+                      data={[
+                        { label: '%', value: 'percentage' },
+                        { label: 'Rs.', value: 'amount' },
+                      ]}
+                      style={{ width: 90 }}
+                      styles={{
+                        root: { padding: 2, backgroundColor: 'light-dark(#ffffff, var(--bg-card))' },
+                        label: { padding: '2px 8px', fontSize: 11, fontWeight: 700 },
+                      }}
+                    />
+                    <ActionIcon
+                      size="xs"
+                      variant="subtle"
+                      color="gray"
+                      onClick={() => {
+                        setDiscountInput('');
+                        setShowDiscountInput(false);
+                        setDiscount(0);
+                      }}
+                    >
+                      <IconX size={13} />
+                    </ActionIcon>
+                  </Group>
                 </Group>
 
-                <SegmentedControl
-                  size="xs"
-                  color="red"
-                  value={discountMode}
-                  onChange={(val) => {
-                    const newMode = val as 'percentage' | 'amount';
-                    setDiscountMode(newMode);
-                    if (
-                      newMode === 'percentage' &&
-                      typeof discountInput === 'number' &&
-                      discountInput > 100
-                    ) {
-                      setDiscountInput(100);
-                    }
-                  }}
-                  data={[
-                    { label: '%', value: 'percentage' },
-                    { label: 'Rs.', value: 'amount' },
-                  ]}
-                  style={{ width: 100 }}
-                  styles={{
-                    root: { padding: 2, backgroundColor: 'light-dark(#ffffff, var(--bg-card))' },
-                    label: { padding: '2px 10px', fontSize: 11, fontWeight: 700 },
-                  }}
-                />
-              </Group>
+                <Group justify="space-between" align="center" wrap={isMobile ? 'wrap' : 'nowrap'}>
+                  <AmountInput
+                    size="xs"
+                    mode={discountMode}
+                    onModeChange={setDiscountMode}
+                    value={discountInput}
+                    onChange={(v) => {
+                      setHasEditedDiscount(true);
+                      setDiscountInput(v);
+                    }}
+                    maxAmount={subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0}
+                    style={{ flex: 5, minWidth: 110 }}
+                  />
 
-              <Group justify="space-between" align="center" wrap={isMobile ? 'wrap' : 'nowrap'}>
-                <AmountInput
-                  size="xs"
-                  mode={discountMode}
-                  onModeChange={setDiscountMode}
-                  value={discountInput}
-                  onChange={(v) => {
-                    setHasEditedDiscount(true);
-                    setDiscountInput(v);
-                  }}
-                  maxAmount={subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0}
-                  style={{ flex: 5, minWidth: 110 }}
-                />
-
-                <Text
-                  size="sm"
-                  fw={700}
-                  c="red.7"
-                  ta="right"
-                  style={{ fontFamily: 'monospace', flex: 3, minWidth: 0 }}
-                >
-                  - {formatMoney(calculatedDiscountCents)}
-                </Text>
-              </Group>
-            </Stack>
-          </Paper>
+                  <Text
+                    size="sm"
+                    fw={700}
+                    c="red.7"
+                    ta="right"
+                    style={{ fontFamily: 'monospace', flex: 3, minWidth: 0 }}
+                  >
+                    - {formatMoney(calculatedDiscountCents)}
+                  </Text>
+                </Group>
+              </Stack>
+            </Paper>
+          )}
 
           {/* 3. Divider */}
           <Divider my={4} color="var(--border-strong)" />
@@ -409,7 +771,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
             </Text>
           </Box>
 
-          {/* 5. Pay Now / Credit Sale Segmented Control (Steps 3 & 4) */}
+          {/* 5. Pay Now / Credit Sale Segmented Control */}
           <Tooltip
             label={
               isMobile
@@ -458,10 +820,9 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
 
           <Divider my={4} color="var(--border-strong)" />
 
-          {/* 6. CREDIT MODE: In-System Amber Credit Banner & Due Date (Steps 6 & 7) */}
+          {/* 6. CREDIT MODE: In-System Amber Credit Banner & Due Date */}
           {isCredit && (
             <Stack gap="xs">
-              {/* Amber Credit Banner */}
               <Paper
                 p="xs"
                 radius="md"
@@ -527,7 +888,6 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                 </Stack>
               </Paper>
 
-              {/* Payment Due Date */}
               <Stack gap={4} mt={2}>
                 <Group justify="space-between" align="center">
                   <Text
@@ -590,10 +950,9 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
             </Stack>
           )}
 
-          {/* 7. PAY NOW MODE: Collapsible Payment Method & Tendered Inputs (Step 5) */}
+          {/* 7. PAY NOW MODE: Collapsible Payment Method & Tendered Inputs */}
           {!isCredit && (
             <Stack gap="xs">
-              {/* Payment Method Selector */}
               <Box mt={2}>
                 <Text
                   size="xs"
@@ -713,7 +1072,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                       <Text
                         size="md"
                         fw={700}
-                        c={isCashShort ? 'amber.7' : 'green.6'}
+                        c={isCashShort ? 'amber.7' : changeDueCents > 0 ? 'green.6' : 'dimmed'}
                         style={{ fontFamily: 'monospace' }}
                       >
                         {isCashShort ? formatMoney(shortByCents) : formatMoney(changeDueCents)}
@@ -794,8 +1153,6 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                               typeof v === 'number' ? v * 100 : 0
                             )
                           }
-                          /* AmountInput enforces its own 110px floor — pinning it to 100 clipped the
-                             sliding unit button over the digits. */
                           style={{ flex: 1, minWidth: 110 }}
                         />
                         <ActionIcon
@@ -829,26 +1186,34 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
             </Stack>
           )}
 
-          {/* 8. Document Selection Control */}
+          {/* 8. PRINT / Document Selection Control */}
           <Box mt={4}>
-            <Text
-              size="xs"
-              fw={700}
-              c="dimmed"
-              mb={6}
-              tt="uppercase"
-              style={{ fontSize: 10, letterSpacing: '0.06em' }}
-            >
-              DOCUMENT OUTPUT
-            </Text>
-            {/* Four labels never fit across one narrow column — fall back to a 2x2 block. */}
+            <Group justify="space-between" align="center" mb={6}>
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ fontSize: 10, letterSpacing: '0.06em' }}
+              >
+                PRINT
+              </Text>
+              <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>
+                {documentSelection === 'receipt'
+                  ? 'Default for walk-in'
+                  : documentSelection === 'invoice'
+                  ? 'Default for account'
+                  : ''}
+              </Text>
+            </Group>
+
             <SimpleGrid cols={{ base: 2, lg: 4 }} spacing={6}>
               {(
                 [
-                  { label: 'Receipt', value: 'receipt' },
-                  { label: 'Invoice', value: 'invoice' },
+                  { label: 'Receipt (80mm)', value: 'receipt' },
+                  { label: 'Invoice (A4)', value: 'invoice' },
                   { label: 'Both', value: 'both' },
-                  { label: 'None', value: 'none' },
+                  { label: 'No print', value: 'none' },
                 ] as const
               ).map((doc) => {
                 const isSelected = documentSelection === doc.value;
@@ -868,14 +1233,17 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      padding: '2px 4px',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
+                      textAlign: 'center',
                     }}
                   >
                     <Text
                       size="xs"
                       fw={isSelected ? 700 : 500}
                       c={isSelected ? 'blue.7' : undefined}
+                      style={{ fontSize: 11, lineHeight: 1.2 }}
                     >
                       {doc.label}
                     </Text>
@@ -883,17 +1251,11 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                 );
               })}
             </SimpleGrid>
-            {(documentSelection === 'invoice' || documentSelection === 'both') && (
-              <Text size="xs" c="dimmed" mt={4} style={{ fontSize: 10 }}>
-                <IconFileText size={10} style={{ display: 'inline', marginRight: 4 }} />
-                A4 Invoice will open in preview modal.
-              </Text>
-            )}
           </Box>
         </Stack>
       </Box>
 
-      {/* Sticky Action Footer (Steps 1, 2, & 9) */}
+      {/* Sticky Action Footer */}
       <Box
         style={{
           padding: regionPadding,
@@ -923,18 +1285,21 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
               ? confirmCreditRequired
                 ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
                 : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
-              : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
+              : isCashShort
+                ? `Short by ${formatMoney(shortByCents)}`
+                : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
         </Button>
-        {/* The hint line is pure keyboard guidance; on touch it is only noise above the CTA. */}
-        {(!isMobile || confirmCreditRequired) && (
-          <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
-            {confirmCreditRequired
-              ? isMobile
-                ? 'Customer has existing debt. Tap again to confirm credit sale.'
-                : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
-              : 'Press F2 to trigger checkout'}
-          </Text>
-        )}
+        <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
+          {confirmCreditRequired
+            ? isMobile
+              ? 'Customer has existing debt. Tap again to confirm credit sale.'
+              : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
+            : isButtonDisabled
+              ? isCashShort
+                ? `Enter tendered cash amount to complete`
+                : 'Complete disabled'
+              : `${printConsequenceText} · Press F2`}
+        </Text>
       </Box>
     </Paper>
   );

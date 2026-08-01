@@ -1,7 +1,7 @@
 import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/constants/payment';
 import { STORAGE_KEYS } from '@/constants/storage';
-import type { LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
+import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
 
 export interface CartItem {
   id: string;
@@ -20,6 +20,11 @@ export interface CartItem {
   assignedEmployeeName?: string;
   originalUnitPriceCents?: number;
   stockQuantity?: number;
+}
+
+export interface CompletedSaleData {
+  invoice: Invoice;
+  changeDueCents: number;
 }
 
 export interface HeldCart {
@@ -58,6 +63,7 @@ interface CartState {
   assignedStaffName: string | null;
   soundEnabled: boolean;
   heldCarts: HeldCart[];
+  completedSale: CompletedSaleData | null;
 }
 
 const loadHeldCartsFromStorage = (): HeldCart[] => {
@@ -100,6 +106,29 @@ const initialState: CartState = {
   assignedStaffName: null,
   soundEnabled: true,
   heldCarts: loadHeldCartsFromStorage(),
+  completedSale: null,
+};
+
+const resetCartState = (state: CartState) => {
+  state.items = [];
+  state.lastRemovedItem = null;
+  state.customerId = null;
+  state.customerName = null;
+  state.customerPhone = null;
+  state.customerAddress = null;
+  state.customerBalanceCents = 0;
+  state.discountCents = 0;
+  state.isCredit = false;
+  state.tenderedAmountCents = 0;
+  state.dueDate = null;
+  state.cardRef = '';
+  state.onlineRef = '';
+  state.onlineNote = '';
+  state.notes = '';
+  state.assignedStaffId = null;
+  state.assignedStaffName = null;
+  state.splitPayments = [];
+  state.completedSale = null;
 };
 
 const cartSlice = createSlice({
@@ -107,6 +136,9 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addItem: (state, action: PayloadAction<Omit<CartItem, 'totalCents'>>) => {
+      if (state.completedSale) {
+        resetCartState(state);
+      }
       const item = action.payload;
       const sourceType = item.sourceType || 'retail';
 
@@ -337,26 +369,17 @@ const cartSlice = createSlice({
       saveHeldCartsToStorage(state.heldCarts);
     },
 
+    completeSaleSuccess: (state, action: PayloadAction<CompletedSaleData>) => {
+      state.completedSale = action.payload;
+    },
+
+    startNewSale: (state) => {
+      resetCartState(state);
+    },
+
     clearCart: (state) => {
-      state.items = [];
-      state.lastRemovedItem = null;
-      state.customerId = null;
-      state.customerName = null;
-      state.customerPhone = null;
-      state.customerAddress = null;
-      state.customerBalanceCents = 0;
-      state.discountCents = 0;
-      state.isCredit = false;
-      state.tenderedAmountCents = 0;
+      resetCartState(state);
       state.documentSelection = 'receipt';
-      state.dueDate = null;
-      state.cardRef = '';
-      state.onlineRef = '';
-      state.onlineNote = '';
-      state.notes = '';
-      state.assignedStaffId = null;
-      state.assignedStaffName = null;
-      state.splitPayments = [];
     },
   },
 });
@@ -385,6 +408,8 @@ export const {
   parkCart,
   restoreCart,
   deleteHeldCart,
+  completeSaleSuccess,
+  startNewSale,
   clearCart,
 } = cartSlice.actions;
 
@@ -397,6 +422,7 @@ export const selectTenderedAmountCents = (state: { cart: CartState }) =>
   state.cart.tenderedAmountCents;
 export const selectDocumentSelection = (state: { cart: CartState }) => state.cart.documentSelection;
 export const selectDueDate = (state: { cart: CartState }) => state.cart.dueDate;
+export const selectCompletedSale = (state: { cart: CartState }) => state.cart.completedSale;
 export const selectCustomerInfo = (state: { cart: CartState }) => ({
   id: state.cart.customerId,
   name: state.cart.customerName,

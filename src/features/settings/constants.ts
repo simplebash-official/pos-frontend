@@ -34,6 +34,8 @@ export const DEFAULT_PRINT_SETTINGS: PrintSettings = {
   showTaxColumn: false,
   showBankDetails: true,
   defaultDocumentForWalkIn: 'receipt',
-  defaultDocumentForAccountCustomer: 'both',
+  defaultDocumentForAccountCustomer: 'invoice',
   printMethod: 'iframe',
+  previewBeforePrinting: false,
+  defaultInvoicePaper: 'a4',
 };

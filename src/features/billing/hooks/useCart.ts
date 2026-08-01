@@ -24,6 +24,8 @@ import {
   parkCart,
   restoreCart,
   deleteHeldCart,
+  completeSaleSuccess,
+  startNewSale,
   clearCart,
   selectCartItems,
   selectCartDiscountCents,
@@ -40,6 +42,7 @@ import {
   selectTenderedAmountCents,
   selectDocumentSelection,
   selectDueDate,
+  selectCompletedSale,
   type CartItem,
 } from '@/store/slices/cartSlice';
 import type { PaymentMethod } from '@/constants/payment';
@@ -72,6 +75,8 @@ export function useCart() {
   const notes = useAppSelector((state) => state.cart.notes);
   const assignedStaffId = useAppSelector((state) => state.cart.assignedStaffId);
   const assignedStaffName = useAppSelector((state) => state.cart.assignedStaffName);
+
+  const completedSale = useAppSelector(selectCompletedSale);
 
   const add = useCallback(
     (item: Omit<CartItem, 'totalCents'>) => dispatch(addItem(item)),
@@ -133,6 +138,12 @@ export function useCart() {
   const holdCurrentCart = useCallback((label?: string) => dispatch(parkCart(label)), [dispatch]);
   const loadHeldCart = useCallback((id: string) => dispatch(restoreCart(id)), [dispatch]);
   const removeHeldCart = useCallback((id: string) => dispatch(deleteHeldCart(id)), [dispatch]);
+  const markSaleCompleted = useCallback(
+    (invoice: import('@/features/billing/types').Invoice, changeDueCents: number) =>
+      dispatch(completeSaleSuccess({ invoice, changeDueCents })),
+    [dispatch]
+  );
+  const startNextSale = useCallback(() => dispatch(startNewSale()), [dispatch]);
   const clear = useCallback(() => dispatch(clearCart()), [dispatch]);
 
   return {
@@ -165,6 +176,7 @@ export function useCart() {
     notes,
     assignedStaffId,
     assignedStaffName,
+    completedSale,
     add,
     remove,
     undoRemove,
@@ -188,6 +200,8 @@ export function useCart() {
     holdCurrentCart,
     loadHeldCart,
     removeHeldCart,
+    markSaleCompleted,
+    startNextSale,
     clear,
   };
 }

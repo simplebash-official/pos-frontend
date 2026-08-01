@@ -59,6 +59,7 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
     clear,
     attachCustomer,
     isCredit,
+    completedSale,
   } = useCart();
 
   const isMobile = useIsMobile();
@@ -140,6 +141,9 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'var(--bg-card)',
+        opacity: completedSale ? 0.75 : 1,
+        pointerEvents: completedSale ? 'none' : 'auto',
+        transition: 'opacity 0.2s ease',
       }}
     >
       {/* 1. Cart Header Bar */}
@@ -154,15 +158,24 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
           <Text fw={700} size="sm" style={{ whiteSpace: 'nowrap' }}>
             Current Sale
           </Text>
-          {/* The tab bar already carries the line count on mobile, so the badge is redundant there
-              and only competes with the hold/clear controls for the same row. */}
-          {!isMobile && (
-            <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
-              {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
-              {totalUnitCount !== 1 ? 's' : ''}
+          {completedSale ? (
+            <Badge
+              size="sm"
+              color="green"
+              variant="filled"
+              style={{ fontWeight: 800, letterSpacing: '0.04em' }}
+            >
+              COMPLETED
             </Badge>
+          ) : (
+            !isMobile && (
+              <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
+                {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
+                {totalUnitCount !== 1 ? 's' : ''}
+              </Badge>
+            )
           )}
-          {isCredit && (
+          {isCredit && !completedSale && (
             <Badge
               size="xs"
               color="amber"
@@ -180,7 +193,7 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
             variant="light"
             color="orange"
             leftSection={<IconPlayerPause size={14} />}
-            disabled={items.length === 0}
+            disabled={items.length === 0 || Boolean(completedSale)}
             onClick={() => holdCurrentCart()}
             style={{ paddingLeft: 8, paddingRight: 8 }}
           >
@@ -192,7 +205,7 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
             variant="subtle"
             color="red"
             leftSection={<IconTrash size={14} />}
-            disabled={items.length === 0}
+            disabled={items.length === 0 || Boolean(completedSale)}
             onClick={() => setClearDialogOpen(true)}
             style={{ paddingLeft: 6, paddingRight: 6 }}
           >
@@ -201,7 +214,7 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
 
           <Menu shadow="md" position="bottom-end">
             <Menu.Target>
-              <ActionIcon variant="subtle" color="gray" size="sm">
+              <ActionIcon variant="subtle" color="gray" size="sm" disabled={Boolean(completedSale)}>
                 <IconDotsVertical size={16} />
               </ActionIcon>
             </Menu.Target>

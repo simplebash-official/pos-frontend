@@ -38,4 +38,6 @@ export interface PrintSettings {
   defaultDocumentForWalkIn: DocumentSelection;
   defaultDocumentForAccountCustomer: DocumentSelection;
   printMethod: 'iframe' | 'newWindow';
+  previewBeforePrinting: boolean;
+  defaultInvoicePaper: 'a4' | 'a5';
 }
