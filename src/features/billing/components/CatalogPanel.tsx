@@ -13,15 +13,7 @@ import {
   Box,
   Anchor,
 } from '@mantine/core';
-import {
-  IconBarcode,
-  IconAlertTriangle,
-  IconLayoutGrid,
-  IconDeviceMobile,
-  IconShirt,
-  IconPrinter,
-  IconTools,
-} from '@tabler/icons-react';
+import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
@@ -29,10 +21,10 @@ import { fetchProducts } from '@/features/inventory/api/mockProducts';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
-import { Product } from '@/features/inventory/types';
+import { Product, MainCategory } from '@/features/inventory/types';
 import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
-import { getCategoryIconInfo } from '../lib/categoryIcons';
+import { getCategoryIconInfo, CATALOG_CATEGORY_FILTERS } from '../lib/categoryIcons';
 
 // Top frequent items section removed per request
 
@@ -44,7 +36,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const scanInputRef = useRef<HTMLInputElement>(null);
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | MainCategory>('all');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
 
@@ -74,15 +66,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   // Filtered Products
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = p.category.toLowerCase();
-      let matchesCat = true;
-      if (selectedCategory === 'repairs') {
-        matchesCat = cat.includes('repair') || cat.includes('accessory') || cat.includes('screen');
-      } else if (selectedCategory === 'print') {
-        matchesCat = cat.includes('print') || cat.includes('custom');
-      } else if (selectedCategory === 'general') {
-        matchesCat = !cat.includes('repair') && !cat.includes('print');
-      }
+      const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
 
       const q = search.toLowerCase().trim();
       const matchesSearch =
@@ -293,8 +277,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       </Paper>
 
       {/* 2. Category Chips / Filter Pills Row */}
-      <ScrollArea scrollbars="x" type="never">
-        <Group gap={6} wrap="nowrap" py={2}>
+      <ScrollArea.Autosize mah={72} scrollbars="y" type="auto">
+        <Group gap={6} wrap="wrap" py={2}>
           <Button
             size="xs"
             variant={selectedCategory === 'all' ? 'filled' : 'light'}
@@ -305,36 +289,19 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
           >
             All
           </Button>
-          <Button
-            size="xs"
-            variant={selectedCategory === 'repairs' ? 'filled' : 'light'}
-            color="blue"
-            leftSection={<IconDeviceMobile size={15} />}
-            onClick={() => setSelectedCategory('repairs')}
-            radius="xl"
-          >
-            Phone Repairs
-          </Button>
-          <Button
-            size="xs"
-            variant={selectedCategory === 'print' ? 'filled' : 'light'}
-            color="grape"
-            leftSection={<IconShirt size={15} />}
-            onClick={() => setSelectedCategory('print')}
-            radius="xl"
-          >
-            Print Customization
-          </Button>
-          <Button
-            size="xs"
-            variant={selectedCategory === 'general' ? 'filled' : 'light'}
-            color="teal"
-            leftSection={<IconPrinter size={15} />}
-            onClick={() => setSelectedCategory('general')}
-            radius="xl"
-          >
-            General Printing
-          </Button>
+          {CATALOG_CATEGORY_FILTERS.map(({ key, label, Icon, color }) => (
+            <Button
+              key={key}
+              size="xs"
+              variant={selectedCategory === key ? 'filled' : 'light'}
+              color={color}
+              leftSection={<Icon size={15} />}
+              onClick={() => setSelectedCategory(key)}
+              radius="xl"
+            >
+              {label}
+            </Button>
+          ))}
           <Button
             size="xs"
             variant="outline"
@@ -346,7 +313,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             + Services (F4)
           </Button>
         </Group>
-      </ScrollArea>
+      </ScrollArea.Autosize>
 
       {/* 4. Product Grid (Zero overlap, crisp cards with clear category icons) */}
       <ScrollArea style={{ flex: 1 }} offsetScrollbars p={4}>

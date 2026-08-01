@@ -365,19 +365,21 @@ export function BillingCounter() {
       }}
     >
       {/* Static 3-Region 12-Column Grid Layout */}
-      <Grid h="100%">
+      {/* `inner` needs an explicit height so Grid.Col's height:100% has something definite to
+         resolve against — otherwise columns grow to content height and break internal scrolling. */}
+      <Grid h="100%" styles={{ inner: { height: '100%' } }}>
         {/* Region A: Catalog / Entry (5 columns, left) */}
-        <Grid.Col span={5} style={{ height: '100%' }}>
+        <Grid.Col span={5} style={{ height: '100%', minHeight: 0 }}>
           <CatalogPanel onOpenServicePicker={() => setServicePickerOpen(true)} />
         </Grid.Col>
 
         {/* Region B: Cart (4 columns, center) */}
-        <Grid.Col span={4} style={{ height: '100%' }}>
+        <Grid.Col span={4} style={{ height: '100%', minHeight: 0 }}>
           <CartPanel onOpenCustomerPicker={() => setCustomerModalOpen(true)} />
         </Grid.Col>
 
         {/* Region C: Payment (3 columns, right) */}
-        <Grid.Col span={3} style={{ height: '100%' }}>
+        <Grid.Col span={3} style={{ height: '100%', minHeight: 0 }}>
           <PaymentPanel
             isProcessing={isProcessing}
             onCompleteCheckout={handleCompleteCheckout}
