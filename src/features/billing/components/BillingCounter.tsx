@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Box } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -12,6 +12,7 @@ import { ServiceJobPickerModal } from './ServiceJobPickerModal';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { DiscountPopover } from './DiscountPopover';
 import { A4InvoicePreviewModal } from './A4InvoicePreviewModal';
+import type { PaymentPanelHandle } from './PaymentPanel';
 import { createInvoice } from '../api/mockInvoices';
 import { updateRepairJob } from '@/features/repairs/api/mockRepairs';
 import { updatePrintJob } from '@/features/print-jobs/api/mockPrintJobs';
@@ -22,6 +23,7 @@ import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { selectShopProfile, selectPrintSettings } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import type { Invoice } from '../types';
 
@@ -58,6 +60,7 @@ export function BillingCounter() {
     markSaleCompleted,
     startNextSale,
     completedSale,
+    holdCurrentCart,
   } = useCart();
 
   const {
@@ -81,6 +84,10 @@ export function BillingCounter() {
   // Processing & Last completed invoice state
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCompletedInvoice, setLastCompletedInvoice] = useState<Invoice | null>(null);
+
+  // Lets F2 run PaymentPanel's own guardrailed primary-action path (see the F2 shortcut below)
+  // instead of jumping straight to checkout and bypassing the credit-limit confirmation.
+  const paymentPanelRef = useRef<PaymentPanelHandle>(null);
 
   // Complete Payment Action (F2)
   const handleCompleteCheckout = useCallback(async () => {
@@ -218,31 +225,72 @@ export function BillingCounter() {
   ]);
 
   // Global Cashier Hotkeys Binding
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isInputFocused =
-        (e.target as HTMLElement)?.tagName === 'INPUT' ||
-        (e.target as HTMLElement)?.tagName === 'TEXTAREA';
+  const focusScanBar = () => {
+    const scanBar = document.querySelector(
+      'input[placeholder*="Scan barcode"], input[placeholder*="Scan or search"]'
+    ) as HTMLInputElement;
+    scanBar?.focus();
+  };
 
-      if (e.key === 'F1') {
-        e.preventDefault();
-        const scanBar = document.querySelector(
-          'input[placeholder*="Scan barcode"], input[placeholder*="Scan or search"]'
-        ) as HTMLInputElement;
-        scanBar?.focus();
-      } else if (e.key === 'F2') {
-        e.preventDefault();
-        if (!completedSale) {
+  const postSaleShortcuts: Shortcut[] = completedSale
+    ? (() => {
+        const docSel = completedSale.invoice.documentSelection;
+        const isInvoiceMode = docSel === 'invoice' || docSel === 'both';
+
+        const shortcuts: Shortcut[] = [
+          {
+            key: 'Enter',
+            handler: () => {
+              if (isInvoiceMode) {
+                previewInvoiceDoc(completedSale.invoice);
+              } else {
+                startNextSale();
+                setActivePane('catalog');
+              }
+            },
+          },
+          {
+            key: 'N',
+            handler: () => {
+              startNextSale();
+              setActivePane('catalog');
+            },
+          },
+          { key: 'R', handler: () => printReceipt(completedSale.invoice) },
+          { key: 'I', handler: () => previewInvoiceDoc(completedSale.invoice) },
+        ];
+
+        if (isInvoiceMode) {
+          shortcuts.push({ key: 'P', handler: () => previewInvoiceDoc(completedSale.invoice) });
+        }
+
+        return shortcuts;
+      })()
+    : [];
+
+  useAppShortcuts([
+    { key: 'F1', ignoreInput: true, handler: focusScanBar },
+    {
+      key: 'F2',
+      ignoreInput: true,
+      handler: () => {
+        if (completedSale) return;
+        // Route through PaymentPanel's own primary-action path so the credit-limit
+        // guardrail applies the same way it does for a click; fall back to a direct
+        // checkout when the panel isn't mounted (tablet/mobile off the pay pane).
+        if (paymentPanelRef.current) {
+          paymentPanelRef.current.triggerPrimaryAction();
+        } else {
           handleCompleteCheckout();
         }
-      } else if (e.key === 'F3') {
-        e.preventDefault();
-        setCustomerModalOpen(true);
-      } else if (e.key === 'F4') {
-        e.preventDefault();
-        setServicePickerOpen(true);
-      } else if (e.key === 'F6') {
-        e.preventDefault();
+      },
+    },
+    { key: 'F3', ignoreInput: true, handler: () => setCustomerModalOpen(true) },
+    { key: 'F4', ignoreInput: true, handler: () => setServicePickerOpen(true) },
+    {
+      key: 'F6',
+      ignoreInput: true,
+      handler: () => {
         const methods = [
           PAYMENT_METHODS.CASH,
           PAYMENT_METHODS.CARD,
@@ -251,20 +299,19 @@ export function BillingCounter() {
         ];
         const nextIdx = (methods.indexOf(paymentMethod) + 1) % methods.length;
         changePaymentMethod(methods[nextIdx] as PaymentMethod);
-      } else if (e.ctrlKey && e.key.toLowerCase() === 'd') {
-        e.preventDefault();
-        setOrderDiscountOpen(true);
-      } else if (e.ctrlKey && e.key.toLowerCase() === 'h' && !e.shiftKey) {
-        e.preventDefault();
-        const scanBar = document.querySelector(
-          'input[placeholder*="Scan barcode"], input[placeholder*="Scan or search"]'
-        ) as HTMLInputElement;
-        scanBar?.blur();
-      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'h') {
-        e.preventDefault();
-        outletContext.setHeldDrawerOpen?.(true);
-      } else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
+      },
+    },
+    { key: 'Ctrl+D', ignoreInput: true, handler: () => setOrderDiscountOpen(true) },
+    { key: 'Ctrl+H', ignoreInput: true, handler: () => holdCurrentCart() },
+    {
+      key: 'Ctrl+Shift+H',
+      ignoreInput: true,
+      handler: () => outletContext.setHeldDrawerOpen?.(true),
+    },
+    {
+      key: 'Ctrl+P',
+      ignoreInput: true,
+      handler: () => {
         const targetInv = completedSale?.invoice || lastCompletedInvoice;
         if (targetInv) {
           printReceipt(targetInv);
@@ -275,8 +322,12 @@ export function BillingCounter() {
             color: 'orange',
           });
         }
-      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
+      },
+    },
+    {
+      key: 'Ctrl+Shift+P',
+      ignoreInput: true,
+      handler: () => {
         const targetInv = completedSale?.invoice || lastCompletedInvoice;
         if (targetInv) {
           previewInvoiceDoc(targetInv);
@@ -287,44 +338,10 @@ export function BillingCounter() {
             color: 'orange',
           });
         }
-      } else if (completedSale) {
-        // Confirmation card hotkeys when completedSale is active
-        if ((e.key === 'Enter' || e.key.toLowerCase() === 'n') && !isInputFocused) {
-          e.preventDefault();
-          startNextSale();
-          setActivePane('catalog');
-        } else if (e.key.toLowerCase() === 'r' && !isInputFocused) {
-          e.preventDefault();
-          printReceipt(completedSale.invoice);
-        } else if (e.key.toLowerCase() === 'i' && !isInputFocused) {
-          e.preventDefault();
-          previewInvoiceDoc(completedSale.invoice);
-        }
-      } else if (e.key === 'Escape' && previewModalOpen) {
-        e.preventDefault();
-        closePreviewModal();
-      } else if (e.key === '?') {
-        if (!isInputFocused) {
-          e.preventDefault();
-          outletContext.setShortcutsOpen?.(true);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [
-    handleCompleteCheckout,
-    paymentMethod,
-    changePaymentMethod,
-    outletContext,
-    lastCompletedInvoice,
-    completedSale,
-    startNextSale,
-    previewModalOpen,
-    closePreviewModal,
-    printReceipt,
-    previewInvoiceDoc,
+      },
+    },
+    { key: '?', handler: () => outletContext.setShortcutsOpen?.(true) },
+    ...postSaleShortcuts,
   ]);
 
   return (
@@ -347,6 +364,8 @@ export function BillingCounter() {
         onOpenServicePicker={() => setServicePickerOpen(true)}
         onOpenCustomerPicker={() => setCustomerModalOpen(true)}
         onOpenOrderDiscount={() => setOrderDiscountOpen(true)}
+        onPreviewInvoice={previewInvoiceDoc}
+        paymentPanelRef={paymentPanelRef}
       />
 
       {/* Modals */}

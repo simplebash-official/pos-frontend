@@ -1,6 +1,17 @@
 import { useState } from 'react';
-import { Modal, Box, Group, Button, SegmentedControl, Text, Paper, Stack } from '@mantine/core';
-import { IconPrinter, IconDownload } from '@tabler/icons-react';
+import {
+  Modal,
+  Box,
+  Group,
+  Button,
+  SegmentedControl,
+  Text,
+  Paper,
+  Stack,
+  Badge,
+  ThemeIcon,
+} from '@mantine/core';
+import { IconPrinter, IconDownload, IconFileText, IconX } from '@tabler/icons-react';
 import type { Invoice } from '../types';
 import { buildPrintPayload } from '../lib/buildPrintPayload';
 import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
@@ -15,6 +26,7 @@ import {
 import { printA4Invoice } from '@/shared/print/printService';
 import { getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 
 export interface A4InvoicePreviewModalProps {
   opened: boolean;
@@ -31,26 +43,32 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
   const [paper, setPaper] = useState<'a4' | 'a5'>(printSettings.defaultInvoicePaper || 'a4');
   const [copyMode, setCopyMode] = useState<'customer' | 'office'>('customer');
 
+  const buildPayload = (inv: Invoice) => {
+    const printCount = getPrintCountForInvoice(inv.invoiceNumber, paper);
+    const isDuplicate = printCount > 0 || copyMode === 'office';
+    const copyLabel =
+      copyMode === 'office'
+        ? 'DUPLICATE — OFFICE COPY'
+        : isDuplicate
+          ? 'DUPLICATE — CUSTOMER COPY'
+          : 'ORIGINAL — CUSTOMER COPY';
+    const shopProfile = getShopProfileForInvoice(inv, shopProfileVersions, currentShopProfile);
+    return buildPrintPayload(inv, shopProfile, printSettings, copyLabel, isDuplicate);
+  };
+
+  const handlePrint = () => {
+    if (!invoice) return;
+    printA4Invoice(buildPayload(invoice), paper, copyMode);
+  };
+
+  // Bound via the shared shortcut engine (not a focused-button click) so pressing
+  // Enter never puts a visible focus ring on the Print button.
+  useAppShortcuts([{ key: 'Enter', handler: handlePrint, ignoreInput: true }], opened);
+
   if (!invoice) return null;
 
   const paperProfile = paper === 'a5' ? PAPER_PROFILES.a5 : PAPER_PROFILES.a4;
-  const printCount = getPrintCountForInvoice(invoice.invoiceNumber, paper);
-  const isDuplicate = printCount > 0 || copyMode === 'office';
-  const copyLabel =
-    copyMode === 'office'
-      ? 'DUPLICATE — OFFICE COPY'
-      : isDuplicate
-        ? 'DUPLICATE — CUSTOMER COPY'
-        : 'ORIGINAL — CUSTOMER COPY';
-
-  // Resolve the versioned shop profile for this invoice
-  const shopProfile = getShopProfileForInvoice(invoice, shopProfileVersions, currentShopProfile);
-
-  const payload = buildPrintPayload(invoice, shopProfile, printSettings, copyLabel, isDuplicate);
-
-  const handlePrint = () => {
-    printA4Invoice(payload, paper, copyMode);
-  };
+  const payload = buildPayload(invoice);
 
   const handleDownloadPDF = () => {
     const invoiceId = invoice.id || invoice.invoiceNumber;
@@ -65,10 +83,23 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
       opened={opened}
       onClose={onClose}
       title={
-        <Group justify="space-between" style={{ width: '100%' }}>
-          <Text fw={700} size="lg">
-            Invoice Preview — #{invoice.invoiceNumber}{invoice.customerName ? ` · ${invoice.customerName}` : ''}
-          </Text>
+        <Group justify="space-between" align="center" style={{ width: '100%' }}>
+          <Group gap="xs" align="center">
+            <ThemeIcon size="md" radius="md" color="violet" variant="light">
+              <IconFileText size={18} />
+            </ThemeIcon>
+            <Text fw={700} size="md" c="var(--text-primary)">
+              Invoice Preview
+            </Text>
+            <Badge size="sm" color="blue" variant="light">
+              #{invoice.invoiceNumber}
+            </Badge>
+          </Group>
+          {invoice.customerName && (
+            <Text size="xs" c="dimmed" fw={600} style={{ marginRight: 16 }}>
+              Customer: {invoice.customerName}
+            </Text>
+          )}
         </Group>
       }
       size="xl"
@@ -76,19 +107,38 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
       radius="var(--mantine-radius-default)"
       padding="md"
       scrollAreaComponent={Box}
+      styles={{
+        content: {
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+        },
+        header: {
+          backgroundColor: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border)',
+          paddingBottom: 12,
+        },
+      }}
     >
-      <Stack gap="md">
+      <Stack gap="md" mt="xs">
         {/* Controls Toolbar */}
         <Paper
-          p="xs"
+          p="sm"
           radius="var(--mantine-radius-default)"
           withBorder
-          style={{ backgroundColor: 'var(--bg-app)' }}
+          style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border)' }}
         >
-          <Group justify="space-between" wrap="wrap">
-            <Group gap="md">
+          <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+            <Group gap="md" wrap="wrap">
               <Box>
-                <Text size="xs" fw={700} c="dimmed" mb={2}>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="dimmed"
+                  mb={4}
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.04em' }}
+                >
                   PAPER SIZE
                 </Text>
                 <SegmentedControl
@@ -99,11 +149,22 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
                     { label: 'A4 Standard', value: 'a4' },
                     { label: 'A5 Compact', value: 'a5' },
                   ]}
+                  styles={{
+                    root: { backgroundColor: 'var(--bg-card)' },
+                    label: { fontWeight: 600, fontSize: 11 },
+                  }}
                 />
               </Box>
 
               <Box>
-                <Text size="xs" fw={700} c="dimmed" mb={2}>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="dimmed"
+                  mb={4}
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.04em' }}
+                >
                   COPY TYPE
                 </Text>
                 <SegmentedControl
@@ -112,20 +173,25 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
                   onChange={(val) => setCopyMode(val as 'customer' | 'office')}
                   data={[
                     { label: 'Customer Copy', value: 'customer' },
-                    { label: 'Office Copy (Duplicate)', value: 'office' },
+                    { label: 'Office Duplicate', value: 'office' },
                   ]}
+                  styles={{
+                    root: { backgroundColor: 'var(--bg-card)' },
+                    label: { fontWeight: 600, fontSize: 11 },
+                  }}
                 />
               </Box>
             </Group>
 
-            <Group gap="xs">
+            <Group gap="xs" align="center">
               <Button
                 size="sm"
                 color="blue"
                 leftSection={<IconPrinter size={16} />}
                 onClick={handlePrint}
+                style={{ fontWeight: 700 }}
               >
-                Print Invoice
+                Print Invoice (↵)
               </Button>
               <Button
                 size="sm"
@@ -136,7 +202,13 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
               >
                 Download PDF
               </Button>
-              <Button size="sm" variant="subtle" color="gray" onClick={onClose}>
+              <Button
+                size="sm"
+                variant="subtle"
+                color="gray"
+                leftSection={<IconX size={14} />}
+                onClick={onClose}
+              >
                 Close
               </Button>
             </Group>
@@ -144,12 +216,11 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
         </Paper>
 
         {/* Scaled Preview Box */}
-        {/* The invoice inside is a fixed 210mm (~794px) page, so the box has to scroll on both axes
-            — otherwise the sides of the document are simply unreachable on a narrow screen. */}
         <Box
           style={{
-            backgroundColor: '#64748B',
+            backgroundColor: 'var(--bg-app)',
             borderRadius: 'var(--mantine-radius-default)',
+            border: '1px solid var(--border)',
             padding: '24px 12px',
             maxHeight: '65vh',
             overflow: 'auto',
@@ -162,7 +233,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
             style={{
               transform: `scale(${isMobile ? 0.5 : 0.85})`,
               transformOrigin: 'top center',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
               borderRadius: '4px',
               backgroundColor: '#FFFFFF',
             }}

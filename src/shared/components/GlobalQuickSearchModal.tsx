@@ -32,6 +32,7 @@ import { Product } from '@/features/inventory/types';
 import { Customer } from '@/features/customers/types';
 import { RepairJob } from '@/features/repairs/types';
 import { PrintJob } from '@/features/print-jobs/types';
+import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 
 export function GlobalQuickSearchModal() {
   const [opened, setOpened] = useState(false);
@@ -43,17 +44,10 @@ export function GlobalQuickSearchModal() {
   const [repairs, setRepairs] = useState<RepairJob[]>([]);
   const [printJobs, setPrintJobs] = useState<PrintJob[]>([]);
 
-  // Listen for Cmd+K / Ctrl+K
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setOpened((prev) => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Ctrl+K (Cmd+K on Mac, handled by the engine treating 'ctrl' as ctrlKey||metaKey)
+  useAppShortcuts([
+    { key: 'Ctrl+K', ignoreInput: true, handler: () => setOpened((prev) => !prev) },
+  ]);
 
   // Fetch data when modal opens
   useEffect(() => {

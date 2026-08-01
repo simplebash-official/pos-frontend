@@ -419,7 +419,8 @@ export function SettingsPage() {
                       Preview Before Printing
                     </Text>
                     <Text size="xs" c="dimmed">
-                      Automatically open document preview modal after checkout instead of direct printing.
+                      Automatically open document preview modal after checkout instead of direct
+                      printing.
                     </Text>
                   </div>
                   <Switch

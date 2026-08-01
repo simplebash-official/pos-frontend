@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
 import {
   Paper,
   Stack,
@@ -43,16 +43,25 @@ import { formatMoney } from '@/shared/lib/money';
 import { AmountInput } from '@/shared/components/AmountInput';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import type { SplitPaymentDetail } from '../types';
+import type { Invoice, SplitPaymentDetail } from '../types';
 import { notifications } from '@mantine/notifications';
 
 export interface PaymentPanelProps {
   isProcessing: boolean;
   onCompleteCheckout: () => void;
   onOpenOrderDiscount?: () => void;
+  onPreviewInvoice: (invoice: Invoice) => void;
 }
 
-export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelProps) {
+export interface PaymentPanelHandle {
+  /** Runs the exact same path as clicking the primary action button, including the credit guardrail. */
+  triggerPrimaryAction: () => void;
+}
+
+export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(function PaymentPanel(
+  { isProcessing, onCompleteCheckout, onPreviewInvoice },
+  ref
+) {
   const {
     items,
     subtotalCents,
@@ -84,7 +93,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
     startNextSale,
   } = useCart();
 
-  const { printReceipt, previewInvoiceDoc } = usePrint();
+  const { printReceipt } = usePrint();
 
   const isMobile = useIsMobile();
   const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
@@ -107,18 +116,14 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
   const [confirmCreditRequired, setConfirmCreditRequired] = useState(false);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // New Sale CTA button ref for auto-focusing in confirmation mode
-  const newSaleButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (completedSale) {
-      setTimeout(() => newSaleButtonRef.current?.focus(), 50);
-    }
-  }, [completedSale]);
-
   // Calculate order discount cents based on mode & input
   const calculatedDiscountCents = useMemo(() => {
-    if (!showDiscountInput || typeof discountInput !== 'number' || discountInput <= 0 || subtotalCents <= 0) {
+    if (
+      !showDiscountInput ||
+      typeof discountInput !== 'number' ||
+      discountInput <= 0 ||
+      subtotalCents <= 0
+    ) {
       return 0;
     }
     if (discountMode === 'percentage') {
@@ -292,6 +297,10 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
     onCompleteCheckout();
   };
 
+  // Exposes the same guardrailed path the button click goes through, so keyboard
+  // shortcuts (e.g. BillingCounter's F2) can't bypass the credit-limit confirmation.
+  useImperativeHandle(ref, () => ({ triggerPrimaryAction: handlePrimaryAction }));
+
   const paymentTiles = [
     { id: PAYMENT_METHODS.CASH, label: 'Cash', icon: IconCash, disabled: false },
     {
@@ -315,7 +324,8 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
     let printStatusText = 'No print requested';
     if (invoice.documentSelection === 'receipt') printStatusText = 'Receipt sent to printer';
     else if (invoice.documentSelection === 'invoice') printStatusText = 'Invoice sent to printer';
-    else if (invoice.documentSelection === 'both') printStatusText = 'Receipt & Invoice sent to printer';
+    else if (invoice.documentSelection === 'both')
+      printStatusText = 'Receipt & Invoice sent to printer';
 
     return (
       <Paper
@@ -431,7 +441,13 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                   textAlign: 'center',
                 }}
               >
-                <Text size="xs" fw={700} c="blue.9" tt="uppercase" style={{ letterSpacing: '0.06em' }}>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="blue.9"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.06em' }}
+                >
                   EXACT CASH RECEIVED
                 </Text>
                 <Text fw={700} size="sm" c="blue.8" mt={2}>
@@ -448,7 +464,13 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                   textAlign: 'center',
                 }}
               >
-                <Text size="xs" fw={700} c="blue.9" tt="uppercase" style={{ letterSpacing: '0.06em' }}>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="blue.9"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.06em' }}
+                >
                   PAID VIA {invoice.paymentMethod.toUpperCase()}
                 </Text>
                 <Text fw={700} size="sm" c="blue.8" mt={2}>
@@ -533,68 +555,142 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
           }}
         >
           <Stack gap="xs">
-            {/* Primary focus button: New Sale (N / Enter) */}
-            <Button
-              ref={newSaleButtonRef}
-              fullWidth
-              size="lg"
-              color="blue"
-              leftSection={<IconPlus size={18} />}
-              onClick={() => startNextSale()}
-              style={{
-                height: isMobile ? 54 : 48,
-                fontSize: 16,
-                fontWeight: 700,
-                borderRadius: 'var(--mantine-radius-default)',
-              }}
-            >
-              New Sale (N)
-            </Button>
+            {invoice.documentSelection === 'invoice' || invoice.documentSelection === 'both' ? (
+              <>
+                {/* Primary action: Print Invoice (P / Enter via the shortcut engine) */}
+                <Button
+                  fullWidth
+                  size="lg"
+                  color="blue"
+                  leftSection={<IconPrinter size={20} />}
+                  onClick={() => onPreviewInvoice(invoice)}
+                  style={{
+                    height: isMobile ? 54 : 48,
+                    fontSize: 16,
+                    fontWeight: 700,
+                    borderRadius: 'var(--mantine-radius-default)',
+                  }}
+                >
+                  Print Invoice (P / ↵)
+                </Button>
 
-            {/* Secondary row */}
-            <Group gap="xs" grow>
-              <Button
-                size="xs"
-                variant="outline"
-                color="gray"
-                leftSection={<IconPrinter size={14} />}
-                onClick={() => printReceipt(invoice)}
-              >
-                Reprint (R)
-              </Button>
-              <Button
-                size="xs"
-                variant="outline"
-                color="violet"
-                leftSection={<IconFileText size={14} />}
-                onClick={() => previewInvoiceDoc(invoice)}
-              >
-                Preview (I)
-              </Button>
-              <Button
-                size="xs"
-                variant="light"
-                color="gray"
-                leftSection={<IconShare size={14} />}
-                onClick={() => {
-                  if (navigator.clipboard) {
-                    navigator.clipboard.writeText(`Invoice #${invoice.invoiceNumber} - Total: ${formatMoney(invoice.totalCents)}`);
-                    notifications.show({
-                      title: 'Copied',
-                      message: 'Invoice info copied to clipboard',
-                      color: 'green',
-                    });
-                  }
-                }}
-              >
-                Share
-              </Button>
-            </Group>
+                {/* Secondary row */}
+                <Group gap="xs" grow>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    color="gray"
+                    leftSection={<IconPlus size={14} />}
+                    onClick={() => startNextSale()}
+                  >
+                    New Sale (N)
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    color="gray"
+                    leftSection={<IconRotate size={14} />}
+                    onClick={() => printReceipt(invoice)}
+                  >
+                    Reprint (R)
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="gray"
+                    leftSection={<IconShare size={14} />}
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(
+                          `Invoice #${invoice.invoiceNumber} - Total: ${formatMoney(invoice.totalCents)}`
+                        );
+                        notifications.show({
+                          title: 'Copied',
+                          message: 'Invoice info copied to clipboard',
+                          color: 'green',
+                        });
+                      }
+                    }}
+                  >
+                    Share
+                  </Button>
+                </Group>
 
-            {!isMobile && (
-              <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }}>
-                Press <strong>N</strong> or <strong>Enter</strong> to start next sale · <strong>R</strong> to reprint · <strong>I</strong> for preview
-              </Text>
+                {!isMobile && (
+                  <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }}>
+                    Press <strong>Enter</strong> or <strong>P</strong> to print invoice · Press{' '}
+                    <strong>N</strong> for new sale
+                  </Text>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Primary action: New Sale (N / Enter via the shortcut engine) */}
+                <Button
+                  fullWidth
+                  size="lg"
+                  color="blue"
+                  leftSection={<IconPlus size={18} />}
+                  onClick={() => startNextSale()}
+                  style={{
+                    height: isMobile ? 54 : 48,
+                    fontSize: 16,
+                    fontWeight: 700,
+                    borderRadius: 'var(--mantine-radius-default)',
+                  }}
+                >
+                  New Sale (N / ↵)
+                </Button>
+
+                {/* Secondary row */}
+                <Group gap="xs" grow>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    color="gray"
+                    leftSection={<IconPrinter size={14} />}
+                    onClick={() => printReceipt(invoice)}
+                  >
+                    Reprint (R)
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    color="violet"
+                    leftSection={<IconFileText size={14} />}
+                    onClick={() => onPreviewInvoice(invoice)}
+                  >
+                    Preview (I)
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="gray"
+                    leftSection={<IconShare size={14} />}
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(
+                          `Invoice #${invoice.invoiceNumber} - Total: ${formatMoney(invoice.totalCents)}`
+                        );
+                        notifications.show({
+                          title: 'Copied',
+                          message: 'Invoice info copied to clipboard',
+                          color: 'green',
+                        });
+                      }
+                    }}
+                  >
+                    Share
+                  </Button>
+                </Group>
+
+                {!isMobile && (
+                  <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }}>
+                    Press <strong>N</strong> or <strong>Enter</strong> to start next sale ·{' '}
+                    <strong>R</strong> to reprint · <strong>I</strong> for preview
+                  </Text>
+                )}
+              </>
             )}
           </Stack>
         </Box>
@@ -694,7 +790,10 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                       ]}
                       style={{ width: 90 }}
                       styles={{
-                        root: { padding: 2, backgroundColor: 'light-dark(#ffffff, var(--bg-card))' },
+                        root: {
+                          padding: 2,
+                          backgroundColor: 'light-dark(#ffffff, var(--bg-card))',
+                        },
                         label: { padding: '2px 8px', fontSize: 11, fontWeight: 700 },
                       }}
                     />
@@ -1202,16 +1301,16 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                 {documentSelection === 'receipt'
                   ? 'Default for walk-in'
                   : documentSelection === 'invoice'
-                  ? 'Default for account'
-                  : ''}
+                    ? 'Default for account'
+                    : ''}
               </Text>
             </Group>
 
             <SimpleGrid cols={{ base: 2, lg: 4 }} spacing={6}>
               {(
                 [
-                  { label: 'Receipt (80mm)', value: 'receipt' },
-                  { label: 'Invoice (A4)', value: 'invoice' },
+                  { label: 'Receipt', value: 'receipt' },
+                  { label: 'Invoice', value: 'invoice' },
                   { label: 'Both', value: 'both' },
                   { label: 'No print', value: 'none' },
                 ] as const
@@ -1303,4 +1402,4 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
       </Box>
     </Paper>
   );
-}
+});

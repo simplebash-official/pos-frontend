@@ -49,6 +49,16 @@ The app targets three layout tiers. `src/styles/theme.ts` defines **no** custom 
 
 Verify with the real thing: `npm run dev`, then walk the full flow at 375, 414, 768, 1024, 1280 and 1920 — plus at least one pass in dark mode — and assert `document.documentElement.scrollWidth <= window.innerWidth` at every width.
 
+## Keyboard shortcuts
+
+`useAppShortcuts` (`src/shared/hooks/useShortcuts.ts`) is the single global keyboard-shortcut engine — bind through it rather than a component-local `window.addEventListener('keydown', ...)`. Pass an array of `{ key, handler, ignoreInput?, preventDefault? }` entries; `key` is a combo string like `"Enter"`, `"F2"`, `"Ctrl+D"`, `"Ctrl+Shift+H"`, or `"?"` (`ctrl` matches both `ctrlKey` and `metaKey`, so one combo covers Windows/Linux Ctrl and Mac Cmd).
+
+Shortcuts are scoped and stack: a call to `useAppShortcuts(shortcuts, isActive)` registers while `isActive` is true, and the most-recently-activated scope sees a keypress first — if it handles the key, scopes registered earlier (e.g. the billing page underneath an open modal) never see it. This is how a modal binds its own `Enter`/`Escape` and have it take priority over the page behind it without either side coordinating — see `A4InvoicePreviewModal`'s `Enter` → print binding, which fires the print handler directly rather than focusing the Print button (don't reintroduce the old pattern of `ref.focus()`-ing a button just to make Enter click it; bind the key instead).
+
+`ignoreInput: true` makes a shortcut fire even while a text `<input>`/`<textarea>`/contenteditable elsewhere has focus (used for things like F-keys and Ctrl-combos that should work globally); omit it for shortcuts that should be suppressed while the user is typing.
+
+Shortcut hint labels baked into component text (`"(F2)"`, `"Hold (Ctrl+H)"`, etc.) and `KeyboardShortcutsModal.tsx`'s shortcut list are hand-maintained, not generated from the registry — a deliberate scope decision, so update both by hand when a binding changes.
+
 ## Architecture
 
 **Entry chain**: `index.html` → `src/main.tsx` → `src/app/App.tsx` → `AppProviders` (`src/app/providers.tsx`) wraps `RouterProvider` (`src/app/router.tsx`).

@@ -12,6 +12,7 @@ import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { HeldSalesDrawer } from '@/features/billing/components/HeldSalesDrawer';
 import { KeyboardShortcutsModal } from '@/features/billing/components/KeyboardShortcutsModal';
+import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
@@ -40,16 +41,10 @@ export function AppShell() {
   }, [location.pathname]);
 
   // F11 focus mode hotkey
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'F11' && isBillingPage) {
-        e.preventDefault();
-        setFocusMode((prev) => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isBillingPage]);
+  useAppShortcuts(
+    [{ key: 'F11', ignoreInput: true, handler: () => setFocusMode((prev) => !prev) }],
+    isBillingPage
+  );
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;

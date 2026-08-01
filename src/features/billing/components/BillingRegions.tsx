@@ -1,10 +1,13 @@
+import type { Ref } from 'react';
 import { Box, Grid, SegmentedControl } from '@mantine/core';
 
 import { CatalogPanel } from './CatalogPanel';
 import { CartPanel } from './CartPanel';
-import { PaymentPanel } from './PaymentPanel';
+import { PaymentPanel, type PaymentPanelHandle } from './PaymentPanel';
 import { BillingSummaryStrip, BillingTabBar, type BillingPane } from './BillingTabBar';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+
+import type { Invoice } from '../types';
 
 export interface BillingRegionsProps {
   activePane: BillingPane;
@@ -14,6 +17,8 @@ export interface BillingRegionsProps {
   onOpenServicePicker: () => void;
   onOpenCustomerPicker: () => void;
   onOpenOrderDiscount: () => void;
+  onPreviewInvoice: (invoice: Invoice) => void;
+  paymentPanelRef: Ref<PaymentPanelHandle>;
 }
 
 /** Every region fills its container and scrolls internally; the page itself never scrolls. */
@@ -35,6 +40,8 @@ export function BillingRegions({
   onOpenServicePicker,
   onOpenCustomerPicker,
   onOpenOrderDiscount,
+  onPreviewInvoice,
+  paymentPanelRef,
 }: BillingRegionsProps) {
   const tier = useLayoutTier();
 
@@ -47,9 +54,11 @@ export function BillingRegions({
   );
   const payment = (
     <PaymentPanel
+      ref={paymentPanelRef}
       isProcessing={isProcessing}
       onCompleteCheckout={onCompleteCheckout}
       onOpenOrderDiscount={onOpenOrderDiscount}
+      onPreviewInvoice={onPreviewInvoice}
     />
   );
 
