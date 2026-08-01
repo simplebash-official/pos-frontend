@@ -1,4 +1,4 @@
-import { CURRENCY, TAX_RATE } from '@/constants';
+import { CURRENCY } from '@/constants';
 
 /**
  * Converts a floating point currency value (e.g. 15.50) into integer cents/paisa (1550).
@@ -42,7 +42,7 @@ export function parseMoneyToCents(input: string): number {
 /**
  * Calculates tax in integer cents based on tax rate.
  */
-export function calculateTaxCents(subtotalCents: number, rate = TAX_RATE): number {
+export function calculateTaxCents(subtotalCents: number, rate = 0.08): number {
   return Math.round(subtotalCents * rate);
 }
 

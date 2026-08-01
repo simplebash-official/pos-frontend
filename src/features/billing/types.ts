@@ -30,6 +30,9 @@ export interface Invoice {
   customerId?: string;
   customerName?: string;
   customerPhone?: string;
+  customerAddress?: string;
+  cashierId?: string;
+  cashierName?: string;
   subtotalCents: number;
   taxCents: number;
   discountCents: number;
@@ -39,8 +42,12 @@ export interface Invoice {
   isCredit?: boolean;
   tenderedAmountCents?: number;
   changeDueCents?: number;
+  dueDate?: string;
   status: 'paid' | 'pending' | 'cancelled';
   createdAt: string;
   items: InvoiceItem[];
   notes?: string;
+  shopProfileVersion?: number;
+  warrantyTermsSnapshot?: string;
+  documentSelection?: 'receipt' | 'invoice' | 'both' | 'none';
 }

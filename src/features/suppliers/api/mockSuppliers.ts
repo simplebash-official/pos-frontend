@@ -36,11 +36,19 @@ export function normalizeSupplier(rawInput: unknown): Supplier {
     const nameLower = rawName.toLowerCase();
     if (rawId === 'sup-1' || nameLower.includes('colombo')) {
       phone = '077 123 4567';
-    } else if (rawId === 'sup-2' || nameLower.includes('lanka') || nameLower.includes('sublimation')) {
+    } else if (
+      rawId === 'sup-2' ||
+      nameLower.includes('lanka') ||
+      nameLower.includes('sublimation')
+    ) {
       phone = '071 888 9999';
     } else if (rawId === 'sup-3' || nameLower.includes('tech') || nameLower.includes('haven')) {
       phone = '075 222 3333';
-    } else if (rawId === 'sup-4' || nameLower.includes('printmaster') || nameLower.includes('paper')) {
+    } else if (
+      rawId === 'sup-4' ||
+      nameLower.includes('printmaster') ||
+      nameLower.includes('paper')
+    ) {
       phone = '076 555 4321';
     } else if (rawId === 'sup-5' || nameLower.includes('chemical') || nameLower.includes('ink')) {
       phone = '072 999 1111';
@@ -62,11 +70,19 @@ export function normalizeSupplier(rawInput: unknown): Supplier {
     const nameLower = rawName.toLowerCase();
     if (rawId === 'sup-1' || nameLower.includes('colombo')) {
       secPhone = '011 234 5678';
-    } else if (rawId === 'sup-2' || nameLower.includes('lanka') || nameLower.includes('sublimation')) {
+    } else if (
+      rawId === 'sup-2' ||
+      nameLower.includes('lanka') ||
+      nameLower.includes('sublimation')
+    ) {
       secPhone = '011 456 7890';
     } else if (rawId === 'sup-3' || nameLower.includes('tech') || nameLower.includes('haven')) {
       secPhone = '077 444 5555';
-    } else if (rawId === 'sup-4' || nameLower.includes('printmaster') || nameLower.includes('paper')) {
+    } else if (
+      rawId === 'sup-4' ||
+      nameLower.includes('printmaster') ||
+      nameLower.includes('paper')
+    ) {
       secPhone = '011 777 8888';
     } else if (rawId === 'sup-5' || nameLower.includes('chemical') || nameLower.includes('ink')) {
       secPhone = '011 888 7777';

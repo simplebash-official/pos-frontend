@@ -4,8 +4,6 @@ export const CURRENCY = {
   decimals: 0,
 };
 
-export const TAX_RATE = 0.08; // 8% default tax rate
-
 export const PAYMENT_METHODS = {
   CASH: 'cash',
   CARD: 'card',

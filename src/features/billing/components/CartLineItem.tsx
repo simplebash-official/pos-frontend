@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Paper, Group, Box, Text, ActionIcon, Tooltip, Stack, Badge, ThemeIcon } from '@mantine/core';
+import {
+  Paper,
+  Group,
+  Box,
+  Text,
+  ActionIcon,
+  Tooltip,
+  Stack,
+  Badge,
+  ThemeIcon,
+} from '@mantine/core';
 import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
@@ -85,12 +95,22 @@ export function CartLineItem({
                 {item.name}
               </Text>
               {sourceType === 'repair' && (
-                <Badge size="xs" color="orange" variant="light" leftSection={<IconTools size={10} />}>
+                <Badge
+                  size="xs"
+                  color="orange"
+                  variant="light"
+                  leftSection={<IconTools size={10} />}
+                >
                   Repair
                 </Badge>
               )}
               {sourceType === 'print' && (
-                <Badge size="xs" color="teal" variant="light" leftSection={<IconPrinter size={10} />}>
+                <Badge
+                  size="xs"
+                  color="teal"
+                  variant="light"
+                  leftSection={<IconPrinter size={10} />}
+                >
                   Print
                 </Badge>
               )}

@@ -41,11 +41,15 @@ interface CartState {
   customerId: string | null;
   customerName: string | null;
   customerPhone: string | null;
+  customerAddress: string | null;
   customerBalanceCents: number;
   discountCents: number;
   paymentMethod: PaymentMethod;
   splitPayments: SplitPaymentDetail[];
   isCredit: boolean;
+  tenderedAmountCents: number;
+  documentSelection: 'receipt' | 'invoice' | 'both' | 'none';
+  dueDate: string | null;
   cardRef: string;
   onlineRef: string;
   onlineNote: string;
@@ -79,11 +83,15 @@ const initialState: CartState = {
   customerId: null,
   customerName: null,
   customerPhone: null,
+  customerAddress: null,
   customerBalanceCents: 0,
   discountCents: 0,
   paymentMethod: PAYMENT_METHODS.CASH,
   splitPayments: [],
   isCredit: false,
+  tenderedAmountCents: 0,
+  documentSelection: 'receipt',
+  dueDate: null,
   cardRef: '',
   onlineRef: '',
   onlineNote: '',
@@ -195,16 +203,33 @@ const cartSlice = createSlice({
         id: string | null;
         name: string | null;
         phone?: string | null;
+        address?: string | null;
         outstandingBalanceCents?: number;
       }>
     ) => {
       state.customerId = action.payload.id;
       state.customerName = action.payload.name;
       state.customerPhone = action.payload.phone ?? null;
+      state.customerAddress = action.payload.address ?? null;
       state.customerBalanceCents = action.payload.outstandingBalanceCents ?? 0;
       if (!action.payload.id) {
         state.isCredit = false;
       }
+    },
+
+    setTenderedAmountCents: (state, action: PayloadAction<number>) => {
+      state.tenderedAmountCents = action.payload;
+    },
+
+    setDocumentSelection: (
+      state,
+      action: PayloadAction<'receipt' | 'invoice' | 'both' | 'none'>
+    ) => {
+      state.documentSelection = action.payload;
+    },
+
+    setDueDate: (state, action: PayloadAction<string | null>) => {
+      state.dueDate = action.payload;
     },
 
     setDiscountCents: (state, action: PayloadAction<number>) => {
@@ -312,9 +337,13 @@ const cartSlice = createSlice({
       state.customerId = null;
       state.customerName = null;
       state.customerPhone = null;
+      state.customerAddress = null;
       state.customerBalanceCents = 0;
       state.discountCents = 0;
       state.isCredit = false;
+      state.tenderedAmountCents = 0;
+      state.documentSelection = 'receipt';
+      state.dueDate = null;
       state.cardRef = '';
       state.onlineRef = '';
       state.onlineNote = '';
@@ -334,6 +363,9 @@ export const {
   updateQuantity,
   updateLineDiscount,
   setCustomer,
+  setTenderedAmountCents,
+  setDocumentSelection,
+  setDueDate,
   setDiscountCents,
   setPaymentMethod,
   setSplitPayments,
@@ -355,10 +387,15 @@ export const selectCartDiscountCents = (state: { cart: CartState }) => state.car
 export const selectHeldCarts = (state: { cart: CartState }) => state.cart.heldCarts;
 export const selectLastRemovedItem = (state: { cart: CartState }) => state.cart.lastRemovedItem;
 export const selectSoundEnabled = (state: { cart: CartState }) => state.cart.soundEnabled;
+export const selectTenderedAmountCents = (state: { cart: CartState }) =>
+  state.cart.tenderedAmountCents;
+export const selectDocumentSelection = (state: { cart: CartState }) => state.cart.documentSelection;
+export const selectDueDate = (state: { cart: CartState }) => state.cart.dueDate;
 export const selectCustomerInfo = (state: { cart: CartState }) => ({
   id: state.cart.customerId,
   name: state.cart.customerName,
   phone: state.cart.customerPhone,
+  address: state.cart.customerAddress,
   balanceCents: state.cart.customerBalanceCents,
 });
 

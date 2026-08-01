@@ -10,30 +10,38 @@ import {
   Button,
   ThemeIcon,
   Badge,
+  Progress,
 } from '@mantine/core';
-import { IconCheck, IconPrinter, IconRefresh } from '@tabler/icons-react';
+import { IconCheck, IconPrinter, IconFileText, IconPlus } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext } from 'react-router-dom';
 
 import { useCart } from '../hooks/useCart';
+import { usePrint } from '../hooks/usePrint';
 import { CatalogPanel } from './CatalogPanel';
 import { CartPanel } from './CartPanel';
 import { PaymentPanel } from './PaymentPanel';
 import { ServiceJobPickerModal } from './ServiceJobPickerModal';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { DiscountPopover } from './DiscountPopover';
+import { A4InvoicePreviewModal } from './A4InvoicePreviewModal';
 import { createInvoice } from '../api/mockInvoices';
 import { updateRepairJob } from '@/features/repairs/api/mockRepairs';
 import { updatePrintJob } from '@/features/print-jobs/api/mockPrintJobs';
 import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
-import { triggerThermalPrint } from '@/shared/lib/print';
 import { playPaymentCompleteSound } from '../lib/audio';
+import { useAppSelector } from '@/store/hooks';
+import { selectAuthUser } from '@/store/slices/authSlice';
+import { selectShopProfile } from '@/store/slices/settingsSlice';
+import type { Invoice } from '../types';
 
 export function BillingCounter() {
   const queryClient = useQueryClient();
+  const authUser = useAppSelector(selectAuthUser);
+  const shopProfile = useAppSelector(selectShopProfile);
   const outletContext = useOutletContext<{
     setHeldDrawerOpen?: (open: boolean) => void;
     setShortcutsOpen?: (open: boolean) => void;
@@ -43,12 +51,17 @@ export function BillingCounter() {
     items,
     customerId,
     customerName,
+    customerPhone,
+    customerAddress,
     discountCents,
     subtotalCents,
     totalCents,
     paymentMethod,
     splitPayments,
     isCredit,
+    tenderedAmountCents,
+    documentSelection,
+    dueDate,
     notes,
     soundEnabled,
     attachCustomer,
@@ -57,6 +70,14 @@ export function BillingCounter() {
     clear,
   } = useCart();
 
+  const {
+    printReceipt,
+    previewInvoiceDoc,
+    previewModalOpen,
+    previewInvoiceData,
+    closePreviewModal,
+  } = usePrint();
+
   // Modals state
   const [servicePickerOpen, setServicePickerOpen] = useState(false);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
@@ -64,17 +85,44 @@ export function BillingCounter() {
 
   // Processing & Success screen state
   const [isProcessing, setIsProcessing] = useState(false);
-  const [lastCompletedInvoice, setLastCompletedInvoice] = useState<{
-    invoiceNumber: string;
-    totalCents: number;
-    changeDueCents: number;
-    paymentMethod: string;
-    customerName: string;
-    items: typeof items;
-  } | null>(null);
-
+  const [lastCompletedInvoice, setLastCompletedInvoice] = useState<Invoice | null>(null);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
-  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Timer & Countdown progress state
+  const [countdownProgress, setCountdownProgress] = useState(100);
+  const [isHovered, setIsHovered] = useState(false);
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const elapsedMsRef = useRef(0);
+
+  // Auto-dismiss countdown timer logic
+  useEffect(() => {
+    if (!showSuccessOverlay) {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      elapsedMsRef.current = 0;
+      return;
+    }
+
+    const durationMs = 4000;
+    const stepMs = 50;
+    elapsedMsRef.current = 0;
+
+    timerIntervalRef.current = setInterval(() => {
+      if (isHovered) return; // Pause timer on hover/focus
+
+      elapsedMsRef.current += stepMs;
+      const remainingPct = Math.max(0, ((durationMs - elapsedMsRef.current) / durationMs) * 100);
+      setCountdownProgress(remainingPct);
+
+      if (elapsedMsRef.current >= durationMs) {
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        setShowSuccessOverlay(false);
+      }
+    }, stepMs);
+
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+  }, [showSuccessOverlay, isHovered]);
 
   // Complete Payment Action
   const handleCompleteCheckout = useCallback(async () => {
@@ -82,10 +130,21 @@ export function BillingCounter() {
 
     setIsProcessing(true);
     try {
+      const calculatedChangeCents =
+        paymentMethod === PAYMENT_METHODS.CASH
+          ? Math.max(0, (tenderedAmountCents || 0) - totalCents)
+          : 0;
+
+      const cashierName = authUser?.name || 'Store Cashier';
+
       // Create invoice record
       const invoice = await createInvoice({
         customerId: customerId || undefined,
         customerName: customerName || undefined,
+        customerPhone: customerPhone || undefined,
+        customerAddress: customerAddress || undefined,
+        cashierId: authUser?.id || 'usr-cashier',
+        cashierName,
         items: items.map((i) => ({
           id: i.id,
           productId: i.productId,
@@ -102,14 +161,25 @@ export function BillingCounter() {
           assignedEmployeeName: i.assignedEmployeeName,
         })),
         subtotalCents,
-        taxCents: 0,
+        taxCents: shopProfile.isVatRegistered ? Math.round(subtotalCents * shopProfile.vatRate) : 0,
         discountCents,
-        totalCents,
+        totalCents: shopProfile.isVatRegistered
+          ? subtotalCents - discountCents + Math.round(subtotalCents * shopProfile.vatRate)
+          : totalCents,
         paymentMethod,
         splitPayments,
         isCredit,
+        tenderedAmountCents:
+          paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
+        changeDueCents: calculatedChangeCents,
+        dueDate: isCredit
+          ? dueDate || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
+          : undefined,
         status: isCredit ? 'pending' : 'paid',
         notes,
+        shopProfileVersion: shopProfile.version,
+        warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
+        documentSelection,
       });
 
       // Update service tickets status to 'delivered' if applicable
@@ -130,28 +200,19 @@ export function BillingCounter() {
       // Play chime sound
       playPaymentCompleteSound(soundEnabled);
 
-      // Trigger Thermal Receipt Printing
-      triggerThermalPrint('thermal-receipt-printable');
+      // Trigger automatic printing according to documentSelection
+      if (documentSelection === 'receipt' || documentSelection === 'both') {
+        printReceipt(invoice);
+      }
+      if (documentSelection === 'invoice' || documentSelection === 'both') {
+        previewInvoiceDoc(invoice);
+      }
 
-      // Set last invoice snapshot for success overlay & thermal receipt
-      const snapshot = {
-        invoiceNumber: invoice.invoiceNumber,
-        totalCents: invoice.totalCents,
-        changeDueCents: invoice.changeDueCents || 0,
-        paymentMethod,
-        customerName: customerName || 'Walk-in Guest',
-        items: [...items],
-      };
-      setLastCompletedInvoice(snapshot);
+      setLastCompletedInvoice(invoice);
       setShowSuccessOverlay(true);
 
-      // Auto-clear cart and auto-reset after 2.5s
+      // Clear cart
       clear();
-
-      if (successTimerRef.current) clearTimeout(successTimerRef.current);
-      successTimerRef.current = setTimeout(() => {
-        setShowSuccessOverlay(false);
-      }, 2500);
     } catch {
       notifications.show({
         title: 'Checkout Error',
@@ -166,22 +227,30 @@ export function BillingCounter() {
     isProcessing,
     customerId,
     customerName,
+    customerPhone,
+    customerAddress,
     subtotalCents,
     discountCents,
     totalCents,
     paymentMethod,
     splitPayments,
     isCredit,
+    tenderedAmountCents,
+    dueDate,
+    documentSelection,
     notes,
     soundEnabled,
+    authUser,
+    shopProfile,
     clear,
     queryClient,
+    printReceipt,
+    previewInvoiceDoc,
   ]);
 
   // Global Cashier Hotkeys Binding
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if active element is an input inside a modal
       if (e.key === 'F1') {
         e.preventDefault();
         const scanBar = document.querySelector(
@@ -219,10 +288,10 @@ export function BillingCounter() {
       } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'h') {
         e.preventDefault();
         outletContext.setHeldDrawerOpen?.(true);
-      } else if (e.ctrlKey && e.key.toLowerCase() === 'p') {
+      } else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         if (lastCompletedInvoice) {
-          triggerThermalPrint('thermal-receipt-printable');
+          printReceipt(lastCompletedInvoice);
         } else {
           notifications.show({
             title: 'Reprint Last Receipt',
@@ -230,6 +299,39 @@ export function BillingCounter() {
             color: 'orange',
           });
         }
+      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        if (lastCompletedInvoice) {
+          previewInvoiceDoc(lastCompletedInvoice);
+        } else {
+          notifications.show({
+            title: 'Preview Last Invoice',
+            message: 'No previous invoice found to preview',
+            color: 'orange',
+          });
+        }
+      } else if (e.key === 'Enter' && showSuccessOverlay) {
+        e.preventDefault();
+        setShowSuccessOverlay(false);
+      } else if (e.key === 'Escape' && showSuccessOverlay) {
+        e.preventDefault();
+        setShowSuccessOverlay(false);
+      } else if (
+        e.key.toLowerCase() === 'r' &&
+        showSuccessOverlay &&
+        lastCompletedInvoice &&
+        (e.target as HTMLElement)?.tagName !== 'INPUT'
+      ) {
+        e.preventDefault();
+        printReceipt(lastCompletedInvoice);
+      } else if (
+        e.key.toLowerCase() === 'i' &&
+        showSuccessOverlay &&
+        lastCompletedInvoice &&
+        (e.target as HTMLElement)?.tagName !== 'INPUT'
+      ) {
+        e.preventDefault();
+        previewInvoiceDoc(lastCompletedInvoice);
       } else if (e.key === '?') {
         if ((e.target as HTMLElement)?.tagName !== 'INPUT') {
           e.preventDefault();
@@ -246,12 +348,15 @@ export function BillingCounter() {
     changePaymentMethod,
     outletContext,
     lastCompletedInvoice,
+    showSuccessOverlay,
+    printReceipt,
+    previewInvoiceDoc,
   ]);
 
   return (
     <Box
       style={{
-        height: 'calc(100vh - 48px)', // Fit 1366x768 monitor screen exactly
+        height: 'calc(100vh - 48px)',
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
@@ -281,9 +386,9 @@ export function BillingCounter() {
         </Grid.Col>
       </Grid>
 
-      {/* Full-Panel Green Success Confirmation Overlay (2.5s Auto-Reset) */}
+      {/* Redesigned Success Confirmation Overlay (480px Centered Card with Backdrop Blur) */}
       {showSuccessOverlay && lastCompletedInvoice && (
-        <Paper
+        <Box
           style={{
             position: 'absolute',
             top: 0,
@@ -291,128 +396,122 @@ export function BillingCounter() {
             right: 0,
             bottom: 0,
             zIndex: 1000,
-            backgroundColor: 'var(--mantine-color-green-9)',
-            color: '#FFFFFF',
+            backgroundColor: 'rgba(14, 15, 19, 0.88)',
+            backdropFilter: 'blur(8px)',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
-            justify: 'center',
-            animation: 'fadeIn 0.2s ease-out',
+            justifyContent: 'center',
+            animation: 'fadeIn 0.15s ease-out',
           }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
-          <Stack align="center" gap="md">
-            <ThemeIcon size={96} radius="xl" color="white" c="green.8">
-              <IconCheck size={64} stroke={3} />
-            </ThemeIcon>
+          <Paper
+            p="xl"
+            radius="lg"
+            style={{
+              width: 480,
+              maxWidth: '92vw',
+              backgroundColor: 'var(--bg-card)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              border: '1px solid var(--border)',
+            }}
+          >
+            <Stack align="center" gap="md">
+              <ThemeIcon size={72} radius="xl" color="green" variant="light">
+                <IconCheck size={44} stroke={3} />
+              </ThemeIcon>
 
-            <Title order={1} c="white" style={{ fontSize: 36, fontWeight: 900 }}>
-              Payment Completed!
-            </Title>
+              <Stack align="center" gap={4}>
+                <Title
+                  order={2}
+                  style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}
+                >
+                  Payment Completed!
+                </Title>
+                <Badge size="lg" color="gray" variant="light">
+                  Invoice #{lastCompletedInvoice.invoiceNumber}
+                </Badge>
+                {lastCompletedInvoice.customerName && (
+                  <Text size="sm" c="dimmed">
+                    Customer: {lastCompletedInvoice.customerName}
+                  </Text>
+                )}
+              </Stack>
 
-            <Badge size="lg" color="white" c="green.9" variant="filled">
-              Invoice #{lastCompletedInvoice.invoiceNumber}
-            </Badge>
-
-            <Text size="xl" fw={700} c="green.1">
-              Customer: {lastCompletedInvoice.customerName}
-            </Text>
-
-            {lastCompletedInvoice.changeDueCents > 0 && (
-              <Paper p="md" radius="md" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                <Stack align="center" gap={2}>
-                  <Text size="xs" fw={700} c="green.1" tt="uppercase">
+              {lastCompletedInvoice.changeDueCents ? (
+                <Paper
+                  p="md"
+                  radius="lg"
+                  style={{
+                    width: '100%',
+                    backgroundColor: 'var(--mantine-color-green-light)',
+                    border: '1px solid var(--mantine-color-green-filled)',
+                    textAlign: 'center',
+                  }}
+                >
+                  <Text
+                    size="xs"
+                    fw={700}
+                    c="green.8"
+                    tt="uppercase"
+                    style={{ letterSpacing: '0.06em' }}
+                  >
                     CHANGE DUE TO CUSTOMER
                   </Text>
-                  <Text size="3xl" fw={900} c="white" style={{ fontFamily: 'monospace' }}>
+                  <Text
+                    fw={700}
+                    c="green.9"
+                    style={{
+                      fontSize: 36,
+                      lineHeight: 1.1,
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
                     {formatMoney(lastCompletedInvoice.changeDueCents)}
                   </Text>
-                </Stack>
-              </Paper>
-            )}
+                </Paper>
+              ) : null}
 
-            <Group gap="md" mt="md">
-              <Button
-                size="md"
-                color="white"
-                c="green.9"
-                leftSection={<IconPrinter size={20} />}
-                onClick={() => triggerThermalPrint('thermal-receipt-printable')}
-              >
-                Print Receipt
-              </Button>
-              <Button
-                size="md"
-                variant="outline"
-                color="white"
-                leftSection={<IconRefresh size={20} />}
-                onClick={() => setShowSuccessOverlay(false)}
-              >
-                Start New Sale
-              </Button>
-            </Group>
-          </Stack>
-        </Paper>
+              <Group gap="sm" style={{ width: '100%' }} mt="xs">
+                <Button
+                  flex={1}
+                  variant="outline"
+                  color="blue"
+                  leftSection={<IconPrinter size={18} />}
+                  onClick={() => printReceipt(lastCompletedInvoice)}
+                >
+                  Receipt (R)
+                </Button>
+                <Button
+                  flex={1}
+                  variant="outline"
+                  color="violet"
+                  leftSection={<IconFileText size={18} />}
+                  onClick={() => previewInvoiceDoc(lastCompletedInvoice)}
+                >
+                  Invoice (I)
+                </Button>
+                <Button
+                  flex={1}
+                  color="blue"
+                  leftSection={<IconPlus size={18} />}
+                  onClick={() => setShowSuccessOverlay(false)}
+                >
+                  New Sale (↵)
+                </Button>
+              </Group>
+            </Stack>
+
+            {/* Depleting progress bar */}
+            <Box style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+              <Progress value={countdownProgress} size="xs" color="blue" radius={0} />
+            </Box>
+          </Paper>
+        </Box>
       )}
-
-      {/* Hidden Printable Thermal Receipt Container */}
-      <div style={{ display: 'none' }}>
-        <div id="thermal-receipt-printable">
-          <div className="text-center bold" style={{ fontSize: 16 }}>
-            JANA2U POS SERVICE CENTER
-          </div>
-          <div className="text-center">Phone Repairs & Custom Print Shop</div>
-          <div className="text-center">No. 12, Main Street, Colombo</div>
-          <div className="divider"></div>
-          <div>Invoice #: {lastCompletedInvoice?.invoiceNumber || 'INV-1001'}</div>
-          <div>Date: {new Date().toLocaleString()}</div>
-          <div>Cashier: Admin</div>
-          <div>Customer: {lastCompletedInvoice?.customerName || 'Walk-in Guest'}</div>
-          <div className="divider"></div>
-          {lastCompletedInvoice?.items.map((item) => (
-            <div key={item.id} style={{ marginBottom: 4 }}>
-              <div>
-                {item.name} {item.sku ? `(${item.sku})` : ''}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>
-                  {item.quantity} x {formatMoney(item.unitPriceCents)}
-                </span>
-                <span className="bold">{formatMoney(item.totalCents)}</span>
-              </div>
-            </div>
-          ))}
-          <div className="divider"></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Subtotal:</span>
-            <span>{formatMoney(lastCompletedInvoice?.totalCents || 0)}</span>
-          </div>
-          <div
-            style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}
-            className="bold"
-          >
-            <span>TOTAL:</span>
-            <span>{formatMoney(lastCompletedInvoice?.totalCents || 0)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Payment Method:</span>
-            <span>{lastCompletedInvoice?.paymentMethod.toUpperCase()}</span>
-          </div>
-          {lastCompletedInvoice?.changeDueCents ? (
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Change Due:</span>
-              <span>{formatMoney(lastCompletedInvoice.changeDueCents)}</span>
-            </div>
-          ) : null}
-          <div className="divider"></div>
-          <div className="text-center" style={{ fontSize: 10 }}>
-            Warranty Notice: 30 days warranty on screen & repair parts. Physical damage voids
-            warranty.
-          </div>
-          <div className="text-center bold" style={{ marginTop: 6 }}>
-            Thank you for your business!
-          </div>
-        </div>
-      </div>
 
       {/* Modals */}
       <ServiceJobPickerModal
@@ -426,7 +525,13 @@ export function BillingCounter() {
         selectedCustomerId={customerId}
         onSelectCustomer={(cust) => {
           if (cust) {
-            attachCustomer(cust.id, cust.name, cust.primaryPhone, cust.outstandingBalanceCents);
+            attachCustomer(
+              cust.id,
+              cust.name,
+              cust.primaryPhone,
+              cust.address,
+              cust.outstandingBalanceCents
+            );
           } else {
             attachCustomer(null, null);
           }
@@ -443,6 +548,12 @@ export function BillingCounter() {
       >
         <span />
       </DiscountPopover>
+
+      <A4InvoicePreviewModal
+        opened={previewModalOpen}
+        onClose={closePreviewModal}
+        invoice={previewInvoiceData}
+      />
     </Box>
   );
 }

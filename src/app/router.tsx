@@ -11,6 +11,9 @@ import { ROUTES, ROUTE_PATHS } from '@/constants';
 const BillingCounter = lazy(() =>
   import('@/features/billing').then((m) => ({ default: m.BillingCounter }))
 );
+const InvoicesList = lazy(() =>
+  import('@/features/invoices').then((m) => ({ default: m.InvoicesList }))
+);
 const RepairJobList = lazy(() =>
   import('@/features/repairs').then((m) => ({ default: m.RepairJobList }))
 );
@@ -32,8 +35,16 @@ const EmployeeList = lazy(() =>
 const ReportsDashboard = lazy(() =>
   import('@/features/reports').then((m) => ({ default: m.ReportsDashboard }))
 );
+const SettingsPage = lazy(() =>
+  import('@/features/settings').then((m) => ({ default: m.SettingsPage }))
+);
 const EmailLoginScreen = lazy(() =>
   import('@/features/auth').then((m) => ({ default: m.EmailLoginScreen }))
+);
+const StandalonePrintView = lazy(() =>
+  import('@/features/billing/components/StandalonePrintView').then((m) => ({
+    default: m.StandalonePrintView,
+  }))
 );
 
 export const router = createBrowserRouter([
@@ -51,6 +62,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <BillingCounter />
+          </Suspense>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.INVOICES,
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <InvoicesList />
           </Suspense>
         ),
       },
@@ -111,6 +130,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: ROUTE_PATHS.SETTINGS,
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <SettingsPage />
+          </Suspense>
+        ),
+      },
+      {
         path: '*',
         element: <NotFoundPage />,
       },
@@ -121,6 +148,15 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<PageSkeleton />}>
         <EmailLoginScreen />
+      </Suspense>
+    ),
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: '/print/invoice/:id',
+    element: (
+      <Suspense fallback={<PageSkeleton />}>
+        <StandalonePrintView />
       </Suspense>
     ),
     errorElement: <ErrorBoundary />,

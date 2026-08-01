@@ -96,8 +96,6 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     });
   }, [products, selectedCategory, search]);
 
-
-
   const handleAddProduct = (p: Product) => {
     add({
       id: `item-${Date.now()}-${Math.random()}`,
@@ -350,8 +348,6 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
         </Group>
       </ScrollArea>
 
-
-
       {/* 4. Product Grid (Zero overlap, crisp cards with clear category icons) */}
       <ScrollArea style={{ flex: 1 }} offsetScrollbars p={4}>
         <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
@@ -375,9 +371,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                   style={{
                     height: 128,
                     opacity: isZeroStock ? 0.55 : 1,
-                    borderColor: isSelected
-                      ? 'var(--mantine-color-blue-6)'
-                      : undefined,
+                    borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
                     boxShadow: isSelected ? '0 0 0 2px var(--mantine-color-blue-4)' : undefined,
                   }}
                   onClick={() => handleAddProduct(p)}

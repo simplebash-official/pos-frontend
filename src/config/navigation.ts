@@ -1,6 +1,7 @@
 import { ComponentType } from 'react';
 import {
   IconReceipt,
+  IconFileInvoice,
   IconHammer,
   IconPrinter,
   IconPackage,
@@ -8,6 +9,7 @@ import {
   IconTruckDelivery,
   IconUserCheck,
   IconChartBar,
+  IconSettings,
 } from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
 
@@ -24,6 +26,12 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconReceipt,
     to: ROUTES.BILLING,
     color: 'blue',
+  },
+  {
+    label: 'Sales & Invoices',
+    icon: IconFileInvoice,
+    to: ROUTES.INVOICES,
+    color: 'gray',
   },
   {
     label: 'Repair Jobs',
@@ -66,5 +74,11 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconChartBar,
     to: ROUTES.REPORTS,
     color: 'green',
+  },
+  {
+    label: 'Settings',
+    icon: IconSettings,
+    to: ROUTES.SETTINGS,
+    color: 'blue',
   },
 ];

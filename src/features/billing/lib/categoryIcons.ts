@@ -31,8 +31,8 @@ export const MAIN_CATEGORY_ICONS: Record<string, { Icon: typeof IconPackage; col
 export const SUBCATEGORY_ICONS: Record<string, { Icon: typeof IconPackage; color: string }> = {
   // Phone Repairs subcategories
   'Phone Covers': { Icon: IconShieldCheck, color: 'blue' },
-  'Screens': { Icon: IconAppWindow, color: 'cyan' },
-  'Batteries': { Icon: IconBatteryCharging, color: 'indigo' },
+  Screens: { Icon: IconAppWindow, color: 'cyan' },
+  Batteries: { Icon: IconBatteryCharging, color: 'indigo' },
   'Charging Ports': { Icon: IconPlug, color: 'violet' },
   'Other internal repair parts': { Icon: IconCpu, color: 'blue' },
 

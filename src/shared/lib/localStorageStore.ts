@@ -41,6 +41,10 @@ export class LocalStorageStore<T extends { id: string }> {
     }
   }
 
+  public refresh(): void {
+    this.memoryStore = this.load(this.memoryStore);
+  }
+
   public getAll(): T[] {
     return [...this.memoryStore];
   }
