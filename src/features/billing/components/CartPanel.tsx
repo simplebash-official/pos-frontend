@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Paper,
   Group,
@@ -24,6 +24,8 @@ import {
   IconTag,
   IconNotes,
   IconUserPlus,
+  IconChevronUp,
+  IconChevronDown,
 } from '@tabler/icons-react';
 
 import { useCart } from '../hooks/useCart';
@@ -63,6 +65,14 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [orderDiscountOpen, setOrderDiscountOpen] = useState(false);
   const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
+
+  const viewportRef = useRef<HTMLDivElement>(null);
+
+  const scrollByAmount = (amount: number) => {
+    if (viewportRef.current) {
+      viewportRef.current.scrollBy({ top: amount, behavior: 'smooth' });
+    }
+  };
 
   const hasMixedSources =
     [
@@ -284,6 +294,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
 
       {/* 4. Line Items Scrollable Region */}
       <ScrollArea
+        viewportRef={viewportRef}
         style={{ flex: 1 }}
         type="never"
         styles={{
@@ -315,6 +326,28 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
           </Stack>
         )}
       </ScrollArea>
+
+      {/* Scroll Controls */}
+      {items.length > 0 && (
+        <Group justify="center" gap="xs" mt="xs">
+          <ActionIcon 
+            variant="light" 
+            color="gray" 
+            size="md" 
+            onClick={() => scrollByAmount(-200)}
+          >
+            <IconChevronUp size={18} />
+          </ActionIcon>
+          <ActionIcon 
+            variant="light" 
+            color="gray" 
+            size="md" 
+            onClick={() => scrollByAmount(200)}
+          >
+            <IconChevronDown size={18} />
+          </ActionIcon>
+        </Group>
+      )}
 
       {/* 5. Mixed Cart Breakdown Footer (rendered when >1 source type present) */}
       {hasMixedSources && (
