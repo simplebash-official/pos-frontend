@@ -40,9 +40,7 @@ export function CartLineItem({
 
   const iconInfo = getCategoryIconInfo({
     category: item.category,
-    subcategory: item.subcategory,
     sourceType: item.sourceType,
-    name: item.name,
   });
   const CatIcon = iconInfo.Icon;
   const catColor = iconInfo.color;
@@ -114,7 +112,7 @@ export function CartLineItem({
                   Print
                 </Badge>
               )}
-              {sourceType === 'retail' && (item.subcategory || item.category || iconInfo.label) && (
+              {sourceType === 'retail' && (
                 <Badge
                   size="xs"
                   color={catColor}
@@ -122,7 +120,7 @@ export function CartLineItem({
                   leftSection={<CatIcon size={10} />}
                   style={{ textTransform: 'none', fontWeight: 600, fontSize: 9 }}
                 >
-                  {item.subcategory || item.category || iconInfo.label}
+                  {iconInfo.label}
                 </Badge>
               )}
             </Group>

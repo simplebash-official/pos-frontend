@@ -2,18 +2,8 @@ import {
   IconDeviceMobile,
   IconShirt,
   IconPrinter,
-  IconCup,
-  IconFileText,
   IconTools,
-  IconBatteryCharging,
-  IconPlug,
-  IconCpu,
-  IconAppWindow,
-  IconDroplet,
-  IconLayersIntersect,
-  IconColorFilter,
   IconPackage,
-  IconShieldCheck,
 } from '@tabler/icons-react';
 
 import { MainCategory, SUBCATEGORIES_BY_CATEGORY } from '@/features/inventory/types';
@@ -54,32 +44,11 @@ export const CATALOG_CATEGORY_FILTERS: CatalogCategoryFilter[] = (
   color: MAIN_CATEGORY_ICONS[key].color,
 }));
 
-export const SUBCATEGORY_ICONS: Record<string, { Icon: typeof IconPackage; color: string }> = {
-  // Phone Repairs subcategories
-  'Phone Covers': { Icon: IconShieldCheck, color: 'blue' },
-  Screens: { Icon: IconAppWindow, color: 'cyan' },
-  Batteries: { Icon: IconBatteryCharging, color: 'indigo' },
-  'Charging Ports': { Icon: IconPlug, color: 'violet' },
-  'Other internal repair parts': { Icon: IconCpu, color: 'blue' },
-
-  // Customization subcategories
-  'Blank Mugs': { Icon: IconCup, color: 'grape' },
-  'T-Shirts': { Icon: IconShirt, color: 'pink' },
-  'Sheets (for custom transfers)': { Icon: IconLayersIntersect, color: 'violet' },
-  'Sublimation Ink': { Icon: IconDroplet, color: 'magenta' },
-
-  // General Printing subcategories
-  'Paper (documents, photocopies, handbills, and flyers)': { Icon: IconFileText, color: 'teal' },
-  'Printer Ink': { Icon: IconColorFilter, color: 'cyan' },
-};
-
 export function getCategoryIconInfo(params: {
   category?: string;
-  subcategory?: string;
   sourceType?: string;
-  name?: string;
 }): CategoryIconInfo {
-  const { category, subcategory, sourceType, name = '' } = params;
+  const { category, sourceType } = params;
 
   // 1. Service Jobs
   if (sourceType === 'repair') {
@@ -89,79 +58,28 @@ export function getCategoryIconInfo(params: {
     return { Icon: IconPrinter, color: 'teal', label: 'Print Service Job' };
   }
 
-  // 2. Exact Subcategory Match
-  if (subcategory && SUBCATEGORY_ICONS[subcategory]) {
-    const config = SUBCATEGORY_ICONS[subcategory];
-    return { Icon: config.Icon, color: config.color, label: subcategory };
-  }
-
-  // 3. Exact Main Category Match
+  // 2. Exact Main Category Match
   if (category && MAIN_CATEGORY_ICONS[category]) {
     const config = MAIN_CATEGORY_ICONS[category];
-    return { Icon: config.Icon, color: config.color, label: category };
+    return {
+      Icon: config.Icon,
+      color: config.color,
+      label: CATALOG_CATEGORY_LABELS[category as MainCategory] ?? category,
+    };
   }
 
-  // 4. Fuzzy Match from Item Name, Subcategory or Category string
-  const lowerName = name.toLowerCase();
-  const lowerSub = subcategory?.toLowerCase() || '';
+  // 3. Main Category Fuzzy Match (for category strings that don't exactly match MainCategory)
   const lowerCat = category?.toLowerCase() || '';
-
-  if (lowerSub.includes('cover') || lowerName.includes('cover') || lowerName.includes('case')) {
-    return { Icon: IconShieldCheck, color: 'blue', label: 'Phone Cover' };
-  }
-  if (
-    lowerSub.includes('screen') ||
-    lowerName.includes('screen') ||
-    lowerName.includes('display') ||
-    lowerName.includes('lcd')
-  ) {
-    return { Icon: IconAppWindow, color: 'cyan', label: 'Screen' };
-  }
-  if (lowerSub.includes('batter') || lowerName.includes('battery')) {
-    return { Icon: IconBatteryCharging, color: 'indigo', label: 'Battery' };
-  }
-  if (
-    lowerSub.includes('charg') ||
-    lowerSub.includes('port') ||
-    lowerName.includes('cable') ||
-    lowerName.includes('charger') ||
-    lowerName.includes('port')
-  ) {
-    return { Icon: IconPlug, color: 'violet', label: 'Charging / Cable' };
-  }
-  if (lowerSub.includes('mug') || lowerName.includes('mug')) {
-    return { Icon: IconCup, color: 'grape', label: 'Mug' };
-  }
-  if (lowerSub.includes('shirt') || lowerName.includes('shirt') || lowerName.includes('t-shirt')) {
-    return { Icon: IconShirt, color: 'pink', label: 'T-Shirt' };
-  }
-  if (lowerSub.includes('ink') || lowerName.includes('ink')) {
-    return { Icon: IconDroplet, color: 'magenta', label: 'Ink' };
-  }
-  if (
-    lowerSub.includes('paper') ||
-    lowerName.includes('paper') ||
-    lowerName.includes('sheet') ||
-    lowerName.includes('flyer')
-  ) {
-    return { Icon: IconFileText, color: 'teal', label: 'Paper & Printing' };
-  }
-
-  // 5. Main Category Fuzzy Match
   if (lowerCat.includes('repair') || lowerCat.includes('phone')) {
     return { Icon: IconDeviceMobile, color: 'blue', label: 'Phone Repairs' };
   }
-  if (
-    lowerCat.includes('custom') ||
-    lowerCat.includes('print customization') ||
-    lowerCat.includes('mug')
-  ) {
-    return { Icon: IconShirt, color: 'grape', label: 'Custom Print' };
+  if (lowerCat.includes('custom') || lowerCat.includes('mug')) {
+    return { Icon: IconShirt, color: 'grape', label: 'Print Customization' };
   }
   if (lowerCat.includes('print')) {
     return { Icon: IconPrinter, color: 'teal', label: 'General Printing' };
   }
 
-  // 6. Default Fallback
+  // 4. Default Fallback
   return { Icon: IconPackage, color: 'blue', label: category || 'Product' };
 }

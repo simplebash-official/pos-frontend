@@ -322,11 +322,11 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             const isZeroStock = p.stockQuantity <= 0;
             const isLowStock = p.stockQuantity > 0 && p.stockQuantity <= p.minStockThreshold;
             const isSelected = selectedIndex !== null && index === selectedIndex;
-            const { Icon: CatIcon, color: catColor } = getCategoryIconInfo({
-              category: p.category,
-              subcategory: p.subcategory,
-              name: p.name,
-            });
+            const {
+              Icon: CatIcon,
+              color: catColor,
+              label: catLabel,
+            } = getCategoryIconInfo({ category: p.category });
 
             return (
               <Grid.Col key={p.id} span={{ base: 6, sm: 4 }}>
@@ -359,7 +359,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                           paddingRight: 8,
                         }}
                       >
-                        {p.subcategory || p.category}
+                        {catLabel}
                       </Badge>
 
                       <Text
