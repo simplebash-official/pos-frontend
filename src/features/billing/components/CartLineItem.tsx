@@ -45,14 +45,6 @@ export function CartLineItem({
   const CatIcon = iconInfo.Icon;
   const catColor = iconInfo.color;
 
-  // Stripe color assignment
-  const stripeColor =
-    sourceType === 'repair'
-      ? 'var(--mantine-color-orange-6)'
-      : sourceType === 'print'
-        ? 'var(--mantine-color-teal-6)'
-        : `var(--mantine-color-${catColor}-6)`;
-
   // Calculated values
   const hasLineDiscount = item.discountCents > 0;
   const originalLineTotal = item.unitPriceCents * item.quantity;
@@ -60,6 +52,15 @@ export function CartLineItem({
     sourceType === 'retail' &&
     typeof item.stockQuantity === 'number' &&
     item.quantity > item.stockQuantity;
+
+  // Stripe color assignment
+  const stripeColor = isStockNegative
+    ? 'var(--mantine-color-red-6)'
+    : sourceType === 'repair'
+      ? 'var(--mantine-color-orange-6)'
+      : sourceType === 'print'
+        ? 'var(--mantine-color-teal-6)'
+        : `var(--mantine-color-${catColor}-6)`;
 
   return (
     <Paper
@@ -80,7 +81,7 @@ export function CartLineItem({
           <ThemeIcon
             size={40}
             radius="md"
-            color={catColor}
+            color={isStockNegative ? 'red' : catColor}
             variant="light"
             style={{ minWidth: 40, flexShrink: 0 }}
           >
@@ -89,15 +90,38 @@ export function CartLineItem({
 
           <Box style={{ flex: 1, minWidth: 0 }}>
             <Group gap={6} align="center" wrap="nowrap">
-              <Text fw={600} size="sm" lineClamp={1}>
-                {item.name}
-              </Text>
+              <Tooltip
+                label={`Stock will go negative (${item.stockQuantity ?? 0} in stock)`}
+                disabled={!isStockNegative}
+                withArrow
+              >
+                <Group gap={4} align="center" wrap="nowrap" style={{ flexShrink: 1, minWidth: 0 }}>
+                  <Text
+                    fw={600}
+                    size="sm"
+                    lineClamp={1}
+                    c={isStockNegative ? 'red.7' : undefined}
+                    style={{ flexShrink: 1, minWidth: 0 }}
+                  >
+                    {item.name}
+                  </Text>
+                  {isStockNegative && (
+                    <IconAlertTriangle
+                      size={14}
+                      color="var(--mantine-color-red-6)"
+                      style={{ flexShrink: 0 }}
+                    />
+                  )}
+                </Group>
+              </Tooltip>
+
               {sourceType === 'repair' && (
                 <Badge
                   size="xs"
                   color="orange"
                   variant="light"
                   leftSection={<IconTools size={10} />}
+                  style={{ flexShrink: 0 }}
                 >
                   Repair
                 </Badge>
@@ -108,45 +132,26 @@ export function CartLineItem({
                   color="teal"
                   variant="light"
                   leftSection={<IconPrinter size={10} />}
+                  style={{ flexShrink: 0 }}
                 >
                   Print
                 </Badge>
               )}
-              {sourceType === 'retail' && (
-                <Badge
-                  size="xs"
-                  color={catColor}
-                  variant="light"
-                  leftSection={<CatIcon size={10} />}
-                  style={{ textTransform: 'none', fontWeight: 600, fontSize: 9 }}
-                >
-                  {iconInfo.label}
-                </Badge>
-              )}
             </Group>
 
-            <Group gap="xs" align="center" mt={2}>
+            <Group gap="xs" align="center" mt={2} wrap="nowrap">
               {item.sku && (
-                <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', fontSize: 11 }}>
+                <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', fontSize: 11, flexShrink: 0 }}>
                   {item.sku}
                 </Text>
               )}
 
               {item.assignedEmployeeName && (
-                <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10 }}>
+                <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10, flexShrink: 0 }}>
                   Technician: {item.assignedEmployeeName}
                 </Text>
               )}
             </Group>
-
-            {isStockNegative && (
-              <Group gap={4} mt={2}>
-                <IconAlertTriangle size={12} color="var(--mantine-color-amber-6)" />
-                <Text size="xs" c="amber.7" fw={600} style={{ fontSize: 10 }}>
-                  Stock will go negative ({item.stockQuantity ?? 0} in stock)
-                </Text>
-              </Group>
-            )}
           </Box>
         </Group>
 
