@@ -22,7 +22,6 @@ export interface ShopProfile {
   receiptFooterText: string;
 }
 
-export type PaperSize = '80mm' | '58mm' | 'a4' | 'a5';
 export type AutoPrintOption = 'none' | 'receipt' | 'invoice' | 'both';
 export type InvoiceCopyOption = 'customer' | 'customer+office';
 export type DocumentSelection = 'receipt' | 'invoice' | 'both' | 'none';
@@ -39,5 +38,4 @@ export interface PrintSettings {
   defaultDocumentForAccountCustomer: DocumentSelection;
   printMethod: 'iframe' | 'newWindow';
   previewBeforePrinting: boolean;
-  defaultInvoicePaper: 'a4' | 'a5';
 }

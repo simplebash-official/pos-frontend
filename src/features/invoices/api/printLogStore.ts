@@ -4,7 +4,7 @@ export interface PrintLogEntry {
   id: string;
   invoiceId: string;
   invoiceNumber: string;
-  format: 'receipt-80' | 'receipt-58' | 'a4' | 'a5';
+  format: 'receipt-80' | 'receipt-58' | 'a4';
   copy: string;
   printedAt: string;
   printedBy?: string;

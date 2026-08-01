@@ -37,7 +37,7 @@ export const A4Invoice: React.FC<A4InvoiceProps> = ({
       <style>{`
         @media print {
           @page {
-            size: ${paperProfile.id === 'a5' ? 'A5' : 'A4'};
+            size: A4;
             margin: 0;
           }
           body {

@@ -37,5 +37,4 @@ export const DEFAULT_PRINT_SETTINGS: PrintSettings = {
   defaultDocumentForAccountCustomer: 'invoice',
   printMethod: 'iframe',
   previewBeforePrinting: false,
-  defaultInvoicePaper: 'a4',
 };

@@ -61,7 +61,6 @@ export function SettingsPage() {
     defaultDocumentForWalkIn: printSettings.defaultDocumentForWalkIn,
     defaultDocumentForAccountCustomer: printSettings.defaultDocumentForAccountCustomer,
     previewBeforePrinting: printSettings.previewBeforePrinting ?? false,
-    defaultInvoicePaper: printSettings.defaultInvoicePaper ?? 'a4',
   });
 
   const handleSaveProfile = () => {
@@ -105,7 +104,6 @@ export function SettingsPage() {
         defaultDocumentForWalkIn: printForm.defaultDocumentForWalkIn,
         defaultDocumentForAccountCustomer: printForm.defaultDocumentForAccountCustomer,
         previewBeforePrinting: printForm.previewBeforePrinting,
-        defaultInvoicePaper: printForm.defaultInvoicePaper,
       })
     );
 
@@ -388,26 +386,6 @@ export function SettingsPage() {
                     { label: 'Invoice', value: 'invoice' },
                     { label: 'Both', value: 'both' },
                     { label: 'None', value: 'none' },
-                  ]}
-                />
-              </Box>
-
-              <Box>
-                <Text size="xs" fw={700} c="dimmed" mb={4}>
-                  DEFAULT INVOICE PAPER SIZE
-                </Text>
-                <SegmentedControl
-                  fullWidth
-                  value={printForm.defaultInvoicePaper}
-                  onChange={(v) =>
-                    setPrintForm({
-                      ...printForm,
-                      defaultInvoicePaper: v as 'a4' | 'a5',
-                    })
-                  }
-                  data={[
-                    { label: 'A4 Standard', value: 'a4' },
-                    { label: 'A5 Compact', value: 'a5' },
                   ]}
                 />
               </Box>

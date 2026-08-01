@@ -6,9 +6,8 @@ import {
   Button,
   SegmentedControl,
   Text,
-  Paper,
   Stack,
-  Badge,
+  Divider,
   ThemeIcon,
 } from '@mantine/core';
 import { IconPrinter, IconDownload, IconFileText, IconX } from '@tabler/icons-react';
@@ -40,11 +39,10 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
   const shopProfileVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
 
-  const [paper, setPaper] = useState<'a4' | 'a5'>(printSettings.defaultInvoicePaper || 'a4');
   const [copyMode, setCopyMode] = useState<'customer' | 'office'>('customer');
 
   const buildPayload = (inv: Invoice) => {
-    const printCount = getPrintCountForInvoice(inv.invoiceNumber, paper);
+    const printCount = getPrintCountForInvoice(inv.invoiceNumber, 'a4');
     const isDuplicate = printCount > 0 || copyMode === 'office';
     const copyLabel =
       copyMode === 'office'
@@ -58,7 +56,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
 
   const handlePrint = () => {
     if (!invoice) return;
-    printA4Invoice(buildPayload(invoice), paper, copyMode);
+    printA4Invoice(buildPayload(invoice), copyMode);
   };
 
   // Bound via the shared shortcut engine (not a focused-button click) so pressing
@@ -67,15 +65,11 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
 
   if (!invoice) return null;
 
-  const paperProfile = paper === 'a5' ? PAPER_PROFILES.a5 : PAPER_PROFILES.a4;
   const payload = buildPayload(invoice);
 
   const handleDownloadPDF = () => {
     const invoiceId = invoice.id || invoice.invoiceNumber;
-    window.open(
-      `/print/invoice/${encodeURIComponent(invoiceId)}?paper=${paper}&copy=${copyMode}`,
-      '_blank'
-    );
+    window.open(`/print/invoice/${encodeURIComponent(invoiceId)}?copy=${copyMode}`, '_blank');
   };
 
   return (
@@ -83,23 +77,18 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
       opened={opened}
       onClose={onClose}
       title={
-        <Group justify="space-between" align="center" style={{ width: '100%' }}>
-          <Group gap="xs" align="center">
-            <ThemeIcon size="md" radius="md" color="violet" variant="light">
-              <IconFileText size={18} />
-            </ThemeIcon>
+        <Group gap="xs" align="center">
+          <ThemeIcon size="lg" radius="md" color="blue" variant="filled">
+            <IconFileText size={18} />
+          </ThemeIcon>
+          <Box>
             <Text fw={700} size="md" c="var(--text-primary)">
-              Invoice Preview
+              Invoice preview
             </Text>
-            <Badge size="sm" color="blue" variant="light">
+            <Text size="xs" c="dimmed">
               #{invoice.invoiceNumber}
-            </Badge>
-          </Group>
-          {invoice.customerName && (
-            <Text size="xs" c="dimmed" fw={600} style={{ marginRight: 16 }}>
-              Customer: {invoice.customerName}
             </Text>
-          )}
+          </Box>
         </Group>
       }
       size="xl"
@@ -122,98 +111,64 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
     >
       <Stack gap="md" mt="xs">
         {/* Controls Toolbar */}
-        <Paper
-          p="sm"
-          radius="var(--mantine-radius-default)"
-          withBorder
-          style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border)' }}
-        >
-          <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-            <Group gap="md" wrap="wrap">
-              <Box>
-                <Text
-                  size="xs"
-                  fw={700}
-                  c="dimmed"
-                  mb={4}
-                  tt="uppercase"
-                  style={{ letterSpacing: '0.04em' }}
-                >
-                  PAPER SIZE
-                </Text>
-                <SegmentedControl
-                  size="xs"
-                  value={paper}
-                  onChange={(val) => setPaper(val as 'a4' | 'a5')}
-                  data={[
-                    { label: 'A4 Standard', value: 'a4' },
-                    { label: 'A5 Compact', value: 'a5' },
-                  ]}
-                  styles={{
-                    root: { backgroundColor: 'var(--bg-card)' },
-                    label: { fontWeight: 600, fontSize: 11 },
-                  }}
-                />
-              </Box>
+        <Stack gap="sm">
+          <Box style={{ maxWidth: 320 }}>
+            <Text
+              size="xs"
+              fw={700}
+              c="dimmed"
+              mb={6}
+              tt="uppercase"
+              style={{ letterSpacing: '0.04em' }}
+            >
+              Copy type
+            </Text>
+            <SegmentedControl
+              fullWidth
+              size="sm"
+              value={copyMode}
+              onChange={(val) => setCopyMode(val as 'customer' | 'office')}
+              data={[
+                { label: 'Customer copy', value: 'customer' },
+                { label: 'Office duplicate', value: 'office' },
+              ]}
+            />
+          </Box>
 
-              <Box>
-                <Text
-                  size="xs"
-                  fw={700}
-                  c="dimmed"
-                  mb={4}
-                  tt="uppercase"
-                  style={{ letterSpacing: '0.04em' }}
-                >
-                  COPY TYPE
-                </Text>
-                <SegmentedControl
-                  size="xs"
-                  value={copyMode}
-                  onChange={(val) => setCopyMode(val as 'customer' | 'office')}
-                  data={[
-                    { label: 'Customer Copy', value: 'customer' },
-                    { label: 'Office Duplicate', value: 'office' },
-                  ]}
-                  styles={{
-                    root: { backgroundColor: 'var(--bg-card)' },
-                    label: { fontWeight: 600, fontSize: 11 },
-                  }}
-                />
-              </Box>
-            </Group>
-
-            <Group gap="xs" align="center">
-              <Button
-                size="sm"
-                color="blue"
-                leftSection={<IconPrinter size={16} />}
-                onClick={handlePrint}
-                style={{ fontWeight: 700 }}
-              >
-                Print Invoice (↵)
-              </Button>
-              <Button
-                size="sm"
-                variant="light"
-                color="gray"
-                leftSection={<IconDownload size={16} />}
-                onClick={handleDownloadPDF}
-              >
-                Download PDF
-              </Button>
-              <Button
-                size="sm"
-                variant="subtle"
-                color="gray"
-                leftSection={<IconX size={14} />}
-                onClick={onClose}
-              >
-                Close
-              </Button>
-            </Group>
+          <Group gap="xs" wrap="wrap">
+            <Button
+              size="md"
+              color="blue"
+              leftSection={<IconPrinter size={18} />}
+              onClick={handlePrint}
+              style={{ fontWeight: 700, flex: 2, minWidth: 200 }}
+            >
+              Print invoice (↵)
+            </Button>
+            <Button
+              size="md"
+              variant="outline"
+              color="gray"
+              leftSection={<IconDownload size={16} />}
+              onClick={handleDownloadPDF}
+              style={{ flex: 1, minWidth: 150 }}
+            >
+              Download PDF
+            </Button>
+            <Button
+              size="md"
+              variant="subtle"
+              color="gray"
+              leftSection={<IconX size={14} />}
+              onClick={onClose}
+              style={{ flex: 1, minWidth: 100 }}
+            >
+              Close
+            </Button>
           </Group>
-        </Paper>
+        </Stack>
+
+        <Divider color="var(--border)" />
 
         {/* Scaled Preview Box */}
         <Box
@@ -238,7 +193,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
               backgroundColor: '#FFFFFF',
             }}
           >
-            <A4Invoice payload={payload} paperProfile={paperProfile} />
+            <A4Invoice payload={payload} paperProfile={PAPER_PROFILES.a4} />
           </Box>
         </Box>
       </Stack>

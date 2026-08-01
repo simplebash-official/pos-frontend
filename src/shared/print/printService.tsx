@@ -94,14 +94,12 @@ export async function printThermalReceipt(
 
 export async function printA4Invoice(
   payload: PrintPayload,
-  paper: 'a4' | 'a5' = 'a4',
   copy: 'customer' | 'office' = 'customer'
 ): Promise<void> {
-  const profile = paper === 'a5' ? PAPER_PROFILES.a5 : PAPER_PROFILES.a4;
   recordPrintEvent({
     invoiceId: payload.invoice.id,
     invoiceNumber: payload.invoice.invoiceNumber,
-    format: paper,
+    format: 'a4',
     copy: copy === 'customer' ? 'ORIGINAL — CUSTOMER COPY' : 'DUPLICATE — OFFICE COPY',
     printedBy: payload.invoice.cashierName,
   });
@@ -115,7 +113,7 @@ export async function printA4Invoice(
   document.body.appendChild(container);
 
   const root = createReactRoot(container);
-  root.render(<A4Invoice payload={payload} paperProfile={profile} />);
+  root.render(<A4Invoice payload={payload} paperProfile={PAPER_PROFILES.a4} />);
 
   // Wait for React render
   await new Promise((resolve) => setTimeout(resolve, 100));
@@ -155,7 +153,7 @@ export async function printA4Invoice(
     <style>
       @media print {
         @page {
-          size: ${paper.toUpperCase()} portrait;
+          size: A4 portrait;
           margin: 0;
         }
         body {

@@ -19,7 +19,6 @@ import { recordPrintEvent, getPrintCountForInvoice } from '@/features/invoices/a
 export function StandalonePrintView() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const paperParam = searchParams.get('paper') || 'a4';
   const copyParam = searchParams.get('copy') || 'customer';
 
   const currentShopProfile = useAppSelector(selectShopProfile);
@@ -43,13 +42,12 @@ export function StandalonePrintView() {
     if (invoice && !printedRef.current) {
       printedRef.current = true;
 
-      const paperFormat = paperParam === 'a5' ? 'a5' : 'a4';
-      const printCount = getPrintCountForInvoice(invoice.invoiceNumber, paperFormat);
+      const printCount = getPrintCountForInvoice(invoice.invoiceNumber, 'a4');
 
       recordPrintEvent({
         invoiceId: invoice.id,
         invoiceNumber: invoice.invoiceNumber,
-        format: paperFormat,
+        format: 'a4',
         copy:
           copyParam === 'office'
             ? 'DUPLICATE — OFFICE COPY'
@@ -65,7 +63,7 @@ export function StandalonePrintView() {
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [invoice, paperParam, copyParam]);
+  }, [invoice, copyParam]);
 
   if (loading) {
     return (
@@ -99,8 +97,8 @@ export function StandalonePrintView() {
   // Resolve the correct versioned shop profile for this invoice
   const shop = getShopProfileForInvoice(invoice, shopProfileVersions, currentShopProfile);
 
-  const paperProfile = paperParam === 'a5' ? PAPER_PROFILES.a5 : PAPER_PROFILES.a4;
-  const printCount = getPrintCountForInvoice(invoice.invoiceNumber, paperParam);
+  const paperProfile = PAPER_PROFILES.a4;
+  const printCount = getPrintCountForInvoice(invoice.invoiceNumber, 'a4');
   const isDuplicate = printCount > 0 || copyParam === 'office';
   const copyLabel =
     copyParam === 'office'

@@ -1,5 +1,5 @@
 export interface PaperProfile {
-  id: 'thermal80' | 'thermal58' | 'a4' | 'a5';
+  id: 'thermal80' | 'thermal58' | 'a4';
   name: string;
   widthMm: number;
   printableWidthMm: number;
@@ -46,19 +46,6 @@ export const PAPER_PROFILES: Record<string, PaperProfile> = {
     paddingMm: 15,
     fontSizePx: 13,
     lineHeight: 1.4,
-    fontFamily:
-      "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-  },
-  a5: {
-    id: 'a5',
-    name: 'A5 Compact Invoice',
-    widthMm: 148,
-    printableWidthMm: 124,
-    charsPerLine: 60,
-    isContinuous: false,
-    paddingMm: 10,
-    fontSizePx: 11,
-    lineHeight: 1.3,
     fontFamily:
       "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   },
