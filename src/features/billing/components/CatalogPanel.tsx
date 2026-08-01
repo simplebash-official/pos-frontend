@@ -316,7 +316,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       </ScrollArea.Autosize>
 
       {/* 4. Product Grid (Zero overlap, crisp cards with clear category icons) */}
-      <ScrollArea style={{ flex: 1 }} offsetScrollbars p={4}>
+      <ScrollArea style={{ flex: 1 }} styles={{ viewport: { padding: 0 } }}>
         <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
           {filteredProducts.map((p, index) => {
             const isZeroStock = p.stockQuantity <= 0;

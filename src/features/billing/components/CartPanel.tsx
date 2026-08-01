@@ -283,7 +283,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
       )}
 
       {/* 4. Line Items Scrollable Region */}
-      <ScrollArea style={{ flex: 1 }} offsetScrollbars>
+      <ScrollArea style={{ flex: 1 }} styles={{ viewport: { padding: 0 } }}>
         {items.length === 0 ? (
           <Stack align="center" justify="center" h={260} gap="xs">
             <IconShoppingCart size={44} color="var(--text-muted)" style={{ opacity: 0.4 }} />

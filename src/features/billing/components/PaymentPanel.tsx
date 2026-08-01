@@ -328,7 +328,7 @@ export function PaymentPanel({
           <Text
             fw={800}
             ta="right"
-            c={isCredit ? 'amber.7' : undefined}
+            c={isCredit ? 'amber.7' : 'blue.6'}
             style={{
               fontSize: 32,
               fontFamily: 'monospace',
