@@ -255,7 +255,6 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                   color="yellow"
                   leftSection={<IconTools size={14} />}
                   onClick={onOpenServicePicker}
-                  radius="xl"
                   px="sm"
                   style={{
                     height: 30,
