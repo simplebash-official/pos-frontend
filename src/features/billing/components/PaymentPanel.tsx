@@ -193,8 +193,8 @@ export function PaymentPanel({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        justify: 'space-between',
-        backgroundColor: 'var(--bg-sidebar)',
+        justifyContent: 'space-between',
+        backgroundColor: 'var(--bg-card)',
         borderLeft: '1px solid var(--border)',
       }}
     >
@@ -204,7 +204,7 @@ export function PaymentPanel({
           <Text size="sm" c="dimmed">
             Subtotal
           </Text>
-          <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+          <Text size="sm" fw={700} style={{ fontFamily: 'monospace' }}>
             {formatMoney(subtotalCents)}
           </Text>
         </Group>
@@ -220,7 +220,7 @@ export function PaymentPanel({
                 Edit
               </Badge>
             </Group>
-            <Text size="sm" fw={700} c="red" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={700} c="red" style={{ fontFamily: 'monospace' }}>
               -{formatMoney(discountCents)}
             </Text>
           </Group>
@@ -229,33 +229,31 @@ export function PaymentPanel({
         {/* 3. Divider */}
         <Divider my={4} color="var(--border-strong)" />
 
-        {/* 4. Total Hero Digit */}
+        {/* 4. Total Due Hero Section */}
         <Box py={2}>
-          <Text size="xs" fw={800} c="dimmed" tt="uppercase" ta="right">
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" ta="right" style={{ fontSize: 11, letterSpacing: '0.04em' }}>
             TOTAL DUE
           </Text>
-          <Group justify="flex-end" align="baseline" gap={4}>
-            <Text size="md" fw={700} c="dimmed">
-              Rs.
-            </Text>
-            <Text
-              fw={700}
-              c={isCredit ? 'amber.7' : 'blue.6'}
-              style={{
-                fontSize: 40,
-                lineHeight: 1,
-                fontVariantNumeric: 'tabular-nums',
-                letterSpacing: '-0.02em',
-                transition: 'color 0.2s ease',
-              }}
-            >
-              {Math.round(totalCents / 100).toLocaleString('en-US')}
-            </Text>
-          </Group>
+          <Text
+            fw={800}
+            ta="right"
+            c={isCredit ? 'amber.7' : undefined}
+            style={{
+              fontSize: 32,
+              fontFamily: 'monospace',
+              lineHeight: 1.1,
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {formatMoney(totalCents)}
+          </Text>
         </Box>
 
-        {/* 5. 2x2 Payment Method Tiles (56px) */}
-        <Box mt="xs">
+        {/* 5. Divider */}
+        <Divider my={4} color="var(--border-strong)" />
+
+        {/* 6. Payment Method Section */}
+        <Box mt={2}>
           <Text
             size="xs"
             fw={700}
@@ -266,7 +264,7 @@ export function PaymentPanel({
           >
             PAYMENT METHOD
           </Text>
-          <SimpleGrid cols={2} spacing={6}>
+          <SimpleGrid cols={2} spacing={8}>
             {paymentTiles.map((tile) => {
               const Icon = tile.icon;
               const isSelected = paymentMethod === tile.id;
@@ -277,17 +275,16 @@ export function PaymentPanel({
                   disabled={tile.disabled}
                   onClick={() => !tile.disabled && changePaymentMethod(tile.id as PaymentMethod)}
                   style={{
-                    height: 48,
-                    borderRadius: '8px',
+                    height: 42,
+                    borderRadius: 'var(--mantine-radius-default)',
                     border: isSelected
-                      ? '2px solid var(--mantine-color-blue-6)'
+                      ? '1px solid var(--mantine-color-blue-4)'
                       : '1px solid var(--border)',
                     backgroundColor: isSelected
                       ? 'var(--mantine-color-blue-light)'
                       : 'var(--bg-card)',
                     opacity: tile.disabled ? 0.5 : 1,
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: tile.disabled ? 'not-allowed' : 'pointer',
@@ -296,10 +293,10 @@ export function PaymentPanel({
                 >
                   <Group gap={6} align="center">
                     <Icon
-                      size={18}
-                      color={isSelected ? 'var(--mantine-color-blue-6)' : 'currentColor'}
+                      size={16}
+                      color={isSelected ? 'var(--mantine-color-blue-6)' : 'var(--text-muted)'}
                     />
-                    <Text size="xs" fw={700} c={isSelected ? 'blue.7' : undefined}>
+                    <Text size="sm" fw={isSelected ? 700 : 500} c={isSelected ? 'blue.7' : undefined}>
                       {tile.label}
                     </Text>
                   </Group>
@@ -317,27 +314,41 @@ export function PaymentPanel({
           </SimpleGrid>
         </Box>
 
-        {/* 6. Contextual Body */}
-        <Box mt="xs">
+        {/* 7. Contextual Payment Controls (Cash / Card / Online / Split) */}
+        <Box mt={4}>
           {paymentMethod === PAYMENT_METHODS.CASH && (
             <Stack gap="xs">
-              <Group grow align="flex-end">
-                <NumberInput
-                  ref={cashInputRef}
-                  label="Amount Tendered (Rs.)"
-                  placeholder="e.g. 5000 (F2)"
-                  prefix="Rs. "
-                  min={0}
-                  size="md"
-                  value={tenderedRupees}
-                  onChange={(val) => setTenderedRupees(typeof val === 'number' ? val : '')}
-                  styles={{ input: { fontWeight: 700, fontSize: 16 } }}
-                />
-              </Group>
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ fontSize: 10, letterSpacing: '0.06em' }}
+              >
+                AMOUNT TENDERED (RS.)
+              </Text>
+
+              <NumberInput
+                ref={cashInputRef}
+                placeholder="0"
+                prefix="Rs. "
+                min={0}
+                size="md"
+                value={tenderedRupees}
+                onChange={(val) => setTenderedRupees(typeof val === 'number' ? val : '')}
+                styles={{
+                  input: {
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    fontSize: 18,
+                    borderRadius: 'var(--mantine-radius-default)',
+                  },
+                }}
+              />
 
               {/* Quick Tender Chips */}
-              <Group gap={4} wrap="wrap">
-                {quickChips.map((amt) => (
+              <Group gap={6} grow>
+                {quickChips.slice(0, 2).map((amt) => (
                   <Button
                     key={amt}
                     size="xs"
@@ -345,28 +356,27 @@ export function PaymentPanel({
                     color="gray"
                     radius="var(--mantine-radius-default)"
                     onClick={() => setTenderedRupees(amt)}
+                    style={{ height: 36, fontWeight: 500, fontFamily: 'monospace' }}
                   >
                     Rs. {amt.toLocaleString()}
                   </Button>
                 ))}
               </Group>
 
-              {/* Change Due / Short By Display */}
-              <Paper p="xs" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--bg-card)' }}>
-                <Group justify="space-between" align="center">
-                  <Text size="xs" fw={700} c="dimmed">
-                    {isCashShort ? 'SHORT BY' : 'CHANGE DUE'}
-                  </Text>
-                  <Text
-                    size="lg"
-                    fw={700}
-                    c={isCashShort ? 'amber.7' : 'green.6'}
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {isCashShort ? formatMoney(shortByCents) : formatMoney(changeDueCents)}
-                  </Text>
-                </Group>
-              </Paper>
+              {/* Change Due / Short By Display Row */}
+              <Group justify="space-between" align="center" py={4}>
+                <Text size="sm" c="dimmed">
+                  {isCashShort ? 'Short by' : 'Change due'}
+                </Text>
+                <Text
+                  size="md"
+                  fw={700}
+                  c={isCashShort ? 'amber.7' : 'green.6'}
+                  style={{ fontFamily: 'monospace' }}
+                >
+                  {isCashShort ? formatMoney(shortByCents) : formatMoney(changeDueCents)}
+                </Text>
+              </Group>
             </Stack>
           )}
 
@@ -453,51 +463,70 @@ export function PaymentPanel({
                 </Group>
               ))}
 
-              <Paper p="xs" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--bg-card)' }}>
-                <Group justify="space-between" align="center">
-                  <Text size="xs" fw={700} c="dimmed">
-                    REMAINING TO ALLOCATE
-                  </Text>
-                  <Text
-                    size="sm"
-                    fw={700}
-                    c={splitRemainingCents === 0 ? 'green.6' : 'amber.7'}
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {formatMoney(splitRemainingCents)}
-                  </Text>
-                </Group>
-              </Paper>
+              <Group justify="space-between" align="center" py={4}>
+                <Text size="xs" fw={700} c="dimmed">
+                  REMAINING TO ALLOCATE
+                </Text>
+                <Text
+                  size="sm"
+                  fw={700}
+                  c={splitRemainingCents === 0 ? 'green.6' : 'amber.7'}
+                  style={{ fontFamily: 'monospace' }}
+                >
+                  {formatMoney(splitRemainingCents)}
+                </Text>
+              </Group>
             </Stack>
           )}
         </Box>
 
-        {/* 7. Document Selection Control */}
-        <Box mt="xs">
+        {/* 8. Document Selection Control */}
+        <Box mt={4}>
           <Text
             size="xs"
             fw={700}
             c="dimmed"
-            mb={4}
+            mb={6}
             tt="uppercase"
             style={{ fontSize: 10, letterSpacing: '0.06em' }}
           >
             DOCUMENT OUTPUT
           </Text>
-          <SegmentedControl
-            fullWidth
-            size="xs"
-            value={documentSelection}
-            onChange={(val) =>
-              changeDocumentSelection(val as 'receipt' | 'invoice' | 'both' | 'none')
-            }
-            data={[
+          <SimpleGrid cols={4} spacing={6}>
+            {[
               { label: 'Receipt', value: 'receipt' },
               { label: 'Invoice', value: 'invoice' },
               { label: 'Both', value: 'both' },
               { label: 'None', value: 'none' },
-            ]}
-          />
+            ].map((doc) => {
+              const isSelected = documentSelection === doc.value;
+              return (
+                <UnstyledButton
+                  key={doc.value}
+                  onClick={() => changeDocumentSelection(doc.value as any)}
+                  style={{
+                    height: 38,
+                    borderRadius: 'var(--mantine-radius-default)',
+                    border: isSelected
+                      ? '1px solid var(--mantine-color-blue-4)'
+                      : '1px solid var(--border)',
+                    backgroundColor: isSelected
+                      ? 'var(--mantine-color-blue-light)'
+                      : 'var(--bg-card)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <Text size="xs" fw={isSelected ? 700 : 500} c={isSelected ? 'blue.7' : undefined}>
+                    {doc.label}
+                  </Text>
+                </UnstyledButton>
+              );
+            })}
+          </SimpleGrid>
           {(documentSelection === 'invoice' || documentSelection === 'both') && (
             <Text size="xs" c="dimmed" mt={4} style={{ fontSize: 10 }}>
               <IconFileText size={10} style={{ display: 'inline', marginRight: 4 }} />
@@ -507,7 +536,7 @@ export function PaymentPanel({
         </Box>
       </Stack>
 
-      {/* 8. Credit / Unpaid Toggle & Due Date Picker */}
+      {/* 9. Credit / Unpaid Toggle & Checkout Button */}
       <Stack gap="xs" mt="md">
         <Tooltip
           label={
@@ -517,24 +546,21 @@ export function PaymentPanel({
           }
           disabled={Boolean(customerId)}
         >
-          <Paper p="xs" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--bg-card)' }}>
-            <Group justify="space-between" align="center">
-              <Text
-                size="xs"
-                fw={700}
-                c={!customerId ? 'dimmed' : isCredit ? 'amber.7' : undefined}
-              >
-                Leave as unpaid (Credit)
-              </Text>
-              <Switch
-                checked={isCredit}
-                disabled={!customerId}
-                onChange={(e) => changeIsCredit(e.currentTarget.checked)}
-                color="amber"
-                size="sm"
-              />
-            </Group>
-          </Paper>
+          <Group justify="space-between" align="center" py={4}>
+            <Text
+              size="sm"
+              c={!customerId ? 'dimmed' : isCredit ? 'amber.7' : undefined}
+            >
+              Leave as unpaid (credit)
+            </Text>
+            <Switch
+              checked={isCredit}
+              disabled={!customerId}
+              onChange={(e) => changeIsCredit(e.currentTarget.checked)}
+              color="amber"
+              size="sm"
+            />
+          </Group>
         </Tooltip>
 
         {isCredit && (
@@ -555,7 +581,7 @@ export function PaymentPanel({
           />
         )}
 
-        {/* 9. Complete Payment Button (64px) with Echoed Amount */}
+        {/* Complete Payment Button */}
         <Box>
           <Button
             fullWidth
@@ -565,10 +591,10 @@ export function PaymentPanel({
             loading={isProcessing}
             onClick={onCompleteCheckout}
             style={{
-              height: 56,
+              height: 52,
               fontSize: 16,
               fontWeight: 700,
-              borderRadius: '8px',
+              borderRadius: 'var(--mantine-radius-default)',
             }}
           >
             {isCartEmpty
