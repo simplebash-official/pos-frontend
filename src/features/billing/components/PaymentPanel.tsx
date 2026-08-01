@@ -11,7 +11,6 @@ import {
   SegmentedControl,
   Switch,
   Tooltip,
-  Badge,
   ActionIcon,
   Box,
   SimpleGrid,
@@ -26,6 +25,7 @@ import {
   IconPlus,
   IconTrash,
   IconFileText,
+  IconTag,
 } from '@tabler/icons-react';
 
 import { useCart } from '../hooks/useCart';
@@ -38,19 +38,19 @@ import type { SplitPaymentDetail } from '../types';
 export interface PaymentPanelProps {
   isProcessing: boolean;
   onCompleteCheckout: () => void;
-  onOpenOrderDiscount: () => void;
+  onOpenOrderDiscount?: () => void;
 }
 
 export function PaymentPanel({
   isProcessing,
   onCompleteCheckout,
-  onOpenOrderDiscount,
 }: PaymentPanelProps) {
   const {
     items,
     subtotalCents,
     discountCents,
     totalCents,
+    setDiscount,
     paymentMethod,
     changePaymentMethod,
     splitPayments,
@@ -71,6 +71,41 @@ export function PaymentPanel({
     changeDueDate,
     changeTenderedAmountCents,
   } = useCart();
+
+  // Inline Order Discount State
+  const [discountMode, setDiscountMode] = useState<'percent' | 'amount'>('percent');
+  const [discountInput, setDiscountInput] = useState<number | ''>('');
+
+  // Calculate order discount cents based on mode & input
+  const calculatedDiscountCents = useMemo(() => {
+    if (typeof discountInput !== 'number' || discountInput <= 0 || subtotalCents <= 0) {
+      return 0;
+    }
+    if (discountMode === 'percent') {
+      const disc = Math.round((subtotalCents * discountInput) / 100);
+      return Math.min(disc, subtotalCents);
+    } else {
+      const disc = Math.round(discountInput * 100);
+      return Math.min(disc, subtotalCents);
+    }
+  }, [discountInput, discountMode, subtotalCents]);
+
+  // Sync calculated discount to cart store
+  useEffect(() => {
+    setDiscount(calculatedDiscountCents);
+  }, [calculatedDiscountCents, setDiscount]);
+
+  // Sync external discountCents to discountInput state if set externally
+  useEffect(() => {
+    if (discountCents > 0 && discountInput === '') {
+      if (discountMode === 'percent' && subtotalCents > 0) {
+        const pct = Math.round((discountCents / subtotalCents) * 100);
+        setDiscountInput(pct);
+      } else {
+        setDiscountInput(Math.round(discountCents / 100));
+      }
+    }
+  }, [discountCents, subtotalCents, discountInput, discountMode]);
 
   // Tendered cash state in rupees
   const [tenderedRupees, setTenderedRupees] = useState<number | ''>('');
@@ -209,22 +244,73 @@ export function PaymentPanel({
           </Text>
         </Group>
 
-        {/* 2. Discount Line */}
-        {discountCents > 0 && (
-          <Group justify="space-between" align="center">
-            <Group gap={4} style={{ cursor: 'pointer' }} onClick={onOpenOrderDiscount}>
-              <Text size="sm" c="red" fw={600}>
-                Order Discount
-              </Text>
-              <Badge size="xs" color="red" variant="subtle">
-                Edit
-              </Badge>
+        {/* 2. Inline Order Discount Box (Matching user mockup) */}
+        <Paper
+          p="xs"
+          radius="var(--mantine-radius-default)"
+          style={{
+            backgroundColor: 'var(--mantine-color-red-0)',
+            border: '1px solid var(--mantine-color-red-3)',
+          }}
+        >
+          <Stack gap={6}>
+            {/* Header: Icon + ORDER DISCOUNT label on left, % / Rs. SegmentedControl on right */}
+            <Group justify="space-between" align="center">
+              <Group gap={6} align="center">
+                <IconTag size={15} color="var(--mantine-color-red-7)" />
+                <Text size="xs" fw={700} c="red.7" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
+                  ORDER DISCOUNT
+                </Text>
+              </Group>
+
+              <SegmentedControl
+                size="xs"
+                color="red"
+                value={discountMode}
+                onChange={(val) => {
+                  setDiscountMode(val as 'percent' | 'amount');
+                  setDiscountInput('');
+                }}
+                data={[
+                  { label: '%', value: 'percent' },
+                  { label: 'Rs.', value: 'amount' },
+                ]}
+                style={{ width: 100 }}
+                styles={{
+                  root: { padding: 2, backgroundColor: '#ffffff' },
+                  label: { padding: '2px 10px', fontSize: 11, fontWeight: 700 },
+                }}
+              />
             </Group>
-            <Text size="sm" fw={700} c="red" style={{ fontFamily: 'monospace' }}>
-              -{formatMoney(discountCents)}
-            </Text>
-          </Group>
-        )}
+
+            {/* Input & Output Row: Value Input on left, - Rs. XX,XXX on right */}
+            <Group justify="space-between" align="center">
+              <NumberInput
+                size="xs"
+                placeholder="0"
+                min={0}
+                max={discountMode === 'percent' ? 100 : Math.round(subtotalCents / 100)}
+                value={discountInput}
+                onChange={(val) => setDiscountInput(typeof val === 'number' ? val : '')}
+                styles={{
+                  input: {
+                    width: 75,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    fontFamily: 'monospace',
+                    textAlign: 'center',
+                    backgroundColor: '#ffffff',
+                    borderColor: 'var(--mantine-color-red-3)',
+                  },
+                }}
+              />
+
+              <Text size="sm" fw={700} c="red.7" style={{ fontFamily: 'monospace' }}>
+                - {formatMoney(calculatedDiscountCents)}
+              </Text>
+            </Group>
+          </Stack>
+        </Paper>
 
         {/* 3. Divider */}
         <Divider my={4} color="var(--border-strong)" />
