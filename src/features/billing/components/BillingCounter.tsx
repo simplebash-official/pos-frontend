@@ -410,7 +410,7 @@ export function BillingCounter() {
         >
           <Paper
             p="xl"
-            radius="lg"
+            radius="var(--mantine-radius-default)"
             style={{
               width: 480,
               maxWidth: '92vw',
@@ -422,7 +422,7 @@ export function BillingCounter() {
             }}
           >
             <Stack align="center" gap="md">
-              <ThemeIcon size={72} radius="xl" color="green" variant="light">
+              <ThemeIcon size={72} radius="var(--mantine-radius-default)" color="green" variant="light">
                 <IconCheck size={44} stroke={3} />
               </ThemeIcon>
 
@@ -446,7 +446,7 @@ export function BillingCounter() {
               {lastCompletedInvoice.changeDueCents ? (
                 <Paper
                   p="md"
-                  radius="lg"
+                  radius="var(--mantine-radius-default)"
                   style={{
                     width: '100%',
                     backgroundColor: 'var(--mantine-color-green-light)',

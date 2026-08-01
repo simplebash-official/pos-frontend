@@ -52,7 +52,7 @@ export function KeyboardShortcutsModal({ opened, onClose }: KeyboardShortcutsMod
               key={sc.key}
               p="xs"
               withBorder
-              radius="md"
+              radius="var(--mantine-radius-default)"
               style={{ backgroundColor: 'var(--bg-hover)' }}
             >
               <Group justify="space-between" align="center">

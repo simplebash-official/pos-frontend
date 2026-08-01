@@ -6,7 +6,6 @@ import {
   Text,
   ActionIcon,
   Tooltip,
-  Stack,
   Badge,
   ThemeIcon,
 } from '@mantine/core';
@@ -69,56 +68,44 @@ export function CartLineItem({
       style={{
         borderLeft: `4px solid ${stripeColor}`,
         backgroundColor: 'var(--bg-card)',
-        minHeight: 64,
         position: 'relative',
         animation: isNewest ? 'flashRow 0.35s ease-out' : undefined,
         transition: 'all 0.15s ease',
-        display: 'flex',
-        alignItems: 'stretch',
         overflow: 'hidden',
       }}
     >
-      {/* Content Container (Left info, Counter, Price) */}
-      <Group justify="space-between" align="center" wrap="nowrap" style={{ flex: 1, minWidth: 0, padding: '4px 8px' }}>
-        {/* Left: Category Icon, Product Name, SKU / Ticket, Stock warning & Tech note */}
-        <Group gap="xs" style={{ flex: 1, minWidth: 0, paddingRight: 6 }} wrap="nowrap">
+      {/* 1. TOP ROW: Category Icon, Product Name, SKU / Out of Stock, Discount & Delete Buttons */}
+      <Box style={{ display: 'flex', alignItems: 'stretch', minHeight: 46 }}>
+        {/* Left Info Area */}
+        <Group gap="xs" style={{ flex: 1, minWidth: 0, padding: '8px 10px' }} wrap="nowrap">
           <ThemeIcon
-            size={38}
-            radius="md"
+            size={34}
+            radius="var(--mantine-radius-default)"
             color={isStockNegative ? 'red' : catColor}
             variant="light"
-            style={{ minWidth: 38, flexShrink: 0 }}
+            style={{ minWidth: 34, flexShrink: 0 }}
           >
-            <CatIcon size={22} />
+            <CatIcon size={20} />
           </ThemeIcon>
 
           <Box style={{ flex: 1, minWidth: 0 }}>
             <Group gap={6} align="center" wrap="nowrap">
-              <Tooltip
-                label={`Stock will go negative (${item.stockQuantity ?? 0} in stock)`}
-                disabled={!isStockNegative}
-                withArrow
+              <Text
+                fw={600}
+                size="sm"
+                lineClamp={1}
+                c={isStockNegative ? 'red.7' : undefined}
+                style={{ flexShrink: 1, minWidth: 0 }}
               >
-                <Group gap={4} align="center" wrap="nowrap" style={{ flexShrink: 1, minWidth: 0 }}>
-                  <Text
-                    fw={600}
-                    size="sm"
-                    lineClamp={1}
-                    c={isStockNegative ? 'red.7' : undefined}
-                    style={{ flexShrink: 1, minWidth: 0 }}
-                  >
-                    {item.name}
-                  </Text>
-                  {isStockNegative && (
-                    <IconAlertTriangle
-                      size={14}
-                      color="var(--mantine-color-red-6)"
-                      style={{ flexShrink: 0 }}
-                    />
-                  )}
-                </Group>
-              </Tooltip>
-
+                {item.name}
+              </Text>
+              {isStockNegative && (
+                <IconAlertTriangle
+                  size={14}
+                  color="var(--mantine-color-red-6)"
+                  style={{ flexShrink: 0 }}
+                />
+              )}
               {sourceType === 'repair' && (
                 <Badge
                   size="xs"
@@ -143,102 +130,110 @@ export function CartLineItem({
               )}
             </Group>
 
-            <Group gap="xs" align="center" mt={2} wrap="nowrap">
+            <Group gap={4} align="center" mt={2} wrap="nowrap">
               {item.sku && (
                 <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', fontSize: 11, flexShrink: 0 }}>
                   {item.sku}
                 </Text>
               )}
-
+              {isStockNegative && (
+                <Text size="xs" c="red.6" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
+                  {item.sku ? ' · ' : ''}out of stock
+                </Text>
+              )}
               {item.assignedEmployeeName && (
                 <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10, flexShrink: 0 }}>
-                  Technician: {item.assignedEmployeeName}
+                  · Tech: {item.assignedEmployeeName}
                 </Text>
               )}
             </Group>
           </Box>
         </Group>
 
-        {/* Center: Quantity Input or Locked Qty - FIXED COLUMN WIDTH for perfect alignment */}
-        <Box style={{ width: 105, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
-          {isServiceJob ? (
-            <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
-              1 (Locked)
-            </Badge>
-          ) : (
-            <QuantityInput
-              value={item.quantity}
-              onChange={(val) => onUpdateQty(item.id, val)}
-              min={1}
-              size="xs"
-            />
-          )}
-        </Box>
+        {/* Top Right: Discount Column Button & Delete Column Button */}
+        <Group gap={0} align="stretch" style={{ flexShrink: 0 }}>
+          {/* Discount Column */}
+          <DiscountPopover
+            opened={discountOpen}
+            onClose={() => setDiscountOpen(false)}
+            targetName={item.name}
+            originalCents={originalLineTotal}
+            currentDiscountCents={item.discountCents}
+            onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
+          >
+            <Tooltip label="Line Discount (D)" position="top">
+              <ActionIcon
+                variant="light"
+                color={hasLineDiscount ? 'red' : 'blue'}
+                radius={0}
+                onClick={() => setDiscountOpen(true)}
+                style={{
+                  width: 40,
+                  height: '100%',
+                  borderLeft: '1px solid var(--border)',
+                }}
+              >
+                <IconTag size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </DiscountPopover>
 
-        {/* Right: Line total, unit price & discounts - FIXED COLUMN WIDTH */}
-        <Stack gap={0} align="flex-end" justify="center" style={{ width: 90, flexShrink: 0, paddingRight: 4 }}>
-          {(item.quantity > 1 || hasLineDiscount) && (
-            <Text size="xs" c="dimmed" ta="right" style={{ fontSize: 10 }}>
-              {formatMoney(item.unitPriceCents)} ea
-            </Text>
-          )}
-
-          {hasLineDiscount && (
-            <Text size="xs" c="dimmed" td="line-through" ta="right" style={{ fontSize: 10 }}>
-              {formatMoney(originalLineTotal)}
-            </Text>
-          )}
-
-          <Text size="sm" fw={800} ta="right" style={{ fontFamily: 'monospace' }}>
-            {formatMoney(item.totalCents)}
-          </Text>
-        </Stack>
-      </Group>
-
-      {/* Far Right: Full-height Vertical Columns for Discount & Delete Icons with Filled Colors */}
-      <Group gap={0} align="stretch" style={{ flexShrink: 0 }}>
-        {/* Discount Column */}
-        <DiscountPopover
-          opened={discountOpen}
-          onClose={() => setDiscountOpen(false)}
-          targetName={item.name}
-          originalCents={originalLineTotal}
-          currentDiscountCents={item.discountCents}
-          onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
-        >
-          <Tooltip label="Line Discount (D)" position="top">
+          {/* Delete Column */}
+          <Tooltip label="Remove Line (Delete)" position="top">
             <ActionIcon
               variant="light"
-              color={hasLineDiscount ? 'red' : 'blue'}
+              color="red"
               radius={0}
-              onClick={() => setDiscountOpen(true)}
+              onClick={() => onRemove(item.id)}
               style={{
-                width: 44,
+                width: 40,
                 height: '100%',
                 borderLeft: '1px solid var(--border)',
               }}
             >
-              <IconTag size={18} />
+              <IconTrash size={16} />
             </ActionIcon>
           </Tooltip>
-        </DiscountPopover>
+        </Group>
+      </Box>
 
-        {/* Delete Column */}
-        <Tooltip label="Remove Line (Delete)" position="top">
-          <ActionIcon
-            variant="light"
-            color="red"
-            radius={0}
-            onClick={() => onRemove(item.id)}
-            style={{
-              width: 44,
-              height: '100%',
-              borderLeft: '1px solid var(--border)',
-            }}
-          >
-            <IconTrash size={18} />
-          </ActionIcon>
-        </Tooltip>
+      {/* 2. HORIZONTAL DIVIDER */}
+      <Box style={{ borderTop: '1px solid var(--border)' }} />
+
+      {/* 3. BOTTOM ROW: Quantity Counter (Left) & Price (Right) */}
+      <Group justify="space-between" align="center" px="xs" py={6}>
+        {/* Left: Quantity Counter */}
+        {isServiceJob ? (
+          <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
+            1 (Locked)
+          </Badge>
+        ) : (
+          <QuantityInput
+            value={item.quantity}
+            onChange={(val) => onUpdateQty(item.id, val)}
+            min={1}
+            size="xs"
+          />
+        )}
+
+        {/* Right: Price Display */}
+        <Group gap="xs" align="center">
+          {(item.quantity > 1 || hasLineDiscount) && (
+            <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+              {formatMoney(item.unitPriceCents)} each
+            </Text>
+          )}
+
+          {hasLineDiscount && (
+            <Text size="xs" c="dimmed" td="line-through" style={{ fontSize: 11 }}>
+              {formatMoney(originalLineTotal)}
+            </Text>
+          )}
+
+          <Text size="sm" fw={700} style={{ fontFamily: 'monospace' }}>
+            {formatMoney(item.totalCents)}
+          </Text>
+        </Group>
       </Group>
     </Paper>
   );

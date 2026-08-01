@@ -70,13 +70,13 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
         </Group>
       }
       size="xl"
-      radius="lg"
+      radius="var(--mantine-radius-default)"
       padding="md"
       scrollAreaComponent={Box}
     >
       <Stack gap="md">
         {/* Controls Toolbar */}
-        <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
+        <Paper p="xs" radius="var(--mantine-radius-default)" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
           <Group justify="space-between" wrap="wrap">
             <Group gap="md">
               <Box>

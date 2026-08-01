@@ -188,7 +188,7 @@ export function PaymentPanel({
   return (
     <Paper
       p="md"
-      radius="lg"
+      radius="var(--mantine-radius-default)"
       style={{
         height: '100%',
         display: 'flex',
@@ -343,7 +343,7 @@ export function PaymentPanel({
                     size="xs"
                     variant="outline"
                     color="gray"
-                    radius="xl"
+                    radius="var(--mantine-radius-default)"
                     onClick={() => setTenderedRupees(amt)}
                   >
                     Rs. {amt.toLocaleString()}
@@ -352,7 +352,7 @@ export function PaymentPanel({
               </Group>
 
               {/* Change Due / Short By Display */}
-              <Paper p="xs" withBorder radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
+              <Paper p="xs" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--bg-card)' }}>
                 <Group justify="space-between" align="center">
                   <Text size="xs" fw={700} c="dimmed">
                     {isCashShort ? 'SHORT BY' : 'CHANGE DUE'}
@@ -453,7 +453,7 @@ export function PaymentPanel({
                 </Group>
               ))}
 
-              <Paper p="xs" withBorder radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
+              <Paper p="xs" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--bg-card)' }}>
                 <Group justify="space-between" align="center">
                   <Text size="xs" fw={700} c="dimmed">
                     REMAINING TO ALLOCATE
@@ -517,7 +517,7 @@ export function PaymentPanel({
           }
           disabled={Boolean(customerId)}
         >
-          <Paper p="xs" withBorder radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Paper p="xs" withBorder radius="var(--mantine-radius-default)" style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" align="center">
               <Text
                 size="xs"

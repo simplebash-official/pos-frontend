@@ -81,7 +81,7 @@ export function StandalonePrintView() {
   if (!invoice) {
     return (
       <Container size="sm" py={100} style={{ textAlign: 'center' }}>
-        <Paper p="xl" radius="lg" withBorder>
+        <Paper p="xl" radius="var(--mantine-radius-default)" withBorder>
           <Text size="lg" fw={700} c="red">
             Invoice Not Found
           </Text>

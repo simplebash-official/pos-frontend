@@ -285,7 +285,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             color="blue"
             leftSection={<IconLayoutGrid size={15} />}
             onClick={() => setSelectedCategory('all')}
-            radius="xl"
+            radius="var(--mantine-radius-default)"
           >
             All
           </Button>
@@ -297,7 +297,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
               color={color}
               leftSection={<Icon size={15} />}
               onClick={() => setSelectedCategory(key)}
-              radius="xl"
+              radius="var(--mantine-radius-default)"
             >
               {label}
             </Button>
@@ -308,7 +308,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             color="orange"
             leftSection={<IconTools size={15} />}
             onClick={onOpenServicePicker}
-            radius="xl"
+            radius="var(--mantine-radius-default)"
           >
             + Services (F4)
           </Button>
