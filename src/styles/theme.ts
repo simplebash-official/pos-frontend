@@ -13,6 +13,20 @@ const CONTAINER_SIZES: Record<string, string> = {
 
 export const mantineTheme: MantineThemeOverride = createTheme({
   /** Put your mantine theme override here */
+  colors: {
+    amber: [
+      '#fff9db',
+      '#fff3bf',
+      '#ffec99',
+      '#ffe066',
+      '#ffd43b',
+      '#fcc419',
+      '#fab005',
+      '#f59f00',
+      '#f08c00',
+      '#e67700',
+    ],
+  },
   fontSizes: {
     xs: rem('12px'),
     sm: rem('14px'),

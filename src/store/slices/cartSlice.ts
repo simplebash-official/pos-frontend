@@ -249,6 +249,12 @@ const cartSlice = createSlice({
         return;
       }
       state.isCredit = action.payload;
+      if (action.payload) {
+        state.tenderedAmountCents = 0;
+        if (state.documentSelection === 'receipt') {
+          state.documentSelection = 'invoice';
+        }
+      }
     },
 
     setCardRef: (state, action: PayloadAction<string>) => {

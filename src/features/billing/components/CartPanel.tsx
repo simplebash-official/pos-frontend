@@ -53,6 +53,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
     holdCurrentCart,
     clear,
     attachCustomer,
+    isCredit,
   } = useCart();
 
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
@@ -140,21 +141,25 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
         justify="space-between"
         align="center"
         pb="xs"
+        wrap="nowrap"
         style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <div>
-          <Group gap="xs" align="center">
-            <Text fw={700} size="sm">
-              Current Sale
-            </Text>
-            <Badge size="xs" color="blue" variant="light">
-              {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
-              {totalUnitCount !== 1 ? 's' : ''}
+        <Group gap={6} align="center" wrap="nowrap" style={{ minWidth: 0 }}>
+          <Text fw={700} size="sm" style={{ whiteSpace: 'nowrap' }}>
+            Current Sale
+          </Text>
+          <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
+            {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
+            {totalUnitCount !== 1 ? 's' : ''}
+          </Badge>
+          {isCredit && (
+            <Badge size="xs" color="amber" variant="filled" radius="xs" style={{ fontWeight: 800, whiteSpace: 'nowrap' }}>
+              CREDIT
             </Badge>
-          </Group>
-        </div>
+          )}
+        </Group>
 
-        <Group gap={4}>
+        <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
           <Button
             size="xs"
             variant="light"
@@ -162,6 +167,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
             leftSection={<IconPlayerPause size={14} />}
             disabled={items.length === 0}
             onClick={() => holdCurrentCart()}
+            style={{ paddingLeft: 8, paddingRight: 8 }}
           >
             Hold (Ctrl+H)
           </Button>
@@ -173,6 +179,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
             leftSection={<IconTrash size={14} />}
             disabled={items.length === 0}
             onClick={() => setClearDialogOpen(true)}
+            style={{ paddingLeft: 6, paddingRight: 6 }}
           >
             Clear
           </Button>
