@@ -64,7 +64,7 @@ export function CartLineItem({
 
   return (
     <Paper
-      p="xs"
+      p={0}
       withBorder
       style={{
         borderLeft: `4px solid ${stripeColor}`,
@@ -73,19 +73,23 @@ export function CartLineItem({
         position: 'relative',
         animation: isNewest ? 'flashRow 0.35s ease-out' : undefined,
         transition: 'all 0.15s ease',
+        display: 'flex',
+        alignItems: 'stretch',
+        overflow: 'hidden',
       }}
     >
-      <Group justify="space-between" align="center" wrap="nowrap">
+      {/* Content Container (Left info, Counter, Price) */}
+      <Group justify="space-between" align="center" wrap="nowrap" style={{ flex: 1, minWidth: 0, padding: '4px 8px' }}>
         {/* Left: Category Icon, Product Name, SKU / Ticket, Stock warning & Tech note */}
-        <Group gap="xs" style={{ flex: 1, minWidth: 0, paddingRight: 8 }} wrap="nowrap">
+        <Group gap="xs" style={{ flex: 1, minWidth: 0, paddingRight: 6 }} wrap="nowrap">
           <ThemeIcon
-            size={40}
+            size={38}
             radius="md"
             color={isStockNegative ? 'red' : catColor}
             variant="light"
-            style={{ minWidth: 40, flexShrink: 0 }}
+            style={{ minWidth: 38, flexShrink: 0 }}
           >
-            <CatIcon size={24} />
+            <CatIcon size={22} />
           </ThemeIcon>
 
           <Box style={{ flex: 1, minWidth: 0 }}>
@@ -155,8 +159,8 @@ export function CartLineItem({
           </Box>
         </Group>
 
-        {/* Center-Right: Quantity Input or Locked Qty */}
-        <Group gap="xs" align="center" wrap="nowrap">
+        {/* Center: Quantity Input or Locked Qty - FIXED COLUMN WIDTH for perfect alignment */}
+        <Box style={{ width: 105, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
           {isServiceJob ? (
             <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
               1 (Locked)
@@ -169,53 +173,72 @@ export function CartLineItem({
               size="xs"
             />
           )}
+        </Box>
 
-          {/* Right: Line total, unit price & discounts */}
-          <Stack gap={0} align="flex-end" style={{ minWidth: 90 }}>
-            {(item.quantity > 1 || hasLineDiscount) && (
-              <Text size="xs" c="dimmed" ta="right">
-                {formatMoney(item.unitPriceCents)} ea
-              </Text>
-            )}
+        {/* Right: Line total, unit price & discounts - FIXED COLUMN WIDTH */}
+        <Stack gap={0} align="flex-end" justify="center" style={{ width: 90, flexShrink: 0, paddingRight: 4 }}>
+          {(item.quantity > 1 || hasLineDiscount) && (
+            <Text size="xs" c="dimmed" ta="right" style={{ fontSize: 10 }}>
+              {formatMoney(item.unitPriceCents)} ea
+            </Text>
+          )}
 
-            <DiscountPopover
-              opened={discountOpen}
-              onClose={() => setDiscountOpen(false)}
-              targetName={item.name}
-              originalCents={originalLineTotal}
-              currentDiscountCents={item.discountCents}
-              onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
+          {hasLineDiscount && (
+            <Text size="xs" c="dimmed" td="line-through" ta="right" style={{ fontSize: 10 }}>
+              {formatMoney(originalLineTotal)}
+            </Text>
+          )}
+
+          <Text size="sm" fw={800} ta="right" style={{ fontFamily: 'monospace' }}>
+            {formatMoney(item.totalCents)}
+          </Text>
+        </Stack>
+      </Group>
+
+      {/* Far Right: Full-height Vertical Columns for Discount & Delete Icons with Filled Colors */}
+      <Group gap={0} align="stretch" style={{ flexShrink: 0 }}>
+        {/* Discount Column */}
+        <DiscountPopover
+          opened={discountOpen}
+          onClose={() => setDiscountOpen(false)}
+          targetName={item.name}
+          originalCents={originalLineTotal}
+          currentDiscountCents={item.discountCents}
+          onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
+        >
+          <Tooltip label="Line Discount (D)" position="top">
+            <ActionIcon
+              variant="light"
+              color={hasLineDiscount ? 'red' : 'blue'}
+              radius={0}
+              onClick={() => setDiscountOpen(true)}
+              style={{
+                width: 44,
+                height: '100%',
+                borderLeft: '1px solid var(--border)',
+              }}
             >
-              <Group
-                gap={4}
-                align="center"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setDiscountOpen(true)}
-              >
-                {hasLineDiscount && (
-                  <Text size="xs" c="dimmed" td="line-through" ta="right">
-                    {formatMoney(originalLineTotal)}
-                  </Text>
-                )}
-                <Text size="sm" fw={800} ta="right" style={{ fontFamily: 'monospace' }}>
-                  {formatMoney(item.totalCents)}
-                </Text>
-                <Tooltip label="Line Discount (D)">
-                  <ActionIcon size="xs" variant="subtle" color={hasLineDiscount ? 'red' : 'gray'}>
-                    <IconTag size={12} />
-                  </ActionIcon>
-                </Tooltip>
-              </Group>
-            </DiscountPopover>
-          </Stack>
-
-          {/* Far Right: Remove Button */}
-          <Tooltip label="Remove Line (Delete)">
-            <ActionIcon size="sm" color="red" variant="subtle" onClick={() => onRemove(item.id)}>
-              <IconTrash size={14} />
+              <IconTag size={18} />
             </ActionIcon>
           </Tooltip>
-        </Group>
+        </DiscountPopover>
+
+        {/* Delete Column */}
+        <Tooltip label="Remove Line (Delete)" position="top">
+          <ActionIcon
+            variant="light"
+            color="red"
+            radius={0}
+            onClick={() => onRemove(item.id)}
+            style={{
+              width: 44,
+              height: '100%',
+              borderLeft: '1px solid var(--border)',
+            }}
+          >
+            <IconTrash size={18} />
+          </ActionIcon>
+        </Tooltip>
       </Group>
     </Paper>
   );
