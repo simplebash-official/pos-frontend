@@ -38,7 +38,7 @@ export function CartItemList() {
                 <Group gap="xs">
                   <QuantityInput
                     value={item.quantity}
-                    onChange={(val) => updateQty(item.id, val)}
+                    onChange={(val) => updateQty(item.id, typeof val === 'number' ? val : 1)}
                     min={1}
                     size="xs"
                   />

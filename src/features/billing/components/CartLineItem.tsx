@@ -210,7 +210,7 @@ export function CartLineItem({
         ) : (
           <QuantityInput
             value={item.quantity}
-            onChange={(val) => onUpdateQty(item.id, val)}
+            onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
             min={1}
             size="xs"
           />

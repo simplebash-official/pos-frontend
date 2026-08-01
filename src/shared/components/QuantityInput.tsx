@@ -2,10 +2,11 @@ import { Group, ActionIcon, NumberInput, NumberInputProps, Box, Text } from '@ma
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 
 export interface QuantityInputProps extends Omit<NumberInputProps, 'value' | 'onChange'> {
-  value: number;
-  onChange: (value: number) => void;
+  value: number | '';
+  onChange: (value: number | '') => void;
   min?: number;
   max?: number;
+  placeholder?: string;
 }
 
 const HEIGHT_MAP: Record<string, number> = {
@@ -21,6 +22,7 @@ export function QuantityInput({
   onChange,
   min,
   max,
+  placeholder = '0',
   label,
   style,
   className,
@@ -28,15 +30,19 @@ export function QuantityInput({
   radius,
   ...props
 }: QuantityInputProps & { label?: string; style?: React.CSSProperties; className?: string }) {
+  const numericVal = typeof value === 'number' ? value : 0;
+
   const handleDecrement = () => {
-    if (min === undefined || value > min) {
-      onChange(value - 1);
+    if (min === undefined || numericVal > min) {
+      const next = numericVal - 1;
+      onChange(min !== undefined ? Math.max(min, next) : next);
     }
   };
 
   const handleIncrement = () => {
-    if (max === undefined || value < max) {
-      onChange(value + 1);
+    if (max === undefined || numericVal < max) {
+      const next = typeof value === 'number' ? value + 1 : 1;
+      onChange(max !== undefined ? Math.min(max, next) : next);
     }
   };
 
@@ -48,6 +54,21 @@ export function QuantityInput({
       ? `${radius}px`
       : `var(--mantine-radius-${radius}, var(--mantine-radius-default))`
     : 'var(--mantine-radius-default)';
+
+  const handleChange = (val: string | number) => {
+    if (val === '' || val === null || val === undefined) {
+      onChange('');
+      return;
+    }
+    let num = typeof val === 'number' ? val : Number(val);
+    if (isNaN(num)) {
+      onChange('');
+      return;
+    }
+    if (min !== undefined && num < min) num = min;
+    if (max !== undefined && num > max) num = max;
+    onChange(num);
+  };
 
   return (
     <Box style={{ width: 'fit-content', ...style }} className={className}>
@@ -63,7 +84,7 @@ export function QuantityInput({
           border: '1px solid var(--mantine-color-default-border)',
           borderRadius: borderRadiusStyle,
           overflow: 'hidden',
-          backgroundColor: 'var(--mantine-color-body)',
+          backgroundColor: 'var(--bg-card)',
           height: controlHeight,
           width: 'fit-content',
         }}
@@ -72,7 +93,7 @@ export function QuantityInput({
           variant="subtle"
           color="gray"
           onClick={handleDecrement}
-          disabled={min !== undefined && value <= min}
+          disabled={min !== undefined && numericVal <= min}
           aria-label="Decrease quantity"
           tabIndex={-1}
           style={{
@@ -88,10 +109,13 @@ export function QuantityInput({
         <NumberInput
           variant="unstyled"
           hideControls
+          placeholder={placeholder}
           value={value}
-          onChange={(val) => onChange(Number(val))}
+          onChange={handleChange}
           min={min}
           max={max}
+          clampBehavior="strict"
+          allowNegative={min !== undefined ? min < 0 : false}
           size={size}
           styles={{
             input: {
@@ -109,7 +133,7 @@ export function QuantityInput({
           variant="subtle"
           color="gray"
           onClick={handleIncrement}
-          disabled={max !== undefined && value >= max}
+          disabled={max !== undefined && numericVal >= max}
           aria-label="Increase quantity"
           tabIndex={-1}
           style={{

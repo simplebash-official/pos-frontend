@@ -32,6 +32,7 @@ import { useCart } from '../hooks/useCart';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney } from '@/shared/lib/money';
+import { QuantityInput } from '@/shared/components/QuantityInput';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import type { SplitPaymentDetail } from '../types';
 
@@ -82,7 +83,8 @@ export function PaymentPanel({
       return 0;
     }
     if (discountMode === 'percent') {
-      const disc = Math.round((subtotalCents * discountInput) / 100);
+      const clampedPct = Math.min(100, Math.max(0, discountInput));
+      const disc = Math.round((subtotalCents * clampedPct) / 100);
       return Math.min(disc, subtotalCents);
     } else {
       const disc = Math.round(discountInput * 100);
@@ -249,16 +251,16 @@ export function PaymentPanel({
           p="xs"
           radius="var(--mantine-radius-default)"
           style={{
-            backgroundColor: 'var(--mantine-color-red-0)',
-            border: '1px solid var(--mantine-color-red-3)',
+            backgroundColor: 'var(--mantine-color-red-light)',
+            border: '1px solid var(--mantine-color-red-light-border)',
           }}
         >
           <Stack gap={6}>
             {/* Header: Icon + ORDER DISCOUNT label on left, % / Rs. SegmentedControl on right */}
             <Group justify="space-between" align="center">
               <Group gap={6} align="center">
-                <IconTag size={15} color="var(--mantine-color-red-7)" />
-                <Text size="xs" fw={700} c="red.7" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
+                <IconTag size={15} color="var(--mantine-color-red-6)" />
+                <Text size="xs" fw={700} c="red.6" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
                   ORDER DISCOUNT
                 </Text>
               </Group>
@@ -268,8 +270,11 @@ export function PaymentPanel({
                 color="red"
                 value={discountMode}
                 onChange={(val) => {
-                  setDiscountMode(val as 'percent' | 'amount');
-                  setDiscountInput('');
+                  const newMode = val as 'percent' | 'amount';
+                  setDiscountMode(newMode);
+                  if (newMode === 'percent' && typeof discountInput === 'number' && discountInput > 100) {
+                    setDiscountInput(100);
+                  }
                 }}
                 data={[
                   { label: '%', value: 'percent' },
@@ -277,31 +282,31 @@ export function PaymentPanel({
                 ]}
                 style={{ width: 100 }}
                 styles={{
-                  root: { padding: 2, backgroundColor: '#ffffff' },
+                  root: { padding: 2, backgroundColor: 'var(--bg-card)' },
                   label: { padding: '2px 10px', fontSize: 11, fontWeight: 700 },
                 }}
               />
             </Group>
 
-            {/* Input & Output Row: Value Input on left, - Rs. XX,XXX on right */}
+            {/* Input & Output Row: Value Input on left (- 0 +), - Rs. XX,XXX on right */}
             <Group justify="space-between" align="center">
-              <NumberInput
+              <QuantityInput
                 size="xs"
                 placeholder="0"
                 min={0}
                 max={discountMode === 'percent' ? 100 : Math.round(subtotalCents / 100)}
                 value={discountInput}
-                onChange={(val) => setDiscountInput(typeof val === 'number' ? val : '')}
-                styles={{
-                  input: {
-                    width: 75,
-                    fontWeight: 700,
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    textAlign: 'center',
-                    backgroundColor: '#ffffff',
-                    borderColor: 'var(--mantine-color-red-3)',
-                  },
+                onChange={(val) => {
+                  if (val === '') {
+                    setDiscountInput('');
+                    return;
+                  }
+                  if (discountMode === 'percent') {
+                    setDiscountInput(Math.max(0, Math.min(100, val)));
+                  } else {
+                    const maxRs = subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0;
+                    setDiscountInput(Math.max(0, Math.min(maxRs, val)));
+                  }
                 }}
               />
 
