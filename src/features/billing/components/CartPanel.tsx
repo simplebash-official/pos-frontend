@@ -9,9 +9,9 @@ import {
   ActionIcon,
   Menu,
   ScrollArea,
-  Popover,
   Alert,
   Box,
+  ThemeIcon,
 } from '@mantine/core';
 import {
   IconShoppingCart,
@@ -20,9 +20,7 @@ import {
   IconDotsVertical,
   IconUser,
   IconPlus,
-  IconUserCheck,
   IconNotes,
-  IconUserPlus,
   IconChevronUp,
   IconChevronDown,
 } from '@tabler/icons-react';
@@ -58,7 +56,6 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
   } = useCart();
 
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
-  const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const [scrollState, setScrollState] = useState({
@@ -206,79 +203,64 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
       {/* 2. Customer Strip (Always present directly below header) */}
       <Box py="xs">
         {customerName ? (
-          <Popover
-            opened={customerPopoverOpen}
-            onChange={setCustomerPopoverOpen}
-            position="bottom-start"
-            withArrow
-          >
-            <Popover.Target>
-              <Paper
-                p="xs"
-                withBorder
-                style={{
-                  backgroundColor: 'var(--mantine-color-blue-light)',
-                  borderColor: 'var(--mantine-color-blue-4)',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setCustomerPopoverOpen((o) => !o)}
-              >
-                <Group justify="space-between" align="center">
-                  <Group gap="xs">
-                    <IconUserCheck size={18} color="var(--mantine-color-blue-6)" />
-                    <div>
-                      <Group gap="xs">
-                        <Text size="sm" fw={700}>
-                          {customerName}
-                        </Text>
-                        {customerBalanceCents > 0 && (
-                          <Badge size="xs" color="red" variant="filled">
-                            Bal: {formatMoney(customerBalanceCents)}
-                          </Badge>
-                        )}
-                      </Group>
-                      {customerPhone && (
-                        <Text size="xs" c="dimmed">
-                          {customerPhone}
-                        </Text>
-                      )}
-                    </div>
+          <Paper p="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+            <Group justify="space-between" align="center" wrap="nowrap">
+              <Group gap="xs" wrap="nowrap" align="center" style={{ minWidth: 0, flex: 1 }}>
+                <ThemeIcon
+                  size={36}
+                  radius="md"
+                  color="blue"
+                  variant="light"
+                  style={{ flexShrink: 0 }}
+                >
+                  <IconUser size={18} />
+                </ThemeIcon>
+                <Stack gap={0} style={{ minWidth: 0, flex: 1 }}>
+                  <Group gap="xs" align="center" wrap="nowrap">
+                    <Text size="sm" fw={700} lineClamp={1}>
+                      {customerName}
+                    </Text>
+                    {customerBalanceCents > 0 && (
+                      <Badge
+                        size="xs"
+                        color="red"
+                        variant="light"
+                        radius="xl"
+                        fw={600}
+                        style={{ flexShrink: 0 }}
+                      >
+                        Bal: {formatMoney(customerBalanceCents)}
+                      </Badge>
+                    )}
                   </Group>
-                  <Text size="xs" c="blue" fw={600}>
-                    Manage &gt;
-                  </Text>
-                </Group>
-              </Paper>
-            </Popover.Target>
+                  {customerPhone && (
+                    <Text size="xs" c="dimmed" lineClamp={1}>
+                      {customerPhone}
+                    </Text>
+                  )}
+                </Stack>
+              </Group>
 
-            <Popover.Dropdown p="xs">
-              <Stack gap={4}>
+              <Group gap={6} wrap="nowrap" align="center" style={{ flexShrink: 0 }}>
                 <Button
                   size="xs"
                   variant="light"
                   color="blue"
-                  leftSection={<IconUserPlus size={14} />}
-                  onClick={() => {
-                    setCustomerPopoverOpen(false);
-                    onOpenCustomerPicker();
-                  }}
+                  onClick={onOpenCustomerPicker}
                 >
-                  Change Customer
+                  Change
                 </Button>
                 <Button
                   size="xs"
-                  variant="subtle"
+                  variant="light"
                   color="red"
-                  onClick={() => {
-                    attachCustomer(null, null);
-                    setCustomerPopoverOpen(false);
-                  }}
+                  onClick={() => attachCustomer(null, null)}
                 >
-                  Detach Customer
+                  Detach
                 </Button>
-              </Stack>
-            </Popover.Dropdown>
-          </Popover>
+              </Group>
+            </Group>
+          </Paper>
         ) : (
           <Paper
             p="xs"
