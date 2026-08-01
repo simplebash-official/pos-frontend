@@ -422,7 +422,12 @@ export function BillingCounter() {
             }}
           >
             <Stack align="center" gap="md">
-              <ThemeIcon size={72} radius="var(--mantine-radius-default)" color="green" variant="light">
+              <ThemeIcon
+                size={72}
+                radius="var(--mantine-radius-default)"
+                color="green"
+                variant="light"
+              >
                 <IconCheck size={44} stroke={3} />
               </ThemeIcon>
 

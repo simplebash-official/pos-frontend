@@ -40,7 +40,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
 
-  const { add, attachCustomer, soundEnabled, customerId } = useCart();
+  const { add, items, attachCustomer, soundEnabled, customerId } = useCart();
 
   // Inventory Products Query
   const { data: products = [] } = useQuery({
@@ -79,6 +79,18 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       return matchesCat && matchesSearch;
     });
   }, [products, selectedCategory, search]);
+
+  // Retail quantity already in the cart, per product — subtracted from stock so
+  // the catalog badge reflects what's actually still available to add.
+  const cartQuantityByProductId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      if (item.sourceType === 'retail') {
+        map.set(item.productId, (map.get(item.productId) ?? 0) + item.quantity);
+      }
+    }
+    return map;
+  }, [items]);
 
   const handleAddProduct = (p: Product) => {
     add({
@@ -319,8 +331,9 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       <ScrollArea style={{ flex: 1 }} styles={{ viewport: { padding: 0 } }}>
         <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
           {filteredProducts.map((p, index) => {
-            const isZeroStock = p.stockQuantity <= 0;
-            const isLowStock = p.stockQuantity > 0 && p.stockQuantity <= p.minStockThreshold;
+            const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+            const isZeroStock = remainingStock <= 0;
+            const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
             const isSelected = selectedIndex !== null && index === selectedIndex;
             const {
               Icon: CatIcon,
@@ -399,12 +412,12 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                           0 Left
                         </Badge>
                       ) : isLowStock ? (
-                        <Badge size="xs" color="amber" variant="filled">
-                          {p.stockQuantity} Left
+                        <Badge size="xs" color="yellow" variant="filled">
+                          {remainingStock} Left
                         </Badge>
                       ) : (
                         <Badge size="xs" color="gray" variant="light">
-                          {p.stockQuantity} Left
+                          {remainingStock} Left
                         </Badge>
                       )}
                     </Group>

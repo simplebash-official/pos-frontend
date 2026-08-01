@@ -6,7 +6,6 @@ import {
   Text,
   Divider,
   Button,
-  NumberInput,
   TextInput,
   SegmentedControl,
   Switch,
@@ -32,7 +31,7 @@ import { useCart } from '../hooks/useCart';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney } from '@/shared/lib/money';
-import { QuantityInput } from '@/shared/components/QuantityInput';
+import { AmountInput } from '@/shared/components/AmountInput';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import type { SplitPaymentDetail } from '../types';
 
@@ -42,10 +41,7 @@ export interface PaymentPanelProps {
   onOpenOrderDiscount?: () => void;
 }
 
-export function PaymentPanel({
-  isProcessing,
-  onCompleteCheckout,
-}: PaymentPanelProps) {
+export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelProps) {
   const {
     items,
     subtotalCents,
@@ -74,15 +70,16 @@ export function PaymentPanel({
   } = useCart();
 
   // Inline Order Discount State
-  const [discountMode, setDiscountMode] = useState<'percent' | 'amount'>('percent');
+  const [discountMode, setDiscountMode] = useState<'percentage' | 'amount'>('percentage');
   const [discountInput, setDiscountInput] = useState<number | ''>('');
+  const [hasEditedDiscount, setHasEditedDiscount] = useState(false);
 
   // Calculate order discount cents based on mode & input
   const calculatedDiscountCents = useMemo(() => {
     if (typeof discountInput !== 'number' || discountInput <= 0 || subtotalCents <= 0) {
       return 0;
     }
-    if (discountMode === 'percent') {
+    if (discountMode === 'percentage') {
       const clampedPct = Math.min(100, Math.max(0, discountInput));
       const disc = Math.round((subtotalCents * clampedPct) / 100);
       return Math.min(disc, subtotalCents);
@@ -98,16 +95,22 @@ export function PaymentPanel({
   }, [calculatedDiscountCents, setDiscount]);
 
   // Sync external discountCents to discountInput state if set externally
-  useEffect(() => {
-    if (discountCents > 0 && discountInput === '') {
-      if (discountMode === 'percent' && subtotalCents > 0) {
-        const pct = Math.round((discountCents / subtotalCents) * 100);
-        setDiscountInput(pct);
-      } else {
-        setDiscountInput(Math.round(discountCents / 100));
-      }
+  // (e.g. restoring a held sale) — never once the user has touched the field,
+  // otherwise this would fight a deliberate clear with the stale store value.
+  const [lastSyncedDiscountCents, setLastSyncedDiscountCents] = useState<number | null>(null);
+  if (
+    !hasEditedDiscount &&
+    discountCents > 0 &&
+    discountInput === '' &&
+    discountCents !== lastSyncedDiscountCents
+  ) {
+    setLastSyncedDiscountCents(discountCents);
+    if (discountMode === 'percentage' && subtotalCents > 0) {
+      setDiscountInput(Math.round((discountCents / subtotalCents) * 100));
+    } else {
+      setDiscountInput(Math.round(discountCents / 100));
     }
-  }, [discountCents, subtotalCents, discountInput, discountMode]);
+  }
 
   // Tendered cash state in rupees
   const [tenderedRupees, setTenderedRupees] = useState<number | ''>('');
@@ -246,21 +249,30 @@ export function PaymentPanel({
           </Text>
         </Group>
 
-        {/* 2. Inline Order Discount Box (Matching user mockup) */}
+        {/* 2. Embedded Order Discount Card */}
         <Paper
           p="xs"
-          radius="var(--mantine-radius-default)"
+          withBorder
+          radius="md"
+          opacity={isCartEmpty ? 0.5 : 1}
           style={{
+            pointerEvents: isCartEmpty ? 'none' : 'auto',
             backgroundColor: 'light-dark(var(--mantine-color-red-0), rgba(239, 68, 68, 0.1))',
-            border: '1px solid light-dark(var(--mantine-color-red-3), rgba(239, 68, 68, 0.3))',
+            borderColor: 'light-dark(var(--mantine-color-red-3), rgba(239, 68, 68, 0.3))',
           }}
         >
-          <Stack gap={6}>
-            {/* Header: Icon + ORDER DISCOUNT label on left, % / Rs. SegmentedControl on right */}
+          <Stack gap="xs">
+            {/* Header: ORDER DISCOUNT label + SegmentedControl */}
             <Group justify="space-between" align="center">
               <Group gap={6} align="center">
                 <IconTag size={15} color="var(--mantine-color-red-6)" />
-                <Text size="xs" fw={700} c="red.6" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="red.6"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.04em' }}
+                >
                   ORDER DISCOUNT
                 </Text>
               </Group>
@@ -270,14 +282,18 @@ export function PaymentPanel({
                 color="red"
                 value={discountMode}
                 onChange={(val) => {
-                  const newMode = val as 'percent' | 'amount';
+                  const newMode = val as 'percentage' | 'amount';
                   setDiscountMode(newMode);
-                  if (newMode === 'percent' && typeof discountInput === 'number' && discountInput > 100) {
+                  if (
+                    newMode === 'percentage' &&
+                    typeof discountInput === 'number' &&
+                    discountInput > 100
+                  ) {
                     setDiscountInput(100);
                   }
                 }}
                 data={[
-                  { label: '%', value: 'percent' },
+                  { label: '%', value: 'percentage' },
                   { label: 'Rs.', value: 'amount' },
                 ]}
                 style={{ width: 100 }}
@@ -288,29 +304,28 @@ export function PaymentPanel({
               />
             </Group>
 
-            {/* Input & Output Row: Value Input on left (- 0 +), - Rs. XX,XXX on right */}
-            <Group justify="space-between" align="center">
-              <QuantityInput
+            {/* Input & Output Row */}
+            <Group justify="space-between" align="center" wrap="nowrap">
+              <AmountInput
                 size="xs"
-                placeholder="0"
-                min={0}
-                max={discountMode === 'percent' ? 100 : Math.round(subtotalCents / 100)}
+                mode={discountMode}
+                onModeChange={setDiscountMode}
                 value={discountInput}
-                onChange={(val) => {
-                  if (val === '') {
-                    setDiscountInput('');
-                    return;
-                  }
-                  if (discountMode === 'percent') {
-                    setDiscountInput(Math.max(0, Math.min(100, val)));
-                  } else {
-                    const maxRs = subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0;
-                    setDiscountInput(Math.max(0, Math.min(maxRs, val)));
-                  }
+                onChange={(v) => {
+                  setHasEditedDiscount(true);
+                  setDiscountInput(v);
                 }}
+                maxAmount={subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0}
+                style={{ flex: 5, minWidth: 0 }}
               />
 
-              <Text size="sm" fw={700} c="red.7" style={{ fontFamily: 'monospace' }}>
+              <Text
+                size="sm"
+                fw={700}
+                c="red.7"
+                ta="right"
+                style={{ fontFamily: 'monospace', flex: 3, minWidth: 0 }}
+              >
                 - {formatMoney(calculatedDiscountCents)}
               </Text>
             </Group>
@@ -322,7 +337,14 @@ export function PaymentPanel({
 
         {/* 4. Total Due Hero Section */}
         <Box py={2}>
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase" ta="right" style={{ fontSize: 11, letterSpacing: '0.04em' }}>
+          <Text
+            size="xs"
+            fw={700}
+            c="dimmed"
+            tt="uppercase"
+            ta="right"
+            style={{ fontSize: 11, letterSpacing: '0.04em' }}
+          >
             TOTAL DUE
           </Text>
           <Text
@@ -387,7 +409,11 @@ export function PaymentPanel({
                       size={16}
                       color={isSelected ? 'var(--mantine-color-blue-6)' : 'var(--text-muted)'}
                     />
-                    <Text size="sm" fw={isSelected ? 700 : 500} c={isSelected ? 'blue.7' : undefined}>
+                    <Text
+                      size="sm"
+                      fw={isSelected ? 700 : 500}
+                      c={isSelected ? 'blue.7' : undefined}
+                    >
                       {tile.label}
                     </Text>
                   </Group>
@@ -419,22 +445,13 @@ export function PaymentPanel({
                 AMOUNT TENDERED (RS.)
               </Text>
 
-              <NumberInput
+              <AmountInput
                 ref={cashInputRef}
                 placeholder="0"
-                prefix="Rs. "
-                min={0}
+                mode="amount"
                 size="md"
                 value={tenderedRupees}
-                onChange={(val) => setTenderedRupees(typeof val === 'number' ? val : '')}
-                styles={{
-                  input: {
-                    fontFamily: 'monospace',
-                    fontWeight: 700,
-                    fontSize: 18,
-                    borderRadius: 'var(--mantine-radius-default)',
-                  },
-                }}
+                onChange={(val) => setTenderedRupees(val)}
               />
 
               {/* Quick Tender Chips */}
@@ -529,10 +546,10 @@ export function PaymentPanel({
                     ]}
                     style={{ flex: 1 }}
                   />
-                  <NumberInput
+                  <AmountInput
                     size="xs"
                     placeholder="Amount"
-                    prefix="Rs. "
+                    mode="amount"
                     value={Math.round(sp.amountCents / 100)}
                     onChange={(v) =>
                       handleUpdateSplitRow(
@@ -584,17 +601,19 @@ export function PaymentPanel({
             DOCUMENT OUTPUT
           </Text>
           <SimpleGrid cols={4} spacing={6}>
-            {[
-              { label: 'Receipt', value: 'receipt' },
-              { label: 'Invoice', value: 'invoice' },
-              { label: 'Both', value: 'both' },
-              { label: 'None', value: 'none' },
-            ].map((doc) => {
+            {(
+              [
+                { label: 'Receipt', value: 'receipt' },
+                { label: 'Invoice', value: 'invoice' },
+                { label: 'Both', value: 'both' },
+                { label: 'None', value: 'none' },
+              ] as const
+            ).map((doc) => {
               const isSelected = documentSelection === doc.value;
               return (
                 <UnstyledButton
                   key={doc.value}
-                  onClick={() => changeDocumentSelection(doc.value as any)}
+                  onClick={() => changeDocumentSelection(doc.value)}
                   style={{
                     height: 38,
                     borderRadius: 'var(--mantine-radius-default)',
@@ -638,10 +657,7 @@ export function PaymentPanel({
           disabled={Boolean(customerId)}
         >
           <Group justify="space-between" align="center" py={4}>
-            <Text
-              size="sm"
-              c={!customerId ? 'dimmed' : isCredit ? 'amber.7' : undefined}
-            >
+            <Text size="sm" c={!customerId ? 'dimmed' : isCredit ? 'amber.7' : undefined}>
               Leave as unpaid (credit)
             </Text>
             <Switch

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Popover, Stack, SegmentedControl, NumberInput, Group, Button, Text } from '@mantine/core';
+import { Popover, Stack, SegmentedControl, Group, Button, Text } from '@mantine/core';
 import { formatMoney } from '@/shared/lib/money';
+import { AmountInput } from '@/shared/components/AmountInput';
 
 export interface DiscountPopoverProps {
   opened: boolean;
@@ -62,22 +63,26 @@ export function DiscountPopover({
             fullWidth
             size="xs"
             value={mode}
-            onChange={(m) => setMode(m as 'percentage' | 'amount')}
+            onChange={(m) => {
+              const nextMode = m as 'percentage' | 'amount';
+              setMode(nextMode);
+              if (nextMode === 'percentage' && typeof val === 'number' && val > 100) {
+                setVal(100);
+              }
+            }}
             data={[
               { label: 'Percentage (%)', value: 'percentage' },
               { label: 'Amount (Rs.)', value: 'amount' },
             ]}
           />
 
-          <NumberInput
+          <AmountInput
             size="sm"
-            placeholder={mode === 'percentage' ? 'e.g. 10%' : 'e.g. 500'}
-            suffix={mode === 'percentage' ? '%' : undefined}
-            prefix={mode === 'amount' ? 'Rs. ' : undefined}
-            min={0}
-            max={mode === 'percentage' ? 100 : Math.round(originalCents / 100)}
+            mode={mode}
+            onModeChange={setMode}
             value={val}
-            onChange={(v) => setVal(typeof v === 'number' ? v : '')}
+            onChange={setVal}
+            maxAmount={Math.round(originalCents / 100)}
             autoFocus
           />
 

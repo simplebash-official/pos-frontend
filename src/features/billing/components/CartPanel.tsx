@@ -330,20 +330,10 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
       {/* Scroll Controls */}
       {items.length > 0 && (
         <Group justify="center" gap="xs" mt="xs">
-          <ActionIcon 
-            variant="light" 
-            color="gray" 
-            size="md" 
-            onClick={() => scrollByAmount(-200)}
-          >
+          <ActionIcon variant="light" color="gray" size="md" onClick={() => scrollByAmount(-200)}>
             <IconChevronUp size={18} />
           </ActionIcon>
-          <ActionIcon 
-            variant="light" 
-            color="gray" 
-            size="md" 
-            onClick={() => scrollByAmount(200)}
-          >
+          <ActionIcon variant="light" color="gray" size="md" onClick={() => scrollByAmount(200)}>
             <IconChevronDown size={18} />
           </ActionIcon>
         </Group>

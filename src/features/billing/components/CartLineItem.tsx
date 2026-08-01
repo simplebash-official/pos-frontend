@@ -1,14 +1,5 @@
 import { useState } from 'react';
-import {
-  Paper,
-  Group,
-  Box,
-  Text,
-  ActionIcon,
-  Tooltip,
-  Badge,
-  ThemeIcon,
-} from '@mantine/core';
+import { Paper, Group, Box, Text, ActionIcon, Tooltip, Badge, ThemeIcon } from '@mantine/core';
 import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
@@ -132,13 +123,17 @@ export function CartLineItem({
 
             <Group gap={4} align="center" mt={2} wrap="nowrap">
               {item.sku && (
-                <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', fontSize: 11, flexShrink: 0 }}>
+                <Text
+                  size="xs"
+                  c="dimmed"
+                  style={{ fontFamily: 'monospace', fontSize: 11, flexShrink: 0 }}
+                >
                   {item.sku}
                 </Text>
               )}
               {isStockNegative && (
                 <Text size="xs" c="red.6" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
-                  {item.sku ? ' · ' : ''}out of stock
+                  {item.sku ? ' · ' : ''}Out of Stock
                 </Text>
               )}
               {item.assignedEmployeeName && (
