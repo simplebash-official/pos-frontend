@@ -84,7 +84,7 @@ export function QuantityInput({
           border: '1px solid var(--mantine-color-default-border)',
           borderRadius: borderRadiusStyle,
           overflow: 'hidden',
-          backgroundColor: 'var(--bg-card)',
+          backgroundColor: 'light-dark(#ffffff, var(--bg-card))',
           height: controlHeight,
           width: 'fit-content',
         }}

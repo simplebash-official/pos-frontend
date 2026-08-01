@@ -251,8 +251,8 @@ export function PaymentPanel({
           p="xs"
           radius="var(--mantine-radius-default)"
           style={{
-            backgroundColor: 'var(--mantine-color-red-light)',
-            border: '1px solid var(--mantine-color-red-light-border)',
+            backgroundColor: 'light-dark(var(--mantine-color-red-0), rgba(239, 68, 68, 0.1))',
+            border: '1px solid light-dark(var(--mantine-color-red-3), rgba(239, 68, 68, 0.3))',
           }}
         >
           <Stack gap={6}>
@@ -282,7 +282,7 @@ export function PaymentPanel({
                 ]}
                 style={{ width: 100 }}
                 styles={{
-                  root: { padding: 2, backgroundColor: 'var(--bg-card)' },
+                  root: { padding: 2, backgroundColor: 'light-dark(#ffffff, var(--bg-card))' },
                   label: { padding: '2px 10px', fontSize: 11, fontWeight: 700 },
                 }}
               />
