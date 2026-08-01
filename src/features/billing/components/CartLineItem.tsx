@@ -67,7 +67,7 @@ export function CartLineItem({
       withBorder
       style={{
         borderLeft: `4px solid ${stripeColor}`,
-        backgroundColor: 'var(--bg-card)',
+        backgroundColor: 'var(--bg-hover)',
         position: 'relative',
         animation: isNewest ? 'flashRow 0.35s ease-out' : undefined,
         transition: 'all 0.15s ease',
