@@ -198,6 +198,7 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
                     key={`${job.type}-${job.id}`}
                     p="sm"
                     withBorder
+                    className="picker-card"
                     style={{
                       borderLeft: `4px solid ${
                         isRepair ? 'var(--mantine-color-orange-6)' : 'var(--mantine-color-teal-6)'
