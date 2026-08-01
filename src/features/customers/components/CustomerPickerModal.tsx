@@ -308,32 +308,41 @@ export function CustomerPickerModal({
                           </Stack>
                         </Group>
 
-                        {isSelected ? (
-                          <ActionIcon
-                            color="blue"
-                            variant="filled"
-                            radius="xl"
-                            size="sm"
-                            style={{ flexShrink: 0 }}
-                          >
-                            <IconCheck size={14} />
-                          </ActionIcon>
-                        ) : (
-                          <Button
-                            size="xs"
-                            color="blue"
-                            leftSection={<IconPlus size={14} />}
-                            fw={600}
-                            style={{ flexShrink: 0 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSelectCustomer(cust);
-                              onClose();
-                            }}
-                          >
-                            Select
-                          </Button>
-                        )}
+                        <Box
+                          style={{
+                            width: 88,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {isSelected ? (
+                            <ActionIcon
+                              color="blue"
+                              variant="filled"
+                              radius="xl"
+                              size="sm"
+                            >
+                              <IconCheck size={14} />
+                            </ActionIcon>
+                          ) : (
+                            <Button
+                              size="xs"
+                              color="blue"
+                              leftSection={<IconPlus size={14} />}
+                              fw={600}
+                              fullWidth
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectCustomer(cust);
+                                onClose();
+                              }}
+                            >
+                              Select
+                            </Button>
+                          )}
+                        </Box>
                       </Group>
                     </Paper>
                   );
