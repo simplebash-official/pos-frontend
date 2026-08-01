@@ -9,6 +9,10 @@ import {
   ActionIcon,
   Badge,
   Tooltip,
+  Box,
+  ThemeIcon,
+  Center,
+  Divider,
 } from '@mantine/core';
 import { IconPlayerPlay, IconTrash, IconClock, IconPlayerPause } from '@tabler/icons-react';
 
@@ -53,22 +57,31 @@ export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
       opened={opened}
       onClose={onClose}
       title={
-        <Group gap="xs">
-          <IconPlayerPause size={20} color="var(--mantine-color-orange-6)" />
-          <Text fw={700} size="md">
-            Parked / Held Sales ({heldCarts.length})
-          </Text>
+        <Group gap="sm" align="center">
+          <ThemeIcon size={40} color="orange" variant="light">
+            <IconPlayerPause size={22} />
+          </ThemeIcon>
+          <Box>
+            <Text fw={700} size="md" lh={1.2}>
+              Parked / held sales
+            </Text>
+            <Text size="xs" c="dimmed" fw={500}>
+              {heldCarts.length} parked · Ctrl+H to park the active cart
+            </Text>
+          </Box>
         </Group>
       }
       position="right"
       size="md"
-      radius="var(--mantine-radius-default)"
+      padding={0}
     >
-      <Stack gap="md">
+      <Stack gap="sm">
         {heldCarts.length === 0 ? (
-          <Text c="dimmed" size="sm" ta="center" py="xl">
-            No sales currently parked. Press <b>Ctrl+H</b> to park the active cart.
-          </Text>
+          <Center py="xl">
+            <Text c="dimmed" size="sm" ta="center">
+              No sales currently parked. Press <b>Ctrl+H</b> to park the active cart.
+            </Text>
+          </Center>
         ) : (
           heldCarts.map((h) => {
             const ageHours = getAgeHours(h.heldAt, nowMs);
@@ -79,22 +92,33 @@ export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
             return (
               <Paper
                 key={h.id}
-                p="sm"
                 withBorder
+                p={0}
                 style={{
-                  borderLeft: isStale ? '4px solid var(--mantine-color-amber-6)' : undefined,
-                  backgroundColor: 'var(--bg-card)',
+                  backgroundColor: 'var(--bg-hover)',
+                  borderLeft: isStale ? '4px solid var(--mantine-color-yellow-6)' : undefined,
+                  overflow: 'hidden',
                 }}
               >
-                <Stack gap="xs">
-                  <Group justify="space-between">
-                    <Text size="sm" fw={700}>
-                      {h.label || h.customerName || 'Unlabeled Sale'}
-                    </Text>
-                    <Group gap={4}>
+                <Stack gap="xs" p="sm">
+                  <Group justify="space-between" align="flex-start" wrap="nowrap">
+                    <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+                      <ThemeIcon
+                        size={40}
+                        color={isStale ? 'yellow' : 'blue'}
+                        variant="light"
+                        style={{ flexShrink: 0 }}
+                      >
+                        <IconPlayerPause size={20} />
+                      </ThemeIcon>
+                      <Text size="sm" fw={700} lineClamp={1} style={{ flex: 1, minWidth: 0 }}>
+                        {h.label || h.customerName || 'Unlabeled Sale'}
+                      </Text>
+                    </Group>
+                    <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
                       {isStale && (
                         <Tooltip label="Held for over 2 hours">
-                          <Badge size="xs" color="amber" variant="filled">
+                          <Badge size="xs" radius="xl" variant="light" color="yellow" fw={600}>
                             Stale (&gt;2h)
                           </Badge>
                         </Tooltip>
@@ -115,31 +139,37 @@ export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
                   </Group>
 
                   <Text size="xs" c="dimmed">
-                    {h.items.length} item(s) · Total: <b>{formatMoney(total)}</b>
+                    {h.items.length} item(s) · Total:{' '}
+                    <Text span fw={700} c="var(--text-primary)" inherit>
+                      {formatMoney(total)}
+                    </Text>
                   </Text>
-
-                  <Group justify="flex-end" gap="xs">
-                    <ActionIcon
-                      color="red"
-                      variant="subtle"
-                      onClick={() => removeHeldCart(h.id)}
-                      title="Discard held sale"
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                    <Button
-                      size="xs"
-                      color="blue"
-                      leftSection={<IconPlayerPlay size={14} />}
-                      onClick={() => {
-                        loadHeldCart(h.id);
-                        onClose();
-                      }}
-                    >
-                      Restore to Cart
-                    </Button>
-                  </Group>
                 </Stack>
+
+                <Divider />
+
+                <Group gap="xs" wrap="nowrap" p="sm">
+                  <Button
+                    variant="default"
+                    leftSection={<IconPlayerPlay size={14} color="var(--mantine-color-blue-6)" />}
+                    style={{ flex: 1, color: 'var(--mantine-color-blue-6)' }}
+                    onClick={() => {
+                      loadHeldCart(h.id);
+                      onClose();
+                    }}
+                  >
+                    Restore to cart
+                  </Button>
+                  <ActionIcon
+                    variant="default"
+                    size={36}
+                    style={{ color: 'var(--mantine-color-red-6)' }}
+                    onClick={() => removeHeldCart(h.id)}
+                    title="Discard held sale"
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Group>
               </Paper>
             );
           })
