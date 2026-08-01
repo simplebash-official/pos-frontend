@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  Grid,
   Box,
   Paper,
   Stack,
@@ -19,9 +18,8 @@ import { useOutletContext } from 'react-router-dom';
 
 import { useCart } from '../hooks/useCart';
 import { usePrint } from '../hooks/usePrint';
-import { CatalogPanel } from './CatalogPanel';
-import { CartPanel } from './CartPanel';
-import { PaymentPanel } from './PaymentPanel';
+import { BillingRegions } from './BillingRegions';
+import type { BillingPane } from './BillingTabBar';
 import { ServiceJobPickerModal } from './ServiceJobPickerModal';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { DiscountPopover } from './DiscountPopover';
@@ -36,6 +34,8 @@ import { playPaymentCompleteSound } from '../lib/audio';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import type { Invoice } from '../types';
 
 export function BillingCounter() {
@@ -77,6 +77,11 @@ export function BillingCounter() {
     previewInvoiceData,
     closePreviewModal,
   } = usePrint();
+
+  const isMobile = useIsMobile();
+
+  // Which region is on screen below the desktop tier (ignored by the 3-column desktop layout).
+  const [activePane, setActivePane] = useState<BillingPane>('catalog');
 
   // Modals state
   const [servicePickerOpen, setServicePickerOpen] = useState(false);
@@ -210,6 +215,9 @@ export function BillingCounter() {
 
       setLastCompletedInvoice(invoice);
       setShowSuccessOverlay(true);
+
+      // Next sale starts from the catalog again on the tab-switched layouts.
+      setActivePane('catalog');
 
       // Clear cart
       clear();
@@ -355,38 +363,25 @@ export function BillingCounter() {
 
   return (
     <Box
+      className="billing-root"
       style={{
-        height: 'calc(100vh - 48px)',
+        ['--billing-header-h' as string]: `${BILLING_HEADER_HEIGHT}px`,
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
         backgroundColor: 'var(--bg-app)',
-        padding: 8,
+        padding: isMobile ? 4 : 8,
       }}
     >
-      {/* Static 3-Region 12-Column Grid Layout */}
-      {/* `inner` needs an explicit height so Grid.Col's height:100% has something definite to
-         resolve against — otherwise columns grow to content height and break internal scrolling. */}
-      <Grid h="100%" styles={{ inner: { height: '100%' } }}>
-        {/* Region A: Catalog / Entry (5 columns, left) */}
-        <Grid.Col span={5} style={{ height: '100%', minHeight: 0 }}>
-          <CatalogPanel onOpenServicePicker={() => setServicePickerOpen(true)} />
-        </Grid.Col>
-
-        {/* Region B: Cart (4 columns, center) */}
-        <Grid.Col span={4} style={{ height: '100%', minHeight: 0 }}>
-          <CartPanel onOpenCustomerPicker={() => setCustomerModalOpen(true)} />
-        </Grid.Col>
-
-        {/* Region C: Payment (3 columns, right) */}
-        <Grid.Col span={3} style={{ height: '100%', minHeight: 0 }}>
-          <PaymentPanel
-            isProcessing={isProcessing}
-            onCompleteCheckout={handleCompleteCheckout}
-            onOpenOrderDiscount={() => setOrderDiscountOpen(true)}
-          />
-        </Grid.Col>
-      </Grid>
+      <BillingRegions
+        activePane={activePane}
+        onChangePane={setActivePane}
+        isProcessing={isProcessing}
+        onCompleteCheckout={handleCompleteCheckout}
+        onOpenServicePicker={() => setServicePickerOpen(true)}
+        onOpenCustomerPicker={() => setCustomerModalOpen(true)}
+        onOpenOrderDiscount={() => setOrderDiscountOpen(true)}
+      />
 
       {/* Redesigned Success Confirmation Overlay (480px Centered Card with Backdrop Blur) */}
       {showSuccessOverlay && lastCompletedInvoice && (
@@ -482,34 +477,68 @@ export function BillingCounter() {
                 </Paper>
               ) : null}
 
-              <Group gap="sm" style={{ width: '100%' }} mt="xs">
-                <Button
-                  flex={1}
-                  variant="outline"
-                  color="blue"
-                  leftSection={<IconPrinter size={18} />}
-                  onClick={() => printReceipt(lastCompletedInvoice)}
-                >
-                  Receipt (R)
-                </Button>
-                <Button
-                  flex={1}
-                  variant="outline"
-                  color="violet"
-                  leftSection={<IconFileText size={18} />}
-                  onClick={() => previewInvoiceDoc(lastCompletedInvoice)}
-                >
-                  Invoice (I)
-                </Button>
-                <Button
-                  flex={1}
-                  color="blue"
-                  leftSection={<IconPlus size={18} />}
-                  onClick={() => setShowSuccessOverlay(false)}
-                >
-                  New Sale (↵)
-                </Button>
-              </Group>
+              {/* Three side-by-side buttons clip their own labels below ~420px, so the phone
+                  layout stacks them full width instead. */}
+              {isMobile ? (
+                <Stack gap="xs" style={{ width: '100%' }} mt="xs">
+                  <Button
+                    fullWidth
+                    variant="outline"
+                    color="blue"
+                    leftSection={<IconPrinter size={18} />}
+                    onClick={() => printReceipt(lastCompletedInvoice)}
+                  >
+                    Receipt
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant="outline"
+                    color="violet"
+                    leftSection={<IconFileText size={18} />}
+                    onClick={() => previewInvoiceDoc(lastCompletedInvoice)}
+                  >
+                    Invoice
+                  </Button>
+                  <Button
+                    fullWidth
+                    size="md"
+                    color="blue"
+                    leftSection={<IconPlus size={18} />}
+                    onClick={() => setShowSuccessOverlay(false)}
+                  >
+                    New Sale
+                  </Button>
+                </Stack>
+              ) : (
+                <Group gap="sm" style={{ width: '100%' }} mt="xs">
+                  <Button
+                    flex={1}
+                    variant="outline"
+                    color="blue"
+                    leftSection={<IconPrinter size={18} />}
+                    onClick={() => printReceipt(lastCompletedInvoice)}
+                  >
+                    Receipt (R)
+                  </Button>
+                  <Button
+                    flex={1}
+                    variant="outline"
+                    color="violet"
+                    leftSection={<IconFileText size={18} />}
+                    onClick={() => previewInvoiceDoc(lastCompletedInvoice)}
+                  >
+                    Invoice (I)
+                  </Button>
+                  <Button
+                    flex={1}
+                    color="blue"
+                    leftSection={<IconPlus size={18} />}
+                    onClick={() => setShowSuccessOverlay(false)}
+                  >
+                    New Sale (↵)
+                  </Button>
+                </Group>
+              )}
             </Stack>
 
             {/* Depleting progress bar */}

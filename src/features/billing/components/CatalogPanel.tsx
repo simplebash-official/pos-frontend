@@ -9,9 +9,11 @@ import {
   Grid,
   Card,
   ScrollArea,
+  ActionIcon,
   Button,
   Box,
   Anchor,
+  Tooltip,
 } from '@mantine/core';
 import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +27,7 @@ import { Product, MainCategory } from '@/features/inventory/types';
 import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, CATALOG_CATEGORY_FILTERS } from '../lib/categoryIcons';
+import { useLayoutTier } from '@/shared/hooks/useResponsive';
 
 // Top frequent items section removed per request
 
@@ -41,6 +44,21 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const [shakeError, setShakeError] = useState<string | null>(null);
 
   const { add, items, attachCustomer, soundEnabled, customerId } = useCart();
+
+  const tier = useLayoutTier();
+  const isMobile = tier === 'mobile';
+
+  // On a phone the scan bar is a soft-keyboard trigger, not a barcode target — stealing focus would
+  // bury half the catalog behind the keyboard on every load and every tap.
+  const keepScanInputFocused = !isMobile;
+
+  // Space the scan input reserves for its right section: the full "Jobs (F4)" button, or just an
+  // icon button on mobile where 150px would leave almost nothing for the query itself.
+  const scanRightSectionWidth = isMobile ? 48 : 150;
+
+  // Product cards per row. The catalog's share of the viewport changes per tier, so the span has to
+  // be picked from the tier rather than from viewport-relative breakpoints.
+  const productCardSpan = isMobile ? 6 : tier === 'tablet' ? 4 : { base: 6, sm: 4 };
 
   // Inventory Products Query
   const { data: products = [] } = useQuery({
@@ -60,8 +78,9 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
 
   // Permanently auto-focus scanner input
   useEffect(() => {
+    if (!keepScanInputFocused) return;
     scanInputRef.current?.focus();
-  }, []);
+  }, [keepScanInputFocused]);
 
   // Filtered Products
   const filteredProducts = useMemo(() => {
@@ -110,7 +129,9 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     playScanSuccessSound(soundEnabled);
     setScanQuery('');
     setShakeError(null);
-    setTimeout(() => scanInputRef.current?.focus(), 50);
+    if (keepScanInputFocused) {
+      setTimeout(() => scanInputRef.current?.focus(), 50);
+    }
   };
 
   // Handle direct barcode or SKU scan
@@ -244,28 +265,46 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
         <form onSubmit={handleScanSubmit}>
           <TextInput
             ref={scanInputRef}
-            placeholder="Scan barcode or type SKU / product name / REP-1001 (F1)"
+            placeholder={
+              isMobile
+                ? 'Scan or search product'
+                : 'Scan barcode or type SKU / product name / REP-1001 (F1)'
+            }
             leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
             rightSection={
-              <Group gap="xs" wrap="nowrap" pr={4}>
-                <Box style={{ width: 1, height: 24, background: 'var(--border-strong)' }} />
-                <Button
-                  size="xs"
-                  variant="light"
-                  color="yellow"
-                  leftSection={<IconTools size={14} />}
-                  onClick={onOpenServicePicker}
-                  px="sm"
-                  style={{
-                    height: 30,
-                    fontWeight: 600,
-                  }}
-                >
-                  Jobs (F4)
-                </Button>
-              </Group>
+              isMobile ? (
+                <Tooltip label="Service jobs">
+                  <ActionIcon
+                    variant="light"
+                    color="yellow"
+                    size={36}
+                    aria-label="Service jobs"
+                    onClick={onOpenServicePicker}
+                  >
+                    <IconTools size={18} />
+                  </ActionIcon>
+                </Tooltip>
+              ) : (
+                <Group gap="xs" wrap="nowrap" pr={4}>
+                  <Box style={{ width: 1, height: 24, background: 'var(--border-strong)' }} />
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="yellow"
+                    leftSection={<IconTools size={14} />}
+                    onClick={onOpenServicePicker}
+                    px="sm"
+                    style={{
+                      height: 30,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Jobs (F4)
+                  </Button>
+                </Group>
+              )
             }
-            rightSectionWidth={150}
+            rightSectionWidth={scanRightSectionWidth}
             value={scanQuery}
             onChange={(e) => {
               setScanQuery(e.currentTarget.value);
@@ -277,10 +316,11 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             styles={{
               input: {
                 height: 44,
-                fontSize: 15,
+                // iOS Safari zooms the whole page when a focused input is under 16px.
+                fontSize: isMobile ? 16 : 15,
                 fontWeight: 600,
                 border: 'none',
-                paddingRight: 150,
+                paddingRight: scanRightSectionWidth,
                 textOverflow: 'ellipsis',
               },
             }}
@@ -308,9 +348,15 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
         )}
       </Paper>
 
-      {/* 2. Category Chips / Filter Pills Row */}
-      <ScrollArea.Autosize mah={72} scrollbars="y" type="auto">
-        <Group gap={6} wrap="wrap" py={2}>
+      {/* 2. Category Chips / Filter Pills Row.
+           On mobile the chips become a single swipeable row — wrapping them would eat two rows of
+           the little vertical space the product grid has. */}
+      <ScrollArea.Autosize
+        mah={isMobile ? 44 : 72}
+        scrollbars={isMobile ? 'x' : 'y'}
+        type={isMobile ? 'never' : 'auto'}
+      >
+        <Group gap={6} wrap={isMobile ? 'nowrap' : 'wrap'} py={2}>
           <Button
             size="xs"
             variant={selectedCategory === 'all' ? 'filled' : 'light'}
@@ -352,7 +398,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
             } = getCategoryIconInfo({ category: p.category });
 
             return (
-              <Grid.Col key={p.id} span={{ base: 6, sm: 4 }}>
+              <Grid.Col key={p.id} span={productCardSpan}>
                 <Card
                   p="xs"
                   withBorder

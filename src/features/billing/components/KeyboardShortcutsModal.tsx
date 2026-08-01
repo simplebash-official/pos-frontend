@@ -1,6 +1,8 @@
 import { Modal, Stack, Group, Text, Kbd, SimpleGrid, Paper } from '@mantine/core';
 import { IconKeyboard } from '@tabler/icons-react';
 
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+
 export interface KeyboardShortcutsModalProps {
   opened: boolean;
   onClose: () => void;
@@ -26,6 +28,8 @@ const SHORTCUTS = [
 ];
 
 export function KeyboardShortcutsModal({ opened, onClose }: KeyboardShortcutsModalProps) {
+  const isMobile = useIsMobile();
+
   return (
     <Modal
       opened={opened}
@@ -39,6 +43,7 @@ export function KeyboardShortcutsModal({ opened, onClose }: KeyboardShortcutsMod
         </Group>
       }
       size="lg"
+      fullScreen={isMobile}
       radius="var(--mantine-radius-default)"
     >
       <Stack gap="sm">

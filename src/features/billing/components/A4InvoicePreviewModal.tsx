@@ -14,6 +14,7 @@ import {
 } from '@/store/slices/settingsSlice';
 import { printA4Invoice } from '@/shared/print/printService';
 import { getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface A4InvoicePreviewModalProps {
   opened: boolean;
@@ -22,6 +23,7 @@ export interface A4InvoicePreviewModalProps {
 }
 
 export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePreviewModalProps) {
+  const isMobile = useIsMobile();
   const currentShopProfile = useAppSelector(selectShopProfile);
   const shopProfileVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
@@ -70,6 +72,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
         </Group>
       }
       size="xl"
+      fullScreen={isMobile}
       radius="var(--mantine-radius-default)"
       padding="md"
       scrollAreaComponent={Box}
@@ -141,13 +144,15 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
         </Paper>
 
         {/* Scaled Preview Box */}
+        {/* The invoice inside is a fixed 210mm (~794px) page, so the box has to scroll on both axes
+            — otherwise the sides of the document are simply unreachable on a narrow screen. */}
         <Box
           style={{
             backgroundColor: '#64748B',
-            borderRadius: '8px',
+            borderRadius: 'var(--mantine-radius-default)',
             padding: '24px 12px',
             maxHeight: '65vh',
-            overflowY: 'auto',
+            overflow: 'auto',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'flex-start',
@@ -155,7 +160,7 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
         >
           <Box
             style={{
-              transform: 'scale(0.85)',
+              transform: `scale(${isMobile ? 0.5 : 0.85})`,
               transformOrigin: 'top center',
               boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
               borderRadius: '4px',

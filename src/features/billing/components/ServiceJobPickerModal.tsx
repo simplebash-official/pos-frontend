@@ -23,6 +23,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound } from '../lib/audio';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface ServiceJobPickerModalProps {
   opened: boolean;
@@ -48,6 +49,7 @@ function generateServiceJobId(type: string, id: string): string {
 }
 
 export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModalProps) {
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'repair' | 'print'>('all');
 
@@ -161,34 +163,37 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
               Select service job
             </Text>
             <Text size="xs" c="dimmed" fw={500}>
-              Repairs and print jobs · F4
+              {isMobile ? 'Repairs and print jobs' : 'Repairs and print jobs · F4'}
             </Text>
           </Box>
         </Group>
       }
       size="lg"
+      fullScreen={isMobile}
       padding={0}
     >
       {/* Search & Filter Bar Section with Top & Bottom Border Dividers */}
       <Box
-        px="lg"
+        px={isMobile ? 'sm' : 'lg'}
         py="md"
         style={{
           borderTop: '1px solid var(--mantine-color-default-border)',
           borderBottom: '1px solid var(--mantine-color-default-border)',
         }}
       >
-        <Group justify="space-between" align="center" gap="md">
+        <Group justify="space-between" align="center" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
           <TextInput
             placeholder="Search ticket #, customer name"
             leftSection={<IconSearch size={16} />}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ flex: 1 }}
-            autoFocus
+            style={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
+            /* Autofocusing here opens the soft keyboard over the job list it is meant to filter. */
+            autoFocus={!isMobile}
           />
           <SegmentedControl
             size="sm"
+            fullWidth={isMobile}
             value={filterType}
             onChange={(val) => setFilterType(val as 'all' | 'repair' | 'print')}
             data={[
@@ -201,8 +206,12 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
       </Box>
 
       {/* Jobs List */}
-      <Box p="lg">
-        <ScrollArea.Autosize mah={440} offsetScrollbars>
+      <Box p={isMobile ? 'sm' : 'lg'}>
+        <ScrollArea.Autosize
+          mah={isMobile ? '60vh' : 440}
+          offsetScrollbars
+          classNames={{ viewport: 'scrollarea-fluid-content' }}
+        >
           {filteredJobs.length === 0 ? (
             <Box ta="center" py="xl">
               <Text c="dimmed" size="sm">
@@ -232,16 +241,27 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
                     }}
                     onClick={() => handleSelectJob(job)}
                   >
-                    <Group justify="space-between" align="center" wrap="nowrap">
+                    {/* On a phone the icon, details and the price/action column cannot share one
+                        row without pushing the action off the edge — stack them instead. */}
+                    <Group
+                      justify="space-between"
+                      align={isMobile ? 'stretch' : 'center'}
+                      wrap={isMobile ? 'wrap' : 'nowrap'}
+                    >
                       {/* Left: Category Icon & Job Info */}
-                      <Group gap="md" align="center" style={{ flex: 1, minWidth: 0 }} wrap="nowrap">
+                      <Group
+                        gap="md"
+                        align="center"
+                        style={{ flex: 1, minWidth: 0, width: isMobile ? '100%' : undefined }}
+                        wrap="nowrap"
+                      >
                         <ThemeIcon
-                          size={48}
+                          size={isMobile ? 40 : 48}
                           color={catColor}
                           variant="light"
-                          style={{ minWidth: 48, flexShrink: 0 }}
+                          style={{ minWidth: isMobile ? 40 : 48, flexShrink: 0 }}
                         >
-                          <CatIcon size={24} />
+                          <CatIcon size={isMobile ? 20 : 24} />
                         </ThemeIcon>
 
                         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
@@ -287,23 +307,48 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
                       </Group>
 
                       {/* Right: Cost & Bill Ticket Button */}
-                      <Stack gap={6} align="flex-end" style={{ flexShrink: 0, paddingLeft: 12 }}>
-                        <Text fw={700} size="md" style={{ fontFamily: 'monospace, sans-serif' }}>
-                          {formatMoney(job.costCents)}
-                        </Text>
-                        <Button
-                          size="xs"
-                          color={isRepair ? 'orange' : 'green'}
-                          leftSection={<IconPlus size={14} />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectJob(job);
-                          }}
-                          fw={600}
+                      {isMobile ? (
+                        <Group
+                          justify="space-between"
+                          align="center"
+                          mt="xs"
+                          style={{ width: '100%' }}
                         >
-                          Bill ticket
-                        </Button>
-                      </Stack>
+                          <Text fw={700} size="md" style={{ fontFamily: 'monospace, sans-serif' }}>
+                            {formatMoney(job.costCents)}
+                          </Text>
+                          <Button
+                            size="sm"
+                            color={isRepair ? 'orange' : 'green'}
+                            leftSection={<IconPlus size={14} />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectJob(job);
+                            }}
+                            fw={600}
+                          >
+                            Bill ticket
+                          </Button>
+                        </Group>
+                      ) : (
+                        <Stack gap={6} align="flex-end" style={{ flexShrink: 0, paddingLeft: 12 }}>
+                          <Text fw={700} size="md" style={{ fontFamily: 'monospace, sans-serif' }}>
+                            {formatMoney(job.costCents)}
+                          </Text>
+                          <Button
+                            size="xs"
+                            color={isRepair ? 'orange' : 'green'}
+                            leftSection={<IconPlus size={14} />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectJob(job);
+                            }}
+                            fw={600}
+                          >
+                            Bill ticket
+                          </Button>
+                        </Stack>
+                      )}
                     </Group>
                   </Paper>
                 );

@@ -83,6 +83,7 @@ export function Header({
             size="xs"
             color="green"
             variant="light"
+            visibleFrom="sm"
             leftSection={
               <span
                 style={{
@@ -97,7 +98,13 @@ export function Header({
           >
             Online
           </Badge>
-          <Text size="xs" c="dimmed" fw={600} style={{ fontFamily: 'monospace', marginLeft: 8 }}>
+          <Text
+            size="xs"
+            c="dimmed"
+            fw={600}
+            visibleFrom="sm"
+            style={{ fontFamily: 'monospace', marginLeft: 8 }}
+          >
             {timeStr}
           </Text>
         </Group>
@@ -127,11 +134,14 @@ export function Header({
             </ActionIcon>
           </Tooltip>
 
+          {/* Focus mode is an F11 toggle and the shortcuts sheet only lists keys — neither is
+              reachable on a touch device, so both drop away with the rest of the keyboard chrome. */}
           <Tooltip label={focusMode ? 'Exit Focus Mode (F11)' : 'Focus Mode (F11)'}>
             <ActionIcon
               variant={focusMode ? 'filled' : 'light'}
               color="blue"
               size="sm"
+              visibleFrom="sm"
               onClick={onToggleFocusMode}
             >
               {focusMode ? <IconMinimize size={16} /> : <IconMaximize size={16} />}
@@ -139,7 +149,13 @@ export function Header({
           </Tooltip>
 
           <Tooltip label="Keyboard Shortcuts (?)">
-            <ActionIcon variant="light" color="gray" size="sm" onClick={onOpenShortcuts}>
+            <ActionIcon
+              variant="light"
+              color="gray"
+              size="sm"
+              visibleFrom="sm"
+              onClick={onOpenShortcuts}
+            >
               <IconHelpCircle size={16} />
             </ActionIcon>
           </Tooltip>

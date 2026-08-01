@@ -5,6 +5,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT } from './constants';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
@@ -54,7 +55,7 @@ export function AppShell() {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
-  const headerHeight = isBillingPage ? 48 : 60;
+  const headerHeight = isBillingPage ? BILLING_HEADER_HEIGHT : SHELL_HEADER_HEIGHT;
   const navbarWidth = isBillingPage ? (focusMode ? 0 : 64) : 250;
 
   return (
@@ -87,7 +88,7 @@ export function AppShell() {
       <MantineAppShell.Main
         style={{
           backgroundColor: 'var(--bg-app)',
-          minHeight: `calc(100vh - ${headerHeight}px)`,
+          minHeight: `calc(100dvh - ${headerHeight}px)`,
           overflow: isBillingPage ? 'hidden' : 'auto',
         }}
       >

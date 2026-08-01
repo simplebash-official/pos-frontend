@@ -29,6 +29,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { fetchCustomers, createCustomer } from '../api/mockCustomers';
 import { Customer } from '../types';
 import { formatMoney } from '@/shared/lib/money';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface CustomerPickerModalProps {
   opened: boolean;
@@ -43,6 +44,7 @@ export function CustomerPickerModal({
   onSelectCustomer,
   selectedCustomerId,
 }: CustomerPickerModalProps) {
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [isCreatingInline, setIsCreatingInline] = useState(false);
   const [newName, setNewName] = useState('');
@@ -138,31 +140,33 @@ export function CustomerPickerModal({
               Select / attach customer
             </Text>
             <Text size="xs" c="dimmed" fw={500}>
-              Search by phone or name · F3
+              {isMobile ? 'Search by phone or name' : 'Search by phone or name · F3'}
             </Text>
           </Box>
         </Group>
       }
       size="lg"
+      fullScreen={isMobile}
       padding={0}
     >
       {/* Search Bar Section with Top & Bottom Border Dividers */}
       <Box
-        px="lg"
+        px={isMobile ? 'sm' : 'lg'}
         py="md"
         style={{
           borderTop: '1px solid var(--mantine-color-default-border)',
           borderBottom: '1px solid var(--mantine-color-default-border)',
         }}
       >
-        <Group justify="space-between" gap="md" wrap="nowrap">
+        <Group justify="space-between" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
           <TextInput
             placeholder="Search by phone number or name..."
             leftSection={<IconSearch size={16} />}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ flex: 1 }}
-            autoFocus
+            style={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
+            /* Autofocusing raises the soft keyboard over the very list being searched. */
+            autoFocus={!isMobile}
           />
           <Group gap="xs" wrap="nowrap">
             {selectedCustomerId && (
@@ -238,7 +242,11 @@ export function CustomerPickerModal({
             </Stack>
           </Paper>
         ) : (
-          <ScrollArea.Autosize mah={440} offsetScrollbars>
+          <ScrollArea.Autosize
+            mah={isMobile ? '60vh' : 440}
+            offsetScrollbars
+            classNames={{ viewport: 'scrollarea-fluid-content' }}
+          >
             <Stack gap="sm">
               {filtered.length === 0 ? (
                 <Center py="xl">
@@ -310,7 +318,7 @@ export function CustomerPickerModal({
 
                         <Box
                           style={{
-                            width: 88,
+                            width: isMobile ? 48 : 88,
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -318,12 +326,7 @@ export function CustomerPickerModal({
                           }}
                         >
                           {isSelected ? (
-                            <ActionIcon
-                              color="blue"
-                              variant="filled"
-                              radius="xl"
-                              size="sm"
-                            >
+                            <ActionIcon color="blue" variant="filled" radius="xl" size="sm">
                               <IconCheck size={14} />
                             </ActionIcon>
                           ) : (

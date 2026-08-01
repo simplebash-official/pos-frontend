@@ -53,6 +53,25 @@
   transform: translateY(-2px);
 }
 
+/* Mantine wraps ScrollArea content in a `display: table` element (min-width: 100%), which is sized
+   to max-content — so flex children inside it never shrink, no matter how much `min-width: 0` and
+   `lineClamp` you apply, and wide rows spill past the container instead of compressing. Apply this
+   via `classNames={{ viewport: 'scrollarea-fluid-content' }}` when the content should be bounded by
+   the container width rather than define it. */
+.scrollarea-fluid-content > div {
+  display: block !important;
+}
+
+/* Billing counter root.
+   `--billing-header-h` is set inline from BILLING_HEADER_HEIGHT (src/app/layout/constants.ts).
+   The duplicated `height` is a deliberate fallback pair — `dvh` tracks the mobile browser URL bar as
+   it hides and shows, `vh` does not, and the two declarations cannot be expressed in one inline
+   React style object. */
+.billing-root {
+  height: calc(100vh - var(--billing-header-h));
+  height: calc(100dvh - var(--billing-header-h));
+}
+
 /* Billing Counter Animations */
 @keyframes shake {
   0%,

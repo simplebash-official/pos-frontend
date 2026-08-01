@@ -23,22 +23,27 @@ import {
   IconNotes,
   IconChevronUp,
   IconChevronDown,
+  IconArrowRight,
 } from '@tabler/icons-react';
 
 import { useCart } from '../hooks/useCart';
 import { CartLineItem } from './CartLineItem';
 import { formatMoney } from '@/shared/lib/money';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface CartPanelProps {
   onOpenCustomerPicker: () => void;
+  /** Move on to the payment region. Only surfaced on the tab-switched mobile layout. */
+  onRequestPayment: () => void;
 }
 
-export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
+export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelProps) {
   const {
     items,
     itemCount,
     totalUnitCount,
+    totalCents,
     sourceBreakdown,
     lastRemovedItem,
     customerName,
@@ -56,6 +61,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
     isCredit,
   } = useCart();
 
+  const isMobile = useIsMobile();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -141,19 +147,28 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
         justify="space-between"
         align="center"
         pb="xs"
-        wrap="nowrap"
+        wrap={isMobile ? 'wrap' : 'nowrap'}
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         <Group gap={6} align="center" wrap="nowrap" style={{ minWidth: 0 }}>
           <Text fw={700} size="sm" style={{ whiteSpace: 'nowrap' }}>
             Current Sale
           </Text>
-          <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
-            {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
-            {totalUnitCount !== 1 ? 's' : ''}
-          </Badge>
+          {/* The tab bar already carries the line count on mobile, so the badge is redundant there
+              and only competes with the hold/clear controls for the same row. */}
+          {!isMobile && (
+            <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
+              {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
+              {totalUnitCount !== 1 ? 's' : ''}
+            </Badge>
+          )}
           {isCredit && (
-            <Badge size="xs" color="amber" variant="filled" radius="xs" style={{ fontWeight: 800, whiteSpace: 'nowrap' }}>
+            <Badge
+              size="xs"
+              color="amber"
+              variant="filled"
+              style={{ fontWeight: 800, whiteSpace: 'nowrap' }}
+            >
               CREDIT
             </Badge>
           )}
@@ -169,7 +184,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
             onClick={() => holdCurrentCart()}
             style={{ paddingLeft: 8, paddingRight: 8 }}
           >
-            Hold (Ctrl+H)
+            {isMobile ? 'Hold' : 'Hold (Ctrl+H)'}
           </Button>
 
           <Button
@@ -249,12 +264,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
               </Group>
 
               <Group gap={6} wrap="nowrap" align="center" style={{ flexShrink: 0 }}>
-                <Button
-                  size="xs"
-                  variant="light"
-                  color="blue"
-                  onClick={onOpenCustomerPicker}
-                >
+                <Button size="xs" variant="light" color="blue" onClick={onOpenCustomerPicker}>
                   Change
                 </Button>
                 <Button
@@ -295,7 +305,7 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
                   onOpenCustomerPicker();
                 }}
               >
-                Attach (F3)
+                {isMobile ? 'Attach' : 'Attach (F3)'}
               </Button>
             </Group>
           </Paper>
@@ -331,10 +341,12 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
         }}
       >
         {items.length === 0 ? (
-          <Stack align="center" justify="center" h={260} gap="xs">
+          <Stack align="center" justify="center" h={isMobile ? 180 : 260} gap="xs">
             <IconShoppingCart size={44} color="var(--text-muted)" style={{ opacity: 0.4 }} />
             <Text size="sm" c="dimmed" ta="center" fw={600}>
-              Scan an item or press F4 to bill a repair
+              {isMobile
+                ? 'Add an item from the catalog to start a sale'
+                : 'Scan an item or press F4 to bill a repair'}
             </Text>
             <Text size="xs" c="dimmed" ta="center">
               Items added will appear instantly at the top.
@@ -356,8 +368,9 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
         )}
       </ScrollArea>
 
-      {/* Scroll Controls */}
-      {items.length > 0 && scrollState.hasScroll && (
+      {/* Scroll Controls — touch devices scroll the list directly, so these would only cost
+          vertical space on the smallest screens. */}
+      {!isMobile && items.length > 0 && scrollState.hasScroll && (
         <Group justify="center" gap="xs" mt="xs">
           <ActionIcon
             variant="light"
@@ -404,6 +417,22 @@ export function CartPanel({ onOpenCustomerPicker }: CartPanelProps) {
             )}
           </Group>
         </Box>
+      )}
+
+      {/* 6. Mobile hand-off to the payment region. On the wider tiers payment is already on screen,
+             so this button would just be a second route to a visible panel. */}
+      {isMobile && items.length > 0 && (
+        <Button
+          fullWidth
+          size="lg"
+          color="blue"
+          mt="xs"
+          rightSection={<IconArrowRight size={18} />}
+          onClick={onRequestPayment}
+          style={{ height: 52, flexShrink: 0 }}
+        >
+          Charge {formatMoney(totalCents)}
+        </Button>
       )}
 
       {/* Clear Cart Confirmation Dialog */}

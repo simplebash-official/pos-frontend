@@ -18,6 +18,7 @@ import { IconPlayerPlay, IconTrash, IconClock, IconPlayerPause } from '@tabler/i
 
 import { useCart } from '../hooks/useCart';
 import { formatMoney } from '@/shared/lib/money';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface HeldSalesDrawerProps {
   opened: boolean;
@@ -26,6 +27,7 @@ export interface HeldSalesDrawerProps {
 
 export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
   const { heldCarts, loadHeldCart, removeHeldCart } = useCart();
+  const isMobile = useIsMobile();
   const [nowMs, setNowMs] = useState(0);
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
         </Group>
       }
       position="right"
-      size="md"
+      size={isMobile ? '100%' : 'md'}
       padding={0}
     >
       <Stack gap="sm">

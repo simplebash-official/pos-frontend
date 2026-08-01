@@ -36,6 +36,7 @@ import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney } from '@/shared/lib/money';
 import { AmountInput } from '@/shared/components/AmountInput';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { SplitPaymentDetail } from '../types';
 
 export interface PaymentPanelProps {
@@ -73,6 +74,12 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
     changeDueDate,
     changeTenderedAmountCents,
   } = useCart();
+
+  const isMobile = useIsMobile();
+  // Theme spacing rather than a bare 16 — the panel is the full screen width on a phone, where the
+  // narrower gutter buys back a meaningful amount of room for the tender inputs.
+  const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
+  const checkoutKeyHint = isMobile ? '' : ' (F2)';
 
   // Inline Order Discount State
   const [discountMode, setDiscountMode] = useState<'percentage' | 'amount'>('percentage');
@@ -279,7 +286,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
       }}
     >
       {/* Scrollable Upper Region */}
-      <Box style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+      <Box style={{ flex: 1, overflowY: 'auto', padding: regionPadding }}>
         <Stack gap="xs">
           {/* 1. Subtotal Line */}
           <Group justify="space-between" align="center">
@@ -345,7 +352,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                 />
               </Group>
 
-              <Group justify="space-between" align="center" wrap="nowrap">
+              <Group justify="space-between" align="center" wrap={isMobile ? 'wrap' : 'nowrap'}>
                 <AmountInput
                   size="xs"
                   mode={discountMode}
@@ -356,7 +363,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                     setDiscountInput(v);
                   }}
                   maxAmount={subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0}
-                  style={{ flex: 5, minWidth: 0 }}
+                  style={{ flex: 5, minWidth: 110 }}
                 />
 
                 <Text
@@ -404,7 +411,11 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
 
           {/* 5. Pay Now / Credit Sale Segmented Control (Steps 3 & 4) */}
           <Tooltip
-            label="Credit requires attaching a customer first (F3)"
+            label={
+              isMobile
+                ? 'Credit requires attaching a customer first'
+                : 'Credit requires attaching a customer first (F3)'
+            }
             disabled={Boolean(customerId)}
             position="top"
           >
@@ -594,7 +605,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                 >
                   PAYMENT METHOD
                 </Text>
-                <SimpleGrid cols={2} spacing={8}>
+                <SimpleGrid cols={2} spacing={isMobile ? 10 : 8}>
                   {paymentTiles.map((tile) => {
                     const Icon = tile.icon;
                     const isSelected = paymentMethod === tile.id;
@@ -607,7 +618,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                           !tile.disabled && changePaymentMethod(tile.id as PaymentMethod)
                         }
                         style={{
-                          height: 42,
+                          height: isMobile ? 52 : 42,
                           borderRadius: 'var(--mantine-radius-default)',
                           border: isSelected
                             ? '1px solid var(--mantine-color-blue-4)'
@@ -683,7 +694,11 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                           color="gray"
                           radius="var(--mantine-radius-default)"
                           onClick={() => setTenderedRupees(amt)}
-                          style={{ height: 36, fontWeight: 500, fontFamily: 'monospace' }}
+                          style={{
+                            height: isMobile ? 44 : 36,
+                            fontWeight: 500,
+                            fontFamily: 'monospace',
+                          }}
                         >
                           Rs. {amt.toLocaleString()}
                         </Button>
@@ -753,17 +768,19 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                     </Group>
 
                     {splitPayments.map((sp) => (
-                      <Group key={sp.id} gap="xs">
+                      <Group key={sp.id} gap="xs" wrap={isMobile ? 'wrap' : 'nowrap'}>
                         <SegmentedControl
                           size="xs"
                           value={sp.method}
-                          onChange={(v) => handleUpdateSplitRow(sp.id, 'method', v as PaymentMethod)}
+                          onChange={(v) =>
+                            handleUpdateSplitRow(sp.id, 'method', v as PaymentMethod)
+                          }
                           data={[
                             { label: 'Cash', value: PAYMENT_METHODS.CASH },
                             { label: 'Card', value: PAYMENT_METHODS.CARD, disabled: true },
                             { label: 'Online', value: PAYMENT_METHODS.ONLINE },
                           ]}
-                          style={{ flex: 1 }}
+                          style={{ flex: 1, minWidth: 0 }}
                         />
                         <AmountInput
                           size="xs"
@@ -777,13 +794,16 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                               typeof v === 'number' ? v * 100 : 0
                             )
                           }
-                          style={{ width: 100 }}
+                          /* AmountInput enforces its own 110px floor — pinning it to 100 clipped the
+                             sliding unit button over the digits. */
+                          style={{ flex: 1, minWidth: 110 }}
                         />
                         <ActionIcon
                           color="red"
                           variant="subtle"
                           size="xs"
                           onClick={() => handleRemoveSplitRow(sp.id)}
+                          style={{ flexShrink: 0 }}
                         >
                           <IconTrash size={12} />
                         </ActionIcon>
@@ -821,7 +841,8 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
             >
               DOCUMENT OUTPUT
             </Text>
-            <SimpleGrid cols={4} spacing={6}>
+            {/* Four labels never fit across one narrow column — fall back to a 2x2 block. */}
+            <SimpleGrid cols={{ base: 2, lg: 4 }} spacing={6}>
               {(
                 [
                   { label: 'Receipt', value: 'receipt' },
@@ -836,7 +857,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
                     key={doc.value}
                     onClick={() => changeDocumentSelection(doc.value)}
                     style={{
-                      height: 38,
+                      height: isMobile ? 48 : 38,
                       borderRadius: 'var(--mantine-radius-default)',
                       border: isSelected
                         ? '1px solid var(--mantine-color-blue-4)'
@@ -875,7 +896,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
       {/* Sticky Action Footer (Steps 1, 2, & 9) */}
       <Box
         style={{
-          padding: 16,
+          padding: regionPadding,
           borderTop: '1px solid var(--border)',
           backgroundColor: 'var(--bg-card)',
         }}
@@ -888,7 +909,7 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
           loading={isProcessing}
           onClick={handlePrimaryAction}
           style={{
-            height: 52,
+            height: isMobile ? 56 : 52,
             fontSize: 16,
             fontWeight: 700,
             borderRadius: 'var(--mantine-radius-default)',
@@ -900,15 +921,20 @@ export function PaymentPanel({ isProcessing, onCompleteCheckout }: PaymentPanelP
             ? 'Add items to begin'
             : isCredit
               ? confirmCreditRequired
-                ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)} (F2)`
-                : `Issue on Credit · ${formatMoney(totalCents)} (F2)`
-              : `Complete · ${formatMoney(totalCents)} (F2)`}
+                ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
+                : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
+              : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
         </Button>
-        <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
-          {confirmCreditRequired
-            ? 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
-            : 'Press F2 to trigger checkout'}
-        </Text>
+        {/* The hint line is pure keyboard guidance; on touch it is only noise above the CTA. */}
+        {(!isMobile || confirmCreditRequired) && (
+          <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
+            {confirmCreditRequired
+              ? isMobile
+                ? 'Customer has existing debt. Tap again to confirm credit sale.'
+                : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
+              : 'Press F2 to trigger checkout'}
+          </Text>
+        )}
       </Box>
     </Paper>
   );

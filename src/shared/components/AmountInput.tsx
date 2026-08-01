@@ -1,6 +1,8 @@
 import { useState, forwardRef } from 'react';
 import { Box, TextInput, TextInputProps, Text, UnstyledButton } from '@mantine/core';
 
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+
 export interface AmountInputProps extends Omit<TextInputProps, 'value' | 'onChange' | 'max'> {
   value: number | '';
   onChange: (value: number | '') => void;
@@ -63,6 +65,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     ref
   ) => {
     const [focused, setFocused] = useState(false);
+    const isMobile = useIsMobile();
     const isPercent = mode === 'percentage';
 
     const effectiveMax = max !== undefined ? max : isPercent ? 100 : maxAmount;
@@ -195,7 +198,11 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
                 height: '100%',
                 paddingLeft: PADDING_MAP[size] || 10,
                 paddingRight: PADDING_MAP[size] || 10,
-                fontSize: FONT_SIZE_MAP[size] || 14,
+                // Never below 16px on a phone: iOS Safari zooms the page when a smaller input takes
+                // focus, and the user is then stranded at the wrong scale mid-tender.
+                fontSize: isMobile
+                  ? Math.max(16, FONT_SIZE_MAP[size] || 14)
+                  : FONT_SIZE_MAP[size] || 14,
                 fontFamily: 'var(--mantine-font-family)',
               },
               ...styles,

@@ -7,6 +7,7 @@ import { QuantityInput } from '@/shared/components/QuantityInput';
 import { CartItem } from '@/store/slices/cartSlice';
 import { DiscountPopover } from './DiscountPopover';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -24,6 +25,12 @@ export function CartLineItem({
   onRemove,
 }: CartLineItemProps) {
   const [discountOpen, setDiscountOpen] = useState(false);
+
+  // The discount and delete rails sit right next to each other, so on touch they need to clear the
+  // 44px target floor in both axes — at 40x46 a mis-tap deletes a line instead of discounting it.
+  const isMobile = useIsMobile();
+  const rowMinHeight = isMobile ? 56 : 46;
+  const railWidth = isMobile ? 48 : 40;
 
   const sourceType = item.sourceType || 'retail';
   const isServiceJob = sourceType === 'repair' || sourceType === 'print';
@@ -66,7 +73,7 @@ export function CartLineItem({
       }}
     >
       {/* 1. TOP ROW: Category Icon, Product Name, SKU / Out of Stock, Discount & Delete Buttons */}
-      <Box style={{ display: 'flex', alignItems: 'stretch', minHeight: 46 }}>
+      <Box style={{ display: 'flex', alignItems: 'stretch', minHeight: rowMinHeight }}>
         {/* Left Info Area */}
         <Group gap="xs" style={{ flex: 1, minWidth: 0, padding: '8px 10px' }} wrap="nowrap">
           <ThemeIcon
@@ -156,14 +163,14 @@ export function CartLineItem({
             currentDiscountCents={item.discountCents}
             onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
           >
-            <Tooltip label="Line Discount (D)" position="top">
+            <Tooltip label={isMobile ? 'Line discount' : 'Line Discount (D)'} position="top">
               <ActionIcon
                 variant="light"
                 color={hasLineDiscount ? 'red' : 'blue'}
                 radius={0}
                 onClick={() => setDiscountOpen(true)}
                 style={{
-                  width: 40,
+                  width: railWidth,
                   height: '100%',
                   borderLeft: '1px solid var(--border)',
                 }}
@@ -174,14 +181,14 @@ export function CartLineItem({
           </DiscountPopover>
 
           {/* Delete Column */}
-          <Tooltip label="Remove Line (Delete)" position="top">
+          <Tooltip label={isMobile ? 'Remove line' : 'Remove Line (Delete)'} position="top">
             <ActionIcon
               variant="light"
               color="red"
               radius={0}
               onClick={() => onRemove(item.id)}
               style={{
-                width: 40,
+                width: railWidth,
                 height: '100%',
                 borderLeft: '1px solid var(--border)',
               }}
@@ -207,7 +214,7 @@ export function CartLineItem({
             value={item.quantity}
             onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
             min={1}
-            size="xs"
+            size={isMobile ? 'sm' : 'xs'}
           />
         )}
 

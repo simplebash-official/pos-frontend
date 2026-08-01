@@ -53,7 +53,8 @@ export function DiscountPopover({
       shadow="md"
     >
       <Popover.Target>{children}</Popover.Target>
-      <Popover.Dropdown p="sm" style={{ width: 280 }}>
+      {/* 280px is wider than a small phone's viewport once the popover's own offset is counted. */}
+      <Popover.Dropdown p="sm" style={{ width: 'min(280px, calc(100vw - 32px))' }}>
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed">
             Discount For: {targetName}

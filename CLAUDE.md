@@ -17,7 +17,37 @@ A point-of-sale system for a repair/retail shop (billing, repairs, print jobs, i
 
 **After every change**, run `npm run format && npm run lint && npm run type-check && npm run build` and fix any errors reported before considering the work done.
 
-**Every UI change must be responsive** — verify it holds up across mobile, tablet, and desktop widths (the `AppShell` navbar already collapses at the `sm` breakpoint; follow that pattern rather than hard-coding fixed widths/pixel layouts).
+**Every UI change must be responsive** — verify it holds up across mobile, tablet, and desktop widths (the `AppShell` navbar already collapses at the `sm` breakpoint; follow that pattern rather than hard-coding fixed widths/pixel layouts). See **Responsive & mobile UI** below for the tiers, the hook to use, and the rules every new screen has to satisfy.
+
+## Responsive & mobile UI
+
+The app targets three layout tiers. `src/styles/theme.ts` defines **no** custom `breakpoints`, so Mantine 9's defaults apply: `xs` 36em/576px, `sm` 48em/768px, `md` 62em/992px, `lg` 75em/1200px, `xl` 88em/1408px. (Don't confuse these with `CONTAINER_SIZES` in `theme.ts` — those are `Container` size overrides, not breakpoints.)
+
+| Tier      | Width                  | Shape                                       |
+| --------- | ---------------------- | ------------------------------------------- |
+| `mobile`  | below `sm` (768px)     | one full-screen region at a time            |
+| `tablet`  | `sm`–`lg` (768–1199px) | two columns, the secondary one tab-switched |
+| `desktop` | `lg`+ (1200px)         | the full multi-column layout                |
+
+**Picking a tier**: use `useLayoutTier()` / `useIsMobile()` from `src/shared/hooks/useResponsive.ts` — never call `useMediaQuery` with a hand-written query string, and never hard-code `768`/`1200` in a component. The hook passes `getInitialValueInEffect: false` so the tier resolves on the first render; Mantine's default would flash the wrong layout for a frame. Its `below()` helper subtracts the same fraction Mantine's own `visibleFrom`/`hiddenFrom` do, so a JS tier check and a CSS `visibleFrom` on the same breakpoint always agree.
+
+**JS switching vs CSS switching**: reach for `visibleFrom`/`hiddenFrom` for small, stateless bits of chrome (a badge, an icon button). Use the hook when the alternatives are whole stateful subtrees — CSS-only switching mounts _both_ branches, so refs, `ResizeObserver`s, autofocus effects and query subscriptions all run twice. `BillingRegions` (`src/features/billing/components/BillingRegions.tsx`) is the reference implementation of the JS approach.
+
+**Rules for any new screen or component:**
+
+- **Touch targets ≥44px** below `sm`. Desktop-density controls (32–40px icon buttons, `size="xs"` steppers, tight action rails) must grow on mobile — see `CartLineItem.tsx`'s `railWidth`/`rowMinHeight` pattern. Never place two destructive-adjacent targets under 44px side by side.
+- **Inputs must be ≥16px font on mobile.** iOS Safari zooms the entire page when a smaller input takes focus and does not zoom back out. `AmountInput` already clamps this; do the same for any bare `TextInput`/`NumberInput` you style with an explicit `fontSize`.
+- **Don't autofocus on mobile.** The soft keyboard covers the list or grid the input filters. Gate every autofocus/refocus behind `!isMobile` (`CatalogPanel`'s `keepScanInputFocused`, and the search fields in `ServiceJobPickerModal` / `CustomerPickerModal`).
+- **Modals go `fullScreen={isMobile}`**, drawers go `size={isMobile ? '100%' : ...}`, and popovers must clamp their width (`width: 'min(280px, calc(100vw - 32px))'`). A fixed `mah={440}` scroll area should become a viewport-relative `'60vh'`.
+- **Use `dvh`, not `vh`,** for anything that fills the screen — `vh` ignores the mobile browser URL bar and the bottom of the layout ends up under it. Where a `vh` fallback is needed for older engines, declare the pair in `src/styles/global.css` (see `.billing-root`); an inline React style object can only hold one value per property.
+- **Never hard-code the header height.** Import `BILLING_HEADER_HEIGHT` / `SHELL_HEADER_HEIGHT` from `src/app/layout/constants.ts`; `AppShell` and the screens that size against it must read the same constant.
+- **Keyboard affordances are desktop-only.** Hotkey hints baked into labels (`Jobs (F4)`, `Complete · … (F2)`, `Hold (Ctrl+H)`), the focus-mode toggle and the shortcuts modal entry are meaningless on touch — strip the hint from the label string (don't fork the JSX) and wrap the controls in `visibleFrom="sm"`. Leave the `keydown` listeners registered: they're harmless without a keyboard and keep external-keyboard tablets working.
+- **Grid spans must follow the tier, not the viewport.** A `span={{ base: 6, sm: 4 }}` inside a column whose own width changes per tier resolves against the _viewport_, so it silently means something different in each layout. Derive the span from `useLayoutTier()` instead (`CatalogPanel`'s `productCardSpan`).
+- **Print documents are exempt.** `src/shared/print/documents/` is fixed `mm`/`px` geometry on purpose. Make the _preview container_ scroll on both axes and scale the page down; never make the document itself fluid.
+- **Rows inside a `ScrollArea` don't shrink on their own.** Mantine wraps ScrollArea content in a `display: table` element, which is sized to max-content — so `flex: 1; min-width: 0` and `lineClamp` have no effect and wide rows spill past the container instead of compressing. Pass `classNames={{ viewport: 'scrollarea-fluid-content' }}` (defined in `src/styles/global.css`) whenever the content should be bounded by the container rather than define its width.
+- Mantine 9's `Grid` takes **`gap`**, not `gutter` (that was Mantine 7).
+
+Verify with the real thing: `npm run dev`, then walk the full flow at 375, 414, 768, 1024, 1280 and 1920 — plus at least one pass in dark mode — and assert `document.documentElement.scrollWidth <= window.innerWidth` at every width.
 
 ## Architecture
 
