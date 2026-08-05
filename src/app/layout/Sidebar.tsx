@@ -1,4 +1,4 @@
-import { NavLink as RouterNavLink, useLocation } from 'react-router-dom';
+import { NavLink as RouterNavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Stack,
   NavLink,
@@ -18,6 +18,8 @@ import { NAV_ITEMS } from '@/config/navigation';
 import { ROUTES } from '@/constants/routes';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { useAppDispatch } from '@/store/hooks';
+import { logout } from '@/store/slices/authSlice';
 
 export interface SidebarProps {
   closeMobile?: () => void;
@@ -26,6 +28,8 @@ export interface SidebarProps {
 
 export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -35,6 +39,12 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
   });
 
   const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+
+  const handleLogout = () => {
+    dispatch(logout());
+    if (closeMobile) closeMobile();
+    navigate(ROUTES.LOGIN);
+  };
 
   if (isRail) {
     return (
@@ -84,16 +94,8 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
 
           <Divider my="xs" style={{ width: '80%' }} />
 
-          <Tooltip label="Lock POS" position="right" withArrow>
-            <ActionIcon
-              component={RouterNavLink}
-              to={ROUTES.LOGIN}
-              size="lg"
-              radius="md"
-              variant="subtle"
-              color="gray"
-              onClick={closeMobile}
-            >
+          <Tooltip label="Lock / Logout POS" position="right" withArrow>
+            <ActionIcon size="lg" radius="md" variant="subtle" color="gray" onClick={handleLogout}>
               <IconLock size={20} stroke={1.5} />
             </ActionIcon>
           </Tooltip>
@@ -153,14 +155,12 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
         <Divider my="sm" />
 
         <NavLink
-          component={RouterNavLink}
-          to={ROUTES.LOGIN}
-          label="Lock POS"
+          label="Lock / Logout POS"
           leftSection={<IconLock size={20} stroke={1.5} />}
-          active={location.pathname === ROUTES.LOGIN}
+          active={false}
           color="gray"
           variant="subtle"
-          onClick={closeMobile}
+          onClick={handleLogout}
           style={{ borderRadius: 'var(--mantine-radius-default)' }}
         />
       </Stack>

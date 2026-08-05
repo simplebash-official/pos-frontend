@@ -10,21 +10,34 @@ import {
   Portal,
   Overlay,
 } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { PageLoader } from '@/shared/components/PageLoader';
-import { STORAGE_KEYS, ROUTES } from '@/constants';
+import { ROUTES } from '@/constants/routes';
+import { useAppDispatch } from '@/store/hooks';
+import { loginSuccess } from '@/store/slices/authSlice';
+import { loginApi } from '../api/authApi';
+import { ApiError } from '@/shared/types/common';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.BILLING;
+
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    if (!email || !password) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
       notifications.show({
         title: 'Authentication Required',
         message: 'Please enter both your email address and password to continue.',
@@ -33,23 +46,34 @@ export function LoginForm() {
       return;
     }
 
-    setIsLoggingIn(true);
-    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, 'mock_token_pre_backend');
+    setIsSubmitting(true);
 
-    notifications.show({
-      title: 'Logged In Successfully',
-      message: `Welcome back, ${email.split('@')[0]}! Redirecting to POS console...`,
-      color: 'green',
-    });
+    try {
+      const data = await loginApi({ email: trimmedEmail, password });
+      dispatch(loginSuccess({ user: data.user, token: data.token }));
 
-    setTimeout(() => {
-      navigate(ROUTES.BILLING, { state: { fromLogin: true } });
-    }, 1000);
+      notifications.show({
+        title: 'Logged In Successfully',
+        message: `Welcome back, ${data.user.name || data.user.email}! Redirecting to POS console...`,
+        color: 'green',
+      });
+
+      navigate(from, { replace: true });
+    } catch (err: unknown) {
+      const apiError = err as ApiError;
+      notifications.show({
+        title: 'Login Failed',
+        message: apiError.message || 'Invalid email or password. Please try again.',
+        color: 'red',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <>
-      {isLoggingIn && (
+      {isSubmitting && (
         <Portal>
           <Overlay
             color="#000"
@@ -83,10 +107,19 @@ export function LoginForm() {
           <Stack gap="md" w="100%">
             <TextInput
               label="Email Address"
-              placeholder="operator@pos.local"
+              placeholder="admin@jana2u.local"
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               size="md"
+              type="email"
+              required
+              autoFocus={!isMobile}
+              styles={{
+                input: {
+                  fontSize: isMobile ? '16px' : undefined,
+                  minHeight: isMobile ? '44px' : undefined,
+                },
+              }}
             />
 
             <PasswordInput
@@ -95,9 +128,23 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.currentTarget.value)}
               size="md"
+              required
+              styles={{
+                input: {
+                  fontSize: isMobile ? '16px' : undefined,
+                  minHeight: isMobile ? '44px' : undefined,
+                },
+              }}
             />
 
-            <Button type="submit" fullWidth size="md" mt="sm">
+            <Button
+              type="submit"
+              fullWidth
+              size="md"
+              mt="sm"
+              loading={isSubmitting}
+              style={{ minHeight: isMobile ? '44px' : undefined }}
+            >
               Log in
             </Button>
           </Stack>

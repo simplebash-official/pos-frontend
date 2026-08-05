@@ -26,6 +26,8 @@ import { useMantineColorScheme } from '@mantine/core';
 
 import { useCart } from '@/features/billing/hooks/useCart';
 import { ROUTES } from '@/constants/routes';
+import { useAppSelector } from '@/store/hooks';
+import { selectAuthUser } from '@/store/slices/authSlice';
 
 export interface HeaderProps {
   opened: boolean;
@@ -47,6 +49,11 @@ export function Header({
   const navigate = useNavigate();
   const location = useLocation();
   const isBillingPage = location.pathname === ROUTES.BILLING;
+
+  const user = useAppSelector(selectAuthUser);
+  const userName = user?.name || user?.email?.split('@')[0] || 'Operator';
+  const initial = userName.charAt(0).toUpperCase();
+  const userLabel = `${userName} (${user?.role || 'user'})`;
 
   const { itemCount: cartItemsCount, heldCarts, soundEnabled, toggleSoundFeedback } = useCart();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
@@ -171,13 +178,13 @@ export function Header({
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label="Cashier: Admin (Active)">
+          <Tooltip label={`Cashier: ${userLabel}`}>
             <Group gap={6} style={{ cursor: 'default' }}>
               <Avatar size={24} radius="xl" color="blue" src={null}>
-                A
+                {initial}
               </Avatar>
               <Text size="xs" fw={700} visibleFrom="xs">
-                Admin
+                {userName}
               </Text>
             </Group>
           </Tooltip>
@@ -212,9 +219,9 @@ export function Header({
           )}
         </Button>
 
-        <Tooltip label="Active Cashier: Admin">
+        <Tooltip label={`Active User: ${userLabel}`}>
           <Avatar size={32} radius="xl" color="blue">
-            A
+            {initial}
           </Avatar>
         </Tooltip>
       </Group>

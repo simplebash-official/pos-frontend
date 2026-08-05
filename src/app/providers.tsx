@@ -1,10 +1,12 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from '@/store';
+import { useAppDispatch } from '@/store/hooks';
+import { initializeAuth } from '@/store/slices/authSlice';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
@@ -15,6 +17,16 @@ import '@/styles/global.css';
 
 export interface AppProvidersProps {
   children: ReactNode;
+}
+
+function AuthInitializer({ children }: { children: ReactNode }) {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  return <>{children}</>;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
@@ -33,17 +45,19 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <ReduxProvider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider
-          theme={mantineTheme}
-          cssVariablesResolver={mantineCssVariableResolver}
-          colorSchemeManager={reduxColorSchemeManager}
-          defaultColorScheme="light"
-        >
-          <Notifications position="top-right" zIndex={1000} />
-          <ModalsProvider>{children}</ModalsProvider>
-        </MantineProvider>
-      </QueryClientProvider>
+      <AuthInitializer>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider
+            theme={mantineTheme}
+            cssVariablesResolver={mantineCssVariableResolver}
+            colorSchemeManager={reduxColorSchemeManager}
+            defaultColorScheme="light"
+          >
+            <Notifications position="top-right" zIndex={1000} />
+            <ModalsProvider>{children}</ModalsProvider>
+          </MantineProvider>
+        </QueryClientProvider>
+      </AuthInitializer>
     </ReduxProvider>
   );
 }

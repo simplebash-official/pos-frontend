@@ -2,6 +2,8 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppShell } from './layout/AppShell';
+import { RequireAuth } from './components/RequireAuth';
+import { GuestOnly } from './components/GuestOnly';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { NotFoundPage } from '@/shared/components/NotFoundPage';
@@ -50,7 +52,11 @@ const StandalonePrintView = lazy(() =>
 export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
-    element: <AppShell />,
+    element: (
+      <RequireAuth>
+        <AppShell />
+      </RequireAuth>
+    ),
     errorElement: <ErrorBoundary />,
     children: [
       {
@@ -146,18 +152,22 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.LOGIN,
     element: (
-      <Suspense fallback={<PageSkeleton />}>
-        <EmailLoginScreen />
-      </Suspense>
+      <GuestOnly>
+        <Suspense fallback={<PageSkeleton />}>
+          <EmailLoginScreen />
+        </Suspense>
+      </GuestOnly>
     ),
     errorElement: <ErrorBoundary />,
   },
   {
     path: '/print/invoice/:id',
     element: (
-      <Suspense fallback={<PageSkeleton />}>
-        <StandalonePrintView />
-      </Suspense>
+      <RequireAuth>
+        <Suspense fallback={<PageSkeleton />}>
+          <StandalonePrintView />
+        </Suspense>
+      </RequireAuth>
     ),
     errorElement: <ErrorBoundary />,
   },

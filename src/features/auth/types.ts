@@ -1,4 +1,32 @@
-import type { UserRole } from '@/constants';
+import type { UserRole } from '@/constants/roles';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole | string;
+  permissions?: string[];
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponseData {
+  token: string;
+  user: AuthUser;
+}
+
+export interface LoginResponse {
+  data: LoginResponseData;
+  message?: string;
+}
+
+export interface MeResponse {
+  data: AuthUser;
+  message?: string;
+}
 
 export interface UserSession {
   id: string;
