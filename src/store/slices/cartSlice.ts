@@ -423,13 +423,22 @@ export const selectTenderedAmountCents = (state: { cart: CartState }) =>
 export const selectDocumentSelection = (state: { cart: CartState }) => state.cart.documentSelection;
 export const selectDueDate = (state: { cart: CartState }) => state.cart.dueDate;
 export const selectCompletedSale = (state: { cart: CartState }) => state.cart.completedSale;
-export const selectCustomerInfo = (state: { cart: CartState }) => ({
-  id: state.cart.customerId,
-  name: state.cart.customerName,
-  phone: state.cart.customerPhone,
-  address: state.cart.customerAddress,
-  balanceCents: state.cart.customerBalanceCents,
-});
+export const selectCustomerInfo = createSelector(
+  [
+    (state: { cart: CartState }) => state.cart.customerId,
+    (state: { cart: CartState }) => state.cart.customerName,
+    (state: { cart: CartState }) => state.cart.customerPhone,
+    (state: { cart: CartState }) => state.cart.customerAddress,
+    (state: { cart: CartState }) => state.cart.customerBalanceCents,
+  ],
+  (id, name, phone, address, balanceCents) => ({
+    id,
+    name,
+    phone,
+    address,
+    balanceCents,
+  })
+);
 
 export const selectCartItemsCount = createSelector([selectCartItems], (items) => items.length);
 
