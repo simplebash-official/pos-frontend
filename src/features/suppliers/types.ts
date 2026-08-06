@@ -1,5 +1,6 @@
 export interface Supplier {
   id: string;
+  key: string; // server-generated e.g. "sup_xxx" — used by supplier-products / purchases linking
   name: string; // Business name (e.g., "Colombo Mobile Parts")
   contactPerson: string; // Human contact person (e.g., "Ranjith Kumara")
   primaryPhone: string; // Primary phone number
@@ -12,4 +13,4 @@ export interface Supplier {
   updatedAt: string;
 }
 
-export type SupplierInput = Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>;
+export type SupplierInput = Omit<Supplier, 'id' | 'key' | 'createdAt' | 'updatedAt'>;

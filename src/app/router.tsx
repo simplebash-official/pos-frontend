@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppShell } from './layout/AppShell';
 import { RequireAuth } from './components/RequireAuth';
+import { RequireAdmin } from './components/RequireAdmin';
 import { GuestOnly } from './components/GuestOnly';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
@@ -114,9 +115,11 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.SUPPLIERS,
         element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <SupplierList />
-          </Suspense>
+          <RequireAdmin>
+            <Suspense fallback={<PageSkeleton />}>
+              <SupplierList />
+            </Suspense>
+          </RequireAdmin>
         ),
       },
       {

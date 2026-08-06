@@ -21,6 +21,11 @@ export const queryKeys = {
     lowStock: () => ['inventory', 'lowStock'] as const,
     movements: (productId?: string) => ['inventory', 'movements', productId] as const,
   },
+  categories: {
+    all: ['categories'] as const,
+    valid: () => ['categories', 'valid'] as const,
+    subcategories: (categoryKey: string) => ['categories', categoryKey, 'subcategories'] as const,
+  },
   customers: {
     all: ['customers'] as const,
     list: (filters?: Record<string, unknown>) => ['customers', 'list', filters] as const,
@@ -33,13 +38,13 @@ export const queryKeys = {
   },
   supplierProducts: {
     all: ['supplierProducts'] as const,
-    bySupplier: (supplierId: string) => ['supplierProducts', 'bySupplier', supplierId] as const,
-    byProduct: (productId: string) => ['supplierProducts', 'byProduct', productId] as const,
+    bySupplier: (supplierKey: string) => ['supplierProducts', 'bySupplier', supplierKey] as const,
+    byProduct: (productKey: string) => ['supplierProducts', 'byProduct', productKey] as const,
   },
   purchases: {
     all: ['purchases'] as const,
-    bySupplier: (supplierId: string) => ['purchases', 'bySupplier', supplierId] as const,
-    byProduct: (productId: string) => ['purchases', 'byProduct', productId] as const,
+    bySupplier: (supplierKey: string) => ['purchases', 'bySupplier', supplierKey] as const,
+    byProduct: (productKey: string) => ['purchases', 'byProduct', productKey] as const,
   },
   employees: {
     all: ['employees'] as const,

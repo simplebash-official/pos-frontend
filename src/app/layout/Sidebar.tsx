@@ -12,14 +12,14 @@ import {
   Box,
 } from '@mantine/core';
 import { IconLock, IconMoon, IconSun } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { NAV_ITEMS } from '@/config/navigation';
 import { ROUTES } from '@/constants/routes';
-import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
-import { useAppDispatch } from '@/store/hooks';
-import { logout } from '@/store/slices/authSlice';
+import { USER_ROLES } from '@/constants/roles';
+import { useLowStockProducts } from '@/features/inventory/hooks/useProducts';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout, selectUserRole } from '@/store/slices/authSlice';
 
 export interface SidebarProps {
   closeMobile?: () => void;
@@ -32,13 +32,16 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
   const dispatch = useAppDispatch();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
+  const role = useAppSelector(selectUserRole);
+  const isAdmin = role === USER_ROLES.ADMIN;
 
-  const { data: products = [] } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+  const { data: lowStockProducts = [] } = useLowStockProducts();
+  const lowStockCount = lowStockProducts.length;
 
-  const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+  const visibleNavItems = useMemo(
+    () => NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin),
+    [isAdmin]
+  );
 
   const handleLogout = () => {
     dispatch(logout());
@@ -50,7 +53,7 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
     return (
       <Stack h="100%" justify="space-between" align="center" py="xs" px={4}>
         <Stack gap="xs" align="center" style={{ width: '100%' }}>
-          {NAV_ITEMS.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.to);
             const isInventory = item.to === ROUTES.INVENTORY;
@@ -124,7 +127,7 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
         <Text size="xs" fw={700} c="dimmed" tt="uppercase" px="sm" pt="xs">
           Feature Domains
         </Text>
-        {NAV_ITEMS.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.to);
           const isInventory = item.to === ROUTES.INVENTORY;

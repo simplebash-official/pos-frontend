@@ -20,15 +20,17 @@ import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { useCategories, useCategoryLookup } from '@/features/inventory/hooks/useCategories';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
-import { Product, MainCategory } from '@/features/inventory/types';
+import { Product } from '@/features/inventory/types';
 import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
-import { getCategoryIconInfo, CATALOG_CATEGORY_FILTERS } from '../lib/categoryIcons';
+import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 
 // Top frequent items section removed per request
 
@@ -40,7 +42,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const scanInputRef = useRef<HTMLInputElement>(null);
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | MainCategory>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | string>('all');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
 
@@ -62,10 +64,14 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const productCardSpan = isMobile ? 6 : tier === 'tablet' ? 4 : { base: 6, sm: 4 };
 
   // Inventory Products Query
-  const { data: products = [] } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+  const { data: products = [] } = useAllProducts();
+  const { data: categories = [] } = useCategories();
+  const { getCategory } = useCategoryLookup();
+  const iconMap = useTablerIconMap();
+  const catalogCategoryFilters = useMemo(
+    () => buildCatalogCategoryFilters(categories, iconMap),
+    [categories, iconMap]
+  );
 
   const { data: repairs = [] } = useQuery({
     queryKey: queryKeys.repairs.all,
@@ -103,7 +109,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
       if (showInStockOnly && remainingStock <= 0) return false;
 
-      const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchesCat = selectedCategory === 'all' || p.categoryKey === selectedCategory;
 
       const q = search.toLowerCase().trim();
       const matchesSearch =
@@ -384,7 +390,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
           >
             All
           </Button>
-          {CATALOG_CATEGORY_FILTERS.map(({ key, label, Icon, color }) => (
+          {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
             <Button
               key={key}
               size="xs"
@@ -421,7 +427,11 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
               Icon: CatIcon,
               color: catColor,
               label: catLabel,
-            } = getCategoryIconInfo({ category: p.category });
+            } = getCategoryIconInfo({
+              category: getCategory(p.categoryKey),
+              categoryLabel: p.category,
+              iconMap,
+            });
 
             return (
               <Grid.Col key={p.id} span={productCardSpan}>

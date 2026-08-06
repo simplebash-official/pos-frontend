@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
-import { fetchSuppliers } from '@/features/suppliers/api/mockSuppliers';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { fetchSuppliers } from '@/features/suppliers/api/suppliersApi';
 import { Product } from '@/features/inventory/types';
 import { Supplier } from '@/features/suppliers/types';
 import { SupplierProduct, SupplierProductInput } from '../types';
@@ -10,7 +10,7 @@ import {
   getLinksForProduct,
   linkSupplierProduct,
   unlinkSupplierProduct,
-} from '../api/mockSupplierProducts';
+} from '../api/supplierProductsApi';
 
 // ---------------------------------------------------------------------------
 // Enriched types returned by the hooks
@@ -29,21 +29,18 @@ export interface EnrichedLinkedSupplier extends SupplierProduct {
 // ---------------------------------------------------------------------------
 
 /** Products linked to a specific supplier, enriched with full Product data. */
-export function useProductsForSupplier(supplierId: string | undefined) {
-  const { data: allProducts = [] } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+export function useProductsForSupplier(supplierKey: string | undefined) {
+  const { data: allProducts = [] } = useAllProducts();
 
   return useQuery({
-    queryKey: queryKeys.supplierProducts.bySupplier(supplierId ?? ''),
-    queryFn: () => getLinksForSupplier(supplierId!),
-    enabled: !!supplierId,
+    queryKey: queryKeys.supplierProducts.bySupplier(supplierKey ?? ''),
+    queryFn: () => getLinksForSupplier(supplierKey!),
+    enabled: !!supplierKey,
     select: (links): EnrichedLinkedProduct[] => {
-      const productMap = new Map(allProducts.map((p) => [p.id, p]));
+      const productMap = new Map(allProducts.map((p) => [p.key, p]));
       return links
         .map((link) => {
-          const product = productMap.get(link.productId);
+          const product = productMap.get(link.productKey);
           if (!product) return null;
           return { ...link, product };
         })
@@ -53,21 +50,22 @@ export function useProductsForSupplier(supplierId: string | undefined) {
 }
 
 /** Suppliers linked to a specific product, enriched with full Supplier data. */
-export function useSuppliersForProduct(productId: string | undefined) {
+export function useSuppliersForProduct(productKey: string | undefined) {
   const { data: allSuppliers = [] } = useQuery({
     queryKey: queryKeys.suppliers.all,
-    queryFn: fetchSuppliers,
+    queryFn: () => fetchSuppliers(),
+    enabled: !!productKey,
   });
 
   return useQuery({
-    queryKey: queryKeys.supplierProducts.byProduct(productId ?? ''),
-    queryFn: () => getLinksForProduct(productId!),
-    enabled: !!productId,
+    queryKey: queryKeys.supplierProducts.byProduct(productKey ?? ''),
+    queryFn: () => getLinksForProduct(productKey!),
+    enabled: !!productKey,
     select: (links): EnrichedLinkedSupplier[] => {
-      const supplierMap = new Map(allSuppliers.map((s) => [s.id, s]));
+      const supplierMap = new Map(allSuppliers.map((s) => [s.key, s]));
       return links
         .map((link) => {
-          const supplier = supplierMap.get(link.supplierId);
+          const supplier = supplierMap.get(link.supplierKey);
           if (!supplier) return null;
           return { ...link, supplier };
         })
@@ -87,10 +85,10 @@ export function useLinkProduct() {
     mutationFn: (input: SupplierProductInput) => linkSupplierProduct(input),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierId),
+        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierKey),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.byProduct(variables.productId),
+        queryKey: queryKeys.supplierProducts.byProduct(variables.productKey),
       });
     },
   });
@@ -100,14 +98,14 @@ export function useUnlinkProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ supplierId, productId }: { supplierId: string; productId: string }) =>
-      unlinkSupplierProduct(supplierId, productId),
+    mutationFn: ({ supplierKey, productKey }: { supplierKey: string; productKey: string }) =>
+      unlinkSupplierProduct(supplierKey, productKey),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierId),
+        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierKey),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.byProduct(variables.productId),
+        queryKey: queryKeys.supplierProducts.byProduct(variables.productKey),
       });
     },
   });

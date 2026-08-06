@@ -1,7 +1,6 @@
 import { LocalStorageStore } from '@/shared/lib/localStorageStore';
 import { STORAGE_KEYS } from '@/constants/storage';
-import { recordStockMovement } from '@/features/inventory/api/stockMovementsStore';
-import { adjustStock } from '@/features/inventory/api/mockProducts';
+import { adjustStock } from '@/features/inventory/api/productsApi';
 import { customersStore } from '@/features/customers/api/mockCustomers';
 import type { Invoice } from '../types';
 
@@ -78,15 +77,12 @@ export async function createInvoice(
 
   invoicesStore.add(newInvoice);
 
-  // Decrement inventory stock for retail items and append stock movement entries
+  // Decrement inventory stock for retail items — the backend records its own stock movement.
   for (const item of newInvoice.items) {
     if (!item.sourceType || item.sourceType === 'retail') {
-      await adjustStock(item.productId, -item.quantity, 'sale');
-      recordStockMovement(
+      await adjustStock(
         item.productId,
         -item.quantity,
-        'sale',
-        newInvoice.invoiceNumber,
         `Sale on invoice ${newInvoice.invoiceNumber}`
       );
     }

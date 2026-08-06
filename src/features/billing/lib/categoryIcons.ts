@@ -1,56 +1,47 @@
-import {
-  IconDeviceMobile,
-  IconShirt,
-  IconPrinter,
-  IconTools,
-  IconPackage,
-} from '@tabler/icons-react';
+import { IconTools, IconPrinter } from '@tabler/icons-react';
 
-import { MainCategory, SUBCATEGORIES_BY_CATEGORY } from '@/features/inventory/types';
+import { Category } from '@/features/inventory/types';
+import {
+  resolveCategoryIcon,
+  DEFAULT_CATEGORY_ICON,
+  TablerIcon,
+} from '@/features/inventory/constants';
+import { TablerIconMap } from '@/shared/lib/tablerIcons';
 
 export interface CategoryIconInfo {
-  Icon: typeof IconPackage;
+  Icon: TablerIcon;
   color: string;
   label: string;
 }
-
-export const MAIN_CATEGORY_ICONS: Record<string, { Icon: typeof IconPackage; color: string }> = {
-  'Phone Repairs': { Icon: IconDeviceMobile, color: 'blue' },
-  'Mug, T-Shirt & Print Customization': { Icon: IconShirt, color: 'grape' },
-  'General Printing': { Icon: IconPrinter, color: 'teal' },
-};
-
-export const CATALOG_CATEGORY_LABELS: Record<MainCategory, string> = {
-  'Phone Repairs': 'Phone Repairs',
-  'Mug, T-Shirt & Print Customization': 'Print Customization',
-  'General Printing': 'General Printing',
-};
 
 export interface CatalogCategoryFilter {
-  key: MainCategory;
+  key: string;
   label: string;
-  Icon: typeof IconPackage;
+  Icon: TablerIcon;
   color: string;
 }
 
-// Single source of truth for the billing catalog's main-category filter pills —
-// always in sync with MainCategory since it's derived from SUBCATEGORIES_BY_CATEGORY.
-export const CATALOG_CATEGORY_FILTERS: CatalogCategoryFilter[] = (
-  Object.keys(SUBCATEGORIES_BY_CATEGORY) as MainCategory[]
-).map((key) => ({
-  key,
-  label: CATALOG_CATEGORY_LABELS[key],
-  Icon: MAIN_CATEGORY_ICONS[key].Icon,
-  color: MAIN_CATEGORY_ICONS[key].color,
-}));
+/** Builds the billing catalog's main-category filter pills from the real, backend-driven category list. */
+export function buildCatalogCategoryFilters(
+  categories: Category[],
+  iconMap: TablerIconMap | null
+): CatalogCategoryFilter[] {
+  return categories.map((cat) => ({
+    key: cat.key,
+    label: cat.name,
+    Icon: resolveCategoryIcon(iconMap, cat.icon),
+    color: cat.color,
+  }));
+}
 
 export function getCategoryIconInfo(params: {
-  category?: string;
+  category?: Category;
+  categoryLabel?: string;
   sourceType?: string;
+  iconMap?: TablerIconMap | null;
 }): CategoryIconInfo {
-  const { category, sourceType } = params;
+  const { category, categoryLabel, sourceType, iconMap = null } = params;
 
-  // 1. Service Jobs
   if (sourceType === 'repair') {
     return { Icon: IconTools, color: 'orange', label: 'Phone Repair Service' };
   }
@@ -58,28 +49,13 @@ export function getCategoryIconInfo(params: {
     return { Icon: IconPrinter, color: 'teal', label: 'Print Service Job' };
   }
 
-  // 2. Exact Main Category Match
-  if (category && MAIN_CATEGORY_ICONS[category]) {
-    const config = MAIN_CATEGORY_ICONS[category];
+  if (category) {
     return {
-      Icon: config.Icon,
-      color: config.color,
-      label: CATALOG_CATEGORY_LABELS[category as MainCategory] ?? category,
+      Icon: resolveCategoryIcon(iconMap, category.icon),
+      color: category.color,
+      label: category.name,
     };
   }
 
-  // 3. Main Category Fuzzy Match (for category strings that don't exactly match MainCategory)
-  const lowerCat = category?.toLowerCase() || '';
-  if (lowerCat.includes('repair') || lowerCat.includes('phone')) {
-    return { Icon: IconDeviceMobile, color: 'blue', label: 'Phone Repairs' };
-  }
-  if (lowerCat.includes('custom') || lowerCat.includes('mug')) {
-    return { Icon: IconShirt, color: 'grape', label: 'Print Customization' };
-  }
-  if (lowerCat.includes('print')) {
-    return { Icon: IconPrinter, color: 'teal', label: 'General Printing' };
-  }
-
-  // 4. Default Fallback
-  return { Icon: IconPackage, color: 'blue', label: category || 'Product' };
+  return { Icon: DEFAULT_CATEGORY_ICON, color: 'blue', label: categoryLabel || 'Product' };
 }

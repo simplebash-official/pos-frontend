@@ -36,7 +36,7 @@ export function CartLineItem({
   const isServiceJob = sourceType === 'repair' || sourceType === 'print';
 
   const iconInfo = getCategoryIconInfo({
-    category: item.category,
+    categoryLabel: item.category,
     sourceType: item.sourceType,
   });
   const CatIcon = iconInfo.Icon;

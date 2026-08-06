@@ -63,18 +63,18 @@ export function SupplierDetailDrawer({
   const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
   const { data: linkedProducts = [], isLoading: loadingProducts } = useProductsForSupplier(
-    supplier?.id || ''
+    supplier?.key
   );
   const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesBySupplier(
-    supplier?.id || ''
+    supplier?.key
   );
   const unlinkMutation = useUnlinkProduct();
   const linkMutation = useLinkProduct();
 
-  const handleLink = (productId: string) => {
+  const handleLink = (productKey: string) => {
     if (!supplier) return;
     linkMutation.mutate(
-      { supplierId: supplier.id, productId },
+      { supplierKey: supplier.key, productKey },
       {
         onSuccess: () => {
           notifications.show({
@@ -87,10 +87,10 @@ export function SupplierDetailDrawer({
     );
   };
 
-  const handleUnlink = (productId: string) => {
+  const handleUnlink = (productKey: string) => {
     if (!supplier) return;
     unlinkMutation.mutate(
-      { supplierId: supplier.id, productId },
+      { supplierKey: supplier.key, productKey },
       {
         onSuccess: () => {
           notifications.show({
@@ -257,7 +257,7 @@ export function SupplierDetailDrawer({
                 <Stack gap={6} pt={4} pb={4} px={2}>
                   {linkedProducts.map((lp: EnrichedLinkedProduct) => (
                     <Paper
-                      key={lp.productId}
+                      key={lp.productKey}
                       p="xs"
                       withBorder
                       radius="var(--mantine-radius-default)"
@@ -291,7 +291,7 @@ export function SupplierDetailDrawer({
                             variant="subtle"
                             color="red"
                             size="sm"
-                            onClick={() => handleUnlink(lp.productId)}
+                            onClick={() => handleUnlink(lp.productKey)}
                             loading={unlinkMutation.isPending}
                           >
                             <IconUnlink size={14} />
@@ -462,15 +462,15 @@ export function SupplierDetailDrawer({
       <ProductPickerModal
         opened={pickerOpen}
         onClose={() => setPickerOpen(false)}
-        onSelect={(productId) => handleLink(productId)}
-        excludeIds={linkedProducts.map((lp: EnrichedLinkedProduct) => lp.productId)}
+        onSelect={(productKey) => handleLink(productKey)}
+        excludeKeys={linkedProducts.map((lp: EnrichedLinkedProduct) => lp.productKey)}
       />
 
       {supplier && (
         <ReceiveStockModal
           opened={receiveStockOpen}
           onClose={() => setReceiveStockOpen(false)}
-          initialSupplierId={supplier.id}
+          initialSupplierKey={supplier.key}
         />
       )}
     </>

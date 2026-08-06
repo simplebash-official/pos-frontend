@@ -18,6 +18,7 @@ export interface NavItemConfig {
   icon: ComponentType<{ size?: number | string; stroke?: number | string }>;
   to: string;
   color: string;
+  adminOnly?: boolean;
 }
 
 export const NAV_ITEMS: NavItemConfig[] = [
@@ -62,6 +63,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconTruckDelivery,
     to: ROUTES.SUPPLIERS,
     color: 'blue',
+    adminOnly: true,
   },
   {
     label: 'Employees',

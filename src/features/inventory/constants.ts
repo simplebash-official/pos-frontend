@@ -1,13 +1,25 @@
-import { IconDeviceMobile, IconShirt, IconPrinter } from '@tabler/icons-react';
+import { IconPackage } from '@tabler/icons-react';
+import { TablerIconComponent, TablerIconMap, resolveTablerIcon } from '@/shared/lib/tablerIcons';
 
-export const CATEGORY_ICONS: Record<string, typeof IconDeviceMobile> = {
-  'Phone Repairs': IconDeviceMobile,
-  'Mug, T-Shirt & Print Customization': IconShirt,
-  'General Printing': IconPrinter,
-};
+export type TablerIcon = TablerIconComponent;
 
-export const CATEGORY_COLORS: Record<string, string> = {
-  'Phone Repairs': 'blue',
-  'Mug, T-Shirt & Print Customization': 'grape',
-  'General Printing': 'teal',
-};
+/** Shown while the icon library is still loading, or for a category icon name that no longer resolves. */
+export const DEFAULT_CATEGORY_ICON: TablerIconComponent = IconPackage;
+
+/** Resolves a backend-stored icon name (PascalCase, no "Icon" prefix) to its component. */
+export function resolveCategoryIcon(iconMap: TablerIconMap | null, iconName: string): TablerIcon {
+  return resolveTablerIcon(iconMap, iconName, DEFAULT_CATEGORY_ICON);
+}
+
+export const CATEGORY_COLOR_OPTIONS = [
+  'blue',
+  'indigo',
+  'grape',
+  'teal',
+  'orange',
+  'cyan',
+  'green',
+  'red',
+  'pink',
+  'yellow',
+] as const;

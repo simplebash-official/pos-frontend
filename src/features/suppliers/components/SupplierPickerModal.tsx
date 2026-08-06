@@ -23,14 +23,14 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { fetchSuppliers } from '../api/mockSuppliers';
+import { fetchSuppliers } from '../api/suppliersApi';
 
 export interface SupplierPickerModalProps {
   opened: boolean;
   onClose: () => void;
-  onSelect: (supplierId: string) => void;
-  /** Supplier IDs to exclude from the list (already linked). */
-  excludeIds?: string[];
+  onSelect: (supplierKey: string) => void;
+  /** Supplier keys to exclude from the list (already linked). */
+  excludeKeys?: string[];
   title?: string;
 }
 
@@ -38,20 +38,20 @@ export function SupplierPickerModal({
   opened,
   onClose,
   onSelect,
-  excludeIds = [],
+  excludeKeys = [],
   title = 'Link a Supplier',
 }: SupplierPickerModalProps) {
   const { data: suppliers = [] } = useQuery({
     queryKey: queryKeys.suppliers.all,
-    queryFn: fetchSuppliers,
+    queryFn: () => fetchSuppliers(),
   });
 
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    const excludeSet = new Set(excludeIds);
+    const excludeSet = new Set(excludeKeys);
     return suppliers
-      .filter((s) => !excludeSet.has(s.id))
+      .filter((s) => !excludeSet.has(s.key))
       .filter((s) => {
         if (!search) return true;
         const q = search.toLowerCase();
@@ -61,10 +61,10 @@ export function SupplierPickerModal({
           s.suppliedCategories.some((c) => c.toLowerCase().includes(q))
         );
       });
-  }, [suppliers, excludeIds, search]);
+  }, [suppliers, excludeKeys, search]);
 
-  const handleSelect = (supplierId: string) => {
-    onSelect(supplierId);
+  const handleSelect = (supplierKey: string) => {
+    onSelect(supplierKey);
     setSearch('');
     onClose();
   };
@@ -131,7 +131,7 @@ export function SupplierPickerModal({
                   <Stack gap={6} align="center">
                     <IconBuildingStore size={32} style={{ opacity: 0.3 }} />
                     <Text c="dimmed" size="sm" ta="center">
-                      {suppliers.length === excludeIds.length
+                      {suppliers.length === excludeKeys.length
                         ? 'All available suppliers are already linked.'
                         : 'No suppliers match your search criteria.'}
                     </Text>
@@ -141,11 +141,11 @@ export function SupplierPickerModal({
             ) : (
               filtered.map((s) => (
                 <Paper
-                  key={s.id}
+                  key={s.key}
                   p="md"
                   radius="var(--mantine-radius-default)"
                   className="picker-card"
-                  onClick={() => handleSelect(s.id)}
+                  onClick={() => handleSelect(s.key)}
                 >
                   <Group justify="space-between" align="center" wrap="nowrap" gap="md">
                     {/* Left Icon & Info */}
@@ -226,7 +226,7 @@ export function SupplierPickerModal({
                       style={{ flexShrink: 0 }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleSelect(s.id);
+                        handleSelect(s.key);
                       }}
                     >
                       Link
@@ -246,7 +246,7 @@ export function SupplierPickerModal({
           style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
           <Text size="xs" c="dimmed" fw={500}>
-            Showing {filtered.length} of {suppliers.length - excludeIds.length} available vendors
+            Showing {filtered.length} of {suppliers.length - excludeKeys.length} available vendors
           </Text>
 
           <Button

@@ -1,0 +1,161 @@
+import { createElement, useMemo, useState } from 'react';
+import {
+  Popover,
+  TextInput,
+  SimpleGrid,
+  ActionIcon,
+  Tooltip,
+  Text,
+  Stack,
+  Center,
+  Loader,
+  UnstyledButton,
+} from '@mantine/core';
+import { IconSearch, IconChevronDown } from '@tabler/icons-react';
+import { useTablerIconMap, resolveTablerIcon, TablerIconComponent } from '@/shared/lib/tablerIcons';
+
+export interface TablerIconPickerProps {
+  /** Stored icon name — PascalCase, no "Icon" prefix (e.g. "DeviceMobile"). */
+  value: string | null;
+  onChange: (name: string) => void;
+  /** Shown while the icon library is loading or for an unrecognized `value`. */
+  fallbackIcon: TablerIconComponent;
+  label?: string;
+  error?: string;
+}
+
+const MAX_RESULTS = 180;
+
+export function TablerIconPicker({
+  value,
+  onChange,
+  fallbackIcon,
+  label = 'Icon',
+  error,
+}: TablerIconPickerProps) {
+  const iconMap = useTablerIconMap();
+  const [opened, setOpened] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const allNames = useMemo(() => {
+    if (!iconMap) return [];
+    return Object.keys(iconMap)
+      .filter((key) => key.startsWith('Icon'))
+      .map((key) => key.slice(4))
+      .sort();
+  }, [iconMap]);
+
+  const filteredNames = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return allNames;
+    return allNames.filter((name) => name.toLowerCase().includes(q));
+  }, [allNames, search]);
+
+  const visibleNames = filteredNames.slice(0, MAX_RESULTS);
+  const selectedIconEl = createElement(
+    resolveTablerIcon(iconMap, value ?? undefined, fallbackIcon),
+    {
+      size: 18,
+    }
+  );
+
+  return (
+    <Stack gap={4}>
+      {label && (
+        <Text size="xs" fw={500} c="dimmed">
+          {label}
+        </Text>
+      )}
+      <Popover
+        opened={opened}
+        onChange={setOpened}
+        position="bottom-start"
+        width={360}
+        shadow="md"
+        withinPortal
+      >
+        <Popover.Target>
+          <UnstyledButton
+            onClick={() => setOpened((o) => !o)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 12px',
+              border: `1px solid ${error ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-default-border)'}`,
+              borderRadius: 'var(--mantine-radius-default)',
+              width: 'fit-content',
+              minWidth: 160,
+            }}
+          >
+            {selectedIconEl}
+            <Text size="sm" c={value ? undefined : 'dimmed'}>
+              {value || 'Choose an icon'}
+            </Text>
+            <IconChevronDown size={14} style={{ opacity: 0.6, marginInlineStart: 'auto' }} />
+          </UnstyledButton>
+        </Popover.Target>
+        <Popover.Dropdown p="sm">
+          <Stack gap="xs">
+            <TextInput
+              placeholder="Search icons..."
+              leftSection={<IconSearch size={14} />}
+              value={search}
+              onChange={(e) => setSearch(e.currentTarget.value)}
+              size="xs"
+              autoFocus
+            />
+            {!iconMap ? (
+              <Center py="lg">
+                <Loader size="sm" />
+              </Center>
+            ) : (
+              <>
+                <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+                  <SimpleGrid cols={8} spacing={4}>
+                    {visibleNames.map((name) => {
+                      const Icon = iconMap[`Icon${name}`];
+                      const isSelected = value === name;
+                      return (
+                        <Tooltip key={name} label={name} withArrow openDelay={300}>
+                          <ActionIcon
+                            variant={isSelected ? 'filled' : 'subtle'}
+                            color={isSelected ? 'blue' : 'gray'}
+                            size="lg"
+                            aria-label={name}
+                            onClick={() => {
+                              onChange(name);
+                              setOpened(false);
+                            }}
+                          >
+                            <Icon size={18} />
+                          </ActionIcon>
+                        </Tooltip>
+                      );
+                    })}
+                  </SimpleGrid>
+                </div>
+                {visibleNames.length === 0 ? (
+                  <Text size="xs" c="dimmed" ta="center" py="sm">
+                    No icons match "{search}".
+                  </Text>
+                ) : (
+                  <Text size="xs" c="dimmed" ta="center">
+                    {filteredNames.length > MAX_RESULTS
+                      ? `Showing ${MAX_RESULTS} of ${filteredNames.length} — refine your search to see more`
+                      : `${filteredNames.length} icons`}
+                  </Text>
+                )}
+              </>
+            )}
+          </Stack>
+        </Popover.Dropdown>
+      </Popover>
+      {error && (
+        <Text size="xs" c="red">
+          {error}
+        </Text>
+      )}
+    </Stack>
+  );
+}

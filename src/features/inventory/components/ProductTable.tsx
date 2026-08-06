@@ -46,16 +46,25 @@ import {
   IconReceipt,
   IconTrash,
   IconEdit,
+  IconCategory,
+  IconHistory,
 } from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { Product } from '../types';
-import { fetchProducts, deleteProducts, adjustStock } from '../api/mockProducts';
-import { queryKeys } from '@/api/queryKeys';
+import { Product, ProductInput } from '../types';
+import {
+  useAllProducts,
+  useAdjustStock,
+  useCreateProduct,
+  useUpdateProduct,
+  useDeleteProducts,
+  useProductMovements,
+} from '../hooks/useProducts';
+import { useCategoryLookup } from '../hooks/useCategories';
+import { resolveCategoryIcon } from '../constants';
+import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
-import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
 import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import {
   useSuppliersForProduct,
@@ -64,13 +73,19 @@ import {
   EnrichedLinkedSupplier,
 } from '@/features/supplier-products/hooks/useSupplierProducts';
 import { usePurchasesByProduct } from '@/features/purchases/hooks/usePurchases';
+import { useAppSelector } from '@/store/hooks';
+import { selectUserRole } from '@/store/slices/authSlice';
+import { USER_ROLES } from '@/constants/roles';
+import { ProductFormModal } from './ProductFormModal';
+import { CategoryManagerModal } from './CategoryManagerModal';
 
 export function ProductTable() {
-  const queryClient = useQueryClient();
-  const { data: initialProducts = [], isLoading } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+  const role = useAppSelector(selectUserRole);
+  const isAdmin = role === USER_ROLES.ADMIN;
+
+  const { data: initialProducts = [], isLoading } = useAllProducts();
+  const { getCategory } = useCategoryLookup();
+  const iconMap = useTablerIconMap();
 
   const [search, setSearch] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
@@ -79,26 +94,70 @@ export function ProductTable() {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  const deleteBatchMutation = useMutation({
-    mutationFn: deleteProducts,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      notifications.show({
-        title: 'Products Deleted',
-        message: 'Selected inventory items removed successfully',
-        color: 'red',
-        icon: <IconCheck size={16} />,
-      });
-      setSelectedProductIds([]);
-      setConfirmDeleteOpen(false);
-    },
-  });
+  const deleteBatchMutation = useDeleteProducts();
+  const handleConfirmBatchDelete = () => {
+    deleteBatchMutation.mutate(selectedProductIds, {
+      onSuccess: () => {
+        notifications.show({
+          title: 'Products Deleted',
+          message: 'Selected inventory items removed successfully',
+          color: 'red',
+          icon: <IconCheck size={16} />,
+        });
+        setSelectedProductIds([]);
+        setConfirmDeleteOpen(false);
+      },
+    });
+  };
 
   // Selected item for Right-Side Drawer
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Quick stock adjustment in drawer
   const [stockAdjustment, setStockAdjustment] = useState<number>(0);
+  const [adjustmentReason, setAdjustmentReason] = useState('');
+
+  // Product create/edit form modal
+  const [productFormOpen, setProductFormOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
+
+  const createProductMutation = useCreateProduct();
+  const updateProductMutation = useUpdateProduct();
+
+  const handleOpenAddProduct = () => {
+    setProductToEdit(null);
+    setProductFormOpen(true);
+  };
+
+  const handleOpenEditProduct = (product: Product) => {
+    setProductToEdit(product);
+    setProductFormOpen(true);
+  };
+
+  const handleProductFormSubmit = async (values: ProductInput) => {
+    if (productToEdit) {
+      const updated = await updateProductMutation.mutateAsync({
+        id: productToEdit.id,
+        updates: values,
+      });
+      setSelectedProduct(updated);
+      notifications.show({
+        title: 'Product Updated',
+        message: `Saved changes to ${updated.name}`,
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
+    } else {
+      const created = await createProductMutation.mutateAsync(values);
+      notifications.show({
+        title: 'Product Created',
+        message: `${created.name} added to the catalog`,
+        color: 'green',
+        icon: <IconCheck size={16} />,
+      });
+    }
+  };
 
   // Supplier picker modal
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
@@ -106,18 +165,21 @@ export function ProductTable() {
 
   // Supplier-product linking
   const { data: linkedSuppliers = [], isLoading: loadingSuppliers } = useSuppliersForProduct(
-    selectedProduct?.id || ''
+    isAdmin ? selectedProduct?.key : undefined
   );
   const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesByProduct(
-    selectedProduct?.id || ''
+    isAdmin ? selectedProduct?.key : undefined
+  );
+  const { data: movements = [], isLoading: loadingMovements } = useProductMovements(
+    selectedProduct?.id
   );
   const linkMutation = useLinkProduct();
   const unlinkMutation = useUnlinkProduct();
 
-  const handleLinkSupplier = (supplierId: string) => {
+  const handleLinkSupplier = (supplierKey: string) => {
     if (!selectedProduct) return;
     linkMutation.mutate(
-      { supplierId, productId: selectedProduct.id },
+      { supplierKey, productKey: selectedProduct.key },
       {
         onSuccess: () => {
           notifications.show({
@@ -130,10 +192,10 @@ export function ProductTable() {
     );
   };
 
-  const handleUnlinkSupplier = (supplierId: string) => {
+  const handleUnlinkSupplier = (supplierKey: string) => {
     if (!selectedProduct) return;
     unlinkMutation.mutate(
-      { supplierId, productId: selectedProduct.id },
+      { supplierKey, productKey: selectedProduct.key },
       {
         onSuccess: () => {
           notifications.show({
@@ -146,10 +208,9 @@ export function ProductTable() {
     );
   };
 
-  // Subcategory collapse state map (key format: `${category}::${subcategory}`)
+  // Subcategory collapse state map (key format: `${categoryKey}::${subcategoryKey}`)
   const [collapsedSubcategories, setCollapsedSubcategories] = useState<Record<string, boolean>>({});
 
-  // Toggle individual subcategory expanded/collapsed state
   const toggleSubcategory = (subKey: string) => {
     setCollapsedSubcategories((prev) => ({
       ...prev,
@@ -157,7 +218,6 @@ export function ProductTable() {
     }));
   };
 
-  // Group products hierarchically: Category -> Subcategory -> Product[]
   const filteredProducts = useMemo(() => {
     return initialProducts.filter((p) => {
       const matchesSearch =
@@ -173,12 +233,13 @@ export function ProductTable() {
     });
   }, [initialProducts, search, showLowStockOnly]);
 
+  // Group products hierarchically: categoryKey -> subcategoryKey -> Product[]
   const hierarchy = useMemo(() => {
     const map = new Map<string, Map<string, Product[]>>();
 
     filteredProducts.forEach((prod) => {
-      const cat = prod.category;
-      const sub = prod.subcategory;
+      const cat = prod.categoryKey;
+      const sub = prod.subcategoryKey;
 
       if (!map.has(cat)) {
         map.set(cat, new Map());
@@ -193,38 +254,18 @@ export function ProductTable() {
     return map;
   }, [filteredProducts]);
 
-  // Category expand state management
-  const categoryNames = useMemo(() => Array.from(hierarchy.keys()), [hierarchy]);
+  const categoryKeys = useMemo(() => Array.from(hierarchy.keys()), [hierarchy]);
   const [userCollapsedCategories, setUserCollapsedCategories] = useState<string[]>([]);
   const expandedCategories = useMemo(
-    () => categoryNames.filter((cat) => !userCollapsedCategories.includes(cat)),
-    [categoryNames, userCollapsedCategories]
+    () => categoryKeys.filter((cat) => !userCollapsedCategories.includes(cat)),
+    [categoryKeys, userCollapsedCategories]
   );
 
-  // Stock adjustment mutation
-  const adjustStockMutation = useMutation({
-    mutationFn: ({ id, delta }: { id: string; delta: number }) => adjustStock(id, delta),
-    onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      if (updated) {
-        setSelectedProduct(updated);
-        notifications.show({
-          title: 'Stock Updated',
-          message: `Updated stock level for ${updated.name} to ${updated.stockQuantity} units`,
-          color: 'green',
-          icon: <IconCheck size={16} />,
-        });
-      }
-      setStockAdjustment(0);
-    },
-  });
+  const adjustStockMutation = useAdjustStock();
 
-  // Expand all / Collapse all helper for both Categories and Subcategories
   const handleToggleExpandAll = () => {
-    if (expandedCategories.length === categoryNames.length) {
-      // Collapse all categories
-      setUserCollapsedCategories(categoryNames);
-      // Collapse all subcategories as well
+    if (expandedCategories.length === categoryKeys.length) {
+      setUserCollapsedCategories(categoryKeys);
       const allSubKeys: Record<string, boolean> = {};
       hierarchy.forEach((subMap, cat) => {
         subMap.forEach((_, sub) => {
@@ -233,21 +274,19 @@ export function ProductTable() {
       });
       setCollapsedSubcategories(allSubKeys);
     } else {
-      // Expand all categories and subcategories
       setUserCollapsedCategories([]);
       setCollapsedSubcategories({});
     }
   };
 
-  // Stats calculation
   const totalProducts = initialProducts.length;
   const lowStockCount = initialProducts.filter(
     (p) => p.stockQuantity <= p.minStockThreshold
   ).length;
-  const categoriesCount = new Set(initialProducts.map((p) => p.category)).size;
+  const categoriesCount = new Set(initialProducts.map((p) => p.categoryKey)).size;
 
   const handleUpdateStockInDrawer = () => {
-    if (!selectedProduct || stockAdjustment === 0) return;
+    if (!selectedProduct || stockAdjustment === 0 || !adjustmentReason.trim()) return;
     const newQty = selectedProduct.stockQuantity + stockAdjustment;
     if (newQty < 0) {
       notifications.show({
@@ -258,18 +297,49 @@ export function ProductTable() {
       return;
     }
 
-    adjustStockMutation.mutate({ id: selectedProduct.id, delta: stockAdjustment });
+    adjustStockMutation.mutate(
+      { id: selectedProduct.id, delta: stockAdjustment, reason: adjustmentReason.trim() },
+      {
+        onSuccess: (result) => {
+          setSelectedProduct({ ...selectedProduct, stockQuantity: result.stockQuantity });
+          notifications.show({
+            title: 'Stock Updated',
+            message: `Updated stock level for ${result.name} to ${result.stockQuantity} units`,
+            color: 'green',
+            icon: <IconCheck size={16} />,
+          });
+          setStockAdjustment(0);
+          setAdjustmentReason('');
+        },
+      }
+    );
   };
 
   return (
     <Stack gap="lg">
       <PageHeader
         title="Main Inventory"
-        description="Nested catalog across Phone Repairs, Custom Print & Raw Materials, and General Printing"
+        description="Catalog across every stocked category and subcategory"
         action={
-          <Button leftSection={<IconPlus size={16} />} color="blue">
-            Add Product / Material
-          </Button>
+          <Group gap="sm">
+            {isAdmin && (
+              <Button
+                variant="light"
+                color="gray"
+                leftSection={<IconCategory size={16} />}
+                onClick={() => setCategoryManagerOpen(true)}
+              >
+                Manage Categories
+              </Button>
+            )}
+            <Button
+              leftSection={<IconPlus size={16} />}
+              color="blue"
+              onClick={handleOpenAddProduct}
+            >
+              Add Product / Material
+            </Button>
+          </Group>
         }
       />
 
@@ -360,14 +430,14 @@ export function ProductTable() {
             size="sm"
             onClick={handleToggleExpandAll}
             leftSection={
-              expandedCategories.length === categoryNames.length ? (
+              expandedCategories.length === categoryKeys.length ? (
                 <IconArrowsMinimize size={16} />
               ) : (
                 <IconArrowsMaximize size={16} />
               )
             }
           >
-            {expandedCategories.length === categoryNames.length ? 'Collapse All' : 'Expand All'}
+            {expandedCategories.length === categoryKeys.length ? 'Collapse All' : 'Expand All'}
           </Button>
         </Group>
       </Paper>
@@ -416,16 +486,20 @@ export function ProductTable() {
           multiple
           value={expandedCategories}
           onChange={(val) =>
-            setUserCollapsedCategories(categoryNames.filter((c) => !val.includes(c)))
+            setUserCollapsedCategories(categoryKeys.filter((c) => !val.includes(c)))
           }
           variant="separated"
           radius="md"
         >
-          {Array.from(hierarchy.entries()).map(([category, subcategoriesMap]) => {
-            const CatIcon = CATEGORY_ICONS[category] || IconPackage;
-            const catColor = CATEGORY_COLORS[category] || 'blue';
+          {Array.from(hierarchy.entries()).map(([categoryKey, subcategoriesMap]) => {
+            const firstProduct = Array.from(subcategoriesMap.values())[0]?.[0];
+            const categoryName = firstProduct?.category ?? 'Uncategorized';
+            const categoryMeta = getCategory(categoryKey);
+            const CatIcon = categoryMeta
+              ? resolveCategoryIcon(iconMap, categoryMeta.icon)
+              : IconPackage;
+            const catColor = categoryMeta?.color ?? 'blue';
 
-            // Category summary metrics
             let catTotalItems = 0;
             let catLowStockCount = 0;
 
@@ -437,7 +511,7 @@ export function ProductTable() {
             });
 
             return (
-              <Accordion.Item key={category} value={category}>
+              <Accordion.Item key={categoryKey} value={categoryKey}>
                 <Accordion.Control>
                   <Group justify="space-between" wrap="nowrap" pr="md">
                     <Group gap="sm">
@@ -446,7 +520,7 @@ export function ProductTable() {
                       </ThemeIcon>
                       <div>
                         <Text fw={700} size="md">
-                          {category}
+                          {categoryName}
                         </Text>
                         <Text size="xs" c="dimmed">
                           {subcategoriesMap.size} Subcategories • {catTotalItems} Items
@@ -469,8 +543,9 @@ export function ProductTable() {
 
                 <Accordion.Panel>
                   <Stack gap="md" pt="xs">
-                    {Array.from(subcategoriesMap.entries()).map(([subCatName, items]) => {
-                      const subKey = `${category}::${subCatName}`;
+                    {Array.from(subcategoriesMap.entries()).map(([subcategoryKey, items]) => {
+                      const subCatName = items[0]?.subcategory ?? 'Uncategorized';
+                      const subKey = `${categoryKey}::${subcategoryKey}`;
                       const isSubCollapsed = !!collapsedSubcategories[subKey];
                       const subLowStock = items.filter(
                         (i) => i.stockQuantity <= i.minStockThreshold
@@ -498,7 +573,7 @@ export function ProductTable() {
 
                       return (
                         <Paper
-                          key={subCatName}
+                          key={subcategoryKey}
                           withBorder
                           p="sm"
                           radius="md"
@@ -663,7 +738,7 @@ export function ProductTable() {
       <ConfirmDialog
         opened={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
-        onConfirm={() => deleteBatchMutation.mutate(selectedProductIds)}
+        onConfirm={handleConfirmBatchDelete}
         title="Delete Selected Products"
         confirmLabel={`Delete ${selectedProductIds.length} Products`}
         confirmColor="red"
@@ -679,6 +754,7 @@ export function ProductTable() {
         onClose={() => {
           setSelectedProduct(null);
           setStockAdjustment(0);
+          setAdjustmentReason('');
         }}
         position="right"
         size="md"
@@ -837,182 +913,233 @@ export function ProductTable() {
                   <Text size="xs" fw={600} mb={6} c="dimmed">
                     Quick Stock Adjustment (+/-)
                   </Text>
-                  <Group gap="sm" align="center">
-                    <QuantityInput
-                      value={stockAdjustment}
-                      onChange={(val) => setStockAdjustment(Number(val) || 0)}
+                  <Stack gap="xs">
+                    <Group gap="sm" align="center">
+                      <QuantityInput
+                        value={stockAdjustment}
+                        onChange={(val) => setStockAdjustment(Number(val) || 0)}
+                        size="sm"
+                      />
+                      <Button
+                        size="sm"
+                        color="blue"
+                        onClick={handleUpdateStockInDrawer}
+                        style={{ height: 36 }}
+                        disabled={stockAdjustment === 0 || !adjustmentReason.trim()}
+                        loading={adjustStockMutation.isPending}
+                      >
+                        Apply Adjustment
+                      </Button>
+                    </Group>
+                    <TextInput
+                      placeholder="Reason (required, e.g. Damaged stock, Stock count correction)"
                       size="sm"
+                      value={adjustmentReason}
+                      onChange={(e) => setAdjustmentReason(e.currentTarget.value)}
                     />
-                    <Button
-                      size="sm"
-                      color="blue"
-                      onClick={handleUpdateStockInDrawer}
-                      style={{ height: 36 }}
-                    >
-                      Apply Adjustment
-                    </Button>
-                  </Group>
+                  </Stack>
                 </Box>
               </Stack>
             </Paper>
 
-            <Divider my="xs" />
-
-            {/* Linked Suppliers */}
-            <Group justify="space-between" align="center">
+            {/* Recent Stock Movements */}
+            <Group justify="space-between" align="center" mt="xs">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Linked Suppliers{' '}
-                <Text component="span" c="blue" fw={800}>
-                  ({linkedSuppliers.length})
-                </Text>
+                Recent Stock Movements
               </Text>
-              <Tooltip label="Link a supplier" withArrow>
-                <ActionIcon
-                  variant="light"
-                  color="blue"
-                  size="sm"
-                  onClick={() => setSupplierPickerOpen(true)}
-                >
-                  <IconPlus size={14} />
-                </ActionIcon>
-              </Tooltip>
+              <IconHistory size={14} style={{ opacity: 0.6 }} />
             </Group>
-
-            {loadingSuppliers ? (
-              <Center py="md">
-                <Loader size="sm" />
+            {loadingMovements ? (
+              <Center py="sm">
+                <Loader size="xs" />
               </Center>
-            ) : linkedSuppliers.length === 0 ? (
-              <Paper p="sm" withBorder bg="var(--mantine-color-body)">
-                <Center py="xs">
-                  <Stack gap={4} align="center">
-                    <IconLink size={20} style={{ opacity: 0.4 }} />
-                    <Text size="xs" c="dimmed" ta="center">
-                      No suppliers linked yet. Click + to link a supplier.
-                    </Text>
-                  </Stack>
-                </Center>
-              </Paper>
+            ) : movements.length === 0 ? (
+              <Text size="xs" c="dimmed" ta="center" py="xs">
+                No stock movements recorded yet.
+              </Text>
             ) : (
-              <ScrollArea.Autosize mah={320} offsetScrollbars>
-                <Stack gap={6} pt={4} pb={4} px={2}>
-                  {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
-                    <Paper
-                      key={ls.supplierId}
-                      p="xs"
-                      withBorder
-                      radius="var(--mantine-radius-default)"
-                    >
-                      <Group justify="space-between" align="center" wrap="nowrap">
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <Text size="sm" fw={700} lineClamp={1}>
-                            {ls.supplier.name}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
-                          </Text>
-                          {ls.costPriceCents && (
-                            <Badge size="xs" variant="light" color="teal" mt={2}>
-                              Supplier Cost: {formatMoney(ls.costPriceCents)}
-                            </Badge>
-                          )}
-                          {ls.notes && (
-                            <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                              {ls.notes}
-                            </Text>
-                          )}
-                        </div>
-                        <Tooltip label="Unlink supplier" withArrow>
-                          <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            size="sm"
-                            onClick={() => handleUnlinkSupplier(ls.supplierId)}
-                            loading={unlinkMutation.isPending}
-                          >
-                            <IconUnlink size={14} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Group>
-                    </Paper>
+              <ScrollArea.Autosize mah={180} offsetScrollbars>
+                <Stack gap={4}>
+                  {movements.slice(0, 20).map((m) => (
+                    <Group key={m.id} justify="space-between" wrap="nowrap">
+                      <Text size="xs" c="dimmed" lineClamp={1} style={{ flex: 1 }}>
+                        {m.note || m.type}
+                      </Text>
+                      <Badge
+                        size="xs"
+                        variant="light"
+                        color={m.quantityDelta >= 0 ? 'green' : 'red'}
+                      >
+                        {m.quantityDelta >= 0 ? '+' : ''}
+                        {m.quantityDelta}
+                      </Badge>
+                    </Group>
                   ))}
                 </Stack>
               </ScrollArea.Autosize>
             )}
 
-            {/* Stock Intake History */}
-            <Group justify="space-between" align="center" mt="sm">
-              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Stock Intake History{' '}
-                <Text component="span" c="blue" fw={800}>
-                  ({purchases.length})
-                </Text>
-              </Text>
-              <Tooltip label="Receive Stock" withArrow>
-                <ActionIcon
-                  variant="light"
-                  color="teal"
-                  size="sm"
-                  onClick={() => setReceiveStockOpen(true)}
-                >
-                  <IconPlus size={14} />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
+            {isAdmin && (
+              <>
+                <Divider my="xs" />
 
-            {loadingPurchases ? (
-              <Center py="md">
-                <Loader size="sm" />
-              </Center>
-            ) : purchases.length === 0 ? (
-              <Paper
-                p="sm"
-                withBorder
-                radius="var(--mantine-radius-default)"
-                bg="var(--mantine-color-body)"
-              >
-                <Center py="xs">
-                  <Stack gap={4} align="center">
-                    <IconReceipt size={20} style={{ opacity: 0.4 }} />
-                    <Text size="xs" c="dimmed" ta="center">
-                      No stock intakes recorded. Click + to receive stock.
+                {/* Linked Suppliers */}
+                <Group justify="space-between" align="center">
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    Linked Suppliers{' '}
+                    <Text component="span" c="blue" fw={800}>
+                      ({linkedSuppliers.length})
                     </Text>
-                  </Stack>
-                </Center>
-              </Paper>
-            ) : (
-              <ScrollArea.Autosize mah={320} offsetScrollbars>
-                <Stack gap={6} pt={4} pb={4} px={2}>
-                  {purchases.map((purchase) => (
-                    <Paper
-                      key={purchase.id}
-                      p="xs"
-                      withBorder
-                      radius="var(--mantine-radius-default)"
+                  </Text>
+                  <Tooltip label="Link a supplier" withArrow>
+                    <ActionIcon
+                      variant="light"
+                      color="blue"
+                      size="sm"
+                      onClick={() => setSupplierPickerOpen(true)}
                     >
-                      <Group justify="space-between" align="center" wrap="nowrap">
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <Text size="sm" fw={700} lineClamp={1}>
-                            {purchase.supplier.name}
-                          </Text>
-                          <Group gap={6} mt={2}>
-                            <Badge size="xs" variant="filled" color="blue">
-                              Qty: {purchase.quantity}
-                            </Badge>
-                            <Badge size="xs" variant="light" color="teal">
-                              {formatMoney(purchase.totalCostCents)}
-                            </Badge>
+                      <IconPlus size={14} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+
+                {loadingSuppliers ? (
+                  <Center py="md">
+                    <Loader size="sm" />
+                  </Center>
+                ) : linkedSuppliers.length === 0 ? (
+                  <Paper p="sm" withBorder bg="var(--mantine-color-body)">
+                    <Center py="xs">
+                      <Stack gap={4} align="center">
+                        <IconLink size={20} style={{ opacity: 0.4 }} />
+                        <Text size="xs" c="dimmed" ta="center">
+                          No suppliers linked yet. Click + to link a supplier.
+                        </Text>
+                      </Stack>
+                    </Center>
+                  </Paper>
+                ) : (
+                  <ScrollArea.Autosize mah={320} offsetScrollbars>
+                    <Stack gap={6} pt={4} pb={4} px={2}>
+                      {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
+                        <Paper
+                          key={ls.supplierKey}
+                          p="xs"
+                          withBorder
+                          radius="var(--mantine-radius-default)"
+                        >
+                          <Group justify="space-between" align="center" wrap="nowrap">
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <Text size="sm" fw={700} lineClamp={1}>
+                                {ls.supplier.name}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
+                              </Text>
+                              {ls.costPriceCents && (
+                                <Badge size="xs" variant="light" color="teal" mt={2}>
+                                  Supplier Cost: {formatMoney(ls.costPriceCents)}
+                                </Badge>
+                              )}
+                              {ls.notes && (
+                                <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
+                                  {ls.notes}
+                                </Text>
+                              )}
+                            </div>
+                            <Tooltip label="Unlink supplier" withArrow>
+                              <ActionIcon
+                                variant="subtle"
+                                color="red"
+                                size="sm"
+                                onClick={() => handleUnlinkSupplier(ls.supplierKey)}
+                                loading={unlinkMutation.isPending}
+                              >
+                                <IconUnlink size={14} />
+                              </ActionIcon>
+                            </Tooltip>
                           </Group>
-                          <Text size="xs" c="dimmed" mt={4}>
-                            {formatDateTime(purchase.date)}{' '}
-                            {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
-                          </Text>
-                        </div>
-                      </Group>
-                    </Paper>
-                  ))}
-                </Stack>
-              </ScrollArea.Autosize>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                )}
+
+                {/* Stock Intake History */}
+                <Group justify="space-between" align="center" mt="sm">
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    Stock Intake History{' '}
+                    <Text component="span" c="blue" fw={800}>
+                      ({purchases.length})
+                    </Text>
+                  </Text>
+                  <Tooltip label="Receive Stock" withArrow>
+                    <ActionIcon
+                      variant="light"
+                      color="teal"
+                      size="sm"
+                      onClick={() => setReceiveStockOpen(true)}
+                    >
+                      <IconPlus size={14} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+
+                {loadingPurchases ? (
+                  <Center py="md">
+                    <Loader size="sm" />
+                  </Center>
+                ) : purchases.length === 0 ? (
+                  <Paper
+                    p="sm"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
+                    <Center py="xs">
+                      <Stack gap={4} align="center">
+                        <IconReceipt size={20} style={{ opacity: 0.4 }} />
+                        <Text size="xs" c="dimmed" ta="center">
+                          No stock intakes recorded. Click + to receive stock.
+                        </Text>
+                      </Stack>
+                    </Center>
+                  </Paper>
+                ) : (
+                  <ScrollArea.Autosize mah={320} offsetScrollbars>
+                    <Stack gap={6} pt={4} pb={4} px={2}>
+                      {purchases.map((purchase) => (
+                        <Paper
+                          key={purchase.id}
+                          p="xs"
+                          withBorder
+                          radius="var(--mantine-radius-default)"
+                        >
+                          <Group justify="space-between" align="center" wrap="nowrap">
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <Text size="sm" fw={700} lineClamp={1}>
+                                {purchase.supplier.name}
+                              </Text>
+                              <Group gap={6} mt={2}>
+                                <Badge size="xs" variant="filled" color="blue">
+                                  Qty: {purchase.quantity}
+                                </Badge>
+                                <Badge size="xs" variant="light" color="teal">
+                                  {formatMoney(purchase.totalCostCents)}
+                                </Badge>
+                              </Group>
+                              <Text size="xs" c="dimmed" mt={4}>
+                                {formatDateTime(purchase.date)}{' '}
+                                {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                              </Text>
+                            </div>
+                          </Group>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                )}
+              </>
             )}
 
             <Divider my="xs" />
@@ -1031,7 +1158,7 @@ export function ProductTable() {
                   </Text>
                 </Group>
                 <Text size="xs" fw={700}>
-                  {selectedProduct.barcode || `${selectedProduct.sku}-890123`}
+                  {selectedProduct.barcode || '—'}
                 </Text>
               </Group>
 
@@ -1070,6 +1197,7 @@ export function ProductTable() {
                 onClick={() => {
                   setSelectedProduct(null);
                   setStockAdjustment(0);
+                  setAdjustmentReason('');
                 }}
               >
                 Close
@@ -1080,13 +1208,7 @@ export function ProductTable() {
                 color="blue"
                 size="sm"
                 leftSection={<IconEdit size={16} />}
-                onClick={() => {
-                  notifications.show({
-                    title: 'Edit Modal',
-                    message: `Opened edit form for ${selectedProduct.name}`,
-                    color: 'blue',
-                  });
-                }}
+                onClick={() => handleOpenEditProduct(selectedProduct)}
               >
                 Edit Item
               </Button>
@@ -1095,18 +1217,35 @@ export function ProductTable() {
         )}
       </Drawer>
 
-      <SupplierPickerModal
-        opened={supplierPickerOpen}
-        onClose={() => setSupplierPickerOpen(false)}
-        onSelect={(supplierId) => handleLinkSupplier(supplierId)}
-        excludeIds={linkedSuppliers.map((ls: EnrichedLinkedSupplier) => ls.supplierId)}
+      <ProductFormModal
+        opened={productFormOpen}
+        onClose={() => setProductFormOpen(false)}
+        onSubmit={handleProductFormSubmit}
+        productToEdit={productToEdit}
+        loading={createProductMutation.isPending || updateProductMutation.isPending}
       />
 
-      {selectedProduct && (
+      {isAdmin && (
+        <CategoryManagerModal
+          opened={categoryManagerOpen}
+          onClose={() => setCategoryManagerOpen(false)}
+        />
+      )}
+
+      {isAdmin && (
+        <SupplierPickerModal
+          opened={supplierPickerOpen}
+          onClose={() => setSupplierPickerOpen(false)}
+          onSelect={(supplierKey) => handleLinkSupplier(supplierKey)}
+          excludeKeys={linkedSuppliers.map((ls: EnrichedLinkedSupplier) => ls.supplierKey)}
+        />
+      )}
+
+      {isAdmin && selectedProduct && (
         <ReceiveStockModal
           opened={receiveStockOpen}
           onClose={() => setReceiveStockOpen(false)}
-          initialProductId={selectedProduct.id}
+          initialProductKey={selectedProduct.key}
         />
       )}
     </Stack>

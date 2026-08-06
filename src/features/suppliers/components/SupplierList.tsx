@@ -32,11 +32,11 @@ import {
   updateSupplier,
   deleteSupplier,
   deleteSuppliers,
-} from '../api/mockSuppliers';
+} from '../api/suppliersApi';
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
 import { queryKeys } from '@/api/queryKeys';
-import { setLinksForSupplier } from '@/features/supplier-products/api/mockSupplierProducts';
+import { setLinksForSupplier } from '@/features/supplier-products/api/supplierProductsApi';
 
 export function SupplierList() {
   const queryClient = useQueryClient();
@@ -53,7 +53,7 @@ export function SupplierList() {
   // Queries & Mutations
   const { data: suppliers = [], isLoading } = useQuery({
     queryKey: queryKeys.suppliers.all,
-    queryFn: fetchSuppliers,
+    queryFn: () => fetchSuppliers(),
   });
 
   const createMutation = useMutation({
@@ -70,8 +70,7 @@ export function SupplierList() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: Partial<SupplierInput> }) =>
-      updateSupplier(id, input),
+    mutationFn: ({ id, input }: { id: string; input: SupplierInput }) => updateSupplier(id, input),
     onSuccess: (updatedSup) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
       notifications.show({
@@ -144,16 +143,16 @@ export function SupplierList() {
     setFormModalOpen(true);
   };
 
-  const handleFormSubmit = async (values: SupplierInput, linkedProductIds: string[] = []) => {
+  const handleFormSubmit = async (values: SupplierInput, linkedProductKeys: string[] = []) => {
     if (supplierToEdit) {
       await updateMutation.mutateAsync({ id: supplierToEdit.id, input: values });
-      if (linkedProductIds.length > 0) {
-        await setLinksForSupplier(supplierToEdit.id, linkedProductIds);
+      if (linkedProductKeys.length > 0) {
+        await setLinksForSupplier(supplierToEdit.key, linkedProductKeys);
       }
     } else {
       const newSup = await createMutation.mutateAsync(values);
-      if (newSup?.id && linkedProductIds.length > 0) {
-        await setLinksForSupplier(newSup.id, linkedProductIds);
+      if (newSup?.key && linkedProductKeys.length > 0) {
+        await setLinksForSupplier(newSup.key, linkedProductKeys);
       }
     }
   };

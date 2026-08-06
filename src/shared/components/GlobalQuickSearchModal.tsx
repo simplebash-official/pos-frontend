@@ -22,7 +22,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { fetchProducts } from '@/features/inventory/api/productsApi';
 import { fetchCustomers } from '@/features/customers/api/mockCustomers';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
@@ -52,7 +52,7 @@ export function GlobalQuickSearchModal() {
   // Fetch data when modal opens
   useEffect(() => {
     if (opened) {
-      fetchProducts().then(setProducts);
+      fetchProducts({ limit: 500 }).then((res) => setProducts(res.items));
       fetchCustomers().then(setCustomers);
       fetchRepairs().then(setRepairs);
       fetchPrintJobs().then(setPrintJobs);

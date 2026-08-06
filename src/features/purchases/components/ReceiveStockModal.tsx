@@ -14,26 +14,27 @@ import { IconPackage, IconBuildingStore, IconX } from '@tabler/icons-react';
 import { useCreatePurchase } from '../hooks/usePurchases';
 import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
 import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
-import { fetchSuppliers } from '@/features/suppliers/api/mockSuppliers';
+import { fetchSuppliers } from '@/features/suppliers/api/suppliersApi';
+import { toCents } from '@/shared/lib/money';
 
 interface ReceiveStockModalProps {
   opened: boolean;
   onClose: () => void;
-  initialProductId?: string;
-  initialSupplierId?: string;
+  initialProductKey?: string;
+  initialSupplierKey?: string;
 }
 
 export const ReceiveStockModal = ({
   opened,
   onClose,
-  initialProductId,
-  initialSupplierId,
+  initialProductKey,
+  initialSupplierKey,
 }: ReceiveStockModalProps) => {
-  const [productId, setProductId] = useState<string | undefined>(initialProductId);
-  const [supplierId, setSupplierId] = useState<string | undefined>(initialSupplierId);
+  const [productKey, setProductKey] = useState<string | undefined>(initialProductKey);
+  const [supplierKey, setSupplierKey] = useState<string | undefined>(initialSupplierKey);
   const [quantity, setQuantity] = useState<number | string>(1);
   const [unitCost, setUnitCost] = useState<number | string>(''); // in rupees
   const [date, setDate] = useState<Date | null>(new Date());
@@ -42,13 +43,10 @@ export const ReceiveStockModal = ({
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
 
-  const { data: products } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+  const { data: products } = useAllProducts();
   const { data: suppliers } = useQuery({
     queryKey: queryKeys.suppliers.all,
-    queryFn: fetchSuppliers,
+    queryFn: () => fetchSuppliers(),
   });
   const { mutate: createPurchase, isPending } = useCreatePurchase();
 
@@ -56,28 +54,28 @@ export const ReceiveStockModal = ({
   useEffect(() => {
     if (opened) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setProductId(initialProductId);
-      setSupplierId(initialSupplierId);
+      setProductKey(initialProductKey);
+      setSupplierKey(initialSupplierKey);
       setQuantity(1);
       setUnitCost('');
       setDate(new Date());
       setReferenceNo('');
     }
-  }, [opened, initialProductId, initialSupplierId]);
+  }, [opened, initialProductKey, initialSupplierKey]);
 
-  const selectedProduct = products?.find((p) => p.id === productId);
-  const selectedSupplier = suppliers?.find((s) => s.id === supplierId);
+  const selectedProduct = products?.find((p) => p.key === productKey);
+  const selectedSupplier = suppliers?.find((s) => s.key === supplierKey);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!productId || !supplierId || !quantity || !unitCost || !date) return;
+    if (!productKey || !supplierKey || !quantity || !unitCost || !date) return;
 
     createPurchase(
       {
-        productId,
-        supplierId,
+        productKey,
+        supplierKey,
         quantity: Number(quantity),
-        unitCostCents: Math.round(Number(unitCost) * 100),
+        unitCostCents: toCents(Number(unitCost)),
         date: date.toISOString(),
         referenceNo,
       },
@@ -100,7 +98,7 @@ export const ReceiveStockModal = ({
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
             {/* Product Selection */}
-            {!initialProductId && (
+            {!initialProductKey && (
               <Stack gap={4}>
                 <Text size="sm" fw={500}>
                   Product
@@ -118,7 +116,7 @@ export const ReceiveStockModal = ({
                     <ActionIcon
                       variant="subtle"
                       color="red"
-                      onClick={() => setProductId(undefined)}
+                      onClick={() => setProductKey(undefined)}
                     >
                       <IconX size={16} />
                     </ActionIcon>
@@ -136,7 +134,7 @@ export const ReceiveStockModal = ({
             )}
 
             {/* Supplier Selection */}
-            {!initialSupplierId && (
+            {!initialSupplierKey && (
               <Stack gap={4}>
                 <Text size="sm" fw={500}>
                   Supplier
@@ -154,7 +152,7 @@ export const ReceiveStockModal = ({
                     <ActionIcon
                       variant="subtle"
                       color="red"
-                      onClick={() => setSupplierId(undefined)}
+                      onClick={() => setSupplierKey(undefined)}
                     >
                       <IconX size={16} />
                     </ActionIcon>
@@ -210,7 +208,7 @@ export const ReceiveStockModal = ({
               <Button variant="subtle" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" loading={isPending} disabled={!productId || !supplierId}>
+              <Button type="submit" loading={isPending} disabled={!productKey || !supplierKey}>
                 Receive Stock
               </Button>
             </Group>
@@ -221,21 +219,21 @@ export const ReceiveStockModal = ({
       <ProductPickerModal
         opened={productPickerOpen}
         onClose={() => setProductPickerOpen(false)}
-        onSelect={(productId) => {
-          setProductId(productId);
+        onSelect={(key) => {
+          setProductKey(key);
           setProductPickerOpen(false);
         }}
-        excludeIds={[]}
+        excludeKeys={[]}
       />
 
       <SupplierPickerModal
         opened={supplierPickerOpen}
         onClose={() => setSupplierPickerOpen(false)}
-        onSelect={(supplierId) => {
-          setSupplierId(supplierId);
+        onSelect={(key) => {
+          setSupplierKey(key);
           setSupplierPickerOpen(false);
         }}
-        excludeIds={[]}
+        excludeKeys={[]}
       />
     </>
   );

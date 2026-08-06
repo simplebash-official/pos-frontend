@@ -15,18 +15,18 @@ import {
   Box,
 } from '@mantine/core';
 import { IconSearch, IconPackage, IconPlus, IconX } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '../api/mockProducts';
+import { useAllProducts } from '../hooks/useProducts';
+import { useCategoryLookup } from '../hooks/useCategories';
+import { resolveCategoryIcon } from '../constants';
+import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 import { formatMoney } from '@/shared/lib/money';
-import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
 
 export interface ProductPickerModalProps {
   opened: boolean;
   onClose: () => void;
-  onSelect: (productId: string) => void;
-  /** Product IDs to exclude from the list (already linked). */
-  excludeIds?: string[];
+  onSelect: (productKey: string) => void;
+  /** Product keys to exclude from the list (already linked). */
+  excludeKeys?: string[];
   title?: string;
 }
 
@@ -34,20 +34,19 @@ export function ProductPickerModal({
   opened,
   onClose,
   onSelect,
-  excludeIds = [],
+  excludeKeys = [],
   title = 'Link a Product',
 }: ProductPickerModalProps) {
-  const { data: products = [] } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+  const { data: products = [] } = useAllProducts();
+  const { getCategory } = useCategoryLookup();
+  const iconMap = useTablerIconMap();
 
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    const excludeSet = new Set(excludeIds);
+    const excludeSet = new Set(excludeKeys);
     return products
-      .filter((p) => !excludeSet.has(p.id))
+      .filter((p) => !excludeSet.has(p.key))
       .filter((p) => {
         if (!search) return true;
         const q = search.toLowerCase();
@@ -58,10 +57,10 @@ export function ProductPickerModal({
           p.subcategory.toLowerCase().includes(q)
         );
       });
-  }, [products, excludeIds, search]);
+  }, [products, excludeKeys, search]);
 
-  const handleSelect = (productId: string) => {
-    onSelect(productId);
+  const handleSelect = (productKey: string) => {
+    onSelect(productKey);
     setSearch('');
     onClose();
   };
@@ -128,7 +127,7 @@ export function ProductPickerModal({
                   <Stack gap={6} align="center">
                     <IconPackage size={32} style={{ opacity: 0.3 }} />
                     <Text c="dimmed" size="sm" ta="center">
-                      {products.length === excludeIds.length
+                      {products.length === excludeKeys.length
                         ? 'All available products are already linked.'
                         : 'No inventory items match your search criteria.'}
                     </Text>
@@ -137,17 +136,20 @@ export function ProductPickerModal({
               </Paper>
             ) : (
               filtered.map((p) => {
-                const CatIcon = CATEGORY_ICONS[p.category] || IconPackage;
-                const catColor = CATEGORY_COLORS[p.category] || 'blue';
+                const category = getCategory(p.categoryKey);
+                const CatIcon = category
+                  ? resolveCategoryIcon(iconMap, category.icon)
+                  : IconPackage;
+                const catColor = category?.color ?? 'blue';
                 const isLowStock = p.stockQuantity <= p.minStockThreshold;
 
                 return (
                   <Paper
-                    key={p.id}
+                    key={p.key}
                     p="md"
                     radius="var(--mantine-radius-default)"
                     className="picker-card"
-                    onClick={() => handleSelect(p.id)}
+                    onClick={() => handleSelect(p.key)}
                   >
                     <Group justify="space-between" align="center" wrap="nowrap" gap="md">
                       {/* Left Icon & Info */}
@@ -220,7 +222,7 @@ export function ProductPickerModal({
                           radius="var(--mantine-radius-default)"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleSelect(p.id);
+                            handleSelect(p.key);
                           }}
                         >
                           Link
@@ -242,7 +244,7 @@ export function ProductPickerModal({
           style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
           <Text size="xs" c="dimmed" fw={500}>
-            Showing {filtered.length} of {products.length - excludeIds.length} available items
+            Showing {filtered.length} of {products.length - excludeKeys.length} available items
           </Text>
 
           <Button

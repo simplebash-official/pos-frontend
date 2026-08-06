@@ -30,11 +30,11 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { fetchProducts } from '@/features/inventory/api/mockProducts';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import {
   getLinksForSupplier,
   setLinksForSupplier,
-} from '@/features/supplier-products/api/mockSupplierProducts';
+} from '@/features/supplier-products/api/supplierProductsApi';
 import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
@@ -42,7 +42,7 @@ import { DEFAULT_SUGGESTED_TAGS } from '../constants';
 export interface SupplierFormModalProps {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (values: SupplierInput, linkedProductIds?: string[]) => Promise<void>;
+  onSubmit: (values: SupplierInput, linkedProductKeys?: string[]) => Promise<void>;
   supplierToEdit?: Supplier | null;
   loading?: boolean;
 }
@@ -50,7 +50,7 @@ export interface SupplierFormModalProps {
 interface FormContentProps {
   supplierToEdit?: Supplier | null;
   onClose: () => void;
-  onSubmit: (values: SupplierInput, linkedProductIds?: string[]) => Promise<void>;
+  onSubmit: (values: SupplierInput, linkedProductKeys?: string[]) => Promise<void>;
   loading?: boolean;
 }
 
@@ -76,34 +76,31 @@ function SupplierFormContent({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Product linking
-  const { data: allProducts = [] } = useQuery({
-    queryKey: queryKeys.inventory.all,
-    queryFn: fetchProducts,
-  });
+  const { data: allProducts = [] } = useAllProducts();
 
   const { data: existingLinks = [] } = useQuery({
-    queryKey: queryKeys.supplierProducts.bySupplier(supplierToEdit?.id ?? ''),
-    queryFn: () => getLinksForSupplier(supplierToEdit!.id),
-    enabled: !!supplierToEdit?.id,
+    queryKey: queryKeys.supplierProducts.bySupplier(supplierToEdit?.key ?? ''),
+    queryFn: () => getLinksForSupplier(supplierToEdit!.key),
+    enabled: !!supplierToEdit?.key,
   });
 
-  const [linkedProductIds, setLinkedProductIds] = useState<string[]>(
-    existingLinks.map((l) => l.productId)
+  const [linkedProductKeys, setLinkedProductKeys] = useState<string[]>(
+    existingLinks.map((l) => l.productKey)
   );
 
   // Sync once existingLinks loads
   const [synced, setSynced] = useState(false);
   if (existingLinks.length > 0 && !synced) {
-    setLinkedProductIds(existingLinks.map((l) => l.productId));
+    setLinkedProductKeys(existingLinks.map((l) => l.productKey));
     setSynced(true);
   }
 
   const [productSearch, setProductSearch] = useState('');
 
   const availableProducts = useMemo(() => {
-    const linkedSet = new Set(linkedProductIds);
+    const linkedSet = new Set(linkedProductKeys);
     return allProducts
-      .filter((p) => !linkedSet.has(p.id))
+      .filter((p) => !linkedSet.has(p.key))
       .filter((p) => {
         if (!productSearch) return true;
         const q = productSearch.toLowerCase();
@@ -113,16 +110,18 @@ function SupplierFormContent({
           p.subcategory.toLowerCase().includes(q)
         );
       });
-  }, [allProducts, linkedProductIds, productSearch]);
+  }, [allProducts, linkedProductKeys, productSearch]);
 
   const linkedProducts = useMemo(() => {
-    const productMap = new Map(allProducts.map((p) => [p.id, p]));
-    return linkedProductIds.map((id) => productMap.get(id)).filter(Boolean) as typeof allProducts;
-  }, [allProducts, linkedProductIds]);
+    const productMap = new Map(allProducts.map((p) => [p.key, p]));
+    return linkedProductKeys
+      .map((key) => productMap.get(key))
+      .filter(Boolean) as typeof allProducts;
+  }, [allProducts, linkedProductKeys]);
 
-  const addProduct = (id: string) => setLinkedProductIds((prev) => [...prev, id]);
-  const removeProduct = (id: string) =>
-    setLinkedProductIds((prev) => prev.filter((pid) => pid !== id));
+  const addProduct = (key: string) => setLinkedProductKeys((prev) => [...prev, key]);
+  const removeProduct = (key: string) =>
+    setLinkedProductKeys((prev) => prev.filter((pKey) => pKey !== key));
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -151,11 +150,11 @@ function SupplierFormContent({
     e.preventDefault();
     if (!validate()) return;
 
-    await onSubmit(formData, linkedProductIds);
+    await onSubmit(formData, linkedProductKeys);
 
     // Save product links after the supplier is created/updated
     if (supplierToEdit) {
-      await setLinksForSupplier(supplierToEdit.id, linkedProductIds);
+      await setLinksForSupplier(supplierToEdit.key, linkedProductKeys);
     }
 
     onClose();
@@ -285,7 +284,7 @@ function SupplierFormContent({
           {linkedProducts.length > 0 && (
             <Stack gap={4}>
               {linkedProducts.map((p) => (
-                <Paper key={p.id} p="xs" withBorder radius="var(--mantine-radius-default)">
+                <Paper key={p.key} p="xs" withBorder radius="var(--mantine-radius-default)">
                   <Group justify="space-between" align="center" wrap="nowrap">
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <Text size="xs" fw={700} lineClamp={1}>
@@ -305,7 +304,7 @@ function SupplierFormContent({
                         variant="subtle"
                         color="red"
                         size="sm"
-                        onClick={() => removeProduct(p.id)}
+                        onClick={() => removeProduct(p.key)}
                       >
                         <IconX size={14} />
                       </ActionIcon>
@@ -337,12 +336,12 @@ function SupplierFormContent({
                 ) : (
                   availableProducts.slice(0, 8).map((p) => (
                     <Paper
-                      key={p.id}
+                      key={p.key}
                       p="4px 8px"
                       radius="var(--mantine-radius-default)"
                       className="hover-card"
                       onClick={() => {
-                        addProduct(p.id);
+                        addProduct(p.key);
                         setProductSearch('');
                       }}
                       style={{ border: '1px solid var(--mantine-color-default-border)' }}
