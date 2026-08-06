@@ -10,6 +10,7 @@ import {
   Center,
   Loader,
   UnstyledButton,
+  ThemeIcon,
 } from '@mantine/core';
 import { IconSearch, IconChevronDown } from '@tabler/icons-react';
 import { useTablerIconMap, resolveTablerIcon, TablerIconComponent } from '@/shared/lib/tablerIcons';
@@ -22,6 +23,10 @@ export interface TablerIconPickerProps {
   fallbackIcon: TablerIconComponent;
   label?: string;
   error?: string;
+  /** Whether to show the icon name text next to the icon. Defaults to false. */
+  showName?: boolean;
+  /** Optional theme color to style the preview icon background and color. */
+  color?: string | null;
 }
 
 const MAX_RESULTS = 180;
@@ -32,6 +37,8 @@ export function TablerIconPicker({
   fallbackIcon,
   label = 'Icon',
   error,
+  showName = false,
+  color,
 }: TablerIconPickerProps) {
   const iconMap = useTablerIconMap();
   const [opened, setOpened] = useState(false);
@@ -52,11 +59,48 @@ export function TablerIconPicker({
   }, [allNames, search]);
 
   const visibleNames = filteredNames.slice(0, MAX_RESULTS);
+
   const selectedIconEl = createElement(
     resolveTablerIcon(iconMap, value ?? undefined, fallbackIcon),
     {
       size: 18,
     }
+  );
+
+  const iconContent = (
+    <ThemeIcon
+      color={color || 'blue'}
+      variant="light"
+      size={28}
+      radius="default"
+    >
+      {selectedIconEl}
+    </ThemeIcon>
+  );
+
+  const pickerButton = (
+    <UnstyledButton
+      onClick={() => setOpened((o) => !o)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: showName ? 8 : 4,
+        padding: showName ? '6px 10px' : '4px 6px 4px 4px',
+        border: `1px solid ${error ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-default-border)'}`,
+        borderRadius: 'var(--mantine-radius-default)',
+        width: 'fit-content',
+        minWidth: showName ? 160 : undefined,
+        boxSizing: 'border-box',
+      }}
+    >
+      {iconContent}
+      {showName && (
+        <Text size="sm" c={value ? undefined : 'dimmed'}>
+          {value || 'Choose an icon'}
+        </Text>
+      )}
+      <IconChevronDown size={14} style={{ opacity: 0.6, marginInlineStart: showName ? 'auto' : undefined }} />
+    </UnstyledButton>
   );
 
   return (
@@ -75,25 +119,13 @@ export function TablerIconPicker({
         withinPortal
       >
         <Popover.Target>
-          <UnstyledButton
-            onClick={() => setOpened((o) => !o)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 12px',
-              border: `1px solid ${error ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-default-border)'}`,
-              borderRadius: 'var(--mantine-radius-default)',
-              width: 'fit-content',
-              minWidth: 160,
-            }}
-          >
-            {selectedIconEl}
-            <Text size="sm" c={value ? undefined : 'dimmed'}>
-              {value || 'Choose an icon'}
-            </Text>
-            <IconChevronDown size={14} style={{ opacity: 0.6, marginInlineStart: 'auto' }} />
-          </UnstyledButton>
+          {!showName ? (
+            <Tooltip label={value || 'Choose an icon'} withArrow disabled={opened}>
+              {pickerButton}
+            </Tooltip>
+          ) : (
+            pickerButton
+          )}
         </Popover.Target>
         <Popover.Dropdown p="sm">
           <Stack gap="xs">
@@ -120,7 +152,7 @@ export function TablerIconPicker({
                         <Tooltip key={name} label={name} withArrow openDelay={300}>
                           <ActionIcon
                             variant={isSelected ? 'filled' : 'subtle'}
-                            color={isSelected ? 'blue' : 'gray'}
+                            color={isSelected ? (color || 'blue') : 'gray'}
                             size="lg"
                             aria-label={name}
                             onClick={() => {

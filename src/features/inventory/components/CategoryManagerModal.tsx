@@ -2,15 +2,12 @@ import { createElement, useState } from 'react';
 import {
   Modal,
   Stack,
-  Accordion,
   Group,
   Text,
-  Badge,
   TextInput,
   TagsInput,
   Button,
   ActionIcon,
-  ThemeIcon,
   Divider,
   Paper,
   Tooltip,
@@ -30,6 +27,11 @@ import {
 import { CATEGORY_COLOR_OPTIONS, DEFAULT_CATEGORY_ICON, resolveCategoryIcon } from '../constants';
 import { Category } from '../types';
 import { TablerIconPicker } from '@/shared/components/TablerIconPicker';
+import {
+  ExpandableCard,
+  ExpandableCardGroup,
+  ExpandableCardAction,
+} from '@/shared/components/ExpandableCard';
 import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 import { ApiError } from '@/shared/types/common';
 
@@ -59,11 +61,12 @@ function CategoryColorPicker({
           <Tooltip key={color} label={color} withArrow>
             <ColorSwatch
               color={`var(--mantine-color-${color}-6)`}
-              size={26}
+              size={38}
+              radius="default"
               style={{ cursor: 'pointer' }}
               onClick={() => onChange(color)}
             >
-              {value === color && <CheckIcon size={11} color="white" />}
+              {value === color && <CheckIcon size={14} color="white" />}
             </ColorSwatch>
           </Tooltip>
         ))}
@@ -119,10 +122,12 @@ function CategoryItem({
   category,
   onDeleteCategory,
   onDeleteSubcategory,
+  onExpandCategory,
 }: {
   category: Category;
   onDeleteCategory: (categoryKey: string) => void;
   onDeleteSubcategory: (categoryKey: string, subcategoryKey: string) => void;
+  onExpandCategory: (categoryKey: string) => void;
 }) {
   const iconMap = useTablerIconMap();
   const updateCategory = useUpdateCategory();
@@ -132,13 +137,14 @@ function CategoryItem({
   const [editIcon, setEditIcon] = useState<string | null>(category.icon);
   const [editColor, setEditColor] = useState<string | null>(category.color);
 
-  const catIconEl = createElement(resolveCategoryIcon(iconMap, category.icon), { size: 16 });
+  const catIconEl = createElement(resolveCategoryIcon(iconMap, category.icon), { size: 20 });
 
   const startEditing = () => {
     setEditName(category.name);
     setEditIcon(category.icon);
     setEditColor(category.color);
     setIsEditing(true);
+    onExpandCategory(category.key);
   };
 
   const handleSaveEdit = () => {
@@ -169,55 +175,40 @@ function CategoryItem({
   };
 
   return (
-    <Accordion.Item value={category.key}>
-      <Accordion.Control>
-        <Group justify="space-between" pr="sm" wrap="nowrap">
-          <Group gap="xs">
-            <ThemeIcon color={category.color} variant="light" size="md">
-              {catIconEl}
-            </ThemeIcon>
-            <Text fw={600} size="sm">
-              {category.name}
-            </Text>
-            <Badge size="xs" variant="light" color="gray">
-              {category.subcategories.length} subcategories
-            </Badge>
-          </Group>
-          <Group gap={4}>
-            <Tooltip label="Edit category" withArrow>
-              <ActionIcon
-                variant="subtle"
-                color="blue"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  startEditing();
-                }}
-              >
-                <IconEdit size={14} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Delete category" withArrow>
-              <ActionIcon
-                variant="subtle"
-                color="red"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteCategory(category.key);
-                }}
-              >
-                <IconTrash size={14} />
-              </ActionIcon>
-            </Tooltip>
-          </Group>
-        </Group>
-      </Accordion.Control>
-      <Accordion.Panel>
-        <Stack gap="sm">
+    <ExpandableCard
+      value={category.key}
+      color={category.color}
+      icon={catIconEl}
+      title={category.name}
+      subtitle={
+        category.subcategories.length === 0
+          ? 'No subcategories'
+          : `${category.subcategories.length} subcategor${category.subcategories.length === 1 ? 'y' : 'ies'}`
+      }
+      actions={
+        <>
+          <ExpandableCardAction
+            icon={<IconEdit size={16} />}
+            tooltip="Edit category"
+            color="blue"
+            onClick={startEditing}
+          />
+          <ExpandableCardAction
+            icon={<IconTrash size={16} />}
+            tooltip="Delete category"
+            color="red"
+            onClick={() => onDeleteCategory(category.key)}
+          />
+        </>
+      }
+    >
+      <Stack gap="sm" pt="xs">
           {isEditing && (
-            <Paper p="sm" withBorder>
+            <Paper p="sm" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
               <Stack gap="xs">
+                <Text size="xs" fw={600} c="dimmed">
+                  Edit Category Details
+                </Text>
                 <TextInput
                   label="Category name"
                   size="xs"
@@ -229,10 +220,11 @@ function CategoryItem({
                     value={editIcon}
                     onChange={setEditIcon}
                     fallbackIcon={DEFAULT_CATEGORY_ICON}
+                    color={editColor}
                   />
                   <CategoryColorPicker value={editColor} onChange={setEditColor} />
                 </Group>
-                <Group justify="flex-end" gap="xs">
+                <Group justify="flex-end" gap="xs" mt="xs">
                   <Button
                     size="xs"
                     variant="default"
@@ -248,7 +240,7 @@ function CategoryItem({
                     loading={updateCategory.isPending}
                     disabled={!editName.trim() || !editIcon || !editColor}
                   >
-                    Save
+                    Save Changes
                   </Button>
                 </Group>
               </Stack>
@@ -256,25 +248,42 @@ function CategoryItem({
           )}
 
           <Stack gap={6}>
+            <Text size="xs" fw={600} c="dimmed">
+              Subcategories
+            </Text>
             {category.subcategories.map((sub) => (
-              <Group key={sub.key} justify="space-between">
-                <Text size="xs">{sub.name}</Text>
-                <ActionIcon
-                  variant="subtle"
-                  color="red"
-                  size="xs"
-                  onClick={() => onDeleteSubcategory(category.key, sub.key)}
-                >
-                  <IconTrash size={12} />
-                </ActionIcon>
-              </Group>
+              <Paper
+                key={sub.key}
+                px="sm"
+                py="xs"
+                withBorder
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: 'var(--mantine-color-default-hover)',
+                }}
+              >
+                <Text size="xs" fw={500}>
+                  {sub.name}
+                </Text>
+                <Tooltip label="Delete subcategory" withArrow>
+                  <ActionIcon
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() => onDeleteSubcategory(category.key, sub.key)}
+                  >
+                    <IconTrash size={14} />
+                  </ActionIcon>
+                </Tooltip>
+              </Paper>
             ))}
             <AddSubcategoryRow categoryKey={category.key} />
           </Stack>
         </Stack>
-      </Accordion.Panel>
-    </Accordion.Item>
-  );
+      </ExpandableCard>
+    );
 }
 
 export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalProps) {
@@ -287,6 +296,12 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
   const [newIcon, setNewIcon] = useState<string | null>('Package');
   const [newColor, setNewColor] = useState<string | null>('blue');
   const [newSubcategories, setNewSubcategories] = useState<string[]>([]);
+
+  const [expandedValues, setExpandedValues] = useState<string[]>([]);
+
+  const handleExpandCategory = (key: string) => {
+    setExpandedValues((prev) => (prev.includes(key) ? prev : [...prev, key]));
+  };
 
   const handleCreateCategory = () => {
     if (!newName.trim() || !newIcon || !newColor) return;
@@ -358,6 +373,7 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
                 value={newIcon}
                 onChange={setNewIcon}
                 fallbackIcon={DEFAULT_CATEGORY_ICON}
+                color={newColor}
               />
               <CategoryColorPicker value={newColor} onChange={setNewColor} />
             </Group>
@@ -387,13 +403,14 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
             Loading categories...
           </Text>
         ) : (
-          <Accordion variant="separated">
+          <ExpandableCardGroup value={expandedValues} onChange={setExpandedValues} multiple>
             {categories.map((cat) => (
               <CategoryItem
                 key={cat.key}
                 category={cat}
                 onDeleteCategory={handleDeleteCategory}
                 onDeleteSubcategory={handleDeleteSubcategory}
+                onExpandCategory={handleExpandCategory}
               />
             ))}
             {categories.length === 0 && (
@@ -402,7 +419,7 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
                 No categories yet — add one above.
               </Text>
             )}
-          </Accordion>
+          </ExpandableCardGroup>
         )}
 
         <Group justify="flex-end">
