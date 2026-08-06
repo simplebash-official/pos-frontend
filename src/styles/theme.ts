@@ -1,4 +1,13 @@
-import { Card, Container, createTheme, Paper, rem, Select } from '@mantine/core';
+import {
+  Card,
+  Container,
+  createTheme,
+  DrawerContent,
+  ModalContent,
+  Paper,
+  rem,
+  Select,
+} from '@mantine/core';
 import type { MantineThemeOverride } from '@mantine/core';
 
 const CONTAINER_SIZES: Record<string, string> = {
@@ -70,6 +79,18 @@ export const mantineTheme: MantineThemeOverride = createTheme({
         shadow: 'none',
         radius: 'var(--mantine-radius-default)',
         withBorder: true,
+      },
+    }),
+
+    ModalContent: ModalContent.extend({
+      defaultProps: {
+        p: 0,
+      },
+    }),
+
+    DrawerContent: DrawerContent.extend({
+      defaultProps: {
+        p: 0,
       },
     }),
 

@@ -479,7 +479,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                     </Group>
 
                     {/* Middle Row: Full width Product Name */}
-                    <Box style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                    <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
                       <Text
                         size="xs"
                         fw={700}

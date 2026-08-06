@@ -104,7 +104,14 @@ export function ExpandableCard({
       {...itemProps}
     >
       <Accordion.Control style={{ padding: 0 }}>
-        <Box style={{ display: 'flex', alignItems: 'stretch', minHeight: minHeaderHeight, width: '100%' }}>
+        <Box
+          style={{
+            display: 'flex',
+            alignItems: 'stretch',
+            minHeight: minHeaderHeight,
+            width: '100%',
+          }}
+        >
           <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0, padding: '8px 12px' }}>
             {icon && (
               <ThemeIcon
@@ -137,7 +144,12 @@ export function ExpandableCard({
           </Group>
 
           {actions && (
-            <Group gap={0} align="stretch" style={{ flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+            <Group
+              gap={0}
+              align="stretch"
+              style={{ flexShrink: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
               {actions}
             </Group>
           )}

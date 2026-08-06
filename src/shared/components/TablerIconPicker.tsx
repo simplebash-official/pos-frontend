@@ -68,12 +68,7 @@ export function TablerIconPicker({
   );
 
   const iconContent = (
-    <ThemeIcon
-      color={color || 'blue'}
-      variant="light"
-      size={28}
-      radius="default"
-    >
+    <ThemeIcon color={color || 'blue'} variant="light" size={28} radius="default">
       {selectedIconEl}
     </ThemeIcon>
   );
@@ -99,7 +94,10 @@ export function TablerIconPicker({
           {value || 'Choose an icon'}
         </Text>
       )}
-      <IconChevronDown size={14} style={{ opacity: 0.6, marginInlineStart: showName ? 'auto' : undefined }} />
+      <IconChevronDown
+        size={14}
+        style={{ opacity: 0.6, marginInlineStart: showName ? 'auto' : undefined }}
+      />
     </UnstyledButton>
   );
 
@@ -152,7 +150,7 @@ export function TablerIconPicker({
                         <Tooltip key={name} label={name} withArrow openDelay={300}>
                           <ActionIcon
                             variant={isSelected ? 'filled' : 'subtle'}
-                            color={isSelected ? (color || 'blue') : 'gray'}
+                            color={isSelected ? color || 'blue' : 'gray'}
                             size="lg"
                             aria-label={name}
                             onClick={() => {

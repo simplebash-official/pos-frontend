@@ -419,6 +419,7 @@ export function ProductTable() {
               size="sm"
               onClick={() => setShowLowStockOnly((prev) => !prev)}
               leftSection={<IconAlertTriangle size={16} />}
+              style={{ width: 180, flexShrink: 0 }}
             >
               {showLowStockOnly ? 'Showing Low Stock' : 'Low Stock Only'}
             </Button>
@@ -436,6 +437,7 @@ export function ProductTable() {
                 <IconArrowsMaximize size={16} />
               )
             }
+            style={{ width: 140, flexShrink: 0 }}
           >
             {expandedCategories.length === categoryKeys.length ? 'Collapse All' : 'Expand All'}
           </Button>

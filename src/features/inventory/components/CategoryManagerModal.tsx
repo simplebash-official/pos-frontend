@@ -136,6 +136,7 @@ function CategoryItem({
   const [editName, setEditName] = useState(category.name);
   const [editIcon, setEditIcon] = useState<string | null>(category.icon);
   const [editColor, setEditColor] = useState<string | null>(category.color);
+  const [editNameError, setEditNameError] = useState<string | undefined>();
 
   const catIconEl = createElement(resolveCategoryIcon(iconMap, category.icon), { size: 20 });
 
@@ -143,6 +144,7 @@ function CategoryItem({
     setEditName(category.name);
     setEditIcon(category.icon);
     setEditColor(category.color);
+    setEditNameError(undefined);
     setIsEditing(true);
     onExpandCategory(category.key);
   };
@@ -164,9 +166,13 @@ function CategoryItem({
           });
         },
         onError: (err) => {
+          const apiError = err as ApiError;
+          if (apiError.code === 'CATEGORY_ALREADY_EXISTS') {
+            setEditNameError(apiError.message);
+          }
           notifications.show({
             title: 'Could not update category',
-            message: (err as ApiError).message,
+            message: apiError.message,
             color: 'red',
           });
         },
@@ -203,87 +209,91 @@ function CategoryItem({
       }
     >
       <Stack gap="sm" pt="xs">
-          {isEditing && (
-            <Paper p="sm" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
-              <Stack gap="xs">
-                <Text size="xs" fw={600} c="dimmed">
-                  Edit Category Details
-                </Text>
-                <TextInput
-                  label="Category name"
-                  size="xs"
-                  value={editName}
-                  onChange={(e) => setEditName(e.currentTarget.value)}
-                />
-                <Group align="flex-end" gap="md">
-                  <TablerIconPicker
-                    value={editIcon}
-                    onChange={setEditIcon}
-                    fallbackIcon={DEFAULT_CATEGORY_ICON}
-                    color={editColor}
-                  />
-                  <CategoryColorPicker value={editColor} onChange={setEditColor} />
-                </Group>
-                <Group justify="flex-end" gap="xs" mt="xs">
-                  <Button
-                    size="xs"
-                    variant="default"
-                    leftSection={<IconX size={14} />}
-                    onClick={() => setIsEditing(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="xs"
-                    leftSection={<IconCheck size={14} />}
-                    onClick={handleSaveEdit}
-                    loading={updateCategory.isPending}
-                    disabled={!editName.trim() || !editIcon || !editColor}
-                  >
-                    Save Changes
-                  </Button>
-                </Group>
-              </Stack>
-            </Paper>
-          )}
-
-          <Stack gap={6}>
-            <Text size="xs" fw={600} c="dimmed">
-              Subcategories
-            </Text>
-            {category.subcategories.map((sub) => (
-              <Paper
-                key={sub.key}
-                px="sm"
-                py="xs"
-                withBorder
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: 'var(--mantine-color-default-hover)',
+        {isEditing && (
+          <Paper p="sm" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+            <Stack gap="xs">
+              <Text size="xs" fw={600} c="dimmed">
+                Edit Category Details
+              </Text>
+              <TextInput
+                label="Category name"
+                size="xs"
+                value={editName}
+                onChange={(e) => {
+                  setEditName(e.currentTarget.value);
+                  if (editNameError) setEditNameError(undefined);
                 }}
-              >
-                <Text size="xs" fw={500}>
-                  {sub.name}
-                </Text>
-                <Tooltip label="Delete subcategory" withArrow>
-                  <ActionIcon
-                    variant="subtle"
-                    color="red"
-                    size="xs"
-                    onClick={() => onDeleteSubcategory(category.key, sub.key)}
-                  >
-                    <IconTrash size={14} />
-                  </ActionIcon>
-                </Tooltip>
-              </Paper>
-            ))}
-            <AddSubcategoryRow categoryKey={category.key} />
-          </Stack>
+                error={editNameError}
+              />
+              <Group align="flex-end" gap="md">
+                <TablerIconPicker
+                  value={editIcon}
+                  onChange={setEditIcon}
+                  fallbackIcon={DEFAULT_CATEGORY_ICON}
+                  color={editColor}
+                />
+                <CategoryColorPicker value={editColor} onChange={setEditColor} />
+              </Group>
+              <Group justify="flex-end" gap="xs" mt="xs">
+                <Button
+                  size="xs"
+                  variant="default"
+                  leftSection={<IconX size={14} />}
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="xs"
+                  leftSection={<IconCheck size={14} />}
+                  onClick={handleSaveEdit}
+                  loading={updateCategory.isPending}
+                  disabled={!editName.trim() || !editIcon || !editColor}
+                >
+                  Save Changes
+                </Button>
+              </Group>
+            </Stack>
+          </Paper>
+        )}
+
+        <Stack gap={6}>
+          <Text size="xs" fw={600} c="dimmed">
+            Subcategories
+          </Text>
+          {category.subcategories.map((sub) => (
+            <Paper
+              key={sub.key}
+              px="sm"
+              py="xs"
+              withBorder
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: 'var(--mantine-color-default-hover)',
+              }}
+            >
+              <Text size="xs" fw={500}>
+                {sub.name}
+              </Text>
+              <Tooltip label="Delete subcategory" withArrow>
+                <ActionIcon
+                  variant="subtle"
+                  color="red"
+                  size="xs"
+                  onClick={() => onDeleteSubcategory(category.key, sub.key)}
+                >
+                  <IconTrash size={14} />
+                </ActionIcon>
+              </Tooltip>
+            </Paper>
+          ))}
+          <AddSubcategoryRow categoryKey={category.key} />
         </Stack>
-      </ExpandableCard>
-    );
+      </Stack>
+    </ExpandableCard>
+  );
 }
 
 export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalProps) {
@@ -296,6 +306,7 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
   const [newIcon, setNewIcon] = useState<string | null>('Package');
   const [newColor, setNewColor] = useState<string | null>('blue');
   const [newSubcategories, setNewSubcategories] = useState<string[]>([]);
+  const [newNameError, setNewNameError] = useState<string | undefined>();
 
   const [expandedValues, setExpandedValues] = useState<string[]>([]);
 
@@ -311,6 +322,7 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
         onSuccess: () => {
           setNewName('');
           setNewSubcategories([]);
+          setNewNameError(undefined);
           notifications.show({
             title: 'Category Created',
             message: `${newName.trim()} added to the catalog`,
@@ -318,9 +330,13 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
           });
         },
         onError: (err) => {
+          const apiError = err as ApiError;
+          if (apiError.code === 'CATEGORY_ALREADY_EXISTS') {
+            setNewNameError(apiError.message);
+          }
           notifications.show({
             title: 'Could not create category',
-            message: (err as ApiError).message,
+            message: apiError.message,
             color: 'red',
           });
         },
@@ -366,7 +382,11 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
             <TextInput
               placeholder="Category name"
               value={newName}
-              onChange={(e) => setNewName(e.currentTarget.value)}
+              onChange={(e) => {
+                setNewName(e.currentTarget.value);
+                if (newNameError) setNewNameError(undefined);
+              }}
+              error={newNameError}
             />
             <Group align="flex-end" gap="lg">
               <TablerIconPicker

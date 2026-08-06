@@ -62,6 +62,12 @@
   display: block !important;
 }
 
+/* Fix Mantine Modal and Drawer content padding inherited from Paper defaultProps so header sticks seamlessly to top */
+.mantine-Modal-content,
+.mantine-Drawer-content {
+  padding: 0 !important;
+}
+
 /* Billing counter root.
    `--billing-header-h` is set inline from BILLING_HEADER_HEIGHT (src/app/layout/constants.ts).
    The duplicated `height` is a deliberate fallback pair — `dvh` tracks the mobile browser URL bar as
