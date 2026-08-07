@@ -44,6 +44,7 @@ export function SupplierPickerModal({
   const { data: suppliers = [] } = useQuery({
     queryKey: queryKeys.suppliers.all,
     queryFn: () => fetchSuppliers(),
+    enabled: opened,
   });
 
   const [search, setSearch] = useState('');

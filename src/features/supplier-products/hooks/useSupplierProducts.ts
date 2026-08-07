@@ -30,7 +30,7 @@ export interface EnrichedLinkedSupplier extends SupplierProduct {
 
 /** Products linked to a specific supplier, enriched with full Product data. */
 export function useProductsForSupplier(supplierKey: string | undefined) {
-  const { data: allProducts = [] } = useAllProducts();
+  const { data: allProducts = [] } = useAllProducts({ enabled: !!supplierKey });
 
   return useQuery({
     queryKey: queryKeys.supplierProducts.bySupplier(supplierKey ?? ''),

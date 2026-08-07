@@ -33,7 +33,6 @@ import {
   updateEmployee,
   deleteEmployee,
   deleteEmployees,
-  fetchAllEmployeeEarnings,
 } from '../api/mockEmployees';
 import { EmployeeFormModal } from './EmployeeFormModal';
 import { EmployeeDetailDrawer } from './EmployeeDetailDrawer';
@@ -48,11 +47,6 @@ export function EmployeeList() {
   const { data: employees = [], isLoading } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
-  });
-
-  useQuery({
-    queryKey: queryKeys.employees.allEarnings(),
-    queryFn: () => fetchAllEmployeeEarnings(),
   });
 
   const [search, setSearch] = useState('');

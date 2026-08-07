@@ -58,11 +58,13 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
   const { data: repairs = [] } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: fetchRepairs,
+    enabled: opened,
   });
 
   const { data: printJobs = [] } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: fetchPrintJobs,
+    enabled: opened,
   });
 
   const combinedJobs = useMemo<CombinedServiceJob[]>(() => {

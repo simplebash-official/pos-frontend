@@ -43,10 +43,11 @@ export const ReceiveStockModal = ({
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
 
-  const { data: products } = useAllProducts();
+  const { data: products } = useAllProducts({ enabled: opened });
   const { data: suppliers } = useQuery({
     queryKey: queryKeys.suppliers.all,
     queryFn: () => fetchSuppliers(),
+    enabled: opened,
   });
   const { mutate: createPurchase, isPending } = useCreatePurchase();
 

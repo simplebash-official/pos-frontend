@@ -13,11 +13,12 @@ import {
 
 const ALL_PRODUCTS_LIMIT = 500;
 
-export function useAllProducts() {
+export function useAllProducts(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: queryKeys.inventory.products({ limit: ALL_PRODUCTS_LIMIT }),
     queryFn: () => fetchProducts({ limit: ALL_PRODUCTS_LIMIT }),
     select: (res) => res.items,
+    enabled: options?.enabled ?? true,
   });
 }
 

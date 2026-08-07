@@ -52,6 +52,7 @@ export function RepairFormModal({
   const { data: employees = [] } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
+    enabled: opened,
   });
 
   const form = useForm<RepairFormValues>({

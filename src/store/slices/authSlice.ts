@@ -27,25 +27,33 @@ const initialState: AuthState = {
   isLocked: false,
 };
 
-export const initializeAuth = createAsyncThunk('auth/initializeAuth', async (_, { dispatch }) => {
-  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-  if (!token) {
-    dispatch(setInitialized(true));
-    return;
-  }
+export const initializeAuth = createAsyncThunk(
+  'auth/initializeAuth',
+  async (_, { dispatch, getState }) => {
+    const state = getState() as { auth: AuthState };
+    if (state.auth.isLoading || (state.auth.isInitialized && state.auth.user)) {
+      return;
+    }
 
-  dispatch(setLoading(true));
-  try {
-    const user = await getMeApi();
-    dispatch(setUser(user));
-  } catch (error) {
-    console.warn('Failed to restore authentication session:', error);
-    dispatch(logout());
-  } finally {
-    dispatch(setLoading(false));
-    dispatch(setInitialized(true));
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    if (!token) {
+      dispatch(setInitialized(true));
+      return;
+    }
+
+    dispatch(setLoading(true));
+    try {
+      const user = await getMeApi();
+      dispatch(setUser(user));
+    } catch (error) {
+      console.warn('Failed to restore authentication session:', error);
+      dispatch(logout());
+    } finally {
+      dispatch(setLoading(false));
+      dispatch(setInitialized(true));
+    }
   }
-});
+);
 
 const authSlice = createSlice({
   name: 'auth',

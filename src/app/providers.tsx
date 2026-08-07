@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
@@ -21,8 +21,11 @@ export interface AppProvidersProps {
 
 function AuthInitializer({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
     dispatch(initializeAuth());
   }, [dispatch]);
 

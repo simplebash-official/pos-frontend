@@ -73,14 +73,20 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
     [categories, iconMap]
   );
 
+  const termLower = scanQuery.trim().toLowerCase();
+  const isScanningRep = termLower.startsWith('rep');
+  const isScanningPrt = termLower.startsWith('prt');
+
   const { data: repairs = [] } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: fetchRepairs,
+    enabled: isScanningRep,
   });
 
   const { data: printJobs = [] } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: fetchPrintJobs,
+    enabled: isScanningPrt,
   });
 
   // Permanently auto-focus scanner input

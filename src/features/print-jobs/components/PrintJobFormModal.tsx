@@ -51,6 +51,7 @@ export function PrintJobFormModal({
   const { data: employees = [] } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
+    enabled: opened,
   });
 
   const form = useForm<PrintJobFormValues>({

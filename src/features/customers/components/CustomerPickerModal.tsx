@@ -55,6 +55,7 @@ export function CustomerPickerModal({
   const { data: customers = [] } = useQuery({
     queryKey: queryKeys.customers.all,
     queryFn: fetchCustomers,
+    enabled: opened,
   });
 
   // Phone search priority matching
