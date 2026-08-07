@@ -12,6 +12,7 @@ import {
   ScrollArea,
   Box,
   ThemeIcon,
+  Skeleton,
 } from '@mantine/core';
 import { IconSearch, IconTools, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -55,17 +56,19 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
 
   const { add, attachCustomer, soundEnabled, customerId: currentCustomerId } = useCart();
 
-  const { data: repairs = [] } = useQuery({
+  const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: fetchRepairs,
     enabled: opened,
   });
 
-  const { data: printJobs = [] } = useQuery({
+  const { data: printJobs = [], isLoading: loadingPrintJobs } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: fetchPrintJobs,
     enabled: opened,
   });
+
+  const isLoading = loadingRepairs || loadingPrintJobs;
 
   const combinedJobs = useMemo<CombinedServiceJob[]>(() => {
     const list: CombinedServiceJob[] = [];
@@ -214,7 +217,24 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
           offsetScrollbars
           classNames={{ viewport: 'scrollarea-fluid-content' }}
         >
-          {filteredJobs.length === 0 ? (
+          {isLoading ? (
+            <Stack gap="sm">
+              {Array.from({ length: 4 }, (_, i) => (
+                <Paper key={`job-skel-${i}`} p="md" withBorder>
+                  <Group justify="space-between" align="center">
+                    <Group gap="md" align="center" style={{ flex: 1 }}>
+                      <Skeleton height={44} width={44} radius="sm" />
+                      <Stack gap={4} style={{ flex: 1 }}>
+                        <Skeleton height={14} width={100} radius="xs" />
+                        <Skeleton height={16} width="70%" radius="xs" />
+                      </Stack>
+                    </Group>
+                    <Skeleton height={24} width={80} radius="xs" />
+                  </Group>
+                </Paper>
+              ))}
+            </Stack>
+          ) : filteredJobs.length === 0 ? (
             <Box ta="center" py="xl">
               <Text c="dimmed" size="sm">
                 No active ready/in-repair service jobs found.

@@ -13,6 +13,7 @@ import {
   Tooltip,
   ColorSwatch,
   CheckIcon,
+  Skeleton,
 } from '@mantine/core';
 import { IconPlus, IconTrash, IconCategory, IconEdit, IconX, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -419,9 +420,11 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
         <Divider label="Existing Categories" labelPosition="center" />
 
         {isLoading ? (
-          <Text size="sm" c="dimmed" ta="center">
-            Loading categories...
-          </Text>
+          <Stack gap="xs">
+            <Skeleton height={44} radius="var(--mantine-radius-default)" />
+            <Skeleton height={44} radius="var(--mantine-radius-default)" />
+            <Skeleton height={44} radius="var(--mantine-radius-default)" />
+          </Stack>
         ) : (
           <ExpandableCardGroup value={expandedValues} onChange={setExpandedValues} multiple>
             {categories.map((cat) => (

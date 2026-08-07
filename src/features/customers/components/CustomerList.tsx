@@ -10,6 +10,7 @@ import {
   Grid,
   ThemeIcon,
   ActionIcon,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconUserPlus,
@@ -54,11 +55,16 @@ export function CustomerList() {
   const [selectedCustomerForDrawer, setSelectedCustomerForDrawer] = useState<Customer | null>(null);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
-  // Queries & Mutations
-  const { data: customers = [], isLoading } = useQuery({
+  const {
+    data: customers = [],
+    isLoading,
+    isPending,
+    isFetching,
+  } = useQuery({
     queryKey: queryKeys.customers.all,
     queryFn: fetchCustomers,
   });
+  const isCustomersLoading = isLoading || isPending || isFetching;
 
   const createMutation = useMutation({
     mutationFn: createCustomer,
@@ -259,9 +265,13 @@ export function CustomerList() {
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Total Registered Clients
               </Text>
-              <Text fw={800} size="xl">
-                {totalCustomersCount}
-              </Text>
+              {isCustomersLoading ? (
+                <Skeleton height={28} width={60} mt={4} radius="xs" />
+              ) : (
+                <Text fw={800} size="xl">
+                  {totalCustomersCount}
+                </Text>
+              )}
             </div>
             <ThemeIcon variant="light" color="violet" size="lg">
               <IconUsers size={22} />
@@ -277,9 +287,13 @@ export function CustomerList() {
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Total Balance Due
               </Text>
-              <Text fw={800} size="xl" c={totalBalanceDue > 0 ? 'red' : 'green'}>
-                {formatMoney(totalBalanceDue)}
-              </Text>
+              {isCustomersLoading ? (
+                <Skeleton height={28} width={100} mt={4} radius="xs" />
+              ) : (
+                <Text fw={800} size="xl" c={totalBalanceDue > 0 ? 'red' : 'green'}>
+                  {formatMoney(totalBalanceDue)}
+                </Text>
+              )}
             </div>
             <ThemeIcon variant="light" color={totalBalanceDue > 0 ? 'red' : 'green'} size="lg">
               <IconReceipt size={22} />
@@ -295,9 +309,13 @@ export function CustomerList() {
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Corporate Accounts
               </Text>
-              <Text fw={800} size="xl">
-                {corporateAccountsCount}
-              </Text>
+              {isCustomersLoading ? (
+                <Skeleton height={28} width={50} mt={4} radius="xs" />
+              ) : (
+                <Text fw={800} size="xl">
+                  {corporateAccountsCount}
+                </Text>
+              )}
             </div>
             <ThemeIcon variant="light" color="violet" size="lg">
               <IconTag size={22} />
@@ -341,6 +359,28 @@ export function CustomerList() {
             onRowClick={(c) => setSelectedCustomerForDrawer(c)}
             onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
           />
+        ) : isLoading ? (
+          <Grid gap="md">
+            {Array.from({ length: 6 }, (_, i) => (
+              <Grid.Col key={`cust-skel-${i}`} span={{ base: 12, sm: 6, md: 4 }}>
+                <Card withBorder p="md">
+                  <Stack gap="xs">
+                    <Group justify="space-between" align="flex-start">
+                      <Group gap="xs">
+                        <Skeleton height={28} width={28} circle />
+                        <div>
+                          <Skeleton height={16} width={120} radius="xs" mb={4} />
+                          <Skeleton height={12} width={80} radius="xs" />
+                        </div>
+                      </Group>
+                    </Group>
+                    <Skeleton height={14} width="90%" radius="xs" />
+                    <Skeleton height={14} width="60%" radius="xs" />
+                  </Stack>
+                </Card>
+              </Grid.Col>
+            ))}
+          </Grid>
         ) : (
           <Grid gap="md">
             {filteredCustomers.map((cust) => (

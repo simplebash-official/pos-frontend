@@ -11,6 +11,7 @@ import {
   Grid,
   Card,
   Table,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconUserCheck,
@@ -48,15 +49,24 @@ export function EmployeeDetailDrawer({
   onEdit,
   onDelete,
 }: EmployeeDetailDrawerProps) {
-  const { data: earnings = [] } = useQuery({
+  const {
+    data: earnings = [],
+    isLoading: loadingEarnings,
+    isPending: pendingEarnings,
+    isFetching: fetchingEarnings,
+  } = useQuery({
     queryKey: queryKeys.employees.earnings(employee?.id || ''),
     queryFn: () => fetchEmployeeEarnings(employee?.id),
     enabled: Boolean(employee?.id),
   });
 
-  const totalEarnedCents = earnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
-  const totalJobsCompleted = earnings.length;
-  const totalRevenueGeneratedCents = earnings.reduce((acc, curr) => acc + curr.totalAmountCents, 0);
+  const isEarningsLoading =
+    loadingEarnings || pendingEarnings || fetchingEarnings || !earnings;
+  const safeEarnings = earnings ?? [];
+
+  const totalEarnedCents = safeEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
+  const totalJobsCompleted = safeEarnings.length;
+  const totalRevenueGeneratedCents = safeEarnings.reduce((acc, curr) => acc + curr.totalAmountCents, 0);
 
   return (
     <DetailDrawer
@@ -147,9 +157,13 @@ export function EmployeeDetailDrawer({
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   Total Earned
                 </Text>
-                <Text fw={800} size="md" c="indigo">
-                  {formatMoney(totalEarnedCents)}
-                </Text>
+                {isEarningsLoading ? (
+                  <Skeleton height={20} width={60} radius="xs" mx="auto" mt={4} />
+                ) : (
+                  <Text fw={800} size="md" c="indigo">
+                    {formatMoney(totalEarnedCents)}
+                  </Text>
+                )}
               </Card>
             </Grid.Col>
 
@@ -158,9 +172,13 @@ export function EmployeeDetailDrawer({
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   Work Done
                 </Text>
-                <Text fw={800} size="md">
-                  {totalJobsCompleted} Jobs
-                </Text>
+                {isEarningsLoading ? (
+                  <Skeleton height={20} width={50} radius="xs" mx="auto" mt={4} />
+                ) : (
+                  <Text fw={800} size="md">
+                    {totalJobsCompleted} Jobs
+                  </Text>
+                )}
               </Card>
             </Grid.Col>
 
@@ -169,9 +187,13 @@ export function EmployeeDetailDrawer({
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   Revenue Done
                 </Text>
-                <Text fw={800} size="md" c="teal">
-                  {formatMoney(totalRevenueGeneratedCents)}
-                </Text>
+                {isEarningsLoading ? (
+                  <Skeleton height={20} width={60} radius="xs" mx="auto" mt={4} />
+                ) : (
+                  <Text fw={800} size="md" c="teal">
+                    {formatMoney(totalRevenueGeneratedCents)}
+                  </Text>
+                )}
               </Card>
             </Grid.Col>
           </Grid>

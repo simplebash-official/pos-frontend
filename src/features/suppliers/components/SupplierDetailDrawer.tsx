@@ -11,8 +11,8 @@ import {
   ActionIcon,
   Tooltip,
   Center,
-  Loader,
   ScrollArea,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconBuildingStore,
@@ -216,9 +216,13 @@ export function SupplierDetailDrawer({
             <Group justify="space-between" align="center">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 Linked Inventory Products{' '}
-                <Text component="span" c="blue" fw={800}>
-                  ({linkedProducts.length})
-                </Text>
+                {loadingProducts ? (
+                  <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                ) : (
+                  <Text component="span" c="blue" fw={800}>
+                    ({linkedProducts.length})
+                  </Text>
+                )}
               </Text>
               <Tooltip label="Link a product" withArrow>
                 <ActionIcon
@@ -233,9 +237,10 @@ export function SupplierDetailDrawer({
             </Group>
 
             {loadingProducts ? (
-              <Center py="md">
-                <Loader size="sm" />
-              </Center>
+              <Stack gap={6} py="xs">
+                <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                <Skeleton height={48} radius="var(--mantine-radius-default)" />
+              </Stack>
             ) : linkedProducts.length === 0 ? (
               <Paper
                 p="sm"
@@ -308,9 +313,13 @@ export function SupplierDetailDrawer({
             <Group justify="space-between" align="center" mt="sm">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 Stock Purchase History{' '}
-                <Text component="span" c="blue" fw={800}>
-                  ({purchases.length})
-                </Text>
+                {loadingPurchases ? (
+                  <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                ) : (
+                  <Text component="span" c="blue" fw={800}>
+                    ({purchases.length})
+                  </Text>
+                )}
               </Text>
               <Tooltip label="Receive Stock" withArrow>
                 <ActionIcon
@@ -325,9 +334,10 @@ export function SupplierDetailDrawer({
             </Group>
 
             {loadingPurchases ? (
-              <Center py="md">
-                <Loader size="sm" />
-              </Center>
+              <Stack gap={6} py="xs">
+                <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                <Skeleton height={48} radius="var(--mantine-radius-default)" />
+              </Stack>
             ) : purchases.length === 0 ? (
               <Paper
                 p="sm"

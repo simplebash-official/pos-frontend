@@ -14,6 +14,7 @@ import {
   ThemeIcon,
   Table,
   Button,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -201,9 +202,13 @@ export function InvoicesList() {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   TODAY'S INVOICES
                 </Text>
-                <Text size="xl" fw={700} mt={2}>
-                  {kpis.todayCount}
-                </Text>
+                {loading ? (
+                  <Skeleton height={28} width={50} mt={4} />
+                ) : (
+                  <Text size="xl" fw={700} mt={2}>
+                    {kpis.todayCount}
+                  </Text>
+                )}
               </div>
               <ThemeIcon radius="md" color="teal" variant="light" size="lg">
                 <IconReceipt size={20} />
@@ -217,15 +222,19 @@ export function InvoicesList() {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   OUTSTANDING CREDIT
                 </Text>
-                <Text
-                  size="xl"
-                  fw={700}
-                  color="amber"
-                  mt={2}
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
-                  {formatMoney(kpis.outstandingCreditCents)}
-                </Text>
+                {loading ? (
+                  <Skeleton height={28} width={110} mt={4} />
+                ) : (
+                  <Text
+                    size="xl"
+                    fw={700}
+                    color="amber"
+                    mt={2}
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
+                  >
+                    {formatMoney(kpis.outstandingCreditCents)}
+                  </Text>
+                )}
               </div>
               <ThemeIcon radius="md" color="amber" variant="light" size="lg">
                 <IconAlertCircle size={20} />
@@ -239,9 +248,13 @@ export function InvoicesList() {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   AVG BASKET VALUE
                 </Text>
-                <Text size="xl" fw={700} mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {formatMoney(kpis.avgBasketCents)}
-                </Text>
+                {loading ? (
+                  <Skeleton height={28} width={90} mt={4} />
+                ) : (
+                  <Text size="xl" fw={700} mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {formatMoney(kpis.avgBasketCents)}
+                  </Text>
+                )}
               </div>
               <ThemeIcon radius="md" color="violet" variant="light" size="lg">
                 <IconChartPie size={20} />
@@ -320,7 +333,33 @@ export function InvoicesList() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filteredInvoices.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 6 }, (_, i) => (
+                  <Table.Tr key={`inv-skel-${i}`}>
+                    <Table.Td>
+                      <Skeleton height={16} width={80} radius="xs" />
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={14} width={100} radius="xs" />
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={14} width={120} radius="xs" />
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: 'center' }}>
+                      <Skeleton height={16} width={40} radius="xs" mx="auto" />
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={20} width={70} radius="xl" />
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: 'center' }}>
+                      <Skeleton height={20} width={60} radius="xl" mx="auto" />
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: 'right' }}>
+                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : filteredInvoices.length === 0 ? (
                 <Table.Tr>
                   <Table.Td colSpan={7} style={{ textAlign: 'center', padding: '32px' }}>
                     <Text size="sm" c="dimmed">

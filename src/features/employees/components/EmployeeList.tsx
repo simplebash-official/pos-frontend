@@ -10,6 +10,7 @@ import {
   Grid,
   ThemeIcon,
   ActionIcon,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -44,10 +45,16 @@ import { USER_ROLES } from '@/constants/roles';
 export function EmployeeList() {
   const queryClient = useQueryClient();
 
-  const { data: employees = [], isLoading } = useQuery({
+  const {
+    data: employees = [],
+    isLoading,
+    isPending,
+    isFetching,
+  } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
   });
+  const isEmployeesLoading = isLoading || isPending || isFetching;
 
   const [search, setSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
@@ -263,9 +270,13 @@ export function EmployeeList() {
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Active Staff Members
               </Text>
-              <Text fw={800} size="xl">
-                {employees.filter((e) => e.status === 'active').length}
-              </Text>
+              {isEmployeesLoading ? (
+                <Skeleton height={28} width={60} mt={4} radius="xs" />
+              ) : (
+                <Text fw={800} size="xl">
+                  {employees.filter((e) => e.status === 'active').length}
+                </Text>
+              )}
             </div>
             <ThemeIcon variant="light" color="indigo" size="lg">
               <IconUserCheck size={22} />
@@ -305,6 +316,28 @@ export function EmployeeList() {
             onRowClick={(e) => setSelectedEmployeeForDrawer(e)}
             onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
           />
+        ) : isLoading ? (
+          <Grid gap="md">
+            {Array.from({ length: 6 }, (_, i) => (
+              <Grid.Col key={`emp-skel-${i}`} span={{ base: 12, sm: 6, md: 4 }}>
+                <Card withBorder p="md">
+                  <Stack gap="xs">
+                    <Group justify="space-between" align="flex-start">
+                      <Group gap="xs">
+                        <Skeleton height={28} width={28} circle />
+                        <div>
+                          <Skeleton height={16} width={120} radius="xs" mb={4} />
+                          <Skeleton height={12} width={80} radius="xs" />
+                        </div>
+                      </Group>
+                    </Group>
+                    <Skeleton height={14} width="90%" radius="xs" />
+                    <Skeleton height={14} width="60%" radius="xs" />
+                  </Stack>
+                </Card>
+              </Grid.Col>
+            ))}
+          </Grid>
         ) : (
           <Grid gap="md">
             {filteredEmployees.map((emp) => (

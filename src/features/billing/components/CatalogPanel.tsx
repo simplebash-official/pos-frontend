@@ -14,6 +14,7 @@ import {
   Box,
   Anchor,
   Tooltip,
+  Skeleton,
 } from '@mantine/core';
 import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -64,8 +65,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const productCardSpan = isMobile ? 6 : tier === 'tablet' ? 4 : { base: 6, sm: 4 };
 
   // Inventory Products Query
-  const { data: products = [] } = useAllProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: products = [], isLoading: loadingProducts } = useAllProducts();
+  const { data: categories = [], isLoading: loadingCategories } = useCategories();
   const { getCategory } = useCategoryLookup();
   const iconMap = useTablerIconMap();
   const catalogCategoryFilters = useMemo(
@@ -377,54 +378,85 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
         )}
       </Paper>
 
-      {/* 2. Category Chips / Filter Pills Row.
-           On mobile the chips become a single swipeable row — wrapping them would eat two rows of
-           the little vertical space the product grid has. */}
+      {/* 2. Category Chips / Filter Pills Row. */}
       <ScrollArea.Autosize
         mah={isMobile ? 44 : 72}
         scrollbars={isMobile ? 'x' : 'y'}
         type={isMobile ? 'never' : 'auto'}
       >
-        <Group gap={6} wrap={isMobile ? 'nowrap' : 'wrap'} py={2}>
-          <Button
-            size="xs"
-            variant={selectedCategory === 'all' ? 'filled' : 'light'}
-            color="blue"
-            leftSection={<IconLayoutGrid size={15} />}
-            onClick={() => setSelectedCategory('all')}
-            radius="var(--mantine-radius-default)"
-          >
-            All
-          </Button>
-          {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+        {loadingCategories ? (
+          <Group gap={6} wrap="nowrap" py={2}>
+            <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
+            <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
+            <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
+            <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
+          </Group>
+        ) : (
+          <Group gap={6} wrap={isMobile ? 'nowrap' : 'wrap'} py={2}>
             <Button
-              key={key}
               size="xs"
-              variant={selectedCategory === key ? 'filled' : 'light'}
-              color={color}
-              leftSection={<Icon size={15} />}
-              onClick={() => setSelectedCategory(key)}
+              variant={selectedCategory === 'all' ? 'filled' : 'light'}
+              color="blue"
+              leftSection={<IconLayoutGrid size={15} />}
+              onClick={() => setSelectedCategory('all')}
               radius="var(--mantine-radius-default)"
             >
-              {label}
+              All
             </Button>
-          ))}
-          <Button
-            size="xs"
-            variant={showInStockOnly ? 'filled' : 'outline'}
-            color={showInStockOnly ? 'teal' : 'gray'}
-            onClick={() => setShowInStockOnly(!showInStockOnly)}
-            radius="var(--mantine-radius-default)"
-          >
-            In stock only
-          </Button>
-        </Group>
+            {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+              <Button
+                key={key}
+                size="xs"
+                variant={selectedCategory === key ? 'filled' : 'light'}
+                color={color}
+                leftSection={<Icon size={15} />}
+                onClick={() => setSelectedCategory(key)}
+                radius="var(--mantine-radius-default)"
+              >
+                {label}
+              </Button>
+            ))}
+            <Button
+              size="xs"
+              variant={showInStockOnly ? 'filled' : 'outline'}
+              color={showInStockOnly ? 'teal' : 'gray'}
+              onClick={() => setShowInStockOnly(!showInStockOnly)}
+              radius="var(--mantine-radius-default)"
+            >
+              In stock only
+            </Button>
+          </Group>
+        )}
       </ScrollArea.Autosize>
 
-      {/* 4. Product Grid (Zero overlap, crisp cards with clear category icons) */}
+      {/* 4. Product Grid */}
       <ScrollArea style={{ flex: 1 }} styles={{ viewport: { padding: 0 } }}>
         <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
-          {filteredProducts.map((p, index) => {
+          {loadingProducts ? (
+            Array.from({ length: 9 }, (_, i) => (
+              <Grid.Col key={`catalog-skel-${i}`} span={productCardSpan}>
+                <Card
+                  p="xs"
+                  withBorder
+                  radius="var(--mantine-radius-default)"
+                  style={{ height: 128 }}
+                >
+                  <Stack justify="space-between" h="100%" gap={4}>
+                    <Group justify="space-between" align="center">
+                      <Skeleton height={18} width={70} radius="xs" />
+                      <Skeleton height={12} width={40} radius="xs" />
+                    </Group>
+                    <Skeleton height={32} width="90%" radius="xs" />
+                    <Group justify="space-between" align="flex-end">
+                      <Skeleton height={20} width={60} radius="xs" />
+                      <Skeleton height={18} width={50} radius="xs" />
+                    </Group>
+                  </Stack>
+                </Card>
+              </Grid.Col>
+            ))
+          ) : (
+            filteredProducts.map((p, index) => {
             const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
             const isZeroStock = remainingStock <= 0;
             const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
@@ -525,7 +557,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
                 </Card>
               </Grid.Col>
             );
-          })}
+          })
+        )}
         </Grid>
       </ScrollArea>
     </Stack>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Box, Button, Group, Text, Paper, Container, Loader } from '@mantine/core';
+import { Box, Button, Group, Text, Paper, Container, Skeleton, Stack } from '@mantine/core';
 import { IconPrinter, IconX } from '@tabler/icons-react';
 import { fetchInvoiceById } from '../api/mockInvoices';
 import type { Invoice } from '../types';
@@ -67,11 +67,26 @@ export function StandalonePrintView() {
 
   if (loading) {
     return (
-      <Container size="sm" py={100} style={{ textAlign: 'center' }}>
-        <Loader size="lg" color="blue" />
-        <Text size="sm" c="dimmed" mt="md">
-          Preparing Invoice Document...
-        </Text>
+      <Container size="sm" py="xl">
+        <Paper p="xl" withBorder radius="md">
+          <Stack gap="md">
+            <Group justify="space-between">
+              <Skeleton height={32} width={180} radius="xs" />
+              <Skeleton height={24} width={100} radius="xs" />
+            </Group>
+            <Skeleton height={1} width="100%" my="xs" />
+            <Skeleton height={20} width="60%" radius="xs" />
+            <Skeleton height={20} width="40%" radius="xs" />
+            <Stack gap="xs" mt="lg">
+              <Skeleton height={24} width="100%" radius="xs" />
+              <Skeleton height={24} width="100%" radius="xs" />
+              <Skeleton height={24} width="100%" radius="xs" />
+            </Stack>
+            <Group justify="flex-end" mt="md">
+              <Skeleton height={28} width={120} radius="xs" />
+            </Group>
+          </Stack>
+        </Paper>
       </Container>
     );
   }

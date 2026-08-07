@@ -9,6 +9,7 @@ import {
   Stack,
   Table,
   Badge,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconReceipt,
@@ -26,17 +27,40 @@ import { queryKeys } from '@/api/queryKeys';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
 
 export function ReportsDashboard() {
-  const { data: employees = [] } = useQuery({
+  const {
+    data: employees,
+    isLoading: isLoadingEmployees,
+    isPending: isPendingEmployees,
+    isFetching: isFetchingEmployees,
+  } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
   });
 
-  const { data: earnings = [] } = useQuery({
+  const {
+    data: earnings,
+    isLoading: isLoadingEarnings,
+    isPending: isPendingEarnings,
+    isFetching: isFetchingEarnings,
+  } = useQuery({
     queryKey: queryKeys.employees.allEarnings(),
     queryFn: () => fetchAllEmployeeEarnings(),
   });
 
-  const totalCommissionsCents = earnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
+  const isLoading =
+    isLoadingEmployees ||
+    isLoadingEarnings ||
+    isPendingEmployees ||
+    isPendingEarnings ||
+    isFetchingEmployees ||
+    isFetchingEarnings ||
+    !employees ||
+    !earnings;
+
+  const safeEmployees = employees ?? [];
+  const safeEarnings = earnings ?? [];
+
+  const totalCommissionsCents = safeEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
   const totalRevenueCents = 20750000; // LKR 207,500 total
   const estimatedGrossProfitCents = 7400000; // LKR 74,000 gross profit
   const netShopProfitCents = Math.max(0, estimatedGrossProfitCents - totalCommissionsCents);
@@ -65,8 +89,8 @@ export function ReportsDashboard() {
   ];
 
   // Map employee performance for leaderboard
-  const employeePerformance = employees.map((emp) => {
-    const empEarnings = earnings.filter((e) => e.employeeId === emp.id);
+  const employeePerformance = safeEmployees.map((emp) => {
+    const empEarnings = safeEarnings.filter((e) => e.employeeId === emp.id);
     const jobsCount = empEarnings.length;
     const revCents = empEarnings.reduce((acc, curr) => acc + curr.totalAmountCents, 0);
     const profitCents = empEarnings.reduce((acc, curr) => acc + curr.profitCents, 0);
@@ -105,7 +129,11 @@ export function ReportsDashboard() {
               </Group>
 
               <Group align="flex-end" gap="xs" mt={15}>
-                <Title order={4}>{formatMoney(stat.valueCents)}</Title>
+                {isLoading ? (
+                  <Skeleton height={24} width={100} radius="xs" />
+                ) : (
+                  <Title order={4}>{formatMoney(stat.valueCents)}</Title>
+                )}
               </Group>
             </Paper>
           );
@@ -141,7 +169,32 @@ export function ReportsDashboard() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {employeePerformance.map(
+              {isLoading ? (
+                Array.from({ length: 4 }, (_, i) => (
+                  <Table.Tr key={`rep-skel-${i}`}>
+                    <Table.Td>
+                      <Skeleton height={16} width={120} radius="xs" mb={4} />
+                      <Skeleton height={12} width={80} radius="xs" />
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Skeleton height={20} width={90} radius="xl" mx="auto" />
+                    </Table.Td>
+                    <Table.Td ta="right">
+                      <Skeleton height={16} width={50} radius="xs" ms="auto" />
+                    </Table.Td>
+                    <Table.Td ta="right">
+                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                    </Table.Td>
+                    <Table.Td ta="right">
+                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                    </Table.Td>
+                    <Table.Td ta="right">
+                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : (
+                employeePerformance.map(
                 ({ employee, jobsCount, revCents, earnedSplitCents, netShopContributionCents }) => (
                   <Table.Tr key={employee.id}>
                     <Table.Td>
@@ -195,7 +248,8 @@ export function ReportsDashboard() {
                     </Table.Td>
                   </Table.Tr>
                 )
-              )}
+              )
+            )}
             </Table.Tbody>
           </Table>
         </Stack>

@@ -13,6 +13,7 @@ import {
   ThemeIcon,
   ActionIcon,
   Box,
+  Skeleton,
 } from '@mantine/core';
 import { IconSearch, IconPackage, IconPlus, IconX } from '@tabler/icons-react';
 import { useAllProducts } from '../hooks/useProducts';
@@ -37,7 +38,7 @@ export function ProductPickerModal({
   excludeKeys = [],
   title = 'Link a Product',
 }: ProductPickerModalProps) {
-  const { data: products = [] } = useAllProducts({ enabled: opened });
+  const { data: products = [], isLoading } = useAllProducts({ enabled: opened });
   const { getCategory } = useCategoryLookup();
   const iconMap = useTablerIconMap();
 
@@ -116,7 +117,22 @@ export function ProductPickerModal({
         {/* Product List */}
         <ScrollArea.Autosize mah={440} offsetScrollbars>
           <Stack gap="xs" pt={6} pb={6} px={4}>
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 4 }, (_, i) => (
+                <Paper key={`prod-skel-${i}`} p="md" radius="var(--mantine-radius-default)" withBorder>
+                  <Group justify="space-between" align="center">
+                    <Group gap="md">
+                      <Skeleton height={36} width={36} radius="md" />
+                      <div>
+                        <Skeleton height={16} width={140} radius="xs" mb={4} />
+                        <Skeleton height={12} width={90} radius="xs" />
+                      </div>
+                    </Group>
+                    <Skeleton height={20} width={60} radius="xs" />
+                  </Group>
+                </Paper>
+              ))
+            ) : filtered.length === 0 ? (
               <Paper
                 p="xl"
                 withBorder

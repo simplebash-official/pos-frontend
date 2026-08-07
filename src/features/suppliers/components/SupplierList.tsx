@@ -10,6 +10,7 @@ import {
   Grid,
   ThemeIcon,
   ActionIcon,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -50,11 +51,16 @@ export function SupplierList() {
   const [selectedSupplierForDrawer, setSelectedSupplierForDrawer] = useState<Supplier | null>(null);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
-  // Queries & Mutations
-  const { data: suppliers = [], isLoading } = useQuery({
+  const {
+    data: suppliers = [],
+    isLoading,
+    isPending,
+    isFetching,
+  } = useQuery({
     queryKey: queryKeys.suppliers.all,
     queryFn: () => fetchSuppliers(),
   });
+  const isSuppliersLoading = isLoading || isPending || isFetching;
 
   const createMutation = useMutation({
     mutationFn: createSupplier,
@@ -246,9 +252,13 @@ export function SupplierList() {
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Active Vendors
               </Text>
-              <Text fw={800} size="xl">
-                {suppliers.length}
-              </Text>
+              {isSuppliersLoading ? (
+                <Skeleton height={28} width={60} mt={4} radius="xs" />
+              ) : (
+                <Text fw={800} size="xl">
+                  {suppliers.length}
+                </Text>
+              )}
             </div>
             <ThemeIcon variant="light" color="blue" size="lg">
               <IconTruckDelivery size={22} />
@@ -288,6 +298,28 @@ export function SupplierList() {
             onRowClick={(s) => setSelectedSupplierForDrawer(s)}
             onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
           />
+        ) : isLoading ? (
+          <Grid gap="md">
+            {Array.from({ length: 6 }, (_, i) => (
+              <Grid.Col key={`sup-skel-${i}`} span={{ base: 12, sm: 6, md: 4 }}>
+                <Card withBorder p="md">
+                  <Stack gap="xs">
+                    <Group justify="space-between" align="flex-start">
+                      <Group gap="xs">
+                        <Skeleton height={28} width={28} circle />
+                        <div>
+                          <Skeleton height={16} width={120} radius="xs" mb={4} />
+                          <Skeleton height={12} width={80} radius="xs" />
+                        </div>
+                      </Group>
+                    </Group>
+                    <Skeleton height={14} width="90%" radius="xs" />
+                    <Skeleton height={14} width="60%" radius="xs" />
+                  </Stack>
+                </Card>
+              </Grid.Col>
+            ))}
+          </Grid>
         ) : (
           <Grid gap="md">
             {filteredSuppliers.map((s) => (

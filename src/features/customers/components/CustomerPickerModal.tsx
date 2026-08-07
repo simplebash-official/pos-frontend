@@ -13,6 +13,7 @@ import {
   Center,
   Box,
   ThemeIcon,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -52,7 +53,7 @@ export function CustomerPickerModal({
 
   const queryClient = useQueryClient();
 
-  const { data: customers = [] } = useQuery({
+  const { data: customers = [], isLoading } = useQuery({
     queryKey: queryKeys.customers.all,
     queryFn: fetchCustomers,
     enabled: opened,
@@ -249,7 +250,22 @@ export function CustomerPickerModal({
             classNames={{ viewport: 'scrollarea-fluid-content' }}
           >
             <Stack gap="sm">
-              {filtered.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 4 }, (_, i) => (
+                  <Paper key={`cust-skel-${i}`} p="md" withBorder>
+                    <Group justify="space-between" align="center">
+                      <Group gap="md">
+                        <Skeleton height={36} width={36} circle />
+                        <div>
+                          <Skeleton height={16} width={120} radius="xs" mb={4} />
+                          <Skeleton height={12} width={80} radius="xs" />
+                        </div>
+                      </Group>
+                      <Skeleton height={20} width={60} radius="xs" />
+                    </Group>
+                  </Paper>
+                ))
+              ) : filtered.length === 0 ? (
                 <Center py="xl">
                   <Text size="sm" c="dimmed">
                     No matching customer found for "{search}".

@@ -22,9 +22,9 @@ import {
   Drawer,
   Divider,
   Center,
-  Loader,
   ScrollArea,
   Checkbox,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -83,7 +83,13 @@ export function ProductTable() {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
 
-  const { data: initialProducts = [], isLoading } = useAllProducts();
+  const {
+    data: initialProducts = [],
+    isLoading,
+    isPending,
+    isFetching,
+  } = useAllProducts();
+  const isInventoryLoading = isLoading || isPending || isFetching;
   const { getCategory } = useCategoryLookup();
   const iconMap = useTablerIconMap();
 
@@ -352,9 +358,13 @@ export function ProductTable() {
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   Total Items
                 </Text>
-                <Text fw={800} size="xl">
-                  {totalProducts}
-                </Text>
+                {isInventoryLoading ? (
+                  <Skeleton height={28} width={60} mt={4} radius="xs" />
+                ) : (
+                  <Text fw={800} size="xl">
+                    {totalProducts}
+                  </Text>
+                )}
               </div>
               <ThemeIcon variant="light" color="blue" size="lg">
                 <IconPackage size={22} />
@@ -370,9 +380,13 @@ export function ProductTable() {
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   Categories & Subcategories
                 </Text>
-                <Text fw={800} size="xl">
-                  {categoriesCount} Categories
-                </Text>
+                {isInventoryLoading ? (
+                  <Skeleton height={28} width={110} mt={4} radius="xs" />
+                ) : (
+                  <Text fw={800} size="xl">
+                    {categoriesCount} Categories
+                  </Text>
+                )}
               </div>
               <ThemeIcon variant="light" color="grape" size="lg">
                 <IconBuildingStore size={22} />
@@ -388,9 +402,13 @@ export function ProductTable() {
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   Low Stock Alerts
                 </Text>
-                <Text fw={800} size="xl" c={lowStockCount > 0 ? 'red' : 'green'}>
-                  {lowStockCount} {lowStockCount === 1 ? 'Item' : 'Items'}
-                </Text>
+                {isInventoryLoading ? (
+                  <Skeleton height={28} width={80} mt={4} radius="xs" />
+                ) : (
+                  <Text fw={800} size="xl" c={lowStockCount > 0 ? 'red' : 'green'}>
+                    {lowStockCount} {lowStockCount === 1 ? 'Item' : 'Items'}
+                  </Text>
+                )}
               </div>
               <ThemeIcon variant="light" color={lowStockCount > 0 ? 'red' : 'green'} size="lg">
                 <IconAlertTriangle size={22} />
@@ -477,11 +495,19 @@ export function ProductTable() {
       {/* Accordion Tree Table View */}
       {hierarchy.size === 0 ? (
         <Paper p="xl" withBorder radius="md">
-          <Text ta="center" c="dimmed" size="sm">
-            {isLoading
-              ? 'Loading inventory hierarchy...'
-              : 'No inventory items match your search or filter criteria.'}
-          </Text>
+          {isLoading ? (
+            <Stack gap="sm">
+              <Skeleton height={36} radius="md" />
+              <Skeleton height={24} width="85%" radius="sm" style={{ marginLeft: 16 }} />
+              <Skeleton height={24} width="70%" radius="sm" style={{ marginLeft: 16 }} />
+              <Skeleton height={36} radius="md" mt="sm" />
+              <Skeleton height={24} width="60%" radius="sm" style={{ marginLeft: 16 }} />
+            </Stack>
+          ) : (
+            <Text ta="center" c="dimmed" size="sm">
+              No inventory items match your search or filter criteria.
+            </Text>
+          )}
         </Paper>
       ) : (
         <Accordion
@@ -952,9 +978,10 @@ export function ProductTable() {
               <IconHistory size={14} style={{ opacity: 0.6 }} />
             </Group>
             {loadingMovements ? (
-              <Center py="sm">
-                <Loader size="xs" />
-              </Center>
+              <Stack gap={4} py="xs">
+                <Skeleton height={14} radius="xs" />
+                <Skeleton height={14} radius="xs" />
+              </Stack>
             ) : movements.length === 0 ? (
               <Text size="xs" c="dimmed" ta="center" py="xs">
                 No stock movements recorded yet.
@@ -989,9 +1016,13 @@ export function ProductTable() {
                 <Group justify="space-between" align="center">
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     Linked Suppliers{' '}
-                    <Text component="span" c="blue" fw={800}>
-                      ({linkedSuppliers.length})
-                    </Text>
+                    {loadingSuppliers ? (
+                      <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                    ) : (
+                      <Text component="span" c="blue" fw={800}>
+                        ({linkedSuppliers.length})
+                      </Text>
+                    )}
                   </Text>
                   <Tooltip label="Link a supplier" withArrow>
                     <ActionIcon
@@ -1006,9 +1037,10 @@ export function ProductTable() {
                 </Group>
 
                 {loadingSuppliers ? (
-                  <Center py="md">
-                    <Loader size="sm" />
-                  </Center>
+                  <Stack gap={6} py="xs">
+                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                  </Stack>
                 ) : linkedSuppliers.length === 0 ? (
                   <Paper p="sm" withBorder bg="var(--mantine-color-body)">
                     <Center py="xs">
@@ -1071,9 +1103,13 @@ export function ProductTable() {
                 <Group justify="space-between" align="center" mt="sm">
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     Stock Intake History{' '}
-                    <Text component="span" c="blue" fw={800}>
-                      ({purchases.length})
-                    </Text>
+                    {loadingPurchases ? (
+                      <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                    ) : (
+                      <Text component="span" c="blue" fw={800}>
+                        ({purchases.length})
+                      </Text>
+                    )}
                   </Text>
                   <Tooltip label="Receive Stock" withArrow>
                     <ActionIcon
@@ -1088,9 +1124,10 @@ export function ProductTable() {
                 </Group>
 
                 {loadingPurchases ? (
-                  <Center py="md">
-                    <Loader size="sm" />
-                  </Center>
+                  <Stack gap={6} py="xs">
+                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                  </Stack>
                 ) : purchases.length === 0 ? (
                   <Paper
                     p="sm"
