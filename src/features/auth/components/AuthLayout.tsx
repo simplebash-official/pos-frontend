@@ -10,10 +10,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <Box
       style={{
-        minHeight: '100vh',
+        height: '100vh',
         width: '100%',
         backgroundColor: 'var(--bg-card)',
-        overflow: 'hidden',
+        overflowY: 'auto',
         transition: 'background-color 0.3s ease',
       }}
     >

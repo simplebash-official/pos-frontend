@@ -83,8 +83,10 @@ export function AppShell() {
       <MantineAppShell.Main
         style={{
           backgroundColor: 'var(--bg-app)',
-          minHeight: `calc(100dvh - ${headerHeight}px)`,
-          overflow: isBillingPage ? 'hidden' : 'auto',
+          height: '100dvh',
+          maxHeight: '100dvh',
+          boxSizing: 'border-box',
+          overflowY: isBillingPage ? 'hidden' : 'auto',
         }}
       >
         <Outlet context={{ setHeldDrawerOpen, setShortcutsOpen }} />
