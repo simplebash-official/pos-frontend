@@ -88,6 +88,26 @@ body,
   height: calc(100dvh - var(--billing-header-h));
 }
 
+/* Login screen root. Same vh/dvh fallback pair as .billing-root above — dvh tracks the mobile
+   browser URL bar, vh doesn't, and inline React styles can't hold two values for one property. */
+.auth-layout-root {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Login screen inner columns: on mobile they should size to their content (no forced full-screen
+   height stacking on top of the image band), matching AuthLayout's column/row switch at `md`
+   (62em) so the min-height and the direction change together. */
+.auth-layout-min-h {
+  min-height: auto;
+}
+@media (min-width: 62em) {
+  .auth-layout-min-h {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+}
+
 /* Billing Counter Animations */
 @keyframes shake {
   0%,

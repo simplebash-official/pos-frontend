@@ -9,18 +9,15 @@ export interface AuthLayoutProps {
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <Box
+      className="auth-layout-root"
       style={{
-        height: '100vh',
         width: '100%',
         backgroundColor: 'var(--bg-card)',
         overflowY: 'auto',
         transition: 'background-color 0.3s ease',
       }}
     >
-      <Flex
-        direction={{ base: 'column-reverse', md: 'row' }}
-        style={{ minHeight: '100vh', width: '100%' }}
-      >
+      <Flex direction={{ base: 'column', md: 'row' }} className="auth-layout-min-h" w="100%">
         {/* Left Column: Form Container */}
         <Flex
           direction="column"
@@ -28,7 +25,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           align="center"
           w={{ base: '100%', md: '45%', lg: '42%' }}
           p={{ base: '40px 24px', md: '64px 48px' }}
-          style={{ position: 'relative', minHeight: '100vh' }}
+          className="auth-layout-min-h"
+          style={{ position: 'relative' }}
         >
           {children}
         </Flex>
@@ -37,16 +35,16 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <Box
           w={{ base: '100%', md: '55%', lg: '58%' }}
           p={{ base: '16px', md: '20px 20px 20px 0' }}
+          mih={{ base: 200, md: 440 }}
           style={{
             display: 'flex',
-            minHeight: '440px',
           }}
         >
           <Box
+            mih={{ base: 200, md: 'calc(100vh - 40px)' }}
             style={{
               position: 'relative',
               width: '100%',
-              minHeight: 'calc(100vh - 40px)',
               borderRadius: '32px',
               overflow: 'hidden',
               backgroundImage: `url(${wallLoginImg})`,
