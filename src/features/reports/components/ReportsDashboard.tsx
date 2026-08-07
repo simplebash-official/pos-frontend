@@ -169,87 +169,91 @@ export function ReportsDashboard() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {isLoading ? (
-                Array.from({ length: 4 }, (_, i) => (
-                  <Table.Tr key={`rep-skel-${i}`}>
-                    <Table.Td>
-                      <Skeleton height={16} width={120} radius="xs" mb={4} />
-                      <Skeleton height={12} width={80} radius="xs" />
-                    </Table.Td>
-                    <Table.Td ta="center">
-                      <Skeleton height={20} width={90} radius="xl" mx="auto" />
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Skeleton height={16} width={50} radius="xs" ms="auto" />
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              ) : (
-                employeePerformance.map(
-                ({ employee, jobsCount, revCents, earnedSplitCents, netShopContributionCents }) => (
-                  <Table.Tr key={employee.id}>
-                    <Table.Td>
-                      <div>
-                        <Text size="sm" fw={700}>
-                          {employee.name}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {EMPLOYEE_ROLE_LABELS[employee.role]}
-                        </Text>
-                      </div>
-                    </Table.Td>
-                    <Table.Td ta="center">
-                      <Badge
-                        size="xs"
-                        variant="light"
-                        color={employee.defaultSplitType === 'percentage' ? 'indigo' : 'teal'}
-                      >
-                        {employee.defaultSplitType === 'percentage' ? (
-                          <Group gap={2}>
-                            <IconPercentage size={12} />
-                            <span>{employee.defaultSplitValue}% Profit</span>
-                          </Group>
-                        ) : (
-                          <Group gap={2}>
-                            <IconCoin size={12} />
-                            <span>{formatMoney(employee.defaultSplitValue)} Fixed</span>
-                          </Group>
-                        )}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Text size="sm" fw={600}>
-                        {jobsCount} jobs
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Text size="sm" fw={600}>
-                        {formatMoney(revCents)}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Text size="sm" fw={800} c="indigo">
-                        {formatMoney(earnedSplitCents)}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Text size="sm" fw={800} c="green">
-                        {formatMoney(netShopContributionCents)}
-                      </Text>
-                    </Table.Td>
-                  </Table.Tr>
-                )
-              )
-            )}
+              {isLoading
+                ? Array.from({ length: 4 }, (_, i) => (
+                    <Table.Tr key={`rep-skel-${i}`}>
+                      <Table.Td>
+                        <Skeleton height={16} width={120} radius="xs" mb={4} />
+                        <Skeleton height={12} width={80} radius="xs" />
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Skeleton height={20} width={90} radius="xl" mx="auto" />
+                      </Table.Td>
+                      <Table.Td ta="right">
+                        <Skeleton height={16} width={50} radius="xs" ms="auto" />
+                      </Table.Td>
+                      <Table.Td ta="right">
+                        <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                      </Table.Td>
+                      <Table.Td ta="right">
+                        <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                      </Table.Td>
+                      <Table.Td ta="right">
+                        <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                      </Table.Td>
+                    </Table.Tr>
+                  ))
+                : employeePerformance.map(
+                    ({
+                      employee,
+                      jobsCount,
+                      revCents,
+                      earnedSplitCents,
+                      netShopContributionCents,
+                    }) => (
+                      <Table.Tr key={employee.id}>
+                        <Table.Td>
+                          <div>
+                            <Text size="sm" fw={700}>
+                              {employee.name}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              {EMPLOYEE_ROLE_LABELS[employee.role]}
+                            </Text>
+                          </div>
+                        </Table.Td>
+                        <Table.Td ta="center">
+                          <Badge
+                            size="xs"
+                            variant="light"
+                            color={employee.defaultSplitType === 'percentage' ? 'indigo' : 'teal'}
+                          >
+                            {employee.defaultSplitType === 'percentage' ? (
+                              <Group gap={2}>
+                                <IconPercentage size={12} />
+                                <span>{employee.defaultSplitValue}% Profit</span>
+                              </Group>
+                            ) : (
+                              <Group gap={2}>
+                                <IconCoin size={12} />
+                                <span>{formatMoney(employee.defaultSplitValue)} Fixed</span>
+                              </Group>
+                            )}
+                          </Badge>
+                        </Table.Td>
+                        <Table.Td ta="right">
+                          <Text size="sm" fw={600}>
+                            {jobsCount} jobs
+                          </Text>
+                        </Table.Td>
+                        <Table.Td ta="right">
+                          <Text size="sm" fw={600}>
+                            {formatMoney(revCents)}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td ta="right">
+                          <Text size="sm" fw={800} c="indigo">
+                            {formatMoney(earnedSplitCents)}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td ta="right">
+                          <Text size="sm" fw={800} c="green">
+                            {formatMoney(netShopContributionCents)}
+                          </Text>
+                        </Table.Td>
+                      </Table.Tr>
+                    )
+                  )}
             </Table.Tbody>
           </Table>
         </Stack>

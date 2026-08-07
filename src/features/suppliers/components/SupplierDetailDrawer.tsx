@@ -217,7 +217,11 @@ export function SupplierDetailDrawer({
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 Linked Inventory Products{' '}
                 {loadingProducts ? (
-                  <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                  <Skeleton
+                    height={14}
+                    width={24}
+                    style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                  />
                 ) : (
                   <Text component="span" c="blue" fw={800}>
                     ({linkedProducts.length})
@@ -314,7 +318,11 @@ export function SupplierDetailDrawer({
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 Stock Purchase History{' '}
                 {loadingPurchases ? (
-                  <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                  <Skeleton
+                    height={14}
+                    width={24}
+                    style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                  />
                 ) : (
                   <Text component="span" c="blue" fw={800}>
                     ({purchases.length})

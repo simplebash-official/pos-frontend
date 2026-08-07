@@ -432,133 +432,131 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       {/* 4. Product Grid */}
       <ScrollArea style={{ flex: 1 }} styles={{ viewport: { padding: 0 } }}>
         <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
-          {loadingProducts ? (
-            Array.from({ length: 9 }, (_, i) => (
-              <Grid.Col key={`catalog-skel-${i}`} span={productCardSpan}>
-                <Card
-                  p="xs"
-                  withBorder
-                  radius="var(--mantine-radius-default)"
-                  style={{ height: 128 }}
-                >
-                  <Stack justify="space-between" h="100%" gap={4}>
-                    <Group justify="space-between" align="center">
-                      <Skeleton height={18} width={70} radius="xs" />
-                      <Skeleton height={12} width={40} radius="xs" />
-                    </Group>
-                    <Skeleton height={32} width="90%" radius="xs" />
-                    <Group justify="space-between" align="flex-end">
-                      <Skeleton height={20} width={60} radius="xs" />
-                      <Skeleton height={18} width={50} radius="xs" />
-                    </Group>
-                  </Stack>
-                </Card>
-              </Grid.Col>
-            ))
-          ) : (
-            filteredProducts.map((p, index) => {
-            const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
-            const isZeroStock = remainingStock <= 0;
-            const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
-            const isSelected = selectedIndex !== null && index === selectedIndex;
-            const {
-              Icon: CatIcon,
-              color: catColor,
-              label: catLabel,
-            } = getCategoryIconInfo({
-              category: getCategory(p.categoryKey),
-              categoryLabel: p.category,
-              iconMap,
-            });
+          {loadingProducts
+            ? Array.from({ length: 9 }, (_, i) => (
+                <Grid.Col key={`catalog-skel-${i}`} span={productCardSpan}>
+                  <Card
+                    p="xs"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    style={{ height: 128 }}
+                  >
+                    <Stack justify="space-between" h="100%" gap={4}>
+                      <Group justify="space-between" align="center">
+                        <Skeleton height={18} width={70} radius="xs" />
+                        <Skeleton height={12} width={40} radius="xs" />
+                      </Group>
+                      <Skeleton height={32} width="90%" radius="xs" />
+                      <Group justify="space-between" align="flex-end">
+                        <Skeleton height={20} width={60} radius="xs" />
+                        <Skeleton height={18} width={50} radius="xs" />
+                      </Group>
+                    </Stack>
+                  </Card>
+                </Grid.Col>
+              ))
+            : filteredProducts.map((p, index) => {
+                const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+                const isZeroStock = remainingStock <= 0;
+                const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
+                const isSelected = selectedIndex !== null && index === selectedIndex;
+                const {
+                  Icon: CatIcon,
+                  color: catColor,
+                  label: catLabel,
+                } = getCategoryIconInfo({
+                  category: getCategory(p.categoryKey),
+                  categoryLabel: p.category,
+                  iconMap,
+                });
 
-            return (
-              <Grid.Col key={p.id} span={productCardSpan}>
-                <Card
-                  p="xs"
-                  withBorder
-                  className="product-catalog-card"
-                  radius="var(--mantine-radius-default)"
-                  style={{
-                    height: 128,
-                    opacity: isZeroStock ? 0.5 : 1,
-                    filter: isZeroStock ? 'grayscale(1)' : undefined,
-                    cursor: isZeroStock ? 'not-allowed' : 'pointer',
-                    borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-                    boxShadow: isSelected ? '0 0 0 2px var(--mantine-color-blue-4)' : undefined,
-                  }}
-                  onClick={() => handleAddProduct(p)}
-                >
-                  <Stack justify="space-between" h="100%" gap={4}>
-                    {/* Top Header Row: Category Badge with Icon + SKU */}
-                    <Group justify="space-between" align="center" wrap="nowrap">
-                      <Badge
-                        size="xs"
-                        color={catColor}
-                        variant="light"
-                        leftSection={<CatIcon size={13} />}
-                        style={{
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: 10,
-                          paddingLeft: 6,
-                          paddingRight: 8,
-                        }}
-                      >
-                        {catLabel}
-                      </Badge>
+                return (
+                  <Grid.Col key={p.id} span={productCardSpan}>
+                    <Card
+                      p="xs"
+                      withBorder
+                      className="product-catalog-card"
+                      radius="var(--mantine-radius-default)"
+                      style={{
+                        height: 128,
+                        opacity: isZeroStock ? 0.5 : 1,
+                        filter: isZeroStock ? 'grayscale(1)' : undefined,
+                        cursor: isZeroStock ? 'not-allowed' : 'pointer',
+                        borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+                        boxShadow: isSelected ? '0 0 0 2px var(--mantine-color-blue-4)' : undefined,
+                      }}
+                      onClick={() => handleAddProduct(p)}
+                    >
+                      <Stack justify="space-between" h="100%" gap={4}>
+                        {/* Top Header Row: Category Badge with Icon + SKU */}
+                        <Group justify="space-between" align="center" wrap="nowrap">
+                          <Badge
+                            size="xs"
+                            color={catColor}
+                            variant="light"
+                            leftSection={<CatIcon size={13} />}
+                            style={{
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: 10,
+                              paddingLeft: 6,
+                              paddingRight: 8,
+                            }}
+                          >
+                            {catLabel}
+                          </Badge>
 
-                      <Text
-                        size="xs"
-                        c="dimmed"
-                        style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
-                      >
-                        {p.sku}
-                      </Text>
-                    </Group>
+                          <Text
+                            size="xs"
+                            c="dimmed"
+                            style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
+                          >
+                            {p.sku}
+                          </Text>
+                        </Group>
 
-                    {/* Middle Row: Full width Product Name */}
-                    <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
-                      <Text
-                        size="xs"
-                        fw={700}
-                        lineClamp={2}
-                        style={{ lineHeight: 1.3, fontSize: 12 }}
-                      >
-                        {p.name}
-                      </Text>
-                    </Box>
+                        {/* Middle Row: Full width Product Name */}
+                        <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
+                          <Text
+                            size="xs"
+                            fw={700}
+                            lineClamp={2}
+                            style={{ lineHeight: 1.3, fontSize: 12 }}
+                          >
+                            {p.name}
+                          </Text>
+                        </Box>
 
-                    {/* Bottom Row: Price & Stock Badge */}
-                    <Group justify="space-between" align="flex-end">
-                      <Text
-                        size="sm"
-                        fw={800}
-                        c="blue.7"
-                        style={{ fontSize: 14, fontFamily: 'monospace' }}
-                      >
-                        {formatMoney(p.sellingPriceCents)}
-                      </Text>
+                        {/* Bottom Row: Price & Stock Badge */}
+                        <Group justify="space-between" align="flex-end">
+                          <Text
+                            size="sm"
+                            fw={800}
+                            c="blue.7"
+                            style={{ fontSize: 14, fontFamily: 'monospace' }}
+                          >
+                            {formatMoney(p.sellingPriceCents)}
+                          </Text>
 
-                      {isZeroStock ? (
-                        <Badge size="xs" color="gray" variant="filled">
-                          Out of stock
-                        </Badge>
-                      ) : isLowStock ? (
-                        <Badge size="xs" color="yellow" variant="filled">
-                          {remainingStock} Left
-                        </Badge>
-                      ) : (
-                        <Badge size="xs" color="gray" variant="light">
-                          {remainingStock} Left
-                        </Badge>
-                      )}
-                    </Group>
-                  </Stack>
-                </Card>
-              </Grid.Col>
-            );
-          })
-        )}
+                          {isZeroStock ? (
+                            <Badge size="xs" color="gray" variant="filled">
+                              Out of stock
+                            </Badge>
+                          ) : isLowStock ? (
+                            <Badge size="xs" color="yellow" variant="filled">
+                              {remainingStock} Left
+                            </Badge>
+                          ) : (
+                            <Badge size="xs" color="gray" variant="light">
+                              {remainingStock} Left
+                            </Badge>
+                          )}
+                        </Group>
+                      </Stack>
+                    </Card>
+                  </Grid.Col>
+                );
+              })}
         </Grid>
       </ScrollArea>
     </Stack>

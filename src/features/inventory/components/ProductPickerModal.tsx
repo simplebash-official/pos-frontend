@@ -119,7 +119,12 @@ export function ProductPickerModal({
           <Stack gap="xs" pt={6} pb={6} px={4}>
             {isLoading ? (
               Array.from({ length: 4 }, (_, i) => (
-                <Paper key={`prod-skel-${i}`} p="md" radius="var(--mantine-radius-default)" withBorder>
+                <Paper
+                  key={`prod-skel-${i}`}
+                  p="md"
+                  radius="var(--mantine-radius-default)"
+                  withBorder
+                >
                   <Group justify="space-between" align="center">
                     <Group gap="md">
                       <Skeleton height={36} width={36} radius="md" />

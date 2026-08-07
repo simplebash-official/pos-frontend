@@ -83,12 +83,7 @@ export function ProductTable() {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
 
-  const {
-    data: initialProducts = [],
-    isLoading,
-    isPending,
-    isFetching,
-  } = useAllProducts();
+  const { data: initialProducts = [], isLoading, isPending, isFetching } = useAllProducts();
   const isInventoryLoading = isLoading || isPending || isFetching;
   const { getCategory } = useCategoryLookup();
   const iconMap = useTablerIconMap();
@@ -1017,7 +1012,11 @@ export function ProductTable() {
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     Linked Suppliers{' '}
                     {loadingSuppliers ? (
-                      <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                      <Skeleton
+                        height={14}
+                        width={24}
+                        style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                      />
                     ) : (
                       <Text component="span" c="blue" fw={800}>
                         ({linkedSuppliers.length})
@@ -1104,7 +1103,11 @@ export function ProductTable() {
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     Stock Intake History{' '}
                     {loadingPurchases ? (
-                      <Skeleton height={14} width={24} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                      <Skeleton
+                        height={14}
+                        width={24}
+                        style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                      />
                     ) : (
                       <Text component="span" c="blue" fw={800}>
                         ({purchases.length})

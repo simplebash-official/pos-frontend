@@ -60,13 +60,15 @@ export function EmployeeDetailDrawer({
     enabled: Boolean(employee?.id),
   });
 
-  const isEarningsLoading =
-    loadingEarnings || pendingEarnings || fetchingEarnings || !earnings;
+  const isEarningsLoading = loadingEarnings || pendingEarnings || fetchingEarnings || !earnings;
   const safeEarnings = earnings ?? [];
 
   const totalEarnedCents = safeEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
   const totalJobsCompleted = safeEarnings.length;
-  const totalRevenueGeneratedCents = safeEarnings.reduce((acc, curr) => acc + curr.totalAmountCents, 0);
+  const totalRevenueGeneratedCents = safeEarnings.reduce(
+    (acc, curr) => acc + curr.totalAmountCents,
+    0
+  );
 
   return (
     <DetailDrawer
