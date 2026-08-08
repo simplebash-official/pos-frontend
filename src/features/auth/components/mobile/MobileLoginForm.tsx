@@ -22,7 +22,7 @@ interface MobileLoginFormProps {
 }
 
 export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
-  const [email, setEmail] = useState('admin@jana2u.local');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,15 +97,17 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
       {/* Bottom Sheet Card */}
       <div className="mobile-auth-sheet">
         <div className="mobile-sheet-header">
-          <h2 className="mobile-sheet-title">Welcome back</h2>
-          <p className="mobile-sheet-subtitle">Sign in to access your POS terminal</p>
+          <h2 className="mobile-sheet-title">Staff Sign In</h2>
+          <p className="mobile-sheet-subtitle">
+            Access the POS terminal for repairs, printing &amp; sales
+          </p>
         </div>
 
         <form onSubmit={handleLogin} noValidate>
           <Stack gap="md">
             <TextInput
               label="Email"
-              placeholder="admin@jana2u.local"
+              placeholder="you@jana2u.local"
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               className="mobile-auth-input"
@@ -151,12 +153,12 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
               className="mobile-primary-btn"
               mt="sm"
             >
-              Sign in
+              Sign In
             </Button>
 
             <div className="mobile-auth-security-badge">
               <IconLock size={14} stroke={2} />
-              <span>Jana2U Enterprise • 256-bit Encrypted Session</span>
+              <span>JANA2U Service Center - Internal Use Only</span>
             </div>
           </Stack>
         </form>

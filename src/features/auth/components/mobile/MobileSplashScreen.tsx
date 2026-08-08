@@ -10,14 +10,14 @@ export function MobileSplashScreen({ onStart }: MobileSplashScreenProps) {
       {/* Top Brand Badge */}
       <div className="mobile-splash-brand-badge">
         <span className="mobile-splash-brand-dot" />
-        <span>Jana2U POS System</span>
+        <span>JANA2U Service Center</span>
       </div>
 
       {/* Middle Hero Welcome Notes */}
       <div className="mobile-splash-hero">
         <h1 className="mobile-splash-title">Welcome Back!</h1>
         <p className="mobile-splash-subtitle">
-          Enter personal details to you employee account
+          Sign in with your staff account to start a shift
         </p>
       </div>
 
@@ -34,7 +34,7 @@ export function MobileSplashScreen({ onStart }: MobileSplashScreenProps) {
         </button>
 
         <div className="mobile-splash-footer-note">
-          Authorized Service Center Personnel Only
+          Staff & Admin Access Only
         </div>
       </div>
     </div>
