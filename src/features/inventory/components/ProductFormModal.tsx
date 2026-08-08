@@ -14,13 +14,14 @@ import {
   Switch,
   ThemeIcon,
 } from '@mantine/core';
-import { IconBarcode, IconTag, IconCoin, IconBox } from '@tabler/icons-react';
+import { IconBarcode, IconTag, IconBox, IconAlertTriangle } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { ApiError } from '@/shared/types/common';
+import { CURRENCY } from '@/constants';
 
 export interface ProductFormModalProps {
   opened: boolean;
@@ -377,7 +378,11 @@ function ProductFormContent({
               if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
             }}
             error={errors.costPrice}
-            leftSection={<IconCoin size={16} />}
+            leftSection={
+              <Text size="xs" fw={700} c="dimmed">
+                {CURRENCY.symbol}
+              </Text>
+            }
             required
           />
           <NumberInput
@@ -391,7 +396,11 @@ function ProductFormContent({
               if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
             }}
             error={errors.sellingPrice}
-            leftSection={<IconCoin size={16} />}
+            leftSection={
+              <Text size="xs" fw={700} c="dimmed">
+                {CURRENCY.symbol}
+              </Text>
+            }
             required
           />
         </Group>
@@ -403,6 +412,7 @@ function ProductFormContent({
               label="Starting Stock Units"
               placeholder="0"
               min={0}
+              allowDecimal={false}
               value={stockQuantity}
               onChange={(val) => {
                 setStockQuantity(val);
@@ -417,6 +427,7 @@ function ProductFormContent({
             label="Low-Stock Alert Threshold"
             placeholder="3"
             min={0}
+            allowDecimal={false}
             value={minStockThreshold}
             onChange={(val) => {
               setMinStockThreshold(val);
@@ -424,6 +435,8 @@ function ProductFormContent({
                 setErrors((prev) => ({ ...prev, minStockThreshold: '' }));
             }}
             error={errors.minStockThreshold}
+            leftSection={<IconAlertTriangle size={16} />}
+            inputWrapperOrder={['label', 'input', 'description', 'error']}
             description="Alerts appear when available stock falls to or below this amount."
             required
           />
