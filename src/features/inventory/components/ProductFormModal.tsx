@@ -66,9 +66,9 @@ function ProductFormContent({
     productToEdit ? fromCents(productToEdit.sellingPriceCents) : ''
   );
   const [minStockThreshold, setMinStockThreshold] = useState<number | string>(
-    productToEdit?.minStockThreshold ?? 3
+    productToEdit ? productToEdit.minStockThreshold : ''
   );
-  const [stockQuantity, setStockQuantity] = useState<number | string>(0);
+  const [stockQuantity, setStockQuantity] = useState<number | string>('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
