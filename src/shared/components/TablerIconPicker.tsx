@@ -13,7 +13,12 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconSearch, IconChevronDown } from '@tabler/icons-react';
-import { useTablerIconMap, resolveTablerIcon, TablerIconComponent } from '@/shared/lib/tablerIcons';
+import {
+  useAllTablerIcons,
+  useTablerIcons,
+  resolveTablerIcon,
+  TablerIconComponent,
+} from '@/shared/lib/tablerIcons';
 
 export interface TablerIconPickerProps {
   /** Stored icon name — PascalCase, no "Icon" prefix (e.g. "DeviceMobile"). */
@@ -40,9 +45,14 @@ export function TablerIconPicker({
   showName = false,
   color,
 }: TablerIconPickerProps) {
-  const iconMap = useTablerIconMap();
   const [opened, setOpened] = useState(false);
   const [search, setSearch] = useState('');
+
+  // Browsing needs the whole library. It starts loading with this component rather than with the
+  // dropdown, so the grid is ready by the time it opens; the trigger falls back to `value`'s own
+  // shard while that is in flight.
+  const iconMap = useAllTablerIcons();
+  const selectedIconMap = useTablerIcons([value]);
 
   const allNames = useMemo(() => {
     if (!iconMap) return [];
@@ -61,7 +71,7 @@ export function TablerIconPicker({
   const visibleNames = filteredNames.slice(0, MAX_RESULTS);
 
   const selectedIconEl = createElement(
-    resolveTablerIcon(iconMap, value ?? undefined, fallbackIcon),
+    resolveTablerIcon(iconMap ?? selectedIconMap, value ?? undefined, fallbackIcon),
     {
       size: 18,
     }

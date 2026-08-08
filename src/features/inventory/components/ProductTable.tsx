@@ -59,9 +59,8 @@ import {
   useDeleteProducts,
   useProductMovements,
 } from '../hooks/useProducts';
-import { useCategoryLookup } from '../hooks/useCategories';
+import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
-import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
@@ -86,7 +85,7 @@ export function ProductTable() {
   const { data: initialProducts = [], isLoading, isPending, isFetching } = useAllProducts();
   const isInventoryLoading = isLoading || isPending || isFetching;
   const { getCategory } = useCategoryLookup();
-  const iconMap = useTablerIconMap();
+  const iconMap = useCategoryIcons();
 
   const [search, setSearch] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);

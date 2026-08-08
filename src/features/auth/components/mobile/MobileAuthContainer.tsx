@@ -12,21 +12,14 @@ export function MobileAuthContainer() {
   return (
     <div className="mobile-auth-viewport" data-view={view}>
       {/* Background with fluid gradient and image */}
-      <div
-        className="mobile-auth-bg"
-        style={{ backgroundImage: `url(${wallLoginImg})` }}
-      />
+      <div className="mobile-auth-bg" style={{ backgroundImage: `url(${wallLoginImg})` }} />
       <div className="mobile-auth-bg-overlay" />
 
       {/* Screen View Router */}
       <div className="mobile-auth-content">
-        {view === 'splash' && (
-          <MobileSplashScreen onStart={() => setView('login')} />
-        )}
+        {view === 'splash' && <MobileSplashScreen onStart={() => setView('login')} />}
 
-        {view === 'login' && (
-          <MobileLoginForm onBack={() => setView('splash')} />
-        )}
+        {view === 'login' && <MobileLoginForm onBack={() => setView('splash')} />}
       </div>
     </div>
   );

@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  TextInput,
-  PasswordInput,
-  Checkbox,
-  Button,
-  Divider,
-  Stack,
-  Anchor,
-} from '@mantine/core';
+import { TextInput, PasswordInput, Checkbox, Button, Divider, Stack, Anchor } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { MobileSocialButtons } from './MobileSocialButtons';
@@ -50,7 +42,8 @@ export function MobileSignUpForm({ onBack, onGoToSignIn }: MobileSignUpFormProps
       setIsSubmitting(false);
       notifications.show({
         title: 'Registration Request Submitted',
-        message: 'Your employee registration request has been submitted for administrator review. Please sign in.',
+        message:
+          'Your employee registration request has been submitted for administrator review. Please sign in.',
         color: 'green',
       });
       onGoToSignIn();
@@ -61,7 +54,12 @@ export function MobileSignUpForm({ onBack, onGoToSignIn }: MobileSignUpFormProps
     <>
       {/* Top Header with Back Button */}
       <div className="mobile-auth-topbar">
-        <button type="button" className="mobile-back-btn" onClick={onBack} aria-label="Back to Welcome Screen">
+        <button
+          type="button"
+          className="mobile-back-btn"
+          onClick={onBack}
+          aria-label="Back to Welcome Screen"
+        >
           <IconChevronLeft size={18} stroke={2.5} />
           <span>Back</span>
         </button>
@@ -117,7 +115,8 @@ export function MobileSignUpForm({ onBack, onGoToSignIn }: MobileSignUpFormProps
                       e.preventDefault();
                       notifications.show({
                         title: 'Privacy Policy',
-                        message: 'Personal employee information is protected under Jana2U Data Privacy Standards.',
+                        message:
+                          'Personal employee information is protected under Jana2U Data Privacy Standards.',
                         color: 'blue',
                       });
                     }}

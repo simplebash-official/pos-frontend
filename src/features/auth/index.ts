@@ -6,5 +6,3 @@ export { MobileSplashScreen } from './components/mobile/MobileSplashScreen';
 export { MobileLoginForm } from './components/mobile/MobileLoginForm';
 export * from './api/authApi';
 export * from './types';
-
-

@@ -22,7 +22,11 @@ import { notifications } from '@mantine/notifications';
 
 import { queryKeys } from '@/api/queryKeys';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { useCategories, useCategoryLookup } from '@/features/inventory/hooks/useCategories';
+import {
+  useCategories,
+  useCategoryIcons,
+  useCategoryLookup,
+} from '@/features/inventory/hooks/useCategories';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
@@ -31,7 +35,6 @@ import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
-import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 
 // Top frequent items section removed per request
 
@@ -68,7 +71,7 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const { data: products = [], isLoading: loadingProducts } = useAllProducts();
   const { data: categories = [], isLoading: loadingCategories } = useCategories();
   const { getCategory } = useCategoryLookup();
-  const iconMap = useTablerIconMap();
+  const iconMap = useCategoryIcons();
   const catalogCategoryFilters = useMemo(
     () => buildCatalogCategoryFilters(categories, iconMap),
     [categories, iconMap]

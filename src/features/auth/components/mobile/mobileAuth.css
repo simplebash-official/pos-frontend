@@ -19,7 +19,9 @@
   background-position: center top;
   background-repeat: no-repeat;
   z-index: 1;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+  transition:
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.5s ease;
 }
 
 .mobile-auth-bg-overlay {
@@ -157,7 +159,11 @@
   border-radius: var(--mantine-radius-xl, 9999px);
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .mobile-splash-start-btn:active {
@@ -232,7 +238,9 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   animation: mobileSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
 }
 
 [data-mantine-color-scheme='dark'] .mobile-auth-sheet {
@@ -274,7 +282,9 @@
   font-size: 16px;
   font-weight: 700;
   box-shadow: 0 6px 18px rgba(34, 139, 230, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .mobile-primary-btn:active {

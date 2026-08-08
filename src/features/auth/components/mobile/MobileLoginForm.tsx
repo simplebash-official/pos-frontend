@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  TextInput,
-  PasswordInput,
-  Checkbox,
-  Button,
-  Anchor,
-  Group,
-  Stack,
-} from '@mantine/core';
+import { TextInput, PasswordInput, Checkbox, Button, Anchor, Group, Stack } from '@mantine/core';
 import { IconChevronLeft, IconLock } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
@@ -76,7 +68,8 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
     e.preventDefault();
     notifications.show({
       title: 'Password Reset',
-      message: 'Please contact your Jana2U System Administrator to reset your POS terminal access credentials.',
+      message:
+        'Please contact your Jana2U System Administrator to reset your POS terminal access credentials.',
       color: 'blue',
     });
   };
@@ -85,7 +78,12 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
     <>
       {/* Top Header with Back Button */}
       <div className="mobile-auth-topbar">
-        <button type="button" className="mobile-back-btn" onClick={onBack} aria-label="Back to Welcome Screen">
+        <button
+          type="button"
+          className="mobile-back-btn"
+          onClick={onBack}
+          aria-label="Back to Welcome Screen"
+        >
           <IconChevronLeft size={18} stroke={2.5} />
           <span>Back</span>
         </button>

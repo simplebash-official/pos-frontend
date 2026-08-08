@@ -17,9 +17,8 @@ import {
 } from '@mantine/core';
 import { IconSearch, IconPackage, IconPlus, IconX } from '@tabler/icons-react';
 import { useAllProducts } from '../hooks/useProducts';
-import { useCategoryLookup } from '../hooks/useCategories';
+import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
-import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 import { formatMoney } from '@/shared/lib/money';
 
 export interface ProductPickerModalProps {
@@ -40,7 +39,7 @@ export function ProductPickerModal({
 }: ProductPickerModalProps) {
   const { data: products = [], isLoading } = useAllProducts({ enabled: opened });
   const { getCategory } = useCategoryLookup();
-  const iconMap = useTablerIconMap();
+  const iconMap = useCategoryIcons();
 
   const [search, setSearch] = useState('');
 

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
+import { TablerIconMap, useTablerIcons } from '@/shared/lib/tablerIcons';
 import { Category, CategoryInput } from '../types';
 import {
   createCategory,
@@ -37,6 +38,15 @@ export function buildCategoryLookup(categories: Category[]) {
 export function useCategoryLookup() {
   const { data: categories = [] } = useCategories();
   return useMemo(() => buildCategoryLookup(categories), [categories]);
+}
+
+/**
+ * Icon components for the icons the current categories actually use — only those shards of the
+ * Tabler library get downloaded. Pass the result to `resolveCategoryIcon`.
+ */
+export function useCategoryIcons(): TablerIconMap | null {
+  const { data: categories = [] } = useCategories();
+  return useTablerIcons(categories.map((c) => c.icon));
 }
 
 export function useCreateCategory() {

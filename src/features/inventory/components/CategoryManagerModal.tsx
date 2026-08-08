@@ -19,6 +19,7 @@ import { IconPlus, IconTrash, IconCategory, IconEdit, IconX, IconCheck } from '@
 import { notifications } from '@mantine/notifications';
 import {
   useCategories,
+  useCategoryIcons,
   useCreateCategory,
   useUpdateCategory,
   useCreateSubcategory,
@@ -33,7 +34,6 @@ import {
   ExpandableCardGroup,
   ExpandableCardAction,
 } from '@/shared/components/ExpandableCard';
-import { useTablerIconMap } from '@/shared/lib/tablerIcons';
 import { ApiError } from '@/shared/types/common';
 
 export interface CategoryManagerModalProps {
@@ -130,7 +130,7 @@ function CategoryItem({
   onDeleteSubcategory: (categoryKey: string, subcategoryKey: string) => void;
   onExpandCategory: (categoryKey: string) => void;
 }) {
-  const iconMap = useTablerIconMap();
+  const iconMap = useCategoryIcons();
   const updateCategory = useUpdateCategory();
 
   const [isEditing, setIsEditing] = useState(false);

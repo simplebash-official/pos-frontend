@@ -16,9 +16,7 @@ export function MobileSplashScreen({ onStart }: MobileSplashScreenProps) {
       {/* Middle Hero Welcome Notes */}
       <div className="mobile-splash-hero">
         <h1 className="mobile-splash-title">Welcome Back!</h1>
-        <p className="mobile-splash-subtitle">
-          Sign in with your staff account to start a shift
-        </p>
+        <p className="mobile-splash-subtitle">Sign in with your staff account to start a shift</p>
       </div>
 
       {/* Bottom Action Button */}
@@ -33,9 +31,7 @@ export function MobileSplashScreen({ onStart }: MobileSplashScreenProps) {
           <IconArrowRight size={18} stroke={2.5} />
         </button>
 
-        <div className="mobile-splash-footer-note">
-          Staff & Admin Access Only
-        </div>
+        <div className="mobile-splash-footer-note">Staff & Admin Access Only</div>
       </div>
     </div>
   );
