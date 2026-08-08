@@ -50,7 +50,7 @@ import {
   IconHistory,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { Product, ProductInput } from '../types';
+import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import {
   useAllProducts,
   useAdjustStock,
@@ -135,11 +135,11 @@ export function ProductTable() {
     setProductFormOpen(true);
   };
 
-  const handleProductFormSubmit = async (values: ProductInput) => {
+  const handleProductFormSubmit = async (values: CreateProductInput | UpdateProductInput) => {
     if (productToEdit) {
       const updated = await updateProductMutation.mutateAsync({
         id: productToEdit.id,
-        updates: values,
+        updates: values as UpdateProductInput,
       });
       setSelectedProduct(updated);
       notifications.show({
@@ -149,7 +149,7 @@ export function ProductTable() {
         icon: <IconCheck size={16} />,
       });
     } else {
-      const created = await createProductMutation.mutateAsync(values);
+      const created = await createProductMutation.mutateAsync(values as CreateProductInput);
       notifications.show({
         title: 'Product Created',
         message: `${created.name} added to the catalog`,
@@ -1198,9 +1198,20 @@ export function ProductTable() {
                     Barcode
                   </Text>
                 </Group>
-                <Text size="xs" fw={700}>
-                  {selectedProduct.barcode || '—'}
-                </Text>
+                <Group gap={6}>
+                  <Text size="xs" fw={700}>
+                    {selectedProduct.barcode ?? '—'}
+                  </Text>
+                  {selectedProduct.barcodeSource && (
+                    <Badge
+                      size="xs"
+                      variant="light"
+                      color={selectedProduct.barcodeSource === 'generated' ? 'blue' : 'gray'}
+                    >
+                      {selectedProduct.barcodeSource === 'generated' ? 'Generated' : 'Manual'}
+                    </Badge>
+                  )}
+                </Group>
               </Group>
 
               <Group justify="space-between">

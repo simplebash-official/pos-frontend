@@ -1,14 +1,29 @@
 import { useMemo, useState } from 'react';
-import { Modal, TextInput, NumberInput, Select, Button, Group, Stack, Text } from '@mantine/core';
-import { IconBox, IconBarcode, IconTag, IconCoin } from '@tabler/icons-react';
-import { Product, ProductInput } from '../types';
+import {
+  Modal,
+  TextInput,
+  NumberInput,
+  Select,
+  Button,
+  Group,
+  Stack,
+  Text,
+  Checkbox,
+  Badge,
+  Paper,
+} from '@mantine/core';
+import { IconBarcode, IconTag, IconCoin, IconBox } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents } from '@/shared/lib/money';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { ApiError } from '@/shared/types/common';
 
 export interface ProductFormModalProps {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (values: ProductInput) => Promise<void>;
+  onSubmit: (values: CreateProductInput | UpdateProductInput) => Promise<void>;
   productToEdit?: Product | null;
   loading?: boolean;
 }
@@ -16,7 +31,7 @@ export interface ProductFormModalProps {
 interface FormContentProps {
   productToEdit?: Product | null;
   onClose: () => void;
-  onSubmit: (values: ProductInput) => Promise<void>;
+  onSubmit: (values: CreateProductInput | UpdateProductInput) => Promise<void>;
   loading?: boolean;
 }
 
@@ -27,11 +42,16 @@ function ProductFormContent({
   loading = false,
 }: FormContentProps) {
   const isEditing = Boolean(productToEdit);
+  const isMobile = useIsMobile();
 
   const { data: validCategories = [] } = useValidCategories();
 
+  // Barcode states
+  const [autoGenerateBarcode, setAutoGenerateBarcode] = useState(true);
+  const [manualBarcode, setManualBarcode] = useState(productToEdit?.barcode ?? '');
+
+  // Core Product info
   const [name, setName] = useState(productToEdit?.name ?? '');
-  const [barcode, setBarcode] = useState(productToEdit?.barcode ?? '');
   const [categoryKey, setCategoryKey] = useState<string | null>(productToEdit?.categoryKey ?? null);
   const [subcategoryKey, setSubcategoryKey] = useState<string | null>(
     productToEdit?.subcategoryKey ?? null
@@ -70,13 +90,33 @@ function ProductFormContent({
     if (!name.trim()) newErrors.name = 'Product name is required';
     if (!categoryKey) newErrors.categoryKey = 'Select a category';
     if (!subcategoryKey) newErrors.subcategoryKey = 'Select a subcategory';
-    if (costPrice === '' || Number(costPrice) < 0) newErrors.costPrice = 'Enter a valid cost price';
-    if (sellingPrice === '' || Number(sellingPrice) < 0)
-      newErrors.sellingPrice = 'Enter a valid selling price';
-    if (minStockThreshold === '' || Number(minStockThreshold) < 0)
+    if (costPrice === '' || Number(costPrice) < 0 || isNaN(Number(costPrice))) {
+      newErrors.costPrice = 'Enter a valid cost price';
+    }
+    if (sellingPrice === '' || Number(sellingPrice) <= 0 || isNaN(Number(sellingPrice))) {
+      newErrors.sellingPrice = 'Selling price must be greater than 0';
+    }
+    if (
+      minStockThreshold === '' ||
+      Number(minStockThreshold) < 0 ||
+      isNaN(Number(minStockThreshold))
+    ) {
       newErrors.minStockThreshold = 'Enter a valid threshold';
-    if (!isEditing && (stockQuantity === '' || Number(stockQuantity) < 0))
+    }
+    if (
+      !isEditing &&
+      (stockQuantity === '' || Number(stockQuantity) < 0 || isNaN(Number(stockQuantity)))
+    ) {
       newErrors.stockQuantity = 'Enter a valid starting stock quantity';
+    }
+
+    // Barcode validation when manual entry is chosen on creation
+    if (!isEditing && !autoGenerateBarcode) {
+      const trimmed = manualBarcode.trim();
+      if (trimmed && !/^\d{8,14}$/.test(trimmed)) {
+        newErrors.barcode = 'Manual barcode must be 8–14 numeric digits';
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -86,130 +126,309 @@ function ProductFormContent({
     e.preventDefault();
     if (!validate() || !categoryKey || !subcategoryKey) return;
 
-    await onSubmit({
-      name: name.trim(),
-      barcode: barcode.trim() || undefined,
-      categoryKey,
-      subcategoryKey,
-      costPriceCents: toCents(Number(costPrice)),
-      sellingPriceCents: toCents(Number(sellingPrice)),
-      stockQuantity: isEditing ? productToEdit!.stockQuantity : Number(stockQuantity),
-      minStockThreshold: Number(minStockThreshold),
-    });
+    if (isEditing) {
+      const payload: UpdateProductInput = {
+        name: name.trim(),
+        categoryKey,
+        subcategoryKey,
+        costPriceCents: toCents(Number(costPrice)),
+        sellingPriceCents: toCents(Number(sellingPrice)),
+        minStockThreshold: Number(minStockThreshold || 0),
+      };
 
-    onClose();
+      try {
+        await onSubmit(payload);
+        onClose();
+      } catch (err: unknown) {
+        handleApiError(err);
+      }
+    } else {
+      const payload: CreateProductInput = {
+        name: name.trim(),
+        categoryKey,
+        subcategoryKey,
+        costPriceCents: toCents(Number(costPrice)),
+        sellingPriceCents: toCents(Number(sellingPrice)),
+        stockQuantity: Number(stockQuantity || 0),
+        minStockThreshold: Number(minStockThreshold || 0),
+      };
+
+      if (autoGenerateBarcode) {
+        payload.autoGenerateBarcode = true;
+      } else {
+        payload.autoGenerateBarcode = false;
+        if (manualBarcode.trim()) {
+          payload.barcode = manualBarcode.trim();
+        }
+      }
+
+      try {
+        await onSubmit(payload);
+        onClose();
+      } catch (err: unknown) {
+        handleApiError(err);
+      }
+    }
+  };
+
+  const handleApiError = (err: unknown) => {
+    const apiError = err as ApiError | undefined;
+    const message =
+      apiError?.message ?? (err instanceof Error ? err.message : 'Failed to save product');
+    const code = apiError?.code;
+    const statusCode = apiError?.statusCode;
+
+    if (
+      code === 'BARCODE_ALREADY_EXISTS' ||
+      statusCode === 409 ||
+      message.toLowerCase().includes('barcode')
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        barcode: message.includes('already exists')
+          ? message
+          : `A product with barcode "${manualBarcode.trim()}" already exists`,
+      }));
+    } else if (
+      message.toLowerCase().includes('category') ||
+      message.toLowerCase().includes('subcategory')
+    ) {
+      setErrors((prev) => ({ ...prev, categoryKey: message }));
+    } else {
+      notifications.show({
+        title: 'Error Saving Product',
+        message,
+        color: 'red',
+      });
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <Stack gap="md">
+        {/* Category Selection */}
+        <Group grow align="flex-start">
+          <Select
+            label="Category"
+            placeholder="Select a category"
+            data={categoryOptions}
+            value={categoryKey}
+            onChange={handleCategoryChange}
+            error={errors.categoryKey}
+            disabled={isEditing}
+            required
+            searchable
+          />
+          <Select
+            label="Subcategory"
+            placeholder={categoryKey ? 'Select subcategory' : 'Choose category first'}
+            data={subcategoryOptions}
+            value={subcategoryKey}
+            onChange={(val) => {
+              setSubcategoryKey(val);
+              if (errors.subcategoryKey) setErrors((prev) => ({ ...prev, subcategoryKey: '' }));
+            }}
+            error={errors.subcategoryKey}
+            disabled={!categoryKey || isEditing}
+            required
+            searchable
+          />
+        </Group>
+
+        {/* Product Name */}
         <TextInput
-          label="Product / Material Name"
-          placeholder="e.g. iPhone 13 Screen Replacement"
-          leftSection={<IconBox size={16} />}
-          required
+          label="Product Name"
+          placeholder="e.g. iPhone 15 Pro Max Tempered Glass"
           value={name}
           onChange={(e) => {
             setName(e.currentTarget.value);
             if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
           }}
           error={errors.name}
+          required
+          leftSection={<IconTag size={16} />}
         />
 
-        <TextInput
-          label="Barcode"
-          description="Optional — scannable barcode for this item"
-          placeholder="e.g. 8901234567890"
-          leftSection={<IconBarcode size={16} />}
-          value={barcode}
-          onChange={(e) => setBarcode(e.currentTarget.value)}
-        />
+        {/* Barcode Configuration (Create Mode Only) */}
+        {!isEditing && (
+          <Paper
+            withBorder
+            p="sm"
+            radius="var(--mantine-radius-default)"
+            bg="var(--mantine-color-default-hover)"
+          >
+            <Stack gap="xs">
+              <Group justify="space-between" align="center">
+                <Text size="sm" fw={600}>
+                  Product Barcode
+                </Text>
+                <Badge variant="light" color="blue" size="sm">
+                  GS1 Compatible
+                </Badge>
+              </Group>
 
-        <Group grow align="flex-start">
-          <Select
-            label="Category"
-            placeholder="Select a category"
-            leftSection={<IconTag size={16} />}
-            required
-            data={categoryOptions}
-            value={categoryKey}
-            onChange={handleCategoryChange}
-            error={errors.categoryKey}
-            searchable
-          />
-          <Select
-            label="Subcategory"
-            placeholder={categoryKey ? 'Select a subcategory' : 'Select a category first'}
-            required
-            data={subcategoryOptions}
-            value={subcategoryKey}
-            onChange={(value) => {
-              setSubcategoryKey(value);
-              if (errors.subcategoryKey) setErrors((prev) => ({ ...prev, subcategoryKey: '' }));
-            }}
-            disabled={!categoryKey}
-            error={errors.subcategoryKey}
-            searchable
-          />
-        </Group>
+              <Checkbox
+                label="Auto-generate barcode"
+                description={
+                  autoGenerateBarcode
+                    ? 'Barcode will be assigned automatically on save.'
+                    : 'Uncheck to enter or scan an existing manufacturer barcode.'
+                }
+                checked={autoGenerateBarcode}
+                onChange={(e) => {
+                  const checked = e.currentTarget.checked;
+                  setAutoGenerateBarcode(checked);
+                  if (checked) {
+                    setManualBarcode('');
+                    if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
+                  }
+                }}
+              />
 
+              {autoGenerateBarcode ? (
+                <Text
+                  size="xs"
+                  c="dimmed"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  <IconBarcode size={14} style={{ opacity: 0.7 }} />
+                  System will assign a unique EAN-13 barcode starting with prefix{' '}
+                  <Badge size="xs" variant="outline">
+                    20
+                  </Badge>{' '}
+                  upon save.
+                </Text>
+              ) : (
+                <TextInput
+                  placeholder="Scan or enter manufacturer barcode (8–14 digits)"
+                  leftSection={<IconBarcode size={16} />}
+                  value={manualBarcode}
+                  onChange={(e) => {
+                    setManualBarcode(e.currentTarget.value);
+                    if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
+                  }}
+                  error={errors.barcode}
+                  autoFocus={!isMobile}
+                  description="Use a barcode scanner or enter product packaging barcode (8–14 numeric digits)"
+                />
+              )}
+            </Stack>
+          </Paper>
+        )}
+
+        {/* Read-Only Barcode & SKU Banner (Edit Mode) */}
+        {isEditing && (
+          <Paper
+            withBorder
+            p="xs"
+            radius="var(--mantine-radius-default)"
+            bg="var(--mantine-color-default-hover)"
+          >
+            <Group justify="space-between">
+              <div>
+                <Text size="xs" c="dimmed">
+                  SKU (Immutable)
+                </Text>
+                <Text size="sm" fw={700}>
+                  {productToEdit?.sku}
+                </Text>
+              </div>
+              <div>
+                <Text size="xs" c="dimmed">
+                  Barcode (Immutable)
+                </Text>
+                <Group gap={6}>
+                  <Text size="sm" fw={700}>
+                    {productToEdit?.barcode ?? 'None'}
+                  </Text>
+                  {productToEdit?.barcodeSource && (
+                    <Badge
+                      size="xs"
+                      variant="light"
+                      color={productToEdit.barcodeSource === 'generated' ? 'blue' : 'gray'}
+                    >
+                      {productToEdit.barcodeSource === 'generated' ? 'Generated' : 'Manual'}
+                    </Badge>
+                  )}
+                </Group>
+              </div>
+            </Group>
+          </Paper>
+        )}
+
+        {/* Pricing */}
         <Group grow align="flex-start">
           <NumberInput
             label="Cost Price (Rs.)"
             placeholder="0.00"
-            leftSection={<IconCoin size={16} />}
             decimalScale={2}
             min={0}
-            required
             value={costPrice}
-            onChange={setCostPrice}
+            onChange={(val) => {
+              setCostPrice(val);
+              if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
+            }}
             error={errors.costPrice}
+            leftSection={<IconCoin size={16} />}
+            required
           />
           <NumberInput
             label="Selling Price (Rs.)"
             placeholder="0.00"
-            leftSection={<IconCoin size={16} />}
             decimalScale={2}
-            min={0}
-            required
+            min={0.01}
             value={sellingPrice}
-            onChange={setSellingPrice}
+            onChange={(val) => {
+              setSellingPrice(val);
+              if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
+            }}
             error={errors.sellingPrice}
+            leftSection={<IconCoin size={16} />}
+            required
           />
         </Group>
 
+        {/* Stock Metrics */}
         <Group grow align="flex-start">
           {!isEditing && (
             <NumberInput
-              label="Starting Stock Quantity"
+              label="Starting Stock Units"
               placeholder="0"
               min={0}
-              required
               value={stockQuantity}
-              onChange={setStockQuantity}
+              onChange={(val) => {
+                setStockQuantity(val);
+                if (errors.stockQuantity) setErrors((prev) => ({ ...prev, stockQuantity: '' }));
+              }}
               error={errors.stockQuantity}
+              leftSection={<IconBox size={16} />}
+              required
             />
           )}
           <NumberInput
-            label="Minimum Stock Threshold"
-            description="Triggers a low-stock alert at or below this level"
-            placeholder="0"
+            label="Low-Stock Alert Threshold"
+            placeholder="3"
             min={0}
-            required
             value={minStockThreshold}
-            onChange={setMinStockThreshold}
+            onChange={(val) => {
+              setMinStockThreshold(val);
+              if (errors.minStockThreshold)
+                setErrors((prev) => ({ ...prev, minStockThreshold: '' }));
+            }}
             error={errors.minStockThreshold}
+            description="Alerts appear when available stock falls to or below this amount."
+            required
           />
         </Group>
 
         {isEditing && (
           <Text size="xs" c="dimmed">
-            Stock quantity isn&apos;t edited here — use the drawer&apos;s Quick Stock Adjustment so
-            every change is captured in the audit trail.
+            Stock quantity is managed via stock adjustments or purchase orders so every change is
+            captured in the audit trail.
           </Text>
         )}
 
-        <Group justify="flex-end" gap="sm" mt="md">
+        <Group justify="flex-end" mt="md" gap="sm">
           <Button variant="default" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
@@ -230,14 +449,20 @@ export function ProductFormModal({
   loading = false,
 }: ProductFormModalProps) {
   const isEditing = Boolean(productToEdit);
+  const isMobile = useIsMobile();
 
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title={isEditing ? 'Edit Product Details' : 'Add Product / Material'}
+      title={
+        <Text fw={700} size="lg">
+          {isEditing ? `Edit: ${productToEdit?.name}` : 'Add New Inventory Product'}
+        </Text>
+      }
       size="lg"
       centered
+      fullScreen={isMobile}
     >
       {opened && (
         <ProductFormContent

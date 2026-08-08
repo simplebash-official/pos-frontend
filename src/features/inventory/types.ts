@@ -34,12 +34,15 @@ export interface ValidCategoryOption {
   subcategories: ValidSubcategoryOption[];
 }
 
+export type BarcodeSource = 'generated' | 'manual';
+
 export interface Product {
   id: string;
   key: string;
   name: string;
   sku: string;
-  barcode?: string;
+  barcode?: string | null;
+  barcodeSource?: BarcodeSource | null;
   categoryKey: string;
   category: string;
   subcategoryKey: string;
@@ -52,8 +55,7 @@ export interface Product {
   updatedAt?: string;
 }
 
-export interface ProductInput {
-  barcode?: string;
+export interface CreateProductInput {
   name: string;
   categoryKey: string;
   subcategoryKey: string;
@@ -61,7 +63,21 @@ export interface ProductInput {
   sellingPriceCents: number;
   stockQuantity: number;
   minStockThreshold: number;
+  barcode?: string;
+  autoGenerateBarcode?: boolean;
 }
+
+export interface UpdateProductInput {
+  name?: string;
+  categoryKey?: string;
+  subcategoryKey?: string;
+  costPriceCents?: number;
+  sellingPriceCents?: number;
+  stockQuantity?: number;
+  minStockThreshold?: number;
+}
+
+export type ProductInput = CreateProductInput;
 
 export interface StockAdjustmentResult {
   id: string;
@@ -87,4 +103,12 @@ export interface StockMovement {
   note?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProductListResponse {
+  items: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

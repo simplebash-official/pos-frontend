@@ -1,6 +1,12 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse, PaginatedResponse } from '@/shared/types/common';
-import { Product, ProductInput, StockAdjustmentResult, StockMovement } from '../types';
+import {
+  Product,
+  CreateProductInput,
+  UpdateProductInput,
+  StockAdjustmentResult,
+  StockMovement,
+} from '../types';
 
 export interface ProductListParams {
   [key: string]: string | number | boolean | undefined;
@@ -40,12 +46,12 @@ export async function fetchProductById(id: string): Promise<Product> {
   return response.data;
 }
 
-export async function createProduct(input: ProductInput): Promise<Product> {
+export async function createProduct(input: CreateProductInput): Promise<Product> {
   const response = await apiClient.post<ApiResponse<Product>>('/inventory/products', input);
   return response.data;
 }
 
-export async function updateProduct(id: string, updates: Partial<ProductInput>): Promise<Product> {
+export async function updateProduct(id: string, updates: UpdateProductInput): Promise<Product> {
   const response = await apiClient.put<ApiResponse<Product>>(`/inventory/products/${id}`, updates);
   return response.data;
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { ProductInput } from '../types';
+import { CreateProductInput, UpdateProductInput } from '../types';
 import {
   adjustStock,
   createProduct,
@@ -40,7 +40,7 @@ export function useProductMovements(productId: string | undefined) {
 export function useCreateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: ProductInput) => createProduct(input),
+    mutationFn: (input: CreateProductInput) => createProduct(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
@@ -50,7 +50,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<ProductInput> }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateProductInput }) =>
       updateProduct(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
