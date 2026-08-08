@@ -26,6 +26,7 @@ import {
   IconPlus,
   IconTrash,
   IconReceipt,
+  IconTrendingUp,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -185,6 +186,20 @@ function ProductFormContent({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Computed Profit & Margin Analytics
+  const effectiveUnitCost = hasSupplierIntakes
+    ? totalIntakeQuantity > 0
+      ? totalIntakeCostCents / (totalIntakeQuantity * 100)
+      : Number(supplierIntakes[0]?.costPrice || 0)
+    : Number(costPrice || 0);
+
+  const effectiveSellingPrice = Number(sellingPrice || 0);
+  const unitProfit = effectiveSellingPrice - effectiveUnitCost;
+  const profitMarginPct =
+    effectiveSellingPrice > 0 ? (unitProfit / effectiveSellingPrice) * 100 : 0;
+  const markupPct = effectiveUnitCost > 0 ? (unitProfit / effectiveUnitCost) * 100 : 0;
+  const showProfitMargin = effectiveSellingPrice > 0 && effectiveUnitCost > 0;
+
   const categoryOptions = useMemo(
     () => validCategories.map((c) => ({ value: c.key, label: c.name })),
     [validCategories]
@@ -299,12 +314,9 @@ function ProductFormContent({
           }))
         : [];
 
-      const finalCostPriceCents =
-        costPrice !== ''
-          ? toCents(Number(costPrice))
-          : hasSupplierIntakes
-            ? toCents(Number(supplierIntakes[0].costPrice))
-            : 0;
+      const finalCostPriceCents = hasSupplierIntakes
+        ? toCents(effectiveUnitCost)
+        : toCents(Number(costPrice || 0));
 
       const finalStockQuantity = hasSupplierIntakes
         ? totalIntakeQuantity
@@ -779,83 +791,198 @@ function ProductFormContent({
         )}
 
         {/* Pricing */}
-        <Group grow align="flex-start">
-          <NumberInput
-            label="Cost Price (Rs.)"
-            placeholder={
-              hasSupplierIntakes && supplierIntakes[0]?.costPrice
-                ? String(supplierIntakes[0].costPrice)
-                : '0.00'
-            }
-            decimalScale={2}
-            min={0}
-            value={costPrice}
-            onChange={(val) => {
-              setCostPrice(val);
-              if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
-            }}
-            error={errors.costPrice}
-            description={
-              hasSupplierIntakes && costPrice === ''
-                ? 'Will adopt vendor intake cost price'
-                : undefined
-            }
-            inputWrapperOrder={['label', 'input', 'description', 'error']}
-            leftSection={
-              <Text size="xs" fw={700} c="dimmed">
-                {CURRENCY.symbol}
-              </Text>
-            }
-            required={!hasSupplierIntakes}
-          />
-          <NumberInput
-            label="Selling Price (Rs.)"
-            placeholder="0.00"
-            decimalScale={2}
-            min={0.01}
-            value={sellingPrice}
-            onChange={(val) => {
-              setSellingPrice(val);
-              if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
-            }}
-            error={errors.sellingPrice}
-            leftSection={
-              <Text size="xs" fw={700} c="dimmed">
-                {CURRENCY.symbol}
-              </Text>
-            }
-            required
-          />
-        </Group>
+        {hasSupplierIntakes ? (
+          <Stack gap={6}>
+            <NumberInput
+              label="Selling Price (Rs.)"
+              placeholder="0.00"
+              decimalScale={2}
+              min={0.01}
+              value={sellingPrice}
+              onChange={(val) => {
+                setSellingPrice(val);
+                if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
+              }}
+              error={errors.sellingPrice}
+              leftSection={
+                <Text size="xs" fw={700} c="dimmed">
+                  {CURRENCY.symbol}
+                </Text>
+              }
+              required
+            />
 
-        {/* Stock Metrics */}
-        <Group grow align="flex-start">
-          {!isEditing &&
-            (hasSupplierIntakes ? (
-              <NumberInput
-                label="Starting Stock Units"
-                value={totalIntakeQuantity}
-                disabled
-                leftSection={<IconBox size={16} />}
-                inputWrapperOrder={['label', 'input', 'description', 'error']}
-                description={`Calculated from ${supplierIntakes.length} vendor ${supplierIntakes.length === 1 ? 'batch' : 'batches'}`}
-              />
-            ) : (
-              <NumberInput
-                label="Starting Stock Units"
-                placeholder="0"
-                min={0}
-                allowDecimal={false}
-                value={stockQuantity}
-                onChange={(val) => {
-                  setStockQuantity(val);
-                  if (errors.stockQuantity) setErrors((prev) => ({ ...prev, stockQuantity: '' }));
+            {showProfitMargin && (
+              <Paper
+                withBorder
+                px="sm"
+                py={7}
+                radius="var(--mantine-radius-default)"
+                bg={
+                  unitProfit > 0
+                    ? 'light-dark(rgba(18, 184, 134, 0.06), rgba(18, 184, 134, 0.12))'
+                    : unitProfit < 0
+                      ? 'light-dark(rgba(250, 82, 82, 0.06), rgba(250, 82, 82, 0.12))'
+                      : 'light-dark(var(--bg-hover), var(--mantine-color-dark-6))'
+                }
+                style={{
+                  borderColor:
+                    unitProfit > 0
+                      ? 'light-dark(rgba(18, 184, 134, 0.3), rgba(18, 184, 134, 0.4))'
+                      : unitProfit < 0
+                        ? 'light-dark(rgba(250, 82, 82, 0.3), rgba(250, 82, 82, 0.4))'
+                        : 'var(--border)',
                 }}
-                error={errors.stockQuantity}
-                leftSection={<IconBox size={16} />}
+              >
+                <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+                  <Group gap="xs" align="center">
+                    <ThemeIcon
+                      size={22}
+                      radius="xl"
+                      variant="light"
+                      color={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'gray'}
+                    >
+                      <IconTrendingUp size={13} />
+                    </ThemeIcon>
+                    <Text
+                      size="xs"
+                      fw={600}
+                      c={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'var(--text-secondary)'}
+                    >
+                      Unit Profit:{' '}
+                      <Text span fw={700}>
+                        {unitProfit >= 0 ? '+' : ''}
+                        {formatMoney(toCents(unitProfit))}
+                      </Text>
+                    </Text>
+                  </Group>
+
+                  <Group gap="xs" align="center">
+                    <Badge
+                      size="sm"
+                      variant="light"
+                      color={profitMarginPct > 0 ? 'teal' : profitMarginPct < 0 ? 'red' : 'gray'}
+                    >
+                      Margin: {profitMarginPct.toFixed(1)}%
+                    </Badge>
+                    {markupPct !== 0 && (
+                      <Text size="xs" c="dimmed">
+                        Markup: {markupPct.toFixed(1)}%
+                      </Text>
+                    )}
+                  </Group>
+                </Group>
+              </Paper>
+            )}
+          </Stack>
+        ) : (
+          <Stack gap={6}>
+            <Group grow align="flex-start">
+              <NumberInput
+                label="Cost Price (Rs.)"
+                placeholder="0.00"
+                decimalScale={2}
+                min={0}
+                value={costPrice}
+                onChange={(val) => {
+                  setCostPrice(val);
+                  if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
+                }}
+                error={errors.costPrice}
+                leftSection={
+                  <Text size="xs" fw={700} c="dimmed">
+                    {CURRENCY.symbol}
+                  </Text>
+                }
                 required
               />
-            ))}
+              <NumberInput
+                label="Selling Price (Rs.)"
+                placeholder="0.00"
+                decimalScale={2}
+                min={0.01}
+                value={sellingPrice}
+                onChange={(val) => {
+                  setSellingPrice(val);
+                  if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
+                }}
+                error={errors.sellingPrice}
+                leftSection={
+                  <Text size="xs" fw={700} c="dimmed">
+                    {CURRENCY.symbol}
+                  </Text>
+                }
+                required
+              />
+            </Group>
+
+            {showProfitMargin && (
+              <Paper
+                withBorder
+                px="sm"
+                py={7}
+                radius="var(--mantine-radius-default)"
+                bg={
+                  unitProfit > 0
+                    ? 'light-dark(rgba(18, 184, 134, 0.06), rgba(18, 184, 134, 0.12))'
+                    : unitProfit < 0
+                      ? 'light-dark(rgba(250, 82, 82, 0.06), rgba(250, 82, 82, 0.12))'
+                      : 'light-dark(var(--bg-hover), var(--mantine-color-dark-6))'
+                }
+                style={{
+                  borderColor:
+                    unitProfit > 0
+                      ? 'light-dark(rgba(18, 184, 134, 0.3), rgba(18, 184, 134, 0.4))'
+                      : unitProfit < 0
+                        ? 'light-dark(rgba(250, 82, 82, 0.3), rgba(250, 82, 82, 0.4))'
+                        : 'var(--border)',
+                }}
+              >
+                <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+                  <Group gap="xs" align="center">
+                    <ThemeIcon
+                      size={22}
+                      radius="xl"
+                      variant="light"
+                      color={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'gray'}
+                    >
+                      <IconTrendingUp size={13} />
+                    </ThemeIcon>
+                    <Text
+                      size="xs"
+                      fw={600}
+                      c={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'var(--text-secondary)'}
+                    >
+                      Unit Profit:{' '}
+                      <Text span fw={700}>
+                        {unitProfit >= 0 ? '+' : ''}
+                        {formatMoney(toCents(unitProfit))}
+                      </Text>
+                    </Text>
+                  </Group>
+
+                  <Group gap="xs" align="center">
+                    <Badge
+                      size="sm"
+                      variant="light"
+                      color={profitMarginPct > 0 ? 'teal' : profitMarginPct < 0 ? 'red' : 'gray'}
+                    >
+                      Margin: {profitMarginPct.toFixed(1)}%
+                    </Badge>
+                    {markupPct !== 0 && (
+                      <Text size="xs" c="dimmed">
+                        Markup: {markupPct.toFixed(1)}%
+                      </Text>
+                    )}
+                  </Group>
+                </Group>
+              </Paper>
+            )}
+          </Stack>
+        )}
+
+        {/* Stock Metrics */}
+        {hasSupplierIntakes ? (
           <NumberInput
             label="Low-Stock Alert Threshold"
             placeholder="3"
@@ -873,7 +1000,43 @@ function ProductFormContent({
             description="Alerts appear when available stock falls to or below this amount."
             required
           />
-        </Group>
+        ) : (
+          <Group grow align="flex-start">
+            {!isEditing && (
+              <NumberInput
+                label="Starting Stock Units"
+                placeholder="0"
+                min={0}
+                allowDecimal={false}
+                value={stockQuantity}
+                onChange={(val) => {
+                  setStockQuantity(val);
+                  if (errors.stockQuantity) setErrors((prev) => ({ ...prev, stockQuantity: '' }));
+                }}
+                error={errors.stockQuantity}
+                leftSection={<IconBox size={16} />}
+                required
+              />
+            )}
+            <NumberInput
+              label="Low-Stock Alert Threshold"
+              placeholder="3"
+              min={0}
+              allowDecimal={false}
+              value={minStockThreshold}
+              onChange={(val) => {
+                setMinStockThreshold(val);
+                if (errors.minStockThreshold)
+                  setErrors((prev) => ({ ...prev, minStockThreshold: '' }));
+              }}
+              error={errors.minStockThreshold}
+              leftSection={<IconAlertTriangle size={16} />}
+              inputWrapperOrder={['label', 'input', 'description', 'error']}
+              description="Alerts appear when available stock falls to or below this amount."
+              required
+            />
+          </Group>
+        )}
 
         {isEditing && (
           <Text size="xs" c="dimmed">
