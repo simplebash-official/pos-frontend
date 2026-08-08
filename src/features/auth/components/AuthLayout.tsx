@@ -1,12 +1,20 @@
 import { ReactNode } from 'react';
 import { Box, Flex } from '@mantine/core';
 import wallLoginImg from '@/assets/wall_login.jpg';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { MobileAuthContainer } from './mobile/MobileAuthContainer';
 
 export interface AuthLayoutProps {
   children: ReactNode;
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return <MobileAuthContainer />;
+  }
+
   return (
     <Box
       className="auth-layout-root"
@@ -58,3 +66,4 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     </Box>
   );
 }
+

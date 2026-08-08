@@ -1,0 +1,289 @@
+/* Mobile Auth Styling & Animations */
+.mobile-auth-viewport {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #0b1120;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dynamic background image with gradient overlay */
+.mobile-auth-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  z-index: 1;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+}
+
+.mobile-auth-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.4) 0%,
+    rgba(30, 58, 138, 0.5) 45%,
+    rgba(15, 23, 42, 0.85) 100%
+  );
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  z-index: 2;
+}
+
+/* Background state in login mode */
+.mobile-auth-viewport[data-view='login'] .mobile-auth-bg {
+  transform: scale(1.04);
+  filter: brightness(0.9);
+}
+
+/* Screen Content Container */
+.mobile-auth-content {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Splash Screen layout */
+.mobile-splash-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 48px 24px 36px 24px;
+  animation: mobileFadeIn 0.4s ease-out;
+}
+
+.mobile-splash-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  width: fit-content;
+}
+
+.mobile-splash-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #60a5fa;
+  box-shadow: 0 0 8px #60a5fa;
+}
+
+.mobile-splash-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 320px;
+  margin-top: 40px;
+}
+
+.mobile-splash-title {
+  color: #ffffff;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.mobile-splash-subtitle {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 400;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Splash Single Start / Sign In Button */
+.mobile-splash-action-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.mobile-splash-start-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 54px;
+  background: #ffffff;
+  color: #2563eb;
+  border: none;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mobile-splash-start-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-splash-footer-note {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.2px;
+}
+
+/* Top Back Navigation Bar */
+.mobile-auth-topbar {
+  padding: 20px 20px 12px 20px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.mobile-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 6px 14px 6px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-back-btn:active {
+  transform: scale(0.95);
+  background: rgba(15, 23, 42, 0.65);
+}
+
+/* Bottom Sheet Card */
+.mobile-auth-sheet {
+  background: #ffffff;
+  border-top-left-radius: 36px;
+  border-top-right-radius: 36px;
+  padding: 32px 24px 28px 24px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  max-height: 80dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: mobileSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Sheet Header */
+.mobile-sheet-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.mobile-sheet-title {
+  color: #2563eb;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.4px;
+}
+
+.mobile-sheet-subtitle {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Inputs on Mobile */
+.mobile-auth-input .mantine-TextInput-input,
+.mobile-auth-input .mantine-PasswordInput-input {
+  border-radius: 12px;
+  font-size: 16px !important;
+  min-height: 48px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.mobile-auth-input .mantine-TextInput-input:focus,
+.mobile-auth-input .mantine-PasswordInput-input:focus {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+}
+
+/* Primary Action Button */
+.mobile-primary-btn {
+  border-radius: 14px;
+  min-height: 50px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #3b5bdb;
+  box-shadow: 0 6px 18px rgba(59, 91, 219, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mobile-primary-btn:active {
+  transform: scale(0.98);
+}
+
+/* Bottom Security Badge */
+.mobile-auth-security-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes mobileFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobileSlideUp {
+  from {
+    opacity: 0.8;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
