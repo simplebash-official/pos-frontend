@@ -137,7 +137,7 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
                 onClick={handleForgotPassword}
                 size="xs"
                 fw={600}
-                c="blue.6"
+                c="blue"
               >
                 Forgot password?
               </Anchor>
@@ -147,6 +147,7 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
               type="submit"
               fullWidth
               loading={isSubmitting}
+              color="blue"
               className="mobile-primary-btn"
               mt="sm"
             >
