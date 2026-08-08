@@ -8,9 +8,11 @@ import {
   Group,
   Stack,
   Text,
-  Checkbox,
   Badge,
   Paper,
+  Box,
+  Switch,
+  ThemeIcon,
 } from '@mantine/core';
 import { IconBarcode, IconTag, IconCoin, IconBox } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -251,69 +253,75 @@ function ProductFormContent({
 
         {/* Barcode Configuration (Create Mode Only) */}
         {!isEditing && (
-          <Paper
-            withBorder
-            p="sm"
-            radius="var(--mantine-radius-default)"
-            bg="var(--mantine-color-default-hover)"
-          >
-            <Stack gap="xs">
-              <Group justify="space-between" align="center">
-                <Text size="sm" fw={600}>
-                  Product Barcode
-                </Text>
-                <Badge variant="light" color="blue" size="sm">
-                  GS1 Compatible
-                </Badge>
-              </Group>
+          <Stack gap={6}>
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+              Barcode
+            </Text>
 
-              <Checkbox
-                label="Auto-generate barcode"
-                description={
-                  autoGenerateBarcode
-                    ? 'Barcode will be assigned automatically on save.'
-                    : 'Uncheck to enter or scan an existing manufacturer barcode.'
-                }
-                checked={autoGenerateBarcode}
-                onChange={(e) => {
-                  const checked = e.currentTarget.checked;
-                  setAutoGenerateBarcode(checked);
-                  if (checked) {
-                    setManualBarcode('');
-                    if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
-                  }
-                }}
-              />
+            <Box
+              p="sm"
+              style={{
+                borderRadius: 'var(--mantine-radius-default)',
+                border:
+                  '1.5px dashed light-dark(var(--mantine-color-amber-5), rgba(245, 159, 0, 0.4))',
+                backgroundColor: 'light-dark(rgba(255, 249, 219, 0.3), rgba(245, 159, 0, 0.04))',
+              }}
+            >
+              <Group justify="space-between" align="center" wrap="nowrap">
+                <Group gap="sm" align="center" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+                  <ThemeIcon
+                    size={38}
+                    radius="var(--mantine-radius-default)"
+                    variant="light"
+                    color="amber"
+                    style={{ flexShrink: 0 }}
+                  >
+                    <IconTag size={18} stroke={1.6} />
+                  </ThemeIcon>
 
-              {autoGenerateBarcode ? (
-                <Text
-                  size="xs"
-                  c="dimmed"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-                >
-                  <IconBarcode size={14} style={{ opacity: 0.7 }} />
-                  System will assign a unique EAN-13 barcode starting with prefix{' '}
-                  <Badge size="xs" variant="outline">
-                    20
-                  </Badge>{' '}
-                  upon save.
-                </Text>
-              ) : (
-                <TextInput
-                  placeholder="Scan or enter manufacturer barcode (8–14 digits)"
-                  leftSection={<IconBarcode size={16} />}
-                  value={manualBarcode}
+                  <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                    <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
+                      Auto-generate EAN-13
+                    </Text>
+                    <Text size="xs" c="dimmed" lh={1.3}>
+                      Internal prefix &quot;20&quot; · minted on save · GS1 compatible
+                    </Text>
+                  </Stack>
+                </Group>
+
+                <Switch
+                  checked={autoGenerateBarcode}
                   onChange={(e) => {
-                    setManualBarcode(e.currentTarget.value);
-                    if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
+                    const checked = e.currentTarget.checked;
+                    setAutoGenerateBarcode(checked);
+                    if (checked) {
+                      setManualBarcode('');
+                      if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
+                    }
                   }}
-                  error={errors.barcode}
-                  autoFocus={!isMobile}
-                  description="Use a barcode scanner or enter product packaging barcode (8–14 numeric digits)"
+                  color="amber"
+                  size="md"
+                  aria-label="Auto-generate EAN-13 barcode"
                 />
-              )}
-            </Stack>
-          </Paper>
+              </Group>
+            </Box>
+
+            {!autoGenerateBarcode && (
+              <TextInput
+                mt={4}
+                placeholder="Scan or enter manufacturer barcode (8–14 digits)"
+                leftSection={<IconBarcode size={16} />}
+                value={manualBarcode}
+                onChange={(e) => {
+                  setManualBarcode(e.currentTarget.value);
+                  if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
+                }}
+                error={errors.barcode}
+                autoFocus={!isMobile}
+                description="Use a barcode scanner or enter product packaging barcode (8–14 numeric digits)"
+              />
+            )}
+          </Stack>
         )}
 
         {/* Read-Only Barcode & SKU Banner (Edit Mode) */}
