@@ -1,4 +1,4 @@
-import { ReactNode, MouseEvent } from 'react';
+import { ReactNode, MouseEvent, isValidElement } from 'react';
 import {
   Accordion,
   AccordionProps,
@@ -12,6 +12,7 @@ import {
   Tooltip,
   MantineColor,
 } from '@mantine/core';
+import { InteractiveTooltip, InteractiveTooltipProps } from './InteractiveTooltip';
 
 export interface ExpandableCardActionProps {
   icon: ReactNode;
@@ -74,6 +75,8 @@ export interface ExpandableCardProps extends Omit<AccordionItemProps, 'children'
   children?: ReactNode;
   /** Optional min-height for the header row. Defaults to 48px. */
   minHeaderHeight?: number | string;
+  /** Optional interactive tooltip shown when hovering over the card header */
+  tooltip?: ReactNode | Omit<InteractiveTooltipProps, 'children'>;
 }
 
 export function ExpandableCard({
@@ -85,6 +88,7 @@ export function ExpandableCard({
   actions,
   children,
   minHeaderHeight = 48,
+  tooltip,
   style,
   ...itemProps
 }: ExpandableCardProps) {
@@ -92,6 +96,66 @@ export function ExpandableCard({
     typeof color === 'string' && (color.startsWith('#') || color.startsWith('rgb'))
       ? color
       : `var(--mantine-color-${color}-6)`;
+
+  const headerContent = (
+    <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0, padding: '8px 12px' }}>
+      {icon && (
+        <ThemeIcon
+          color={color}
+          variant="light"
+          size={36}
+          radius="var(--mantine-radius-default)"
+          style={{ flexShrink: 0 }}
+        >
+          {icon}
+        </ThemeIcon>
+      )}
+      <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+        {typeof title === 'string' ? (
+          <Text fw={600} size="sm" truncate style={{ textAlign: 'left' }}>
+            {title}
+          </Text>
+        ) : (
+          title
+        )}
+        {subtitle &&
+          (typeof subtitle === 'string' ? (
+            <Text size="xs" c="dimmed" style={{ textAlign: 'left' }}>
+              {subtitle}
+            </Text>
+          ) : (
+            subtitle
+          ))}
+      </Stack>
+    </Group>
+  );
+
+  const renderHeader = () => {
+    if (!tooltip) return headerContent;
+
+    if (
+      typeof tooltip === 'object' &&
+      tooltip !== null &&
+      !isValidElement(tooltip) &&
+      ('content' in tooltip || 'title' in tooltip || 'label' in tooltip || 'description' in tooltip)
+    ) {
+      return (
+        <InteractiveTooltip {...(tooltip as Omit<InteractiveTooltipProps, 'children'>)}>
+          {headerContent}
+        </InteractiveTooltip>
+      );
+    }
+
+    return (
+      <InteractiveTooltip
+        content={tooltip as ReactNode}
+        title={typeof title === 'string' ? title : undefined}
+        color={typeof color === 'string' ? color : 'blue'}
+      >
+        {headerContent}
+      </InteractiveTooltip>
+    );
+  };
 
   return (
     <Accordion.Item
@@ -112,36 +176,7 @@ export function ExpandableCard({
             width: '100%',
           }}
         >
-          <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0, padding: '8px 12px' }}>
-            {icon && (
-              <ThemeIcon
-                color={color}
-                variant="light"
-                size={36}
-                radius="var(--mantine-radius-default)"
-                style={{ flexShrink: 0 }}
-              >
-                {icon}
-              </ThemeIcon>
-            )}
-            <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-              {typeof title === 'string' ? (
-                <Text fw={600} size="sm" truncate style={{ textAlign: 'left' }}>
-                  {title}
-                </Text>
-              ) : (
-                title
-              )}
-              {subtitle &&
-                (typeof subtitle === 'string' ? (
-                  <Text size="xs" c="dimmed" style={{ textAlign: 'left' }}>
-                    {subtitle}
-                  </Text>
-                ) : (
-                  subtitle
-                ))}
-            </Stack>
-          </Group>
+          {renderHeader()}
 
           {actions && (
             <Group

@@ -192,6 +192,17 @@ function CategoryItem({
           ? 'No subcategories'
           : `${category.subcategories.length} subcategor${category.subcategories.length === 1 ? 'y' : 'ies'}`
       }
+      tooltip={{
+        title: category.name,
+        content: 'Press this card to view and manage sub-categories.',
+        shortcut: 'Click to view',
+        icon: catIconEl,
+        color: category.color || 'blue',
+        badge:
+          category.subcategories.length === 0
+            ? 'No subcategories'
+            : `${category.subcategories.length} subcategor${category.subcategories.length === 1 ? 'y' : 'ies'}`,
+      }}
       actions={
         <>
           <ExpandableCardAction

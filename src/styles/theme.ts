@@ -3,10 +3,12 @@ import {
   Container,
   createTheme,
   DrawerContent,
+  HoverCard,
   ModalContent,
   Paper,
   rem,
   Select,
+  Tooltip,
 } from '@mantine/core';
 import type { MantineThemeOverride } from '@mantine/core';
 
@@ -100,6 +102,19 @@ export const mantineTheme: MantineThemeOverride = createTheme({
         shadow: 'none',
         radius: 'var(--mantine-radius-default)',
         withBorder: true,
+      },
+    }),
+    Tooltip: Tooltip.extend({
+      defaultProps: {
+        radius: 'var(--mantine-radius-default)',
+        withArrow: true,
+      },
+    }),
+    HoverCard: HoverCard.extend({
+      defaultProps: {
+        radius: 'var(--mantine-radius-default)',
+        withArrow: true,
+        shadow: 'md',
       },
     }),
     Select: Select.extend({
