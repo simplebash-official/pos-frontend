@@ -65,6 +65,7 @@ export interface CreateProductInput {
   minStockThreshold: number;
   barcode?: string;
   autoGenerateBarcode?: boolean;
+  supplierKey?: string;
 }
 
 export interface UpdateProductInput {

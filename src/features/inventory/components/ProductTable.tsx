@@ -149,7 +149,18 @@ export function ProductTable() {
         icon: <IconCheck size={16} />,
       });
     } else {
-      const created = await createProductMutation.mutateAsync(values as CreateProductInput);
+      const input = values as CreateProductInput;
+      const created = await createProductMutation.mutateAsync(input);
+      if (input.supplierKey) {
+        try {
+          await linkMutation.mutateAsync({
+            supplierKey: input.supplierKey,
+            productKey: created.key,
+          });
+        } catch (err) {
+          console.error('Failed to link supplier on product creation:', err);
+        }
+      }
       notifications.show({
         title: 'Product Created',
         message: `${created.name} added to the catalog`,

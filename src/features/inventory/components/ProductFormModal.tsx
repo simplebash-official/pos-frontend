@@ -14,8 +14,17 @@ import {
   Switch,
   ThemeIcon,
 } from '@mantine/core';
-import { IconBarcode, IconTag, IconBox, IconAlertTriangle } from '@tabler/icons-react';
+import {
+  IconBarcode,
+  IconTag,
+  IconBox,
+  IconAlertTriangle,
+  IconBuildingStore,
+} from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { queryKeys } from '@/api/queryKeys';
+import { fetchSuppliers } from '@/features/suppliers/api/suppliersApi';
 import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents } from '@/shared/lib/money';
@@ -48,6 +57,13 @@ function ProductFormContent({
   const isMobile = useIsMobile();
 
   const { data: validCategories = [] } = useValidCategories();
+  const { data: suppliers = [] } = useQuery({
+    queryKey: queryKeys.suppliers.all,
+    queryFn: () => fetchSuppliers(),
+    enabled: !isEditing,
+  });
+
+  const [supplierKey, setSupplierKey] = useState<string | null>(null);
 
   // Barcode states
   const [autoGenerateBarcode, setAutoGenerateBarcode] = useState(true);
@@ -71,6 +87,15 @@ function ProductFormContent({
   const [stockQuantity, setStockQuantity] = useState<number | string>('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const supplierOptions = useMemo(
+    () =>
+      suppliers.map((s) => ({
+        value: s.key,
+        label: s.name,
+      })),
+    [suppliers]
+  );
 
   const categoryOptions = useMemo(
     () => validCategories.map((c) => ({ value: c.key, label: c.name })),
@@ -154,6 +179,7 @@ function ProductFormContent({
         sellingPriceCents: toCents(Number(sellingPrice)),
         stockQuantity: Number(stockQuantity || 0),
         minStockThreshold: Number(minStockThreshold || 0),
+        supplierKey: supplierKey || undefined,
       };
 
       if (autoGenerateBarcode) {
@@ -251,6 +277,20 @@ function ProductFormContent({
           required
           leftSection={<IconTag size={16} />}
         />
+
+        {/* Supplier / Vendor Selection (Create Mode Only) */}
+        {!isEditing && (
+          <Select
+            label="Supplier / Vendor"
+            placeholder="Select a supplier vendor (optional)"
+            data={supplierOptions}
+            value={supplierKey}
+            onChange={setSupplierKey}
+            leftSection={<IconBuildingStore size={16} />}
+            searchable
+            clearable
+          />
+        )}
 
         {/* Barcode Configuration (Create Mode Only) */}
         {!isEditing && (
