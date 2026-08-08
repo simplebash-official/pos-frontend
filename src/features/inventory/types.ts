@@ -55,6 +55,14 @@ export interface Product {
   updatedAt?: string;
 }
 
+export interface ProductSupplierIntake {
+  supplierKey: string;
+  quantity: number;
+  costPriceCents: number;
+  referenceNo?: string;
+  notes?: string;
+}
+
 export interface CreateProductInput {
   name: string;
   categoryKey: string;
@@ -65,7 +73,7 @@ export interface CreateProductInput {
   minStockThreshold: number;
   barcode?: string;
   autoGenerateBarcode?: boolean;
-  supplierKey?: string;
+  suppliers?: ProductSupplierIntake[];
 }
 
 export interface UpdateProductInput {
