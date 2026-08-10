@@ -18,6 +18,7 @@ import {
 } from '@mantine/core';
 import { IconSettings, IconCheck, IconBuildingStore, IconPrinter } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { SyncSettingsSection } from '@/features/sync/components/SyncSettingsSection';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectShopProfile,
@@ -425,6 +426,8 @@ export function SettingsPage() {
             </Group>
           </Stack>
         </Paper>
+
+        <SyncSettingsSection />
       </Stack>
     </Box>
   );

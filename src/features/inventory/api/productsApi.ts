@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse, PaginatedResponse } from '@/shared/types/common';
 import {
   Product,
@@ -46,24 +46,42 @@ export async function fetchProductById(id: string): Promise<Product> {
   return response.data;
 }
 
-export async function createProduct(input: CreateProductInput): Promise<Product> {
-  const response = await apiClient.post<ApiResponse<Product>>('/inventory/products', input);
+export async function createProduct(
+  input: CreateProductInput,
+  options?: MutationRequestOptions
+): Promise<Product> {
+  const response = await apiClient.post<ApiResponse<Product>>(
+    '/inventory/products',
+    input,
+    options
+  );
   return response.data;
 }
 
-export async function updateProduct(id: string, updates: UpdateProductInput): Promise<Product> {
-  const response = await apiClient.put<ApiResponse<Product>>(`/inventory/products/${id}`, updates);
+export async function updateProduct(
+  id: string,
+  updates: UpdateProductInput,
+  options?: MutationRequestOptions
+): Promise<Product> {
+  const response = await apiClient.put<ApiResponse<Product>>(
+    `/inventory/products/${id}`,
+    updates,
+    options
+  );
   return response.data;
 }
 
-export async function deleteProduct(id: string): Promise<void> {
-  await apiClient.delete(`/inventory/products/${id}`);
+export async function deleteProduct(id: string, options?: MutationRequestOptions): Promise<void> {
+  await apiClient.delete(`/inventory/products/${id}`, options);
 }
 
-export async function deleteProducts(productIds: string[]): Promise<number> {
+export async function deleteProducts(
+  productIds: string[],
+  options?: MutationRequestOptions
+): Promise<number> {
   const response = await apiClient.delete<ApiResponse<{ deletedCount: number }>>(
     '/inventory/products',
-    { data: { productIds } }
+    { ...options, data: { productIds } }
   );
   return response.data.deletedCount;
 }
@@ -71,11 +89,13 @@ export async function deleteProducts(productIds: string[]): Promise<number> {
 export async function adjustStock(
   id: string,
   delta: number,
-  reason: string
+  reason: string,
+  options?: MutationRequestOptions
 ): Promise<StockAdjustmentResult> {
   const response = await apiClient.patch<ApiResponse<StockAdjustmentResult>>(
     `/inventory/products/${id}/stock`,
-    { delta, reason }
+    { delta, reason },
+    options
   );
   return response.data;
 }

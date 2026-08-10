@@ -3,6 +3,8 @@ import { STORAGE_KEYS } from '@/constants/storage';
 import { USER_ROLES, UserRole } from '@/constants/roles';
 import { getMeApi } from '@/features/auth/api/authApi';
 import type { AuthUser } from '@/features/auth/types';
+import { cacheSession, clearCachedSession, readCachedSession } from '@/offline/db/session';
+import type { ApiError } from '@/shared/types/common';
 
 export type { AuthUser };
 
@@ -13,6 +15,13 @@ interface AuthState {
   isInitialized: boolean;
   isLoading: boolean;
   isLocked: boolean;
+  /** True when the identity was restored from cache because the backend was unreachable. */
+  isOfflineSession: boolean;
+}
+
+/** A rejected request that never reached the server surfaces as `statusCode: 0`. */
+function isNetworkError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as ApiError).statusCode === 0;
 }
 
 const savedToken =
@@ -25,6 +34,7 @@ const initialState: AuthState = {
   isInitialized: !savedToken,
   isLoading: false,
   isLocked: false,
+  isOfflineSession: false,
 };
 
 export const initializeAuth = createAsyncThunk(
@@ -45,9 +55,23 @@ export const initializeAuth = createAsyncThunk(
     try {
       const user = await getMeApi();
       dispatch(setUser(user));
+      await cacheSession(user);
     } catch (error) {
-      console.warn('Failed to restore authentication session:', error);
-      dispatch(logout());
+      // A power cut is not a failed login. When the backend is simply
+      // unreachable, restore the cached identity and carry on offline —
+      // logging the cashier out would lock them out of their own till.
+      if (isNetworkError(error)) {
+        const cachedUser = await readCachedSession();
+        if (cachedUser) {
+          dispatch(restoreOfflineSession(cachedUser));
+        } else {
+          // Nothing cached and no way to verify — the app cannot proceed.
+          dispatch(logout());
+        }
+      } else {
+        console.warn('Failed to restore authentication session:', error);
+        dispatch(logout());
+      }
     } finally {
       dispatch(setLoading(false));
       dispatch(setInitialized(true));
@@ -82,6 +106,15 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.isInitialized = true;
       state.isLoading = false;
+      state.isOfflineSession = false;
+    },
+    /** Identity restored from the local cache because the backend was unreachable. */
+    restoreOfflineSession: (state, action: PayloadAction<AuthUser>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.isInitialized = true;
+      state.isLoading = false;
+      state.isOfflineSession = true;
     },
     logout: (state) => {
       state.user = null;
@@ -90,7 +123,9 @@ const authSlice = createSlice({
       state.isInitialized = true;
       state.isLoading = false;
       state.isLocked = false;
+      state.isOfflineSession = false;
       localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      void clearCachedSession();
     },
     setInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
@@ -116,6 +151,7 @@ export const {
   loginSuccess,
   login,
   setUser,
+  restoreOfflineSession,
   logout,
   setInitialized,
   setLoading,
@@ -131,5 +167,6 @@ export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.
 export const selectIsAuthInitialized = (state: { auth: AuthState }) => state.auth.isInitialized;
 export const selectIsAuthLoading = (state: { auth: AuthState }) => state.auth.isLoading;
 export const selectIsPOSLocked = (state: { auth: AuthState }) => state.auth.isLocked;
+export const selectIsOfflineSession = (state: { auth: AuthState }) => state.auth.isOfflineSession;
 
 export default authSlice.reducer;

@@ -25,6 +25,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useMantineColorScheme } from '@mantine/core';
 
 import { useCart } from '@/features/billing/hooks/useCart';
+import { SyncStatusBadge } from '@/features/sync';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
@@ -36,6 +37,7 @@ export interface HeaderProps {
   onToggleFocusMode?: () => void;
   onOpenHeldDrawer?: () => void;
   onOpenShortcuts?: () => void;
+  onOpenSyncPanel: () => void;
 }
 
 export function Header({
@@ -45,6 +47,7 @@ export function Header({
   onToggleFocusMode,
   onOpenHeldDrawer,
   onOpenShortcuts,
+  onOpenSyncPanel,
 }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -86,25 +89,7 @@ export function Header({
           >
             JANA2U POS
           </Title>
-          <Badge
-            size="xs"
-            color="green"
-            variant="light"
-            visibleFrom="sm"
-            leftSection={
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--mantine-color-green-6)',
-                  display: 'inline-block',
-                }}
-              />
-            }
-          >
-            Online
-          </Badge>
+          <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
           <Text
             size="xs"
             c="dimmed"
@@ -204,6 +189,8 @@ export function Header({
       </Group>
 
       <Group gap="xs">
+        <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
+
         <Button
           leftSection={<IconShoppingCart size={18} />}
           variant="filled"

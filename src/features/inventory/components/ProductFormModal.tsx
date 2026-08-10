@@ -28,10 +28,8 @@ import {
   IconReceipt,
   IconTrendingUp,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { queryKeys } from '@/api/queryKeys';
-import { fetchSuppliers } from '@/features/suppliers/api/suppliersApi';
+import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { Product, CreateProductInput, UpdateProductInput, ProductSupplierIntake } from '../types';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents, formatMoney } from '@/shared/lib/money';
@@ -72,12 +70,8 @@ function ProductFormContent({
   const isEditing = Boolean(productToEdit);
   const isMobile = useIsMobile();
 
-  const { data: validCategories = [] } = useValidCategories();
-  const { data: suppliers = [] } = useQuery({
-    queryKey: queryKeys.suppliers.all,
-    queryFn: () => fetchSuppliers(),
-    enabled: !isEditing,
-  });
+  const { data: validCategories } = useValidCategories();
+  const { data: suppliers } = useAllSuppliers({ enabled: !isEditing });
 
   // Multi-supplier intake rows (Create Mode Only)
   const [supplierIntakes, setSupplierIntakes] = useState<SupplierIntakeRow[]>([]);

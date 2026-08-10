@@ -1,81 +1,86 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { CreateProductInput, UpdateProductInput } from '../types';
-import {
-  adjustStock,
-  createProduct,
-  deleteProducts,
-  fetchLowStockProducts,
-  fetchProductMovements,
-  fetchProducts,
-  updateProduct,
-} from '../api/productsApi';
+import { db } from '@/offline/db/schema';
+import type { MirroredRow } from '@/offline/db/tables';
+import { applyLedgerToProducts } from '@/offline/engine/stockLedger';
+import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
+import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
+import type {
+  AdjustStockPayload,
+  DeleteProductsPayload,
+  UpdateProductPayload,
+} from '@/offline/resources/products.resource';
+import { CreateProductInput, Product, StockMovement } from '../types';
 
-const ALL_PRODUCTS_LIMIT = 500;
+/**
+ * Local-first product reads and writes.
+ *
+ * Everything here reads the Dexie mirror rather than the network, so the
+ * catalog behaves identically during an outage, and re-renders automatically
+ * when a sync pull or a local write changes the data — in this tab or another.
+ */
+
+const NO_PRODUCTS: MirroredRow<Product>[] = [];
+const NO_MOVEMENTS: StockMovement[] = [];
 
 export function useAllProducts(options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: queryKeys.inventory.products({ limit: ALL_PRODUCTS_LIMIT }),
-    queryFn: () => fetchProducts({ limit: ALL_PRODUCTS_LIMIT }),
-    select: (res) => res.items,
-    enabled: options?.enabled ?? true,
-  });
+  const enabled = options?.enabled ?? true;
+
+  return useSyncedQuery(
+    'products',
+    async () => {
+      if (!enabled) {
+        return NO_PRODUCTS;
+      }
+      const rows = await db.products.where('_isDeleted').equals(0).toArray();
+      // Fold in stock movements that haven't reached the server yet, so the
+      // quantity on screen is the one the user believes they have.
+      return applyLedgerToProducts(rows);
+    },
+    NO_PRODUCTS,
+    [enabled]
+  );
 }
 
 export function useLowStockProducts() {
-  return useQuery({
-    queryKey: queryKeys.inventory.lowStock(),
-    queryFn: fetchLowStockProducts,
-  });
+  return useSyncedQuery(
+    'products',
+    async () => {
+      const rows = await db.products.where('_isDeleted').equals(0).toArray();
+      const withPendingStock = await applyLedgerToProducts(rows);
+      return withPendingStock.filter(
+        (product) => product.stockQuantity <= product.minStockThreshold
+      );
+    },
+    NO_PRODUCTS,
+    []
+  );
 }
 
 export function useProductMovements(productId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.inventory.movements(productId ?? ''),
-    queryFn: () => fetchProductMovements(productId!),
-    enabled: !!productId,
-  });
+  return useSyncedQuery(
+    'stockMovements',
+    async () => {
+      if (!productId) {
+        return NO_MOVEMENTS;
+      }
+      return db.stockMovements.where('productId').equals(productId).reverse().sortBy('createdAt');
+    },
+    NO_MOVEMENTS,
+    [productId]
+  );
 }
 
 export function useCreateProduct() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (input: CreateProductInput) => createProduct(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-    },
-  });
+  return useSyncedMutation<CreateProductInput, Product>('products', 'create');
 }
 
 export function useUpdateProduct() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateProductInput }) =>
-      updateProduct(id, updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-    },
-  });
+  return useSyncedMutation<UpdateProductPayload, Product>('products', 'update');
 }
 
 export function useDeleteProducts() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (productIds: string[]) => deleteProducts(productIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-    },
-  });
+  return useSyncedMutation<DeleteProductsPayload, void>('products', 'deleteMany');
 }
 
 export function useAdjustStock() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, delta, reason }: { id: string; delta: number; reason: string }) =>
-      adjustStock(id, delta, reason),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.movements(variables.id) });
-    },
-  });
+  return useSyncedMutation<AdjustStockPayload, Product>('products', 'adjustStock');
 }

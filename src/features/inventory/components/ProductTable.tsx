@@ -84,7 +84,7 @@ export function ProductTable() {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
 
-  const { data: initialProducts = [], isLoading, isPending, isFetching } = useAllProducts();
+  const { data: initialProducts, isLoading, isPending, isFetching } = useAllProducts();
   const isInventoryLoading = isLoading || isPending || isFetching;
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
@@ -98,18 +98,21 @@ export function ProductTable() {
 
   const deleteBatchMutation = useDeleteProducts();
   const handleConfirmBatchDelete = () => {
-    deleteBatchMutation.mutate(selectedProductIds, {
-      onSuccess: () => {
-        notifications.show({
-          title: 'Products Deleted',
-          message: 'Selected inventory items removed successfully',
-          color: 'red',
-          icon: <IconCheck size={16} />,
-        });
-        setSelectedProductIds([]);
-        setConfirmDeleteOpen(false);
-      },
-    });
+    deleteBatchMutation.mutate(
+      { productKeys: selectedProductIds },
+      {
+        onSuccess: () => {
+          notifications.show({
+            title: 'Products Deleted',
+            message: 'Selected inventory items removed successfully',
+            color: 'red',
+            icon: <IconCheck size={16} />,
+          });
+          setSelectedProductIds([]);
+          setConfirmDeleteOpen(false);
+        },
+      }
+    );
   };
 
   // Selected item for Right-Side Drawer
@@ -142,7 +145,7 @@ export function ProductTable() {
   const handleProductFormSubmit = async (values: CreateProductInput | UpdateProductInput) => {
     if (productToEdit) {
       const updated = await updateProductMutation.mutateAsync({
-        id: productToEdit.id,
+        productKey: productToEdit.id,
         updates: values as UpdateProductInput,
       });
       setSelectedProduct(updated);
@@ -174,15 +177,13 @@ export function ProductTable() {
   const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
   // Supplier-product linking
-  const { data: linkedSuppliers = [], isLoading: loadingSuppliers } = useSuppliersForProduct(
+  const { data: linkedSuppliers, isLoading: loadingSuppliers } = useSuppliersForProduct(
     isAdmin ? selectedProduct?.key : undefined
   );
-  const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesByProduct(
+  const { data: purchases, isLoading: loadingPurchases } = usePurchasesByProduct(
     isAdmin ? selectedProduct?.key : undefined
   );
-  const { data: movements = [], isLoading: loadingMovements } = useProductMovements(
-    selectedProduct?.id
-  );
+  const { data: movements, isLoading: loadingMovements } = useProductMovements(selectedProduct?.id);
   const linkMutation = useLinkProduct();
   const unlinkMutation = useUnlinkProduct();
 
@@ -308,10 +309,13 @@ export function ProductTable() {
     }
 
     adjustStockMutation.mutate(
-      { id: selectedProduct.id, delta: stockAdjustment, reason: adjustmentReason.trim() },
+      { productKey: selectedProduct.id, delta: stockAdjustment, reason: adjustmentReason.trim() },
       {
+        // The adjustment applies locally first, so `result` is the optimistic
+        // product rather than a server response — it is available whether or
+        // not there is a connection.
         onSuccess: (result) => {
-          setSelectedProduct({ ...selectedProduct, stockQuantity: result.stockQuantity });
+          setSelectedProduct(result);
           notifications.show({
             title: 'Stock Updated',
             message: `Updated stock level for ${result.name} to ${result.stockQuantity} units`,
@@ -721,9 +725,19 @@ export function ProductTable() {
                                           />
                                         </Table.Td>
                                         <Table.Td>
-                                          <Text size="xs" fw={700} c="blue">
-                                            {prod.sku}
-                                          </Text>
+                                          {prod.sku ? (
+                                            <Text size="xs" fw={700} c="blue">
+                                              {prod.sku}
+                                            </Text>
+                                          ) : (
+                                            // Created on this device; the server
+                                            // assigns the SKU when it syncs.
+                                            <Tooltip label="Waiting to sync — the SKU is assigned by the server">
+                                              <Badge size="xs" color="orange" variant="light">
+                                                Pending
+                                              </Badge>
+                                            </Tooltip>
+                                          )}
                                         </Table.Td>
                                         <Table.Td>
                                           <Text size="sm" fw={600}>
@@ -812,8 +826,12 @@ export function ProductTable() {
             {/* Title Banner */}
             <Paper bg="var(--mantine-color-body)">
               <Group justify="space-between" align="flex-start" mb="xs">
-                <Badge color="blue" variant="filled" size="sm">
-                  {selectedProduct.sku}
+                <Badge
+                  color={selectedProduct.sku ? 'blue' : 'orange'}
+                  variant={selectedProduct.sku ? 'filled' : 'light'}
+                  size="sm"
+                >
+                  {selectedProduct.sku ? selectedProduct.sku : 'Pending sync'}
                 </Badge>
                 <Badge
                   color={

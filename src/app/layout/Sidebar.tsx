@@ -35,7 +35,7 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
 
-  const { data: lowStockProducts = [] } = useLowStockProducts();
+  const { data: lowStockProducts } = useLowStockProducts();
   const lowStockCount = lowStockProducts.length;
 
   const visibleNavItems = useMemo(

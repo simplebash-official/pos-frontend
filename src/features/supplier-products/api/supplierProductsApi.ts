@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { SupplierProduct, SupplierProductInput } from '../types';
 
@@ -30,21 +30,30 @@ export async function getLinksForProduct(productKey: string): Promise<SupplierPr
 }
 
 /** Upserts a supplier-product link — updates cost/notes in place if the pair already exists. */
-export async function linkSupplierProduct(input: SupplierProductInput): Promise<SupplierProduct> {
-  const response = await apiClient.post<ApiResponse<SupplierProduct>>('/supplier-products', input);
+export async function linkSupplierProduct(
+  input: SupplierProductInput,
+  options?: MutationRequestOptions
+): Promise<SupplierProduct> {
+  const response = await apiClient.post<ApiResponse<SupplierProduct>>(
+    '/supplier-products',
+    input,
+    options
+  );
   return response.data;
 }
 
 export async function unlinkSupplierProduct(
   supplierKey: string,
-  productKey: string
+  productKey: string,
+  options?: MutationRequestOptions
 ): Promise<void> {
-  await apiClient.delete(`/supplier-products/${supplierKey}/${productKey}`);
+  await apiClient.delete(`/supplier-products/${supplierKey}/${productKey}`, options);
 }
 
 export async function setLinksForSupplier(
   supplierKey: string,
-  productKeys: string[]
+  productKeys: string[],
+  options?: MutationRequestOptions
 ): Promise<void> {
-  await apiClient.put(`/supplier-products/bulk/${supplierKey}`, { productKeys });
+  await apiClient.put(`/supplier-products/bulk/${supplierKey}`, { productKeys }, options);
 }

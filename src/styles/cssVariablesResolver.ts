@@ -24,6 +24,20 @@ const lightTokens: Record<string, string> = {
   '--text-primary': '#18181B',
   '--text-secondary': '#6E6E73',
   '--text-muted': '#A1A1A6',
+
+  // Status. Named by meaning, not colour, so a status can be restyled in one
+  // place. `warn` is the offline state — expected, not broken — while `error`
+  // is reserved for "a person has to do something".
+  '--status-ok': 'var(--mantine-color-green-7)',
+  '--status-ok-bg': 'var(--mantine-color-green-0)',
+  '--status-busy': 'var(--mantine-color-blue-7)',
+  '--status-busy-bg': 'var(--mantine-color-blue-0)',
+  '--status-warn': 'var(--mantine-color-orange-7)',
+  '--status-warn-bg': 'var(--mantine-color-orange-0)',
+  '--status-error': 'var(--mantine-color-red-7)',
+  '--status-error-bg': 'var(--mantine-color-red-0)',
+  '--status-idle': '#A1A1A6',
+  '--status-idle-bg': '#F1F3F5',
 };
 
 const darkTokens: Record<string, string> = {
@@ -42,6 +56,19 @@ const darkTokens: Record<string, string> = {
   '--text-primary': 'var(--mantine-color-text)',
   '--text-secondary': 'var(--mantine-color-dimmed)',
   '--text-muted': 'var(--mantine-color-placeholder)',
+
+  // Status — lighter foregrounds and darker grounds so they stay legible
+  // against the dark surfaces.
+  '--status-ok': 'var(--mantine-color-green-4)',
+  '--status-ok-bg': 'var(--mantine-color-green-9)',
+  '--status-busy': 'var(--mantine-color-blue-4)',
+  '--status-busy-bg': 'var(--mantine-color-blue-9)',
+  '--status-warn': 'var(--mantine-color-orange-4)',
+  '--status-warn-bg': 'var(--mantine-color-orange-9)',
+  '--status-error': 'var(--mantine-color-red-4)',
+  '--status-error-bg': 'var(--mantine-color-red-9)',
+  '--status-idle': 'var(--mantine-color-dark-2)',
+  '--status-idle-bg': 'var(--mantine-color-dark-5)',
 };
 
 /** Mantine's scheme-adaptive semantic vars, expressed in terms of the tokens above. */

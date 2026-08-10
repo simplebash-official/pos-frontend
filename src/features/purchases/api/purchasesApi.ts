@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { EnrichedStockPurchase, StockPurchaseInput } from '../types';
 
@@ -32,7 +32,14 @@ export async function fetchPurchasesByProduct(
 }
 
 /** Records a stock intake — the backend also increments the product's stock and writes its own movement. */
-export async function createPurchase(input: StockPurchaseInput): Promise<EnrichedStockPurchase> {
-  const response = await apiClient.post<ApiResponse<EnrichedStockPurchase>>('/purchases', input);
+export async function createPurchase(
+  input: StockPurchaseInput,
+  options?: MutationRequestOptions
+): Promise<EnrichedStockPurchase> {
+  const response = await apiClient.post<ApiResponse<EnrichedStockPurchase>>(
+    '/purchases',
+    input,
+    options
+  );
   return response.data;
 }

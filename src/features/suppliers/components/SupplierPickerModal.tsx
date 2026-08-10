@@ -22,9 +22,7 @@ import {
   IconPlus,
   IconX,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { fetchSuppliers } from '../api/suppliersApi';
+import { useAllSuppliers } from '../hooks/useSuppliers';
 
 export interface SupplierPickerModalProps {
   opened: boolean;
@@ -42,11 +40,7 @@ export function SupplierPickerModal({
   excludeKeys = [],
   title = 'Link a Supplier',
 }: SupplierPickerModalProps) {
-  const { data: suppliers = [], isLoading } = useQuery({
-    queryKey: queryKeys.suppliers.all,
-    queryFn: () => fetchSuppliers(),
-    enabled: opened,
-  });
+  const { data: suppliers, isLoading } = useAllSuppliers({ enabled: opened });
 
   const [search, setSearch] = useState('');
 

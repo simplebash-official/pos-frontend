@@ -37,7 +37,7 @@ export function ProductPickerModal({
   excludeKeys = [],
   title = 'Link a Product',
 }: ProductPickerModalProps) {
-  const { data: products = [], isLoading } = useAllProducts({ enabled: opened });
+  const { data: products, isLoading } = useAllProducts({ enabled: opened });
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
 

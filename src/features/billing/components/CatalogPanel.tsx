@@ -68,8 +68,8 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const productCardSpan = isMobile ? 6 : tier === 'tablet' ? 4 : { base: 6, sm: 4 };
 
   // Inventory Products Query
-  const { data: products = [], isLoading: loadingProducts } = useAllProducts();
-  const { data: categories = [], isLoading: loadingCategories } = useCategories();
+  const { data: products, isLoading: loadingProducts } = useAllProducts();
+  const { data: categories, isLoading: loadingCategories } = useCategories();
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
   const catalogCategoryFilters = useMemo(

@@ -309,7 +309,7 @@ function CategoryItem({
 }
 
 export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalProps) {
-  const { data: categories = [], isLoading } = useCategories();
+  const { data: categories, isLoading } = useCategories();
   const createCategory = useCreateCategory();
   const deleteCategory = useDeleteCategory();
   const deleteSubcategory = useDeleteSubcategory();
@@ -357,15 +357,18 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
   };
 
   const handleDeleteCategory = (categoryKey: string) => {
-    deleteCategory.mutate(categoryKey, {
-      onError: (err) => {
-        notifications.show({
-          title: 'Could not delete category',
-          message: (err as ApiError).message,
-          color: 'red',
-        });
-      },
-    });
+    deleteCategory.mutate(
+      { categoryKey },
+      {
+        onError: (err) => {
+          notifications.show({
+            title: 'Could not delete category',
+            message: (err as ApiError).message,
+            color: 'red',
+          });
+        },
+      }
+    );
   };
 
   const handleDeleteSubcategory = (categoryKey: string, subcategoryKey: string) => {

@@ -79,7 +79,7 @@ Shortcut hint labels baked into component text (`"(F2)"`, `"Hold (Ctrl+H)"`, etc
 
 - `src/api/client.ts` — a single `ApiClient` class (`apiClient` singleton) wrapping `axios`, base URL from `env.apiBaseUrl`, auto-attaches `Bearer` token from `localStorage[STORAGE_KEYS.AUTH_TOKEN]`, normalizes failures into the `ApiError` shape (`src/shared/types/common.ts`).
 - `src/api/queryKeys.ts` — centralized TanStack Query key factory, one namespace per feature (`billing`, `repairs`, `printJobs`, `inventory`, `customers`, `reports`). Add new query keys here rather than inlining key arrays in components/hooks.
-- `src/config/constants.ts` — shared business constants: currency (`CURRENCY`, LKR/"Rs."), `TAX_RATE`, repair job status enum + labels + colors (`JOB_STATUS*`), `PAYMENT_METHODS`, default pagination, `STORAGE_KEYS` (localStorage key names — add new keys here rather than inlining string literals).
+- `src/constants/` — shared business constants, re-exported through `index.ts`: `payment.ts` (`CURRENCY`, LKR/"Rs.", `PAYMENT_METHODS`), `jobs.ts` (repair job status enum + labels + colors, `JOB_STATUS*`), `routes.ts` (`ROUTES` absolute + `ROUTE_PATHS` relative — a new route needs an entry in **both**), `roles.ts`, `ui.ts` (default pagination), `storage.ts` (`STORAGE_KEYS` — localStorage key names; add new keys here rather than inlining string literals). Note several mock stores still hard-code their keys and bypass `STORAGE_KEYS`; don't copy that.
 - `src/config/env.ts` — typed wrapper over `import.meta.env`.
 - `src/shared/` — cross-feature reusable code: `components/` (e.g. `DataTable`, `MoneyInput`, `ConfirmDialog`, `EmptyState`, `PageHeader`, `InteractiveTooltip`, `ExpandableCard`), `lib/` (`money.ts`, `date.ts`, `print.ts`), `types/common.ts` (`PaginatedResponse`, `ApiError`, `ApiResponse`, `SelectOption`).
 
@@ -87,11 +87,73 @@ Shortcut hint labels baked into component text (`"(F2)"`, `"Hold (Ctrl+H)"`, etc
 
 - `src/store/slices/cartSlice.ts` — the active billing cart (line items, customer, discount, payment method). Derived totals (`selectSubtotalCents`/`selectTaxCents`/`selectTotalCents`/`selectCartItemsCount`) are selectors, not stored state — don't add `subtotalCents` etc. as actual reducer fields.
 - `src/store/slices/themeSlice.ts` + `src/store/colorSchemeManager.ts` — color-scheme (`'light' | 'dark'`) state, with a custom `MantineColorSchemeManager` (`reduxColorSchemeManager`) bridging it to `MantineProvider`, so Redux — not Mantine's default `localStorage` manager — is the single source of truth. Persisted via a `createListenerMiddleware` listener (`src/store/listenerMiddleware.ts`) to `localStorage[STORAGE_KEYS.COLOR_SCHEME]`. `index.html` has an inline `<script>` duplicating the same initial-scheme resolution logic to prevent a flash of the wrong theme on load — if the storage key or fallback logic ever changes, update both `themeSlice.ts`'s `getInitialColorScheme()` and that script together.
-- **Design tokens**: `src/styles/cssVariablesResolver.ts` defines the app's neutral palette as scheme-flipping tokens — surfaces (`--bg-app`, `--bg-sidebar`, `--bg-card`, `--bg-hover`, `--bg-active`), borders (`--border`, `--border-strong`), and text (`--text-primary`, `--text-secondary`, `--text-muted`). Style with `var(--bg-card)` / `var(--text-muted)` etc.; never a raw hex, so a theme switch is only a value flip. Mantine's semantic vars (`--mantine-color-body`, `-default`, `-default-hover`, `-default-border`, `-text`, `-dimmed`, `-placeholder`) are re-pointed at these tokens in the same file, so built-in Mantine components follow the palette automatically — either name works, prefer the `--bg-*`/`--text-*` tokens in app code.
-- **Dark-mode-safe styling**: never use fixed swatch vars (`--mantine-color-gray-0`…`-9`) or raw hex codes for anything that should look right in both themes — swatch vars don't change between light/dark. The dark scale also lives in `theme.ts`'s `colors.dark` array (Mantine's own `dark.N` lookups read it); it mirrors the dark tokens in `cssVariablesResolver.ts`, so **update both together**.
+- `src/store/slices/syncSlice.ts` — a **read-only mirror** of the offline sync engine's state. Only the engine dispatches into it (via `SyncProvider`); components read it through selectors. The durable source of truth is Dexie's `syncMeta` table — see **Offline & sync** below.
+- **Design tokens**: `src/styles/cssVariablesResolver.ts` defines the app's neutral palette as scheme-flipping tokens — surfaces (`--bg-app`, `--bg-sidebar`, `--bg-card`, `--bg-hover`, `--bg-active`), borders (`--border`, `--border-strong`), text (`--text-primary`, `--text-secondary`, `--text-muted`), and status (`--status-ok`, `--status-busy`, `--status-warn`, `--status-error`, `--status-idle`, each with a `-bg` pair). Status tokens are named by meaning, not colour. Style with `var(--bg-card)` / `var(--text-muted)` etc.; never a raw hex, so a theme switch is only a value flip. Mantine's semantic vars (`--mantine-color-body`, `-default`, `-default-hover`, `-default-border`, `-text`, `-dimmed`, `-placeholder`) are re-pointed at these tokens in the same file, so built-in Mantine components follow the palette automatically — either name works, prefer the `--bg-*`/`--text-*` tokens in app code.
+- **Dark-mode-safe styling**: never use fixed swatch vars (`--mantine-color-gray-0`…`-9`) or raw hex codes for anything that should look right in both themes — swatch vars don't change between light/dark. Both the light and dark values live in `cssVariablesResolver.ts`; define every token in both blocks so a scheme switch is only a value flip. (`theme.ts` defines one custom colour, `amber`, and no `colors.dark` override — Mantine's built-in dark scale applies.)
 
 **No implicit fallbacks — be explicit**: don't paper over a missing value with `||` / `??` defaults, and don't invent a default at the consumption site (`textAlign: col.align || 'left'`, `icon || <IconInbox />`, `getElementById('root') || getElementById('app')` are all the anti-pattern). If a value matters to how something renders or behaves, make the field **required** in the type so every call site states it exactly — `align: 'left' | 'center' | 'right'` on `Column`, not `align?`. If a value is genuinely optional, let it be `undefined` and pass it straight through (e.g. `width: col.width`) rather than substituting a guessed stand-in. The narrow exception is documented environment configuration (`src/config/env.ts`), where a fallback is the declared default for a missing `import.meta.env` var.
 
 **Money handling**: all monetary values are stored and passed around as integer cents (`unitPriceCents`, `totalCents`, etc.), never floats. Use `src/shared/lib/money.ts` (`toCents`, `fromCents`, `formatMoney`, `parseMoneyToCents`, `calculateTaxCents`, `calculateTotalCents`) to convert/format/compute — don't do ad hoc float math on currency.
 
-**No backend yet**: `apiClient` and `queryKeys` are wired up but feature components currently work with local/mock state (e.g. `cartSlice`); expect to connect real endpoints under `env.apiBaseUrl` (`/api` by default) as backend work lands.
+**Backend status — mixed**: inventory (products, categories), suppliers, supplier-products, purchases and auth are on a real REST backend under `env.apiBaseUrl` (`/api` by default). Billing/invoices, customers, repairs, print-jobs, employees and payments still run on `LocalStorageStore` mocks (`src/shared/lib/localStorageStore.ts`) and are the remaining migration work.
+
+## Offline & sync
+
+The shop loses internet regularly (power cuts, ISP outages), so the app is **offline-first**. Every synced resource is mirrored into IndexedDB via Dexie (`src/offline/db/schema.ts`) and **the UI reads that mirror, never the network**. Writes apply locally first and queue in a durable outbox that flushes when connectivity returns.
+
+`src/offline/` is a cross-cutting layer, peer to `src/api/` and `src/store/` — it sits underneath every feature. `src/features/sync/` holds only the UI (status badge, drawer, settings section). Currently only the **inventory domain** is wired through it; other modules adopt it one descriptor at a time.
+
+### The four hard rules
+
+1. **Never call `apiClient` — directly, or through a feature's `api/` module — for a synced resource.** Reads go through `useSyncedQuery`, writes through `useSyncedMutation`. A direct call bypasses the mirror and the outbox, and simply fails when offline. The descriptors in `src/offline/resources/` are the _only_ modules allowed to import a synced resource's `api/` functions.
+2. **Dexie is the source of truth for the UI; TanStack Query is only for non-synced resources** (reports, `/auth/me`). Do not reintroduce `invalidateQueries` for synced data — `liveQuery` already re-renders every subscriber, in this tab and in others. Two caches over the same rows is the bug this design exists to avoid.
+3. **Never store an absolute value for anything that accumulates.** Stock is the server's baseline plus a local delta ledger (`src/offline/engine/stockLedger.ts`); effective stock is the sum. Deltas commute across devices, absolute overwrites do not — two terminals each selling one unit must produce `-1` and `-1`, not two conflicting totals. The same rule applies to any future counter (customer balances, employee earnings).
+4. **Never invent a server-generated identity locally.** `sku`, auto-generated barcodes and every `key`/`id` come from the server. Rows created offline get a provisional `local_<uuid>` id (`src/offline/ids/localId.ts`) and the engine rewrites every reference to it at flush time. Render a missing `sku` as a "Pending" affordance — never as a placeholder value.
+
+### Adding a module to sync
+
+Write one descriptor in `src/offline/resources/<name>.resource.ts` (`SyncResource<TEntity>`, see `src/offline/types.ts`) and register it in `src/offline/resources/index.ts`. `products.resource.ts` is the fullest worked example. The descriptor states:
+
+- `id` / `label` — the Dexie table name, the `syncMeta` key, and the dashboard label.
+- `primaryKey` / `restId` / `serverGeneratedFields` — identity.
+- `dependsOn` — resources that must pull and flush first. A supplier-product link declares `['products', 'suppliers']`, which is what guarantees a product created offline reaches the server before the link naming it. Cycles throw at startup.
+- `pull` — `delta(cursor)` plus a `full()` snapshot used on first sync, cursor rejection and force-resync.
+- `operations` — one entry per write, via `defineOperation<TPayload>()`. Each has `localApply` (optimistic Dexie write, runs inside the same transaction as the enqueue), `push` (the HTTP call, with references already rewritten), `references` (which payload paths hold provisional ids, and whether an unresolved one blocks or is dropped) and `describe` (the label in the pending-changes list). **A compound server-side write is one operation, never several** — the backend does it transactionally, so splitting it would invent a partial-failure state that cannot occur.
+- `conflictPolicy` — per failure class. Use `replay` only for append-only or commutative operations, `retry-with-server-version` only for documented idempotent upserts, and `manual` whenever auto-resolution would silently lose a field. Any full-replace `PUT` qualifies as `manual` — `suppliers` is the example.
+- `invalidates`, `allowOfflineCreate`, `retention`.
+
+Then swap the feature's hooks over. Keep the returned shape (`data`/`isLoading`/`isPending`/`isFetching`, `mutate`/`mutateAsync`) so call sites don't churn — the inventory migration touched about a dozen lines across two 1,000-line components.
+
+### Connectivity
+
+`navigator.onLine` alone is **not** a connectivity signal — it only sees the link layer, so a terminal on a router with no upstream reports `true`. The single source of truth is `ConnectivityMonitor` (`src/offline/connectivity/`), which combines it with the `statusCode: 0` signal from the `apiClient` interceptor and a `GET /health` probe. Hysteresis is deliberately asymmetric: going offline publishes immediately, coming back online is held for a settle window. Read it via `selectConnectivityState`; never call `navigator.onLine` in a component.
+
+### Notifications
+
+Sync toasts are the only place in the codebase that use a stable notification `id` with `notifications.update()` (`src/features/sync/lib/syncNotifications.ts`) — everywhere else fires one toast per event. Colour semantics extend the app's existing set: **orange = offline (expected, the app still works)**, **red = a human must act**. Don't use red for offline.
+
+### Local schema changes
+
+Bump the Dexie version in `src/offline/db/schema.ts`; never edit an installed version in place. Mirror tables are derived state and may be truncated and re-pulled (clear the resource's cursor and the next pull full-refreshes). The `outbox`, `idMap`, `conflicts` and `stockLedger` tables hold data that exists nowhere else and must be migrated in place, never dropped. Index `_pending` and `_isDeleted` on every mirror — the shared pull and maintenance code queries them uniformly, and IndexedDB cannot index `null`, which is why `_isDeleted` exists alongside `_deletedAt`.
+
+### Auth while offline
+
+`initializeAuth` treats an unreachable server (`statusCode: 0`) as _unverified_, not _invalid_: it restores the cached identity from Dexie and sets `isOfflineSession`, with a 7-day grace period. Only 401/403 signs the user out. **Logging out never clears the local database** — a cashier's queued offline work must survive an expired session.
+
+### Backend contract
+
+Endpoints the backend still owes, specified but not yet implemented — until they land the engine runs in degraded mode (full refresh instead of deltas, no version checks), which is correct, just less efficient:
+
+- Every syncable table gains `version` (bumped per write), `created_at`, `updated_at` and `deleted_at` (**soft delete — rows are never hard-deleted**, or a delta pull cannot see them and they resurrect). `stock_purchases` and `supplier_products` currently have no timestamps at all; this is a blocking prerequisite for them.
+- `GET /sync/changes?cursors=<resource>:<cursor>,…` — one multiplexed delta endpoint, so a reconnect is one round trip. Cursors are opaque and per-resource; `400 CURSOR_INVALID` triggers a full refresh.
+- **`Idempotency-Key` on every mutating request**, stored key → response for 7 days. This is the single most important item: it is what makes retrying a request that succeeded but whose response was lost to a power cut safe.
+- `If-Match: <version>` → `409 VERSION_CONFLICT` with the server's current row in `details.server`.
+- `GET /health` (cheap, unauthenticated) and an `X-Server-Time` response header for clock-skew detection.
+- `409 INSUFFICIENT_STOCK` on stock adjustment — **the server must be the oversell authority**; no client-side guard can be, and two offline terminals will both try to sell the last unit.
+- A server-issued `key` must **never** start with `local_`.
+
+Sequential human-facing numbers (`INV-2026-0042`, `REP-…`, `PRT-…`) cannot be minted offline without collision — the current localStorage counter will issue duplicates across terminals, and the repairs/print-job generators derive from array _length_, so deleting a job re-issues a live number. The fix is server-reserved blocks (`POST /sequences/{name}/reserve`), to be implemented when billing adopts sync.
+
+### PWA
+
+`vite-plugin-pwa` precaches the app shell — without it a reload during an outage shows the browser's offline page and the local database is unreachable, defeating the whole design. Three rules: `registerType: 'prompt'` (never `autoUpdate` — an update reloads the page and the active cart is not persisted, so `AppUpdatePrompt` withholds it until the cart is empty); **no `runtimeCaching` for `/api`** (Dexie is the data cache, and a cached 200 would make a dead backend look online); and `navigateFallbackDenylist: [/^\/api\//]`. The service worker is disabled in dev — test offline against `npm run preview`.

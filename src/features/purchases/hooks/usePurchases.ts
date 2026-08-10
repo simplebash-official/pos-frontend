@@ -1,44 +1,88 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { StockPurchaseInput } from '../types';
-import {
-  createPurchase,
-  fetchPurchasesByProduct,
-  fetchPurchasesBySupplier,
-} from '../api/purchasesApi';
+import { db } from '@/offline/db/schema';
+import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
+import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
+import { EnrichedStockPurchase, StockPurchase, StockPurchaseInput } from '../types';
 
-export const usePurchasesBySupplier = (supplierKey: string | undefined) => {
-  return useQuery({
-    queryKey: queryKeys.purchases.bySupplier(supplierKey ?? ''),
-    queryFn: () => fetchPurchasesBySupplier(supplierKey!),
-    enabled: !!supplierKey,
+/**
+ * Stock intake history, read from the local mirror.
+ *
+ * The server's list endpoint returns purchases already enriched with supplier
+ * and product summaries. Those are separate mirrors locally, so the join
+ * happens here instead — which also means a purchase recorded offline shows
+ * its supplier and product straight away.
+ */
+
+const NO_PURCHASES: EnrichedStockPurchase[] = [];
+
+async function enrich(purchases: StockPurchase[]): Promise<EnrichedStockPurchase[]> {
+  const suppliers = await db.suppliers.toArray();
+  const products = await db.products.toArray();
+  const supplierByKey = new Map(suppliers.map((supplier) => [supplier.key, supplier]));
+  const productByKey = new Map(products.map((product) => [product.key, product]));
+
+  return purchases.flatMap((purchase) => {
+    const supplier = supplierByKey.get(purchase.supplierKey);
+    const product = productByKey.get(purchase.productKey);
+    if (!supplier || !product) {
+      // A purchase whose supplier or product hasn't been mirrored yet cannot
+      // be displayed meaningfully; it appears once that resource syncs.
+      return [];
+    }
+    return [
+      {
+        ...purchase,
+        supplier: { key: supplier.key, name: supplier.name },
+        product: { key: product.key, name: product.name, sku: product.sku },
+      } as EnrichedStockPurchase,
+    ];
   });
-};
+}
 
-export const usePurchasesByProduct = (productKey: string | undefined) => {
-  return useQuery({
-    queryKey: queryKeys.purchases.byProduct(productKey ?? ''),
-    queryFn: () => fetchPurchasesByProduct(productKey!),
-    enabled: !!productKey,
-  });
-};
-
-export const useCreatePurchase = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    // The backend already increments the product's stockQuantity and writes its own stock
-    // movement when a purchase is recorded — no separate stock-adjust call here.
-    mutationFn: (input: StockPurchaseInput) => createPurchase(input),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.purchases.bySupplier(variables.supplierKey),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.purchases.byProduct(variables.productKey),
-      });
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+export function usePurchasesBySupplier(supplierKey: string | undefined) {
+  return useSyncedQuery(
+    'purchases',
+    async () => {
+      if (!supplierKey) {
+        return NO_PURCHASES;
+      }
+      const rows = await db.purchases
+        .where('supplierKey')
+        .equals(supplierKey)
+        .filter((purchase) => purchase._isDeleted === 0)
+        .reverse()
+        .sortBy('date');
+      return enrich(rows);
     },
-  });
-};
+    NO_PURCHASES,
+    [supplierKey]
+  );
+}
+
+export function usePurchasesByProduct(productKey: string | undefined) {
+  return useSyncedQuery(
+    'purchases',
+    async () => {
+      if (!productKey) {
+        return NO_PURCHASES;
+      }
+      const rows = await db.purchases
+        .where('productKey')
+        .equals(productKey)
+        .filter((purchase) => purchase._isDeleted === 0)
+        .reverse()
+        .sortBy('date');
+      return enrich(rows);
+    },
+    NO_PURCHASES,
+    [productKey]
+  );
+}
+
+/**
+ * Records a stock intake. The backend also increments the product's stock and
+ * writes its own movement; locally that increment is mirrored as a pending
+ * ledger delta until the push confirms the server's quantity.
+ */
+export function useCreatePurchase() {
+  return useSyncedMutation<StockPurchaseInput, StockPurchase>('purchases', 'create');
+}

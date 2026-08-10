@@ -62,12 +62,10 @@ export function SupplierDetailDrawer({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
-  const { data: linkedProducts = [], isLoading: loadingProducts } = useProductsForSupplier(
+  const { data: linkedProducts, isLoading: loadingProducts } = useProductsForSupplier(
     supplier?.key
   );
-  const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesBySupplier(
-    supplier?.key
-  );
+  const { data: purchases, isLoading: loadingPurchases } = usePurchasesBySupplier(supplier?.key);
   const unlinkMutation = useUnlinkProduct();
   const linkMutation = useLinkProduct();
 

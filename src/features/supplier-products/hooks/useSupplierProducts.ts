@@ -1,16 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { fetchSuppliers } from '@/features/suppliers/api/suppliersApi';
+import { db } from '@/offline/db/schema';
+import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
+import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
+import type { UnlinkPayload } from '@/offline/resources/supplierProducts.resource';
 import { Product } from '@/features/inventory/types';
 import { Supplier } from '@/features/suppliers/types';
 import { SupplierProduct, SupplierProductInput } from '../types';
-import {
-  getLinksForSupplier,
-  getLinksForProduct,
-  linkSupplierProduct,
-  unlinkSupplierProduct,
-} from '../api/supplierProductsApi';
 
 // ---------------------------------------------------------------------------
 // Enriched types returned by the hooks
@@ -24,54 +18,71 @@ export interface EnrichedLinkedSupplier extends SupplierProduct {
   supplier: Supplier;
 }
 
+const NO_LINKED_PRODUCTS: EnrichedLinkedProduct[] = [];
+const NO_LINKED_SUPPLIERS: EnrichedLinkedSupplier[] = [];
+
 // ---------------------------------------------------------------------------
 // Read hooks
 // ---------------------------------------------------------------------------
 
-/** Products linked to a specific supplier, enriched with full Product data. */
+/**
+ * Products linked to a supplier, enriched with the full product.
+ *
+ * The join runs inside a single live query rather than across two separate
+ * requests, which removes the flicker where links had loaded but the products
+ * they name had not.
+ */
 export function useProductsForSupplier(supplierKey: string | undefined) {
-  const { data: allProducts = [] } = useAllProducts({ enabled: !!supplierKey });
+  return useSyncedQuery(
+    'supplierProducts',
+    async () => {
+      if (!supplierKey) {
+        return NO_LINKED_PRODUCTS;
+      }
+      const links = await db.supplierProducts
+        .where('supplierKey')
+        .equals(supplierKey)
+        .filter((link) => link._isDeleted === 0)
+        .toArray();
 
-  return useQuery({
-    queryKey: queryKeys.supplierProducts.bySupplier(supplierKey ?? ''),
-    queryFn: () => getLinksForSupplier(supplierKey!),
-    enabled: !!supplierKey,
-    select: (links): EnrichedLinkedProduct[] => {
-      const productMap = new Map(allProducts.map((p) => [p.key, p]));
-      return links
-        .map((link) => {
-          const product = productMap.get(link.productKey);
-          if (!product) return null;
-          return { ...link, product };
-        })
-        .filter(Boolean) as EnrichedLinkedProduct[];
+      const products = await db.products.toArray();
+      const productByKey = new Map(products.map((product) => [product.key, product]));
+
+      return links.flatMap((link) => {
+        const product = productByKey.get(link.productKey);
+        return product ? [{ ...link, product }] : [];
+      });
     },
-  });
+    NO_LINKED_PRODUCTS,
+    [supplierKey]
+  );
 }
 
-/** Suppliers linked to a specific product, enriched with full Supplier data. */
+/** Suppliers linked to a product, enriched with the full supplier. */
 export function useSuppliersForProduct(productKey: string | undefined) {
-  const { data: allSuppliers = [] } = useQuery({
-    queryKey: queryKeys.suppliers.all,
-    queryFn: () => fetchSuppliers(),
-    enabled: !!productKey,
-  });
+  return useSyncedQuery(
+    'supplierProducts',
+    async () => {
+      if (!productKey) {
+        return NO_LINKED_SUPPLIERS;
+      }
+      const links = await db.supplierProducts
+        .where('productKey')
+        .equals(productKey)
+        .filter((link) => link._isDeleted === 0)
+        .toArray();
 
-  return useQuery({
-    queryKey: queryKeys.supplierProducts.byProduct(productKey ?? ''),
-    queryFn: () => getLinksForProduct(productKey!),
-    enabled: !!productKey,
-    select: (links): EnrichedLinkedSupplier[] => {
-      const supplierMap = new Map(allSuppliers.map((s) => [s.key, s]));
-      return links
-        .map((link) => {
-          const supplier = supplierMap.get(link.supplierKey);
-          if (!supplier) return null;
-          return { ...link, supplier };
-        })
-        .filter(Boolean) as EnrichedLinkedSupplier[];
+      const suppliers = await db.suppliers.toArray();
+      const supplierByKey = new Map(suppliers.map((supplier) => [supplier.key, supplier]));
+
+      return links.flatMap((link) => {
+        const supplier = supplierByKey.get(link.supplierKey);
+        return supplier ? [{ ...link, supplier }] : [];
+      });
     },
-  });
+    NO_LINKED_SUPPLIERS,
+    [productKey]
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -79,34 +90,9 @@ export function useSuppliersForProduct(productKey: string | undefined) {
 // ---------------------------------------------------------------------------
 
 export function useLinkProduct() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input: SupplierProductInput) => linkSupplierProduct(input),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierKey),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.byProduct(variables.productKey),
-      });
-    },
-  });
+  return useSyncedMutation<SupplierProductInput, SupplierProduct>('supplierProducts', 'link');
 }
 
 export function useUnlinkProduct() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ supplierKey, productKey }: { supplierKey: string; productKey: string }) =>
-      unlinkSupplierProduct(supplierKey, productKey),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.bySupplier(variables.supplierKey),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.supplierProducts.byProduct(variables.productKey),
-      });
-    },
-  });
+  return useSyncedMutation<UnlinkPayload, void>('supplierProducts', 'unlink');
 }

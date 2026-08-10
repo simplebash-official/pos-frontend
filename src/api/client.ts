@@ -1,11 +1,37 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { env } from '@/config/env';
 import { STORAGE_KEYS } from '@/constants';
+import {
+  HEADER_DEVICE_ID,
+  HEADER_IDEMPOTENCY_KEY,
+  HEADER_IF_MATCH,
+  HEADER_SERVER_TIME,
+  REQUEST_TIMEOUT_MS,
+} from '@/offline/constants';
+import { reportNetworkObservation } from '@/offline/connectivity/networkSignal';
+import { getDeviceId } from '@/offline/ids/deviceId';
 import { ApiError } from '@/shared/types/common';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {
   params?: Record<string, string | number | boolean | undefined>;
+  /**
+   * Replay guard for outboxed mutations. The same key on a retry makes the
+   * backend return the original response instead of applying the write twice.
+   */
+  idempotencyKey?: string;
+  /**
+   * Server `version` the caller's change was based on, for optimistic
+   * concurrency. A mismatch comes back as a 409 with the current entity.
+   */
+  baseVersion?: number;
 }
+
+/**
+ * The subset of request options a synced mutation forwards. Feature `api/`
+ * functions accept this so the outbox can attach a replay guard and an
+ * optimistic-concurrency token without knowing anything about axios.
+ */
+export type MutationRequestOptions = Pick<RequestOptions, 'idempotencyKey' | 'baseVersion'>;
 
 function isApiErrorLike(data: unknown): data is ApiError {
   return (
@@ -14,6 +40,29 @@ function isApiErrorLike(data: unknown): data is ApiError {
     'message' in data &&
     typeof (data as { message: unknown }).message === 'string'
   );
+}
+
+/**
+ * Axios lowercases response header names, which is why HEADER_SERVER_TIME is
+ * declared lowercase. Absent until the backend ships it, hence the null.
+ */
+function readServerTime(headers: unknown): string | null {
+  if (typeof headers !== 'object' || headers === null) {
+    return null;
+  }
+  const value = (headers as Record<string, unknown>)[HEADER_SERVER_TIME];
+  return typeof value === 'string' ? value : null;
+}
+
+function buildSyncHeaders(idempotencyKey?: string, baseVersion?: number): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (idempotencyKey !== undefined) {
+    headers[HEADER_IDEMPOTENCY_KEY] = idempotencyKey;
+  }
+  if (baseVersion !== undefined) {
+    headers[HEADER_IF_MATCH] = String(baseVersion);
+  }
+  return headers;
 }
 
 function buildParams(params?: RequestOptions['params']) {
@@ -32,6 +81,7 @@ class ApiClient {
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
       headers: { 'Content-Type': 'application/json' },
+      timeout: REQUEST_TIMEOUT_MS,
     });
 
     this.axiosInstance.interceptors.request.use((config) => {
@@ -39,6 +89,7 @@ class ApiClient {
       if (token && !config.headers.Authorization) {
         config.headers.set('Authorization', `Bearer ${token}`);
       }
+      config.headers.set(HEADER_DEVICE_ID, getDeviceId());
       return config;
     });
 
@@ -47,11 +98,15 @@ class ApiClient {
         if (response.status === 204) {
           response.data = {};
         }
+        // A completed round trip is the strongest possible proof of reachability.
+        reportNetworkObservation('reachable', readServerTime(response.headers));
         return response;
       },
       (error: unknown) => {
         if (axios.isAxiosError(error)) {
           if (error.response) {
+            // The server answered, so the network is fine — this is a real API error.
+            reportNetworkObservation('reachable', readServerTime(error.response.headers));
             const data = error.response.data;
             if (isApiErrorLike(data)) {
               return Promise.reject(data);
@@ -62,6 +117,8 @@ class ApiClient {
             } as ApiError);
           }
         }
+        // No response at all: timeout, DNS failure, or genuinely offline.
+        reportNetworkObservation('unreachable', null);
         return Promise.reject({
           message: 'Network error or unreachable server.',
           statusCode: 0,
@@ -71,10 +128,11 @@ class ApiClient {
   }
 
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    const { params, ...restOptions } = options;
+    const { params, idempotencyKey, baseVersion, headers, ...restOptions } = options;
     const response = await this.axiosInstance.request<T>({
       url: endpoint,
       ...restOptions,
+      headers: { ...headers, ...buildSyncHeaders(idempotencyKey, baseVersion) },
       params: buildParams(params),
     });
     return response.data;

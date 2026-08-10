@@ -15,9 +15,7 @@ import { useCreatePurchase } from '../hooks/usePurchases';
 import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
 import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { fetchSuppliers } from '@/features/suppliers/api/suppliersApi';
+import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { toCents } from '@/shared/lib/money';
 
 interface ReceiveStockModalProps {
@@ -44,11 +42,7 @@ export const ReceiveStockModal = ({
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
 
   const { data: products } = useAllProducts({ enabled: opened });
-  const { data: suppliers } = useQuery({
-    queryKey: queryKeys.suppliers.all,
-    queryFn: () => fetchSuppliers(),
-    enabled: opened,
-  });
+  const { data: suppliers } = useAllSuppliers({ enabled: opened });
   const { mutate: createPurchase, isPending } = useCreatePurchase();
 
   // Reset state when modal opens

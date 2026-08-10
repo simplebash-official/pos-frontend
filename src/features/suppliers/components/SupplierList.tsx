@@ -20,7 +20,6 @@ import {
   IconCheck,
   IconTruckDelivery,
 } from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { EntityListPage } from '@/shared/components/EntityListPage';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -28,19 +27,17 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { Supplier, SupplierInput } from '../types';
 import {
-  fetchSuppliers,
-  createSupplier,
-  updateSupplier,
-  deleteSupplier,
-  deleteSuppliers,
-} from '../api/suppliersApi';
+  useAllSuppliers,
+  useCreateSupplier,
+  useDeleteSupplier,
+  useDeleteSuppliers,
+  useUpdateSupplier,
+} from '../hooks/useSuppliers';
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
-import { queryKeys } from '@/api/queryKeys';
 import { setLinksForSupplier } from '@/features/supplier-products/api/supplierProductsApi';
 
 export function SupplierList() {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -51,70 +48,13 @@ export function SupplierList() {
   const [selectedSupplierForDrawer, setSelectedSupplierForDrawer] = useState<Supplier | null>(null);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
-  const {
-    data: suppliers = [],
-    isLoading,
-    isPending,
-    isFetching,
-  } = useQuery({
-    queryKey: queryKeys.suppliers.all,
-    queryFn: () => fetchSuppliers(),
-  });
-  const isSuppliersLoading = isLoading || isPending || isFetching;
+  const { data: suppliers, isLoading, isFetching } = useAllSuppliers();
+  const isSuppliersLoading = isLoading || isFetching;
 
-  const createMutation = useMutation({
-    mutationFn: createSupplier,
-    onSuccess: (newSup) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
-      notifications.show({
-        title: 'Supplier Created',
-        message: `Registered ${newSup.name} successfully`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: SupplierInput }) => updateSupplier(id, input),
-    onSuccess: (updatedSup) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
-      notifications.show({
-        title: 'Supplier Updated',
-        message: `Updated details for ${updatedSup.name}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteSupplier,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
-      notifications.show({
-        title: 'Supplier Deleted',
-        message: 'Supplier record removed successfully',
-        color: 'blue',
-      });
-      if (selectedSupplierForDrawer?.id === supplierToDelete?.id) {
-        setSelectedSupplierForDrawer(null);
-      }
-      setSupplierToDelete(null);
-    },
-  });
-
-  const deleteBatchMutation = useMutation({
-    mutationFn: deleteSuppliers,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
-      notifications.show({
-        title: 'Suppliers Deleted',
-        message: 'Selected supplier records removed successfully',
-        color: 'blue',
-      });
-    },
-  });
+  const createMutation = useCreateSupplier();
+  const updateMutation = useUpdateSupplier();
+  const deleteMutation = useDeleteSupplier();
+  const deleteBatchMutation = useDeleteSuppliers();
 
   const allSupplyTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -151,22 +91,47 @@ export function SupplierList() {
 
   const handleFormSubmit = async (values: SupplierInput, linkedProductKeys: string[] = []) => {
     if (supplierToEdit) {
-      await updateMutation.mutateAsync({ id: supplierToEdit.id, input: values });
+      const updated = await updateMutation.mutateAsync({
+        supplierKey: supplierToEdit.id,
+        input: values,
+      });
       if (linkedProductKeys.length > 0) {
         await setLinksForSupplier(supplierToEdit.key, linkedProductKeys);
       }
+      notifications.show({
+        title: 'Supplier Updated',
+        message: `Updated details for ${updated.name}`,
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
     } else {
       const newSup = await createMutation.mutateAsync(values);
       if (newSup?.key && linkedProductKeys.length > 0) {
         await setLinksForSupplier(newSup.key, linkedProductKeys);
       }
+      notifications.show({
+        title: 'Supplier Created',
+        message: `Registered ${newSup.name} successfully`,
+        color: 'green',
+        icon: <IconCheck size={16} />,
+      });
     }
   };
 
   const handleConfirmDelete = async () => {
-    if (supplierToDelete) {
-      await deleteMutation.mutateAsync(supplierToDelete.id);
+    if (!supplierToDelete) {
+      return;
     }
+    await deleteMutation.mutateAsync({ supplierKey: supplierToDelete.id });
+    if (selectedSupplierForDrawer?.id === supplierToDelete.id) {
+      setSelectedSupplierForDrawer(null);
+    }
+    setSupplierToDelete(null);
+    notifications.show({
+      title: 'Supplier Deleted',
+      message: 'Supplier record removed successfully',
+      color: 'blue',
+    });
   };
 
   const columns: Column<Supplier>[] = [
@@ -296,7 +261,14 @@ export function SupplierList() {
             keyExtractor={(s) => s.id}
             loading={isLoading}
             onRowClick={(s) => setSelectedSupplierForDrawer(s)}
-            onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
+            onDeleteSelected={async (ids) => {
+              await deleteBatchMutation.mutateAsync({ supplierKeys: ids });
+              notifications.show({
+                title: 'Suppliers Deleted',
+                message: 'Selected supplier records removed successfully',
+                color: 'blue',
+              });
+            }}
           />
         ) : isLoading ? (
           <Grid gap="md">

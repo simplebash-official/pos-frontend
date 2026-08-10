@@ -18,6 +18,7 @@ const SHORTCUTS = [
   { key: 'Ctrl + D', description: 'Apply order-level discount' },
   { key: 'Ctrl + H', description: 'Park / Hold current sale' },
   { key: 'Ctrl + Shift + H', description: 'Open held sales list' },
+  { key: 'Ctrl + Shift + S', description: 'Open sync & offline panel' },
   { key: 'Ctrl + P', description: 'Reprint last receipt' },
   { key: 'D', description: 'Apply line item discount on selected row' },
   { key: 'Delete', description: 'Remove line item' },

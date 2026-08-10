@@ -76,7 +76,7 @@ function SupplierFormContent({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Product linking
-  const { data: allProducts = [] } = useAllProducts();
+  const { data: allProducts } = useAllProducts();
 
   const { data: existingLinks = [] } = useQuery({
     queryKey: queryKeys.supplierProducts.bySupplier(supplierToEdit?.key ?? ''),

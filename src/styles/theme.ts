@@ -5,6 +5,7 @@ import {
   DrawerContent,
   HoverCard,
   ModalContent,
+  Notification,
   Paper,
   rem,
   Select,
@@ -120,6 +121,12 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     Select: Select.extend({
       defaultProps: {
         checkIconPosition: 'right',
+      },
+    }),
+    Notification: Notification.extend({
+      defaultProps: {
+        radius: 'var(--mantine-radius-default)',
+        withCloseButton: true,
       },
     }),
   },

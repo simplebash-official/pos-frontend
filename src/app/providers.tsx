@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
+import { SyncProvider } from '@/offline/react/SyncProvider';
+import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
@@ -49,17 +51,20 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ReduxProvider store={store}>
       <AuthInitializer>
-        <QueryClientProvider client={queryClient}>
-          <MantineProvider
-            theme={mantineTheme}
-            cssVariablesResolver={mantineCssVariableResolver}
-            colorSchemeManager={reduxColorSchemeManager}
-            defaultColorScheme="light"
-          >
-            <Notifications position="top-right" zIndex={1000} />
-            <ModalsProvider>{children}</ModalsProvider>
-          </MantineProvider>
-        </QueryClientProvider>
+        <SyncProvider>
+          <QueryClientProvider client={queryClient}>
+            <MantineProvider
+              theme={mantineTheme}
+              cssVariablesResolver={mantineCssVariableResolver}
+              colorSchemeManager={reduxColorSchemeManager}
+              defaultColorScheme="light"
+            >
+              <Notifications position="top-right" zIndex={1000} />
+              <AppUpdatePrompt />
+              <ModalsProvider>{children}</ModalsProvider>
+            </MantineProvider>
+          </QueryClientProvider>
+        </SyncProvider>
       </AuthInitializer>
     </ReduxProvider>
   );

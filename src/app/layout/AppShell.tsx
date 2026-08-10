@@ -12,10 +12,12 @@ import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { HeldSalesDrawer } from '@/features/billing/components/HeldSalesDrawer';
 import { KeyboardShortcutsModal } from '@/features/billing/components/KeyboardShortcutsModal';
+import { SyncDrawer } from '@/features/sync';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
+  [ROUTES.INVOICES]: 'Invoices · JANA2U POS',
   [ROUTES.REPAIRS]: 'Phone Repairs · JANA2U POS',
   [ROUTES.PRINT_JOBS]: 'Print Jobs · JANA2U POS',
   [ROUTES.INVENTORY]: 'Inventory & Stock · JANA2U POS',
@@ -23,6 +25,7 @@ const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.SUPPLIERS]: 'Suppliers Directory · JANA2U POS',
   [ROUTES.EMPLOYEES]: 'Employees & Earnings · JANA2U POS',
   [ROUTES.REPORTS]: 'Reports & Analytics · JANA2U POS',
+  [ROUTES.SETTINGS]: 'Settings · JANA2U POS',
 };
 
 export function AppShell() {
@@ -30,6 +33,7 @@ export function AppShell() {
   const [focusMode, setFocusMode] = useState(false);
   const [heldDrawerOpen, setHeldDrawerOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [syncDrawerOpen, setSyncDrawerOpen] = useState(false);
 
   const location = useLocation();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -45,6 +49,15 @@ export function AppShell() {
     [{ key: 'F11', ignoreInput: true, handler: () => setFocusMode((prev) => !prev) }],
     isBillingPage
   );
+
+  // Sync panel is reachable from every screen, not just billing.
+  useAppShortcuts([
+    {
+      key: 'Ctrl+Shift+S',
+      ignoreInput: true,
+      handler: () => setSyncDrawerOpen((prev) => !prev),
+    },
+  ]);
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
@@ -71,6 +84,7 @@ export function AppShell() {
           onToggleFocusMode={() => setFocusMode((prev) => !prev)}
           onOpenHeldDrawer={() => setHeldDrawerOpen(true)}
           onOpenShortcuts={() => setShortcutsOpen(true)}
+          onOpenSyncPanel={() => setSyncDrawerOpen(true)}
         />
       </MantineAppShell.Header>
 
@@ -96,6 +110,7 @@ export function AppShell() {
 
       <HeldSalesDrawer opened={heldDrawerOpen} onClose={() => setHeldDrawerOpen(false)} />
       <KeyboardShortcutsModal opened={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <SyncDrawer opened={syncDrawerOpen} onClose={() => setSyncDrawerOpen(false)} />
     </MantineAppShell>
   );
 }
