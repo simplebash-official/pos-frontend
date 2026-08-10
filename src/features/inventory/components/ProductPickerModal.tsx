@@ -20,6 +20,7 @@ import { useAllProducts } from '../hooks/useProducts';
 import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface ProductPickerModalProps {
   opened: boolean;
@@ -40,6 +41,7 @@ export function ProductPickerModal({
   const { data: products, isLoading } = useAllProducts({ enabled: opened });
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
+  const isMobile = useIsMobile();
 
   const [search, setSearch] = useState('');
 
@@ -87,7 +89,8 @@ export function ProductPickerModal({
           </div>
         </Group>
       }
-      size={720}
+      size={isMobile ? '100%' : 720}
+      fullScreen={isMobile}
       radius="var(--mantine-radius-default)"
       padding="lg"
     >
@@ -109,12 +112,16 @@ export function ProductPickerModal({
           }
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
-          autoFocus
+          autoFocus={!isMobile}
           radius="var(--mantine-radius-default)"
         />
 
         {/* Product List */}
-        <ScrollArea.Autosize mah={440} offsetScrollbars>
+        <ScrollArea.Autosize
+          mah="60dvh"
+          offsetScrollbars
+          classNames={{ viewport: 'scrollarea-fluid-content' }}
+        >
           <Stack gap="xs" pt={6} pb={6} px={4}>
             {isLoading ? (
               Array.from({ length: 4 }, (_, i) => (
@@ -171,7 +178,12 @@ export function ProductPickerModal({
                     className="picker-card"
                     onClick={() => handleSelect(p.key)}
                   >
-                    <Group justify="space-between" align="center" wrap="nowrap" gap="md">
+                    <Group
+                      justify="space-between"
+                      align="center"
+                      wrap={isMobile ? 'wrap' : 'nowrap'}
+                      gap="md"
+                    >
                       {/* Left Icon & Info */}
                       <Group
                         gap="md"

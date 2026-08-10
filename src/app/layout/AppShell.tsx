@@ -5,7 +5,12 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT } from './constants';
+import {
+  BILLING_HEADER_HEIGHT,
+  SHELL_HEADER_HEIGHT,
+  SHELL_NAVBAR_RAIL_WIDTH,
+  SHELL_NAVBAR_WIDTH,
+} from './constants';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
@@ -14,6 +19,7 @@ import { HeldSalesDrawer } from '@/features/billing/components/HeldSalesDrawer';
 import { KeyboardShortcutsModal } from '@/features/billing/components/KeyboardShortcutsModal';
 import { SyncDrawer } from '@/features/sync';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
+import { useLayoutTier } from '@/shared/hooks/useResponsive';
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
@@ -38,6 +44,7 @@ export function AppShell() {
   const location = useLocation();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isBillingPage = location.pathname === ROUTES.BILLING;
+  const tier = useLayoutTier();
 
   useEffect(() => {
     const title = ROUTE_TITLES[location.pathname] || 'JANA2U POS System';
@@ -64,7 +71,13 @@ export function AppShell() {
   }
 
   const headerHeight = isBillingPage ? BILLING_HEADER_HEIGHT : SHELL_HEADER_HEIGHT;
-  const navbarWidth = isBillingPage ? (focusMode ? 0 : 64) : 250;
+  const navbarWidth = isBillingPage
+    ? focusMode
+      ? 0
+      : SHELL_NAVBAR_RAIL_WIDTH
+    : tier === 'tablet'
+      ? SHELL_NAVBAR_RAIL_WIDTH
+      : SHELL_NAVBAR_WIDTH;
 
   return (
     <MantineAppShell
@@ -90,7 +103,10 @@ export function AppShell() {
 
       {(!isBillingPage || !focusMode) && (
         <MantineAppShell.Navbar bg="var(--bg-sidebar)">
-          <Sidebar closeMobile={close} isRail={isBillingPage && !focusMode} />
+          <Sidebar
+            closeMobile={close}
+            isRail={tier !== 'mobile' && (isBillingPage ? !focusMode : tier === 'tablet')}
+          />
         </MantineAppShell.Navbar>
       )}
 

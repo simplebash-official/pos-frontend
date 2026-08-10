@@ -5,3 +5,8 @@
  */
 export const BILLING_HEADER_HEIGHT = 48;
 export const SHELL_HEADER_HEIGHT = 60;
+
+/** Width of the standard (non-billing) `AppShell` navbar on desktop, in pixels. */
+export const SHELL_NAVBAR_WIDTH = 250;
+/** Width of the icon-only navbar rail, in pixels — used on tablet for standard pages and always for billing. */
+export const SHELL_NAVBAR_RAIL_WIDTH = 64;

@@ -9,6 +9,7 @@ import {
   Tooltip,
   Text,
   Avatar,
+  Box,
 } from '@mantine/core';
 import {
   IconShoppingCart,
@@ -29,6 +30,7 @@ import { SyncStatusBadge } from '@/features/sync';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface HeaderProps {
   opened: boolean;
@@ -52,6 +54,7 @@ export function Header({
   const navigate = useNavigate();
   const location = useLocation();
   const isBillingPage = location.pathname === ROUTES.BILLING;
+  const isMobile = useIsMobile();
 
   const user = useAppSelector(selectAuthUser);
   const userName = user?.name || user?.email?.split('@')[0] || 'Operator';
@@ -180,34 +183,71 @@ export function Header({
 
   // Non-billing standard header
   return (
-    <Group h="100%" px="md" justify="space-between">
-      <Group gap="sm">
+    <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+      <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, overflow: 'hidden' }}>
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-        <Title order={3} style={{ cursor: 'pointer' }} onClick={() => navigate(ROUTES.BILLING)}>
-          Jana2U Service Center
+        <Title
+          order={isMobile ? 5 : 3}
+          style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+          onClick={() => navigate(ROUTES.BILLING)}
+        >
+          {isMobile ? 'Jana2U POS' : 'Jana2U Service Center'}
         </Title>
       </Group>
 
-      <Group gap="xs">
+      <Group gap="xs" wrap="nowrap">
         <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
 
-        <Button
-          leftSection={<IconShoppingCart size={18} />}
-          variant="filled"
-          color="blue"
-          size="sm"
-          onClick={() => navigate(ROUTES.BILLING)}
-        >
-          Billing Counter
-          {cartItemsCount > 0 && (
-            <Badge color="white" c="blue" size="xs" ml="xs">
-              {cartItemsCount}
-            </Badge>
-          )}
-        </Button>
+        {isMobile ? (
+          <Tooltip label="Billing Counter">
+            <Box style={{ position: 'relative' }}>
+              <ActionIcon
+                variant="filled"
+                color="blue"
+                size={44}
+                aria-label="Billing Counter"
+                onClick={() => navigate(ROUTES.BILLING)}
+              >
+                <IconShoppingCart size={20} />
+              </ActionIcon>
+              {cartItemsCount > 0 && (
+                <Badge
+                  color="red"
+                  size="xs"
+                  variant="filled"
+                  style={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -4,
+                    padding: '0 4px',
+                    minWidth: 16,
+                    height: 16,
+                  }}
+                >
+                  {cartItemsCount}
+                </Badge>
+              )}
+            </Box>
+          </Tooltip>
+        ) : (
+          <Button
+            leftSection={<IconShoppingCart size={18} />}
+            variant="filled"
+            color="blue"
+            size="sm"
+            onClick={() => navigate(ROUTES.BILLING)}
+          >
+            Billing Counter
+            {cartItemsCount > 0 && (
+              <Badge color="white" c="blue" size="xs" ml="xs">
+                {cartItemsCount}
+              </Badge>
+            )}
+          </Button>
+        )}
 
         <Tooltip label={`Active User: ${userLabel}`}>
-          <Avatar size={32} radius="xl" color="blue">
+          <Avatar size={isMobile ? 28 : 32} radius="xl" color="blue">
             {initial}
           </Avatar>
         </Tooltip>

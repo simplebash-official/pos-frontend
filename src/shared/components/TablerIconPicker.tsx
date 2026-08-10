@@ -122,7 +122,7 @@ export function TablerIconPicker({
         opened={opened}
         onChange={setOpened}
         position="bottom-start"
-        width={360}
+        width="min(280px, calc(100vw - 32px))"
         shadow="md"
         withinPortal
       >
@@ -152,7 +152,7 @@ export function TablerIconPicker({
             ) : (
               <>
                 <div style={{ maxHeight: 260, overflowY: 'auto' }}>
-                  <SimpleGrid cols={8} spacing={4}>
+                  <SimpleGrid cols={6} spacing={4}>
                     {visibleNames.map((name) => {
                       const Icon = iconMap[`Icon${name}`];
                       const isSelected = value === name;

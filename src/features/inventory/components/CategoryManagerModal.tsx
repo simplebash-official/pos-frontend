@@ -35,6 +35,7 @@ import {
   ExpandableCardAction,
 } from '@/shared/components/ExpandableCard';
 import { ApiError } from '@/shared/types/common';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface CategoryManagerModalProps {
   opened: boolean;
@@ -309,6 +310,7 @@ function CategoryItem({
 }
 
 export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalProps) {
+  const isMobile = useIsMobile();
   const { data: categories, isLoading } = useCategories();
   const createCategory = useCreateCategory();
   const deleteCategory = useDeleteCategory();
@@ -387,7 +389,14 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Manage Categories" size="lg" centered>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title="Manage Categories"
+      size="lg"
+      centered
+      fullScreen={isMobile}
+    >
       <Stack gap="md">
         <Paper p="sm" withBorder>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs">

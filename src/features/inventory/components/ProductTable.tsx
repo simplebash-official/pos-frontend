@@ -495,7 +495,48 @@ export function ProductTable() {
 
       {/* Filter and Control Bar */}
       <Paper p="sm" withBorder>
-        <Group justify="space-between" align="center">
+        {/* Mobile: search full-width, buttons split evenly below */}
+        <Stack gap="sm" hiddenFrom="sm">
+          <TextInput
+            placeholder="Search by SKU, product name, or subcategory..."
+            leftSection={<IconSearch size={16} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            style={{ width: '100%' }}
+            size="sm"
+          />
+          <Group gap="xs" wrap="nowrap">
+            <Button
+              variant={showLowStockOnly ? 'filled' : 'light'}
+              color={showLowStockOnly ? 'red' : 'gray'}
+              size="sm"
+              onClick={() => setShowLowStockOnly((prev) => !prev)}
+              leftSection={<IconAlertTriangle size={16} />}
+              style={{ flex: 1 }}
+            >
+              {showLowStockOnly ? 'Showing Low Stock' : 'Low Stock Only'}
+            </Button>
+            <Button
+              variant="subtle"
+              color="gray"
+              size="sm"
+              onClick={handleToggleExpandAll}
+              leftSection={
+                expandedCategories.length === categoryKeys.length ? (
+                  <IconArrowsMinimize size={16} />
+                ) : (
+                  <IconArrowsMaximize size={16} />
+                )
+              }
+              style={{ flex: 1 }}
+            >
+              {expandedCategories.length === categoryKeys.length ? 'Collapse All' : 'Expand All'}
+            </Button>
+          </Group>
+        </Stack>
+
+        {/* Tablet/desktop: single row */}
+        <Group justify="space-between" align="center" visibleFrom="sm">
           <Group gap="sm" style={{ flex: 1 }}>
             <TextInput
               placeholder="Search by SKU, product name, or subcategory..."
@@ -726,7 +767,7 @@ export function ProductTable() {
 
                           {/* Collapsible Subcategory Table */}
                           <Collapse expanded={!isSubCollapsed}>
-                            <Box pt="xs">
+                            <Box pt="xs" style={{ overflowX: 'auto' }}>
                               <Table
                                 verticalSpacing="xs"
                                 horizontalSpacing="sm"
@@ -1152,7 +1193,7 @@ export function ProductTable() {
                     </Stack>
                   </Center>
                 ) : (
-                  <ScrollArea.Autosize mah={220} offsetScrollbars>
+                  <ScrollArea.Autosize mah="30dvh" offsetScrollbars>
                     <Stack gap={4}>
                       {movements.slice(0, 20).map((m) => (
                         <Group key={m.id} justify="space-between" wrap="nowrap">
@@ -1223,7 +1264,7 @@ export function ProductTable() {
                       </Stack>
                     </Center>
                   ) : (
-                    <ScrollArea.Autosize mah={280} offsetScrollbars>
+                    <ScrollArea.Autosize mah="40dvh" offsetScrollbars>
                       <Stack gap={6} pt={4} pb={4} px={2}>
                         {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
                           <Paper
@@ -1373,7 +1414,7 @@ export function ProductTable() {
                       </Stack>
                     </Center>
                   ) : (
-                    <ScrollArea.Autosize mah={280} offsetScrollbars>
+                    <ScrollArea.Autosize mah="40dvh" offsetScrollbars>
                       <Stack gap={6} pt={4} pb={4} px={2}>
                         {purchases.map((purchase) => (
                           <Paper
