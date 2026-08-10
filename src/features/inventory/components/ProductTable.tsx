@@ -27,6 +27,9 @@ import {
   ScrollArea,
   Checkbox,
   Skeleton,
+  Tabs,
+  Select,
+  NumberInput,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -65,24 +68,25 @@ import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
-import { SupplierPickerModal } from '@/features/suppliers/components/SupplierPickerModal';
-import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import {
   useSuppliersForProduct,
   useLinkProduct,
   useUnlinkProduct,
   EnrichedLinkedSupplier,
 } from '@/features/supplier-products/hooks/useSupplierProducts';
-import { usePurchasesByProduct } from '@/features/purchases/hooks/usePurchases';
+import { usePurchasesByProduct, useCreatePurchase } from '@/features/purchases/hooks/usePurchases';
+import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useAppSelector } from '@/store/hooks';
 import { selectUserRole } from '@/store/slices/authSlice';
 import { USER_ROLES } from '@/constants/roles';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { ProductFormModal } from './ProductFormModal';
 import { CategoryManagerModal } from './CategoryManagerModal';
 
 export function ProductTable() {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
+  const isMobile = useIsMobile();
 
   const { data: initialProducts, isLoading, isPending, isFetching } = useAllProducts();
   const isInventoryLoading = isLoading || isPending || isFetching;
@@ -121,6 +125,9 @@ export function ProductTable() {
   // Quick stock adjustment in drawer
   const [stockAdjustment, setStockAdjustment] = useState<number>(0);
   const [adjustmentReason, setAdjustmentReason] = useState('');
+
+  // Drawer history switcher (Movements / Suppliers / Intake)
+  const [historyTab, setHistoryTab] = useState<'movements' | 'suppliers' | 'intake'>('movements');
 
   // Product create/edit form modal
   const [productFormOpen, setProductFormOpen] = useState(false);
@@ -172,9 +179,16 @@ export function ProductTable() {
     }
   };
 
-  // Supplier picker modal
-  const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
-  const [receiveStockOpen, setReceiveStockOpen] = useState(false);
+  // Inline "Link a supplier" form (Suppliers tab)
+  const [supplierFormOpen, setSupplierFormOpen] = useState(false);
+  const [newSupplierKey, setNewSupplierKey] = useState<string | null>(null);
+  const [newSupplierSku, setNewSupplierSku] = useState('');
+
+  // Inline "Receive stock" form (Intake tab)
+  const [intakeFormOpen, setIntakeFormOpen] = useState(false);
+  const [intakeQuantity, setIntakeQuantity] = useState<number | ''>('');
+  const [intakeSupplierKey, setIntakeSupplierKey] = useState<string | null>(null);
+  const [intakeReferenceNo, setIntakeReferenceNo] = useState('');
 
   // Supplier-product linking
   const { data: linkedSuppliers, isLoading: loadingSuppliers } = useSuppliersForProduct(
@@ -184,13 +198,41 @@ export function ProductTable() {
     isAdmin ? selectedProduct?.key : undefined
   );
   const { data: movements, isLoading: loadingMovements } = useProductMovements(selectedProduct?.id);
+  const { data: allSuppliers } = useAllSuppliers({ enabled: isAdmin && selectedProduct !== null });
   const linkMutation = useLinkProduct();
   const unlinkMutation = useUnlinkProduct();
+  const createPurchaseMutation = useCreatePurchase();
 
-  const handleLinkSupplier = (supplierKey: string) => {
-    if (!selectedProduct) return;
+  const supplierSelectOptions = useMemo(
+    () =>
+      allSuppliers.map((s) => ({
+        value: s.key,
+        label: s.contactPerson ? `${s.name} (${s.contactPerson})` : s.name,
+      })),
+    [allSuppliers]
+  );
+
+  const resetSupplierForm = () => {
+    setSupplierFormOpen(false);
+    setNewSupplierKey(null);
+    setNewSupplierSku('');
+  };
+
+  const resetIntakeForm = () => {
+    setIntakeFormOpen(false);
+    setIntakeQuantity('');
+    setIntakeSupplierKey(null);
+    setIntakeReferenceNo('');
+  };
+
+  const handleLinkSupplierInline = () => {
+    if (!selectedProduct || !newSupplierKey) return;
     linkMutation.mutate(
-      { supplierKey, productKey: selectedProduct.key },
+      {
+        supplierKey: newSupplierKey,
+        productKey: selectedProduct.key,
+        supplierSku: newSupplierSku.trim() || undefined,
+      },
       {
         onSuccess: () => {
           notifications.show({
@@ -198,6 +240,31 @@ export function ProductTable() {
             message: 'Supplier has been linked to this product.',
             color: 'teal',
           });
+          resetSupplierForm();
+        },
+      }
+    );
+  };
+
+  const handleRecordIntakeInline = () => {
+    if (!selectedProduct || !intakeSupplierKey || !intakeQuantity) return;
+    createPurchaseMutation.mutate(
+      {
+        productKey: selectedProduct.key,
+        supplierKey: intakeSupplierKey,
+        quantity: Number(intakeQuantity),
+        unitCostCents: selectedProduct.costPriceCents,
+        date: new Date().toISOString(),
+        referenceNo: intakeReferenceNo.trim() || undefined,
+      },
+      {
+        onSuccess: () => {
+          notifications.show({
+            title: 'Stock Received',
+            message: `Recorded intake of ${intakeQuantity} units.`,
+            color: 'teal',
+          });
+          resetIntakeForm();
         },
       }
     );
@@ -801,9 +868,12 @@ export function ProductTable() {
           setSelectedProduct(null);
           setStockAdjustment(0);
           setAdjustmentReason('');
+          setHistoryTab('movements');
+          resetSupplierForm();
+          resetIntakeForm();
         }}
         position="right"
-        size="md"
+        size={isMobile ? '100%' : 'md'}
         padding="lg"
         title={
           <Group gap="xs">
@@ -862,69 +932,90 @@ export function ProductTable() {
               </Group>
             </Paper>
 
-            {/* Financials & Margins */}
+            {/* Financial Snapshot */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              Financial Breakdown
+              Financial Snapshot
             </Text>
 
-            <Grid>
-              <Grid.Col span={6}>
-                <Paper>
-                  <Text size="xs" c="dimmed">
-                    Selling Price
-                  </Text>
-                  <Text fw={800} size="md" c="blue">
-                    {formatMoney(selectedProduct.sellingPriceCents)}
-                  </Text>
-                </Paper>
-              </Grid.Col>
-
-              <Grid.Col span={6}>
-                <Paper>
-                  <Text size="xs" c="dimmed">
-                    Cost Price
-                  </Text>
-                  <Text fw={700} size="md">
-                    {formatMoney(selectedProduct.costPriceCents)}
-                  </Text>
-                </Paper>
-              </Grid.Col>
-            </Grid>
-
-            {/* Est. Profit Margin */}
-            {selectedProduct.sellingPriceCents > 0 && (
-              <Card>
-                <Group justify="space-between">
-                  <Group gap="xs">
-                    <IconTrendingUp size={16} style={{ color: 'var(--mantine-color-teal-6)' }} />
-                    <Text size="xs" fw={700}>
-                      Estimated Profit per Unit
+            <Paper p="md">
+              <Grid gap={0} align="flex-start">
+                <Grid.Col
+                  span={4}
+                  pr="sm"
+                  style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
+                >
+                  <Stack gap={2}>
+                    <Text size="xs" c="dimmed" tt="uppercase">
+                      Selling
                     </Text>
-                  </Group>
-                  <Group gap="xs">
-                    <Text size="xs" fw={800} c="teal">
-                      {formatMoney(
-                        selectedProduct.sellingPriceCents - selectedProduct.costPriceCents
-                      )}
+                    <Text fw={800} size="md" c="blue">
+                      {formatMoney(selectedProduct.sellingPriceCents)}
                     </Text>
-                    <Badge color="teal" size="xs" variant="light">
-                      {Math.round(
-                        ((selectedProduct.sellingPriceCents - selectedProduct.costPriceCents) /
-                          selectedProduct.sellingPriceCents) *
-                          100
-                      )}
-                      % Margin
-                    </Badge>
-                  </Group>
-                </Group>
-              </Card>
-            )}
+                  </Stack>
+                </Grid.Col>
+
+                <Grid.Col
+                  span={4}
+                  px="sm"
+                  style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
+                >
+                  <Stack gap={2}>
+                    <Text size="xs" c="dimmed" tt="uppercase">
+                      Cost
+                    </Text>
+                    <Text fw={700} size="md">
+                      {formatMoney(selectedProduct.costPriceCents)}
+                    </Text>
+                  </Stack>
+                </Grid.Col>
+
+                <Grid.Col span={4} pl="sm">
+                  <Stack gap={2}>
+                    <Group gap={4} wrap="nowrap">
+                      <IconTrendingUp
+                        size={12}
+                        style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
+                      />
+                      <Text size="xs" c="dimmed" tt="uppercase">
+                        Profit / Unit
+                      </Text>
+                    </Group>
+                    {selectedProduct.sellingPriceCents > 0 ? (
+                      <>
+                        <Text fw={800} size="md" c="teal">
+                          {formatMoney(
+                            selectedProduct.sellingPriceCents - selectedProduct.costPriceCents
+                          )}
+                        </Text>
+                        <Badge
+                          color="teal"
+                          size="xs"
+                          variant="light"
+                          style={{ width: 'fit-content' }}
+                        >
+                          {Math.round(
+                            ((selectedProduct.sellingPriceCents - selectedProduct.costPriceCents) /
+                              selectedProduct.sellingPriceCents) *
+                              100
+                          )}
+                          % margin
+                        </Badge>
+                      </>
+                    ) : (
+                      <Text fw={700} size="md" c="dimmed">
+                        —
+                      </Text>
+                    )}
+                  </Stack>
+                </Grid.Col>
+              </Grid>
+            </Paper>
 
             <Divider my="xs" />
 
             {/* Stock Level & Adjustments */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
-              Stock Level & Threshold
+              Stock Level & Adjustment
             </Text>
 
             <Paper p="md" withBorder>
@@ -968,13 +1059,13 @@ export function ProductTable() {
                       <QuantityInput
                         value={stockAdjustment}
                         onChange={(val) => setStockAdjustment(Number(val) || 0)}
-                        size="sm"
+                        size={isMobile ? 'lg' : 'sm'}
                       />
                       <Button
                         size="sm"
                         color="blue"
                         onClick={handleUpdateStockInDrawer}
-                        style={{ height: 36 }}
+                        style={{ height: isMobile ? 50 : 36 }}
                         disabled={stockAdjustment === 0 || !adjustmentReason.trim()}
                         loading={adjustStockMutation.isPending}
                       >
@@ -983,7 +1074,7 @@ export function ProductTable() {
                     </Group>
                     <TextInput
                       placeholder="Reason (required, e.g. Damaged stock, Stock count correction)"
-                      size="sm"
+                      size={isMobile ? 'md' : 'sm'}
                       value={adjustmentReason}
                       onChange={(e) => setAdjustmentReason(e.currentTarget.value)}
                     />
@@ -992,224 +1083,389 @@ export function ProductTable() {
               </Stack>
             </Paper>
 
-            {/* Recent Stock Movements */}
-            <Group justify="space-between" align="center" mt="xs">
-              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Recent Stock Movements
-              </Text>
-              <IconHistory size={14} style={{ opacity: 0.6 }} />
-            </Group>
-            {loadingMovements ? (
-              <Stack gap={4} py="xs">
-                <Skeleton height={14} radius="xs" />
-                <Skeleton height={14} radius="xs" />
-              </Stack>
-            ) : movements.length === 0 ? (
-              <Text size="xs" c="dimmed" ta="center" py="xs">
-                No stock movements recorded yet.
-              </Text>
-            ) : (
-              <ScrollArea.Autosize mah={180} offsetScrollbars>
-                <Stack gap={4}>
-                  {movements.slice(0, 20).map((m) => (
-                    <Group key={m.id} justify="space-between" wrap="nowrap">
-                      <Text size="xs" c="dimmed" lineClamp={1} style={{ flex: 1 }}>
-                        {m.note || m.type}
-                      </Text>
-                      <Badge
-                        size="xs"
-                        variant="light"
-                        color={m.quantityDelta >= 0 ? 'green' : 'red'}
-                      >
-                        {m.quantityDelta >= 0 ? '+' : ''}
-                        {m.quantityDelta}
+            {/* History: Movements / Suppliers / Intake */}
+            <Tabs
+              value={historyTab}
+              onChange={(val) => {
+                setHistoryTab((val ?? 'movements') as 'movements' | 'suppliers' | 'intake');
+                resetSupplierForm();
+                resetIntakeForm();
+              }}
+              color="amber"
+              mt="xs"
+            >
+              <Tabs.List>
+                <Tabs.Tab
+                  value="movements"
+                  rightSection={
+                    <Badge size="xs" variant="light" color="gray" circle>
+                      {movements.length}
+                    </Badge>
+                  }
+                >
+                  Movements
+                </Tabs.Tab>
+                {isAdmin && (
+                  <Tabs.Tab
+                    value="suppliers"
+                    rightSection={
+                      <Badge size="xs" variant="light" color="gray" circle>
+                        {linkedSuppliers.length}
                       </Badge>
-                    </Group>
-                  ))}
-                </Stack>
-              </ScrollArea.Autosize>
-            )}
+                    }
+                  >
+                    Suppliers
+                  </Tabs.Tab>
+                )}
+                {isAdmin && (
+                  <Tabs.Tab
+                    value="intake"
+                    rightSection={
+                      <Badge size="xs" variant="light" color="gray" circle>
+                        {purchases.length}
+                      </Badge>
+                    }
+                  >
+                    Intake
+                  </Tabs.Tab>
+                )}
+              </Tabs.List>
+            </Tabs>
 
-            {isAdmin && (
-              <>
-                <Divider my="xs" />
-
-                {/* Linked Suppliers */}
-                <Group justify="space-between" align="center">
-                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                    Linked Suppliers{' '}
-                    {loadingSuppliers ? (
-                      <Skeleton
-                        height={14}
-                        width={24}
-                        style={{ display: 'inline-block', verticalAlign: 'middle' }}
-                      />
-                    ) : (
-                      <Text component="span" c="blue" fw={800}>
-                        ({linkedSuppliers.length})
-                      </Text>
-                    )}
-                  </Text>
-                  <Tooltip label="Link a supplier" withArrow>
-                    <ActionIcon
-                      variant="light"
-                      color="blue"
-                      size="sm"
-                      onClick={() => setSupplierPickerOpen(true)}
-                    >
-                      <IconPlus size={14} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-
-                {loadingSuppliers ? (
-                  <Stack gap={6} py="xs">
-                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
+            <Paper p="sm" withBorder>
+              {historyTab === 'movements' &&
+                (loadingMovements ? (
+                  <Stack gap={4} py="xs">
+                    <Skeleton height={14} radius="xs" />
+                    <Skeleton height={14} radius="xs" />
                   </Stack>
-                ) : linkedSuppliers.length === 0 ? (
-                  <Paper p="sm" withBorder bg="var(--mantine-color-body)">
+                ) : movements.length === 0 ? (
+                  <Center py="md">
+                    <Stack gap={4} align="center">
+                      <IconHistory size={20} style={{ opacity: 0.4 }} />
+                      <Text size="xs" c="dimmed" ta="center">
+                        No stock movements recorded yet.
+                      </Text>
+                      <Text size="xs" c="dimmed" ta="center" style={{ opacity: 0.7 }}>
+                        Movements appear here after you apply a stock adjustment above.
+                      </Text>
+                    </Stack>
+                  </Center>
+                ) : (
+                  <ScrollArea.Autosize mah={220} offsetScrollbars>
+                    <Stack gap={4}>
+                      {movements.slice(0, 20).map((m) => (
+                        <Group key={m.id} justify="space-between" wrap="nowrap">
+                          <Text size="xs" c="dimmed" lineClamp={1} style={{ flex: 1 }}>
+                            {m.note || m.type}
+                          </Text>
+                          <Badge
+                            size="xs"
+                            variant="light"
+                            color={m.quantityDelta >= 0 ? 'green' : 'red'}
+                          >
+                            {m.quantityDelta >= 0 ? '+' : ''}
+                            {m.quantityDelta}
+                          </Badge>
+                        </Group>
+                      ))}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                ))}
+
+              {isAdmin && historyTab === 'suppliers' && (
+                <Stack gap="sm">
+                  <Group justify="space-between" align="center">
+                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                      Linked Suppliers
+                    </Text>
+                    <Tooltip label={supplierFormOpen ? 'Cancel' : 'Link a supplier'} withArrow>
+                      <ActionIcon
+                        variant="light"
+                        color={supplierFormOpen ? 'gray' : 'blue'}
+                        size="sm"
+                        onClick={() =>
+                          supplierFormOpen ? resetSupplierForm() : setSupplierFormOpen(true)
+                        }
+                      >
+                        <IconPlus
+                          size={14}
+                          style={{
+                            transform: supplierFormOpen ? 'rotate(45deg)' : 'none',
+                            transition: 'transform 150ms ease',
+                          }}
+                        />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
+
+                  {loadingSuppliers ? (
+                    <Stack gap={6} py="xs">
+                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                    </Stack>
+                  ) : linkedSuppliers.length === 0 ? (
                     <Center py="xs">
                       <Stack gap={4} align="center">
                         <IconLink size={20} style={{ opacity: 0.4 }} />
                         <Text size="xs" c="dimmed" ta="center">
-                          No suppliers linked yet. Click + to link a supplier.
+                          No suppliers linked yet.{' '}
+                          <Text
+                            component="span"
+                            c="amber.6"
+                            fw={700}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setSupplierFormOpen(true)}
+                          >
+                            + Link a supplier
+                          </Text>
                         </Text>
                       </Stack>
                     </Center>
-                  </Paper>
-                ) : (
-                  <ScrollArea.Autosize mah={320} offsetScrollbars>
-                    <Stack gap={6} pt={4} pb={4} px={2}>
-                      {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
-                        <Paper
-                          key={ls.supplierKey}
-                          p="xs"
-                          withBorder
-                          radius="var(--mantine-radius-default)"
-                        >
-                          <Group justify="space-between" align="center" wrap="nowrap">
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <Text size="sm" fw={700} lineClamp={1}>
-                                {ls.supplier.name}
-                              </Text>
-                              <Text size="xs" c="dimmed">
-                                {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
-                              </Text>
-                              {ls.costPriceCents && (
-                                <Badge size="xs" variant="light" color="teal" mt={2}>
-                                  Supplier Cost: {formatMoney(ls.costPriceCents)}
-                                </Badge>
-                              )}
-                              {ls.notes && (
-                                <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                                  {ls.notes}
+                  ) : (
+                    <ScrollArea.Autosize mah={280} offsetScrollbars>
+                      <Stack gap={6} pt={4} pb={4} px={2}>
+                        {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
+                          <Paper
+                            key={ls.supplierKey}
+                            p="xs"
+                            withBorder
+                            radius="var(--mantine-radius-default)"
+                          >
+                            <Group justify="space-between" align="center" wrap="nowrap">
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <Text size="sm" fw={700} lineClamp={1}>
+                                  {ls.supplier.name}
                                 </Text>
-                              )}
-                            </div>
-                            <Tooltip label="Unlink supplier" withArrow>
-                              <ActionIcon
-                                variant="subtle"
-                                color="red"
-                                size="sm"
-                                onClick={() => handleUnlinkSupplier(ls.supplierKey)}
-                                loading={unlinkMutation.isPending}
-                              >
-                                <IconUnlink size={14} />
-                              </ActionIcon>
-                            </Tooltip>
-                          </Group>
-                        </Paper>
-                      ))}
+                                <Text size="xs" c="dimmed">
+                                  {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
+                                </Text>
+                                <Group gap={4} mt={2}>
+                                  {ls.costPriceCents && (
+                                    <Badge size="xs" variant="light" color="teal">
+                                      Supplier Cost: {formatMoney(ls.costPriceCents)}
+                                    </Badge>
+                                  )}
+                                  {ls.supplierSku && (
+                                    <Badge size="xs" variant="outline" color="gray">
+                                      SKU: {ls.supplierSku}
+                                    </Badge>
+                                  )}
+                                </Group>
+                                {ls.notes && (
+                                  <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
+                                    {ls.notes}
+                                  </Text>
+                                )}
+                              </div>
+                              <Tooltip label="Unlink supplier" withArrow>
+                                <ActionIcon
+                                  variant="subtle"
+                                  color="red"
+                                  size="sm"
+                                  onClick={() => handleUnlinkSupplier(ls.supplierKey)}
+                                  loading={unlinkMutation.isPending}
+                                >
+                                  <IconUnlink size={14} />
+                                </ActionIcon>
+                              </Tooltip>
+                            </Group>
+                          </Paper>
+                        ))}
+                      </Stack>
+                    </ScrollArea.Autosize>
+                  )}
+
+                  <Collapse expanded={supplierFormOpen}>
+                    <Paper p="sm" withBorder mt="xs">
+                      <Stack gap="sm">
+                        <div>
+                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                            Supplier
+                          </Text>
+                          <Select
+                            placeholder="Select supplier"
+                            data={supplierSelectOptions}
+                            value={newSupplierKey}
+                            onChange={setNewSupplierKey}
+                            searchable
+                            size={isMobile ? 'md' : 'sm'}
+                          />
+                        </div>
+                        <div>
+                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                            Supplier SKU / Ref (optional)
+                          </Text>
+                          <TextInput
+                            placeholder="e.g. TPL-SCR-9981"
+                            value={newSupplierSku}
+                            onChange={(e) => setNewSupplierSku(e.currentTarget.value)}
+                            size={isMobile ? 'md' : 'sm'}
+                          />
+                        </div>
+                        <Group justify="flex-end" gap="sm">
+                          <Button variant="default" size="sm" onClick={resetSupplierForm}>
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            color="green"
+                            onClick={handleLinkSupplierInline}
+                            disabled={!newSupplierKey}
+                            loading={linkMutation.isPending}
+                          >
+                            Link Supplier
+                          </Button>
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  </Collapse>
+                </Stack>
+              )}
+
+              {isAdmin && historyTab === 'intake' && (
+                <Stack gap="sm">
+                  <Group justify="space-between" align="center">
+                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                      Stock Intake History
+                    </Text>
+                    <Tooltip label={intakeFormOpen ? 'Cancel' : 'Receive stock'} withArrow>
+                      <ActionIcon
+                        variant="light"
+                        color={intakeFormOpen ? 'gray' : 'teal'}
+                        size="sm"
+                        onClick={() =>
+                          intakeFormOpen ? resetIntakeForm() : setIntakeFormOpen(true)
+                        }
+                      >
+                        <IconPlus
+                          size={14}
+                          style={{
+                            transform: intakeFormOpen ? 'rotate(45deg)' : 'none',
+                            transition: 'transform 150ms ease',
+                          }}
+                        />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
+
+                  {loadingPurchases ? (
+                    <Stack gap={6} py="xs">
+                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
                     </Stack>
-                  </ScrollArea.Autosize>
-                )}
-
-                {/* Stock Intake History */}
-                <Group justify="space-between" align="center" mt="sm">
-                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                    Stock Intake History{' '}
-                    {loadingPurchases ? (
-                      <Skeleton
-                        height={14}
-                        width={24}
-                        style={{ display: 'inline-block', verticalAlign: 'middle' }}
-                      />
-                    ) : (
-                      <Text component="span" c="blue" fw={800}>
-                        ({purchases.length})
-                      </Text>
-                    )}
-                  </Text>
-                  <Tooltip label="Receive Stock" withArrow>
-                    <ActionIcon
-                      variant="light"
-                      color="teal"
-                      size="sm"
-                      onClick={() => setReceiveStockOpen(true)}
-                    >
-                      <IconPlus size={14} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-
-                {loadingPurchases ? (
-                  <Stack gap={6} py="xs">
-                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                    <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                  </Stack>
-                ) : purchases.length === 0 ? (
-                  <Paper
-                    p="sm"
-                    withBorder
-                    radius="var(--mantine-radius-default)"
-                    bg="var(--mantine-color-body)"
-                  >
+                  ) : purchases.length === 0 ? (
                     <Center py="xs">
                       <Stack gap={4} align="center">
                         <IconReceipt size={20} style={{ opacity: 0.4 }} />
                         <Text size="xs" c="dimmed" ta="center">
-                          No stock intakes recorded. Click + to receive stock.
+                          No stock intakes recorded.{' '}
+                          <Text
+                            component="span"
+                            c="amber.6"
+                            fw={700}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setIntakeFormOpen(true)}
+                          >
+                            + Receive stock
+                          </Text>
                         </Text>
                       </Stack>
                     </Center>
-                  </Paper>
-                ) : (
-                  <ScrollArea.Autosize mah={320} offsetScrollbars>
-                    <Stack gap={6} pt={4} pb={4} px={2}>
-                      {purchases.map((purchase) => (
-                        <Paper
-                          key={purchase.id}
-                          p="xs"
-                          withBorder
-                          radius="var(--mantine-radius-default)"
-                        >
-                          <Group justify="space-between" align="center" wrap="nowrap">
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <Text size="sm" fw={700} lineClamp={1}>
-                                {purchase.supplier.name}
-                              </Text>
-                              <Group gap={6} mt={2}>
-                                <Badge size="xs" variant="filled" color="blue">
-                                  Qty: {purchase.quantity}
-                                </Badge>
-                                <Badge size="xs" variant="light" color="teal">
-                                  {formatMoney(purchase.totalCostCents)}
-                                </Badge>
-                              </Group>
-                              <Text size="xs" c="dimmed" mt={4}>
-                                {formatDateTime(purchase.date)}{' '}
-                                {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
-                              </Text>
-                            </div>
-                          </Group>
-                        </Paper>
-                      ))}
-                    </Stack>
-                  </ScrollArea.Autosize>
-                )}
-              </>
-            )}
+                  ) : (
+                    <ScrollArea.Autosize mah={280} offsetScrollbars>
+                      <Stack gap={6} pt={4} pb={4} px={2}>
+                        {purchases.map((purchase) => (
+                          <Paper
+                            key={purchase.id}
+                            p="xs"
+                            withBorder
+                            radius="var(--mantine-radius-default)"
+                          >
+                            <Group justify="space-between" align="center" wrap="nowrap">
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <Text size="sm" fw={700} lineClamp={1}>
+                                  {purchase.supplier.name}
+                                </Text>
+                                <Group gap={6} mt={2}>
+                                  <Badge size="xs" variant="filled" color="blue">
+                                    Qty: {purchase.quantity}
+                                  </Badge>
+                                  <Badge size="xs" variant="light" color="teal">
+                                    {formatMoney(purchase.totalCostCents)}
+                                  </Badge>
+                                </Group>
+                                <Text size="xs" c="dimmed" mt={4}>
+                                  {formatDateTime(purchase.date)}{' '}
+                                  {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                                </Text>
+                              </div>
+                            </Group>
+                          </Paper>
+                        ))}
+                      </Stack>
+                    </ScrollArea.Autosize>
+                  )}
+
+                  <Collapse expanded={intakeFormOpen}>
+                    <Paper p="sm" withBorder mt="xs">
+                      <Stack gap="sm">
+                        <div>
+                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                            Quantity Received
+                          </Text>
+                          <NumberInput
+                            placeholder="e.g. 100"
+                            value={intakeQuantity}
+                            onChange={(val) => setIntakeQuantity(val === '' ? '' : Number(val))}
+                            min={1}
+                            size={isMobile ? 'md' : 'sm'}
+                          />
+                        </div>
+                        <div>
+                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                            Supplier
+                          </Text>
+                          <Select
+                            placeholder="Select supplier"
+                            data={supplierSelectOptions}
+                            value={intakeSupplierKey}
+                            onChange={setIntakeSupplierKey}
+                            searchable
+                            size={isMobile ? 'md' : 'sm'}
+                          />
+                        </div>
+                        <div>
+                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                            Invoice / Reference No. (optional)
+                          </Text>
+                          <TextInput
+                            placeholder="e.g. INV-8834"
+                            value={intakeReferenceNo}
+                            onChange={(e) => setIntakeReferenceNo(e.currentTarget.value)}
+                            size={isMobile ? 'md' : 'sm'}
+                          />
+                        </div>
+                        <Group justify="flex-end" gap="sm">
+                          <Button variant="default" size="sm" onClick={resetIntakeForm}>
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            color="green"
+                            onClick={handleRecordIntakeInline}
+                            disabled={!intakeSupplierKey || !intakeQuantity}
+                            loading={createPurchaseMutation.isPending}
+                          >
+                            Record Intake
+                          </Button>
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  </Collapse>
+                </Stack>
+              )}
+            </Paper>
 
             <Divider my="xs" />
 
@@ -1278,6 +1534,9 @@ export function ProductTable() {
                   setSelectedProduct(null);
                   setStockAdjustment(0);
                   setAdjustmentReason('');
+                  setHistoryTab('movements');
+                  resetSupplierForm();
+                  resetIntakeForm();
                 }}
               >
                 Close
@@ -1309,23 +1568,6 @@ export function ProductTable() {
         <CategoryManagerModal
           opened={categoryManagerOpen}
           onClose={() => setCategoryManagerOpen(false)}
-        />
-      )}
-
-      {isAdmin && (
-        <SupplierPickerModal
-          opened={supplierPickerOpen}
-          onClose={() => setSupplierPickerOpen(false)}
-          onSelect={(supplierKey) => handleLinkSupplier(supplierKey)}
-          excludeKeys={linkedSuppliers.map((ls: EnrichedLinkedSupplier) => ls.supplierKey)}
-        />
-      )}
-
-      {isAdmin && selectedProduct && (
-        <ReceiveStockModal
-          opened={receiveStockOpen}
-          onClose={() => setReceiveStockOpen(false)}
-          initialProductKey={selectedProduct.key}
         />
       )}
     </Stack>

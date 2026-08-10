@@ -77,6 +77,7 @@ export const supplierProductsResource = defineSyncResource<SupplierProduct>({
           productKey: input.productKey,
           costPriceCents: input.costPriceCents,
           notes: input.notes,
+          supplierSku: input.supplierSku,
           addedAt: existing ? existing.addedAt : ctx.now,
         };
         await db.supplierProducts.put(toLocalRow(link));
