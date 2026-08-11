@@ -75,7 +75,6 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
       }
       position="right"
       size={isMobile ? '100%' : 'md'}
-      padding={0}
     >
       <Stack gap="sm">
         {heldCarts.length === 0 ? (

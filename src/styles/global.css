@@ -72,10 +72,79 @@ body,
   display: block !important;
 }
 
-/* Fix Mantine Modal and Drawer content padding inherited from Paper defaultProps so header sticks seamlessly to top */
-.mantine-Modal-content,
+/* Fix Mantine Modal content padding inherited from Paper defaultProps so header sticks seamlessly to top */
+.mantine-Modal-content {
+  padding: 0 !important;
+}
+
+/* Floating Right-Side Drawer Styling */
 .mantine-Drawer-content {
   padding: 0 !important;
+  background-color: var(--bg-card) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+@media (min-width: 48em) {
+  .mantine-Drawer-content {
+    margin: var(--mantine-spacing-md) !important;
+    height: calc(100vh - 2 * var(--mantine-spacing-md)) !important;
+    height: calc(100dvh - 2 * var(--mantine-spacing-md)) !important;
+    max-height: calc(100vh - 2 * var(--mantine-spacing-md)) !important;
+    max-height: calc(100dvh - 2 * var(--mantine-spacing-md)) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--mantine-radius-default) !important;
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.15),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 47.99em) {
+  .mantine-Drawer-content {
+    margin: 0 !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+}
+
+.mantine-Drawer-header {
+  background-color: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg) !important;
+  min-height: 60px !important;
+  flex-shrink: 0 !important;
+}
+
+.mantine-Drawer-body {
+  background-color: var(--bg-card) !important;
+  padding: var(--mantine-spacing-lg) !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+}
+
+.mantine-Drawer-title {
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+.mantine-Drawer-close {
+  color: var(--text-secondary) !important;
+  border-radius: var(--mantine-radius-default) !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease !important;
+}
+
+.mantine-Drawer-close:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Billing counter root.

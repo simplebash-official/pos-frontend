@@ -2,6 +2,7 @@ import {
   Card,
   Container,
   createTheme,
+  Drawer,
   DrawerContent,
   HoverCard,
   ModalContent,
@@ -96,6 +97,15 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     DrawerContent: DrawerContent.extend({
       defaultProps: {
         p: 0,
+      },
+    }),
+
+    Drawer: Drawer.extend({
+      defaultProps: {
+        position: 'right',
+        offset: 16,
+        radius: 'var(--mantine-radius-default)',
+        shadow: 'xl',
       },
     }),
 

@@ -24,6 +24,7 @@ import { getPrintLogsForInvoice } from '../api/printLogStore';
 import { recordPayment, getPaymentsForInvoice, getTotalPaidForInvoice } from '../api/paymentsStore';
 import { queryKeys } from '@/api/queryKeys';
 import { A4InvoicePreviewModal } from '@/features/billing/components/A4InvoicePreviewModal';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface InvoiceDetailDrawerProps {
   opened: boolean;
@@ -38,6 +39,7 @@ export const InvoiceDetailDrawer = ({
   invoice,
   onRefresh,
 }: InvoiceDetailDrawerProps) => {
+  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const { printReceipt } = usePrint();
 
@@ -134,9 +136,9 @@ export const InvoiceDetailDrawer = ({
           </Group>
         }
         position="right"
-        size="lg"
+        size={isMobile ? '100%' : 'lg'}
       >
-        <Stack gap="md" style={{ height: 'calc(100vh - 80px)', overflowY: 'auto' }}>
+        <Stack gap="md">
           {/* Metadata Block */}
           <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
             <Group justify="space-between" mb="xs">

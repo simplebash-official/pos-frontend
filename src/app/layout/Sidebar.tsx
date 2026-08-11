@@ -93,17 +93,15 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               </Tooltip>
             );
           })}
+        </Stack>
 
-          <Divider my="xs" style={{ width: '80%' }} />
-
+        <Stack gap="xs" align="center">
           <Tooltip label="Lock / Logout POS" position="right" withArrow>
             <ActionIcon size="lg" variant="subtle" color="gray" onClick={handleLogout}>
               <IconLock size={20} stroke={1.5} />
             </ActionIcon>
           </Tooltip>
-        </Stack>
 
-        <Stack gap="xs" align="center">
           <Tooltip label={isDark ? 'Light Mode' : 'Dark Mode'} position="right" withArrow>
             <ActionIcon
               size="lg"
@@ -152,9 +150,10 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
             />
           );
         })}
+      </Stack>
 
-        <Divider my="sm" />
-
+      <Stack gap="xs">
+        <Divider my="xs" />
         <NavLink
           label="Lock / Logout POS"
           leftSection={<IconLock size={20} stroke={1.5} />}
@@ -164,10 +163,6 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           onClick={handleLogout}
           style={{ borderRadius: 'var(--mantine-radius-default)' }}
         />
-      </Stack>
-
-      <Stack gap="xs">
-        <Divider my="xs" />
         <NavLink
           label="Dark Mode"
           leftSection={

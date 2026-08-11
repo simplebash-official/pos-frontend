@@ -1,5 +1,6 @@
 import { Drawer, DrawerProps } from '@mantine/core';
 import { useState } from 'react';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface DetailDrawerProps<T> {
   data: T | null;
@@ -18,6 +19,7 @@ export const DetailDrawer = <T,>({
   size = 'md',
   children,
 }: DetailDrawerProps<T>) => {
+  const isMobile = useIsMobile();
   const [cachedData, setCachedData] = useState<T | null>(data);
 
   if (data && data !== cachedData) {
@@ -31,8 +33,7 @@ export const DetailDrawer = <T,>({
       opened={opened}
       onClose={onClose}
       position="right"
-      size={size}
-      padding="lg"
+      size={isMobile ? '100%' : size}
       title={title}
     >
       {activeData ? children(activeData) : null}
