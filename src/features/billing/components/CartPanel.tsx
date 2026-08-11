@@ -241,13 +241,7 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
           <Paper p="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Group justify="space-between" align="center" wrap="nowrap">
               <Group gap="xs" wrap="nowrap" align="center" style={{ minWidth: 0, flex: 1 }}>
-                <ThemeIcon
-                  size={36}
-                  radius="md"
-                  color="blue"
-                  variant="light"
-                  style={{ flexShrink: 0 }}
-                >
+                <ThemeIcon size={36} color="blue" variant="light" style={{ flexShrink: 0 }}>
                   <IconUser size={18} />
                 </ThemeIcon>
                 <Stack gap={0} style={{ minWidth: 0, flex: 1 }}>

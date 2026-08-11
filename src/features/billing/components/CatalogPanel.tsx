@@ -446,13 +446,13 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
                   >
                     <Stack justify="space-between" h="100%" gap={4}>
                       <Group justify="space-between" align="center">
-                        <Skeleton height={18} width={70} radius="xs" />
-                        <Skeleton height={12} width={40} radius="xs" />
+                        <Skeleton height={18} width={70} />
+                        <Skeleton height={12} width={40} />
                       </Group>
-                      <Skeleton height={32} width="90%" radius="xs" />
+                      <Skeleton height={32} width="90%" />
                       <Group justify="space-between" align="flex-end">
-                        <Skeleton height={20} width={60} radius="xs" />
-                        <Skeleton height={18} width={50} radius="xs" />
+                        <Skeleton height={20} width={60} />
+                        <Skeleton height={18} width={50} />
                       </Group>
                     </Stack>
                   </Card>

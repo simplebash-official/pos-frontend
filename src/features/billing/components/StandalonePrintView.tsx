@@ -68,22 +68,22 @@ export const StandalonePrintView = () => {
   if (loading) {
     return (
       <Container size="sm" py="xl">
-        <Paper p="xl" withBorder radius="md">
+        <Paper p="xl" withBorder>
           <Stack gap="md">
             <Group justify="space-between">
-              <Skeleton height={32} width={180} radius="xs" />
-              <Skeleton height={24} width={100} radius="xs" />
+              <Skeleton height={32} width={180} />
+              <Skeleton height={24} width={100} />
             </Group>
             <Skeleton height={1} width="100%" my="xs" />
-            <Skeleton height={20} width="60%" radius="xs" />
-            <Skeleton height={20} width="40%" radius="xs" />
+            <Skeleton height={20} width="60%" />
+            <Skeleton height={20} width="40%" />
             <Stack gap="xs" mt="lg">
-              <Skeleton height={24} width="100%" radius="xs" />
-              <Skeleton height={24} width="100%" radius="xs" />
-              <Skeleton height={24} width="100%" radius="xs" />
+              <Skeleton height={24} width="100%" />
+              <Skeleton height={24} width="100%" />
+              <Skeleton height={24} width="100%" />
             </Stack>
             <Group justify="flex-end" mt="md">
-              <Skeleton height={28} width={120} radius="xs" />
+              <Skeleton height={28} width={120} />
             </Group>
           </Stack>
         </Paper>

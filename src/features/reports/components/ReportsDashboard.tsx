@@ -123,14 +123,14 @@ export const ReportsDashboard = () => {
                 <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                   {stat.title}
                 </Text>
-                <ThemeIcon color={stat.color} variant="light" size="md" radius="lg">
+                <ThemeIcon color={stat.color} variant="light" size="md">
                   <Icon size={18} />
                 </ThemeIcon>
               </Group>
 
               <Group align="flex-end" gap="xs" mt={15}>
                 {isLoading ? (
-                  <Skeleton height={24} width={100} radius="xs" />
+                  <Skeleton height={24} width={100} />
                 ) : (
                   <Title order={4}>{formatMoney(stat.valueCents)}</Title>
                 )}
@@ -173,23 +173,23 @@ export const ReportsDashboard = () => {
                 ? Array.from({ length: 4 }, (_, i) => (
                     <Table.Tr key={`rep-skel-${i}`}>
                       <Table.Td>
-                        <Skeleton height={16} width={120} radius="xs" mb={4} />
-                        <Skeleton height={12} width={80} radius="xs" />
+                        <Skeleton height={16} width={120} mb={4} />
+                        <Skeleton height={12} width={80} />
                       </Table.Td>
                       <Table.Td ta="center">
-                        <Skeleton height={20} width={90} radius="xl" mx="auto" />
+                        <Skeleton height={20} width={90} mx="auto" />
                       </Table.Td>
                       <Table.Td ta="right">
-                        <Skeleton height={16} width={50} radius="xs" ms="auto" />
+                        <Skeleton height={16} width={50} ms="auto" />
                       </Table.Td>
                       <Table.Td ta="right">
-                        <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                        <Skeleton height={16} width={70} ms="auto" />
                       </Table.Td>
                       <Table.Td ta="right">
-                        <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                        <Skeleton height={16} width={70} ms="auto" />
                       </Table.Td>
                       <Table.Td ta="right">
-                        <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                        <Skeleton height={16} width={70} ms="auto" />
                       </Table.Td>
                     </Table.Tr>
                   ))

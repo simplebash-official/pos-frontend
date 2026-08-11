@@ -78,7 +78,7 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
       onClose={onClose}
       title={
         <Group gap="xs" align="center">
-          <ThemeIcon size="lg" radius="md" color="blue" variant="filled">
+          <ThemeIcon size="lg" color="blue" variant="filled">
             <IconFileText size={18} />
           </ThemeIcon>
           <Box>

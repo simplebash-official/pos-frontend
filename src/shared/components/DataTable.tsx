@@ -214,7 +214,7 @@ export const DataTable = <T,>({
                 <Table.Tr key={`skeleton-row-${rowIndex}`}>
                   {selectable && (
                     <Table.Td style={{ textAlign: 'center' }}>
-                      <Skeleton height={16} width={16} radius="xs" />
+                      <Skeleton height={16} width={16} />
                     </Table.Td>
                   )}
                   {columns.map((col, colIndex) => (

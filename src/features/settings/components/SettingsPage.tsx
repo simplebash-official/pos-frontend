@@ -121,7 +121,7 @@ export const SettingsPage = () => {
         {/* Header */}
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon size="lg" radius="lg" color="blue" variant="light">
+            <ThemeIcon size="lg" color="blue" variant="light">
               <IconSettings size={24} />
             </ThemeIcon>
             <div>
@@ -136,10 +136,10 @@ export const SettingsPage = () => {
         </Group>
 
         {/* 1. Shop Identity Section */}
-        <Paper p="lg" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+        <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
           <Stack gap="md">
             <Group gap="xs">
-              <ThemeIcon radius="md" color="blue" variant="light">
+              <ThemeIcon color="blue" variant="light">
                 <IconBuildingStore size={20} />
               </ThemeIcon>
               <Text fw={700} size="md">
@@ -297,10 +297,10 @@ export const SettingsPage = () => {
         </Paper>
 
         {/* 2. Print Preferences Section */}
-        <Paper p="lg" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+        <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
           <Stack gap="md">
             <Group gap="xs">
-              <ThemeIcon radius="md" color="teal" variant="light">
+              <ThemeIcon color="teal" variant="light">
                 <IconPrinter size={20} />
               </ThemeIcon>
               <Text fw={700} size="md">

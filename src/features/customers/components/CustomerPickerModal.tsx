@@ -257,11 +257,11 @@ export const CustomerPickerModal = ({
                       <Group gap="md">
                         <Skeleton height={36} width={36} circle />
                         <div>
-                          <Skeleton height={16} width={120} radius="xs" mb={4} />
-                          <Skeleton height={12} width={80} radius="xs" />
+                          <Skeleton height={16} width={120} mb={4} />
+                          <Skeleton height={12} width={80} />
                         </div>
                       </Group>
-                      <Skeleton height={20} width={60} radius="xs" />
+                      <Skeleton height={20} width={60} />
                     </Group>
                   </Paper>
                 ))

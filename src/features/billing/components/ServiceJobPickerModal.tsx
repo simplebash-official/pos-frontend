@@ -223,13 +223,13 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
                 <Paper key={`job-skel-${i}`} p="md" withBorder>
                   <Group justify="space-between" align="center">
                     <Group gap="md" align="center" style={{ flex: 1 }}>
-                      <Skeleton height={44} width={44} radius="sm" />
+                      <Skeleton height={44} width={44} />
                       <Stack gap={4} style={{ flex: 1 }}>
-                        <Skeleton height={14} width={100} radius="xs" />
-                        <Skeleton height={16} width="70%" radius="xs" />
+                        <Skeleton height={14} width={100} />
+                        <Skeleton height={16} width="70%" />
                       </Stack>
                     </Group>
-                    <Skeleton height={24} width={80} radius="xs" />
+                    <Skeleton height={24} width={80} />
                   </Group>
                 </Paper>
               ))}

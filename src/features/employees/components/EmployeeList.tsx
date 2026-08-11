@@ -271,7 +271,7 @@ export const EmployeeList = () => {
                 Active Staff Members
               </Text>
               {isEmployeesLoading ? (
-                <Skeleton height={28} width={60} mt={4} radius="xs" />
+                <Skeleton height={28} width={60} mt={4} />
               ) : (
                 <Text fw={800} size="xl">
                   {employees.filter((e) => e.status === 'active').length}
@@ -326,13 +326,13 @@ export const EmployeeList = () => {
                       <Group gap="xs">
                         <Skeleton height={28} width={28} circle />
                         <div>
-                          <Skeleton height={16} width={120} radius="xs" mb={4} />
-                          <Skeleton height={12} width={80} radius="xs" />
+                          <Skeleton height={16} width={120} mb={4} />
+                          <Skeleton height={12} width={80} />
                         </div>
                       </Group>
                     </Group>
-                    <Skeleton height={14} width="90%" radius="xs" />
-                    <Skeleton height={14} width="60%" radius="xs" />
+                    <Skeleton height={14} width="90%" />
+                    <Skeleton height={14} width="60%" />
                   </Stack>
                 </Card>
               </Grid.Col>

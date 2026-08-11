@@ -17,7 +17,7 @@ export const EmptyState = ({
   onAction,
 }: EmptyStateProps) => {
   return (
-    <Paper p="xl" withBorder radius="lg">
+    <Paper p="xl" withBorder>
       <Center py="lg">
         <Stack align="center" gap="sm">
           {icon}

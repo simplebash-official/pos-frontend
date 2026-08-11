@@ -102,7 +102,10 @@ export const ReceiveStockModal = ({
                   <Group
                     justify="space-between"
                     p="xs"
-                    style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: '4px' }}
+                    style={{
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--mantine-radius-default)',
+                    }}
                   >
                     <Group>
                       <IconPackage size={16} />
@@ -138,7 +141,10 @@ export const ReceiveStockModal = ({
                   <Group
                     justify="space-between"
                     p="xs"
-                    style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: '4px' }}
+                    style={{
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--mantine-radius-default)',
+                    }}
                   >
                     <Group>
                       <IconBuildingStore size={16} />

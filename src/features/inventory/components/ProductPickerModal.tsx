@@ -133,13 +133,13 @@ export const ProductPickerModal = ({
                 >
                   <Group justify="space-between" align="center">
                     <Group gap="md">
-                      <Skeleton height={36} width={36} radius="md" />
+                      <Skeleton height={36} width={36} />
                       <div>
-                        <Skeleton height={16} width={140} radius="xs" mb={4} />
-                        <Skeleton height={12} width={90} radius="xs" />
+                        <Skeleton height={16} width={140} mb={4} />
+                        <Skeleton height={12} width={90} />
                       </div>
                     </Group>
-                    <Skeleton height={20} width={60} radius="xs" />
+                    <Skeleton height={20} width={60} />
                   </Group>
                 </Paper>
               ))

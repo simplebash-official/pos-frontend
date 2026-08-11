@@ -394,7 +394,6 @@ export const SupplierFormModal = ({
       title={isEditing ? 'Edit Supplier Details' : 'Register New Supplier'}
       size="lg"
       centered
-      radius="md"
     >
       {opened && (
         <SupplierFormContent

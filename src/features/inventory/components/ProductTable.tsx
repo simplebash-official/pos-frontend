@@ -434,7 +434,7 @@ export const ProductTable = () => {
                   Total Items
                 </Text>
                 {isInventoryLoading ? (
-                  <Skeleton height={28} width={60} mt={4} radius="xs" />
+                  <Skeleton height={28} width={60} mt={4} />
                 ) : (
                   <Text fw={800} size="xl">
                     {totalProducts}
@@ -456,7 +456,7 @@ export const ProductTable = () => {
                   Categories & Subcategories
                 </Text>
                 {isInventoryLoading ? (
-                  <Skeleton height={28} width={110} mt={4} radius="xs" />
+                  <Skeleton height={28} width={110} mt={4} />
                 ) : (
                   <Text fw={800} size="xl">
                     {categoriesCount} Categories
@@ -478,7 +478,7 @@ export const ProductTable = () => {
                   Low Stock Alerts
                 </Text>
                 {isInventoryLoading ? (
-                  <Skeleton height={28} width={80} mt={4} radius="xs" />
+                  <Skeleton height={28} width={80} mt={4} />
                 ) : (
                   <Text fw={800} size="xl" c={lowStockCount > 0 ? 'red' : 'green'}>
                     {lowStockCount} {lowStockCount === 1 ? 'Item' : 'Items'}
@@ -580,7 +580,7 @@ export const ProductTable = () => {
 
       {/* Batch Action Bar when items are selected */}
       {selectedProductIds.length > 0 && (
-        <Paper p="xs" px="md" bg="var(--mantine-color-blue-light)" withBorder radius="md">
+        <Paper p="xs" px="md" bg="var(--mantine-color-blue-light)" withBorder>
           <Group justify="space-between" align="center">
             <Group gap="sm">
               <Badge color="blue" size="md" variant="filled">
@@ -610,14 +610,14 @@ export const ProductTable = () => {
 
       {/* Accordion Tree Table View */}
       {hierarchy.size === 0 ? (
-        <Paper p="xl" withBorder radius="md">
+        <Paper p="xl" withBorder>
           {isLoading ? (
             <Stack gap="sm">
-              <Skeleton height={36} radius="md" />
-              <Skeleton height={24} width="85%" radius="sm" style={{ marginLeft: 16 }} />
-              <Skeleton height={24} width="70%" radius="sm" style={{ marginLeft: 16 }} />
-              <Skeleton height={36} radius="md" mt="sm" />
-              <Skeleton height={24} width="60%" radius="sm" style={{ marginLeft: 16 }} />
+              <Skeleton height={36} />
+              <Skeleton height={24} width="85%" style={{ marginLeft: 16 }} />
+              <Skeleton height={24} width="70%" style={{ marginLeft: 16 }} />
+              <Skeleton height={36} mt="sm" />
+              <Skeleton height={24} width="60%" style={{ marginLeft: 16 }} />
             </Stack>
           ) : (
             <Text ta="center" c="dimmed" size="sm">
@@ -633,7 +633,6 @@ export const ProductTable = () => {
             setUserCollapsedCategories(categoryKeys.filter((c) => !val.includes(c)))
           }
           variant="separated"
-          radius="md"
         >
           {Array.from(hierarchy.entries()).map(([categoryKey, subcategoriesMap]) => {
             const firstProduct = Array.from(subcategoriesMap.values())[0]?.[0];
@@ -659,7 +658,7 @@ export const ProductTable = () => {
                 <Accordion.Control>
                   <Group justify="space-between" wrap="nowrap" pr="md">
                     <Group gap="sm">
-                      <ThemeIcon color={catColor} variant="light" size="lg" radius="md">
+                      <ThemeIcon color={catColor} variant="light" size="lg">
                         <CatIcon size={20} />
                       </ThemeIcon>
                       <div>
@@ -720,7 +719,6 @@ export const ProductTable = () => {
                           key={subcategoryKey}
                           withBorder
                           p="sm"
-                          radius="md"
                           style={{ backgroundColor: 'var(--mantine-color-body)' }}
                         >
                           {/* Subcategory Collapsible Header Bar */}
@@ -918,7 +916,7 @@ export const ProductTable = () => {
         padding="lg"
         title={
           <Group gap="xs">
-            <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+            <ThemeIcon color="blue" variant="light" size="lg">
               <IconPackage size={20} />
             </ThemeIcon>
             <div>
@@ -1177,8 +1175,8 @@ export const ProductTable = () => {
               {historyTab === 'movements' &&
                 (loadingMovements ? (
                   <Stack gap={4} py="xs">
-                    <Skeleton height={14} radius="xs" />
-                    <Skeleton height={14} radius="xs" />
+                    <Skeleton height={14} />
+                    <Skeleton height={14} />
                   </Stack>
                 ) : movements.length === 0 ? (
                   <Center py="md">

@@ -160,7 +160,7 @@ export const EmployeeDetailDrawer = ({
                   Total Earned
                 </Text>
                 {isEarningsLoading ? (
-                  <Skeleton height={20} width={60} radius="xs" mx="auto" mt={4} />
+                  <Skeleton height={20} width={60} mx="auto" mt={4} />
                 ) : (
                   <Text fw={800} size="md" c="indigo">
                     {formatMoney(totalEarnedCents)}
@@ -175,7 +175,7 @@ export const EmployeeDetailDrawer = ({
                   Work Done
                 </Text>
                 {isEarningsLoading ? (
-                  <Skeleton height={20} width={50} radius="xs" mx="auto" mt={4} />
+                  <Skeleton height={20} width={50} mx="auto" mt={4} />
                 ) : (
                   <Text fw={800} size="md">
                     {totalJobsCompleted} Jobs
@@ -190,7 +190,7 @@ export const EmployeeDetailDrawer = ({
                   Revenue Done
                 </Text>
                 {isEarningsLoading ? (
-                  <Skeleton height={20} width={60} radius="xs" mx="auto" mt={4} />
+                  <Skeleton height={20} width={60} mx="auto" mt={4} />
                 ) : (
                   <Text fw={800} size="md" c="teal">
                     {formatMoney(totalRevenueGeneratedCents)}

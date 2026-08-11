@@ -148,7 +148,7 @@ export const InvoicesList = () => {
         {/* Page Header */}
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon size="lg" radius="lg" color="slate" variant="light">
+            <ThemeIcon size="lg" color="slate" variant="light">
               <IconFileInvoice size={24} />
             </ThemeIcon>
             <div>
@@ -174,7 +174,7 @@ export const InvoicesList = () => {
 
         {/* KPI Strip */}
         <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
-          <Paper p="md" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
@@ -190,13 +190,13 @@ export const InvoicesList = () => {
                   {formatMoney(kpis.todaySalesCents)}
                 </Text>
               </div>
-              <ThemeIcon radius="md" color="blue" variant="light" size="lg">
+              <ThemeIcon color="blue" variant="light" size="lg">
                 <IconCash size={20} />
               </ThemeIcon>
             </Group>
           </Paper>
 
-          <Paper p="md" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
@@ -210,13 +210,13 @@ export const InvoicesList = () => {
                   </Text>
                 )}
               </div>
-              <ThemeIcon radius="md" color="teal" variant="light" size="lg">
+              <ThemeIcon color="teal" variant="light" size="lg">
                 <IconReceipt size={20} />
               </ThemeIcon>
             </Group>
           </Paper>
 
-          <Paper p="md" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
@@ -236,13 +236,13 @@ export const InvoicesList = () => {
                   </Text>
                 )}
               </div>
-              <ThemeIcon radius="md" color="amber" variant="light" size="lg">
+              <ThemeIcon color="amber" variant="light" size="lg">
                 <IconAlertCircle size={20} />
               </ThemeIcon>
             </Group>
           </Paper>
 
-          <Paper p="md" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
@@ -256,7 +256,7 @@ export const InvoicesList = () => {
                   </Text>
                 )}
               </div>
-              <ThemeIcon radius="md" color="violet" variant="light" size="lg">
+              <ThemeIcon color="violet" variant="light" size="lg">
                 <IconChartPie size={20} />
               </ThemeIcon>
             </Group>
@@ -264,7 +264,7 @@ export const InvoicesList = () => {
         </SimpleGrid>
 
         {/* Filter Controls Bar */}
-        <Paper p="sm" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+        <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
           <Group justify="space-between" wrap="wrap">
             <TextInput
               placeholder="Search invoice #, customer name, phone, ticket #"
@@ -315,11 +315,7 @@ export const InvoicesList = () => {
         </Paper>
 
         {/* Data Table */}
-        <Paper
-          radius="lg"
-          withBorder
-          style={{ overflow: 'hidden', backgroundColor: 'var(--bg-card)' }}
-        >
+        <Paper withBorder style={{ overflow: 'hidden', backgroundColor: 'var(--bg-card)' }}>
           <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover striped>
             <Table.Thead>
               <Table.Tr>
@@ -337,25 +333,25 @@ export const InvoicesList = () => {
                 Array.from({ length: 6 }, (_, i) => (
                   <Table.Tr key={`inv-skel-${i}`}>
                     <Table.Td>
-                      <Skeleton height={16} width={80} radius="xs" />
+                      <Skeleton height={16} width={80} />
                     </Table.Td>
                     <Table.Td>
-                      <Skeleton height={14} width={100} radius="xs" />
+                      <Skeleton height={14} width={100} />
                     </Table.Td>
                     <Table.Td>
-                      <Skeleton height={14} width={120} radius="xs" />
+                      <Skeleton height={14} width={120} />
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>
-                      <Skeleton height={16} width={40} radius="xs" mx="auto" />
+                      <Skeleton height={16} width={40} mx="auto" />
                     </Table.Td>
                     <Table.Td>
-                      <Skeleton height={20} width={70} radius="xl" />
+                      <Skeleton height={20} width={70} />
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>
-                      <Skeleton height={20} width={60} radius="xl" mx="auto" />
+                      <Skeleton height={20} width={60} mx="auto" />
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'right' }}>
-                      <Skeleton height={16} width={70} radius="xs" ms="auto" />
+                      <Skeleton height={16} width={70} ms="auto" />
                     </Table.Td>
                   </Table.Tr>
                 ))

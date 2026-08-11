@@ -64,7 +64,7 @@ const CategoryColorPicker = ({
             <ColorSwatch
               color={`var(--mantine-color-${color}-6)`}
               size={38}
-              radius="default"
+              radius="var(--mantine-radius-default)"
               style={{ cursor: 'pointer' }}
               onClick={() => onChange(color)}
             >

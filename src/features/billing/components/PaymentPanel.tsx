@@ -745,7 +745,6 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
             <Paper
               p="xs"
               withBorder
-              radius="md"
               opacity={isCartEmpty ? 0.5 : 1}
               style={{
                 pointerEvents: isCartEmpty ? 'none' : 'auto',
@@ -902,7 +901,6 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                   },
                 ]}
                 color={isCredit ? 'amber' : 'blue'}
-                radius="md"
                 styles={{
                   root: {
                     backgroundColor: 'var(--bg-app)',
@@ -924,7 +922,6 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
             <Stack gap="xs">
               <Paper
                 p="xs"
-                radius="md"
                 style={{
                   backgroundColor: 'var(--bg-app)',
                   borderColor: 'light-dark(var(--mantine-color-amber-4), rgba(245, 159, 0, 0.4))',

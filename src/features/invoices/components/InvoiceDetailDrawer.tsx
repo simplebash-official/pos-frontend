@@ -138,7 +138,7 @@ export const InvoiceDetailDrawer = ({
       >
         <Stack gap="md" style={{ height: 'calc(100vh - 80px)', overflowY: 'auto' }}>
           {/* Metadata Block */}
-          <Paper p="sm" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
+          <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
             <Group justify="space-between" mb="xs">
               <Text size="xs" c="dimmed">
                 Issued Date: {new Date(invoice.createdAt).toLocaleString()}
@@ -164,7 +164,7 @@ export const InvoiceDetailDrawer = ({
           </Paper>
 
           {/* Line Items Table */}
-          <Paper p="sm" radius="lg" withBorder>
+          <Paper p="sm" withBorder>
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs">
               ORDER ITEMS ({invoice.items.length})
             </Text>
@@ -210,7 +210,7 @@ export const InvoiceDetailDrawer = ({
           </Paper>
 
           {/* Totals Breakdown */}
-          <Paper p="sm" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
+          <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-app)' }}>
             <Stack gap="xs">
               <Group justify="space-between">
                 <Text size="xs" c="dimmed">
@@ -338,7 +338,7 @@ export const InvoiceDetailDrawer = ({
           </Paper>
 
           {/* Print History Log */}
-          <Paper p="sm" radius="lg" withBorder>
+          <Paper p="sm" withBorder>
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
               PRINT HISTORY ({logs.length} PRINTS)
             </Text>
@@ -410,7 +410,6 @@ export const InvoiceDetailDrawer = ({
         opened={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
         title={<Text fw={700}>Record Payment for #{invoice.invoiceNumber}</Text>}
-        radius="lg"
       >
         <Stack gap="md">
           <NumberInput

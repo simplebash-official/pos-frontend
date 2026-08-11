@@ -65,7 +65,6 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                     component={RouterNavLink}
                     to={item.to}
                     size="lg"
-                    radius="md"
                     variant={isActive ? 'filled' : 'subtle'}
                     color={isActive ? item.color || 'blue' : 'gray'}
                     onClick={closeMobile}
@@ -98,7 +97,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           <Divider my="xs" style={{ width: '80%' }} />
 
           <Tooltip label="Lock / Logout POS" position="right" withArrow>
-            <ActionIcon size="lg" radius="md" variant="subtle" color="gray" onClick={handleLogout}>
+            <ActionIcon size="lg" variant="subtle" color="gray" onClick={handleLogout}>
               <IconLock size={20} stroke={1.5} />
             </ActionIcon>
           </Tooltip>
@@ -108,7 +107,6 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           <Tooltip label={isDark ? 'Light Mode' : 'Dark Mode'} position="right" withArrow>
             <ActionIcon
               size="lg"
-              radius="md"
               variant="subtle"
               color="gray"
               onClick={() => setColorScheme(isDark ? 'light' : 'dark')}

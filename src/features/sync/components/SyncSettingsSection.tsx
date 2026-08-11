@@ -10,10 +10,10 @@ import { SyncPanel } from './SyncPanel';
  */
 export const SyncSettingsSection = () => {
   return (
-    <Paper p="lg" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
       <Stack gap="md">
         <Group gap="sm">
-          <ThemeIcon radius="md" color="blue" variant="light">
+          <ThemeIcon color="blue" variant="light">
             <IconCloudCog size={18} />
           </ThemeIcon>
           <Stack gap={0}>

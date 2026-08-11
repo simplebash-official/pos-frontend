@@ -78,7 +78,7 @@ export const TablerIconPicker = ({
   );
 
   const iconContent = (
-    <ThemeIcon color={color || 'blue'} variant="light" size={28} radius="default">
+    <ThemeIcon color={color || 'blue'} variant="light" size={28}>
       {selectedIconEl}
     </ThemeIcon>
   );
