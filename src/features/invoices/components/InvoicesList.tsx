@@ -14,6 +14,7 @@ import {
   Table,
   Button,
   Skeleton,
+  ActionIcon,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -23,6 +24,7 @@ import {
   IconChartPie,
   IconRefresh,
   IconFileInvoice,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import { fetchInvoices } from '@/features/billing/api/mockInvoices';
 import type { Invoice } from '@/features/billing/types';
@@ -326,6 +328,7 @@ export const InvoicesList = () => {
                 <Table.Th>Payment Method</Table.Th>
                 <Table.Th style={{ textAlign: 'center' }}>Status</Table.Th>
                 <Table.Th style={{ textAlign: 'right' }}>Total</Table.Th>
+                <Table.Th style={{ width: 40, textAlign: 'right' }} aria-label="View Details" />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -353,11 +356,19 @@ export const InvoicesList = () => {
                     <Table.Td style={{ textAlign: 'right' }}>
                       <Skeleton height={16} width={70} ms="auto" />
                     </Table.Td>
+                    <Table.Td style={{ width: 40, textAlign: 'right', verticalAlign: 'middle' }}>
+                      <Skeleton
+                        height={16}
+                        width={16}
+                        radius="xl"
+                        style={{ marginInlineStart: 'auto' }}
+                      />
+                    </Table.Td>
                   </Table.Tr>
                 ))
               ) : filteredInvoices.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={7} style={{ textAlign: 'center', padding: '32px' }}>
+                  <Table.Td colSpan={8} style={{ textAlign: 'center', padding: '32px' }}>
                     <Text size="sm" c="dimmed">
                       No invoices found matching your filters.
                     </Text>
@@ -367,6 +378,7 @@ export const InvoicesList = () => {
                 filteredInvoices.map((inv) => (
                   <Table.Tr
                     key={inv.id}
+                    className="data-table-row"
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleRowClick(inv)}
                   >
@@ -422,6 +434,28 @@ export const InvoicesList = () => {
                       }}
                     >
                       {formatMoney(inv.totalCents)}
+                    </Table.Td>
+                    <Table.Td
+                      style={{
+                        width: 40,
+                        textAlign: 'right',
+                        verticalAlign: 'middle',
+                      }}
+                    >
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        aria-label="View invoice details"
+                        className="data-table-row-chevron"
+                        tabIndex={-1}
+                        style={{
+                          opacity: 0.45,
+                          marginInlineStart: 'auto',
+                        }}
+                      >
+                        <IconChevronRight size={16} />
+                      </ActionIcon>
                     </Table.Td>
                   </Table.Tr>
                 ))

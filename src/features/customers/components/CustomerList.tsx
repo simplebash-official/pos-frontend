@@ -4,13 +4,15 @@ import {
   Badge,
   Group,
   Text,
-  Paper,
   Stack,
   Card,
   Grid,
   ThemeIcon,
   ActionIcon,
   Skeleton,
+  Avatar,
+  Box,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconUserPlus,
@@ -41,6 +43,7 @@ import { PRESET_CUSTOMER_TAGS } from '../constants';
 import { CustomerFormModal } from './CustomerFormModal';
 import { CustomerDetailDrawer } from './CustomerDetailDrawer';
 import { formatMoney } from '@/shared/lib/money';
+import { getInitials, getAvatarColor } from '@/shared/lib/utils';
 import { queryKeys } from '@/api/queryKeys';
 
 export const CustomerList = () => {
@@ -367,20 +370,36 @@ export const CustomerList = () => {
         ) : isLoading ? (
           <Grid gap="md">
             {Array.from({ length: 6 }, (_, i) => (
-              <Grid.Col key={`cust-skel-${i}`} span={{ base: 12, sm: 6, md: 4 }}>
-                <Card withBorder p="md">
-                  <Stack gap="xs">
-                    <Group justify="space-between" align="flex-start">
+              <Grid.Col key={`cust-skel-${i}`} span={{ base: 12, sm: 6, lg: 4 }}>
+                <Card withBorder p="md" style={{ height: '100%' }}>
+                  <Stack justify="space-between" style={{ height: '100%' }} gap="md">
+                    <div>
+                      <Group justify="space-between" align="flex-start" mb="xs">
+                        <Group gap="sm">
+                          <Skeleton height={38} width={38} radius="md" />
+                          <div>
+                            <Skeleton height={16} width={130} mb={6} />
+                            <Skeleton height={12} width={90} />
+                          </div>
+                        </Group>
+                        <Skeleton height={20} width={70} radius="xl" />
+                      </Group>
+                      <Box pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
+                        <Skeleton height={24} width="80%" mb={6} />
+                        <Skeleton height={24} width="65%" />
+                      </Box>
+                    </div>
+                    <Group
+                      justify="space-between"
+                      pt="xs"
+                      style={{ borderTop: '1px solid var(--border)' }}
+                    >
+                      <Skeleton height={14} width={80} />
                       <Group gap="xs">
-                        <Skeleton height={28} width={28} circle />
-                        <div>
-                          <Skeleton height={16} width={120} mb={4} />
-                          <Skeleton height={12} width={80} />
-                        </div>
+                        <Skeleton height={24} width={24} circle />
+                        <Skeleton height={24} width={24} circle />
                       </Group>
                     </Group>
-                    <Skeleton height={14} width="90%" />
-                    <Skeleton height={14} width="60%" />
                   </Stack>
                 </Card>
               </Grid.Col>
@@ -389,11 +408,10 @@ export const CustomerList = () => {
         ) : (
           <Grid gap="md">
             {filteredCustomers.map((cust) => (
-              <Grid.Col key={cust.id} span={{ base: 12, sm: 6, md: 4 }}>
+              <Grid.Col key={cust.id} span={{ base: 12, sm: 6, lg: 4 }}>
                 <Card
-                  withBorder
+                  className="entity-grid-card"
                   p="md"
-                  style={{ cursor: 'pointer' }}
                   onClick={() => setSelectedCustomerForDrawer(cust)}
                   tabIndex={0}
                   role="button"
@@ -404,61 +422,90 @@ export const CustomerList = () => {
                     }
                   }}
                 >
-                  <Stack gap="xs">
-                    <Group justify="space-between" align="flex-start" wrap="nowrap">
+                  <Stack justify="space-between" style={{ height: '100%' }} gap="md">
+                    {/* Top Section */}
+                    <div>
+                      <Group justify="space-between" align="flex-start" wrap="nowrap" mb="xs">
+                        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                          <Avatar
+                            color={getAvatarColor(cust.name)}
+                            radius="var(--mantine-radius-default)"
+                            size="md"
+                            fw={700}
+                          >
+                            {getInitials(cust.name)}
+                          </Avatar>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <Text size="sm" fw={700} lineClamp={1}>
+                              {cust.name || 'Unnamed Customer'}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              Lifetime Purchases: {formatMoney(cust.totalPurchasesCents)}
+                            </Text>
+                          </div>
+                        </Group>
+
+                        {/* Balance Due / Clear Badge */}
+                        {cust.outstandingBalanceCents > 0 ? (
+                          <Badge color="red" variant="filled" size="sm" style={{ flexShrink: 0 }}>
+                            Due: {formatMoney(cust.outstandingBalanceCents)}
+                          </Badge>
+                        ) : (
+                          <Badge color="green" variant="light" size="sm" style={{ flexShrink: 0 }}>
+                            Clear Balance
+                          </Badge>
+                        )}
+                      </Group>
+
+                      {/* Structured Phone Details */}
+                      <Box pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
+                        <PhoneDisplay
+                          primaryPhone={cust.primaryPhone}
+                          secondaryPhone={cust.secondaryPhone}
+                        />
+                      </Box>
+                    </div>
+
+                    {/* Footer Action Rail */}
+                    <Group
+                      justify="space-between"
+                      align="center"
+                      pt="xs"
+                      style={{ borderTop: '1px solid var(--border)' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Text
+                        size="xs"
+                        c="blue"
+                        fw={600}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setSelectedCustomerForDrawer(cust)}
+                      >
+                        View Customer →
+                      </Text>
+
                       <Group gap="xs">
-                        <ThemeIcon variant="light" color="violet" size="md">
-                          <IconUser size={18} />
-                        </ThemeIcon>
-                        <div>
-                          <Text size="sm" fw={700}>
-                            {cust.name}
-                          </Text>
-                          <PhoneDisplay
-                            primaryPhone={cust.primaryPhone}
-                            secondaryPhone={cust.secondaryPhone}
-                          />
-                        </div>
+                        <Tooltip label="Edit Customer" withArrow>
+                          <ActionIcon
+                            variant="subtle"
+                            color="blue"
+                            onClick={() => handleOpenEditModal(cust)}
+                            aria-label="Edit Customer"
+                          >
+                            <IconEdit size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label="Delete Customer" withArrow>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => setCustomerToDelete(cust)}
+                            aria-label="Delete Customer"
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                        </Tooltip>
                       </Group>
-
-                      {/* Single primary signal badge */}
-                      {cust.outstandingBalanceCents > 0 ? (
-                        <Badge color="red" variant="filled" size="sm">
-                          Due: {formatMoney(cust.outstandingBalanceCents)}
-                        </Badge>
-                      ) : (
-                        <Badge color="green" variant="light" size="sm">
-                          Clear Balance
-                        </Badge>
-                      )}
-                    </Group>
-
-                    <Paper p="xs" withBorder bg="var(--bg-app)" mt="xs">
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">
-                          Total Purchases:
-                        </Text>
-                        <Text size="xs" fw={700}>
-                          {formatMoney(cust.totalPurchasesCents)}
-                        </Text>
-                      </Group>
-                    </Paper>
-
-                    <Group justify="flex-end" gap="xs" mt="xs" onClick={(e) => e.stopPropagation()}>
-                      <ActionIcon
-                        variant="subtle"
-                        color="blue"
-                        onClick={() => handleOpenEditModal(cust)}
-                      >
-                        <IconEdit size={16} />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => setCustomerToDelete(cust)}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
                     </Group>
                   </Stack>
                 </Card>

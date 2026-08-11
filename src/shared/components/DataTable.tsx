@@ -14,8 +14,15 @@ import {
   Select,
   Tooltip,
   Stack,
+  ActionIcon,
 } from '@mantine/core';
-import { IconTrash, IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-react';
+import {
+  IconTrash,
+  IconChevronUp,
+  IconChevronDown,
+  IconSelector,
+  IconChevronRight,
+} from '@tabler/icons-react';
 import { getSkeletonWidthPercent } from '@/shared/lib/utils';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -355,6 +362,9 @@ export const DataTable = <T,>({
             </Table.Th>
           );
         })}
+        {onRowClick && (
+          <Table.Th style={{ width: 40, textAlign: 'right' }} aria-label="View Details" />
+        )}
       </Table.Tr>
     </Table.Thead>
   );
@@ -391,6 +401,16 @@ export const DataTable = <T,>({
                       />
                     </Table.Td>
                   ))}
+                  {onRowClick && (
+                    <Table.Td style={{ width: 40, textAlign: 'right', verticalAlign: 'middle' }}>
+                      <Skeleton
+                        height={16}
+                        width={16}
+                        radius="xl"
+                        style={{ marginInlineStart: 'auto' }}
+                      />
+                    </Table.Td>
+                  )}
                 </Table.Tr>
               ))}
             </Table.Tbody>
@@ -505,6 +525,30 @@ export const DataTable = <T,>({
                           {col.render(item, index)}
                         </Table.Td>
                       ))}
+                      {onRowClick && (
+                        <Table.Td
+                          style={{
+                            width: 40,
+                            textAlign: 'right',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="sm"
+                            aria-label="View details"
+                            className="data-table-row-chevron"
+                            tabIndex={-1}
+                            style={{
+                              opacity: 0.45,
+                              marginInlineStart: 'auto',
+                            }}
+                          >
+                            <IconChevronRight size={16} />
+                          </ActionIcon>
+                        </Table.Td>
+                      )}
                     </Table.Tr>
                   );
                 })}

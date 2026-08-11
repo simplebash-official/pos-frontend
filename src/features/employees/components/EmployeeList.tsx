@@ -4,13 +4,15 @@ import {
   Badge,
   Group,
   Text,
-  Paper,
   Stack,
   Card,
   Grid,
   ThemeIcon,
   ActionIcon,
   Skeleton,
+  Avatar,
+  Box,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -27,6 +29,8 @@ import { notifications } from '@mantine/notifications';
 import { EntityListPage } from '@/shared/components/EntityListPage';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
+import { getInitials, getAvatarColor } from '@/shared/lib/utils';
 import { Employee, EmployeeInput, EMPLOYEE_ROLE_LABELS } from '../types';
 import {
   fetchEmployees,
@@ -329,20 +333,36 @@ export const EmployeeList = () => {
         ) : isLoading ? (
           <Grid gap="md">
             {Array.from({ length: 6 }, (_, i) => (
-              <Grid.Col key={`emp-skel-${i}`} span={{ base: 12, sm: 6, md: 4 }}>
-                <Card withBorder p="md">
-                  <Stack gap="xs">
-                    <Group justify="space-between" align="flex-start">
+              <Grid.Col key={`emp-skel-${i}`} span={{ base: 12, sm: 6, lg: 4 }}>
+                <Card withBorder p="md" style={{ height: '100%' }}>
+                  <Stack justify="space-between" style={{ height: '100%' }} gap="md">
+                    <div>
+                      <Group justify="space-between" align="flex-start" mb="xs">
+                        <Group gap="sm">
+                          <Skeleton height={38} width={38} radius="md" />
+                          <div>
+                            <Skeleton height={16} width={130} mb={6} />
+                            <Skeleton height={12} width={90} />
+                          </div>
+                        </Group>
+                        <Skeleton height={20} width={70} radius="xl" />
+                      </Group>
+                      <Box pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
+                        <Skeleton height={24} width="80%" mb={6} />
+                        <Skeleton height={24} width="65%" />
+                      </Box>
+                    </div>
+                    <Group
+                      justify="space-between"
+                      pt="xs"
+                      style={{ borderTop: '1px solid var(--border)' }}
+                    >
+                      <Skeleton height={14} width={80} />
                       <Group gap="xs">
-                        <Skeleton height={28} width={28} circle />
-                        <div>
-                          <Skeleton height={16} width={120} mb={4} />
-                          <Skeleton height={12} width={80} />
-                        </div>
+                        <Skeleton height={24} width={24} circle />
+                        <Skeleton height={24} width={24} circle />
                       </Group>
                     </Group>
-                    <Skeleton height={14} width="90%" />
-                    <Skeleton height={14} width="60%" />
                   </Stack>
                 </Card>
               </Grid.Col>
@@ -351,11 +371,10 @@ export const EmployeeList = () => {
         ) : (
           <Grid gap="md">
             {filteredEmployees.map((emp) => (
-              <Grid.Col key={emp.id} span={{ base: 12, sm: 6, md: 4 }}>
+              <Grid.Col key={emp.id} span={{ base: 12, sm: 6, lg: 4 }}>
                 <Card
-                  withBorder
+                  className="entity-grid-card"
                   p="md"
-                  style={{ cursor: 'pointer' }}
                   onClick={() => setSelectedEmployeeForDrawer(emp)}
                   tabIndex={0}
                   role="button"
@@ -366,61 +385,99 @@ export const EmployeeList = () => {
                     }
                   }}
                 >
-                  <Stack gap="xs">
-                    <Group justify="space-between" align="flex-start" wrap="nowrap">
-                      <Group gap="xs">
-                        <ThemeIcon variant="light" color="indigo" size="md">
-                          <IconUser size={18} />
-                        </ThemeIcon>
-                        <div>
-                          <Text size="sm" fw={700}>
-                            {emp.name}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {emp.phone}
-                          </Text>
-                        </div>
+                  <Stack justify="space-between" style={{ height: '100%' }} gap="md">
+                    {/* Top Section */}
+                    <div>
+                      <Group justify="space-between" align="flex-start" wrap="nowrap" mb="xs">
+                        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                          <Avatar
+                            color={getAvatarColor(emp.name)}
+                            radius="var(--mantine-radius-default)"
+                            size="md"
+                            fw={700}
+                          >
+                            {getInitials(emp.name)}
+                          </Avatar>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <Text size="sm" fw={700} lineClamp={1}>
+                              {emp.name}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              NIC/ID: {emp.nicOrId || 'N/A'}
+                            </Text>
+                          </div>
+                        </Group>
+
+                        {/* Role Badge */}
+                        <Badge color="indigo" variant="light" size="sm" style={{ flexShrink: 0 }}>
+                          {EMPLOYEE_ROLE_LABELS[emp.role]}
+                        </Badge>
                       </Group>
 
-                      {/* Primary signal badge */}
-                      <Badge color="indigo" variant="light" size="sm">
-                        {EMPLOYEE_ROLE_LABELS[emp.role]}
-                      </Badge>
-                    </Group>
+                      {/* Structured Details */}
+                      <Box pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
+                        <Stack gap={6}>
+                          <PhoneDisplay primaryPhone={emp.phone} />
+                          <Group justify="space-between" align="center">
+                            <Text size="xs" c="dimmed">
+                              Split Rule:
+                            </Text>
+                            <Badge
+                              size="xs"
+                              color={emp.defaultSplitType === 'percentage' ? 'indigo' : 'teal'}
+                              variant="light"
+                            >
+                              {emp.defaultSplitType === 'percentage'
+                                ? `${emp.defaultSplitValue}% Profit`
+                                : formatMoney(emp.defaultSplitValue)}
+                            </Badge>
+                          </Group>
+                        </Stack>
+                      </Box>
+                    </div>
 
-                    <Paper p="xs" withBorder bg="var(--bg-app)" mt="xs">
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">
-                          Default Split:
-                        </Text>
-                        <Text size="xs" fw={700}>
-                          {emp.defaultSplitType === 'percentage'
-                            ? `${emp.defaultSplitValue}% Profit`
-                            : formatMoney(emp.defaultSplitValue)}
-                        </Text>
-                      </Group>
-                    </Paper>
-
+                    {/* Footer Action Rail */}
                     <Group
-                      justify="flex-end"
-                      gap="xs"
-                      mt="xs"
+                      justify="space-between"
+                      align="center"
+                      pt="xs"
+                      style={{ borderTop: '1px solid var(--border)' }}
                       onClick={(ev) => ev.stopPropagation()}
                     >
-                      <ActionIcon
-                        variant="subtle"
-                        color="blue"
-                        onClick={() => handleOpenEditModal(emp)}
+                      <Text
+                        size="xs"
+                        c="indigo"
+                        fw={600}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setSelectedEmployeeForDrawer(emp)}
                       >
-                        <IconEdit size={16} />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => setEmployeeToDelete(emp)}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
+                        View Profile →
+                      </Text>
+
+                      <Group gap="xs">
+                        <RoleGuard allowedRoles={[USER_ROLES.ADMIN]} fallback={null}>
+                          <Tooltip label="Edit Employee" withArrow>
+                            <ActionIcon
+                              variant="subtle"
+                              color="blue"
+                              onClick={() => handleOpenEditModal(emp)}
+                              aria-label="Edit Employee"
+                            >
+                              <IconEdit size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip label="Delete Employee" withArrow>
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              onClick={() => setEmployeeToDelete(emp)}
+                              aria-label="Delete Employee"
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </RoleGuard>
+                      </Group>
                     </Group>
                   </Stack>
                 </Card>

@@ -240,3 +240,46 @@ th.mantine-Table-th {
 .data-table-td {
   vertical-align: middle;
 }
+
+/* Entity Grid Card styling */
+.entity-grid-card {
+  cursor: pointer;
+  transition:
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: var(--mantine-radius-default);
+  user-select: none;
+}
+
+.entity-grid-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--mantine-color-blue-4);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.entity-grid-card:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: -1px;
+}
+
+/* Data Table row chevron indicator */
+.data-table-row-chevron {
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    color 150ms ease;
+}
+
+.data-table-row:hover .data-table-row-chevron,
+.data-table-row:focus-visible .data-table-row-chevron {
+  opacity: 1 !important;
+  color: var(--mantine-color-blue-filled) !important;
+  transform: translateX(2px);
+}

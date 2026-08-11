@@ -792,6 +792,10 @@ export const ProductTable = () => {
                                       Stock Level
                                     </Table.Th>
                                     <Table.Th style={{ width: 170 }}>Updated At</Table.Th>
+                                    <Table.Th
+                                      style={{ width: 40, textAlign: 'right' }}
+                                      aria-label="View Details"
+                                    />
                                   </Table.Tr>
                                 </Table.Thead>
 
@@ -803,6 +807,7 @@ export const ProductTable = () => {
                                     return (
                                       <Table.Tr
                                         key={prod.id}
+                                        className="data-table-row"
                                         bg={
                                           isSelected ? 'var(--mantine-color-blue-light)' : undefined
                                         }
@@ -868,6 +873,28 @@ export const ProductTable = () => {
                                           <Text size="xs" c="dimmed">
                                             {formatDateTime(prod.updatedAt || '')}
                                           </Text>
+                                        </Table.Td>
+                                        <Table.Td
+                                          style={{
+                                            width: 40,
+                                            textAlign: 'right',
+                                            verticalAlign: 'middle',
+                                          }}
+                                        >
+                                          <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            size="sm"
+                                            aria-label="View product details"
+                                            className="data-table-row-chevron"
+                                            tabIndex={-1}
+                                            style={{
+                                              opacity: 0.45,
+                                              marginInlineStart: 'auto',
+                                            }}
+                                          >
+                                            <IconChevronRight size={16} />
+                                          </ActionIcon>
                                         </Table.Td>
                                       </Table.Tr>
                                     );
