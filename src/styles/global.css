@@ -229,3 +229,14 @@ th.mantine-Table-th {
 .data-table-sort-th:focus-visible .sort-icon-inactive {
   opacity: 0.5;
 }
+
+/* Ensure all table rows have uniform height and vertically centered content */
+.mantine-Table-tbody tr,
+.data-table-row {
+  height: 60px;
+}
+
+.mantine-Table-tbody td,
+.data-table-td {
+  vertical-align: middle;
+}

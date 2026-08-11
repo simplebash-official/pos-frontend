@@ -367,14 +367,17 @@ export const DataTable = <T,>({
             {tableHead}
             <Table.Tbody>
               {Array.from({ length: skeletonRows }, (_, rowIndex) => (
-                <Table.Tr key={`skeleton-row-${rowIndex}`}>
+                <Table.Tr key={`skeleton-row-${rowIndex}`} style={{ height: 60 }}>
                   {selectable && (
-                    <Table.Td style={{ textAlign: 'center' }}>
+                    <Table.Td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                       <Skeleton height={16} width={16} />
                     </Table.Td>
                   )}
                   {columns.map((col, colIndex) => (
-                    <Table.Td key={col.key} style={{ textAlign: col.align }}>
+                    <Table.Td
+                      key={col.key}
+                      style={{ textAlign: col.align, verticalAlign: 'middle' }}
+                    >
                       <Skeleton
                         height={14}
                         width={`${getSkeletonWidthPercent(rowIndex, colIndex, col.align)}%`}
@@ -461,6 +464,7 @@ export const DataTable = <T,>({
                   return (
                     <Table.Tr
                       key={key}
+                      className="data-table-row"
                       bg={isSelected ? 'var(--mantine-color-blue-light)' : undefined}
                       onClick={rowClickable ? () => onRowClick(item) : undefined}
                       tabIndex={rowClickable ? 0 : undefined}
@@ -475,11 +479,14 @@ export const DataTable = <T,>({
                             }
                           : undefined
                       }
-                      style={rowClickable ? { cursor: 'pointer' } : undefined}
+                      style={{
+                        height: 60,
+                        cursor: rowClickable ? 'pointer' : undefined,
+                      }}
                     >
                       {selectable && (
                         <Table.Td
-                          style={{ width: 40, textAlign: 'center' }}
+                          style={{ width: 40, textAlign: 'center', verticalAlign: 'middle' }}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <Checkbox
@@ -491,7 +498,10 @@ export const DataTable = <T,>({
                         </Table.Td>
                       )}
                       {columns.map((col) => (
-                        <Table.Td key={col.key} style={{ textAlign: col.align }}>
+                        <Table.Td
+                          key={col.key}
+                          style={{ textAlign: col.align, verticalAlign: 'middle' }}
+                        >
                           {col.render(item, index)}
                         </Table.Td>
                       ))}

@@ -145,6 +145,10 @@ export const mantineTheme: MantineThemeOverride = createTheme({
           textTransform: 'uppercase',
           letterSpacing: '0.06em',
           whiteSpace: 'nowrap',
+          height: '44px',
+        },
+        td: {
+          verticalAlign: 'middle',
         },
       },
     }),

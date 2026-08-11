@@ -15,7 +15,7 @@ export const PhoneDisplay = ({
   primaryPhone,
   secondaryPhone,
   layout = 'stack',
-  badgeWidth = 65,
+  badgeWidth = 84,
   secondaryLabel = 'Secondary',
 }: PhoneDisplayProps) => {
   const displayPrimary = primaryPhone?.trim() || 'N/A';
@@ -41,7 +41,7 @@ export const PhoneDisplay = ({
         radius="var(--mantine-radius-default)"
         fw={700}
         w={badgeWidth}
-        style={{ justifyContent: 'center' }}
+        style={{ justifyContent: 'center', flexShrink: 0 }}
       >
         Primary
       </Badge>
@@ -74,7 +74,7 @@ export const PhoneDisplay = ({
         radius="var(--mantine-radius-default)"
         fw={700}
         w={badgeWidth}
-        style={{ justifyContent: 'center' }}
+        style={{ justifyContent: 'center', flexShrink: 0 }}
       >
         {secondaryLabel}
       </Badge>
@@ -106,7 +106,7 @@ export const PhoneDisplay = ({
   }
 
   return (
-    <Stack gap={4}>
+    <Stack gap={4} justify="center">
       {primaryItem}
       {secondaryItem}
     </Stack>
