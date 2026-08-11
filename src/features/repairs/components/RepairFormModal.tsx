@@ -3,7 +3,6 @@ import {
   Modal,
   TextInput,
   Select,
-  SegmentedControl,
   NumberInput,
   Textarea,
   Button,
@@ -16,6 +15,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import {
   IconHammer,
   IconUser,
@@ -251,7 +251,7 @@ export const RepairFormModal = ({
                       <Text size="xs" fw={600} mb={4}>
                         Split Type
                       </Text>
-                      <SegmentedControl
+                      <SegmentedToggle
                         value={form.values.splitType}
                         onChange={(val) => form.setFieldValue('splitType', val as SplitType)}
                         data={[

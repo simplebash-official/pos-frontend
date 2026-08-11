@@ -1,7 +1,8 @@
 import React from 'react';
-import { Stack, Group, TextInput, SegmentedControl, Chip, Box, Center, Text } from '@mantine/core';
+import { Stack, Group, TextInput, Chip, Box, Center, Text } from '@mantine/core';
 import { IconSearch, IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { PageHeader } from './PageHeader';
+import { SegmentedToggle } from './SegmentedToggle';
 
 interface EntityListPageProps {
   title: string;
@@ -50,7 +51,7 @@ export const EntityListPage = ({
           style={{ minWidth: 280, flex: 1 }}
         />
 
-        <SegmentedControl
+        <SegmentedToggle
           value={viewMode}
           onChange={(val) => onViewModeChange(val as 'table' | 'grid')}
           data={[

@@ -7,7 +7,6 @@ import {
   Divider,
   Button,
   TextInput,
-  SegmentedControl,
   Tooltip,
   ActionIcon,
   Box,
@@ -41,6 +40,7 @@ import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney } from '@/shared/lib/money';
 import { AmountInput } from '@/shared/components/AmountInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { Invoice, SplitPaymentDetail } from '../types';
@@ -768,7 +768,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                   </Group>
 
                   <Group gap={4}>
-                    <SegmentedControl
+                    <SegmentedToggle
                       size="xs"
                       color="red"
                       value={discountMode}
@@ -788,13 +788,6 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                         { label: 'Rs.', value: 'amount' },
                       ]}
                       style={{ width: 90 }}
-                      styles={{
-                        root: {
-                          padding: 2,
-                          backgroundColor: 'light-dark(#ffffff, var(--bg-card))',
-                        },
-                        label: { padding: '2px 8px', fontSize: 11, fontWeight: 700 },
-                      }}
                     />
                     <ActionIcon
                       size="xs"
@@ -880,7 +873,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
             position="top"
           >
             <Box>
-              <SegmentedControl
+              <SegmentedToggle
                 fullWidth
                 size="sm"
                 value={isCredit ? 'credit' : 'pay_now'}
@@ -901,16 +894,6 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                   },
                 ]}
                 color={isCredit ? 'amber' : 'blue'}
-                styles={{
-                  root: {
-                    backgroundColor: 'var(--bg-app)',
-                    padding: 3,
-                  },
-                  label: {
-                    fontWeight: 700,
-                    fontSize: 12,
-                  },
-                }}
               />
             </Box>
           </Tooltip>
@@ -1224,7 +1207,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
                     {splitPayments.map((sp) => (
                       <Group key={sp.id} gap="xs" wrap={isMobile ? 'wrap' : 'nowrap'}>
-                        <SegmentedControl
+                        <SegmentedToggle
                           size="xs"
                           value={sp.method}
                           onChange={(v) =>

@@ -144,6 +144,30 @@ body,
   }
 }
 
+/* Shared neutral SegmentedControl look (src/shared/components/SegmentedToggle.tsx).
+   Mantine's Styles API can't target the per-option `[data-active]` label state with a plain inline
+   `styles` object, so — like `.scrollarea-fluid-content` above — the active/inactive treatment lives
+   here as real CSS instead. */
+.segmented-toggle-root {
+  background-color: var(--bg-active);
+  padding: 4px;
+}
+
+.segmented-toggle-indicator {
+  background-color: var(--bg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.segmented-toggle-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.segmented-toggle-label[data-active] {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 /* NumberInput controls visibility */
 .mantine-NumberInput-controls {
   opacity: 0;

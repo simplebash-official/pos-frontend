@@ -3,7 +3,6 @@ import {
   Modal,
   TextInput,
   Select,
-  SegmentedControl,
   NumberInput,
   Textarea,
   Button,
@@ -15,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/icons-react';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { Employee, EmployeeInput, SplitType } from '../types';
 import { EmployeeFormValues, fromEmployee, toEmployeeInput } from '@/shared/lib/moneyFormUtils';
 
@@ -140,7 +140,7 @@ export const EmployeeFormModal = ({
                   <Text size="xs" fw={600} mb={4}>
                     Split Calculation Mode
                   </Text>
-                  <SegmentedControl
+                  <SegmentedToggle
                     value={form.values.defaultSplitType}
                     onChange={(val) => form.setFieldValue('defaultSplitType', val as SplitType)}
                     data={[

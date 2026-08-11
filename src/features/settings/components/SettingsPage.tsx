@@ -10,7 +10,6 @@ import {
   Textarea,
   Button,
   Switch,
-  SegmentedControl,
   NumberInput,
   SimpleGrid,
   ThemeIcon,
@@ -18,6 +17,7 @@ import {
 } from '@mantine/core';
 import { IconSettings, IconCheck, IconBuildingStore, IconPrinter } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SyncSettingsSection } from '@/features/sync/components/SyncSettingsSection';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -313,7 +313,7 @@ export const SettingsPage = () => {
                 <Text size="xs" fw={700} c="dimmed" mb={4}>
                   THERMAL RECEIPT PAPER
                 </Text>
-                <SegmentedControl
+                <SegmentedToggle
                   fullWidth
                   value={printForm.receiptPaper}
                   onChange={(v) =>
@@ -330,7 +330,7 @@ export const SettingsPage = () => {
                 <Text size="xs" fw={700} c="dimmed" mb={4}>
                   A4 INVOICE COPY MODE
                 </Text>
-                <SegmentedControl
+                <SegmentedToggle
                   fullWidth
                   value={printForm.invoiceCopies}
                   onChange={(v) =>
@@ -350,7 +350,7 @@ export const SettingsPage = () => {
                 <Text size="xs" fw={700} c="dimmed" mb={4}>
                   DEFAULT DOCUMENT (WALK-IN GUEST)
                 </Text>
-                <SegmentedControl
+                <SegmentedToggle
                   fullWidth
                   value={printForm.defaultDocumentForWalkIn}
                   onChange={(v) =>
@@ -372,7 +372,7 @@ export const SettingsPage = () => {
                 <Text size="xs" fw={700} c="dimmed" mb={4}>
                   DEFAULT DOCUMENT (ACCOUNT CUSTOMER)
                 </Text>
-                <SegmentedControl
+                <SegmentedToggle
                   fullWidth
                   value={printForm.defaultDocumentForAccountCustomer}
                   onChange={(v) =>

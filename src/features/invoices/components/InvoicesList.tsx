@@ -8,7 +8,6 @@ import {
   Title,
   TextInput,
   Select,
-  SegmentedControl,
   Badge,
   SimpleGrid,
   ThemeIcon,
@@ -28,6 +27,7 @@ import {
 import { fetchInvoices } from '@/features/billing/api/mockInvoices';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
 export const InvoicesList = () => {
@@ -276,7 +276,7 @@ export const InvoicesList = () => {
             />
 
             <Group gap="xs" wrap="wrap">
-              <SegmentedControl
+              <SegmentedToggle
                 size="xs"
                 value={statusFilter}
                 onChange={setStatusFilter}
@@ -301,7 +301,7 @@ export const InvoicesList = () => {
                 style={{ width: 130 }}
               />
 
-              <SegmentedControl
+              <SegmentedToggle
                 size="xs"
                 value={datePreset}
                 onChange={setDatePreset}

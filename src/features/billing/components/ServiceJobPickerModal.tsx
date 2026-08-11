@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import {
   Modal,
   TextInput,
-  SegmentedControl,
   Stack,
   Group,
   Text,
@@ -18,6 +17,7 @@ import { IconSearch, IconTools, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
@@ -196,7 +196,7 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
             /* Autofocusing here opens the soft keyboard over the job list it is meant to filter. */
             autoFocus={!isMobile}
           />
-          <SegmentedControl
+          <SegmentedToggle
             size="sm"
             fullWidth={isMobile}
             value={filterType}

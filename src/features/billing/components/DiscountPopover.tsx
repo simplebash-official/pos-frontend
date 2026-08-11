@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Popover, Stack, SegmentedControl, Group, Button, Text } from '@mantine/core';
+import { Popover, Stack, Group, Button, Text } from '@mantine/core';
 import { formatMoney } from '@/shared/lib/money';
 import { AmountInput } from '@/shared/components/AmountInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 
 export interface DiscountPopoverProps {
   opened: boolean;
@@ -60,7 +61,7 @@ export const DiscountPopover = ({
             Discount For: {targetName}
           </Text>
 
-          <SegmentedControl
+          <SegmentedToggle
             fullWidth
             size="xs"
             value={mode}

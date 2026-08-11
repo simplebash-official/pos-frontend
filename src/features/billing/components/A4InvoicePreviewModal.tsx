@@ -1,16 +1,7 @@
 import { useState } from 'react';
-import {
-  Modal,
-  Box,
-  Group,
-  Button,
-  SegmentedControl,
-  Text,
-  Stack,
-  Divider,
-  ThemeIcon,
-} from '@mantine/core';
+import { Modal, Box, Group, Button, Text, Stack, Divider, ThemeIcon } from '@mantine/core';
 import { IconPrinter, IconDownload, IconFileText, IconX } from '@tabler/icons-react';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import type { Invoice } from '../types';
 import { buildPrintPayload } from '../lib/buildPrintPayload';
 import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
@@ -123,7 +114,7 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
             >
               Copy type
             </Text>
-            <SegmentedControl
+            <SegmentedToggle
               fullWidth
               size="sm"
               value={copyMode}

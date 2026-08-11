@@ -1,5 +1,6 @@
 import type { Ref } from 'react';
-import { Box, Grid, SegmentedControl } from '@mantine/core';
+import { Box, Grid } from '@mantine/core';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 
 import { CatalogPanel } from './CatalogPanel';
 import { CartPanel } from './CartPanel';
@@ -95,7 +96,7 @@ export const BillingRegions = ({
             gap: 'var(--mantine-spacing-2xs)',
           }}
         >
-          <SegmentedControl
+          <SegmentedToggle
             fullWidth
             size="sm"
             value={activePane === 'pay' ? 'pay' : 'cart'}
