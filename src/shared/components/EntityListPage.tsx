@@ -1,8 +1,9 @@
 import React from 'react';
-import { Stack, Group, TextInput, Chip, Box, Center, Text } from '@mantine/core';
+import { Stack, Group, TextInput, Box, Center } from '@mantine/core';
 import { IconSearch, IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { PageHeader } from './PageHeader';
 import { SegmentedToggle } from './SegmentedToggle';
+import { FilterTagChips } from './FilterTagChips';
 
 interface EntityListPageProps {
   title: string;
@@ -79,30 +80,11 @@ export const EntityListPage = ({
 
       {/* Filter Tag Chips Bar */}
       {filterTags && filterTags.length > 0 && onSelectTag && (
-        <Group gap="xs">
-          <Text size="xs" fw={700} c="dimmed">
-            Filter by:
-          </Text>
-          <Chip
-            size="xs"
-            checked={selectedTag === null}
-            onChange={() => onSelectTag(null)}
-            variant="light"
-          >
-            All Tags
-          </Chip>
-          {filterTags.map((tag) => (
-            <Chip
-              key={tag}
-              size="xs"
-              checked={selectedTag === tag}
-              onChange={() => onSelectTag(selectedTag === tag ? null : tag)}
-              variant="light"
-            >
-              {tag}
-            </Chip>
-          ))}
-        </Group>
+        <FilterTagChips
+          tags={filterTags}
+          selectedTag={selectedTag ?? null}
+          onSelectTag={onSelectTag}
+        />
       )}
 
       {/* Main Content (Table or Grid) */}

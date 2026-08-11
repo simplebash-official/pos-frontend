@@ -168,6 +168,13 @@ body,
   font-weight: 600;
 }
 
+/* Unselected FilterTagChips pills (src/shared/components/FilterTagChips.tsx) get a visible border
+   matching the app's border token. Mantine's default Chip border is transparent, and the checked
+   state is left alone so the solid accent fill isn't outlined. */
+.filter-tag-chip:not([data-checked]) {
+  border-color: var(--border);
+}
+
 /* NumberInput controls visibility */
 .mantine-NumberInput-controls {
   opacity: 0;
