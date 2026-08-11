@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { PageHeader } from '@/shared/components/PageHeader';
@@ -286,11 +286,11 @@ export const ProductTable = () => {
     );
   };
 
-  // Subcategory collapse state map (key format: `${categoryKey}::${subcategoryKey}`)
-  const [collapsedSubcategories, setCollapsedSubcategories] = useState<Record<string, boolean>>({});
+  // Subcategory expanded state map (key format: `${categoryKey}::${subcategoryKey}`)
+  const [expandedSubcategories, setExpandedSubcategories] = useState<Record<string, boolean>>({});
 
   const toggleSubcategory = (subKey: string) => {
-    setCollapsedSubcategories((prev) => ({
+    setExpandedSubcategories((prev) => ({
       ...prev,
       [subKey]: !prev[subKey],
     }));
@@ -333,27 +333,58 @@ export const ProductTable = () => {
   }, [filteredProducts]);
 
   const categoryKeys = useMemo(() => Array.from(hierarchy.keys()), [hierarchy]);
-  const [userCollapsedCategories, setUserCollapsedCategories] = useState<string[]>([]);
-  const expandedCategories = useMemo(
-    () => categoryKeys.filter((cat) => !userCollapsedCategories.includes(cat)),
-    [categoryKeys, userCollapsedCategories]
-  );
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  // Automatically expand all matching categories/subcategories on search/filter, and collapse when cleared
+  const prevFilterRef = useRef({ search: '', showLowStockOnly: false });
+
+  useEffect(() => {
+    const prev = prevFilterRef.current;
+    const isSearchChanged = prev.search !== search;
+    const isStockFilterChanged = prev.showLowStockOnly !== showLowStockOnly;
+    prevFilterRef.current = { search, showLowStockOnly };
+
+    const isFilterActive = search.trim().length > 0 || showLowStockOnly;
+    const wasFilterActive = prev.search.trim().length > 0 || prev.showLowStockOnly;
+
+    if (isFilterActive) {
+      if (isSearchChanged || isStockFilterChanged) {
+        const allCatKeys = Array.from(hierarchy.keys());
+        setExpandedCategories(allCatKeys);
+
+        const allSubKeys: Record<string, boolean> = {};
+        hierarchy.forEach((subMap, cat) => {
+          subMap.forEach((_, sub) => {
+            allSubKeys[`${cat}::${sub}`] = true;
+          });
+        });
+        setExpandedSubcategories(allSubKeys);
+      }
+    } else if (wasFilterActive && !isFilterActive) {
+      setExpandedCategories([]);
+      setExpandedSubcategories({});
+    }
+  }, [search, showLowStockOnly, hierarchy]);
 
   const adjustStockMutation = useAdjustStock();
 
+  const allCategoriesCount = categoryKeys.length;
+  const isAllCategoriesExpanded =
+    allCategoriesCount > 0 && expandedCategories.length === allCategoriesCount;
+
   const handleToggleExpandAll = () => {
-    if (expandedCategories.length === categoryKeys.length) {
-      setUserCollapsedCategories(categoryKeys);
+    if (isAllCategoriesExpanded) {
+      setExpandedCategories([]);
+      setExpandedSubcategories({});
+    } else {
+      setExpandedCategories(categoryKeys);
       const allSubKeys: Record<string, boolean> = {};
       hierarchy.forEach((subMap, cat) => {
         subMap.forEach((_, sub) => {
           allSubKeys[`${cat}::${sub}`] = true;
         });
       });
-      setCollapsedSubcategories(allSubKeys);
-    } else {
-      setUserCollapsedCategories([]);
-      setCollapsedSubcategories({});
+      setExpandedSubcategories(allSubKeys);
     }
   };
 
@@ -522,7 +553,7 @@ export const ProductTable = () => {
               size="sm"
               onClick={handleToggleExpandAll}
               leftSection={
-                expandedCategories.length === categoryKeys.length ? (
+                isAllCategoriesExpanded ? (
                   <IconArrowsMinimize size={16} />
                 ) : (
                   <IconArrowsMaximize size={16} />
@@ -530,7 +561,7 @@ export const ProductTable = () => {
               }
               style={{ flex: 1 }}
             >
-              {expandedCategories.length === categoryKeys.length ? 'Collapse All' : 'Expand All'}
+              {isAllCategoriesExpanded ? 'Collapse All' : 'Expand All'}
             </Button>
           </Group>
         </Stack>
@@ -565,7 +596,7 @@ export const ProductTable = () => {
             size="sm"
             onClick={handleToggleExpandAll}
             leftSection={
-              expandedCategories.length === categoryKeys.length ? (
+              isAllCategoriesExpanded ? (
                 <IconArrowsMinimize size={16} />
               ) : (
                 <IconArrowsMaximize size={16} />
@@ -573,7 +604,7 @@ export const ProductTable = () => {
             }
             style={{ width: 140, flexShrink: 0 }}
           >
-            {expandedCategories.length === categoryKeys.length ? 'Collapse All' : 'Expand All'}
+            {isAllCategoriesExpanded ? 'Collapse All' : 'Expand All'}
           </Button>
         </Group>
       </Paper>
@@ -629,9 +660,7 @@ export const ProductTable = () => {
         <Accordion
           multiple
           value={expandedCategories}
-          onChange={(val) =>
-            setUserCollapsedCategories(categoryKeys.filter((c) => !val.includes(c)))
-          }
+          onChange={setExpandedCategories}
           variant="separated"
         >
           {Array.from(hierarchy.entries()).map(([categoryKey, subcategoriesMap]) => {
@@ -689,7 +718,7 @@ export const ProductTable = () => {
                     {Array.from(subcategoriesMap.entries()).map(([subcategoryKey, items]) => {
                       const subCatName = items[0]?.subcategory ?? 'Uncategorized';
                       const subKey = `${categoryKey}::${subcategoryKey}`;
-                      const isSubCollapsed = !!collapsedSubcategories[subKey];
+                      const isSubExpanded = !!expandedSubcategories[subKey];
                       const subLowStock = items.filter(
                         (i) => i.stockQuantity <= i.minStockThreshold
                       ).length;
@@ -740,10 +769,10 @@ export const ProductTable = () => {
                                   toggleSubcategory(subKey);
                                 }}
                               >
-                                {isSubCollapsed ? (
-                                  <IconChevronRight size={16} />
-                                ) : (
+                                {isSubExpanded ? (
                                   <IconChevronDown size={16} />
+                                ) : (
+                                  <IconChevronRight size={16} />
                                 )}
                               </ActionIcon>
 
@@ -764,7 +793,7 @@ export const ProductTable = () => {
                           </Group>
 
                           {/* Collapsible Subcategory Table */}
-                          <Collapse expanded={!isSubCollapsed}>
+                          {isSubExpanded && (
                             <Box pt="xs" style={{ overflowX: 'auto' }}>
                               <Table
                                 verticalSpacing="xs"
@@ -902,7 +931,7 @@ export const ProductTable = () => {
                                 </Table.Tbody>
                               </Table>
                             </Box>
-                          </Collapse>
+                          )}
                         </Paper>
                       );
                     })}
