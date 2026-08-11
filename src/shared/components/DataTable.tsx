@@ -54,7 +54,7 @@ export interface DataTableProps<T> {
   onRowClick?: (item: T) => void;
 }
 
-export function DataTable<T>({
+export const DataTable = <T,>({
   data,
   columns,
   keyExtractor,
@@ -78,7 +78,7 @@ export function DataTable<T>({
 
   skeletonRows = 6,
   onRowClick,
-}: DataTableProps<T>) {
+}: DataTableProps<T>) => {
   // Internal selection state if not controlled externally
   const [internalSelectedKeys, setInternalSelectedKeys] = useState<string[]>([]);
   const selectedKeys =
@@ -402,4 +402,4 @@ export function DataTable<T>({
       )}
     </Paper>
   );
-}
+};

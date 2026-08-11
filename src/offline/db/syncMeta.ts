@@ -7,7 +7,7 @@ import type { SyncResourceId } from '../types';
  * monitoring dashboard; the Redux slice is a read-only mirror of it.
  */
 
-function blankMeta(resource: SyncResourceId): SyncMetaRecord {
+const blankMeta = (resource: SyncResourceId): SyncMetaRecord => {
   return {
     resource,
     cursor: null,
@@ -19,9 +19,9 @@ function blankMeta(resource: SyncResourceId): SyncMetaRecord {
     rowCount: 0,
     enabled: true,
   };
-}
+};
 
-export async function getSyncMeta(resource: SyncResourceId): Promise<SyncMetaRecord> {
+export const getSyncMeta = async (resource: SyncResourceId): Promise<SyncMetaRecord> => {
   const existing = await db.syncMeta.get(resource);
   if (existing) {
     return existing;
@@ -29,21 +29,21 @@ export async function getSyncMeta(resource: SyncResourceId): Promise<SyncMetaRec
   const created = blankMeta(resource);
   await db.syncMeta.put(created);
   return created;
-}
+};
 
-export async function getAllSyncMeta(): Promise<SyncMetaRecord[]> {
+export const getAllSyncMeta = async (): Promise<SyncMetaRecord[]> => {
   return db.syncMeta.toArray();
-}
+};
 
-export async function patchSyncMeta(
+export const patchSyncMeta = async (
   resource: SyncResourceId,
   patch: Partial<Omit<SyncMetaRecord, 'resource'>>
-): Promise<void> {
+): Promise<void> => {
   const current = await getSyncMeta(resource);
   await db.syncMeta.put({ ...current, ...patch });
-}
+};
 
 /** Clears the delta cursor so the next pull does a full refresh. */
-export async function invalidateCursor(resource: SyncResourceId): Promise<void> {
+export const invalidateCursor = async (resource: SyncResourceId): Promise<void> => {
   await patchSyncMeta(resource, { cursor: null, pullState: 'never' });
-}
+};

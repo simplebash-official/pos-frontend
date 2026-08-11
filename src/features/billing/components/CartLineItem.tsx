@@ -17,13 +17,13 @@ export interface CartLineItemProps {
   onRemove: (id: string) => void;
 }
 
-export function CartLineItem({
+export const CartLineItem = ({
   item,
   isNewest = false,
   onUpdateQty,
   onUpdateLineDiscount,
   onRemove,
-}: CartLineItemProps) {
+}: CartLineItemProps) => {
   const [discountOpen, setDiscountOpen] = useState(false);
 
   // The discount and delete rails sit right next to each other, so on touch they need to clear the
@@ -239,4 +239,4 @@ export function CartLineItem({
       </Group>
     </Paper>
   );
-}
+};

@@ -6,7 +6,7 @@ export interface PageLoaderProps {
   height?: string | number;
 }
 
-export function PageLoader({ title, size = 45, height = '70vh' }: PageLoaderProps) {
+export const PageLoader = ({ title, size = 45, height = '70vh' }: PageLoaderProps) => {
   return (
     <Center h={height} style={{ width: '100%', transition: 'all 0.2s ease' }}>
       <Stack align="center" gap="sm">
@@ -19,4 +19,4 @@ export function PageLoader({ title, size = 45, height = '70vh' }: PageLoaderProp
       </Stack>
     </Center>
   );
-}
+};

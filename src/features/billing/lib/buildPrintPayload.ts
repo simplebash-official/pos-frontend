@@ -25,13 +25,13 @@ export interface PrintPayload {
   footerText: string;
 }
 
-export function buildPrintPayload(
+export const buildPrintPayload = (
   invoice: Invoice,
   shop: ShopProfile,
   settings: PrintSettings,
   copyDesignation: string = 'ORIGINAL — CUSTOMER COPY',
   isDuplicate: boolean = false
-): PrintPayload {
+): PrintPayload => {
   const invoiceDate = invoice.createdAt ? new Date(invoice.createdAt) : new Date();
 
   const formattedDate = invoiceDate.toLocaleDateString('en-GB', {
@@ -67,4 +67,4 @@ export function buildPrintPayload(
     warrantyText,
     footerText: shop.defaultFooterText,
   };
-}
+};

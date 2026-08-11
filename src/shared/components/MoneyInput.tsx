@@ -7,12 +7,12 @@ export interface MoneyInputProps extends Omit<NumberInputProps, 'value' | 'onCha
   onChangeCents: (cents: number) => void;
 }
 
-export function MoneyInput({
+export const MoneyInput = ({
   valueCents,
   onChangeCents,
   prefix = `${CURRENCY.symbol} `,
   ...props
-}: MoneyInputProps) {
+}: MoneyInputProps) => {
   const displayValue = fromCents(valueCents);
 
   const handleChange = (val: number | string) => {
@@ -37,4 +37,4 @@ export function MoneyInput({
       step={1}
     />
   );
-}
+};

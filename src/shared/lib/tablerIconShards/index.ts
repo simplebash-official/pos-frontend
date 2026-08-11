@@ -33,8 +33,8 @@ export const ICON_SHARD_LOADERS: Record<string, () => Promise<Record<string, unk
 export const ICON_SHARD_KEYS = Object.keys(ICON_SHARD_LOADERS);
 
 /** The shard holding `name` (PascalCase, no `Icon` prefix), or null if it can't be in any shard. */
-export function shardKeyForIconName(name: string): string | null {
+export const shardKeyForIconName = (name: string): string | null => {
   const first = name.slice(0, 1).toLowerCase();
   const key = first >= 'a' && first <= 'z' ? first : '_';
   return key in ICON_SHARD_LOADERS ? key : null;
-}
+};

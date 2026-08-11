@@ -33,13 +33,13 @@ export interface SupplierPickerModalProps {
   title?: string;
 }
 
-export function SupplierPickerModal({
+export const SupplierPickerModal = ({
   opened,
   onClose,
   onSelect,
   excludeKeys = [],
   title = 'Link a Supplier',
-}: SupplierPickerModalProps) {
+}: SupplierPickerModalProps) => {
   const { data: suppliers, isLoading } = useAllSuppliers({ enabled: opened });
 
   const [search, setSearch] = useState('');
@@ -280,4 +280,4 @@ export function SupplierPickerModal({
       </Stack>
     </Modal>
   );
-}
+};

@@ -13,7 +13,7 @@ const NO_CONFLICTS: ConflictRecord[] = [];
 const NO_KEYS = new Set<string>();
 
 /** Every queued, retrying, dead or conflicted operation, oldest intent first. */
-export function usePendingOperations() {
+export const usePendingOperations = () => {
   return useLiveQuery<OutboxOp[]>(
     () =>
       db.outbox
@@ -23,21 +23,21 @@ export function usePendingOperations() {
     NO_OPERATIONS,
     []
   );
-}
+};
 
-export function useOpenConflicts() {
+export const useOpenConflicts = () => {
   return useLiveQuery<ConflictRecord[]>(
     () => db.conflicts.where('status').equals('open').reverse().sortBy('detectedAt'),
     NO_CONFLICTS,
     []
   );
-}
+};
 
 /**
  * Entity keys with unpushed changes, so a list can flag exactly which rows are
  * waiting. Returned as a Set because callers test membership per row.
  */
-export function usePendingKeys(resource: SyncResourceId) {
+export const usePendingKeys = (resource: SyncResourceId) => {
   return useLiveQuery<Set<string>>(
     async () => {
       const operations = await db.outbox.where('resource').equals(resource).toArray();
@@ -52,10 +52,10 @@ export function usePendingKeys(resource: SyncResourceId) {
     NO_KEYS,
     [resource]
   );
-}
+};
 
 /** Entity keys whose changes were rejected and need a human decision. */
-export function useConflictedKeys(resource: SyncResourceId) {
+export const useConflictedKeys = (resource: SyncResourceId) => {
   return useLiveQuery<Set<string>>(
     async () => {
       const records = await db.conflicts
@@ -68,4 +68,4 @@ export function useConflictedKeys(resource: SyncResourceId) {
     NO_KEYS,
     [resource]
   );
-}
+};

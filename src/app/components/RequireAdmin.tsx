@@ -9,7 +9,7 @@ export interface RequireAdminProps {
   children: ReactNode;
 }
 
-export function RequireAdmin({ children }: RequireAdminProps) {
+export const RequireAdmin = ({ children }: RequireAdminProps) => {
   const role = useAppSelector(selectUserRole);
 
   if (role !== USER_ROLES.ADMIN) {
@@ -17,4 +17,4 @@ export function RequireAdmin({ children }: RequireAdminProps) {
   }
 
   return <>{children}</>;
-}
+};

@@ -42,7 +42,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { RoleGuard } from '@/shared/components/RoleGuard';
 import { USER_ROLES } from '@/constants/roles';
 
-export function EmployeeList() {
+export const EmployeeList = () => {
   const queryClient = useQueryClient();
 
   const {
@@ -456,4 +456,4 @@ export function EmployeeList() {
       </ConfirmDialog>
     </>
   );
-}
+};

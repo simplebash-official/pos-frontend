@@ -19,7 +19,7 @@ export const LOCAL_ID_PREFIX = 'local_';
  * it, so fall back to the always-available `getRandomValues` and format the
  * bytes as a v4 UUID by hand.
  */
-export function randomUuid(): string {
+export const randomUuid = (): string => {
   if (typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
@@ -40,19 +40,19 @@ export function randomUuid(): string {
     hex.slice(8, 10).join(''),
     hex.slice(10, 16).join(''),
   ].join('-');
-}
+};
 
 /** A provisional id for an entity created on this device before it reached the server. */
-export function createLocalId(): string {
+export const createLocalId = (): string => {
   return `${LOCAL_ID_PREFIX}${randomUuid()}`;
-}
+};
 
 /** True when `id` was minted on a device and has not yet been mapped to a server id. */
-export function isLocalId(id: string): boolean {
+export const isLocalId = (id: string): boolean => {
   return id.startsWith(LOCAL_ID_PREFIX);
-}
+};
 
 /** Idempotency keys are plain UUIDs — they are request identities, not entity identities. */
-export function createIdempotencyKey(): string {
+export const createIdempotencyKey = (): string => {
   return randomUuid();
-}
+};

@@ -16,11 +16,11 @@ import { assertOutboxHasCapacity, enqueueOperation } from './outbox';
  * commits — the user sees their change immediately whether or not there is a
  * network.
  */
-export async function submitOperation<TResult>(
+export const submitOperation = async <TResult>(
   resourceId: SyncResourceId,
   operationName: string,
   payload: unknown
-): Promise<TResult> {
+): Promise<TResult> => {
   const resource = getSyncResource(resourceId);
   const operation = resource.operations[operationName];
   if (!operation) {
@@ -99,4 +99,4 @@ export async function submitOperation<TResult>(
   );
 
   return entity as TResult;
-}
+};

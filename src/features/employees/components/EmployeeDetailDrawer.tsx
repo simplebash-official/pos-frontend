@@ -42,13 +42,13 @@ export interface EmployeeDetailDrawerProps {
   onDelete: (employee: Employee) => void;
 }
 
-export function EmployeeDetailDrawer({
+export const EmployeeDetailDrawer = ({
   employee,
   opened,
   onClose,
   onEdit,
   onDelete,
-}: EmployeeDetailDrawerProps) {
+}: EmployeeDetailDrawerProps) => {
   const {
     data: earnings = [],
     isLoading: loadingEarnings,
@@ -376,4 +376,4 @@ export function EmployeeDetailDrawer({
       )}
     </DetailDrawer>
   );
-}
+};

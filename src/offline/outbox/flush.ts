@@ -50,7 +50,7 @@ interface ApiErrorLike {
   details?: Record<string, unknown>;
 }
 
-function toApiErrorLike(error: unknown): ApiErrorLike {
+const toApiErrorLike = (error: unknown): ApiErrorLike => {
   if (typeof error === 'object' && error !== null && 'message' in error) {
     const candidate = error as ApiErrorLike;
     if (typeof candidate.message === 'string') {
@@ -58,17 +58,17 @@ function toApiErrorLike(error: unknown): ApiErrorLike {
     }
   }
   return { message: String(error) };
-}
+};
 
-function toOutboxError(error: ApiErrorLike): OutboxError {
+const toOutboxError = (error: ApiErrorLike): OutboxError => {
   return {
     message: error.message,
     code: typeof error.code === 'string' ? error.code : null,
     statusCode: typeof error.statusCode === 'number' ? error.statusCode : null,
   };
-}
+};
 
-function classifyFailure(error: ApiErrorLike): FailureClass {
+const classifyFailure = (error: ApiErrorLike): FailureClass => {
   const status = error.statusCode;
 
   // No response at all — the request never reached the server.
@@ -87,9 +87,9 @@ function classifyFailure(error: ApiErrorLike): FailureClass {
     return 'transient';
   }
   return 'permanent';
-}
+};
 
-function conflictReasonFor(error: ApiErrorLike): ConflictReason {
+const conflictReasonFor = (error: ApiErrorLike): ConflictReason => {
   if (error.statusCode === 404) {
     return 'deleted-remotely';
   }
@@ -100,13 +100,13 @@ function conflictReasonFor(error: ApiErrorLike): ConflictReason {
     return 'missing-reference';
   }
   return 'unique-violation';
-}
+};
 
-async function recordConflict(
+const recordConflict = async (
   op: OutboxOp,
   error: ApiErrorLike,
   reason: ConflictReason
-): Promise<void> {
+): Promise<void> => {
   await db.conflicts.put({
     id: createIdempotencyKey(),
     resource: op.resource,
@@ -119,19 +119,19 @@ async function recordConflict(
     status: 'open',
     detectedAt: new Date().toISOString(),
   });
-}
+};
 
 /**
  * Writes the server's answer into the mirror and retires the operation, in one
  * transaction. Either the local state reflects the server or nothing changed —
  * there is no window where the operation is gone but the mirror is stale.
  */
-async function commitSuccess(
+const commitSuccess = async (
   resource: AnySyncResource,
   op: OutboxOp,
   serverEntity: unknown | null,
   identity: { serverKey: string; serverId: string | null } | null
-): Promise<void> {
+): Promise<void> => {
   await db.transaction('rw', [resource.table, db.outbox, db.idMap, db.stockLedger], async () => {
     const localId = op.entityLocalId;
 
@@ -161,9 +161,9 @@ async function commitSuccess(
       await deleteOperation(op.seq);
     }
   });
-}
+};
 
-export async function flushOutbox(signal: AbortSignal): Promise<FlushSummary> {
+export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> => {
   const summary: FlushSummary = {
     pushed: 0,
     failed: 0,
@@ -307,15 +307,15 @@ export async function flushOutbox(signal: AbortSignal): Promise<FlushSummary> {
     logInfo(null, `Pushed ${summary.pushed} change(s)`, null);
   }
   return summary;
-}
+};
 
-async function handleConflict(
+const handleConflict = async (
   resource: AnySyncResource,
   op: OutboxOp,
   apiError: ApiErrorLike,
   outboxError: OutboxError,
   summary: FlushSummary
-): Promise<void> {
+): Promise<void> => {
   const reason = conflictReasonFor(apiError);
   const strategy =
     reason === 'version-mismatch'
@@ -363,14 +363,14 @@ async function handleConflict(
       return;
     }
   }
-}
+};
 
-function resolveThrough(
+const resolveThrough = (
   idMap: Awaited<ReturnType<typeof loadIdMap>>,
   key: string,
   target: SyncResourceId,
   kind: 'id' | 'key'
-): string {
+): string => {
   if (!isLocalId(key)) {
     return key;
   }
@@ -383,4 +383,4 @@ function resolveThrough(
     throw new UnresolvedReferenceError(key, target);
   }
   return resolved;
-}
+};

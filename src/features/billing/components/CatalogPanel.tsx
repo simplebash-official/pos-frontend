@@ -42,7 +42,7 @@ export interface CatalogPanelProps {
   onOpenServicePicker: () => void;
 }
 
-export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
+export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
   const scanInputRef = useRef<HTMLInputElement>(null);
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
@@ -564,4 +564,4 @@ export function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
       </ScrollArea>
     </Stack>
   );
-}
+};

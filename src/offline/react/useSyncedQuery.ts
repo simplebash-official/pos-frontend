@@ -23,12 +23,12 @@ export interface SyncedQueryResult<T> {
   error: Error | null;
 }
 
-export function useSyncedQuery<T>(
+export const useSyncedQuery = <T>(
   resource: SyncResourceId,
   querier: () => Promise<T>,
   initial: T,
   deps: readonly unknown[]
-): SyncedQueryResult<T> {
+): SyncedQueryResult<T> => {
   const { data, isLoading, error } = useLiveQuery(querier, initial, deps);
   const isSyncing = useAppSelector(selectResourceIsSyncing(resource));
 
@@ -39,4 +39,4 @@ export function useSyncedQuery<T>(
     isFetching: isSyncing,
     error,
   };
-}
+};

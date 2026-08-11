@@ -22,24 +22,24 @@ export interface CatalogCategoryFilter {
 }
 
 /** Builds the billing catalog's main-category filter pills from the real, backend-driven category list. */
-export function buildCatalogCategoryFilters(
+export const buildCatalogCategoryFilters = (
   categories: Category[],
   iconMap: TablerIconMap | null
-): CatalogCategoryFilter[] {
+): CatalogCategoryFilter[] => {
   return categories.map((cat) => ({
     key: cat.key,
     label: cat.name,
     Icon: resolveCategoryIcon(iconMap, cat.icon),
     color: cat.color,
   }));
-}
+};
 
-export function getCategoryIconInfo(params: {
+export const getCategoryIconInfo = (params: {
   category?: Category;
   categoryLabel?: string;
   sourceType?: string;
   iconMap?: TablerIconMap | null;
-}): CategoryIconInfo {
+}): CategoryIconInfo => {
   const { category, categoryLabel, sourceType, iconMap = null } = params;
 
   if (sourceType === 'repair') {
@@ -58,4 +58,4 @@ export function getCategoryIconInfo(params: {
   }
 
   return { Icon: DEFAULT_CATEGORY_ICON, color: 'blue', label: categoryLabel || 'Product' };
-}
+};

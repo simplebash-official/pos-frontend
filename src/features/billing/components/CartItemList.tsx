@@ -4,7 +4,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useCart } from '../hooks/useCart';
 
-export function CartItemList() {
+export const CartItemList = () => {
   const { items, updateQty, remove } = useCart();
 
   return (
@@ -62,4 +62,4 @@ export function CartItemList() {
       )}
     </Paper>
   );
-}
+};

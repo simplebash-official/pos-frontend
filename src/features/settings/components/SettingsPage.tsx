@@ -27,7 +27,7 @@ import {
   updatePrintSettings,
 } from '@/store/slices/settingsSlice';
 
-export function SettingsPage() {
+export const SettingsPage = () => {
   const dispatch = useAppDispatch();
   const shopProfile = useAppSelector(selectShopProfile);
   const printSettings = useAppSelector(selectPrintSettings);
@@ -431,4 +431,4 @@ export function SettingsPage() {
       </Stack>
     </Box>
   );
-}
+};

@@ -11,7 +11,7 @@ interface RoleGuardProps {
   fallback?: React.ReactNode;
 }
 
-export function RoleGuard({ allowedRoles, children, fallback }: RoleGuardProps) {
+export const RoleGuard = ({ allowedRoles, children, fallback }: RoleGuardProps) => {
   const currentRole = useAppSelector(selectUserRole);
 
   if (!allowedRoles.includes(currentRole)) {
@@ -25,4 +25,4 @@ export function RoleGuard({ allowedRoles, children, fallback }: RoleGuardProps) 
   }
 
   return <>{children}</>;
-}
+};

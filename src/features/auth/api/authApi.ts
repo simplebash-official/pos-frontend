@@ -7,18 +7,18 @@ import type {
   MeResponse,
 } from '../types';
 
-export async function loginApi(payload: LoginPayload): Promise<LoginResponseData> {
+export const loginApi = async (payload: LoginPayload): Promise<LoginResponseData> => {
   const response = await apiClient.post<LoginResponse | LoginResponseData>('/auth/login', payload);
   if ('data' in response && response.data) {
     return response.data;
   }
   return response as unknown as LoginResponseData;
-}
+};
 
-export async function getMeApi(): Promise<AuthUser> {
+export const getMeApi = async (): Promise<AuthUser> => {
   const response = await apiClient.get<MeResponse | AuthUser>('/auth/me');
   if ('data' in response && response.data) {
     return response.data;
   }
   return response as unknown as AuthUser;
-}
+};

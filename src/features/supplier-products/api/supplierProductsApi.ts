@@ -8,9 +8,9 @@ export interface SupplierProductListParams {
   productKey?: string;
 }
 
-export async function fetchSupplierProducts(
+export const fetchSupplierProducts = async (
   params: SupplierProductListParams
-): Promise<SupplierProduct[]> {
+): Promise<SupplierProduct[]> => {
   if (!params.supplierKey && !params.productKey) {
     throw new Error('fetchSupplierProducts requires at least one of supplierKey/productKey');
   }
@@ -19,41 +19,41 @@ export async function fetchSupplierProducts(
     { params }
   );
   return response.data.links;
-}
+};
 
-export async function getLinksForSupplier(supplierKey: string): Promise<SupplierProduct[]> {
+export const getLinksForSupplier = async (supplierKey: string): Promise<SupplierProduct[]> => {
   return fetchSupplierProducts({ supplierKey });
-}
+};
 
-export async function getLinksForProduct(productKey: string): Promise<SupplierProduct[]> {
+export const getLinksForProduct = async (productKey: string): Promise<SupplierProduct[]> => {
   return fetchSupplierProducts({ productKey });
-}
+};
 
 /** Upserts a supplier-product link — updates cost/notes in place if the pair already exists. */
-export async function linkSupplierProduct(
+export const linkSupplierProduct = async (
   input: SupplierProductInput,
   options?: MutationRequestOptions
-): Promise<SupplierProduct> {
+): Promise<SupplierProduct> => {
   const response = await apiClient.post<ApiResponse<SupplierProduct>>(
     '/supplier-products',
     input,
     options
   );
   return response.data;
-}
+};
 
-export async function unlinkSupplierProduct(
+export const unlinkSupplierProduct = async (
   supplierKey: string,
   productKey: string,
   options?: MutationRequestOptions
-): Promise<void> {
+): Promise<void> => {
   await apiClient.delete(`/supplier-products/${supplierKey}/${productKey}`, options);
-}
+};
 
-export async function setLinksForSupplier(
+export const setLinksForSupplier = async (
   supplierKey: string,
   productKeys: string[],
   options?: MutationRequestOptions
-): Promise<void> {
+): Promise<void> => {
   await apiClient.put(`/supplier-products/bulk/${supplierKey}`, { productKeys }, options);
-}
+};

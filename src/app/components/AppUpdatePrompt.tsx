@@ -14,7 +14,7 @@ const UPDATE_NOTIFICATION_ID = 'app-update-available';
  * so the prompt is withheld until the till is empty. A cashier mid-sale should
  * never lose the basket to a deploy.
  */
-export function AppUpdatePrompt() {
+export const AppUpdatePrompt = () => {
   const cartItemsCount = useAppSelector(selectCartItemsCount);
 
   const {
@@ -49,4 +49,4 @@ export function AppUpdatePrompt() {
   }, [needRefresh, cartItemsCount, updateServiceWorker]);
 
   return null;
-}
+};

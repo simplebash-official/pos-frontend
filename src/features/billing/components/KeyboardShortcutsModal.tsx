@@ -28,7 +28,7 @@ const SHORTCUTS = [
   { key: '?', description: 'Open keyboard shortcuts map' },
 ];
 
-export function KeyboardShortcutsModal({ opened, onClose }: KeyboardShortcutsModalProps) {
+export const KeyboardShortcutsModal = ({ opened, onClose }: KeyboardShortcutsModalProps) => {
   const isMobile = useIsMobile();
 
   return (
@@ -73,4 +73,4 @@ export function KeyboardShortcutsModal({ opened, onClose }: KeyboardShortcutsMod
       </Stack>
     </Modal>
   );
-}
+};

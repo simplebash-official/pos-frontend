@@ -42,7 +42,7 @@ export interface CategoryManagerModalProps {
   onClose: () => void;
 }
 
-function CategoryColorPicker({
+const CategoryColorPicker = ({
   value,
   onChange,
   label = 'Color',
@@ -50,7 +50,7 @@ function CategoryColorPicker({
   value: string | null;
   onChange: (color: string) => void;
   label?: string;
-}) {
+}) => {
   return (
     <Stack gap={4}>
       {label && (
@@ -75,9 +75,9 @@ function CategoryColorPicker({
       </Group>
     </Stack>
   );
-}
+};
 
-function AddSubcategoryRow({ categoryKey }: { categoryKey: string }) {
+const AddSubcategoryRow = ({ categoryKey }: { categoryKey: string }) => {
   const [name, setName] = useState('');
   const createSubcategory = useCreateSubcategory();
 
@@ -118,9 +118,9 @@ function AddSubcategoryRow({ categoryKey }: { categoryKey: string }) {
       </Button>
     </Group>
   );
-}
+};
 
-function CategoryItem({
+const CategoryItem = ({
   category,
   onDeleteCategory,
   onDeleteSubcategory,
@@ -130,7 +130,7 @@ function CategoryItem({
   onDeleteCategory: (categoryKey: string) => void;
   onDeleteSubcategory: (categoryKey: string, subcategoryKey: string) => void;
   onExpandCategory: (categoryKey: string) => void;
-}) {
+}) => {
   const iconMap = useCategoryIcons();
   const updateCategory = useUpdateCategory();
 
@@ -307,9 +307,9 @@ function CategoryItem({
       </Stack>
     </ExpandableCard>
   );
-}
+};
 
-export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalProps) {
+export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalProps) => {
   const isMobile = useIsMobile();
   const { data: categories, isLoading } = useCategories();
   const createCategory = useCreateCategory();
@@ -476,4 +476,4 @@ export function CategoryManagerModal({ opened, onClose }: CategoryManagerModalPr
       </Stack>
     </Modal>
   );
-}
+};

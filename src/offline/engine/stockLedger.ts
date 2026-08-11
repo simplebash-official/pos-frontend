@@ -25,7 +25,7 @@ export interface StockDeltaInput {
 }
 
 /** Records a pending delta. Call inside the write transaction. */
-export async function appendStockDelta(input: StockDeltaInput): Promise<void> {
+export const appendStockDelta = async (input: StockDeltaInput): Promise<void> => {
   await db.stockLedger.add({
     productId: input.productId,
     delta: input.delta,
@@ -34,39 +34,39 @@ export async function appendStockDelta(input: StockDeltaInput): Promise<void> {
     status: 'pending',
     createdAt: new Date().toISOString(),
   });
-}
+};
 
 /**
  * Attaches freshly written ledger entries to the operation that will carry
  * them. Runs in the same transaction as the enqueue, so the placeholder rows
  * it claims can only be the ones this write just created.
  */
-export async function assignLedgerEntriesToOperation(outboxSeq: number): Promise<void> {
+export const assignLedgerEntriesToOperation = async (outboxSeq: number): Promise<void> => {
   await db.stockLedger.where('outboxSeq').equals(UNASSIGNED_OUTBOX_SEQ).modify({ outboxSeq });
-}
+};
 
 /** Net unpushed delta per product. */
-export async function pendingDeltasByProduct(): Promise<Map<string, number>> {
+export const pendingDeltasByProduct = async (): Promise<Map<string, number>> => {
   const entries = await db.stockLedger.where('status').equals('pending').toArray();
   const totals = new Map<string, number>();
   for (const entry of entries) {
     totals.set(entry.productId, (totals.get(entry.productId) ?? 0) + entry.delta);
   }
   return totals;
-}
+};
 
-export async function pendingDeltaFor(productId: string): Promise<number> {
+export const pendingDeltaFor = async (productId: string): Promise<number> => {
   const entries = await db.stockLedger.where('productId').equals(productId).toArray();
   return entries
     .filter((entry) => entry.status === 'pending')
     .reduce((total, entry) => total + entry.delta, 0);
-}
+};
 
 /**
  * Folds pending deltas into a list of products, so every screen sees the stock
  * the user actually believes they have.
  */
-export async function applyLedgerToProducts<T extends Product>(products: T[]): Promise<T[]> {
+export const applyLedgerToProducts = async <T extends Product>(products: T[]): Promise<T[]> => {
   const deltas = await pendingDeltasByProduct();
   if (deltas.size === 0) {
     return products;
@@ -78,7 +78,7 @@ export async function applyLedgerToProducts<T extends Product>(products: T[]): P
     }
     return { ...product, stockQuantity: product.stockQuantity + delta };
   });
-}
+};
 
 /**
  * Drops confirmed entries once the server's baseline includes them.
@@ -86,8 +86,8 @@ export async function applyLedgerToProducts<T extends Product>(products: T[]): P
  * Kept separate from confirmation so the sync dashboard can show what recently
  * settled; pruned on a schedule rather than immediately.
  */
-export async function pruneConfirmedLedgerEntries(): Promise<number> {
+export const pruneConfirmedLedgerEntries = async (): Promise<number> => {
   const confirmed = await db.stockLedger.where('status').equals('confirmed').primaryKeys();
   await db.stockLedger.bulkDelete(confirmed);
   return confirmed.length;
-}
+};

@@ -12,7 +12,7 @@ import { printThermalReceipt } from '@/shared/print/printService';
 import { PAPER_PROFILES } from '@/shared/print/paperProfiles';
 import { getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
 
-export function usePrint() {
+export const usePrint = () => {
   const currentShopProfile = useAppSelector(selectShopProfile);
   const shopVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
@@ -54,4 +54,4 @@ export function usePrint() {
     previewInvoiceData,
     closePreviewModal,
   };
-}
+};

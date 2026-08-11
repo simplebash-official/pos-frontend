@@ -40,13 +40,13 @@ interface RepairFormModalProps {
   loading?: boolean;
 }
 
-export function RepairFormModal({
+export const RepairFormModal = ({
   opened,
   onClose,
   onSubmit,
   jobToEdit,
   loading = false,
-}: RepairFormModalProps) {
+}: RepairFormModalProps) => {
   const isEditing = Boolean(jobToEdit);
 
   const { data: employees = [] } = useQuery({
@@ -331,4 +331,4 @@ export function RepairFormModal({
       </form>
     </Modal>
   );
-}
+};

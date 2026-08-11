@@ -24,7 +24,7 @@ export interface ProbeResult {
   serverTime: string | null;
 }
 
-export async function probeHealth(signal: AbortSignal): Promise<ProbeResult> {
+export const probeHealth = async (signal: AbortSignal): Promise<ProbeResult> => {
   const startedAt = Date.now();
   try {
     // The cache-buster defeats any intermediate proxy that would otherwise
@@ -42,4 +42,4 @@ export async function probeHealth(signal: AbortSignal): Promise<ProbeResult> {
   } catch {
     return { reachable: false, latencyMs: null, serverTime: null };
   }
-}
+};

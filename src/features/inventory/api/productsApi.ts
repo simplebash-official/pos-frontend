@@ -25,9 +25,9 @@ interface ProductsPageData {
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }
 
-export async function fetchProducts(
+export const fetchProducts = async (
   params: ProductListParams = {}
-): Promise<PaginatedResponse<Product>> {
+): Promise<PaginatedResponse<Product>> => {
   const response = await apiClient.get<ApiResponse<ProductsPageData>>('/inventory/products', {
     params,
   });
@@ -39,81 +39,84 @@ export async function fetchProducts(
     pageSize: pagination.limit,
     totalPages: pagination.totalPages,
   };
-}
+};
 
-export async function fetchProductById(id: string): Promise<Product> {
+export const fetchProductById = async (id: string): Promise<Product> => {
   const response = await apiClient.get<ApiResponse<Product>>(`/inventory/products/${id}`);
   return response.data;
-}
+};
 
-export async function createProduct(
+export const createProduct = async (
   input: CreateProductInput,
   options?: MutationRequestOptions
-): Promise<Product> {
+): Promise<Product> => {
   const response = await apiClient.post<ApiResponse<Product>>(
     '/inventory/products',
     input,
     options
   );
   return response.data;
-}
+};
 
-export async function updateProduct(
+export const updateProduct = async (
   id: string,
   updates: UpdateProductInput,
   options?: MutationRequestOptions
-): Promise<Product> {
+): Promise<Product> => {
   const response = await apiClient.put<ApiResponse<Product>>(
     `/inventory/products/${id}`,
     updates,
     options
   );
   return response.data;
-}
+};
 
-export async function deleteProduct(id: string, options?: MutationRequestOptions): Promise<void> {
+export const deleteProduct = async (
+  id: string,
+  options?: MutationRequestOptions
+): Promise<void> => {
   await apiClient.delete(`/inventory/products/${id}`, options);
-}
+};
 
-export async function deleteProducts(
+export const deleteProducts = async (
   productIds: string[],
   options?: MutationRequestOptions
-): Promise<number> {
+): Promise<number> => {
   const response = await apiClient.delete<ApiResponse<{ deletedCount: number }>>(
     '/inventory/products',
     { ...options, data: { productIds } }
   );
   return response.data.deletedCount;
-}
+};
 
-export async function adjustStock(
+export const adjustStock = async (
   id: string,
   delta: number,
   reason: string,
   options?: MutationRequestOptions
-): Promise<StockAdjustmentResult> {
+): Promise<StockAdjustmentResult> => {
   const response = await apiClient.patch<ApiResponse<StockAdjustmentResult>>(
     `/inventory/products/${id}/stock`,
     { delta, reason },
     options
   );
   return response.data;
-}
+};
 
-export async function fetchLowStockProducts(): Promise<Product[]> {
+export const fetchLowStockProducts = async (): Promise<Product[]> => {
   const response = await apiClient.get<ApiResponse<{ items: Product[]; total: number }>>(
     '/inventory/products/low-stock'
   );
   return response.data.items;
-}
+};
 
-export async function fetchProductMovements(id: string): Promise<StockMovement[]> {
+export const fetchProductMovements = async (id: string): Promise<StockMovement[]> => {
   const response = await apiClient.get<ApiResponse<{ movements: StockMovement[] }>>(
     `/inventory/products/${id}/movements`
   );
   return response.data.movements;
-}
+};
 
-export function getProductKey(product: Product): string {
+export const getProductKey = (product: Product): string => {
   return product.key;
-}
+};

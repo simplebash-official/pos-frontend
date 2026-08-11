@@ -43,7 +43,7 @@ import { CustomerDetailDrawer } from './CustomerDetailDrawer';
 import { formatMoney } from '@/shared/lib/money';
 import { queryKeys } from '@/api/queryKeys';
 
-export function CustomerList() {
+export const CustomerList = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -499,4 +499,4 @@ export function CustomerList() {
       </ConfirmDialog>
     </>
   );
-}
+};

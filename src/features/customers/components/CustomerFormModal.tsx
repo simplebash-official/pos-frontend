@@ -11,13 +11,13 @@ export interface CustomerFormModalProps {
   loading?: boolean;
 }
 
-export function CustomerFormModal({
+export const CustomerFormModal = ({
   opened,
   onClose,
   onSubmit,
   customerToEdit,
   loading = false,
-}: CustomerFormModalProps) {
+}: CustomerFormModalProps) => {
   const [name, setName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [primaryPhone, setPrimaryPhone] = useState('');
@@ -179,4 +179,4 @@ export function CustomerFormModal({
       </form>
     </Modal>
   );
-}
+};

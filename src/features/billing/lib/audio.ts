@@ -2,7 +2,7 @@
 
 let audioCtx: AudioContext | null = null;
 
-function getAudioContext(): AudioContext | null {
+const getAudioContext = (): AudioContext | null => {
   if (typeof window === 'undefined') return null;
   if (!audioCtx) {
     const AudioContextClass =
@@ -16,9 +16,9 @@ function getAudioContext(): AudioContext | null {
     audioCtx.resume();
   }
   return audioCtx;
-}
+};
 
-export function playScanSuccessSound(enabled = true) {
+export const playScanSuccessSound = (enabled = true) => {
   if (!enabled) return;
   try {
     const ctx = getAudioContext();
@@ -41,9 +41,9 @@ export function playScanSuccessSound(enabled = true) {
   } catch {
     // Ignore audio errors
   }
-}
+};
 
-export function playErrorSound(enabled = true) {
+export const playErrorSound = (enabled = true) => {
   if (!enabled) return;
   try {
     const ctx = getAudioContext();
@@ -66,9 +66,9 @@ export function playErrorSound(enabled = true) {
   } catch {
     // Ignore audio errors
   }
-}
+};
 
-export function playPaymentCompleteSound(enabled = true) {
+export const playPaymentCompleteSound = (enabled = true) => {
   if (!enabled) return;
   try {
     const ctx = getAudioContext();
@@ -101,4 +101,4 @@ export function playPaymentCompleteSound(enabled = true) {
   } catch {
     // Ignore audio errors
   }
-}
+};

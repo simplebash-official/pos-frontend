@@ -16,7 +16,7 @@ import {
 } from '@/store/slices/settingsSlice';
 import { recordPrintEvent, getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
 
-export function StandalonePrintView() {
+export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const copyParam = searchParams.get('copy') || 'customer';
@@ -192,4 +192,4 @@ export function StandalonePrintView() {
       </Box>
     </Box>
   );
-}
+};

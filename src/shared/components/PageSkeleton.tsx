@@ -4,7 +4,7 @@ import { Box, Group, Paper, Skeleton, Stack } from '@mantine/core';
 // stable "content still loading" look inside the generic content block below.
 const CONTENT_ROW_WIDTHS = [90, 82, 74, 66, 58];
 
-export function PageSkeleton() {
+export const PageSkeleton = () => {
   return (
     <Box>
       <Group justify="space-between" align="flex-start" mb="lg">
@@ -24,4 +24,4 @@ export function PageSkeleton() {
       </Paper>
     </Box>
   );
-}
+};

@@ -13,7 +13,7 @@ export interface ConfirmDialogProps {
   loading?: boolean;
 }
 
-export function ConfirmDialog({
+export const ConfirmDialog = ({
   opened,
   onClose,
   onConfirm,
@@ -23,7 +23,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   confirmColor = 'red',
   loading = false,
-}: ConfirmDialogProps) {
+}: ConfirmDialogProps) => {
   return (
     <Modal opened={opened} onClose={onClose} title={title} centered size="sm">
       <Text size="sm" mb="lg">
@@ -39,4 +39,4 @@ export function ConfirmDialog({
       </Group>
     </Modal>
   );
-}
+};

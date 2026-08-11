@@ -15,7 +15,7 @@ import { randomUuid } from './localId';
 
 let cached: string | null = null;
 
-export function getDeviceId(): string {
+export const getDeviceId = (): string => {
   if (cached !== null) {
     return cached;
   }
@@ -30,4 +30,4 @@ export function getDeviceId(): string {
   localStorage.setItem(STORAGE_KEYS.DEVICE_ID, minted);
   cached = minted;
   return minted;
-}
+};

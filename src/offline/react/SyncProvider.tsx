@@ -25,7 +25,7 @@ import { registerSyncResources } from '../resources';
  * like sync errors. Note that logging out does NOT clear the local database —
  * a cashier's queued offline work must survive an expired session.
  */
-export function SyncProvider({ children }: { children: ReactNode }) {
+export const SyncProvider = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
@@ -78,4 +78,4 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   }, [dispatch, isAuthenticated]);
 
   return <>{children}</>;
-}
+};

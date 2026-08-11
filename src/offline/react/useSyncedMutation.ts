@@ -14,10 +14,10 @@ import type { SyncResourceId } from '../types';
  * HTTP request that fails when offline, it applies the change to the local
  * mirror and queues it.
  */
-export function useSyncedMutation<TPayload, TResult>(
+export const useSyncedMutation = <TPayload, TResult>(
   resource: SyncResourceId,
   operation: string
-): UseMutationResult<TResult, ApiError, TPayload> {
+): UseMutationResult<TResult, ApiError, TPayload> => {
   const queryClient = useQueryClient();
 
   return useMutation<TResult, ApiError, TPayload>({
@@ -32,4 +32,4 @@ export function useSyncedMutation<TPayload, TResult>(
       syncEngine.requestFlush();
     },
   });
-}
+};

@@ -3,7 +3,7 @@ import { Container, Title, Text, Button, Stack, Paper } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
 
-export function ErrorBoundary() {
+export const ErrorBoundary = () => {
   const error = useRouteError();
   let errorMessage = 'An unexpected error occurred in the application.';
 
@@ -35,4 +35,4 @@ export function ErrorBoundary() {
       </Paper>
     </Container>
   );
-}
+};

@@ -12,12 +12,12 @@ import type { AuditEvent, AuditLevel } from '../db/tables';
 
 let writesSinceTrim = 0;
 
-export async function logSyncEvent(
+export const logSyncEvent = async (
   level: AuditLevel,
   resource: string | null,
   message: string,
   detail: Record<string, unknown> | null
-): Promise<void> {
+): Promise<void> => {
   const event: AuditEvent = {
     at: new Date().toISOString(),
     level,
@@ -40,9 +40,9 @@ export async function logSyncEvent(
     writesSinceTrim = 0;
     await trimAuditLog();
   }
-}
+};
 
-async function trimAuditLog(): Promise<void> {
+const trimAuditLog = async (): Promise<void> => {
   try {
     const count = await db.auditLog.count();
     if (count <= AUDIT_LOG_LIMIT) {
@@ -54,28 +54,28 @@ async function trimAuditLog(): Promise<void> {
   } catch {
     return;
   }
-}
+};
 
-export function logInfo(
+export const logInfo = (
   resource: string | null,
   message: string,
   detail: Record<string, unknown> | null = null
-): void {
+): void => {
   void logSyncEvent('info', resource, message, detail);
-}
+};
 
-export function logWarn(
+export const logWarn = (
   resource: string | null,
   message: string,
   detail: Record<string, unknown> | null = null
-): void {
+): void => {
   void logSyncEvent('warn', resource, message, detail);
-}
+};
 
-export function logError(
+export const logError = (
   resource: string | null,
   message: string,
   detail: Record<string, unknown> | null = null
-): void {
+): void => {
   void logSyncEvent('error', resource, message, detail);
-}
+};

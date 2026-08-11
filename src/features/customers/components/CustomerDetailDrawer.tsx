@@ -22,13 +22,13 @@ export interface CustomerDetailDrawerProps {
   onDelete: (customer: Customer) => void;
 }
 
-export function CustomerDetailDrawer({
+export const CustomerDetailDrawer = ({
   customer,
   opened,
   onClose,
   onEdit,
   onDelete,
-}: CustomerDetailDrawerProps) {
+}: CustomerDetailDrawerProps) => {
   return (
     <DetailDrawer
       data={customer}
@@ -244,4 +244,4 @@ export function CustomerDetailDrawer({
       )}
     </DetailDrawer>
   );
-}
+};

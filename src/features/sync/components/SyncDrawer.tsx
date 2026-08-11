@@ -15,7 +15,7 @@ export interface SyncDrawerProps {
  * middle of a sale, exactly when the badge turns red — navigating to a
  * settings page would take the cart off screen.
  */
-export function SyncDrawer({ opened, onClose }: SyncDrawerProps) {
+export const SyncDrawer = ({ opened, onClose }: SyncDrawerProps) => {
   const isMobile = useIsMobile();
 
   return (
@@ -38,4 +38,4 @@ export function SyncDrawer({ opened, onClose }: SyncDrawerProps) {
       <SyncPanel />
     </Drawer>
   );
-}
+};

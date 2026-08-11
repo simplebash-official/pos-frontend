@@ -27,11 +27,11 @@ export interface PullSummary {
  * the pending push needs in order to detect the conflict properly. The push
  * resolves the disagreement; the pull must not pre-empt it.
  */
-async function applyChanges(
+const applyChanges = async (
   resource: AnySyncResource,
   items: unknown[],
   deletedKeys: string[]
-): Promise<{ applied: number; deleted: number }> {
+): Promise<{ applied: number; deleted: number }> => {
   let applied = 0;
   let deleted = 0;
 
@@ -57,9 +57,12 @@ async function applyChanges(
   });
 
   return { applied, deleted };
-}
+};
 
-async function fullRefresh(resource: AnySyncResource, signal: AbortSignal): Promise<PullSummary> {
+const fullRefresh = async (
+  resource: AnySyncResource,
+  signal: AbortSignal
+): Promise<PullSummary> => {
   const items = await resource.pull.full({ signal });
 
   await db.transaction('rw', resource.table, async () => {
@@ -85,12 +88,12 @@ async function fullRefresh(resource: AnySyncResource, signal: AbortSignal): Prom
 
   logInfo(resource.id, `Full refresh loaded ${items.length} row(s)`, null);
   return { resource: resource.id, applied: items.length, deleted: 0, fullRefresh: true };
-}
+};
 
-export async function pullResource(
+export const pullResource = async (
   resource: AnySyncResource,
   signal: AbortSignal
-): Promise<PullSummary> {
+): Promise<PullSummary> => {
   const meta = await getSyncMeta(resource.id);
   if (!meta.enabled) {
     return { resource: resource.id, applied: 0, deleted: 0, fullRefresh: false };
@@ -140,4 +143,4 @@ export async function pullResource(
     await patchSyncMeta(resource.id, { pullState: 'error', lastError: describeError(error) });
     throw error;
   }
-}
+};

@@ -32,7 +32,7 @@ const FILL: React.CSSProperties = { height: '100%', minHeight: 0 };
  * - tablet (`sm`–`lg`): catalog plus a right column that toggles between cart and payment
  * - mobile (below `sm`): one full-screen region at a time, driven by the bottom tab bar
  */
-export function BillingRegions({
+export const BillingRegions = ({
   activePane,
   onChangePane,
   isProcessing,
@@ -42,7 +42,7 @@ export function BillingRegions({
   onOpenOrderDiscount,
   onPreviewInvoice,
   paymentPanelRef,
-}: BillingRegionsProps) {
+}: BillingRegionsProps) => {
   const tier = useLayoutTier();
 
   const catalog = <CatalogPanel onOpenServicePicker={onOpenServicePicker} />;
@@ -122,4 +122,4 @@ export function BillingRegions({
       <BillingTabBar active={activePane} onChange={onChangePane} />
     </Box>
   );
-}
+};

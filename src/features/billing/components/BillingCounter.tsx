@@ -27,7 +27,7 @@ import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import type { Invoice } from '../types';
 
-export function BillingCounter() {
+export const BillingCounter = () => {
   const queryClient = useQueryClient();
   const authUser = useAppSelector(selectAuthUser);
   const shopProfile = useAppSelector(selectShopProfile);
@@ -411,4 +411,4 @@ export function BillingCounter() {
       />
     </Box>
   );
-}
+};

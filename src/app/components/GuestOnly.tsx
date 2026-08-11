@@ -8,7 +8,7 @@ export interface GuestOnlyProps {
   children: ReactNode;
 }
 
-export function GuestOnly({ children }: GuestOnlyProps) {
+export const GuestOnly = ({ children }: GuestOnlyProps) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitialized = useAppSelector(selectIsAuthInitialized);
 
@@ -17,4 +17,4 @@ export function GuestOnly({ children }: GuestOnlyProps) {
   }
 
   return <>{children}</>;
-}
+};

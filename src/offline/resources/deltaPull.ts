@@ -9,8 +9,8 @@ import type { PullPage, SyncResourceId } from '../types';
  * snapshot each time instead of an incremental one. When the endpoint lands,
  * replace this per resource with a real delta call — nothing else changes.
  */
-export function deltaNotAvailable<TEntity>(
+export const deltaNotAvailable = <TEntity>(
   resource: SyncResourceId
-): (cursor: string) => Promise<PullPage<TEntity>> {
+): ((cursor: string) => Promise<PullPage<TEntity>>) => {
   return () => Promise.reject(new CursorInvalidError(resource));
-}
+};

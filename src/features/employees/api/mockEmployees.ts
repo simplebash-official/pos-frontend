@@ -80,7 +80,7 @@ export const INITIAL_EARNINGS: EmployeeEarningRecord[] = [
   },
 ];
 
-export function normalizeEmployee(rawInput: unknown): Employee {
+export const normalizeEmployee = (rawInput: unknown): Employee => {
   const raw = (rawInput && typeof rawInput === 'object' ? rawInput : {}) as Record<string, unknown>;
   return {
     id: typeof raw.id === 'string' ? raw.id : `emp-${Date.now()}`,
@@ -95,7 +95,7 @@ export function normalizeEmployee(rawInput: unknown): Employee {
     createdAt: String(raw.createdAt || new Date().toISOString()),
     updatedAt: String(raw.updatedAt || new Date().toISOString()),
   };
-}
+};
 
 export const employeesStore = new LocalStorageStore<Employee>(
   'pos_employees',

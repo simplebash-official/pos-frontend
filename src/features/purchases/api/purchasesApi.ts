@@ -8,7 +8,9 @@ export interface PurchaseListParams {
   productKey?: string;
 }
 
-export async function fetchPurchases(params: PurchaseListParams): Promise<EnrichedStockPurchase[]> {
+export const fetchPurchases = async (
+  params: PurchaseListParams
+): Promise<EnrichedStockPurchase[]> => {
   if (!params.supplierKey && !params.productKey) {
     throw new Error('fetchPurchases requires at least one of supplierKey/productKey');
   }
@@ -17,29 +19,29 @@ export async function fetchPurchases(params: PurchaseListParams): Promise<Enrich
     { params }
   );
   return response.data.purchases;
-}
+};
 
-export async function fetchPurchasesBySupplier(
+export const fetchPurchasesBySupplier = async (
   supplierKey: string
-): Promise<EnrichedStockPurchase[]> {
+): Promise<EnrichedStockPurchase[]> => {
   return fetchPurchases({ supplierKey });
-}
+};
 
-export async function fetchPurchasesByProduct(
+export const fetchPurchasesByProduct = async (
   productKey: string
-): Promise<EnrichedStockPurchase[]> {
+): Promise<EnrichedStockPurchase[]> => {
   return fetchPurchases({ productKey });
-}
+};
 
 /** Records a stock intake — the backend also increments the product's stock and writes its own movement. */
-export async function createPurchase(
+export const createPurchase = async (
   input: StockPurchaseInput,
   options?: MutationRequestOptions
-): Promise<EnrichedStockPurchase> {
+): Promise<EnrichedStockPurchase> => {
   const response = await apiClient.post<ApiResponse<EnrichedStockPurchase>>(
     '/purchases',
     input,
     options
   );
   return response.data;
-}
+};

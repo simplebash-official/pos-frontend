@@ -19,7 +19,7 @@ interface EntityListPageProps {
   children: React.ReactNode;
 }
 
-export function EntityListPage({
+export const EntityListPage = ({
   title,
   description,
   action,
@@ -33,7 +33,7 @@ export function EntityListPage({
   viewMode,
   onViewModeChange,
   children,
-}: EntityListPageProps) {
+}: EntityListPageProps) => {
   return (
     <Stack gap="lg">
       <PageHeader title={title} description={description} action={action} />
@@ -108,4 +108,4 @@ export function EntityListPage({
       <Box>{children}</Box>
     </Stack>
   );
-}
+};

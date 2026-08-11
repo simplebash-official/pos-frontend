@@ -18,18 +18,18 @@ export interface LiveQueryResult<T> {
   error: Error | null;
 }
 
-function depsChanged(previous: readonly unknown[], next: readonly unknown[]): boolean {
+const depsChanged = (previous: readonly unknown[], next: readonly unknown[]): boolean => {
   if (previous.length !== next.length) {
     return true;
   }
   return previous.some((value, index) => !Object.is(value, next[index]));
-}
+};
 
-export function useLiveQuery<T>(
+export const useLiveQuery = <T>(
   querier: () => Promise<T>,
   initial: T,
   deps: readonly unknown[]
-): LiveQueryResult<T> {
+): LiveQueryResult<T> => {
   const [state, setState] = useState<LiveQueryResult<T>>({
     data: initial,
     isLoading: true,
@@ -59,4 +59,4 @@ export function useLiveQuery<T>(
   }, deps);
 
   return state;
-}
+};

@@ -37,7 +37,7 @@ import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
 import { setLinksForSupplier } from '@/features/supplier-products/api/supplierProductsApi';
 
-export function SupplierList() {
+export const SupplierList = () => {
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -415,4 +415,4 @@ export function SupplierList() {
       </ConfirmDialog>
     </>
   );
-}
+};

@@ -20,7 +20,7 @@ import { loginApi } from '../api/authApi';
 import { ApiError } from '@/shared/types/common';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
-export function LoginForm() {
+export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,4 +152,4 @@ export function LoginForm() {
       </Stack>
     </>
   );
-}
+};

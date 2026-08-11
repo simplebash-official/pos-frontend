@@ -9,9 +9,9 @@ import type { PushContext } from '../types';
  * `If-Match` means "no precondition", which is exactly right, whereas a null
  * one would be a malformed header.
  */
-export function pushOptions(ctx: PushContext): MutationRequestOptions {
+export const pushOptions = (ctx: PushContext): MutationRequestOptions => {
   if (ctx.baseVersion === null) {
     return { idempotencyKey: ctx.idempotencyKey };
   }
   return { idempotencyKey: ctx.idempotencyKey, baseVersion: ctx.baseVersion };
-}
+};

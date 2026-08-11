@@ -8,7 +8,7 @@ export interface AuthLayoutProps {
   children: ReactNode;
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export const AuthLayout = ({ children }: AuthLayoutProps) => {
   const isMobile = useIsMobile();
 
   if (isMobile) {
@@ -65,4 +65,4 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       </Flex>
     </Box>
   );
-}
+};

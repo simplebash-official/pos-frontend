@@ -27,7 +27,7 @@ const STATUS_LABEL: Record<OutboxStatus, { label: string; color: string }> = {
  * Rejected entries stay here rather than disappearing — a change that was
  * silently dropped is indistinguishable from one that was never made.
  */
-export function PendingOperationsList({ operations }: PendingOperationsListProps) {
+export const PendingOperationsList = ({ operations }: PendingOperationsListProps) => {
   if (operations.length === 0) {
     return (
       <EmptyState
@@ -124,4 +124,4 @@ export function PendingOperationsList({ operations }: PendingOperationsListProps
       })}
     </Stack>
   );
-}
+};

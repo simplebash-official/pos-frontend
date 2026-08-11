@@ -6,7 +6,7 @@ import type { Invoice } from '../types';
 
 export const invoicesStore = new LocalStorageStore<Invoice>(STORAGE_KEYS.INVOICES, []);
 
-function getNextInvoiceNumber(): string {
+const getNextInvoiceNumber = (): string => {
   const currentYear = new Date().getFullYear();
   const prefix = `INV-${currentYear}-`;
 
@@ -59,11 +59,11 @@ function getNextInvoiceNumber(): string {
 
   const paddedSeq = storedCounter.toString().padStart(4, '0');
   return `${prefix}${paddedSeq}`;
-}
+};
 
-export async function createInvoice(
+export const createInvoice = async (
   data: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt'>
-): Promise<Invoice> {
+): Promise<Invoice> => {
   const invoiceNumber = getNextInvoiceNumber();
   const now = new Date().toISOString();
 
@@ -103,14 +103,14 @@ export async function createInvoice(
   }
 
   return newInvoice;
-}
+};
 
-export async function fetchInvoices(): Promise<Invoice[]> {
+export const fetchInvoices = async (): Promise<Invoice[]> => {
   return new Promise((resolve) => setTimeout(() => resolve(invoicesStore.getAll()), 100));
-}
+};
 
-export async function fetchInvoiceById(idOrNumber: string): Promise<Invoice | null> {
+export const fetchInvoiceById = async (idOrNumber: string): Promise<Invoice | null> => {
   const all = invoicesStore.getAll();
   const found = all.find((inv) => inv.id === idOrNumber || inv.invoiceNumber === idOrNumber);
   return Promise.resolve(found || null);
-}
+};

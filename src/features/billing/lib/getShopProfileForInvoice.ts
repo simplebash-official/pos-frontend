@@ -12,14 +12,14 @@ import type { ShopProfile } from '@/features/settings/types';
  * invoice render with?" — used by usePrint, A4InvoicePreviewModal,
  * StandalonePrintView, and InvoiceDetailDrawer.
  */
-export function getShopProfileForInvoice(
+export const getShopProfileForInvoice = (
   invoice: Invoice,
   shopProfileVersions: Record<number, ShopProfile>,
   currentShopProfile: ShopProfile
-): ShopProfile {
+): ShopProfile => {
   const version = invoice.shopProfileVersion;
   if (version != null && shopProfileVersions[version]) {
     return shopProfileVersions[version];
   }
   return currentShopProfile;
-}
+};

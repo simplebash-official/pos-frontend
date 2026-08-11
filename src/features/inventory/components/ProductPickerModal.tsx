@@ -31,13 +31,13 @@ export interface ProductPickerModalProps {
   title?: string;
 }
 
-export function ProductPickerModal({
+export const ProductPickerModal = ({
   opened,
   onClose,
   onSelect,
   excludeKeys = [],
   title = 'Link a Product',
-}: ProductPickerModalProps) {
+}: ProductPickerModalProps) => {
   const { data: products, isLoading } = useAllProducts({ enabled: opened });
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
@@ -294,4 +294,4 @@ export function ProductPickerModal({
       </Stack>
     </Modal>
   );
-}
+};

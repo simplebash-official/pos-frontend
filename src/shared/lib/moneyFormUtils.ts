@@ -17,7 +17,7 @@ export interface RepairFormValues {
   splitValueRupeesOrPercent?: number;
 }
 
-export function fromRepairJob(job?: RepairJob | null): RepairFormValues {
+export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
   if (!job) {
     return {
       customerName: '',
@@ -45,9 +45,9 @@ export function fromRepairJob(job?: RepairJob | null): RepairFormValues {
     splitValueRupeesOrPercent:
       job.splitType === 'fixed' ? fromCents(job.splitValue || 0) : job.splitValue,
   };
-}
+};
 
-export function toRepairInput(form: RepairFormValues): RepairJobInput {
+export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
   const splitValueCentsOrPercent =
     form.splitType === 'fixed'
       ? toCents(form.splitValueRupeesOrPercent || 0)
@@ -66,7 +66,7 @@ export function toRepairInput(form: RepairFormValues): RepairJobInput {
     splitType: form.splitType,
     splitValue: splitValueCentsOrPercent,
   };
-}
+};
 
 export interface PrintJobFormValues {
   customerName: string;
@@ -82,7 +82,7 @@ export interface PrintJobFormValues {
   splitValueRupeesOrPercent?: number;
 }
 
-export function fromPrintJob(job?: PrintJob | null): PrintJobFormValues {
+export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
   if (!job) {
     return {
       customerName: '',
@@ -110,9 +110,9 @@ export function fromPrintJob(job?: PrintJob | null): PrintJobFormValues {
     splitValueRupeesOrPercent:
       job.splitType === 'fixed' ? fromCents(job.splitValue || 0) : job.splitValue,
   };
-}
+};
 
-export function toPrintJobInput(form: PrintJobFormValues): PrintJobInput {
+export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
   const splitValueCentsOrPercent =
     form.splitType === 'fixed'
       ? toCents(form.splitValueRupeesOrPercent || 0)
@@ -131,7 +131,7 @@ export function toPrintJobInput(form: PrintJobFormValues): PrintJobInput {
     splitType: form.splitType,
     splitValue: splitValueCentsOrPercent,
   };
-}
+};
 
 export interface EmployeeFormValues {
   name: string;
@@ -144,7 +144,7 @@ export interface EmployeeFormValues {
   notes?: string;
 }
 
-export function fromEmployee(emp?: Employee | null): EmployeeFormValues {
+export const fromEmployee = (emp?: Employee | null): EmployeeFormValues => {
   if (!emp) {
     return {
       name: '',
@@ -168,9 +168,9 @@ export function fromEmployee(emp?: Employee | null): EmployeeFormValues {
     status: emp.status,
     notes: emp.notes || '',
   };
-}
+};
 
-export function toEmployeeInput(form: EmployeeFormValues): EmployeeInput {
+export const toEmployeeInput = (form: EmployeeFormValues): EmployeeInput => {
   const defaultSplitValue =
     form.defaultSplitType === 'fixed'
       ? toCents(form.defaultSplitValueRupeesOrPercent || 0)
@@ -186,4 +186,4 @@ export function toEmployeeInput(form: EmployeeFormValues): EmployeeInput {
     status: form.status,
     notes: form.notes,
   };
-}
+};

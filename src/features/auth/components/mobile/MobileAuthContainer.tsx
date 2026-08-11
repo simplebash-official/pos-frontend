@@ -6,7 +6,7 @@ import './mobileAuth.css';
 
 type MobileAuthView = 'splash' | 'login';
 
-export function MobileAuthContainer() {
+export const MobileAuthContainer = () => {
   const [view, setView] = useState<MobileAuthView>('splash');
 
   return (
@@ -23,4 +23,4 @@ export function MobileAuthContainer() {
       </div>
     </div>
   );
-}
+};

@@ -22,7 +22,7 @@ const barrelPath = resolve(
 const outDir = resolve(projectRoot, 'src/shared/lib/tablerIconShards');
 
 /** Every `Icon*` name the package's barrel exports, including its alias exports. */
-function readIconNames() {
+const readIconNames = () => {
   const source = readFileSync(barrelPath, 'utf8');
   const names = new Set();
   for (const statement of source.matchAll(/^export \{([^}]*)\} from '[^']*';$/gm)) {
@@ -35,13 +35,13 @@ function readIconNames() {
     }
   }
   return [...names].sort();
-}
+};
 
 /** Shard key for an icon name: its first letter after the `Icon` prefix, or `_` for digits. */
-function shardKeyForIcon(name) {
+const shardKeyForIcon = (name) => {
   const first = name.slice(4, 5).toLowerCase();
   return first >= 'a' && first <= 'z' ? first : '_';
-}
+};
 
 const shards = new Map();
 for (const name of readIconNames()) {
@@ -75,11 +75,11 @@ ${loaderEntries}
 export const ICON_SHARD_KEYS = Object.keys(ICON_SHARD_LOADERS);
 
 /** The shard holding \`name\` (PascalCase, no \`Icon\` prefix), or null if it can't be in any shard. */
-export function shardKeyForIconName(name: string): string | null {
+export const shardKeyForIconName = (name: string): string | null => {
   const first = name.slice(0, 1).toLowerCase();
   const key = first >= 'a' && first <= 'z' ? first : '_';
   return key in ICON_SHARD_LOADERS ? key : null;
-}
+};
 `
 );
 

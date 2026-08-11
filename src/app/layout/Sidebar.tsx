@@ -26,7 +26,7 @@ export interface SidebarProps {
   isRail?: boolean;
 }
 
-export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
+export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -192,4 +192,4 @@ export function Sidebar({ closeMobile, isRail = false }: SidebarProps) {
       </Stack>
     </Stack>
   );
-}
+};

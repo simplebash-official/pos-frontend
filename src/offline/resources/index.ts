@@ -17,7 +17,7 @@ import { suppliersResource } from './suppliers.resource';
  */
 let registered = false;
 
-export function registerSyncResources(): void {
+export const registerSyncResources = (): void => {
   // Idempotent: the registry is process-wide, but StrictMode double-invokes
   // the effect that calls this, and a second registration would throw.
   if (registered) {
@@ -32,4 +32,4 @@ export function registerSyncResources(): void {
   registerSyncResource(supplierProductsResource);
   registerSyncResource(purchasesResource);
   registerSyncResource(stockMovementsResource);
-}
+};

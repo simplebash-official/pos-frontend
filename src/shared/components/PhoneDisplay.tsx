@@ -11,13 +11,13 @@ export interface PhoneDisplayProps {
   secondaryLabel?: string;
 }
 
-export function PhoneDisplay({
+export const PhoneDisplay = ({
   primaryPhone,
   secondaryPhone,
   layout = 'stack',
   badgeWidth = 65,
   secondaryLabel = 'Secondary',
-}: PhoneDisplayProps) {
+}: PhoneDisplayProps) => {
   const displayPrimary = primaryPhone?.trim() || 'N/A';
 
   const handleCopyPhone = (e: React.MouseEvent, phone: string, label: string) => {
@@ -111,4 +111,4 @@ export function PhoneDisplay({
       {secondaryItem}
     </Stack>
   );
-}
+};

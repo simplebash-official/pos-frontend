@@ -45,11 +45,11 @@ export interface CombinedServiceJob {
   assignedEmployeeName?: string;
 }
 
-function generateServiceJobId(type: string, id: string): string {
+const generateServiceJobId = (type: string, id: string): string => {
   return `svc-${type}-${id}-${Math.random().toString(36).substring(2, 9)}`;
-}
+};
 
-export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModalProps) {
+export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModalProps) => {
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'repair' | 'print'>('all');
@@ -381,4 +381,4 @@ export function ServiceJobPickerModal({ opened, onClose }: ServiceJobPickerModal
       </Box>
     </Modal>
   );
-}
+};

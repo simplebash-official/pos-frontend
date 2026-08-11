@@ -52,13 +52,13 @@ export interface SupplierDetailDrawerProps {
   onDelete: (supplier: Supplier) => void;
 }
 
-export function SupplierDetailDrawer({
+export const SupplierDetailDrawer = ({
   supplier,
   opened,
   onClose,
   onEdit,
   onDelete,
-}: SupplierDetailDrawerProps) {
+}: SupplierDetailDrawerProps) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [receiveStockOpen, setReceiveStockOpen] = useState(false);
 
@@ -491,4 +491,4 @@ export function SupplierDetailDrawer({
       )}
     </>
   );
-}
+};

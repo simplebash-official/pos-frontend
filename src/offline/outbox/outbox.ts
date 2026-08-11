@@ -31,7 +31,7 @@ export interface EnqueueInput {
  * the optimistic local write, so a local change can never exist without a
  * queued operation to carry it (or the reverse).
  */
-export async function enqueueOperation(input: EnqueueInput): Promise<number> {
+export const enqueueOperation = async (input: EnqueueInput): Promise<number> => {
   const op: OutboxOp = {
     resource: input.resource,
     operation: input.operation,
@@ -49,7 +49,7 @@ export async function enqueueOperation(input: EnqueueInput): Promise<number> {
     deviceId: getDeviceId(),
   };
   return db.outbox.add(op);
-}
+};
 
 /**
  * Refuses further writes past the capacity cap.
@@ -58,29 +58,29 @@ export async function enqueueOperation(input: EnqueueInput): Promise<number> {
  * operations needs attention, not a silently growing queue that will never
  * drain. Called before opening the write transaction.
  */
-export async function assertOutboxHasCapacity(): Promise<void> {
+export const assertOutboxHasCapacity = async (): Promise<void> => {
   const pending = await countUnsettled();
   if (pending >= OUTBOX_CAPACITY) {
     throw new OutboxFullError(pending);
   }
-}
+};
 
 /** Operations that still need to reach the server, in any non-terminal state. */
-export async function countUnsettled(): Promise<number> {
+export const countUnsettled = async (): Promise<number> => {
   return db.outbox.where('status').anyOf('queued', 'inflight', 'failed').count();
-}
+};
 
-export async function countByStatus(status: OutboxStatus): Promise<number> {
+export const countByStatus = async (status: OutboxStatus): Promise<number> => {
   return db.outbox.where('status').equals(status).count();
-}
+};
 
-export async function countUnsettledForResource(resource: SyncResourceId): Promise<number> {
+export const countUnsettledForResource = async (resource: SyncResourceId): Promise<number> => {
   return db.outbox
     .where('resource')
     .equals(resource)
     .filter((op) => op.status === 'queued' || op.status === 'inflight' || op.status === 'failed')
     .count();
-}
+};
 
 /**
  * Operations ready to attempt, in dependency-then-intent order.
@@ -89,7 +89,7 @@ export async function countUnsettledForResource(resource: SyncResourceId): Promi
  * is pushed before the supplier link that references it, even though the link
  * may have a lower `seq`.
  */
-export async function claimReadyOperations(): Promise<OutboxOp[]> {
+export const claimReadyOperations = async (): Promise<OutboxOp[]> => {
   const now = Date.now();
   const ranks = getResourceRanks();
 
@@ -107,59 +107,59 @@ export async function claimReadyOperations(): Promise<OutboxOp[]> {
     }
     return (a.seq ?? 0) - (b.seq ?? 0);
   });
-}
+};
 
 /** True when every operation this one waits on has completed successfully. */
-export async function areDependenciesSatisfied(op: OutboxOp): Promise<boolean> {
+export const areDependenciesSatisfied = async (op: OutboxOp): Promise<boolean> => {
   if (op.dependsOn.length === 0) {
     return true;
   }
   const blockers = await db.outbox.bulkGet(op.dependsOn);
   // A missing blocker means it completed and was deleted — that counts as done.
   return blockers.every((blocker) => blocker === undefined);
-}
+};
 
-export async function markInflight(seq: number): Promise<void> {
+export const markInflight = async (seq: number): Promise<void> => {
   await db.outbox.update(seq, { status: 'inflight' });
-}
+};
 
 /** Returns an operation to the queue without burning a retry attempt. */
-export async function requeue(seq: number): Promise<void> {
+export const requeue = async (seq: number): Promise<void> => {
   await db.outbox.update(seq, { status: 'queued' });
-}
+};
 
-export async function recordFailure(seq: number, attempts: number, error: OutboxError) {
+export const recordFailure = async (seq: number, attempts: number, error: OutboxError) => {
   await db.outbox.update(seq, {
     status: 'failed',
     attempts,
     nextAttemptAt: nextAttemptAt(attempts),
     lastError: error,
   });
-}
+};
 
-export async function markDead(seq: number, error: OutboxError): Promise<void> {
+export const markDead = async (seq: number, error: OutboxError): Promise<void> => {
   await db.outbox.update(seq, { status: 'dead', lastError: error });
-}
+};
 
-export async function markConflict(seq: number, error: OutboxError): Promise<void> {
+export const markConflict = async (seq: number, error: OutboxError): Promise<void> => {
   await db.outbox.update(seq, { status: 'conflict', lastError: error });
-}
+};
 
 /** Removes a completed operation. Call inside the commit transaction. */
-export async function deleteOperation(seq: number): Promise<void> {
+export const deleteOperation = async (seq: number): Promise<void> => {
   await db.outbox.delete(seq);
-}
+};
 
 /** Puts a dead or conflicted operation back in the queue after the user fixes it. */
-export async function retryOperation(seq: number): Promise<void> {
+export const retryOperation = async (seq: number): Promise<void> => {
   await db.outbox.update(seq, {
     status: 'queued',
     attempts: 0,
     nextAttemptAt: new Date().toISOString(),
     lastError: null,
   });
-}
+};
 
-export async function listOperations(): Promise<OutboxOp[]> {
+export const listOperations = async (): Promise<OutboxOp[]> => {
   return db.outbox.orderBy('seq').toArray();
-}
+};

@@ -15,16 +15,16 @@ type Listener = (observation: NetworkObservation, serverTime: string | null) => 
 
 const listeners = new Set<Listener>();
 
-export function observeNetwork(listener: Listener): () => void {
+export const observeNetwork = (listener: Listener): (() => void) => {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
   };
-}
+};
 
-export function reportNetworkObservation(
+export const reportNetworkObservation = (
   observation: NetworkObservation,
   serverTime: string | null
-): void {
+): void => {
   listeners.forEach((listener) => listener(observation, serverTime));
-}
+};

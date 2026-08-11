@@ -83,7 +83,7 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { ProductFormModal } from './ProductFormModal';
 import { CategoryManagerModal } from './CategoryManagerModal';
 
-export function ProductTable() {
+export const ProductTable = () => {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
   const isMobile = useIsMobile();
@@ -1613,4 +1613,4 @@ export function ProductTable() {
       )}
     </Stack>
   );
-}
+};

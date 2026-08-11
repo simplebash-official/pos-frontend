@@ -9,7 +9,7 @@ interface MobileSignUpFormProps {
   onGoToSignIn: () => void;
 }
 
-export function MobileSignUpForm({ onBack, onGoToSignIn }: MobileSignUpFormProps) {
+export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -168,4 +168,4 @@ export function MobileSignUpForm({ onBack, onGoToSignIn }: MobileSignUpFormProps
       </div>
     </>
   );
-}
+};

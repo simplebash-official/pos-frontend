@@ -10,14 +10,14 @@ export interface DetailDrawerProps<T> {
   children: (item: T) => React.ReactNode;
 }
 
-export function DetailDrawer<T>({
+export const DetailDrawer = <T,>({
   data,
   opened,
   onClose,
   title,
   size = 'md',
   children,
-}: DetailDrawerProps<T>) {
+}: DetailDrawerProps<T>) => {
   const [cachedData, setCachedData] = useState<T | null>(data);
 
   if (data && data !== cachedData) {
@@ -38,4 +38,4 @@ export function DetailDrawer<T>({
       {activeData ? children(activeData) : null}
     </Drawer>
   );
-}
+};

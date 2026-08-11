@@ -26,13 +26,13 @@ interface EmployeeFormModalProps {
   loading?: boolean;
 }
 
-export function EmployeeFormModal({
+export const EmployeeFormModal = ({
   opened,
   onClose,
   onSubmit,
   employeeToEdit,
   loading = false,
-}: EmployeeFormModalProps) {
+}: EmployeeFormModalProps) => {
   const isEditing = Boolean(employeeToEdit);
 
   const form = useForm<EmployeeFormValues>({
@@ -229,4 +229,4 @@ export function EmployeeFormModal({
       </form>
     </Modal>
   );
-}
+};

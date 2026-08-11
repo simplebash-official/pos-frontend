@@ -18,7 +18,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { PrintJobFormModal } from './PrintJobFormModal';
 
-export function PrintJobList() {
+export const PrintJobList = () => {
   const queryClient = useQueryClient();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -207,4 +207,4 @@ export function PrintJobList() {
       />
     </Stack>
   );
-}
+};

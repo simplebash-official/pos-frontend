@@ -15,7 +15,7 @@ import { createLocalId, isLocalId } from './localId';
  */
 
 /** Mints a provisional id and records it as unresolved. Call inside a transaction. */
-export async function mintLocalId(resource: SyncResourceId): Promise<string> {
+export const mintLocalId = async (resource: SyncResourceId): Promise<string> => {
   const localId = createLocalId();
   await db.idMap.put({
     localId,
@@ -27,31 +27,31 @@ export async function mintLocalId(resource: SyncResourceId): Promise<string> {
     resolvedAt: null,
   });
   return localId;
-}
+};
 
 /** Records the server's identity for a provisional id. Call inside a transaction. */
-export async function resolveMapping(
+export const resolveMapping = async (
   localId: string,
   serverId: string,
   serverKey: string | null
-): Promise<void> {
+): Promise<void> => {
   await db.idMap.update(localId, {
     serverId,
     serverKey,
     status: 'resolved',
     resolvedAt: new Date().toISOString(),
   });
-}
+};
 
 /** Marks a provisional id as permanently unresolvable, so dependents fail fast. */
-export async function abandonMapping(localId: string): Promise<void> {
+export const abandonMapping = async (localId: string): Promise<void> => {
   await db.idMap.update(localId, { status: 'abandoned' });
-}
+};
 
-export async function loadIdMap(): Promise<Map<string, IdMapRecord>> {
+export const loadIdMap = async (): Promise<Map<string, IdMapRecord>> => {
   const records = await db.idMap.toArray();
   return new Map(records.map((record) => [record.localId, record]));
-}
+};
 
 // ---------------------------------------------------------------------------
 // Reference rewriting
@@ -63,9 +63,9 @@ type RewriteOutcome =
 /** Sentinel returned when a nested rewrite means the whole array element goes. */
 const DROP_ELEMENT = Symbol('drop-element');
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+};
 
 /**
  * Resolves one reference value against the id map, honouring the declaration's
@@ -74,11 +74,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * A server id never starts with `local_` (a backend contract clause), so a
  * value that doesn't carry the prefix is already canonical and passes through.
  */
-function resolveValue(
+const resolveValue = (
   value: string,
   reference: ReferenceDeclaration,
   idMap: Map<string, IdMapRecord>
-): RewriteOutcome {
+): RewriteOutcome => {
   if (!isLocalId(value)) {
     return { action: 'keep' };
   }
@@ -110,14 +110,14 @@ function resolveValue(
   }
 
   return { action: 'replace', value: resolved };
-}
+};
 
-function rewriteNode(
+const rewriteNode = (
   node: unknown,
   segments: readonly string[],
   reference: ReferenceDeclaration,
   idMap: Map<string, IdMapRecord>
-): unknown | typeof DROP_ELEMENT {
+): unknown | typeof DROP_ELEMENT => {
   if (!isRecord(node)) {
     return node;
   }
@@ -187,7 +187,7 @@ function rewriteNode(
     return DROP_ELEMENT;
   }
   return { ...node, [field]: rewritten };
-}
+};
 
 /**
  * Returns a copy of `payload` with every declared reference resolved to its
@@ -199,11 +199,11 @@ function rewriteNode(
  * The stored payload is never mutated, so a later retry re-resolves against a
  * fresher id map.
  */
-export function rewriteReferences(
+export const rewriteReferences = (
   payload: unknown,
   references: readonly ReferenceDeclaration[],
   idMap: Map<string, IdMapRecord>
-): unknown {
+): unknown => {
   let result = payload;
   for (const reference of references) {
     const rewritten = rewriteNode(result, reference.path.split('.'), reference, idMap);
@@ -214,4 +214,4 @@ export function rewriteReferences(
     result = rewritten;
   }
   return result;
-}
+};

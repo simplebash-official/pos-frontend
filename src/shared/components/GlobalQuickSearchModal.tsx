@@ -34,7 +34,7 @@ import { RepairJob } from '@/features/repairs/types';
 import { PrintJob } from '@/features/print-jobs/types';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 
-export function GlobalQuickSearchModal() {
+export const GlobalQuickSearchModal = () => {
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
@@ -235,4 +235,4 @@ export function GlobalQuickSearchModal() {
       </Stack>
     </Modal>
   );
-}
+};

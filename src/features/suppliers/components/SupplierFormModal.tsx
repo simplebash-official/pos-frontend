@@ -54,12 +54,12 @@ interface FormContentProps {
   loading?: boolean;
 }
 
-function SupplierFormContent({
+const SupplierFormContent = ({
   supplierToEdit,
   onClose,
   onSubmit,
   loading = false,
-}: FormContentProps) {
+}: FormContentProps) => {
   const isEditing = Boolean(supplierToEdit);
 
   const [formData, setFormData] = useState<SupplierInput>({
@@ -376,15 +376,15 @@ function SupplierFormContent({
       </Stack>
     </form>
   );
-}
+};
 
-export function SupplierFormModal({
+export const SupplierFormModal = ({
   opened,
   onClose,
   onSubmit,
   supplierToEdit,
   loading = false,
-}: SupplierFormModalProps) {
+}: SupplierFormModalProps) => {
   const isEditing = Boolean(supplierToEdit);
 
   return (
@@ -407,4 +407,4 @@ export function SupplierFormModal({
       )}
     </Modal>
   );
-}
+};

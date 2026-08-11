@@ -20,9 +20,9 @@ interface AuthState {
 }
 
 /** A rejected request that never reached the server surfaces as `statusCode: 0`. */
-function isNetworkError(error: unknown): boolean {
+const isNetworkError = (error: unknown): boolean => {
   return typeof error === 'object' && error !== null && (error as ApiError).statusCode === 0;
-}
+};
 
 const savedToken =
   typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) : null;

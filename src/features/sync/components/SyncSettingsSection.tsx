@@ -8,7 +8,7 @@ import { SyncPanel } from './SyncPanel';
  * Same body as the drawer, so both surfaces always agree. The drawer is the
  * fast path during a sale; this is where someone goes to look deliberately.
  */
-export function SyncSettingsSection() {
+export const SyncSettingsSection = () => {
   return (
     <Paper p="lg" radius="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
       <Stack gap="md">
@@ -30,4 +30,4 @@ export function SyncSettingsSection() {
       </Stack>
     </Paper>
   );
-}
+};

@@ -39,13 +39,13 @@ interface PrintJobFormModalProps {
   loading?: boolean;
 }
 
-export function PrintJobFormModal({
+export const PrintJobFormModal = ({
   opened,
   onClose,
   onSubmit,
   jobToEdit,
   loading = false,
-}: PrintJobFormModalProps) {
+}: PrintJobFormModalProps) => {
   const isEditing = Boolean(jobToEdit);
 
   const { data: employees = [] } = useQuery({
@@ -333,4 +333,4 @@ export function PrintJobFormModal({
       </form>
     </Modal>
   );
-}
+};

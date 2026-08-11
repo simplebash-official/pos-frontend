@@ -7,9 +7,12 @@ export type TablerIcon = TablerIconComponent;
 export const DEFAULT_CATEGORY_ICON: TablerIconComponent = IconPackage;
 
 /** Resolves a backend-stored icon name (PascalCase, no "Icon" prefix) to its component. */
-export function resolveCategoryIcon(iconMap: TablerIconMap | null, iconName: string): TablerIcon {
+export const resolveCategoryIcon = (
+  iconMap: TablerIconMap | null,
+  iconName: string
+): TablerIcon => {
   return resolveTablerIcon(iconMap, iconName, DEFAULT_CATEGORY_ICON);
-}
+};
 
 export const CATEGORY_COLOR_OPTIONS = [
   'blue',

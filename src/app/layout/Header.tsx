@@ -42,7 +42,7 @@ export interface HeaderProps {
   onOpenSyncPanel: () => void;
 }
 
-export function Header({
+export const Header = ({
   opened,
   toggle,
   focusMode = false,
@@ -50,7 +50,7 @@ export function Header({
   onOpenHeldDrawer,
   onOpenShortcuts,
   onOpenSyncPanel,
-}: HeaderProps) {
+}: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isBillingPage = location.pathname === ROUTES.BILLING;
@@ -254,4 +254,4 @@ export function Header({
       </Group>
     </Group>
   );
-}
+};

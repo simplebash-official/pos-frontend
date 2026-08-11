@@ -36,7 +36,7 @@ export interface TablerIconPickerProps {
 
 const MAX_RESULTS = 180;
 
-export function TablerIconPicker({
+export const TablerIconPicker = ({
   value,
   onChange,
   fallbackIcon,
@@ -44,7 +44,7 @@ export function TablerIconPicker({
   error,
   showName = false,
   color,
-}: TablerIconPickerProps) {
+}: TablerIconPickerProps) => {
   const [opened, setOpened] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -198,4 +198,4 @@ export function TablerIconPicker({
       )}
     </Stack>
   );
-}
+};

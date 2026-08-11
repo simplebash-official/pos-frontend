@@ -23,7 +23,7 @@ export interface StorageEstimate {
  * IndexedDB eviction is silent and looks exactly like data loss, so this is
  * worth surfacing before it happens.
  */
-export async function estimateStorage(): Promise<StorageEstimate> {
+export const estimateStorage = async (): Promise<StorageEstimate> => {
   if (!navigator.storage?.estimate) {
     return { usageBytes: null, quotaBytes: null, ratio: null, isNearLimit: false };
   }
@@ -39,13 +39,13 @@ export async function estimateStorage(): Promise<StorageEstimate> {
     ratio,
     isNearLimit: ratio !== null && ratio >= STORAGE_QUOTA_WARN_RATIO,
   };
-}
+};
 
 /**
  * Asks the browser not to evict this origin under storage pressure. A POS
  * terminal's queued sales are not a cache.
  */
-export async function requestPersistentStorage(): Promise<boolean> {
+export const requestPersistentStorage = async (): Promise<boolean> => {
   if (!navigator.storage?.persist) {
     return false;
   }
@@ -53,7 +53,7 @@ export async function requestPersistentStorage(): Promise<boolean> {
     return true;
   }
   return navigator.storage.persist();
-}
+};
 
 /**
  * Discards every mirror and re-pulls from scratch.
@@ -61,7 +61,7 @@ export async function requestPersistentStorage(): Promise<boolean> {
  * Queued work is deliberately preserved: mirrors are derived state and can
  * always be rebuilt, but the outbox holds changes that exist nowhere else.
  */
-export async function forceFullResync(): Promise<void> {
+export const forceFullResync = async (): Promise<void> => {
   await db.transaction(
     'rw',
     [
@@ -101,7 +101,7 @@ export async function forceFullResync(): Promise<void> {
   );
 
   logInfo(null, 'Forced a full resync of every module', null);
-}
+};
 
 export interface ClearLocalDataOptions {
   /** Required to proceed while unsynced work is queued. */
@@ -115,7 +115,7 @@ export interface ClearLocalDataOptions {
  * discarding that work — this is the one action that can destroy a day of
  * offline sales.
  */
-export async function clearLocalData(options: ClearLocalDataOptions): Promise<void> {
+export const clearLocalData = async (options: ClearLocalDataOptions): Promise<void> => {
   const pending = await countUnsettled();
   if (pending > 0 && !options.discardPendingChanges) {
     throw new Error(
@@ -129,14 +129,14 @@ export async function clearLocalData(options: ClearLocalDataOptions): Promise<vo
 
   await db.delete();
   await db.open();
-}
+};
 
 /**
  * A JSON dump for support: everything needed to diagnose a stuck sync on a
  * terminal you cannot attach a debugger to. Deliberately excludes mirrored
  * business data — it is the engine's own state that matters here.
  */
-export async function exportDiagnostics(): Promise<string> {
+export const exportDiagnostics = async (): Promise<string> => {
   const [syncMeta, outbox, conflicts, idMap, stockLedger, auditLog, storage] = await Promise.all([
     db.syncMeta.toArray(),
     db.outbox.toArray(),
@@ -162,10 +162,10 @@ export async function exportDiagnostics(): Promise<string> {
     null,
     2
   );
-}
+};
 
 /** Drops mirrored rows past each resource's retention policy. */
-export async function pruneByRetention(): Promise<number> {
+export const pruneByRetention = async (): Promise<number> => {
   let removed = 0;
 
   for (const resource of getResourcesInDependencyOrder()) {
@@ -197,4 +197,4 @@ export async function pruneByRetention(): Promise<number> {
   }
 
   return removed;
-}
+};

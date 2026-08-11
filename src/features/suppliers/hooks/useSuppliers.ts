@@ -19,7 +19,7 @@ import { Supplier, SupplierInput } from '../types';
 
 const NO_SUPPLIERS: MirroredRow<Supplier>[] = [];
 
-export function useAllSuppliers(options?: { enabled?: boolean }) {
+export const useAllSuppliers = (options?: { enabled?: boolean }) => {
   const enabled = options?.enabled ?? true;
 
   return useSyncedQuery(
@@ -33,26 +33,26 @@ export function useAllSuppliers(options?: { enabled?: boolean }) {
     NO_SUPPLIERS,
     [enabled]
   );
-}
+};
 
 /** Distinct categories across every mirrored supplier, for the filter chips. */
-export function useSupplierCategories() {
+export const useSupplierCategories = () => {
   const { data: suppliers } = useAllSuppliers();
   return [...new Set(suppliers.flatMap((supplier) => supplier.suppliedCategories))].sort();
-}
+};
 
-export function useCreateSupplier() {
+export const useCreateSupplier = () => {
   return useSyncedMutation<SupplierInput, Supplier>('suppliers', 'create');
-}
+};
 
-export function useUpdateSupplier() {
+export const useUpdateSupplier = () => {
   return useSyncedMutation<UpdateSupplierPayload, Supplier>('suppliers', 'update');
-}
+};
 
-export function useDeleteSupplier() {
+export const useDeleteSupplier = () => {
   return useSyncedMutation<DeleteSupplierPayload, void>('suppliers', 'delete');
-}
+};
 
-export function useDeleteSuppliers() {
+export const useDeleteSuppliers = () => {
   return useSyncedMutation<DeleteSuppliersPayload, void>('suppliers', 'deleteMany');
-}
+};

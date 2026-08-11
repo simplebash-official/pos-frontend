@@ -4,7 +4,7 @@ import { LocalStorageStore } from '@/shared/lib/localStorageStore';
 
 export { INITIAL_CUSTOMERS };
 
-export function normalizeCustomer(rawInput: unknown): Customer {
+export const normalizeCustomer = (rawInput: unknown): Customer => {
   const raw = (rawInput && typeof rawInput === 'object' ? rawInput : {}) as Record<string, unknown>;
   return {
     id: typeof raw.id === 'string' ? raw.id : `cust-${Date.now()}`,
@@ -21,7 +21,7 @@ export function normalizeCustomer(rawInput: unknown): Customer {
     createdAt: String(raw.createdAt || new Date().toISOString()),
     updatedAt: String(raw.updatedAt || new Date().toISOString()),
   };
-}
+};
 
 export const customersStore = new LocalStorageStore<Customer>(
   'pos_customers',

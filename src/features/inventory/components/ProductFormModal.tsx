@@ -61,12 +61,12 @@ interface FormContentProps {
   loading?: boolean;
 }
 
-function ProductFormContent({
+const ProductFormContent = ({
   productToEdit,
   onClose,
   onSubmit,
   loading = false,
-}: FormContentProps) {
+}: FormContentProps) => {
   const isEditing = Boolean(productToEdit);
   const isMobile = useIsMobile();
 
@@ -1050,15 +1050,15 @@ function ProductFormContent({
       </Stack>
     </form>
   );
-}
+};
 
-export function ProductFormModal({
+export const ProductFormModal = ({
   opened,
   onClose,
   onSubmit,
   productToEdit,
   loading = false,
-}: ProductFormModalProps) {
+}: ProductFormModalProps) => {
   const isEditing = Boolean(productToEdit);
   const isMobile = useIsMobile();
 
@@ -1086,4 +1086,4 @@ export function ProductFormModal({
       )}
     </Modal>
   );
-}
+};

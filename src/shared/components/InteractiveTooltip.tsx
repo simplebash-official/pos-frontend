@@ -99,7 +99,7 @@ export interface InteractiveTooltipProps {
   keepMounted?: boolean;
 }
 
-export function InteractiveTooltip({
+export const InteractiveTooltip = ({
   children,
   content,
   label,
@@ -128,7 +128,7 @@ export function InteractiveTooltip({
   targetStyle,
   className,
   keepMounted = false,
-}: InteractiveTooltipProps) {
+}: InteractiveTooltipProps) => {
   const bodyText = description || content || label;
   const hasContent = Boolean(title || bodyText || icon || shortcut || badge || footer);
 
@@ -248,4 +248,4 @@ export function InteractiveTooltip({
       </HoverCard.Dropdown>
     </HoverCard>
   );
-}
+};

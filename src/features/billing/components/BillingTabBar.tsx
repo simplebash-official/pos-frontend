@@ -23,7 +23,7 @@ const TABS: { pane: BillingPane; label: string; Icon: Icon }[] = [
  * Always-visible running total, sitting directly above the tab bar. Tapping it jumps to the cart, so
  * the cashier can glance at the total from the catalog and drill in without hunting for a tab.
  */
-export function BillingSummaryStrip({ onOpenCart }: { onOpenCart: () => void }) {
+export const BillingSummaryStrip = ({ onOpenCart }: { onOpenCart: () => void }) => {
   const { itemCount, totalUnitCount, totalCents } = useCart();
 
   if (itemCount === 0) {
@@ -53,13 +53,13 @@ export function BillingSummaryStrip({ onOpenCart }: { onOpenCart: () => void }) 
       </Group>
     </UnstyledButton>
   );
-}
+};
 
 /**
  * Bottom tab bar for the mobile billing layout. Sits below the summary strip and pads itself past the
  * iPhone home indicator so the tap targets are never partly under it.
  */
-export function BillingTabBar({ active, onChange }: BillingTabBarProps) {
+export const BillingTabBar = ({ active, onChange }: BillingTabBarProps) => {
   const { itemCount } = useCart();
 
   return (
@@ -113,4 +113,4 @@ export function BillingTabBar({ active, onChange }: BillingTabBarProps) {
       })}
     </Box>
   );
-}
+};

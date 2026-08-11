@@ -4,7 +4,7 @@ interface MobileSplashScreenProps {
   onStart: () => void;
 }
 
-export function MobileSplashScreen({ onStart }: MobileSplashScreenProps) {
+export const MobileSplashScreen = ({ onStart }: MobileSplashScreenProps) => {
   return (
     <div className="mobile-splash-container">
       {/* Top Brand Badge */}
@@ -35,4 +35,4 @@ export function MobileSplashScreen({ onStart }: MobileSplashScreenProps) {
       </div>
     </div>
   );
-}
+};

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IconFileOff } from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
 
-export function NotFoundPage() {
+export const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -28,4 +28,4 @@ export function NotFoundPage() {
       </Paper>
     </Container>
   );
-}
+};

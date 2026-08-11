@@ -46,11 +46,11 @@ import { OVERALL_STATUS_PRESENTATION } from '../types';
 import { PendingOperationsList } from './PendingOperationsList';
 import { SyncModuleCard } from './SyncModuleCard';
 
-function formatBytes(bytes: number): string {
+const formatBytes = (bytes: number): string => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
+};
 
 /**
  * The sync dashboard body.
@@ -58,7 +58,7 @@ function formatBytes(bytes: number): string {
  * Shared by the shell-level drawer and the Settings page section so both show
  * exactly the same picture.
  */
-export function SyncPanel() {
+export const SyncPanel = () => {
   const status = useAppSelector(selectOverallSyncStatus);
   const connectivity = useAppSelector(selectConnectivity);
   const modules = useAppSelector(selectModuleViews);
@@ -316,4 +316,4 @@ export function SyncPanel() {
       </ConfirmDialog>
     </Stack>
   );
-}
+};

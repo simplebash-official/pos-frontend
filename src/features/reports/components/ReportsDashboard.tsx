@@ -26,7 +26,7 @@ import { fetchEmployees, fetchAllEmployeeEarnings } from '@/features/employees/a
 import { queryKeys } from '@/api/queryKeys';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
 
-export function ReportsDashboard() {
+export const ReportsDashboard = () => {
   const {
     data: employees,
     isLoading: isLoadingEmployees,
@@ -260,4 +260,4 @@ export function ReportsDashboard() {
       </Paper>
     </Stack>
   );
-}
+};

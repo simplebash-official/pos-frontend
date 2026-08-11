@@ -30,7 +30,7 @@ import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
-export function InvoicesList() {
+export const InvoicesList = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -444,4 +444,4 @@ export function InvoicesList() {
       />
     </Box>
   );
-}
+};

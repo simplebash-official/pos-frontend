@@ -12,7 +12,7 @@ export interface PrintLogEntry {
 
 export const printLogStore = new LocalStorageStore<PrintLogEntry>('pos_print_log', []);
 
-export function recordPrintEvent(entry: Omit<PrintLogEntry, 'id' | 'printedAt'>): PrintLogEntry {
+export const recordPrintEvent = (entry: Omit<PrintLogEntry, 'id' | 'printedAt'>): PrintLogEntry => {
   const newEntry: PrintLogEntry = {
     ...entry,
     id: `prt-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
@@ -20,17 +20,17 @@ export function recordPrintEvent(entry: Omit<PrintLogEntry, 'id' | 'printedAt'>)
   };
   printLogStore.add(newEntry);
   return newEntry;
-}
+};
 
-export function getPrintLogsForInvoice(invoiceNumber: string): PrintLogEntry[] {
+export const getPrintLogsForInvoice = (invoiceNumber: string): PrintLogEntry[] => {
   printLogStore.refresh();
   return printLogStore
     .getAll()
     .filter((log) => log.invoiceNumber === invoiceNumber || log.invoiceId === invoiceNumber);
-}
+};
 
-export function getPrintCountForInvoice(invoiceNumber: string, format?: string): number {
+export const getPrintCountForInvoice = (invoiceNumber: string, format?: string): number => {
   const logs = getPrintLogsForInvoice(invoiceNumber);
   if (!format) return logs.length;
   return logs.filter((l) => l.format.includes(format)).length;
-}
+};

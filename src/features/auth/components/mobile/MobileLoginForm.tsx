@@ -13,7 +13,7 @@ interface MobileLoginFormProps {
   onBack: () => void;
 }
 
-export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
+export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
@@ -163,4 +163,4 @@ export function MobileLoginForm({ onBack }: MobileLoginFormProps) {
       </div>
     </>
   );
-}
+};

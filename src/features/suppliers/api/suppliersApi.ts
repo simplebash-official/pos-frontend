@@ -8,49 +8,52 @@ export interface SupplierListParams {
   category?: string;
 }
 
-export async function fetchSuppliers(params: SupplierListParams = {}): Promise<Supplier[]> {
+export const fetchSuppliers = async (params: SupplierListParams = {}): Promise<Supplier[]> => {
   const response = await apiClient.get<ApiResponse<{ suppliers: Supplier[] }>>('/suppliers', {
     params,
   });
   return response.data.suppliers;
-}
+};
 
-export async function fetchSupplierById(id: string): Promise<Supplier> {
+export const fetchSupplierById = async (id: string): Promise<Supplier> => {
   const response = await apiClient.get<ApiResponse<Supplier>>(`/suppliers/${id}`);
   return response.data;
-}
+};
 
-export async function createSupplier(
+export const createSupplier = async (
   input: SupplierInput,
   options?: MutationRequestOptions
-): Promise<Supplier> {
+): Promise<Supplier> => {
   const response = await apiClient.post<ApiResponse<Supplier>>('/suppliers', input, options);
   return response.data;
-}
+};
 
 /** Full replace — omitted optional fields are cleared server-side, so always send the complete object. */
-export async function updateSupplier(
+export const updateSupplier = async (
   id: string,
   input: SupplierInput,
   options?: MutationRequestOptions
-): Promise<Supplier> {
+): Promise<Supplier> => {
   const response = await apiClient.put<ApiResponse<Supplier>>(`/suppliers/${id}`, input, options);
   return response.data;
-}
+};
 
-export async function deleteSupplier(id: string, options?: MutationRequestOptions): Promise<void> {
+export const deleteSupplier = async (
+  id: string,
+  options?: MutationRequestOptions
+): Promise<void> => {
   await apiClient.delete(`/suppliers/${id}`, options);
-}
+};
 
-export async function deleteSuppliers(
+export const deleteSuppliers = async (
   ids: string[],
   options?: MutationRequestOptions
-): Promise<void> {
+): Promise<void> => {
   await apiClient.delete('/suppliers/batch', { ...options, data: { ids } });
-}
+};
 
-export async function fetchSupplierCategories(): Promise<string[]> {
+export const fetchSupplierCategories = async (): Promise<string[]> => {
   const response =
     await apiClient.get<ApiResponse<{ categories: string[] }>>('/suppliers/categories');
   return response.data.categories;
-}
+};

@@ -27,7 +27,7 @@ const started = new Set<string>();
 const resolved = new Set<string>();
 const listeners = new Set<() => void>();
 
-function loadShard(key: string): void {
+const loadShard = (key: string): void => {
   if (started.has(key)) return;
   started.add(key);
 
@@ -36,27 +36,27 @@ function loadShard(key: string): void {
     resolved.add(key);
     listeners.forEach((listener) => listener());
   });
-}
+};
 
-function subscribe(listener: () => void): () => void {
+const subscribe = (listener: () => void): (() => void) => {
   listeners.add(listener);
   return () => listeners.delete(listener);
-}
+};
 
-function getSnapshot(): TablerIconMap {
+const getSnapshot = (): TablerIconMap => {
   return cache;
-}
+};
 
-function getServerSnapshot(): TablerIconMap {
+const getServerSnapshot = (): TablerIconMap => {
   return EMPTY_MAP;
-}
+};
 
 /**
  * Loads `keyList` (a sorted, comma-joined list of shard keys) and returns the merged icon map.
  * `null` until enough of it has arrived: `'any'` shows partial results as they stream in, `'all'`
  * holds back until every requested shard is in so a browsable list is never shown half-populated.
  */
-function useShards(keyList: string, readyWhen: 'any' | 'all'): TablerIconMap | null {
+const useShards = (keyList: string, readyWhen: 'any' | 'all'): TablerIconMap | null => {
   useEffect(() => {
     if (!keyList) return;
     keyList.split(',').forEach(loadShard);
@@ -71,10 +71,10 @@ function useShards(keyList: string, readyWhen: 'any' | 'all'): TablerIconMap | n
       ? keys.every((key) => resolved.has(key))
       : keys.some((key) => resolved.has(key));
   return isReady ? map : null;
-}
+};
 
 /** Sorted, de-duplicated shard keys for a set of stored icon names, as a stable string. */
-function shardKeyList(names: readonly (string | undefined | null)[]): string {
+const shardKeyList = (names: readonly (string | undefined | null)[]): string => {
   const keys = new Set<string>();
   for (const name of names) {
     if (!name) continue;
@@ -82,17 +82,17 @@ function shardKeyList(names: readonly (string | undefined | null)[]): string {
     if (key) keys.add(key);
   }
   return [...keys].sort().join(',');
-}
+};
 
 /**
  * Loads only the shards covering `names` (stored icon names — PascalCase, no `Icon` prefix),
  * returning `null` until the first of them resolves.
  */
-export function useTablerIcons(
+export const useTablerIcons = (
   names: readonly (string | undefined | null)[]
-): TablerIconMap | null {
+): TablerIconMap | null => {
   return useShards(shardKeyList(names), 'any');
-}
+};
 
 /**
  * Loads every shard, for the icon picker — the one place that browses the whole library. Mounting
@@ -100,16 +100,16 @@ export function useTablerIcons(
  * this until an admin opens it. Don't defer it further to the moment the dropdown opens; ~500 kB
  * of icon modules landing mid-click janks the popover badly enough to drop the click.
  */
-export function useAllTablerIcons(): TablerIconMap | null {
+export const useAllTablerIcons = (): TablerIconMap | null => {
   return useShards(ICON_SHARD_KEYS.join(','), 'all');
-}
+};
 
 /** Resolves a stored icon name (PascalCase, no "Icon" prefix, e.g. "DeviceMobile") to its component. */
-export function resolveTablerIcon(
+export const resolveTablerIcon = (
   iconMap: TablerIconMap | null,
   name: string | undefined,
   fallback: TablerIconComponent
-): TablerIconComponent {
+): TablerIconComponent => {
   if (!name || !iconMap) return fallback;
   return iconMap[`Icon${name}`] ?? fallback;
-}
+};

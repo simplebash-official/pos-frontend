@@ -33,7 +33,7 @@ export interface A4InvoicePreviewModalProps {
   invoice: Invoice | null;
 }
 
-export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePreviewModalProps) {
+export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePreviewModalProps) => {
   const isMobile = useIsMobile();
   const currentShopProfile = useAppSelector(selectShopProfile);
   const shopProfileVersions = useAppSelector(selectShopProfileVersions);
@@ -199,4 +199,4 @@ export function A4InvoicePreviewModal({ opened, onClose, invoice }: A4InvoicePre
       </Stack>
     </Modal>
   );
-}
+};

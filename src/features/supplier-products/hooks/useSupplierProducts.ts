@@ -32,7 +32,7 @@ const NO_LINKED_SUPPLIERS: EnrichedLinkedSupplier[] = [];
  * requests, which removes the flicker where links had loaded but the products
  * they name had not.
  */
-export function useProductsForSupplier(supplierKey: string | undefined) {
+export const useProductsForSupplier = (supplierKey: string | undefined) => {
   return useSyncedQuery(
     'supplierProducts',
     async () => {
@@ -56,10 +56,10 @@ export function useProductsForSupplier(supplierKey: string | undefined) {
     NO_LINKED_PRODUCTS,
     [supplierKey]
   );
-}
+};
 
 /** Suppliers linked to a product, enriched with the full supplier. */
-export function useSuppliersForProduct(productKey: string | undefined) {
+export const useSuppliersForProduct = (productKey: string | undefined) => {
   return useSyncedQuery(
     'supplierProducts',
     async () => {
@@ -83,16 +83,16 @@ export function useSuppliersForProduct(productKey: string | undefined) {
     NO_LINKED_SUPPLIERS,
     [productKey]
   );
-}
+};
 
 // ---------------------------------------------------------------------------
 // Mutation hooks
 // ---------------------------------------------------------------------------
 
-export function useLinkProduct() {
+export const useLinkProduct = () => {
   return useSyncedMutation<SupplierProductInput, SupplierProduct>('supplierProducts', 'link');
-}
+};
 
-export function useUnlinkProduct() {
+export const useUnlinkProduct = () => {
   return useSyncedMutation<UnlinkPayload, void>('supplierProducts', 'unlink');
-}
+};

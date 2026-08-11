@@ -39,12 +39,12 @@ interface CustomerPickerModalProps {
   selectedCustomerId?: string | null;
 }
 
-export function CustomerPickerModal({
+export const CustomerPickerModal = ({
   opened,
   onClose,
   onSelectCustomer,
   selectedCustomerId,
-}: CustomerPickerModalProps) {
+}: CustomerPickerModalProps) => {
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [isCreatingInline, setIsCreatingInline] = useState(false);
@@ -374,4 +374,4 @@ export function CustomerPickerModal({
       </Box>
     </Modal>
   );
-}
+};

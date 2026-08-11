@@ -38,7 +38,7 @@ export interface CartPanelProps {
   onRequestPayment: () => void;
 }
 
-export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelProps) {
+export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelProps) => {
   const {
     items,
     itemCount,
@@ -464,4 +464,4 @@ export function CartPanel({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
       </ConfirmDialog>
     </Paper>
   );
-}
+};

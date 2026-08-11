@@ -21,7 +21,7 @@ export interface AppProvidersProps {
   children: ReactNode;
 }
 
-function AuthInitializer({ children }: { children: ReactNode }) {
+const AuthInitializer = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const initializedRef = useRef(false);
 
@@ -32,9 +32,9 @@ function AuthInitializer({ children }: { children: ReactNode }) {
   }, [dispatch]);
 
   return <>{children}</>;
-}
+};
 
-export function AppProviders({ children }: AppProvidersProps) {
+export const AppProviders = ({ children }: AppProvidersProps) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -68,4 +68,4 @@ export function AppProviders({ children }: AppProvidersProps) {
       </AuthInitializer>
     </ReduxProvider>
   );
-}
+};

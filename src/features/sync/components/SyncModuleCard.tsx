@@ -10,7 +10,7 @@ export interface SyncModuleCardProps {
 }
 
 /** One row of the per-module sync dashboard. */
-export function SyncModuleCard({ module, pendingCount }: SyncModuleCardProps) {
+export const SyncModuleCard = ({ module, pendingCount }: SyncModuleCardProps) => {
   const presentation = MODULE_STATUS_PRESENTATION[module.status];
 
   return (
@@ -61,4 +61,4 @@ export function SyncModuleCard({ module, pendingCount }: SyncModuleCardProps) {
       </Stack>
     </ExpandableCard>
   );
-}
+};

@@ -19,7 +19,7 @@ export const paymentsStore = new LocalStorageStore<PaymentRecord>('pos_payments'
  * invoice's effective status from 'pending' to 'paid'. The invoice record
  * itself is never mutated — status is derived from `sum(payments) >= total`.
  */
-export function recordPayment(entry: {
+export const recordPayment = (entry: {
   invoiceId: string;
   invoiceNumber: string;
   amountCents: number;
@@ -27,7 +27,7 @@ export function recordPayment(entry: {
   notes?: string;
   recordedBy?: string;
   customerId?: string;
-}): PaymentRecord {
+}): PaymentRecord => {
   const newRecord: PaymentRecord = {
     id: `pay-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     invoiceId: entry.invoiceId,
@@ -54,33 +54,33 @@ export function recordPayment(entry: {
   }
 
   return newRecord;
-}
+};
 
 /**
  * Get all payment records for a given invoice.
  */
-export function getPaymentsForInvoice(invoiceId: string): PaymentRecord[] {
+export const getPaymentsForInvoice = (invoiceId: string): PaymentRecord[] => {
   return paymentsStore
     .getAll()
     .filter((p) => p.invoiceId === invoiceId || p.invoiceNumber === invoiceId);
-}
+};
 
 /**
  * Get total amount paid for an invoice across all payment records.
  */
-export function getTotalPaidForInvoice(invoiceId: string): number {
+export const getTotalPaidForInvoice = (invoiceId: string): number => {
   return getPaymentsForInvoice(invoiceId).reduce((sum, p) => sum + p.amountCents, 0);
-}
+};
 
 /**
  * Derive the effective status for an invoice based on payments.
  */
-export function deriveInvoiceStatus(
+export const deriveInvoiceStatus = (
   invoiceId: string,
   totalCents: number,
   isCredit?: boolean
-): 'paid' | 'pending' {
+): 'paid' | 'pending' => {
   if (!isCredit) return 'paid';
   const totalPaid = getTotalPaidForInvoice(invoiceId);
   return totalPaid >= totalCents ? 'paid' : 'pending';
-}
+};

@@ -13,7 +13,7 @@ export interface DiscountPopoverProps {
   children: React.ReactNode;
 }
 
-export function DiscountPopover({
+export const DiscountPopover = ({
   opened,
   onClose,
   targetName,
@@ -21,7 +21,7 @@ export function DiscountPopover({
   currentDiscountCents,
   onApplyDiscount,
   children,
-}: DiscountPopoverProps) {
+}: DiscountPopoverProps) => {
   const [mode, setMode] = useState<'percentage' | 'amount'>('percentage');
   const [val, setVal] = useState<number | ''>(
     currentDiscountCents > 0 ? Math.round(currentDiscountCents / 100) : ''
@@ -103,4 +103,4 @@ export function DiscountPopover({
       </Popover.Dropdown>
     </Popover>
   );
-}
+};

@@ -13,7 +13,7 @@ export interface RequireAuthProps {
   children: ReactNode;
 }
 
-export function RequireAuth({ children }: RequireAuthProps) {
+export const RequireAuth = ({ children }: RequireAuthProps) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitialized = useAppSelector(selectIsAuthInitialized);
   const isLoading = useAppSelector(selectIsAuthLoading);
@@ -28,4 +28,4 @@ export function RequireAuth({ children }: RequireAuthProps) {
   }
 
   return <>{children}</>;
-}
+};

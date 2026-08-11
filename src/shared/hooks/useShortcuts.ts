@@ -15,7 +15,7 @@ interface ShortcutScope {
 const activeScopes: ShortcutScope[] = [];
 let isListenerBound = false;
 
-function parseCombo(combo: string, e: KeyboardEvent): boolean {
+const parseCombo = (combo: string, e: KeyboardEvent): boolean => {
   const tokens = combo
     .toLowerCase()
     .split('+')
@@ -30,14 +30,14 @@ function parseCombo(combo: string, e: KeyboardEvent): boolean {
   if (wantsShift !== e.shiftKey) return false;
 
   return mainKey !== undefined && e.key.toLowerCase() === mainKey;
-}
+};
 
-function isInputFocused(): boolean {
+const isInputFocused = (): boolean => {
   const el = document.activeElement as HTMLElement | null;
   return el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || Boolean(el?.isContentEditable);
-}
+};
 
-function handleKeyDown(e: KeyboardEvent) {
+const handleKeyDown = (e: KeyboardEvent) => {
   const inputFocused = isInputFocused();
 
   for (let i = activeScopes.length - 1; i >= 0; i--) {
@@ -59,7 +59,7 @@ function handleKeyDown(e: KeyboardEvent) {
     // this is how a modal's own shortcuts take priority over the page behind it.
     if (handled) return;
   }
-}
+};
 
 /**
  * Registers a scope of keyboard shortcuts on the global `window` keydown listener.
@@ -67,7 +67,7 @@ function handleKeyDown(e: KeyboardEvent) {
  * handles the key, scopes registered earlier (e.g. the page underneath a modal)
  * never see it.
  */
-export function useAppShortcuts(shortcuts: Shortcut[], isActive: boolean = true): void {
+export const useAppShortcuts = (shortcuts: Shortcut[], isActive: boolean = true): void => {
   const shortcutsRef = useRef(shortcuts);
 
   // Keeps the ref pointing at the latest closures without re-subscribing the
@@ -97,4 +97,4 @@ export function useAppShortcuts(shortcuts: Shortcut[], isActive: boolean = true)
       }
     };
   }, [isActive]);
-}
+};

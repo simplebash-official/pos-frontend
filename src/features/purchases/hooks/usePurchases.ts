@@ -14,7 +14,7 @@ import { EnrichedStockPurchase, StockPurchase, StockPurchaseInput } from '../typ
 
 const NO_PURCHASES: EnrichedStockPurchase[] = [];
 
-async function enrich(purchases: StockPurchase[]): Promise<EnrichedStockPurchase[]> {
+const enrich = async (purchases: StockPurchase[]): Promise<EnrichedStockPurchase[]> => {
   const suppliers = await db.suppliers.toArray();
   const products = await db.products.toArray();
   const supplierByKey = new Map(suppliers.map((supplier) => [supplier.key, supplier]));
@@ -36,9 +36,9 @@ async function enrich(purchases: StockPurchase[]): Promise<EnrichedStockPurchase
       } as EnrichedStockPurchase,
     ];
   });
-}
+};
 
-export function usePurchasesBySupplier(supplierKey: string | undefined) {
+export const usePurchasesBySupplier = (supplierKey: string | undefined) => {
   return useSyncedQuery(
     'purchases',
     async () => {
@@ -56,9 +56,9 @@ export function usePurchasesBySupplier(supplierKey: string | undefined) {
     NO_PURCHASES,
     [supplierKey]
   );
-}
+};
 
-export function usePurchasesByProduct(productKey: string | undefined) {
+export const usePurchasesByProduct = (productKey: string | undefined) => {
   return useSyncedQuery(
     'purchases',
     async () => {
@@ -76,13 +76,13 @@ export function usePurchasesByProduct(productKey: string | undefined) {
     NO_PURCHASES,
     [productKey]
   );
-}
+};
 
 /**
  * Records a stock intake. The backend also increments the product's stock and
  * writes its own movement; locally that increment is mirrored as a pending
  * ledger delta until the push confirms the server's quantity.
  */
-export function useCreatePurchase() {
+export const useCreatePurchase = () => {
   return useSyncedMutation<StockPurchaseInput, StockPurchase>('purchases', 'create');
-}
+};

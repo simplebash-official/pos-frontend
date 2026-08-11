@@ -8,7 +8,7 @@
  * `error instanceof Error ? error.message : String(error)` renders it as
  * "[object Object]" and throws away the only useful information.
  */
-export function describeError(error: unknown): string {
+export const describeError = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
   }
@@ -22,7 +22,7 @@ export function describeError(error: unknown): string {
     }
   }
   return String(error);
-}
+};
 
 /**
  * A push referenced an entity that has not reached the server yet.

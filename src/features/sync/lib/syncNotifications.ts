@@ -17,11 +17,11 @@ import { NOTIFICATION_ID_CONNECTIVITY, NOTIFICATION_ID_SYNC_ERROR } from '@/offl
 /** Mantine has no "is this toast showing" query, so track it ourselves. */
 let connectivityToastVisible = false;
 
-function showOrUpdate(
+const showOrUpdate = (
   id: string,
   visible: boolean,
   payload: Parameters<typeof notifications.show>[0]
-): void {
+): void => {
   const wrappedPayload = {
     ...payload,
     onClose: (data: Parameters<typeof notifications.show>[0]) => {
@@ -35,9 +35,9 @@ function showOrUpdate(
     return;
   }
   notifications.show({ id, ...wrappedPayload });
-}
+};
 
-export function notifyWentOffline(): void {
+export const notifyWentOffline = (): void => {
   showOrUpdate(NOTIFICATION_ID_CONNECTIVITY, connectivityToastVisible, {
     title: 'Working offline',
     message: 'Changes are saved on this device and will sync when the connection returns.',
@@ -47,9 +47,9 @@ export function notifyWentOffline(): void {
     loading: false,
   });
   connectivityToastVisible = true;
-}
+};
 
-export function notifyBackOnline(pendingCount: number): void {
+export const notifyBackOnline = (pendingCount: number): void => {
   showOrUpdate(NOTIFICATION_ID_CONNECTIVITY, connectivityToastVisible, {
     title: 'Back online',
     message:
@@ -66,9 +66,9 @@ export function notifyBackOnline(pendingCount: number): void {
   if (pendingCount === 0) {
     connectivityToastVisible = false;
   }
-}
+};
 
-export function notifySyncComplete(pushedCount: number): void {
+export const notifySyncComplete = (pushedCount: number): void => {
   if (pushedCount === 0) {
     return;
   }
@@ -81,9 +81,9 @@ export function notifySyncComplete(pushedCount: number): void {
     withCloseButton: true,
   });
   connectivityToastVisible = false;
-}
+};
 
-export function notifySyncProblems(failedCount: number): void {
+export const notifySyncProblems = (failedCount: number): void => {
   // Its own id: a rejected change outlives the connectivity state that
   // produced it, so it must not be overwritten by the next "back online".
   notifications.show({
@@ -94,12 +94,12 @@ export function notifySyncProblems(failedCount: number): void {
     autoClose: false,
     withCloseButton: true,
   });
-}
+};
 
 /** Clears the persistent offline toast, e.g. when the engine stops. */
-export function clearConnectivityNotification(): void {
+export const clearConnectivityNotification = (): void => {
   if (connectivityToastVisible) {
     notifications.hide(NOTIFICATION_ID_CONNECTIVITY);
     connectivityToastVisible = false;
   }
-}
+};

@@ -15,9 +15,9 @@ export type LayoutTier = 'mobile' | 'tablet' | 'desktop';
  * "below" and "at or above" queries never both match. Mirror that here so a JS tier check and a
  * CSS `visibleFrom` on the same breakpoint always agree.
  */
-function below(breakpoint: string): string {
+const below = (breakpoint: string): string => {
   return `(max-width: calc(${breakpoint} - 0.0625em))`;
-}
+};
 
 /**
  * `getInitialValueInEffect: false` makes the query resolve during the first render instead of in an
@@ -26,7 +26,7 @@ function below(breakpoint: string): string {
  */
 const MEDIA_QUERY_OPTIONS = { getInitialValueInEffect: false };
 
-export function useLayoutTier(): LayoutTier {
+export const useLayoutTier = (): LayoutTier => {
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(below(theme.breakpoints.sm), false, MEDIA_QUERY_OPTIONS);
   const isBelowDesktop = useMediaQuery(below(theme.breakpoints.lg), false, MEDIA_QUERY_OPTIONS);
@@ -38,10 +38,10 @@ export function useLayoutTier(): LayoutTier {
     return 'tablet';
   }
   return 'desktop';
-}
+};
 
 /** True below the `sm` breakpoint — the phone tier. */
-export function useIsMobile(): boolean {
+export const useIsMobile = (): boolean => {
   const theme = useMantineTheme();
   return useMediaQuery(below(theme.breakpoints.sm), false, MEDIA_QUERY_OPTIONS);
-}
+};

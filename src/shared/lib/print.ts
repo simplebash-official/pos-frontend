@@ -2,7 +2,7 @@
  * Helper to trigger print dialog or handle printer communication requests
  * using a clean injected iframe without relying on deprecated document.write.
  */
-export function triggerThermalPrint(elementId: string): void {
+export const triggerThermalPrint = (elementId: string): void => {
   const printElement = document.getElementById(elementId);
   if (!printElement) {
     console.warn(`Print element with ID "${elementId}" not found.`);
@@ -68,4 +68,4 @@ export function triggerThermalPrint(elementId: string): void {
       }, 1000);
     }
   }, 250);
-}
+};

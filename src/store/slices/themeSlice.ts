@@ -8,11 +8,11 @@ interface ThemeState {
 }
 
 // keep in sync with the inline color-scheme script in index.html
-function getInitialColorScheme(): ColorScheme {
+const getInitialColorScheme = (): ColorScheme => {
   const stored = localStorage.getItem(STORAGE_KEYS.COLOR_SCHEME);
   if (stored === 'light' || stored === 'dark') return stored;
   return 'light';
-}
+};
 
 const initialState: ThemeState = {
   colorScheme: getInitialColorScheme(),

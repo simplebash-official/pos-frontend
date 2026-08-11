@@ -34,7 +34,7 @@ const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.SETTINGS]: 'Settings · JANA2U POS',
 };
 
-export function AppShell() {
+export const AppShell = () => {
   const [opened, { toggle, close }] = useDisclosure();
   const [focusMode, setFocusMode] = useState(false);
   const [heldDrawerOpen, setHeldDrawerOpen] = useState(false);
@@ -129,4 +129,4 @@ export function AppShell() {
       <SyncDrawer opened={syncDrawerOpen} onClose={() => setSyncDrawerOpen(false)} />
     </MantineAppShell>
   );
-}
+};

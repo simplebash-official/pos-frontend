@@ -5,10 +5,10 @@ import { A4Invoice } from './documents/A4Invoice';
 import { PAPER_PROFILES, PaperProfile } from './paperProfiles';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 
-export async function printThermalReceipt(
+export const printThermalReceipt = async (
   payload: PrintPayload,
   paper?: PaperProfile
-): Promise<void> {
+): Promise<void> => {
   const profile = paper || PAPER_PROFILES.thermal80;
 
   // Log print event
@@ -90,12 +90,12 @@ export async function printThermalReceipt(
       }, 1000);
     }
   }, 200);
-}
+};
 
-export async function printA4Invoice(
+export const printA4Invoice = async (
   payload: PrintPayload,
   copy: 'customer' | 'office' = 'customer'
-): Promise<void> {
+): Promise<void> => {
   recordPrintEvent({
     invoiceId: payload.invoice.id,
     invoiceNumber: payload.invoice.invoiceNumber,
@@ -184,4 +184,4 @@ export async function printA4Invoice(
       }, 1000);
     }
   }, 250);
-}
+};

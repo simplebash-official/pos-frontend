@@ -10,7 +10,7 @@ interface MobileSocialButtonsProps {
   mode?: 'signin' | 'signup';
 }
 
-export function MobileSocialButtons({ mode = 'signin' }: MobileSocialButtonsProps) {
+export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProps) => {
   const handleSocialClick = (provider: string) => {
     notifications.show({
       title: `${provider} Authentication`,
@@ -58,4 +58,4 @@ export function MobileSocialButtons({ mode = 'signin' }: MobileSocialButtonsProp
       </button>
     </div>
   );
-}
+};

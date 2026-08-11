@@ -17,7 +17,7 @@ const HEIGHT_MAP: Record<string, number> = {
   xl: 60,
 };
 
-export function QuantityInput({
+export const QuantityInput = ({
   value,
   onChange,
   min,
@@ -29,7 +29,7 @@ export function QuantityInput({
   size = 'sm',
   radius,
   ...props
-}: QuantityInputProps & { label?: string; style?: React.CSSProperties; className?: string }) {
+}: QuantityInputProps & { label?: string; style?: React.CSSProperties; className?: string }) => {
   const numericVal = typeof value === 'number' ? value : 0;
 
   const handleDecrement = () => {
@@ -148,4 +148,4 @@ export function QuantityInput({
       </Group>
     </Box>
   );
-}
+};

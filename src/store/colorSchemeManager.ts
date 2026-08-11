@@ -2,7 +2,7 @@ import type { MantineColorSchemeManager } from '@mantine/core';
 import { store } from '@/store';
 import { setColorScheme } from '@/store/slices/themeSlice';
 
-export function createReduxColorSchemeManager(): MantineColorSchemeManager {
+export const createReduxColorSchemeManager = (): MantineColorSchemeManager => {
   let unsubscribeStore: (() => void) | null = null;
 
   return {
@@ -33,6 +33,6 @@ export function createReduxColorSchemeManager(): MantineColorSchemeManager {
       store.dispatch(setColorScheme('light'));
     },
   };
-}
+};
 
 export const reduxColorSchemeManager = createReduxColorSchemeManager();

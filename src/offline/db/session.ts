@@ -9,24 +9,24 @@ import { SESSION_RECORD_ID } from './tables';
  * during a power cut.
  */
 
-export async function cacheSession(user: AuthUser): Promise<void> {
+export const cacheSession = async (user: AuthUser): Promise<void> => {
   await db.session.put({
     id: SESSION_RECORD_ID,
     user,
     verifiedAt: new Date().toISOString(),
   });
-}
+};
 
-export async function clearCachedSession(): Promise<void> {
+export const clearCachedSession = async (): Promise<void> => {
   await db.session.delete(SESSION_RECORD_ID);
-}
+};
 
 /**
  * The cached identity, but only while it is still inside the offline grace
  * period. A terminal that never reconnects must not stay authenticated
  * forever, so a stale record resolves to `null` and forces a real login.
  */
-export async function readCachedSession(): Promise<AuthUser | null> {
+export const readCachedSession = async (): Promise<AuthUser | null> => {
   const record = await db.session.get(SESSION_RECORD_ID);
   if (!record) {
     return null;
@@ -39,4 +39,4 @@ export async function readCachedSession(): Promise<AuthUser | null> {
   }
 
   return record.user;
-}
+};

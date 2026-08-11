@@ -3,7 +3,7 @@
  * Example: 8000000 -> "Sri Lankan Rupees Eighty Thousand Only"
  * Example: 8000050 -> "Sri Lankan Rupees Eighty Thousand and Cents Fifty Only"
  */
-export function numberToWordsRupees(amountCents: number): string {
+export const numberToWordsRupees = (amountCents: number): string => {
   if (amountCents <= 0) return 'Sri Lankan Rupees Zero Only';
 
   const totalRupees = Math.floor(amountCents / 100);
@@ -45,7 +45,7 @@ export function numberToWordsRupees(amountCents: number): string {
     'Ninety',
   ];
 
-  function convertBelowThousand(n: number): string {
+  const convertBelowThousand = (n: number): string => {
     if (n === 0) return '';
     if (n < 20) return ones[n];
     if (n < 100) {
@@ -54,9 +54,9 @@ export function numberToWordsRupees(amountCents: number): string {
     }
     const hundredRem = n % 100;
     return `${ones[Math.floor(n / 100)]} Hundred${hundredRem > 0 ? ` ${convertBelowThousand(hundredRem)}` : ''}`;
-  }
+  };
 
-  function convertNumber(n: number): string {
+  const convertNumber = (n: number): string => {
     if (n === 0) return 'Zero';
 
     const lakh = Math.floor(n / 100000);
@@ -78,7 +78,7 @@ export function numberToWordsRupees(amountCents: number): string {
     }
 
     return parts.join(' ');
-  }
+  };
 
   const rupeeText = convertNumber(totalRupees);
   let result = `Sri Lankan Rupees ${rupeeText}`;
@@ -89,4 +89,4 @@ export function numberToWordsRupees(amountCents: number): string {
   }
 
   return `${result} Only`;
-}
+};

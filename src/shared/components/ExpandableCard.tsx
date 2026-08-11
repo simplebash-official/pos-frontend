@@ -22,13 +22,13 @@ export interface ExpandableCardActionProps {
   width?: number | string;
 }
 
-export function ExpandableCardAction({
+export const ExpandableCardAction = ({
   icon,
   tooltip,
   color = 'blue',
   onClick,
   width = 44,
-}: ExpandableCardActionProps) {
+}: ExpandableCardActionProps) => {
   const button = (
     <ActionIcon
       variant="light"
@@ -57,7 +57,7 @@ export function ExpandableCardAction({
   }
 
   return button;
-}
+};
 
 export interface ExpandableCardProps extends Omit<AccordionItemProps, 'children' | 'title'> {
   value: string;
@@ -79,7 +79,7 @@ export interface ExpandableCardProps extends Omit<AccordionItemProps, 'children'
   tooltip?: ReactNode | Omit<InteractiveTooltipProps, 'children'>;
 }
 
-export function ExpandableCard({
+export const ExpandableCard = ({
   value,
   title,
   subtitle,
@@ -91,7 +91,7 @@ export function ExpandableCard({
   tooltip,
   style,
   ...itemProps
-}: ExpandableCardProps) {
+}: ExpandableCardProps) => {
   const stripeColor =
     typeof color === 'string' && (color.startsWith('#') || color.startsWith('rgb'))
       ? color
@@ -193,7 +193,7 @@ export function ExpandableCard({
       {children && <Accordion.Panel>{children}</Accordion.Panel>}
     </Accordion.Item>
   );
-}
+};
 
 export type ExpandableCardGroupProps<Multiple extends boolean = false> = Omit<
   AccordionProps<Multiple>,
@@ -202,11 +202,11 @@ export type ExpandableCardGroupProps<Multiple extends boolean = false> = Omit<
   children: ReactNode;
 };
 
-export function ExpandableCardGroup<Multiple extends boolean = false>({
+export const ExpandableCardGroup = <Multiple extends boolean = false>({
   children,
   styles,
   ...accordionProps
-}: ExpandableCardGroupProps<Multiple>) {
+}: ExpandableCardGroupProps<Multiple>) => {
   return (
     <Accordion<Multiple>
       variant="separated"
@@ -221,4 +221,4 @@ export function ExpandableCardGroup<Multiple extends boolean = false>({
       {children}
     </Accordion>
   );
-}
+};

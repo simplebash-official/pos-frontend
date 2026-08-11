@@ -48,7 +48,7 @@ import {
 import type { PaymentMethod } from '@/constants/payment';
 import type { SplitPaymentDetail } from '@/features/billing/types';
 
-export function useCart() {
+export const useCart = () => {
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectCartItems);
   const discountCents = useAppSelector(selectCartDiscountCents);
@@ -204,4 +204,4 @@ export function useCart() {
     startNextSale,
     clear,
   };
-}
+};

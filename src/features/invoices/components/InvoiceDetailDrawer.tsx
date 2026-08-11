@@ -32,12 +32,12 @@ export interface InvoiceDetailDrawerProps {
   onRefresh?: () => void;
 }
 
-export function InvoiceDetailDrawer({
+export const InvoiceDetailDrawer = ({
   opened,
   onClose,
   invoice,
   onRefresh,
-}: InvoiceDetailDrawerProps) {
+}: InvoiceDetailDrawerProps) => {
   const queryClient = useQueryClient();
   const { printReceipt } = usePrint();
 
@@ -456,4 +456,4 @@ export function InvoiceDetailDrawer({
       </Modal>
     </>
   );
-}
+};

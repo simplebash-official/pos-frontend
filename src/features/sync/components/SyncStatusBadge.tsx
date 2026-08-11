@@ -25,7 +25,7 @@ export interface SyncStatusBadgeProps {
  * On mobile it collapses to a coloured dot inside a 44px tap target — offline
  * is exactly when a phone user most needs to see this, so it is never hidden.
  */
-export function SyncStatusBadge({ onOpenPanel }: SyncStatusBadgeProps) {
+export const SyncStatusBadge = ({ onOpenPanel }: SyncStatusBadgeProps) => {
   const status = useAppSelector(selectOverallSyncStatus);
   const totals = useAppSelector(selectSyncTotals);
   const connectivity = useAppSelector(selectConnectivity);
@@ -138,4 +138,4 @@ export function SyncStatusBadge({ onOpenPanel }: SyncStatusBadgeProps) {
       </UnstyledButton>
     </InteractiveTooltip>
   );
-}
+};

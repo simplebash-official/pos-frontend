@@ -13,7 +13,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { RepairFormModal } from './RepairFormModal';
 
-export function RepairJobList() {
+export const RepairJobList = () => {
   const queryClient = useQueryClient();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -200,4 +200,4 @@ export function RepairJobList() {
       />
     </Stack>
   );
-}
+};

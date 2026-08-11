@@ -2,79 +2,79 @@ import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { Category, CategoryInput, Subcategory, ValidCategoryOption } from '../types';
 
-export async function fetchCategories(): Promise<Category[]> {
+export const fetchCategories = async (): Promise<Category[]> => {
   const response =
     await apiClient.get<ApiResponse<{ categories: Category[] }>>('/inventory/categories');
   return response.data.categories;
-}
+};
 
-export async function fetchValidCategories(): Promise<ValidCategoryOption[]> {
+export const fetchValidCategories = async (): Promise<ValidCategoryOption[]> => {
   const response = await apiClient.get<ApiResponse<{ categories: ValidCategoryOption[] }>>(
     '/inventory/categories/valid'
   );
   return response.data.categories;
-}
+};
 
-export async function createCategory(
+export const createCategory = async (
   input: CategoryInput,
   options?: MutationRequestOptions
-): Promise<Category> {
+): Promise<Category> => {
   const response = await apiClient.post<ApiResponse<Category>>(
     '/inventory/categories',
     input,
     options
   );
   return response.data;
-}
+};
 
-export async function updateCategory(
+export const updateCategory = async (
   categoryKey: string,
   updates: Partial<Omit<CategoryInput, 'subcategories'>>,
   options?: MutationRequestOptions
-): Promise<Category> {
+): Promise<Category> => {
   const response = await apiClient.put<ApiResponse<Category>>(
     `/inventory/categories/${categoryKey}`,
     updates,
     options
   );
   return response.data;
-}
+};
 
-export async function deleteCategory(
+export const deleteCategory = async (
   categoryKey: string,
   options?: MutationRequestOptions
-): Promise<void> {
+): Promise<void> => {
   await apiClient.delete(`/inventory/categories/${categoryKey}`, options);
-}
+};
 
-export async function fetchSubcategories(categoryKey: string): Promise<Subcategory[]> {
+export const fetchSubcategories = async (categoryKey: string): Promise<Subcategory[]> => {
   const response = await apiClient.get<ApiResponse<{ subcategories: Subcategory[] }>>(
     `/inventory/categories/${categoryKey}/subcategories`
   );
   return response.data.subcategories;
-}
+};
 
-export async function createSubcategory(
+export const createSubcategory = async (
   categoryKey: string,
   name: string,
   options?: MutationRequestOptions
-): Promise<Category> {
+): Promise<Category> => {
   const response = await apiClient.post<ApiResponse<Category>>(
     `/inventory/categories/${categoryKey}/subcategories`,
     { name },
     options
   );
   return response.data;
-}
+};
 
-export async function deleteSubcategory(
+export const deleteSubcategory = async (
   categoryKey: string,
   subcategoryKey: string,
   options?: MutationRequestOptions
-): Promise<Category> {
+): Promise<Category> => {
   const response = await apiClient.delete<ApiResponse<Category>>(
     `/inventory/categories/${categoryKey}/subcategories/${subcategoryKey}`,
     options
   );
   return response.data;
-}
+};

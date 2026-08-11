@@ -7,7 +7,7 @@ export interface PageHeaderProps {
   action?: ReactNode;
 }
 
-export function PageHeader({ title, description, action }: PageHeaderProps) {
+export const PageHeader = ({ title, description, action }: PageHeaderProps) => {
   return (
     <Group justify="space-between" align="flex-start" mb="lg">
       <Box>
@@ -21,4 +21,4 @@ export function PageHeader({ title, description, action }: PageHeaderProps) {
       {action && <Box>{action}</Box>}
     </Group>
   );
-}
+};

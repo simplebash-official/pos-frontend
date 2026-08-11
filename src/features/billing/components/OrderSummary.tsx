@@ -4,7 +4,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useCart } from '../hooks/useCart';
 
-export function OrderSummary() {
+export const OrderSummary = () => {
   const { subtotalCents, discountCents, totalCents, items, setDiscount } = useCart();
 
   return (
@@ -53,4 +53,4 @@ export function OrderSummary() {
       </Stack>
     </Paper>
   );
-}
+};

@@ -21,7 +21,7 @@ import { CreateProductInput, Product, StockMovement } from '../types';
 const NO_PRODUCTS: MirroredRow<Product>[] = [];
 const NO_MOVEMENTS: StockMovement[] = [];
 
-export function useAllProducts(options?: { enabled?: boolean }) {
+export const useAllProducts = (options?: { enabled?: boolean }) => {
   const enabled = options?.enabled ?? true;
 
   return useSyncedQuery(
@@ -38,9 +38,9 @@ export function useAllProducts(options?: { enabled?: boolean }) {
     NO_PRODUCTS,
     [enabled]
   );
-}
+};
 
-export function useLowStockProducts() {
+export const useLowStockProducts = () => {
   return useSyncedQuery(
     'products',
     async () => {
@@ -53,9 +53,9 @@ export function useLowStockProducts() {
     NO_PRODUCTS,
     []
   );
-}
+};
 
-export function useProductMovements(productId: string | undefined) {
+export const useProductMovements = (productId: string | undefined) => {
   return useSyncedQuery(
     'stockMovements',
     async () => {
@@ -67,20 +67,20 @@ export function useProductMovements(productId: string | undefined) {
     NO_MOVEMENTS,
     [productId]
   );
-}
+};
 
-export function useCreateProduct() {
+export const useCreateProduct = () => {
   return useSyncedMutation<CreateProductInput, Product>('products', 'create');
-}
+};
 
-export function useUpdateProduct() {
+export const useUpdateProduct = () => {
   return useSyncedMutation<UpdateProductPayload, Product>('products', 'update');
-}
+};
 
-export function useDeleteProducts() {
+export const useDeleteProducts = () => {
   return useSyncedMutation<DeleteProductsPayload, void>('products', 'deleteMany');
-}
+};
 
-export function useAdjustStock() {
+export const useAdjustStock = () => {
   return useSyncedMutation<AdjustStockPayload, Product>('products', 'adjustStock');
-}
+};

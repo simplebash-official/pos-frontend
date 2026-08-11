@@ -25,7 +25,7 @@ export interface HeldSalesDrawerProps {
   onClose: () => void;
 }
 
-export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
+export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
   const { heldCarts, loadHeldCart, removeHeldCart } = useCart();
   const isMobile = useIsMobile();
   const [nowMs, setNowMs] = useState(0);
@@ -179,4 +179,4 @@ export function HeldSalesDrawer({ opened, onClose }: HeldSalesDrawerProps) {
       </Stack>
     </Drawer>
   );
-}
+};

@@ -78,7 +78,7 @@ const selectLabels = (state: WithSync) => state.sync.labels;
 const selectIsBusy = (state: WithSync) => state.sync.isPulling || state.sync.isPushing;
 
 /** Collapses one module's two status axes into a single display status. */
-function deriveModuleStatus(meta: SyncMetaRecord, isBusy: boolean): ModuleSyncStatus {
+const deriveModuleStatus = (meta: SyncMetaRecord, isBusy: boolean): ModuleSyncStatus => {
   if (meta.pushState === 'blocked') {
     return 'conflict';
   }
@@ -98,7 +98,7 @@ function deriveModuleStatus(meta: SyncMetaRecord, isBusy: boolean): ModuleSyncSt
     return 'stale';
   }
   return 'synced';
-}
+};
 
 export const selectModuleViews = createSelector(
   [selectModulesRaw, selectLabels, selectIsBusy],

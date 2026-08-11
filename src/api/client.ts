@@ -33,28 +33,31 @@ export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url
  */
 export type MutationRequestOptions = Pick<RequestOptions, 'idempotencyKey' | 'baseVersion'>;
 
-function isApiErrorLike(data: unknown): data is ApiError {
+const isApiErrorLike = (data: unknown): data is ApiError => {
   return (
     typeof data === 'object' &&
     data !== null &&
     'message' in data &&
     typeof (data as { message: unknown }).message === 'string'
   );
-}
+};
 
 /**
  * Axios lowercases response header names, which is why HEADER_SERVER_TIME is
  * declared lowercase. Absent until the backend ships it, hence the null.
  */
-function readServerTime(headers: unknown): string | null {
+const readServerTime = (headers: unknown): string | null => {
   if (typeof headers !== 'object' || headers === null) {
     return null;
   }
   const value = (headers as Record<string, unknown>)[HEADER_SERVER_TIME];
   return typeof value === 'string' ? value : null;
-}
+};
 
-function buildSyncHeaders(idempotencyKey?: string, baseVersion?: number): Record<string, string> {
+const buildSyncHeaders = (
+  idempotencyKey?: string,
+  baseVersion?: number
+): Record<string, string> => {
   const headers: Record<string, string> = {};
   if (idempotencyKey !== undefined) {
     headers[HEADER_IDEMPOTENCY_KEY] = idempotencyKey;
@@ -63,16 +66,16 @@ function buildSyncHeaders(idempotencyKey?: string, baseVersion?: number): Record
     headers[HEADER_IF_MATCH] = String(baseVersion);
   }
   return headers;
-}
+};
 
-function buildParams(params?: RequestOptions['params']) {
+const buildParams = (params?: RequestOptions['params']) => {
   if (!params) {
     return undefined;
   }
   return Object.fromEntries(
     Object.entries(params).filter(([, value]) => value !== undefined && value !== null)
   );
-}
+};
 
 class ApiClient {
   private axiosInstance: AxiosInstance;
