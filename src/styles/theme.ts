@@ -8,7 +8,9 @@ import {
   Notification,
   Paper,
   rem,
+  SegmentedControl,
   Select,
+  Table,
   Tooltip,
 } from '@mantine/core';
 import type { MantineThemeOverride } from '@mantine/core';
@@ -127,6 +129,23 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       defaultProps: {
         radius: 'var(--mantine-radius-default)',
         withCloseButton: true,
+      },
+    }),
+    SegmentedControl: SegmentedControl.extend({
+      defaultProps: {
+        radius: 'var(--mantine-radius-default)',
+      },
+    }),
+    Table: Table.extend({
+      styles: {
+        th: {
+          color: 'var(--text-secondary)',
+          fontSize: 'var(--mantine-font-size-xs)',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          whiteSpace: 'nowrap',
+        },
       },
     }),
   },

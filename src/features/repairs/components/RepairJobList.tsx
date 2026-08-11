@@ -90,12 +90,14 @@ export const RepairJobList = () => {
       key: 'ticketNumber',
       header: 'Ticket #',
       align: 'left',
+      sortable: true,
       render: (job) => <strong>{job.ticketNumber}</strong>,
     },
     {
-      key: 'customer',
+      key: 'customerName',
       header: 'Customer',
       align: 'left',
+      sortable: true,
       render: (job) => (
         <div>
           <Text size="sm" fw={600}>
@@ -111,6 +113,7 @@ export const RepairJobList = () => {
       key: 'deviceModel',
       header: 'Device & Issue',
       align: 'left',
+      sortable: true,
       render: (job) => (
         <div>
           <Text size="sm" fw={600}>
@@ -123,9 +126,10 @@ export const RepairJobList = () => {
       ),
     },
     {
-      key: 'assignedEmployee',
-      header: 'Assigned Staff & Split',
+      key: 'assignedEmployeeName',
+      header: 'Assigned Staff',
       align: 'left',
+      sortable: true,
       render: (job) =>
         job.assignedEmployeeName ? (
           <Stack gap={2}>
@@ -151,20 +155,23 @@ export const RepairJobList = () => {
       key: 'status',
       header: 'Status',
       align: 'left',
+      sortable: true,
       render: (job) => (
         <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
       ),
     },
     {
       key: 'estimatedCostCents',
-      header: 'Price (LKR)',
+      header: 'Total Price',
       align: 'right',
+      sortable: true,
       render: (job) => formatMoney(job.estimatedCostCents),
     },
     {
       key: 'createdAt',
       header: 'Received',
       align: 'left',
+      sortable: true,
       render: (job) => formatDate(job.createdAt),
     },
   ];

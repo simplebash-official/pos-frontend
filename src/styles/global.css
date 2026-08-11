@@ -151,11 +151,13 @@ body,
 .segmented-toggle-root {
   background-color: var(--bg-active);
   padding: 4px;
+  border-radius: var(--mantine-radius-default);
 }
 
 .segmented-toggle-indicator {
   background-color: var(--bg-card);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-radius: calc(var(--mantine-radius-default) - 2px);
 }
 
 .segmented-toggle-label {
@@ -184,4 +186,46 @@ body,
 .mantine-NumberInput-root:hover .mantine-NumberInput-controls,
 .mantine-NumberInput-root:focus-within .mantine-NumberInput-controls {
   opacity: 1;
+}
+
+/* Table header styling matching application design system */
+.mantine-Table-th,
+.mantine-Table-thead th,
+th.mantine-Table-th {
+  color: var(--text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Sortable Table Header styling */
+.data-table-sort-th {
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.data-table-sort-th:hover {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-hover) !important;
+}
+
+.data-table-sort-th:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: -2px;
+}
+
+.data-table-sort-th .sort-icon-inactive {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.data-table-sort-th:hover .sort-icon-inactive,
+.data-table-sort-th:focus-visible .sort-icon-inactive {
+  opacity: 0.5;
 }

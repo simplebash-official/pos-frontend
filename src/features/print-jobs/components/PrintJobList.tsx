@@ -93,14 +93,16 @@ export const PrintJobList = () => {
   const columns: Column<PrintJob>[] = [
     {
       key: 'ticketNumber',
-      header: 'Job Ticket #',
+      header: 'Ticket #',
       align: 'left',
+      sortable: true,
       render: (job) => <strong>{job.ticketNumber}</strong>,
     },
     {
       key: 'customerName',
       header: 'Customer',
       align: 'left',
+      sortable: true,
       render: (job) => (
         <div>
           <Text size="sm" fw={600}>
@@ -118,6 +120,7 @@ export const PrintJobList = () => {
       key: 'jobType',
       header: 'Type & Qty',
       align: 'left',
+      sortable: true,
       render: (job) => (
         <Group gap={6}>
           <Badge size="sm" color="teal" variant="light">
@@ -130,9 +133,10 @@ export const PrintJobList = () => {
       ),
     },
     {
-      key: 'assignedEmployee',
-      header: 'Assigned Staff & Split',
+      key: 'assignedEmployeeName',
+      header: 'Assigned Staff',
       align: 'left',
+      sortable: true,
       render: (job) =>
         job.assignedEmployeeName ? (
           <Stack gap={2}>
@@ -158,6 +162,7 @@ export const PrintJobList = () => {
       key: 'status',
       header: 'Status',
       align: 'left',
+      sortable: true,
       render: (job) => (
         <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
       ),
@@ -166,12 +171,14 @@ export const PrintJobList = () => {
       key: 'estimatedCostCents',
       header: 'Total Price',
       align: 'right',
+      sortable: true,
       render: (job) => formatMoney(job.estimatedCostCents),
     },
     {
       key: 'createdAt',
       header: 'Created',
       align: 'left',
+      sortable: true,
       render: (job) => formatDate(job.createdAt),
     },
   ];

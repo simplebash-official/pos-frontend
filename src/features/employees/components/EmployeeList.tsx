@@ -168,6 +168,7 @@ export const EmployeeList = () => {
       header: 'Employee Name',
       align: 'left',
       width: '25%',
+      sortable: true,
       render: (e) => (
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon variant="light" color="indigo" size="sm">
@@ -186,6 +187,7 @@ export const EmployeeList = () => {
       header: 'Role',
       align: 'left',
       width: '20%',
+      sortable: true,
       render: (e) => (
         <Badge size="xs" color="indigo" variant="light">
           {EMPLOYEE_ROLE_LABELS[e.role]}
@@ -194,9 +196,10 @@ export const EmployeeList = () => {
     },
     {
       key: 'phone',
-      header: 'Phone Number',
+      header: 'Phone',
       align: 'left',
       width: '20%',
+      sortable: true,
       render: (e) => (
         <Group gap={4}>
           <IconPhone size={14} style={{ opacity: 0.6 }} />
@@ -206,9 +209,15 @@ export const EmployeeList = () => {
     },
     {
       key: 'split',
-      header: 'Default Split Rule',
+      header: 'Split Rule',
       align: 'center',
       width: '18%',
+      sortable: true,
+      sortFn: (a, b, direction) => {
+        const valA = a.defaultSplitValue;
+        const valB = b.defaultSplitValue;
+        return direction === 'asc' ? valA - valB : valB - valA;
+      },
       render: (e) => (
         <RoleGuard
           allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.CASHIER]}
@@ -235,6 +244,7 @@ export const EmployeeList = () => {
       header: 'Actions',
       align: 'right',
       width: '17%',
+      sortable: false,
       render: (e) => (
         <Group gap={4} justify="flex-end" onClick={(ev) => ev.stopPropagation()}>
           <ActionIcon

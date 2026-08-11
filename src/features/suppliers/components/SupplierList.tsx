@@ -140,6 +140,7 @@ export const SupplierList = () => {
       header: 'Business Name',
       align: 'left',
       width: '30%',
+      sortable: true,
       render: (s) => (
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon variant="light" color="blue" size="sm">
@@ -158,9 +159,10 @@ export const SupplierList = () => {
     },
     {
       key: 'contactPerson',
-      header: 'Contact Representative',
+      header: 'Contact',
       align: 'left',
       width: '25%',
+      sortable: true,
       render: (s) => (
         <Text size="xs" fw={600}>
           {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
@@ -169,9 +171,10 @@ export const SupplierList = () => {
     },
     {
       key: 'primaryPhone',
-      header: 'Phone Contact',
+      header: 'Phone',
       align: 'left',
       width: '25%',
+      sortable: true,
       render: (s) => (
         <PhoneDisplay
           primaryPhone={
@@ -191,9 +194,22 @@ export const SupplierList = () => {
     },
     {
       key: 'category',
-      header: 'Main Category',
+      header: 'Category',
       align: 'left',
       width: '20%',
+      sortable: true,
+      sortFn: (a, b, direction) => {
+        const catA =
+          (a.suppliedCategories && a.suppliedCategories[0]) ||
+          (a as unknown as Record<string, string>).category ||
+          '';
+        const catB =
+          (b.suppliedCategories && b.suppliedCategories[0]) ||
+          (b as unknown as Record<string, string>).category ||
+          '';
+        const cmp = catA.localeCompare(catB);
+        return direction === 'asc' ? cmp : -cmp;
+      },
       render: (s) => {
         const cat =
           (s.suppliedCategories && s.suppliedCategories[0]) ||

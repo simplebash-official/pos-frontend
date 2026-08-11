@@ -13,8 +13,9 @@ import {
   Badge,
   Select,
   Tooltip,
+  Stack,
 } from '@mantine/core';
-import { IconTrash } from '@tabler/icons-react';
+import { IconTrash, IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-react';
 import { getSkeletonWidthPercent } from '@/shared/lib/utils';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -24,6 +25,9 @@ export interface Column<T> {
   render: (item: T, index: number) => ReactNode;
   align: 'left' | 'center' | 'right';
   width?: string | number;
+  sortable?: boolean;
+  sortKey?: string;
+  sortFn?: (a: T, b: T, direction: 'asc' | 'desc') => number;
 }
 
 export interface DataTableProps<T> {
@@ -40,7 +44,15 @@ export interface DataTableProps<T> {
   onDeleteSelected?: (selectedKeys: string[]) => void;
   bulkActions?: ReactNode;
 
-  // Pagination Props
+  // Sorting Props (supports both client-side and backend sorting)
+  sortBy?: string | null;
+  sortDirection?: 'asc' | 'desc' | null;
+  defaultSortBy?: string | null;
+  defaultSortDirection?: 'asc' | 'desc' | null;
+  onSortChange?: (sortBy: string | null, sortDirection: 'asc' | 'desc' | null) => void;
+  clientSorting?: boolean;
+
+  // Pagination Props (supports both client-side and backend pagination)
   page?: number;
   pageSize?: number;
   total?: number;
@@ -67,6 +79,13 @@ export const DataTable = <T,>({
   onDeleteSelected,
   bulkActions,
 
+  sortBy: externalSortBy,
+  sortDirection: externalSortDirection,
+  defaultSortBy = null,
+  defaultSortDirection = null,
+  onSortChange,
+  clientSorting = true,
+
   page: externalPage = 1,
   pageSize: externalPageSize = 10,
   total: externalTotal,
@@ -92,6 +111,75 @@ export const DataTable = <T,>({
       setInternalSelectedKeys(keys);
     }
   };
+
+  // Internal sorting state if not controlled externally
+  const [internalSortBy, setInternalSortBy] = useState<string | null>(defaultSortBy);
+  const [internalSortDirection, setInternalSortDirection] = useState<'asc' | 'desc' | null>(
+    defaultSortDirection
+  );
+
+  const sortBy = externalSortBy !== undefined ? externalSortBy : internalSortBy;
+  const sortDirection =
+    externalSortDirection !== undefined ? externalSortDirection : internalSortDirection;
+
+  const handleSort = (key: string) => {
+    let nextSortBy: string | null = key;
+    let nextDirection: 'asc' | 'desc' | null = 'asc';
+
+    if (sortBy === key) {
+      if (sortDirection === 'asc') {
+        nextDirection = 'desc';
+      } else if (sortDirection === 'desc') {
+        nextDirection = null;
+        nextSortBy = null;
+      } else {
+        nextDirection = 'asc';
+      }
+    }
+
+    if (onSortChange) {
+      onSortChange(nextSortBy, nextDirection);
+    }
+    if (externalSortBy === undefined) {
+      setInternalSortBy(nextSortBy);
+      setInternalSortDirection(nextDirection);
+    }
+  };
+
+  // Client-side sorting logic when not controlled by backend sorting handler
+  const sortedData = useMemo(() => {
+    if (!clientSorting || !sortBy || !sortDirection) {
+      return data;
+    }
+    const activeCol = columns.find((c) => (c.sortKey || c.key) === sortBy || c.key === sortBy);
+    return [...data].sort((a, b) => {
+      if (activeCol?.sortFn) {
+        return activeCol.sortFn(a, b, sortDirection);
+      }
+      const sortField = activeCol?.sortKey || sortBy;
+      const aVal = (a as Record<string, unknown>)[sortField];
+      const bVal = (b as Record<string, unknown>)[sortField];
+
+      if (aVal === bVal) return 0;
+      if (aVal === null || aVal === undefined || aVal === '') return 1;
+      if (bVal === null || bVal === undefined || bVal === '') return -1;
+
+      let comparison: number;
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        comparison = aVal - bVal;
+      } else if (typeof aVal === 'boolean' && typeof bVal === 'boolean') {
+        comparison = aVal === bVal ? 0 : aVal ? -1 : 1;
+      } else if (aVal instanceof Date && bVal instanceof Date) {
+        comparison = aVal.getTime() - bVal.getTime();
+      } else if (typeof aVal === 'string' && typeof bVal === 'string') {
+        comparison = aVal.localeCompare(bVal, undefined, { numeric: true, sensitivity: 'base' });
+      } else {
+        comparison = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [data, clientSorting, sortBy, sortDirection, columns]);
 
   // Internal pagination state if not controlled externally
   const [internalPage, setInternalPage] = useState(1);
@@ -129,11 +217,11 @@ export const DataTable = <T,>({
 
   const displayData = useMemo(() => {
     if (!clientPagination || externalTotal !== undefined) {
-      return data;
+      return sortedData;
     }
     const start = (page - 1) * pageSize;
-    return data.slice(start, start + pageSize);
-  }, [data, clientPagination, externalTotal, page, pageSize]);
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, clientPagination, externalTotal, page, pageSize]);
 
   // Keys of visible items
   const visibleKeys = useMemo(
@@ -188,17 +276,85 @@ export const DataTable = <T,>({
             />
           </Table.Th>
         )}
-        {columns.map((col) => (
-          <Table.Th
-            key={col.key}
-            style={{
-              textAlign: col.align,
-              width: col.width,
-            }}
-          >
-            {col.header}
-          </Table.Th>
-        ))}
+        {columns.map((col) => {
+          const isSortable = !!col.sortable;
+          const colSortKey = col.sortKey || col.key;
+          const isCurrentSorted = sortBy === colSortKey && sortDirection !== null;
+
+          return (
+            <Table.Th
+              key={col.key}
+              className={isSortable ? 'data-table-sort-th' : undefined}
+              onClick={isSortable ? () => handleSort(colSortKey) : undefined}
+              onKeyDown={
+                isSortable
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSort(colSortKey);
+                      }
+                    }
+                  : undefined
+              }
+              tabIndex={isSortable ? 0 : undefined}
+              role={isSortable ? 'button' : undefined}
+              aria-sort={
+                isSortable
+                  ? isCurrentSorted
+                    ? sortDirection === 'asc'
+                      ? 'ascending'
+                      : sortDirection === 'desc'
+                        ? 'descending'
+                        : 'none'
+                    : 'none'
+                  : undefined
+              }
+              style={{
+                textAlign: col.align,
+                width: col.width,
+              }}
+            >
+              <Group
+                gap={4}
+                wrap="nowrap"
+                justify={
+                  col.align === 'right'
+                    ? 'flex-end'
+                    : col.align === 'center'
+                      ? 'center'
+                      : 'flex-start'
+                }
+                align="center"
+                style={{ minWidth: 0, width: '100%' }}
+              >
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{col.header}</span>
+                {isSortable &&
+                  (isCurrentSorted ? (
+                    sortDirection === 'asc' ? (
+                      <IconChevronUp
+                        size={14}
+                        stroke={2.5}
+                        style={{ flexShrink: 0, color: 'var(--text-primary)' }}
+                      />
+                    ) : (
+                      <IconChevronDown
+                        size={14}
+                        stroke={2.5}
+                        style={{ flexShrink: 0, color: 'var(--text-primary)' }}
+                      />
+                    )
+                  ) : (
+                    <IconSelector
+                      size={14}
+                      stroke={1.5}
+                      className="sort-icon-inactive"
+                      style={{ flexShrink: 0 }}
+                    />
+                  ))}
+              </Group>
+            </Table.Th>
+          );
+        })}
       </Table.Tr>
     </Table.Thead>
   );
@@ -245,14 +401,15 @@ export const DataTable = <T,>({
   const showingEnd = Math.min(page * pageSize, totalCount);
 
   return (
-    <Paper withBorder style={{ overflow: 'hidden' }} radius="var(--mantine-radius-default)">
-      {/* Batch Actions Bar when items are selected */}
+    <Stack gap="xs">
+      {/* Batch Actions Bar when items are selected - rendered outside the table border */}
       {selectable && selectedKeys.length > 0 && (
         <Paper
           p="xs"
           px="md"
+          withBorder
           bg="var(--mantine-color-blue-light)"
-          style={{ borderBottom: '1px solid var(--border)' }}
+          radius="var(--mantine-radius-default)"
         >
           <Group justify="space-between" align="center">
             <Group gap="sm">
@@ -283,108 +440,111 @@ export const DataTable = <T,>({
         </Paper>
       )}
 
-      {!data || data.length === 0 ? (
-        <Center style={{ minHeight: 160 }} p="xl">
-          <Text c="dimmed" size="sm">
-            {emptyText}
-          </Text>
-        </Center>
-      ) : (
-        <Box style={{ overflowX: 'auto' }}>
-          <Table verticalSpacing="sm" horizontalSpacing="md" striped highlightOnHover>
-            {tableHead}
-            <Table.Tbody>
-              {displayData.map((item, index) => {
-                const key = keyExtractor(item, index);
-                const isSelected = selectedKeys.includes(key);
-                const rowClickable = !!onRowClick;
-
-                return (
-                  <Table.Tr
-                    key={key}
-                    bg={isSelected ? 'var(--mantine-color-blue-light)' : undefined}
-                    onClick={rowClickable ? () => onRowClick(item) : undefined}
-                    tabIndex={rowClickable ? 0 : undefined}
-                    role={rowClickable ? 'button' : undefined}
-                    onKeyDown={
-                      rowClickable
-                        ? (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              onRowClick(item);
-                            }
-                          }
-                        : undefined
-                    }
-                    style={rowClickable ? { cursor: 'pointer' } : undefined}
-                  >
-                    {selectable && (
-                      <Table.Td
-                        style={{ width: 40, textAlign: 'center' }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Checkbox
-                          size="xs"
-                          aria-label={`Select row ${key}`}
-                          checked={isSelected}
-                          onChange={() => handleToggleRow(key)}
-                        />
-                      </Table.Td>
-                    )}
-                    {columns.map((col) => (
-                      <Table.Td key={col.key} style={{ textAlign: col.align }}>
-                        {col.render(item, index)}
-                      </Table.Td>
-                    ))}
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
-        </Box>
-      )}
-
-      {/* Pagination Footer */}
-      <Group
-        justify="space-between"
-        align="center"
-        p="xs"
-        px="md"
-        style={{ borderTop: '1px solid var(--border)' }}
-        wrap="wrap"
-      >
-        <Group gap="sm">
-          <Text size="xs" c="dimmed">
-            Showing {showingStart}–{showingEnd} of {totalCount} entries
-          </Text>
-
-          <Group gap={6} align="center">
-            <Text size="xs" c="dimmed">
-              Rows per page:
+      {/* Main Table Paper Container */}
+      <Paper withBorder style={{ overflow: 'hidden' }} radius="var(--mantine-radius-default)">
+        {!data || data.length === 0 ? (
+          <Center style={{ minHeight: 160 }} p="xl">
+            <Text c="dimmed" size="sm">
+              {emptyText}
             </Text>
-            <Select
-              size="xs"
-              style={{ width: 70 }}
-              value={String(pageSize)}
-              onChange={(val) => val && handlePageSizeChange(Number(val))}
-              data={pageSizeOptions.map((opt) => ({
-                value: String(opt),
-                label: String(opt),
-              }))}
-            />
-          </Group>
-        </Group>
+          </Center>
+        ) : (
+          <Box style={{ overflowX: 'auto' }}>
+            <Table verticalSpacing="sm" horizontalSpacing="md" striped highlightOnHover>
+              {tableHead}
+              <Table.Tbody>
+                {displayData.map((item, index) => {
+                  const key = keyExtractor(item, index);
+                  const isSelected = selectedKeys.includes(key);
+                  const rowClickable = !!onRowClick;
 
-        {computedTotalPages > 1 && (
-          <Pagination
-            value={page}
-            onChange={handlePageChange}
-            total={computedTotalPages}
-            size="sm"
-            radius="var(--mantine-radius-default)"
-          />
+                  return (
+                    <Table.Tr
+                      key={key}
+                      bg={isSelected ? 'var(--mantine-color-blue-light)' : undefined}
+                      onClick={rowClickable ? () => onRowClick(item) : undefined}
+                      tabIndex={rowClickable ? 0 : undefined}
+                      role={rowClickable ? 'button' : undefined}
+                      onKeyDown={
+                        rowClickable
+                          ? (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                onRowClick(item);
+                              }
+                            }
+                          : undefined
+                      }
+                      style={rowClickable ? { cursor: 'pointer' } : undefined}
+                    >
+                      {selectable && (
+                        <Table.Td
+                          style={{ width: 40, textAlign: 'center' }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            size="xs"
+                            aria-label={`Select row ${key}`}
+                            checked={isSelected}
+                            onChange={() => handleToggleRow(key)}
+                          />
+                        </Table.Td>
+                      )}
+                      {columns.map((col) => (
+                        <Table.Td key={col.key} style={{ textAlign: col.align }}>
+                          {col.render(item, index)}
+                        </Table.Td>
+                      ))}
+                    </Table.Tr>
+                  );
+                })}
+              </Table.Tbody>
+            </Table>
+          </Box>
         )}
-      </Group>
+
+        {/* Pagination Footer */}
+        <Group
+          justify="space-between"
+          align="center"
+          p="xs"
+          px="md"
+          style={{ borderTop: '1px solid var(--border)' }}
+          wrap="wrap"
+        >
+          <Group gap="sm">
+            <Text size="xs" c="dimmed">
+              Showing {showingStart}–{showingEnd} of {totalCount} entries
+            </Text>
+
+            <Group gap={6} align="center">
+              <Text size="xs" c="dimmed">
+                Rows per page:
+              </Text>
+              <Select
+                size="xs"
+                style={{ width: 70 }}
+                value={String(pageSize)}
+                onChange={(val) => val && handlePageSizeChange(Number(val))}
+                data={pageSizeOptions.map((opt) => ({
+                  value: String(opt),
+                  label: String(opt),
+                }))}
+              />
+            </Group>
+          </Group>
+
+          {computedTotalPages > 1 && (
+            <Pagination
+              value={page}
+              onChange={handlePageChange}
+              total={computedTotalPages}
+              size="sm"
+              radius="var(--mantine-radius-default)"
+            />
+          )}
+        </Group>
+      </Paper>
 
       {/* Confirm Batch Delete Modal */}
       {onDeleteSelected && (
@@ -400,6 +560,6 @@ export const DataTable = <T,>({
           This action cannot be undone.
         </ConfirmDialog>
       )}
-    </Paper>
+    </Stack>
   );
 };

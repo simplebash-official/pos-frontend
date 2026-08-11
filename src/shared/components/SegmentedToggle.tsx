@@ -9,9 +9,15 @@ export type SegmentedToggleProps = SegmentedControlProps;
  * `color` to opt a specific toggle into Mantine's accent-colored indicator
  * instead (e.g. PaymentPanel's amber "Credit Sale" / red "Order Discount").
  */
-export const SegmentedToggle = ({ classNames, color, ...props }: SegmentedToggleProps) => (
+export const SegmentedToggle = ({
+  classNames,
+  color,
+  radius = 'var(--mantine-radius-default)',
+  ...props
+}: SegmentedToggleProps) => (
   <SegmentedControl
     color={color}
+    radius={radius}
     classNames={{
       root: 'segmented-toggle-root',
       indicator: color ? undefined : 'segmented-toggle-indicator',

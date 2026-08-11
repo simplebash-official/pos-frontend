@@ -171,6 +171,7 @@ export const CustomerList = () => {
       header: 'Customer Name',
       align: 'left',
       width: '25%',
+      sortable: true,
       render: (c) => (
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon variant="light" color="violet" size="sm">
@@ -188,9 +189,10 @@ export const CustomerList = () => {
     },
     {
       key: 'primaryPhone',
-      header: 'Phone Number',
+      header: 'Phone',
       align: 'left',
       width: '20%',
+      sortable: true,
       render: (c) => (
         <PhoneDisplay
           primaryPhone={
@@ -208,6 +210,7 @@ export const CustomerList = () => {
       header: 'Balance Due',
       align: 'right',
       width: '18%',
+      sortable: true,
       render: (c) => (
         <Text size="sm" fw={700} c={c.outstandingBalanceCents > 0 ? 'red' : 'green'} ta="right">
           {formatMoney(c.outstandingBalanceCents)}
@@ -219,6 +222,7 @@ export const CustomerList = () => {
       header: 'Total Spent',
       align: 'right',
       width: '18%',
+      sortable: true,
       render: (c) => (
         <Text size="sm" fw={600} ta="right">
           {formatMoney(c.totalPurchasesCents)}
@@ -230,6 +234,7 @@ export const CustomerList = () => {
       header: 'Actions',
       align: 'right',
       width: '19%',
+      sortable: false,
       render: (c) => (
         <Group gap={4} justify="flex-end" onClick={(e) => e.stopPropagation()}>
           <ActionIcon
