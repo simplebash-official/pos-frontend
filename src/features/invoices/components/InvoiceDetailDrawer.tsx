@@ -175,8 +175,8 @@ export const InvoiceDetailDrawer = ({
                 <Table.Tr>
                   <Table.Th>Item</Table.Th>
                   <Table.Th style={{ textAlign: 'center' }}>Qty</Table.Th>
-                  <Table.Th style={{ textAlign: 'right' }}>Price</Table.Th>
-                  <Table.Th style={{ textAlign: 'right' }}>Total</Table.Th>
+                  <Table.Th>Price</Table.Th>
+                  <Table.Th>Total</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -193,12 +193,11 @@ export const InvoiceDetailDrawer = ({
                       )}
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
-                    <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                    <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {formatMoney(item.unitPriceCents)}
                     </Table.Td>
                     <Table.Td
                       style={{
-                        textAlign: 'right',
                         fontWeight: 700,
                         fontVariantNumeric: 'tabular-nums',
                       }}

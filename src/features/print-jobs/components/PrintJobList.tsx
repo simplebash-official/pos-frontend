@@ -170,7 +170,7 @@ export const PrintJobList = () => {
     {
       key: 'estimatedCostCents',
       header: 'Total Price',
-      align: 'right',
+      align: 'left',
       sortable: true,
       render: (job) => formatMoney(job.estimatedCostCents),
     },

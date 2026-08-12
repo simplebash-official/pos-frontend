@@ -163,9 +163,9 @@ export const ReportsDashboard = () => {
                 <Table.Th>Employee Name & Role</Table.Th>
                 <Table.Th ta="center">Default Split Rule</Table.Th>
                 <Table.Th ta="right">Assigned Jobs</Table.Th>
-                <Table.Th ta="right">Revenue Generated</Table.Th>
-                <Table.Th ta="right">Employee Commission Payout</Table.Th>
-                <Table.Th ta="right">Net Shop Owner Profit</Table.Th>
+                <Table.Th>Revenue Generated</Table.Th>
+                <Table.Th>Employee Commission Payout</Table.Th>
+                <Table.Th>Net Shop Owner Profit</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -182,14 +182,14 @@ export const ReportsDashboard = () => {
                       <Table.Td ta="right">
                         <Skeleton height={16} width={50} ms="auto" />
                       </Table.Td>
-                      <Table.Td ta="right">
-                        <Skeleton height={16} width={70} ms="auto" />
+                      <Table.Td>
+                        <Skeleton height={16} width={70} />
                       </Table.Td>
-                      <Table.Td ta="right">
-                        <Skeleton height={16} width={70} ms="auto" />
+                      <Table.Td>
+                        <Skeleton height={16} width={70} />
                       </Table.Td>
-                      <Table.Td ta="right">
-                        <Skeleton height={16} width={70} ms="auto" />
+                      <Table.Td>
+                        <Skeleton height={16} width={70} />
                       </Table.Td>
                     </Table.Tr>
                   ))
@@ -236,17 +236,17 @@ export const ReportsDashboard = () => {
                             {jobsCount} jobs
                           </Text>
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td>
                           <Text size="sm" fw={600}>
                             {formatMoney(revCents)}
                           </Text>
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td>
                           <Text size="sm" fw={800} c="indigo">
                             {formatMoney(earnedSplitCents)}
                           </Text>
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td>
                           <Text size="sm" fw={800} c="green">
                             {formatMoney(netShopContributionCents)}
                           </Text>

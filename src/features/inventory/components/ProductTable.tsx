@@ -814,9 +814,7 @@ export const ProductTable = () => {
                                     </Table.Th>
                                     <Table.Th style={{ width: 160 }}>SKU</Table.Th>
                                     <Table.Th>Product / Material Name</Table.Th>
-                                    <Table.Th style={{ textAlign: 'right', width: 130 }}>
-                                      Selling Price
-                                    </Table.Th>
+                                    <Table.Th style={{ width: 130 }}>Selling Price</Table.Th>
                                     <Table.Th style={{ textAlign: 'center', width: 150 }}>
                                       Stock Level
                                     </Table.Th>
@@ -884,7 +882,7 @@ export const ProductTable = () => {
                                             {prod.name}
                                           </Text>
                                         </Table.Td>
-                                        <Table.Td style={{ textAlign: 'right' }}>
+                                        <Table.Td>
                                           <Text size="sm" fw={700}>
                                             {formatMoney(prod.sellingPriceCents)}
                                           </Text>

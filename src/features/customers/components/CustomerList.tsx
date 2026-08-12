@@ -227,11 +227,11 @@ export const CustomerList = () => {
     {
       key: 'outstandingBalanceCents',
       header: 'Balance Due',
-      align: 'right',
+      align: 'left',
       width: '20%',
       sortable: true,
       render: (c) => (
-        <Text size="sm" fw={700} c={c.outstandingBalanceCents > 0 ? 'red' : 'teal'} ta="right">
+        <Text size="sm" fw={700} c={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}>
           {formatMoney(c.outstandingBalanceCents || 0)}
         </Text>
       ),
@@ -239,11 +239,11 @@ export const CustomerList = () => {
     {
       key: 'totalPurchasesCents',
       header: 'Total Spent',
-      align: 'right',
+      align: 'left',
       width: '20%',
       sortable: true,
       render: (c) => (
-        <Text size="sm" fw={600} ta="right">
+        <Text size="sm" fw={600}>
           {formatMoney(c.totalPurchasesCents || 0)}
         </Text>
       ),

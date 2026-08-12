@@ -327,7 +327,7 @@ export const InvoicesList = () => {
                 <Table.Th style={{ textAlign: 'center' }}>Items</Table.Th>
                 <Table.Th>Payment Method</Table.Th>
                 <Table.Th style={{ textAlign: 'center' }}>Status</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Total</Table.Th>
+                <Table.Th>Total</Table.Th>
                 <Table.Th style={{ width: 40, textAlign: 'right' }} aria-label="View Details" />
               </Table.Tr>
             </Table.Thead>
@@ -353,8 +353,8 @@ export const InvoicesList = () => {
                     <Table.Td style={{ textAlign: 'center' }}>
                       <Skeleton height={20} width={60} mx="auto" />
                     </Table.Td>
-                    <Table.Td style={{ textAlign: 'right' }}>
-                      <Skeleton height={16} width={70} ms="auto" />
+                    <Table.Td>
+                      <Skeleton height={16} width={70} />
                     </Table.Td>
                     <Table.Td style={{ width: 40, textAlign: 'right', verticalAlign: 'middle' }}>
                       <Skeleton
@@ -428,7 +428,6 @@ export const InvoicesList = () => {
                     </Table.Td>
                     <Table.Td
                       style={{
-                        textAlign: 'right',
                         fontWeight: 700,
                         fontVariantNumeric: 'tabular-nums',
                       }}

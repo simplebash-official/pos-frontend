@@ -247,9 +247,9 @@ export const EmployeeDetailDrawer = ({
                   <Table.Tr>
                     <Table.Th>Ticket / Work</Table.Th>
                     <Table.Th>Customer & Description</Table.Th>
-                    <Table.Th ta="right">Job Total</Table.Th>
-                    <Table.Th ta="right">Split Rule</Table.Th>
-                    <Table.Th ta="right">Earned Split</Table.Th>
+                    <Table.Th>Job Total</Table.Th>
+                    <Table.Th>Split Rule</Table.Th>
+                    <Table.Th>Earned Split</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -286,10 +286,10 @@ export const EmployeeDetailDrawer = ({
                             {rec.customerName}
                           </Text>
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td>
                           <Text size="xs">{formatMoney(rec.totalAmountCents)}</Text>
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td>
                           <Badge
                             size="xs"
                             variant="light"
@@ -300,7 +300,7 @@ export const EmployeeDetailDrawer = ({
                               : formatMoney(rec.splitValue)}
                           </Badge>
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td>
                           <Text size="xs" fw={800} c="indigo">
                             {formatMoney(rec.earnedAmountCents)}
                           </Text>

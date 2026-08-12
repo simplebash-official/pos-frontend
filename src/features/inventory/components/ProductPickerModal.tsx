@@ -237,7 +237,7 @@ export const ProductPickerModal = ({
 
                       {/* Right Price & Link Action */}
                       <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
-                        <Box style={{ textAlign: 'right' }}>
+                        <Box style={{ textAlign: 'left' }}>
                           <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
                             Default Cost
                           </Text>
