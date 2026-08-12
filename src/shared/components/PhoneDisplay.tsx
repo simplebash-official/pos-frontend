@@ -46,9 +46,7 @@ export const PhoneDisplay = ({
         Primary
       </Badge>
       <Group gap={4} wrap="nowrap" align="center">
-        <Text size="xs" fw={700}>
-          {displayPrimary}
-        </Text>
+        <Text size="xs">{displayPrimary}</Text>
         {displayPrimary !== 'N/A' && (
           <Tooltip label="Copy Primary Phone" withArrow position="top">
             <ActionIcon
