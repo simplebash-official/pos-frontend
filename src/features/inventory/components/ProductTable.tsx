@@ -812,7 +812,7 @@ export const ProductTable = () => {
                                         onChange={toggleSubAll}
                                       />
                                     </Table.Th>
-                                    <Table.Th style={{ width: 110 }}>SKU</Table.Th>
+                                    <Table.Th style={{ width: 160 }}>SKU</Table.Th>
                                     <Table.Th>Product / Material Name</Table.Th>
                                     <Table.Th style={{ textAlign: 'right', width: 130 }}>
                                       Selling Price
