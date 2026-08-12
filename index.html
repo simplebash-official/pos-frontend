@@ -3,11 +3,19 @@
   <head>
     <script>
       // keep in sync with getInitialColorScheme() in src/store/slices/themeSlice.ts
+      // and the light/dark/system <-> 'auto' mapping in src/store/colorSchemeManager.ts
       (function () {
         var key = 'pos-color-scheme';
         var stored = localStorage.getItem(key);
-        var scheme = stored === 'light' || stored === 'dark' ? stored : 'light';
-        document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
+        var scheme =
+          stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'light';
+        var resolved =
+          scheme === 'system'
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : scheme;
+        document.documentElement.setAttribute('data-mantine-color-scheme', resolved);
       })();
     </script>
     <meta charset="UTF-8" />

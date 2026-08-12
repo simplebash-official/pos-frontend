@@ -4,20 +4,22 @@ import {
   NavLink,
   Text,
   Divider,
-  Switch,
+  Paper,
   useMantineColorScheme,
+  useComputedColorScheme,
   Badge,
   Tooltip,
   ActionIcon,
   Box,
 } from '@mantine/core';
-import { IconLock, IconMoon, IconSun } from '@tabler/icons-react';
+import { IconLock, IconMoon, IconSun, IconSettings, IconLogout } from '@tabler/icons-react';
 import { useMemo } from 'react';
 
 import { NAV_ITEMS } from '@/config/navigation';
 import { ROUTES } from '@/constants/routes';
 import { USER_ROLES } from '@/constants/roles';
 import { useLowStockProducts } from '@/features/inventory/hooks/useProducts';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout, selectUserRole } from '@/store/slices/authSlice';
 
@@ -31,7 +33,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = useComputedColorScheme('light') === 'dark';
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
 
@@ -41,6 +43,14 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   const visibleNavItems = useMemo(
     () => NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin),
     [isAdmin]
+  );
+
+  // Settings has its own shortcut in the bottom support block below, so the
+  // full-mode top list omits it to avoid listing it twice. Rail mode keeps it
+  // (it has no bottom Settings shortcut of its own).
+  const topNavItems = useMemo(
+    () => visibleNavItems.filter((item) => item.to !== ROUTES.SETTINGS),
+    [visibleNavItems]
   );
 
   const handleLogout = () => {
@@ -123,7 +133,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
         <Text size="xs" fw={700} c="dimmed" tt="uppercase" px="sm" pt="xs">
           Feature Domains
         </Text>
-        {visibleNavItems.map((item) => {
+        {topNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.to);
           const isInventory = item.to === ROUTES.INVENTORY;
@@ -154,34 +164,41 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
 
       <Stack gap="xs">
         <Divider my="xs" />
-        <NavLink
-          label="Lock / Logout POS"
-          leftSection={<IconLock size={20} stroke={1.5} />}
-          active={false}
-          color="gray"
-          variant="subtle"
-          onClick={handleLogout}
-          style={{ borderRadius: 'var(--mantine-radius-default)' }}
-        />
-        <NavLink
-          label="Dark Mode"
-          leftSection={
-            isDark ? <IconMoon size={20} stroke={1.5} /> : <IconSun size={20} stroke={1.5} />
-          }
-          rightSection={
-            <Switch
-              checked={isDark}
-              onChange={() => {}}
-              size="sm"
-              aria-label="Toggle dark mode"
-              style={{ pointerEvents: 'none' }}
+        <Paper>
+          <Stack gap="xs">
+            <NavLink
+              component={RouterNavLink}
+              to={ROUTES.SETTINGS}
+              label="Settings"
+              leftSection={<IconSettings size={20} stroke={1.5} />}
+              active={location.pathname.startsWith(ROUTES.SETTINGS)}
+              color="blue"
+              variant="light"
+              onClick={closeMobile}
+              style={{ borderRadius: 'var(--mantine-radius-default)' }}
             />
-          }
-          variant="subtle"
-          color="gray"
-          onClick={() => setColorScheme(isDark ? 'light' : 'dark')}
-          style={{ borderRadius: 'var(--mantine-radius-default)' }}
-        />
+            <SegmentedToggle
+              fullWidth
+              value={colorScheme}
+              onChange={(value) => setColorScheme(value as 'light' | 'dark' | 'auto')}
+              data={[
+                { label: 'Light', value: 'light' },
+                { label: 'Dark', value: 'dark' },
+                { label: 'System', value: 'auto' },
+              ]}
+            />
+            <Divider />
+            <NavLink
+              label="Sign Out"
+              leftSection={<IconLogout size={20} stroke={1.5} />}
+              active={false}
+              color="gray"
+              variant="subtle"
+              onClick={handleLogout}
+              style={{ borderRadius: 'var(--mantine-radius-default)' }}
+            />
+          </Stack>
+        </Paper>
       </Stack>
     </Stack>
   );
