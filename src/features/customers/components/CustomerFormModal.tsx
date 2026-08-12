@@ -1,7 +1,9 @@
-import { Modal, TextInput, Textarea, Button, Group, Stack, MultiSelect, Grid } from '@mantine/core';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Modal, TextInput, Textarea, Button, Group, Stack, Grid, TagsInput } from '@mantine/core';
+import { IconUser, IconPhone, IconMail, IconMapPin, IconTag } from '@tabler/icons-react';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { Customer, CustomerInput } from '../types';
-import { PRESET_CUSTOMER_TAGS } from '../constants';
+import { useCustomerTags } from '../hooks/useCustomers';
 
 export interface CustomerFormModalProps {
   opened: boolean;
@@ -11,53 +13,63 @@ export interface CustomerFormModalProps {
   loading?: boolean;
 }
 
-export const CustomerFormModal = ({
-  opened,
+interface FormContentProps {
+  customerToEdit?: Customer | null;
+  onClose: () => void;
+  onSubmit: (values: CustomerInput) => Promise<void>;
+  loading?: boolean;
+}
+
+const CustomerFormContent = ({
+  customerToEdit,
   onClose,
   onSubmit,
-  customerToEdit,
   loading = false,
-}: CustomerFormModalProps) => {
-  const [name, setName] = useState('');
-  const [contactPerson, setContactPerson] = useState('');
-  const [primaryPhone, setPrimaryPhone] = useState('');
-  const [secondaryPhone, setSecondaryPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [notes, setNotes] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+}: FormContentProps) => {
+  const availableTags = useCustomerTags();
 
-  useEffect(() => {
-    if (customerToEdit) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(customerToEdit.name);
-      setContactPerson(customerToEdit.contactPerson || '');
-      setPrimaryPhone(customerToEdit.primaryPhone);
-      setSecondaryPhone(customerToEdit.secondaryPhone || '');
-      setEmail(customerToEdit.email || '');
-      setAddress(customerToEdit.address);
-      setTags(customerToEdit.tags || []);
-      setNotes(customerToEdit.notes || '');
-    } else {
-      setName('');
-      setContactPerson('');
-      setPrimaryPhone('');
-      setSecondaryPhone('');
-      setEmail('');
-      setAddress('');
-      setTags(['Retail Client']);
-      setNotes('');
-    }
-    setErrors({});
-  }, [customerToEdit, opened]);
+  const [name, setName] = useState(customerToEdit?.name || '');
+  const [contactPerson, setContactPerson] = useState(customerToEdit?.contactPerson || '');
+  const [primaryPhone, setPrimaryPhone] = useState(customerToEdit?.primaryPhone || '');
+  const [secondaryPhone, setSecondaryPhone] = useState(customerToEdit?.secondaryPhone || '');
+  const [email, setEmail] = useState(customerToEdit?.email || '');
+  const [address, setAddress] = useState(customerToEdit?.address || '');
+  const [tags, setTags] = useState<string[]>(customerToEdit?.tags || ['Retail Client']);
+  const [notes, setNotes] = useState(customerToEdit?.notes || '');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!name.trim()) newErrors.name = 'Customer / Business Name is required';
-    if (!contactPerson.trim()) newErrors.contactPerson = 'Contact Person is required';
-    if (!primaryPhone.trim()) newErrors.primaryPhone = 'Primary Phone Number is required';
-    if (!address.trim()) newErrors.address = 'Address is required';
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      newErrors.name = 'Customer / Business Name is required';
+    } else if (trimmedName.length < 2) {
+      newErrors.name = 'Customer name must be at least 2 characters';
+    }
+
+    const trimmedPrimaryPhone = primaryPhone.trim();
+    if (!trimmedPrimaryPhone) {
+      newErrors.primaryPhone = 'Primary Phone Number is required';
+    } else if (!/^[\d\s+-]+$/.test(trimmedPrimaryPhone)) {
+      newErrors.primaryPhone = 'Phone may only contain digits, spaces, dashes, and +';
+    }
+
+    const trimmedSecondaryPhone = secondaryPhone.trim();
+    if (trimmedSecondaryPhone && !/^[\d\s+-]+$/.test(trimmedSecondaryPhone)) {
+      newErrors.secondaryPhone = 'Phone may only contain digits, spaces, dashes, and +';
+    }
+
+    const trimmedEmail = email.trim();
+    if (trimmedEmail) {
+      const isValidEmail =
+        trimmedEmail.includes('@') &&
+        !trimmedEmail.includes(' ') &&
+        trimmedEmail.split('@')[1]?.includes('.');
+      if (!isValidEmail) {
+        newErrors.email = 'Please enter a valid email address';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -68,11 +80,11 @@ export const CustomerFormModal = ({
 
     await onSubmit({
       name: name.trim(),
-      contactPerson: contactPerson.trim(),
       primaryPhone: primaryPhone.trim(),
+      contactPerson: contactPerson.trim() || undefined,
       secondaryPhone: secondaryPhone.trim() || undefined,
       email: email.trim() || undefined,
-      address: address.trim(),
+      address: address.trim() || undefined,
       tags,
       notes: notes.trim() || undefined,
     });
@@ -80,103 +92,133 @@ export const CustomerFormModal = ({
   };
 
   return (
+    <form onSubmit={handleSubmit}>
+      <Stack gap="sm">
+        <Grid>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              label="Customer / Business Name"
+              placeholder="e.g. Saman Perera or ABC Enterprises"
+              leftSection={<IconUser size={16} />}
+              value={name}
+              onChange={(e) => setName(e.currentTarget.value)}
+              error={errors.name}
+              required
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              label="Contact Person"
+              placeholder="Actual human contact (optional)"
+              value={contactPerson}
+              onChange={(e) => setContactPerson(e.currentTarget.value)}
+              error={errors.contactPerson}
+            />
+          </Grid.Col>
+        </Grid>
+
+        <Grid>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              label="Primary Phone Number"
+              placeholder="e.g. 077 123 4567"
+              leftSection={<IconPhone size={16} />}
+              value={primaryPhone}
+              onChange={(e) => setPrimaryPhone(e.currentTarget.value)}
+              error={errors.primaryPhone}
+              required
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              label="Backup / Secondary Phone"
+              placeholder="Optional secondary line"
+              value={secondaryPhone}
+              onChange={(e) => setSecondaryPhone(e.currentTarget.value)}
+              error={errors.secondaryPhone}
+            />
+          </Grid.Col>
+        </Grid>
+
+        <Grid>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              label="Email Address"
+              placeholder="client@domain.com (optional)"
+              leftSection={<IconMail size={16} />}
+              value={email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+              error={errors.email}
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              label="Physical Address / Location"
+              placeholder="Delivery address (optional)"
+              leftSection={<IconMapPin size={16} />}
+              value={address}
+              onChange={(e) => setAddress(e.currentTarget.value)}
+            />
+          </Grid.Col>
+        </Grid>
+
+        <TagsInput
+          label="Customer Tags / Account Type"
+          placeholder="Type or select tags (e.g. Retail, VIP)"
+          leftSection={<IconTag size={16} />}
+          data={availableTags}
+          value={tags}
+          onChange={setTags}
+          clearable
+        />
+
+        <Textarea
+          label="Notes & Special Instructions"
+          placeholder="Preferences, credit terms, repair notes, etc."
+          value={notes}
+          onChange={(e) => setNotes(e.currentTarget.value)}
+          rows={3}
+        />
+
+        <Group justify="flex-end" mt="md">
+          <Button variant="default" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" loading={loading}>
+            {customerToEdit ? 'Save Changes' : 'Create Customer'}
+          </Button>
+        </Group>
+      </Stack>
+    </form>
+  );
+};
+
+export const CustomerFormModal = ({
+  opened,
+  onClose,
+  onSubmit,
+  customerToEdit,
+  loading = false,
+}: CustomerFormModalProps) => {
+  const isMobile = useIsMobile();
+
+  return (
     <Modal
       opened={opened}
       onClose={onClose}
       title={customerToEdit ? 'Edit Customer Profile' : 'Add New Customer Profile'}
       size="lg"
-      radius="var(--mantine-radius-default)"
+      fullScreen={isMobile}
     >
-      <form onSubmit={handleSubmit}>
-        <Stack gap="sm">
-          <Grid>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput
-                label="Customer / Business Name"
-                placeholder="e.g. Saman Perera or ABC Enterprises"
-                value={name}
-                onChange={(e) => setName(e.currentTarget.value)}
-                error={errors.name}
-                required
-              />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput
-                label="Contact Person"
-                placeholder="Actual human contact"
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.currentTarget.value)}
-                error={errors.contactPerson}
-                required
-              />
-            </Grid.Col>
-          </Grid>
-
-          <Grid>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput
-                label="Primary Phone Number"
-                placeholder="e.g. 077 123 4567"
-                value={primaryPhone}
-                onChange={(e) => setPrimaryPhone(e.currentTarget.value)}
-                error={errors.primaryPhone}
-                required
-              />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput
-                label="Backup / Secondary Phone"
-                placeholder="Optional backup line"
-                value={secondaryPhone}
-                onChange={(e) => setSecondaryPhone(e.currentTarget.value)}
-              />
-            </Grid.Col>
-          </Grid>
-
-          <TextInput
-            label="Email Address"
-            placeholder="Optional e.g. client@domain.com"
-            value={email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
-          />
-
-          <TextInput
-            label="Physical Address / Location"
-            placeholder="Full address for deliveries, visits, or returns"
-            value={address}
-            onChange={(e) => setAddress(e.currentTarget.value)}
-            error={errors.address}
-            required
-          />
-
-          <MultiSelect
-            label="Customer Tags / Account Type"
-            placeholder="Select customer tags"
-            data={PRESET_CUSTOMER_TAGS}
-            value={tags}
-            onChange={setTags}
-            searchable
-            clearable
-          />
-
-          <Textarea
-            label="Notes & Special Instructions"
-            placeholder="Preferences, credit terms, repair notes, etc."
-            value={notes}
-            onChange={(e) => setNotes(e.currentTarget.value)}
-            rows={3}
-          />
-
-          <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={loading} color="violet">
-              {customerToEdit ? 'Save Changes' : 'Create Customer'}
-            </Button>
-          </Group>
-        </Stack>
-      </form>
+      {opened && (
+        <CustomerFormContent
+          key={customerToEdit ? customerToEdit.id : 'new-customer'}
+          customerToEdit={customerToEdit}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          loading={loading}
+        />
+      )}
     </Modal>
   );
 };

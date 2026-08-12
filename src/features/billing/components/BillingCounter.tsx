@@ -9,7 +9,7 @@ import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
 import { ServiceJobPickerModal } from './ServiceJobPickerModal';
-import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
+import { CustomerPickerModal } from '@/features/customers';
 import { DiscountPopover } from './DiscountPopover';
 import { A4InvoicePreviewModal } from './A4InvoicePreviewModal';
 import type { PaymentPanelHandle } from './PaymentPanel';

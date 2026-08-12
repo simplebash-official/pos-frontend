@@ -20,12 +20,9 @@ import {
   IconTag,
   IconEdit,
   IconTrash,
-  IconEye,
-  IconCheck,
   IconReceipt,
   IconUsers,
 } from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { EntityListPage } from '@/shared/components/EntityListPage';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -33,21 +30,19 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { Customer, CustomerInput } from '../types';
 import {
-  fetchCustomers,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
-  deleteCustomers,
-} from '../api/mockCustomers';
-import { PRESET_CUSTOMER_TAGS } from '../constants';
+  useAllCustomers,
+  useCustomerTags,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+  useDeleteCustomers,
+} from '../hooks/useCustomers';
 import { CustomerFormModal } from './CustomerFormModal';
 import { CustomerDetailDrawer } from './CustomerDetailDrawer';
 import { formatMoney } from '@/shared/lib/money';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
-import { queryKeys } from '@/api/queryKeys';
 
 export const CustomerList = () => {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -58,70 +53,13 @@ export const CustomerList = () => {
   const [selectedCustomerForDrawer, setSelectedCustomerForDrawer] = useState<Customer | null>(null);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
-  const {
-    data: customers = [],
-    isLoading,
-    isPending,
-    isFetching,
-  } = useQuery({
-    queryKey: queryKeys.customers.all,
-    queryFn: fetchCustomers,
-  });
-  const isCustomersLoading = isLoading || isPending || isFetching;
+  const { data: customers = [], isLoading } = useAllCustomers();
+  const availableTags = useCustomerTags();
 
-  const createMutation = useMutation({
-    mutationFn: createCustomer,
-    onSuccess: (newCustomer) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
-      notifications.show({
-        title: 'Customer Created',
-        message: `${newCustomer.name} has been added to directory`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: CustomerInput }) => updateCustomer(id, input),
-    onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
-      notifications.show({
-        title: 'Customer Updated',
-        message: `${updated.name} updated successfully`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteCustomer,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
-      notifications.show({
-        title: 'Customer Deleted',
-        message: 'Customer record removed successfully',
-        color: 'blue',
-      });
-      if (selectedCustomerForDrawer?.id === customerToDelete?.id) {
-        setSelectedCustomerForDrawer(null);
-      }
-      setCustomerToDelete(null);
-    },
-  });
-
-  const deleteBatchMutation = useMutation({
-    mutationFn: deleteCustomers,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
-      notifications.show({
-        title: 'Customers Deleted',
-        message: 'Selected customer records removed successfully',
-        color: 'blue',
-      });
-    },
-  });
+  const createMutation = useCreateCustomer();
+  const updateMutation = useUpdateCustomer();
+  const deleteMutation = useDeleteCustomer();
+  const deleteBatchMutation = useDeleteCustomers();
 
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
@@ -130,7 +68,9 @@ export const CustomerList = () => {
         !q ||
         c.name.toLowerCase().includes(q) ||
         c.primaryPhone.includes(q) ||
+        (c.secondaryPhone && c.secondaryPhone.includes(q)) ||
         (c.email && c.email.toLowerCase().includes(q)) ||
+        (c.contactPerson && c.contactPerson.toLowerCase().includes(q)) ||
         (c.address && c.address.toLowerCase().includes(q));
 
       const matchesTag = !selectedTag || (c.tags && c.tags.includes(selectedTag));
@@ -140,9 +80,7 @@ export const CustomerList = () => {
 
   const totalCustomersCount = customers.length;
   const totalBalanceDue = customers.reduce((sum, c) => sum + (c.outstandingBalanceCents || 0), 0);
-  const corporateAccountsCount = customers.filter(
-    (c) => c.tags && c.tags.includes('Corporate')
-  ).length;
+  const activeDebtorsCount = customers.filter((c) => (c.outstandingBalanceCents || 0) > 0).length;
 
   const handleOpenAddModal = () => {
     setCustomerToEdit(null);
@@ -156,15 +94,98 @@ export const CustomerList = () => {
 
   const handleFormSubmit = async (values: CustomerInput) => {
     if (customerToEdit) {
-      await updateMutation.mutateAsync({ id: customerToEdit.id, input: values });
+      await updateMutation.mutateAsync({
+        customerKey: customerToEdit.id,
+        input: values,
+      });
+      notifications.show({
+        title: 'Customer Updated',
+        message: `${values.name} updated successfully`,
+        color: 'teal',
+      });
     } else {
-      await createMutation.mutateAsync(values);
+      const created = await createMutation.mutateAsync(values);
+      notifications.show({
+        title: 'Customer Created',
+        message: `${created.name} has been registered`,
+        color: 'teal',
+      });
     }
   };
 
   const handleConfirmDelete = async () => {
-    if (customerToDelete) {
-      await deleteMutation.mutateAsync(customerToDelete.id);
+    if (!customerToDelete) return;
+
+    // Financial Debt Guard Check
+    if (customerToDelete.outstandingBalanceCents > 0) {
+      notifications.show({
+        title: 'Deletion Blocked',
+        message: `Cannot delete customer "${customerToDelete.name}" with an outstanding balance of ${formatMoney(customerToDelete.outstandingBalanceCents)}. Please settle outstanding dues first.`,
+        color: 'red',
+      });
+      setCustomerToDelete(null);
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync({ customerKey: customerToDelete.id });
+      notifications.show({
+        title: 'Customer Deleted',
+        message: `${customerToDelete.name} was removed successfully`,
+        color: 'teal',
+      });
+      if (selectedCustomerForDrawer?.id === customerToDelete.id) {
+        setSelectedCustomerForDrawer(null);
+      }
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to delete customer',
+        color: 'red',
+      });
+    } finally {
+      setCustomerToDelete(null);
+    }
+  };
+
+  const handleBatchDelete = async (ids: string[]) => {
+    const selectedCustomers = customers.filter((c) => ids.includes(c.id));
+    const debtFreeIds = selectedCustomers
+      .filter((c) => (c.outstandingBalanceCents || 0) === 0)
+      .map((c) => c.id);
+    const withDebtCount = selectedCustomers.length - debtFreeIds.length;
+
+    if (debtFreeIds.length === 0) {
+      notifications.show({
+        title: 'Batch Deletion Blocked',
+        message:
+          'All selected customers have outstanding balances. Customers with debt cannot be deleted.',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (withDebtCount > 0) {
+      notifications.show({
+        title: 'Partial Batch Deletion',
+        message: `Skipped ${withDebtCount} customer(s) with outstanding debt. Deleting ${debtFreeIds.length} customer(s)...`,
+        color: 'yellow',
+      });
+    }
+
+    try {
+      await deleteBatchMutation.mutateAsync({ customerKeys: debtFreeIds });
+      notifications.show({
+        title: 'Customers Deleted',
+        message: `${debtFreeIds.length} customer record(s) removed successfully`,
+        color: 'teal',
+      });
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to delete selected customers',
+        color: 'red',
+      });
     }
   };
 
@@ -173,19 +194,22 @@ export const CustomerList = () => {
       key: 'name',
       header: 'Customer Name',
       align: 'left',
-      width: '25%',
+      width: '35%',
       sortable: true,
       render: (c) => (
         <Group gap="xs" wrap="nowrap">
-          <ThemeIcon variant="light" color="violet" size="sm">
+          <ThemeIcon variant="light" size="sm">
             <IconUser size={14} />
           </ThemeIcon>
           <div>
             <Text size="sm" fw={700}>
-              {c.name ||
-                (c as unknown as Record<string, string>).customerName ||
-                'Unnamed Customer'}
+              {c.name || 'Unnamed Customer'}
             </Text>
+            {c.contactPerson ? (
+              <Text size="xs" c="dimmed">
+                Contact: {c.contactPerson}
+              </Text>
+            ) : null}
           </div>
         </Group>
       ),
@@ -194,29 +218,21 @@ export const CustomerList = () => {
       key: 'primaryPhone',
       header: 'Phone',
       align: 'left',
-      width: '20%',
+      width: '25%',
       sortable: true,
       render: (c) => (
-        <PhoneDisplay
-          primaryPhone={
-            c.primaryPhone ||
-            (c as unknown as Record<string, string>).phone ||
-            (c as unknown as Record<string, string>).contactPhone ||
-            ''
-          }
-          secondaryPhone={c.secondaryPhone}
-        />
+        <PhoneDisplay primaryPhone={c.primaryPhone} secondaryPhone={c.secondaryPhone} />
       ),
     },
     {
       key: 'outstandingBalanceCents',
       header: 'Balance Due',
       align: 'right',
-      width: '18%',
+      width: '20%',
       sortable: true,
       render: (c) => (
-        <Text size="sm" fw={700} c={c.outstandingBalanceCents > 0 ? 'red' : 'green'} ta="right">
-          {formatMoney(c.outstandingBalanceCents)}
+        <Text size="sm" fw={700} c={c.outstandingBalanceCents > 0 ? 'red' : 'teal'} ta="right">
+          {formatMoney(c.outstandingBalanceCents || 0)}
         </Text>
       ),
     },
@@ -224,42 +240,12 @@ export const CustomerList = () => {
       key: 'totalPurchasesCents',
       header: 'Total Spent',
       align: 'right',
-      width: '18%',
+      width: '20%',
       sortable: true,
       render: (c) => (
         <Text size="sm" fw={600} ta="right">
-          {formatMoney(c.totalPurchasesCents)}
+          {formatMoney(c.totalPurchasesCents || 0)}
         </Text>
-      ),
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      align: 'right',
-      width: '19%',
-      sortable: false,
-      render: (c) => (
-        <Group gap={4} justify="flex-end" onClick={(e) => e.stopPropagation()}>
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            onClick={() => setSelectedCustomerForDrawer(c)}
-          >
-            <IconEye size={16} />
-          </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            color="blue"
-            size="sm"
-            onClick={() => handleOpenEditModal(c)}
-          >
-            <IconEdit size={16} />
-          </ActionIcon>
-          <ActionIcon variant="subtle" color="red" size="sm" onClick={() => setCustomerToDelete(c)}>
-            <IconTrash size={16} />
-          </ActionIcon>
-        </Group>
       ),
     },
   ];
@@ -267,13 +253,13 @@ export const CustomerList = () => {
   const kpiCards = (
     <Grid>
       <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
+        <Card padding="sm">
           <Group justify="space-between">
             <div>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Total Registered Clients
               </Text>
-              {isCustomersLoading ? (
+              {isLoading ? (
                 <Skeleton height={28} width={60} mt={4} />
               ) : (
                 <Text fw={800} size="xl">
@@ -281,7 +267,7 @@ export const CustomerList = () => {
                 </Text>
               )}
             </div>
-            <ThemeIcon variant="light" color="violet" size="lg">
+            <ThemeIcon variant="light" size="lg">
               <IconUsers size={22} />
             </ThemeIcon>
           </Group>
@@ -289,21 +275,21 @@ export const CustomerList = () => {
       </Grid.Col>
 
       <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
+        <Card padding="sm">
           <Group justify="space-between">
             <div>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Total Balance Due
               </Text>
-              {isCustomersLoading ? (
+              {isLoading ? (
                 <Skeleton height={28} width={100} mt={4} />
               ) : (
-                <Text fw={800} size="xl" c={totalBalanceDue > 0 ? 'red' : 'green'}>
+                <Text fw={800} size="xl" c={totalBalanceDue > 0 ? 'red' : 'teal'}>
                   {formatMoney(totalBalanceDue)}
                 </Text>
               )}
             </div>
-            <ThemeIcon variant="light" color={totalBalanceDue > 0 ? 'red' : 'green'} size="lg">
+            <ThemeIcon variant="light" color={totalBalanceDue > 0 ? 'red' : 'teal'} size="lg">
               <IconReceipt size={22} />
             </ThemeIcon>
           </Group>
@@ -311,21 +297,21 @@ export const CustomerList = () => {
       </Grid.Col>
 
       <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
+        <Card padding="sm">
           <Group justify="space-between">
             <div>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Corporate Accounts
+                Active Debtors
               </Text>
-              {isCustomersLoading ? (
+              {isLoading ? (
                 <Skeleton height={28} width={50} mt={4} />
               ) : (
-                <Text fw={800} size="xl">
-                  {corporateAccountsCount}
+                <Text fw={800} size="xl" c={activeDebtorsCount > 0 ? 'red' : 'dimmed'}>
+                  {activeDebtorsCount}
                 </Text>
               )}
             </div>
-            <ThemeIcon variant="light" color="violet" size="lg">
+            <ThemeIcon variant="light" size="lg">
               <IconTag size={22} />
             </ThemeIcon>
           </Group>
@@ -340,11 +326,7 @@ export const CustomerList = () => {
         title="Customer Directory"
         description="Client database, purchase histories, and credit balances"
         action={
-          <Button
-            leftSection={<IconUserPlus size={16} />}
-            color="violet"
-            onClick={handleOpenAddModal}
-          >
+          <Button leftSection={<IconUserPlus size={16} />} onClick={handleOpenAddModal}>
             Add New Customer
           </Button>
         }
@@ -352,7 +334,7 @@ export const CustomerList = () => {
         search={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search customers by name, phone, address..."
-        filterTags={PRESET_CUSTOMER_TAGS as unknown as string[]}
+        filterTags={availableTags}
         selectedTag={selectedTag}
         onSelectTag={setSelectedTag}
         viewMode={viewMode}
@@ -365,13 +347,13 @@ export const CustomerList = () => {
             keyExtractor={(c) => c.id}
             loading={isLoading}
             onRowClick={(c) => setSelectedCustomerForDrawer(c)}
-            onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
+            onDeleteSelected={handleBatchDelete}
           />
         ) : isLoading ? (
           <Grid gap="md">
             {Array.from({ length: 6 }, (_, i) => (
               <Grid.Col key={`cust-skel-${i}`} span={{ base: 12, sm: 6, lg: 4 }}>
-                <Card withBorder p="md" style={{ height: '100%' }}>
+                <Card p="md" style={{ height: '100%' }}>
                   <Stack justify="space-between" style={{ height: '100%' }} gap="md">
                     <div>
                       <Group justify="space-between" align="flex-start" mb="xs">
@@ -427,12 +409,7 @@ export const CustomerList = () => {
                     <div>
                       <Group justify="space-between" align="flex-start" wrap="nowrap" mb="xs">
                         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-                          <Avatar
-                            color={getAvatarColor(cust.name)}
-                            radius="var(--mantine-radius-default)"
-                            size="md"
-                            fw={700}
-                          >
+                          <Avatar color={getAvatarColor(cust.name)} size="md" fw={700}>
                             {getInitials(cust.name)}
                           </Avatar>
                           <div style={{ minWidth: 0, flex: 1 }}>
@@ -440,7 +417,7 @@ export const CustomerList = () => {
                               {cust.name || 'Unnamed Customer'}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              Lifetime Purchases: {formatMoney(cust.totalPurchasesCents)}
+                              Lifetime Purchases: {formatMoney(cust.totalPurchasesCents || 0)}
                             </Text>
                           </div>
                         </Group>
@@ -451,7 +428,7 @@ export const CustomerList = () => {
                             Due: {formatMoney(cust.outstandingBalanceCents)}
                           </Badge>
                         ) : (
-                          <Badge color="green" variant="light" size="sm" style={{ flexShrink: 0 }}>
+                          <Badge color="teal" variant="light" size="sm" style={{ flexShrink: 0 }}>
                             Clear Balance
                           </Badge>
                         )}
@@ -476,7 +453,7 @@ export const CustomerList = () => {
                     >
                       <Text
                         size="xs"
-                        c="blue"
+                        c="var(--mantine-primary-color-filled)"
                         fw={600}
                         style={{ cursor: 'pointer' }}
                         onClick={() => setSelectedCustomerForDrawer(cust)}
@@ -485,17 +462,16 @@ export const CustomerList = () => {
                       </Text>
 
                       <Group gap="xs">
-                        <Tooltip label="Edit Customer" withArrow>
+                        <Tooltip label="Edit Customer">
                           <ActionIcon
                             variant="subtle"
-                            color="blue"
                             onClick={() => handleOpenEditModal(cust)}
                             aria-label="Edit Customer"
                           >
                             <IconEdit size={16} />
                           </ActionIcon>
                         </Tooltip>
-                        <Tooltip label="Delete Customer" withArrow>
+                        <Tooltip label="Delete Customer">
                           <ActionIcon
                             variant="subtle"
                             color="red"
@@ -521,6 +497,7 @@ export const CustomerList = () => {
         onClose={() => setFormModalOpen(false)}
         onSubmit={handleFormSubmit}
         customerToEdit={customerToEdit}
+        loading={createMutation.isPending || updateMutation.isPending}
       />
 
       {/* Detail Drawer */}

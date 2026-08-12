@@ -1,4 +1,4 @@
-import { Stack, Group, Text, Badge, Paper, Divider, Button, ThemeIcon } from '@mantine/core';
+import { Stack, Group, Text, Badge, Paper, Divider, Button, ThemeIcon, Alert } from '@mantine/core';
 import {
   IconUser,
   IconMapPin,
@@ -7,6 +7,7 @@ import {
   IconEdit,
   IconTrash,
   IconCalendar,
+  IconAlertCircle,
 } from '@tabler/icons-react';
 import { Customer } from '../types';
 import { formatDateTime } from '@/shared/lib/date';
@@ -36,12 +37,7 @@ export const CustomerDetailDrawer = ({
       onClose={onClose}
       title={
         <Group gap="xs">
-          <ThemeIcon
-            color="violet"
-            variant="light"
-            size="lg"
-            radius="var(--mantine-radius-default)"
-          >
+          <ThemeIcon variant="light" size="lg">
             <IconUser size={20} />
           </ThemeIcon>
           <div>
@@ -58,46 +54,56 @@ export const CustomerDetailDrawer = ({
       {(c) => (
         <Stack gap="md" pt="xs">
           {/* Header Banner */}
-          <Paper
-            p="md"
-            radius="var(--mantine-radius-default)"
-            withBorder
-            bg="var(--mantine-color-body)"
-          >
+          <Paper p="md" bg="var(--mantine-color-body)">
             <Text fw={800} size="lg" mb={4}>
               {c.name}
             </Text>
-            <Group gap="xs" mb="xs">
-              <IconUser size={16} style={{ color: 'var(--mantine-color-violet-6)' }} />
-              <Text size="sm" fw={600} c="violet">
-                {c.contactPerson}
-              </Text>
-              <Text size="xs" c="dimmed">
-                (Primary Contact)
-              </Text>
-            </Group>
-            {c.email && (
+            {c.contactPerson ? (
+              <Group gap="xs" mb="xs">
+                <IconUser size={16} />
+                <Text size="sm" fw={600}>
+                  {c.contactPerson}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  (Primary Contact)
+                </Text>
+              </Group>
+            ) : null}
+            {c.email ? (
               <Group gap="xs">
                 <IconMail size={14} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
                   {c.email}
                 </Text>
               </Group>
-            )}
+            ) : null}
           </Paper>
+
+          {/* Debt Alert if customer owes balance */}
+          {c.outstandingBalanceCents > 0 && (
+            <Alert
+              icon={<IconAlertCircle size={16} />}
+              title="Outstanding Balance Alert"
+              color="red"
+            >
+              This client has an outstanding balance of{' '}
+              <strong>{formatMoney(c.outstandingBalanceCents)}</strong>. Outstanding debt must be
+              settled before this profile can be deleted.
+            </Alert>
+          )}
 
           {/* Financial Summary */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
             Financial & Account Volume
           </Text>
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+          <Paper p="sm">
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed">
                   Total Purchases
                 </Text>
                 <Text fw={800} size="md">
-                  {formatMoney(c.totalPurchasesCents)}
+                  {formatMoney(c.totalPurchasesCents || 0)}
                 </Text>
               </div>
               <div>
@@ -105,12 +111,11 @@ export const CustomerDetailDrawer = ({
                   Balance Due
                 </Text>
                 <Badge
-                  color={c.outstandingBalanceCents > 0 ? 'red' : 'green'}
+                  color={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}
                   variant="light"
                   size="md"
-                  radius="var(--mantine-radius-default)"
                 >
-                  {formatMoney(c.outstandingBalanceCents)}
+                  {formatMoney(c.outstandingBalanceCents || 0)}
                 </Badge>
               </div>
             </Group>
@@ -120,7 +125,7 @@ export const CustomerDetailDrawer = ({
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
             Contact Phone Numbers
           </Text>
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+          <Paper p="sm">
             <PhoneDisplay
               primaryPhone={c.primaryPhone}
               secondaryPhone={c.secondaryPhone}
@@ -129,40 +134,42 @@ export const CustomerDetailDrawer = ({
           </Paper>
 
           {/* Address */}
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Physical Location / Address
-          </Text>
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-            <Group gap="xs" align="flex-start">
-              <IconMapPin size={18} style={{ color: 'var(--mantine-color-red-6)', marginTop: 2 }} />
-              <div>
-                <Text size="sm" fw={500}>
-                  {c.address}
-                </Text>
-              </div>
-            </Group>
-          </Paper>
+          {c.address ? (
+            <>
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                Physical Location / Address
+              </Text>
+              <Paper p="sm">
+                <Group gap="xs" align="flex-start">
+                  <IconMapPin size={18} style={{ color: 'var(--status-error)', marginTop: 2 }} />
+                  <div>
+                    <Text size="sm" fw={500}>
+                      {c.address}
+                    </Text>
+                  </div>
+                </Group>
+              </Paper>
+            </>
+          ) : null}
 
           {/* Customer Tags */}
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Account Type & Tags
-          </Text>
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-            <Group gap={6}>
-              <IconTag size={16} style={{ opacity: 0.6 }} />
-              {c.tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  color="violet"
-                  variant="light"
-                  size="sm"
-                  radius="var(--mantine-radius-default)"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </Group>
-          </Paper>
+          {c.tags && c.tags.length > 0 ? (
+            <>
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                Account Type & Tags
+              </Text>
+              <Paper p="sm">
+                <Group gap={6}>
+                  <IconTag size={16} style={{ opacity: 0.6 }} />
+                  {c.tags.map((tag) => (
+                    <Badge key={tag} variant="light" size="sm">
+                      {tag}
+                    </Badge>
+                  ))}
+                </Group>
+              </Paper>
+            </>
+          ) : null}
 
           {/* Notes */}
           {c.notes && (
@@ -170,12 +177,7 @@ export const CustomerDetailDrawer = ({
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 Notes & Client Preferences
               </Text>
-              <Paper
-                p="sm"
-                withBorder
-                radius="var(--mantine-radius-default)"
-                style={{ backgroundColor: 'var(--mantine-color-body)' }}
-              >
+              <Paper p="sm" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
                 <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
                   {c.notes}
                 </Text>
@@ -230,12 +232,7 @@ export const CustomerDetailDrawer = ({
               <Button variant="default" size="sm" onClick={onClose}>
                 Close
               </Button>
-              <Button
-                color="violet"
-                size="sm"
-                leftSection={<IconEdit size={16} />}
-                onClick={() => onEdit(c)}
-              >
+              <Button size="sm" leftSection={<IconEdit size={16} />} onClick={() => onEdit(c)}>
                 Edit Details
               </Button>
             </Group>

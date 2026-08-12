@@ -23,11 +23,9 @@ import {
   IconPlus,
   IconUserPlus,
 } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
-import { queryKeys } from '@/api/queryKeys';
-import { fetchCustomers, createCustomer } from '../api/mockCustomers';
+import { useAllCustomers, useCreateCustomer } from '../hooks/useCustomers';
 import { Customer } from '../types';
 import { formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -51,13 +49,11 @@ export const CustomerPickerModal = ({
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
 
-  const queryClient = useQueryClient();
-
-  const { data: customers = [], isLoading } = useQuery({
-    queryKey: queryKeys.customers.all,
-    queryFn: fetchCustomers,
+  const { data: customers = [], isLoading } = useAllCustomers({
     enabled: opened,
   });
+
+  const createCustomerMutation = useCreateCustomer();
 
   // Phone search priority matching
   const filtered = useMemo(() => {
@@ -82,7 +78,10 @@ export const CustomerPickerModal = ({
   }, [customers, search]);
 
   const handleCreateQuickCustomer = async () => {
-    if (!newName.trim() || !newPhone.trim()) {
+    const trimmedName = newName.trim();
+    const trimmedPhone = newPhone.trim();
+
+    if (!trimmedName || !trimmedPhone) {
       notifications.show({
         title: 'Validation Error',
         message: 'Customer name and phone number are required',
@@ -91,22 +90,27 @@ export const CustomerPickerModal = ({
       return;
     }
 
+    if (trimmedName.length < 2) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Customer name must be at least 2 characters',
+        color: 'red',
+      });
+      return;
+    }
+
     try {
-      const created = await createCustomer({
-        name: newName.trim(),
-        contactPerson: newName.trim(),
-        primaryPhone: newPhone.trim(),
-        address: 'Walk-in / POS counter',
+      const created = await createCustomerMutation.mutateAsync({
+        name: trimmedName,
+        primaryPhone: trimmedPhone,
         tags: ['POS Retail'],
       });
-
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
 
       onSelectCustomer(created);
       notifications.show({
         title: 'Customer Created',
         message: `Attached ${created.name} (${created.primaryPhone})`,
-        color: 'green',
+        color: 'teal',
       });
 
       // Reset inline form
@@ -134,7 +138,7 @@ export const CustomerPickerModal = ({
       }}
       title={
         <Group gap="sm" align="center">
-          <ThemeIcon size={40} color="blue" variant="light">
+          <ThemeIcon size={40} variant="light">
             <IconUser size={22} />
           </ThemeIcon>
           <Box>
@@ -156,8 +160,8 @@ export const CustomerPickerModal = ({
         px={isMobile ? 'sm' : 'lg'}
         py="md"
         style={{
-          borderTop: '1px solid var(--mantine-color-default-border)',
-          borderBottom: '1px solid var(--mantine-color-default-border)',
+          borderTop: '1px solid var(--border)',
+          borderBottom: '1px solid var(--border)',
         }}
       >
         <Group justify="space-between" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
@@ -167,7 +171,7 @@ export const CustomerPickerModal = ({
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
             style={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
-            /* Autofocusing raises the soft keyboard over the very list being searched. */
+            /* Autofocusing raises the soft keyboard over the very list being searched on mobile. */
             autoFocus={!isMobile}
           />
           <Group gap="xs" wrap="nowrap">
@@ -186,7 +190,6 @@ export const CustomerPickerModal = ({
             )}
             <Button
               variant="light"
-              color="blue"
               size="xs"
               leftSection={<IconUserPlus size={14} />}
               onClick={() => {
@@ -208,9 +211,9 @@ export const CustomerPickerModal = ({
 
       <Box p="lg">
         {isCreatingInline ? (
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-hover)' }}>
+          <Paper p="md" style={{ backgroundColor: 'var(--bg-hover)' }}>
             <Stack gap="xs">
-              <Text size="xs" fw={700} c="blue">
+              <Text size="xs" fw={700} c="var(--mantine-primary-color-filled)">
                 MINIMAL NEW CUSTOMER ENTRY
               </Text>
               <TextInput
@@ -237,7 +240,11 @@ export const CustomerPickerModal = ({
                 >
                   Cancel
                 </Button>
-                <Button size="xs" color="blue" onClick={handleCreateQuickCustomer}>
+                <Button
+                  size="xs"
+                  loading={createCustomerMutation.isPending}
+                  onClick={handleCreateQuickCustomer}
+                >
                   Save & Attach Customer
                 </Button>
               </Group>
@@ -252,7 +259,7 @@ export const CustomerPickerModal = ({
             <Stack gap="sm">
               {isLoading ? (
                 Array.from({ length: 4 }, (_, i) => (
-                  <Paper key={`cust-skel-${i}`} p="md" withBorder>
+                  <Paper key={`cust-skel-${i}`} p="md">
                     <Group justify="space-between" align="center">
                       <Group gap="md">
                         <Skeleton height={36} width={36} circle />
@@ -280,15 +287,14 @@ export const CustomerPickerModal = ({
                     <Paper
                       key={cust.id}
                       p="md"
-                      withBorder
                       style={{
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                         borderColor: isSelected
-                          ? 'var(--mantine-color-blue-6)'
-                          : 'var(--mantine-color-default-border)',
+                          ? 'var(--mantine-primary-color-filled)'
+                          : 'var(--border)',
                         backgroundColor: isSelected
-                          ? 'var(--mantine-color-blue-light)'
+                          ? 'var(--mantine-primary-color-light)'
                           : 'var(--bg-card)',
                       }}
                       onClick={() => {
@@ -305,7 +311,6 @@ export const CustomerPickerModal = ({
                         >
                           <ThemeIcon
                             size={48}
-                            color="blue"
                             variant="light"
                             style={{ minWidth: 48, flexShrink: 0 }}
                           >
@@ -343,13 +348,12 @@ export const CustomerPickerModal = ({
                           }}
                         >
                           {isSelected ? (
-                            <ActionIcon color="blue" variant="filled" radius="xl" size="sm">
+                            <ActionIcon variant="filled" radius="xl" size="sm">
                               <IconCheck size={14} />
                             </ActionIcon>
                           ) : (
                             <Button
                               size="xs"
-                              color="blue"
                               leftSection={<IconPlus size={14} />}
                               fw={600}
                               fullWidth

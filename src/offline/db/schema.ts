@@ -1,4 +1,5 @@
 import Dexie, { Table } from 'dexie';
+import type { Customer } from '@/features/customers/types';
 import type { Category, Product, StockMovement } from '@/features/inventory/types';
 import type { StockPurchase } from '@/features/purchases/types';
 import type { SupplierProduct } from '@/features/supplier-products/types';
@@ -34,6 +35,7 @@ export class OfflineDb extends Dexie {
   purchases!: Table<MirroredRow<StockPurchase>, string>;
   /** Read-only mirror — the server is the sole writer of stock movements. */
   stockMovements!: Table<MirroredRow<StockMovement>, string>;
+  customers!: Table<MirroredRow<Customer>, string>;
 
   // Engine tables
   outbox!: Table<OutboxOp, number>;
@@ -80,6 +82,11 @@ export class OfflineDb extends Dexie {
     this.version(2).stores({
       stockMovements: 'id, key, productId, createdAt, [productId+createdAt], _pending, _isDeleted',
     });
+
+    // v3 adds the customers mirror table.
+    this.version(3).stores({
+      customers: 'id, key, name, primaryPhone, _pending, _isDeleted, updatedAt, *tags',
+    });
   }
 }
 
@@ -93,6 +100,7 @@ export const MIRROR_TABLE_NAMES = [
   'supplierProducts',
   'purchases',
   'stockMovements',
+  'customers',
 ] as const;
 
 export type MirrorTableName = (typeof MIRROR_TABLE_NAMES)[number];

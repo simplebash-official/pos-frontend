@@ -13,7 +13,13 @@ import type { MirroredRow, OutboxOp } from './db/tables';
 
 /** Every resource the engine knows about. Also the Dexie table name and syncMeta key. */
 export type SyncResourceId =
-  'categories' | 'suppliers' | 'products' | 'supplierProducts' | 'purchases' | 'stockMovements';
+  | 'categories'
+  | 'suppliers'
+  | 'products'
+  | 'supplierProducts'
+  | 'purchases'
+  | 'stockMovements'
+  | 'customers';
 
 // ---------------------------------------------------------------------------
 // Pull

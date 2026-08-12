@@ -1,5 +1,6 @@
 import { registerSyncResource } from '../registry/registry';
 import { categoriesResource } from './categories.resource';
+import { customersResource } from './customers.resource';
 import { productsResource } from './products.resource';
 import { purchasesResource } from './purchases.resource';
 import { stockMovementsResource } from './stockMovements.resource';
@@ -28,6 +29,7 @@ export const registerSyncResources = (): void => {
   // Order here is irrelevant — the registry topologically sorts by `dependsOn`.
   registerSyncResource(categoriesResource);
   registerSyncResource(suppliersResource);
+  registerSyncResource(customersResource);
   registerSyncResource(productsResource);
   registerSyncResource(supplierProductsResource);
   registerSyncResource(purchasesResource);

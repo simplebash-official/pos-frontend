@@ -22,8 +22,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
-import { fetchProducts } from '@/features/inventory/api/productsApi';
-import { fetchCustomers } from '@/features/customers/api/mockCustomers';
+import { db } from '@/offline/db/schema';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
@@ -52,8 +51,8 @@ export const GlobalQuickSearchModal = () => {
   // Fetch data when modal opens
   useEffect(() => {
     if (opened) {
-      fetchProducts({ limit: 500 }).then((res) => setProducts(res.items));
-      fetchCustomers().then(setCustomers);
+      db.products.where('_isDeleted').equals(0).toArray().then(setProducts);
+      db.customers.where('_isDeleted').equals(0).toArray().then(setCustomers);
       fetchRepairs().then(setRepairs);
       fetchPrintJobs().then(setPrintJobs);
     }

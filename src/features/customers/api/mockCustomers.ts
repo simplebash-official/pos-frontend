@@ -1,13 +1,12 @@
 import { Customer, CustomerInput } from '../types';
-import { INITIAL_CUSTOMERS } from './data';
 import { LocalStorageStore } from '@/shared/lib/localStorageStore';
-
-export { INITIAL_CUSTOMERS };
 
 export const normalizeCustomer = (rawInput: unknown): Customer => {
   const raw = (rawInput && typeof rawInput === 'object' ? rawInput : {}) as Record<string, unknown>;
+  const id = typeof raw.id === 'string' ? raw.id : `cust-${Date.now()}`;
   return {
-    id: typeof raw.id === 'string' ? raw.id : `cust-${Date.now()}`,
+    id,
+    key: typeof raw.key === 'string' ? raw.key : id,
     name: String(raw.name || raw.customerName || 'Unnamed Customer'),
     contactPerson: String(raw.contactPerson || raw.name || raw.customerName || 'N/A'),
     primaryPhone: String(raw.primaryPhone || raw.phone || raw.contactPhone || ''),
@@ -25,7 +24,7 @@ export const normalizeCustomer = (rawInput: unknown): Customer => {
 
 export const customersStore = new LocalStorageStore<Customer>(
   'pos_customers',
-  INITIAL_CUSTOMERS,
+  [],
   normalizeCustomer
 );
 
