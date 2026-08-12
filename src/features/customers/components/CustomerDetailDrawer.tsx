@@ -102,43 +102,45 @@ export const CustomerDetailDrawer = ({
       {(c) => (
         <Stack gap="md" pt="xs">
           {/* Title Banner */}
-          <Paper bg="var(--mantine-color-body)">
-            <Group justify="space-between" align="flex-start" mb="xs">
-              <Badge color="blue" variant="filled" size="sm">
-                {c.tags?.[0] || 'Standard Customer'}
-              </Badge>
+          <Paper
+            p="md"
+            withBorder
+            radius="var(--mantine-radius-default)"
+            bg="var(--mantine-color-body)"
+          >
+            <Group justify="space-between" align="flex-start" wrap="nowrap" mb={4}>
+              <Text fw={800} size="lg" style={{ wordBreak: 'break-word', flex: 1, minWidth: 0 }}>
+                {c.name || 'Unnamed Customer'}
+              </Text>
+
               <Badge
-                color={c.outstandingBalanceCents > 0 ? 'red' : 'green'}
+                color={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}
                 variant="light"
                 size="sm"
+                style={{ flexShrink: 0 }}
               >
                 {c.outstandingBalanceCents > 0 ? 'Outstanding Due' : 'In Good Standing'}
               </Badge>
             </Group>
 
-            <Text fw={800} size="lg" mb="xs">
-              {c.name || 'Unnamed Customer'}
-            </Text>
+            {c.contactPerson ? (
+              <Text size="xs" c="dimmed" mb={c.tags && c.tags.length > 0 ? 'xs' : 0}>
+                Primary Contact:{' '}
+                <Text component="span" fw={600} c="var(--text-primary)">
+                  {c.contactPerson}
+                </Text>
+              </Text>
+            ) : null}
 
-            <Group gap="xs">
-              {c.contactPerson ? (
-                <Badge color="gray" variant="outline" size="xs">
-                  Contact: {c.contactPerson}
-                </Badge>
-              ) : null}
-              {c.tags && c.tags.length > 1
-                ? c.tags.slice(1).map((tag) => (
-                    <Badge key={tag} color="blue" variant="light" size="xs">
-                      {tag}
-                    </Badge>
-                  ))
-                : null}
-              {c.email ? (
-                <Badge color="gray" variant="light" size="xs">
-                  {c.email}
-                </Badge>
-              ) : null}
-            </Group>
+            {c.tags && c.tags.length > 0 && (
+              <Group gap={6} wrap="wrap">
+                {c.tags.map((tag) => (
+                  <Badge key={tag} color="blue" variant="light" size="xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </Group>
+            )}
           </Paper>
 
           {/* Financial Snapshot */}
