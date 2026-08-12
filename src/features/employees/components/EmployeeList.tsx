@@ -23,6 +23,8 @@ import {
   IconTrash,
   IconEye,
   IconCheck,
+  IconTools,
+  IconUsers,
 } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -275,6 +277,18 @@ export const EmployeeList = () => {
     },
   ];
 
+  const technicalStaffCount = useMemo(() => {
+    return employees.filter(
+      (e) => (e.role === 'technician' || e.role === 'printer') && e.status === 'active'
+    ).length;
+  }, [employees]);
+
+  const salesStaffCount = useMemo(() => {
+    return employees.filter(
+      (e) => (e.role === 'sales' || e.role === 'general') && e.status === 'active'
+    ).length;
+  }, [employees]);
+
   const kpiCards = (
     <Grid>
       <Grid.Col span={{ base: 12, sm: 4 }}>
@@ -294,6 +308,50 @@ export const EmployeeList = () => {
             </div>
             <ThemeIcon variant="light" color="indigo" size="lg">
               <IconUserCheck size={22} />
+            </ThemeIcon>
+          </Group>
+        </Card>
+      </Grid.Col>
+
+      <Grid.Col span={{ base: 12, sm: 4 }}>
+        <Card withBorder padding="sm">
+          <Group justify="space-between">
+            <div>
+              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                Technicians & Printers
+              </Text>
+              {isEmployeesLoading ? (
+                <Skeleton height={28} width={60} mt={4} />
+              ) : (
+                <Text fw={800} size="xl" c="teal">
+                  {technicalStaffCount}
+                </Text>
+              )}
+            </div>
+            <ThemeIcon variant="light" color="teal" size="lg">
+              <IconTools size={22} />
+            </ThemeIcon>
+          </Group>
+        </Card>
+      </Grid.Col>
+
+      <Grid.Col span={{ base: 12, sm: 4 }}>
+        <Card withBorder padding="sm">
+          <Group justify="space-between">
+            <div>
+              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                Sales & Service Staff
+              </Text>
+              {isEmployeesLoading ? (
+                <Skeleton height={28} width={60} mt={4} />
+              ) : (
+                <Text fw={800} size="xl" c="blue">
+                  {salesStaffCount}
+                </Text>
+              )}
+            </div>
+            <ThemeIcon variant="light" color="blue" size="lg">
+              <IconUsers size={22} />
             </ThemeIcon>
           </Group>
         </Card>

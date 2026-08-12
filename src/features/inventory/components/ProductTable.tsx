@@ -1609,11 +1609,11 @@ export const ProductTable = () => {
                 <Group gap="xs">
                   <IconTag size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Item Internal ID
+                    Item Key
                   </Text>
                 </Group>
                 <Text size="xs" fw={600} c="dimmed">
-                  {selectedProduct.id}
+                  {selectedProduct.key}
                 </Text>
               </Group>
             </Stack>

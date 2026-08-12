@@ -446,11 +446,11 @@ export const CustomerDetailDrawer = ({
               <Group gap="xs">
                 <IconTag size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Client Internal ID
+                  Client Key
                 </Text>
               </Group>
               <Text size="xs" fw={600} c="dimmed">
-                {c.id}
+                {c.key}
               </Text>
             </Group>
           </Stack>

@@ -441,6 +441,18 @@ export const SupplierDetailDrawer = ({
                   {formatDateTime(sup.updatedAt)}
                 </Text>
               </Group>
+
+              <Group justify="space-between">
+                <Group gap="xs">
+                  <IconTag size={14} style={{ opacity: 0.6 }} />
+                  <Text size="xs" c="dimmed">
+                    Supplier Key
+                  </Text>
+                </Group>
+                <Text size="xs" fw={600} c="dimmed">
+                  {sup.key}
+                </Text>
+              </Group>
             </Stack>
 
             <Divider my="xs" />

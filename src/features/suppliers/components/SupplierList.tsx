@@ -21,6 +21,8 @@ import {
   IconTrash,
   IconCheck,
   IconTruckDelivery,
+  IconTags,
+  IconUserCheck,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { EntityListPage } from '@/shared/components/EntityListPage';
@@ -227,6 +229,10 @@ export const SupplierList = () => {
     },
   ];
 
+  const contactPersonsCount = useMemo(() => {
+    return suppliers.filter((s) => Boolean(s.contactPerson && s.contactPerson.trim())).length;
+  }, [suppliers]);
+
   const kpiCards = (
     <Grid>
       <Grid.Col span={{ base: 12, sm: 4 }}>
@@ -246,6 +252,50 @@ export const SupplierList = () => {
             </div>
             <ThemeIcon variant="light" color="blue" size="lg">
               <IconTruckDelivery size={22} />
+            </ThemeIcon>
+          </Group>
+        </Card>
+      </Grid.Col>
+
+      <Grid.Col span={{ base: 12, sm: 4 }}>
+        <Card withBorder padding="sm">
+          <Group justify="space-between">
+            <div>
+              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                Supply Categories
+              </Text>
+              {isSuppliersLoading ? (
+                <Skeleton height={28} width={60} mt={4} />
+              ) : (
+                <Text fw={800} size="xl" c="teal">
+                  {allSupplyTags.length}
+                </Text>
+              )}
+            </div>
+            <ThemeIcon variant="light" color="teal" size="lg">
+              <IconTags size={22} />
+            </ThemeIcon>
+          </Group>
+        </Card>
+      </Grid.Col>
+
+      <Grid.Col span={{ base: 12, sm: 4 }}>
+        <Card withBorder padding="sm">
+          <Group justify="space-between">
+            <div>
+              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                Direct Contacts
+              </Text>
+              {isSuppliersLoading ? (
+                <Skeleton height={28} width={60} mt={4} />
+              ) : (
+                <Text fw={800} size="xl" c="indigo">
+                  {contactPersonsCount}
+                </Text>
+              )}
+            </div>
+            <ThemeIcon variant="light" color="indigo" size="lg">
+              <IconUserCheck size={22} />
             </ThemeIcon>
           </Group>
         </Card>
