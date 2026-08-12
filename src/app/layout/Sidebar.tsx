@@ -20,6 +20,7 @@ import { ROUTES } from '@/constants/routes';
 import { USER_ROLES } from '@/constants/roles';
 import { useLowStockProducts } from '@/features/inventory/hooks/useProducts';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout, selectUserRole } from '@/store/slices/authSlice';
 
@@ -39,6 +40,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
 
   const { data: lowStockProducts } = useLowStockProducts();
   const lowStockCount = lowStockProducts.length;
+  const isMobile = useIsMobile();
 
   const visibleNavItems = useMemo(
     () => NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin),
@@ -128,7 +130,12 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   }
 
   return (
-    <Stack h="100%" justify="space-between" p="sm">
+    <Stack
+      h="100%"
+      justify={isMobile ? 'flex-start' : 'space-between'}
+      p={isMobile ? 'md' : 'sm'}
+      style={{ overflowY: 'auto' }}
+    >
       <Stack gap="xs">
         <Text size="xs" fw={700} c="dimmed" tt="uppercase" px="sm" pt="xs">
           Feature Domains
@@ -162,7 +169,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
         })}
       </Stack>
 
-      <Stack gap="xs">
+      <Stack gap="xs" mt={isMobile ? 'xl' : 0}>
         <Divider my="xs" />
         <Paper>
           <Stack gap="xs">
