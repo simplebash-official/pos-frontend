@@ -19,6 +19,12 @@ export const HEALTH_PROBE_INTERVAL_ONLINE_MS = 30_000;
 export const HEALTH_PROBE_BACKOFF_MS = [1_000, 2_000, 4_000, 8_000, 30_000];
 /** Consecutive probe failures before we declare the app offline (avoids flapping on one blip). */
 export const OFFLINE_FAILURE_THRESHOLD = 2;
+/**
+ * Health-probe round trip above which the connection is reported as degraded
+ * rather than online. The probe does no database work, so anything this slow
+ * is the network, and sync will feel broken well before it actually fails.
+ */
+export const DEGRADED_LATENCY_MS = 2_000;
 /** How long a restored connection must hold before we announce it to the user. */
 export const ONLINE_SETTLE_MS = 3_000;
 

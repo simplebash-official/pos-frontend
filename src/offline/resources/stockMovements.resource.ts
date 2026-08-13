@@ -1,9 +1,8 @@
 import { queryKeys } from '@/api/queryKeys';
-import { fetchProductMovements } from '@/features/inventory/api/productsApi';
 import type { StockMovement } from '@/features/inventory/types';
 import { db } from '../db/schema';
 import { defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
+import { fetchResourceDelta, fetchResourceSnapshot } from './syncApi';
 
 /**
  * A read-only mirror. Stock movements are written entirely by the server — as
@@ -26,24 +25,11 @@ export const stockMovementsResource = defineSyncResource<StockMovement>({
   dependsOn: ['products'],
 
   pull: {
-    delta: deltaNotAvailable<StockMovement>('stockMovements'),
-    full: async () => {
-      const products = await db.products.where('_isDeleted').equals(0).toArray();
-      const collected: StockMovement[] = [];
-      for (const product of products) {
-        // Locally created products have no server-side history to fetch.
-        if (product._version === -1) {
-          continue;
-        }
-        try {
-          collected.push(...(await fetchProductMovements(product.id)));
-        } catch {
-          // One product's history failing must not abort the whole refresh.
-          continue;
-        }
-      }
-      return collected;
-    },
+    delta: (cursor, ctx) => fetchResourceDelta<StockMovement>('stockMovements', cursor, ctx.signal),
+    // Movements are addressable per product over REST, so the snapshot pages
+    // the sync endpoint instead of fanning out one request per mirrored
+    // product — see `purchases.resource.ts`.
+    full: (ctx) => fetchResourceSnapshot<StockMovement>('stockMovements', ctx.signal),
     intervalMs: 10 * 60_000,
   },
 

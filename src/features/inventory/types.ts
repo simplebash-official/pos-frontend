@@ -1,4 +1,6 @@
-export interface Subcategory {
+import type { SyncedEntityFields } from '@/shared/types/common';
+
+export interface Subcategory extends SyncedEntityFields {
   key: string;
   categoryKey: string;
   name: string;
@@ -6,7 +8,7 @@ export interface Subcategory {
   updatedAt: string;
 }
 
-export interface Category {
+export interface Category extends SyncedEntityFields {
   key: string;
   name: string;
   icon: string;
@@ -36,7 +38,7 @@ export interface ValidCategoryOption {
 
 export type BarcodeSource = 'generated' | 'manual';
 
-export interface Product {
+export interface Product extends SyncedEntityFields {
   id: string;
   key: string;
   name: string;
@@ -102,7 +104,7 @@ export interface StockAdjustmentResult {
 export type StockMovementType =
   'sale' | 'purchase_receipt' | 'repair_part_consumption' | 'manual_adjustment' | 'return' | string;
 
-export interface StockMovement {
+export interface StockMovement extends SyncedEntityFields {
   id: string;
   key: string;
   productId: string;

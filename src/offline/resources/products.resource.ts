@@ -10,9 +10,10 @@ import type { CreateProductInput, Product, UpdateProductInput } from '@/features
 import { db } from '../db/schema';
 import { markDeleted, markPending, toLocalRow } from '../db/mirror';
 import { appendStockDelta } from '../engine/stockLedger';
+import { BarcodeConflictError } from '../errors';
 import { defineOperation, defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
 import { pushOptions } from './pushOptions';
+import { fetchResourceDelta } from './syncApi';
 
 const ALL_PRODUCTS_PAGE_SIZE = 500;
 
@@ -47,14 +48,17 @@ export const productsResource = defineSyncResource<Product>({
   dependsOn: ['categories'],
 
   pull: {
-    delta: deltaNotAvailable<Product>('products'),
+    delta: (cursor, ctx) => fetchResourceDelta<Product>('products', cursor, ctx.signal),
     full: async () => {
       const collected: Product[] = [];
       let page = 1;
       for (;;) {
         const result = await fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE });
         collected.push(...result.items);
-        if (page >= result.totalPages || result.items.length === 0) {
+        // A short page means the last one, whatever the pagination metadata
+        // claims. Trusting `totalPages` alone loops forever if the server
+        // ever omits it — `page >= undefined` is false.
+        if (result.items.length < ALL_PRODUCTS_PAGE_SIZE || page >= result.totalPages) {
           break;
         }
         page += 1;
@@ -97,11 +101,11 @@ export const productsResource = defineSyncResource<Product>({
         if (input.barcode) {
           const clash = await db.products.where('barcode').equals(input.barcode).first();
           if (clash) {
-            throw {
-              message: `A product with barcode "${input.barcode}" already exists`,
-              code: 'BARCODE_ALREADY_EXISTS',
-              statusCode: 409,
-            };
+            // A real `Error` subclass, not a bare object literal: this is
+            // thrown inside a Dexie transaction, and Dexie's handling of
+            // non-Error rejections can restringify them — which would strip
+            // the `code` the form's 409 handling reads.
+            throw new BarcodeConflictError(input.barcode);
           }
         }
 
@@ -155,6 +159,7 @@ export const productsResource = defineSyncResource<Product>({
 
         return {
           serverEntity: created,
+          removesRows: false,
           identity: { serverKey: created.key, serverId: created.id },
           followUp: [...followUp],
         };
@@ -182,7 +187,7 @@ export const productsResource = defineSyncResource<Product>({
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.productKey, 'products');
         const updated = await updateProduct(id, payload.updates, pushOptions(ctx));
-        return { serverEntity: updated, identity: null, followUp: [] };
+        return { serverEntity: updated, removesRows: false, identity: null, followUp: [] };
       },
     }),
 
@@ -215,6 +220,9 @@ export const productsResource = defineSyncResource<Product>({
           serverEntity: row
             ? { ...row, stockQuantity: result.stockQuantity, updatedAt: result.updatedAt }
             : null,
+          // A missing local row means there is nothing to write back, not
+          // that the product was deleted.
+          removesRows: false,
           identity: null,
           followUp: [{ resource: 'stockMovements', scope: { productId: id } }],
         };
@@ -225,18 +233,23 @@ export const productsResource = defineSyncResource<Product>({
       references: [{ path: 'productKeys[]', target: 'products', kind: 'id', blocking: true }],
       describe: (payload) => `Delete ${payload.productKeys.length} product(s)`,
       localApply: async (payload, ctx) => {
+        const affectedKeys: string[] = [];
         for (const key of payload.productKeys) {
           const row = await db.products.get(key);
           if (row) {
             await db.products.put(markDeleted(row, ctx.now));
+            affectedKeys.push(key);
           }
         }
-        return { entity: null, entityKey: payload.productKeys[0] ?? '' };
+        // Every tombstoned row is reported, not just the first — the commit
+        // retires exactly what it is told about, and anything left out stays
+        // `_pending` forever and is skipped by every pull and refresh.
+        return { entity: null, entityKey: affectedKeys[0] ?? null, affectedKeys };
       },
       push: async (payload, _op, ctx) => {
         const ids = payload.productKeys.map((key) => ctx.resolveId(key, 'products'));
         await deleteProducts(ids, pushOptions(ctx));
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),
   },

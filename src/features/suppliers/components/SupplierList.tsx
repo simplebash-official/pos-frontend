@@ -40,7 +40,7 @@ import {
 } from '../hooks/useSuppliers';
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
-import { setLinksForSupplier } from '@/features/supplier-products/api/supplierProductsApi';
+import { useSetSupplierLinks } from '@/features/supplier-products';
 
 export const SupplierList = () => {
   const [search, setSearch] = useState('');
@@ -58,6 +58,7 @@ export const SupplierList = () => {
 
   const createMutation = useCreateSupplier();
   const updateMutation = useUpdateSupplier();
+  const setLinksMutation = useSetSupplierLinks();
   const deleteMutation = useDeleteSupplier();
   const deleteBatchMutation = useDeleteSuppliers();
 
@@ -100,9 +101,12 @@ export const SupplierList = () => {
         supplierKey: supplierToEdit.id,
         input: values,
       });
-      if (linkedProductKeys.length > 0) {
-        await setLinksForSupplier(supplierToEdit.key, linkedProductKeys);
-      }
+      // Queued rather than sent directly, so the links survive being saved
+      // while offline and are pushed after the supplier itself lands.
+      await setLinksMutation.mutateAsync({
+        supplierKey: supplierToEdit.key,
+        productKeys: linkedProductKeys,
+      });
       notifications.show({
         title: 'Supplier Updated',
         message: `Updated details for ${updated.name}`,
@@ -111,8 +115,11 @@ export const SupplierList = () => {
       });
     } else {
       const newSup = await createMutation.mutateAsync(values);
-      if (newSup?.key && linkedProductKeys.length > 0) {
-        await setLinksForSupplier(newSup.key, linkedProductKeys);
+      if (newSup?.key) {
+        await setLinksMutation.mutateAsync({
+          supplierKey: newSup.key,
+          productKeys: linkedProductKeys,
+        });
       }
       notifications.show({
         title: 'Supplier Created',

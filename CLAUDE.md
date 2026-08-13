@@ -117,7 +117,7 @@ Write one descriptor in `src/offline/resources/<name>.resource.ts` (`SyncResourc
 - `id` / `label` — the Dexie table name, the `syncMeta` key, and the dashboard label.
 - `primaryKey` / `restId` / `serverGeneratedFields` — identity.
 - `dependsOn` — resources that must pull and flush first. A supplier-product link declares `['products', 'suppliers']`, which is what guarantees a product created offline reaches the server before the link naming it. Cycles throw at startup.
-- `pull` — `delta(cursor)` plus a `full()` snapshot used on first sync, cursor rejection and force-resync.
+- `pull` — `delta(cursor)` plus a `full()` snapshot used on first sync, cursor rejection and force-resync. A resource with no "list everything" REST route (purchases, supplier links, stock movements) builds its snapshot from `fetchResourceSnapshot`, which pages `/sync/changes` cursorlessly. `intervalMs` is currently **not read** — the engine runs one global `PULL_INTERVAL_MS` timer for every resource.
 - `operations` — one entry per write, via `defineOperation<TPayload>()`. Each has `localApply` (optimistic Dexie write, runs inside the same transaction as the enqueue), `push` (the HTTP call, with references already rewritten), `references` (which payload paths hold provisional ids, and whether an unresolved one blocks or is dropped) and `describe` (the label in the pending-changes list). **A compound server-side write is one operation, never several** — the backend does it transactionally, so splitting it would invent a partial-failure state that cannot occur.
 - `conflictPolicy` — per failure class. Use `replay` only for append-only or commutative operations, `retry-with-server-version` only for documented idempotent upserts, and `manual` whenever auto-resolution would silently lose a field. Any full-replace `PUT` qualifies as `manual` — `suppliers` is the example.
 - `invalidates`, `allowOfflineCreate`, `retention`.
@@ -132,27 +132,36 @@ Then swap the feature's hooks over. Keep the returned shape (`data`/`isLoading`/
 
 Sync toasts are the only place in the codebase that use a stable notification `id` with `notifications.update()` (`src/features/sync/lib/syncNotifications.ts`) — everywhere else fires one toast per event. Colour semantics extend the app's existing set: **orange = offline (expected, the app still works)**, **red = a human must act**. Don't use red for offline.
 
+Toast triggers are edge-triggered, and the bookkeeping for that lives at module scope in `SyncProvider` — the engine is a singleton whose effect re-runs on every auth flip and twice under StrictMode, so effect-local state would re-announce an outage the user already saw. "Saved to the server" fires only when the change had actually been waiting; online, every edit flushes within a second and toasting each one buries the user.
+
 ### Local schema changes
 
 Bump the Dexie version in `src/offline/db/schema.ts`; never edit an installed version in place. Mirror tables are derived state and may be truncated and re-pulled (clear the resource's cursor and the next pull full-refreshes). The `outbox`, `idMap`, `conflicts` and `stockLedger` tables hold data that exists nowhere else and must be migrated in place, never dropped. Index `_pending` and `_isDeleted` on every mirror — the shared pull and maintenance code queries them uniformly, and IndexedDB cannot index `null`, which is why `_isDeleted` exists alongside `_deletedAt`.
 
 ### Auth while offline
 
-`initializeAuth` treats an unreachable server (`statusCode: 0`) as _unverified_, not _invalid_: it restores the cached identity from Dexie and sets `isOfflineSession`, with a 7-day grace period. Only 401/403 signs the user out. **Logging out never clears the local database** — a cashier's queued offline work must survive an expired session.
+`initializeAuth` treats anything short of an outright rejection as _unverified_, not _invalid_: it restores the cached identity from Dexie and sets `isOfflineSession`, with a 7-day grace period. **Only 401/403 signs the user out** — an unreachable server and a 500 from `/auth/me` both leave the session intact, since neither says the credentials went bad.
+
+The session is cached on **login** as well as on a successful `/auth/me` (`cacheSession` in `authSlice`'s `login`/`loginSuccess` reducers). Caching only in `initializeAuth` meant a cashier who logged in and then lost connectivity had nothing to restore from on the next reload, and the grace period never applied.
+
+**Logging out never clears the local database** — a cashier's queued offline work must survive an expired session.
 
 ### Backend contract
 
-Endpoints the backend still owes, specified but not yet implemented — until they land the engine runs in degraded mode (full refresh instead of deltas, no version checks), which is correct, just less efficient:
+The sync contract is **implemented** in `../backend` (Rust/Axum). The engine is not in degraded mode and should not be written as though it were.
 
-- Every syncable table gains `version` (bumped per write), `created_at`, `updated_at` and `deleted_at` (**soft delete — rows are never hard-deleted**, or a delta pull cannot see them and they resurrect). `stock_purchases` and `supplier_products` currently have no timestamps at all; this is a blocking prerequisite for them.
-- `GET /sync/changes?cursors=<resource>:<cursor>,…` — one multiplexed delta endpoint, so a reconnect is one round trip. Cursors are opaque and per-resource; `400 CURSOR_INVALID` triggers a full refresh.
-- **`Idempotency-Key` on every mutating request**, stored key → response for 7 days. This is the single most important item: it is what makes retrying a request that succeeded but whose response was lost to a power cut safe.
+- Every syncable collection carries `version` (bumped per write), `created_at`, `updated_at` and `deleted_at` — **soft delete, rows are never hard-deleted**, or a delta pull cannot see the deletion and the row resurrects.
+- **`GET /sync/changes`** — one multiplexed delta endpoint, so a reconnect is one round trip. Query is `?resources=a,b&cursors=<json>&limit=n`, where `cursors` is a JSON object (a `resource=cursor` comma list is also accepted — note `=`, not `:`). Cursors are opaque, per-resource, URL-safe base64 of `millis|key`, and valid for 90 days; `400 CURSOR_INVALID` triggers a full refresh. `limit=0` means "cursor only, no items".
+- **Items are the same DTOs the REST read endpoints return** — camelCase, server-resolved display fields present (a product's `category`/`subcategory` names, a category's nested `subcategories`), no BSON `$oid`/`$date` wrappers. The client mirrors the delta and snapshot feeds into one table, so anything else corrupts rows depending only on which feed delivered them. `backend/tests/sync_test.rs::sync_changes_items_match_the_rest_dto_shape` locks this down. `subcategories` is **not** a standalone syncable resource; it is folded into `categories`.
+- **`GET /sync/status`** — per-resource `lastUpdatedAt` **and** the cursor for the newest row. That cursor is how a client starts syncing incrementally after a snapshot; it cannot be derived from `/sync/changes`, which pages oldest-first and would hand back the _first_ row's cursor (adopting that replays the whole collection every time).
+- **`Idempotency-Key` on every mutating request**, stored key → response for 7 days. This is what makes retrying a request that succeeded but whose response was lost to a power cut safe. A concurrent retry gets `409 IDEMPOTENCY_IN_PROGRESS` with `Retry-After` — **transient, not a conflict**.
 - `If-Match: <version>` → `409 VERSION_CONFLICT` with the server's current row in `details.server`.
-- `GET /health` (cheap, unauthenticated) and an `X-Server-Time` response header for clock-skew detection.
-- `409 INSUFFICIENT_STOCK` on stock adjustment — **the server must be the oversell authority**; no client-side guard can be, and two offline terminals will both try to sell the last unit.
+- `GET /api/health` (cheap, no DB access) and an `X-Server-Time` response header on every response for clock-skew detection.
+- `409 INSUFFICIENT_STOCK` on stock adjustment — **the server is the oversell authority**; no client-side guard can be, and two offline terminals will both try to sell the last unit.
 - A server-issued `key` must **never** start with `local_`.
+- Mongo indexes are ensured at startup (`backend/src/clients/indexes.rs`). Two of them are correctness-critical, not just performance: `(updated_at, key)` is the exact sort the cursor scan pages by, and the unique `(key, user_id)` on `idempotency_keys` is what makes the replay guard's race branch reachable at all.
 
-Sequential human-facing numbers (`INV-2026-0042`, `REP-…`, `PRT-…`) cannot be minted offline without collision — the current localStorage counter will issue duplicates across terminals, and the repairs/print-job generators derive from array _length_, so deleting a job re-issues a live number. The fix is server-reserved blocks (`POST /sequences/{name}/reserve`), to be implemented when billing adopts sync.
+`POST /sequences/{name}/reserve` is implemented for server-reserved number blocks. Billing has not adopted it yet: sequential human-facing numbers (`INV-2026-0042`, `REP-…`, `PRT-…`) still come from a localStorage counter that will issue duplicates across terminals, and the repairs/print-job generators derive from array _length_, so deleting a job re-issues a live number. Switch them to reserved blocks when billing adopts sync.
 
 ### PWA
 

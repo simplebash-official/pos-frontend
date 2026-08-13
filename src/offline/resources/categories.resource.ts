@@ -11,8 +11,8 @@ import type { Category, CategoryInput } from '@/features/inventory/types';
 import { db } from '../db/schema';
 import { markDeleted, markPending, toLocalRow } from '../db/mirror';
 import { defineOperation, defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
 import { pushOptions } from './pushOptions';
+import { fetchResourceDelta } from './syncApi';
 
 export interface UpdateCategoryPayload {
   categoryKey: string;
@@ -48,7 +48,7 @@ export const categoriesResource = defineSyncResource<Category>({
   dependsOn: [],
 
   pull: {
-    delta: deltaNotAvailable<Category>('categories'),
+    delta: (cursor, ctx) => fetchResourceDelta<Category>('categories', cursor, ctx.signal),
     full: () => fetchCategories(),
     intervalMs: 5 * 60_000,
   },
@@ -81,6 +81,7 @@ export const categoriesResource = defineSyncResource<Category>({
         const created = await createCategory(input, pushOptions(ctx));
         return {
           serverEntity: created,
+          removesRows: false,
           identity: { serverKey: created.key, serverId: null },
           followUp: [],
         };
@@ -102,7 +103,7 @@ export const categoriesResource = defineSyncResource<Category>({
       push: async (payload, _op, ctx) => {
         const key = ctx.resolveKey(payload.categoryKey, 'categories');
         const updated = await updateCategory(key, payload.updates, pushOptions(ctx));
-        return { serverEntity: updated, identity: null, followUp: [] };
+        return { serverEntity: updated, removesRows: false, identity: null, followUp: [] };
       },
     }),
 
@@ -114,13 +115,16 @@ export const categoriesResource = defineSyncResource<Category>({
         if (!row) {
           throw new Error(`Category ${payload.categoryKey} is not in the local mirror`);
         }
-        await db.categories.put(markDeleted(row, ctx.now));
-        return { entity: row, entityKey: payload.categoryKey };
+        // See `suppliers.delete` — return the tombstoned row, not the
+        // pre-delete one.
+        const deleted = markDeleted(row, ctx.now);
+        await db.categories.put(deleted);
+        return { entity: deleted, entityKey: payload.categoryKey };
       },
       push: async (payload, _op, ctx) => {
         const key = ctx.resolveKey(payload.categoryKey, 'categories');
         await deleteCategory(key, pushOptions(ctx));
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),
 
@@ -153,7 +157,7 @@ export const categoriesResource = defineSyncResource<Category>({
         const category = await createSubcategory(key, payload.name, {
           idempotencyKey: ctx.idempotencyKey,
         });
-        return { serverEntity: category, identity: null, followUp: [] };
+        return { serverEntity: category, removesRows: false, identity: null, followUp: [] };
       },
     }),
 
@@ -178,7 +182,7 @@ export const categoriesResource = defineSyncResource<Category>({
         const category = await deleteSubcategory(key, payload.subcategoryKey, {
           idempotencyKey: ctx.idempotencyKey,
         });
-        return { serverEntity: category, identity: null, followUp: [] };
+        return { serverEntity: category, removesRows: false, identity: null, followUp: [] };
       },
     }),
   },

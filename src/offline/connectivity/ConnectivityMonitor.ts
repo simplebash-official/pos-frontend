@@ -1,6 +1,7 @@
 import { STORAGE_KEYS } from '@/constants';
 import { env } from '@/config/env';
 import {
+  DEGRADED_LATENCY_MS,
   HEALTH_PROBE_BACKOFF_MS,
   HEALTH_PROBE_INTERVAL_ONLINE_MS,
   OFFLINE_FAILURE_THRESHOLD,
@@ -33,6 +34,8 @@ export class ConnectivityMonitor {
   private listeners = new Set<ConnectivityListener>();
   private timer: ReturnType<typeof setTimeout> | null = null;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
+  /** State waiting out the settle window, if any. */
+  private pendingState: ConnectivityState | null = null;
   private abortController: AbortController | null = null;
   private unobserveNetwork: (() => void) | null = null;
   private backoffIndex = 0;
@@ -73,6 +76,16 @@ export class ConnectivityMonitor {
     this.clearTimers();
     this.abortController?.abort();
     this.abortController = null;
+
+    // Drop back to 'checking' so a later start() re-verifies rather than
+    // handing a stale verdict to whoever subscribes first — `subscribe`
+    // replays the current snapshot immediately.
+    this.snapshot = {
+      ...this.snapshot,
+      state: 'checking',
+      consecutiveFailures: 0,
+    };
+    this.backoffIndex = 0;
   }
 
   subscribe(listener: ConnectivityListener): () => void {
@@ -91,10 +104,20 @@ export class ConnectivityMonitor {
     return this.snapshot.state === 'online' || this.snapshot.state === 'degraded';
   }
 
-  /** Forces an immediate probe — used by the "Sync now" button and on reconnect. */
-  checkNow(): void {
+  /**
+   * Forces an immediate probe and resolves once its verdict is in.
+   *
+   * Awaitable on purpose: "Sync now" reads `isOnline()` straight afterwards,
+   * and a fire-and-forget probe would leave it reading the stale verdict —
+   * making the button a no-op for the first few seconds after a connection
+   * comes back, which is exactly when someone presses it.
+   */
+  async checkNow(): Promise<void> {
     this.clearTimers();
-    void this.runProbe();
+    await this.runProbe();
+    // A restored connection is only published after the settle window. The
+    // caller asked explicitly, so don't make them wait it out.
+    this.commitPendingSettle();
   }
 
   // -------------------------------------------------------------------------
@@ -107,6 +130,9 @@ export class ConnectivityMonitor {
   };
 
   private handleLinkDown = (): void => {
+    // Cancel any probe already in flight — it would land after this and could
+    // report success, flipping the state straight back to online.
+    this.abortController?.abort();
     // The link is definitively down. No probe can succeed, so don't wait for one.
     this.update({ linkUp: false, consecutiveFailures: OFFLINE_FAILURE_THRESHOLD });
     this.transitionTo('offline');
@@ -125,7 +151,10 @@ export class ConnectivityMonitor {
     serverTime: string | null
   ): void => {
     if (observation === 'reachable') {
-      this.recordSuccess(serverTime);
+      // Real API traffic proves reachability but says nothing useful about
+      // latency (payload sizes vary wildly), so it never downgrades to
+      // `degraded` — only the fixed-cost health probe does.
+      this.recordSuccess(serverTime, null);
       return;
     }
     this.recordFailure();
@@ -158,10 +187,18 @@ export class ConnectivityMonitor {
     this.abortController = new AbortController();
 
     const result = await probeHealth(this.abortController.signal);
+
+    // The probe is awaited, so `stop()` may have run while it was in flight.
+    // Writing state now would notify listeners after teardown and can arm a
+    // settle timer that nothing will ever clear.
+    if (!this.started) {
+      return;
+    }
+
     this.update({ lastProbeAt: Date.now() });
 
     if (result.reachable) {
-      this.recordSuccess(result.serverTime);
+      this.recordSuccess(result.serverTime, result.latencyMs);
     } else {
       this.recordFailure();
     }
@@ -169,7 +206,7 @@ export class ConnectivityMonitor {
     this.scheduleNextProbe();
   }
 
-  private recordSuccess(serverTime: string | null): void {
+  private recordSuccess(serverTime: string | null, latencyMs: number | null): void {
     const clockSkewMs =
       serverTime === null ? this.snapshot.clockSkewMs : new Date(serverTime).getTime() - Date.now();
 
@@ -179,7 +216,11 @@ export class ConnectivityMonitor {
       clockSkewMs,
     });
     this.backoffIndex = 0;
-    this.transitionTo('online');
+    // Reachable but slow is its own state: sync works, just badly. Real API
+    // traffic reports no latency, so those observations leave the current
+    // verdict alone rather than pretending the connection is fast.
+    const isSlow = latencyMs !== null && latencyMs >= DEGRADED_LATENCY_MS;
+    this.transitionTo(isSlow ? 'degraded' : 'online');
   }
 
   private recordFailure(): void {
@@ -212,14 +253,31 @@ export class ConnectivityMonitor {
     // Hold a restored connection briefly so a flapping link doesn't announce
     // itself repeatedly. A pending settle timer means we're already waiting.
     if (this.settleTimer !== null) {
+      this.pendingState = next;
       return;
     }
+    this.pendingState = next;
     this.settleTimer = setTimeout(() => {
       this.settleTimer = null;
-      if (this.snapshot.consecutiveFailures === 0) {
-        this.update({ state: next });
+      const pending = this.pendingState;
+      this.pendingState = null;
+      if (pending !== null && this.snapshot.consecutiveFailures === 0) {
+        this.update({ state: pending });
       }
     }, ONLINE_SETTLE_MS);
+  }
+
+  /** Publishes a settling "back online" verdict immediately. */
+  private commitPendingSettle(): void {
+    if (this.pendingState === null) {
+      return;
+    }
+    const pending = this.pendingState;
+    this.pendingState = null;
+    this.clearSettleTimer();
+    if (this.snapshot.consecutiveFailures === 0) {
+      this.update({ state: pending });
+    }
   }
 
   private scheduleNextProbe(): void {
@@ -261,15 +319,30 @@ export class ConnectivityMonitor {
     this.clearSettleTimer();
   }
 
+  /**
+   * Fields that only record *when* something happened, not *what* the verdict
+   * is. They change on every single probe, so notifying on them would wake
+   * every subscriber every 30 seconds — and each wake-up costs a full engine
+   * state publish, a batch of IndexedDB counts, a Redux dispatch and a
+   * re-render of the whole sync UI, all to report nothing new.
+   */
+  private static readonly TELEMETRY_KEYS: ReadonlySet<keyof ConnectivitySnapshot> = new Set([
+    'lastProbeAt',
+    'lastReachableAt',
+    'clockSkewMs',
+  ]);
+
   private update(patch: Partial<ConnectivitySnapshot>): void {
     const next = { ...this.snapshot, ...patch };
     const changed = (Object.keys(patch) as (keyof ConnectivitySnapshot)[]).some(
-      (key) => this.snapshot[key] !== next[key]
+      (key) => !ConnectivityMonitor.TELEMETRY_KEYS.has(key) && this.snapshot[key] !== next[key]
     );
+    // The snapshot is always advanced so readers see fresh timestamps; only
+    // the notification is withheld.
+    this.snapshot = next;
     if (!changed) {
       return;
     }
-    this.snapshot = next;
     this.listeners.forEach((listener) => listener(next));
   }
 

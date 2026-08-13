@@ -28,13 +28,8 @@ import {
   IconX,
   IconSearch,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import {
-  getLinksForSupplier,
-  setLinksForSupplier,
-} from '@/features/supplier-products/api/supplierProductsApi';
+import { useProductsForSupplier } from '@/features/supplier-products';
 import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
@@ -78,21 +73,25 @@ const SupplierFormContent = ({
   // Product linking
   const { data: allProducts } = useAllProducts();
 
-  const { data: existingLinks = [] } = useQuery({
-    queryKey: queryKeys.supplierProducts.bySupplier(supplierToEdit?.key ?? ''),
-    queryFn: () => getLinksForSupplier(supplierToEdit!.key),
-    enabled: !!supplierToEdit?.key,
-  });
-
-  const [linkedProductKeys, setLinkedProductKeys] = useState<string[]>(
-    existingLinks.map((l) => l.productKey)
+  // Read from the local mirror, not the network: `supplierProducts` is a
+  // synced resource, so a direct request would show no links at all while
+  // offline — and the save below would then wipe them.
+  const { data: existingLinks, isFetching: linksLoading } = useProductsForSupplier(
+    supplierToEdit?.key
   );
 
-  // Sync once existingLinks loads
-  const [synced, setSynced] = useState(false);
-  if (existingLinks.length > 0 && !synced) {
-    setLinkedProductKeys(existingLinks.map((l) => l.productKey));
-    setSynced(true);
+  const [linkedProductKeys, setLinkedProductKeys] = useState<string[]>(
+    existingLinks.map((link) => link.productKey)
+  );
+
+  // Adopt the mirrored links once, when they first settle. Keyed on the load
+  // finishing rather than on the list being non-empty: a supplier that
+  // genuinely has no links must still latch, or it can never sync afterwards.
+  const [syncedFor, setSyncedFor] = useState<string | null>(null);
+  const linksOwner = supplierToEdit?.key ?? null;
+  if (!linksLoading && syncedFor !== linksOwner) {
+    setLinkedProductKeys(existingLinks.map((link) => link.productKey));
+    setSyncedFor(linksOwner);
   }
 
   const [productSearch, setProductSearch] = useState('');
@@ -150,13 +149,10 @@ const SupplierFormContent = ({
     e.preventDefault();
     if (!validate()) return;
 
+    // `onSubmit` owns persisting the links too — it queues them through the
+    // outbox so they survive being saved offline. Writing them again here
+    // would duplicate the write and bypass that queue.
     await onSubmit(formData, linkedProductKeys);
-
-    // Save product links after the supplier is created/updated
-    if (supplierToEdit) {
-      await setLinksForSupplier(supplierToEdit.key, linkedProductKeys);
-    }
-
     onClose();
   };
 

@@ -1,6 +1,4 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -147,8 +145,6 @@ export const ProductTable = () => {
     setProductFormOpen(true);
   };
 
-  const queryClient = useQueryClient();
-
   const handleProductFormSubmit = async (values: CreateProductInput | UpdateProductInput) => {
     if (productToEdit) {
       const updated = await updateProductMutation.mutateAsync({
@@ -164,12 +160,10 @@ export const ProductTable = () => {
       });
     } else {
       const input = values as CreateProductInput;
+      // Suppliers, supplier links and purchases are all mirror-backed now, so
+      // there is nothing to invalidate: the engine re-pulls them as a
+      // follow-up to this write and `liveQuery` re-renders every subscriber.
       const created = await createProductMutation.mutateAsync(input);
-      if (input.suppliers && input.suppliers.length > 0) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
-        queryClient.invalidateQueries({ queryKey: queryKeys.supplierProducts.all });
-        queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
-      }
       notifications.show({
         title: 'Product Created',
         message: `${created.name} added to the catalog`,

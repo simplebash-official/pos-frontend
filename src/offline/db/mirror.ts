@@ -14,10 +14,12 @@ export const UNSYNCED_VERSION = -1;
 /**
  * Reads the server's row version.
  *
- * `version` arrives once the backend ships the sync columns; until then the
- * engine runs in degraded mode where every row reads as version 0 and
- * optimistic-concurrency checks are simply not sent. This is an explicit
- * degraded path, not a default standing in for a missing value.
+ * Every syncable entity the backend returns carries `version`, which the
+ * outbox echoes back as `If-Match` so a write based on a stale row is
+ * rejected rather than silently overwriting a concurrent edit.
+ *
+ * A row that genuinely has no version — one the server has never seen —
+ * reads as 0, and `submitOperation` declines to send `If-Match` for it.
  */
 export const readServerVersion = (entity: unknown): number => {
   if (typeof entity === 'object' && entity !== null && 'version' in entity) {

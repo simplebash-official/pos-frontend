@@ -1,4 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { PULL_INTERVAL_MS } from '@/offline/constants';
 import type { ConnectivitySnapshot } from '@/offline/connectivity/types';
 import type { SyncMetaRecord } from '@/offline/db/tables';
 import type { SyncEngineState } from '@/offline/engine/SyncEngine';
@@ -19,6 +20,8 @@ interface SyncState {
   isPushing: boolean;
   modules: SyncMetaRecord[];
   totals: { pending: number; dead: number; conflicts: number };
+  /** Queued-operation count per resource, so a module card can show its own. */
+  pendingByResource: Record<string, number>;
   /** Labels come from the resource registry, which is not serialisable. */
   labels: Record<string, string>;
 }
@@ -37,6 +40,7 @@ const initialState: SyncState = {
   isPushing: false,
   modules: [],
   totals: { pending: 0, dead: 0, conflicts: 0 },
+  pendingByResource: {},
   labels: {},
 };
 
@@ -51,6 +55,7 @@ const syncSlice = createSlice({
       state.isPushing = action.payload.isPushing;
       state.modules = action.payload.modules;
       state.totals = action.payload.totals;
+      state.pendingByResource = action.payload.pendingByResource;
     },
     syncLabelsRegistered: (state, action: PayloadAction<Record<string, string>>) => {
       state.labels = action.payload;
@@ -77,15 +82,29 @@ const selectModulesRaw = (state: WithSync) => state.sync.modules;
 const selectLabels = (state: WithSync) => state.sync.labels;
 const selectIsBusy = (state: WithSync) => state.sync.isPulling || state.sync.isPushing;
 
-/** Collapses one module's two status axes into a single display status. */
-const deriveModuleStatus = (meta: SyncMetaRecord, isBusy: boolean): ModuleSyncStatus => {
-  if (meta.pushState === 'blocked') {
-    return 'conflict';
-  }
+/**
+ * A mirror is considered out of date once it has gone this long without a
+ * successful pull. Six times the pull interval, so a single missed cycle —
+ * a backgrounded tab, one failed request — doesn't cry wolf.
+ */
+const STALE_AFTER_MS = 6 * PULL_INTERVAL_MS;
+
+/**
+ * Collapses one module's two status axes into a single display status.
+ *
+ * `stale` is computed from `lastPulledAt` rather than read from `pullState`.
+ * Nothing ever writes `pullState: 'stale'`, so the branch that checked for it
+ * could not fire and a mirror untouched for a week still read "Synced".
+ */
+const deriveModuleStatus = (
+  meta: SyncMetaRecord,
+  isBusy: boolean,
+  now: number
+): ModuleSyncStatus => {
   if (meta.pullState === 'error' || meta.pushState === 'error') {
     return 'error';
   }
-  if (meta.pullState === 'never') {
+  if (meta.pullState === 'never' || meta.lastPulledAt === null) {
     return 'never';
   }
   if (isBusy && (meta.pullState === 'syncing' || meta.pushState === 'pushing')) {
@@ -94,36 +113,62 @@ const deriveModuleStatus = (meta: SyncMetaRecord, isBusy: boolean): ModuleSyncSt
   if (meta.pushState === 'pending' || meta.pushState === 'pushing') {
     return 'pending';
   }
-  if (meta.pullState === 'stale') {
+  const pulledAt = Date.parse(meta.lastPulledAt);
+  if (!Number.isNaN(pulledAt) && now - pulledAt > STALE_AFTER_MS) {
     return 'stale';
   }
   return 'synced';
 };
 
+const selectPendingByResource = (state: WithSync) => state.sync.pendingByResource;
+
 export const selectModuleViews = createSelector(
-  [selectModulesRaw, selectLabels, selectIsBusy],
-  (modules, labels, isBusy): ModuleSyncView[] =>
-    modules.map((meta) => ({
+  [selectModulesRaw, selectLabels, selectIsBusy, selectPendingByResource],
+  (modules, labels, isBusy, pendingByResource): ModuleSyncView[] => {
+    const now = Date.now();
+    return modules.map((meta) => ({
       resource: meta.resource as SyncResourceId,
       label: labels[meta.resource] ?? meta.resource,
-      status: deriveModuleStatus(meta, isBusy),
+      status: deriveModuleStatus(meta, isBusy, now),
       rowCount: meta.rowCount,
-      pendingOps: 0,
+      pendingOps: pendingByResource[meta.resource] ?? 0,
       lastPulledAt: meta.lastPulledAt,
       lastPushedAt: meta.lastPushedAt,
       lastError: meta.lastError,
-    }))
+    }));
+  }
 );
 
-export const selectModuleView = (resource: SyncResourceId) =>
-  createSelector([selectModuleViews], (views) => views.find((view) => view.resource === resource));
+/**
+ * Per-resource lookups are plain functions over the memoized `selectModuleViews`
+ * rather than `createSelector` factories.
+ *
+ * A factory called during render — `useAppSelector(selectModuleView(id))` —
+ * builds a fresh selector instance every time, so its memoization never hits
+ * and the whole view list is re-derived on every store action.
+ */
+export const selectModuleView =
+  (resource: SyncResourceId) =>
+  (state: WithSync): ModuleSyncView | undefined =>
+    selectModuleViews(state).find((view) => view.resource === resource);
 
 /** True when a module is mid-pull or mid-push — drives per-list refresh spinners. */
-export const selectResourceIsSyncing = (resource: SyncResourceId) =>
-  createSelector([selectModuleViews], (views) => {
-    const view = views.find((candidate) => candidate.resource === resource);
-    return view !== undefined && view.status === 'syncing';
-  });
+export const selectResourceIsSyncing =
+  (resource: SyncResourceId) =>
+  (state: WithSync): boolean =>
+    selectModuleViews(state).some(
+      (view) => view.resource === resource && view.status === 'syncing'
+    );
+
+/**
+ * True when a module has never completed a pull, so its mirror is empty for
+ * want of data rather than because there is none. Lets a list distinguish
+ * "still downloading your catalog" from "you have no products".
+ */
+export const selectResourceHasNeverSynced =
+  (resource: SyncResourceId) =>
+  (state: WithSync): boolean =>
+    selectModuleViews(state).some((view) => view.resource === resource && view.status === 'never');
 
 /** Anything a human has to act on before sync can finish. */
 export const selectHasBlockingProblem = createSelector(

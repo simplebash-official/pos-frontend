@@ -1,19 +1,25 @@
 import { queryKeys } from '@/api/queryKeys';
 import {
   linkSupplierProduct,
+  setLinksForSupplier,
   unlinkSupplierProduct,
 } from '@/features/supplier-products/api/supplierProductsApi';
-import { fetchSupplierProducts } from '@/features/supplier-products/api/supplierProductsApi';
 import type { SupplierProduct, SupplierProductInput } from '@/features/supplier-products/types';
 import { db } from '../db/schema';
 import { markDeleted, toLocalRow } from '../db/mirror';
 import { defineOperation, defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
 import { pushOptions } from './pushOptions';
+import { fetchResourceDelta, fetchResourceSnapshot } from './syncApi';
 
 export interface UnlinkPayload {
   supplierKey: string;
   productKey: string;
+}
+
+/** Replaces a supplier's entire product list in one server-side write. */
+export interface SetLinksPayload {
+  supplierKey: string;
+  productKeys: string[];
 }
 
 /**
@@ -34,24 +40,13 @@ export const supplierProductsResource = defineSyncResource<SupplierProduct>({
   dependsOn: ['products', 'suppliers'],
 
   pull: {
-    delta: deltaNotAvailable<SupplierProduct>('supplierProducts'),
-    full: async () => {
-      // There is no "all links" endpoint — links are only addressable per
-      // supplier, so the refresh fans out over the suppliers already mirrored.
-      const suppliers = await db.suppliers.where('_isDeleted').equals(0).toArray();
-      const collected: SupplierProduct[] = [];
-      for (const supplier of suppliers) {
-        if (supplier._version === -1) {
-          continue;
-        }
-        try {
-          collected.push(...(await fetchSupplierProducts({ supplierKey: supplier.key })));
-        } catch {
-          continue;
-        }
-      }
-      return collected;
-    },
+    delta: (cursor, ctx) =>
+      fetchResourceDelta<SupplierProduct>('supplierProducts', cursor, ctx.signal),
+    // There is no "all links" REST route — links are addressable only per
+    // supplier — so the snapshot pages the sync endpoint rather than fanning
+    // out over the suppliers already mirrored, which would miss any link
+    // whose supplier had not been pulled yet.
+    full: (ctx) => fetchResourceSnapshot<SupplierProduct>('supplierProducts', ctx.signal),
     intervalMs: 5 * 60_000,
   },
 
@@ -94,6 +89,7 @@ export const supplierProductsResource = defineSyncResource<SupplierProduct>({
         );
         return {
           serverEntity: created,
+          removesRows: false,
           identity: { serverKey: created.key, serverId: null },
           followUp: [],
         };
@@ -123,7 +119,84 @@ export const supplierProductsResource = defineSyncResource<SupplierProduct>({
           ctx.resolveKey(payload.productKey, 'products'),
           pushOptions(ctx)
         );
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
+      },
+    }),
+
+    /**
+     * Replaces every link for one supplier.
+     *
+     * One operation rather than a diff of links/unlinks: the backend applies
+     * the whole set transactionally, so splitting it would invent a
+     * partial-failure state that cannot actually occur server-side.
+     *
+     * The supplier-edit screens used to call the bulk endpoint directly. That
+     * failed outright while offline — after the supplier itself had already
+     * been committed locally and queued — so the links were lost with nothing
+     * queued to carry them, and the mirror kept showing the old set until the
+     * next pull.
+     */
+    setLinks: defineOperation<SetLinksPayload>({
+      references: [
+        { path: 'supplierKey', target: 'suppliers', kind: 'key', blocking: true },
+        { path: 'productKeys[]', target: 'products', kind: 'key', blocking: true },
+      ],
+      describe: (payload) => `Set ${payload.productKeys.length} product link(s) for supplier`,
+      localApply: async (payload, ctx) => {
+        const existing = await db.supplierProducts
+          .where('supplierKey')
+          .equals(payload.supplierKey)
+          .toArray();
+
+        const desired = new Set(payload.productKeys);
+        const affectedKeys: string[] = [];
+
+        for (const link of existing) {
+          if (!desired.has(link.productKey)) {
+            await db.supplierProducts.put(markDeleted(link, ctx.now));
+            affectedKeys.push(link.key);
+          }
+        }
+
+        const alreadyLinked = new Set(existing.map((link) => link.productKey));
+        for (const productKey of payload.productKeys) {
+          if (alreadyLinked.has(productKey)) {
+            continue;
+          }
+          const key = ctx.newLocalId('supplierProducts');
+          await db.supplierProducts.put(
+            toLocalRow({
+              key,
+              supplierKey: payload.supplierKey,
+              productKey,
+              costPriceCents: undefined,
+              notes: undefined,
+              supplierSku: undefined,
+              addedAt: ctx.now,
+            } as SupplierProduct)
+          );
+          affectedKeys.push(key);
+        }
+
+        return { entity: null, entityKey: null, affectedKeys };
+      },
+      push: async (payload, _op, ctx) => {
+        await setLinksForSupplier(
+          ctx.resolveKey(payload.supplierKey, 'suppliers'),
+          payload.productKeys.map((key) => ctx.resolveKey(key, 'products')),
+          pushOptions(ctx)
+        );
+        // The server rewrote the whole set and told us nothing about the
+        // resulting rows. Drop the provisional ones this operation wrote —
+        // including the tombstones, which would otherwise stay `_pending`
+        // forever and be skipped by every pull — and let the follow-up pull
+        // bring back the server's authoritative set.
+        return {
+          serverEntity: null,
+          removesRows: true,
+          identity: null,
+          followUp: [{ resource: 'supplierProducts', scope: null }],
+        };
       },
     }),
   },

@@ -62,43 +62,33 @@ export const requestPersistentStorage = async (): Promise<boolean> => {
  * always be rebuilt, but the outbox holds changes that exist nowhere else.
  */
 export const forceFullResync = async (): Promise<void> => {
-  await db.transaction(
-    'rw',
-    [
-      db.products,
-      db.categories,
-      db.suppliers,
-      db.supplierProducts,
-      db.purchases,
-      db.stockMovements,
-      db.syncMeta,
-    ],
-    async () => {
-      for (const tableName of MIRROR_TABLE_NAMES) {
-        // Rows carrying unpushed changes survive — clearing them would drop
-        // the local half of work the outbox is still going to push.
-        const pending = await db.table(tableName).where('_pending').equals(1).toArray();
-        await db.table(tableName).clear();
-        if (pending.length > 0) {
-          await db.table(tableName).bulkPut(pending);
-        }
-      }
+  const mirrorTables = MIRROR_TABLE_NAMES.map((tableName) => db.table(tableName));
 
-      for (const resource of getResourcesInDependencyOrder()) {
-        const meta = await db.syncMeta.get(resource.id);
-        if (meta) {
-          await db.syncMeta.put({
-            ...meta,
-            cursor: null,
-            pullState: 'never',
-            lastPulledAt: null,
-            lastError: null,
-            rowCount: 0,
-          });
-        }
+  await db.transaction('rw', [...mirrorTables, db.syncMeta], async () => {
+    for (const tableName of MIRROR_TABLE_NAMES) {
+      // Rows carrying unpushed changes survive — clearing them would drop
+      // the local half of work the outbox is still going to push.
+      const pending = await db.table(tableName).where('_pending').equals(1).toArray();
+      await db.table(tableName).clear();
+      if (pending.length > 0) {
+        await db.table(tableName).bulkPut(pending);
       }
     }
-  );
+
+    for (const resource of getResourcesInDependencyOrder()) {
+      const meta = await db.syncMeta.get(resource.id);
+      if (meta) {
+        await db.syncMeta.put({
+          ...meta,
+          cursor: null,
+          pullState: 'never',
+          lastPulledAt: null,
+          lastError: null,
+          rowCount: 0,
+        });
+      }
+    }
+  });
 
   logInfo(null, 'Forced a full resync of every module', null);
 };
@@ -164,7 +154,31 @@ export const exportDiagnostics = async (): Promise<string> => {
   );
 };
 
-/** Drops mirrored rows past each resource's retention policy. */
+/**
+ * The timestamp a row is aged against for retention.
+ *
+ * Not every entity calls it `createdAt` — a purchase records `date` — and
+ * reading only `createdAt` meant purchases were never pruned at all despite
+ * declaring a two-year policy.
+ */
+const rowAgeTimestamp = (row: object): number | null => {
+  const candidate =
+    (row as { createdAt?: unknown }).createdAt ??
+    (row as { date?: unknown }).date ??
+    (row as { updatedAt?: unknown }).updatedAt;
+  if (typeof candidate !== 'string') {
+    return null;
+  }
+  const parsed = Date.parse(candidate);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+/**
+ * Drops mirrored rows past each resource's retention policy.
+ *
+ * Only server-acknowledged, non-tombstoned rows are eligible — a `_pending`
+ * row holds the local half of queued work that exists nowhere else.
+ */
 export const pruneByRetention = async (): Promise<number> => {
   let removed = 0;
 
@@ -172,11 +186,14 @@ export const pruneByRetention = async (): Promise<number> => {
     const { maxRows, pruneOlderThanDays } = resource.retention;
 
     if (pruneOlderThanDays !== null) {
-      const cutoff = new Date(Date.now() - pruneOlderThanDays * 24 * 60 * 60_000).toISOString();
+      const cutoff = Date.now() - pruneOlderThanDays * 24 * 60 * 60_000;
       const stale = await resource.table
         .filter((row) => {
-          const createdAt = (row as { createdAt?: unknown }).createdAt;
-          return typeof createdAt === 'string' && createdAt < cutoff && row._pending === 0;
+          if (row._pending === 1) {
+            return false;
+          }
+          const timestamp = rowAgeTimestamp(row);
+          return timestamp !== null && timestamp < cutoff;
         })
         .primaryKeys();
       await resource.table.bulkDelete(stale);
@@ -184,14 +201,22 @@ export const pruneByRetention = async (): Promise<number> => {
     }
 
     if (maxRows !== null) {
-      const count = await resource.table.count();
-      if (count > maxRows) {
-        const excess = await resource.table
-          .filter((row) => row._pending === 0)
-          .limit(count - maxRows)
-          .primaryKeys();
-        await resource.table.bulkDelete(excess);
-        removed += excess.length;
+      // Count only what is actually eligible. Counting tombstones and pending
+      // rows toward the cap over-deletes: the excess is computed from a total
+      // that includes rows this pass cannot touch.
+      const eligible = await resource.table.filter((row) => row._pending === 0).toArray();
+      if (eligible.length > maxRows) {
+        // Oldest first. Taking rows in primary-key order instead evicts by id,
+        // which for these tables means dropping essentially at random —
+        // including the newest movements a user is most likely looking at.
+        const byAge = eligible
+          .map((row) => ({ key: resource.primaryKey(row as never), at: rowAgeTimestamp(row) ?? 0 }))
+          .sort((a, b) => a.at - b.at)
+          .slice(0, eligible.length - maxRows)
+          .map((entry) => entry.key);
+
+        await resource.table.bulkDelete(byAge);
+        removed += byAge.length;
       }
     }
   }

@@ -60,6 +60,15 @@ export interface OutboxOp {
   idempotencyKey: string;
   /** The local row this operation owns, when it created or changed exactly one. */
   entityLocalId: string | null;
+  /**
+   * Every mirror row this operation touched, for writes that span more than
+   * one. A bulk delete tombstones N rows; without this the commit only ever
+   * retired `entityLocalId` and the other N-1 stayed `_pending` forever,
+   * invisible to every pull, refresh and prune.
+   *
+   * Omitted for single-row operations, where `entityLocalId` says it all.
+   */
+  affectedKeys?: string[];
   payload: unknown;
   /** Human-readable summary for the pending-changes list, e.g. `Create product "Lens"`. */
   label: string;

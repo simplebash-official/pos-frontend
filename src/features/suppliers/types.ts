@@ -1,4 +1,6 @@
-export interface Supplier {
+import type { SyncedEntityFields } from '@/shared/types/common';
+
+export interface Supplier extends SyncedEntityFields {
   id: string;
   key: string; // server-generated e.g. "sup_xxx" — used by supplier-products / purchases linking
   name: string; // Business name (e.g., "Colombo Mobile Parts")
@@ -13,4 +15,8 @@ export interface Supplier {
   updatedAt: string;
 }
 
-export type SupplierInput = Omit<Supplier, 'id' | 'key' | 'createdAt' | 'updatedAt'>;
+/** Server-owned bookkeeping is excluded — a client never submits any of it. */
+export type SupplierInput = Omit<
+  Supplier,
+  'id' | 'key' | 'createdAt' | 'updatedAt' | keyof SyncedEntityFields
+>;

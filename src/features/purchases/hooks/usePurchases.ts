@@ -15,8 +15,11 @@ import { EnrichedStockPurchase, StockPurchase, StockPurchaseInput } from '../typ
 const NO_PURCHASES: EnrichedStockPurchase[] = [];
 
 const enrich = async (purchases: StockPurchase[]): Promise<EnrichedStockPurchase[]> => {
-  const suppliers = await db.suppliers.toArray();
-  const products = await db.products.toArray();
+  // Tombstoned rows are excluded on the join side too. Reading the whole
+  // table would join in suppliers and products the user has already deleted
+  // and render them as though they still existed.
+  const suppliers = await db.suppliers.where('_isDeleted').equals(0).toArray();
+  const products = await db.products.where('_isDeleted').equals(0).toArray();
   const supplierByKey = new Map(suppliers.map((supplier) => [supplier.key, supplier]));
   const productByKey = new Map(products.map((product) => [product.key, product]));
 

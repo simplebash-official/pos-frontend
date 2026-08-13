@@ -120,6 +120,18 @@ class ApiClient {
             } as ApiError);
           }
         }
+        // A cancelled request says nothing about the network — we cancelled
+        // it. The sync engine aborts its own in-flight requests on stop and
+        // logout, and TanStack cancels queries routinely; counting those as
+        // evidence of an outage flips the whole app to "Working offline"
+        // moments after signing out.
+        if (axios.isCancel(error)) {
+          return Promise.reject({
+            message: 'Request cancelled.',
+            statusCode: 0,
+          } as ApiError);
+        }
+
         // No response at all: timeout, DNS failure, or genuinely offline.
         reportNetworkObservation('unreachable', null);
         return Promise.reject({

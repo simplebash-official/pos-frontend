@@ -71,6 +71,16 @@ export interface FollowUpPull {
 export interface PushResult {
   /** Canonical server row to write into the mirror. `null` for deletes. */
   serverEntity: unknown | null;
+  /**
+   * Whether the server removed the rows this operation covers, so the local
+   * tombstones can be dropped.
+   *
+   * Stated rather than inferred from a `null` `serverEntity`: an
+   * acknowledgement with no body also means "already applied" (an idempotency
+   * replay, or a conflict resolved as such), and treating that as a delete
+   * makes a *create* disappear from the mirror.
+   */
+  removesRows: boolean;
   /** Resolves a provisional id. `null` when the operation created nothing. */
   identity: { serverKey: string; serverId: string | null } | null;
   followUp: readonly FollowUpPull[];
@@ -109,8 +119,17 @@ export interface LocalContext {
 export interface LocalApplyResult {
   /** The optimistic entity to hand back to the caller, so the UI updates at once. */
   entity: unknown;
-  /** Mirror row this operation targets. */
-  entityKey: string;
+  /**
+   * Mirror row this operation targets. `null` when the write spans several
+   * rows and no single one represents it — see `affectedKeys`.
+   */
+  entityKey: string | null;
+  /**
+   * Every mirror row the local apply wrote, when it wrote more than one.
+   * A bulk delete must list all of them, or the commit can only retire the
+   * first and the rest stay pending forever.
+   */
+  affectedKeys?: string[];
 }
 
 export type LocalApplyHandler = (payload: never, ctx: LocalContext) => Promise<LocalApplyResult>;

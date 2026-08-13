@@ -62,7 +62,12 @@ export const useProductMovements = (productId: string | undefined) => {
       if (!productId) {
         return NO_MOVEMENTS;
       }
-      return db.stockMovements.where('productId').equals(productId).reverse().sortBy('createdAt');
+      return db.stockMovements
+        .where('productId')
+        .equals(productId)
+        .filter((movement) => movement._isDeleted === 0)
+        .reverse()
+        .sortBy('createdAt');
     },
     NO_MOVEMENTS,
     [productId]

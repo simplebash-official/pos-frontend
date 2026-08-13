@@ -8,7 +8,13 @@ import { AbandonedReferenceError, UnresolvedReferenceError } from '../errors';
 import { abandonMapping, loadIdMap, resolveMapping, rewriteReferences } from '../ids/idMap';
 import { isLocalId } from '../ids/localId';
 import { getSyncResource } from '../registry/registry';
-import type { AnySyncResource, FollowUpPull, PushContext, SyncResourceId } from '../types';
+import type {
+  AnySyncResource,
+  ConflictStrategy,
+  FollowUpPull,
+  PushContext,
+  SyncResourceId,
+} from '../types';
 import { logError, logInfo, logWarn } from '../engine/auditLog';
 import {
   areDependenciesSatisfied,
@@ -71,9 +77,23 @@ const toOutboxError = (error: ApiErrorLike): OutboxError => {
 const classifyFailure = (error: ApiErrorLike): FailureClass => {
   const status = error.statusCode;
 
-  // No response at all — the request never reached the server.
-  if (status === 0 || status === undefined) {
+  // A concurrent request holds this idempotency key. That is a retry racing
+  // itself, not a conflict — the server even sends `Retry-After`. Routing it
+  // through the conflict machinery would raise a bogus "needs a human"
+  // conflict for what resolves on its own.
+  if (error.code === 'IDEMPOTENCY_IN_PROGRESS') {
+    return 'transient';
+  }
+
+  // Only a genuine transport failure means offline. An exception thrown
+  // inside our own code (a Dexie error, a TypeError in a push handler) also
+  // has no `statusCode`, and treating it as offline aborts the entire pass —
+  // the queue then stalls identically forever while connectivity is fine.
+  if (status === 0) {
     return 'offline';
+  }
+  if (status === undefined) {
+    return 'permanent';
   }
   // The session died while we were offline. Retrying only burns attempts and
   // would dead-letter the entire day's work, so pause instead.
@@ -100,6 +120,25 @@ const conflictReasonFor = (error: ApiErrorLike): ConflictReason => {
     return 'missing-reference';
   }
   return 'unique-violation';
+};
+
+/**
+ * Picks the strategy for a conflict reason.
+ *
+ * `missing-reference` maps to `onMissing` rather than falling through to the
+ * unique-violation policy — the thing this write points at is gone, which is
+ * the same class of problem as the target itself being gone.
+ */
+const strategyFor = (resource: AnySyncResource, reason: ConflictReason): ConflictStrategy => {
+  switch (reason) {
+    case 'version-mismatch':
+      return resource.conflictPolicy.onVersionConflict;
+    case 'deleted-remotely':
+    case 'missing-reference':
+      return resource.conflictPolicy.onMissing;
+    case 'unique-violation':
+      return resource.conflictPolicy.onUniqueViolation;
+  }
 };
 
 const recordConflict = async (
@@ -130,10 +169,20 @@ const commitSuccess = async (
   resource: AnySyncResource,
   op: OutboxOp,
   serverEntity: unknown | null,
-  identity: { serverKey: string; serverId: string | null } | null
+  identity: { serverKey: string; serverId: string | null } | null,
+  options: { isDelete: boolean } = { isDelete: false }
 ): Promise<void> => {
   await db.transaction('rw', [resource.table, db.outbox, db.idMap, db.stockLedger], async () => {
     const localId = op.entityLocalId;
+    // A bulk delete tombstones many rows but names only one; all of them are
+    // retired here, or the rest stay `_pending` forever and become invisible
+    // to every pull, refresh and prune.
+    const affectedKeys =
+      op.affectedKeys && op.affectedKeys.length > 0
+        ? op.affectedKeys
+        : localId !== null && localId !== ''
+          ? [localId]
+          : [];
 
     if (serverEntity !== null && typeof serverEntity === 'object') {
       const row = toServerRow(serverEntity as object);
@@ -145,10 +194,16 @@ const commitSuccess = async (
         await resource.table.delete(localId);
       }
       await resource.table.put(row);
-    } else if (localId !== null) {
-      // A confirmed delete — drop the tombstone entirely.
-      await resource.table.delete(localId);
+    } else if (options.isDelete) {
+      // A confirmed delete — drop every tombstone it covered.
+      for (const key of affectedKeys) {
+        await resource.table.delete(key);
+      }
     }
+    // Otherwise the server acknowledged without a body (an idempotency
+    // replay, or a conflict resolved as "already applied"). The local row
+    // stays: deleting it here would make a *create* vanish from the mirror
+    // until some later pull happened to bring it back.
 
     if (identity !== null && localId !== null && isLocalId(localId)) {
       await resolveMapping(localId, identity.serverId ?? identity.serverKey, identity.serverKey);
@@ -161,6 +216,35 @@ const commitSuccess = async (
       await deleteOperation(op.seq);
     }
   });
+};
+
+/**
+ * Retires an operation the server has effectively already applied.
+ *
+ * Used by the `replay` and `server-wins` conflict strategies. Both leave a
+ * provisional id unresolved unless it is abandoned explicitly — and an
+ * unresolved id blocks every dependent operation, which then requeues on
+ * every pass without ever burning an attempt. The queue would never drain.
+ */
+const retireWithoutServerEntity = async (
+  resource: AnySyncResource,
+  op: OutboxOp,
+  serverEntity: unknown | null
+): Promise<void> => {
+  await commitSuccess(resource, op, serverEntity, null);
+
+  const localId = op.entityLocalId;
+  if (localId !== null && isLocalId(localId)) {
+    if (serverEntity !== null && typeof serverEntity === 'object') {
+      const serverKey = resource.primaryKey(serverEntity as never);
+      const serverId = resource.restId(serverEntity as never);
+      await resolveMapping(localId, serverId ?? serverKey, serverKey);
+    } else {
+      // Nothing to point dependents at. Abandoning is what lets them fail
+      // fast with a recorded conflict instead of requeueing forever.
+      await abandonMapping(localId);
+    }
+  }
 };
 
 export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> => {
@@ -198,7 +282,23 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
       continue;
     }
 
-    const resource = getSyncResource(op.resource as SyncResourceId);
+    // An unregistered resource throws, and this call sits outside the per-op
+    // try — letting it escape would abort the entire pass, every pass.
+    let resource: AnySyncResource;
+    try {
+      resource = getSyncResource(op.resource as SyncResourceId);
+    } catch {
+      await markDead(op.seq, {
+        message: `Unknown resource "${op.resource}"`,
+        code: 'UNKNOWN_RESOURCE',
+        statusCode: null,
+      });
+      logError(op.resource, 'Dropped an operation for an unregistered resource', {
+        operation: op.operation,
+      });
+      continue;
+    }
+
     const operation = resource.operations[op.operation];
     if (!operation) {
       await markDead(op.seq, {
@@ -245,11 +345,18 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
     try {
       await markInflight(op.seq);
       const result = await operation.push(payload as never, op, ctx);
-      await commitSuccess(resource, op, result.serverEntity, result.identity);
+      await commitSuccess(resource, op, result.serverEntity, result.identity, {
+        isDelete: result.removesRows,
+      });
       summary.pushed += 1;
       summary.followUps.push(...result.followUp);
       idMap = await loadIdMap();
-      await patchSyncMeta(resource.id, { lastPushedAt: new Date().toISOString() });
+      // A successful push clears a stale "session expired" block: the
+      // credentials evidently work again.
+      await patchSyncMeta(resource.id, {
+        lastPushedAt: new Date().toISOString(),
+        lastError: null,
+      });
     } catch (error) {
       if (error instanceof UnresolvedReferenceError) {
         await requeue(op.seq);
@@ -270,7 +377,6 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
       if (failureClass === 'unauthorized') {
         await requeue(op.seq);
         await patchSyncMeta(resource.id, {
-          pushState: 'blocked',
           lastError: 'Your session expired. Sign in again to finish syncing.',
         });
         summary.stoppedUnauthorized = true;
@@ -286,7 +392,10 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
       const attempts = op.attempts + 1;
       if (failureClass === 'permanent' || attempts >= MAX_PUSH_ATTEMPTS) {
         await markDead(op.seq, outboxError);
-        await recordConflict(op, apiError, 'unique-violation');
+        // Record why it actually died. Labelling an exhausted 500 or a
+        // validation rejection "unique-violation" makes the conflicts table
+        // actively misleading about what a human needs to fix.
+        await recordConflict(op, apiError, conflictReasonFor(apiError));
         if (op.entityLocalId !== null && isLocalId(op.entityLocalId)) {
           // Nothing downstream can ever reference this successfully.
           await abandonMapping(op.entityLocalId);
@@ -317,12 +426,7 @@ const handleConflict = async (
   summary: FlushSummary
 ): Promise<void> => {
   const reason = conflictReasonFor(apiError);
-  const strategy =
-    reason === 'version-mismatch'
-      ? resource.conflictPolicy.onVersionConflict
-      : reason === 'deleted-remotely'
-        ? resource.conflictPolicy.onMissing
-        : resource.conflictPolicy.onUniqueViolation;
+  const strategy = strategyFor(resource, reason);
 
   if (op.seq === undefined) {
     return;
@@ -332,13 +436,23 @@ const handleConflict = async (
     case 'replay': {
       // Cannot genuinely conflict — the server already has this write
       // (idempotency replay) or the operation is commutative. Retire it.
-      await commitSuccess(resource, op, null, null);
+      await retireWithoutServerEntity(resource, op, null);
       summary.pushed += 1;
       return;
     }
     case 'retry-with-server-version': {
+      // Count the attempt. Without it a server that keeps answering 409 is
+      // retried without limit and the operation can never dead-letter.
+      const attempts = op.attempts + 1;
+      if (attempts >= MAX_PUSH_ATTEMPTS) {
+        await markConflict(op.seq, outboxError);
+        await recordConflict(op, apiError, reason);
+        summary.conflicted += 1;
+        return;
+      }
       await db.outbox.update(op.seq, {
         status: 'queued',
+        attempts,
         baseVersion: null,
         nextAttemptAt: new Date().toISOString(),
       });
@@ -348,7 +462,7 @@ const handleConflict = async (
       // Adopt the server's copy and drop the local change.
       const serverEntity =
         apiError.details && 'server' in apiError.details ? apiError.details.server : null;
-      await commitSuccess(resource, op, serverEntity ?? null, null);
+      await retireWithoutServerEntity(resource, op, serverEntity ?? null);
       await recordConflict(op, apiError, reason);
       summary.conflicted += 1;
       if (strategy.notify) {

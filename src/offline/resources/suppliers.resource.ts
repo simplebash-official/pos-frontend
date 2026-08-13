@@ -10,8 +10,8 @@ import type { Supplier, SupplierInput } from '@/features/suppliers/types';
 import { db } from '../db/schema';
 import { markDeleted, markPending, toLocalRow } from '../db/mirror';
 import { defineOperation, defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
 import { pushOptions } from './pushOptions';
+import { fetchResourceDelta } from './syncApi';
 
 export interface UpdateSupplierPayload {
   supplierKey: string;
@@ -35,7 +35,7 @@ export const suppliersResource = defineSyncResource<Supplier>({
   dependsOn: [],
 
   pull: {
-    delta: deltaNotAvailable<Supplier>('suppliers'),
+    delta: (cursor, ctx) => fetchResourceDelta<Supplier>('suppliers', cursor, ctx.signal),
     full: () => fetchSuppliers(),
     intervalMs: 5 * 60_000,
   },
@@ -60,6 +60,7 @@ export const suppliersResource = defineSyncResource<Supplier>({
         const created = await createSupplier(input, pushOptions(ctx));
         return {
           serverEntity: created,
+          removesRows: false,
           identity: { serverKey: created.key, serverId: created.id },
           followUp: [],
         };
@@ -81,7 +82,7 @@ export const suppliersResource = defineSyncResource<Supplier>({
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.supplierKey, 'suppliers');
         const updated = await updateSupplier(id, payload.input, pushOptions(ctx));
-        return { serverEntity: updated, identity: null, followUp: [] };
+        return { serverEntity: updated, removesRows: false, identity: null, followUp: [] };
       },
     }),
 
@@ -93,13 +94,17 @@ export const suppliersResource = defineSyncResource<Supplier>({
         if (!row) {
           throw new Error(`Supplier ${payload.supplierKey} is not in the local mirror`);
         }
-        await db.suppliers.put(markDeleted(row, ctx.now));
-        return { entity: row, entityKey: payload.supplierKey };
+        // Hand back the tombstoned row, not the pre-delete one — `markDeleted`
+        // is non-mutating, so returning `row` would give the caller's
+        // `onSuccess` an object that still looks alive.
+        const deleted = markDeleted(row, ctx.now);
+        await db.suppliers.put(deleted);
+        return { entity: deleted, entityKey: payload.supplierKey };
       },
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.supplierKey, 'suppliers');
         await deleteSupplier(id, pushOptions(ctx));
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),
 
@@ -107,18 +112,21 @@ export const suppliersResource = defineSyncResource<Supplier>({
       references: [{ path: 'supplierKeys[]', target: 'suppliers', kind: 'id', blocking: true }],
       describe: (payload) => `Delete ${payload.supplierKeys.length} supplier(s)`,
       localApply: async (payload, ctx) => {
+        const affectedKeys: string[] = [];
         for (const key of payload.supplierKeys) {
           const row = await db.suppliers.get(key);
           if (row) {
             await db.suppliers.put(markDeleted(row, ctx.now));
+            affectedKeys.push(key);
           }
         }
-        return { entity: null, entityKey: payload.supplierKeys[0] ?? '' };
+        // See `products.deleteMany` — every tombstoned row must be reported.
+        return { entity: null, entityKey: affectedKeys[0] ?? null, affectedKeys };
       },
       push: async (payload, _op, ctx) => {
         const ids = payload.supplierKeys.map((key) => ctx.resolveId(key, 'suppliers'));
         await deleteSuppliers(ids, pushOptions(ctx));
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),
   },

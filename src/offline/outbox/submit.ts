@@ -1,4 +1,4 @@
-import { db } from '../db/schema';
+import { db, MIRROR_TABLE_NAMES } from '../db/schema';
 import type { IdMapRecord } from '../db/tables';
 import { assignLedgerEntriesToOperation } from '../engine/stockLedger';
 import { getDeviceId } from '../ids/deviceId';
@@ -53,50 +53,39 @@ export const submitOperation = async <TResult>(
   };
 
   let entity: unknown;
+  const mirrorTables = MIRROR_TABLE_NAMES.map((tableName) => db.table(tableName));
 
-  await db.transaction(
-    'rw',
-    [
-      db.products,
-      db.categories,
-      db.suppliers,
-      db.supplierProducts,
-      db.purchases,
-      db.stockMovements,
-      db.outbox,
-      db.idMap,
-      db.stockLedger,
-    ],
-    async () => {
-      const result = await operation.localApply(payload as never, localContext);
-      entity = result.entity;
+  await db.transaction('rw', [...mirrorTables, db.outbox, db.idMap, db.stockLedger], async () => {
+    const result = await operation.localApply(payload as never, localContext);
+    entity = result.entity;
 
-      if (mintedIds.length > 0) {
-        await db.idMap.bulkPut(mintedIds);
-      }
-
-      // The version the edit was based on, so the server can detect that the
-      // row moved underneath us. Locally created rows have no server version.
-      const existing = await resource.table.get(result.entityKey);
-      const baseVersion =
-        existing && existing._version >= 0 && !isLocalId(result.entityKey)
-          ? existing._version
-          : null;
-
-      const seq = await enqueueOperation({
-        resource: resourceId,
-        operation: operationName,
-        entityLocalId: result.entityKey,
-        payload,
-        baseVersion,
-        dependsOn: [],
-        label: operation.describe(payload as never),
-      });
-
-      // Any stock deltas the local apply wrote belong to this operation.
-      await assignLedgerEntriesToOperation(seq);
+    if (mintedIds.length > 0) {
+      await db.idMap.bulkPut(mintedIds);
     }
-  );
+
+    // The version the edit was based on, so the server can detect that the
+    // row moved underneath us. Locally created rows have no server version.
+    const entityKey = result.entityKey;
+    const existing = entityKey === null ? undefined : await resource.table.get(entityKey);
+    const baseVersion =
+      existing && existing._version >= 0 && entityKey !== null && !isLocalId(entityKey)
+        ? existing._version
+        : null;
+
+    const seq = await enqueueOperation({
+      resource: resourceId,
+      operation: operationName,
+      entityLocalId: entityKey,
+      affectedKeys: result.affectedKeys,
+      payload,
+      baseVersion,
+      dependsOn: [],
+      label: operation.describe(payload as never),
+    });
+
+    // Any stock deltas the local apply wrote belong to this operation.
+    await assignLedgerEntriesToOperation(seq);
+  });
 
   return entity as TResult;
 };

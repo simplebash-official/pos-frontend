@@ -10,8 +10,8 @@ import type { Customer, CustomerInput } from '@/features/customers/types';
 import { db } from '../db/schema';
 import { markDeleted, markPending, toLocalRow } from '../db/mirror';
 import { defineOperation, defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
 import { pushOptions } from './pushOptions';
+import { fetchResourceDelta } from './syncApi';
 
 export interface UpdateCustomerPayload {
   customerKey: string;
@@ -45,7 +45,7 @@ export const customersResource = defineSyncResource<Customer>({
   dependsOn: [],
 
   pull: {
-    delta: deltaNotAvailable<Customer>('customers'),
+    delta: (cursor, ctx) => fetchResourceDelta<Customer>('customers', cursor, ctx.signal),
     full: () => fetchAllCustomers(),
     intervalMs: 5 * 60_000,
   },
@@ -73,6 +73,7 @@ export const customersResource = defineSyncResource<Customer>({
         const created = await createCustomer(input, pushOptions(ctx));
         return {
           serverEntity: created,
+          removesRows: false,
           identity: { serverKey: created.key, serverId: created.id },
           followUp: [],
         };
@@ -94,7 +95,7 @@ export const customersResource = defineSyncResource<Customer>({
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.customerKey, 'customers');
         const updated = await updateCustomer(id, payload.input, pushOptions(ctx));
-        return { serverEntity: updated, identity: null, followUp: [] };
+        return { serverEntity: updated, removesRows: false, identity: null, followUp: [] };
       },
     }),
 
@@ -106,13 +107,16 @@ export const customersResource = defineSyncResource<Customer>({
         if (!row) {
           throw new Error(`Customer ${payload.customerKey} is not in the local mirror`);
         }
-        await db.customers.put(markDeleted(row, ctx.now));
-        return { entity: row, entityKey: payload.customerKey };
+        // See `suppliers.delete` — return the tombstoned row, not the
+        // pre-delete one.
+        const deleted = markDeleted(row, ctx.now);
+        await db.customers.put(deleted);
+        return { entity: deleted, entityKey: payload.customerKey };
       },
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.customerKey, 'customers');
         await deleteCustomer(id, pushOptions(ctx));
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),
 
@@ -120,18 +124,21 @@ export const customersResource = defineSyncResource<Customer>({
       references: [{ path: 'customerKeys[]', target: 'customers', kind: 'id', blocking: true }],
       describe: (payload) => `Delete ${payload.customerKeys.length} customer(s)`,
       localApply: async (payload, ctx) => {
+        const affectedKeys: string[] = [];
         for (const key of payload.customerKeys) {
           const row = await db.customers.get(key);
           if (row) {
             await db.customers.put(markDeleted(row, ctx.now));
+            affectedKeys.push(key);
           }
         }
-        return { entity: null, entityKey: payload.customerKeys[0] ?? '' };
+        // See `products.deleteMany` — every tombstoned row must be reported.
+        return { entity: null, entityKey: affectedKeys[0] ?? null, affectedKeys };
       },
       push: async (payload, _op, ctx) => {
         const ids = payload.customerKeys.map((key) => ctx.resolveId(key, 'customers'));
         await deleteCustomers(ids, pushOptions(ctx));
-        return { serverEntity: null, identity: null, followUp: [] };
+        return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),
   },

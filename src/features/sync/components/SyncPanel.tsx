@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   ThemeIcon,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconAlertTriangle,
@@ -69,6 +70,7 @@ export const SyncPanel = () => {
   const [storage, setStorage] = useState<StorageEstimate | null>(null);
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
   const [isResyncing, setIsResyncing] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     void estimateStorage().then(setStorage);
@@ -83,8 +85,20 @@ export const SyncPanel = () => {
   const clockSkew = connectivity.clockSkewMs;
   const hasBadClock = clockSkew !== null && Math.abs(clockSkew) > MAX_CLOCK_SKEW_MS;
 
-  const handleSyncNow = () => {
-    void syncEngine.syncNow();
+  // Only the leader tab runs the sync loops, so the buttons below would
+  // silently do nothing anywhere else. Say so rather than appearing broken.
+  const canSync = syncEngine.canSync;
+
+  const handleSyncNow = async () => {
+    if (!canSync) {
+      return;
+    }
+    setIsSyncing(true);
+    try {
+      await syncEngine.syncNow();
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleForceResync = async () => {
@@ -96,6 +110,14 @@ export const SyncPanel = () => {
         title: 'Re-downloading everything',
         message: 'All modules are being downloaded again from the server.',
         color: 'blue',
+      });
+    } catch (error) {
+      // Without this the failure surfaces only as an unhandled rejection, and
+      // the user is left looking at a button that did nothing.
+      notifications.show({
+        title: 'Could not re-download',
+        message: error instanceof Error ? error.message : String(error),
+        color: 'red',
       });
     } finally {
       setIsResyncing(false);
@@ -154,14 +176,22 @@ export const SyncPanel = () => {
               </Text>
             </Stack>
           </Group>
-          <Button
-            size="xs"
-            variant="light"
-            leftSection={<IconRefresh size={14} />}
-            onClick={handleSyncNow}
+          <Tooltip
+            label="Another tab is handling sync for this device. Its changes appear here too."
+            disabled={canSync}
+            withArrow
           >
-            Sync now
-          </Button>
+            <Button
+              size="xs"
+              variant="light"
+              leftSection={<IconRefresh size={14} />}
+              onClick={handleSyncNow}
+              loading={isSyncing}
+              disabled={!canSync}
+            >
+              Sync now
+            </Button>
+          </Tooltip>
         </Group>
 
         {totals.pending > 0 && (

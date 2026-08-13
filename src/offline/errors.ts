@@ -85,3 +85,21 @@ export class OutboxFullError extends Error {
     this.pendingCount = pendingCount;
   }
 }
+
+/**
+ * A barcode the local mirror already holds.
+ *
+ * Mirrors the server's `BARCODE_ALREADY_EXISTS` so the product form's
+ * existing 409 handling fires identically whether the clash is caught
+ * locally while offline or by the server. Carries `code`/`statusCode` to
+ * match the `ApiError` shape that handling reads.
+ */
+export class BarcodeConflictError extends Error {
+  readonly code = 'BARCODE_ALREADY_EXISTS';
+  readonly statusCode = 409;
+
+  constructor(barcode: string) {
+    super(`A product with barcode "${barcode}" already exists`);
+    this.name = 'BarcodeConflictError';
+  }
+}

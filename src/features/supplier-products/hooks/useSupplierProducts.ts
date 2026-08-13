@@ -1,7 +1,7 @@
 import { db } from '@/offline/db/schema';
 import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
 import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type { UnlinkPayload } from '@/offline/resources/supplierProducts.resource';
+import type { SetLinksPayload, UnlinkPayload } from '@/offline/resources/supplierProducts.resource';
 import { Product } from '@/features/inventory/types';
 import { Supplier } from '@/features/suppliers/types';
 import { SupplierProduct, SupplierProductInput } from '../types';
@@ -45,7 +45,9 @@ export const useProductsForSupplier = (supplierKey: string | undefined) => {
         .filter((link) => link._isDeleted === 0)
         .toArray();
 
-      const products = await db.products.toArray();
+      // Tombstoned products are excluded here too — a link whose product
+      // the user deleted must not keep rendering that product.
+      const products = await db.products.where('_isDeleted').equals(0).toArray();
       const productByKey = new Map(products.map((product) => [product.key, product]));
 
       return links.flatMap((link) => {
@@ -72,7 +74,7 @@ export const useSuppliersForProduct = (productKey: string | undefined) => {
         .filter((link) => link._isDeleted === 0)
         .toArray();
 
-      const suppliers = await db.suppliers.toArray();
+      const suppliers = await db.suppliers.where('_isDeleted').equals(0).toArray();
       const supplierByKey = new Map(suppliers.map((supplier) => [supplier.key, supplier]));
 
       return links.flatMap((link) => {
@@ -95,4 +97,15 @@ export const useLinkProduct = () => {
 
 export const useUnlinkProduct = () => {
   return useSyncedMutation<UnlinkPayload, void>('supplierProducts', 'unlink');
+};
+
+/**
+ * Replaces a supplier's entire product list.
+ *
+ * Use this rather than the bulk REST endpoint directly — going straight to
+ * the network drops the whole set when offline, and leaves the local mirror
+ * showing the previous links until the next pull.
+ */
+export const useSetSupplierLinks = () => {
+  return useSyncedMutation<SetLinksPayload, void>('supplierProducts', 'setLinks');
 };

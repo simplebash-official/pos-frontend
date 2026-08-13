@@ -25,6 +25,16 @@ import { registerSyncResources } from '../resources';
  * like sync errors. Note that logging out does NOT clear the local database —
  * a cashier's queued offline work must survive an expired session.
  */
+/**
+ * Toast bookkeeping that must outlive a remount.
+ *
+ * The engine is a module-level singleton and the effect below re-runs on
+ * every auth flip and (in StrictMode) twice on mount, so anything tracked in
+ * effect-local state would re-announce an outage the user already saw.
+ */
+let offlineAnnounced = false;
+let lastConflictCount = 0;
+
 export const SyncProvider = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -42,7 +52,11 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
     });
     dispatch(syncLabelsRegistered(labels));
 
-    let wasOffline = false;
+    // Tracked outside the effect body so a StrictMode remount, or an auth
+    // flip while offline, does not reset it and replay the offline toast for
+    // an outage the user was already told about.
+    let wasOffline = offlineAnnounced;
+    let hadPendingWork = false;
 
     const unsubscribe = syncEngine.subscribe((state) => {
       dispatch(syncStateChanged(state));
@@ -56,15 +70,25 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
         notifyBackOnline(state.totals.pending);
       }
       wasOffline = isOffline;
+      offlineAnnounced = isOffline;
+      hadPendingWork = hadPendingWork || state.totals.pending > 0;
     });
 
     const unsubscribeFlush = syncEngine.onFlushComplete((summary) => {
-      if (summary.conflicted > 0) {
+      // `conflicted` is recomputed every pass, so an unresolved conflict would
+      // re-toast forever. Only announce a rise in the total.
+      if (summary.conflicted > lastConflictCount) {
         notifySyncProblems(summary.conflicted);
       }
-      if (summary.pushed > 0 && !summary.stoppedOffline) {
+      lastConflictCount = summary.conflicted;
+
+      // "Saved to the server" is only news if the change had been waiting.
+      // Online, every ordinary edit flushes within a second of being made,
+      // and toasting each one buries the user in confirmations.
+      if (summary.pushed > 0 && !summary.stoppedOffline && hadPendingWork) {
         notifySyncComplete(summary.pushed);
       }
+      hadPendingWork = false;
     });
 
     syncEngine.start();

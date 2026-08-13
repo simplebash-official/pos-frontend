@@ -34,6 +34,18 @@ export class LeaderElection {
     }
     this.abortController = new AbortController();
 
+    // Web Locks needs a secure context. A LAN-served build over plain http
+    // has no lock API at all, and letting that throw would take down the
+    // whole provider tree via the error boundary. One tab leading
+    // unconditionally is the right degradation: sync still works, it just
+    // has no cross-tab arbitration.
+    if (typeof navigator === 'undefined' || navigator.locks === undefined) {
+      this.leading = true;
+      logInfo(null, 'Web Locks unavailable — this tab is leading unconditionally', null);
+      onElected();
+      return;
+    }
+
     void navigator.locks
       .request(
         SYNC_LEADER_LOCK,

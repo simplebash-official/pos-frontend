@@ -1,12 +1,12 @@
 import { queryKeys } from '@/api/queryKeys';
-import { createPurchase, fetchPurchases } from '@/features/purchases/api/purchasesApi';
+import { createPurchase } from '@/features/purchases/api/purchasesApi';
 import type { StockPurchase, StockPurchaseInput } from '@/features/purchases/types';
 import { db } from '../db/schema';
 import { toLocalRow } from '../db/mirror';
 import { appendStockDelta } from '../engine/stockLedger';
 import { defineOperation, defineSyncResource } from '../registry/registry';
-import { deltaNotAvailable } from './deltaPull';
 import { pushOptions } from './pushOptions';
+import { fetchResourceDelta, fetchResourceSnapshot } from './syncApi';
 
 /**
  * Stock intakes. Append-only — a purchase is never edited or deleted — which
@@ -27,23 +27,12 @@ export const purchasesResource = defineSyncResource<StockPurchase>({
   dependsOn: ['products', 'suppliers'],
 
   pull: {
-    delta: deltaNotAvailable<StockPurchase>('purchases'),
-    full: async () => {
-      // Addressable only per supplier or product, so fan out over suppliers.
-      const suppliers = await db.suppliers.where('_isDeleted').equals(0).toArray();
-      const collected: StockPurchase[] = [];
-      for (const supplier of suppliers) {
-        if (supplier._version === -1) {
-          continue;
-        }
-        try {
-          collected.push(...(await fetchPurchases({ supplierKey: supplier.key })));
-        } catch {
-          continue;
-        }
-      }
-      return collected;
-    },
+    delta: (cursor, ctx) => fetchResourceDelta<StockPurchase>('purchases', cursor, ctx.signal),
+    // There is no "all purchases" REST route — history is addressable only
+    // per supplier or product — so the snapshot is paged from the sync
+    // endpoint, which is cursorless by design here and therefore answers with
+    // a snapshot rather than a delta.
+    full: (ctx) => fetchResourceSnapshot<StockPurchase>('purchases', ctx.signal),
     intervalMs: 5 * 60_000,
   },
 
@@ -94,6 +83,7 @@ export const purchasesResource = defineSyncResource<StockPurchase>({
         );
         return {
           serverEntity: created,
+          removesRows: false,
           identity: { serverKey: created.key, serverId: created.id },
           // The server also moved stock and wrote a movement row.
           followUp: [

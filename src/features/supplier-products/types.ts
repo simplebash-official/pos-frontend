@@ -1,4 +1,6 @@
-export interface SupplierProduct {
+import type { SyncedEntityFields } from '@/shared/types/common';
+
+export interface SupplierProduct extends SyncedEntityFields {
   key: string;
   supplierKey: string;
   productKey: string;

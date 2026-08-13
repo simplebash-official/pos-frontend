@@ -75,10 +75,12 @@ export class OfflineDb extends Dexie {
       session: 'id',
     });
 
-    // v2 exists only so databases created during development, before
-    // stockMovements carried the shared mirror indexes, pick them up. Dexie
-    // ignores edits to an already-installed version, so a bump is the only way
-    // to add an index to an existing store.
+    // v2 restates `stockMovements` identically to v1. It was added when v1
+    // had already shipped without the shared mirror indexes; v1 above has
+    // since been corrected in source, so this is now a no-op that exists
+    // only to keep the version numbering stable for databases that already
+    // installed it. Do not renumber, and do not edit v1 in place — Dexie
+    // ignores changes to an already-installed version.
     this.version(2).stores({
       stockMovements: 'id, key, productId, createdAt, [productId+createdAt], _pending, _isDeleted',
     });

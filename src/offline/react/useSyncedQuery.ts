@@ -1,5 +1,5 @@
 import { useAppSelector } from '@/store/hooks';
-import { selectResourceIsSyncing } from '@/store/slices/syncSlice';
+import { selectResourceHasNeverSynced, selectResourceIsSyncing } from '@/store/slices/syncSlice';
 import type { SyncResourceId } from '../types';
 import { useLiveQuery } from './useLiveQuery';
 
@@ -20,6 +20,14 @@ export interface SyncedQueryResult<T> {
   isLoading: boolean;
   isPending: boolean;
   isFetching: boolean;
+  /**
+   * True when this resource has never completed a pull, so an empty `data` is
+   * "not downloaded yet" rather than "there is nothing". The Dexie read
+   * resolves within a microtask either way, so `isLoading` cannot tell the
+   * two apart — a screen that wants to say "setting up your catalog" instead
+   * of "no products found" has to check this.
+   */
+  hasNeverSynced: boolean;
   error: Error | null;
 }
 
@@ -31,12 +39,14 @@ export const useSyncedQuery = <T>(
 ): SyncedQueryResult<T> => {
   const { data, isLoading, error } = useLiveQuery(querier, initial, deps);
   const isSyncing = useAppSelector(selectResourceIsSyncing(resource));
+  const hasNeverSynced = useAppSelector(selectResourceHasNeverSynced(resource));
 
   return {
     data,
     isLoading,
     isPending: isLoading,
     isFetching: isSyncing,
+    hasNeverSynced,
     error,
   };
 };

@@ -4,9 +4,8 @@ import { notifications } from '@mantine/notifications';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { IconCheck } from '@tabler/icons-react';
 import { formatDateTime } from '@/shared/lib/date';
-import { db } from '@/offline/db/schema';
 import type { OutboxOp, OutboxStatus } from '@/offline/db/tables';
-import { retryOperation } from '@/offline/outbox/outbox';
+import { discardOperation, retryOperation } from '@/offline/outbox/outbox';
 import { syncEngine } from '@/offline/engine/SyncEngine';
 
 export interface PendingOperationsListProps {
@@ -55,10 +54,14 @@ export const PendingOperationsList = ({ operations }: PendingOperationsListProps
     if (op.seq === undefined) {
       return;
     }
-    await db.outbox.delete(op.seq);
+    // Rolls back the local write as well as dropping the queue entry.
+    // Deleting the entry alone leaves the mirror row flagged `_pending`, and
+    // the puller skips pending rows — so the record could never again be
+    // corrected by the server.
+    await discardOperation(op.seq);
     notifications.show({
       title: 'Change discarded',
-      message: 'That change will not be sent to the server.',
+      message: 'That change was undone and will not be sent to the server.',
       color: 'orange',
     });
   };
