@@ -13,6 +13,7 @@ import {
   Avatar,
   Box,
   Tooltip,
+  Center,
 } from '@mantine/core';
 import {
   IconUserPlus,
@@ -217,11 +218,13 @@ export const CustomerList = () => {
     {
       key: 'primaryPhone',
       header: 'Phone',
-      align: 'left',
+      align: 'center',
       width: '25%',
       sortable: true,
       render: (c) => (
-        <PhoneDisplay primaryPhone={c.primaryPhone} secondaryPhone={c.secondaryPhone} />
+        <Center>
+          <PhoneDisplay primaryPhone={c.primaryPhone} secondaryPhone={c.secondaryPhone} />
+        </Center>
       ),
     },
     {
