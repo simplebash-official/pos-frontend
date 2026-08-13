@@ -13,6 +13,7 @@ import {
   Avatar,
   Box,
   Tooltip,
+  Center,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -172,11 +173,11 @@ export const SupplierList = () => {
     {
       key: 'contactPerson',
       header: 'Contact',
-      align: 'left',
+      align: 'center',
       width: '25%',
       sortable: true,
       render: (s) => (
-        <Text size="xs" fw={600}>
+        <Text size="xs" fw={600} ta="center">
           {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
         </Text>
       ),
@@ -184,24 +185,26 @@ export const SupplierList = () => {
     {
       key: 'primaryPhone',
       header: 'Phone',
-      align: 'left',
+      align: 'center',
       width: '25%',
       sortable: true,
       render: (s) => (
-        <PhoneDisplay
-          primaryPhone={
-            s.primaryPhone ||
-            (s as unknown as Record<string, string>).phone ||
-            (s as unknown as Record<string, string>).contactPhone ||
-            ''
-          }
-          secondaryPhone={
-            s.secondaryPhone ||
-            (s as unknown as Record<string, string>).backupPhone ||
-            (s as unknown as Record<string, string>).altPhone ||
-            ''
-          }
-        />
+        <Center>
+          <PhoneDisplay
+            primaryPhone={
+              s.primaryPhone ||
+              (s as unknown as Record<string, string>).phone ||
+              (s as unknown as Record<string, string>).contactPhone ||
+              ''
+            }
+            secondaryPhone={
+              s.secondaryPhone ||
+              (s as unknown as Record<string, string>).backupPhone ||
+              (s as unknown as Record<string, string>).altPhone ||
+              ''
+            }
+          />
+        </Center>
       ),
     },
     {

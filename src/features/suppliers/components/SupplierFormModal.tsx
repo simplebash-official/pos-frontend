@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import {
   Modal,
   TextInput,
@@ -15,6 +15,8 @@ import {
   Tooltip,
   Center,
   ScrollArea,
+  Box,
+  ThemeIcon,
 } from '@mantine/core';
 import {
   IconBuildingStore,
@@ -25,6 +27,7 @@ import {
   IconMail,
   IconPackage,
   IconPlus,
+  IconTrash,
   IconX,
   IconSearch,
 } from '@tabler/icons-react';
@@ -57,6 +60,8 @@ const SupplierFormContent = ({
   loading = false,
 }: FormContentProps) => {
   const isEditing = Boolean(supplierToEdit);
+  const isMobile = useIsMobile();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<SupplierInput>({
     name: supplierToEdit?.name || '',
@@ -96,6 +101,7 @@ const SupplierFormContent = ({
   }
 
   const [productSearch, setProductSearch] = useState('');
+  const [isLinkingActive, setIsLinkingActive] = useState(false);
 
   const availableProducts = useMemo(() => {
     const linkedSet = new Set(linkedProductKeys);
@@ -107,6 +113,7 @@ const SupplierFormContent = ({
         return (
           p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
           p.subcategory.toLowerCase().includes(q)
         );
       });
@@ -119,27 +126,41 @@ const SupplierFormContent = ({
       .filter(Boolean) as typeof allProducts;
   }, [allProducts, linkedProductKeys]);
 
-  const addProduct = (key: string) => setLinkedProductKeys((prev) => [...prev, key]);
-  const removeProduct = (key: string) =>
+  const addProduct = (key: string) => {
+    setLinkedProductKeys((prev) => [...prev, key]);
+    setProductSearch('');
+  };
+
+  const removeProduct = (key: string) => {
     setLinkedProductKeys((prev) => prev.filter((pKey) => pKey !== key));
+  };
+
+  const handleStartLinking = () => {
+    setIsLinkingActive(true);
+    if (!isMobile) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+    }
+  };
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Business Name is required (e.g. "Colombo Mobile Parts")';
+      newErrors.name = 'Please enter the business name (e.g. "Colombo Mobile Parts")';
     }
     if (!formData.contactPerson.trim()) {
-      newErrors.contactPerson = 'Contact person name is required (e.g. "Ranjith Kumara")';
+      newErrors.contactPerson = 'Please enter the contact person\'s name (e.g. "Ranjith Kumara")';
     }
     if (!formData.primaryPhone.trim()) {
-      newErrors.primaryPhone = 'Primary phone number is required';
+      newErrors.primaryPhone = 'Please enter the primary phone number';
     }
     if (!formData.address.trim()) {
-      newErrors.address = 'Address or location is required';
+      newErrors.address = 'Please enter the address or physical location';
     }
     if (!formData.suppliedCategories || formData.suppliedCategories.length === 0) {
-      newErrors.suppliedCategories = 'Specify at least one supply tag (e.g. "Phone Parts")';
+      newErrors.suppliedCategories = 'Please specify at least one supply tag (e.g. "Phone Parts")';
     }
 
     setErrors(newErrors);
@@ -164,204 +185,435 @@ const SupplierFormContent = ({
     }
   };
 
+  const hasLinkedProducts = linkedProducts.length > 0;
+  const showSearchArea = isLinkingActive || hasLinkedProducts;
+
   return (
     <form onSubmit={handleSubmit}>
       <Stack gap="md">
-        {/* Business Name */}
-        <TextInput
-          label="Business Name"
-          description="Company or store name (e.g. 'Colombo Mobile Parts', not just a person's name)"
-          placeholder="e.g. Colombo Mobile Parts"
-          leftSection={<IconBuildingStore size={16} />}
-          required
-          value={formData.name}
-          onChange={(e) => handleChange('name', e.currentTarget.value)}
-          error={errors.name}
-        />
+        {/* Section 1: Supplier Profile */}
+        <Stack gap={6}>
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+            Supplier Profile
+          </Text>
 
-        <Grid>
-          {/* Contact Person */}
-          <Grid.Col span={{ base: 12, sm: 6 }}>
+          <Stack gap="sm">
             <TextInput
-              label="Contact Person"
-              description="The human representative you deal with"
-              placeholder="e.g. Ranjith Kumara"
-              leftSection={<IconUser size={16} />}
+              label="Business Name"
+              placeholder="e.g. Colombo Mobile Parts"
+              leftSection={<IconBuildingStore size={16} />}
               required
-              value={formData.contactPerson}
-              onChange={(e) => handleChange('contactPerson', e.currentTarget.value)}
-              error={errors.contactPerson}
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.currentTarget.value)}
+              error={errors.name}
             />
-          </Grid.Col>
 
-          {/* Email */}
-          <Grid.Col span={{ base: 12, sm: 6 }}>
-            <TextInput
-              label="Email Address"
-              placeholder="e.g. contact@supplier.lk"
-              leftSection={<IconMail size={16} />}
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.currentTarget.value)}
-            />
-          </Grid.Col>
-        </Grid>
+            <div>
+              <TagsInput
+                label="What They Supply (Tags & Categories)"
+                placeholder="Select or type tags (e.g. Phone Parts, Screen Protectors)"
+                data={DEFAULT_SUGGESTED_TAGS}
+                leftSection={<IconTag size={16} />}
+                required
+                clearable
+                value={formData.suppliedCategories}
+                onChange={(val) => handleChange('suppliedCategories', val)}
+                error={errors.suppliedCategories}
+              />
+              <Text size="xs" c="dimmed" mt={4}>
+                Categories or items they provide. Helps you quickly filter suppliers when
+                restocking.
+              </Text>
+            </div>
+          </Stack>
+        </Stack>
 
-        <Grid>
-          {/* Primary Phone */}
-          <Grid.Col span={{ base: 12, sm: 6 }}>
-            <TextInput
-              label="Primary Phone Number"
-              placeholder="e.g. 077 123 4567"
-              leftSection={<IconPhone size={16} />}
+        {/* Section 2: Contact & Location */}
+        <Stack gap={6}>
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+            Contact & Location
+          </Text>
+
+          <Stack gap="sm">
+            <Grid gap="sm">
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput
+                  label="Contact Person"
+                  placeholder="e.g. Ranjith Kumara"
+                  leftSection={<IconUser size={16} />}
+                  required
+                  value={formData.contactPerson}
+                  onChange={(e) => handleChange('contactPerson', e.currentTarget.value)}
+                  error={errors.contactPerson}
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput
+                  label="Email Address"
+                  placeholder="e.g. contact@supplier.lk"
+                  leftSection={<IconMail size={16} />}
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.currentTarget.value)}
+                />
+              </Grid.Col>
+            </Grid>
+
+            <Grid gap="sm">
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput
+                  label="Primary Phone Number"
+                  placeholder="e.g. 077 123 4567"
+                  leftSection={<IconPhone size={16} />}
+                  required
+                  value={formData.primaryPhone}
+                  onChange={(e) => handleChange('primaryPhone', e.currentTarget.value)}
+                  error={errors.primaryPhone}
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput
+                  label="Backup Phone Number"
+                  placeholder="e.g. 011 234 5678"
+                  leftSection={<IconPhone size={16} />}
+                  value={formData.secondaryPhone}
+                  onChange={(e) => handleChange('secondaryPhone', e.currentTarget.value)}
+                />
+              </Grid.Col>
+            </Grid>
+
+            <Textarea
+              label="Address / Location"
+              placeholder="e.g. No. 45, First Cross Street, Pettah, Colombo 11"
+              leftSection={<IconMapPin size={16} />}
+              rows={2}
               required
-              value={formData.primaryPhone}
-              onChange={(e) => handleChange('primaryPhone', e.currentTarget.value)}
-              error={errors.primaryPhone}
+              value={formData.address}
+              onChange={(e) => handleChange('address', e.currentTarget.value)}
+              error={errors.address}
             />
-          </Grid.Col>
+          </Stack>
+        </Stack>
 
-          {/* Backup Phone */}
-          <Grid.Col span={{ base: 12, sm: 6 }}>
-            <TextInput
-              label="Backup Phone Number"
-              description="Secondary / office landline"
-              placeholder="e.g. 011 234 5678"
-              leftSection={<IconPhone size={16} />}
-              value={formData.secondaryPhone}
-              onChange={(e) => handleChange('secondaryPhone', e.currentTarget.value)}
-            />
-          </Grid.Col>
-        </Grid>
-
-        {/* Address */}
-        <Textarea
-          label="Address / Location"
-          description="Physical location useful for visits, pickups, or returns"
-          placeholder="e.g. No. 45, First Cross Street, Pettah, Colombo 11"
-          leftSection={<IconMapPin size={16} />}
-          rows={2}
-          required
-          value={formData.address}
-          onChange={(e) => handleChange('address', e.currentTarget.value)}
-          error={errors.address}
-        />
-
-        {/* What They Supply Tags */}
-        <TagsInput
-          label="What They Supply (Tags & Categories)"
-          description="Categories or items they sell (e.g. 'phone parts', 'mug blanks', 'paper/ink'). Helps you quickly filter who sells what."
-          placeholder="Type tag and press Enter"
-          data={DEFAULT_SUGGESTED_TAGS}
-          leftSection={<IconTag size={16} />}
-          required
-          clearable
-          value={formData.suppliedCategories}
-          onChange={(val) => handleChange('suppliedCategories', val)}
-          error={errors.suppliedCategories}
-        />
-
-        {/* Notes */}
-        <Textarea
-          label="Additional Notes / Terms"
-          placeholder="e.g. Free delivery on orders over 50 units. Delivers every Tuesday."
-          rows={2}
-          value={formData.notes}
-          onChange={(e) => handleChange('notes', e.currentTarget.value)}
-        />
-
-        {/* Linked Products */}
-        <Stack gap="xs">
+        {/* Section 3: Linked Catalog Products */}
+        <Stack gap={8}>
           <Group justify="space-between" align="center">
-            <Text size="sm" fw={700}>
-              <IconPackage size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-              Linked Products ({linkedProducts.length})
-            </Text>
+            <Group gap="xs" align="center">
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ letterSpacing: '0.05em' }}
+              >
+                Linked Inventory Products
+              </Text>
+              {hasLinkedProducts && (
+                <Badge size="xs" variant="light" color="blue">
+                  {linkedProducts.length} {linkedProducts.length === 1 ? 'Product' : 'Products'}{' '}
+                  Linked
+                </Badge>
+              )}
+            </Group>
+
+            {hasLinkedProducts && !isLinkingActive && (
+              <Button
+                size="xs"
+                variant="subtle"
+                color="blue"
+                leftSection={<IconPlus size={14} />}
+                onClick={handleStartLinking}
+              >
+                Link Another Product
+              </Button>
+            )}
           </Group>
 
-          {linkedProducts.length > 0 && (
-            <Stack gap={4}>
-              {linkedProducts.map((p) => (
-                <Paper key={p.key} p="xs" withBorder radius="var(--mantine-radius-default)">
-                  <Group justify="space-between" align="center" wrap="nowrap">
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <Text size="xs" fw={700} lineClamp={1}>
-                        {p.name}
-                      </Text>
-                      <Group gap={4} mt={2}>
-                        <Badge size="xs" variant="filled" color="blue">
-                          {p.sku}
-                        </Badge>
-                        <Badge size="xs" variant="light" color="gray">
-                          {p.subcategory}
-                        </Badge>
-                      </Group>
-                    </div>
-                    <Tooltip label="Remove" withArrow>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        size="sm"
-                        onClick={() => removeProduct(p.key)}
-                      >
-                        <IconX size={14} />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-                </Paper>
-              ))}
-            </Stack>
+          {hasLinkedProducts && (
+            <Text size="xs" c="dimmed">
+              Products supplied by this vendor. Link items to quickly select them during stock
+              intakes.
+            </Text>
           )}
 
-          {/* Quick product search and add */}
-          <TextInput
-            placeholder="Search products to link…"
-            leftSection={<IconSearch size={14} />}
-            size="xs"
-            value={productSearch}
-            onChange={(e) => setProductSearch(e.currentTarget.value)}
-          />
-
-          {productSearch && (
-            <ScrollArea.Autosize mah={150}>
-              <Stack gap={2}>
-                {availableProducts.length === 0 ? (
-                  <Center py="xs">
-                    <Text size="xs" c="dimmed">
-                      No matching products found.
+          {!showSearchArea ? (
+            /* Dashed Callout Box Empty State */
+            <Box
+              onClick={handleStartLinking}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleStartLinking();
+                }
+              }}
+              p="sm"
+              style={{
+                borderRadius: 'var(--mantine-radius-default)',
+                border:
+                  '1.5px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+                backgroundColor:
+                  'light-dark(var(--mantine-color-gray-0), rgba(255, 255, 255, 0.02))',
+                cursor: 'pointer',
+                transition: 'all 150ms ease',
+              }}
+            >
+              <Group justify="space-between" align="center" wrap="nowrap">
+                <Group gap="sm" align="center" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                  <ThemeIcon
+                    size={36}
+                    radius="var(--mantine-radius-default)"
+                    variant="light"
+                    color="blue"
+                    style={{ flexShrink: 0 }}
+                  >
+                    <IconPackage size={18} stroke={1.6} />
+                  </ThemeIcon>
+                  <div style={{ minWidth: 0 }}>
+                    <Text size="sm" fw={600} c="var(--text-primary)" lineClamp={1}>
+                      Which products does this supplier provide?
                     </Text>
-                  </Center>
-                ) : (
-                  availableProducts.slice(0, 8).map((p) => (
-                    <Paper
-                      key={p.key}
-                      p="4px 8px"
-                      radius="var(--mantine-radius-default)"
-                      className="hover-card"
-                      onClick={() => {
-                        addProduct(p.key);
-                        setProductSearch('');
-                      }}
-                      style={{ border: '1px solid var(--mantine-color-default-border)' }}
+                    <Text size="xs" c="dimmed" lineClamp={2}>
+                      Connect inventory items you purchase from this supplier. You can skip this.
+                    </Text>
+                  </div>
+                </Group>
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="blue"
+                  leftSection={<IconPlus size={14} />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartLinking();
+                  }}
+                  style={{ flexShrink: 0 }}
+                >
+                  Link Products
+                </Button>
+              </Group>
+            </Box>
+          ) : (
+            <Stack gap="xs">
+              {/* Quick Search and Add Input */}
+              <TextInput
+                ref={searchInputRef}
+                placeholder="Search products to link by name, SKU, or category…"
+                leftSection={<IconSearch size={16} />}
+                size="sm"
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.currentTarget.value)}
+                rightSection={
+                  productSearch ? (
+                    <ActionIcon
+                      variant="subtle"
+                      size="sm"
+                      onClick={() => setProductSearch('')}
+                      aria-label="Clear search"
                     >
-                      <Group gap={6} wrap="nowrap">
-                        <IconPlus size={12} style={{ opacity: 0.5, flexShrink: 0 }} />
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <Text size="xs" fw={600} lineClamp={1}>
-                            {p.name}
-                          </Text>
+                      <IconX size={14} />
+                    </ActionIcon>
+                  ) : null
+                }
+              />
+
+              {/* Search Suggestions Dropdown */}
+              {productSearch && (
+                <Paper
+                  withBorder
+                  p="xs"
+                  radius="var(--mantine-radius-default)"
+                  bg="light-dark(var(--bg-card), var(--mantine-color-dark-7))"
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  <ScrollArea.Autosize
+                    mah={160}
+                    classNames={{ viewport: 'scrollarea-fluid-content' }}
+                  >
+                    <Stack gap={4}>
+                      {availableProducts.length === 0 ? (
+                        <Center py="sm">
                           <Text size="xs" c="dimmed">
-                            {p.sku} · {formatMoney(p.costPriceCents)}
+                            No unlinked products match &quot;{productSearch}&quot;
                           </Text>
-                        </div>
-                      </Group>
-                    </Paper>
-                  ))
-                )}
-              </Stack>
-            </ScrollArea.Autosize>
+                        </Center>
+                      ) : (
+                        availableProducts.slice(0, 10).map((p) => (
+                          <Paper
+                            key={p.key}
+                            p="xs"
+                            radius="var(--mantine-radius-default)"
+                            onClick={() => addProduct(p.key)}
+                            style={{
+                              border: '1px solid var(--mantine-color-default-border)',
+                              cursor: 'pointer',
+                              transition: 'background-color 120ms ease',
+                            }}
+                          >
+                            <Group justify="space-between" align="center" wrap="nowrap">
+                              <Group gap="xs" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                                <ThemeIcon
+                                  size={24}
+                                  radius="var(--mantine-radius-default)"
+                                  variant="light"
+                                  color="blue"
+                                  style={{ flexShrink: 0 }}
+                                >
+                                  <IconPlus size={13} />
+                                </ThemeIcon>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <Text size="xs" fw={700} lineClamp={1}>
+                                    {p.name}
+                                  </Text>
+                                  <Group gap={4} mt={2}>
+                                    <Badge size="xs" variant="light" color="blue">
+                                      {p.sku}
+                                    </Badge>
+                                    <Badge size="xs" variant="outline" color="gray">
+                                      {p.subcategory || p.category}
+                                    </Badge>
+                                  </Group>
+                                </div>
+                              </Group>
+                              <Text
+                                size="xs"
+                                fw={600}
+                                c="var(--text-secondary)"
+                                style={{ flexShrink: 0 }}
+                              >
+                                {formatMoney(p.costPriceCents)}
+                              </Text>
+                            </Group>
+                          </Paper>
+                        ))
+                      )}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                </Paper>
+              )}
+
+              {/* Linked Product Cards List */}
+              {hasLinkedProducts && (
+                <ScrollArea.Autosize
+                  mah={220}
+                  classNames={{ viewport: 'scrollarea-fluid-content' }}
+                >
+                  <Stack gap={6}>
+                    {linkedProducts.map((p) => (
+                      <Paper
+                        key={p.key}
+                        withBorder
+                        p="xs"
+                        radius="var(--mantine-radius-default)"
+                        bg="light-dark(var(--bg-card), var(--mantine-color-dark-7))"
+                        style={{ borderColor: 'var(--border)' }}
+                      >
+                        <Group justify="space-between" align="center" wrap="nowrap">
+                          <Group
+                            gap="sm"
+                            align="center"
+                            wrap="nowrap"
+                            style={{ minWidth: 0, flex: 1 }}
+                          >
+                            <ThemeIcon
+                              size={30}
+                              radius="var(--mantine-radius-default)"
+                              variant="light"
+                              color="blue"
+                              style={{ flexShrink: 0 }}
+                            >
+                              <IconPackage size={16} />
+                            </ThemeIcon>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <Text size="xs" fw={700} lineClamp={1}>
+                                {p.name}
+                              </Text>
+                              <Group gap={6} mt={2} wrap="wrap">
+                                <Badge size="xs" variant="filled" color="blue">
+                                  {p.sku}
+                                </Badge>
+                                <Badge size="xs" variant="light" color="gray">
+                                  {p.category} · {p.subcategory}
+                                </Badge>
+                                <Text size="xs" c="dimmed">
+                                  Cost:{' '}
+                                  <Text span fw={600} c="var(--text-primary)">
+                                    {formatMoney(p.costPriceCents)}
+                                  </Text>
+                                </Text>
+                              </Group>
+                            </div>
+                          </Group>
+                          <Tooltip label="Remove product link" position="top" withArrow>
+                            <ActionIcon
+                              size="sm"
+                              color="red"
+                              variant="subtle"
+                              onClick={() => removeProduct(p.key)}
+                              aria-label={`Remove ${p.name}`}
+                            >
+                              <IconTrash size={15} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </Paper>
+                    ))}
+                  </Stack>
+                </ScrollArea.Autosize>
+              )}
+
+              {/* Live Summary Stat Strip */}
+              {hasLinkedProducts && (
+                <Paper
+                  withBorder
+                  px="md"
+                  py="xs"
+                  radius="var(--mantine-radius-default)"
+                  bg="light-dark(rgba(34, 139, 230, 0.04), rgba(34, 139, 230, 0.08))"
+                  style={{
+                    borderColor: 'light-dark(rgba(34, 139, 230, 0.25), rgba(34, 139, 230, 0.35))',
+                  }}
+                >
+                  <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+                    <Group gap="xs" align="center">
+                      <ThemeIcon size={24} radius="xl" variant="light" color="blue">
+                        <IconPackage size={13} />
+                      </ThemeIcon>
+                      <Text size="xs" c="var(--text-secondary)">
+                        Total Linked Products:{' '}
+                        <Text span fw={700} c="var(--text-primary)">
+                          {linkedProducts.length} {linkedProducts.length === 1 ? 'Item' : 'Items'}
+                        </Text>
+                      </Text>
+                    </Group>
+                    <Text size="xs" c="dimmed">
+                      Ready for stock intake & purchase orders
+                    </Text>
+                  </Group>
+                </Paper>
+              )}
+            </Stack>
           )}
         </Stack>
 
+        {/* Section 4: Terms & Notes */}
+        <Stack gap={6}>
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+            Terms & Notes
+          </Text>
+
+          <Textarea
+            label="Additional Notes / Terms"
+            placeholder="e.g. Free delivery on orders over 50 units. Delivers every Tuesday."
+            rows={2}
+            value={formData.notes}
+            onChange={(e) => handleChange('notes', e.currentTarget.value)}
+          />
+        </Stack>
+
+        {/* Footer Actions */}
         <Group justify="flex-end" gap="sm" mt="md">
           <Button variant="default" onClick={onClose} disabled={loading}>
             Cancel
@@ -382,7 +634,6 @@ export const SupplierFormModal = ({
   supplierToEdit,
   loading = false,
 }: SupplierFormModalProps) => {
-  const isEditing = Boolean(supplierToEdit);
   const isMobile = useIsMobile();
 
   return (
@@ -391,7 +642,7 @@ export const SupplierFormModal = ({
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          {isEditing ? 'Edit Supplier Details' : 'Register New Supplier'}
+          {supplierToEdit ? `Edit: ${supplierToEdit.name}` : 'Register New Supplier'}
         </Text>
       }
       size="lg"
