@@ -248,9 +248,9 @@ const ProductFormContent = ({
       const seenSupplierKeys = new Set<string>();
       supplierIntakes.forEach((row) => {
         if (!row.supplierKey) {
-          newErrors[`supplier_${row.id}_key`] = 'Select a vendor';
+          newErrors[`supplier_${row.id}_key`] = 'Pick a supplier';
         } else if (seenSupplierKeys.has(row.supplierKey)) {
-          newErrors[`supplier_${row.id}_key`] = 'Duplicate vendor selected';
+          newErrors[`supplier_${row.id}_key`] = 'This supplier is already added above';
         } else {
           seenSupplierKeys.add(row.supplierKey);
         }
@@ -269,7 +269,7 @@ const ProductFormContent = ({
     if (!isEditing && !autoGenerateBarcode) {
       const trimmed = manualBarcode.trim();
       if (trimmed && !/^\d{8,14}$/.test(trimmed)) {
-        newErrors.barcode = 'Manual barcode must be 8–14 numeric digits';
+        newErrors.barcode = 'A barcode should be 8 to 14 numbers, with no letters or spaces';
       }
     }
 
@@ -370,7 +370,7 @@ const ProductFormContent = ({
       setErrors((prev) => ({ ...prev, categoryKey: message }));
     } else if (message.toLowerCase().includes('supplier')) {
       notifications.show({
-        title: 'Supplier Validation Error',
+        title: 'Please check the supplier details',
         message,
         color: 'red',
       });
@@ -441,11 +441,12 @@ const ProductFormContent = ({
                   tt="uppercase"
                   style={{ letterSpacing: '0.05em' }}
                 >
-                  Suppliers & Stock Intake
+                  Suppliers & Stock Received
                 </Text>
                 {hasSupplierIntakes && (
                   <Badge size="xs" variant="light" color="blue">
-                    {supplierIntakes.length} {supplierIntakes.length === 1 ? 'Batch' : 'Batches'} ·{' '}
+                    {supplierIntakes.length}{' '}
+                    {supplierIntakes.length === 1 ? 'Supplier' : 'Suppliers'} ·{' '}
                     {totalIntakeQuantity} Units
                   </Badge>
                 )}
@@ -463,6 +464,13 @@ const ProductFormContent = ({
                 </Button>
               )}
             </Group>
+
+            {hasSupplierIntakes && (
+              <Text size="xs" c="dimmed">
+                Bought this item from more than one place? Add each supplier separately with
+                &quot;Add Another Supplier&quot;.
+              </Text>
+            )}
 
             {supplierIntakes.length === 0 ? (
               <Box
@@ -499,10 +507,11 @@ const ProductFormContent = ({
                     </ThemeIcon>
                     <div style={{ minWidth: 0 }}>
                       <Text size="sm" fw={600} c="var(--text-primary)" lineClamp={1}>
-                        Add Supplier & Batch Intake
+                        Who did you buy this from?
                       </Text>
-                      <Text size="xs" c="dimmed" lineClamp={1}>
-                        Optionally link vendors to record bought units, costs, and PO numbers
+                      <Text size="xs" c="dimmed" lineClamp={2}>
+                        Add one supplier, or add several if you bought this item from more than one
+                        place. You can skip this.
                       </Text>
                     </div>
                   </Group>
@@ -542,16 +551,16 @@ const ProductFormContent = ({
                         <Group justify="space-between" align="center">
                           <Group gap="xs" align="center">
                             <Badge size="sm" variant="light" color="blue">
-                              Supplier Batch #{index + 1}
+                              Supplier {index + 1}
                             </Badge>
                           </Group>
-                          <Tooltip label="Remove this supplier batch" position="top">
+                          <Tooltip label="Remove this supplier" position="top">
                             <ActionIcon
                               size="sm"
                               color="red"
                               variant="subtle"
                               onClick={() => handleRemoveSupplierIntake(row.id)}
-                              aria-label={`Remove supplier batch #${index + 1}`}
+                              aria-label={`Remove supplier ${index + 1}`}
                             >
                               <IconTrash size={15} />
                             </ActionIcon>
@@ -560,8 +569,8 @@ const ProductFormContent = ({
 
                         {/* Vendor Select */}
                         <Select
-                          label="Vendor / Supplier"
-                          placeholder="Search or select supplier vendor"
+                          label="Supplier"
+                          placeholder="Search or pick a supplier"
                           data={availableOptions}
                           value={row.supplierKey || null}
                           onChange={(val) =>
@@ -647,7 +656,7 @@ const ProductFormContent = ({
                         <IconBox size={13} />
                       </ThemeIcon>
                       <Text size="xs" c="var(--text-secondary)">
-                        Total Intake Stock:{' '}
+                        Total Units Received:{' '}
                         <Text span fw={700} c="var(--text-primary)">
                           {totalIntakeQuantity} Units
                         </Text>
@@ -658,7 +667,7 @@ const ProductFormContent = ({
                         <IconReceipt size={13} />
                       </ThemeIcon>
                       <Text size="xs" c="var(--text-secondary)">
-                        Total Investment:{' '}
+                        Total Amount Paid:{' '}
                         <Text span fw={700} c="var(--text-primary)">
                           {formatMoney(totalIntakeCostCents)}
                         </Text>
@@ -701,10 +710,11 @@ const ProductFormContent = ({
 
                   <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                     <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
-                      Auto-generate EAN-13
+                      Create a barcode for me
                     </Text>
                     <Text size="xs" c="dimmed" lh={1.3}>
-                      Internal prefix &quot;20&quot; · minted on save · GS1 compatible
+                      A scannable shop barcode is made when you save. Turn this off to scan or type
+                      the barcode already on the product.
                     </Text>
                   </Stack>
                 </Group>
@@ -721,7 +731,7 @@ const ProductFormContent = ({
                   }}
                   color="amber"
                   size="md"
-                  aria-label="Auto-generate EAN-13 barcode"
+                  aria-label="Create a barcode for me"
                 />
               </Group>
             </Box>
@@ -729,7 +739,7 @@ const ProductFormContent = ({
             {!autoGenerateBarcode && (
               <TextInput
                 mt={4}
-                placeholder="Scan or enter manufacturer barcode (8–14 digits)"
+                placeholder="Scan the product, or type the barcode numbers"
                 leftSection={<IconBarcode size={16} />}
                 value={manualBarcode}
                 onChange={(e) => {
@@ -738,7 +748,7 @@ const ProductFormContent = ({
                 }}
                 error={errors.barcode}
                 autoFocus={!isMobile}
-                description="Use a barcode scanner or enter product packaging barcode (8–14 numeric digits)"
+                description="Point the scanner at the product, or type the numbers printed under the barcode (8–14 digits)"
               />
             )}
           </Stack>
@@ -755,7 +765,7 @@ const ProductFormContent = ({
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed">
-                  SKU (Immutable)
+                  SKU (cannot be changed)
                 </Text>
                 <Text size="sm" fw={700}>
                   {productToEdit?.sku}
@@ -763,7 +773,7 @@ const ProductFormContent = ({
               </div>
               <div>
                 <Text size="xs" c="dimmed">
-                  Barcode (Immutable)
+                  Barcode (cannot be changed)
                 </Text>
                 <Group gap={6}>
                   <Text size="sm" fw={700}>

@@ -50,6 +50,19 @@ The app targets three layout tiers. `src/styles/theme.ts` defines **no** custom 
 
 Verify with the real thing: `npm run dev`, then walk the full flow at 375, 414, 768, 1024, 1280 and 1920 — plus at least one pass in dark mode — and assert `document.documentElement.scrollWidth <= window.innerWidth` at every width.
 
+## UI copy — write for a non-technical shop user
+
+**The person using this app runs a repair/retail shop; they are not a developer and may not be a native English speaker.** Every string that reaches the screen — labels, placeholders, helper text, empty states, validation messages, toast titles, tooltips, `aria-label`s — is written for them, not for us. This is a hard requirement on every UI change, the same as responsiveness.
+
+- **No standards names, formats, or internals in user-facing text.** `EAN-13`, `GS1`, "internal prefix 20", "minted on save", `SKU` collision rules, `local_` ids, "delta", "cursor", "outbox", "idempotency" — none of it means anything to a shop owner. Say what the feature _does for them_: "Create a barcode for me" / "A scannable shop barcode is made when you save." Keep the technical term only where the user genuinely searches for it (`SKU` on a printed label), never as the explanation.
+- **No developer/DB jargon as adjectives.** "Immutable" → "cannot be changed". "Validation error" → "Please check the …". "Vendor" → "Supplier" (pick one word for a concept and use it everywhere; don't alternate "Vendor / Supplier"). "Intake" → "Received".
+- **Say plainly when something is optional, and when it repeats.** Any section that accepts one _or many_ rows must say so in its empty state, in plain words — e.g. the product form's supplier section reads "Add one supplier, or add several if you bought this item from more than one place. You can skip this." A user who doesn't know a section is repeatable will cram two suppliers into one row; a user who doesn't know it's optional will invent data to fill it. Once rows exist, keep pointing at the repeat affordance by name ("Add each supplier separately with 'Add Another Supplier'"), and number the rows for humans (`Supplier 1`, not `Supplier Batch #1`).
+- **Validation messages say what to do, not what failed.** "A barcode should be 8 to 14 numbers, with no letters or spaces", not "must match /^\d{8,14}$/" or "invalid format". "This supplier is already added above", not "Duplicate vendor selected".
+- **Prefer a short question or instruction as a heading** where it makes the intent obvious ("Who did you buy this from?"). Sentence case for helper text, full sentences with a full stop.
+- Keep the `aria-label` in the same plain language as the visible label — screen-reader users get no benefit from the internal name.
+
+`ProductFormModal.tsx`'s supplier and barcode blocks are the reference for the tone.
+
 ## Keyboard shortcuts
 
 `useAppShortcuts` (`src/shared/hooks/useShortcuts.ts`) is the single global keyboard-shortcut engine — bind through it rather than a component-local `window.addEventListener('keydown', ...)`. Pass an array of `{ key, handler, ignoreInput?, preventDefault? }` entries; `key` is a combo string like `"Enter"`, `"F2"`, `"Ctrl+D"`, `"Ctrl+Shift+H"`, or `"?"` (`ctrl` matches both `ctrlKey` and `metaKey`, so one combo covers Windows/Linux Ctrl and Mac Cmd).
