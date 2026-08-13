@@ -91,6 +91,46 @@ Every center-opening `Modal` (as opposed to a `Drawer` side panel) follows the p
 
 There's no shared `<AppModal>` wrapper — every modal styles Mantine's `Modal` inline, consistent with the rest of the codebase's per-component styling. `ProductFormModal.tsx` is the reference implementation; `ConfirmDialog.tsx` is the reference for small confirmation dialogs.
 
+## Right-side detail & profile drawers — one visual family
+
+Every right-side entity detail drawer (e.g. Item Specifications, Supplier Profile, Employee Profile & Commission, Customer Profile) follows the standard established by `ProductTable.tsx` ("Item Specifications"), `SupplierDetailDrawer.tsx` ("Supplier Profile"), and `EmployeeDetailDrawer.tsx` ("Employee Profile & Commission"):
+
+```tsx
+<DetailDrawer
+  data={entity}
+  opened={opened}
+  onClose={handleClose}
+  size={isMobile ? '100%' : 'md'}
+  title={
+    <Group gap="xs">
+      <ThemeIcon
+        color="blue"
+        variant="light"
+        size="lg"
+        radius="var(--mantine-radius-default)"
+      >
+        <IconEntity size={20} />
+      </ThemeIcon>
+      <div>
+        <Text fw={800} size="md">
+          {Entity} Profile & Details
+        </Text>
+        <Text size="xs" c="dimmed">
+          Entity Specifications, Contacts & Records
+        </Text>
+      </div>
+    </Group>
+  }
+>
+```
+
+- **Header Structure**: `<Group gap="xs"><ThemeIcon color="blue" variant="light" size="lg"><Icon size={20} /></ThemeIcon><div><Text fw={800} size="md">Title</Text><Text size="xs" c="dimmed">Subtitle</Text></div></Group>`.
+- **Hero Identity Card**: `<Paper p="md" radius="var(--mantine-radius-default)" withBorder bg="var(--mantine-color-body)">` displaying top status/key badges, large entity title (`<Text fw={800} size="lg">`), primary contact/tag pills, and rule/highlight sub-cards.
+- **3-Column Metrics Snapshot**: A 3-column `<Grid gap={0}>` `<Paper p="md" withBorder>` with `borderRight` column dividers displaying high-level financial & operational metrics (e.g., _Selling/Cost/Margin_ or _Commission/Jobs/Revenue_ or _Products/Intakes/Spend_).
+- **Tabbed Operations & Activity (`Tabs`)**: High-density interactive views with `<Tabs.List grow>` and concise labels (e.g. `[ Products (12) ] [ Intake (4) ] [ Details ]` or `[ History (8) ] [ Split Rules ] [ Details ]`) to ensure tabs fill the width evenly and never wrap into multi-line rows.
+- **Inline Expandable Actions (`<Collapse expanded={...}>`)**: Provide quick inline forms (linking items, recording stock receipts, quick filters) directly inside the drawer without forcing full-page or modal navigation jumps.
+- **System Metadata & Actions**: Metadata rows (`Registered On`, `Last Updated`, `Key / ID`) followed by a standard footer with `Delete` (red light with `IconTrash`), `Close` (`variant="default"`), and `Edit Details` (`variant="filled" color="blue"` with `IconEdit`).
+
 ## Keyboard shortcuts
 
 `useAppShortcuts` (`src/shared/hooks/useShortcuts.ts`) is the single global keyboard-shortcut engine — bind through it rather than a component-local `window.addEventListener('keydown', ...)`. Pass an array of `{ key, handler, ignoreInput?, preventDefault? }` entries; `key` is a combo string like `"Enter"`, `"F2"`, `"Ctrl+D"`, `"Ctrl+Shift+H"`, or `"?"` (`ctrl` matches both `ctrlKey` and `metaKey`, so one combo covers Windows/Linux Ctrl and Mac Cmd).

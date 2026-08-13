@@ -1181,7 +1181,7 @@ export const ProductTable = () => {
               color="amber"
               mt="xs"
             >
-              <Tabs.List>
+              <Tabs.List grow>
                 <Tabs.Tab
                   value="movements"
                   rightSection={

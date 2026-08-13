@@ -449,7 +449,7 @@ export const SupplierDetailDrawer = ({
               color="blue"
               mt="xs"
             >
-              <Tabs.List>
+              <Tabs.List grow>
                 <Tabs.Tab
                   value="products"
                   rightSection={
@@ -468,9 +468,9 @@ export const SupplierDetailDrawer = ({
                     </Badge>
                   }
                 >
-                  Stock Intake
+                  Intake
                 </Tabs.Tab>
-                <Tabs.Tab value="details">Contact & Details</Tabs.Tab>
+                <Tabs.Tab value="details">Details</Tabs.Tab>
               </Tabs.List>
             </Tabs>
 

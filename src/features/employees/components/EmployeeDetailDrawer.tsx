@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import {
   Stack,
   Group,
@@ -9,9 +10,10 @@ import {
   ThemeIcon,
   ScrollArea,
   Grid,
-  Card,
-  Table,
   Skeleton,
+  Tabs,
+  SegmentedControl,
+  Center,
 } from '@mantine/core';
 import {
   IconUserCheck,
@@ -25,14 +27,21 @@ import {
   IconHammer,
   IconPrinter,
   IconReceipt,
+  IconClock,
+  IconBriefcase,
+  IconTrendingUp,
+  IconCalculator,
+  IconTag,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Employee, EMPLOYEE_ROLE_LABELS } from '../types';
+import { Employee, EMPLOYEE_ROLE_LABELS, EmployeeEarningRecord } from '../types';
 import { fetchEmployeeEarnings } from '../api/mockEmployees';
 import { queryKeys } from '@/api/queryKeys';
 import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
+import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface EmployeeDetailDrawerProps {
   employee: Employee | null;
@@ -49,6 +58,12 @@ export const EmployeeDetailDrawer = ({
   onEdit,
   onDelete,
 }: EmployeeDetailDrawerProps) => {
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState<string>('history');
+  const [workTypeFilter, setWorkTypeFilter] = useState<'all' | 'repair' | 'print' | 'billing'>(
+    'all'
+  );
+
   const {
     data: earnings = [],
     isLoading: loadingEarnings,
@@ -61,8 +76,9 @@ export const EmployeeDetailDrawer = ({
   });
 
   const isEarningsLoading = loadingEarnings || pendingEarnings || fetchingEarnings || !earnings;
-  const safeEarnings = earnings ?? [];
+  const safeEarnings = useMemo(() => earnings ?? [], [earnings]);
 
+  // Summary Metrics
   const totalEarnedCents = safeEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
   const totalJobsCompleted = safeEarnings.length;
   const totalRevenueGeneratedCents = safeEarnings.reduce(
@@ -70,19 +86,27 @@ export const EmployeeDetailDrawer = ({
     0
   );
 
+  // Filtered earnings list
+  const filteredEarnings = useMemo(() => {
+    if (workTypeFilter === 'all') return safeEarnings;
+    return safeEarnings.filter((e) => e.workType === workTypeFilter);
+  }, [safeEarnings, workTypeFilter]);
+
+  const handleClose = () => {
+    setActiveTab('history');
+    setWorkTypeFilter('all');
+    onClose();
+  };
+
   return (
     <DetailDrawer
       data={employee}
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
+      size={isMobile ? '100%' : 'md'}
       title={
         <Group gap="xs">
-          <ThemeIcon
-            color="indigo"
-            variant="light"
-            size="lg"
-            radius="var(--mantine-radius-default)"
-          >
+          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
             <IconUserCheck size={20} />
           </ThemeIcon>
           <div>
@@ -98,256 +122,574 @@ export const EmployeeDetailDrawer = ({
     >
       {(emp) => (
         <Stack gap="md" pt="xs">
-          {/* Header Banner */}
+          {/* Hero Identity Banner */}
           <Paper
             p="md"
             radius="var(--mantine-radius-default)"
             withBorder
             bg="var(--mantine-color-body)"
           >
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text fw={800} size="lg" mb={4}>
-                  {emp.name}
-                </Text>
-                <Group gap="xs">
-                  <Badge color="indigo" variant="filled" size="sm">
-                    {EMPLOYEE_ROLE_LABELS[emp.role] || emp.role}
-                  </Badge>
-                  <Badge
-                    color={emp.status === 'active' ? 'green' : 'gray'}
-                    variant="light"
-                    size="sm"
-                  >
-                    {emp.status.toUpperCase()}
-                  </Badge>
-                </Group>
-              </div>
-
-              <Paper p="xs" withBorder bg="var(--mantine-color-indigo-light)">
-                <Text size="xs" fw={700} c="indigo" tt="uppercase">
-                  Default Profit Split Rule
-                </Text>
-                <Group gap={4} mt={2}>
-                  {emp.defaultSplitType === 'percentage' ? (
-                    <>
-                      <IconPercentage
-                        size={16}
-                        style={{ color: 'var(--mantine-color-indigo-6)' }}
-                      />
-                      <Text fw={800} size="md" c="indigo">
-                        {emp.defaultSplitValue}% of Profit
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <IconCoin size={16} style={{ color: 'var(--mantine-color-teal-6)' }} />
-                      <Text fw={800} size="md" c="teal">
-                        {formatMoney(emp.defaultSplitValue)} Fixed
-                      </Text>
-                    </>
-                  )}
-                </Group>
-              </Paper>
-            </Group>
-          </Paper>
-
-          {/* KPI Earnings Cards */}
-          <Grid>
-            <Grid.Col span={4}>
-              <Card withBorder padding="xs" radius="var(--mantine-radius-default)" ta="center">
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Total Earned
-                </Text>
-                {isEarningsLoading ? (
-                  <Skeleton height={20} width={60} mx="auto" mt={4} />
-                ) : (
-                  <Text fw={800} size="md" c="indigo">
-                    {formatMoney(totalEarnedCents)}
-                  </Text>
-                )}
-              </Card>
-            </Grid.Col>
-
-            <Grid.Col span={4}>
-              <Card withBorder padding="xs" radius="var(--mantine-radius-default)" ta="center">
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Work Done
-                </Text>
-                {isEarningsLoading ? (
-                  <Skeleton height={20} width={50} mx="auto" mt={4} />
-                ) : (
-                  <Text fw={800} size="md">
-                    {totalJobsCompleted} Jobs
-                  </Text>
-                )}
-              </Card>
-            </Grid.Col>
-
-            <Grid.Col span={4}>
-              <Card withBorder padding="xs" radius="var(--mantine-radius-default)" ta="center">
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Revenue Done
-                </Text>
-                {isEarningsLoading ? (
-                  <Skeleton height={20} width={60} mx="auto" mt={4} />
-                ) : (
-                  <Text fw={800} size="md" c="teal">
-                    {formatMoney(totalRevenueGeneratedCents)}
-                  </Text>
-                )}
-              </Card>
-            </Grid.Col>
-          </Grid>
-
-          {/* Contact & Identifiers */}
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Contact & Identity Details
-          </Text>
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-            <Stack gap="xs">
-              <Group justify="space-between">
-                <Group gap="xs">
-                  <IconPhone size={16} style={{ opacity: 0.6 }} />
-                  <Text size="sm" fw={600}>
-                    Phone Number:
-                  </Text>
-                </Group>
-                <Text size="sm">{emp.phone}</Text>
+            <Group justify="space-between" align="flex-start" mb="xs">
+              <Group gap={6} wrap="wrap">
+                <Badge color="blue" variant="filled" size="sm">
+                  {EMPLOYEE_ROLE_LABELS[emp.role] || emp.role}
+                </Badge>
+                <Badge color={emp.status === 'active' ? 'green' : 'gray'} variant="light" size="sm">
+                  {emp.status === 'active' ? 'Active Staff' : 'Inactive'}
+                </Badge>
               </Group>
+              <Badge color="gray" variant="outline" size="sm">
+                {emp.id}
+              </Badge>
+            </Group>
 
-              {emp.nicOrId && (
-                <Group justify="space-between">
-                  <Group gap="xs">
-                    <IconId size={16} style={{ opacity: 0.6 }} />
-                    <Text size="sm" fw={600}>
-                      NIC / ID Number:
-                    </Text>
-                  </Group>
-                  <Text size="sm">{emp.nicOrId}</Text>
+            <Text fw={800} size="lg" mb={4}>
+              {emp.name}
+            </Text>
+
+            <Group gap="md" wrap="wrap" mb="xs">
+              {emp.phone && (
+                <Group gap={6}>
+                  <IconPhone
+                    size={14}
+                    style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
+                  />
+                  <Text size="xs" fw={600} c="dimmed">
+                    {emp.phone}
+                  </Text>
                 </Group>
               )}
-            </Stack>
+              {emp.nicOrId && (
+                <Group gap={6}>
+                  <IconId size={14} style={{ opacity: 0.6, flexShrink: 0 }} />
+                  <Text size="xs" c="dimmed">
+                    NIC: {emp.nicOrId}
+                  </Text>
+                </Group>
+              )}
+            </Group>
+
+            {/* Commission Rule Highlight */}
+            <Paper p="xs" withBorder radius="var(--mantine-radius-default)" bg="var(--bg-app)">
+              <Group justify="space-between" align="center">
+                <Group gap={6}>
+                  <IconPercentage size={14} style={{ color: 'var(--mantine-color-blue-6)' }} />
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    Default Commission Rule
+                  </Text>
+                </Group>
+                <Badge
+                  color={emp.defaultSplitType === 'percentage' ? 'blue' : 'teal'}
+                  variant="light"
+                  size="sm"
+                >
+                  {emp.defaultSplitType === 'percentage'
+                    ? `${emp.defaultSplitValue}% Profit Share`
+                    : `${formatMoney(emp.defaultSplitValue)} Fixed / Job`}
+                </Badge>
+              </Group>
+            </Paper>
           </Paper>
 
-          {/* Earnings & Assigned Work History */}
+          {/* Performance & Earnings Snapshot */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Work & Earned Commission History ({earnings.length})
+            Performance & Earnings Snapshot
           </Text>
-          {earnings.length === 0 ? (
-            <Paper p="md" withBorder radius="var(--mantine-radius-default)" ta="center">
-              <Text size="sm" c="dimmed">
-                No recorded job earnings yet for this employee.
-              </Text>
-            </Paper>
-          ) : (
-            <ScrollArea.Autosize mah={300} offsetScrollbars>
-              <Table striped highlightOnHover withTableBorder>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Ticket / Work</Table.Th>
-                    <Table.Th>Customer & Description</Table.Th>
-                    <Table.Th>Job Total</Table.Th>
-                    <Table.Th>Split Rule</Table.Th>
-                    <Table.Th>Earned Split</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {earnings.map((rec) => {
-                    const WorkIcon =
-                      rec.workType === 'repair'
-                        ? IconHammer
-                        : rec.workType === 'print'
-                          ? IconPrinter
-                          : IconReceipt;
-                    const workColor =
-                      rec.workType === 'repair'
-                        ? 'orange'
-                        : rec.workType === 'print'
-                          ? 'teal'
-                          : 'blue';
-                    return (
-                      <Table.Tr key={rec.id}>
-                        <Table.Td>
-                          <Group gap={6} wrap="nowrap">
-                            <ThemeIcon size="xs" color={workColor} variant="light">
-                              <WorkIcon size={12} />
-                            </ThemeIcon>
-                            <Text size="xs" fw={700}>
-                              {rec.ticketOrInvoiceNumber}
-                            </Text>
-                          </Group>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size="xs" fw={600} lineClamp={1}>
-                            {rec.description}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {rec.customerName}
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size="xs">{formatMoney(rec.totalAmountCents)}</Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge
-                            size="xs"
-                            variant="light"
-                            color={rec.splitType === 'percentage' ? 'indigo' : 'teal'}
+
+          <Paper p="md" withBorder radius="var(--mantine-radius-default)">
+            <Grid gap={0} align="flex-start">
+              <Grid.Col
+                span={4}
+                pr="sm"
+                style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
+              >
+                <Stack gap={2}>
+                  <Group gap={4} wrap="nowrap">
+                    <IconCoin
+                      size={12}
+                      style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
+                    />
+                    <Text size="xs" c="dimmed" tt="uppercase">
+                      Commission
+                    </Text>
+                  </Group>
+                  {isEarningsLoading ? (
+                    <Skeleton height={20} width={60} mt={2} />
+                  ) : (
+                    <Text fw={800} size="md" c="blue">
+                      {formatMoney(totalEarnedCents)}
+                    </Text>
+                  )}
+                </Stack>
+              </Grid.Col>
+
+              <Grid.Col
+                span={4}
+                px="sm"
+                style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
+              >
+                <Stack gap={2}>
+                  <Group gap={4} wrap="nowrap">
+                    <IconBriefcase
+                      size={12}
+                      style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
+                    />
+                    <Text size="xs" c="dimmed" tt="uppercase">
+                      Work Done
+                    </Text>
+                  </Group>
+                  {isEarningsLoading ? (
+                    <Skeleton height={20} width={40} mt={2} />
+                  ) : (
+                    <Group gap={4} align="baseline">
+                      <Text fw={800} size="md" c="teal">
+                        {totalJobsCompleted}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        jobs
+                      </Text>
+                    </Group>
+                  )}
+                </Stack>
+              </Grid.Col>
+
+              <Grid.Col span={4} pl="sm">
+                <Stack gap={2}>
+                  <Group gap={4} wrap="nowrap">
+                    <IconTrendingUp
+                      size={12}
+                      style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
+                    />
+                    <Text size="xs" c="dimmed" tt="uppercase">
+                      Revenue
+                    </Text>
+                  </Group>
+                  {isEarningsLoading ? (
+                    <Skeleton height={20} width={60} mt={2} />
+                  ) : (
+                    <Text fw={800} size="md" c="teal">
+                      {formatMoney(totalRevenueGeneratedCents)}
+                    </Text>
+                  )}
+                </Stack>
+              </Grid.Col>
+            </Grid>
+          </Paper>
+
+          <Divider my="xs" />
+
+          {/* Tabbed Navigation */}
+          <Tabs
+            value={activeTab}
+            onChange={(val) => setActiveTab(val ?? 'history')}
+            color="blue"
+            mt="xs"
+          >
+            <Tabs.List grow>
+              <Tabs.Tab
+                value="history"
+                rightSection={
+                  <Badge size="xs" variant="light" color="gray" circle>
+                    {safeEarnings.length}
+                  </Badge>
+                }
+              >
+                History
+              </Tabs.Tab>
+              <Tabs.Tab value="rules">Split Rules</Tabs.Tab>
+              <Tabs.Tab value="details">Details</Tabs.Tab>
+            </Tabs.List>
+          </Tabs>
+
+          {/* TAB 1: Commission & Work History */}
+          {activeTab === 'history' && (
+            <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+              <Stack gap="sm">
+                <Group justify="space-between" align="center" wrap="wrap">
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    Assigned Work & Earned Split
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    Showing {filteredEarnings.length} of {safeEarnings.length} records
+                  </Text>
+                </Group>
+
+                {/* Work Type Filter */}
+                <SegmentedControl
+                  value={workTypeFilter}
+                  onChange={(val) =>
+                    setWorkTypeFilter(val as 'all' | 'repair' | 'print' | 'billing')
+                  }
+                  data={[
+                    { label: `All (${safeEarnings.length})`, value: 'all' },
+                    {
+                      label: `Repairs (${safeEarnings.filter((e) => e.workType === 'repair').length})`,
+                      value: 'repair',
+                    },
+                    {
+                      label: `Prints (${safeEarnings.filter((e) => e.workType === 'print').length})`,
+                      value: 'print',
+                    },
+                    {
+                      label: `Sales (${safeEarnings.filter((e) => e.workType === 'billing').length})`,
+                      value: 'billing',
+                    },
+                  ]}
+                  fullWidth
+                  size="xs"
+                />
+
+                {/* Earnings List / Empty State */}
+                {isEarningsLoading ? (
+                  <Stack gap={6} py="xs">
+                    <Skeleton height={56} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={56} radius="var(--mantine-radius-default)" />
+                  </Stack>
+                ) : filteredEarnings.length === 0 ? (
+                  <Paper
+                    p="md"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
+                    <Center py="sm">
+                      <Stack gap={4} align="center">
+                        <IconReceipt size={24} style={{ opacity: 0.4 }} />
+                        <Text size="xs" c="dimmed" ta="center">
+                          No work or commission records found for this filter.
+                        </Text>
+                      </Stack>
+                    </Center>
+                  </Paper>
+                ) : (
+                  <ScrollArea.Autosize
+                    mah="40dvh"
+                    offsetScrollbars
+                    classNames={{ viewport: 'scrollarea-fluid-content' }}
+                  >
+                    <Stack gap={6} pt={2} pb={2} px={1}>
+                      {filteredEarnings.map((rec: EmployeeEarningRecord) => {
+                        const WorkIcon =
+                          rec.workType === 'repair'
+                            ? IconHammer
+                            : rec.workType === 'print'
+                              ? IconPrinter
+                              : IconReceipt;
+                        const workColor =
+                          rec.workType === 'repair'
+                            ? 'orange'
+                            : rec.workType === 'print'
+                              ? 'teal'
+                              : 'blue';
+
+                        return (
+                          <Paper
+                            key={rec.id}
+                            p="xs"
+                            withBorder
+                            radius="var(--mantine-radius-default)"
                           >
-                            {rec.splitType === 'percentage'
-                              ? `${rec.splitValue}%`
-                              : formatMoney(rec.splitValue)}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size="xs" fw={800} c="indigo">
-                            {formatMoney(rec.earnedAmountCents)}
-                          </Text>
-                        </Table.Td>
-                      </Table.Tr>
-                    );
-                  })}
-                </Table.Tbody>
-              </Table>
-            </ScrollArea.Autosize>
+                            <Group justify="space-between" align="flex-start" wrap="nowrap">
+                              <Group gap="xs" align="flex-start" style={{ minWidth: 0, flex: 1 }}>
+                                <ThemeIcon
+                                  size="md"
+                                  color={workColor}
+                                  variant="light"
+                                  radius="var(--mantine-radius-default)"
+                                  style={{ flexShrink: 0, marginTop: 2 }}
+                                >
+                                  <WorkIcon size={16} />
+                                </ThemeIcon>
+
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <Group gap="xs" align="center" wrap="wrap">
+                                    <Badge size="xs" variant="filled" color={workColor}>
+                                      {rec.ticketOrInvoiceNumber}
+                                    </Badge>
+                                    <Text size="xs" c="dimmed">
+                                      {formatDateTime(rec.createdAt)}
+                                    </Text>
+                                  </Group>
+
+                                  <Text size="sm" fw={700} lineClamp={1} mt={4}>
+                                    {rec.description}
+                                  </Text>
+                                  <Text size="xs" c="dimmed" lineClamp={1}>
+                                    Customer: {rec.customerName}
+                                  </Text>
+
+                                  <Group gap={6} mt={6} wrap="wrap">
+                                    <Badge size="xs" variant="outline" color="gray">
+                                      Total: {formatMoney(rec.totalAmountCents)}
+                                    </Badge>
+                                    {rec.profitCents !== undefined && rec.profitCents > 0 && (
+                                      <Badge size="xs" variant="light" color="teal">
+                                        Profit: {formatMoney(rec.profitCents)}
+                                      </Badge>
+                                    )}
+                                    <Badge
+                                      size="xs"
+                                      variant="light"
+                                      color={rec.splitType === 'percentage' ? 'blue' : 'teal'}
+                                    >
+                                      Split:{' '}
+                                      {rec.splitType === 'percentage'
+                                        ? `${rec.splitValue}%`
+                                        : formatMoney(rec.splitValue)}
+                                    </Badge>
+                                  </Group>
+                                </div>
+                              </Group>
+
+                              <Stack gap={2} align="flex-end" style={{ flexShrink: 0 }}>
+                                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                                  Commission
+                                </Text>
+                                <Text size="md" fw={800} c="blue">
+                                  {formatMoney(rec.earnedAmountCents)}
+                                </Text>
+                                <Badge
+                                  size="xs"
+                                  variant="light"
+                                  color={rec.status === 'completed' ? 'green' : 'orange'}
+                                >
+                                  {rec.status === 'completed' ? 'Completed' : 'Pending'}
+                                </Badge>
+                              </Stack>
+                            </Group>
+                          </Paper>
+                        );
+                      })}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                )}
+              </Stack>
+            </Paper>
           )}
 
-          {/* Notes */}
-          {emp.notes && (
-            <>
-              <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Notes & Qualifications
-              </Text>
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
-                  {emp.notes}
-                </Text>
-              </Paper>
-            </>
+          {/* TAB 2: Commission & Split Rules */}
+          {activeTab === 'rules' && (
+            <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+              <Stack gap="md">
+                <div>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                    Profit Split Configuration
+                  </Text>
+                  <Paper
+                    p="md"
+                    withBorder
+                    bg="var(--mantine-color-body)"
+                    radius="var(--mantine-radius-default)"
+                  >
+                    <Group gap="sm" align="flex-start">
+                      <ThemeIcon
+                        size="lg"
+                        color={emp.defaultSplitType === 'percentage' ? 'blue' : 'teal'}
+                        variant="light"
+                        radius="var(--mantine-radius-default)"
+                      >
+                        {emp.defaultSplitType === 'percentage' ? (
+                          <IconPercentage size={20} />
+                        ) : (
+                          <IconCoin size={20} />
+                        )}
+                      </ThemeIcon>
+                      <div style={{ flex: 1 }}>
+                        <Text size="sm" fw={700}>
+                          {emp.defaultSplitType === 'percentage'
+                            ? `Percentage of Job Profit: ${emp.defaultSplitValue}%`
+                            : `Fixed Commission per Job: ${formatMoney(emp.defaultSplitValue)}`}
+                        </Text>
+                        <Text size="xs" c="dimmed" mt={4}>
+                          {emp.defaultSplitType === 'percentage'
+                            ? `When this employee completes an assigned repair or print order, their commission is automatically calculated as ${emp.defaultSplitValue}% of the net profit (job revenue minus material/parts cost).`
+                            : `When this employee completes an assigned job, they receive a guaranteed flat commission of ${formatMoney(emp.defaultSplitValue)} regardless of order size or material cost.`}
+                        </Text>
+                      </div>
+                    </Group>
+                  </Paper>
+                </div>
+
+                <Divider color="var(--mantine-color-default-border)" />
+
+                {/* Practical Example */}
+                <div>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                    Calculation Example
+                  </Text>
+                  <Paper
+                    p="sm"
+                    withBorder
+                    bg="var(--bg-app)"
+                    radius="var(--mantine-radius-default)"
+                  >
+                    <Group gap="xs" align="flex-start">
+                      <IconCalculator
+                        size={18}
+                        style={{
+                          color: 'var(--mantine-color-blue-6)',
+                          marginTop: 2,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div>
+                        <Text size="xs" fw={600}>
+                          Sample Job Scenario:
+                        </Text>
+                        <Text size="xs" c="dimmed" mt={2}>
+                          {emp.defaultSplitType === 'percentage'
+                            ? `On a repair job priced at Rs. 10,000 with Rs. 4,000 spare part cost (Rs. 6,000 profit), this employee earns ${formatMoney(
+                                Math.round(600000 * (emp.defaultSplitValue / 100))
+                              )} (${emp.defaultSplitValue}%).`
+                            : `On any completed job assigned to this employee, they earn ${formatMoney(
+                                emp.defaultSplitValue
+                              )} fixed.`}
+                        </Text>
+                      </div>
+                    </Group>
+                  </Paper>
+                </div>
+
+                <Divider color="var(--mantine-color-default-border)" />
+
+                {/* Role Overview */}
+                <div>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                    Role & Assigned Department
+                  </Text>
+                  <Paper
+                    p="sm"
+                    withBorder
+                    bg="var(--mantine-color-body)"
+                    radius="var(--mantine-radius-default)"
+                  >
+                    <Group gap="xs">
+                      <Badge color="blue" variant="light" size="sm">
+                        {EMPLOYEE_ROLE_LABELS[emp.role] || emp.role}
+                      </Badge>
+                      <Text size="xs" c="dimmed">
+                        {emp.role === 'technician'
+                          ? 'Assigned to Hardware Diagnostics, Device Disassembly, and Component Repairs.'
+                          : emp.role === 'printer'
+                            ? 'Assigned to Graphic Design, Sublimation Printing, and Print Equipment Operations.'
+                            : emp.role === 'sales'
+                              ? 'Assigned to POS Terminal Counter Billing, Item Sales, and Customer Intake.'
+                              : 'General shop duties and operational support.'}
+                      </Text>
+                    </Group>
+                  </Paper>
+                </div>
+              </Stack>
+            </Paper>
+          )}
+
+          {/* TAB 3: Contact & Staff Details */}
+          {activeTab === 'details' && (
+            <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+              <Stack gap="md">
+                <div>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                    Contact Phone Number
+                  </Text>
+                  <PhoneDisplay primaryPhone={emp.phone} layout="stack" />
+                </div>
+
+                {emp.nicOrId && (
+                  <>
+                    <Divider color="var(--mantine-color-default-border)" />
+                    <div>
+                      <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                        National Identity Card (NIC) / Staff ID
+                      </Text>
+                      <Group gap="xs" align="center">
+                        <IconId
+                          size={18}
+                          style={{
+                            color: 'var(--mantine-color-blue-6)',
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Text size="sm" fw={600}>
+                          {emp.nicOrId}
+                        </Text>
+                      </Group>
+                    </div>
+                  </>
+                )}
+
+                {emp.notes && (
+                  <>
+                    <Divider color="var(--mantine-color-default-border)" />
+                    <div>
+                      <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                        Notes & Special Qualifications
+                      </Text>
+                      <Paper
+                        p="sm"
+                        withBorder
+                        bg="var(--mantine-color-body)"
+                        radius="var(--mantine-radius-default)"
+                      >
+                        <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
+                          {emp.notes}
+                        </Text>
+                      </Paper>
+                    </div>
+                  </>
+                )}
+              </Stack>
+            </Paper>
           )}
 
           <Divider my="xs" />
 
-          {/* Metadata */}
+          {/* System Metadata */}
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+            Metadata
+          </Text>
+
           <Stack gap="xs">
             <Group justify="space-between">
               <Group gap="xs">
-                <IconCalendar size={14} style={{ opacity: 0.6 }} />
+                <IconCalendar size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
                   Registered On
                 </Text>
               </Group>
-              <Text size="xs" fw={600}>
+              <Text size="xs" fw={700}>
                 {formatDateTime(emp.createdAt)}
+              </Text>
+            </Group>
+
+            <Group justify="space-between">
+              <Group gap="xs">
+                <IconClock size={16} style={{ opacity: 0.6 }} />
+                <Text size="xs" c="dimmed">
+                  Last Updated
+                </Text>
+              </Group>
+              <Text size="xs" fw={700}>
+                {formatDateTime(emp.updatedAt)}
+              </Text>
+            </Group>
+
+            <Group justify="space-between">
+              <Group gap="xs">
+                <IconTag size={16} style={{ opacity: 0.6 }} />
+                <Text size="xs" c="dimmed">
+                  Staff ID
+                </Text>
+              </Group>
+              <Text size="xs" fw={600} c="dimmed">
+                {emp.id}
               </Text>
             </Group>
           </Stack>
 
           <Divider my="xs" />
 
-          {/* Actions */}
-          <Group justify="space-between" mt="sm">
+          {/* Action Buttons */}
+          <Group justify="space-between" mt="md">
             <Button
               variant="light"
               color="red"
@@ -359,11 +701,12 @@ export const EmployeeDetailDrawer = ({
             </Button>
 
             <Group gap="sm">
-              <Button variant="default" size="sm" onClick={onClose}>
+              <Button variant="default" size="sm" onClick={handleClose}>
                 Close
               </Button>
               <Button
-                color="indigo"
+                variant="filled"
+                color="blue"
                 size="sm"
                 leftSection={<IconEdit size={16} />}
                 onClick={() => onEdit(emp)}

@@ -266,7 +266,7 @@ export const CustomerDetailDrawer = ({
             color="amber"
             mt="xs"
           >
-            <Tabs.List>
+            <Tabs.List grow>
               <Tabs.Tab
                 value="invoices"
                 rightSection={
