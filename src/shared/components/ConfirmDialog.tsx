@@ -25,7 +25,17 @@ export const ConfirmDialog = ({
   loading = false,
 }: ConfirmDialogProps) => {
   return (
-    <Modal opened={opened} onClose={onClose} title={title} centered size="sm">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={
+        <Text fw={700} size="lg">
+          {title}
+        </Text>
+      }
+      centered
+      size="sm"
+    >
       <Text size="sm" mb="lg">
         {children}
       </Text>

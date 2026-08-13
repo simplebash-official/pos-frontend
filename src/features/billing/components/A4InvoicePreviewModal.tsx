@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Modal, Box, Group, Button, Text, Stack, Divider, ThemeIcon } from '@mantine/core';
-import { IconPrinter, IconDownload, IconFileText, IconX } from '@tabler/icons-react';
+import { Modal, Box, Group, Button, Text, Stack, Divider } from '@mantine/core';
+import { IconPrinter, IconDownload, IconX } from '@tabler/icons-react';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import type { Invoice } from '../types';
 import { buildPrintPayload } from '../lib/buildPrintPayload';
@@ -68,23 +68,13 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
       opened={opened}
       onClose={onClose}
       title={
-        <Group gap="xs" align="center">
-          <ThemeIcon size="lg" color="blue" variant="filled">
-            <IconFileText size={18} />
-          </ThemeIcon>
-          <Box>
-            <Text fw={700} size="md" c="var(--text-primary)">
-              Invoice preview
-            </Text>
-            <Text size="xs" c="dimmed">
-              #{invoice.invoiceNumber}
-            </Text>
-          </Box>
-        </Group>
+        <Text fw={700} size="lg">
+          Invoice Preview — {invoice.invoiceNumber}
+        </Text>
       }
       size="xl"
+      centered
       fullScreen={isMobile}
-      radius="var(--mantine-radius-default)"
       padding="md"
       scrollAreaComponent={Box}
       styles={{

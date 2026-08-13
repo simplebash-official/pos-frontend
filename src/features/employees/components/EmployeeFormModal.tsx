@@ -17,6 +17,7 @@ import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/i
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { Employee, EmployeeInput, SplitType } from '../types';
 import { EmployeeFormValues, fromEmployee, toEmployeeInput } from '@/shared/lib/moneyFormUtils';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface EmployeeFormModalProps {
   opened: boolean;
@@ -34,6 +35,7 @@ export const EmployeeFormModal = ({
   loading = false,
 }: EmployeeFormModalProps) => {
   const isEditing = Boolean(employeeToEdit);
+  const isMobile = useIsMobile();
 
   const form = useForm<EmployeeFormValues>({
     initialValues: fromEmployee(null),
@@ -81,7 +83,8 @@ export const EmployeeFormModal = ({
         </Text>
       }
       size="lg"
-      radius="var(--mantine-radius-default)"
+      centered
+      fullScreen={isMobile}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
@@ -130,7 +133,7 @@ export const EmployeeFormModal = ({
                 <Text size="xs" fw={700} tt="uppercase" c="dimmed">
                   Default Profit Split / Commission Rule
                 </Text>
-                <Badge color="indigo" variant="light" size="xs">
+                <Badge color="blue" variant="light" size="xs">
                   No Fixed Salary
                 </Badge>
               </Group>
@@ -221,7 +224,7 @@ export const EmployeeFormModal = ({
             <Button variant="default" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" color="indigo" loading={loading}>
+            <Button type="submit" color="blue" loading={loading}>
               {isEditing ? 'Save Changes' : 'Register Employee'}
             </Button>
           </Group>

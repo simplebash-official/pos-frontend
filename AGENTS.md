@@ -63,6 +63,34 @@ Verify with the real thing: `npm run dev`, then walk the full flow at 375, 414, 
 
 `ProductFormModal.tsx`'s supplier and barcode blocks are the reference for the tone.
 
+## Center modals — one visual family
+
+Every center-opening `Modal` (as opposed to a `Drawer` side panel) follows the pattern set by `ProductFormModal.tsx` ("Add New Inventory Product") — new modals should default to this rather than inventing their own header/footer/color treatment:
+
+```tsx
+<Modal
+  opened={opened}
+  onClose={onClose}
+  title={
+    <Text fw={700} size="lg">
+      {isEditing ? `Edit: ${entity.name}` : 'Add New X'}
+    </Text>
+  }
+  size="lg"
+  centered
+  fullScreen={isMobile}
+>
+```
+
+- **Title is plain text, no icon.** `<Text fw={700} size="lg">` — no leading `ThemeIcon`, no `Kbd` shortcut chip, no subtitle line under the title. If the title needs to carry an identifier, fold it into the string itself the way `ProductFormModal` does with `Edit: ${productToEdit.name}` (e.g. `A4InvoicePreviewModal`'s `Invoice Preview — {invoice.invoiceNumber}`) rather than adding a second line.
+- **No `radius` prop.** `defaultRadius: 'md'` in `theme.ts` already applies; an explicit `radius="var(--mantine-radius-default)"` on a `Modal` (or any component) is redundant — omit it.
+- **`centered` and `fullScreen={isMobile}` on every center modal**, no exceptions except very small (`size="sm"`) confirmation dialogs like `ConfirmDialog` — a full-screen sheet for a yes/no question is worse UX than a small centered overlay, so those get `centered` only.
+- **Footer**: `<Group justify="flex-end" mt="md" gap="sm"><Button variant="default" onClick={onClose} disabled={loading}>Cancel</Button><Button type="submit" color="blue" loading={loading}>{isEditing ? 'Save Changes' : 'Create X'}</Button></Group>` — Cancel is always `variant="default"` (never `subtle`), the primary action is always `blue` (or omitted, since `primaryColor: 'blue'` is the theme default).
+- **Section labels inside the body**: `<Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>Label</Text>`.
+- **Brand/feature accents are `blue`**, not a color picked per feature (no per-module indigo/teal/orange). This does **not** apply to semantic colors that carry independent meaning: `green` for a profit/positive amount, `orange` for a warning `Alert`, `red` for a destructive action's `confirmColor` — those stay as-is.
+
+There's no shared `<AppModal>` wrapper — every modal styles Mantine's `Modal` inline, consistent with the rest of the codebase's per-component styling. `ProductFormModal.tsx` is the reference implementation; `ConfirmDialog.tsx` is the reference for small confirmation dialogs.
+
 ## Keyboard shortcuts
 
 `useAppShortcuts` (`src/shared/hooks/useShortcuts.ts`) is the single global keyboard-shortcut engine — bind through it rather than a component-local `window.addEventListener('keydown', ...)`. Pass an array of `{ key, handler, ignoreInput?, preventDefault? }` entries; `key` is a combo string like `"Enter"`, `"F2"`, `"Ctrl+D"`, `"Ctrl+Shift+H"`, or `"?"` (`ctrl` matches both `ctrlKey` and `metaKey`, so one combo covers Windows/Linux Ctrl and Mac Cmd).

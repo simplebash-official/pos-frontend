@@ -33,6 +33,7 @@ import { useProductsForSupplier } from '@/features/supplier-products';
 import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface SupplierFormModalProps {
   opened: boolean;
@@ -382,14 +383,20 @@ export const SupplierFormModal = ({
   loading = false,
 }: SupplierFormModalProps) => {
   const isEditing = Boolean(supplierToEdit);
+  const isMobile = useIsMobile();
 
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title={isEditing ? 'Edit Supplier Details' : 'Register New Supplier'}
+      title={
+        <Text fw={700} size="lg">
+          {isEditing ? 'Edit Supplier Details' : 'Register New Supplier'}
+        </Text>
+      }
       size="lg"
       centered
+      fullScreen={isMobile}
     >
       {opened && (
         <SupplierFormContent

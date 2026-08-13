@@ -13,7 +13,7 @@ import {
   ThemeIcon,
   Skeleton,
 } from '@mantine/core';
-import { IconSearch, IconTools, IconPlus } from '@tabler/icons-react';
+import { IconSearch, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
@@ -159,21 +159,12 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
       opened={opened}
       onClose={onClose}
       title={
-        <Group gap="sm" align="center">
-          <ThemeIcon size={40} color="orange" variant="light">
-            <IconTools size={22} />
-          </ThemeIcon>
-          <Box>
-            <Text fw={700} size="md" lh={1.2}>
-              Select service job
-            </Text>
-            <Text size="xs" c="dimmed" fw={500}>
-              {isMobile ? 'Repairs and print jobs' : 'Repairs and print jobs · F4'}
-            </Text>
-          </Box>
-        </Group>
+        <Text fw={700} size="lg">
+          Select service job
+        </Text>
       }
       size="lg"
+      centered
       fullScreen={isMobile}
       padding={0}
     >

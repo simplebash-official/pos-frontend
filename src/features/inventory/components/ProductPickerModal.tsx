@@ -75,23 +75,13 @@ export const ProductPickerModal = ({
         onClose();
       }}
       title={
-        <Group gap="sm">
-          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
-            <IconPackage size={22} />
-          </ThemeIcon>
-          <div>
-            <Text fw={800} size="md">
-              {title}
-            </Text>
-            <Text size="xs" c="dimmed">
-              Select an inventory item to link to this vendor
-            </Text>
-          </div>
-        </Group>
+        <Text fw={700} size="lg">
+          {title}
+        </Text>
       }
-      size={isMobile ? '100%' : 720}
+      size="lg"
+      centered
       fullScreen={isMobile}
-      radius="var(--mantine-radius-default)"
       padding="lg"
     >
       <Stack gap="md">

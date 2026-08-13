@@ -392,7 +392,11 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Manage Categories"
+      title={
+        <Text fw={700} size="lg">
+          Manage Categories
+        </Text>
+      }
       size="lg"
       centered
       fullScreen={isMobile}

@@ -17,6 +17,7 @@ import { ProductPickerModal } from '@/features/inventory/components/ProductPicke
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { toCents } from '@/shared/lib/money';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface ReceiveStockModalProps {
   opened: boolean;
@@ -40,6 +41,7 @@ export const ReceiveStockModal = ({
 
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const { data: products } = useAllProducts({ enabled: opened });
   const { data: suppliers } = useAllSuppliers({ enabled: opened });
@@ -87,8 +89,14 @@ export const ReceiveStockModal = ({
       <Modal
         opened={opened}
         onClose={onClose}
-        title={<Text fw={600}>Receive Stock</Text>}
+        title={
+          <Text fw={700} size="lg">
+            Receive Stock
+          </Text>
+        }
         size="md"
+        centered
+        fullScreen={isMobile}
       >
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
@@ -206,7 +214,7 @@ export const ReceiveStockModal = ({
             </Group>
 
             <Group justify="flex-end" mt="md">
-              <Button variant="subtle" onClick={onClose}>
+              <Button variant="default" onClick={onClose}>
                 Cancel
               </Button>
               <Button type="submit" loading={isPending} disabled={!productKey || !supplierKey}>

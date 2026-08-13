@@ -23,6 +23,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useAllSuppliers } from '../hooks/useSuppliers';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface SupplierPickerModalProps {
   opened: boolean;
@@ -41,6 +42,7 @@ export const SupplierPickerModal = ({
   title = 'Link a Supplier',
 }: SupplierPickerModalProps) => {
   const { data: suppliers, isLoading } = useAllSuppliers({ enabled: opened });
+  const isMobile = useIsMobile();
 
   const [search, setSearch] = useState('');
 
@@ -73,22 +75,13 @@ export const SupplierPickerModal = ({
         onClose();
       }}
       title={
-        <Group gap="sm">
-          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
-            <IconBuildingStore size={22} />
-          </ThemeIcon>
-          <div>
-            <Text fw={800} size="md">
-              {title}
-            </Text>
-            <Text size="xs" c="dimmed">
-              Select a vendor to link with this inventory item
-            </Text>
-          </div>
-        </Group>
+        <Text fw={700} size="lg">
+          {title}
+        </Text>
       }
-      size={720}
-      radius="var(--mantine-radius-default)"
+      size="lg"
+      centered
+      fullScreen={isMobile}
       padding="lg"
     >
       <Stack gap="md">

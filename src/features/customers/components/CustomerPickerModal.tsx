@@ -137,21 +137,12 @@ export const CustomerPickerModal = ({
         onClose();
       }}
       title={
-        <Group gap="sm" align="center">
-          <ThemeIcon size={40} variant="light">
-            <IconUser size={22} />
-          </ThemeIcon>
-          <Box>
-            <Text fw={700} size="md" lh={1.2}>
-              Select / attach customer
-            </Text>
-            <Text size="xs" c="dimmed" fw={500}>
-              {isMobile ? 'Search by phone or name' : 'Search by phone or name · F3'}
-            </Text>
-          </Box>
-        </Group>
+        <Text fw={700} size="lg">
+          Select / attach customer
+        </Text>
       }
       size="lg"
+      centered
       fullScreen={isMobile}
       padding={0}
     >

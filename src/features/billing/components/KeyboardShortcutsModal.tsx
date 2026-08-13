@@ -1,5 +1,4 @@
 import { Modal, Stack, Group, Text, Kbd, SimpleGrid, Paper } from '@mantine/core';
-import { IconKeyboard } from '@tabler/icons-react';
 
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -36,16 +35,13 @@ export const KeyboardShortcutsModal = ({ opened, onClose }: KeyboardShortcutsMod
       opened={opened}
       onClose={onClose}
       title={
-        <Group gap="xs">
-          <IconKeyboard size={20} color="var(--mantine-color-blue-6)" />
-          <Text fw={700} size="md">
-            Cashier Keyboard Shortcuts
-          </Text>
-        </Group>
+        <Text fw={700} size="lg">
+          Cashier Keyboard Shortcuts
+        </Text>
       }
       size="lg"
+      centered
       fullScreen={isMobile}
-      radius="var(--mantine-radius-default)"
     >
       <Stack gap="sm">
         <Text size="xs" c="dimmed">

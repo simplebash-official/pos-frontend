@@ -8,7 +8,6 @@ import {
   Paper,
   Badge,
   ScrollArea,
-  Kbd,
   Center,
   ThemeIcon,
 } from '@mantine/core';
@@ -156,13 +155,11 @@ export const GlobalQuickSearchModal = () => {
       opened={opened}
       onClose={() => setOpened(false)}
       title={
-        <Group gap="xs">
-          <Text fw={700}>Quick Search Palette</Text>
-          <Kbd size="xs">Cmd + K</Kbd>
-        </Group>
+        <Text fw={700} size="lg">
+          Quick Search Palette
+        </Text>
       }
       size="lg"
-      radius="var(--mantine-radius-default)"
       centered
     >
       <Stack gap="md">

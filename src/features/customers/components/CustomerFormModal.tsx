@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Modal, TextInput, Textarea, Button, Group, Stack, Grid, TagsInput } from '@mantine/core';
+import {
+  Modal,
+  TextInput,
+  Textarea,
+  Button,
+  Group,
+  Stack,
+  Grid,
+  TagsInput,
+  Text,
+} from '@mantine/core';
 import { IconUser, IconPhone, IconMail, IconMapPin, IconTag } from '@tabler/icons-react';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { Customer, CustomerInput } from '../types';
@@ -206,8 +216,13 @@ export const CustomerFormModal = ({
     <Modal
       opened={opened}
       onClose={onClose}
-      title={customerToEdit ? 'Edit Customer Profile' : 'Add New Customer Profile'}
+      title={
+        <Text fw={700} size="lg">
+          {customerToEdit ? 'Edit Customer Profile' : 'Add New Customer Profile'}
+        </Text>
+      }
       size="lg"
+      centered
       fullScreen={isMobile}
     >
       {opened && (

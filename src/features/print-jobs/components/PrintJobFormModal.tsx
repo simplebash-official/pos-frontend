@@ -16,7 +16,6 @@ import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import {
-  IconPrinter,
   IconUser,
   IconPhone,
   IconPercentage,
@@ -30,6 +29,7 @@ import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
 import { PrintJobFormValues, fromPrintJob, toPrintJobInput } from '@/shared/lib/moneyFormUtils';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface PrintJobFormModalProps {
   opened: boolean;
@@ -47,6 +47,7 @@ export const PrintJobFormModal = ({
   loading = false,
 }: PrintJobFormModalProps) => {
   const isEditing = Boolean(jobToEdit);
+  const isMobile = useIsMobile();
 
   const { data: employees = [] } = useQuery({
     queryKey: queryKeys.employees.all,
@@ -119,15 +120,13 @@ export const PrintJobFormModal = ({
       opened={opened}
       onClose={onClose}
       title={
-        <Group gap="xs">
-          <IconPrinter size={20} color="var(--mantine-color-teal-6)" />
-          <Text fw={700} size="lg">
-            {isEditing ? `Edit Print Job ${jobToEdit?.ticketNumber}` : 'Create New Print Order'}
-          </Text>
-        </Group>
+        <Text fw={700} size="lg">
+          {isEditing ? `Edit Print Job ${jobToEdit?.ticketNumber}` : 'Create New Print Order'}
+        </Text>
       }
       size="lg"
-      radius="var(--mantine-radius-default)"
+      centered
+      fullScreen={isMobile}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
@@ -185,7 +184,7 @@ export const PrintJobFormModal = ({
           </Group>
 
           {/* Pricing & Cost */}
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+          <Paper p="sm" withBorder>
             <Stack gap="xs">
               <Text size="xs" fw={700} tt="uppercase" c="dimmed">
                 Pricing & Material Blank Costs (LKR)
@@ -221,13 +220,13 @@ export const PrintJobFormModal = ({
           </Paper>
 
           {/* Assigned Employee & Profit Split */}
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+          <Paper p="sm" withBorder>
             <Stack gap="xs">
               <Group justify="space-between" align="center">
-                <Text size="xs" fw={700} tt="uppercase" c="indigo">
+                <Text size="xs" fw={700} tt="uppercase" c="blue">
                   Designer / Printer Assignment & Profit Split
                 </Text>
-                <Badge color="indigo" variant="light" size="xs">
+                <Badge color="blue" variant="light" size="xs">
                   Commission Payout
                 </Badge>
               </Group>
@@ -306,12 +305,12 @@ export const PrintJobFormModal = ({
                     </Alert>
                   )}
 
-                  <Paper p="xs" withBorder radius="var(--mantine-radius-default)" mt="xs">
+                  <Paper p="xs" withBorder mt="xs">
                     <Group justify="space-between">
                       <Text size="xs" fw={600}>
                         Employee Commission Payout:
                       </Text>
-                      <Text fw={800} size="md" c="indigo">
+                      <Text fw={800} size="md" c="blue">
                         {formatMoney(calculatedEarningsCents)}
                       </Text>
                     </Group>
@@ -325,7 +324,7 @@ export const PrintJobFormModal = ({
             <Button variant="default" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" color="teal" loading={loading}>
+            <Button type="submit" color="blue" loading={loading}>
               {isEditing ? 'Update Print Job' : 'Create Print Job'}
             </Button>
           </Group>
