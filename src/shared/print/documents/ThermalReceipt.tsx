@@ -48,6 +48,11 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
   return (
     <div style={containerStyle}>
       {/* Header */}
+      {payload.settings.showLogoOnReceipt && shop.logoBase64 && (
+        <div style={{ textAlign: 'center', marginBottom: '4px' }}>
+          <img src={shop.logoBase64} alt={shop.tradingName} style={{ maxHeight: '36px' }} />
+        </div>
+      )}
       <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: is58mm ? '13px' : '15px' }}>
         {shop.tradingName || shop.legalName}
       </div>

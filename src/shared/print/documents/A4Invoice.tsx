@@ -497,7 +497,7 @@ export const A4Invoice: React.FC<A4InvoiceProps> = ({
             </div>
           )}
 
-          {payload.taxCents > 0 && (
+          {payload.taxCents > 0 && payload.settings.showTaxColumn && (
             <div
               style={{
                 display: 'flex',

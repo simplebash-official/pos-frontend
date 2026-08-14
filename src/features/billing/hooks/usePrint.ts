@@ -32,7 +32,14 @@ export const usePrint = () => {
       const paperProfile =
         printSettings.receiptPaper === '58mm' ? PAPER_PROFILES.thermal58 : PAPER_PROFILES.thermal80;
 
-      await printThermalReceipt(payload, paperProfile);
+      const copies = Math.max(1, printSettings.receiptCopies);
+      for (let i = 0; i < copies; i++) {
+        await printThermalReceipt(payload, paperProfile);
+        // Let the previous print job's iframe finish and clean up before starting the next one.
+        if (i < copies - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1200));
+        }
+      }
     },
     [currentShopProfile, shopVersions, printSettings]
   );
