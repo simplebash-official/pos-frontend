@@ -1,12 +1,13 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import {
   Button,
   Badge,
-  Accordion,
-  Table,
   Group,
   Text,
   Paper,
@@ -23,7 +24,6 @@ import {
   Divider,
   Center,
   ScrollArea,
-  Checkbox,
   Skeleton,
   Tabs,
   Select,
@@ -33,8 +33,6 @@ import {
   IconPlus,
   IconSearch,
   IconAlertTriangle,
-  IconChevronRight,
-  IconChevronDown,
   IconArrowsMaximize,
   IconArrowsMinimize,
   IconPackage,
@@ -63,7 +61,6 @@ import {
   useProductMovements,
 } from '../hooks/useProducts';
 import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
-import { resolveCategoryIcon } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import {
@@ -80,6 +77,13 @@ import { USER_ROLES } from '@/constants/roles';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { ProductFormModal } from './ProductFormModal';
 import { CategoryManagerModal } from './CategoryManagerModal';
+import { ProductCatalogTree } from './ProductCatalogTree';
+
+/**
+ * Above this many matches, a search opens the category groups but leaves their
+ * rows folded. See the auto-expand latch below.
+ */
+const AUTO_EXPAND_ROW_LIMIT = 300;
 
 export const ProductTable = () => {
   const role = useAppSelector(selectUserRole);
@@ -283,27 +287,27 @@ export const ProductTable = () => {
   // Subcategory expanded state map (key format: `${categoryKey}::${subcategoryKey}`)
   const [expandedSubcategories, setExpandedSubcategories] = useState<Record<string, boolean>>({});
 
-  const toggleSubcategory = (subKey: string) => {
+  // Stable identity: it is a prop of the memoized ProductCatalogTree, and a new
+  // function each render would defeat the memo on every keystroke.
+  const toggleSubcategory = useCallback((subKey: string) => {
     setExpandedSubcategories((prev) => ({
       ...prev,
       [subKey]: !prev[subKey],
     }));
-  };
+  }, []);
 
-  const filteredProducts = useMemo(() => {
-    return initialProducts.filter((p) => {
-      const matchesSearch =
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.sku.toLowerCase().includes(search.toLowerCase()) ||
-        p.category.toLowerCase().includes(search.toLowerCase()) ||
-        p.subcategory.toLowerCase().includes(search.toLowerCase());
+  // Non-text filter first, so search ranks only what the user can actually see.
+  const stockFilteredProducts = useMemo(() => {
+    if (!showLowStockOnly) return initialProducts;
+    return initialProducts.filter((p) => p.stockQuantity <= p.minStockThreshold);
+  }, [initialProducts, showLowStockOnly]);
 
-      const isLowStock = p.stockQuantity <= p.minStockThreshold;
-      const matchesStockFilter = showLowStockOnly ? isLowStock : true;
-
-      return matchesSearch && matchesStockFilter;
-    });
-  }, [initialProducts, search, showLowStockOnly]);
+  const { results: filteredProducts, terms: searchTerms } = useEntitySearch(
+    stockFilteredProducts,
+    PRODUCT_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   // Group products hierarchically: categoryKey -> subcategoryKey -> Product[]
   const hierarchy = useMemo(() => {
@@ -329,36 +333,47 @@ export const ProductTable = () => {
   const categoryKeys = useMemo(() => Array.from(hierarchy.keys()), [hierarchy]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
-  // Automatically expand all matching categories/subcategories on search/filter, and collapse when cleared
-  const prevFilterRef = useRef({ search: '', showLowStockOnly: false });
+  // Open every matching group while a filter is active, and close everything
+  // again when it clears.
+  //
+  // This latches on `hierarchy` rather than on the search text: results now
+  // settle a tick behind the input (see useEntitySearch), so reacting to the
+  // text alone would expand the *previous* set of categories. Adjusting during
+  // render — the same latch pattern SupplierFormModal uses — keeps the rows
+  // from painting once closed and then again open. A manual collapse changes
+  // neither latch value, so the user's own toggling still sticks.
+  const isFilterActive = search.trim().length > 0 || showLowStockOnly;
+  const [autoExpandLatch, setAutoExpandLatch] = useState<{
+    hierarchy: Map<string, Map<string, Product[]>> | null;
+    active: boolean;
+  }>({ hierarchy: null, active: false });
 
-  useEffect(() => {
-    const prev = prevFilterRef.current;
-    const isSearchChanged = prev.search !== search;
-    const isStockFilterChanged = prev.showLowStockOnly !== showLowStockOnly;
-    prevFilterRef.current = { search, showLowStockOnly };
-
-    const isFilterActive = search.trim().length > 0 || showLowStockOnly;
-    const wasFilterActive = prev.search.trim().length > 0 || prev.showLowStockOnly;
+  if (autoExpandLatch.hierarchy !== hierarchy || autoExpandLatch.active !== isFilterActive) {
+    const wasFilterActive = autoExpandLatch.active;
+    setAutoExpandLatch({ hierarchy, active: isFilterActive });
 
     if (isFilterActive) {
-      if (isSearchChanged || isStockFilterChanged) {
-        const allCatKeys = Array.from(hierarchy.keys());
-        setExpandedCategories(allCatKeys);
+      setExpandedCategories(Array.from(hierarchy.keys()));
 
-        const allSubKeys: Record<string, boolean> = {};
+      // Opening a subcategory mounts every row in it. On a broad query that is
+      // thousands of rows in a single commit — the slowest thing this screen
+      // does, and a wall of results is no use anyway. Past the limit the
+      // groups still open, so the user sees where their matches are and can
+      // narrow down, but the rows stay folded.
+      const allSubKeys: Record<string, boolean> = {};
+      if (filteredProducts.length <= AUTO_EXPAND_ROW_LIMIT) {
         hierarchy.forEach((subMap, cat) => {
           subMap.forEach((_, sub) => {
             allSubKeys[`${cat}::${sub}`] = true;
           });
         });
-        setExpandedSubcategories(allSubKeys);
       }
-    } else if (wasFilterActive && !isFilterActive) {
+      setExpandedSubcategories(allSubKeys);
+    } else if (wasFilterActive) {
       setExpandedCategories([]);
       setExpandedSubcategories({});
     }
-  }, [search, showLowStockOnly, hierarchy]);
+  }
 
   const adjustStockMutation = useAdjustStock();
 
@@ -382,11 +397,22 @@ export const ProductTable = () => {
     }
   };
 
+  // Memoized because the header cards are outside the search path but inside
+  // the same component: unmemoized, these three full passes over the catalog
+  // ran again on every keystroke, for numbers that only change when the
+  // catalog itself does.
   const totalProducts = initialProducts.length;
-  const lowStockCount = initialProducts.filter(
-    (p) => p.stockQuantity <= p.minStockThreshold
-  ).length;
-  const categoriesCount = new Set(initialProducts.map((p) => p.categoryKey)).size;
+  const { lowStockCount, categoriesCount } = useMemo(() => {
+    const categories = new Set<string>();
+    let lowStock = 0;
+
+    for (const product of initialProducts) {
+      categories.add(product.categoryKey);
+      if (product.stockQuantity <= product.minStockThreshold) lowStock += 1;
+    }
+
+    return { lowStockCount: lowStock, categoriesCount: categories.size };
+  }, [initialProducts]);
 
   const handleUpdateStockInDrawer = () => {
     if (!selectedProduct || stockAdjustment === 0 || !adjustmentReason.trim()) return;
@@ -522,12 +548,13 @@ export const ProductTable = () => {
       <Paper p="sm" withBorder>
         {/* Mobile: search full-width, buttons split evenly below */}
         <Stack gap="sm" hiddenFrom="sm">
-          <TextInput
+          <SearchHistoryInput
+            namespace="inventory"
             placeholder="Search by SKU, product name, or subcategory..."
             leftSection={<IconSearch size={16} />}
             value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ width: '100%' }}
+            onValueChange={setSearch}
+            wrapperStyle={{ width: '100%' }}
             size="sm"
           />
           <Group gap="xs" wrap="nowrap">
@@ -563,12 +590,13 @@ export const ProductTable = () => {
         {/* Tablet/desktop: single row */}
         <Group justify="space-between" align="center" visibleFrom="sm">
           <Group gap="sm" style={{ flex: 1 }}>
-            <TextInput
+            <SearchHistoryInput
+              namespace="inventory"
               placeholder="Search by SKU, product name, or subcategory..."
               leftSection={<IconSearch size={16} />}
               value={search}
-              onChange={(e) => setSearch(e.currentTarget.value)}
-              style={{ minWidth: 280, flex: 1 }}
+              onValueChange={setSearch}
+              wrapperStyle={{ minWidth: 280, flex: 1 }}
               size="sm"
             />
 
@@ -633,7 +661,7 @@ export const ProductTable = () => {
         </Paper>
       )}
 
-      {/* Accordion Tree Table View */}
+      {/* Accordion Tree Table View — memoized, see ProductCatalogTree */}
       {hierarchy.size === 0 ? (
         <Paper p="xl" withBorder>
           {isLoading ? (
@@ -651,288 +679,19 @@ export const ProductTable = () => {
           )}
         </Paper>
       ) : (
-        <Accordion
-          multiple
-          value={expandedCategories}
-          onChange={setExpandedCategories}
-          variant="separated"
-        >
-          {Array.from(hierarchy.entries()).map(([categoryKey, subcategoriesMap]) => {
-            const firstProduct = Array.from(subcategoriesMap.values())[0]?.[0];
-            const categoryName = firstProduct?.category ?? 'Uncategorized';
-            const categoryMeta = getCategory(categoryKey);
-            const CatIcon = categoryMeta
-              ? resolveCategoryIcon(iconMap, categoryMeta.icon)
-              : IconPackage;
-            const catColor = categoryMeta?.color ?? 'blue';
-
-            let catTotalItems = 0;
-            let catLowStockCount = 0;
-
-            subcategoriesMap.forEach((prods) => {
-              catTotalItems += prods.length;
-              catLowStockCount += prods.filter(
-                (p) => p.stockQuantity <= p.minStockThreshold
-              ).length;
-            });
-
-            return (
-              <Accordion.Item key={categoryKey} value={categoryKey}>
-                <Accordion.Control>
-                  <Group justify="space-between" wrap="nowrap" pr="md">
-                    <Group gap="sm">
-                      <ThemeIcon color={catColor} variant="light" size="lg">
-                        <CatIcon size={20} />
-                      </ThemeIcon>
-                      <div>
-                        <Text fw={700} size="md">
-                          {categoryName}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {subcategoriesMap.size} Subcategories • {catTotalItems} Items
-                        </Text>
-                      </div>
-                    </Group>
-
-                    <Group gap="xs">
-                      {catLowStockCount > 0 && (
-                        <Badge color="red" variant="light" size="sm">
-                          {catLowStockCount} Low Stock
-                        </Badge>
-                      )}
-                      <Badge color={catColor} variant="outline" size="sm">
-                        {catTotalItems} units total
-                      </Badge>
-                    </Group>
-                  </Group>
-                </Accordion.Control>
-
-                <Accordion.Panel>
-                  <Stack gap="md" pt="xs">
-                    {Array.from(subcategoriesMap.entries()).map(([subcategoryKey, items]) => {
-                      const subCatName = items[0]?.subcategory ?? 'Uncategorized';
-                      const subKey = `${categoryKey}::${subcategoryKey}`;
-                      const isSubExpanded = !!expandedSubcategories[subKey];
-                      const subLowStock = items.filter(
-                        (i) => i.stockQuantity <= i.minStockThreshold
-                      ).length;
-
-                      const subItemIds = items.map((i) => i.id);
-                      const isAllSubSelected =
-                        subItemIds.length > 0 &&
-                        subItemIds.every((id) => selectedProductIds.includes(id));
-                      const isSomeSubSelected =
-                        subItemIds.some((id) => selectedProductIds.includes(id)) &&
-                        !isAllSubSelected;
-
-                      const toggleSubAll = () => {
-                        if (isAllSubSelected) {
-                          setSelectedProductIds(
-                            selectedProductIds.filter((id) => !subItemIds.includes(id))
-                          );
-                        } else {
-                          setSelectedProductIds(
-                            Array.from(new Set([...selectedProductIds, ...subItemIds]))
-                          );
-                        }
-                      };
-
-                      return (
-                        <Paper
-                          key={subcategoryKey}
-                          withBorder
-                          p="sm"
-                          style={{ backgroundColor: 'var(--mantine-color-body)' }}
-                        >
-                          {/* Subcategory Collapsible Header Bar */}
-                          <Group
-                            justify="space-between"
-                            px="xs"
-                            py="4px"
-                            onClick={() => toggleSubcategory(subKey)}
-                            style={{ cursor: 'pointer', userSelect: 'none' }}
-                          >
-                            <Group gap="xs">
-                              <ActionIcon
-                                variant="subtle"
-                                color="gray"
-                                size="sm"
-                                aria-label="Toggle subcategory items"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleSubcategory(subKey);
-                                }}
-                              >
-                                {isSubExpanded ? (
-                                  <IconChevronDown size={16} />
-                                ) : (
-                                  <IconChevronRight size={16} />
-                                )}
-                              </ActionIcon>
-
-                              <Text fw={700} size="sm">
-                                {subCatName}
-                              </Text>
-
-                              <Badge color="gray" variant="light" size="xs">
-                                {items.length} {items.length === 1 ? 'item' : 'items'}
-                              </Badge>
-                            </Group>
-
-                            {subLowStock > 0 && (
-                              <Badge color="red" variant="filled" size="xs">
-                                {subLowStock} Low Stock Alert
-                              </Badge>
-                            )}
-                          </Group>
-
-                          {/* Collapsible Subcategory Table */}
-                          {isSubExpanded && (
-                            <Box pt="xs" style={{ overflowX: 'auto' }}>
-                              <Table
-                                verticalSpacing="xs"
-                                horizontalSpacing="sm"
-                                highlightOnHover
-                                striped
-                              >
-                                <Table.Thead>
-                                  <Table.Tr>
-                                    <Table.Th style={{ width: 40, textAlign: 'center' }}>
-                                      <Checkbox
-                                        size="xs"
-                                        aria-label="Select all subcategory items"
-                                        checked={isAllSubSelected}
-                                        indeterminate={isSomeSubSelected}
-                                        onChange={toggleSubAll}
-                                      />
-                                    </Table.Th>
-                                    <Table.Th style={{ width: 160 }}>SKU</Table.Th>
-                                    <Table.Th>Product / Material Name</Table.Th>
-                                    <Table.Th style={{ width: 130 }}>Selling Price</Table.Th>
-                                    <Table.Th style={{ textAlign: 'center', width: 150 }}>
-                                      Stock Level
-                                    </Table.Th>
-                                    <Table.Th style={{ width: 170 }}>Updated At</Table.Th>
-                                    <Table.Th
-                                      style={{ width: 40, textAlign: 'right' }}
-                                      aria-label="View Details"
-                                    />
-                                  </Table.Tr>
-                                </Table.Thead>
-
-                                <Table.Tbody>
-                                  {items.map((prod) => {
-                                    const isLow = prod.stockQuantity <= prod.minStockThreshold;
-                                    const isSelected = selectedProductIds.includes(prod.id);
-
-                                    return (
-                                      <Table.Tr
-                                        key={prod.id}
-                                        className="data-table-row"
-                                        bg={
-                                          isSelected ? 'var(--mantine-color-blue-light)' : undefined
-                                        }
-                                        onClick={() => setSelectedProduct(prod)}
-                                        style={{ cursor: 'pointer' }}
-                                      >
-                                        <Table.Td
-                                          style={{ textAlign: 'center' }}
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          <Checkbox
-                                            size="xs"
-                                            checked={isSelected}
-                                            onChange={() => {
-                                              if (isSelected) {
-                                                setSelectedProductIds(
-                                                  selectedProductIds.filter((id) => id !== prod.id)
-                                                );
-                                              } else {
-                                                setSelectedProductIds([
-                                                  ...selectedProductIds,
-                                                  prod.id,
-                                                ]);
-                                              }
-                                            }}
-                                          />
-                                        </Table.Td>
-                                        <Table.Td>
-                                          {prod.sku ? (
-                                            <Text size="xs" fw={700} c="blue">
-                                              {prod.sku}
-                                            </Text>
-                                          ) : (
-                                            // Created on this device; the server
-                                            // assigns the SKU when it syncs.
-                                            <Tooltip label="Waiting to sync — the SKU is assigned by the server">
-                                              <Badge size="xs" color="orange" variant="light">
-                                                Pending
-                                              </Badge>
-                                            </Tooltip>
-                                          )}
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="sm" fw={600}>
-                                            {prod.name}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="sm" fw={700}>
-                                            {formatMoney(prod.sellingPriceCents)}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td style={{ textAlign: 'center' }}>
-                                          <Badge
-                                            color={isLow ? 'red' : 'green'}
-                                            variant="light"
-                                            size="sm"
-                                          >
-                                            {prod.stockQuantity} units {isLow ? '(Low)' : ''}
-                                          </Badge>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="xs" c="dimmed">
-                                            {formatDateTime(prod.updatedAt || '')}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td
-                                          style={{
-                                            width: 40,
-                                            textAlign: 'right',
-                                            verticalAlign: 'middle',
-                                          }}
-                                        >
-                                          <ActionIcon
-                                            variant="subtle"
-                                            color="gray"
-                                            size="sm"
-                                            aria-label="View product details"
-                                            className="data-table-row-chevron"
-                                            tabIndex={-1}
-                                            style={{
-                                              opacity: 0.45,
-                                              marginInlineStart: 'auto',
-                                            }}
-                                          >
-                                            <IconChevronRight size={16} />
-                                          </ActionIcon>
-                                        </Table.Td>
-                                      </Table.Tr>
-                                    );
-                                  })}
-                                </Table.Tbody>
-                              </Table>
-                            </Box>
-                          )}
-                        </Paper>
-                      );
-                    })}
-                  </Stack>
-                </Accordion.Panel>
-              </Accordion.Item>
-            );
-          })}
-        </Accordion>
+        <ProductCatalogTree
+          hierarchy={hierarchy}
+          expandedCategories={expandedCategories}
+          onExpandedCategoriesChange={setExpandedCategories}
+          expandedSubcategories={expandedSubcategories}
+          onToggleSubcategory={toggleSubcategory}
+          selectedProductIds={selectedProductIds}
+          onSelectionChange={setSelectedProductIds}
+          onOpenProduct={setSelectedProduct}
+          getCategory={getCategory}
+          iconMap={iconMap}
+          searchTerms={searchTerms}
+        />
       )}
 
       <ConfirmDialog

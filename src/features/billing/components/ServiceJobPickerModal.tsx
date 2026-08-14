@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   Modal,
-  TextInput,
   Stack,
   Group,
   Text,
@@ -18,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
@@ -25,6 +25,9 @@ import { useCart } from '../hooks/useCart';
 import { playScanSuccessSound } from '../lib/audio';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { SearchHighlight } from '@/shared/components/SearchHighlight';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import type { SearchField } from '@/shared/lib/search';
 
 export interface ServiceJobPickerModalProps {
   opened: boolean;
@@ -44,6 +47,18 @@ export interface CombinedServiceJob {
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
 }
+
+/**
+ * Repairs and print jobs are merged into one shape here, so this config lives
+ * with the component rather than in the shared `searchFields.ts`.
+ */
+const SERVICE_JOB_SEARCH_FIELDS: readonly SearchField<CombinedServiceJob>[] = [
+  { get: (j) => j.ticketNumber, weight: 3, kind: 'text' },
+  { get: (j) => j.customerName, weight: 3, kind: 'text' },
+  { get: (j) => j.customerPhone, weight: 2, kind: 'digits' },
+  { get: (j) => j.title, weight: 2, kind: 'text' },
+  { get: (j) => j.description, weight: 1, kind: 'text' },
+];
 
 const generateServiceJobId = (type: string, id: string): string => {
   return `svc-${type}-${id}-${Math.random().toString(36).substring(2, 9)}`;
@@ -110,20 +125,17 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
     return list;
   }, [repairs, printJobs]);
 
-  const filteredJobs = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return combinedJobs.filter((job) => {
-      const matchesType = filterType === 'all' || job.type === filterType;
-      const matchesSearch =
-        !q ||
-        job.ticketNumber.toLowerCase().includes(q) ||
-        job.customerName.toLowerCase().includes(q) ||
-        (job.customerPhone && job.customerPhone.includes(q)) ||
-        job.title.toLowerCase().includes(q) ||
-        job.description.toLowerCase().includes(q);
-      return matchesType && matchesSearch;
-    });
-  }, [combinedJobs, filterType, search]);
+  const typeFilteredJobs = useMemo(() => {
+    if (filterType === 'all') return combinedJobs;
+    return combinedJobs.filter((job) => job.type === filterType);
+  }, [combinedJobs, filterType]);
+
+  const { results: filteredJobs, terms: searchTerms } = useEntitySearch(
+    typeFilteredJobs,
+    SERVICE_JOB_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   const handleSelectJob = (job: CombinedServiceJob) => {
     const uniqueId = generateServiceJobId(job.type, job.id);
@@ -178,12 +190,13 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
         }}
       >
         <Group justify="space-between" align="center" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
-          <TextInput
+          <SearchHistoryInput
+            namespace="service_jobs"
             placeholder="Search ticket #, customer name"
             leftSection={<IconSearch size={16} />}
             value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
+            onValueChange={setSearch}
+            wrapperStyle={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
             /* Autofocusing here opens the soft keyboard over the job list it is meant to filter. */
             autoFocus={!isMobile}
           />
@@ -285,7 +298,7 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
                               c="dimmed"
                               style={{ fontFamily: 'monospace', letterSpacing: '0.3px' }}
                             >
-                              {job.ticketNumber}
+                              <SearchHighlight text={job.ticketNumber} terms={searchTerms} />
                             </Text>
                             <Badge
                               size="xs"
@@ -302,7 +315,7 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
                           </Group>
 
                           <Text fw={700} size="sm" lineClamp={1}>
-                            {job.title}
+                            <SearchHighlight text={job.title} terms={searchTerms} />
                           </Text>
 
                           {metaText && (

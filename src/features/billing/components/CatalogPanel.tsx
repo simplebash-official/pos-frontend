@@ -3,7 +3,6 @@ import {
   Stack,
   Paper,
   Group,
-  TextInput,
   Text,
   Badge,
   Grid,
@@ -19,6 +18,10 @@ import {
 import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { SearchHighlight } from '@/shared/components/SearchHighlight';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 import { queryKeys } from '@/api/queryKeys';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
@@ -113,25 +116,22 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
     return map;
   }, [items]);
 
-  // Filtered Products
-  const filteredProducts = useMemo(() => {
+  // Category and stock filters first; the shared scorer then ranks what is left.
+  const visibleProducts = useMemo(() => {
     return products.filter((p) => {
       const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
       if (showInStockOnly && remainingStock <= 0) return false;
 
-      const matchesCat = selectedCategory === 'all' || p.categoryKey === selectedCategory;
-
-      const q = search.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        (p.barcode && p.barcode.toLowerCase().includes(q)) ||
-        p.subcategory.toLowerCase().includes(q);
-
-      return matchesCat && matchesSearch;
+      return selectedCategory === 'all' || p.categoryKey === selectedCategory;
     });
-  }, [products, selectedCategory, search, showInStockOnly, cartQuantityByProductId]);
+  }, [products, selectedCategory, showInStockOnly, cartQuantityByProductId]);
+
+  const { results: filteredProducts, terms: searchTerms } = useEntitySearch(
+    visibleProducts,
+    PRODUCT_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   const handleAddProduct = (p: Product) => {
     const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
@@ -296,7 +296,8 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
         }}
       >
         <form onSubmit={handleScanSubmit}>
-          <TextInput
+          <SearchHistoryInput
+            namespace="billing"
             ref={scanInputRef}
             placeholder={
               isMobile
@@ -342,6 +343,11 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
             onChange={(e) => {
               setScanQuery(e.currentTarget.value);
               setSearch(e.currentTarget.value);
+              setShakeError(null);
+            }}
+            onSearchSubmit={(val) => {
+              setScanQuery(val);
+              setSearch(val);
               setShakeError(null);
             }}
             onKeyDown={handleKeyDownGrid}
@@ -514,7 +520,7 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
                             c="dimmed"
                             style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
                           >
-                            {p.sku}
+                            <SearchHighlight text={p.sku} terms={searchTerms} />
                           </Text>
                         </Group>
 
@@ -526,7 +532,7 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
                             lineClamp={2}
                             style={{ lineHeight: 1.3, fontSize: 12 }}
                           >
-                            {p.name}
+                            <SearchHighlight text={p.name} terms={searchTerms} />
                           </Text>
                         </Box>
 

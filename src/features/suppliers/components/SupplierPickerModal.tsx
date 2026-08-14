@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   Modal,
-  TextInput,
   Stack,
   Group,
   Text,
@@ -24,6 +23,13 @@ import {
 } from '@tabler/icons-react';
 import { useAllSuppliers } from '../hooks/useSuppliers';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { SearchHighlight } from '@/shared/components/SearchHighlight';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { SUPPLIER_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+
+/** How many rows the picker draws at once. Beyond this the user should keep typing. */
+const VISIBLE_RESULT_LIMIT = 50;
 
 export interface SupplierPickerModalProps {
   opened: boolean;
@@ -46,20 +52,23 @@ export const SupplierPickerModal = ({
 
   const [search, setSearch] = useState('');
 
-  const filtered = useMemo(() => {
-    const excludeSet = new Set(excludeKeys);
-    return suppliers
-      .filter((s) => !excludeSet.has(s.key))
-      .filter((s) => {
-        if (!search) return true;
-        const q = search.toLowerCase();
-        return (
-          s.name.toLowerCase().includes(q) ||
-          s.contactPerson.toLowerCase().includes(q) ||
-          s.suppliedCategories.some((c) => c.toLowerCase().includes(q))
-        );
-      });
-  }, [suppliers, excludeKeys, search]);
+  // Memoized on a signature rather than the array itself: `excludeKeys` defaults
+  // to a fresh `[]` each render, which would otherwise rebuild the search index
+  // on every keystroke.
+  const excludeSignature = excludeKeys.join('|');
+  const available = useMemo(() => {
+    const excludeSet = new Set(excludeSignature ? excludeSignature.split('|') : []);
+    return suppliers.filter((s) => !excludeSet.has(s.key));
+  }, [suppliers, excludeSignature]);
+
+  const { results: filtered, terms: searchTerms } = useEntitySearch(
+    available,
+    SUPPLIER_SEARCH_FIELDS,
+    search,
+    null
+  );
+
+  const visible = useMemo(() => filtered.slice(0, VISIBLE_RESULT_LIMIT), [filtered]);
 
   const handleSelect = (supplierKey: string) => {
     onSelect(supplierKey);
@@ -86,7 +95,8 @@ export const SupplierPickerModal = ({
     >
       <Stack gap="md">
         {/* Search Bar */}
-        <TextInput
+        <SearchHistoryInput
+          namespace="suppliers_picker"
           placeholder="Search by vendor name, contact person, or category…"
           leftSection={<IconSearch size={16} />}
           rightSection={
@@ -101,9 +111,8 @@ export const SupplierPickerModal = ({
             )
           }
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          autoFocus
-          radius="var(--mantine-radius-default)"
+          onValueChange={setSearch}
+          autoFocus={!isMobile}
         />
 
         {/* Supplier List */}
@@ -148,7 +157,7 @@ export const SupplierPickerModal = ({
                 </Center>
               </Paper>
             ) : (
-              filtered.map((s) => (
+              visible.map((s) => (
                 <Paper
                   key={s.key}
                   p="md"
@@ -176,7 +185,7 @@ export const SupplierPickerModal = ({
 
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <Text size="sm" fw={700} lineClamp={1}>
-                          {s.name}
+                          <SearchHighlight text={s.name} terms={searchTerms} />
                         </Text>
 
                         <Group gap="xs" mt={4} wrap="wrap">
@@ -255,7 +264,9 @@ export const SupplierPickerModal = ({
           style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
           <Text size="xs" c="dimmed" fw={500}>
-            Showing {filtered.length} of {suppliers.length - excludeKeys.length} available vendors
+            {filtered.length > visible.length
+              ? `Showing the closest ${visible.length} of ${filtered.length} matches — keep typing to narrow it down`
+              : `Showing ${filtered.length} of ${available.length} available suppliers`}
           </Text>
 
           <Button

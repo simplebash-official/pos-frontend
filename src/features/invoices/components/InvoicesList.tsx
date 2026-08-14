@@ -6,7 +6,6 @@ import {
   Group,
   Text,
   Title,
-  TextInput,
   Select,
   Badge,
   SimpleGrid,
@@ -30,6 +29,9 @@ import { fetchInvoices } from '@/features/billing/api/mockInvoices';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
 export const InvoicesList = () => {
@@ -74,8 +76,9 @@ export const InvoicesList = () => {
     };
   }, []);
 
-  // Filter logic
-  const filteredInvoices = useMemo(() => {
+  // Status, payment and date filters first; the shared scorer then ranks what is
+  // left, so a bill number or ticket the user half-remembers surfaces first.
+  const scopedInvoices = useMemo(() => {
     return invoices.filter((inv) => {
       // Status filter
       if (statusFilter === 'paid' && (inv.status !== 'paid' || inv.isCredit)) return false;
@@ -83,18 +86,6 @@ export const InvoicesList = () => {
 
       // Payment method filter
       if (paymentFilter !== 'all' && inv.paymentMethod !== paymentFilter) return false;
-
-      // Search query filter (matches invoice number, customer name, phone, or ticket #)
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchNum = inv.invoiceNumber.toLowerCase().includes(q);
-        const matchCust = inv.customerName?.toLowerCase().includes(q);
-        const matchPhone = inv.customerPhone?.toLowerCase().includes(q);
-        const matchTicket = inv.items.some((item) =>
-          item.sourceTicketNumber?.toLowerCase().includes(q)
-        );
-        if (!matchNum && !matchCust && !matchPhone && !matchTicket) return false;
-      }
 
       // Date preset filter
       if (datePreset !== 'all') {
@@ -113,7 +104,14 @@ export const InvoicesList = () => {
 
       return true;
     });
-  }, [invoices, statusFilter, paymentFilter, searchQuery, datePreset]);
+  }, [invoices, statusFilter, paymentFilter, datePreset]);
+
+  const { results: filteredInvoices } = useEntitySearch(
+    scopedInvoices,
+    INVOICE_SEARCH_FIELDS,
+    searchQuery,
+    null
+  );
 
   // KPI Calculations
   const kpis = useMemo(() => {
@@ -268,12 +266,13 @@ export const InvoicesList = () => {
         {/* Filter Controls Bar */}
         <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
           <Group justify="space-between" wrap="wrap">
-            <TextInput
+            <SearchHistoryInput
+              namespace="invoices"
               placeholder="Search invoice #, customer name, phone, ticket #"
               leftSection={<IconSearch size={16} />}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              style={{ flex: 1, minWidth: 260 }}
+              onValueChange={setSearchQuery}
+              wrapperStyle={{ flex: 1, minWidth: 260 }}
               size="sm"
             />
 

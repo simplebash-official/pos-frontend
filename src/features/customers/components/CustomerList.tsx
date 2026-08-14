@@ -42,6 +42,8 @@ import { CustomerFormModal } from './CustomerFormModal';
 import { CustomerDetailDrawer } from './CustomerDetailDrawer';
 import { formatMoney } from '@/shared/lib/money';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { CUSTOMER_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 export const CustomerList = () => {
   const [search, setSearch] = useState('');
@@ -62,22 +64,17 @@ export const CustomerList = () => {
   const deleteMutation = useDeleteCustomer();
   const deleteBatchMutation = useDeleteCustomers();
 
-  const filteredCustomers = useMemo(() => {
-    return customers.filter((c) => {
-      const q = search.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        c.name.toLowerCase().includes(q) ||
-        c.primaryPhone.includes(q) ||
-        (c.secondaryPhone && c.secondaryPhone.includes(q)) ||
-        (c.email && c.email.toLowerCase().includes(q)) ||
-        (c.contactPerson && c.contactPerson.toLowerCase().includes(q)) ||
-        (c.address && c.address.toLowerCase().includes(q));
+  const taggedCustomers = useMemo(() => {
+    if (!selectedTag) return customers;
+    return customers.filter((c) => c.tags && c.tags.includes(selectedTag));
+  }, [customers, selectedTag]);
 
-      const matchesTag = !selectedTag || (c.tags && c.tags.includes(selectedTag));
-      return matchesSearch && matchesTag;
-    });
-  }, [customers, search, selectedTag]);
+  const { results: filteredCustomers } = useEntitySearch(
+    taggedCustomers,
+    CUSTOMER_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   const totalCustomersCount = customers.length;
   const totalBalanceDue = customers.reduce((sum, c) => sum + (c.outstandingBalanceCents || 0), 0);
@@ -326,6 +323,7 @@ export const CustomerList = () => {
   return (
     <>
       <EntityListPage
+        namespace="customers"
         title="Customer Directory"
         description="Client database, purchase histories, and credit balances"
         action={

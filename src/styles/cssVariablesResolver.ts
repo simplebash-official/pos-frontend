@@ -38,6 +38,10 @@ const lightTokens: Record<string, string> = {
   '--status-error-bg': 'var(--mantine-color-red-0)',
   '--status-idle': '#A1A1A6',
   '--status-idle-bg': '#F1F3F5',
+
+  // Matched text inside a search result.
+  '--search-highlight-bg': 'var(--mantine-color-amber-2)',
+  '--search-highlight-text': 'var(--text-primary)',
 };
 
 const darkTokens: Record<string, string> = {
@@ -69,6 +73,11 @@ const darkTokens: Record<string, string> = {
   '--status-error-bg': 'var(--mantine-color-red-9)',
   '--status-idle': 'var(--mantine-color-dark-2)',
   '--status-idle-bg': 'var(--mantine-color-dark-5)',
+
+  // A translucent amber wash rather than a solid one: a filled amber block is
+  // far too bright against a dark surface, and light text on it fails contrast.
+  '--search-highlight-bg': 'rgba(250, 196, 25, 0.18)',
+  '--search-highlight-text': 'var(--mantine-color-amber-3)',
 };
 
 /** Mantine's scheme-adaptive semantic vars, expressed in terms of the tokens above. */

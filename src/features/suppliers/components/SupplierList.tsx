@@ -42,6 +42,8 @@ import {
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
 import { useSetSupplierLinks } from '@/features/supplier-products';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { SUPPLIER_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 export const SupplierList = () => {
   const [search, setSearch] = useState('');
@@ -71,20 +73,17 @@ export const SupplierList = () => {
     return Array.from(tagSet).sort();
   }, [suppliers]);
 
-  const filteredSuppliers = useMemo(() => {
-    return suppliers.filter((s) => {
-      const q = search.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        s.name.toLowerCase().includes(q) ||
-        s.contactPerson.toLowerCase().includes(q) ||
-        s.primaryPhone.toLowerCase().includes(q) ||
-        s.address.toLowerCase().includes(q);
+  const taggedSuppliers = useMemo(() => {
+    if (!selectedTag) return suppliers;
+    return suppliers.filter((s) => s.suppliedCategories.includes(selectedTag));
+  }, [suppliers, selectedTag]);
 
-      const matchesTag = !selectedTag || s.suppliedCategories.includes(selectedTag);
-      return matchesSearch && matchesTag;
-    });
-  }, [suppliers, search, selectedTag]);
+  const { results: filteredSuppliers } = useEntitySearch(
+    taggedSuppliers,
+    SUPPLIER_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   const handleOpenAddModal = () => {
     setSupplierToEdit(null);
@@ -316,6 +315,7 @@ export const SupplierList = () => {
   return (
     <>
       <EntityListPage
+        namespace="suppliers"
         title="Suppliers & Distributors"
         description="Vendor directory, contact persons, and supply product mappings"
         action={

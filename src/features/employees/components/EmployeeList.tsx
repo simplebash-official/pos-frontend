@@ -47,6 +47,8 @@ import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { RoleGuard } from '@/shared/components/RoleGuard';
 import { USER_ROLES } from '@/constants/roles';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { EMPLOYEE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 export const EmployeeList = () => {
   const queryClient = useQueryClient();
@@ -130,19 +132,17 @@ export const EmployeeList = () => {
     },
   });
 
-  const filteredEmployees = useMemo(() => {
-    return employees.filter((e) => {
-      const q = search.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        e.name.toLowerCase().includes(q) ||
-        e.phone.includes(q) ||
-        (e.nicOrId && e.nicOrId.toLowerCase().includes(q));
+  const roleFilteredEmployees = useMemo(() => {
+    if (!selectedRole) return employees;
+    return employees.filter((e) => e.role === selectedRole);
+  }, [employees, selectedRole]);
 
-      const matchesRole = !selectedRole || e.role === selectedRole;
-      return matchesSearch && matchesRole;
-    });
-  }, [employees, search, selectedRole]);
+  const { results: filteredEmployees } = useEntitySearch(
+    roleFilteredEmployees,
+    EMPLOYEE_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   const handleOpenAddModal = () => {
     setEmployeeToEdit(null);
@@ -362,6 +362,7 @@ export const EmployeeList = () => {
   return (
     <>
       <EntityListPage
+        namespace="employees"
         title="Employee Directory & Commission Splits"
         description="Staff profiles, technician assignments, and job profit commission splits"
         action={

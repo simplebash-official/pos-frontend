@@ -37,6 +37,8 @@ import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 export interface SupplierFormModalProps {
   opened: boolean;
@@ -103,21 +105,17 @@ const SupplierFormContent = ({
   const [productSearch, setProductSearch] = useState('');
   const [isLinkingActive, setIsLinkingActive] = useState(false);
 
-  const availableProducts = useMemo(() => {
+  const unlinkedProducts = useMemo(() => {
     const linkedSet = new Set(linkedProductKeys);
-    return allProducts
-      .filter((p) => !linkedSet.has(p.key))
-      .filter((p) => {
-        if (!productSearch) return true;
-        const q = productSearch.toLowerCase();
-        return (
-          p.name.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.subcategory.toLowerCase().includes(q)
-        );
-      });
-  }, [allProducts, linkedProductKeys, productSearch]);
+    return allProducts.filter((p) => !linkedSet.has(p.key));
+  }, [allProducts, linkedProductKeys]);
+
+  const { results: availableProducts } = useEntitySearch(
+    unlinkedProducts,
+    PRODUCT_SEARCH_FIELDS,
+    productSearch,
+    null
+  );
 
   const linkedProducts = useMemo(() => {
     const productMap = new Map(allProducts.map((p) => [p.key, p]));

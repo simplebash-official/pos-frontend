@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   Modal,
-  TextInput,
   Stack,
   Group,
   Text,
@@ -21,6 +20,13 @@ import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { SearchHighlight } from '@/shared/components/SearchHighlight';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+
+/** How many rows the picker draws at once. Beyond this the user should keep typing. */
+const VISIBLE_RESULT_LIMIT = 50;
 
 export interface ProductPickerModalProps {
   opened: boolean;
@@ -45,21 +51,23 @@ export const ProductPickerModal = ({
 
   const [search, setSearch] = useState('');
 
-  const filtered = useMemo(() => {
-    const excludeSet = new Set(excludeKeys);
-    return products
-      .filter((p) => !excludeSet.has(p.key))
-      .filter((p) => {
-        if (!search) return true;
-        const q = search.toLowerCase();
-        return (
-          p.name.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.subcategory.toLowerCase().includes(q)
-        );
-      });
-  }, [products, excludeKeys, search]);
+  // Memoized on a signature rather than the array itself: `excludeKeys` defaults
+  // to a fresh `[]` each render, which would otherwise rebuild the search index
+  // on every keystroke.
+  const excludeSignature = excludeKeys.join('|');
+  const available = useMemo(() => {
+    const excludeSet = new Set(excludeSignature ? excludeSignature.split('|') : []);
+    return products.filter((p) => !excludeSet.has(p.key));
+  }, [products, excludeSignature]);
+
+  const { results: filtered, terms: searchTerms } = useEntitySearch(
+    available,
+    PRODUCT_SEARCH_FIELDS,
+    search,
+    null
+  );
+
+  const visible = useMemo(() => filtered.slice(0, VISIBLE_RESULT_LIMIT), [filtered]);
 
   const handleSelect = (productKey: string) => {
     onSelect(productKey);
@@ -86,7 +94,8 @@ export const ProductPickerModal = ({
     >
       <Stack gap="md">
         {/* Search Bar */}
-        <TextInput
+        <SearchHistoryInput
+          namespace="inventory_picker"
           placeholder="Search by product name, SKU, or category…"
           leftSection={<IconSearch size={16} />}
           rightSection={
@@ -101,9 +110,8 @@ export const ProductPickerModal = ({
             )
           }
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
+          onValueChange={setSearch}
           autoFocus={!isMobile}
-          radius="var(--mantine-radius-default)"
         />
 
         {/* Product List */}
@@ -152,7 +160,7 @@ export const ProductPickerModal = ({
                 </Center>
               </Paper>
             ) : (
-              filtered.map((p) => {
+              visible.map((p) => {
                 const category = getCategory(p.categoryKey);
                 const CatIcon = category
                   ? resolveCategoryIcon(iconMap, category.icon)
@@ -193,7 +201,7 @@ export const ProductPickerModal = ({
 
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <Text size="sm" fw={700} lineClamp={2} style={{ lineHeight: 1.3 }}>
-                            {p.name}
+                            <SearchHighlight text={p.name} terms={searchTerms} />
                           </Text>
 
                           <Group gap={6} mt={6} wrap="wrap">
@@ -203,7 +211,7 @@ export const ProductPickerModal = ({
                               color="blue"
                               radius="var(--mantine-radius-default)"
                             >
-                              {p.sku}
+                              <SearchHighlight text={p.sku} terms={searchTerms} />
                             </Badge>
                             <Badge
                               size="xs"
@@ -266,7 +274,9 @@ export const ProductPickerModal = ({
           style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
           <Text size="xs" c="dimmed" fw={500}>
-            Showing {filtered.length} of {products.length - excludeKeys.length} available items
+            {filtered.length > visible.length
+              ? `Showing the closest ${visible.length} of ${filtered.length} matches — keep typing to narrow it down`
+              : `Showing ${filtered.length} of ${available.length} available items`}
           </Text>
 
           <Button

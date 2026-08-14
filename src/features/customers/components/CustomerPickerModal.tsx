@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   Modal,
   TextInput,
@@ -28,7 +28,11 @@ import { notifications } from '@mantine/notifications';
 import { useAllCustomers, useCreateCustomer } from '../hooks/useCustomers';
 import { Customer } from '../types';
 import { formatMoney } from '@/shared/lib/money';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { SearchHighlight } from '@/shared/components/SearchHighlight';
+import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { CUSTOMER_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 interface CustomerPickerModalProps {
   opened: boolean;
@@ -55,27 +59,14 @@ export const CustomerPickerModal = ({
 
   const createCustomerMutation = useCreateCustomer();
 
-  // Phone search priority matching
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    if (!q) return customers;
-
-    const phoneMatches: Customer[] = [];
-    const nameMatches: Customer[] = [];
-
-    for (const c of customers) {
-      if (c.primaryPhone.includes(q) || (c.secondaryPhone && c.secondaryPhone.includes(q))) {
-        phoneMatches.push(c);
-      } else if (
-        c.name.toLowerCase().includes(q) ||
-        (c.email && c.email.toLowerCase().includes(q))
-      ) {
-        nameMatches.push(c);
-      }
-    }
-
-    return [...phoneMatches, ...nameMatches];
-  }, [customers, search]);
+  // Phone and name are both weighted highest in CUSTOMER_SEARCH_FIELDS, so a
+  // number typed with spaces or dashes still lands on the right customer.
+  const { results: filtered, terms: searchTerms } = useEntitySearch(
+    customers,
+    CUSTOMER_SEARCH_FIELDS,
+    search,
+    null
+  );
 
   const handleCreateQuickCustomer = async () => {
     const trimmedName = newName.trim();
@@ -156,12 +147,13 @@ export const CustomerPickerModal = ({
         }}
       >
         <Group justify="space-between" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
-          <TextInput
+          <SearchHistoryInput
+            namespace="customers"
             placeholder="Search by phone number or name..."
             leftSection={<IconSearch size={16} />}
             value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
+            onValueChange={setSearch}
+            wrapperStyle={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
             /* Autofocusing raises the soft keyboard over the very list being searched on mobile. */
             autoFocus={!isMobile}
           />
@@ -311,7 +303,7 @@ export const CustomerPickerModal = ({
                           <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                             <Group gap="xs" align="center">
                               <Text fw={700} size="sm" lineClamp={1}>
-                                {cust.name}
+                                <SearchHighlight text={cust.name} terms={searchTerms} />
                               </Text>
                               {hasDebt && (
                                 <Badge size="xs" radius="xl" variant="light" color="red" fw={600}>

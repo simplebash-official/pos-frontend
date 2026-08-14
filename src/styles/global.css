@@ -27,6 +27,21 @@ body,
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
+.search-history-item:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+/* Matched text inside a search result. Tokens, not a fixed swatch, so it stays
+   readable when the colour scheme flips — see cssVariablesResolver.ts, where
+   both the light and dark pairing are defined. */
+.search-highlight {
+  background-color: var(--search-highlight-bg);
+  color: var(--search-highlight-text);
+  border-radius: 2px;
+  padding: 0 1px;
+  font-weight: 700;
+}
+
 .picker-card {
   cursor: pointer;
   transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);

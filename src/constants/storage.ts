@@ -12,4 +12,6 @@ export const STORAGE_KEYS = {
   DEVICE_ID: 'pos_device_id',
   /** Dev-only offline simulator override. See src/offline/connectivity/ConnectivityMonitor.ts */
   OFFLINE_SIMULATION: 'pos_offline_simulation',
+  /** Local search history records partitioned by namespace */
+  SEARCH_HISTORY: 'pos_search_history',
 } as const;
