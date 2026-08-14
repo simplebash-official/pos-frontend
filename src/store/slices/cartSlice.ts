@@ -38,6 +38,7 @@ export interface HeldCart {
   paymentMethod: PaymentMethod;
   notes: string;
   heldAt: string;
+  remindedAt?: string;
 }
 
 interface CartState {
@@ -369,6 +370,13 @@ const cartSlice = createSlice({
       saveHeldCartsToStorage(state.heldCarts);
     },
 
+    markHeldCartReminded: (state, action: PayloadAction<string>) => {
+      const target = state.heldCarts.find((h) => h.id === action.payload);
+      if (!target) return;
+      target.remindedAt = new Date().toISOString();
+      saveHeldCartsToStorage(state.heldCarts);
+    },
+
     completeSaleSuccess: (state, action: PayloadAction<CompletedSaleData>) => {
       state.completedSale = action.payload;
     },
@@ -408,6 +416,7 @@ export const {
   parkCart,
   restoreCart,
   deleteHeldCart,
+  markHeldCartReminded,
   completeSaleSuccess,
   startNewSale,
   clearCart,

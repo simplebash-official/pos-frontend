@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { syncLabelsRegistered, syncStateChanged } from '@/store/slices/syncSlice';
+import { addNotification } from '@/store/slices/notificationSlice';
 import {
   clearConnectivityNotification,
   notifyBackOnline,
@@ -79,6 +80,15 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
       // re-toast forever. Only announce a rise in the total.
       if (summary.conflicted > lastConflictCount) {
         notifySyncProblems(summary.conflicted);
+        dispatch(
+          addNotification({
+            category: 'system',
+            actionIconType: 'alert',
+            priority: 'urgent',
+            title: 'Some changes could not be saved',
+            message: `${summary.conflicted} change${summary.conflicted === 1 ? '' : 's'} need${summary.conflicted === 1 ? 's' : ''} your attention. Open the sync panel to review them.`,
+          })
+        );
       }
       lastConflictCount = summary.conflicted;
 

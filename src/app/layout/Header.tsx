@@ -27,6 +27,7 @@ import { useMantineColorScheme } from '@mantine/core';
 
 import { useCart } from '@/features/billing/hooks/useCart';
 import { SyncStatusBadge } from '@/features/sync';
+import { NotificationPopover } from '@/features/notifications';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
@@ -133,8 +134,8 @@ export const Header = ({
               reachable on a touch device, so both drop away with the rest of the keyboard chrome. */}
           <Tooltip label={focusMode ? 'Exit Focus Mode (F11)' : 'Focus Mode (F11)'}>
             <ActionIcon
-              variant={focusMode ? 'filled' : 'light'}
-              color="blue"
+              variant={focusMode ? 'light' : 'subtle'}
+              color={focusMode ? 'blue' : 'gray'}
               size="sm"
               visibleFrom="sm"
               onClick={onToggleFocusMode}
@@ -145,7 +146,7 @@ export const Header = ({
 
           <Tooltip label="Keyboard Shortcuts (?)">
             <ActionIcon
-              variant="light"
+              variant="subtle"
               color="gray"
               size="sm"
               visibleFrom="sm"
@@ -165,6 +166,8 @@ export const Header = ({
               {isDark ? <IconSun size={16} /> : <IconMoon size={16} />}
             </ActionIcon>
           </Tooltip>
+
+          <NotificationPopover size="sm" variant="subtle" color="gray" />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
             <Group gap={6} style={{ cursor: 'default' }}>
@@ -197,6 +200,8 @@ export const Header = ({
 
       <Group gap="xs" wrap="nowrap">
         <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
+
+        <NotificationPopover size={isMobile ? 44 : 'sm'} variant="subtle" color="gray" />
 
         {isMobile ? (
           <Tooltip label="Billing Counter">

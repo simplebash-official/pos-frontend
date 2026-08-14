@@ -9,6 +9,8 @@ import { useAppDispatch } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
 import { SyncProvider } from '@/offline/react/SyncProvider';
 import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
+import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
+import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
@@ -61,6 +63,8 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
             >
               <Notifications position="top-right" zIndex={1000} />
               <AppUpdatePrompt />
+              <HeldCartCatchupNotifier />
+              <LowStockNotifier />
               <ModalsProvider>{children}</ModalsProvider>
             </MantineProvider>
           </QueryClientProvider>

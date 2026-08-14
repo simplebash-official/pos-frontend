@@ -8,13 +8,16 @@ import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob, RepairJobInput } from '../types';
 import { fetchRepairs, createRepairJob, updateRepairJob, deleteRepairs } from '../api/mockRepairs';
 import { queryKeys } from '@/api/queryKeys';
-import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
+import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
+import { useAppDispatch } from '@/store/hooks';
+import { addNotification } from '@/store/slices/notificationSlice';
 import { RepairFormModal } from './RepairFormModal';
 
 export const RepairJobList = () => {
   const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
@@ -39,9 +42,15 @@ export const RepairJobList = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: Partial<RepairJobInput> }) =>
-      updateRepairJob(id, input),
-    onSuccess: (updatedJob) => {
+    mutationFn: ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: Partial<RepairJobInput>;
+      previousStatus?: RepairJob['status'];
+    }) => updateRepairJob(id, input),
+    onSuccess: (updatedJob, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
       notifications.show({
@@ -50,6 +59,22 @@ export const RepairJobList = () => {
         color: 'teal',
         icon: <IconCheck size={16} />,
       });
+
+      if (
+        variables.previousStatus &&
+        variables.previousStatus !== updatedJob.status &&
+        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
+      ) {
+        dispatch(
+          addNotification({
+            category: 'repair',
+            actionIconType: updatedJob.status === 'delivered' ? 'check' : 'tool',
+            title: updatedJob.status === 'delivered' ? 'Repair Delivered' : 'Ready for Pickup',
+            message: `${updatedJob.deviceModel} (${updatedJob.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
+            link: ROUTES.REPAIRS,
+          })
+        );
+      }
     },
   });
 
@@ -79,7 +104,11 @@ export const RepairJobList = () => {
 
   const handleFormSubmit = async (values: RepairJobInput) => {
     if (jobToEdit) {
-      await updateMutation.mutateAsync({ id: jobToEdit.id, input: values });
+      await updateMutation.mutateAsync({
+        id: jobToEdit.id,
+        input: values,
+        previousStatus: jobToEdit.status,
+      });
     } else {
       await createMutation.mutateAsync(values);
     }

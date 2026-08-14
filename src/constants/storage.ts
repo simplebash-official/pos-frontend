@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
   INVOICES: 'pos_invoices_data',
   INVOICE_COUNTER: 'pos_invoice_counter',
   SETTINGS: 'pos_settings_data',
+  NOTIFICATIONS: 'pos_notifications_data',
   /** Per-install device identity, minted once and never rotated. See src/offline/ids/deviceId.ts */
   DEVICE_ID: 'pos_device_id',
   /** Dev-only offline simulator override. See src/offline/connectivity/ConnectivityMonitor.ts */

@@ -13,13 +13,16 @@ import {
   deletePrintJobs,
 } from '../api/mockPrintJobs';
 import { queryKeys } from '@/api/queryKeys';
-import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
+import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
+import { useAppDispatch } from '@/store/hooks';
+import { addNotification } from '@/store/slices/notificationSlice';
 import { PrintJobFormModal } from './PrintJobFormModal';
 
 export const PrintJobList = () => {
   const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
@@ -44,9 +47,15 @@ export const PrintJobList = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: Partial<PrintJobInput> }) =>
-      updatePrintJob(id, input),
-    onSuccess: (updatedJob) => {
+    mutationFn: ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: Partial<PrintJobInput>;
+      previousStatus?: PrintJob['status'];
+    }) => updatePrintJob(id, input),
+    onSuccess: (updatedJob, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
       notifications.show({
@@ -55,6 +64,22 @@ export const PrintJobList = () => {
         color: 'teal',
         icon: <IconCheck size={16} />,
       });
+
+      if (
+        variables.previousStatus &&
+        variables.previousStatus !== updatedJob.status &&
+        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
+      ) {
+        dispatch(
+          addNotification({
+            category: 'print',
+            actionIconType: 'printer',
+            title: updatedJob.status === 'delivered' ? 'Print Job Delivered' : 'Print Job Ready',
+            message: `${updatedJob.jobType.toUpperCase()} order (${updatedJob.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
+            link: ROUTES.PRINT_JOBS,
+          })
+        );
+      }
     },
   });
 
@@ -84,7 +109,11 @@ export const PrintJobList = () => {
 
   const handleFormSubmit = async (values: PrintJobInput) => {
     if (jobToEdit) {
-      await updateMutation.mutateAsync({ id: jobToEdit.id, input: values });
+      await updateMutation.mutateAsync({
+        id: jobToEdit.id,
+        input: values,
+        previousStatus: jobToEdit.status,
+      });
     } else {
       await createMutation.mutateAsync(values);
     }

@@ -4,6 +4,7 @@ import themeReducer from '@/store/slices/themeSlice';
 import authReducer from '@/store/slices/authSlice';
 import settingsReducer from '@/store/slices/settingsSlice';
 import syncReducer from '@/store/slices/syncSlice';
+import notificationReducer from '@/store/slices/notificationSlice';
 import { listenerMiddleware } from '@/store/listenerMiddleware';
 
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
     auth: authReducer,
     settings: settingsReducer,
     sync: syncReducer,
+    notifications: notificationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().prepend(listenerMiddleware.middleware),
