@@ -25,7 +25,6 @@ import { notifications } from '@mantine/notifications';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { Customer, CustomerInput } from '../types';
 import { useCustomerTags } from '../hooks/useCustomers';
-import { PRESET_CUSTOMER_TAGS } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { ApiError } from '@/shared/types/common';
@@ -214,8 +213,7 @@ const CustomerFormContent = ({
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
                 label="Customer / Business Name"
-                placeholder="e.g. Saman Perera or Apex Technologies"
-                description="The person or business name printed on receipts and invoices."
+                placeholder="e.g. Saman Perera or ABC Enterprises"
                 leftSection={<IconUser size={16} />}
                 value={name}
                 onChange={(e) => {
@@ -231,7 +229,6 @@ const CustomerFormContent = ({
               <TextInput
                 label="Contact Person"
                 placeholder="e.g. Mr. Sunil (Manager)"
-                description="Person to speak with for business or corporate accounts."
                 leftSection={<IconUserCheck size={16} />}
                 value={contactPerson}
                 onChange={(e) => {
@@ -252,9 +249,8 @@ const CustomerFormContent = ({
           <Grid gap="sm">
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Primary Phone Number"
+                label="Primary Phone"
                 placeholder="e.g. 077 123 4567"
-                description="Primary contact for lookup at checkout and SMS alerts."
                 leftSection={<IconPhone size={16} />}
                 value={primaryPhone}
                 onChange={(e) => {
@@ -267,9 +263,8 @@ const CustomerFormContent = ({
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Backup / Secondary Phone"
+                label="Backup Phone"
                 placeholder="e.g. 011 234 5678"
-                description="Alternative mobile, landline, or WhatsApp number."
                 leftSection={<IconPhoneCall size={16} />}
                 value={secondaryPhone}
                 onChange={(e) => {
@@ -283,7 +278,6 @@ const CustomerFormContent = ({
               <TextInput
                 label="Email Address"
                 placeholder="client@example.com"
-                description="For emailing digital receipts and account statements."
                 leftSection={<IconMail size={16} />}
                 value={email}
                 onChange={(e) => {
@@ -295,9 +289,8 @@ const CustomerFormContent = ({
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Physical Address / Location"
+                label="Physical Address"
                 placeholder="e.g. No. 45, Main Street, Colombo"
-                description="Delivery address, town, or workshop location."
                 leftSection={<IconMapPin size={16} />}
                 value={address}
                 onChange={(e) => setAddress(e.currentTarget.value)}
@@ -306,59 +299,33 @@ const CustomerFormContent = ({
           </Grid>
         </Stack>
 
-        {/* Section 3: Classification & Tags */}
+        {/* Section 3: Account Classification */}
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
             Account Classification
           </Text>
           <TagsInput
-            label="Customer Tags / Account Type"
+            label="Customer Tags"
             placeholder="Select or type tags (e.g. Retail Client, VIP Customer)"
-            description="Categorize clients for special pricing, credit terms, or marketing."
             leftSection={<IconTag size={16} />}
             data={availableTags}
             value={tags}
             onChange={setTags}
             clearable
           />
-          <div>
-            <Text size="xs" c="dimmed" mb={6}>
-              Suggested presets:
-            </Text>
-            <Group gap="xs" wrap="wrap">
-              {PRESET_CUSTOMER_TAGS.map((presetTag) => {
-                const isActive = tags.includes(presetTag);
-                return (
-                  <Button
-                    key={presetTag}
-                    size="xs"
-                    variant={isActive ? 'light' : 'default'}
-                    color={isActive ? 'blue' : undefined}
-                    radius="xl"
-                    onClick={() => {
-                      setTags((prev) =>
-                        isActive ? prev.filter((t) => t !== presetTag) : [...prev, presetTag]
-                      );
-                    }}
-                  >
-                    {presetTag}
-                  </Button>
-                );
-              })}
-            </Group>
-          </div>
         </Stack>
 
-        {/* Section 5: Notes & Special Instructions */}
+        {/* Section 4: Notes & Instructions */}
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
             Notes & Instructions
           </Text>
           <Textarea
             label="Notes & Special Instructions"
-            placeholder="Special billing terms, repair preferences, delivery notes, or customer remarks..."
-            description="Internal notes visible to cashiers and repair technicians."
-            rows={3}
+            placeholder="Preferences, credit terms, repair remarks, or delivery notes..."
+            autosize
+            minRows={2}
+            maxRows={4}
             value={notes}
             onChange={(e) => setNotes(e.currentTarget.value)}
           />
@@ -394,9 +361,7 @@ export const CustomerFormModal = ({
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          {isEditing && customerToEdit
-            ? `Edit: ${customerToEdit.name}`
-            : 'Add New Customer Profile'}
+          {isEditing && customerToEdit ? `Edit: ${customerToEdit.name}` : 'Add New Customer'}
         </Text>
       }
       size="lg"
