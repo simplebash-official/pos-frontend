@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 
@@ -26,22 +28,40 @@ const below = (breakpoint: string): string => {
  */
 const MEDIA_QUERY_OPTIONS = { getInitialValueInEffect: false };
 
-export const useLayoutTier = (): LayoutTier => {
+interface LayoutTierContextValue {
+  tier: LayoutTier;
+  isMobile: boolean;
+}
+
+const LayoutTierContext = createContext<LayoutTierContextValue | null>(null);
+
+/**
+ * Computes the layout tier exactly once for the whole app. `useLayoutTier`/`useIsMobile` read from
+ * this context instead of each opening their own `useMediaQuery` subscription — with ~40 call sites,
+ * independent subscriptions meant a single breakpoint crossing fired a synchronized re-render burst
+ * across the whole tree at the same moment layout-dependent CSS transitions were trying to animate.
+ */
+export const LayoutTierProvider = ({ children }: { children: ReactNode }) => {
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(below(theme.breakpoints.sm), false, MEDIA_QUERY_OPTIONS);
   const isBelowDesktop = useMediaQuery(below(theme.breakpoints.lg), false, MEDIA_QUERY_OPTIONS);
 
-  if (isMobile) {
-    return 'mobile';
-  }
-  if (isBelowDesktop) {
-    return 'tablet';
-  }
-  return 'desktop';
+  const tier: LayoutTier = isMobile ? 'mobile' : isBelowDesktop ? 'tablet' : 'desktop';
+
+  const value = useMemo(() => ({ tier, isMobile }), [tier, isMobile]);
+
+  return <LayoutTierContext.Provider value={value}>{children}</LayoutTierContext.Provider>;
 };
 
-/** True below the `sm` breakpoint — the phone tier. */
-export const useIsMobile = (): boolean => {
-  const theme = useMantineTheme();
-  return useMediaQuery(below(theme.breakpoints.sm), false, MEDIA_QUERY_OPTIONS);
+const useLayoutTierContext = (): LayoutTierContextValue => {
+  const ctx = useContext(LayoutTierContext);
+  if (!ctx) {
+    throw new Error('useLayoutTier/useIsMobile must be used within a LayoutTierProvider');
+  }
+  return ctx;
 };
+
+export const useLayoutTier = (): LayoutTier => useLayoutTierContext().tier;
+
+/** True below the `sm` breakpoint — the phone tier. */
+export const useIsMobile = (): boolean => useLayoutTierContext().isMobile;

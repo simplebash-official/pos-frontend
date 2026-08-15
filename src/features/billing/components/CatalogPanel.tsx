@@ -292,7 +292,7 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
           borderColor: shakeError ? 'var(--mantine-color-red-6)' : 'var(--border)',
           boxShadow: shakeError ? '0 0 0 2px rgba(250, 82, 82, 0.3)' : undefined,
           animation: shakeError ? 'shake 0.3s ease-in-out' : undefined,
-          transition: 'all 0.15s ease',
+          transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
         }}
       >
         <form onSubmit={handleScanSubmit}>

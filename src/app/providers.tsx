@@ -14,6 +14,7 @@ import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifi
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
+import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
@@ -62,10 +63,12 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
               defaultColorScheme="light"
             >
               <Notifications position="top-right" zIndex={1000} />
-              <AppUpdatePrompt />
-              <HeldCartCatchupNotifier />
-              <LowStockNotifier />
-              <ModalsProvider>{children}</ModalsProvider>
+              <LayoutTierProvider>
+                <AppUpdatePrompt />
+                <HeldCartCatchupNotifier />
+                <LowStockNotifier />
+                <ModalsProvider>{children}</ModalsProvider>
+              </LayoutTierProvider>
             </MantineProvider>
           </QueryClientProvider>
         </SyncProvider>

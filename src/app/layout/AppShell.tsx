@@ -46,6 +46,16 @@ export const AppShell = () => {
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const tier = useLayoutTier();
 
+  // Entering/leaving billing is a navigation, not a resize: the header/navbar
+  // dimension change should snap instantly instead of racing billing's heavy
+  // first mount with a 200ms layout animation. In-page dimension changes
+  // (tier crossings, focus-mode toggle) still animate normally.
+  const [prevIsBillingPage, setPrevIsBillingPage] = useState(isBillingPage);
+  const isBillingBoundaryChange = prevIsBillingPage !== isBillingPage;
+  if (isBillingBoundaryChange) {
+    setPrevIsBillingPage(isBillingPage);
+  }
+
   useEffect(() => {
     const title = ROUTE_TITLES[location.pathname] || 'JANA2U POS System';
     document.title = title;
@@ -88,6 +98,8 @@ export const AppShell = () => {
         collapsed: { mobile: !opened, desktop: isBillingPage && focusMode },
       }}
       padding={isBillingPage ? 0 : 'md'}
+      transitionDuration={isBillingBoundaryChange ? 0 : 200}
+      transitionTimingFunction="ease"
     >
       <MantineAppShell.Header bg="var(--bg-sidebar)">
         <Header

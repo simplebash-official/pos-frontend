@@ -64,7 +64,7 @@ export const CustomerDetailDrawer = ({
           (inv.customerName && inv.customerName.toLowerCase() === customer.name.toLowerCase())
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer, opened]);
+  }, [customer]);
 
   const customerRepairs = useMemo(() => {
     if (!customer) return [];
@@ -76,7 +76,7 @@ export const CustomerDetailDrawer = ({
           (r.customerName && r.customerName.toLowerCase() === customer.name.toLowerCase())
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer, opened]);
+  }, [customer]);
 
   return (
     <DetailDrawer

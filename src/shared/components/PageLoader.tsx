@@ -8,7 +8,7 @@ export interface PageLoaderProps {
 
 export const PageLoader = ({ title, size = 45, height = '70vh' }: PageLoaderProps) => {
   return (
-    <Center h={height} style={{ width: '100%', transition: 'all 0.2s ease' }}>
+    <Center h={height} style={{ width: '100%' }}>
       <Stack align="center" gap="sm">
         <Loader size={size} type="dots" />
         {title && (

@@ -219,15 +219,6 @@ body,
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 /* Shared neutral SegmentedControl look (src/shared/components/SegmentedToggle.tsx).
    Mantine's Styles API can't target the per-option `[data-active]` label state with a plain inline
    `styles` object, so — like `.scrollarea-fluid-content` above — the active/inactive treatment lives

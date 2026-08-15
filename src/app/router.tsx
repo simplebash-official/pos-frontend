@@ -6,6 +6,7 @@ import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { GuestOnly } from './components/GuestOnly';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
+import { BillingPageSkeleton } from '@/shared/components/BillingPageSkeleton';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { NotFoundPage } from '@/shared/components/NotFoundPage';
 import { ROUTES, ROUTE_PATHS } from '@/constants';
@@ -67,7 +68,7 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.BILLING,
         element: (
-          <Suspense fallback={<PageSkeleton />}>
+          <Suspense fallback={<BillingPageSkeleton />}>
             <BillingCounter />
           </Suspense>
         ),

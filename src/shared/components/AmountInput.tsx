@@ -1,4 +1,4 @@
-import { useState, forwardRef } from 'react';
+import { useState, useRef, useLayoutEffect, forwardRef } from 'react';
 import { Box, TextInput, TextInputProps, Text, UnstyledButton } from '@mantine/core';
 
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -68,6 +68,29 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     const isMobile = useIsMobile();
     const isPercent = mode === 'percentage';
 
+    // `transform: translateX(N%)` resolves against the badge's own box, not the
+    // parent, so the parent's rendered width has to be measured to slide the
+    // badge/input by a pixel offset instead of animating the layout-triggering
+    // `left` property.
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+
+    useLayoutEffect(() => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const updateWidth = () => {
+        const width = el.clientWidth;
+        setContainerWidth((prev) => (prev === width ? prev : width));
+      };
+
+      updateWidth();
+
+      const resizeObserver = new ResizeObserver(updateWidth);
+      resizeObserver.observe(el);
+      return () => resizeObserver.disconnect();
+    }, []);
+
     const effectiveMax = max !== undefined ? max : isPercent ? 100 : maxAmount;
 
     const [localVal, setLocalVal] = useState<string>(value === '' ? '' : value.toString());
@@ -118,6 +141,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
 
     return (
       <Box
+        ref={containerRef}
         style={{
           position: 'relative',
           height: controlHeight,
@@ -144,7 +168,8 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             top: 0,
             bottom: 0,
             width: buttonWidth,
-            left: isPercent ? `calc(100% - ${buttonWidth}px)` : '0px',
+            left: 0,
+            transform: `translateX(${isPercent ? containerWidth - buttonWidth : 0}px)`,
             backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5))',
             borderLeft: isPercent ? '1px solid var(--mantine-color-default-border)' : 'none',
             borderRight: !isPercent ? '1px solid var(--mantine-color-default-border)' : 'none',
@@ -155,7 +180,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             userSelect: 'none',
             zIndex: 2,
             transition:
-              'left 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, border-color 0.15s ease',
+              'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, border-color 0.15s ease',
           }}
         >
           <Text
@@ -175,8 +200,9 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             top: 0,
             bottom: 0,
             width: `calc(100% - ${buttonWidth}px)`,
-            left: isPercent ? '0px' : `${buttonWidth}px`,
-            transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            left: 0,
+            transform: `translateX(${isPercent ? 0 : buttonWidth}px)`,
+            transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             display: 'flex',
             alignItems: 'center',
           }}

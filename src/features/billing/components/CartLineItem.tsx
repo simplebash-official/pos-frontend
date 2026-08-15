@@ -68,7 +68,6 @@ export const CartLineItem = ({
         backgroundColor: 'var(--bg-hover)',
         position: 'relative',
         animation: isNewest ? 'flashRow 0.35s ease-out' : undefined,
-        transition: 'all 0.15s ease',
         overflow: 'hidden',
       }}
     >
