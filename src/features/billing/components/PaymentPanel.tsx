@@ -1130,7 +1130,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                       tt="uppercase"
                       style={{ fontSize: 11, letterSpacing: '0.05em' }}
                     >
-                      AMOUNT TENDERED (RS.)
+                      Cash Received
                     </Text>
 
                     <AmountInput
