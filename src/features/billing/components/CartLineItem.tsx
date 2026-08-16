@@ -219,7 +219,7 @@ export const CartLineItem = ({
 
         {/* Right: Price Display */}
         <Group gap="xs" align="center">
-          {(item.quantity > 1 || hasLineDiscount) && (
+          {!isServiceJob && item.quantity > 1 && (
             <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
               {formatMoney(item.unitPriceCents)} each
             </Text>

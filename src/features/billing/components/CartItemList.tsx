@@ -30,9 +30,11 @@ export const CartItemList = () => {
                   <Text fw={600} size="sm">
                     {item.name}
                   </Text>
-                  <Text size="xs" c="dimmed">
-                    {formatMoney(item.unitPriceCents)} each
-                  </Text>
+                  {item.quantity > 1 && (
+                    <Text size="xs" c="dimmed">
+                      {formatMoney(item.unitPriceCents)} each
+                    </Text>
+                  )}
                 </Box>
 
                 <Group gap="xs">
