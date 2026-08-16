@@ -185,18 +185,32 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
     printSettings.defaultDocumentForWalkIn,
   ]);
 
-  // Focus cash input on payment method change to Cash
+  // Focus cash input on payment method change to Cash, or set default total for Card
+  const prevPaymentMethodRef = useRef(paymentMethod);
   useEffect(() => {
     if (paymentMethod === PAYMENT_METHODS.CASH && !isCredit && !completedSale) {
       setTimeout(() => cashInputRef.current?.focus(), 50);
+    } else if (
+      paymentMethod === PAYMENT_METHODS.CARD &&
+      prevPaymentMethodRef.current !== PAYMENT_METHODS.CARD &&
+      !isCredit &&
+      totalCents > 0
+    ) {
+      setTenderedRupees(Math.round(totalCents / 100));
     }
-  }, [paymentMethod, isCredit, completedSale]);
+    prevPaymentMethodRef.current = paymentMethod;
+  }, [paymentMethod, isCredit, completedSale, totalCents]);
 
   // Sync tendered amount to Redux store
   useEffect(() => {
-    const cents = typeof tenderedRupees === 'number' ? Math.round(tenderedRupees * 100) : 0;
+    const cents =
+      typeof tenderedRupees === 'number'
+        ? Math.round(tenderedRupees * 100)
+        : paymentMethod === PAYMENT_METHODS.CARD
+          ? totalCents
+          : 0;
     changeTenderedAmountCents(cents);
-  }, [tenderedRupees, changeTenderedAmountCents]);
+  }, [tenderedRupees, paymentMethod, totalCents, changeTenderedAmountCents]);
 
   // Clear tendered amount when switching to credit mode
   useEffect(() => {
@@ -205,11 +219,17 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
     }
   }, [isCredit]);
 
-  // Cash calculation
-  const tenderedCents = typeof tenderedRupees === 'number' ? Math.round(tenderedRupees * 100) : 0;
-  const changeDueCents = Math.max(0, tenderedCents - totalCents);
-  const shortByCents = totalCents - tenderedCents;
-  const isCashShort = paymentMethod === PAYMENT_METHODS.CASH && tenderedCents < totalCents;
+  // Payment calculations
+  const effectiveTenderedCents =
+    typeof tenderedRupees === 'number'
+      ? Math.round(tenderedRupees * 100)
+      : paymentMethod === PAYMENT_METHODS.CARD
+        ? totalCents
+        : 0;
+  const changeDueCents = Math.max(0, effectiveTenderedCents - totalCents);
+  const shortByCents = totalCents - effectiveTenderedCents;
+  const isCashShort = paymentMethod === PAYMENT_METHODS.CASH && effectiveTenderedCents < totalCents;
+  const isCardShort = paymentMethod === PAYMENT_METHODS.CARD && effectiveTenderedCents < totalCents;
 
   // Default due date calculation (30 days from now)
   const [defaultDueDate] = useState(() => new Date(Date.now() + 30 * 86400000));
@@ -268,6 +288,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
     isCartEmpty ||
     isProcessing ||
     (paymentMethod === PAYMENT_METHODS.CASH && isCashShort && !isCredit) ||
+    (paymentMethod === PAYMENT_METHODS.CARD && isCardShort && !isCredit) ||
     (paymentMethod === PAYMENT_METHODS.SPLIT && isSplitIncomplete && !isCredit);
 
   // Consequence helper label
@@ -1144,22 +1165,24 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
                     {/* Quick Tender Chips */}
                     <Group gap={8} grow>
-                      {quickChips.slice(0, 2).map((amt) => (
+                      {quickChips.slice(0, 2).map((amt, idx) => (
                         <Button
                           key={amt}
                           size="sm"
-                          variant="outline"
-                          color="gray"
+                          variant={idx === 0 ? 'light' : 'outline'}
+                          color={idx === 0 ? 'blue' : 'gray'}
                           radius="var(--mantine-radius-default)"
                           onClick={() => setTenderedRupees(amt)}
                           style={{
                             height: isMobile ? 48 : 42,
                             fontWeight: 600,
-                            fontSize: 14,
+                            fontSize: 13,
                             fontFamily: 'monospace',
                           }}
                         >
-                          Rs. {amt.toLocaleString()}
+                          {idx === 0
+                            ? `Exact · Rs. ${amt.toLocaleString()}`
+                            : `Rs. ${amt.toLocaleString()}`}
                         </Button>
                       ))}
                     </Group>
@@ -1182,20 +1205,68 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                 )}
 
                 {paymentMethod === PAYMENT_METHODS.CARD && (
-                  <TextInput
-                    label="Card Last 4 Digits"
-                    placeholder="e.g. 4321"
-                    size="sm"
-                    leftSection={<IconCreditCard size={16} />}
-                    maxLength={4}
-                    inputMode="numeric"
-                    value={cardRef}
-                    onChange={(e) => {
-                      const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
-                      changeCardRef(val);
-                    }}
-                    description="Enter the last 4 digits of the card for payment records."
-                  />
+                  <Stack gap="xs">
+                    <Text
+                      size="xs"
+                      fw={700}
+                      c="dimmed"
+                      tt="uppercase"
+                      style={{ fontSize: 11, letterSpacing: '0.05em' }}
+                    >
+                      Card Amount Received
+                    </Text>
+
+                    <AmountInput
+                      placeholder={Math.round(totalCents / 100).toString()}
+                      mode="amount"
+                      size="lg"
+                      value={tenderedRupees === '' ? Math.round(totalCents / 100) : tenderedRupees}
+                      onChange={(val) => setTenderedRupees(val)}
+                    />
+
+                    {/* Exact amount suggestion for Card */}
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="blue"
+                      radius="var(--mantine-radius-default)"
+                      onClick={() => setTenderedRupees(Math.round(totalCents / 100))}
+                      style={{
+                        height: isMobile ? 48 : 42,
+                        fontWeight: 600,
+                        fontSize: 13,
+                        fontFamily: 'monospace',
+                      }}
+                    >
+                      Exact Total · Rs. {Math.round(totalCents / 100).toLocaleString()}
+                    </Button>
+
+                    <TextInput
+                      label="Card Last 4 Digits"
+                      placeholder="e.g. 4321"
+                      size="sm"
+                      leftSection={<IconCreditCard size={16} />}
+                      maxLength={4}
+                      inputMode="numeric"
+                      value={cardRef}
+                      onChange={(e) => {
+                        const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
+                        changeCardRef(val);
+                      }}
+                      description="Enter the last 4 digits on the customer's card for reconciliation."
+                    />
+
+                    {isCardShort && (
+                      <Group justify="space-between" align="center" py={2}>
+                        <Text size="sm" fw={600} c="dimmed">
+                          Short by
+                        </Text>
+                        <Text size="sm" fw={800} c="amber.7" style={{ fontFamily: 'monospace' }}>
+                          {formatMoney(shortByCents)}
+                        </Text>
+                      </Group>
+                    )}
+                  </Stack>
                 )}
 
                 {paymentMethod === PAYMENT_METHODS.ONLINE && (
