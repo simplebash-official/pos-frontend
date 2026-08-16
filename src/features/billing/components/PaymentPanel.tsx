@@ -32,8 +32,6 @@ import {
   IconX,
   IconCheck,
   IconPrinter,
-  IconShare,
-  IconRotate,
 } from '@tabler/icons-react';
 
 import { useCartItems, useCartTotals, useCartCustomer, useCartCheckout } from '../hooks/useCart';
@@ -46,7 +44,6 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { Invoice, SplitPaymentDetail } from '../types';
-import { notifications } from '@mantine/notifications';
 
 export interface PaymentPanelProps {
   isProcessing: boolean;
@@ -399,12 +396,58 @@ export const PaymentPanel = memo(
     if (completedSale) {
       const { invoice, changeDueCents: saleChangeCents } = completedSale;
       const isCreditCompleted = invoice.isCredit || invoice.status === 'pending';
+      const isChangeDue = !isCreditCompleted && saleChangeCents > 0;
+      const heroColor: 'amber' | 'bordeaux' | 'green' = isCreditCompleted
+        ? 'amber'
+        : isChangeDue
+          ? 'bordeaux'
+          : 'green';
 
-      let printStatusText = 'No print requested';
-      if (invoice.documentSelection === 'receipt') printStatusText = 'Receipt sent to printer';
-      else if (invoice.documentSelection === 'invoice') printStatusText = 'Invoice sent to printer';
-      else if (invoice.documentSelection === 'both')
-        printStatusText = 'Receipt & Invoice sent to printer';
+      const cardSuffix =
+        invoice.paymentMethod === PAYMENT_METHODS.CARD && (invoice.cardLast4 || invoice.cardRef)
+          ? ` ····${invoice.cardLast4 || invoice.cardRef}`
+          : '';
+
+      let methodLabel: string;
+      if (invoice.paymentMethod === PAYMENT_METHODS.CARD) {
+        methodLabel = `Card${cardSuffix}`;
+      } else if (invoice.paymentMethod === PAYMENT_METHODS.SPLIT) {
+        methodLabel = 'Split';
+      } else if (invoice.paymentMethod === PAYMENT_METHODS.ONLINE) {
+        methodLabel = 'Online';
+      } else if (isChangeDue) {
+        methodLabel = `Cash (${formatMoney(invoice.tenderedAmountCents ?? 0)} in)`;
+      } else {
+        methodLabel = 'Cash';
+      }
+
+      let heroCaption: string;
+      if (isCreditCompleted) {
+        heroCaption = 'BALANCE DUE · ON ACCOUNT';
+      } else if (isChangeDue) {
+        heroCaption = `CHANGE DUE · TOTAL ${formatMoney(invoice.totalCents)}`;
+      } else {
+        const paidVia =
+          invoice.paymentMethod === PAYMENT_METHODS.CARD
+            ? `CARD${cardSuffix.toUpperCase()}`
+            : invoice.paymentMethod === PAYMENT_METHODS.SPLIT
+              ? 'SPLIT PAYMENT'
+              : invoice.paymentMethod === PAYMENT_METHODS.ONLINE
+                ? 'ONLINE PAYMENT'
+                : 'EXACT CASH';
+        heroCaption = `TOTAL PAID · ${paidVia}`;
+      }
+
+      const heroAmountCents = isChangeDue ? saleChangeCents : invoice.totalCents;
+
+      const showReprintAction =
+        invoice.documentSelection === 'receipt' ||
+        invoice.documentSelection === 'both' ||
+        !invoice.documentSelection ||
+        invoice.documentSelection === 'none';
+      const showInvoiceAction =
+        invoice.documentSelection === 'invoice' || invoice.documentSelection === 'both';
+      const itemsLabel = `${invoice.items.length} ${invoice.items.length === 1 ? 'item' : 'items'}`;
 
       return (
         <Paper
@@ -429,15 +472,9 @@ export const PaymentPanel = memo(
             }}
           >
             <Stack gap="md">
-              {/* Header Badge */}
               <Group justify="space-between" align="center">
                 <Group gap="xs" align="center">
-                  <ThemeIcon
-                    size="md"
-                    radius="xl"
-                    color={isCreditCompleted ? 'amber' : 'green'}
-                    variant="filled"
-                  >
+                  <ThemeIcon size="md" radius="xl" color={heroColor} variant="filled">
                     <IconCheck size={16} stroke={3} />
                   </ThemeIcon>
                   <Text fw={800} size="sm" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
@@ -449,194 +486,122 @@ export const PaymentPanel = memo(
                 </Badge>
               </Group>
 
-              {/* BIG HERO NUMBER CARD (Priority #1) */}
-              {isCreditCompleted ? (
-                <Paper
-                  p="md"
-                  radius="var(--mantine-radius-default)"
+              <Stack gap={2} align="center" ta="center">
+                <Text
+                  fw={800}
+                  c={heroColor}
                   style={{
-                    backgroundColor: 'var(--mantine-color-amber-light)',
-                    border: '1px solid var(--mantine-color-amber-filled)',
-                    textAlign: 'center',
+                    fontSize: isMobile ? 32 : 40,
+                    lineHeight: 1.1,
+                    fontFamily: 'monospace',
+                    fontVariantNumeric: 'tabular-nums',
                   }}
                 >
-                  <Text
-                    size="xs"
-                    fw={700}
-                    c="amber.9"
-                    tt="uppercase"
-                    style={{ letterSpacing: '0.06em' }}
-                  >
-                    BALANCE DUE
-                  </Text>
-                  <Text
-                    fw={800}
-                    c="amber.9"
-                    style={{
-                      fontSize: 34,
-                      lineHeight: 1.1,
-                      fontFamily: 'monospace',
-                      fontVariantNumeric: 'tabular-nums',
-                    }}
-                  >
-                    {formatMoney(invoice.totalCents)}
-                  </Text>
-                  {invoice.dueDate && (
-                    <Text size="xs" fw={600} c="amber.8" mt={4}>
-                      Payment Due by {invoice.dueDate}
-                    </Text>
-                  )}
-                </Paper>
-              ) : saleChangeCents > 0 ? (
-                <Paper
-                  p="md"
-                  radius="var(--mantine-radius-default)"
-                  style={{
-                    backgroundColor: 'var(--mantine-color-green-light)',
-                    border: '1px solid var(--mantine-color-green-filled)',
-                    textAlign: 'center',
-                  }}
+                  {formatMoney(heroAmountCents)}
+                </Text>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="dimmed"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.06em' }}
                 >
-                  <Text
-                    size="xs"
-                    fw={700}
-                    c="green.9"
-                    tt="uppercase"
-                    style={{ letterSpacing: '0.08em' }}
-                  >
-                    CHANGE TO GIVE
+                  {heroCaption}
+                </Text>
+                {isCreditCompleted && invoice.dueDate && (
+                  <Text size="xs" fw={600} c="amber" mt={2}>
+                    Payment Due by {invoice.dueDate}
                   </Text>
-                  <Text
-                    fw={800}
-                    c="green.9"
-                    style={{
-                      fontSize: 36,
-                      lineHeight: 1.1,
-                      fontFamily: 'monospace',
-                      fontVariantNumeric: 'tabular-nums',
-                    }}
-                  >
-                    {formatMoney(saleChangeCents)}
-                  </Text>
-                </Paper>
-              ) : invoice.paymentMethod === PAYMENT_METHODS.CASH ? (
-                <Paper
-                  p="md"
-                  radius="var(--mantine-radius-default)"
-                  style={{
-                    backgroundColor: 'var(--mantine-color-blue-light)',
-                    border: '1px solid var(--mantine-color-blue-filled)',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Text
-                    size="xs"
-                    fw={700}
-                    c="blue.9"
-                    tt="uppercase"
-                    style={{ letterSpacing: '0.06em' }}
-                  >
-                    EXACT CASH RECEIVED
-                  </Text>
-                  <Text fw={700} size="sm" c="blue.8" mt={2}>
-                    No change to hand back
-                  </Text>
-                </Paper>
-              ) : (
-                <Paper
-                  p="md"
-                  radius="var(--mantine-radius-default)"
-                  style={{
-                    backgroundColor: 'var(--mantine-color-blue-light)',
-                    border: '1px solid var(--mantine-color-blue-filled)',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Text
-                    size="xs"
-                    fw={700}
-                    c="blue.9"
-                    tt="uppercase"
-                    style={{ letterSpacing: '0.06em' }}
-                  >
-                    PAID VIA {invoice.paymentMethod.toUpperCase()}
-                    {invoice.paymentMethod === PAYMENT_METHODS.CARD &&
-                    (invoice.cardLast4 || invoice.cardRef)
-                      ? ` (•••• ${invoice.cardLast4 || invoice.cardRef})`
-                      : ''}
-                  </Text>
-                  <Text fw={700} size="sm" c="blue.8" mt={2}>
-                    Paid in full ({formatMoney(invoice.totalCents)}) · No change
-                  </Text>
-                </Paper>
-              )}
-
-              {/* Status Line */}
-              <Stack gap={4}>
-                <Group justify="space-between" align="center">
-                  <Text size="xs" c="dimmed">
-                    Status
-                  </Text>
-                  <Text size="xs" fw={600} c="var(--text-primary)">
-                    {isCreditCompleted
-                      ? `On Account · INV-${invoice.invoiceNumber}`
-                      : `Paid in Full · ${invoice.paymentMethod.toUpperCase()}${invoice.paymentMethod === PAYMENT_METHODS.CARD && (invoice.cardLast4 || invoice.cardRef) ? ` (•••• ${invoice.cardLast4 || invoice.cardRef})` : ''} · INV-${invoice.invoiceNumber}`}
-                  </Text>
-                </Group>
-
-                {invoice.customerName && (
-                  <Group justify="space-between" align="center">
-                    <Text size="xs" c="dimmed">
-                      Customer
-                    </Text>
-                    <Text size="xs" fw={600} c="var(--text-primary)">
-                      {invoice.customerName}
-                    </Text>
-                  </Group>
-                )}
-
-                {/* Split payment breakdown lines */}
-                {invoice.splitPayments && invoice.splitPayments.length > 0 && (
-                  <Stack gap={2} mt={4}>
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      Split Breakdown
-                    </Text>
-                    {invoice.splitPayments.map((sp) => (
-                      <Group key={sp.id} justify="space-between" align="center">
-                        <Text size="xs" c="dimmed">
-                          {sp.method.toUpperCase()}
-                          {sp.method === PAYMENT_METHODS.CARD && (sp.cardLast4 || sp.reference)
-                            ? ` (•••• ${sp.cardLast4 || sp.reference})`
-                            : ''}
-                        </Text>
-                        <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
-                          {formatMoney(sp.amountCents)}
-                        </Text>
-                      </Group>
-                    ))}
-                  </Stack>
                 )}
               </Stack>
 
-              <Divider color="var(--border-strong)" />
+              <SimpleGrid
+                cols={2}
+                spacing={0}
+                style={{
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--mantine-radius-default)',
+                  overflow: 'hidden',
+                }}
+              >
+                <Box p="sm" style={{ borderRight: '1px solid var(--border)' }}>
+                  <Text
+                    size="xs"
+                    fw={700}
+                    c="dimmed"
+                    tt="uppercase"
+                    style={{ letterSpacing: '0.05em' }}
+                  >
+                    Method
+                  </Text>
+                  <Text size="sm" fw={600} c="var(--text-primary)" mt={2}>
+                    {methodLabel}
+                  </Text>
+                </Box>
+                <Box p="sm">
+                  <Text
+                    size="xs"
+                    fw={700}
+                    c="dimmed"
+                    tt="uppercase"
+                    style={{ letterSpacing: '0.05em' }}
+                  >
+                    Cashier
+                  </Text>
+                  <Text size="sm" fw={600} c="var(--text-primary)" mt={2}>
+                    {invoice.cashierName}
+                  </Text>
+                </Box>
+              </SimpleGrid>
 
-              {/* Print status line */}
-              <Group justify="space-between" align="center">
-                <Group gap={6} align="center">
-                  <IconPrinter size={16} color="var(--text-muted)" />
+              {invoice.customerName && (
+                <Group justify="space-between" align="center">
                   <Text size="xs" c="dimmed">
-                    {printStatusText}
+                    Customer
+                  </Text>
+                  <Text size="xs" fw={600} c="var(--text-primary)">
+                    {invoice.customerName}
                   </Text>
                 </Group>
-                <Button
-                  size="xs"
-                  variant="subtle"
-                  color="blue"
-                  leftSection={<IconRotate size={13} />}
-                  onClick={() => printReceipt(invoice)}
-                >
-                  Reprint
-                </Button>
+              )}
+
+              {invoice.splitPayments && invoice.splitPayments.length > 0 && (
+                <Stack gap={2}>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    Split Breakdown
+                  </Text>
+                  {invoice.splitPayments.map((sp) => (
+                    <Group key={sp.id} justify="space-between" align="center">
+                      <Text size="xs" c="dimmed">
+                        {sp.method.toUpperCase()}
+                        {sp.method === PAYMENT_METHODS.CARD && (sp.cardLast4 || sp.reference)
+                          ? ` (•••• ${sp.cardLast4 || sp.reference})`
+                          : ''}
+                      </Text>
+                      <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
+                        {formatMoney(sp.amountCents)}
+                      </Text>
+                    </Group>
+                  ))}
+                </Stack>
+              )}
+
+              <Divider color="var(--border-strong)" />
+
+              <Group
+                justify="space-between"
+                align="center"
+                wrap="nowrap"
+                style={{ minHeight: isMobile ? 44 : undefined }}
+              >
+                <Text size="xs" c="dimmed">
+                  {itemsLabel} · {formatMoney(invoice.totalCents)}
+                </Text>
+                <UnstyledButton onClick={() => onPreviewInvoice(invoice)} style={{ flexShrink: 0 }}>
+                  <Text size="xs" fw={700} c="blue">
+                    View receipt ›
+                  </Text>
+                </UnstyledButton>
               </Group>
             </Stack>
           </Box>
@@ -650,143 +615,63 @@ export const PaymentPanel = memo(
             }}
           >
             <Stack gap="xs">
-              {invoice.documentSelection === 'invoice' || invoice.documentSelection === 'both' ? (
-                <>
-                  {/* Primary action: Print Invoice (P / Enter via the shortcut engine) */}
-                  <Button
-                    fullWidth
-                    size="lg"
-                    color="blue"
-                    leftSection={<IconPrinter size={20} />}
-                    onClick={() => onPreviewInvoice(invoice)}
-                    style={{
-                      height: isMobile ? 54 : 48,
-                      fontSize: 16,
-                      fontWeight: 700,
-                      borderRadius: 'var(--mantine-radius-default)',
-                    }}
-                  >
-                    Print Invoice (P / ↵)
-                  </Button>
+              <Group gap="xs" wrap="nowrap" align="stretch">
+                <Button
+                  style={{
+                    flex: 1,
+                    height: isMobile ? 54 : 48,
+                    fontSize: 16,
+                    fontWeight: 700,
+                    borderRadius: 'var(--mantine-radius-default)',
+                  }}
+                  size="lg"
+                  color="green"
+                  leftSection={<IconPlus size={18} />}
+                  onClick={() => startNextSale()}
+                >
+                  New Sale
+                </Button>
 
-                  {/* Secondary row */}
-                  <Group gap="xs" grow>
-                    <Button
-                      size="xs"
+                {showReprintAction && (
+                  <Tooltip label="Reprint receipt" disabled={isMobile}>
+                    <ActionIcon
                       variant="outline"
                       color="gray"
-                      leftSection={<IconPlus size={14} />}
-                      onClick={() => startNextSale()}
-                    >
-                      New Sale (N)
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      color="gray"
-                      leftSection={<IconRotate size={14} />}
+                      size={isMobile ? 44 : 48}
+                      radius="var(--mantine-radius-default)"
+                      aria-label="Reprint receipt"
                       onClick={() => printReceipt(invoice)}
                     >
-                      Reprint (R)
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="light"
-                      color="gray"
-                      leftSection={<IconShare size={14} />}
-                      onClick={() => {
-                        if (navigator.clipboard) {
-                          navigator.clipboard.writeText(
-                            `Invoice #${invoice.invoiceNumber} - Total: ${formatMoney(invoice.totalCents)}`
-                          );
-                          notifications.show({
-                            title: 'Copied',
-                            message: 'Invoice info copied to clipboard',
-                            color: 'green',
-                          });
-                        }
-                      }}
-                    >
-                      Share
-                    </Button>
-                  </Group>
+                      <IconPrinter size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
 
-                  {!isMobile && (
-                    <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }}>
-                      Press <strong>Enter</strong> or <strong>P</strong> to print invoice · Press{' '}
-                      <strong>N</strong> for new sale
-                    </Text>
-                  )}
-                </>
-              ) : (
-                <>
-                  {/* Primary action: New Sale (N / Enter via the shortcut engine) */}
-                  <Button
-                    fullWidth
-                    size="lg"
-                    color="blue"
-                    leftSection={<IconPlus size={18} />}
-                    onClick={() => startNextSale()}
-                    style={{
-                      height: isMobile ? 54 : 48,
-                      fontSize: 16,
-                      fontWeight: 700,
-                      borderRadius: 'var(--mantine-radius-default)',
-                    }}
-                  >
-                    New Sale (N / ↵)
-                  </Button>
-
-                  {/* Secondary row */}
-                  <Group gap="xs" grow>
-                    <Button
-                      size="xs"
+                {showInvoiceAction && (
+                  <Tooltip label="View invoice" disabled={isMobile}>
+                    <ActionIcon
                       variant="outline"
                       color="gray"
-                      leftSection={<IconPrinter size={14} />}
-                      onClick={() => printReceipt(invoice)}
-                    >
-                      Reprint (R)
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      color="violet"
-                      leftSection={<IconFileText size={14} />}
+                      size={isMobile ? 44 : 48}
+                      radius="var(--mantine-radius-default)"
+                      aria-label="View invoice"
                       onClick={() => onPreviewInvoice(invoice)}
                     >
-                      Preview (I)
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="light"
-                      color="gray"
-                      leftSection={<IconShare size={14} />}
-                      onClick={() => {
-                        if (navigator.clipboard) {
-                          navigator.clipboard.writeText(
-                            `Invoice #${invoice.invoiceNumber} - Total: ${formatMoney(invoice.totalCents)}`
-                          );
-                          notifications.show({
-                            title: 'Copied',
-                            message: 'Invoice info copied to clipboard',
-                            color: 'green',
-                          });
-                        }
-                      }}
-                    >
-                      Share
-                    </Button>
-                  </Group>
+                      <IconFileText size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </Group>
 
-                  {!isMobile && (
-                    <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }}>
-                      Press <strong>N</strong> or <strong>Enter</strong> to start next sale ·{' '}
-                      <strong>R</strong> to reprint · <strong>I</strong> for preview
-                    </Text>
-                  )}
-                </>
-              )}
+              <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }} visibleFrom="sm">
+                Press <strong>N</strong> or <strong>↵</strong> for next sale
+                {showInvoiceAction && (
+                  <>
+                    {' '}
+                    · <strong>P</strong> to print invoice
+                  </>
+                )}
+              </Text>
             </Stack>
           </Box>
         </Paper>

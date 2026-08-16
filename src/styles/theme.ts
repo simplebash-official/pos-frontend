@@ -41,6 +41,18 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       '#f08c00',
       '#e67700',
     ],
+    bordeaux: [
+      '#fbe9ea',
+      '#f2c9cc',
+      '#e5a4a9',
+      '#d67981',
+      '#c7515c',
+      '#a83a44',
+      '#8c2e37',
+      '#72222a',
+      '#5a1a20',
+      '#3f1216',
+    ],
   },
   fontSizes: {
     xs: rem('12px'),
