@@ -14,4 +14,8 @@ export const STORAGE_KEYS = {
   OFFLINE_SIMULATION: 'pos_offline_simulation',
   /** Local search history records partitioned by namespace */
   SEARCH_HISTORY: 'pos_search_history',
+  /** Last used print document selection for cash/card sales */
+  PRINT_SELECTION_PAY_NOW: 'pos_print_selection_pay_now',
+  /** Last used print document selection for credit sales */
+  PRINT_SELECTION_CREDIT: 'pos_print_selection_credit',
 } as const;

@@ -84,6 +84,18 @@ const saveHeldCartsToStorage = (carts: HeldCart[]) => {
   }
 };
 
+const loadInitialPrintSelection = (): 'receipt' | 'invoice' | 'both' | 'none' => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.PRINT_SELECTION_PAY_NOW);
+    if (stored === 'none' || stored === 'receipt' || stored === 'invoice') {
+      return stored;
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return 'none';
+};
+
 const initialState: CartState = {
   items: [],
   lastRemovedItem: null,
@@ -97,7 +109,7 @@ const initialState: CartState = {
   splitPayments: [],
   isCredit: false,
   tenderedAmountCents: 0,
-  documentSelection: 'receipt',
+  documentSelection: loadInitialPrintSelection(),
   dueDate: null,
   cardRef: '',
   onlineRef: '',
@@ -130,6 +142,16 @@ const resetCartState = (state: CartState) => {
   state.assignedStaffName = null;
   state.splitPayments = [];
   state.completedSale = null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.PRINT_SELECTION_PAY_NOW);
+    if (stored === 'none' || stored === 'receipt' || stored === 'invoice') {
+      state.documentSelection = stored;
+    } else {
+      state.documentSelection = 'none';
+    }
+  } catch {
+    state.documentSelection = 'none';
+  }
 };
 
 const cartSlice = createSlice({
@@ -259,6 +281,15 @@ const cartSlice = createSlice({
       action: PayloadAction<'receipt' | 'invoice' | 'both' | 'none'>
     ) => {
       state.documentSelection = action.payload;
+      try {
+        if (state.isCredit) {
+          localStorage.setItem(STORAGE_KEYS.PRINT_SELECTION_CREDIT, action.payload);
+        } else {
+          localStorage.setItem(STORAGE_KEYS.PRINT_SELECTION_PAY_NOW, action.payload);
+        }
+      } catch {
+        // Ignore storage errors
+      }
     },
 
     setDueDate: (state, action: PayloadAction<string | null>) => {
@@ -284,8 +315,26 @@ const cartSlice = createSlice({
       state.isCredit = action.payload;
       if (action.payload) {
         state.tenderedAmountCents = 0;
-        if (state.documentSelection === 'receipt') {
-          state.documentSelection = 'invoice';
+        try {
+          const stored = localStorage.getItem(STORAGE_KEYS.PRINT_SELECTION_CREDIT);
+          if (stored === 'none' || stored === 'invoice') {
+            state.documentSelection = stored;
+          } else {
+            state.documentSelection = 'none';
+          }
+        } catch {
+          state.documentSelection = 'none';
+        }
+      } else {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEYS.PRINT_SELECTION_PAY_NOW);
+          if (stored === 'none' || stored === 'receipt' || stored === 'invoice') {
+            state.documentSelection = stored;
+          } else {
+            state.documentSelection = 'none';
+          }
+        } catch {
+          state.documentSelection = 'none';
         }
       }
     },

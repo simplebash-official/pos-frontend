@@ -318,13 +318,28 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
       (isSplitIncomplete || isSplitCardDigitsMissing) &&
       !isCredit);
 
+  // Print document options based on mode (No print first; Credit has only No print and Unpaid invoice)
+  const printOptions = useMemo(() => {
+    if (!isCredit) {
+      return [
+        { label: 'No print', value: 'none' as const },
+        { label: 'Receipt', value: 'receipt' as const },
+        { label: 'Paid invoice', value: 'invoice' as const },
+      ];
+    }
+    return [
+      { label: 'No print', value: 'none' as const },
+      { label: 'Unpaid invoice', value: 'invoice' as const },
+    ];
+  }, [isCredit]);
+
   // Consequence helper label
   const printConsequenceText = useMemo(() => {
     if (documentSelection === 'receipt') return 'will print 80mm receipt';
-    if (documentSelection === 'invoice') return 'will print A4 invoice';
-    if (documentSelection === 'both') return 'will print receipt & invoice';
+    if (documentSelection === 'invoice')
+      return isCredit ? 'will print A4 unpaid invoice' : 'will print A4 paid invoice';
     return 'no document will print';
-  }, [documentSelection]);
+  }, [documentSelection, isCredit]);
 
   // Handle Primary Action Click / F2
   const handlePrimaryAction = () => {
@@ -1515,23 +1530,18 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                 PRINT
               </Text>
               <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
-                {documentSelection === 'receipt'
-                  ? 'Default for walk-in'
-                  : documentSelection === 'invoice'
-                    ? 'Default for account'
-                    : ''}
+                {documentSelection === 'none'
+                  ? 'No physical printout'
+                  : documentSelection === 'receipt'
+                    ? '80mm thermal receipt'
+                    : isCredit
+                      ? 'A4 unpaid invoice'
+                      : 'A4 paid invoice'}
               </Text>
             </Group>
 
-            <SimpleGrid cols={{ base: 2, lg: 4 }} spacing={8}>
-              {(
-                [
-                  { label: 'Receipt', value: 'receipt' },
-                  { label: 'Invoice', value: 'invoice' },
-                  { label: 'Both', value: 'both' },
-                  { label: 'No print', value: 'none' },
-                ] as const
-              ).map((doc) => {
+            <SimpleGrid cols={isCredit ? 2 : 3} spacing={8}>
+              {printOptions.map((doc) => {
                 const isSelected = documentSelection === doc.value;
                 return (
                   <UnstyledButton
