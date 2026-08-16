@@ -238,6 +238,9 @@ body,
   inset: 0;
   pointer-events: none;
   background-color: var(--mantine-color-yellow-light);
+  /* Resting opacity is 0 — without it, the one-shot animation below reverts to the CSS default of
+     fully opaque once it finishes (no fill-mode), permanently hiding the card's content underneath. */
+  opacity: 0;
   animation: flashRowOverlay 0.35s ease-out;
 }
 
