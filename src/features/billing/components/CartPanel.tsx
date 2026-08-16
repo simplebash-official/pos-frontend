@@ -7,7 +7,6 @@ import {
   Stack,
   Badge,
   ActionIcon,
-  Menu,
   ScrollArea,
   Alert,
   Box,
@@ -17,10 +16,8 @@ import {
   IconShoppingCart,
   IconPlayerPause,
   IconTrash,
-  IconDotsVertical,
   IconUser,
   IconPlus,
-  IconNotes,
   IconChevronUp,
   IconChevronDown,
   IconArrowRight,
@@ -49,7 +46,6 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
     customerName,
     customerPhone,
     customerBalanceCents,
-    notes,
     updateQty,
     updateLineDisc,
     remove,
@@ -187,7 +183,7 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
           )}
         </Group>
 
-        <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
+        <Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
           <Button
             size="xs"
             variant="light"
@@ -195,43 +191,32 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
             leftSection={<IconPlayerPause size={14} />}
             disabled={items.length === 0 || Boolean(completedSale)}
             onClick={() => holdCurrentCart()}
-            style={{ paddingLeft: 8, paddingRight: 8 }}
+            style={{
+              height: 30,
+              paddingLeft: 10,
+              paddingRight: 10,
+              fontWeight: 600,
+            }}
           >
             {isMobile ? 'Hold' : 'Hold (Ctrl+H)'}
           </Button>
 
           <Button
             size="xs"
-            variant="subtle"
+            variant="light"
             color="red"
             leftSection={<IconTrash size={14} />}
             disabled={items.length === 0 || Boolean(completedSale)}
             onClick={() => setClearDialogOpen(true)}
-            style={{ paddingLeft: 6, paddingRight: 6 }}
+            style={{
+              height: 30,
+              paddingLeft: 10,
+              paddingRight: 10,
+              fontWeight: 600,
+            }}
           >
             Clear
           </Button>
-
-          <Menu shadow="md" position="bottom-end">
-            <Menu.Target>
-              <ActionIcon variant="subtle" color="gray" size="sm" disabled={Boolean(completedSale)}>
-                <IconDotsVertical size={16} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item
-                leftSection={<IconNotes size={14} />}
-                onClick={() => {
-                  const input = prompt('Add order notes:', notes);
-                  if (input !== null) {
-                    // Notes handled if needed
-                  }
-                }}
-              >
-                Add Note
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
         </Group>
       </Group>
 

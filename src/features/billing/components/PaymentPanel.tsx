@@ -8,6 +8,7 @@ import {
   Button,
   TextInput,
   Textarea,
+  Switch,
   Tooltip,
   ActionIcon,
   Box,
@@ -114,6 +115,15 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
       setShowDiscountInput(true);
     }
   }, [discountCents]);
+
+  // Collapsible Order Note State
+  const [showNotes, setShowNotes] = useState(() => Boolean(notes));
+
+  useEffect(() => {
+    if (notes && !showNotes) {
+      setShowNotes(true);
+    }
+  }, [notes, showNotes]);
 
   // Guardrail 2-step inline confirmation state
   const [confirmCreditRequired, setConfirmCreditRequired] = useState(false);
@@ -1421,36 +1431,57 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
           {/* 8. ORDER NOTE */}
           <Box mt={4}>
-            <Group justify="space-between" align="center" mb={6}>
-              <Text
-                size="xs"
-                fw={700}
-                c="dimmed"
-                tt="uppercase"
-                style={{ fontSize: 11, letterSpacing: '0.05em' }}
-              >
-                Order Note
-              </Text>
-              <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
-                Optional
-              </Text>
+            <Group justify="space-between" align="center" mb={showNotes ? 6 : 0}>
+              <Group gap="xs" align="center">
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="dimmed"
+                  tt="uppercase"
+                  style={{ fontSize: 11, letterSpacing: '0.05em' }}
+                >
+                  Order Note
+                </Text>
+                {showNotes && (
+                  <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+                    Optional
+                  </Text>
+                )}
+              </Group>
+
+              <Switch
+                size="sm"
+                color="blue"
+                checked={showNotes}
+                onChange={(e) => {
+                  const checked = e.currentTarget.checked;
+                  setShowNotes(checked);
+                  if (!checked) {
+                    changeNotes('');
+                  }
+                }}
+                aria-label="Toggle Order Note"
+              />
             </Group>
-            <Textarea
-              placeholder="Add order note or customer instructions..."
-              size="sm"
-              minRows={2}
-              maxRows={4}
-              autosize
-              value={notes || ''}
-              onChange={(e) => changeNotes(e.currentTarget.value)}
-              styles={{
-                input: {
-                  fontSize: isMobile ? 16 : 13,
-                  backgroundColor: 'var(--bg-card)',
-                  borderRadius: 'var(--mantine-radius-default)',
-                },
-              }}
-            />
+
+            {showNotes && (
+              <Textarea
+                placeholder="Add order note or customer instructions..."
+                size="sm"
+                minRows={2}
+                maxRows={4}
+                autosize
+                value={notes || ''}
+                onChange={(e) => changeNotes(e.currentTarget.value)}
+                styles={{
+                  input: {
+                    fontSize: isMobile ? 16 : 13,
+                    backgroundColor: 'var(--bg-card)',
+                    borderRadius: 'var(--mantine-radius-default)',
+                  },
+                }}
+              />
+            )}
           </Box>
 
           {/* 9. PRINT / Document Selection Control */}
