@@ -310,7 +310,13 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
       disabled: true,
       tooltip: 'Card integration coming soon',
     },
-    { id: PAYMENT_METHODS.ONLINE, label: 'Online', icon: IconWorld, disabled: false },
+    {
+      id: PAYMENT_METHODS.ONLINE,
+      label: 'Online',
+      icon: IconWorld,
+      disabled: true,
+      tooltip: 'Online payment integration coming soon',
+    },
     { id: PAYMENT_METHODS.SPLIT, label: 'Split', icon: IconArrowsSplit, disabled: false },
   ];
 
@@ -1216,7 +1222,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                           data={[
                             { label: 'Cash', value: PAYMENT_METHODS.CASH },
                             { label: 'Card', value: PAYMENT_METHODS.CARD, disabled: true },
-                            { label: 'Online', value: PAYMENT_METHODS.ONLINE },
+                            { label: 'Online', value: PAYMENT_METHODS.ONLINE, disabled: true },
                           ]}
                           style={{ flex: 1, minWidth: 0 }}
                         />

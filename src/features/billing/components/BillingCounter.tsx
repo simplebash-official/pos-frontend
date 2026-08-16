@@ -291,14 +291,9 @@ export const BillingCounter = () => {
       key: 'F6',
       ignoreInput: true,
       handler: () => {
-        const methods = [
-          PAYMENT_METHODS.CASH,
-          PAYMENT_METHODS.CARD,
-          PAYMENT_METHODS.ONLINE,
-          PAYMENT_METHODS.SPLIT,
-        ];
+        const methods: PaymentMethod[] = [PAYMENT_METHODS.CASH, PAYMENT_METHODS.SPLIT];
         const nextIdx = (methods.indexOf(paymentMethod) + 1) % methods.length;
-        changePaymentMethod(methods[nextIdx] as PaymentMethod);
+        changePaymentMethod(methods[nextIdx]);
       },
     },
     { key: 'Ctrl+D', ignoreInput: true, handler: () => setOrderDiscountOpen(true) },
