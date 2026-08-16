@@ -7,6 +7,7 @@ import {
   Divider,
   Button,
   TextInput,
+  Textarea,
   Tooltip,
   ActionIcon,
   Box,
@@ -89,6 +90,8 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
     dueDate,
     changeDueDate,
     changeTenderedAmountCents,
+    notes,
+    changeNotes,
     completedSale,
     startNextSale,
   } = useCart();
@@ -1416,7 +1419,41 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
             </Stack>
           )}
 
-          {/* 8. PRINT / Document Selection Control */}
+          {/* 8. ORDER NOTE */}
+          <Box mt={4}>
+            <Group justify="space-between" align="center" mb={6}>
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ fontSize: 11, letterSpacing: '0.05em' }}
+              >
+                Order Note
+              </Text>
+              <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+                Optional
+              </Text>
+            </Group>
+            <Textarea
+              placeholder="Add order note or customer instructions..."
+              size="sm"
+              minRows={2}
+              maxRows={4}
+              autosize
+              value={notes || ''}
+              onChange={(e) => changeNotes(e.currentTarget.value)}
+              styles={{
+                input: {
+                  fontSize: isMobile ? 16 : 13,
+                  backgroundColor: 'var(--bg-card)',
+                  borderRadius: 'var(--mantine-radius-default)',
+                },
+              }}
+            />
+          </Box>
+
+          {/* 9. PRINT / Document Selection Control */}
           <Box mt={4}>
             <Group justify="space-between" align="center" mb={6}>
               <Text
