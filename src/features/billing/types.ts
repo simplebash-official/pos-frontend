@@ -22,6 +22,8 @@ export interface SplitPaymentDetail {
   id: string;
   method: string;
   amountCents: number;
+  cardLast4?: string;
+  reference?: string;
 }
 
 export interface Invoice {
@@ -43,6 +45,10 @@ export interface Invoice {
   tenderedAmountCents?: number;
   changeDueCents?: number;
   dueDate?: string;
+  cardLast4?: string;
+  cardRef?: string;
+  onlineRef?: string;
+  onlineNote?: string;
   status: 'paid' | 'pending' | 'cancelled';
   createdAt: string;
   items: InvoiceItem[];

@@ -174,6 +174,32 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
         </>
       )}
 
+      {invoice.paymentMethod === 'card' && (invoice.cardLast4 || invoice.cardRef) && (
+        <div style={rowFlex}>
+          <span>Card Last 4:</span>
+          <span style={{ fontWeight: 'bold' }}>•••• {invoice.cardLast4 || invoice.cardRef}</span>
+        </div>
+      )}
+
+      {invoice.paymentMethod === 'split' &&
+        invoice.splitPayments &&
+        invoice.splitPayments.length > 0 && (
+          <div style={{ marginTop: '2px', marginBottom: '2px' }}>
+            {invoice.splitPayments.map((sp, idx) => (
+              <div key={sp.id || idx} style={rowFlex}>
+                <span>
+                  Split ({sp.method.toUpperCase()}
+                  {sp.method === 'card' && (sp.cardLast4 || sp.reference)
+                    ? ` •••• ${sp.cardLast4 || sp.reference}`
+                    : ''}
+                  ):
+                </span>
+                <span>{formatMoney(sp.amountCents)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
       {invoice.isCredit && (
         <div style={{ ...rowFlex, fontWeight: 'bold', color: '#B45309' }}>
           <span>STATUS:</span>

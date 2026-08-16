@@ -303,6 +303,9 @@ export const A4Invoice: React.FC<A4InvoiceProps> = ({
             <span style={{ color: '#5B6270' }}>Payment Method:</span>
             <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>
               {invoice.paymentMethod}
+              {invoice.paymentMethod === 'card' && (invoice.cardLast4 || invoice.cardRef)
+                ? ` (•••• ${invoice.cardLast4 || invoice.cardRef})`
+                : ''}
             </span>
           </div>
           <div

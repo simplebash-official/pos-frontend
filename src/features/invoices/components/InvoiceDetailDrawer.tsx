@@ -266,8 +266,34 @@ export const InvoiceDetailDrawer = ({
                 </Text>
                 <Text size="xs" fw={700} tt="uppercase">
                   {invoice.paymentMethod}
+                  {invoice.paymentMethod === 'card' && (invoice.cardLast4 || invoice.cardRef)
+                    ? ` (•••• ${invoice.cardLast4 || invoice.cardRef})`
+                    : ''}
                 </Text>
               </Group>
+
+              {invoice.paymentMethod === 'split' &&
+                invoice.splitPayments &&
+                invoice.splitPayments.length > 0 && (
+                  <Stack gap={2} mt={2}>
+                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                      Split Breakdown
+                    </Text>
+                    {invoice.splitPayments.map((sp, idx) => (
+                      <Group key={sp.id || idx} justify="space-between">
+                        <Text size="xs" c="dimmed">
+                          {sp.method.toUpperCase()}
+                          {sp.method === 'card' && (sp.cardLast4 || sp.reference)
+                            ? ` (•••• ${sp.cardLast4 || sp.reference})`
+                            : ''}
+                        </Text>
+                        <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          {formatMoney(sp.amountCents)}
+                        </Text>
+                      </Group>
+                    ))}
+                  </Stack>
+                )}
 
               {invoice.tenderedAmountCents ? (
                 <Group justify="space-between">

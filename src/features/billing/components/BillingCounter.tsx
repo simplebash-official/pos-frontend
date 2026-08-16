@@ -52,6 +52,9 @@ export const BillingCounter = () => {
     tenderedAmountCents,
     documentSelection,
     dueDate,
+    cardRef,
+    onlineRef,
+    onlineNote,
     notes,
     soundEnabled,
     attachCustomer,
@@ -134,6 +137,10 @@ export const BillingCounter = () => {
         paymentMethod,
         splitPayments,
         isCredit,
+        cardLast4: cardRef || undefined,
+        cardRef: cardRef || undefined,
+        onlineRef: onlineRef || undefined,
+        onlineNote: onlineNote || undefined,
         tenderedAmountCents:
           paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
         changeDueCents: calculatedChangeCents,
@@ -291,7 +298,11 @@ export const BillingCounter = () => {
       key: 'F6',
       ignoreInput: true,
       handler: () => {
-        const methods: PaymentMethod[] = [PAYMENT_METHODS.CASH, PAYMENT_METHODS.SPLIT];
+        const methods: PaymentMethod[] = [
+          PAYMENT_METHODS.CASH,
+          PAYMENT_METHODS.CARD,
+          PAYMENT_METHODS.SPLIT,
+        ];
         const nextIdx = (methods.indexOf(paymentMethod) + 1) % methods.length;
         changePaymentMethod(methods[nextIdx]);
       },

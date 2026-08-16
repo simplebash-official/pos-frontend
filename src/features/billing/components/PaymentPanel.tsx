@@ -251,8 +251,8 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
   const handleUpdateSplitRow = (
     id: string,
-    field: 'method' | 'amountCents',
-    value: PaymentMethod | number
+    field: keyof SplitPaymentDetail,
+    value: PaymentMethod | number | string | undefined
   ) => {
     const updated = splitPayments.map((sp) => (sp.id === id ? { ...sp, [field]: value } : sp));
     changeSplitPayments(updated);
@@ -307,8 +307,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
       id: PAYMENT_METHODS.CARD,
       label: 'Card',
       icon: IconCreditCard,
-      disabled: true,
-      tooltip: 'Card integration coming soon',
+      disabled: false,
     },
     {
       id: PAYMENT_METHODS.ONLINE,
@@ -478,6 +477,10 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                   style={{ letterSpacing: '0.06em' }}
                 >
                   PAID VIA {invoice.paymentMethod.toUpperCase()}
+                  {invoice.paymentMethod === PAYMENT_METHODS.CARD &&
+                  (invoice.cardLast4 || invoice.cardRef)
+                    ? ` (•••• ${invoice.cardLast4 || invoice.cardRef})`
+                    : ''}
                 </Text>
                 <Text fw={700} size="sm" c="blue.8" mt={2}>
                   Paid in full ({formatMoney(invoice.totalCents)}) · No change
@@ -494,7 +497,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                 <Text size="xs" fw={600} c="var(--text-primary)">
                   {isCreditCompleted
                     ? `On Account · INV-${invoice.invoiceNumber}`
-                    : `Paid in Full · ${invoice.paymentMethod.toUpperCase()} · INV-${invoice.invoiceNumber}`}
+                    : `Paid in Full · ${invoice.paymentMethod.toUpperCase()}${invoice.paymentMethod === PAYMENT_METHODS.CARD && (invoice.cardLast4 || invoice.cardRef) ? ` (•••• ${invoice.cardLast4 || invoice.cardRef})` : ''} · INV-${invoice.invoiceNumber}`}
                 </Text>
               </Group>
 
@@ -519,6 +522,9 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                     <Group key={sp.id} justify="space-between" align="center">
                       <Text size="xs" c="dimmed">
                         {sp.method.toUpperCase()}
+                        {sp.method === PAYMENT_METHODS.CARD && (sp.cardLast4 || sp.reference)
+                          ? ` (•••• ${sp.cardLast4 || sp.reference})`
+                          : ''}
                       </Text>
                       <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
                         {formatMoney(sp.amountCents)}
@@ -1177,11 +1183,18 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
                 {paymentMethod === PAYMENT_METHODS.CARD && (
                   <TextInput
-                    label="Card Reference / Last 4 Digits (Optional)"
+                    label="Card Last 4 Digits"
                     placeholder="e.g. 4321"
                     size="sm"
+                    leftSection={<IconCreditCard size={16} />}
+                    maxLength={4}
+                    inputMode="numeric"
                     value={cardRef}
-                    onChange={(e) => changeCardRef(e.currentTarget.value)}
+                    onChange={(e) => {
+                      const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
+                      changeCardRef(val);
+                    }}
+                    description="Enter the last 4 digits of the card for payment records."
                   />
                 )}
 
@@ -1221,44 +1234,70 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                     </Group>
 
                     {splitPayments.map((sp) => (
-                      <Group key={sp.id} gap="xs" wrap={isMobile ? 'wrap' : 'nowrap'}>
-                        <SegmentedToggle
-                          size="xs"
-                          value={sp.method}
-                          onChange={(v) =>
-                            handleUpdateSplitRow(sp.id, 'method', v as PaymentMethod)
-                          }
-                          data={[
-                            { label: 'Cash', value: PAYMENT_METHODS.CASH },
-                            { label: 'Card', value: PAYMENT_METHODS.CARD, disabled: true },
-                            { label: 'Online', value: PAYMENT_METHODS.ONLINE, disabled: true },
-                          ]}
-                          style={{ flex: 1, minWidth: 0 }}
-                        />
-                        <AmountInput
-                          size="xs"
-                          placeholder="Amount"
-                          mode="amount"
-                          value={Math.round(sp.amountCents / 100)}
-                          onChange={(v) =>
-                            handleUpdateSplitRow(
-                              sp.id,
-                              'amountCents',
-                              typeof v === 'number' ? v * 100 : 0
-                            )
-                          }
-                          style={{ flex: 1, minWidth: 110 }}
-                        />
-                        <ActionIcon
-                          color="red"
-                          variant="subtle"
-                          size="xs"
-                          onClick={() => handleRemoveSplitRow(sp.id)}
-                          style={{ flexShrink: 0 }}
-                        >
-                          <IconTrash size={12} />
-                        </ActionIcon>
-                      </Group>
+                      <Paper
+                        key={sp.id}
+                        p="xs"
+                        withBorder
+                        radius="var(--mantine-radius-default)"
+                        bg="var(--mantine-color-body)"
+                      >
+                        <Stack gap="xs">
+                          <Group gap="xs" wrap={isMobile ? 'wrap' : 'nowrap'}>
+                            <SegmentedToggle
+                              size="xs"
+                              value={sp.method}
+                              onChange={(v) =>
+                                handleUpdateSplitRow(sp.id, 'method', v as PaymentMethod)
+                              }
+                              data={[
+                                { label: 'Cash', value: PAYMENT_METHODS.CASH },
+                                { label: 'Card', value: PAYMENT_METHODS.CARD, disabled: false },
+                                { label: 'Online', value: PAYMENT_METHODS.ONLINE, disabled: true },
+                              ]}
+                              style={{ flex: 1, minWidth: 0 }}
+                            />
+                            <AmountInput
+                              size="xs"
+                              placeholder="Amount"
+                              mode="amount"
+                              value={Math.round(sp.amountCents / 100)}
+                              onChange={(v) =>
+                                handleUpdateSplitRow(
+                                  sp.id,
+                                  'amountCents',
+                                  typeof v === 'number' ? v * 100 : 0
+                                )
+                              }
+                              style={{ flex: 1, minWidth: 110 }}
+                            />
+                            <ActionIcon
+                              color="red"
+                              variant="subtle"
+                              size="xs"
+                              onClick={() => handleRemoveSplitRow(sp.id)}
+                              style={{ flexShrink: 0 }}
+                              aria-label="Remove split row"
+                            >
+                              <IconTrash size={14} />
+                            </ActionIcon>
+                          </Group>
+
+                          {sp.method === PAYMENT_METHODS.CARD && (
+                            <TextInput
+                              size="xs"
+                              placeholder="Card Last 4 Digits (e.g. 4321)"
+                              leftSection={<IconCreditCard size={14} />}
+                              maxLength={4}
+                              inputMode="numeric"
+                              value={sp.cardLast4 || ''}
+                              onChange={(e) => {
+                                const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
+                                handleUpdateSplitRow(sp.id, 'cardLast4', val);
+                              }}
+                            />
+                          )}
+                        </Stack>
+                      </Paper>
                     ))}
 
                     <Group justify="space-between" align="center" py={4}>
