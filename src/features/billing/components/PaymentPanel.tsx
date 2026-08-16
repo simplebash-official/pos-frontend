@@ -736,13 +736,19 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                 Order Discount
               </Text>
               <Button
-                size="xs"
+                size="sm"
                 variant="light"
                 color="red"
-                leftSection={<IconTag size={13} />}
+                leftSection={<IconTag size={15} />}
                 disabled={isCartEmpty}
                 onClick={() => setShowDiscountInput(true)}
-                style={{ height: 26, fontSize: 11 }}
+                style={{
+                  height: 34,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  paddingLeft: 10,
+                  paddingRight: 10,
+                }}
               >
                 + Add discount
               </Button>
@@ -761,21 +767,21 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
               <Stack gap="xs">
                 <Group justify="space-between" align="center">
                   <Group gap={6} align="center">
-                    <IconTag size={15} color="var(--mantine-color-red-6)" />
+                    <IconTag size={16} color="var(--mantine-color-red-6)" />
                     <Text
                       size="xs"
                       fw={700}
                       c="red.6"
                       tt="uppercase"
-                      style={{ letterSpacing: '0.04em' }}
+                      style={{ letterSpacing: '0.04em', fontSize: 11 }}
                     >
                       ORDER DISCOUNT
                     </Text>
                   </Group>
 
-                  <Group gap={4}>
+                  <Group gap={6}>
                     <SegmentedToggle
-                      size="xs"
+                      size="sm"
                       color="red"
                       value={discountMode}
                       onChange={(val) => {
@@ -793,10 +799,10 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                         { label: '%', value: 'percentage' },
                         { label: 'Rs.', value: 'amount' },
                       ]}
-                      style={{ width: 90 }}
+                      style={{ width: 100 }}
                     />
                     <ActionIcon
-                      size="xs"
+                      size="sm"
                       variant="subtle"
                       color="gray"
                       onClick={() => {
@@ -804,15 +810,16 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                         setShowDiscountInput(false);
                         setDiscount(0);
                       }}
+                      style={{ width: 32, height: 32 }}
                     >
-                      <IconX size={13} />
+                      <IconX size={15} />
                     </ActionIcon>
                   </Group>
                 </Group>
 
                 <Group justify="space-between" align="center" wrap={isMobile ? 'wrap' : 'nowrap'}>
                   <AmountInput
-                    size="xs"
+                    size="sm"
                     mode={discountMode}
                     onModeChange={setDiscountMode}
                     value={discountInput}
@@ -858,7 +865,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
               ta="right"
               c={isCredit ? 'amber.7' : 'blue.6'}
               style={{
-                fontSize: 32,
+                fontSize: 34,
                 fontFamily: 'monospace',
                 lineHeight: 1.1,
                 fontVariantNumeric: 'tabular-nums',
@@ -881,7 +888,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
             <Box>
               <SegmentedToggle
                 fullWidth
-                size="sm"
+                size="md"
                 value={isCredit ? 'credit' : 'pay_now'}
                 onChange={(val) => {
                   if (val === 'credit') {
@@ -927,7 +934,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                         fw={700}
                         c="amber.8"
                         tt="uppercase"
-                        style={{ letterSpacing: '0.04em' }}
+                        style={{ letterSpacing: '0.04em', fontSize: 11 }}
                       >
                         CREDIT SALE PREVIEW
                       </Text>
@@ -980,7 +987,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                     fw={700}
                     c="dimmed"
                     tt="uppercase"
-                    style={{ fontSize: 10, letterSpacing: '0.06em' }}
+                    style={{ fontSize: 11, letterSpacing: '0.05em' }}
                   >
                     PAYMENT DUE DATE
                   </Text>
@@ -993,8 +1000,8 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                       changeDueDate(dueDate ? null : defaultDueDate.toISOString().split('T')[0])
                     }
                     style={{
-                      height: 24,
-                      fontSize: 10,
+                      height: 30,
+                      fontSize: 11,
                       fontWeight: 600,
                       paddingLeft: 8,
                       paddingRight: 8,
@@ -1006,7 +1013,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
                 <DateInput
                   placeholder="Open-ended (No due date)"
-                  size="xs"
+                  size="sm"
                   value={dueDate ? new Date(dueDate) : null}
                   onChange={(d: Date | string | null) => {
                     if (!d) {
@@ -1045,7 +1052,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                   c="dimmed"
                   mb={6}
                   tt="uppercase"
-                  style={{ fontSize: 10, letterSpacing: '0.06em' }}
+                  style={{ fontSize: 11, letterSpacing: '0.05em' }}
                 >
                   PAYMENT METHOD
                 </Text>
@@ -1062,15 +1069,15 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                           !tile.disabled && changePaymentMethod(tile.id as PaymentMethod)
                         }
                         style={{
-                          height: isMobile ? 52 : 42,
+                          height: isMobile ? 54 : 48,
                           borderRadius: 'var(--mantine-radius-default)',
                           border: isSelected
-                            ? '1px solid var(--mantine-color-blue-4)'
+                            ? '1.5px solid var(--mantine-color-blue-5)'
                             : '1px solid var(--border)',
                           backgroundColor: isSelected
                             ? 'var(--mantine-color-blue-light)'
                             : 'var(--bg-card)',
-                          opacity: tile.disabled ? 0.5 : 1,
+                          opacity: tile.disabled ? 0.45 : 1,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1078,15 +1085,16 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                           transition: 'all 0.15s ease',
                         }}
                       >
-                        <Group gap={6} align="center">
+                        <Group gap={8} align="center">
                           <Icon
-                            size={16}
+                            size={18}
                             color={isSelected ? 'var(--mantine-color-blue-6)' : 'var(--text-muted)'}
                           />
                           <Text
                             size="sm"
-                            fw={isSelected ? 700 : 500}
+                            fw={isSelected ? 700 : 600}
                             c={isSelected ? 'blue.7' : undefined}
+                            style={{ fontSize: 14 }}
                           >
                             {tile.label}
                           </Text>
@@ -1114,7 +1122,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                       fw={700}
                       c="dimmed"
                       tt="uppercase"
-                      style={{ fontSize: 10, letterSpacing: '0.06em' }}
+                      style={{ fontSize: 11, letterSpacing: '0.05em' }}
                     >
                       AMOUNT TENDERED (RS.)
                     </Text>
@@ -1123,24 +1131,25 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                       ref={cashInputRef}
                       placeholder="0"
                       mode="amount"
-                      size="md"
+                      size="lg"
                       value={tenderedRupees}
                       onChange={(val) => setTenderedRupees(val)}
                     />
 
                     {/* Quick Tender Chips */}
-                    <Group gap={6} grow>
+                    <Group gap={8} grow>
                       {quickChips.slice(0, 2).map((amt) => (
                         <Button
                           key={amt}
-                          size="xs"
+                          size="sm"
                           variant="outline"
                           color="gray"
                           radius="var(--mantine-radius-default)"
                           onClick={() => setTenderedRupees(amt)}
                           style={{
-                            height: isMobile ? 44 : 36,
-                            fontWeight: 500,
+                            height: isMobile ? 48 : 42,
+                            fontWeight: 600,
+                            fontSize: 14,
                             fontFamily: 'monospace',
                           }}
                         >
@@ -1151,14 +1160,14 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
 
                     {/* Change Due / Short By Display Row */}
                     <Group justify="space-between" align="center" py={4}>
-                      <Text size="sm" c="dimmed">
+                      <Text size="sm" fw={600} c="dimmed">
                         {isCashShort ? 'Short by' : 'Change due'}
                       </Text>
                       <Text
-                        size="md"
-                        fw={700}
+                        size="lg"
+                        fw={800}
                         c={isCashShort ? 'amber.7' : changeDueCents > 0 ? 'green.6' : 'dimmed'}
-                        style={{ fontFamily: 'monospace' }}
+                        style={{ fontFamily: 'monospace', fontSize: 18 }}
                       >
                         {isCashShort ? formatMoney(shortByCents) : formatMoney(changeDueCents)}
                       </Text>
@@ -1279,11 +1288,11 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                 fw={700}
                 c="dimmed"
                 tt="uppercase"
-                style={{ fontSize: 10, letterSpacing: '0.06em' }}
+                style={{ fontSize: 11, letterSpacing: '0.05em' }}
               >
                 PRINT
               </Text>
-              <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>
+              <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
                 {documentSelection === 'receipt'
                   ? 'Default for walk-in'
                   : documentSelection === 'invoice'
@@ -1292,7 +1301,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
               </Text>
             </Group>
 
-            <SimpleGrid cols={{ base: 2, lg: 4 }} spacing={6}>
+            <SimpleGrid cols={{ base: 2, lg: 4 }} spacing={8}>
               {(
                 [
                   { label: 'Receipt', value: 'receipt' },
@@ -1307,10 +1316,10 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                     key={doc.value}
                     onClick={() => changeDocumentSelection(doc.value)}
                     style={{
-                      height: isMobile ? 48 : 38,
+                      height: isMobile ? 48 : 44,
                       borderRadius: 'var(--mantine-radius-default)',
                       border: isSelected
-                        ? '1px solid var(--mantine-color-blue-4)'
+                        ? '1.5px solid var(--mantine-color-blue-5)'
                         : '1px solid var(--border)',
                       backgroundColor: isSelected
                         ? 'var(--mantine-color-blue-light)'
@@ -1318,17 +1327,17 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      padding: '2px 4px',
+                      padding: '4px 8px',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                       textAlign: 'center',
                     }}
                   >
                     <Text
-                      size="xs"
-                      fw={isSelected ? 700 : 500}
+                      size="sm"
+                      fw={isSelected ? 700 : 600}
                       c={isSelected ? 'blue.7' : undefined}
-                      style={{ fontSize: 11, lineHeight: 1.2 }}
+                      style={{ fontSize: 13, lineHeight: 1.2 }}
                     >
                       {doc.label}
                     </Text>
@@ -1356,7 +1365,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
           loading={isProcessing}
           onClick={handlePrimaryAction}
           style={{
-            height: isMobile ? 56 : 52,
+            height: 56,
             fontSize: 16,
             fontWeight: 700,
             borderRadius: 'var(--mantine-radius-default)',
