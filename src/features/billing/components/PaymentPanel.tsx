@@ -282,14 +282,28 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
     changeSplitPayments(splitPayments.filter((sp) => sp.id !== id));
   };
 
+  // Card validation (last 4 digits required)
+  const isCardDigitsMissing =
+    paymentMethod === PAYMENT_METHODS.CARD && !isCredit && cardRef.trim().length !== 4;
+
+  const isSplitCardDigitsMissing =
+    paymentMethod === PAYMENT_METHODS.SPLIT &&
+    !isCredit &&
+    splitPayments.some(
+      (sp) =>
+        sp.method === PAYMENT_METHODS.CARD && (!sp.cardLast4 || sp.cardLast4.trim().length !== 4)
+    );
+
   // Complete button disabled logic
   const isCartEmpty = items.length === 0;
   const isButtonDisabled =
     isCartEmpty ||
     isProcessing ||
     (paymentMethod === PAYMENT_METHODS.CASH && isCashShort && !isCredit) ||
-    (paymentMethod === PAYMENT_METHODS.CARD && isCardShort && !isCredit) ||
-    (paymentMethod === PAYMENT_METHODS.SPLIT && isSplitIncomplete && !isCredit);
+    (paymentMethod === PAYMENT_METHODS.CARD && (isCardShort || isCardDigitsMissing) && !isCredit) ||
+    (paymentMethod === PAYMENT_METHODS.SPLIT &&
+      (isSplitIncomplete || isSplitCardDigitsMissing) &&
+      !isCredit);
 
   // Consequence helper label
   const printConsequenceText = useMemo(() => {
@@ -1249,11 +1263,16 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                       maxLength={4}
                       inputMode="numeric"
                       value={cardRef}
+                      error={
+                        cardRef && cardRef.trim().length > 0 && cardRef.trim().length < 4
+                          ? 'Please enter all 4 digits'
+                          : undefined
+                      }
                       onChange={(e) => {
                         const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
                         changeCardRef(val);
                       }}
-                      description="Enter the last 4 digits on the customer's card for reconciliation."
+                      description="Enter the last 4 digits on the customer's card to complete payment."
                     />
 
                     {isCardShort && (
@@ -1361,6 +1380,13 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
                               maxLength={4}
                               inputMode="numeric"
                               value={sp.cardLast4 || ''}
+                              error={
+                                sp.cardLast4 &&
+                                sp.cardLast4.trim().length > 0 &&
+                                sp.cardLast4.trim().length < 4
+                                  ? '4 digits required'
+                                  : undefined
+                              }
                               onChange={(e) => {
                                 const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
                                 handleUpdateSplitRow(sp.id, 'cardLast4', val);
@@ -1489,9 +1515,11 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
               ? confirmCreditRequired
                 ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
                 : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
-              : isCashShort
+              : isCashShort || isCardShort
                 ? `Short by ${formatMoney(shortByCents)}`
-                : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
+                : isCardDigitsMissing || isSplitCardDigitsMissing
+                  ? 'Enter Card Last 4 Digits'
+                  : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
         </Button>
         <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
           {confirmCreditRequired
@@ -1500,8 +1528,12 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
               : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
             : isButtonDisabled
               ? isCashShort
-                ? `Enter tendered cash amount to complete`
-                : 'Complete disabled'
+                ? 'Enter tendered cash amount to complete'
+                : isCardDigitsMissing || isSplitCardDigitsMissing
+                  ? 'Card last 4 digits required to complete payment'
+                  : isSplitIncomplete
+                    ? 'Allocate the full total across split payments'
+                    : 'Complete disabled'
               : `${printConsequenceText} · Press F2`}
         </Text>
       </Box>

@@ -95,6 +95,23 @@ export const BillingCounter = () => {
   // Complete Payment Action (F2)
   const handleCompleteCheckout = useCallback(async () => {
     if (items.length === 0 || isProcessing) return;
+    if (
+      paymentMethod === PAYMENT_METHODS.CARD &&
+      !isCredit &&
+      (!cardRef || cardRef.trim().length !== 4)
+    ) {
+      return;
+    }
+    if (
+      paymentMethod === PAYMENT_METHODS.SPLIT &&
+      !isCredit &&
+      splitPayments.some(
+        (sp) =>
+          sp.method === PAYMENT_METHODS.CARD && (!sp.cardLast4 || sp.cardLast4.trim().length !== 4)
+      )
+    ) {
+      return;
+    }
 
     setIsProcessing(true);
     try {
