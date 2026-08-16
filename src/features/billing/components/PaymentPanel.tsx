@@ -392,7 +392,16 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
           overflow: 'hidden',
         }}
       >
-        <Box style={{ flex: 1, overflowY: 'auto', padding: regionPadding }}>
+        <Box
+          className="no-scrollbar"
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: regionPadding,
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
           <Stack gap="md">
             {/* Header Badge */}
             <Group justify="space-between" align="center">
@@ -771,7 +780,16 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
       }}
     >
       {/* Scrollable Upper Region */}
-      <Box style={{ flex: 1, overflowY: 'auto', padding: regionPadding }}>
+      <Box
+        className="no-scrollbar"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: regionPadding,
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
         <Stack gap="xs">
           {/* 1. Subtotal Line */}
           <Group justify="space-between" align="center">

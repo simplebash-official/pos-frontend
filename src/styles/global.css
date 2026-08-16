@@ -358,3 +358,13 @@ th.mantine-Table-th {
   color: var(--mantine-color-blue-filled) !important;
   transform: translateX(2px);
 }
+
+/* Utility to hide native scrollbars while preserving full scroll functionality */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
