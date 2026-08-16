@@ -731,7 +731,7 @@ export const PaymentPanel = forwardRef<PaymentPanelHandle, PaymentPanelProps>(fu
               </Text>
               <Button
                 size="xs"
-                variant="subtle"
+                variant="light"
                 color="red"
                 leftSection={<IconTag size={13} />}
                 disabled={isCartEmpty}
