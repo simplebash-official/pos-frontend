@@ -11,8 +11,10 @@ import {
   Box,
   ThemeIcon,
   Skeleton,
+  ActionIcon,
+  Center,
 } from '@mantine/core';
-import { IconSearch, IconPlus } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconX, IconTool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
@@ -166,38 +168,47 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
     onClose();
   };
 
+  const handleClose = () => {
+    setSearch('');
+    setFilterType('all');
+    onClose();
+  };
+
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
       title={
         <Text fw={700} size="lg">
-          Select service job
+          Select Service Job
         </Text>
       }
       size="lg"
       centered
       fullScreen={isMobile}
-      padding={0}
+      padding="lg"
     >
-      {/* Search & Filter Bar Section with Top & Bottom Border Dividers */}
-      <Box
-        px={isMobile ? 'sm' : 'lg'}
-        py="md"
-        style={{
-          borderTop: '1px solid var(--mantine-color-default-border)',
-          borderBottom: '1px solid var(--mantine-color-default-border)',
-        }}
-      >
-        <Group justify="space-between" align="center" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
+      <Stack gap="md">
+        {/* Search & Filter Bar */}
+        <Group gap="sm" wrap={isMobile ? 'wrap' : 'nowrap'}>
           <SearchHistoryInput
             namespace="service_jobs"
-            placeholder="Search ticket #, customer name"
+            placeholder="Search ticket #, customer name, device…"
             leftSection={<IconSearch size={16} />}
+            rightSection={
+              search ? (
+                <ActionIcon variant="subtle" size="sm" onClick={() => setSearch('')}>
+                  <IconX size={14} />
+                </ActionIcon>
+              ) : (
+                <Badge size="xs" variant="light" color="blue">
+                  {filteredJobs.length}
+                </Badge>
+              )
+            }
             value={search}
             onValueChange={setSearch}
             wrapperStyle={{ flex: 1, minWidth: isMobile ? '100%' : undefined }}
-            /* Autofocusing here opens the soft keyboard over the job list it is meant to filter. */
             autoFocus={!isMobile}
           />
           <SegmentedToggle
@@ -212,45 +223,56 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
             ]}
           />
         </Group>
-      </Box>
 
-      {/* Jobs List */}
-      <Box p={isMobile ? 'sm' : 'lg'}>
+        {/* Jobs List */}
         <ScrollArea.Autosize
-          mah={isMobile ? '60vh' : 440}
+          mah={isMobile ? '60dvh' : 440}
           offsetScrollbars
           classNames={{ viewport: 'scrollarea-fluid-content' }}
         >
-          {isLoading ? (
-            <Stack gap="sm">
-              {Array.from({ length: 4 }, (_, i) => (
-                <Paper key={`job-skel-${i}`} p="md" withBorder>
+          <Stack gap="xs" pt={4} pb={4} px={2}>
+            {isLoading ? (
+              Array.from({ length: 4 }, (_, i) => (
+                <Paper
+                  key={`job-skel-${i}`}
+                  p="md"
+                  radius="var(--mantine-radius-default)"
+                  withBorder
+                >
                   <Group justify="space-between" align="center">
-                    <Group gap="md" align="center" style={{ flex: 1 }}>
-                      <Skeleton height={44} width={44} />
-                      <Stack gap={4} style={{ flex: 1 }}>
-                        <Skeleton height={14} width={100} />
-                        <Skeleton height={16} width="70%" />
-                      </Stack>
+                    <Group gap="md">
+                      <Skeleton height={36} width={36} />
+                      <div>
+                        <Skeleton height={16} width={140} mb={4} />
+                        <Skeleton height={12} width={90} />
+                      </div>
                     </Group>
-                    <Skeleton height={24} width={80} />
+                    <Skeleton height={20} width={60} />
                   </Group>
                 </Paper>
-              ))}
-            </Stack>
-          ) : filteredJobs.length === 0 ? (
-            <Box ta="center" py="xl">
-              <Text c="dimmed" size="sm">
-                No active ready/in-repair service jobs found.
-              </Text>
-            </Box>
-          ) : (
-            <Stack gap="sm">
-              {filteredJobs.map((job) => {
+              ))
+            ) : filteredJobs.length === 0 ? (
+              <Paper
+                p="xl"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
+                <Center>
+                  <Stack gap="xs" align="center">
+                    <IconTool size={32} style={{ opacity: 0.3 }} />
+                    <Text c="dimmed" size="sm" ta="center">
+                      No active service jobs found matching your search.
+                    </Text>
+                  </Stack>
+                </Center>
+              </Paper>
+            ) : (
+              filteredJobs.map((job) => {
                 const iconInfo = getCategoryIconInfo({ sourceType: job.type });
                 const CatIcon = iconInfo.Icon;
                 const isRepair = job.type === 'repair';
-                const catColor = isRepair ? 'orange' : 'green';
+                const catColor = isRepair ? 'orange' : 'teal';
 
                 const metaText = [job.description, job.customerName, job.customerPhone]
                   .filter(Boolean)
@@ -260,49 +282,46 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
                   <Paper
                     key={`${job.type}-${job.id}`}
                     p="md"
-                    withBorder
-                    style={{
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                    }}
+                    radius="var(--mantine-radius-default)"
+                    className="picker-card"
                     onClick={() => handleSelectJob(job)}
                   >
-                    {/* On a phone the icon, details and the price/action column cannot share one
-                        row without pushing the action off the edge — stack them instead. */}
                     <Group
                       justify="space-between"
-                      align={isMobile ? 'stretch' : 'center'}
+                      align="center"
                       wrap={isMobile ? 'wrap' : 'nowrap'}
+                      gap="md"
                     >
-                      {/* Left: Category Icon & Job Info */}
+                      {/* Left Icon & Info */}
                       <Group
                         gap="md"
-                        align="center"
-                        style={{ flex: 1, minWidth: 0, width: isMobile ? '100%' : undefined }}
                         wrap="nowrap"
+                        style={{ minWidth: 0, flex: 1 }}
+                        align="flex-start"
                       >
                         <ThemeIcon
-                          size={isMobile ? 40 : 48}
                           color={catColor}
                           variant="light"
-                          style={{ minWidth: isMobile ? 40 : 48, flexShrink: 0 }}
+                          size="xl"
+                          radius="var(--mantine-radius-default)"
+                          style={{ flexShrink: 0, marginTop: 2 }}
                         >
-                          <CatIcon size={isMobile ? 20 : 24} />
+                          <CatIcon size={22} />
                         </ThemeIcon>
 
-                        <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                          <Group gap="xs" align="center">
-                            <Text
-                              size="xs"
-                              fw={700}
-                              c="dimmed"
-                              style={{ fontFamily: 'monospace', letterSpacing: '0.3px' }}
-                            >
-                              <SearchHighlight text={job.ticketNumber} terms={searchTerms} />
-                            </Text>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <Group gap={6} align="center" wrap="wrap">
                             <Badge
                               size="xs"
-                              radius="xl"
+                              variant="filled"
+                              color="blue"
+                              radius="var(--mantine-radius-default)"
+                            >
+                              <SearchHighlight text={job.ticketNumber} terms={searchTerms} />
+                            </Badge>
+                            <Badge
+                              size="xs"
+                              radius="var(--mantine-radius-default)"
                               variant="light"
                               color={job.status === 'ready' ? 'green' : 'blue'}
                               fw={600}
@@ -314,75 +333,57 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
                             </Badge>
                           </Group>
 
-                          <Text fw={700} size="sm" lineClamp={1}>
+                          <Text size="sm" fw={700} lineClamp={1} mt={4}>
                             <SearchHighlight text={job.title} terms={searchTerms} />
                           </Text>
 
                           {metaText && (
-                            <Text size="xs" c="dimmed" lineClamp={1}>
+                            <Text size="xs" c="dimmed" lineClamp={1} mt={2}>
                               {metaText}
                             </Text>
                           )}
 
                           {job.assignedEmployeeName && (
-                            <Text size="xs" c="dimmed">
+                            <Text size="xs" c="dimmed" mt={2}>
                               Tech: {job.assignedEmployeeName}
                             </Text>
                           )}
-                        </Stack>
+                        </div>
                       </Group>
 
-                      {/* Right: Cost & Bill Ticket Button */}
-                      {isMobile ? (
-                        <Group
-                          justify="space-between"
-                          align="center"
-                          mt="xs"
-                          style={{ width: '100%' }}
+                      {/* Right: Cost & Bill Action */}
+                      <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
+                        <Box style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                          <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
+                            Estimated Total
+                          </Text>
+                          <Text size="sm" fw={800} c="blue" style={{ fontFamily: 'monospace' }}>
+                            {formatMoney(job.costCents)}
+                          </Text>
+                        </Box>
+
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="blue"
+                          leftSection={<IconPlus size={14} />}
+                          radius="var(--mantine-radius-default)"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectJob(job);
+                          }}
                         >
-                          <Text fw={700} size="md" style={{ fontFamily: 'monospace, sans-serif' }}>
-                            {formatMoney(job.costCents)}
-                          </Text>
-                          <Button
-                            size="sm"
-                            color={isRepair ? 'orange' : 'green'}
-                            leftSection={<IconPlus size={14} />}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectJob(job);
-                            }}
-                            fw={600}
-                          >
-                            Bill ticket
-                          </Button>
-                        </Group>
-                      ) : (
-                        <Stack gap={6} align="flex-end" style={{ flexShrink: 0, paddingLeft: 12 }}>
-                          <Text fw={700} size="md" style={{ fontFamily: 'monospace, sans-serif' }}>
-                            {formatMoney(job.costCents)}
-                          </Text>
-                          <Button
-                            size="xs"
-                            color={isRepair ? 'orange' : 'green'}
-                            leftSection={<IconPlus size={14} />}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectJob(job);
-                            }}
-                            fw={600}
-                          >
-                            Bill ticket
-                          </Button>
-                        </Stack>
-                      )}
+                          Bill ticket
+                        </Button>
+                      </Group>
                     </Group>
                   </Paper>
                 );
-              })}
-            </Stack>
-          )}
+              })
+            )}
+          </Stack>
         </ScrollArea.Autosize>
-      </Box>
+      </Stack>
     </Modal>
   );
 };
