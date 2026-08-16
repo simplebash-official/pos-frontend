@@ -173,7 +173,7 @@ export const CustomerPickerModal = ({
           <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
             {selectedCustomerId && (
               <Button
-                variant="subtle"
+                variant="light"
                 color="red"
                 size="sm"
                 onClick={() => {
