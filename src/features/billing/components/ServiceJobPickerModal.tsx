@@ -23,7 +23,7 @@ import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
-import { useCart } from '../hooks/useCart';
+import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
 import { playScanSuccessSound } from '../lib/audio';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -71,7 +71,9 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'repair' | 'print'>('all');
 
-  const { add, attachCustomer, soundEnabled, customerId: currentCustomerId } = useCart();
+  const { add } = useCartItems();
+  const { attachCustomer, customerId: currentCustomerId } = useCartCustomer();
+  const { soundEnabled } = useCartSound();
 
   const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
     queryKey: queryKeys.repairs.all,

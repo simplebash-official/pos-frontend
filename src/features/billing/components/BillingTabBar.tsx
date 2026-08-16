@@ -2,7 +2,7 @@ import { Badge, Box, Group, Text, UnstyledButton } from '@mantine/core';
 import { IconCash, IconLayoutGrid, IconShoppingCart } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
 
-import { useCart } from '../hooks/useCart';
+import { useCartItems, useCartTotals } from '../hooks/useCart';
 import { formatMoney } from '@/shared/lib/money';
 
 /** Which of the three billing regions is on screen. Only meaningful below the desktop tier. */
@@ -24,7 +24,8 @@ const TABS: { pane: BillingPane; label: string; Icon: Icon }[] = [
  * the cashier can glance at the total from the catalog and drill in without hunting for a tab.
  */
 export const BillingSummaryStrip = ({ onOpenCart }: { onOpenCart: () => void }) => {
-  const { itemCount, totalUnitCount, totalCents } = useCart();
+  const { itemCount, totalUnitCount } = useCartItems();
+  const { totalCents } = useCartTotals();
 
   if (itemCount === 0) {
     return null;
@@ -60,7 +61,7 @@ export const BillingSummaryStrip = ({ onOpenCart }: { onOpenCart: () => void }) 
  * iPhone home indicator so the tap targets are never partly under it.
  */
 export const BillingTabBar = ({ active, onChange }: BillingTabBarProps) => {
-  const { itemCount } = useCart();
+  const { itemCount } = useCartItems();
 
   return (
     <Box

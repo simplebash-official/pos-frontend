@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Paper, Group, Box, Text, ActionIcon, Tooltip, Badge, ThemeIcon } from '@mantine/core';
 import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
 
@@ -17,13 +17,13 @@ export interface CartLineItemProps {
   onRemove: (id: string) => void;
 }
 
-export const CartLineItem = ({
+export const CartLineItem = memo(function CartLineItem({
   item,
   isNewest = false,
   onUpdateQty,
   onUpdateLineDiscount,
   onRemove,
-}: CartLineItemProps) => {
+}: CartLineItemProps) {
   const [discountOpen, setDiscountOpen] = useState(false);
 
   // The discount and delete rails sit right next to each other, so on touch they need to clear the
@@ -63,11 +63,11 @@ export const CartLineItem = ({
     <Paper
       p={0}
       withBorder
+      className={isNewest ? 'cart-line-flash' : undefined}
       style={{
         borderLeft: `4px solid ${stripeColor}`,
         backgroundColor: 'var(--bg-hover)',
         position: 'relative',
-        animation: isNewest ? 'flashRow 0.35s ease-out' : undefined,
         overflow: 'hidden',
       }}
     >
@@ -238,4 +238,4 @@ export const CartLineItem = ({
       </Group>
     </Paper>
   );
-};
+});

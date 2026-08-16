@@ -25,7 +25,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMantineColorScheme } from '@mantine/core';
 
-import { useCart } from '@/features/billing/hooks/useCart';
+import { useCartItems, useHeldCarts, useCartSound } from '@/features/billing/hooks/useCart';
 import { SyncStatusBadge } from '@/features/sync';
 import { NotificationPopover } from '@/features/notifications';
 import { ROUTES } from '@/constants/routes';
@@ -62,7 +62,9 @@ export const Header = ({
   const initial = userName.charAt(0).toUpperCase();
   const userLabel = `${userName} (${user?.role || 'user'})`;
 
-  const { itemCount: cartItemsCount, heldCarts, soundEnabled, toggleSoundFeedback } = useCart();
+  const { itemCount: cartItemsCount } = useCartItems();
+  const { heldCarts } = useHeldCarts();
+  const { soundEnabled, toggleSoundFeedback } = useCartSound();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
 

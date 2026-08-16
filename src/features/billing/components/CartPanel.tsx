@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import {
   Paper,
   Group,
@@ -23,7 +23,7 @@ import {
   IconArrowRight,
 } from '@tabler/icons-react';
 
-import { useCart } from '../hooks/useCart';
+import { useCartItems, useCartTotals, useCartCustomer, useHeldCarts } from '../hooks/useCart';
 import { CartLineItem } from './CartLineItem';
 import { formatMoney } from '@/shared/lib/money';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -35,28 +35,28 @@ export interface CartPanelProps {
   onRequestPayment: () => void;
 }
 
-export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelProps) => {
+export const CartPanel = memo(function CartPanel({
+  onOpenCustomerPicker,
+  onRequestPayment,
+}: CartPanelProps) {
   const {
     items,
     itemCount,
     totalUnitCount,
-    totalCents,
     sourceBreakdown,
     lastRemovedItem,
-    customerName,
-    customerPhone,
-    customerBalanceCents,
     updateQty,
     updateLineDisc,
     remove,
     undoRemove,
     clearUndo,
-    holdCurrentCart,
     clear,
-    attachCustomer,
     isCredit,
     completedSale,
-  } = useCart();
+  } = useCartItems();
+  const { totalCents } = useCartTotals();
+  const { customerName, customerPhone, customerBalanceCents, attachCustomer } = useCartCustomer();
+  const { holdCurrentCart } = useHeldCarts();
 
   const isMobile = useIsMobile();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
@@ -88,6 +88,8 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
     });
   }, []);
 
+  const isCartEmpty = items.length === 0;
+
   useEffect(() => {
     const el = viewportRef.current;
     if (!el) return;
@@ -113,7 +115,10 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
       el.removeEventListener('scroll', handleScroll);
       resizeObserver.disconnect();
     };
-  }, [updateScrollState, items]);
+    // The observer already watches the viewport and its first child directly, so in-place content
+    // changes (quantity/discount edits) are caught live. The only reason to re-attach is the
+    // empty <-> non-empty transition, which swaps which element is `firstElementChild`.
+  }, [updateScrollState, isCartEmpty]);
 
   const scrollByAmount = (amount: number) => {
     if (viewportRef.current) {
@@ -443,4 +448,4 @@ export const CartPanel = ({ onOpenCustomerPicker, onRequestPayment }: CartPanelP
       </ConfirmDialog>
     </Paper>
   );
-};
+});

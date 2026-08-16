@@ -1,4 +1,4 @@
-import type { Ref } from 'react';
+import { memo, useCallback, type Ref } from 'react';
 import { Box, Grid } from '@mantine/core';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 
@@ -33,7 +33,7 @@ const FILL: React.CSSProperties = { height: '100%', minHeight: 0 };
  * - tablet (`sm`–`lg`): catalog plus a right column that toggles between cart and payment
  * - mobile (below `sm`): one full-screen region at a time, driven by the bottom tab bar
  */
-export const BillingRegions = ({
+export const BillingRegions = memo(function BillingRegions({
   activePane,
   onChangePane,
   isProcessing,
@@ -43,15 +43,17 @@ export const BillingRegions = ({
   onOpenOrderDiscount,
   onPreviewInvoice,
   paymentPanelRef,
-}: BillingRegionsProps) => {
+}: BillingRegionsProps) {
   const tier = useLayoutTier();
+
+  // Stable references so CartPanel (React.memo'd) doesn't re-render just because BillingRegions
+  // re-rendered for an unrelated reason.
+  const requestPayment = useCallback(() => onChangePane('pay'), [onChangePane]);
+  const openCart = useCallback(() => onChangePane('cart'), [onChangePane]);
 
   const catalog = <CatalogPanel onOpenServicePicker={onOpenServicePicker} />;
   const cart = (
-    <CartPanel
-      onOpenCustomerPicker={onOpenCustomerPicker}
-      onRequestPayment={() => onChangePane('pay')}
-    />
+    <CartPanel onOpenCustomerPicker={onOpenCustomerPicker} onRequestPayment={requestPayment} />
   );
   const payment = (
     <PaymentPanel
@@ -119,8 +121,8 @@ export const BillingRegions = ({
         {activePane === 'cart' && cart}
         {activePane === 'pay' && payment}
       </Box>
-      <BillingSummaryStrip onOpenCart={() => onChangePane('cart')} />
+      <BillingSummaryStrip onOpenCart={openCart} />
       <BillingTabBar active={activePane} onChange={onChangePane} />
     </Box>
   );
-};
+});

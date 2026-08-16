@@ -4,7 +4,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext } from 'react-router-dom';
 
-import { useCart } from '../hooks/useCart';
+import {
+  useCartItems,
+  useCartTotals,
+  useCartCustomer,
+  useCartCheckout,
+  useHeldCarts,
+  useCartSound,
+} from '../hooks/useCart';
 import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
@@ -37,15 +44,11 @@ export const BillingCounter = () => {
     setShortcutsOpen?: (open: boolean) => void;
   }>();
 
+  const { items } = useCartItems();
+  const { customerId, customerName, customerPhone, customerAddress, attachCustomer } =
+    useCartCustomer();
+  const { discountCents, subtotalCents, totalCents, setDiscount } = useCartTotals();
   const {
-    items,
-    customerId,
-    customerName,
-    customerPhone,
-    customerAddress,
-    discountCents,
-    subtotalCents,
-    totalCents,
     paymentMethod,
     splitPayments,
     isCredit,
@@ -56,15 +59,13 @@ export const BillingCounter = () => {
     onlineRef,
     onlineNote,
     notes,
-    soundEnabled,
-    attachCustomer,
     changePaymentMethod,
-    setDiscount,
     markSaleCompleted,
     startNextSale,
     completedSale,
-    holdCurrentCart,
-  } = useCart();
+  } = useCartCheckout();
+  const { soundEnabled } = useCartSound();
+  const { holdCurrentCart } = useHeldCarts();
 
   const {
     printReceipt,
@@ -83,6 +84,12 @@ export const BillingCounter = () => {
   const [servicePickerOpen, setServicePickerOpen] = useState(false);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [orderDiscountOpen, setOrderDiscountOpen] = useState(false);
+
+  // Stable references so CatalogPanel/CartPanel (both React.memo'd) don't re-render just because
+  // BillingCounter re-rendered for an unrelated reason (e.g. a Notes/Card-Ref keystroke).
+  const openServicePicker = useCallback(() => setServicePickerOpen(true), []);
+  const openCustomerPicker = useCallback(() => setCustomerModalOpen(true), []);
+  const openOrderDiscount = useCallback(() => setOrderDiscountOpen(true), []);
 
   // Processing & Last completed invoice state
   const [isProcessing, setIsProcessing] = useState(false);
@@ -387,9 +394,9 @@ export const BillingCounter = () => {
         onChangePane={setActivePane}
         isProcessing={isProcessing}
         onCompleteCheckout={handleCompleteCheckout}
-        onOpenServicePicker={() => setServicePickerOpen(true)}
-        onOpenCustomerPicker={() => setCustomerModalOpen(true)}
-        onOpenOrderDiscount={() => setOrderDiscountOpen(true)}
+        onOpenServicePicker={openServicePicker}
+        onOpenCustomerPicker={openCustomerPicker}
+        onOpenOrderDiscount={openOrderDiscount}
         onPreviewInvoice={previewInvoiceDoc}
         paymentPanelRef={paymentPanelRef}
       />

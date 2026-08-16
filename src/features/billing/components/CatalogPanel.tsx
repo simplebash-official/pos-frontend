@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, memo } from 'react';
 import {
   Stack,
   Paper,
   Group,
   Text,
   Badge,
-  Grid,
   Card,
   ScrollArea,
   ActionIcon,
@@ -17,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { notifications } from '@mantine/notifications';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SearchHighlight } from '@/shared/components/SearchHighlight';
@@ -34,18 +34,31 @@ import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
 import { formatMoney } from '@/shared/lib/money';
 import { Product } from '@/features/inventory/types';
-import { useCart } from '../hooks/useCart';
+import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 
 // Top frequent items section removed per request
 
+// Matches the product card's own fixed height so the virtualizer's size estimate is exact rather
+// than approximate.
+const CARD_HEIGHT = 128;
+const ROW_GAP = 10; // theme spacing "xs"
+
+const chunk = <T,>(items: T[], size: number): T[][] => {
+  const rows: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    rows.push(items.slice(i, i + size));
+  }
+  return rows;
+};
+
 export interface CatalogPanelProps {
   onOpenServicePicker: () => void;
 }
 
-export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
+export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
   const scanInputRef = useRef<HTMLInputElement>(null);
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
@@ -53,7 +66,9 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
 
-  const { add, items, attachCustomer, soundEnabled, customerId } = useCart();
+  const { add, items } = useCartItems();
+  const { attachCustomer, customerId } = useCartCustomer();
+  const { soundEnabled } = useCartSound();
 
   const tier = useLayoutTier();
   const isMobile = tier === 'mobile';
@@ -66,9 +81,10 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
   // icon button on mobile where 150px would leave almost nothing for the query itself.
   const scanRightSectionWidth = isMobile ? 48 : 150;
 
-  // Product cards per row. The catalog's share of the viewport changes per tier, so the span has to
-  // be picked from the tier rather than from viewport-relative breakpoints.
-  const productCardSpan = isMobile ? 6 : tier === 'tablet' ? 4 : { base: 6, sm: 4 };
+  // Product cards per row. The catalog's share of the viewport changes per tier, so the column
+  // count has to be picked from the tier rather than from viewport-relative breakpoints. Tablet and
+  // desktop both land on 3 columns given this panel's share of each tier's layout.
+  const columnsPerRow = isMobile ? 2 : 3;
 
   // Inventory Products Query
   const { data: products, isLoading: loadingProducts } = useAllProducts();
@@ -132,6 +148,20 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
     search,
     null
   );
+
+  // Virtualize by row rather than by card — @tanstack/react-virtual only needs to know row count
+  // and estimated row height, so the existing card markup/grid layout stays untouched per row.
+  const catalogViewportRef = useRef<HTMLDivElement>(null);
+  const rows = useMemo(
+    () => chunk(filteredProducts, columnsPerRow),
+    [filteredProducts, columnsPerRow]
+  );
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => catalogViewportRef.current,
+    estimateSize: () => CARD_HEIGHT + ROW_GAP,
+    overscan: 4,
+  });
 
   const handleAddProduct = (p: Product) => {
     const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
@@ -269,11 +299,11 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setSelectedIndex((prev) =>
-        prev === null ? 0 : Math.min(filteredProducts.length - 1, prev + 3)
+        prev === null ? 0 : Math.min(filteredProducts.length - 1, prev + columnsPerRow)
       );
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev === null ? 0 : Math.max(0, prev - 3)));
+      setSelectedIndex((prev) => (prev === null ? 0 : Math.max(0, prev - columnsPerRow)));
     } else if (e.key === 'Enter' && e.target !== scanInputRef.current) {
       e.preventDefault();
       if (selectedIndex !== null && filteredProducts[selectedIndex]) {
@@ -281,6 +311,13 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
       }
     }
   };
+
+  // A virtualized list won't scroll a newly-selected (keyboard-navigated) card into view on its
+  // own the way native DOM focus/scrollIntoView would.
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    rowVirtualizer.scrollToIndex(Math.floor(selectedIndex / columnsPerRow));
+  }, [selectedIndex, columnsPerRow, rowVirtualizer]);
 
   return (
     <Stack gap="xs" style={{ height: '100%', overflow: 'hidden' }}>
@@ -438,56 +475,97 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
         )}
       </ScrollArea.Autosize>
 
-      {/* 4. Product Grid */}
-      <ScrollArea style={{ flex: 1 }} styles={{ viewport: { padding: 0 } }}>
-        <Grid gap="xs" style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 2 }}>
-          {loadingProducts
-            ? Array.from({ length: 9 }, (_, i) => (
-                <Grid.Col key={`catalog-skel-${i}`} span={productCardSpan}>
-                  <Card
-                    p="xs"
-                    withBorder
-                    radius="var(--mantine-radius-default)"
-                    style={{ height: 128 }}
-                  >
-                    <Stack justify="space-between" h="100%" gap={4}>
-                      <Group justify="space-between" align="center">
-                        <Skeleton height={18} width={70} />
-                        <Skeleton height={12} width={40} />
-                      </Group>
-                      <Skeleton height={32} width="90%" />
-                      <Group justify="space-between" align="flex-end">
-                        <Skeleton height={20} width={60} />
-                        <Skeleton height={18} width={50} />
-                      </Group>
-                    </Stack>
-                  </Card>
-                </Grid.Col>
-              ))
-            : filteredProducts.map((p, index) => {
-                const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
-                const isZeroStock = remainingStock <= 0;
-                const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
-                const isSelected = selectedIndex !== null && index === selectedIndex;
-                const {
-                  Icon: CatIcon,
-                  color: catColor,
-                  label: catLabel,
-                } = getCategoryIconInfo({
-                  category: getCategory(p.categoryKey),
-                  categoryLabel: p.category,
-                  iconMap,
-                });
+      {/* 4. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
+          cards in the DOM, regardless of how many products match the current filter/search. */}
+      <ScrollArea
+        viewportRef={catalogViewportRef}
+        style={{ flex: 1 }}
+        styles={{ viewport: { padding: 0 } }}
+      >
+        {loadingProducts ? (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
+              gap: ROW_GAP,
+              paddingTop: 4,
+              paddingBottom: 4,
+              paddingLeft: 2,
+              paddingRight: 2,
+            }}
+          >
+            {Array.from({ length: columnsPerRow * 3 }, (_, i) => (
+              <Card
+                key={`catalog-skel-${i}`}
+                p="xs"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                style={{ height: CARD_HEIGHT }}
+              >
+                <Stack justify="space-between" h="100%" gap={4}>
+                  <Group justify="space-between" align="center">
+                    <Skeleton height={18} width={70} />
+                    <Skeleton height={12} width={40} />
+                  </Group>
+                  <Skeleton height={32} width="90%" />
+                  <Group justify="space-between" align="flex-end">
+                    <Skeleton height={20} width={60} />
+                    <Skeleton height={18} width={50} />
+                  </Group>
+                </Stack>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div
+            style={{
+              height: rowVirtualizer.getTotalSize(),
+              position: 'relative',
+              paddingTop: 4,
+              paddingLeft: 2,
+              paddingRight: 2,
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+              <div
+                key={virtualRow.key}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  transform: `translateY(${virtualRow.start}px)`,
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
+                  gap: ROW_GAP,
+                  paddingBottom: ROW_GAP,
+                }}
+              >
+                {rows[virtualRow.index].map((p, colIndex) => {
+                  const index = virtualRow.index * columnsPerRow + colIndex;
+                  const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+                  const isZeroStock = remainingStock <= 0;
+                  const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
+                  const isSelected = selectedIndex !== null && index === selectedIndex;
+                  const {
+                    Icon: CatIcon,
+                    color: catColor,
+                    label: catLabel,
+                  } = getCategoryIconInfo({
+                    category: getCategory(p.categoryKey),
+                    categoryLabel: p.category,
+                    iconMap,
+                  });
 
-                return (
-                  <Grid.Col key={p.id} span={productCardSpan}>
+                  return (
                     <Card
+                      key={p.id}
                       p="xs"
                       withBorder
                       className="product-catalog-card"
                       radius="var(--mantine-radius-default)"
                       style={{
-                        height: 128,
+                        height: CARD_HEIGHT,
                         opacity: isZeroStock ? 0.5 : 1,
                         filter: isZeroStock ? 'grayscale(1)' : undefined,
                         cursor: isZeroStock ? 'not-allowed' : 'pointer',
@@ -563,11 +641,13 @@ export const CatalogPanel = ({ onOpenServicePicker }: CatalogPanelProps) => {
                         </Group>
                       </Stack>
                     </Card>
-                  </Grid.Col>
-                );
-              })}
-        </Grid>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
       </ScrollArea>
     </Stack>
   );
-};
+});

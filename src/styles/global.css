@@ -208,15 +208,37 @@ body,
   }
 }
 
-@keyframes flashRow {
+/* New-cart-row flash: split into a transform keyframe on the row itself and an opacity keyframe on
+   a ::after overlay, so nothing animates `background-color` (a paint-triggering property) directly. */
+@keyframes flashRowScale {
   0% {
-    background-color: var(--mantine-color-yellow-light);
     transform: scale(1.01);
   }
   100% {
-    background-color: var(--bg-hover);
     transform: scale(1);
   }
+}
+
+@keyframes flashRowOverlay {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.cart-line-flash {
+  animation: flashRowScale 0.35s ease-out;
+}
+
+.cart-line-flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--mantine-color-yellow-light);
+  animation: flashRowOverlay 0.35s ease-out;
 }
 
 /* Shared neutral SegmentedControl look (src/shared/components/SegmentedToggle.tsx).

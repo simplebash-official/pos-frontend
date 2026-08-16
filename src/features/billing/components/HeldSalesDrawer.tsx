@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { IconPlayerPlay, IconTrash, IconClock, IconPlayerPause } from '@tabler/icons-react';
 
-import { useCart } from '../hooks/useCart';
+import { useHeldCarts } from '../hooks/useCart';
 import { formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -26,7 +26,7 @@ export interface HeldSalesDrawerProps {
 }
 
 export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
-  const { heldCarts, loadHeldCart, removeHeldCart } = useCart();
+  const { heldCarts, loadHeldCart, removeHeldCart } = useHeldCarts();
   const isMobile = useIsMobile();
   const [nowMs, setNowMs] = useState(0);
 
