@@ -166,6 +166,17 @@ export const PaymentPanel = memo(
       }
     }
 
+    // Reset the discount panel once the cart empties (cleared or a new sale started) —
+    // otherwise the previous order's discount input stays visible with a stale value.
+    useEffect(() => {
+      if (items.length === 0) {
+        setShowDiscountInput(false);
+        setDiscountInput('');
+        setHasEditedDiscount(false);
+        setLastSyncedDiscountCents(null);
+      }
+    }, [items.length]);
+
     // Tendered cash state in rupees
     const [tenderedRupees, setTenderedRupees] = useState<number | ''>('');
     const cashInputRef = useRef<HTMLInputElement>(null);
