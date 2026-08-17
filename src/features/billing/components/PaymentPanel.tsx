@@ -116,6 +116,14 @@ export const PaymentPanel = memo(
       }
     }, [notes, showNotes]);
 
+    // Collapse the order-note panel once the cart empties (cleared or a new sale started) —
+    // otherwise the previous order's now-empty note box stays expanded.
+    useEffect(() => {
+      if (items.length === 0) {
+        setShowNotes(false);
+      }
+    }, [items.length]);
+
     // Guardrail 2-step inline confirmation state
     const [confirmCreditRequired, setConfirmCreditRequired] = useState(false);
     const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -175,6 +183,14 @@ export const PaymentPanel = memo(
     // Tendered cash state in rupees
     const [tenderedRupees, setTenderedRupees] = useState<number | ''>('');
     const cashInputRef = useRef<HTMLInputElement>(null);
+
+    // Reset tendered cash once the cart empties (cleared or a new sale started) —
+    // otherwise the previous sale's "Cash Received" / change due lingers on screen.
+    useEffect(() => {
+      if (items.length === 0) {
+        setTenderedRupees('');
+      }
+    }, [items.length]);
 
     const printSettings = useAppSelector(selectPrintSettings);
     const prevCustomerIdRef = useRef(customerId);

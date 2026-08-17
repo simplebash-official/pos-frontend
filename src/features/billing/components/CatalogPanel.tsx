@@ -96,6 +96,37 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
     [categories, iconMap]
   );
 
+  // Category chips row can overflow horizontally; fade the edges (rather than a plain hard
+  // clip) so it's visually obvious there's more to scroll to, without growing the row's height.
+  const chipsViewportRef = useRef<HTMLDivElement>(null);
+  const [chipScrollState, setChipScrollState] = useState({
+    canScrollLeft: false,
+    canScrollRight: false,
+  });
+
+  useEffect(() => {
+    const el = chipsViewportRef.current;
+    if (!el) return;
+
+    const updateChipScrollState = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setChipScrollState({
+        canScrollLeft: scrollLeft > 2,
+        canScrollRight: scrollLeft + clientWidth < scrollWidth - 2,
+      });
+    };
+
+    updateChipScrollState();
+    el.addEventListener('scroll', updateChipScrollState, { passive: true });
+    const resizeObserver = new ResizeObserver(updateChipScrollState);
+    resizeObserver.observe(el);
+
+    return () => {
+      el.removeEventListener('scroll', updateChipScrollState);
+      resizeObserver.disconnect();
+    };
+  }, [catalogCategoryFilters, loadingCategories]);
+
   const termLower = scanQuery.trim().toLowerCase();
   const isScanningRep = termLower.startsWith('rep');
   const isScanningPrt = termLower.startsWith('prt');
@@ -425,64 +456,98 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
       </Paper>
 
       {/* 2. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
-      <ScrollArea
-        scrollbars="x"
-        type="never"
-        offsetScrollbars={false}
-        styles={{
-          viewport: {
-            paddingTop: 2,
-            paddingBottom: 2,
-          },
-        }}
-      >
-        {loadingCategories ? (
-          <Group gap={6} wrap="nowrap" py={2}>
-            <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
-            <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
-            <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
-            <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
-          </Group>
-        ) : (
-          <Group gap={6} wrap="nowrap" py={2}>
-            <Button
-              size="xs"
-              variant={selectedCategory === 'all' ? 'filled' : 'light'}
-              color="blue"
-              leftSection={<IconLayoutGrid size={15} />}
-              onClick={() => setSelectedCategory('all')}
-              radius="var(--mantine-radius-default)"
-              style={{ flexShrink: 0 }}
-            >
-              All
-            </Button>
-            {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+      <Box style={{ position: 'relative' }}>
+        <ScrollArea
+          viewportRef={chipsViewportRef}
+          scrollbars="x"
+          type="never"
+          offsetScrollbars={false}
+          styles={{
+            viewport: {
+              paddingTop: 2,
+              paddingBottom: 2,
+            },
+          }}
+        >
+          {loadingCategories ? (
+            <Group gap={6} wrap="nowrap" py={2}>
+              <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
+              <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
+              <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
+              <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
+            </Group>
+          ) : (
+            <Group gap={6} wrap="nowrap" py={2}>
               <Button
-                key={key}
                 size="xs"
-                variant={selectedCategory === key ? 'filled' : 'light'}
-                color={color}
-                leftSection={<Icon size={15} />}
-                onClick={() => setSelectedCategory(key)}
+                variant={selectedCategory === 'all' ? 'filled' : 'light'}
+                color="blue"
+                leftSection={<IconLayoutGrid size={15} />}
+                onClick={() => setSelectedCategory('all')}
                 radius="var(--mantine-radius-default)"
                 style={{ flexShrink: 0 }}
               >
-                {label}
+                All
               </Button>
-            ))}
-            <Button
-              size="xs"
-              variant={showInStockOnly ? 'filled' : 'outline'}
-              color={showInStockOnly ? 'teal' : 'gray'}
-              onClick={() => setShowInStockOnly(!showInStockOnly)}
-              radius="var(--mantine-radius-default)"
-              style={{ flexShrink: 0 }}
-            >
-              In stock only
-            </Button>
-          </Group>
-        )}
-      </ScrollArea>
+              {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+                <Button
+                  key={key}
+                  size="xs"
+                  variant={selectedCategory === key ? 'filled' : 'light'}
+                  color={color}
+                  leftSection={<Icon size={15} />}
+                  onClick={() => setSelectedCategory(key)}
+                  radius="var(--mantine-radius-default)"
+                  style={{ flexShrink: 0 }}
+                >
+                  {label}
+                </Button>
+              ))}
+              <Button
+                size="xs"
+                variant={showInStockOnly ? 'filled' : 'outline'}
+                color={showInStockOnly ? 'teal' : 'gray'}
+                onClick={() => setShowInStockOnly(!showInStockOnly)}
+                radius="var(--mantine-radius-default)"
+                style={{ flexShrink: 0 }}
+              >
+                In stock only
+              </Button>
+            </Group>
+          )}
+        </ScrollArea>
+
+        {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
+            never bleed into the scan bar above or the product grid below. */}
+        <Box
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: 24,
+            background: 'linear-gradient(to right, transparent, var(--bg-app))',
+            pointerEvents: 'none',
+            opacity: chipScrollState.canScrollRight ? 1 : 0,
+            transition: 'opacity 0.15s ease',
+          }}
+        />
+        <Box
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: 24,
+            background: 'linear-gradient(to left, transparent, var(--bg-app))',
+            pointerEvents: 'none',
+            opacity: chipScrollState.canScrollLeft ? 1 : 0,
+            transition: 'opacity 0.15s ease',
+          }}
+        />
+      </Box>
 
       {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
           cards in the DOM, regardless of how many products match the current filter/search. */}

@@ -131,6 +131,7 @@ const resetCartState = (state: CartState) => {
   state.customerAddress = null;
   state.customerBalanceCents = 0;
   state.discountCents = 0;
+  state.paymentMethod = PAYMENT_METHODS.CASH;
   state.isCredit = false;
   state.tenderedAmountCents = 0;
   state.dueDate = null;
