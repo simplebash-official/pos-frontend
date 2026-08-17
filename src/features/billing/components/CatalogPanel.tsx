@@ -424,11 +424,17 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
         )}
       </Paper>
 
-      {/* 2. Category Chips / Filter Pills Row. */}
-      <ScrollArea.Autosize
-        mah={isMobile ? 44 : 72}
-        scrollbars={isMobile ? 'x' : 'y'}
-        type={isMobile ? 'never' : 'auto'}
+      {/* 2. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
+      <ScrollArea
+        scrollbars="x"
+        type="never"
+        offsetScrollbars={false}
+        styles={{
+          viewport: {
+            paddingTop: 2,
+            paddingBottom: 2,
+          },
+        }}
       >
         {loadingCategories ? (
           <Group gap={6} wrap="nowrap" py={2}>
@@ -438,7 +444,7 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
             <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
           </Group>
         ) : (
-          <Group gap={6} wrap={isMobile ? 'nowrap' : 'wrap'} py={2}>
+          <Group gap={6} wrap="nowrap" py={2}>
             <Button
               size="xs"
               variant={selectedCategory === 'all' ? 'filled' : 'light'}
@@ -446,6 +452,7 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
               leftSection={<IconLayoutGrid size={15} />}
               onClick={() => setSelectedCategory('all')}
               radius="var(--mantine-radius-default)"
+              style={{ flexShrink: 0 }}
             >
               All
             </Button>
@@ -458,6 +465,7 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
                 leftSection={<Icon size={15} />}
                 onClick={() => setSelectedCategory(key)}
                 radius="var(--mantine-radius-default)"
+                style={{ flexShrink: 0 }}
               >
                 {label}
               </Button>
@@ -468,18 +476,20 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
               color={showInStockOnly ? 'teal' : 'gray'}
               onClick={() => setShowInStockOnly(!showInStockOnly)}
               radius="var(--mantine-radius-default)"
+              style={{ flexShrink: 0 }}
             >
               In stock only
             </Button>
           </Group>
         )}
-      </ScrollArea.Autosize>
+      </ScrollArea>
 
-      {/* 4. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
+      {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
           cards in the DOM, regardless of how many products match the current filter/search. */}
       <ScrollArea
         viewportRef={catalogViewportRef}
         style={{ flex: 1 }}
+        offsetScrollbars
         styles={{ viewport: { padding: 0 } }}
       >
         {loadingProducts ? (
@@ -490,8 +500,8 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
               gap: ROW_GAP,
               paddingTop: 4,
               paddingBottom: 4,
-              paddingLeft: 2,
-              paddingRight: 2,
+              paddingLeft: 4,
+              paddingRight: 4,
             }}
           >
             {Array.from({ length: columnsPerRow * 3 }, (_, i) => (
@@ -519,11 +529,10 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
         ) : (
           <div
             style={{
-              height: rowVirtualizer.getTotalSize(),
+              height: rowVirtualizer.getTotalSize() + 8,
               position: 'relative',
-              paddingTop: 4,
-              paddingLeft: 2,
-              paddingRight: 2,
+              paddingLeft: 4,
+              paddingRight: 4,
             }}
           >
             {rowVirtualizer.getVirtualItems().map((virtualRow) => (
@@ -531,9 +540,9 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
                 key={virtualRow.key}
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
+                  top: 4,
+                  left: 4,
+                  right: 4,
                   transform: `translateY(${virtualRow.start}px)`,
                   display: 'grid',
                   gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
@@ -576,7 +585,7 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
                     >
                       <Stack justify="space-between" h="100%" gap={4}>
                         {/* Top Header Row: Category Badge with Icon + SKU */}
-                        <Group justify="space-between" align="center" wrap="nowrap">
+                        <Group justify="space-between" align="center" wrap="nowrap" gap={4}>
                           <Badge
                             size="xs"
                             color={catColor}
@@ -588,6 +597,8 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
                               fontSize: 10,
                               paddingLeft: 6,
                               paddingRight: 8,
+                              flexShrink: 1,
+                              minWidth: 0,
                             }}
                           >
                             {catLabel}
