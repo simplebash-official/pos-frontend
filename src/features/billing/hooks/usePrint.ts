@@ -17,8 +17,9 @@ export const usePrint = () => {
   const shopVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
 
-  const [previewModalOpen, setPreviewModalOpen] = useState(false);
-  const [previewInvoiceData, setPreviewInvoiceData] = useState<Invoice | null>(null);
+  const [preview, setPreview] = useState<{ invoice: Invoice; kind: 'invoice' | 'receipt' } | null>(
+    null
+  );
 
   const printReceipt = useCallback(
     async (invoice: Invoice, copyLabel?: string) => {
@@ -44,21 +45,18 @@ export const usePrint = () => {
     [currentShopProfile, shopVersions, printSettings]
   );
 
-  const previewInvoiceDoc = useCallback((invoice: Invoice) => {
-    setPreviewInvoiceData(invoice);
-    setPreviewModalOpen(true);
+  const openDocumentPreview = useCallback((invoice: Invoice, kind: 'invoice' | 'receipt') => {
+    setPreview({ invoice, kind });
   }, []);
 
-  const closePreviewModal = useCallback(() => {
-    setPreviewModalOpen(false);
-    setPreviewInvoiceData(null);
+  const closeDocumentPreview = useCallback(() => {
+    setPreview(null);
   }, []);
 
   return {
     printReceipt,
-    previewInvoiceDoc,
-    previewModalOpen,
-    previewInvoiceData,
-    closePreviewModal,
+    preview,
+    openDocumentPreview,
+    closeDocumentPreview,
   };
 };

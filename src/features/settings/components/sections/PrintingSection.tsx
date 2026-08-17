@@ -13,7 +13,6 @@ interface PrintingFormValues {
   invoiceCopies: 'customer' | 'customer+office';
   defaultDocumentForWalkIn: 'receipt' | 'invoice' | 'both' | 'none';
   defaultDocumentForAccountCustomer: 'receipt' | 'invoice' | 'both' | 'none';
-  previewBeforePrinting: boolean;
   showLogoOnReceipt: boolean;
   showTaxColumn: boolean;
   receiptCopies: number;
@@ -29,7 +28,6 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
       invoiceCopies: printSettings.invoiceCopies,
       defaultDocumentForWalkIn: printSettings.defaultDocumentForWalkIn,
       defaultDocumentForAccountCustomer: printSettings.defaultDocumentForAccountCustomer,
-      previewBeforePrinting: printSettings.previewBeforePrinting ?? false,
       showLogoOnReceipt: printSettings.showLogoOnReceipt,
       showTaxColumn: printSettings.showTaxColumn,
       receiptCopies: printSettings.receiptCopies,
@@ -181,23 +179,6 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
             <Switch
               checked={form.values.showTaxColumn}
               onChange={(e) => form.setFieldValue('showTaxColumn', e.currentTarget.checked)}
-            />
-          </Group>
-        </Box>
-
-        <Box style={{ gridColumn: 'span 2' }}>
-          <Group justify="space-between" align="center">
-            <div>
-              <Text fw={600} size="sm">
-                Preview Before Printing
-              </Text>
-              <Text size="xs" c="dimmed">
-                Automatically open document preview modal after checkout instead of direct printing.
-              </Text>
-            </div>
-            <Switch
-              checked={form.values.previewBeforePrinting}
-              onChange={(e) => form.setFieldValue('previewBeforePrinting', e.currentTarget.checked)}
             />
           </Group>
         </Box>

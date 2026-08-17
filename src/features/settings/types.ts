@@ -37,5 +37,4 @@ export interface PrintSettings {
   defaultDocumentForWalkIn: DocumentSelection;
   defaultDocumentForAccountCustomer: DocumentSelection;
   printMethod: 'iframe' | 'newWindow';
-  previewBeforePrinting: boolean;
 }

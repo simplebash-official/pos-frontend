@@ -36,5 +36,4 @@ export const DEFAULT_PRINT_SETTINGS: PrintSettings = {
   defaultDocumentForWalkIn: 'receipt',
   defaultDocumentForAccountCustomer: 'invoice',
   printMethod: 'iframe',
-  previewBeforePrinting: false,
 };

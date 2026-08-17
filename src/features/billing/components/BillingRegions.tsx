@@ -18,7 +18,7 @@ export interface BillingRegionsProps {
   onOpenServicePicker: () => void;
   onOpenCustomerPicker: () => void;
   onOpenOrderDiscount: () => void;
-  onPreviewInvoice: (invoice: Invoice) => void;
+  onOpenDocumentPreview: (invoice: Invoice, kind: 'invoice' | 'receipt') => void;
   paymentPanelRef: Ref<PaymentPanelHandle>;
 }
 
@@ -41,7 +41,7 @@ export const BillingRegions = memo(function BillingRegions({
   onOpenServicePicker,
   onOpenCustomerPicker,
   onOpenOrderDiscount,
-  onPreviewInvoice,
+  onOpenDocumentPreview,
   paymentPanelRef,
 }: BillingRegionsProps) {
   const tier = useLayoutTier();
@@ -61,7 +61,7 @@ export const BillingRegions = memo(function BillingRegions({
       isProcessing={isProcessing}
       onCompleteCheckout={onCompleteCheckout}
       onOpenOrderDiscount={onOpenOrderDiscount}
-      onPreviewInvoice={onPreviewInvoice}
+      onOpenDocumentPreview={onOpenDocumentPreview}
     />
   );
 

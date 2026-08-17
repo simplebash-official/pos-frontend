@@ -35,7 +35,6 @@ import {
 } from '@tabler/icons-react';
 
 import { useCartItems, useCartTotals, useCartCustomer, useCartCheckout } from '../hooks/useCart';
-import { usePrint } from '../hooks/usePrint';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney } from '@/shared/lib/money';
@@ -43,13 +42,14 @@ import { AmountInput } from '@/shared/components/AmountInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import type { Invoice, SplitPaymentDetail } from '../types';
 
 export interface PaymentPanelProps {
   isProcessing: boolean;
   onCompleteCheckout: () => void;
   onOpenOrderDiscount?: () => void;
-  onPreviewInvoice: (invoice: Invoice) => void;
+  onOpenDocumentPreview: (invoice: Invoice, kind: 'invoice' | 'receipt') => void;
 }
 
 export interface PaymentPanelHandle {
@@ -59,7 +59,7 @@ export interface PaymentPanelHandle {
 
 export const PaymentPanel = memo(
   forwardRef<PaymentPanelHandle, PaymentPanelProps>(function PaymentPanel(
-    { isProcessing, onCompleteCheckout, onPreviewInvoice },
+    { isProcessing, onCompleteCheckout, onOpenDocumentPreview },
     ref
   ) {
     const { items } = useCartItems();
@@ -89,8 +89,6 @@ export const PaymentPanel = memo(
       completedSale,
       startNextSale,
     } = useCartCheckout();
-
-    const { printReceipt } = usePrint();
 
     const isMobile = useIsMobile();
     const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
@@ -395,50 +393,8 @@ export const PaymentPanel = memo(
     // Render Confirmation Card if sale was completed
     if (completedSale) {
       const { invoice, changeDueCents: saleChangeCents } = completedSale;
-      const isCreditCompleted = invoice.isCredit || invoice.status === 'pending';
-      const isChangeDue = !isCreditCompleted && saleChangeCents > 0;
-      const heroColor: 'amber' | 'bordeaux' | 'green' = isCreditCompleted
-        ? 'amber'
-        : isChangeDue
-          ? 'bordeaux'
-          : 'green';
-
-      const cardSuffix =
-        invoice.paymentMethod === PAYMENT_METHODS.CARD && (invoice.cardLast4 || invoice.cardRef)
-          ? ` ····${invoice.cardLast4 || invoice.cardRef}`
-          : '';
-
-      let methodLabel: string;
-      if (invoice.paymentMethod === PAYMENT_METHODS.CARD) {
-        methodLabel = `Card${cardSuffix}`;
-      } else if (invoice.paymentMethod === PAYMENT_METHODS.SPLIT) {
-        methodLabel = 'Split';
-      } else if (invoice.paymentMethod === PAYMENT_METHODS.ONLINE) {
-        methodLabel = 'Online';
-      } else if (isChangeDue) {
-        methodLabel = `Cash (${formatMoney(invoice.tenderedAmountCents ?? 0)} in)`;
-      } else {
-        methodLabel = 'Cash';
-      }
-
-      let heroCaption: string;
-      if (isCreditCompleted) {
-        heroCaption = 'BALANCE DUE · ON ACCOUNT';
-      } else if (isChangeDue) {
-        heroCaption = `CHANGE DUE · TOTAL ${formatMoney(invoice.totalCents)}`;
-      } else {
-        const paidVia =
-          invoice.paymentMethod === PAYMENT_METHODS.CARD
-            ? `CARD${cardSuffix.toUpperCase()}`
-            : invoice.paymentMethod === PAYMENT_METHODS.SPLIT
-              ? 'SPLIT PAYMENT'
-              : invoice.paymentMethod === PAYMENT_METHODS.ONLINE
-                ? 'ONLINE PAYMENT'
-                : 'EXACT CASH';
-        heroCaption = `TOTAL PAID · ${paidVia}`;
-      }
-
-      const heroAmountCents = isChangeDue ? saleChangeCents : invoice.totalCents;
+      const { isCreditCompleted, heroColor, heroAmountCents, heroCaption, methodLabel } =
+        getSaleHeroPresentation(invoice, saleChangeCents);
 
       const showReprintAction =
         invoice.documentSelection === 'receipt' ||
@@ -597,7 +553,10 @@ export const PaymentPanel = memo(
                 <Text size="xs" c="dimmed">
                   {itemsLabel} · {formatMoney(invoice.totalCents)}
                 </Text>
-                <UnstyledButton onClick={() => onPreviewInvoice(invoice)} style={{ flexShrink: 0 }}>
+                <UnstyledButton
+                  onClick={() => onOpenDocumentPreview(invoice, 'receipt')}
+                  style={{ flexShrink: 0 }}
+                >
                   <Text size="xs" fw={700} c="blue">
                     View receipt ›
                   </Text>
@@ -633,14 +592,14 @@ export const PaymentPanel = memo(
                 </Button>
 
                 {showReprintAction && (
-                  <Tooltip label="Reprint receipt" disabled={isMobile}>
+                  <Tooltip label="View receipt" disabled={isMobile}>
                     <ActionIcon
                       variant="outline"
                       color="gray"
                       size={isMobile ? 44 : 48}
                       radius="var(--mantine-radius-default)"
-                      aria-label="Reprint receipt"
-                      onClick={() => printReceipt(invoice)}
+                      aria-label="View receipt"
+                      onClick={() => onOpenDocumentPreview(invoice, 'receipt')}
                     >
                       <IconPrinter size={18} />
                     </ActionIcon>
@@ -655,7 +614,7 @@ export const PaymentPanel = memo(
                       size={isMobile ? 44 : 48}
                       radius="var(--mantine-radius-default)"
                       aria-label="View invoice"
-                      onClick={() => onPreviewInvoice(invoice)}
+                      onClick={() => onOpenDocumentPreview(invoice, 'invoice')}
                     >
                       <IconFileText size={18} />
                     </ActionIcon>

@@ -18,7 +18,7 @@ import type { BillingPane } from './BillingTabBar';
 import { ServiceJobPickerModal } from './ServiceJobPickerModal';
 import { CustomerPickerModal } from '@/features/customers';
 import { DiscountPopover } from './DiscountPopover';
-import { A4InvoicePreviewModal } from './A4InvoicePreviewModal';
+import { SaleDocumentPreviewModal } from './SaleDocumentPreviewModal';
 import type { PaymentPanelHandle } from './PaymentPanel';
 import { createInvoice } from '../api/mockInvoices';
 import { updateRepairJob } from '@/features/repairs/api/mockRepairs';
@@ -28,7 +28,7 @@ import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { playPaymentCompleteSound } from '../lib/audio';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
-import { selectShopProfile, selectPrintSettings } from '@/store/slices/settingsSlice';
+import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
@@ -38,7 +38,6 @@ export const BillingCounter = () => {
   const queryClient = useQueryClient();
   const authUser = useAppSelector(selectAuthUser);
   const shopProfile = useAppSelector(selectShopProfile);
-  const printSettings = useAppSelector(selectPrintSettings);
   const outletContext = useOutletContext<{
     setHeldDrawerOpen?: (open: boolean) => void;
     setShortcutsOpen?: (open: boolean) => void;
@@ -67,13 +66,7 @@ export const BillingCounter = () => {
   const { soundEnabled } = useCartSound();
   const { holdCurrentCart } = useHeldCarts();
 
-  const {
-    printReceipt,
-    previewInvoiceDoc,
-    previewModalOpen,
-    previewInvoiceData,
-    closePreviewModal,
-  } = usePrint();
+  const { preview, openDocumentPreview, closeDocumentPreview } = usePrint();
 
   const isMobile = useIsMobile();
 
@@ -196,17 +189,12 @@ export const BillingCounter = () => {
       // Play chime sound
       playPaymentCompleteSound(soundEnabled);
 
-      // Trigger automatic printing according to documentSelection
-      if (documentSelection === 'receipt' || documentSelection === 'both') {
-        printReceipt(invoice);
-      }
-
-      // Open preview modal ONLY if "previewBeforePrinting" setting is ON
-      if (
-        printSettings.previewBeforePrinting &&
-        (documentSelection === 'invoice' || documentSelection === 'both')
-      ) {
-        previewInvoiceDoc(invoice);
+      // Preview-first: nothing auto-prints. Open the full-screen document preview so the
+      // cashier reviews the invoice/receipt and prints from there themselves.
+      if (documentSelection === 'invoice' || documentSelection === 'both') {
+        openDocumentPreview(invoice, 'invoice');
+      } else if (documentSelection === 'receipt') {
+        openDocumentPreview(invoice, 'receipt');
       }
 
       setLastCompletedInvoice(invoice);
@@ -250,10 +238,8 @@ export const BillingCounter = () => {
     soundEnabled,
     authUser,
     shopProfile,
-    printSettings,
     queryClient,
-    printReceipt,
-    previewInvoiceDoc,
+    openDocumentPreview,
     markSaleCompleted,
     isMobile,
   ]);
@@ -276,7 +262,7 @@ export const BillingCounter = () => {
             key: 'Enter',
             handler: () => {
               if (isInvoiceMode) {
-                previewInvoiceDoc(completedSale.invoice);
+                openDocumentPreview(completedSale.invoice, 'invoice');
               } else {
                 startNextSale();
                 setActivePane('catalog');
@@ -290,12 +276,15 @@ export const BillingCounter = () => {
               setActivePane('catalog');
             },
           },
-          { key: 'R', handler: () => printReceipt(completedSale.invoice) },
-          { key: 'I', handler: () => previewInvoiceDoc(completedSale.invoice) },
+          { key: 'R', handler: () => openDocumentPreview(completedSale.invoice, 'receipt') },
+          { key: 'I', handler: () => openDocumentPreview(completedSale.invoice, 'invoice') },
         ];
 
         if (isInvoiceMode) {
-          shortcuts.push({ key: 'P', handler: () => previewInvoiceDoc(completedSale.invoice) });
+          shortcuts.push({
+            key: 'P',
+            handler: () => openDocumentPreview(completedSale.invoice, 'invoice'),
+          });
         }
 
         return shortcuts;
@@ -347,11 +336,11 @@ export const BillingCounter = () => {
       handler: () => {
         const targetInv = completedSale?.invoice || lastCompletedInvoice;
         if (targetInv) {
-          printReceipt(targetInv);
+          openDocumentPreview(targetInv, 'receipt');
         } else {
           notifications.show({
-            title: 'Reprint Last Receipt',
-            message: 'No previous invoice found to reprint',
+            title: 'Preview Last Receipt',
+            message: 'No previous invoice found to preview',
             color: 'orange',
           });
         }
@@ -363,7 +352,7 @@ export const BillingCounter = () => {
       handler: () => {
         const targetInv = completedSale?.invoice || lastCompletedInvoice;
         if (targetInv) {
-          previewInvoiceDoc(targetInv);
+          openDocumentPreview(targetInv, 'invoice');
         } else {
           notifications.show({
             title: 'Preview Last Invoice',
@@ -397,7 +386,7 @@ export const BillingCounter = () => {
         onOpenServicePicker={openServicePicker}
         onOpenCustomerPicker={openCustomerPicker}
         onOpenOrderDiscount={openOrderDiscount}
-        onPreviewInvoice={previewInvoiceDoc}
+        onOpenDocumentPreview={openDocumentPreview}
         paymentPanelRef={paymentPanelRef}
       />
 
@@ -437,10 +426,11 @@ export const BillingCounter = () => {
         <span />
       </DiscountPopover>
 
-      <A4InvoicePreviewModal
-        opened={previewModalOpen}
-        onClose={closePreviewModal}
-        invoice={previewInvoiceData}
+      <SaleDocumentPreviewModal
+        opened={!!preview}
+        onClose={closeDocumentPreview}
+        invoice={preview?.invoice ?? null}
+        documentKind={preview?.kind ?? null}
       />
     </Box>
   );
