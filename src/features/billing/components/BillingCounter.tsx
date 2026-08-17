@@ -261,12 +261,8 @@ export const BillingCounter = () => {
           {
             key: 'Enter',
             handler: () => {
-              if (isInvoiceMode) {
-                openDocumentPreview(completedSale.invoice, 'invoice');
-              } else {
-                startNextSale();
-                setActivePane('catalog');
-              }
+              startNextSale();
+              setActivePane('catalog');
             },
           },
           {
