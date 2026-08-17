@@ -30,13 +30,15 @@ import {
   useCategoryIcons,
   useCategoryLookup,
 } from '@/features/inventory/hooks/useCategories';
-import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
-import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
+import { fetchRepairs } from '@/features/repairs/api/repairsApi';
+import { fetchPrintJobs } from '@/features/print-jobs/api/printJobsApi';
+import { useCreateCustomer } from '@/features/customers';
 import { formatMoney } from '@/shared/lib/money';
 import { Product } from '@/features/inventory/types';
 import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
+import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 
 // Top frequent items section removed per request
@@ -69,6 +71,7 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
   const { add, items } = useCartItems();
   const { attachCustomer, customerId } = useCartCustomer();
   const { soundEnabled } = useCartSound();
+  const { mutateAsync: createCustomerAsync } = useCreateCustomer();
 
   const tier = useLayoutTier();
   const isMobile = tier === 'mobile';
@@ -209,6 +212,7 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
     add({
       id: `item-${Date.now()}-${Math.random()}`,
       productId: p.id,
+      productKey: p.key,
       name: p.name,
       sku: p.sku,
       category: p.category,
@@ -252,11 +256,23 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
           assignedEmployeeName: matchRep.assignedEmployeeName,
         });
         if (matchRep.customerName && (!customerId || customerId === '')) {
-          attachCustomer(
-            `cust-${matchRep.customerPhone || matchRep.customerName}`,
-            matchRep.customerName,
-            matchRep.customerPhone
-          );
+          const repCustomerName = matchRep.customerName;
+          const repCustomerPhone = matchRep.customerPhone;
+          void resolveOrCreateCustomer(repCustomerName, repCustomerPhone, createCustomerAsync)
+            .then((customer) => {
+              if (customer) {
+                attachCustomer(
+                  customer.key,
+                  customer.name,
+                  customer.primaryPhone,
+                  customer.address,
+                  customer.outstandingBalanceCents
+                );
+              } else {
+                attachCustomer(null, repCustomerName, repCustomerPhone);
+              }
+            })
+            .catch(() => attachCustomer(null, repCustomerName, repCustomerPhone));
         }
         playScanSuccessSound(soundEnabled);
         setScanQuery('');
@@ -282,11 +298,23 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
           assignedEmployeeName: matchPrt.assignedEmployeeName,
         });
         if (matchPrt.customerName && (!customerId || customerId === '')) {
-          attachCustomer(
-            `cust-${matchPrt.customerPhone || matchPrt.customerName}`,
-            matchPrt.customerName,
-            matchPrt.customerPhone
-          );
+          const prtCustomerName = matchPrt.customerName;
+          const prtCustomerPhone = matchPrt.customerPhone;
+          void resolveOrCreateCustomer(prtCustomerName, prtCustomerPhone, createCustomerAsync)
+            .then((customer) => {
+              if (customer) {
+                attachCustomer(
+                  customer.key,
+                  customer.name,
+                  customer.primaryPhone,
+                  customer.address,
+                  customer.outstandingBalanceCents
+                );
+              } else {
+                attachCustomer(null, prtCustomerName, prtCustomerPhone);
+              }
+            })
+            .catch(() => attachCustomer(null, prtCustomerName, prtCustomerPhone));
         }
         playScanSuccessSound(soundEnabled);
         setScanQuery('');

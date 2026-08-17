@@ -6,6 +6,16 @@ import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/bil
 export interface CartItem {
   id: string;
   productId: string;
+  /**
+   * The backend's prefixed key for this line's underlying record — a
+   * product's `prod_...` key for a retail line (`productId` there is the
+   * Mongo ObjectId hex, kept for existing inventory-matching call sites;
+   * `productKey` is what `billing::service::sale::complete_sale` needs to
+   * resolve stock). Repair/print lines don't need this separately —
+   * `productId` on those lines is already the ticket's key (see
+   * `repairsApi.ts`/`printJobsApi.ts`'s `toRepairJob`/`toPrintJob`).
+   */
+  productKey?: string;
   name: string;
   sku?: string;
   category?: string;

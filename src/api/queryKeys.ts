@@ -3,6 +3,7 @@ export const queryKeys = {
     all: ['billing'] as const,
     invoices: (filters?: Record<string, unknown>) => ['billing', 'invoices', filters] as const,
     invoiceDetail: (id: string) => ['billing', 'invoices', id] as const,
+    payments: (invoiceId: string) => ['billing', 'invoices', invoiceId, 'payments'] as const,
   },
   repairs: {
     all: ['repairs'] as const,

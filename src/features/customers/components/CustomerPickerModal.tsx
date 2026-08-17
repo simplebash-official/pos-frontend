@@ -337,7 +337,7 @@ export const CustomerPickerModal = ({
               </Paper>
             ) : (
               visible.map((cust) => {
-                const isSelected = cust.id === selectedCustomerId;
+                const isSelected = cust.key === selectedCustomerId;
                 const hasDebt = cust.outstandingBalanceCents > 0;
 
                 return (

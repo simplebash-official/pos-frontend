@@ -1,20 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useAppSelector } from '@/store/hooks';
 import type { Invoice } from '../types';
-import { buildPrintPayload } from '../lib/buildPrintPayload';
-import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
-import {
-  selectShopProfile,
-  selectShopProfileVersions,
-  selectPrintSettings,
-} from '@/store/slices/settingsSlice';
-import { printThermalReceipt } from '@/shared/print/printService';
-import { PAPER_PROFILES } from '@/shared/print/paperProfiles';
-import { getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
+import { getInvoiceDocument } from '../api/documentsApi';
+import { selectPrintSettings } from '@/store/slices/settingsSlice';
+import { printPdfBlob } from '@/shared/print/printService';
+import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 
 export const usePrint = () => {
-  const currentShopProfile = useAppSelector(selectShopProfile);
-  const shopVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
 
   const [preview, setPreview] = useState<{ invoice: Invoice; kind: 'invoice' | 'receipt' } | null>(
@@ -22,27 +14,28 @@ export const usePrint = () => {
   );
 
   const printReceipt = useCallback(
-    async (invoice: Invoice, copyLabel?: string) => {
-      const shop = getShopProfileForInvoice(invoice, shopVersions, currentShopProfile);
-      const printCount = getPrintCountForInvoice(invoice.invoiceNumber, 'receipt');
-      const isReprint = printCount > 0;
-      const copy =
-        copyLabel || (isReprint ? 'DUPLICATE — RECEIPT REPRINT' : 'ORIGINAL — CUSTOMER COPY');
-
-      const payload = buildPrintPayload(invoice, shop, printSettings, copy, isReprint);
-      const paperProfile =
-        printSettings.receiptPaper === '58mm' ? PAPER_PROFILES.thermal58 : PAPER_PROFILES.thermal80;
+    async (invoice: Invoice) => {
+      const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
+      const blob = await getInvoiceDocument(invoice.id, 'thermal-receipt', paperWidthMm);
 
       const copies = Math.max(1, printSettings.receiptCopies);
       for (let i = 0; i < copies; i++) {
-        await printThermalReceipt(payload, paperProfile);
+        await printPdfBlob(blob);
         // Let the previous print job's iframe finish and clean up before starting the next one.
         if (i < copies - 1) {
           await new Promise((resolve) => setTimeout(resolve, 1200));
         }
       }
+
+      recordPrintEvent({
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        format: paperWidthMm === 58 ? 'receipt-58' : 'receipt-80',
+        copy: 'ORIGINAL — CUSTOMER COPY',
+        printedBy: invoice.cashierName,
+      });
     },
-    [currentShopProfile, shopVersions, printSettings]
+    [printSettings]
   );
 
   const openDocumentPreview = useCallback((invoice: Invoice, kind: 'invoice' | 'receipt') => {

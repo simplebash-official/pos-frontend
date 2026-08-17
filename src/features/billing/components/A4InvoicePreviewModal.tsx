@@ -1,20 +1,9 @@
-import { useState } from 'react';
-import { Modal, Box, Group, Button, Text, Stack, Divider } from '@mantine/core';
-import { IconPrinter, IconDownload, IconX } from '@tabler/icons-react';
-import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { useRef } from 'react';
+import { Modal, Box, Group, Button, Text, Stack, Divider, Loader } from '@mantine/core';
+import { IconPrinter, IconDownload, IconX, IconAlertCircle } from '@tabler/icons-react';
 import type { Invoice } from '../types';
-import { buildPrintPayload } from '../lib/buildPrintPayload';
-import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
-import { A4Invoice } from '@/shared/print/documents/A4Invoice';
-import { PAPER_PROFILES } from '@/shared/print/paperProfiles';
-import { useAppSelector } from '@/store/hooks';
-import {
-  selectShopProfile,
-  selectShopProfileVersions,
-  selectPrintSettings,
-} from '@/store/slices/settingsSlice';
-import { printA4Invoice } from '@/shared/print/printService';
-import { getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
+import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 
@@ -26,28 +15,28 @@ export interface A4InvoicePreviewModalProps {
 
 export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePreviewModalProps) => {
   const isMobile = useIsMobile();
-  const currentShopProfile = useAppSelector(selectShopProfile);
-  const shopProfileVersions = useAppSelector(selectShopProfileVersions);
-  const printSettings = useAppSelector(selectPrintSettings);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const [copyMode, setCopyMode] = useState<'customer' | 'office'>('customer');
-
-  const buildPayload = (inv: Invoice) => {
-    const printCount = getPrintCountForInvoice(inv.invoiceNumber, 'a4');
-    const isDuplicate = printCount > 0 || copyMode === 'office';
-    const copyLabel =
-      copyMode === 'office'
-        ? 'DUPLICATE — OFFICE COPY'
-        : isDuplicate
-          ? 'DUPLICATE — CUSTOMER COPY'
-          : 'ORIGINAL — CUSTOMER COPY';
-    const shopProfile = getShopProfileForInvoice(inv, shopProfileVersions, currentShopProfile);
-    return buildPrintPayload(inv, shopProfile, printSettings, copyLabel, isDuplicate);
-  };
+  const { blobUrl, blob, loading, error } = useInvoiceDocument(
+    invoice?.id,
+    opened ? 'a4-invoice' : null
+  );
 
   const handlePrint = () => {
-    if (!invoice) return;
-    printA4Invoice(buildPayload(invoice), copyMode);
+    if (!invoice || !blobUrl) return;
+    try {
+      iframeRef.current?.contentWindow?.focus();
+      iframeRef.current?.contentWindow?.print();
+    } catch (e) {
+      console.error('Failed to print invoice:', e);
+    }
+    recordPrintEvent({
+      invoiceId: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      format: 'a4',
+      copy: 'ORIGINAL — CUSTOMER COPY',
+      printedBy: invoice.cashierName,
+    });
   };
 
   // Bound via the shared shortcut engine (not a focused-button click) so pressing
@@ -56,11 +45,16 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
 
   if (!invoice) return null;
 
-  const payload = buildPayload(invoice);
-
   const handleDownloadPDF = () => {
-    const invoiceId = invoice.id || invoice.invoiceNumber;
-    window.open(`/print/invoice/${encodeURIComponent(invoiceId)}?copy=${copyMode}`, '_blank');
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Invoice-${invoice.invoiceNumber}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -91,91 +85,82 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
       }}
     >
       <Stack gap="md" mt="xs">
-        {/* Controls Toolbar */}
-        <Stack gap="sm">
-          <Box style={{ maxWidth: 320 }}>
-            <Text
-              size="xs"
-              fw={700}
-              c="dimmed"
-              mb={6}
-              tt="uppercase"
-              style={{ letterSpacing: '0.04em' }}
-            >
-              Copy type
-            </Text>
-            <SegmentedToggle
-              fullWidth
-              size="sm"
-              value={copyMode}
-              onChange={(val) => setCopyMode(val as 'customer' | 'office')}
-              data={[
-                { label: 'Customer copy', value: 'customer' },
-                { label: 'Office duplicate', value: 'office' },
-              ]}
-            />
-          </Box>
-
-          <Group gap="xs" wrap="wrap">
-            <Button
-              size="md"
-              color="blue"
-              leftSection={<IconPrinter size={18} />}
-              onClick={handlePrint}
-              style={{ fontWeight: 700, flex: 2, minWidth: 200 }}
-            >
-              Print invoice (↵)
-            </Button>
-            <Button
-              size="md"
-              variant="outline"
-              color="gray"
-              leftSection={<IconDownload size={16} />}
-              onClick={handleDownloadPDF}
-              style={{ flex: 1, minWidth: 150 }}
-            >
-              Download PDF
-            </Button>
-            <Button
-              size="md"
-              variant="subtle"
-              color="gray"
-              leftSection={<IconX size={14} />}
-              onClick={onClose}
-              style={{ flex: 1, minWidth: 100 }}
-            >
-              Close
-            </Button>
-          </Group>
-        </Stack>
+        <Group gap="xs" wrap="wrap">
+          <Button
+            size="md"
+            color="blue"
+            leftSection={<IconPrinter size={18} />}
+            onClick={handlePrint}
+            disabled={loading || !!error}
+            style={{ fontWeight: 700, flex: 2, minWidth: 200 }}
+          >
+            Print invoice (↵)
+          </Button>
+          <Button
+            size="md"
+            variant="outline"
+            color="gray"
+            leftSection={<IconDownload size={16} />}
+            onClick={handleDownloadPDF}
+            disabled={loading || !!error}
+            style={{ flex: 1, minWidth: 150 }}
+          >
+            Download PDF
+          </Button>
+          <Button
+            size="md"
+            variant="subtle"
+            color="gray"
+            leftSection={<IconX size={14} />}
+            onClick={onClose}
+            style={{ flex: 1, minWidth: 100 }}
+          >
+            Close
+          </Button>
+        </Group>
 
         <Divider color="var(--border)" />
 
-        {/* Scaled Preview Box */}
+        {/* Preview Box */}
         <Box
           style={{
             backgroundColor: 'var(--bg-app)',
             borderRadius: 'var(--mantine-radius-default)',
             border: '1px solid var(--border)',
-            padding: '24px 12px',
-            maxHeight: '65vh',
-            overflow: 'auto',
+            height: '65vh',
+            overflow: 'hidden',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'flex-start',
+            alignItems: 'center',
           }}
         >
-          <Box
-            style={{
-              transform: `scale(${isMobile ? 0.5 : 0.85})`,
-              transformOrigin: 'top center',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-              borderRadius: '4px',
-              backgroundColor: '#FFFFFF',
-            }}
-          >
-            <A4Invoice payload={payload} paperProfile={PAPER_PROFILES.a4} />
-          </Box>
+          {loading && (
+            <Stack align="center" gap="xs">
+              <Loader size="sm" />
+              <Text size="xs" c="dimmed">
+                Preparing document…
+              </Text>
+            </Stack>
+          )}
+          {!loading && error && (
+            <Stack align="center" gap="xs">
+              <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
+              <Text size="sm" c="red" fw={600}>
+                Could not load the document
+              </Text>
+              <Text size="xs" c="dimmed">
+                Check your connection and try again.
+              </Text>
+            </Stack>
+          )}
+          {!loading && !error && blobUrl && (
+            <iframe
+              ref={iframeRef}
+              src={blobUrl}
+              title={`Invoice ${invoice.invoiceNumber}`}
+              style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#FFFFFF' }}
+            />
+          )}
         </Box>
       </Stack>
     </Modal>

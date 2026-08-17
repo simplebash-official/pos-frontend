@@ -16,12 +16,15 @@ import {
 } from '@mantine/core';
 import { IconPrinter, IconFileText, IconCopy, IconCheck, IconCash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { usePrint } from '@/features/billing/hooks/usePrint';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
-import { recordPayment, getPaymentsForInvoice, getTotalPaidForInvoice } from '../api/paymentsStore';
+import {
+  fetchPaymentsForInvoice,
+  recordPayment as recordPaymentApi,
+} from '@/features/billing/api/paymentsApi';
 import { queryKeys } from '@/api/queryKeys';
 import { A4InvoicePreviewModal } from '@/features/billing/components/A4InvoicePreviewModal';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -53,6 +56,17 @@ export const InvoiceDetailDrawer = ({
   const [payNotes, setPayNotes] = useState('');
   const [isSubmittingPay, setIsSubmittingPay] = useState(false);
 
+  const { data: payments = [] } = useQuery({
+    queryKey: queryKeys.billing.payments(invoice?.id ?? ''),
+    queryFn: () => fetchPaymentsForInvoice(invoice!.id),
+    enabled: opened && !!invoice,
+  });
+
+  const recordPaymentMutation = useMutation({
+    mutationFn: (input: { amountCents: number; paymentMethod: string; notes?: string }) =>
+      recordPaymentApi(invoice!.id, input),
+  });
+
   if (!invoice) return null;
 
   // Print history — index 0 is newest (LocalStorageStore.add uses unshift)
@@ -60,8 +74,7 @@ export const InvoiceDetailDrawer = ({
   const lastLog = logs.length > 0 ? logs[0] : null;
 
   // Payment records
-  const payments = getPaymentsForInvoice(invoice.id);
-  const totalPaidCents = getTotalPaidForInvoice(invoice.id);
+  const totalPaidCents = payments.reduce((sum, p) => sum + p.amountCents, 0);
   const remainingCents = Math.max(0, invoice.totalCents - totalPaidCents);
   const derivedStatus =
     !invoice.isCredit || totalPaidCents >= invoice.totalCents ? 'paid' : 'pending';
@@ -86,14 +99,10 @@ export const InvoiceDetailDrawer = ({
 
     setIsSubmittingPay(true);
     try {
-      recordPayment({
-        invoiceId: invoice.id,
-        invoiceNumber: invoice.invoiceNumber,
+      await recordPaymentMutation.mutateAsync({
         amountCents: cents,
         paymentMethod: payMethod,
-        notes: payNotes,
-        recordedBy: invoice.cashierName,
-        customerId: invoice.customerId,
+        notes: payNotes || undefined,
       });
 
       notifications.show({

@@ -11,7 +11,7 @@ import {
   createPrintJob,
   updatePrintJob,
   deletePrintJobs,
-} from '../api/mockPrintJobs';
+} from '../api/printJobsApi';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';

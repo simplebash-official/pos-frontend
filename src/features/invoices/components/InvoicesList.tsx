@@ -25,7 +25,7 @@ import {
   IconFileInvoice,
   IconChevronRight,
 } from '@tabler/icons-react';
-import { fetchInvoices } from '@/features/billing/api/mockInvoices';
+import { fetchInvoices } from '@/features/billing/api/invoicesApi';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';

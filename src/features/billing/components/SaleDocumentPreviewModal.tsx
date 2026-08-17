@@ -1,24 +1,12 @@
-import { useMemo, useState } from 'react';
-import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
-import { IconX, IconPrinter, IconMinus, IconPlus, IconCheck } from '@tabler/icons-react';
+import { useRef, useState } from 'react';
+import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider, Loader } from '@mantine/core';
+import { IconX, IconPrinter, IconCheck, IconAlertCircle } from '@tabler/icons-react';
 import type { Invoice } from '../types';
-import { buildPrintPayload } from '../lib/buildPrintPayload';
-import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
-import { A4Invoice } from '@/shared/print/documents/A4Invoice';
-import { ThermalReceipt } from '@/shared/print/documents/ThermalReceipt';
-import { PAPER_PROFILES } from '@/shared/print/paperProfiles';
-import { printA4Invoice, printThermalReceipt } from '@/shared/print/printService';
-import {
-  getPrintCountForInvoice,
-  getPrintLogsForInvoice,
-} from '@/features/invoices/api/printLogStore';
+import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { getPrintLogsForInvoice, recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { useAppSelector } from '@/store/hooks';
-import {
-  selectShopProfile,
-  selectShopProfileVersions,
-  selectPrintSettings,
-} from '@/store/slices/settingsSlice';
+import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { useIsMobile, useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { formatMoney } from '@/shared/lib/money';
@@ -31,10 +19,6 @@ export interface SaleDocumentPreviewModalProps {
   documentKind: 'invoice' | 'receipt' | null;
 }
 
-const ZOOM_STEP = 0.1;
-const ZOOM_MIN = 0.5;
-const ZOOM_MAX = 1.5;
-
 export const SaleDocumentPreviewModal = ({
   opened,
   onClose,
@@ -43,37 +27,36 @@ export const SaleDocumentPreviewModal = ({
 }: SaleDocumentPreviewModalProps) => {
   const isMobile = useIsMobile();
   const tier = useLayoutTier();
-  const currentShopProfile = useAppSelector(selectShopProfile);
-  const shopProfileVersions = useAppSelector(selectShopProfileVersions);
   const printSettings = useAppSelector(selectPrintSettings);
 
-  const [zoom, setZoom] = useState(() => (isMobile ? 0.6 : 0.85));
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
   const printLogs = opened && invoice ? getPrintLogsForInvoice(invoice.invoiceNumber) : [];
   const hasPrinted = printLogs.length > 0;
 
-  const payload = useMemo(() => {
-    if (!invoice || !documentKind) return null;
-    const shop = getShopProfileForInvoice(invoice, shopProfileVersions, currentShopProfile);
-    const printCount = getPrintCountForInvoice(
-      invoice.invoiceNumber,
-      documentKind === 'invoice' ? 'a4' : 'receipt'
-    );
-    const isDuplicate = printCount > 0;
-    const copyDesignation = isDuplicate ? 'DUPLICATE — CUSTOMER COPY' : 'ORIGINAL — CUSTOMER COPY';
-    return buildPrintPayload(invoice, shop, printSettings, copyDesignation, isDuplicate);
-  }, [invoice, documentKind, shopProfileVersions, currentShopProfile, printSettings]);
+  const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
+  const { blobUrl, loading, error } = useInvoiceDocument(
+    invoice?.id,
+    opened && documentKind ? (documentKind === 'invoice' ? 'a4-invoice' : 'thermal-receipt') : null,
+    paperWidthMm
+  );
 
   const handlePrint = () => {
-    if (!invoice || !payload) return;
-    if (documentKind === 'invoice') {
-      printA4Invoice(payload, 'customer');
-    } else if (documentKind === 'receipt') {
-      const paperProfile =
-        printSettings.receiptPaper === '58mm' ? PAPER_PROFILES.thermal58 : PAPER_PROFILES.thermal80;
-      printThermalReceipt(payload, paperProfile);
+    if (!invoice || !blobUrl) return;
+    try {
+      iframeRef.current?.contentWindow?.focus();
+      iframeRef.current?.contentWindow?.print();
+    } catch (e) {
+      console.error('Failed to print document:', e);
     }
+    recordPrintEvent({
+      invoiceId: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      format: documentKind === 'invoice' ? 'a4' : paperWidthMm === 58 ? 'receipt-58' : 'receipt-80',
+      copy: 'ORIGINAL — CUSTOMER COPY',
+      printedBy: invoice.cashierName,
+    });
     window.setTimeout(() => forcePrintLogRefresh((t) => t + 1), 300);
   };
 
@@ -97,7 +80,7 @@ export const SaleDocumentPreviewModal = ({
     opened
   );
 
-  if (!invoice || !documentKind || !payload) return null;
+  if (!invoice || !documentKind) return null;
 
   const hero = getSaleHeroPresentation(invoice, invoice.changeDueCents ?? 0);
   const isReceipt = documentKind === 'receipt';
@@ -108,9 +91,49 @@ export const SaleDocumentPreviewModal = ({
       : 'Paid in full';
   const title = `${isReceipt ? 'Receipt' : 'Invoice'} — ${invoice.invoiceNumber}`;
   const subtitle = `${statusWord} · ${hero.methodLabel} · ${formatDateTime(invoice.createdAt)}`;
-  const receiptPaperProfile =
-    printSettings.receiptPaper === '58mm' ? PAPER_PROFILES.thermal58 : PAPER_PROFILES.thermal80;
   const isDesktopTier = tier === 'desktop';
+
+  const documentPane = (
+    <Box
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#FFFFFF',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {loading && (
+        <Stack align="center" gap="xs">
+          <Loader size="sm" />
+          <Text size="xs" c="dimmed">
+            Preparing document…
+          </Text>
+        </Stack>
+      )}
+      {!loading && error && (
+        <Stack align="center" gap="xs">
+          <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
+          <Text size="sm" c="red" fw={600}>
+            Could not load the document
+          </Text>
+          <Text size="xs" c="dimmed">
+            Check your connection and try again.
+          </Text>
+        </Stack>
+      )}
+      {!loading && !error && blobUrl && (
+        <iframe
+          ref={iframeRef}
+          src={blobUrl}
+          title={title}
+          style={{ width: '100%', height: '100%', border: 'none' }}
+        />
+      )}
+    </Box>
+  );
 
   return (
     <Modal
@@ -159,34 +182,10 @@ export const SaleDocumentPreviewModal = ({
         </Group>
 
         <Group gap="sm" wrap="nowrap" style={{ flexShrink: 0 }}>
-          {!isReceipt && (
-            <Group gap={4} wrap="nowrap" visibleFrom="xs">
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                size={isMobile ? 44 : 32}
-                aria-label="Zoom out"
-                onClick={() => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
-              >
-                <IconMinus size={14} />
-              </ActionIcon>
-              <Text size="xs" fw={600} style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
-                {Math.round(zoom * 100)}%
-              </Text>
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                size={isMobile ? 44 : 32}
-                aria-label="Zoom in"
-                onClick={() => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)))}
-              >
-                <IconPlus size={14} />
-              </ActionIcon>
-            </Group>
-          )}
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="green"
+            disabled={loading || !!error}
             leftSection={hasPrinted ? <IconCheck size={16} /> : <IconPrinter size={16} />}
             onClick={handlePrimaryAction}
           >
@@ -218,14 +217,18 @@ export const SaleDocumentPreviewModal = ({
                 flex: 1,
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'flex-start',
+                alignItems: 'stretch',
                 padding: isMobile ? '24px 12px' : '40px 24px',
               }}
             >
               <Box
-                style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.25)', backgroundColor: '#FFFFFF' }}
+                style={{
+                  width: isMobile ? '100%' : 380,
+                  minHeight: 400,
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+                }}
               >
-                <ThermalReceipt payload={payload} paperProfile={receiptPaperProfile} />
+                {documentPane}
               </Box>
             </Box>
 
@@ -339,6 +342,7 @@ export const SaleDocumentPreviewModal = ({
                 <Button
                   fullWidth
                   color="green"
+                  disabled={loading || !!error}
                   leftSection={hasPrinted ? <IconCheck size={16} /> : <IconPrinter size={16} />}
                   onClick={handlePrimaryAction}
                 >
@@ -352,29 +356,7 @@ export const SaleDocumentPreviewModal = ({
           </Box>
         </Box>
       ) : (
-        <Box
-          style={{
-            flex: 1,
-            overflow: 'auto',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            padding: isMobile ? '16px 8px' : '32px 16px',
-          }}
-        >
-          <Box
-            style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.15s ease',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
-              borderRadius: 4,
-              backgroundColor: '#FFFFFF',
-            }}
-          >
-            <A4Invoice payload={payload} paperProfile={PAPER_PROFILES.a4} />
-          </Box>
-        </Box>
+        <Box style={{ flex: 1, overflow: 'hidden' }}>{documentPane}</Box>
       )}
     </Modal>
   );

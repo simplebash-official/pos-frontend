@@ -20,12 +20,14 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
-import { fetchRepairs } from '@/features/repairs/api/mockRepairs';
-import { fetchPrintJobs } from '@/features/print-jobs/api/mockPrintJobs';
+import { fetchRepairs } from '@/features/repairs/api/repairsApi';
+import { fetchPrintJobs } from '@/features/print-jobs/api/printJobsApi';
+import { useCreateCustomer } from '@/features/customers';
 import { formatMoney } from '@/shared/lib/money';
 import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
 import { playScanSuccessSound } from '../lib/audio';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
+import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { SearchHighlight } from '@/shared/components/SearchHighlight';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
@@ -74,6 +76,7 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
   const { add } = useCartItems();
   const { attachCustomer, customerId: currentCustomerId } = useCartCustomer();
   const { soundEnabled } = useCartSound();
+  const { mutateAsync: createCustomerAsync } = useCreateCustomer();
 
   const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
     queryKey: queryKeys.repairs.all,
@@ -157,13 +160,32 @@ export const ServiceJobPickerModal = ({ opened, onClose }: ServiceJobPickerModal
       assignedEmployeeName: job.assignedEmployeeName,
     });
 
-    // Auto-attach customer if not already attached
+    // Auto-attach customer if not already attached. Resolved against the
+    // real backend (search by phone, else create) rather than fabricated —
+    // a synthesized id here would leave the invoice's `customerKey`
+    // pointing at nothing. Fired off in the background so picking a ticket
+    // stays instant; the cart's customer field updates a moment later.
     if (job.customerName && (!currentCustomerId || currentCustomerId === '')) {
-      attachCustomer(
-        `cust-${job.customerPhone || job.customerName}`,
-        job.customerName,
-        job.customerPhone
-      );
+      void resolveOrCreateCustomer(job.customerName, job.customerPhone, createCustomerAsync)
+        .then((customer) => {
+          if (customer) {
+            attachCustomer(
+              customer.key,
+              customer.name,
+              customer.primaryPhone,
+              customer.address,
+              customer.outstandingBalanceCents
+            );
+          } else {
+            // No phone to key a real customer record on — attach as a
+            // walk-in snapshot only (matches CreateSaleRequest's
+            // customerName/-Phone fallback for a customer-less sale).
+            attachCustomer(null, job.customerName, job.customerPhone);
+          }
+        })
+        .catch(() => {
+          attachCustomer(null, job.customerName, job.customerPhone);
+        });
     }
 
     playScanSuccessSound(soundEnabled);

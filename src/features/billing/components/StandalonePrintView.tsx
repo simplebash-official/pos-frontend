@@ -1,105 +1,65 @@
-import { useEffect, useState, useRef } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { Box, Button, Group, Text, Paper, Container, Skeleton, Stack } from '@mantine/core';
-import { IconPrinter, IconX } from '@tabler/icons-react';
-import { fetchInvoiceById } from '../api/mockInvoices';
-import type { Invoice } from '../types';
-import { buildPrintPayload } from '../lib/buildPrintPayload';
-import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
-import { A4Invoice } from '@/shared/print/documents/A4Invoice';
-import { PAPER_PROFILES } from '@/shared/print/paperProfiles';
-import { useAppSelector } from '@/store/hooks';
-import {
-  selectShopProfile,
-  selectShopProfileVersions,
-  selectPrintSettings,
-} from '@/store/slices/settingsSlice';
-import { recordPrintEvent, getPrintCountForInvoice } from '@/features/invoices/api/printLogStore';
+import { useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { Box, Button, Group, Text, Paper, Container, Loader, Stack } from '@mantine/core';
+import { IconPrinter, IconX, IconAlertCircle } from '@tabler/icons-react';
+import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 
+// Standalone full-page viewer for a backend-rendered A4 invoice PDF, opened
+// via "Download PDF" in `A4InvoicePreviewModal`. The backend always stamps
+// the PDF "ORIGINAL — CUSTOMER COPY" (see `documentsApi.ts`'s doc comment),
+// so there is no `?copy=` variant here anymore.
 export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
-  const copyParam = searchParams.get('copy') || 'customer';
-
-  const currentShopProfile = useAppSelector(selectShopProfile);
-  const shopProfileVersions = useAppSelector(selectShopProfileVersions);
-  const printSettings = useAppSelector(selectPrintSettings);
-
-  const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const [loading, setLoading] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const printedRef = useRef(false);
 
-  useEffect(() => {
-    if (!id) return;
-    fetchInvoiceById(id)
-      .then((data) => {
-        setInvoice(data);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+  const { blobUrl, loading, error } = useInvoiceDocument(id, 'a4-invoice');
 
   useEffect(() => {
-    if (invoice && !printedRef.current) {
+    if (blobUrl && !printedRef.current) {
       printedRef.current = true;
-
-      const printCount = getPrintCountForInvoice(invoice.invoiceNumber, 'a4');
-
       recordPrintEvent({
-        invoiceId: invoice.id,
-        invoiceNumber: invoice.invoiceNumber,
+        invoiceId: id || '',
+        invoiceNumber: id || '',
         format: 'a4',
-        copy:
-          copyParam === 'office'
-            ? 'DUPLICATE — OFFICE COPY'
-            : printCount > 0
-              ? 'DUPLICATE — CUSTOMER COPY'
-              : 'ORIGINAL — CUSTOMER COPY',
-        printedBy: invoice.cashierName,
+        copy: 'ORIGINAL — CUSTOMER COPY',
       });
-
-      // Auto trigger print after render
       const timer = setTimeout(() => {
-        window.print();
+        try {
+          iframeRef.current?.contentWindow?.focus();
+          iframeRef.current?.contentWindow?.print();
+        } catch (e) {
+          console.error('Failed to print document:', e);
+        }
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [invoice, copyParam]);
+  }, [blobUrl, id]);
 
   if (loading) {
     return (
-      <Container size="sm" py="xl">
-        <Paper p="xl" withBorder>
-          <Stack gap="md">
-            <Group justify="space-between">
-              <Skeleton height={32} width={180} />
-              <Skeleton height={24} width={100} />
-            </Group>
-            <Skeleton height={1} width="100%" my="xs" />
-            <Skeleton height={20} width="60%" />
-            <Skeleton height={20} width="40%" />
-            <Stack gap="xs" mt="lg">
-              <Skeleton height={24} width="100%" />
-              <Skeleton height={24} width="100%" />
-              <Skeleton height={24} width="100%" />
-            </Stack>
-            <Group justify="flex-end" mt="md">
-              <Skeleton height={28} width={120} />
-            </Group>
-          </Stack>
-        </Paper>
+      <Container size="sm" py={100} style={{ textAlign: 'center' }}>
+        <Stack align="center" gap="xs">
+          <Loader size="sm" />
+          <Text size="sm" c="dimmed">
+            Preparing document…
+          </Text>
+        </Stack>
       </Container>
     );
   }
 
-  if (!invoice) {
+  if (error || !blobUrl) {
     return (
       <Container size="sm" py={100} style={{ textAlign: 'center' }}>
         <Paper p="xl" radius="var(--mantine-radius-default)" withBorder>
-          <Text size="lg" fw={700} c="red">
+          <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
+          <Text size="lg" fw={700} c="red" mt="xs">
             Invoice Not Found
           </Text>
           <Text size="sm" c="dimmed" mt="xs">
-            No invoice matching identifier &quot;{id}&quot; was found.
+            No document matching identifier &quot;{id}&quot; was found.
           </Text>
           <Button mt="md" onClick={() => window.close()}>
             Close Window
@@ -109,24 +69,8 @@ export const StandalonePrintView = () => {
     );
   }
 
-  // Resolve the correct versioned shop profile for this invoice
-  const shop = getShopProfileForInvoice(invoice, shopProfileVersions, currentShopProfile);
-
-  const paperProfile = PAPER_PROFILES.a4;
-  const printCount = getPrintCountForInvoice(invoice.invoiceNumber, 'a4');
-  const isDuplicate = printCount > 0 || copyParam === 'office';
-  const copyLabel =
-    copyParam === 'office'
-      ? 'DUPLICATE — OFFICE COPY'
-      : isDuplicate
-        ? 'DUPLICATE — CUSTOMER COPY'
-        : 'ORIGINAL — CUSTOMER COPY';
-
-  const payload = buildPrintPayload(invoice, shop, printSettings, copyLabel, isDuplicate);
-
   return (
     <Box style={{ backgroundColor: '#525659', minHeight: '100vh', padding: '16px 0' }}>
-      {/* Top action bar (Hidden when printing) */}
       <style>{`
         @media print {
           .no-print-bar {
@@ -153,24 +97,23 @@ export const StandalonePrintView = () => {
         }}
       >
         <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <Text size="sm" fw={700}>
-              Invoice #{invoice.invoiceNumber}
-            </Text>
-            <Text size="xs" c="dimmed">
-              ({copyLabel} · {paperProfile.name})
-            </Text>
-          </Group>
+          <Text size="sm" fw={700}>
+            Invoice — {id}
+          </Text>
 
           <Group gap="sm">
-            <Text size="xs" c="dimmed" style={{ display: 'inline-block' }}>
-              Tip: Select &quot;Save as PDF&quot; to download as a PDF file.
-            </Text>
             <Button
               size="xs"
               color="blue"
               leftSection={<IconPrinter size={14} />}
-              onClick={() => window.print()}
+              onClick={() => {
+                try {
+                  iframeRef.current?.contentWindow?.focus();
+                  iframeRef.current?.contentWindow?.print();
+                } catch (e) {
+                  console.error('Failed to print document:', e);
+                }
+              }}
             >
               Print Document
             </Button>
@@ -187,8 +130,13 @@ export const StandalonePrintView = () => {
         </Group>
       </Box>
 
-      <Box style={{ marginTop: 48, paddingBottom: 32 }}>
-        <A4Invoice payload={payload} paperProfile={paperProfile} />
+      <Box style={{ marginTop: 48, height: 'calc(100vh - 48px)' }}>
+        <iframe
+          ref={iframeRef}
+          src={blobUrl}
+          title={`Invoice ${id}`}
+          style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#FFFFFF' }}
+        />
       </Box>
     </Box>
   );

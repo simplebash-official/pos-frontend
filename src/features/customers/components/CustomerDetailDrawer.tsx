@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Stack,
   Group,
@@ -33,8 +34,9 @@ import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
-import { invoicesStore } from '@/features/billing/api/mockInvoices';
-import { repairsStore } from '@/features/repairs/api/mockRepairs';
+import { fetchInvoices } from '@/features/billing/api/invoicesApi';
+import { fetchRepairs } from '@/features/repairs/api/repairsApi';
+import { queryKeys } from '@/api/queryKeys';
 
 export interface CustomerDetailDrawerProps {
   customer: Customer | null;
@@ -53,10 +55,15 @@ export const CustomerDetailDrawer = ({
 }: CustomerDetailDrawerProps) => {
   const [historyTab, setHistoryTab] = useState<'invoices' | 'repairs' | 'notes'>('invoices');
 
+  const { data: allInvoices = [] } = useQuery({
+    queryKey: queryKeys.billing.invoices(),
+    queryFn: fetchInvoices,
+    enabled: opened && !!customer,
+  });
+
   const customerInvoices = useMemo(() => {
     if (!customer) return [];
-    return invoicesStore
-      .getAll()
+    return allInvoices
       .filter(
         (inv) =>
           inv.customerId === customer.id ||
@@ -64,19 +71,24 @@ export const CustomerDetailDrawer = ({
           (inv.customerName && inv.customerName.toLowerCase() === customer.name.toLowerCase())
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer]);
+  }, [customer, allInvoices]);
+
+  const { data: allRepairs = [] } = useQuery({
+    queryKey: queryKeys.repairs.all,
+    queryFn: fetchRepairs,
+    enabled: opened && !!customer,
+  });
 
   const customerRepairs = useMemo(() => {
     if (!customer) return [];
-    return repairsStore
-      .getAll()
+    return allRepairs
       .filter(
         (r) =>
           (customer.primaryPhone && r.customerPhone === customer.primaryPhone) ||
           (r.customerName && r.customerName.toLowerCase() === customer.name.toLowerCase())
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer]);
+  }, [customer, allRepairs]);
 
   return (
     <DetailDrawer

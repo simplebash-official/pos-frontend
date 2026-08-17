@@ -20,9 +20,8 @@ import { CustomerPickerModal } from '@/features/customers';
 import { DiscountPopover } from './DiscountPopover';
 import { SaleDocumentPreviewModal } from './SaleDocumentPreviewModal';
 import type { PaymentPanelHandle } from './PaymentPanel';
-import { createInvoice } from '../api/mockInvoices';
-import { updateRepairJob } from '@/features/repairs/api/mockRepairs';
-import { updatePrintJob } from '@/features/print-jobs/api/mockPrintJobs';
+import { completeSale, type CompleteSaleInput } from '../api/invoicesApi';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { queryKeys } from '@/api/queryKeys';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { playPaymentCompleteSound } from '../lib/audio';
@@ -121,70 +120,97 @@ export const BillingCounter = () => {
           : 0;
 
       const cashierName = authUser?.name || 'Store Cashier';
+      const taxCents = shopProfile.isVatRegistered
+        ? Math.round(subtotalCents * shopProfile.vatRate)
+        : 0;
+      const computedTotalCents = Math.max(0, subtotalCents - discountCents + taxCents);
 
-      // Create invoice record
-      const invoice = await createInvoice({
-        customerId: customerId || undefined,
+      // Single call: the backend atomically creates the invoice, records
+      // payment(s), decrements retail stock, marks any repair/print-job
+      // lines delivered, and updates the customer's balance — see
+      // `billing::service::sale::complete_sale`'s D4 fail-forward design.
+      const payload: CompleteSaleInput = {
+        customerKey: customerId || undefined,
         customerName: customerName || undefined,
         customerPhone: customerPhone || undefined,
         customerAddress: customerAddress || undefined,
-        cashierId: authUser?.id || 'usr-cashier',
         cashierName,
-        items: items.map((i) => ({
-          id: i.id,
-          productId: i.productId,
-          name: i.name,
-          productName: i.name,
-          sku: i.sku,
-          unitPriceCents: i.unitPriceCents,
-          quantity: i.quantity,
-          discountCents: i.discountCents,
-          totalCents: i.totalCents,
-          sourceType: i.sourceType,
-          sourceTicketNumber: i.sourceTicketNumber,
-          assignedEmployeeId: i.assignedEmployeeId,
-          assignedEmployeeName: i.assignedEmployeeName,
-        })),
+        items: items.map((i) => {
+          const sourceType = i.sourceType || 'retail';
+          return {
+            productKey: sourceType === 'retail' ? i.productKey : undefined,
+            name: i.name,
+            sku: i.sku,
+            unitPriceCents: i.unitPriceCents,
+            quantity: i.quantity,
+            discountCents: i.discountCents,
+            totalCents: i.totalCents,
+            sourceType,
+            sourceTicketKey:
+              sourceType === 'repair' || sourceType === 'print' ? i.productId : undefined,
+            sourceTicketNumber: i.sourceTicketNumber,
+            assignedEmployeeName: i.assignedEmployeeName,
+          };
+        }),
         subtotalCents,
-        taxCents: shopProfile.isVatRegistered ? Math.round(subtotalCents * shopProfile.vatRate) : 0,
         discountCents,
-        totalCents: shopProfile.isVatRegistered
-          ? subtotalCents - discountCents + Math.round(subtotalCents * shopProfile.vatRate)
-          : totalCents,
+        taxCents,
+        totalCents: computedTotalCents,
         paymentMethod,
-        splitPayments,
+        splitPayments:
+          paymentMethod === PAYMENT_METHODS.SPLIT
+            ? splitPayments.map((sp) => ({
+                method: sp.method,
+                amountCents: sp.amountCents,
+                cardLast4: sp.cardLast4,
+                reference: sp.reference,
+              }))
+            : undefined,
         isCredit,
         cardLast4: cardRef || undefined,
         cardRef: cardRef || undefined,
         onlineRef: onlineRef || undefined,
         onlineNote: onlineNote || undefined,
         tenderedAmountCents:
-          paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
+          paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : computedTotalCents,
         changeDueCents: calculatedChangeCents,
         dueDate: isCredit
           ? dueDate || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
           : undefined,
-        status: isCredit ? 'pending' : 'paid',
         notes,
-        shopProfileVersion: shopProfile.version,
+        shopProfileSnapshot: shopProfile,
         warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
         documentSelection,
-      });
+      };
 
-      // Update service tickets status to 'delivered' if applicable
-      for (const item of items) {
-        if (item.sourceType === 'repair' && item.productId) {
-          await updateRepairJob(item.productId, { status: 'delivered' });
-        } else if (item.sourceType === 'print' && item.productId) {
-          await updatePrintJob(item.productId, { status: 'delivered' });
-        }
+      const { invoice, warnings } = await completeSale(payload);
+
+      if (warnings.length > 0) {
+        notifications.show({
+          title: 'Sale completed with warnings',
+          message: warnings.join(' '),
+          color: 'yellow',
+          autoClose: 8000,
+        });
       }
 
-      // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      // Invalidate queries — ticket status and billing history are read via
+      // plain TanStack Query, so invalidating refetches them immediately.
       queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+
+      // Stock and customer balance are synced resources — the UI reads
+      // Dexie's local mirror, not TanStack Query (CLAUDE.md's offline/sync
+      // rules), so `invalidateQueries` wouldn't touch them. The sale just
+      // changed both server-side outside the sync engine's own mutation
+      // path (this is a REST call, not a `useSyncedMutation`), so without an
+      // explicit pull the mirror wouldn't catch up until the next periodic
+      // poll (`PULL_INTERVAL_MS`, 60s) — long enough for a cashier to
+      // oversell a just-decremented product. `syncNow()` is a no-op if
+      // there's nothing new for it to fetch, so this is safe to call
+      // unconditionally.
+      void syncEngine.syncNow();
 
       // Play chime sound
       playPaymentCompleteSound(soundEnabled);
@@ -399,7 +425,7 @@ export const BillingCounter = () => {
         onSelectCustomer={(cust) => {
           if (cust) {
             attachCustomer(
-              cust.id,
+              cust.key,
               cust.name,
               cust.primaryPhone,
               cust.address,

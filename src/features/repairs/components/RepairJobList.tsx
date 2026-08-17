@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob, RepairJobInput } from '../types';
-import { fetchRepairs, createRepairJob, updateRepairJob, deleteRepairs } from '../api/mockRepairs';
+import { fetchRepairs, createRepairJob, updateRepairJob, deleteRepairs } from '../api/repairsApi';
 import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
