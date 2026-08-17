@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
-import { IconX, IconPrinter, IconMinus, IconPlus } from '@tabler/icons-react';
+import { IconX, IconPrinter, IconMinus, IconPlus, IconCheck } from '@tabler/icons-react';
 import type { Invoice } from '../types';
 import { buildPrintPayload } from '../lib/buildPrintPayload';
 import { getShopProfileForInvoice } from '../lib/getShopProfileForInvoice';
@@ -51,6 +51,7 @@ export const SaleDocumentPreviewModal = ({
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
   const printLogs = opened && invoice ? getPrintLogsForInvoice(invoice.invoiceNumber) : [];
+  const hasPrinted = printLogs.length > 0;
 
   const payload = useMemo(() => {
     if (!invoice || !documentKind) return null;
@@ -76,11 +77,21 @@ export const SaleDocumentPreviewModal = ({
     window.setTimeout(() => forcePrintLogRefresh((t) => t + 1), 300);
   };
 
+  // First press prints; once a print has been recorded the same action closes the
+  // preview instead, so Print becomes Complete without a separate confirmation step.
+  const handlePrimaryAction = () => {
+    if (hasPrinted) {
+      onClose();
+    } else {
+      handlePrint();
+    }
+  };
+
   // Bound via the shared shortcut engine (not a focused-button click) so pressing
-  // Enter never puts a visible focus ring on the Print button.
+  // Enter never puts a visible focus ring on the Print/Complete button.
   useAppShortcuts(
     [
-      { key: 'Enter', handler: handlePrint, ignoreInput: true },
+      { key: 'Enter', handler: handlePrimaryAction, ignoreInput: true },
       { key: 'Ctrl+P', handler: handlePrint, ignoreInput: true, preventDefault: true },
     ],
     opened
@@ -176,10 +187,10 @@ export const SaleDocumentPreviewModal = ({
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="green"
-            leftSection={<IconPrinter size={16} />}
-            onClick={handlePrint}
+            leftSection={hasPrinted ? <IconCheck size={16} /> : <IconPrinter size={16} />}
+            onClick={handlePrimaryAction}
           >
-            Print
+            {hasPrinted ? 'Complete' : 'Print'}
           </Button>
           <ActionIcon
             variant="subtle"
@@ -328,10 +339,10 @@ export const SaleDocumentPreviewModal = ({
                 <Button
                   fullWidth
                   color="green"
-                  leftSection={<IconPrinter size={16} />}
-                  onClick={handlePrint}
+                  leftSection={hasPrinted ? <IconCheck size={16} /> : <IconPrinter size={16} />}
+                  onClick={handlePrimaryAction}
                 >
-                  Print receipt
+                  {hasPrinted ? 'Complete' : 'Print receipt'}
                 </Button>
                 <Text size="xs" c="dimmed" ta="center">
                   Tip: choose &quot;Save as PDF&quot; in the print dialog to save a copy.
