@@ -403,7 +403,6 @@ export const PaymentPanel = memo(
         invoice.documentSelection === 'none';
       const showInvoiceAction =
         invoice.documentSelection === 'invoice' || invoice.documentSelection === 'both';
-      const itemsLabel = `${invoice.items.length} ${invoice.items.length === 1 ? 'item' : 'items'}`;
 
       return (
         <Paper
@@ -541,27 +540,6 @@ export const PaymentPanel = memo(
                   ))}
                 </Stack>
               )}
-
-              <Divider color="var(--border-strong)" />
-
-              <Group
-                justify="space-between"
-                align="center"
-                wrap="nowrap"
-                style={{ minHeight: isMobile ? 44 : undefined }}
-              >
-                <Text size="xs" c="dimmed">
-                  {itemsLabel} · {formatMoney(invoice.totalCents)}
-                </Text>
-                <UnstyledButton
-                  onClick={() => onOpenDocumentPreview(invoice, 'receipt')}
-                  style={{ flexShrink: 0 }}
-                >
-                  <Text size="xs" fw={700} c="blue">
-                    View receipt ›
-                  </Text>
-                </UnstyledButton>
-              </Group>
             </Stack>
           </Box>
 
