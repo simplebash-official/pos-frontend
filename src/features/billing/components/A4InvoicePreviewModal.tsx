@@ -1,11 +1,12 @@
-import { useRef } from 'react';
-import { Modal, Box, Group, Button, Text, Stack, Divider, Loader } from '@mantine/core';
-import { IconPrinter, IconDownload, IconX, IconAlertCircle } from '@tabler/icons-react';
+import { Modal, Box, Group, Button, Text, Stack, Divider } from '@mantine/core';
+import { IconPrinter, IconDownload, IconX } from '@tabler/icons-react';
 import type { Invoice } from '../types';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
+import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
+import { printPdfBlob } from '@/shared/print/printService';
 
 export interface A4InvoicePreviewModalProps {
   opened: boolean;
@@ -15,21 +16,12 @@ export interface A4InvoicePreviewModalProps {
 
 export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePreviewModalProps) => {
   const isMobile = useIsMobile();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const { blobUrl, blob, loading, error } = useInvoiceDocument(
-    invoice?.id,
-    opened ? 'a4-invoice' : null
-  );
+  const { blob, loading, error } = useInvoiceDocument(invoice?.id, opened ? 'a4-invoice' : null);
 
   const handlePrint = () => {
-    if (!invoice || !blobUrl) return;
-    try {
-      iframeRef.current?.contentWindow?.focus();
-      iframeRef.current?.contentWindow?.print();
-    } catch (e) {
-      console.error('Failed to print invoice:', e);
-    }
+    if (!invoice || !blob) return;
+    void printPdfBlob(blob);
     recordPrintEvent({
       invoiceId: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
@@ -124,43 +116,13 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
         {/* Preview Box */}
         <Box
           style={{
-            backgroundColor: 'var(--bg-app)',
             borderRadius: 'var(--mantine-radius-default)',
             border: '1px solid var(--border)',
             height: '65vh',
             overflow: 'hidden',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
           }}
         >
-          {loading && (
-            <Stack align="center" gap="xs">
-              <Loader size="sm" />
-              <Text size="xs" c="dimmed">
-                Preparing document…
-              </Text>
-            </Stack>
-          )}
-          {!loading && error && (
-            <Stack align="center" gap="xs">
-              <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
-              <Text size="sm" c="red" fw={600}>
-                Could not load the document
-              </Text>
-              <Text size="xs" c="dimmed">
-                Check your connection and try again.
-              </Text>
-            </Stack>
-          )}
-          {!loading && !error && blobUrl && (
-            <iframe
-              ref={iframeRef}
-              src={blobUrl}
-              title={`Invoice ${invoice.invoiceNumber}`}
-              style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#FFFFFF' }}
-            />
-          )}
+          <PdfCanvasViewer blob={blob} loading={loading} error={error} documentLabel="invoice" />
         </Box>
       </Stack>
     </Modal>

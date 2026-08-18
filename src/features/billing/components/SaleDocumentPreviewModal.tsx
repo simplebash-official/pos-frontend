@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
-import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider, Loader } from '@mantine/core';
-import { IconX, IconPrinter, IconCheck, IconAlertCircle } from '@tabler/icons-react';
+import { useState } from 'react';
+import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
+import { IconX, IconPrinter, IconCheck } from '@tabler/icons-react';
 import type { Invoice } from '../types';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
@@ -11,6 +11,8 @@ import { useIsMobile, useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime, formatTime } from '@/shared/lib/date';
+import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
+import { printPdfBlob } from '@/shared/print/printService';
 
 export interface SaleDocumentPreviewModalProps {
   opened: boolean;
@@ -29,27 +31,21 @@ export const SaleDocumentPreviewModal = ({
   const tier = useLayoutTier();
   const printSettings = useAppSelector(selectPrintSettings);
 
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
   const printLogs = opened && invoice ? getPrintLogsForInvoice(invoice.invoiceNumber) : [];
   const hasPrinted = printLogs.length > 0;
 
   const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
-  const { blobUrl, loading, error } = useInvoiceDocument(
+  const { blob, loading, error } = useInvoiceDocument(
     invoice?.id,
     opened && documentKind ? (documentKind === 'invoice' ? 'a4-invoice' : 'thermal-receipt') : null,
     paperWidthMm
   );
 
   const handlePrint = () => {
-    if (!invoice || !blobUrl) return;
-    try {
-      iframeRef.current?.contentWindow?.focus();
-      iframeRef.current?.contentWindow?.print();
-    } catch (e) {
-      console.error('Failed to print document:', e);
-    }
+    if (!invoice || !blob) return;
+    void printPdfBlob(blob);
     recordPrintEvent({
       invoiceId: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
@@ -94,45 +90,12 @@ export const SaleDocumentPreviewModal = ({
   const isDesktopTier = tier === 'desktop';
 
   const documentPane = (
-    <Box
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {loading && (
-        <Stack align="center" gap="xs">
-          <Loader size="sm" />
-          <Text size="xs" c="dimmed">
-            Preparing document…
-          </Text>
-        </Stack>
-      )}
-      {!loading && error && (
-        <Stack align="center" gap="xs">
-          <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
-          <Text size="sm" c="red" fw={600}>
-            Could not load the document
-          </Text>
-          <Text size="xs" c="dimmed">
-            Check your connection and try again.
-          </Text>
-        </Stack>
-      )}
-      {!loading && !error && blobUrl && (
-        <iframe
-          ref={iframeRef}
-          src={blobUrl}
-          title={title}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-        />
-      )}
-    </Box>
+    <PdfCanvasViewer
+      blob={blob}
+      loading={loading}
+      error={error}
+      documentLabel={isReceipt ? 'receipt' : 'invoice'}
+    />
   );
 
   return (
@@ -223,9 +186,12 @@ export const SaleDocumentPreviewModal = ({
             >
               <Box
                 style={{
-                  width: isMobile ? '100%' : 380,
-                  minHeight: 400,
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+                  width: isMobile ? '100%' : 480,
+                  height: isMobile ? 520 : '100%',
+                  minHeight: 520,
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--mantine-radius-default)',
+                  overflow: 'hidden',
                 }}
               >
                 {documentPane}

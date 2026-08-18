@@ -1,19 +1,18 @@
-import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getInvoiceDocument, InvoiceDocumentType } from '../api/documentsApi';
 
 interface UseInvoiceDocumentResult {
-  blobUrl: string | null;
   blob: Blob | null;
   loading: boolean;
   error: boolean;
 }
 
-// Fetches a backend-rendered invoice/receipt PDF and exposes it as an
-// object URL for an <iframe src>, revoking it whenever the underlying blob
-// changes or the component unmounts. Not a synced resource (CLAUDE.md's
-// offline rules don't apply — a rendered PDF isn't mirrored data), so this
-// is a plain TanStack Query fetch like the rest of `billing`/`invoices`.
+// Fetches a backend-rendered invoice/receipt PDF as a raw Blob — consumers
+// hand it to `PdfCanvasViewer` (in-app themed rendering) and `printPdfBlob`
+// (printing) directly, neither of which needs an object URL. Not a synced
+// resource (CLAUDE.md's offline rules don't apply — a rendered PDF isn't
+// mirrored data), so this is a plain TanStack Query fetch like the rest of
+// `billing`/`invoices`.
 export const useInvoiceDocument = (
   invoiceId: string | undefined,
   documentType: InvoiceDocumentType | null,
@@ -32,18 +31,7 @@ export const useInvoiceDocument = (
     enabled,
   });
 
-  const blobUrl = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob]);
-
-  useEffect(() => {
-    return () => {
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl);
-      }
-    };
-  }, [blobUrl]);
-
   return {
-    blobUrl,
     blob: blob ?? null,
     loading: enabled && isLoading,
     error: enabled && isError,

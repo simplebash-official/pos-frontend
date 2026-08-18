@@ -4,6 +4,8 @@ import { Box, Button, Group, Text, Paper, Container, Loader, Stack } from '@mant
 import { IconPrinter, IconX, IconAlertCircle } from '@tabler/icons-react';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
+import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
+import { printPdfBlob } from '@/shared/print/printService';
 
 // Standalone full-page viewer for a backend-rendered A4 invoice PDF, opened
 // via "Download PDF" in `A4InvoicePreviewModal`. The backend always stamps
@@ -11,13 +13,12 @@ import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 // so there is no `?copy=` variant here anymore.
 export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const printedRef = useRef(false);
 
-  const { blobUrl, loading, error } = useInvoiceDocument(id, 'a4-invoice');
+  const { blob, loading, error } = useInvoiceDocument(id, 'a4-invoice');
 
   useEffect(() => {
-    if (blobUrl && !printedRef.current) {
+    if (blob && !printedRef.current) {
       printedRef.current = true;
       recordPrintEvent({
         invoiceId: id || '',
@@ -25,17 +26,10 @@ export const StandalonePrintView = () => {
         format: 'a4',
         copy: 'ORIGINAL — CUSTOMER COPY',
       });
-      const timer = setTimeout(() => {
-        try {
-          iframeRef.current?.contentWindow?.focus();
-          iframeRef.current?.contentWindow?.print();
-        } catch (e) {
-          console.error('Failed to print document:', e);
-        }
-      }, 400);
+      const timer = setTimeout(() => void printPdfBlob(blob), 400);
       return () => clearTimeout(timer);
     }
-  }, [blobUrl, id]);
+  }, [blob, id]);
 
   if (loading) {
     return (
@@ -50,7 +44,7 @@ export const StandalonePrintView = () => {
     );
   }
 
-  if (error || !blobUrl) {
+  if (error || !blob) {
     return (
       <Container size="sm" py={100} style={{ textAlign: 'center' }}>
         <Paper p="xl" radius="var(--mantine-radius-default)" withBorder>
@@ -70,30 +64,20 @@ export const StandalonePrintView = () => {
   }
 
   return (
-    <Box style={{ backgroundColor: '#525659', minHeight: '100vh', padding: '16px 0' }}>
-      <style>{`
-        @media print {
-          .no-print-bar {
-            display: none !important;
-          }
-          body {
-            background-color: #FFFFFF !important;
-          }
-        }
-      `}</style>
-
+    <Box
+      style={{
+        backgroundColor: 'var(--bg-app)',
+        height: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Box
-        className="no-print-bar"
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          backgroundColor: '#1E293B',
-          color: '#FFFFFF',
+          flexShrink: 0,
+          backgroundColor: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border)',
           padding: '8px 16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         }}
       >
         <Group justify="space-between" align="center">
@@ -106,14 +90,7 @@ export const StandalonePrintView = () => {
               size="xs"
               color="blue"
               leftSection={<IconPrinter size={14} />}
-              onClick={() => {
-                try {
-                  iframeRef.current?.contentWindow?.focus();
-                  iframeRef.current?.contentWindow?.print();
-                } catch (e) {
-                  console.error('Failed to print document:', e);
-                }
-              }}
+              onClick={() => void printPdfBlob(blob)}
             >
               Print Document
             </Button>
@@ -130,13 +107,8 @@ export const StandalonePrintView = () => {
         </Group>
       </Box>
 
-      <Box style={{ marginTop: 48, height: 'calc(100vh - 48px)' }}>
-        <iframe
-          ref={iframeRef}
-          src={blobUrl}
-          title={`Invoice ${id}`}
-          style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#FFFFFF' }}
-        />
+      <Box style={{ flex: 1, overflow: 'hidden' }}>
+        <PdfCanvasViewer blob={blob} loading={loading} error={error} documentLabel="invoice" />
       </Box>
     </Box>
   );
