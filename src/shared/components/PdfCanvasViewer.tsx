@@ -2,7 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import { Box, Group, ActionIcon, Text, Loader, Stack, Tooltip } from '@mantine/core';
+import {
+  Box,
+  Group,
+  ActionIcon,
+  Text,
+  Loader,
+  Stack,
+  Tooltip,
+  Paper,
+  Divider,
+  Button,
+} from '@mantine/core';
 import {
   IconMinus,
   IconPlus,
@@ -11,6 +22,7 @@ import {
   IconAlertCircle,
   IconArrowsMaximize,
 } from '@tabler/icons-react';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -20,47 +32,50 @@ export interface PdfCanvasViewerProps {
   error?: boolean;
   /** Label used in the empty/error states and the page-count readout. */
   documentLabel?: string;
+  /** Initial scale (default: 1 for 100%) */
+  initialScale?: number;
+  /** Initial auto-fit mode (default: false) */
+  initialAutoFit?: boolean;
 }
 
 const ZOOM_STEP = 0.15;
 const ZOOM_MIN = 0.4;
 const ZOOM_MAX = 3;
 
-// A themed, in-app PDF renderer built on pdf.js's canvas API — used instead
-// of a raw `<iframe src={blobUrl}>` because the browser's native PDF viewer
-// chrome (its own dark toolbar, thumbnail rail, page-fit controls) reads as
-// a foreign app bolted onto the page rather than part of this one. This
-// component owns rendering, zoom and pagination itself so the toolbar can
-// match the rest of the UI (Mantine tokens, light/dark aware) — see
-// CLAUDE.md's "Center modals" / dark-mode-safe styling rules.
-export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanvasViewerProps) => {
+// A themed, windowless in-app PDF renderer built on pdf.js's canvas API.
+// Displays the document centered at 100% zoom with a floating HUD controller
+// rather than enclosing the document in an inner sub-window.
+export const PdfCanvasViewer = ({
+  blob,
+  loading,
+  error,
+  documentLabel,
+  initialScale = 1,
+  initialAutoFit = false,
+}: PdfCanvasViewerProps) => {
+  const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderTaskRef = useRef<RenderTask | null>(null);
 
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pageNum, setPageNum] = useState(1);
-  const [scale, setScale] = useState(1);
-  const [autoFit, setAutoFit] = useState(true);
+  const [scale, setScale] = useState(initialScale);
+  const [autoFit, setAutoFit] = useState(initialAutoFit);
   const [loadError, setLoadError] = useState(false);
 
-  // Reset view state synchronously during render when the blob identity
-  // changes — React's documented alternative to resetting state from an
-  // effect (avoids an extra render pass and the "setState in effect" smell).
+  // Reset view state synchronously during render when the blob identity changes.
   const [prevBlob, setPrevBlob] = useState(blob);
   if (blob !== prevBlob) {
     setPrevBlob(blob);
     setPdfDoc(null);
     setPageNum(1);
-    setAutoFit(true);
+    setAutoFit(initialAutoFit);
+    setScale(initialScale);
     setLoadError(false);
   }
 
-  // Load the document whenever the blob changes. Every state update here
-  // happens inside a promise callback (after the actual I/O), not
-  // synchronously in the effect body. `PDFDocumentProxy` (the resolved
-  // document) has no `destroy()` of its own — only the loading task does —
-  // so that's what cleanup tears down.
+  // Load the document whenever the blob changes.
   useEffect(() => {
     if (!blob) return;
     let cancelled = false;
@@ -84,8 +99,7 @@ export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanv
     };
   }, [blob]);
 
-  // Recompute the fit-to-width scale when the doc/page/container size
-  // changes, but only while the user hasn't manually zoomed.
+  // Recompute the fit-to-width scale when autoFit is enabled.
   useEffect(() => {
     if (!autoFit || !pdfDoc || !containerRef.current) return;
     const container = containerRef.current;
@@ -95,8 +109,11 @@ export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanv
       const page = await pdfDoc.getPage(pageNum);
       if (cancelled) return;
       const unscaled = page.getViewport({ scale: 1 });
-      const availableWidth = container.clientWidth - 48;
-      const fitScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, availableWidth / unscaled.width));
+      const availableWidth = container.clientWidth - (isMobile ? 32 : 64);
+      const fitScale = Math.max(
+        ZOOM_MIN,
+        Math.min(ZOOM_MAX, +(availableWidth / unscaled.width).toFixed(2))
+      );
       setScale(fitScale);
     };
 
@@ -107,12 +124,9 @@ export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanv
       cancelled = true;
       observer.disconnect();
     };
-  }, [autoFit, pdfDoc, pageNum]);
+  }, [autoFit, pdfDoc, pageNum, isMobile]);
 
-  // Paint the current page to the canvas. Defined inline (not via
-  // useCallback) and invoked from the effect below — this is imperative DOM
-  // synchronization (canvas isn't React state), the textbook valid use of
-  // an effect; every setState here also happens after an `await`.
+  // Paint the current page to the canvas.
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -142,7 +156,6 @@ export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanv
         renderTaskRef.current = task;
         await task.promise;
       } catch (e) {
-        // A cancelled render (from a rapid zoom/page change) throws by design — not a real error.
         if (!cancelled && e instanceof Error && e.name !== 'RenderingCancelledException') {
           setLoadError(true);
         }
@@ -155,112 +168,161 @@ export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanv
     };
   }, [pdfDoc, pageNum, scale]);
 
+  const resetTo100 = () => {
+    setAutoFit(false);
+    setScale(1);
+  };
+
   const zoomIn = () => {
     setAutoFit(false);
     setScale((s) => Math.min(ZOOM_MAX, +(s + ZOOM_STEP).toFixed(2)));
   };
+
   const zoomOut = () => {
     setAutoFit(false);
     setScale((s) => Math.max(ZOOM_MIN, +(s - ZOOM_STEP).toFixed(2)));
   };
-  const resetFit = () => setAutoFit(true);
+
+  const toggleFit = () => {
+    if (autoFit) {
+      resetTo100();
+    } else {
+      setAutoFit(true);
+    }
+  };
 
   const pageCount = pdfDoc?.numPages ?? 0;
   const showEmpty = loading || error || loadError || !pdfDoc;
 
   return (
-    <Stack
-      gap={0}
+    <Box
       style={{
         width: '100%',
         height: '100%',
-        backgroundColor: 'var(--bg-app)',
+        position: 'relative',
         overflow: 'hidden',
+        backgroundColor: 'var(--bg-app)',
       }}
     >
-      <Group
-        justify="space-between"
-        wrap="nowrap"
+      {/* Floating HUD Controller */}
+      {!showEmpty && (
+        <Paper
+          withBorder
+          shadow="xs"
+          style={{
+            position: 'absolute',
+            top: isMobile ? 8 : 14,
+            left: isMobile ? 8 : 14,
+            zIndex: 10,
+            backgroundColor: 'var(--bg-card)',
+            backdropFilter: 'blur(8px)',
+            padding: '4px 6px',
+          }}
+        >
+          <Group gap={4} wrap="nowrap" align="center">
+            <Tooltip label="Zoom out">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size={isMobile ? 36 : 28}
+                disabled={scale <= ZOOM_MIN}
+                onClick={zoomOut}
+                aria-label="Zoom out"
+              >
+                <IconMinus size={14} />
+              </ActionIcon>
+            </Tooltip>
+
+            <Tooltip label={scale === 1 && !autoFit ? 'Zoom 100%' : 'Reset to 100%'}>
+              <Button
+                variant="subtle"
+                color="gray"
+                size="compact-xs"
+                onClick={resetTo100}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: '0 6px',
+                  minWidth: 44,
+                  height: isMobile ? 36 : 28,
+                  color: 'var(--text-primary)',
+                }}
+              >
+                {Math.round(scale * 100)}%
+              </Button>
+            </Tooltip>
+
+            <Tooltip label="Zoom in">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size={isMobile ? 36 : 28}
+                disabled={scale >= ZOOM_MAX}
+                onClick={zoomIn}
+                aria-label="Zoom in"
+              >
+                <IconPlus size={14} />
+              </ActionIcon>
+            </Tooltip>
+
+            <Tooltip label={autoFit ? 'Fit to width (active)' : 'Fit to width'}>
+              <ActionIcon
+                variant={autoFit ? 'light' : 'subtle'}
+                color={autoFit ? 'blue' : 'gray'}
+                size={isMobile ? 36 : 28}
+                onClick={toggleFit}
+                aria-label="Fit to width"
+              >
+                <IconArrowsMaximize size={14} />
+              </ActionIcon>
+            </Tooltip>
+
+            {pageCount > 1 && (
+              <>
+                <Divider orientation="vertical" my={4} color="var(--border)" />
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size={isMobile ? 36 : 28}
+                  disabled={pageNum <= 1}
+                  onClick={() => setPageNum((p) => Math.max(1, p - 1))}
+                  aria-label="Previous page"
+                >
+                  <IconChevronLeft size={14} />
+                </ActionIcon>
+                <Text
+                  size="xs"
+                  fw={600}
+                  style={{ padding: '0 4px', textAlign: 'center', whiteSpace: 'nowrap' }}
+                >
+                  {pageNum} / {pageCount}
+                </Text>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size={isMobile ? 36 : 28}
+                  disabled={pageNum >= pageCount}
+                  onClick={() => setPageNum((p) => Math.min(pageCount, p + 1))}
+                  aria-label="Next page"
+                >
+                  <IconChevronRight size={14} />
+                </ActionIcon>
+              </>
+            )}
+          </Group>
+        </Paper>
+      )}
+
+      {/* Scrollable Viewport */}
+      <Box
+        ref={containerRef}
         style={{
-          flexShrink: 0,
-          height: 44,
-          padding: '0 12px',
-          borderBottom: '1px solid var(--border)',
-          backgroundColor: 'var(--bg-card)',
+          width: '100%',
+          height: '100%',
+          overflow: 'auto',
+          position: 'relative',
         }}
       >
-        <Group gap={4} wrap="nowrap">
-          <Tooltip label="Zoom out">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size={32}
-              disabled={showEmpty}
-              onClick={zoomOut}
-              aria-label="Zoom out"
-            >
-              <IconMinus size={14} />
-            </ActionIcon>
-          </Tooltip>
-          <Text size="xs" fw={600} style={{ width: 44, textAlign: 'center' }}>
-            {Math.round(scale * 100)}%
-          </Text>
-          <Tooltip label="Zoom in">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size={32}
-              disabled={showEmpty}
-              onClick={zoomIn}
-              aria-label="Zoom in"
-            >
-              <IconPlus size={14} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label="Fit to width">
-            <ActionIcon
-              variant={autoFit ? 'light' : 'subtle'}
-              color={autoFit ? 'blue' : 'gray'}
-              size={32}
-              disabled={showEmpty}
-              onClick={resetFit}
-              aria-label="Fit to width"
-            >
-              <IconArrowsMaximize size={14} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
-
-        {pageCount > 1 && (
-          <Group gap={4} wrap="nowrap">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size={32}
-              disabled={pageNum <= 1}
-              onClick={() => setPageNum((p) => Math.max(1, p - 1))}
-              aria-label="Previous page"
-            >
-              <IconChevronLeft size={14} />
-            </ActionIcon>
-            <Text size="xs" fw={600} style={{ width: 60, textAlign: 'center' }}>
-              {pageNum} / {pageCount}
-            </Text>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size={32}
-              disabled={pageNum >= pageCount}
-              onClick={() => setPageNum((p) => Math.min(pageCount, p + 1))}
-              aria-label="Next page"
-            >
-              <IconChevronRight size={14} />
-            </ActionIcon>
-          </Group>
-        )}
-      </Group>
-
-      <Box ref={containerRef} style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
         {(loading || error || loadError) && (
           <Box
             style={{
@@ -291,22 +353,30 @@ export const PdfCanvasViewer = ({ blob, loading, error, documentLabel }: PdfCanv
             )}
           </Box>
         )}
+
         {!loading && !error && !loadError && (
           <Box
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              padding: 24,
+              minWidth: '100%',
               minHeight: '100%',
+              padding: isMobile ? 16 : 32,
+              boxSizing: 'border-box',
             }}
           >
             <canvas
               ref={canvasRef}
-              style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.25)', backgroundColor: '#FFFFFF' }}
+              style={{
+                margin: '0 auto',
+                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.18)',
+                backgroundColor: '#FFFFFF',
+                borderRadius: 2,
+                flexShrink: 0,
+              }}
             />
           </Box>
         )}
       </Box>
-    </Stack>
+    </Box>
   );
 };
