@@ -113,15 +113,8 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
 
         <Divider color="var(--border)" />
 
-        {/* Preview Box */}
-        <Box
-          style={{
-            borderRadius: 'var(--mantine-radius-default)',
-            border: '1px solid var(--border)',
-            height: '65vh',
-            overflow: 'hidden',
-          }}
-        >
+        {/* Preview pane — windowless: no border/card of its own, just a flush region for PdfCanvasViewer to fill. */}
+        <Box style={{ height: '65vh' }}>
           <PdfCanvasViewer blob={blob} loading={loading} error={error} documentLabel="invoice" />
         </Box>
       </Stack>
