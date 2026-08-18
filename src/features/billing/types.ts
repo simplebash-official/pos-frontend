@@ -36,13 +36,14 @@ export interface Invoice {
   cashierId?: string;
   cashierName?: string;
   subtotalCents: number;
-  taxCents: number;
   discountCents: number;
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
   totalCents: number;
   paymentMethod: string;
   splitPayments?: SplitPaymentDetail[];
   isCredit?: boolean;
-  tenderedAmountCents?: number;
+  amountReceivedCents?: number;
   changeDueCents?: number;
   dueDate?: string;
   cardLast4?: string;

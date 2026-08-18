@@ -36,7 +36,7 @@ export const getSaleHeroPresentation = (
   } else if (invoice.paymentMethod === PAYMENT_METHODS.ONLINE) {
     methodLabel = 'Online';
   } else if (isChangeDue) {
-    methodLabel = `Cash (${formatMoney(invoice.tenderedAmountCents ?? 0)} in)`;
+    methodLabel = `Cash (${formatMoney(invoice.amountReceivedCents ?? 0)} in)`;
   } else {
     methodLabel = 'Cash';
   }

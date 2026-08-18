@@ -1,5 +1,6 @@
 import type { JobStatus } from '@/constants';
 import type { SplitType } from '@/features/employees/types';
+import type { CustomerRef, AssignmentInfo } from '@/shared/types/ticketInput';
 
 export type PrintJobType = 'mug' | 't-shirt' | 'handbill' | 'banner' | 'custom';
 
@@ -22,15 +23,11 @@ export interface PrintJob {
 }
 
 export interface PrintJobInput {
-  customerName: string;
-  customerPhone?: string;
+  customer: CustomerRef;
+  assignment?: AssignmentInfo;
   jobType: PrintJobType;
   quantity: number;
   status: JobStatus;
   estimatedCostCents: number;
   materialCostCents?: number;
-  assignedEmployeeId?: string;
-  assignedEmployeeName?: string;
-  splitType?: SplitType;
-  splitValue?: number;
 }

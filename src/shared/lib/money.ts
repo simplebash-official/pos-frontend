@@ -38,21 +38,3 @@ export const parseMoneyToCents = (input: string): number => {
   if (isNaN(parsed)) return 0;
   return toCents(parsed);
 };
-
-/**
- * Calculates tax in integer cents based on tax rate.
- */
-export const calculateTaxCents = (subtotalCents: number, rate = 0.08): number => {
-  return Math.round(subtotalCents * rate);
-};
-
-/**
- * Calculates final total in cents.
- */
-export const calculateTotalCents = (
-  subtotalCents: number,
-  taxCents: number,
-  discountCents = 0
-): number => {
-  return Math.max(0, subtotalCents + taxCents - discountCents);
-};

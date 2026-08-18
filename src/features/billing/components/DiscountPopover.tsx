@@ -10,7 +10,11 @@ export interface DiscountPopoverProps {
   targetName: string;
   originalCents: number;
   currentDiscountCents: number;
-  onApplyDiscount: (discountCents: number) => void;
+  onApplyDiscount: (
+    discountCents: number,
+    discountType: 'percentage' | 'fixed',
+    discountValue: number
+  ) => void;
   children: React.ReactNode;
 }
 
@@ -30,18 +34,23 @@ export const DiscountPopover = ({
 
   const handleApply = () => {
     const num = typeof val === 'number' ? val : 0;
+    const clampedPct = Math.min(100, Math.max(0, num));
     const computedCents =
       mode === 'percentage'
-        ? Math.round((originalCents * Math.min(100, Math.max(0, num))) / 100)
+        ? Math.round((originalCents * clampedPct) / 100)
         : Math.min(originalCents, Math.max(0, Math.round(num * 100)));
 
-    onApplyDiscount(computedCents);
+    onApplyDiscount(
+      computedCents,
+      mode === 'percentage' ? 'percentage' : 'fixed',
+      mode === 'percentage' ? clampedPct : Math.max(0, Math.round(num * 100))
+    );
     onClose();
   };
 
   const handleClear = () => {
     setVal('');
-    onApplyDiscount(0);
+    onApplyDiscount(0, 'fixed', 0);
     onClose();
   };
 

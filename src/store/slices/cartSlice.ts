@@ -37,6 +37,8 @@ export interface CompletedSaleData {
   changeDueCents: number;
 }
 
+export type DiscountType = 'percentage' | 'fixed';
+
 export interface HeldCart {
   id: string;
   label?: string;
@@ -45,6 +47,8 @@ export interface HeldCart {
   customerName: string | null;
   customerPhone?: string | null;
   discountCents: number;
+  discountType: DiscountType | null;
+  discountValue: number;
   paymentMethod: PaymentMethod;
   notes: string;
   heldAt: string;
@@ -60,6 +64,8 @@ interface CartState {
   customerAddress: string | null;
   customerBalanceCents: number;
   discountCents: number;
+  discountType: DiscountType | null;
+  discountValue: number;
   paymentMethod: PaymentMethod;
   splitPayments: SplitPaymentDetail[];
   isCredit: boolean;
@@ -115,6 +121,8 @@ const initialState: CartState = {
   customerAddress: null,
   customerBalanceCents: 0,
   discountCents: 0,
+  discountType: null,
+  discountValue: 0,
   paymentMethod: PAYMENT_METHODS.CASH,
   splitPayments: [],
   isCredit: false,
@@ -141,6 +149,8 @@ const resetCartState = (state: CartState) => {
   state.customerAddress = null;
   state.customerBalanceCents = 0;
   state.discountCents = 0;
+  state.discountType = null;
+  state.discountValue = 0;
   state.paymentMethod = PAYMENT_METHODS.CASH;
   state.isCredit = false;
   state.tenderedAmountCents = 0;
@@ -307,8 +317,13 @@ const cartSlice = createSlice({
       state.dueDate = action.payload;
     },
 
-    setDiscountCents: (state, action: PayloadAction<number>) => {
-      state.discountCents = action.payload;
+    setDiscount: (
+      state,
+      action: PayloadAction<{ cents: number; type: DiscountType | null; value: number }>
+    ) => {
+      state.discountCents = action.payload.cents;
+      state.discountType = action.payload.type;
+      state.discountValue = action.payload.value;
     },
 
     setPaymentMethod: (state, action: PayloadAction<PaymentMethod>) => {
@@ -391,6 +406,8 @@ const cartSlice = createSlice({
         customerName: state.customerName,
         customerPhone: state.customerPhone,
         discountCents: state.discountCents,
+        discountType: state.discountType,
+        discountValue: state.discountValue,
         paymentMethod: state.paymentMethod,
         notes: state.notes,
         heldAt: new Date().toISOString(),
@@ -406,6 +423,8 @@ const cartSlice = createSlice({
       state.customerPhone = null;
       state.customerBalanceCents = 0;
       state.discountCents = 0;
+      state.discountType = null;
+      state.discountValue = 0;
       state.isCredit = false;
       state.notes = '';
       state.splitPayments = [];
@@ -419,6 +438,8 @@ const cartSlice = createSlice({
       state.customerName = target.customerName;
       state.customerPhone = target.customerPhone ?? null;
       state.discountCents = target.discountCents;
+      state.discountType = target.discountType;
+      state.discountValue = target.discountValue;
       state.paymentMethod = target.paymentMethod;
       state.notes = target.notes;
       state.heldCarts = state.heldCarts.filter((h) => h.id !== action.payload);
@@ -463,7 +484,7 @@ export const {
   setTenderedAmountCents,
   setDocumentSelection,
   setDueDate,
-  setDiscountCents,
+  setDiscount,
   setPaymentMethod,
   setSplitPayments,
   setIsCredit,
@@ -484,6 +505,8 @@ export const {
 
 export const selectCartItems = (state: { cart: CartState }) => state.cart.items;
 export const selectCartDiscountCents = (state: { cart: CartState }) => state.cart.discountCents;
+export const selectCartDiscountType = (state: { cart: CartState }) => state.cart.discountType;
+export const selectCartDiscountValue = (state: { cart: CartState }) => state.cart.discountValue;
 export const selectHeldCarts = (state: { cart: CartState }) => state.cart.heldCarts;
 export const selectLastRemovedItem = (state: { cart: CartState }) => state.cart.lastRemovedItem;
 export const selectSoundEnabled = (state: { cart: CartState }) => state.cart.soundEnabled;

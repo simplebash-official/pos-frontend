@@ -242,17 +242,6 @@ export const InvoiceDetailDrawer = ({
                 </Group>
               )}
 
-              {invoice.taxCents > 0 && (
-                <Group justify="space-between">
-                  <Text size="xs" c="dimmed">
-                    Tax
-                  </Text>
-                  <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {formatMoney(invoice.taxCents)}
-                  </Text>
-                </Group>
-              )}
-
               <Divider my={4} />
 
               <Group justify="space-between">
@@ -304,13 +293,13 @@ export const InvoiceDetailDrawer = ({
                   </Stack>
                 )}
 
-              {invoice.tenderedAmountCents ? (
+              {invoice.amountReceivedCents ? (
                 <Group justify="space-between">
                   <Text size="xs" c="dimmed">
-                    Tendered Amount
+                    Amount Received
                   </Text>
                   <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {formatMoney(invoice.tenderedAmountCents)}
+                    {formatMoney(invoice.amountReceivedCents)}
                   </Text>
                 </Group>
               ) : null}

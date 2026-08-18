@@ -150,8 +150,18 @@ export const PaymentPanel = memo(
 
     // Sync calculated discount to cart store
     useEffect(() => {
-      setDiscount(calculatedDiscountCents);
-    }, [calculatedDiscountCents, setDiscount]);
+      if (calculatedDiscountCents <= 0) {
+        setDiscount(0, null, 0);
+        return;
+      }
+      setDiscount(
+        calculatedDiscountCents,
+        discountMode === 'percentage' ? 'percentage' : 'fixed',
+        discountMode === 'percentage'
+          ? Math.min(100, Math.max(0, typeof discountInput === 'number' ? discountInput : 0))
+          : calculatedDiscountCents
+      );
+    }, [calculatedDiscountCents, discountMode, discountInput, setDiscount]);
 
     // Sync external discountCents to discountInput state if set externally
     const [lastSyncedDiscountCents, setLastSyncedDiscountCents] = useState<number | null>(null);
@@ -744,7 +754,7 @@ export const PaymentPanel = memo(
                         onClick={() => {
                           setDiscountInput('');
                           setShowDiscountInput(false);
-                          setDiscount(0);
+                          setDiscount(0, null, 0);
                         }}
                         style={{ width: 32, height: 32 }}
                       >

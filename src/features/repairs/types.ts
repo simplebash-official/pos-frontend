@@ -1,5 +1,6 @@
 import type { JobStatus } from '@/constants';
 import type { SplitType } from '@/features/employees/types';
+import type { CustomerRef, AssignmentInfo } from '@/shared/types/ticketInput';
 
 export interface RepairJob {
   id: string;
@@ -21,16 +22,12 @@ export interface RepairJob {
 }
 
 export interface RepairJobInput {
-  customerName: string;
-  customerPhone: string;
+  customer: CustomerRef;
+  assignment?: AssignmentInfo;
   deviceModel: string;
   serialNumber?: string;
   issueDescription: string;
   status: JobStatus;
   estimatedCostCents: number;
   materialCostCents?: number;
-  assignedEmployeeId?: string;
-  assignedEmployeeName?: string;
-  splitType?: SplitType;
-  splitValue?: number;
 }

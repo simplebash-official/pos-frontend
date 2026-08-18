@@ -31,6 +31,7 @@ import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
+import type { ApiError } from '@/shared/types/common';
 import type { Invoice } from '../types';
 
 export const BillingCounter = () => {
@@ -45,7 +46,8 @@ export const BillingCounter = () => {
   const { items } = useCartItems();
   const { customerId, customerName, customerPhone, customerAddress, attachCustomer } =
     useCartCustomer();
-  const { discountCents, subtotalCents, totalCents, setDiscount } = useCartTotals();
+  const { discountCents, discountType, discountValue, subtotalCents, totalCents, setDiscount } =
+    useCartTotals();
   const {
     paymentMethod,
     splitPayments,
@@ -120,63 +122,72 @@ export const BillingCounter = () => {
           : 0;
 
       const cashierName = authUser?.name || 'Store Cashier';
-      const taxCents = shopProfile.isVatRegistered
-        ? Math.round(subtotalCents * shopProfile.vatRate)
-        : 0;
-      const computedTotalCents = Math.max(0, subtotalCents - discountCents + taxCents);
+
+      const hasCustomer = Boolean(customerId || customerName || customerPhone || customerAddress);
 
       // Single call: the backend atomically creates the invoice, records
       // payment(s), decrements retail stock, marks any repair/print-job
       // lines delivered, and updates the customer's balance — see
       // `billing::service::sale::complete_sale`'s D4 fail-forward design.
       const payload: CompleteSaleInput = {
-        customerKey: customerId || undefined,
-        customerName: customerName || undefined,
-        customerPhone: customerPhone || undefined,
-        customerAddress: customerAddress || undefined,
-        cashierName,
+        staff: { cashierName },
+        customer: hasCustomer
+          ? {
+              customerKey: customerId || undefined,
+              customerName: customerName || undefined,
+              customerPhone: customerPhone || undefined,
+              customerAddress: customerAddress || undefined,
+            }
+          : undefined,
         items: items.map((i) => {
           const sourceType = i.sourceType || 'retail';
+          const productKey = sourceType === 'retail' ? i.productKey : undefined;
+          const sourceTicketKey =
+            sourceType === 'repair' || sourceType === 'print' ? i.productId : undefined;
+          const isResolved = Boolean(productKey || sourceTicketKey);
+
           return {
-            productKey: sourceType === 'retail' ? i.productKey : undefined,
-            name: i.name,
-            sku: i.sku,
-            unitPriceCents: i.unitPriceCents,
+            productKey,
+            sourceTicketKey,
             quantity: i.quantity,
             discountCents: i.discountCents,
-            totalCents: i.totalCents,
             sourceType,
-            sourceTicketKey:
-              sourceType === 'repair' || sourceType === 'print' ? i.productId : undefined,
-            sourceTicketNumber: i.sourceTicketNumber,
-            assignedEmployeeName: i.assignedEmployeeName,
+            ...(isResolved
+              ? {}
+              : {
+                  name: i.name,
+                  sku: i.sku,
+                  unitPriceCents: i.unitPriceCents,
+                  totalCents: i.totalCents,
+                  sourceTicketNumber: i.sourceTicketNumber,
+                  assignedEmployeeName: i.assignedEmployeeName,
+                }),
           };
         }),
-        subtotalCents,
-        discountCents,
-        taxCents,
-        totalCents: computedTotalCents,
-        paymentMethod,
-        splitPayments:
-          paymentMethod === PAYMENT_METHODS.SPLIT
-            ? splitPayments.map((sp) => ({
-                method: sp.method,
-                amountCents: sp.amountCents,
-                cardLast4: sp.cardLast4,
-                reference: sp.reference,
-              }))
+        pricingAdjustments:
+          discountType && discountValue > 0 ? { discountType, discountValue } : undefined,
+        payment: {
+          paymentMethod,
+          isCredit,
+          amountReceivedCents:
+            paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
+          splitPayments:
+            paymentMethod === PAYMENT_METHODS.SPLIT
+              ? splitPayments.map((sp) => ({
+                  method: sp.method,
+                  amountCents: sp.amountCents,
+                  cardLast4: sp.cardLast4,
+                  reference: sp.reference,
+                }))
+              : undefined,
+          cardLast4: cardRef || undefined,
+          cardRef: cardRef || undefined,
+          onlineRef: onlineRef || undefined,
+          onlineNote: onlineNote || undefined,
+          dueDate: isCredit
+            ? dueDate || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
             : undefined,
-        isCredit,
-        cardLast4: cardRef || undefined,
-        cardRef: cardRef || undefined,
-        onlineRef: onlineRef || undefined,
-        onlineNote: onlineNote || undefined,
-        tenderedAmountCents:
-          paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : computedTotalCents,
-        changeDueCents: calculatedChangeCents,
-        dueDate: isCredit
-          ? dueDate || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
-          : undefined,
+        },
         notes,
         shopProfileSnapshot: shopProfile,
         warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
@@ -232,10 +243,15 @@ export const BillingCounter = () => {
       if (isMobile) {
         setActivePane('pay');
       }
-    } catch {
+    } catch (err) {
+      const apiErr = err as ApiError;
+      const isNotFound = apiErr?.statusCode === 404;
       notifications.show({
-        title: 'Checkout Error',
-        message: 'Failed to process payment invoice',
+        title: isNotFound ? 'Item No Longer Available' : 'Checkout Error',
+        message: isNotFound
+          ? apiErr.message ||
+            'A product, ticket, or customer in this sale no longer exists. Please refresh and try again.'
+          : apiErr?.message || 'Failed to process payment invoice',
         color: 'red',
       });
     } finally {
@@ -248,8 +264,8 @@ export const BillingCounter = () => {
     customerName,
     customerPhone,
     customerAddress,
-    subtotalCents,
-    discountCents,
+    discountType,
+    discountValue,
     totalCents,
     paymentMethod,
     cardRef,

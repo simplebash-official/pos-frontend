@@ -54,17 +54,23 @@ export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
       : form.splitValueRupeesOrPercent || 0;
 
   return {
-    customerName: form.customerName,
-    customerPhone: form.customerPhone,
+    customer: {
+      customerName: form.customerName,
+      customerPhone: form.customerPhone,
+    },
+    assignment: form.assignedEmployeeId
+      ? {
+          assignedEmployeeId: form.assignedEmployeeId,
+          assignedEmployeeName: form.assignedEmployeeName,
+          splitType: form.splitType,
+          splitValue: splitValueCentsOrPercent,
+        }
+      : undefined,
     deviceModel: form.deviceModel,
     issueDescription: form.issueDescription,
     status: form.status,
     estimatedCostCents: toCents(form.estimatedPriceRupees || 0),
     materialCostCents: toCents(form.materialCostRupees || 0),
-    assignedEmployeeId: form.assignedEmployeeId,
-    assignedEmployeeName: form.assignedEmployeeName,
-    splitType: form.splitType,
-    splitValue: splitValueCentsOrPercent,
   };
 };
 
@@ -119,17 +125,23 @@ export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
       : form.splitValueRupeesOrPercent || 0;
 
   return {
-    customerName: form.customerName,
-    customerPhone: form.customerPhone,
+    customer: {
+      customerName: form.customerName,
+      customerPhone: form.customerPhone,
+    },
+    assignment: form.assignedEmployeeId
+      ? {
+          assignedEmployeeId: form.assignedEmployeeId,
+          assignedEmployeeName: form.assignedEmployeeName,
+          splitType: form.splitType,
+          splitValue: splitValueCentsOrPercent,
+        }
+      : undefined,
     jobType: form.jobType,
     quantity: form.quantity,
     status: form.status,
     estimatedCostCents: toCents(form.estimatedPriceRupees || 0),
     materialCostCents: toCents(form.materialCostRupees || 0),
-    assignedEmployeeId: form.assignedEmployeeId,
-    assignedEmployeeName: form.assignedEmployeeName,
-    splitType: form.splitType,
-    splitValue: splitValueCentsOrPercent,
   };
 };
 

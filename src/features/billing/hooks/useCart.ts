@@ -7,7 +7,7 @@ import {
   clearLastRemovedItem,
   updateQuantity,
   updateLineDiscount,
-  setDiscountCents,
+  setDiscount as setDiscountAction,
   setCustomer,
   setTenderedAmountCents,
   setDocumentSelection,
@@ -29,6 +29,8 @@ import {
   clearCart,
   selectCartItems,
   selectCartDiscountCents,
+  selectCartDiscountType,
+  selectCartDiscountValue,
   selectSubtotalCents,
   selectTotalCents,
   selectCartItemsCount,
@@ -47,6 +49,7 @@ import {
 } from '@/store/slices/cartSlice';
 import type { PaymentMethod } from '@/constants/payment';
 import type { SplitPaymentDetail } from '@/features/billing/types';
+import type { DiscountType } from '@/store/slices/cartSlice';
 
 /**
  * These hooks split what used to be one monolithic `useCart()` into purpose-scoped slices of cart
@@ -104,12 +107,26 @@ export const useCartTotals = () => {
   const dispatch = useAppDispatch();
   const subtotalCents = useAppSelector(selectSubtotalCents);
   const discountCents = useAppSelector(selectCartDiscountCents);
+  const discountType = useAppSelector(selectCartDiscountType);
+  const discountValue = useAppSelector(selectCartDiscountValue);
   const totalCents = useAppSelector(selectTotalCents);
   const splitRemainingCents = useAppSelector(selectSplitRemainingCents);
 
-  const setDiscount = useCallback((cents: number) => dispatch(setDiscountCents(cents)), [dispatch]);
+  const setDiscount = useCallback(
+    (cents: number, type: DiscountType | null, value: number) =>
+      dispatch(setDiscountAction({ cents, type, value })),
+    [dispatch]
+  );
 
-  return { subtotalCents, discountCents, totalCents, splitRemainingCents, setDiscount };
+  return {
+    subtotalCents,
+    discountCents,
+    discountType,
+    discountValue,
+    totalCents,
+    splitRemainingCents,
+    setDiscount,
+  };
 };
 
 export const useCartCustomer = () => {

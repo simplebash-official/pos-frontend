@@ -6,16 +6,20 @@ import type { Invoice, InvoiceItem, SplitPaymentDetail } from '../types';
 // `domain::billing::CreateSaleRequest`. `cashierId` is deliberately absent:
 // the completing cashier is always derived server-side from the bearer
 // token, never client-supplied (see that struct's doc comment).
+// Only ad-hoc lines (no `productKey`/`sourceTicketKey`) need `name`/`sku`/
+// `unitPriceCents`/`totalCents`/`sourceTicketNumber`/`assignedEmployeeName` —
+// when a key is present the server resolves those from the product/ticket
+// record and ignores anything sent for them.
 export interface CompleteSaleItemInput {
   productKey?: string;
-  name: string;
-  sku?: string;
-  unitPriceCents: number;
+  sourceTicketKey?: string;
   quantity: number;
   discountCents: number;
-  totalCents: number;
   sourceType: 'retail' | 'repair' | 'print';
-  sourceTicketKey?: string;
+  name?: string;
+  sku?: string;
+  unitPriceCents?: number;
+  totalCents?: number;
   sourceTicketNumber?: string;
   assignedEmployeeName?: string;
 }
@@ -27,27 +31,34 @@ export interface CompleteSaleSplitPaymentInput {
   reference?: string;
 }
 
-export interface CompleteSaleInput {
-  customerKey?: string;
-  customerName?: string;
-  customerPhone?: string;
-  customerAddress?: string;
-  cashierName: string;
-  items: CompleteSaleItemInput[];
-  subtotalCents: number;
-  discountCents: number;
-  taxCents: number;
-  totalCents: number;
+export interface CompleteSalePricingAdjustments {
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+}
+
+export interface CompleteSalePaymentInput {
   paymentMethod: string;
+  isCredit?: boolean;
+  amountReceivedCents?: number;
   splitPayments?: CompleteSaleSplitPaymentInput[];
-  isCredit: boolean;
-  tenderedAmountCents?: number;
-  changeDueCents?: number;
-  dueDate?: string;
   cardLast4?: string;
   cardRef?: string;
   onlineRef?: string;
   onlineNote?: string;
+  dueDate?: string;
+}
+
+export interface CompleteSaleInput {
+  staff: { cashierName: string };
+  customer?: {
+    customerKey?: string;
+    customerName?: string;
+    customerPhone?: string;
+    customerAddress?: string;
+  };
+  items: CompleteSaleItemInput[];
+  pricingAdjustments?: CompleteSalePricingAdjustments;
+  payment: CompleteSalePaymentInput;
   notes?: string;
   // The frontend's current `ShopProfile` object, embedded verbatim by the
   // backend as a frozen snapshot on the invoice — see CLAUDE.md's D2 note.
@@ -92,12 +103,13 @@ interface BackendInvoice {
   items: BackendInvoiceItem[];
   subtotalCents: number;
   discountCents: number;
-  taxCents: number;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
   totalCents: number;
   paymentMethod: string;
   splitPayments?: BackendSplitPayment[];
   isCredit: boolean;
-  tenderedAmountCents?: number;
+  amountReceivedCents?: number;
   changeDueCents?: number;
   dueDate?: string;
   cardLast4?: string;
@@ -169,13 +181,14 @@ const toInvoice = (inv: BackendInvoice): Invoice => ({
   cashierId: inv.cashierId,
   cashierName: inv.cashierNameSnapshot,
   subtotalCents: inv.subtotalCents,
-  taxCents: inv.taxCents,
   discountCents: inv.discountCents,
+  discountType: inv.discountType,
+  discountValue: inv.discountValue,
   totalCents: inv.totalCents,
   paymentMethod: inv.paymentMethod,
   splitPayments: inv.splitPayments?.map(toSplitPayment),
   isCredit: inv.isCredit,
-  tenderedAmountCents: inv.tenderedAmountCents,
+  amountReceivedCents: inv.amountReceivedCents,
   changeDueCents: inv.changeDueCents,
   dueDate: inv.dueDate,
   cardLast4: inv.cardLast4,
