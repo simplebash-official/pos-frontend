@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/listenerMiddleware.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L1"
+source_file: 'src/store/listenerMiddleware.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # listenerMiddleware.ts
 
 ## Connections
+
 - [[HELD_CART_REMINDER_MS]] - `imports` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
 - [[RootState]] - `imports` [EXTRACTED]

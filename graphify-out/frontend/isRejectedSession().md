@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L32"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # isRejectedSession()
 
 ## Connections
+
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 - [[initializeAuth]] - `calls` [EXTRACTED]
 

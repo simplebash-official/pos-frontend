@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L101"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L101'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # authSlice
 
 ## Connections
+
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 - [[cacheSession()]] - `calls` [EXTRACTED]
 - [[clearCachedSession()]] - `calls` [EXTRACTED]

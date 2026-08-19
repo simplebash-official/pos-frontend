@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/index.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/features/sync/index.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # sync/index.ts
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[Header.tsx]] - `imports_from` [EXTRACTED]
 - [[PendingOperationsList()]] - `re_exports` [EXTRACTED]

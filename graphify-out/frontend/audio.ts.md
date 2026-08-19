@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/audio.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L1"
+source_file: 'src/features/billing/lib/audio.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # audio.ts
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[ServiceJobPickerModal.tsx]] - `imports_from` [EXTRACTED]

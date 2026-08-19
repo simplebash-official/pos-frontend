@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/components/InvoiceDetailDrawer.tsx"
-type: "code"
-community: "POS Billing Flow (paymentsApi)"
-location: "L1"
+source_file: 'src/features/invoices/components/InvoiceDetailDrawer.tsx'
+type: 'code'
+community: 'POS Billing Flow (paymentsApi)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # InvoiceDetailDrawer.tsx
 
 ## Connections
+
 - [[A4InvoicePreviewModal()]] - `imports` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]

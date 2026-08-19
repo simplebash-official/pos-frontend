@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/moneyFormUtils.ts"
-type: "code"
-community: "index Module"
-location: "L20"
+source_file: 'src/shared/lib/moneyFormUtils.ts'
+type: 'code'
+community: 'index Module'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fromRepairJob()
 
 ## Connections
+
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
 - [[fromCents()]] - `calls` [EXTRACTED]
 - [[moneyFormUtils.ts]] - `contains` [EXTRACTED]

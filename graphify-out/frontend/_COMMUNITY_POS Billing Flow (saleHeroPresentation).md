@@ -8,6 +8,7 @@ members: 12
 **Members:** 12 nodes
 
 ## Members
+
 - [[CompleteSaleResult]] - code - src/features/billing/api/invoicesApi.ts
 - [[CompletedSaleData]] - code - src/store/slices/cartSlice.ts
 - [[Invoice]] - code - src/features/billing/types.ts
@@ -29,6 +30,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 13 edges to [[_COMMUNITY_POS Cart & Checkout State_1]]
 - 12 edges to [[_COMMUNITY_POS Billing Flow (printLogStore)]]
 - 10 edges to [[_COMMUNITY_POS Cart & Checkout State]]
@@ -44,6 +46,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 
 ## Top bridge nodes
+
 - [[PaymentPanel.tsx]] - degree 30, connects to 10 communities
 - [[Invoice]] - degree 21, connects to 6 communities
 - [[saleHeroPresentation.ts]] - degree 10, connects to 3 communities

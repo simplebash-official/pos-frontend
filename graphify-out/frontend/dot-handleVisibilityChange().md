@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L142"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L142'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .handleVisibilityChange()
 
 ## Connections
+
 - [[dot-checkNow()]] - `calls` [EXTRACTED]
 - [[ConnectivityMonitor]] - `method` [EXTRACTED]
 

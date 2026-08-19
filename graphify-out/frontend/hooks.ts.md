@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/hooks.ts"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L1"
+source_file: 'src/store/hooks.ts'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # hooks.ts
 
 ## Connections
+
 - [[AppDispatch]] - `imports` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[AppUpdatePrompt.tsx]] - `imports_from` [EXTRACTED]

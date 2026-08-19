@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/router.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L39"
+source_file: 'src/app/router.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L39'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ReportsDashboard
 
 ## Connections
+
 - [[reportsindex.ts]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 

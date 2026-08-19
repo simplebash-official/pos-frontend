@@ -8,6 +8,7 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
+
 - [[print.ts]] - code - src/shared/lib/print.ts
 - [[triggerThermalPrint()]] - code - src/shared/lib/print.ts
 

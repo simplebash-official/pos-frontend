@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/localId.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L56"
+source_file: 'src/offline/ids/localId.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L56'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # createIdempotencyKey()
 
 ## Connections
+
 - [[enqueueOperation()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[localId.ts]] - `contains` [EXTRACTED]

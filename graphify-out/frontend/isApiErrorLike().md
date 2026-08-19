@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L36"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L36'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # isApiErrorLike()
 
 ## Connections
+
 - [[dot-constructor()]] - `calls` [EXTRACTED]
 - [[client.ts]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "vite-plugin-pwa Module"
-location: "L35"
+source_file: 'package.json'
+type: 'code'
+community: 'vite-plugin-pwa Module'
+location: 'L35'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # vite-plugin-pwa
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[vite-plugin-pwa_1]] - `imports` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/utils.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L3"
+source_file: 'src/shared/lib/utils.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getSkeletonWidthPercent()
 
 ## Connections
+
 - [[DataTable()]] - `calls` [EXTRACTED]
 - [[DataTable.tsx]] - `imports` [EXTRACTED]
 - [[utils.ts]] - `contains` [EXTRACTED]

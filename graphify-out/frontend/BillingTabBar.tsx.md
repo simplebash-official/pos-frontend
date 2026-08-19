@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/BillingTabBar.tsx"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L1"
+source_file: 'src/features/billing/components/BillingTabBar.tsx'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BillingTabBar.tsx
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingPane]] - `contains` [EXTRACTED]
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]

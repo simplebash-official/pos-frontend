@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/SettingsNav.tsx"
-type: "code"
-community: "Shop Settings & Profile"
-location: "L1"
+source_file: 'src/features/settings/components/SettingsNav.tsx'
+type: 'code'
+community: 'Shop Settings & Profile'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SettingsNav.tsx
 
 ## Connections
+
 - [[SETTINGS_SECTIONS]] - `imports` [EXTRACTED]
 - [[SettingsNavDrillDownList()]] - `contains` [EXTRACTED]
 - [[SettingsNavList()]] - `contains` [EXTRACTED]

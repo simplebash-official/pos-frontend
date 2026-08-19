@@ -1,8 +1,8 @@
 ---
-source_file: "scripts/generate-icon-shards.mjs"
-type: "code"
-community: "generate-icon-shards.mjs Module"
-location: "L1"
+source_file: 'scripts/generate-icon-shards.mjs'
+type: 'code'
+community: 'generate-icon-shards.mjs Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # generate-icon-shards.mjs
 
 ## Connections
+
 - [[dot-${key}]] - `dynamic_import` [EXTRACTED]
 - [[barrelPath]] - `contains` [EXTRACTED]
 - [[keys]] - `contains` [EXTRACTED]

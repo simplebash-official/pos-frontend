@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/components/InvoicesList.tsx"
-type: "code"
-community: "POS Billing Flow (paymentsApi)"
-location: "L1"
+source_file: 'src/features/invoices/components/InvoicesList.tsx'
+type: 'code'
+community: 'POS Billing Flow (paymentsApi)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # InvoicesList.tsx
 
 ## Connections
+
 - [[INVOICE_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[InvoiceDetailDrawer()]] - `imports` [EXTRACTED]

@@ -8,6 +8,7 @@ members: 10
 **Members:** 10 nodes
 
 ## Members
+
 - [[SyncProvider()]] - code - src/offline/react/SyncProvider.tsx
 - [[SyncProvider.tsx]] - code - src/offline/react/SyncProvider.tsx
 - [[clearConnectivityNotification()]] - code - src/features/sync/lib/syncNotifications.ts
@@ -27,6 +28,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 5 edges to [[_COMMUNITY_Invoice & Document Printing]]
 - 4 edges to [[_COMMUNITY_Offline Connectivity Monitoring_3]]
 - 3 edges to [[_COMMUNITY_Offline Connectivity Monitoring]]
@@ -40,6 +42,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Connectivity Monitoring_1]]
 
 ## Top bridge nodes
+
 - [[SyncProvider.tsx]] - degree 22, connects to 10 communities
 - [[SyncProvider()]] - degree 13, connects to 5 communities
 - [[registerSyncResources()]] - degree 4, connects to 2 communities

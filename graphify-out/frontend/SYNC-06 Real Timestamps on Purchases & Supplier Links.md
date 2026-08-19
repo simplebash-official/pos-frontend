@@ -1,7 +1,7 @@
 ---
-source_file: "backend-sync-requirements.html"
-type: "rationale"
-community: "Offline Connectivity Monitoring"
+source_file: 'backend-sync-requirements.html'
+type: 'rationale'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # SYNC-06: Real Timestamps on Purchases & Supplier Links
 
 ## Connections
+
 - [[Backend Requirements — Offline Sync Spec]] - `references` [EXTRACTED]
 - [[SYNC-07 versioncreated_atupdated_atdeleted_at Columns]] - `references` [EXTRACTED]
 

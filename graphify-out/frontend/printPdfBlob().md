@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/print/printService.tsx"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L7"
+source_file: 'src/shared/print/printService.tsx'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # printPdfBlob()
 
 ## Connections
+
 - [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/tablerIconShards/index.ts"
-type: "code"
-community: "Tabler Icon Shards"
-location: "L36"
+source_file: 'src/shared/lib/tablerIconShards/index.ts'
+type: 'code'
+community: 'Tabler Icon Shards'
+location: 'L36'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # shardKeyForIconName()
 
 ## Connections
+
 - [[shardKeyList()]] - `calls` [EXTRACTED]
 - [[tablerIconShardsindex.ts]] - `contains` [EXTRACTED]
 - [[tablerIcons.ts]] - `imports` [EXTRACTED]

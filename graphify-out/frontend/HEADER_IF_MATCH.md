@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L10"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # HEADER_IF_MATCH
 
 ## Connections
+
 - [[client.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

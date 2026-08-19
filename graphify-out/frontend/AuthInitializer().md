@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/providers.tsx"
-type: "code"
-community: "Authentication & Access Control"
-location: "L27"
+source_file: 'src/app/providers.tsx'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L27'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AuthInitializer()
 
 ## Connections
+
 - [[initializeAuth]] - `calls` [EXTRACTED]
 - [[providers.tsx]] - `contains` [EXTRACTED]
 - [[useAppDispatch]] - `calls` [EXTRACTED]

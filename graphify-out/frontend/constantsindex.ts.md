@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/index.ts"
-type: "code"
-community: "index Module"
-location: "L1"
+source_file: 'src/constants/index.ts'
+type: 'code'
+community: 'index Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # constants/index.ts
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[ErrorBoundary.tsx]] - `imports_from` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]

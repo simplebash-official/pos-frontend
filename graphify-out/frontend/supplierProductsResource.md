@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/supplierProducts.resource.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L32"
+source_file: 'src/offline/resources/supplierProducts.resource.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # supplierProductsResource
 
 ## Connections
+
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]
 - [[fetchResourceSnapshot()]] - `calls` [EXTRACTED]
 - [[linkSupplierProduct()]] - `calls` [EXTRACTED]

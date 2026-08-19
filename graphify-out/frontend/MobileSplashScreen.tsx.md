@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/components/mobile/MobileSplashScreen.tsx"
-type: "code"
-community: "Authentication & Access Control"
-location: "L1"
+source_file: 'src/features/auth/components/mobile/MobileSplashScreen.tsx'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MobileSplashScreen.tsx
 
 ## Connections
+
 - [[MobileAuthContainer.tsx]] - `imports_from` [EXTRACTED]
 - [[MobileSplashScreen()]] - `contains` [EXTRACTED]
 - [[MobileSplashScreenProps]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/components/RequireAdmin.tsx"
-type: "code"
-community: "POS Billing Flow (routes)"
-location: "L1"
+source_file: 'src/app/components/RequireAdmin.tsx'
+type: 'code'
+community: 'POS Billing Flow (routes)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RequireAdmin.tsx
 
 ## Connections
+
 - [[ROUTES]] - `imports` [EXTRACTED]
 - [[RequireAdmin()]] - `contains` [EXTRACTED]
 - [[RequireAdminProps]] - `contains` [EXTRACTED]

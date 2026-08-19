@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/PaymentPanel.tsx"
-type: "code"
-community: "POS Billing Flow (saleHeroPresentation)"
-location: "L1"
+source_file: 'src/features/billing/components/PaymentPanel.tsx'
+type: 'code'
+community: 'POS Billing Flow (saleHeroPresentation)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PaymentPanel.tsx
 
 ## Connections
+
 - [[AmountInput]] - `imports` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]

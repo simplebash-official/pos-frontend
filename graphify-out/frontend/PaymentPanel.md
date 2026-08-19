@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/PaymentPanel.tsx"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L60"
+source_file: 'src/features/billing/components/PaymentPanel.tsx'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L60'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PaymentPanel
 
 ## Connections
+
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `contains` [EXTRACTED]
 - [[formatMoney()]] - `calls` [EXTRACTED]

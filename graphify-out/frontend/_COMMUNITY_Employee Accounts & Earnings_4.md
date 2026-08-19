@@ -8,6 +8,7 @@ members: 12
 **Members:** 12 nodes
 
 ## Members
+
 - [[BackendRepair]] - code - src/features/repairs/api/repairsApi.ts
 - [[RepairJobList()]] - code - src/features/repairs/components/RepairJobList.tsx
 - [[RepairJobList.tsx]] - code - src/features/repairs/components/RepairJobList.tsx
@@ -29,6 +30,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Employee Accounts & Earnings_1]]
 - 8 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 8 edges to [[_COMMUNITY_Employee Accounts & Earnings]]
@@ -48,6 +50,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications & Storage Keys]]
 
 ## Top bridge nodes
+
 - [[RepairJobList.tsx]] - degree 29, connects to 12 communities
 - [[repairsApi.ts]] - degree 24, connects to 9 communities
 - [[RepairJobList()]] - degree 9, connects to 4 communities

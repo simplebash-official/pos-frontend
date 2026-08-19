@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/components/PrintJobList.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L23"
+source_file: 'src/features/print-jobs/components/PrintJobList.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L23'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PrintJobList()
 
 ## Connections
+
 - [[PrintJobList.tsx]] - `contains` [EXTRACTED]
 - [[createPrintJob()]] - `indirect_call` [INFERRED]
 - [[deletePrintJobs()]] - `indirect_call` [INFERRED]

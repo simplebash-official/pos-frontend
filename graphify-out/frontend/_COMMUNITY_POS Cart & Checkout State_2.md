@@ -8,6 +8,7 @@ members: 27
 **Members:** 27 nodes
 
 ## Members
+
 - [[CartLineItem]] - code - src/features/billing/components/CartLineItem.tsx
 - [[CartLineItem.tsx]] - code - src/features/billing/components/CartLineItem.tsx
 - [[CatalogPanel]] - code - src/features/billing/components/CatalogPanel.tsx
@@ -44,6 +45,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 27 edges to [[_COMMUNITY_POS Cart & Checkout State_1]]
 - 23 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 - 19 edges to [[_COMMUNITY_POS Billing Flow (useCustomers)]]
@@ -72,6 +74,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Tabler Icon Shards_1]]
 
 ## Top bridge nodes
+
 - [[formatMoney()]] - degree 60, connects to 18 communities
 - [[CatalogPanel.tsx]] - degree 44, connects to 15 communities
 - [[ServiceJobPickerModal.tsx]] - degree 38, connects to 12 communities

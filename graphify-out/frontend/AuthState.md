@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L11"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AuthState
 
 ## Connections
+
 - [[AuthUser]] - `references` [EXTRACTED]
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 

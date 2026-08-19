@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/auditLog.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L15"
+source_file: 'src/offline/engine/auditLog.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L15'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # logSyncEvent()
 
 ## Connections
+
 - [[auditLog.ts]] - `contains` [EXTRACTED]
 - [[logError()]] - `calls` [EXTRACTED]
 - [[logInfo()]] - `calls` [EXTRACTED]

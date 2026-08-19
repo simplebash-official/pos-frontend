@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/networkSignal.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/connectivity/networkSignal.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # networkSignal.ts
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[Listener]] - `contains` [EXTRACTED]
 - [[NetworkObservation]] - `contains` [EXTRACTED]

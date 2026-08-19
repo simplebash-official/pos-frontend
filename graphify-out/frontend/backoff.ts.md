@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/backoff.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/outbox/backoff.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # backoff.ts
 
 ## Connections
+
 - [[RETRY_BASE_MS]] - `imports` [EXTRACTED]
 - [[RETRY_JITTER_RATIO]] - `imports` [EXTRACTED]
 - [[RETRY_MAX_MS]] - `imports` [EXTRACTED]

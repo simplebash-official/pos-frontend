@@ -8,6 +8,7 @@ members: 11
 **Members:** 11 nodes
 
 ## Members
+
 - [[DailySalesReportSummary]] - code - src/features/reports/types.ts
 - [[EMPLOYEE_ROLE_LABELS]] - code - src/features/employees/types.ts
 - [[ReportsDashboard]] - code - src/app/router.tsx
@@ -28,6 +29,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_Employee Accounts & Earnings]]
 - 6 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 6 edges to [[_COMMUNITY_Employee Accounts & Earnings_1]]
@@ -49,6 +51,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_index Module]]
 
 ## Top bridge nodes
+
 - [[queryKeys.ts]] - degree 21, connects to 15 communities
 - [[queryKeys]] - degree 21, connects to 15 communities
 - [[ReportsDashboard.tsx]] - degree 13, connects to 5 communities

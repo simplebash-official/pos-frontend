@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/api/printLogStore.ts"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L25"
+source_file: 'src/features/invoices/api/printLogStore.ts'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L25'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getPrintLogsForInvoice()
 
 ## Connections
+
 - [[dot-getAll()]] - `calls` [INFERRED]
 - [[dot-refresh()]] - `calls` [INFERRED]
 - [[InvoiceDetailDrawer()]] - `calls` [EXTRACTED]

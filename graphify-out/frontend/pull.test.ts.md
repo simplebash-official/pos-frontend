@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/__tests__/pull.test.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L1"
+source_file: 'src/offline/__tests__/pull.test.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pull.test.ts
 
 ## Connections
+
 - [[AnySyncResource]] - `imports` [EXTRACTED]
 - [[CursorInvalidError]] - `imports` [EXTRACTED]
 - [[PullPage]] - `imports` [EXTRACTED]

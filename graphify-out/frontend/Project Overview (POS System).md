@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "document"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'document'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/document
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Project Overview (POS System)
 
 ## Connections
+
 - [[AGENTS.md Instructions Document]] - `references` [EXTRACTED]
 - [[Animation Performance Rules]] - `references` [EXTRACTED]
 - [[GEMINI.md Instructions Document]] - `references` [EXTRACTED]

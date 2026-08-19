@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/saleHeroPresentation.ts"
-type: "code"
-community: "POS Billing Flow (saleHeroPresentation)"
-location: "L1"
+source_file: 'src/features/billing/lib/saleHeroPresentation.ts'
+type: 'code'
+community: 'POS Billing Flow (saleHeroPresentation)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # saleHeroPresentation.ts
 
 ## Connections
+
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[PAYMENT_METHODS]] - `imports` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `imports_from` [EXTRACTED]

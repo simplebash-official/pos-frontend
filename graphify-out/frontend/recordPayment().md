@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/paymentsApi.ts"
-type: "code"
-community: "POS Billing Flow (paymentsApi)"
-location: "L56"
+source_file: 'src/features/billing/api/paymentsApi.ts'
+type: 'code'
+community: 'POS Billing Flow (paymentsApi)'
+location: 'L56'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # recordPayment()
 
 ## Connections
+
 - [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[paymentsApi.ts]] - `contains` [EXTRACTED]
 - [[toPaymentRecord()]] - `calls` [EXTRACTED]

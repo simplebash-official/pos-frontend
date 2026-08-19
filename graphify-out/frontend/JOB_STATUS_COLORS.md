@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/jobs.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L21"
+source_file: 'src/constants/jobs.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # JOB_STATUS_COLORS
 
 ## Connections
+
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
 - [[jobs.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/api/mockEmployees.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L83"
+source_file: 'src/features/employees/api/mockEmployees.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L83'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # normalizeEmployee()
 
 ## Connections
+
 - [[createEmployee()]] - `calls` [EXTRACTED]
 - [[mockEmployees.ts]] - `indirect_call` [INFERRED]
 

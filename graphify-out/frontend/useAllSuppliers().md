@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/hooks/useSuppliers.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L22"
+source_file: 'src/features/suppliers/hooks/useSuppliers.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L22'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useAllSuppliers()
 
 ## Connections
+
 - [[ProductFormContent()]] - `calls` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductTable()]] - `calls` [EXTRACTED]

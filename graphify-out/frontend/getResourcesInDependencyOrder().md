@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/registry/registry.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L81"
+source_file: 'src/offline/registry/registry.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L81'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getResourcesInDependencyOrder()
 
 ## Connections
+
 - [[dot-runFlush()]] - `calls` [EXTRACTED]
 - [[dot-runPull()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/products.resource.ts"
-type: "code"
-community: "Offline Sync Engine (productsApi)"
-location: "L38"
+source_file: 'src/offline/resources/products.resource.ts'
+type: 'code'
+community: 'Offline Sync Engine (productsApi)'
+location: 'L38'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # productsResource
 
 ## Connections
+
 - [[adjustStock()]] - `calls` [EXTRACTED]
 - [[appendStockDelta()]] - `calls` [EXTRACTED]
 - [[createProduct()]] - `calls` [EXTRACTED]

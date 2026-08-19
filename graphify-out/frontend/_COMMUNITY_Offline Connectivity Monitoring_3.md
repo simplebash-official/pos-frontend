@@ -8,6 +8,7 @@ members: 41
 **Members:** 41 nodes
 
 ## Members
+
 - [[dot-canSync()]] - code - src/offline/engine/SyncEngine.ts
 - [[dot-handleConnectivityChange()]] - code - src/offline/engine/SyncEngine.ts
 - [[dot-isLeader()]] - code - src/offline/engine/leader.ts
@@ -58,6 +59,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 18 edges to [[_COMMUNITY_Sync Metadata & Cursors]]
 - 14 edges to [[_COMMUNITY_Outbox Queue & Status]]
 - 14 edges to [[_COMMUNITY_Outbox Queue & Status_2]]
@@ -69,6 +71,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_POS Cart & Checkout State_1]]
 
 ## Top bridge nodes
+
 - [[SyncEngine.ts]] - degree 48, connects to 9 communities
 - [[maintenance.ts]] - degree 23, connects to 5 communities
 - [[SyncEngine]] - degree 21, connects to 5 communities

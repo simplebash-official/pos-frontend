@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/ui.ts"
-type: "code"
-community: "index Module"
-location: "L7"
+source_file: 'src/constants/ui.ts'
+type: 'code'
+community: 'index Module'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # HELD_CART_REMINDER_MS
 
 ## Connections
+
 - [[HeldCartCatchupNotifier.tsx]] - `imports` [EXTRACTED]
 - [[listenerMiddleware.ts]] - `imports` [EXTRACTED]
 - [[ui.ts]] - `contains` [EXTRACTED]

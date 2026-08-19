@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/router.tsx"
-type: "code"
-community: "POS Billing Flow (router)"
-location: "L48"
+source_file: 'src/app/router.tsx'
+type: 'code'
+community: 'POS Billing Flow (router)'
+location: 'L48'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # StandalonePrintView
 
 ## Connections
+
 - [[StandalonePrintView.tsx]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 

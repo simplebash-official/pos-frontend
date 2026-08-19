@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/types.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L198"
+source_file: 'src/offline/types.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L198'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncResource
 
 ## Connections
+
 - [[MirroredRow]] - `references` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[offlinetypes.ts]] - `contains` [EXTRACTED]

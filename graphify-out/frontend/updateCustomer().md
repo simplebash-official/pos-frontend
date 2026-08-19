@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/api/customersApi.ts"
-type: "code"
-community: "Customer Management & Drawers"
-location: "L54"
+source_file: 'src/features/customers/api/customersApi.ts'
+type: 'code'
+community: 'Customer Management & Drawers'
+location: 'L54'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # updateCustomer()
 
 ## Connections
+
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
 - [[customersApi.ts]] - `contains` [EXTRACTED]
 - [[customersResource]] - `calls` [EXTRACTED]

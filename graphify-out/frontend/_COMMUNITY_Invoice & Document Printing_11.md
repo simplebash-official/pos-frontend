@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[PWA Manifest  App Icons]] - concept - public/icon-512.png
 
 ## Live Query (requires Dataview plugin)

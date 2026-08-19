@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # client.ts
 
 ## Connections
+
 - [[ApiClient]] - `contains` [EXTRACTED]
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[HEADER_DEVICE_ID]] - `imports` [EXTRACTED]

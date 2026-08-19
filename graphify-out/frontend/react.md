@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Runtime Packages & UI Dependencies"
-location: "L54"
+source_file: 'package.json'
+type: 'code'
+community: 'Runtime Packages & UI Dependencies'
+location: 'L54'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # react
 
 ## Connections
+
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[react_1]] - `imports` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L62"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L62'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # NOTIFICATION_ID_SYNC_ERROR
 
 ## Connections
+
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 - [[syncNotifications.ts]] - `imports` [EXTRACTED]
 

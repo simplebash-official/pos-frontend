@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/SyncProvider.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/react/SyncProvider.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncProvider.tsx
 
 ## Connections
+
 - [[SyncEngine]] - `imports` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]
 - [[SyncProvider()]] - `contains` [EXTRACTED]

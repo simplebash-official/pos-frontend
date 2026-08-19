@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/PhoneDisplay.tsx"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L1"
+source_file: 'src/shared/components/PhoneDisplay.tsx'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PhoneDisplay.tsx
 
 ## Connections
+
 - [[CustomerDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `imports_from` [EXTRACTED]

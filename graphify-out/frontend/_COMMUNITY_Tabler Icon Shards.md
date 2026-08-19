@@ -8,6 +8,7 @@ members: 28
 **Members:** 28 nodes
 
 ## Members
+
 - [[_.ts]] - code - src/shared/lib/tablerIconShards/_.ts
 - [[a.ts]] - code - src/shared/lib/tablerIconShards/a.ts
 - [[b.ts]] - code - src/shared/lib/tablerIconShards/b.ts
@@ -45,7 +46,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 4 edges to [[_COMMUNITY_Tabler Icon Shards_1]]
 
 ## Top bridge nodes
+
 - [[tablerIconShardsindex.ts]] - degree 31, connects to 1 community

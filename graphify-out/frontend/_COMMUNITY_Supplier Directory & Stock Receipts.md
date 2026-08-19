@@ -8,6 +8,7 @@ members: 29
 **Members:** 29 nodes
 
 ## Members
+
 - [[DEFAULT_SUGGESTED_TAGS]] - code - src/features/suppliers/constants.ts
 - [[FormContentProps_2]] - code - src/features/suppliers/components/SupplierFormModal.tsx
 - [[NO_SUPPLIERS]] - code - src/features/suppliers/hooks/useSuppliers.ts
@@ -46,6 +47,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 22 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 - 19 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 - 16 edges to [[_COMMUNITY_Offline Sync Engine (useProducts)]]
@@ -64,6 +66,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Authentication & Access Control_1]]
 
 ## Top bridge nodes
+
 - [[SupplierList.tsx]] - degree 33, connects to 6 communities
 - [[useSuppliers.ts]] - degree 27, connects to 6 communities
 - [[SupplierFormModal.tsx]] - degree 22, connects to 6 communities

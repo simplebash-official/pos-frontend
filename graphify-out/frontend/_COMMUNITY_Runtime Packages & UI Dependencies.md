@@ -8,6 +8,7 @@ members: 31
 **Members:** 31 nodes
 
 ## Members
+
 - [[@mantinecore_1]] - concept - package.json
 - [[@mantinecore]] - code - package.json
 - [[@mantinedates_1]] - concept - package.json
@@ -48,10 +49,12 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 1 edge to [[_COMMUNITY_package.json Module]]
 - 1 edge to [[_COMMUNITY_@mantineform Module]]
 - 1 edge to [[_COMMUNITY_react-dom Module]]
 - 1 edge to [[_COMMUNITY_@tanstackreact-query Module]]
 
 ## Top bridge nodes
+
 - [[dependencies]] - degree 19, connects to 4 communities

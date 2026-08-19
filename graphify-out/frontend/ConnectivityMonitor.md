@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L32"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ConnectivityMonitor
 
 ## Connections
+
 - [[dot-checkNow()]] - `method` [EXTRACTED]
 - [[dot-clearProbeTimer()]] - `method` [EXTRACTED]
 - [[dot-clearSettleTimer()]] - `method` [EXTRACTED]

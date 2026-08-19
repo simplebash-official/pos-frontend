@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Build & Dev Dependencies"
-location: "L26"
+source_file: 'package.json'
+type: 'code'
+community: 'Build & Dev Dependencies'
+location: 'L26'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fake-indexeddb
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[fake-indexeddb_1]] - `imports` [EXTRACTED]
 

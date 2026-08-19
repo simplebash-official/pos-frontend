@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L167"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L167'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .runProbe()
 
 ## Connections
+
 - [[dot-checkNow()]] - `calls` [EXTRACTED]
 - [[dot-isSimulatedOffline()]] - `calls` [EXTRACTED]
 - [[dot-recordFailure()]] - `calls` [EXTRACTED]

@@ -1,7 +1,7 @@
 ---
-source_file: "backend-sync-requirements.html"
-type: "rationale"
-community: "Offline Connectivity Monitoring"
+source_file: 'backend-sync-requirements.html'
+type: 'rationale'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # SYNC-05: Never Issue a local_ Prefixed Key
 
 ## Connections
+
 - [[Backend Requirements — Offline Sync Spec]] - `references` [EXTRACTED]
 - [[Offline Sync Four Hard Rules]] - `conceptually_related_to` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/DetailDrawer.tsx"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L1"
+source_file: 'src/shared/components/DetailDrawer.tsx'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # DetailDrawer.tsx
 
 ## Connections
+
 - [[CustomerDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[DetailDrawer()]] - `contains` [EXTRACTED]
 - [[DetailDrawerProps]] - `contains` [EXTRACTED]

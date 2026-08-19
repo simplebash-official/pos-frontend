@@ -1,7 +1,7 @@
 ---
-source_file: "backend-sync-requirements.html"
-type: "rationale"
-community: "Offline Connectivity Monitoring"
+source_file: 'backend-sync-requirements.html'
+type: 'rationale'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/rationale
   - graphify/INFERRED
@@ -11,6 +11,7 @@ tags:
 # SYNC-14: Batch Push Endpoint (Conditional)
 
 ## Connections
+
 - [[Backend Requirements — Offline Sync Spec]] - `references` [EXTRACTED]
 - [[Offline & Sync Architecture]] - `conceptually_related_to` [INFERRED]
 

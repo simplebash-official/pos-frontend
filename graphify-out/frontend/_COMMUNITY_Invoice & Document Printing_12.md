@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[hero.png]] - image - src/assets/hero.png
 
 ## Live Query (requires Dataview plugin)

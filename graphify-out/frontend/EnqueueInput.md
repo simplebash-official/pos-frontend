@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L19"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L19'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EnqueueInput
 
 ## Connections
+
 - [[SyncResourceId]] - `references` [EXTRACTED]
 - [[outbox.ts]] - `contains` [EXTRACTED]
 

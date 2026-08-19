@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/SaleDocumentPreviewModal.tsx"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L24"
+source_file: 'src/features/billing/components/SaleDocumentPreviewModal.tsx'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L24'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SaleDocumentPreviewModal()
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `contains` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]

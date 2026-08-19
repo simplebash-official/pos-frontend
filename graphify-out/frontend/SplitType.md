@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/types.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/features/employees/types.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SplitType
 
 ## Connections
+
 - [[AssignmentInfo]] - `references` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]
 - [[PrintJob]] - `references` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/index.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L1"
+source_file: 'src/offline/index.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # offline/index.ts
 
 ## Connections
+
 - [[ConnectivityMonitor]] - `re_exports` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `re_exports` [EXTRACTED]
 - [[ConnectivitySnapshot]] - `re_exports` [EXTRACTED]

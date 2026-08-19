@@ -1,7 +1,7 @@
 ---
-source_file: "AGENTS.md"
-type: "document"
-community: "Offline Connectivity Monitoring"
+source_file: 'AGENTS.md'
+type: 'document'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/document
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # AGENTS.md Instructions Document
 
 ## Connections
+
 - [[Offline & Sync Architecture]] - `references` [EXTRACTED]
 - [[Project Overview (POS System)]] - `references` [EXTRACTED]
 

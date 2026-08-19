@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierFormModal.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/suppliers/components/SupplierFormModal.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierFormModal.tsx
 
 ## Connections
+
 - [[DEFAULT_SUGGESTED_TAGS]] - `imports` [EXTRACTED]
 - [[FormContentProps_2]] - `contains` [EXTRACTED]
 - [[PRODUCT_SEARCH_FIELDS]] - `imports` [EXTRACTED]

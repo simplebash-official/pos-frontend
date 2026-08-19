@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/TaxVatSection.tsx"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L17"
+source_file: 'src/features/settings/components/sections/TaxVatSection.tsx'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # TaxVatSection()
 
 ## Connections
+
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[TaxVatSection.tsx]] - `contains` [EXTRACTED]
 - [[selectShopProfile()]] - `indirect_call` [INFERRED]

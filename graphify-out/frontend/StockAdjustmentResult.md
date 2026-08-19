@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L93"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L93'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # StockAdjustmentResult
 
 ## Connections
+
 - [[inventorytypes.ts]] - `contains` [EXTRACTED]
 - [[productsApi.ts]] - `imports` [EXTRACTED]
 

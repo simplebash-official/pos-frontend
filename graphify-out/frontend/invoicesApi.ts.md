@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "POS Billing Flow (invoicesApi)"
-location: "L1"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'POS Billing Flow (invoicesApi)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # invoicesApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendInvoice]] - `contains` [EXTRACTED]

@@ -229,8 +229,15 @@ export const PaymentPanel = memo(
     // Focus cash input on payment method change to Cash, or set default total for Card
     const prevPaymentMethodRef = useRef(paymentMethod);
     useEffect(() => {
-      if (paymentMethod === PAYMENT_METHODS.CASH && !isCredit && !completedSale) {
-        setTimeout(() => cashInputRef.current?.focus(), 50);
+      if (
+        paymentMethod === PAYMENT_METHODS.CASH &&
+        prevPaymentMethodRef.current !== PAYMENT_METHODS.CASH &&
+        !isCredit &&
+        !completedSale
+      ) {
+        if (!isMobile) {
+          setTimeout(() => cashInputRef.current?.focus(), 50);
+        }
       } else if (
         paymentMethod === PAYMENT_METHODS.CARD &&
         prevPaymentMethodRef.current !== PAYMENT_METHODS.CARD &&
@@ -240,7 +247,7 @@ export const PaymentPanel = memo(
         setTenderedRupees(Math.round(totalCents / 100));
       }
       prevPaymentMethodRef.current = paymentMethod;
-    }, [paymentMethod, isCredit, completedSale, totalCents]);
+    }, [paymentMethod, isCredit, completedSale, totalCents, isMobile]);
 
     // Sync tendered amount to Redux store
     useEffect(() => {

@@ -8,6 +8,7 @@ members: 17
 **Members:** 17 nodes
 
 ## Members
+
 - [[App()]] - code - src/app/App.tsx
 - [[AppProviders()]] - code - src/app/providers.tsx
 - [[AppProvidersProps]] - code - src/app/providers.tsx
@@ -34,6 +35,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 4 edges to [[_COMMUNITY_Invoice & Document Printing]]
 - 4 edges to [[_COMMUNITY_Notifications & Storage Keys]]
 - 3 edges to [[_COMMUNITY_Authentication & Access Control]]
@@ -44,6 +46,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 
 ## Top bridge nodes
+
 - [[providers.tsx]] - degree 26, connects to 7 communities
 - [[appApp.tsx]] - degree 7, connects to 1 community
 - [[router]] - degree 2, connects to 1 community

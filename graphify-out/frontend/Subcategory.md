@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L3"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Subcategory
 
 ## Connections
+
 - [[SyncedEntityFields]] - `inherits` [EXTRACTED]
 - [[categoriesApi.ts]] - `imports` [EXTRACTED]
 - [[inventorytypes.ts]] - `contains` [EXTRACTED]

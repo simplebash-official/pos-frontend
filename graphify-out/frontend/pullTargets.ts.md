@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/pullTargets.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L1"
+source_file: 'src/offline/engine/pullTargets.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pullTargets.ts
 
 ## Connections
+
 - [[RFC-3339_1]] - `cites` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]
 - [[SyncResourceId]] - `imports` [EXTRACTED]

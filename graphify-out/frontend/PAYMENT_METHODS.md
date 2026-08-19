@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/payment.ts"
-type: "code"
-community: "POS Billing Flow (saleHeroPresentation)"
-location: "L7"
+source_file: 'src/constants/payment.ts'
+type: 'code'
+community: 'POS Billing Flow (saleHeroPresentation)'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PAYMENT_METHODS
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `imports` [EXTRACTED]
 - [[cartSlice.ts]] - `imports` [EXTRACTED]

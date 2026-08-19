@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/documentsApi.ts"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L10"
+source_file: 'src/features/billing/api/documentsApi.ts'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getInvoiceDocument()
 
 ## Connections
+
 - [[documentsApi.ts]] - `contains` [EXTRACTED]
 - [[useInvoiceDocument()]] - `calls` [EXTRACTED]
 - [[useInvoiceDocument.ts]] - `imports` [EXTRACTED]

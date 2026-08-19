@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/hooks/usePrint.ts"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L9"
+source_file: 'src/features/billing/hooks/usePrint.ts'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L9'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # usePrint()
 
 ## Connections
+
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[InvoiceDetailDrawer()]] - `calls` [EXTRACTED]

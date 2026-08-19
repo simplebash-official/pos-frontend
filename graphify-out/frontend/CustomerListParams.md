@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/types.ts"
-type: "code"
-community: "Customer Management & Drawers"
-location: "L32"
+source_file: 'src/features/customers/types.ts'
+type: 'code'
+community: 'Customer Management & Drawers'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CustomerListParams
 
 ## Connections
+
 - [[customerstypes.ts]] - `contains` [EXTRACTED]
 - [[customersApi.ts]] - `imports` [EXTRACTED]
 

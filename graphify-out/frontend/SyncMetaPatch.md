@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/syncMeta.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L10"
+source_file: 'src/offline/db/syncMeta.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncMetaPatch
 
 ## Connections
+
 - [[pull.ts]] - `imports` [EXTRACTED]
 - [[syncMeta.ts]] - `contains` [EXTRACTED]
 

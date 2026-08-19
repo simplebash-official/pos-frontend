@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/idMap.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L33"
+source_file: 'src/offline/ids/idMap.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L33'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resolveMapping()
 
 ## Connections
+
 - [[commitSuccess()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[idMap.ts]] - `contains` [EXTRACTED]

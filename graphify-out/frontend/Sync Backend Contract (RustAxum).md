@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Sync Backend Contract (Rust/Axum)
 
 ## Connections
+
 - [[Error Codes the Client Acts On]] - `conceptually_related_to` [EXTRACTED]
 - [[Offline & Sync Architecture]] - `references` [EXTRACTED]
 - [[SYNC-01 Idempotency-Key on Mutating Requests]] - `conceptually_related_to` [EXTRACTED]

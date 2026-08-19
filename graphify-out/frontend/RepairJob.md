@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/repairs/types.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L5"
+source_file: 'src/features/repairs/types.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L5'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RepairJob
 
 ## Connections
+
 - [[BackendRepair]] - `references` [EXTRACTED]
 - [[JobStatus]] - `references` [EXTRACTED]
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]

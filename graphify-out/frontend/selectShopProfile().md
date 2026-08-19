@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/settingsSlice.ts"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L140"
+source_file: 'src/store/slices/settingsSlice.ts'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L140'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectShopProfile()
 
 ## Connections
+
 - [[BankDetailsSection()]] - `indirect_call` [INFERRED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BillingCounter()]] - `indirect_call` [INFERRED]

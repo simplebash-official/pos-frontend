@@ -8,6 +8,7 @@ members: 23
 **Members:** 23 nodes
 
 ## Members
+
 - [[dot-constructor()_7]] - code - src/offline/errors.ts
 - [[AdjustStockPayload]] - code - src/offline/resources/products.resource.ts
 - [[BarcodeConflictError]] - code - src/offline/errors.ts
@@ -40,6 +41,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 14 edges to [[_COMMUNITY_Outbox Queue & Status]]
 - 12 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_1]]
 - 10 edges to [[_COMMUNITY_Inventory & Products API]]
@@ -56,6 +58,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Connectivity Monitoring]]
 
 ## Top bridge nodes
+
 - [[products.resource.ts]] - degree 35, connects to 10 communities
 - [[toLocalRow()]] - degree 15, connects to 7 communities
 - [[pushOptions.ts]] - degree 11, connects to 7 communities

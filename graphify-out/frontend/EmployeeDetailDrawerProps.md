@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/components/EmployeeDetailDrawer.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L46"
+source_file: 'src/features/employees/components/EmployeeDetailDrawer.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L46'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EmployeeDetailDrawerProps
 
 ## Connections
+
 - [[Employee]] - `references` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `contains` [EXTRACTED]
 

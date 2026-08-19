@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Runtime Packages & UI Dependencies"
-location: "L40"
+source_file: 'package.json'
+type: 'code'
+community: 'Runtime Packages & UI Dependencies'
+location: 'L40'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @mantine/core
 
 ## Connections
+
 - [[@mantinecore_1]] - `imports` [EXTRACTED]
 - [[dependencies]] - `contains` [EXTRACTED]
 

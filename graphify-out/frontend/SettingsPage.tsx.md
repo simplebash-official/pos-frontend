@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/SettingsPage.tsx"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L1"
+source_file: 'src/features/settings/components/SettingsPage.tsx'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SettingsPage.tsx
 
 ## Connections
+
 - [[BankDetailsSection()]] - `imports` [EXTRACTED]
 - [[BankDetailsSection.tsx]] - `imports_from` [EXTRACTED]
 - [[BrandingSection()]] - `imports` [EXTRACTED]

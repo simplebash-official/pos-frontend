@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/AppShell.tsx"
-type: "code"
-community: "POS Billing Flow (router)"
-location: "L37"
+source_file: 'src/app/layout/AppShell.tsx'
+type: 'code'
+community: 'POS Billing Flow (router)'
+location: 'L37'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AppShell()
 
 ## Connections
+
 - [[AppShell.tsx]] - `contains` [EXTRACTED]
 - [[router.tsx]] - `imports` [EXTRACTED]
 - [[selectIsAuthenticated()]] - `indirect_call` [INFERRED]

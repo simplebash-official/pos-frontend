@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/SyncProvider.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L39"
+source_file: 'src/offline/react/SyncProvider.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L39'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncProvider()
 
 ## Connections
+
 - [[SyncProvider.tsx]] - `contains` [EXTRACTED]
 - [[clearConnectivityNotification()]] - `calls` [EXTRACTED]
 - [[getResourcesInDependencyOrder()]] - `calls` [EXTRACTED]

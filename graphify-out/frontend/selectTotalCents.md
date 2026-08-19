@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L545"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L545'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectTotalCents
 
 ## Connections
+
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 

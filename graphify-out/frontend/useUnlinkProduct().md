@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
-type: "code"
-community: "Offline Sync Engine (useProducts)"
-location: "L98"
+source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
+type: 'code'
+community: 'Offline Sync Engine (useProducts)'
+location: 'L98'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useUnlinkProduct()
 
 ## Connections
+
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[SupplierDetailDrawer()]] - `calls` [EXTRACTED]

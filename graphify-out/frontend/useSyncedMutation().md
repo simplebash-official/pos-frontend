@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useSyncedMutation.ts"
-type: "code"
-community: "Offline Sync Engine (useProducts)"
-location: "L17"
+source_file: 'src/offline/react/useSyncedMutation.ts'
+type: 'code'
+community: 'Offline Sync Engine (useProducts)'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useSyncedMutation()
 
 ## Connections
+
 - [[getSyncResource()]] - `calls` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[submitOperation()]] - `calls` [EXTRACTED]

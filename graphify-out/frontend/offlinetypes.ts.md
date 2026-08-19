@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/types.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L1"
+source_file: 'src/offline/types.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # offline/types.ts
 
 ## Connections
+
 - [[AnySyncResource]] - `contains` [EXTRACTED]
 - [[ConflictPolicy]] - `contains` [EXTRACTED]
 - [[ConflictStrategy]] - `contains` [EXTRACTED]

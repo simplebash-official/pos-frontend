@@ -8,6 +8,7 @@ members: 55
 **Members:** 55 nodes
 
 ## Members
+
 - [[AppDispatch]] - code - src/store/index.ts
 - [[AppNotification]] - code - src/features/notifications/types.ts
 - [[ColorScheme]] - code - src/store/slices/themeSlice.ts
@@ -39,7 +40,7 @@ members: 55
 - [[listenerMiddleware.ts]] - code - src/store/listenerMiddleware.ts
 - [[loadNotificationsFromStorage()]] - code - src/store/slices/notificationSlice.ts
 - [[notificationSlice]] - code - src/store/slices/notificationSlice.ts
-- [[notificationSlice.test.ts]] - code - src/features/notifications/__tests__/notificationSlice.test.ts
+- [[notificationSlice.test.ts]] - code - src/features/notifications/**tests**/notificationSlice.test.ts
 - [[notificationSlice.ts]] - code - src/store/slices/notificationSlice.ts
 - [[notificationsindex.ts]] - code - src/features/notifications/index.ts
 - [[notificationstypes.ts]] - code - src/features/notifications/types.ts
@@ -72,6 +73,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Invoice & Document Printing]]
 - 5 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 - 4 edges to [[_COMMUNITY_App Layout & Routing]]
@@ -91,6 +93,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Connectivity Monitoring_1]]
 
 ## Top bridge nodes
+
 - [[storeindex.ts]] - degree 15, connects to 6 communities
 - [[notificationSlice.ts]] - degree 23, connects to 5 communities
 - [[STORAGE_KEYS]] - degree 11, connects to 5 communities

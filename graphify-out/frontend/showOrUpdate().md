@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/lib/syncNotifications.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L20"
+source_file: 'src/features/sync/lib/syncNotifications.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # showOrUpdate()
 
 ## Connections
+
 - [[notifyBackOnline()]] - `calls` [EXTRACTED]
 - [[notifySyncComplete()]] - `calls` [EXTRACTED]
 - [[notifyWentOffline()]] - `calls` [EXTRACTED]

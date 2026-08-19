@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "react-dom Module"
-location: "L55"
+source_file: 'package.json'
+type: 'code'
+community: 'react-dom Module'
+location: 'L55'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # react-dom
 
 ## Connections
+
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[react-dom_1]] - `imports` [EXTRACTED]
 

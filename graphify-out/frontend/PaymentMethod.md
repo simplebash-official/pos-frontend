@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/payment.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L14"
+source_file: 'src/constants/payment.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PaymentMethod
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CartState]] - `references` [EXTRACTED]
 - [[HeldCart]] - `references` [EXTRACTED]

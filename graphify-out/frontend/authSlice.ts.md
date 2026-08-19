@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L1"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # authSlice.ts
 
 ## Connections
+
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[AuthState]] - `contains` [EXTRACTED]

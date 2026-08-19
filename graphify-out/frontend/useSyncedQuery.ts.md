@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useSyncedQuery.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/react/useSyncedQuery.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useSyncedQuery.ts
 
 ## Connections
+
 - [[SyncResourceId]] - `imports` [EXTRACTED]
 - [[SyncedQueryResult]] - `contains` [EXTRACTED]
 - [[hooks.ts]] - `imports_from` [EXTRACTED]

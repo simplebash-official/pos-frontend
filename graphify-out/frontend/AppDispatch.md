@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/index.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L24"
+source_file: 'src/store/index.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L24'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AppDispatch
 
 ## Connections
+
 - [[hooks.ts]] - `imports` [EXTRACTED]
 - [[storeindex.ts]] - `contains` [EXTRACTED]
 

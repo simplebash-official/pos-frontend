@@ -1,8 +1,8 @@
 ---
-source_file: "src/styles/theme.ts"
-type: "code"
-community: "App Layout & Routing"
-location: "L29"
+source_file: 'src/styles/theme.ts'
+type: 'code'
+community: 'App Layout & Routing'
+location: 'L29'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # mantineTheme
 
 ## Connections
+
 - [[providers.tsx]] - `imports` [EXTRACTED]
 - [[theme.ts]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Offline Sync Engine (syncApi)"
-location: "L63"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Offline Sync Engine (syncApi)'
+location: 'L63'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchSyncChanges()
 
 ## Connections
+
 - [[fetchNewestCursors()]] - `calls` [EXTRACTED]
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]
 - [[fetchResourceSnapshotPage()]] - `calls` [EXTRACTED]

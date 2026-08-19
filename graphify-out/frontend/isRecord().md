@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/idMap.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L66"
+source_file: 'src/offline/ids/idMap.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L66'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # isRecord()
 
 ## Connections
+
 - [[idMap.ts]] - `contains` [EXTRACTED]
 - [[rewriteNode()]] - `calls` [EXTRACTED]
 

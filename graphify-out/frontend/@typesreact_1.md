@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "concept"
-community: "Build & Dev Dependencies"
-location: "L19"
+source_file: 'package.json'
+type: 'concept'
+community: 'Build & Dev Dependencies'
+location: 'L19'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @types/react
 
 ## Connections
+
 - [[@typesreact]] - `imports` [EXTRACTED]
 
 #graphify/concept #graphify/EXTRACTED #community/Build__Dev_Dependencies

@@ -8,6 +8,7 @@ members: 29
 **Members:** 29 nodes
 
 ## Members
+
 - [[@eslintjs_1]] - concept - package.json
 - [[@eslintjs]] - code - package.json
 - [[@typesreact]] - code - package.json
@@ -46,6 +47,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 1 edge to [[_COMMUNITY_package.json Module]]
 - 1 edge to [[_COMMUNITY_eslint-plugin-react-hooks Module]]
 - 1 edge to [[_COMMUNITY_prettier Module]]
@@ -55,4 +57,5 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_vitest Module]]
 
 ## Top bridge nodes
+
 - [[devDependencies]] - degree 21, connects to 7 communities

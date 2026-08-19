@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/components/CustomerFormModal.tsx"
-type: "code"
-community: "POS Billing Flow (useCustomers)"
-location: "L47"
+source_file: 'src/features/customers/components/CustomerFormModal.tsx'
+type: 'code'
+community: 'POS Billing Flow (useCustomers)'
+location: 'L47'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CustomerFormContent()
 
 ## Connections
+
 - [[CustomerFormModal.tsx]] - `contains` [EXTRACTED]
 - [[formatDate()]] - `calls` [EXTRACTED]
 - [[formatMoney()]] - `calls` [EXTRACTED]

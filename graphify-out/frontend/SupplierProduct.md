@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/types.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L3"
+source_file: 'src/features/supplier-products/types.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierProduct
 
 ## Connections
+
 - [[EnrichedLinkedProduct]] - `inherits` [EXTRACTED]
 - [[EnrichedLinkedSupplier]] - `inherits` [EXTRACTED]
 - [[OfflineDb]] - `references` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/ShopProfileSection.tsx"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L20"
+source_file: 'src/features/settings/components/sections/ShopProfileSection.tsx'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SectionProps
 
 ## Connections
+
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports` [EXTRACTED]
 - [[DocumentTemplatesSection.tsx]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/api/mockEmployees.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L202"
+source_file: 'src/features/employees/api/mockEmployees.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L202'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # updateEarningRecordForWork()
 
 ## Connections
+
 - [[dot-update()_1]] - `calls` [INFERRED]
 - [[addEarningRecord()]] - `calls` [EXTRACTED]
 - [[mockEmployees.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/index.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/features/employees/index.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # employees/index.ts
 
 ## Connections
+
 - [[EmployeeDetailDrawer.tsx]] - `re_exports` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `re_exports` [EXTRACTED]
 - [[EmployeeList]] - `imports_from` [EXTRACTED]

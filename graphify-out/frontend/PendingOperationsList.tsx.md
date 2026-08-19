@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/PendingOperationsList.tsx"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L1"
+source_file: 'src/features/sync/components/PendingOperationsList.tsx'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PendingOperationsList.tsx
 
 ## Connections
+
 - [[EmptyState()]] - `imports` [EXTRACTED]
 - [[EmptyState.tsx]] - `imports_from` [EXTRACTED]
 - [[OutboxOp]] - `imports` [EXTRACTED]

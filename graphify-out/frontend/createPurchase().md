@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/api/purchasesApi.ts"
-type: "code"
-community: "Offline Sync Engine (productsApi)"
-location: "L37"
+source_file: 'src/features/purchases/api/purchasesApi.ts'
+type: 'code'
+community: 'Offline Sync Engine (productsApi)'
+location: 'L37'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # createPurchase()
 
 ## Connections
+
 - [[purchases.resource.ts]] - `imports` [EXTRACTED]
 - [[purchasesApi.ts]] - `contains` [EXTRACTED]
 - [[purchasesResource]] - `calls` [EXTRACTED]

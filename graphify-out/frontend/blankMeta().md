@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/syncMeta.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L12"
+source_file: 'src/offline/db/syncMeta.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # blankMeta()
 
 ## Connections
+
 - [[getSyncMeta()]] - `calls` [EXTRACTED]
 - [[patchSyncMeta()]] - `calls` [EXTRACTED]
 - [[seedSyncMeta()]] - `calls` [EXTRACTED]

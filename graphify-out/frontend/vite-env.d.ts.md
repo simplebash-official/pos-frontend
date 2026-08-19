@@ -1,8 +1,8 @@
 ---
-source_file: "src/vite-env.d.ts"
-type: "code"
-community: "vite-env.d Module"
-location: "L1"
+source_file: 'src/vite-env.d.ts'
+type: 'code'
+community: 'vite-env.d Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED

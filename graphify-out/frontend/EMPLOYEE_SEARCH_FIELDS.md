@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/searchFields.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L54"
+source_file: 'src/shared/lib/searchFields.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L54'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EMPLOYEE_SEARCH_FIELDS
 
 ## Connections
+
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]
 - [[searchFields.ts]] - `contains` [EXTRACTED]
 

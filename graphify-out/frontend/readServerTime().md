@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L49"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L49'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # readServerTime()
 
 ## Connections
+
 - [[dot-constructor()]] - `calls` [EXTRACTED]
 - [[client.ts]] - `contains` [EXTRACTED]
 

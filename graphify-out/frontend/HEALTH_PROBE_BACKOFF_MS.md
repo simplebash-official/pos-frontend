@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L19"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L19'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # HEALTH_PROBE_BACKOFF_MS
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

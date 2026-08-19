@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "scripts Module"
-location: "L10"
+source_file: 'package.json'
+type: 'code'
+community: 'scripts Module'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # format
 
 ## Connections
+
 - [[scripts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/scripts_Module

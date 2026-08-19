@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/date.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L21"
+source_file: 'src/shared/lib/date.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # formatRelativeTime()
 
 ## Connections
+
 - [[NotificationItem()]] - `calls` [EXTRACTED]
 - [[NotificationItem.tsx]] - `imports` [EXTRACTED]
 - [[date.ts]] - `contains` [EXTRACTED]

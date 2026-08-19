@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[RepairRetail Shop POS Domain]] - concept - src/assets/wall_login.jpg
 
 ## Live Query (requires Dataview plugin)

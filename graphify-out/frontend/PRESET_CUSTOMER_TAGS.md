@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/constants.ts"
-type: "code"
-community: "POS Billing Flow (useCustomers)"
-location: "L1"
+source_file: 'src/features/customers/constants.ts'
+type: 'code'
+community: 'POS Billing Flow (useCustomers)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PRESET_CUSTOMER_TAGS
 
 ## Connections
+
 - [[customersconstants.ts]] - `contains` [EXTRACTED]
 - [[useCustomers.ts]] - `imports` [EXTRACTED]
 

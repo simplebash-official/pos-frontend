@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/notifications/index.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L1"
+source_file: 'src/features/notifications/index.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # notifications/index.ts
 
 ## Connections
+
 - [[Header.tsx]] - `imports_from` [EXTRACTED]
 - [[NotificationItem()]] - `re_exports` [EXTRACTED]
 - [[NotificationItem.tsx]] - `re_exports` [EXTRACTED]

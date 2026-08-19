@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/NotFoundPage.tsx"
-type: "code"
-community: "POS Billing Flow (router)"
-location: "L6"
+source_file: 'src/shared/components/NotFoundPage.tsx'
+type: 'code'
+community: 'POS Billing Flow (router)'
+location: 'L6'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # NotFoundPage()
 
 ## Connections
+
 - [[NotFoundPage.tsx]] - `contains` [EXTRACTED]
 - [[router.tsx]] - `imports` [EXTRACTED]
 

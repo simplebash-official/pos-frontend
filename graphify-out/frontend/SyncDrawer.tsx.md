@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncDrawer.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/features/sync/components/SyncDrawer.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncDrawer.tsx
 
 ## Connections
+
 - [[SyncDrawer()]] - `contains` [EXTRACTED]
 - [[SyncDrawerProps]] - `contains` [EXTRACTED]
 - [[SyncPanel()]] - `imports` [EXTRACTED]

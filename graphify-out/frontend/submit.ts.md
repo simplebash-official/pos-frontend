@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/submit.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L1"
+source_file: 'src/offline/outbox/submit.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # submit.ts
 
 ## Connections
+
 - [[IdMapRecord]] - `imports` [EXTRACTED]
 - [[LocalContext]] - `imports` [EXTRACTED]
 - [[MIRROR_TABLE_NAMES]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/types.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/suppliers/types.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # suppliers/types.ts
 
 ## Connections
+
 - [[Supplier]] - `contains` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[SupplierFormModal.tsx]] - `imports_from` [EXTRACTED]

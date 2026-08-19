@@ -1,8 +1,8 @@
 ---
-source_file: "tsconfig.json"
-type: "concept"
-community: "DOM Module"
-location: "L29"
+source_file: 'tsconfig.json'
+type: 'concept'
+community: 'DOM Module'
+location: 'L29'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # src
 
 ## Connections
+
 - [[include]] - `extends` [EXTRACTED]
 
 #graphify/concept #graphify/EXTRACTED #community/DOM_Module

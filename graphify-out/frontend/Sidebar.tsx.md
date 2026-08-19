@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/Sidebar.tsx"
-type: "code"
-community: "POS Billing Flow (routes)"
-location: "L1"
+source_file: 'src/app/layout/Sidebar.tsx'
+type: 'code'
+community: 'POS Billing Flow (routes)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Sidebar.tsx
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[NAV_ITEMS]] - `imports` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]

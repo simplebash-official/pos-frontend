@@ -8,6 +8,7 @@ members: 31
 **Members:** 31 nodes
 
 ## Members
+
 - [[CUSTOMER_SEARCH_FIELDS]] - code - src/shared/lib/searchFields.ts
 - [[Customer]] - code - src/features/customers/types.ts
 - [[CustomerDetailDrawer()]] - code - src/features/customers/components/CustomerDetailDrawer.tsx
@@ -48,6 +49,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 19 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 18 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 - 15 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
@@ -70,6 +72,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Outbox Queue & Status_1]]
 
 ## Top bridge nodes
+
 - [[CustomerList.tsx]] - degree 34, connects to 8 communities
 - [[CustomerDetailDrawer.tsx]] - degree 20, connects to 7 communities
 - [[useCustomers.ts]] - degree 29, connects to 6 communities

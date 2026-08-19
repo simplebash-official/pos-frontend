@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/themeSlice.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L1"
+source_file: 'src/store/slices/themeSlice.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # themeSlice.ts
 
 ## Connections
+
 - [[ColorScheme]] - `contains` [EXTRACTED]
 - [[STORAGE_KEYS]] - `imports` [EXTRACTED]
 - [[ThemeState]] - `contains` [EXTRACTED]

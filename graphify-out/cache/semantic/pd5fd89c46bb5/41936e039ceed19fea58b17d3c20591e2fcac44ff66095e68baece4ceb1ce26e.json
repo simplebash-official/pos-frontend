@@ -1,1 +1,623 @@
-{"nodes": [{"id": "backend_sync_requirements_doc", "label": "Backend Requirements \u2014 Offline Sync Spec", "file_type": "document", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_idempotency_key", "label": "SYNC-01: Idempotency-Key on Mutating Requests", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_collection_endpoints", "label": "SYNC-02: Unfiltered Collection List Endpoints", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_stock_authority", "label": "SYNC-03: Server as Stock Authority, Reject Overselling", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_session_survival", "label": "SYNC-04: Sessions Survive Multi-Day Outage", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_local_id_prefix", "label": "SYNC-05: Never Issue a local_ Prefixed Key", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_timestamps", "label": "SYNC-06: Real Timestamps on Purchases & Supplier Links", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_version_columns", "label": "SYNC-07: version/created_at/updated_at/deleted_at Columns", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_soft_delete", "label": "SYNC-08: Soft Delete with 90-Day Tombstones", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_sync_changes_endpoint", "label": "SYNC-09: GET /sync/changes Multiplexed Delta Endpoint", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_conditional_writes", "label": "SYNC-10: Conditional Writes (If-Match / VERSION_CONFLICT)", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_health_endpoint", "label": "SYNC-11: Health Endpoint & Server Clock", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_device_id_header", "label": "SYNC-12: X-Device-Id on Every Request", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_number_blocks", "label": "SYNC-13: Reserved Number Blocks for Invoices/Tickets", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_batch_push", "label": "SYNC-14: Batch Push Endpoint (Conditional)", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_id_key_collapse", "label": "SYNC-15: Collapse Dual id/key Identity", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_error_codes", "label": "Error Codes the Client Acts On", "file_type": "concept", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_reconnect_stampede", "label": "OPS-01: Reconnect Stampede Capacity Planning", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_transactional_writes", "label": "OPS-02: Keep Compound Writes Transactional", "file_type": "rationale", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_scheduled_jobs", "label": "OPS-03: Scheduled Cleanup Jobs", "file_type": "concept", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "backend_sync_requirements_acceptance_criteria", "label": "Acceptance Criteria Checklist", "file_type": "concept", "source_file": "backend-sync-requirements.html", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [{"source": "backend_sync_requirements_doc", "target": "claude_offline_sync", "relation": "cites", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_idempotency_key", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_collection_endpoints", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_stock_authority", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_session_survival", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_local_id_prefix", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_timestamps", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_version_columns", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_soft_delete", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_sync_changes_endpoint", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_conditional_writes", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_health_endpoint", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_device_id_header", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_number_blocks", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_batch_push", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_id_key_collapse", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_error_codes", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_reconnect_stampede", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_transactional_writes", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_scheduled_jobs", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_doc", "target": "backend_sync_requirements_acceptance_criteria", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_idempotency_key", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_stock_authority", "target": "claude_offline_sync_four_hard_rules", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_local_id_prefix", "target": "claude_offline_sync_four_hard_rules", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_sync_changes_endpoint", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_health_endpoint", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_number_blocks", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_soft_delete", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_conditional_writes", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_version_columns", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_collection_endpoints", "target": "claude_offline_sync_adding_module", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_session_survival", "target": "claude_auth_offline", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_error_codes", "target": "claude_backend_contract", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_transactional_writes", "target": "claude_offline_sync_adding_module", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_batch_push", "target": "claude_offline_sync", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_timestamps", "target": "backend_sync_requirements_version_columns", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}, {"source": "backend_sync_requirements_id_key_collapse", "target": "claude_architecture_overview", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.65, "source_file": "backend-sync-requirements.html", "source_location": null, "weight": 1.0}], "hyperedges": [{"id": "offline_sync_four_hard_rules_support", "label": "Backend Requirements Supporting the Four Hard Rules", "nodes": ["claude_offline_sync_four_hard_rules", "backend_sync_requirements_stock_authority", "backend_sync_requirements_local_id_prefix", "backend_sync_requirements_idempotency_key"], "relation": "participate_in", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "backend-sync-requirements.html"}]}
+{
+  "nodes": [
+    {
+      "id": "backend_sync_requirements_doc",
+      "label": "Backend Requirements \u2014 Offline Sync Spec",
+      "file_type": "document",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_idempotency_key",
+      "label": "SYNC-01: Idempotency-Key on Mutating Requests",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_collection_endpoints",
+      "label": "SYNC-02: Unfiltered Collection List Endpoints",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_stock_authority",
+      "label": "SYNC-03: Server as Stock Authority, Reject Overselling",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_session_survival",
+      "label": "SYNC-04: Sessions Survive Multi-Day Outage",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_local_id_prefix",
+      "label": "SYNC-05: Never Issue a local_ Prefixed Key",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_timestamps",
+      "label": "SYNC-06: Real Timestamps on Purchases & Supplier Links",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_version_columns",
+      "label": "SYNC-07: version/created_at/updated_at/deleted_at Columns",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_soft_delete",
+      "label": "SYNC-08: Soft Delete with 90-Day Tombstones",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_sync_changes_endpoint",
+      "label": "SYNC-09: GET /sync/changes Multiplexed Delta Endpoint",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_conditional_writes",
+      "label": "SYNC-10: Conditional Writes (If-Match / VERSION_CONFLICT)",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_health_endpoint",
+      "label": "SYNC-11: Health Endpoint & Server Clock",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_device_id_header",
+      "label": "SYNC-12: X-Device-Id on Every Request",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_number_blocks",
+      "label": "SYNC-13: Reserved Number Blocks for Invoices/Tickets",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_batch_push",
+      "label": "SYNC-14: Batch Push Endpoint (Conditional)",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_id_key_collapse",
+      "label": "SYNC-15: Collapse Dual id/key Identity",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_error_codes",
+      "label": "Error Codes the Client Acts On",
+      "file_type": "concept",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_reconnect_stampede",
+      "label": "OPS-01: Reconnect Stampede Capacity Planning",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_transactional_writes",
+      "label": "OPS-02: Keep Compound Writes Transactional",
+      "file_type": "rationale",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_scheduled_jobs",
+      "label": "OPS-03: Scheduled Cleanup Jobs",
+      "file_type": "concept",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend_sync_requirements_acceptance_criteria",
+      "label": "Acceptance Criteria Checklist",
+      "file_type": "concept",
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "claude_offline_sync",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_idempotency_key",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_collection_endpoints",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_stock_authority",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_session_survival",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_local_id_prefix",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_timestamps",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_version_columns",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_soft_delete",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_sync_changes_endpoint",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_conditional_writes",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_health_endpoint",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_device_id_header",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_number_blocks",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_batch_push",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_id_key_collapse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_error_codes",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_reconnect_stampede",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_transactional_writes",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_scheduled_jobs",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_doc",
+      "target": "backend_sync_requirements_acceptance_criteria",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_idempotency_key",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_stock_authority",
+      "target": "claude_offline_sync_four_hard_rules",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_local_id_prefix",
+      "target": "claude_offline_sync_four_hard_rules",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_sync_changes_endpoint",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_health_endpoint",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_number_blocks",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_soft_delete",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_conditional_writes",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_version_columns",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_collection_endpoints",
+      "target": "claude_offline_sync_adding_module",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_session_survival",
+      "target": "claude_auth_offline",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_error_codes",
+      "target": "claude_backend_contract",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_transactional_writes",
+      "target": "claude_offline_sync_adding_module",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_batch_push",
+      "target": "claude_offline_sync",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_timestamps",
+      "target": "backend_sync_requirements_version_columns",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend_sync_requirements_id_key_collapse",
+      "target": "claude_architecture_overview",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "backend-sync-requirements.html",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "offline_sync_four_hard_rules_support",
+      "label": "Backend Requirements Supporting the Four Hard Rules",
+      "nodes": [
+        "claude_offline_sync_four_hard_rules",
+        "backend_sync_requirements_stock_authority",
+        "backend_sync_requirements_local_id_prefix",
+        "backend_sync_requirements_idempotency_key"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend-sync-requirements.html"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/constants.ts"
-type: "code"
-community: "POS Billing Flow (routes)"
-location: "L1"
+source_file: 'src/app/layout/constants.ts'
+type: 'code'
+community: 'POS Billing Flow (routes)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # layout/constants.ts
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[BILLING_HEADER_HEIGHT]] - `contains` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]

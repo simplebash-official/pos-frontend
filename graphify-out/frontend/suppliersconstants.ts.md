@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/constants.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/suppliers/constants.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # suppliers/constants.ts
 
 ## Connections
+
 - [[DEFAULT_SUGGESTED_TAGS]] - `contains` [EXTRACTED]
 - [[SupplierFormModal.tsx]] - `imports_from` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/leader.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L31"
+source_file: 'src/offline/engine/leader.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L31'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .start()
 
 ## Connections
+
 - [[LeaderElection]] - `method` [EXTRACTED]
 - [[logInfo()]] - `calls` [EXTRACTED]
 

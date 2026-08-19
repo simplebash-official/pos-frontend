@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/flush.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L250"
+source_file: 'src/offline/outbox/flush.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L250'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # flushOutbox()
 
 ## Connections
+
 - [[dot-runFlush()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[abandonMapping()]] - `calls` [EXTRACTED]

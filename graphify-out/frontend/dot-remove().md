@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/localStorageStore.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L71"
+source_file: 'src/shared/lib/localStorageStore.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L71'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # .remove()
 
 ## Connections
+
 - [[dot-persist()]] - `calls` [EXTRACTED]
 - [[LocalStorageStore]] - `method` [EXTRACTED]
 - [[deleteEarningRecordsForWork()]] - `calls` [INFERRED]

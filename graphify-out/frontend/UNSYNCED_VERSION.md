@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/mirror.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L12"
+source_file: 'src/offline/db/mirror.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # UNSYNCED_VERSION
 
 ## Connections
+
 - [[mirror.ts]] - `contains` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 

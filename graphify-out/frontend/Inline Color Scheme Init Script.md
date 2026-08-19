@@ -1,7 +1,7 @@
 ---
-source_file: "index.html"
-type: "code"
-community: "Offline Connectivity Monitoring"
+source_file: 'index.html'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Inline Color Scheme Init Script
 
 ## Connections
+
 - [[Redux Toolkit State Management]] - `references` [EXTRACTED]
 - [[index.html App Entry Document]] - `references` [EXTRACTED]
 

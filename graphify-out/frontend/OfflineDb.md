@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/schema.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L29"
+source_file: 'src/offline/db/schema.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L29'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OfflineDb
 
 ## Connections
+
 - [[dot-constructor()_2]] - `method` [EXTRACTED]
 - [[AuditEvent]] - `references` [EXTRACTED]
 - [[Category]] - `references` [EXTRACTED]

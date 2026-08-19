@@ -8,6 +8,7 @@ members: 18
 **Members:** 18 nodes
 
 ## Members
+
 - [[EMPLOYEE_SEARCH_FIELDS]] - code - src/shared/lib/searchFields.ts
 - [[GlobalQuickSearchModal()]] - code - src/shared/components/GlobalQuickSearchModal.tsx
 - [[GlobalQuickSearchModal.tsx]] - code - src/shared/components/GlobalQuickSearchModal.tsx
@@ -35,6 +36,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 23 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 19 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts]]
 - 15 edges to [[_COMMUNITY_POS Billing Flow (useCustomers)]]
@@ -64,6 +66,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Employee Accounts & Earnings_4]]
 
 ## Top bridge nodes
+
 - [[searchFields.ts]] - degree 34, connects to 14 communities
 - [[GlobalQuickSearchModal.tsx]] - degree 33, connects to 10 communities
 - [[ProductPickerModal.tsx]] - degree 24, connects to 9 communities

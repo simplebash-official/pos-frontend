@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/AmountInput.tsx"
-type: "code"
-community: "AmountInput Module"
-location: "L1"
+source_file: 'src/shared/components/AmountInput.tsx'
+type: 'code'
+community: 'AmountInput Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AmountInput.tsx
 
 ## Connections
+
 - [[AmountInput]] - `contains` [EXTRACTED]
 - [[AmountInputProps]] - `contains` [EXTRACTED]
 - [[BUTTON_WIDTH_MAP]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/resolveOrCreateCustomer.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L22"
+source_file: 'src/features/billing/lib/resolveOrCreateCustomer.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L22'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resolveOrCreateCustomer()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]

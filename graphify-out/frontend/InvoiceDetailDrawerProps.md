@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/components/InvoiceDetailDrawer.tsx"
-type: "code"
-community: "POS Billing Flow (saleHeroPresentation)"
-location: "L32"
+source_file: 'src/features/invoices/components/InvoiceDetailDrawer.tsx'
+type: 'code'
+community: 'POS Billing Flow (saleHeroPresentation)'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # InvoiceDetailDrawerProps
 
 ## Connections
+
 - [[Invoice]] - `references` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `contains` [EXTRACTED]
 

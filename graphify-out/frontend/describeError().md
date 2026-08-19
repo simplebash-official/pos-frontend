@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/errors.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L11"
+source_file: 'src/offline/errors.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # describeError()
 
 ## Connections
+
 - [[dot-runFlush()]] - `calls` [EXTRACTED]
 - [[dot-runMaintenance()]] - `calls` [EXTRACTED]
 - [[dot-runPull()]] - `calls` [EXTRACTED]

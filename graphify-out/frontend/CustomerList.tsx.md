@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/components/CustomerList.tsx"
-type: "code"
-community: "POS Billing Flow (useCustomers)"
-location: "L1"
+source_file: 'src/features/customers/components/CustomerList.tsx'
+type: 'code'
+community: 'POS Billing Flow (useCustomers)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CustomerList.tsx
 
 ## Connections
+
 - [[CUSTOMER_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[Column]] - `imports` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]

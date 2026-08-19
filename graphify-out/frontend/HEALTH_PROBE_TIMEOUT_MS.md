@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L15"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L15'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # HEALTH_PROBE_TIMEOUT_MS
 
 ## Connections
+
 - [[healthProbe.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

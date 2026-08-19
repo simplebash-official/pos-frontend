@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/pullTargets.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L18"
+source_file: 'src/offline/engine/pullTargets.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resolvePullTargets()
 
 ## Connections
+
 - [[dot-runPull()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[fetchSyncStatus()]] - `calls` [EXTRACTED]

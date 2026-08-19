@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/ProductPickerModal.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/inventory/components/ProductPickerModal.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ProductPickerModal.tsx
 
 ## Connections
+
 - [[PRODUCT_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[ProductPickerModal()]] - `contains` [EXTRACTED]
 - [[ProductPickerModalProps]] - `contains` [EXTRACTED]

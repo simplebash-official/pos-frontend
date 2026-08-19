@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/registry/registry.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L43"
+source_file: 'src/offline/registry/registry.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L43'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # defineOperation()
 
 ## Connections
+
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]

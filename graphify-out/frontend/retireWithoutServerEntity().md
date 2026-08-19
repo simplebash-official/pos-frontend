@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/flush.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L229"
+source_file: 'src/offline/outbox/flush.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L229'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # retireWithoutServerEntity()
 
 ## Connections
+
 - [[abandonMapping()]] - `calls` [EXTRACTED]
 - [[commitSuccess()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/hooks/useSuppliers.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L52"
+source_file: 'src/features/suppliers/hooks/useSuppliers.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useDeleteSupplier()
 
 ## Connections
+
 - [[SupplierList()]] - `calls` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
 - [[useSuppliers.ts]] - `contains` [EXTRACTED]

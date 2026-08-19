@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/GlobalQuickSearchModal.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/shared/components/GlobalQuickSearchModal.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # GlobalQuickSearchModal.tsx
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[CUSTOMER_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `contains` [EXTRACTED]

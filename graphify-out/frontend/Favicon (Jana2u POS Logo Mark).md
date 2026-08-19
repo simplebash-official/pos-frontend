@@ -1,7 +1,7 @@
 ---
-source_file: "public/favicon.svg"
-type: "image"
-community: "Invoice & Document Printing"
+source_file: 'public/favicon.svg'
+type: 'image'
+community: 'Invoice & Document Printing'
 tags:
   - graphify/image
   - graphify/EXTRACTED

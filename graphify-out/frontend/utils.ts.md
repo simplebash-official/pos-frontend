@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/utils.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/shared/lib/utils.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # utils.ts
 
 ## Connections
+
 - [[CustomerList.tsx]] - `imports_from` [EXTRACTED]
 - [[DataTable.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]

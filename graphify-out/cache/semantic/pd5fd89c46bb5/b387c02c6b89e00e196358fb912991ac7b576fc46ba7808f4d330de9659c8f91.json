@@ -1,1 +1,174 @@
-{"nodes": [{"id": "public_icons_image", "label": "icons.svg (Social/Doc Icon Sprite Sheet)", "file_type": "image", "source_file": "public/icons.svg", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "public_icons_bluesky_icon", "label": "Bluesky Icon", "file_type": "image", "source_file": "public/icons.svg", "source_location": "symbol#bluesky-icon (line 2-5)", "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "public_icons_discord_icon", "label": "Discord Icon", "file_type": "image", "source_file": "public/icons.svg", "source_location": "symbol#discord-icon (line 6-8)", "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "public_icons_documentation_icon", "label": "Documentation Icon", "file_type": "image", "source_file": "public/icons.svg", "source_location": "symbol#documentation-icon (line 9-13)", "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "public_icons_github_icon", "label": "GitHub Icon", "file_type": "image", "source_file": "public/icons.svg", "source_location": "symbol#github-icon (line 14-16)", "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "public_icons_social_icon", "label": "Social/Community Icon", "file_type": "image", "source_file": "public/icons.svg", "source_location": "symbol#social-icon (line 17-20)", "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "public_icons_x_icon", "label": "X (Twitter) Icon", "file_type": "image", "source_file": "public/icons.svg", "source_location": "symbol#x-icon (line 21-23)", "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [{"source": "public_icons_image", "target": "public_icons_bluesky_icon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/icons.svg", "source_location": "line 2-5", "weight": 1.0}, {"source": "public_icons_image", "target": "public_icons_discord_icon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/icons.svg", "source_location": "line 6-8", "weight": 1.0}, {"source": "public_icons_image", "target": "public_icons_documentation_icon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/icons.svg", "source_location": "line 9-13", "weight": 1.0}, {"source": "public_icons_image", "target": "public_icons_github_icon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/icons.svg", "source_location": "line 14-16", "weight": 1.0}, {"source": "public_icons_image", "target": "public_icons_social_icon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/icons.svg", "source_location": "line 17-20", "weight": 1.0}, {"source": "public_icons_image", "target": "public_icons_x_icon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/icons.svg", "source_location": "line 21-23", "weight": 1.0}, {"source": "public_icons_bluesky_icon", "target": "public_icons_x_icon", "relation": "related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "public/icons.svg", "source_location": null, "weight": 0.6}, {"source": "public_icons_discord_icon", "target": "public_icons_social_icon", "relation": "related_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "public/icons.svg", "source_location": null, "weight": 0.5}, {"source": "public_icons_github_icon", "target": "public_icons_documentation_icon", "relation": "related_to", "confidence": "INFERRED", "confidence_score": 0.65, "source_file": "public/icons.svg", "source_location": null, "weight": 0.4}], "hyperedges": []}
+{
+  "nodes": [
+    {
+      "id": "public_icons_image",
+      "label": "icons.svg (Social/Doc Icon Sprite Sheet)",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_bluesky_icon",
+      "label": "Bluesky Icon",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": "symbol#bluesky-icon (line 2-5)",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_discord_icon",
+      "label": "Discord Icon",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": "symbol#discord-icon (line 6-8)",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_documentation_icon",
+      "label": "Documentation Icon",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": "symbol#documentation-icon (line 9-13)",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_github_icon",
+      "label": "GitHub Icon",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": "symbol#github-icon (line 14-16)",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_social_icon",
+      "label": "Social/Community Icon",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": "symbol#social-icon (line 17-20)",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_x_icon",
+      "label": "X (Twitter) Icon",
+      "file_type": "image",
+      "source_file": "public/icons.svg",
+      "source_location": "symbol#x-icon (line 21-23)",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_icons_image",
+      "target": "public_icons_bluesky_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons.svg",
+      "source_location": "line 2-5",
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_image",
+      "target": "public_icons_discord_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons.svg",
+      "source_location": "line 6-8",
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_image",
+      "target": "public_icons_documentation_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons.svg",
+      "source_location": "line 9-13",
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_image",
+      "target": "public_icons_github_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons.svg",
+      "source_location": "line 14-16",
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_image",
+      "target": "public_icons_social_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons.svg",
+      "source_location": "line 17-20",
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_image",
+      "target": "public_icons_x_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons.svg",
+      "source_location": "line 21-23",
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_bluesky_icon",
+      "target": "public_icons_x_icon",
+      "relation": "related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "public/icons.svg",
+      "source_location": null,
+      "weight": 0.6
+    },
+    {
+      "source": "public_icons_discord_icon",
+      "target": "public_icons_social_icon",
+      "relation": "related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "public/icons.svg",
+      "source_location": null,
+      "weight": 0.5
+    },
+    {
+      "source": "public_icons_github_icon",
+      "target": "public_icons_documentation_icon",
+      "relation": "related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "public/icons.svg",
+      "source_location": null,
+      "weight": 0.4
+    }
+  ],
+  "hyperedges": []
+}

@@ -8,6 +8,7 @@ members: 11
 **Members:** 11 nodes
 
 ## Members
+
 - [[INVOICE_SEARCH_FIELDS]] - code - src/shared/lib/searchFields.ts
 - [[InvoiceDetailDrawer()]] - code - src/features/invoices/components/InvoiceDetailDrawer.tsx
 - [[InvoiceDetailDrawer.tsx]] - code - src/features/invoices/components/InvoiceDetailDrawer.tsx
@@ -28,6 +29,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_POS Billing Flow (printLogStore)]]
 - 6 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 - 4 edges to [[_COMMUNITY_Billing Chrome & Navigation]]
@@ -43,6 +45,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Product Catalog & Hierarchy]]
 
 ## Top bridge nodes
+
 - [[InvoicesList.tsx]] - degree 18, connects to 8 communities
 - [[InvoiceDetailDrawer.tsx]] - degree 21, connects to 7 communities
 - [[InvoiceDetailDrawer()]] - degree 8, connects to 3 communities

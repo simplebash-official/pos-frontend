@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Redux Toolkit State Management
 
 ## Connections
+
 - [[Architecture Overview & Entry Chain]] - `references` [EXTRACTED]
 - [[Inline Color Scheme Init Script]] - `references` [EXTRACTED]
 

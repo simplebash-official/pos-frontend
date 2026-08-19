@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/search.ts"
-type: "code"
-community: "Product Catalog & Hierarchy"
-location: "L104"
+source_file: 'src/shared/lib/search.ts'
+type: 'code'
+community: 'Product Catalog & Hierarchy'
+location: 'L104'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # tokenizeQuery()
 
 ## Connections
+
 - [[normalizeDigits()]] - `calls` [EXTRACTED]
 - [[normalizeText()]] - `calls` [EXTRACTED]
 - [[run()]] - `calls` [EXTRACTED]

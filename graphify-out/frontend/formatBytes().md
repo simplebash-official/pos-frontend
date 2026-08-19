@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncPanel.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L50"
+source_file: 'src/features/sync/components/SyncPanel.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L50'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # formatBytes()
 
 ## Connections
+
 - [[SyncPanel()]] - `calls` [EXTRACTED]
 - [[SyncPanel.tsx]] - `contains` [EXTRACTED]
 

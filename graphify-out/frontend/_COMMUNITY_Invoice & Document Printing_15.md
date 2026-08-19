@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[wall_login.jpg (Login Background Image)]] - image - src/assets/wall_login.jpg
 
 ## Live Query (requires Dataview plugin)

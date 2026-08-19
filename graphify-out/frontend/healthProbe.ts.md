@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/healthProbe.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/connectivity/healthProbe.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # healthProbe.ts
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[HEADER_SERVER_TIME]] - `imports` [EXTRACTED]
 - [[HEALTH_PROBE_TIMEOUT_MS]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/types.ts"
-type: "code"
-community: "MutationRequestOptions Module"
-location: "L1"
+source_file: 'src/features/purchases/types.ts'
+type: 'code'
+community: 'MutationRequestOptions Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # purchases/types.ts
 
 ## Connections
+
 - [[EnrichedStockPurchase]] - `contains` [EXTRACTED]
 - [[PurchaseProductSummary]] - `contains` [EXTRACTED]
 - [[PurchaseSupplierSummary]] - `contains` [EXTRACTED]

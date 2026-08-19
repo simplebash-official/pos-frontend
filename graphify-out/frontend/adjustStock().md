@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/api/productsApi.ts"
-type: "code"
-community: "Offline Sync Engine (productsApi)"
-location: "L92"
+source_file: 'src/features/inventory/api/productsApi.ts'
+type: 'code'
+community: 'Offline Sync Engine (productsApi)'
+location: 'L92'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # adjustStock()
 
 ## Connections
+
 - [[products.resource.ts]] - `imports` [EXTRACTED]
 - [[productsApi.ts]] - `contains` [EXTRACTED]
 - [[productsResource]] - `calls` [EXTRACTED]

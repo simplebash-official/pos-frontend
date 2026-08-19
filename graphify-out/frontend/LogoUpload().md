@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/LogoUpload.tsx"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L18"
+source_file: 'src/features/settings/components/LogoUpload.tsx'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LogoUpload()
 
 ## Connections
+
 - [[BrandingSection.tsx]] - `imports` [EXTRACTED]
 - [[LogoUpload.tsx]] - `contains` [EXTRACTED]
 

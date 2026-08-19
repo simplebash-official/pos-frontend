@@ -8,6 +8,7 @@ members: 14
 **Members:** 14 nodes
 
 ## Members
+
 - [[AddSubcategoryRow()]] - code - src/features/inventory/components/CategoryManagerModal.tsx
 - [[CATEGORY_COLOR_OPTIONS]] - code - src/features/inventory/constants.ts
 - [[CategoryColorPicker()]] - code - src/features/inventory/components/CategoryManagerModal.tsx
@@ -31,6 +32,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_Offline Sync Engine (useProducts)]]
 - 8 edges to [[_COMMUNITY_Billing Catalog & Line Items]]
 - 7 edges to [[_COMMUNITY_Inventory & Products API]]
@@ -44,6 +46,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Authentication & Access Control_1]]
 
 ## Top bridge nodes
+
 - [[CategoryManagerModal.tsx]] - degree 31, connects to 9 communities
 - [[inventoryindex.ts]] - degree 16, connects to 5 communities
 - [[CategoryManagerModal()]] - degree 8, connects to 3 communities

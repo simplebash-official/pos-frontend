@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/api/supplierProductsApi.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L28"
+source_file: 'src/features/supplier-products/api/supplierProductsApi.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getLinksForProduct()
 
 ## Connections
+
 - [[fetchSupplierProducts()]] - `calls` [EXTRACTED]
 - [[supplierProductsApi.ts]] - `contains` [EXTRACTED]
 

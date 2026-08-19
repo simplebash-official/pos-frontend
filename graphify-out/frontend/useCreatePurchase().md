@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/hooks/usePurchases.ts"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L89"
+source_file: 'src/features/purchases/hooks/usePurchases.ts'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L89'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCreatePurchase()
 
 ## Connections
+
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[ReceiveStockModal()]] - `calls` [EXTRACTED]

@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "rationale"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'rationale'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Responsive & Mobile UI Layout Tiers
 
 ## Connections
+
 - [[Animation Performance Rules]] - `conceptually_related_to` [EXTRACTED]
 - [[Project Overview (POS System)]] - `references` [EXTRACTED]
 

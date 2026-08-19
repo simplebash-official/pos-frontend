@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/api/suppliersApi.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L11"
+source_file: 'src/features/suppliers/api/suppliersApi.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchSuppliers()
 
 ## Connections
+
 - [[suppliers.resource.ts]] - `imports` [EXTRACTED]
 - [[suppliersApi.ts]] - `contains` [EXTRACTED]
 - [[suppliersResource]] - `calls` [EXTRACTED]

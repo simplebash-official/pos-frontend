@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/healthProbe.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L27"
+source_file: 'src/offline/connectivity/healthProbe.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L27'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # probeHealth()
 
 ## Connections
+
 - [[dot-runProbe()]] - `calls` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[healthProbe.ts]] - `contains` [EXTRACTED]

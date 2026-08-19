@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L151"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L151'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # markInflight()
 
 ## Connections
+
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]
 - [[outbox.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useSyncData.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L28"
+source_file: 'src/offline/react/useSyncData.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useOpenConflicts()
 
 ## Connections
+
 - [[useLiveQuery()]] - `calls` [EXTRACTED]
 - [[useSyncData.ts]] - `contains` [EXTRACTED]
 

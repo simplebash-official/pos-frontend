@@ -1,8 +1,8 @@
 ---
-source_file: "tsconfig.json"
-type: "code"
-community: "DOM Module"
-location: "L1"
+source_file: 'tsconfig.json'
+type: 'code'
+community: 'DOM Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # tsconfig.json
 
 ## Connections
+
 - [[compilerOptions]] - `contains` [EXTRACTED]
 - [[include]] - `contains` [EXTRACTED]
 

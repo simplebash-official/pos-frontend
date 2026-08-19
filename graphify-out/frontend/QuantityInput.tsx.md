@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/QuantityInput.tsx"
-type: "code"
-community: "Offline Sync Engine (useProducts)"
-location: "L1"
+source_file: 'src/shared/components/QuantityInput.tsx'
+type: 'code'
+community: 'Offline Sync Engine (useProducts)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # QuantityInput.tsx
 
 ## Connections
+
 - [[CartLineItem.tsx]] - `imports_from` [EXTRACTED]
 - [[HEIGHT_MAP_1]] - `contains` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports_from` [EXTRACTED]

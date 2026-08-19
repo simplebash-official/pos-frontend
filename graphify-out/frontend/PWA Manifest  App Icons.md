@@ -1,7 +1,7 @@
 ---
-source_file: "public/icon-512.png"
-type: "concept"
-community: "Invoice & Document Printing"
+source_file: 'public/icon-512.png'
+type: 'concept'
+community: 'Invoice & Document Printing'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

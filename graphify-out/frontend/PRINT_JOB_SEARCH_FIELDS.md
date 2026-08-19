@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/searchFields.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L85"
+source_file: 'src/shared/lib/searchFields.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L85'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PRINT_JOB_SEARCH_FIELDS
 
 ## Connections
+
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
 - [[searchFields.ts]] - `contains` [EXTRACTED]
 

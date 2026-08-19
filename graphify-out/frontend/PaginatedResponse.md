@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/types/common.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/shared/types/common.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PaginatedResponse
 
 ## Connections
+
 - [[common.ts]] - `contains` [EXTRACTED]
 - [[productsApi.ts]] - `imports` [EXTRACTED]
 

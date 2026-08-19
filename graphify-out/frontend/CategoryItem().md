@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/CategoryManagerModal.tsx"
-type: "code"
-community: "Inventory & Products API"
-location: "L123"
+source_file: 'src/features/inventory/components/CategoryManagerModal.tsx'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L123'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CategoryItem()
 
 ## Connections
+
 - [[CategoryManagerModal.tsx]] - `contains` [EXTRACTED]
 - [[resolveCategoryIcon()]] - `calls` [EXTRACTED]
 - [[useCategoryIcons()]] - `calls` [EXTRACTED]

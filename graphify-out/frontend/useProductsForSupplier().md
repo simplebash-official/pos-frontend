@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L35"
+source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L35'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useProductsForSupplier()
 
 ## Connections
+
 - [[SupplierDetailDrawer()]] - `calls` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SupplierFormContent()]] - `calls` [EXTRACTED]

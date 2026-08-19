@@ -8,6 +8,7 @@ members: 14
 **Members:** 14 nodes
 
 ## Members
+
 - [[ApiEnvelope]] - code - src/offline/resources/syncApi.ts
 - [[PULL_PAGE_LIMIT]] - code - src/offline/constants.ts
 - [[ResourceSyncStatus]] - code - src/offline/resources/syncApi.ts
@@ -18,7 +19,7 @@ members: 14
 - [[fetchResourceSnapshotPage()]] - code - src/offline/resources/syncApi.ts
 - [[fetchSyncChanges()]] - code - src/offline/resources/syncApi.ts
 - [[isCursorInvalid()]] - code - src/offline/resources/syncApi.ts
-- [[mockStatus()]] - code - src/offline/__tests__/pullTargets.test.ts
+- [[mockStatus()]] - code - src/offline/**tests**/pullTargets.test.ts
 - [[readChanges()]] - code - src/offline/resources/syncApi.ts
 - [[syncApi.ts]] - code - src/offline/resources/syncApi.ts
 - [[toPullPage()]] - code - src/offline/resources/syncApi.ts
@@ -31,6 +32,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Offline Sync Engine (productsApi)]]
 - 7 edges to [[_COMMUNITY_Outbox Queue & Status_2]]
 - 7 edges to [[_COMMUNITY_Sync Metadata & Cursors]]
@@ -42,6 +44,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing Chrome & Navigation]]
 
 ## Top bridge nodes
+
 - [[syncApi.ts]] - degree 35, connects to 9 communities
 - [[fetchResourceDelta()]] - degree 19, connects to 5 communities
 - [[fetchSyncChanges()]] - degree 4, connects to 1 community

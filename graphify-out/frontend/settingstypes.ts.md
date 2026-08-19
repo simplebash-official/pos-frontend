@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/types.ts"
-type: "code"
-community: "Shop Settings & Profile"
-location: "L1"
+source_file: 'src/features/settings/types.ts'
+type: 'code'
+community: 'Shop Settings & Profile'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # settings/types.ts
 
 ## Connections
+
 - [[AutoPrintOption]] - `contains` [EXTRACTED]
 - [[DocumentSelection]] - `contains` [EXTRACTED]
 - [[InvoiceCopyOption]] - `contains` [EXTRACTED]

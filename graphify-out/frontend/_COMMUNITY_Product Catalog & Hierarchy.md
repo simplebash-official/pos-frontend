@@ -8,15 +8,16 @@ members: 29
 **Members:** 29 nodes
 
 ## Members
+
 - [[EntitySearchResult]] - code - src/shared/hooks/useEntitySearch.ts
-- [[FIELDS]] - code - src/shared/lib/__tests__/search.test.ts
+- [[FIELDS]] - code - src/shared/lib/**tests**/search.test.ts
 - [[IndexedField]] - code - src/shared/lib/search.ts
 - [[MatchRange]] - code - src/shared/lib/search.ts
 - [[ProductCatalogTree]] - code - src/features/inventory/components/ProductCatalogTree.tsx
 - [[ProductCatalogTree.tsx]] - code - src/features/inventory/components/ProductCatalogTree.tsx
 - [[ProductCatalogTreeProps]] - code - src/features/inventory/components/ProductCatalogTree.tsx
 - [[ProductHierarchy]] - code - src/features/inventory/components/ProductCatalogTree.tsx
-- [[Row]] - code - src/shared/lib/__tests__/search.test.ts
+- [[Row]] - code - src/shared/lib/**tests**/search.test.ts
 - [[SearchEntry]] - code - src/shared/lib/search.ts
 - [[SearchField]] - code - src/shared/lib/search.ts
 - [[SearchFieldKind]] - code - src/shared/lib/search.ts
@@ -30,9 +31,9 @@ members: 29
 - [[matchTier()]] - code - src/shared/lib/search.ts
 - [[normalizeDigits()]] - code - src/shared/lib/search.ts
 - [[normalizeText()]] - code - src/shared/lib/search.ts
-- [[run()]] - code - src/shared/lib/__tests__/search.test.ts
+- [[run()]] - code - src/shared/lib/**tests**/search.test.ts
 - [[scoreEntry()]] - code - src/shared/lib/search.ts
-- [[search.test.ts]] - code - src/shared/lib/__tests__/search.test.ts
+- [[search.test.ts]] - code - src/shared/lib/**tests**/search.test.ts
 - [[search.ts]] - code - src/shared/lib/search.ts
 - [[searchIndex]] - code - src/shared/lib/search.ts
 - [[tokenizeQuery()]] - code - src/shared/lib/search.ts
@@ -46,6 +47,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 14 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 - 10 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 5 edges to [[_COMMUNITY_Billing Catalog & Line Items]]
@@ -61,6 +63,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Billing Flow (paymentsApi)]]
 
 ## Top bridge nodes
+
 - [[ProductCatalogTree.tsx]] - degree 19, connects to 8 communities
 - [[useEntitySearch.ts]] - degree 20, connects to 7 communities
 - [[SearchHighlight.tsx]] - degree 12, connects to 4 communities

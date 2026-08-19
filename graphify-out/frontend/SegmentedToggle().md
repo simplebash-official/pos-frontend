@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/SegmentedToggle.tsx"
-type: "code"
-community: "Billing Chrome & Navigation"
-location: "L12"
+source_file: 'src/shared/components/SegmentedToggle.tsx'
+type: 'code'
+community: 'Billing Chrome & Navigation'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SegmentedToggle()
 
 ## Connections
+
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[DiscountPopover.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]

@@ -8,6 +8,7 @@ members: 14
 **Members:** 14 nodes
 
 ## Members
+
 - [[GuestOnly()]] - code - src/app/components/GuestOnly.tsx
 - [[GuestOnly.tsx]] - code - src/app/components/GuestOnly.tsx
 - [[GuestOnlyProps]] - code - src/app/components/GuestOnly.tsx
@@ -31,6 +32,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Invoice & Document Printing]]
 - 8 edges to [[_COMMUNITY_POS Billing Flow (routes)]]
 - 6 edges to [[_COMMUNITY_Authentication & Access Control]]
@@ -43,6 +45,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications & Storage Keys]]
 
 ## Top bridge nodes
+
 - [[HeldCartCatchupNotifier.tsx]] - degree 13, connects to 7 communities
 - [[RequireAuth.tsx]] - degree 13, connects to 4 communities
 - [[selectIsAuthenticated()]] - degree 13, connects to 4 communities

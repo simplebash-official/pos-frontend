@@ -8,6 +8,7 @@ members: 43
 **Members:** 43 nodes
 
 ## Members
+
 - [[AGENTS.md Instructions Document]] - document - AGENTS.md
 - [[Acceptance Criteria Checklist]] - concept - backend-sync-requirements.html
 - [[Adding a Module to Sync (SyncResource Descriptor)]] - concept - CLAUDE.md

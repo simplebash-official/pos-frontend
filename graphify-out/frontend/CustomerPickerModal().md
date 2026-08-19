@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/components/CustomerPickerModal.tsx"
-type: "code"
-community: "POS Billing Flow (useCustomers)"
-location: "L49"
+source_file: 'src/features/customers/components/CustomerPickerModal.tsx'
+type: 'code'
+community: 'POS Billing Flow (useCustomers)'
+location: 'L49'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CustomerPickerModal()
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `contains` [EXTRACTED]
 - [[customersindex.ts]] - `re_exports` [EXTRACTED]

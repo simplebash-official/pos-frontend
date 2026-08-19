@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Build & Dev Dependencies"
-location: "L20"
+source_file: 'package.json'
+type: 'code'
+community: 'Build & Dev Dependencies'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @types/react-dom
 
 ## Connections
+
 - [[@typesreact-dom_1]] - `imports` [EXTRACTED]
 - [[devDependencies]] - `contains` [EXTRACTED]
 

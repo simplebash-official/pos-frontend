@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/colorSchemeManager.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L47"
+source_file: 'src/store/colorSchemeManager.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L47'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # reduxColorSchemeManager
 
 ## Connections
+
 - [[colorSchemeManager.ts]] - `contains` [EXTRACTED]
 - [[providers.tsx]] - `imports` [EXTRACTED]
 

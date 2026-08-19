@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "POS Billing Flow (routes)"
-location: "L192"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'POS Billing Flow (routes)'
+location: 'L192'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectUserRole()
 
 ## Connections
+
 - [[ProductTable()]] - `indirect_call` [INFERRED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[RequireAdmin()]] - `indirect_call` [INFERRED]

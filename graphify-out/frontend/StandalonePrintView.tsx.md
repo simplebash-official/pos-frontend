@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/StandalonePrintView.tsx"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L1"
+source_file: 'src/features/billing/components/StandalonePrintView.tsx'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # StandalonePrintView.tsx
 
 ## Connections
+
 - [[PdfCanvasViewer()]] - `imports` [EXTRACTED]
 - [[PdfCanvasViewer.tsx]] - `imports_from` [EXTRACTED]
 - [[StandalonePrintView]] - `imports_from` [EXTRACTED]

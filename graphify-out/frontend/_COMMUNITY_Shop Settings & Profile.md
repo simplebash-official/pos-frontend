@@ -8,6 +8,7 @@ members: 23
 **Members:** 23 nodes
 
 ## Members
+
 - [[AutoPrintOption]] - code - src/features/settings/types.ts
 - [[DEFAULT_PRINT_SETTINGS]] - code - src/features/settings/constants.ts
 - [[DEFAULT_SHOP_PROFILE]] - code - src/features/settings/constants.ts
@@ -40,6 +41,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Invoice & Document Printing]]
 - 3 edges to [[_COMMUNITY_POS Billing Flow (router)]]
 - 3 edges to [[_COMMUNITY_Notifications & Storage Keys]]
@@ -48,6 +50,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Billing Flow (saleHeroPresentation)]]
 
 ## Top bridge nodes
+
 - [[settingsSlice.ts]] - degree 30, connects to 5 communities
 - [[settingsindex.ts]] - degree 6, connects to 2 communities
 - [[SettingsPage()]] - degree 4, connects to 2 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "POS Billing Flow (invoicesApi)"
-location: "L166"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'POS Billing Flow (invoicesApi)'
+location: 'L166'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toSplitPayment()
 
 ## Connections
+
 - [[invoicesApi.ts]] - `contains` [EXTRACTED]
 - [[toInvoice()]] - `indirect_call` [INFERRED]
 

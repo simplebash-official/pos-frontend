@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useShortcuts.ts"
-type: "code"
-community: "useShortcuts Module"
-location: "L35"
+source_file: 'src/shared/hooks/useShortcuts.ts'
+type: 'code'
+community: 'useShortcuts Module'
+location: 'L35'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # isInputFocused()
 
 ## Connections
+
 - [[handleKeyDown()]] - `calls` [EXTRACTED]
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 

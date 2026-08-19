@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L21"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CategoryInput
 
 ## Connections
+
 - [[UpdateCategoryPayload]] - `references` [EXTRACTED]
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[categoriesApi.ts]] - `imports` [EXTRACTED]

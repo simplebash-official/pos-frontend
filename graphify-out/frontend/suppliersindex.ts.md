@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/index.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/suppliers/index.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # suppliers/index.ts
 
 ## Connections
+
 - [[SupplierList]] - `imports_from` [EXTRACTED]
 - [[SupplierList()]] - `re_exports` [EXTRACTED]
 - [[SupplierList.tsx]] - `re_exports` [EXTRACTED]

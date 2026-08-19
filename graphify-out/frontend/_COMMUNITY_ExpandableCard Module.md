@@ -8,6 +8,7 @@ members: 10
 **Members:** 10 nodes
 
 ## Members
+
 - [[ExpandableCard()]] - code - src/shared/components/ExpandableCard.tsx
 - [[ExpandableCard.tsx]] - code - src/shared/components/ExpandableCard.tsx
 - [[ExpandableCardAction()]] - code - src/shared/components/ExpandableCard.tsx
@@ -27,10 +28,12 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 6 edges to [[_COMMUNITY_Offline Connectivity Monitoring_1]]
 - 4 edges to [[_COMMUNITY_Inventory & Products API_1]]
 
 ## Top bridge nodes
+
 - [[ExpandableCard.tsx]] - degree 12, connects to 2 communities
 - [[ExpandableCard()]] - degree 3, connects to 2 communities
 - [[ExpandableCardGroup()]] - degree 3, connects to 2 communities

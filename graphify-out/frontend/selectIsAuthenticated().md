@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L194"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L194'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectIsAuthenticated()
 
 ## Connections
+
 - [[AppShell()]] - `indirect_call` [INFERRED]
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[GuestOnly()]] - `indirect_call` [INFERRED]

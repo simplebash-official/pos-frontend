@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useSearchHistory.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L32"
+source_file: 'src/shared/hooks/useSearchHistory.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getSnapshot()
 
 ## Connections
+
 - [[useSearchHistory()]] - `indirect_call` [INFERRED]
 - [[useSearchHistory.ts]] - `contains` [EXTRACTED]
 

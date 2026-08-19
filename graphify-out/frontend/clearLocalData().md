@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/maintenance.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L108"
+source_file: 'src/offline/db/maintenance.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L108'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # clearLocalData()
 
 ## Connections
+
 - [[SyncPanel()]] - `calls` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[countUnsettled()]] - `calls` [EXTRACTED]

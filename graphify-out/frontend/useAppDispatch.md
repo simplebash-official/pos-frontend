@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/hooks.ts"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L4"
+source_file: 'src/store/hooks.ts'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L4'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useAppDispatch
 
 ## Connections
+
 - [[AuthInitializer()]] - `calls` [EXTRACTED]
 - [[BankDetailsSection()]] - `calls` [EXTRACTED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]

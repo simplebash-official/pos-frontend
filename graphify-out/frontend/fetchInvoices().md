@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "POS Billing Flow (paymentsApi)"
-location: "L225"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'POS Billing Flow (paymentsApi)'
+location: 'L225'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchInvoices()
 
 ## Connections
+
 - [[CustomerDetailDrawer()]] - `indirect_call` [INFERRED]
 - [[CustomerDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[InvoicesList()]] - `calls` [EXTRACTED]

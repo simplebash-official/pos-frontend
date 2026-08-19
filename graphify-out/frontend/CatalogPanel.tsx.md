@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/CatalogPanel.tsx"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L1"
+source_file: 'src/features/billing/components/CatalogPanel.tsx'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CatalogPanel.tsx
 
 ## Connections
+
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]
 - [[CatalogPanel]] - `contains` [EXTRACTED]
 - [[CatalogPanelProps]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/maintenance.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L182"
+source_file: 'src/offline/db/maintenance.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L182'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pruneByRetention()
 
 ## Connections
+
 - [[dot-runMaintenance()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[getResourcesInDependencyOrder()]] - `calls` [EXTRACTED]

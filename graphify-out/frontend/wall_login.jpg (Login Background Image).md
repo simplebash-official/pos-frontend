@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/wall_login.jpg"
-type: "image"
-community: "Invoice & Document Printing"
+source_file: 'src/assets/wall_login.jpg'
+type: 'image'
+community: 'Invoice & Document Printing'
 tags:
   - graphify/image
   - graphify/EXTRACTED

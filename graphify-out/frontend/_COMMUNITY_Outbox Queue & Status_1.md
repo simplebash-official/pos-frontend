@@ -8,6 +8,7 @@ members: 26
 **Members:** 26 nodes
 
 ## Members
+
 - [[EmptyState()]] - code - src/shared/components/EmptyState.tsx
 - [[EmptyState.tsx]] - code - src/shared/components/EmptyState.tsx
 - [[EmptyStateProps]] - code - src/shared/components/EmptyState.tsx
@@ -43,6 +44,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 21 edges to [[_COMMUNITY_Outbox Queue & Status]]
 - 20 edges to [[_COMMUNITY_ID Mapping & Reference Resolution]]
 - 17 edges to [[_COMMUNITY_Sync Metadata & Cursors]]
@@ -61,6 +63,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Supplier Directory & Stock Receipts]]
 
 ## Top bridge nodes
+
 - [[useSyncedMutation.ts]] - degree 18, connects to 10 communities
 - [[outbox.ts]] - degree 46, connects to 6 communities
 - [[deviceId.ts]] - degree 10, connects to 5 communities

@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/vite.svg"
-type: "image"
-community: "Invoice & Document Printing"
+source_file: 'src/assets/vite.svg'
+type: 'image'
+community: 'Invoice & Document Printing'
 tags:
   - graphify/image
   - graphify/EXTRACTED

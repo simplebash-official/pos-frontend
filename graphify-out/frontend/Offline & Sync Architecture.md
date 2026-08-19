@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Offline & Sync Architecture
 
 ## Connections
+
 - [[AGENTS.md Instructions Document]] - `references` [EXTRACTED]
 - [[Adding a Module to Sync (SyncResource Descriptor)]] - `references` [EXTRACTED]
 - [[Architecture Overview & Entry Chain]] - `references` [EXTRACTED]

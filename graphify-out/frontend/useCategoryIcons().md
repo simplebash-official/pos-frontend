@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useCategories.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L71"
+source_file: 'src/features/inventory/hooks/useCategories.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L71'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCategoryIcons()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CategoryItem()]] - `calls` [EXTRACTED]

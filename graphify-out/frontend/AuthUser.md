@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/types.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L3"
+source_file: 'src/features/auth/types.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AuthUser
 
 ## Connections
+
 - [[AuthState]] - `references` [EXTRACTED]
 - [[SessionRecord]] - `references` [EXTRACTED]
 - [[UserRole]] - `references` [EXTRACTED]

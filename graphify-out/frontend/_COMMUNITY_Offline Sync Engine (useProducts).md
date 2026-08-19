@@ -8,6 +8,7 @@ members: 22
 **Members:** 22 nodes
 
 ## Members
+
 - [[ConfirmDialog()]] - code - src/shared/components/ConfirmDialog.tsx
 - [[ConfirmDialog.tsx]] - code - src/shared/components/ConfirmDialog.tsx
 - [[ConfirmDialogProps]] - code - src/shared/components/ConfirmDialog.tsx
@@ -39,6 +40,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 19 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 - 16 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts]]
 - 11 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
@@ -62,6 +64,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_index Module]]
 
 ## Top bridge nodes
+
 - [[ProductTable.tsx]] - degree 56, connects to 14 communities
 - [[useProducts.ts]] - degree 36, connects to 10 communities
 - [[useSyncedMutation()]] - degree 31, connects to 8 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/hooks/useCart.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L61"
+source_file: 'src/features/billing/hooks/useCart.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L61'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCartItems()
 
 ## Connections
+
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[BillingSummaryStrip()]] - `calls` [EXTRACTED]

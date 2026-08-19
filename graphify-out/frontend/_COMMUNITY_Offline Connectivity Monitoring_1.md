@@ -8,6 +8,7 @@ members: 63
 **Members:** 63 nodes
 
 ## Members
+
 - [[LiveQueryResult]] - code - src/offline/react/useLiveQuery.ts
 - [[MODULE_STATUS_PRESENTATION]] - code - src/features/sync/types.ts
 - [[ModuleSyncView]] - code - src/offline/types.ts
@@ -80,6 +81,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 20 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 - 15 edges to [[_COMMUNITY_Outbox Queue & Status]]
 - 12 edges to [[_COMMUNITY_Offline Connectivity Monitoring_3]]
@@ -102,6 +104,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications & Storage Keys]]
 
 ## Top bridge nodes
+
 - [[useSyncedQuery()]] - degree 22, connects to 11 communities
 - [[useSyncedQuery.ts]] - degree 18, connects to 9 communities
 - [[SyncPanel.tsx]] - degree 39, connects to 7 communities

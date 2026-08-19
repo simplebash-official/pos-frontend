@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Architecture Overview & Entry Chain
 
 ## Connections
+
 - [[Deploy Frontend GitHub Actions Workflow]] - `conceptually_related_to` [INFERRED]
 - [[Keyboard Shortcuts Engine (useAppShortcuts)]] - `conceptually_related_to` [INFERRED]
 - [[Money Handling (Integer Cents)]] - `references` [EXTRACTED]

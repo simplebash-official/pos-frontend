@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useShortcuts.ts"
-type: "code"
-community: "useShortcuts Module"
-location: "L3"
+source_file: 'src/shared/hooks/useShortcuts.ts'
+type: 'code'
+community: 'useShortcuts Module'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Shortcut
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 

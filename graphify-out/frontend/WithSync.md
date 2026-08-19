@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/syncSlice.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L72"
+source_file: 'src/store/slices/syncSlice.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L72'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # WithSync
 
 ## Connections
+
 - [[syncSlice.ts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring

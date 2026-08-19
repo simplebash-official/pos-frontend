@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Build & Dev Dependencies"
-location: "L23"
+source_file: 'package.json'
+type: 'code'
+community: 'Build & Dev Dependencies'
+location: 'L23'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # eslint-config-prettier
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[eslint-config-prettier_1]] - `imports` [EXTRACTED]
 

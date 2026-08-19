@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/supplierProducts.resource.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L14"
+source_file: 'src/offline/resources/supplierProducts.resource.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # UnlinkPayload
 
 ## Connections
+
 - [[supplierProducts.resource.ts]] - `contains` [EXTRACTED]
 - [[useSupplierProducts.ts]] - `imports` [EXTRACTED]
 

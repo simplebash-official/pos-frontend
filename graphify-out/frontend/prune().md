@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useSearchHistory.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L80"
+source_file: 'src/shared/hooks/useSearchHistory.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L80'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # prune()
 
 ## Connections
+
 - [[useSearchHistory.ts]] - `contains` [EXTRACTED]
 - [[writeAllHistory()]] - `calls` [EXTRACTED]
 

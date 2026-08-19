@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/stockMovements.resource.ts"
-type: "code"
-community: "Offline Sync Engine (productsApi)"
-location: "L17"
+source_file: 'src/offline/resources/stockMovements.resource.ts'
+type: 'code'
+community: 'Offline Sync Engine (productsApi)'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # stockMovementsResource
 
 ## Connections
+
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]
 - [[fetchResourceSnapshot()]] - `calls` [EXTRACTED]
 - [[resourcesindex.ts]] - `imports` [EXTRACTED]

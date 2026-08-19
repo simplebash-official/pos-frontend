@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/api/suppliersApi.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L48"
+source_file: 'src/features/suppliers/api/suppliersApi.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L48'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # deleteSuppliers()
 
 ## Connections
+
 - [[suppliers.resource.ts]] - `imports` [EXTRACTED]
 - [[suppliersApi.ts]] - `contains` [EXTRACTED]
 - [[suppliersResource]] - `calls` [EXTRACTED]

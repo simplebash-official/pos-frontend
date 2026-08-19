@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useSearchHistory.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L23"
+source_file: 'src/shared/hooks/useSearchHistory.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L23'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # subscribe()
 
 ## Connections
+
 - [[useSearchHistory()]] - `indirect_call` [INFERRED]
 - [[useSearchHistory.ts]] - `contains` [EXTRACTED]
 

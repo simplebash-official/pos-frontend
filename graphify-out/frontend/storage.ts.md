@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/storage.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L1"
+source_file: 'src/constants/storage.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # storage.ts
 
 ## Connections
+
 - [[STORAGE_KEYS]] - `contains` [EXTRACTED]
 - [[authSlice.ts]] - `imports_from` [EXTRACTED]
 - [[cartSlice.ts]] - `imports_from` [EXTRACTED]

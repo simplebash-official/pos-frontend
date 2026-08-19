@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useShortcuts.ts"
-type: "code"
-community: "useShortcuts Module"
-location: "L1"
+source_file: 'src/shared/hooks/useShortcuts.ts'
+type: 'code'
+community: 'useShortcuts Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useShortcuts.ts
 
 ## Connections
+
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]

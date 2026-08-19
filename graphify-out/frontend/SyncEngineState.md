@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/SyncEngine.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L26"
+source_file: 'src/offline/engine/SyncEngine.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L26'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncEngineState
 
 ## Connections
+
 - [[ConnectivitySnapshot]] - `references` [EXTRACTED]
 - [[SyncEngine.ts]] - `contains` [EXTRACTED]
 - [[SyncMetaRecord]] - `references` [EXTRACTED]

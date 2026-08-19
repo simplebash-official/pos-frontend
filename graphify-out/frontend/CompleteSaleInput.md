@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "POS Billing Flow (invoicesApi)"
-location: "L51"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'POS Billing Flow (invoicesApi)'
+location: 'L51'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CompleteSaleInput
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[invoicesApi.ts]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/FilterTagChips.tsx"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L1"
+source_file: 'src/shared/components/FilterTagChips.tsx'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # FilterTagChips.tsx
 
 ## Connections
+
 - [[EntityListPage.tsx]] - `imports_from` [EXTRACTED]
 - [[FilterTagChips()]] - `contains` [EXTRACTED]
 - [[FilterTagChipsProps]] - `contains` [EXTRACTED]

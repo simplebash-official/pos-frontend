@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/moneyFormUtils.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L159"
+source_file: 'src/shared/lib/moneyFormUtils.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L159'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fromEmployee()
 
 ## Connections
+
 - [[EmployeeFormModal()]] - `calls` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]
 - [[fromCents()]] - `calls` [EXTRACTED]

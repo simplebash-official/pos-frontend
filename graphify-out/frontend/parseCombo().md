@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useShortcuts.ts"
-type: "code"
-community: "useShortcuts Module"
-location: "L18"
+source_file: 'src/shared/hooks/useShortcuts.ts'
+type: 'code'
+community: 'useShortcuts Module'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # parseCombo()
 
 ## Connections
+
 - [[handleKeyDown()]] - `calls` [EXTRACTED]
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 

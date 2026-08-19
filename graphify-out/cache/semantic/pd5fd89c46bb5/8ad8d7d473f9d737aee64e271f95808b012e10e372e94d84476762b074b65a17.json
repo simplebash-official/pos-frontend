@@ -1,1 +1,417 @@
-{"nodes": [{"id": "claude_project_overview", "label": "Project Overview (POS System)", "file_type": "document", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_commands", "label": "npm Script Commands", "file_type": "document", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_responsive_mobile_ui", "label": "Responsive & Mobile UI Layout Tiers", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_animation_performance", "label": "Animation Performance Rules", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_ui_copy_guidelines", "label": "UI Copy for Non-Technical Shop User", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_center_modals_pattern", "label": "Center Modals Visual Family Pattern", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_detail_drawers_pattern", "label": "Right-Side Detail & Profile Drawers Pattern", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_keyboard_shortcuts", "label": "Keyboard Shortcuts Engine (useAppShortcuts)", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_architecture_overview", "label": "Architecture Overview & Entry Chain", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_state_management_redux", "label": "Redux Toolkit State Management", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_money_handling", "label": "Money Handling (Integer Cents)", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_offline_sync", "label": "Offline & Sync Architecture", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_offline_sync_four_hard_rules", "label": "Offline Sync: Four Hard Rules", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_offline_sync_adding_module", "label": "Adding a Module to Sync (SyncResource Descriptor)", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_connectivity_monitor", "label": "ConnectivityMonitor Design", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_sync_notifications", "label": "Sync Toast Notification Design", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_local_schema_changes", "label": "Local Dexie Schema Change Rules", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_auth_offline", "label": "Auth While Offline (Grace Period)", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_backend_contract", "label": "Sync Backend Contract (Rust/Axum)", "file_type": "concept", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}, {"id": "claude_pwa", "label": "PWA Precache Strategy", "file_type": "rationale", "source_file": "CLAUDE.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [{"source": "claude_project_overview", "target": "claude_commands", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_project_overview", "target": "claude_responsive_mobile_ui", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_project_overview", "target": "claude_animation_performance", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_responsive_mobile_ui", "target": "claude_animation_performance", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_center_modals_pattern", "target": "claude_detail_drawers_pattern", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_ui_copy_guidelines", "target": "claude_center_modals_pattern", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_architecture_overview", "target": "claude_state_management_redux", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_architecture_overview", "target": "claude_money_handling", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_architecture_overview", "target": "claude_offline_sync", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_architecture_overview", "target": "claude_keyboard_shortcuts", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_offline_sync_four_hard_rules", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_offline_sync_adding_module", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_connectivity_monitor", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_sync_notifications", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_local_schema_changes", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_auth_offline", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_backend_contract", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}, {"source": "claude_offline_sync", "target": "claude_pwa", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md", "source_location": null, "weight": 1.0}], "hyperedges": [{"id": "ai_agent_instruction_files_triad", "label": "Duplicated AI Assistant Instruction Files", "nodes": ["claude_project_overview", "agents_md_doc", "gemini_md_doc"], "relation": "form", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "CLAUDE.md"}]}
+{
+  "nodes": [
+    {
+      "id": "claude_project_overview",
+      "label": "Project Overview (POS System)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_commands",
+      "label": "npm Script Commands",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_responsive_mobile_ui",
+      "label": "Responsive & Mobile UI Layout Tiers",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_animation_performance",
+      "label": "Animation Performance Rules",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_ui_copy_guidelines",
+      "label": "UI Copy for Non-Technical Shop User",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_center_modals_pattern",
+      "label": "Center Modals Visual Family Pattern",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_detail_drawers_pattern",
+      "label": "Right-Side Detail & Profile Drawers Pattern",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_keyboard_shortcuts",
+      "label": "Keyboard Shortcuts Engine (useAppShortcuts)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_architecture_overview",
+      "label": "Architecture Overview & Entry Chain",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_state_management_redux",
+      "label": "Redux Toolkit State Management",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_money_handling",
+      "label": "Money Handling (Integer Cents)",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_offline_sync",
+      "label": "Offline & Sync Architecture",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_offline_sync_four_hard_rules",
+      "label": "Offline Sync: Four Hard Rules",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_offline_sync_adding_module",
+      "label": "Adding a Module to Sync (SyncResource Descriptor)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_connectivity_monitor",
+      "label": "ConnectivityMonitor Design",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_sync_notifications",
+      "label": "Sync Toast Notification Design",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_local_schema_changes",
+      "label": "Local Dexie Schema Change Rules",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_auth_offline",
+      "label": "Auth While Offline (Grace Period)",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_backend_contract",
+      "label": "Sync Backend Contract (Rust/Axum)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_pwa",
+      "label": "PWA Precache Strategy",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "claude_project_overview",
+      "target": "claude_commands",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_project_overview",
+      "target": "claude_responsive_mobile_ui",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_project_overview",
+      "target": "claude_animation_performance",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_responsive_mobile_ui",
+      "target": "claude_animation_performance",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_center_modals_pattern",
+      "target": "claude_detail_drawers_pattern",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_ui_copy_guidelines",
+      "target": "claude_center_modals_pattern",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_architecture_overview",
+      "target": "claude_state_management_redux",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_architecture_overview",
+      "target": "claude_money_handling",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_architecture_overview",
+      "target": "claude_offline_sync",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_architecture_overview",
+      "target": "claude_keyboard_shortcuts",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_offline_sync_four_hard_rules",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_offline_sync_adding_module",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_connectivity_monitor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_sync_notifications",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_local_schema_changes",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_auth_offline",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_backend_contract",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_offline_sync",
+      "target": "claude_pwa",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "ai_agent_instruction_files_triad",
+      "label": "Duplicated AI Assistant Instruction Files",
+      "nodes": ["claude_project_overview", "agents_md_doc", "gemini_md_doc"],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md"
+    }
+  ]
+}

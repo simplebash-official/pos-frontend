@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/registry/registry.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L1"
+source_file: 'src/offline/registry/registry.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # registry.ts
 
 ## Connections
+
 - [[AnySyncResource]] - `imports` [EXTRACTED]
 - [[LocalApplyResult]] - `imports` [EXTRACTED]
 - [[LocalContext]] - `imports` [EXTRACTED]

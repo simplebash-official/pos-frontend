@@ -8,6 +8,7 @@ members: 34
 **Members:** 34 nodes
 
 ## Members
+
 - [[dot-add()]] - code - src/shared/lib/localStorageStore.ts
 - [[dot-constructor()_8]] - code - src/shared/lib/localStorageStore.ts
 - [[dot-filter()]] - code - src/shared/lib/localStorageStore.ts
@@ -51,6 +52,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Employee Accounts & Earnings_2]]
 - 9 edges to [[_COMMUNITY_Employee Accounts & Earnings_5]]
 - 8 edges to [[_COMMUNITY_POS Billing Flow (useCustomers)]]
@@ -70,6 +72,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Product Catalog & Hierarchy]]
 
 ## Top bridge nodes
+
 - [[EmployeeList.tsx]] - degree 40, connects to 11 communities
 - [[mockEmployees.ts]] - degree 28, connects to 6 communities
 - [[DataTable.tsx]] - degree 12, connects to 5 communities

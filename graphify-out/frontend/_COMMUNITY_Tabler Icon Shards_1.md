@@ -8,6 +8,7 @@ members: 20
 **Members:** 20 nodes
 
 ## Members
+
 - [[EMPTY_MAP]] - code - src/shared/lib/tablerIcons.ts
 - [[ICON_SHARD_KEYS]] - code - src/shared/lib/tablerIconShards/index.ts
 - [[ICON_SHARD_LOADERS]] - code - src/shared/lib/tablerIconShards/index.ts
@@ -37,6 +38,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 7 edges to [[_COMMUNITY_Billing Catalog & Line Items]]
 - 4 edges to [[_COMMUNITY_Tabler Icon Shards]]
 - 2 edges to [[_COMMUNITY_Inventory & Products API_1]]
@@ -45,6 +47,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Cart & Checkout State_2]]
 
 ## Top bridge nodes
+
 - [[tablerIcons.ts]] - degree 24, connects to 4 communities
 - [[TablerIconPicker.tsx]] - degree 8, connects to 2 communities
 - [[useTablerIcons()]] - degree 7, connects to 2 communities

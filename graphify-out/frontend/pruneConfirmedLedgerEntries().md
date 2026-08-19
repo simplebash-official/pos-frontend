@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/stockLedger.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L89"
+source_file: 'src/offline/engine/stockLedger.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L89'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pruneConfirmedLedgerEntries()
 
 ## Connections
+
 - [[dot-runMaintenance()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[stockLedger.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/DocumentTemplatesSection.tsx"
-type: "code"
-community: "Invoice & Document Printing"
-location: "L1"
+source_file: 'src/features/settings/components/sections/DocumentTemplatesSection.tsx'
+type: 'code'
+community: 'Invoice & Document Printing'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # DocumentTemplatesSection.tsx
 
 ## Connections
+
 - [[DocumentTemplatesFormValues]] - `contains` [EXTRACTED]
 - [[DocumentTemplatesSection()]] - `contains` [EXTRACTED]
 - [[SectionProps]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/reports/index.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/features/reports/index.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # reports/index.ts
 
 ## Connections
+
 - [[ReportsDashboard]] - `imports_from` [EXTRACTED]
 - [[ReportsDashboard()]] - `re_exports` [EXTRACTED]
 - [[ReportsDashboard.tsx]] - `re_exports` [EXTRACTED]

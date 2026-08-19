@@ -1,8 +1,8 @@
 ---
-source_file: "eslint.config.js"
-type: "code"
-community: "eslint.config.js Module"
-location: "L1"
+source_file: 'eslint.config.js'
+type: 'code'
+community: 'eslint.config.js Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED

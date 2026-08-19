@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/tables.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L28"
+source_file: 'src/offline/db/tables.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MirroredRow
 
 ## Connections
+
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[SyncResource]] - `references` [EXTRACTED]
 - [[mirror.ts]] - `imports` [EXTRACTED]

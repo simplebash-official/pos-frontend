@@ -8,6 +8,7 @@ members: 28
 **Members:** 28 nodes
 
 ## Members
+
 - [[BarcodeSource]] - code - src/features/inventory/types.ts
 - [[CreateProductInput]] - code - src/features/inventory/types.ts
 - [[EnrichedLinkedProduct]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
@@ -45,6 +46,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 12 edges to [[_COMMUNITY_Offline Sync Engine (productsApi)]]
 - 10 edges to [[_COMMUNITY_Offline Sync Engine (useProducts)]]
 - 9 edges to [[_COMMUNITY_Inventory & Products API]]
@@ -64,6 +66,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 
 ## Top bridge nodes
+
 - [[inventorytypes.ts]] - degree 34, connects to 10 communities
 - [[ProductFormModal.tsx]] - degree 26, connects to 8 communities
 - [[Product]] - degree 19, connects to 7 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/index.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L21"
+source_file: 'src/offline/resources/index.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # registerSyncResources()
 
 ## Connections
+
 - [[SyncProvider()]] - `calls` [EXTRACTED]
 - [[SyncProvider.tsx]] - `imports` [EXTRACTED]
 - [[registerSyncResource()]] - `calls` [EXTRACTED]

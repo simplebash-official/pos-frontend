@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/EntityListPage.tsx"
-type: "code"
-community: "Billing Chrome & Navigation"
-location: "L1"
+source_file: 'src/shared/components/EntityListPage.tsx'
+type: 'code'
+community: 'Billing Chrome & Navigation'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EntityListPage.tsx
 
 ## Connections
+
 - [[CustomerList.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]
 - [[EntityListPage()]] - `contains` [EXTRACTED]

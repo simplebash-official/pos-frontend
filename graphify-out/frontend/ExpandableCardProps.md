@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/ExpandableCard.tsx"
-type: "code"
-community: "ExpandableCard Module"
-location: "L62"
+source_file: 'src/shared/components/ExpandableCard.tsx'
+type: 'code'
+community: 'ExpandableCard Module'
+location: 'L62'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ExpandableCardProps
 
 ## Connections
+
 - [[ExpandableCard.tsx]] - `contains` [EXTRACTED]
 - [[InteractiveTooltipProps]] - `references` [EXTRACTED]
 

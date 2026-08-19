@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/hooks/useInvoiceDocument.ts"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L16"
+source_file: 'src/features/billing/hooks/useInvoiceDocument.ts'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L16'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useInvoiceDocument()
 
 ## Connections
+
 - [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal()]] - `calls` [EXTRACTED]

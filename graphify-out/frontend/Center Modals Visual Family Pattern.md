@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Invoice & Document Printing"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Invoice & Document Printing'
 tags:
   - graphify/concept
   - graphify/INFERRED
@@ -11,6 +11,7 @@ tags:
 # Center Modals Visual Family Pattern
 
 ## Connections
+
 - [[Right-Side Detail & Profile Drawers Pattern]] - `semantically_similar_to` [INFERRED]
 - [[UI Copy for Non-Technical Shop User]] - `conceptually_related_to` [INFERRED]
 

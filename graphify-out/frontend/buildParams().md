@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "Billing Chrome & Navigation"
-location: "L71"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'Billing Chrome & Navigation'
+location: 'L71'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # buildParams()
 
 ## Connections
+
 - [[dot-request()]] - `calls` [EXTRACTED]
 - [[client.ts]] - `contains` [EXTRACTED]
 

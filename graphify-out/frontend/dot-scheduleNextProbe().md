@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L283"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L283'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .scheduleNextProbe()
 
 ## Connections
+
 - [[dot-clearProbeTimer()]] - `calls` [EXTRACTED]
 - [[dot-handleLinkDown()]] - `calls` [EXTRACTED]
 - [[dot-isOnline()]] - `calls` [EXTRACTED]

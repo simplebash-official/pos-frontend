@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L191"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L191'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectAuthUser()
 
 ## Connections
+
 - [[BillingCounter()]] - `indirect_call` [INFERRED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[Header()]] - `indirect_call` [INFERRED]

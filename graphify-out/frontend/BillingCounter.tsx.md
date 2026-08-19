@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/BillingCounter.tsx"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L1"
+source_file: 'src/features/billing/components/BillingCounter.tsx'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BillingCounter.tsx
 
 ## Connections
+
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[BILLING_HEADER_HEIGHT]] - `imports` [EXTRACTED]
 - [[BillingCounter()]] - `contains` [EXTRACTED]

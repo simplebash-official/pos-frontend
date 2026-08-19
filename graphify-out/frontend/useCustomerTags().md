@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/hooks/useCustomers.ts"
-type: "code"
-community: "POS Billing Flow (useCustomers)"
-location: "L38"
+source_file: 'src/features/customers/hooks/useCustomers.ts'
+type: 'code'
+community: 'POS Billing Flow (useCustomers)'
+location: 'L38'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCustomerTags()
 
 ## Connections
+
 - [[CustomerFormContent()]] - `calls` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerList()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/types.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L28"
+source_file: 'src/offline/types.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PullPage
 
 ## Connections
+
 - [[offlinetypes.ts]] - `contains` [EXTRACTED]
 - [[pull.test.ts]] - `imports` [EXTRACTED]
 - [[pull.ts]] - `imports` [EXTRACTED]

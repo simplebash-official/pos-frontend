@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/constants.ts"
-type: "code"
-community: "Billing Catalog & Line Items"
-location: "L1"
+source_file: 'src/features/inventory/constants.ts'
+type: 'code'
+community: 'Billing Catalog & Line Items'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # inventory/constants.ts
 
 ## Connections
+
 - [[CATEGORY_COLOR_OPTIONS]] - `contains` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[DEFAULT_CATEGORY_ICON]] - `contains` [EXTRACTED]

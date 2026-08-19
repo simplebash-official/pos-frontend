@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/deviceId.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L18"
+source_file: 'src/offline/ids/deviceId.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getDeviceId()
 
 ## Connections
+
 - [[dot-constructor()]] - `calls` [EXTRACTED]
 - [[SyncPanel()]] - `calls` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]

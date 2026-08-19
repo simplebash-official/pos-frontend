@@ -8,6 +8,7 @@ members: 37
 **Members:** 37 nodes
 
 ## Members
+
 - [[DetailDrawer()]] - code - src/shared/components/DetailDrawer.tsx
 - [[DetailDrawer.tsx]] - code - src/shared/components/DetailDrawer.tsx
 - [[DetailDrawerProps]] - code - src/shared/components/DetailDrawer.tsx
@@ -54,6 +55,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 22 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts]]
 - 20 edges to [[_COMMUNITY_Offline Connectivity Monitoring_1]]
 - 19 edges to [[_COMMUNITY_Offline Sync Engine (useProducts)]]
@@ -89,6 +91,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Invoice & Document Printing]]
 
 ## Top bridge nodes
+
 - [[useResponsive.tsx]] - degree 51, connects to 21 communities
 - [[useIsMobile()]] - degree 75, connects to 18 communities
 - [[date.ts]] - degree 18, connects to 9 communities

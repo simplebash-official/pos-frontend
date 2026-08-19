@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierDetailDrawer.tsx"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L68"
+source_file: 'src/features/suppliers/components/SupplierDetailDrawer.tsx'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L68'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierDetailDrawer()
 
 ## Connections
+
 - [[SupplierDetailDrawer.tsx]] - `contains` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]

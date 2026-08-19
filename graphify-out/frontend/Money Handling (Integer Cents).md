@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "rationale"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'rationale'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Money Handling (Integer Cents)
 
 ## Connections
+
 - [[Architecture Overview & Entry Chain]] - `references` [EXTRACTED]
 
 #graphify/rationale #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring

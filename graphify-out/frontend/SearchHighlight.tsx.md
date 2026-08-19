@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/SearchHighlight.tsx"
-type: "code"
-community: "Product Catalog & Hierarchy"
-location: "L1"
+source_file: 'src/shared/components/SearchHighlight.tsx'
+type: 'code'
+community: 'Product Catalog & Hierarchy'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SearchHighlight.tsx
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports_from` [EXTRACTED]

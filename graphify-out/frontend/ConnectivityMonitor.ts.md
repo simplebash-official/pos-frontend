@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ConnectivityMonitor.ts
 
 ## Connections
+
 - [[ConnectivityListener]] - `imports` [EXTRACTED]
 - [[ConnectivityMonitor]] - `contains` [EXTRACTED]
 - [[ConnectivitySnapshot]] - `imports` [EXTRACTED]

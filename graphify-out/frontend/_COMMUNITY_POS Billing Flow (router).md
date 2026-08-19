@@ -8,6 +8,7 @@ members: 23
 **Members:** 23 nodes
 
 ## Members
+
 - [[AppShell()]] - code - src/app/layout/AppShell.tsx
 - [[BillingCounter]] - code - src/app/router.tsx
 - [[BillingPageSkeleton()]] - code - src/shared/components/BillingPageSkeleton.tsx
@@ -40,6 +41,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_POS Billing Flow (routes)]]
 - 5 edges to [[_COMMUNITY_POS Cart & Checkout State_3]]
 - 4 edges to [[_COMMUNITY_POS Billing Flow (printLogStore)]]
@@ -64,6 +66,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_useShortcuts Module]]
 
 ## Top bridge nodes
+
 - [[router.tsx]] - degree 45, connects to 14 communities
 - [[useLayoutTier()]] - degree 14, connects to 7 communities
 - [[AppShell()]] - degree 6, connects to 4 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncStatusBadge.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/features/sync/components/SyncStatusBadge.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncStatusBadge.tsx
 
 ## Connections
+
 - [[InteractiveTooltip()]] - `imports` [EXTRACTED]
 - [[InteractiveTooltip.tsx]] - `imports_from` [EXTRACTED]
 - [[OVERALL_STATUS_PRESENTATION]] - `imports` [EXTRACTED]

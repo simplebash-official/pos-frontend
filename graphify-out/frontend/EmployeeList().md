@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/components/EmployeeList.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L53"
+source_file: 'src/features/employees/components/EmployeeList.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L53'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EmployeeList()
 
 ## Connections
+
 - [[EmployeeList.tsx]] - `contains` [EXTRACTED]
 - [[createEmployee()]] - `indirect_call` [INFERRED]
 - [[deleteEmployee()]] - `indirect_call` [INFERRED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/colorSchemeManager.ts"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L12"
+source_file: 'src/store/colorSchemeManager.ts'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toAppScheme()
 
 ## Connections
+
 - [[colorSchemeManager.ts]] - `contains` [EXTRACTED]
 - [[createReduxColorSchemeManager()]] - `calls` [EXTRACTED]
 

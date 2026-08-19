@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/components/GuestOnly.tsx"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L1"
+source_file: 'src/app/components/GuestOnly.tsx'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # GuestOnly.tsx
 
 ## Connections
+
 - [[GuestOnly()]] - `contains` [EXTRACTED]
 - [[GuestOnlyProps]] - `contains` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]

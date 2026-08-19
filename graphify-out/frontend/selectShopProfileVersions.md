@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/settingsSlice.ts"
-type: "code"
-community: "Shop Settings & Profile"
-location: "L150"
+source_file: 'src/store/slices/settingsSlice.ts'
+type: 'code'
+community: 'Shop Settings & Profile'
+location: 'L150'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectShopProfileVersions
 
 ## Connections
+
 - [[selectShopProfileByVersion()]] - `calls` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]
 

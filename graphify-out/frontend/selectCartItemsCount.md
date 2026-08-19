@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L535"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L535'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectCartItemsCount
 
 ## Connections
+
 - [[AppUpdatePrompt.tsx]] - `imports` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 - [[useCart.ts]] - `imports` [EXTRACTED]

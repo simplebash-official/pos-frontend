@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/components/EmployeeFormModal.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/features/employees/components/EmployeeFormModal.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EmployeeFormModal.tsx
 
 ## Connections
+
 - [[Employee]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal()]] - `contains` [EXTRACTED]
 - [[EmployeeFormModalProps]] - `contains` [EXTRACTED]

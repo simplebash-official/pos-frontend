@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/types/ticketInput.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/shared/types/ticketInput.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ticketInput.ts
 
 ## Connections
+
 - [[AssignmentInfo]] - `contains` [EXTRACTED]
 - [[CustomerRef]] - `contains` [EXTRACTED]
 - [[SplitType]] - `imports` [EXTRACTED]

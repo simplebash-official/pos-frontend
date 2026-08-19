@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/index.ts"
-type: "code"
-community: "POS Billing Flow (useCustomers)"
-location: "L1"
+source_file: 'src/features/customers/index.ts'
+type: 'code'
+community: 'POS Billing Flow (useCustomers)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # customers/index.ts
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerDetailDrawer()]] - `re_exports` [EXTRACTED]

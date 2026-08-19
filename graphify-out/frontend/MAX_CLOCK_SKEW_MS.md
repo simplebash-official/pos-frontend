@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L52"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MAX_CLOCK_SKEW_MS
 
 ## Connections
+
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

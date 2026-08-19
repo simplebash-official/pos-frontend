@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/mirror.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L35"
+source_file: 'src/offline/db/mirror.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L35'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toServerRow()
 
 ## Connections
+
 - [[applyChanges()]] - `calls` [EXTRACTED]
 - [[commitSuccess()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `imports` [EXTRACTED]

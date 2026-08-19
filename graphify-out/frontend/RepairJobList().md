@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/repairs/components/RepairJobList.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L18"
+source_file: 'src/features/repairs/components/RepairJobList.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RepairJobList()
 
 ## Connections
+
 - [[RepairJobList.tsx]] - `contains` [EXTRACTED]
 - [[createRepairJob()]] - `indirect_call` [INFERRED]
 - [[deleteRepairs()]] - `indirect_call` [INFERRED]

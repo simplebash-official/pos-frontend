@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/money.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L21"
+source_file: 'src/shared/lib/money.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # formatMoney()
 
 ## Connections
+
 - [[BillingSummaryStrip()]] - `calls` [EXTRACTED]
 - [[BillingTabBar.tsx]] - `imports` [EXTRACTED]
 - [[CartLineItem]] - `calls` [EXTRACTED]

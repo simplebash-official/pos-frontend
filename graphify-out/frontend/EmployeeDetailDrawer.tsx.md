@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/components/EmployeeDetailDrawer.tsx"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L1"
+source_file: 'src/features/employees/components/EmployeeDetailDrawer.tsx'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EmployeeDetailDrawer.tsx
 
 ## Connections
+
 - [[DetailDrawer()]] - `imports` [EXTRACTED]
 - [[DetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[EMPLOYEE_ROLE_LABELS]] - `imports` [EXTRACTED]

@@ -8,6 +8,7 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
+
 - [[Center Modals Visual Family Pattern]] - concept - CLAUDE.md
 - [[Right-Side Detail & Profile Drawers Pattern]] - concept - CLAUDE.md
 - [[UI Copy for Non-Technical Shop User]] - rationale - CLAUDE.md

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/constants.ts"
-type: "code"
-community: "Shop Settings & Profile"
-location: "L28"
+source_file: 'src/features/settings/constants.ts'
+type: 'code'
+community: 'Shop Settings & Profile'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # DEFAULT_PRINT_SETTINGS
 
 ## Connections
+
 - [[settingsconstants.ts]] - `contains` [EXTRACTED]
 - [[settingsSlice.ts]] - `imports` [EXTRACTED]
 

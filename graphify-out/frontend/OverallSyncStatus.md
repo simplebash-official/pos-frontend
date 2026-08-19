@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/syncSlice.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L179"
+source_file: 'src/store/slices/syncSlice.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L179'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OverallSyncStatus
 
 ## Connections
+
 - [[synctypes.ts]] - `re_exports` [EXTRACTED]
 - [[syncSlice.ts]] - `contains` [EXTRACTED]
 

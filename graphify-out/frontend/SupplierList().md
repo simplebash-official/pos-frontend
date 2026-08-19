@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierList.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L48"
+source_file: 'src/features/suppliers/components/SupplierList.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L48'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierList()
 
 ## Connections
+
 - [[SupplierList.tsx]] - `contains` [EXTRACTED]
 - [[getAvatarColor()]] - `calls` [EXTRACTED]
 - [[getInitials()]] - `calls` [EXTRACTED]

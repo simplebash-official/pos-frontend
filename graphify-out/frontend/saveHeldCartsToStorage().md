@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L95"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L95'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # saveHeldCartsToStorage()
 
 ## Connections
+
 - [[cartSlice]] - `calls` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 

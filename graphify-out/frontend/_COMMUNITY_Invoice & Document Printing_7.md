@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[Apple Touch Icon (Lightning Bolt Logo)]] - image - public/apple-touch-icon.png
 
 ## Live Query (requires Dataview plugin)

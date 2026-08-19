@@ -8,6 +8,7 @@ members: 20
 **Members:** 20 nodes
 
 ## Members
+
 - [[EnrichedLinkedSupplier]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
 - [[NO_LINKED_PRODUCTS]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
 - [[NO_LINKED_SUPPLIERS]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
@@ -37,6 +38,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Offline Sync Engine (productsApi)]]
 - 9 edges to [[_COMMUNITY_Outbox Queue & Status]]
 - 8 edges to [[_COMMUNITY_Offline Sync Engine (useProducts)]]
@@ -56,6 +58,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Sync Metadata & Cursors]]
 
 ## Top bridge nodes
+
 - [[useSupplierProducts.ts]] - degree 28, connects to 7 communities
 - [[supplierProducts.resource.ts]] - degree 27, connects to 7 communities
 - [[SyncedEntityFields]] - degree 12, connects to 6 communities

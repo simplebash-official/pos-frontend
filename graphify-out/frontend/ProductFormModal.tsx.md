@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/ProductFormModal.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/inventory/components/ProductFormModal.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ProductFormModal.tsx
 
 ## Connections
+
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[CURRENCY]] - `imports` [EXTRACTED]
 - [[CreateProductInput]] - `imports` [EXTRACTED]

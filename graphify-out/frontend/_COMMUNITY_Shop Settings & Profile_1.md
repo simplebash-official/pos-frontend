@@ -8,6 +8,7 @@ members: 9
 **Members:** 9 nodes
 
 ## Members
+
 - [[SETTINGS_SECTIONS]] - code - src/features/settings/settingsSections.ts
 - [[SettingsNav.tsx]] - code - src/features/settings/components/SettingsNav.tsx
 - [[SettingsNavDrillDownList()]] - code - src/features/settings/components/SettingsNav.tsx
@@ -26,9 +27,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 7 edges to [[_COMMUNITY_Invoice & Document Printing]]
 
 ## Top bridge nodes
+
 - [[SettingsNav.tsx]] - degree 8, connects to 1 community
 - [[settingsSections.ts]] - degree 5, connects to 1 community
 - [[SettingsSectionId]] - degree 4, connects to 1 community

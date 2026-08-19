@@ -8,6 +8,7 @@ members: 28
 **Members:** 28 nodes
 
 ## Members
+
 - [[BillingCounter()]] - code - src/features/billing/components/BillingCounter.tsx
 - [[BillingCounter.tsx]] - code - src/features/billing/components/BillingCounter.tsx
 - [[BillingPane]] - code - src/features/billing/components/BillingTabBar.tsx
@@ -45,6 +46,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 27 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 21 edges to [[_COMMUNITY_POS Cart & Checkout State]]
 - 20 edges to [[_COMMUNITY_Invoice & Document Printing]]
@@ -69,6 +71,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
 
 ## Top bridge nodes
+
 - [[BillingCounter.tsx]] - degree 54, connects to 16 communities
 - [[Header.tsx]] - degree 19, connects to 7 communities
 - [[BillingRegions.tsx]] - degree 21, connects to 6 communities

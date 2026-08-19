@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/PdfCanvasViewer.tsx"
-type: "code"
-community: "POS Billing Flow (printLogStore)"
-location: "L1"
+source_file: 'src/shared/components/PdfCanvasViewer.tsx'
+type: 'code'
+community: 'POS Billing Flow (printLogStore)'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PdfCanvasViewer.tsx
 
 ## Connections
+
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[PdfCanvasViewer()]] - `contains` [EXTRACTED]
 - [[PdfCanvasViewerProps]] - `contains` [EXTRACTED]

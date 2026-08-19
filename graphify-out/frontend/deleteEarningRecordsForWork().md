@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/api/mockEmployees.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L222"
+source_file: 'src/features/employees/api/mockEmployees.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L222'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # deleteEarningRecordsForWork()
 
 ## Connections
+
 - [[dot-remove()]] - `calls` [INFERRED]
 - [[deletePrintJobs()]] - `calls` [EXTRACTED]
 - [[deleteRepairs()]] - `calls` [EXTRACTED]

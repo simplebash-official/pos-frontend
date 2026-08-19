@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/notifications/components/NotificationItem.tsx"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L1"
+source_file: 'src/features/notifications/components/NotificationItem.tsx'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # NotificationItem.tsx
 
 ## Connections
+
 - [[AppNotification]] - `imports` [EXTRACTED]
 - [[NotificationItem()]] - `contains` [EXTRACTED]
 - [[NotificationItemProps]] - `contains` [EXTRACTED]

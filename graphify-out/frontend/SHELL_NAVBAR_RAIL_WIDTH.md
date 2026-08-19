@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/constants.ts"
-type: "code"
-community: "POS Billing Flow (routes)"
-location: "L12"
+source_file: 'src/app/layout/constants.ts'
+type: 'code'
+community: 'POS Billing Flow (routes)'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SHELL_NAVBAR_RAIL_WIDTH
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[layoutconstants.ts]] - `contains` [EXTRACTED]
 

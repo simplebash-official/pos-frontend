@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useCategories.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L1"
+source_file: 'src/features/inventory/hooks/useCategories.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCategories.ts
 
 ## Connections
+
 - [[AddSubcategoryPayload]] - `imports` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Category]] - `imports` [EXTRACTED]

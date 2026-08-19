@@ -8,6 +8,7 @@ members: 30
 **Members:** 30 nodes
 
 ## Members
+
 - [[AppRoute]] - code - src/constants/routes.ts
 - [[AppShell.tsx]] - code - src/app/layout/AppShell.tsx
 - [[BILLING_HEADER_HEIGHT]] - code - src/app/layout/constants.ts
@@ -47,6 +48,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 16 edges to [[_COMMUNITY_Invoice & Document Printing]]
 - 11 edges to [[_COMMUNITY_Authentication & Access Control]]
 - 9 edges to [[_COMMUNITY_POS Billing Flow (router)]]
@@ -68,6 +70,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Outbox Queue & Status]]
 
 ## Top bridge nodes
+
 - [[AppShell.tsx]] - degree 30, connects to 9 communities
 - [[ROUTES]] - degree 19, connects to 8 communities
 - [[LowStockNotifier.tsx]] - degree 13, connects to 7 communities

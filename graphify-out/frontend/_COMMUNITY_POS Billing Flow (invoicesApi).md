@@ -8,6 +8,7 @@ members: 16
 **Members:** 16 nodes
 
 ## Members
+
 - [[BackendInvoice]] - code - src/features/billing/api/invoicesApi.ts
 - [[BackendInvoiceItem]] - code - src/features/billing/api/invoicesApi.ts
 - [[BackendPaymentRecord]] - code - src/features/billing/api/invoicesApi.ts
@@ -33,6 +34,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 4 edges to [[_COMMUNITY_POS Cart & Checkout State_1]]
 - 3 edges to [[_COMMUNITY_POS Billing Flow (paymentsApi)]]
 - 2 edges to [[_COMMUNITY_Billing Chrome & Navigation]]
@@ -44,6 +46,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Billing Flow (useCustomers)]]
 
 ## Top bridge nodes
+
 - [[invoicesApi.ts]] - degree 29, connects to 9 communities
 - [[toInvoice()]] - degree 6, connects to 2 communities
 - [[CompleteSaleInput]] - degree 2, connects to 1 community

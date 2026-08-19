@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L211"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L211'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchNewestCursors()
 
 ## Connections
+
 - [[adoptNewestCursor()]] - `calls` [EXTRACTED]
 - [[fetchSyncChanges()]] - `calls` [EXTRACTED]
 - [[pull.ts]] - `imports` [EXTRACTED]

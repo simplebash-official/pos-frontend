@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/types.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/features/print-jobs/types.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # print-jobs/types.ts
 
 ## Connections
+
 - [[AssignmentInfo]] - `imports` [EXTRACTED]
 - [[CustomerRef]] - `imports` [EXTRACTED]
 - [[JobStatus]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/SearchHistoryInput.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/shared/components/SearchHistoryInput.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SearchHistoryInput.tsx
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[EntityListPage.tsx]] - `imports_from` [EXTRACTED]

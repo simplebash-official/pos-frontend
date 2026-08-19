@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/notifications/components/NotificationPopover.tsx"
-type: "code"
-community: "Notifications & Storage Keys"
-location: "L1"
+source_file: 'src/features/notifications/components/NotificationPopover.tsx'
+type: 'code'
+community: 'Notifications & Storage Keys'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # NotificationPopover.tsx
 
 ## Connections
+
 - [[NotificationCategory]] - `imports` [EXTRACTED]
 - [[NotificationItem()]] - `imports` [EXTRACTED]
 - [[NotificationItem.tsx]] - `imports_from` [EXTRACTED]

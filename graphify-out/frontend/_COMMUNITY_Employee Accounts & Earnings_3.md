@@ -8,6 +8,7 @@ members: 13
 **Members:** 13 nodes
 
 ## Members
+
 - [[BackendPrintJob]] - code - src/features/print-jobs/api/printJobsApi.ts
 - [[PrintJobList()]] - code - src/features/print-jobs/components/PrintJobList.tsx
 - [[PrintJobList.tsx]] - code - src/features/print-jobs/components/PrintJobList.tsx
@@ -30,6 +31,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Employee Accounts & Earnings_1]]
 - 8 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 7 edges to [[_COMMUNITY_Employee Accounts & Earnings_4]]
@@ -49,6 +51,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications & Storage Keys]]
 
 ## Top bridge nodes
+
 - [[PrintJobList.tsx]] - degree 29, connects to 12 communities
 - [[printJobsApi.ts]] - degree 24, connects to 8 communities
 - [[PrintJobList()]] - degree 9, connects to 4 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncSettingsSection.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/features/sync/components/SyncSettingsSection.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncSettingsSection.tsx
 
 ## Connections
+
 - [[SettingsPage.tsx]] - `imports_from` [EXTRACTED]
 - [[SyncPanel()]] - `imports` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports_from` [EXTRACTED]

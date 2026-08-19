@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/money.ts"
-type: "code"
-community: "index Module"
-location: "L34"
+source_file: 'src/shared/lib/money.ts'
+type: 'code'
+community: 'index Module'
+location: 'L34'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # parseMoneyToCents()
 
 ## Connections
+
 - [[money.ts]] - `contains` [EXTRACTED]
 - [[toCents()]] - `calls` [EXTRACTED]
 

@@ -1,7 +1,7 @@
 ---
-source_file: "backend-sync-requirements.html"
-type: "document"
-community: "Offline Connectivity Monitoring"
+source_file: 'backend-sync-requirements.html'
+type: 'document'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/document
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Backend Requirements — Offline Sync Spec
 
 ## Connections
+
 - [[Acceptance Criteria Checklist]] - `references` [EXTRACTED]
 - [[Error Codes the Client Acts On]] - `references` [EXTRACTED]
 - [[OPS-01 Reconnect Stampede Capacity Planning]] - `references` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/ExpandableCard.tsx"
-type: "code"
-community: "ExpandableCard Module"
-location: "L25"
+source_file: 'src/shared/components/ExpandableCard.tsx'
+type: 'code'
+community: 'ExpandableCard Module'
+location: 'L25'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ExpandableCardAction()
 
 ## Connections
+
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[ExpandableCard.tsx]] - `contains` [EXTRACTED]
 

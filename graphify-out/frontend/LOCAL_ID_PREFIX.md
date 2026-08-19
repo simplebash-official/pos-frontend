@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/localId.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L14"
+source_file: 'src/offline/ids/localId.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LOCAL_ID_PREFIX
 
 ## Connections
+
 - [[localId.ts]] - `contains` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 

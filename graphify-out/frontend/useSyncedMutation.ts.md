@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useSyncedMutation.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L1"
+source_file: 'src/offline/react/useSyncedMutation.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useSyncedMutation.ts
 
 ## Connections
+
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[SyncEngine]] - `imports` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]

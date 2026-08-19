@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/flush.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L112"
+source_file: 'src/offline/outbox/flush.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L112'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # conflictReasonFor()
 
 ## Connections
+
 - [[flush.ts]] - `contains` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]
 - [[handleConflict()]] - `calls` [EXTRACTED]

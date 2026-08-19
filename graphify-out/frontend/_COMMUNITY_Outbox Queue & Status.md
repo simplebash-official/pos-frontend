@@ -8,6 +8,7 @@ members: 36
 **Members:** 36 nodes
 
 ## Members
+
 - [[dot-constructor()_2]] - code - src/offline/db/schema.ts
 - [[AuditEvent]] - code - src/offline/db/tables.ts
 - [[AuditLevel]] - code - src/offline/db/tables.ts
@@ -53,6 +54,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 21 edges to [[_COMMUNITY_Outbox Queue & Status_1]]
 - 20 edges to [[_COMMUNITY_Sync Metadata & Cursors]]
 - 15 edges to [[_COMMUNITY_Offline Connectivity Monitoring_1]]
@@ -78,6 +80,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Billing Flow (routes)]]
 
 ## Top bridge nodes
+
 - [[schema.ts]] - degree 56, connects to 19 communities
 - [[db]] - degree 30, connects to 16 communities
 - [[offlineindex.ts]] - degree 43, connects to 11 communities

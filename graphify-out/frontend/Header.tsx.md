@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/Header.tsx"
-type: "code"
-community: "POS Cart & Checkout State"
-location: "L1"
+source_file: 'src/app/layout/Header.tsx'
+type: 'code'
+community: 'POS Cart & Checkout State'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Header.tsx
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[Header()]] - `contains` [EXTRACTED]
 - [[HeaderProps]] - `contains` [EXTRACTED]

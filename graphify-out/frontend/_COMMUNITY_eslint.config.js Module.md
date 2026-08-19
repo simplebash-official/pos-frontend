@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[eslint.config.js]] - code - eslint.config.js
 
 ## Live Query (requires Dataview plugin)

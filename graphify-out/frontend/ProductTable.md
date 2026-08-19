@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/router.tsx"
-type: "code"
-community: "Inventory & Products API"
-location: "L27"
+source_file: 'src/app/router.tsx'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L27'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ProductTable
 
 ## Connections
+
 - [[inventoryindex.ts]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 

@@ -6,11 +6,7 @@
       {
         "id": "ai_agent_instruction_files_triad",
         "label": "Duplicated AI Assistant Instruction Files",
-        "nodes": [
-          "claude_project_overview",
-          "agents_md_doc",
-          "gemini_md_doc"
-        ],
+        "nodes": ["claude_project_overview", "agents_md_doc", "gemini_md_doc"],
         "relation": "form",
         "confidence": "EXTRACTED",
         "confidence_score": 1.0,
@@ -19,11 +15,7 @@
       {
         "id": "ci_build_quality_gate",
         "label": "CI Build and Quality Gate Flow",
-        "nodes": [
-          "github_workflows_deploy_pipeline",
-          "claude_commands",
-          "claude_project_overview"
-        ],
+        "nodes": ["github_workflows_deploy_pipeline", "claude_commands", "claude_project_overview"],
         "relation": "participate_in",
         "confidence": "INFERRED",
         "confidence_score": 0.75,
@@ -73353,11 +73345,7 @@
     {
       "id": "ai_agent_instruction_files_triad",
       "label": "Duplicated AI Assistant Instruction Files",
-      "nodes": [
-        "claude_project_overview",
-        "agents_md_doc",
-        "gemini_md_doc"
-      ],
+      "nodes": ["claude_project_overview", "agents_md_doc", "gemini_md_doc"],
       "relation": "form",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -73366,11 +73354,7 @@
     {
       "id": "ci_build_quality_gate",
       "label": "CI Build and Quality Gate Flow",
-      "nodes": [
-        "github_workflows_deploy_pipeline",
-        "claude_commands",
-        "claude_project_overview"
-      ],
+      "nodes": ["github_workflows_deploy_pipeline", "claude_commands", "claude_project_overview"],
       "relation": "participate_in",
       "confidence": "INFERRED",
       "confidence_score": 0.75,

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "POS Billing Flow (invoicesApi)"
-location: "L144"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'POS Billing Flow (invoicesApi)'
+location: 'L144'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # InvoiceListResponseData
 
 ## Connections
+
 - [[invoicesApi.ts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_invoicesApi

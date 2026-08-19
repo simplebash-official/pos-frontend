@@ -1,8 +1,8 @@
 ---
-source_file: "vitest.config.ts"
-type: "code"
-community: "vitest.config Module"
-location: "L1"
+source_file: 'vitest.config.ts'
+type: 'code'
+community: 'vitest.config Module'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED

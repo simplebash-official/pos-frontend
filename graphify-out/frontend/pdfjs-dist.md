@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Runtime Packages & UI Dependencies"
-location: "L53"
+source_file: 'package.json'
+type: 'code'
+community: 'Runtime Packages & UI Dependencies'
+location: 'L53'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pdfjs-dist
 
 ## Connections
+
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[pdfjs-dist_1]] - `imports` [EXTRACTED]
 

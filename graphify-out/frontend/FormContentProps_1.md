@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/ProductFormModal.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L57"
+source_file: 'src/features/inventory/components/ProductFormModal.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L57'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # FormContentProps
 
 ## Connections
+
 - [[CreateProductInput]] - `references` [EXTRACTED]
 - [[Product]] - `references` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `contains` [EXTRACTED]

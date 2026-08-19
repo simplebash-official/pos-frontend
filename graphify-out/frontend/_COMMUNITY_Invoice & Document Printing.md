@@ -8,6 +8,7 @@ members: 34
 **Members:** 34 nodes
 
 ## Members
+
 - [[ACCEPTED_TYPES]] - code - src/features/settings/components/LogoUpload.tsx
 - [[AppUpdatePrompt()]] - code - src/app/components/AppUpdatePrompt.tsx
 - [[AppUpdatePrompt.tsx]] - code - src/app/components/AppUpdatePrompt.tsx
@@ -51,6 +52,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 20 edges to [[_COMMUNITY_POS Cart & Checkout State_1]]
 - 16 edges to [[_COMMUNITY_POS Billing Flow (routes)]]
 - 11 edges to [[_COMMUNITY_POS Cart & Checkout State_3]]
@@ -73,6 +75,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 
 ## Top bridge nodes
+
 - [[hooks.ts]] - degree 38, connects to 15 communities
 - [[useAppSelector]] - degree 60, connects to 12 communities
 - [[useAppDispatch]] - degree 42, connects to 11 communities

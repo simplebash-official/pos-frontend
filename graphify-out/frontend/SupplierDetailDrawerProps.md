@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierDetailDrawer.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L60"
+source_file: 'src/features/suppliers/components/SupplierDetailDrawer.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L60'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierDetailDrawerProps
 
 ## Connections
+
 - [[Supplier]] - `references` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `contains` [EXTRACTED]
 

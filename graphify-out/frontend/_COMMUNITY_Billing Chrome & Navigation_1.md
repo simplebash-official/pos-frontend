@@ -8,6 +8,7 @@ members: 11
 **Members:** 11 nodes
 
 ## Members
+
 - [[DiscountPopover.tsx]] - code - src/features/billing/components/DiscountPopover.tsx
 - [[DiscountPopoverProps]] - code - src/features/billing/components/DiscountPopover.tsx
 - [[EntityListPage()]] - code - src/shared/components/EntityListPage.tsx
@@ -28,6 +29,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 5 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
 - 4 edges to [[_COMMUNITY_Employee Accounts & Earnings_1]]
 - 4 edges to [[_COMMUNITY_Invoice & Document Printing]]
@@ -49,6 +51,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_index Module]]
 
 ## Top bridge nodes
+
 - [[SegmentedToggle.tsx]] - degree 13, connects to 8 communities
 - [[SegmentedToggle()]] - degree 12, connects to 8 communities
 - [[EntityListPage.tsx]] - degree 13, connects to 5 communities

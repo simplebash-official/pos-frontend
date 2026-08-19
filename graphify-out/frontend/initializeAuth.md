@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L53"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L53'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # initializeAuth
 
 ## Connections
+
 - [[AuthInitializer()]] - `calls` [EXTRACTED]
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 - [[cacheSession()]] - `calls` [EXTRACTED]

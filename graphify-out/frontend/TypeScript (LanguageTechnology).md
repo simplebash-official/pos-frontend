@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/typescript.svg"
-type: "concept"
-community: "Community 91"
+source_file: 'src/assets/typescript.svg'
+type: 'concept'
+community: 'Community 91'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # offline/constants.ts
 
 ## Connections
+
 - [[AUDIT_LOG_LIMIT]] - `contains` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[DEGRADED_LATENCY_MS]] - `contains` [EXTRACTED]

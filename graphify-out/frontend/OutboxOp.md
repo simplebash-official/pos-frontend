@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/tables.ts"
-type: "code"
-community: "Outbox Queue & Status"
-location: "L52"
+source_file: 'src/offline/db/tables.ts'
+type: 'code'
+community: 'Outbox Queue & Status'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OutboxOp
 
 ## Connections
+
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[PendingOperationsList.tsx]] - `imports` [EXTRACTED]
 - [[PendingOperationsListProps]] - `references` [EXTRACTED]

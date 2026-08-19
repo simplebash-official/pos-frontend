@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/types.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L15"
+source_file: 'src/features/sync/types.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L15'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MODULE_STATUS_PRESENTATION
 
 ## Connections
+
 - [[SyncModuleCard.tsx]] - `imports` [EXTRACTED]
 - [[synctypes.ts]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useLiveQuery.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L1"
+source_file: 'src/offline/react/useLiveQuery.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useLiveQuery.ts
 
 ## Connections
+
 - [[LiveQueryResult]] - `contains` [EXTRACTED]
 - [[depsChanged()]] - `contains` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L317"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L317'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .clearTimers()
 
 ## Connections
+
 - [[dot-checkNow()]] - `calls` [EXTRACTED]
 - [[dot-clearProbeTimer()]] - `calls` [EXTRACTED]
 - [[dot-clearSettleTimer()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/idMap.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L18"
+source_file: 'src/offline/ids/idMap.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # mintLocalId()
 
 ## Connections
+
 - [[createLocalId()]] - `calls` [EXTRACTED]
 - [[idMap.ts]] - `contains` [EXTRACTED]
 

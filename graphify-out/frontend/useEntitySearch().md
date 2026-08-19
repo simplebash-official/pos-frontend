@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useEntitySearch.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L37"
+source_file: 'src/shared/hooks/useEntitySearch.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L37'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useEntitySearch()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CustomerList()]] - `calls` [EXTRACTED]

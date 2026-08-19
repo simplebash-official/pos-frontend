@@ -8,6 +8,7 @@ members: 8
 **Members:** 8 nodes
 
 ## Members
+
 - [[Shortcut]] - code - src/shared/hooks/useShortcuts.ts
 - [[ShortcutScope]] - code - src/shared/hooks/useShortcuts.ts
 - [[activeScopes]] - code - src/shared/hooks/useShortcuts.ts
@@ -25,6 +26,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 6 edges to [[_COMMUNITY_POS Billing Flow (printLogStore)]]
 - 4 edges to [[_COMMUNITY_POS Cart & Checkout State_1]]
 - 3 edges to [[_COMMUNITY_Supplier Directory & Stock Receipts_3]]
@@ -32,6 +34,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_POS Billing Flow (router)]]
 
 ## Top bridge nodes
+
 - [[useAppShortcuts()]] - degree 12, connects to 5 communities
 - [[useShortcuts.ts]] - degree 12, connects to 4 communities
 - [[Shortcut]] - degree 2, connects to 1 community

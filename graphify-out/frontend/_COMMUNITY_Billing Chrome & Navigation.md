@@ -8,6 +8,7 @@ members: 15
 **Members:** 15 nodes
 
 ## Members
+
 - [[dot-delete()]] - code - src/api/client.ts
 - [[dot-get()]] - code - src/api/client.ts
 - [[dot-patch()]] - code - src/api/client.ts
@@ -32,6 +33,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 5 edges to [[_COMMUNITY_Offline Connectivity Monitoring]]
 - 4 edges to [[_COMMUNITY_POS Billing Flow (paymentsApi)]]
 - 2 edges to [[_COMMUNITY_POS Billing Flow (invoicesApi)]]
@@ -49,6 +51,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync Engine (syncApi)]]
 
 ## Top bridge nodes
+
 - [[ApiClient]] - degree 21, connects to 13 communities
 - [[ApiResponse]] - degree 11, connects to 10 communities
 - [[paymentsApi.ts]] - degree 12, connects to 3 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/moneyFormUtils.ts"
-type: "code"
-community: "index Module"
-location: "L121"
+source_file: 'src/shared/lib/moneyFormUtils.ts'
+type: 'code'
+community: 'index Module'
+location: 'L121'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toPrintJobInput()
 
 ## Connections
+
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
 - [[moneyFormUtils.ts]] - `contains` [EXTRACTED]
 - [[toCents()]] - `calls` [EXTRACTED]

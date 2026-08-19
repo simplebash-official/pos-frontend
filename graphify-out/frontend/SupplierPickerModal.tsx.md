@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierPickerModal.tsx"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L1"
+source_file: 'src/features/suppliers/components/SupplierPickerModal.tsx'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierPickerModal.tsx
 
 ## Connections
+
 - [[ReceiveStockModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SUPPLIER_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[SearchHighlight()]] - `imports` [EXTRACTED]

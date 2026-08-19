@@ -8,6 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[vite.config.ts]] - code - vite.config.ts
 
 ## Live Query (requires Dataview plugin)

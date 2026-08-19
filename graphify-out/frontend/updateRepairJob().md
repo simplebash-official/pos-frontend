@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/repairs/api/repairsApi.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L129"
+source_file: 'src/features/repairs/api/repairsApi.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L129'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # updateRepairJob()
 
 ## Connections
+
 - [[RepairJobList()]] - `calls` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
 - [[deleteEarningRecordsForWork()]] - `calls` [EXTRACTED]

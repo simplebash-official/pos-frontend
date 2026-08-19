@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L32"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PULL_INTERVAL_MS
 
 ## Connections
+
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 - [[syncSlice.ts]] - `imports` [EXTRACTED]

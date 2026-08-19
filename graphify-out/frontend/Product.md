@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L41"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L41'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Product
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[EnrichedLinkedProduct]] - `references` [EXTRACTED]
 - [[FormContentProps_1]] - `references` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/categories.resource.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L40"
+source_file: 'src/offline/resources/categories.resource.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L40'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # categoriesResource
 
 ## Connections
+
 - [[categories.resource.ts]] - `contains` [EXTRACTED]
 - [[createCategory()]] - `calls` [EXTRACTED]
 - [[createSubcategory()]] - `calls` [EXTRACTED]

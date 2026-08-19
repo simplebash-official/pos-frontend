@@ -8,6 +8,7 @@ members: 14
 **Members:** 14 nodes
 
 ## Members
+
 - [[Employee]] - code - src/features/employees/types.ts
 - [[EmployeeDetailDrawerProps]] - code - src/features/employees/components/EmployeeDetailDrawer.tsx
 - [[EmployeeFormModal()]] - code - src/features/employees/components/EmployeeFormModal.tsx
@@ -31,6 +32,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 17 edges to [[_COMMUNITY_Employee Accounts & Earnings_1]]
 - 10 edges to [[_COMMUNITY_Employee Accounts & Earnings]]
 - 9 edges to [[_COMMUNITY_index Module]]
@@ -41,6 +43,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Employee Accounts & Earnings_5]]
 
 ## Top bridge nodes
+
 - [[employeestypes.ts]] - degree 18, connects to 4 communities
 - [[EmployeeFormModal.tsx]] - degree 16, connects to 4 communities
 - [[employeesindex.ts]] - degree 7, connects to 4 communities

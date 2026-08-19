@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "POS Billing Flow (saleHeroPresentation)"
-location: "L206"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'POS Billing Flow (saleHeroPresentation)'
+location: 'L206'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CompleteSaleResult
 
 ## Connections
+
 - [[Invoice]] - `references` [EXTRACTED]
 - [[invoicesApi.ts]] - `contains` [EXTRACTED]
 

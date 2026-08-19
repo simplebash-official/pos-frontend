@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/syncMeta.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L1"
+source_file: 'src/offline/db/syncMeta.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # syncMeta.ts
 
 ## Connections
+
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]
 - [[SyncMetaPatch]] - `contains` [EXTRACTED]
 - [[SyncMetaRecord]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useResponsive.tsx"
-type: "code"
-community: "POS Billing Flow (useResponsive)"
-location: "L67"
+source_file: 'src/shared/hooks/useResponsive.tsx'
+type: 'code'
+community: 'POS Billing Flow (useResponsive)'
+location: 'L67'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useIsMobile()
 
 ## Connections
+
 - [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[AmountInput]] - `calls` [EXTRACTED]

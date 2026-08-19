@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/roles.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L1"
+source_file: 'src/constants/roles.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # USER_ROLES
 
 ## Connections
+
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[RequireAdmin.tsx]] - `imports` [EXTRACTED]

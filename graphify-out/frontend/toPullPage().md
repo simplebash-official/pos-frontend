@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Offline Sync Engine (syncApi)"
-location: "L106"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Offline Sync Engine (syncApi)'
+location: 'L106'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toPullPage()
 
 ## Connections
+
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]
 - [[fetchResourceSnapshotPage()]] - `calls` [EXTRACTED]
 - [[syncApi.ts]] - `contains` [EXTRACTED]

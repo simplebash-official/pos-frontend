@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/utils.ts"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L12"
+source_file: 'src/shared/lib/utils.ts'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getInitials()
 
 ## Connections
+
 - [[CustomerList()]] - `calls` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeList()]] - `calls` [EXTRACTED]

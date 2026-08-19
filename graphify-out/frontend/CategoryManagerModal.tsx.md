@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/CategoryManagerModal.tsx"
-type: "code"
-community: "Inventory & Products API"
-location: "L1"
+source_file: 'src/features/inventory/components/CategoryManagerModal.tsx'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CategoryManagerModal.tsx
 
 ## Connections
+
 - [[AddSubcategoryRow()]] - `contains` [EXTRACTED]
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[CATEGORY_COLOR_OPTIONS]] - `imports` [EXTRACTED]

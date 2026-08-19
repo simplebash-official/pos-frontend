@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "ID Mapping & Reference Resolution"
-location: "L173"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'ID Mapping & Reference Resolution'
+location: 'L173'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # markConflict()
 
 ## Connections
+
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[handleConflict()]] - `calls` [EXTRACTED]
 - [[outbox.ts]] - `contains` [EXTRACTED]

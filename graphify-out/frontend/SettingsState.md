@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/settingsSlice.ts"
-type: "code"
-community: "Shop Settings & Profile"
-location: "L14"
+source_file: 'src/store/slices/settingsSlice.ts'
+type: 'code'
+community: 'Shop Settings & Profile'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SettingsState
 
 ## Connections
+
 - [[PrintSettings]] - `references` [EXTRACTED]
 - [[ShopProfile]] - `references` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/index.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L1"
+source_file: 'src/features/inventory/index.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # inventory/index.ts
 
 ## Connections
+
 - [[CATEGORY_COLOR_OPTIONS]] - `re_exports` [EXTRACTED]
 - [[CategoryManagerModal()]] - `re_exports` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `re_exports` [EXTRACTED]

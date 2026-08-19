@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Runtime Packages & UI Dependencies"
-location: "L52"
+source_file: 'package.json'
+type: 'code'
+community: 'Runtime Packages & UI Dependencies'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # dexie
 
 ## Connections
+
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[dexie_1]] - `imports` [EXTRACTED]
 

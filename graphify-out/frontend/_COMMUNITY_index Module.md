@@ -8,6 +8,7 @@ members: 17
 **Members:** 17 nodes
 
 ## Members
+
 - [[CURRENCY]] - code - src/constants/payment.ts
 - [[DEFAULT_PAGINATION]] - code - src/constants/ui.ts
 - [[HELD_CART_REMINDER_MS]] - code - src/constants/ui.ts
@@ -34,6 +35,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 13 edges to [[_COMMUNITY_Employee Accounts & Earnings_1]]
 - 9 edges to [[_COMMUNITY_Employee Accounts & Earnings_2]]
 - 7 edges to [[_COMMUNITY_POS Cart & Checkout State_2]]
@@ -62,6 +64,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Employee Accounts & Earnings_5]]
 
 ## Top bridge nodes
+
 - [[money.ts]] - degree 39, connects to 19 communities
 - [[constantsindex.ts]] - degree 27, connects to 13 communities
 - [[toCents()]] - degree 14, connects to 6 communities

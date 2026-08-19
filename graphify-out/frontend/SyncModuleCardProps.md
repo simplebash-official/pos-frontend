@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncModuleCard.tsx"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L7"
+source_file: 'src/features/sync/components/SyncModuleCard.tsx'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncModuleCardProps
 
 ## Connections
+
 - [[ModuleSyncView]] - `references` [EXTRACTED]
 - [[SyncModuleCard.tsx]] - `contains` [EXTRACTED]
 

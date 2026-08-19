@@ -8,6 +8,7 @@ members: 21
 **Members:** 21 nodes
 
 ## Members
+
 - [[ApiError]] - code - src/shared/types/common.ts
 - [[AuthLayout()]] - code - src/features/auth/components/AuthLayout.tsx
 - [[AuthLayout.tsx]] - code - src/features/auth/components/AuthLayout.tsx
@@ -38,6 +39,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_Authentication & Access Control]]
 - 6 edges to [[_COMMUNITY_POS Billing Flow (useResponsive)]]
 - 6 edges to [[_COMMUNITY_Invoice & Document Printing]]
@@ -62,6 +64,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Supplier Directory & Stock Receipts]]
 
 ## Top bridge nodes
+
 - [[common.ts]] - degree 28, connects to 17 communities
 - [[ApiError]] - degree 10, connects to 7 communities
 - [[LoginForm.tsx]] - degree 16, connects to 5 communities

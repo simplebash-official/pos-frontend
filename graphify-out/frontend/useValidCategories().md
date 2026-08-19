@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useCategories.ts"
-type: "code"
-community: "Supplier Directory & Stock Receipts"
-location: "L33"
+source_file: 'src/features/inventory/hooks/useCategories.ts'
+type: 'code'
+community: 'Supplier Directory & Stock Receipts'
+location: 'L33'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useValidCategories()
 
 ## Connections
+
 - [[ProductFormContent()]] - `calls` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `imports` [EXTRACTED]
 - [[useCategories()]] - `calls` [EXTRACTED]

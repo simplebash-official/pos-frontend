@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/api/categoriesApi.ts"
-type: "code"
-community: "Inventory & Products API"
-location: "L1"
+source_file: 'src/features/inventory/api/categoriesApi.ts'
+type: 'code'
+community: 'Inventory & Products API'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # categoriesApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[Category]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Authentication & Access Control"
-location: "L55"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Authentication & Access Control'
+location: 'L55'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OFFLINE_SESSION_GRACE_MS
 
 ## Connections
+
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 - [[session.ts]] - `imports` [EXTRACTED]
 

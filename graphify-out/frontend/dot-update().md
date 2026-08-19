@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Connectivity Monitoring"
-location: "L335"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Connectivity Monitoring'
+location: 'L335'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .update()
 
 ## Connections
+
 - [[dot-commitPendingSettle()]] - `calls` [EXTRACTED]
 - [[dot-handleLinkDown()]] - `calls` [EXTRACTED]
 - [[dot-handleLinkUp()]] - `calls` [EXTRACTED]

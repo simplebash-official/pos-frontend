@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/components/PrintJobFormModal.tsx"
-type: "code"
-community: "Employee Accounts & Earnings"
-location: "L1"
+source_file: 'src/features/print-jobs/components/PrintJobFormModal.tsx'
+type: 'code'
+community: 'Employee Accounts & Earnings'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PrintJobFormModal.tsx
 
 ## Connections
+
 - [[JOB_STATUS]] - `imports` [EXTRACTED]
 - [[JOB_STATUS_LABELS]] - `imports` [EXTRACTED]
 - [[JobStatus]] - `imports` [EXTRACTED]

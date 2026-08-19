@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/constants.ts"
-type: "code"
-community: "POS Billing Flow (routes)"
-location: "L7"
+source_file: 'src/app/layout/constants.ts'
+type: 'code'
+community: 'POS Billing Flow (routes)'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SHELL_HEADER_HEIGHT
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[layoutconstants.ts]] - `contains` [EXTRACTED]
 

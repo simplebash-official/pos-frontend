@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "document"
-community: "Offline Connectivity Monitoring"
+source_file: 'CLAUDE.md'
+type: 'document'
+community: 'Offline Connectivity Monitoring'
 tags:
   - graphify/document
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # npm Script Commands
 
 ## Connections
+
 - [[Deploy Frontend GitHub Actions Workflow]] - `references` [EXTRACTED]
 - [[Project Overview (POS System)]] - `references` [EXTRACTED]
 

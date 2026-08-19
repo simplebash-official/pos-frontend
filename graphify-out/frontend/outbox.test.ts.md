@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/__tests__/outbox.test.ts"
-type: "code"
-community: "Sync Metadata & Cursors"
-location: "L1"
+source_file: 'src/offline/__tests__/outbox.test.ts'
+type: 'code'
+community: 'Sync Metadata & Cursors'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # outbox.test.ts
 
 ## Connections
+
 - [[AnySyncResource]] - `imports` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `dynamic_import` [EXTRACTED]
 - [[PushResult]] - `imports` [EXTRACTED]

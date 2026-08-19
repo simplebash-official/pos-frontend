@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Runtime Packages & UI Dependencies"
-location: "L46"
+source_file: 'package.json'
+type: 'code'
+community: 'Runtime Packages & UI Dependencies'
+location: 'L46'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @reduxjs/toolkit
 
 ## Connections
+
 - [[@reduxjstoolkit_1]] - `imports` [EXTRACTED]
 - [[dependencies]] - `contains` [EXTRACTED]
 
