@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -49,10 +49,17 @@ interface PdfPageCanvasProps {
   pdfDoc: PDFDocumentProxy;
   pageNumber: number;
   scale: number;
+  basePageSize: { width: number; height: number } | null;
   registerPageRef: (pageNumber: number, el: HTMLDivElement | null) => void;
 }
 
-const PdfPageCanvas = ({ pdfDoc, pageNumber, scale, registerPageRef }: PdfPageCanvasProps) => {
+const PdfPageCanvas = ({
+  pdfDoc,
+  pageNumber,
+  scale,
+  basePageSize,
+  registerPageRef,
+}: PdfPageCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderTaskRef = useRef<RenderTask | null>(null);
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -104,6 +111,9 @@ const PdfPageCanvas = ({ pdfDoc, pageNumber, scale, registerPageRef }: PdfPageCa
     };
   }, [pdfDoc, pageNumber, scale]);
 
+  const targetWidth = basePageSize ? Math.floor(basePageSize.width * scale) : dimensions?.width;
+  const targetHeight = basePageSize ? Math.floor(basePageSize.height * scale) : dimensions?.height;
+
   return (
     <Box
       ref={(el) => registerPageRef(pageNumber, el)}
@@ -114,17 +124,17 @@ const PdfPageCanvas = ({ pdfDoc, pageNumber, scale, registerPageRef }: PdfPageCa
         backgroundColor: '#FFFFFF',
         borderRadius: 2,
         flexShrink: 0,
-        width: dimensions ? `${dimensions.width}px` : undefined,
-        height: dimensions ? `${dimensions.height}px` : undefined,
-        minHeight: dimensions ? `${dimensions.height}px` : 200,
+        width: targetWidth ? `${targetWidth}px` : undefined,
+        height: targetHeight ? `${targetHeight}px` : undefined,
+        minHeight: targetHeight ? `${targetHeight}px` : 200,
       }}
     >
       <canvas
         ref={canvasRef}
         style={{
           display: 'block',
-          width: dimensions ? `${dimensions.width}px` : '100%',
-          height: dimensions ? `${dimensions.height}px` : '100%',
+          width: targetWidth ? `${targetWidth}px` : '100%',
+          height: targetHeight ? `${targetHeight}px` : '100%',
           borderRadius: 2,
         }}
       />
@@ -143,12 +153,20 @@ export const PdfCanvasViewer = ({
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const zoomTargetScrollRef = useRef<{ scrollLeft: number; scrollTop: number } | null>(null);
 
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
+  const [basePageSize, setBasePageSize] = useState<{ width: number; height: number } | null>(null);
   const [activePage, setActivePage] = useState(1);
   const [scale, setScale] = useState(initialScale);
   const [autoFit, setAutoFit] = useState(initialAutoFit);
   const [loadError, setLoadError] = useState(false);
+
+  const scaleRef = useRef(scale);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
 
   const registerPageRef = (pageNumber: number, el: HTMLDivElement | null) => {
     pageRefs.current[pageNumber] = el;
@@ -159,6 +177,7 @@ export const PdfCanvasViewer = ({
   if (blob !== prevBlob) {
     setPrevBlob(blob);
     setPdfDoc(null);
+    setBasePageSize(null);
     setActivePage(1);
     setAutoFit(initialAutoFit);
     setScale(initialScale);
@@ -177,7 +196,13 @@ export const PdfCanvasViewer = ({
       loadingTask = pdfjsLib.getDocument({ data });
       loadingTask.promise
         .then((doc) => {
-          if (!cancelled) setPdfDoc(doc);
+          if (cancelled) return;
+          setPdfDoc(doc);
+          doc.getPage(1).then((page) => {
+            if (cancelled) return;
+            const unscaled = page.getViewport({ scale: 1 });
+            setBasePageSize({ width: unscaled.width, height: unscaled.height });
+          });
         })
         .catch(() => {
           if (!cancelled) setLoadError(true);
@@ -257,7 +282,47 @@ export const PdfCanvasViewer = ({
     return () => observer.disconnect();
   }, [pageCount, pdfDoc, scale, activePage]);
 
-  // Handle Cmd + scroll (macOS) and Ctrl + scroll (Windows / Linux / trackpad pinch) to zoom in/out.
+  // Adjust scroll position after zoom to keep the zoom anchor stationary under pointer / center
+  useLayoutEffect(() => {
+    if (zoomTargetScrollRef.current && containerRef.current) {
+      const { scrollLeft, scrollTop } = zoomTargetScrollRef.current;
+      zoomTargetScrollRef.current = null;
+      containerRef.current.scrollLeft = scrollLeft;
+      containerRef.current.scrollTop = scrollTop;
+    }
+  }, [scale]);
+
+  const zoomAtPoint = (nextScale: number, clientX?: number, clientY?: number) => {
+    const container = containerRef.current;
+    const clampedScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +nextScale.toFixed(2)));
+    const currentScale = scaleRef.current;
+    if (clampedScale === currentScale) return;
+
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      const mouseX =
+        clientX !== undefined ? clientX - containerRect.left : container.clientWidth / 2;
+      const mouseY =
+        clientY !== undefined ? clientY - containerRect.top : container.clientHeight / 2;
+
+      const contentX = container.scrollLeft + mouseX;
+      const contentY = container.scrollTop + mouseY;
+      const scaleRatio = clampedScale / currentScale;
+
+      const newScrollLeft = Math.max(0, contentX * scaleRatio - mouseX);
+      const newScrollTop = Math.max(0, contentY * scaleRatio - mouseY);
+
+      zoomTargetScrollRef.current = {
+        scrollLeft: newScrollLeft,
+        scrollTop: newScrollTop,
+      };
+    }
+
+    scaleRef.current = clampedScale;
+    setScale(clampedScale);
+  };
+
+  // Handle Cmd + scroll (macOS) and Ctrl + scroll (Windows / Linux / trackpad pinch) to zoom in/out at mouse pointer.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -272,7 +337,7 @@ export const PdfCanvasViewer = ({
         const delta = -e.deltaY;
         const zoomDelta = Math.abs(delta) < 20 ? delta * 0.01 : delta > 0 ? ZOOM_STEP : -ZOOM_STEP;
 
-        setScale((prev) => Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +(prev + zoomDelta).toFixed(2))));
+        zoomAtPoint(scaleRef.current + zoomDelta, e.clientX, e.clientY);
       }
     };
 
@@ -293,17 +358,17 @@ export const PdfCanvasViewer = ({
 
   const resetTo100 = () => {
     setAutoFit(false);
-    setScale(1);
+    zoomAtPoint(1);
   };
 
   const zoomIn = () => {
     setAutoFit(false);
-    setScale((s) => Math.min(ZOOM_MAX, +(s + ZOOM_STEP).toFixed(2)));
+    zoomAtPoint(scaleRef.current + ZOOM_STEP);
   };
 
   const zoomOut = () => {
     setAutoFit(false);
-    setScale((s) => Math.max(ZOOM_MIN, +(s - ZOOM_STEP).toFixed(2)));
+    zoomAtPoint(scaleRef.current - ZOOM_STEP);
   };
 
   const toggleFit = () => {
@@ -493,6 +558,7 @@ export const PdfCanvasViewer = ({
                 pdfDoc={pdfDoc}
                 pageNumber={pNum}
                 scale={scale}
+                basePageSize={basePageSize}
                 registerPageRef={registerPageRef}
               />
             ))}
