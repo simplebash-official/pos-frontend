@@ -256,3 +256,13 @@ The sync contract is **implemented** in `../backend` (Rust/Axum). The engine is 
 ### PWA
 
 `vite-plugin-pwa` precaches the app shell — without it a reload during an outage shows the browser's offline page and the local database is unreachable, defeating the whole design. Three rules: `registerType: 'prompt'` (never `autoUpdate` — an update reloads the page and the active cart is not persisted, so `AppUpdatePrompt` withholds it until the cart is empty); **no `runtimeCaching` for `/api`** (Dexie is the data cache, and a cached 200 would make a dead backend look online); and `navigateFallbackDenylist: [/^\/api\//]`. The service worker is disabled in dev — test offline against `npm run preview`.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
