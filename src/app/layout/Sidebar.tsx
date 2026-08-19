@@ -10,7 +10,7 @@ import {
   Badge,
   Tooltip,
   ActionIcon,
-  Box,
+  Indicator,
 } from '@mantine/core';
 import { IconLock, IconMoon, IconSun, IconSettings, IconLogout } from '@tabler/icons-react';
 import { useMemo } from 'react';
@@ -72,7 +72,27 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
 
             return (
               <Tooltip key={item.to} label={item.label} position="right" withArrow>
-                <Box style={{ position: 'relative' }}>
+                <Indicator
+                  inline
+                  label={lowStockCount}
+                  maxValue={99}
+                  size={16}
+                  color="red"
+                  disabled={!isInventory || lowStockCount <= 0}
+                  withBorder
+                  offset={2}
+                  styles={{
+                    indicator: {
+                      fontSize: 9,
+                      fontWeight: 700,
+                      padding: '0 3px',
+                      minWidth: 14,
+                      height: 14,
+                      lineHeight: '12px',
+                      borderColor: 'var(--mantine-color-body)',
+                    },
+                  }}
+                >
                   <ActionIcon
                     component={RouterNavLink}
                     to={item.to}
@@ -83,25 +103,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                   >
                     <Icon size={20} stroke={1.5} />
                   </ActionIcon>
-                  {isInventory && lowStockCount > 0 && (
-                    <Badge
-                      size="xs"
-                      color="red"
-                      variant="filled"
-                      style={{
-                        position: 'absolute',
-                        top: -4,
-                        right: -4,
-                        padding: '0 4px',
-                        fontSize: 9,
-                        minWidth: 14,
-                        height: 14,
-                      }}
-                    >
-                      {lowStockCount}
-                    </Badge>
-                  )}
-                </Box>
+                </Indicator>
               </Tooltip>
             );
           })}

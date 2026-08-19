@@ -4,6 +4,7 @@ import {
   ActionIcon,
   Badge,
   Box,
+  Indicator,
   Text,
   Group,
   Button,
@@ -37,13 +38,13 @@ import type { NotificationCategory } from '../types';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface NotificationPopoverProps {
-  size?: 'sm' | 'md' | 'lg' | number;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | number;
   variant?: 'subtle' | 'light' | 'filled';
   color?: string;
 }
 
 export const NotificationPopover = ({
-  size = 'sm',
+  size = 32,
   variant = 'subtle',
   color = 'gray',
 }: NotificationPopoverProps) => {
@@ -94,38 +95,42 @@ export const NotificationPopover = ({
     >
       <Popover.Target>
         <Tooltip label={unreadCount > 0 ? `${unreadCount} unread notifications` : 'Notifications'}>
-          <Box style={{ position: 'relative', display: 'inline-flex' }}>
+          <Indicator
+            inline
+            label={unreadCount}
+            maxValue={99}
+            size={18}
+            color="blue"
+            disabled={unreadCount <= 0}
+            withBorder
+            offset={{ x: -2, y: 0 }}
+            style={{
+              marginRight: unreadCount > 0 ? (unreadCount > 99 ? 14 : unreadCount > 9 ? 8 : 4) : 0,
+            }}
+            styles={{
+              indicator: {
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '0 4px',
+                minWidth: 18,
+                height: 18,
+                lineHeight: '16px',
+                borderColor: 'var(--mantine-color-body)',
+              },
+            }}
+          >
             <ActionIcon
               variant={opened ? 'light' : variant}
               color={opened ? 'blue' : color}
               size={size}
-              aria-label="View notifications"
+              aria-label={
+                unreadCount > 0 ? `View ${unreadCount} notifications` : 'View notifications'
+              }
               onClick={() => setOpened((o) => !o)}
             >
               <IconBell size={18} />
             </ActionIcon>
-            {unreadCount > 0 && (
-              <Badge
-                color="blue"
-                variant="filled"
-                size="xs"
-                style={{
-                  position: 'absolute',
-                  top: -4,
-                  right: -4,
-                  padding: '0 4px',
-                  minWidth: 16,
-                  height: 16,
-                  fontSize: 10,
-                  fontWeight: 700,
-                  pointerEvents: 'none',
-                  border: '2px solid var(--bg-sidebar)',
-                }}
-              >
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </Badge>
-            )}
-          </Box>
+          </Indicator>
         </Tooltip>
       </Popover.Target>
 

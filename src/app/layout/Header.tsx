@@ -9,7 +9,7 @@ import {
   Tooltip,
   Text,
   Avatar,
-  Box,
+  Indicator,
 } from '@mantine/core';
 import {
   IconShoppingCart,
@@ -169,7 +169,7 @@ export const Header = ({
             </ActionIcon>
           </Tooltip>
 
-          <NotificationPopover size="sm" variant="subtle" color="gray" />
+          <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
             <Group gap={6} style={{ cursor: 'default' }}>
@@ -203,11 +203,31 @@ export const Header = ({
       <Group gap="xs" wrap="nowrap">
         <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
 
-        <NotificationPopover size={isMobile ? 44 : 'sm'} variant="subtle" color="gray" />
+        <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
         {isMobile ? (
           <Tooltip label="Billing Counter">
-            <Box style={{ position: 'relative' }}>
+            <Indicator
+              inline
+              label={cartItemsCount}
+              maxValue={99}
+              size={18}
+              color="red"
+              disabled={cartItemsCount <= 0}
+              withBorder
+              offset={4}
+              styles={{
+                indicator: {
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: '0 4px',
+                  minWidth: 18,
+                  height: 18,
+                  lineHeight: '16px',
+                  borderColor: 'var(--mantine-color-body)',
+                },
+              }}
+            >
               <ActionIcon
                 variant="filled"
                 color="blue"
@@ -217,24 +237,7 @@ export const Header = ({
               >
                 <IconShoppingCart size={20} />
               </ActionIcon>
-              {cartItemsCount > 0 && (
-                <Badge
-                  color="red"
-                  size="xs"
-                  variant="filled"
-                  style={{
-                    position: 'absolute',
-                    top: -4,
-                    right: -4,
-                    padding: '0 4px',
-                    minWidth: 16,
-                    height: 16,
-                  }}
-                >
-                  {cartItemsCount}
-                </Badge>
-              )}
-            </Box>
+            </Indicator>
           </Tooltip>
         ) : (
           <Button
