@@ -103,9 +103,9 @@ export const NotificationPopover = ({
             color="blue"
             disabled={unreadCount <= 0}
             withBorder
-            offset={{ x: -2, y: 0 }}
+            offset={{ x: isMobile ? 4 : 2, y: isMobile ? 6 : 4 }}
             style={{
-              marginRight: unreadCount > 0 ? (unreadCount > 99 ? 14 : unreadCount > 9 ? 8 : 4) : 0,
+              marginRight: unreadCount > 0 ? (unreadCount > 99 ? 12 : unreadCount > 9 ? 6 : 2) : 0,
             }}
             styles={{
               indicator: {
