@@ -92,6 +92,8 @@ const semanticVars: Record<string, string> = {
   '--mantine-color-placeholder': 'var(--text-muted)',
   '--mantine-color-table-hover-color': 'var(--bg-hover)',
   '--table-hover-color': 'var(--bg-hover)',
+  '--mantine-color-table-striped-color': 'var(--bg-hover)',
+  '--table-striped-color': 'var(--bg-hover)',
 };
 
 export const mantineCssVariableResolver: CSSVariablesResolver = () => ({
@@ -104,5 +106,6 @@ export const mantineCssVariableResolver: CSSVariablesResolver = () => ({
   },
   dark: {
     ...darkTokens,
+    ...semanticVars,
   },
 });

@@ -159,6 +159,12 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       },
     }),
     Table: Table.extend({
+      defaultProps: {
+        striped: true,
+        highlightOnHover: true,
+        verticalSpacing: 'sm',
+        horizontalSpacing: 'md',
+      },
       styles: {
         th: {
           color: 'var(--text-secondary)',

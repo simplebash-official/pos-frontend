@@ -371,7 +371,12 @@ export const DataTable = <T,>({
 
   if (loading) {
     return (
-      <Paper withBorder style={{ overflow: 'hidden' }} radius="var(--mantine-radius-default)">
+      <Paper
+        withBorder
+        style={{ overflow: 'hidden' }}
+        radius="var(--mantine-radius-default)"
+        bg="var(--bg-card)"
+      >
         <Box style={{ overflowX: 'auto' }}>
           <Table verticalSpacing="sm" horizontalSpacing="md" striped highlightOnHover>
             {tableHead}
@@ -464,7 +469,12 @@ export const DataTable = <T,>({
       )}
 
       {/* Main Table Paper Container */}
-      <Paper withBorder style={{ overflow: 'hidden' }} radius="var(--mantine-radius-default)">
+      <Paper
+        withBorder
+        style={{ overflow: 'hidden' }}
+        radius="var(--mantine-radius-default)"
+        bg="var(--bg-card)"
+      >
         {!data || data.length === 0 ? (
           <Center style={{ minHeight: 160 }} p="xl">
             <Text c="dimmed" size="sm">

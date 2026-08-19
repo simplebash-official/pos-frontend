@@ -154,12 +154,7 @@ export const ProductCatalogTree = memo(
                     };
 
                     return (
-                      <Paper
-                        key={subcategoryKey}
-                        withBorder
-                        p="sm"
-                        style={{ backgroundColor: 'var(--mantine-color-body)' }}
-                      >
+                      <Paper key={subcategoryKey} withBorder p="sm" bg="var(--bg-card)">
                         {/* Subcategory Collapsible Header Bar */}
                         <Group
                           justify="space-between"

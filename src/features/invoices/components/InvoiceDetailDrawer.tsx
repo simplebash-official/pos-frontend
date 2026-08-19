@@ -175,7 +175,7 @@ export const InvoiceDetailDrawer = ({
           </Paper>
 
           {/* Line Items Table */}
-          <Paper p="sm" withBorder>
+          <Paper p="sm" withBorder bg="var(--bg-card)">
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs">
               ORDER ITEMS ({invoice.items.length})
             </Text>
