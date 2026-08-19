@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/api/customersApi.ts"
-type: "code"
-community: "Customers - createCustomer"
-location: "L11"
+source_file: 'src/features/customers/api/customersApi.ts'
+type: 'code'
+community: 'Customers - createCustomer'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchCustomers()
 
 ## Connections
+
 - [[customersApi.ts]] - `contains` [EXTRACTED]
 - [[fetchAllCustomers()]] - `calls` [EXTRACTED]
 

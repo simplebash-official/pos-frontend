@@ -10,6 +10,7 @@ members: 21
 **Members:** 21 nodes
 
 ## Members
+
 - [[ApiResponse]] - code - src/shared/types/common.ts
 - [[BackendPaymentRecord]] - code - src/features/billing/api/paymentsApi.ts
 - [[EnrichedStockPurchase]] - code - src/features/purchases/types.ts
@@ -40,6 +41,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 7 edges to [[_COMMUNITY_Suppliers - createSupplier]]
 - 6 edges to [[_COMMUNITY_Inventory - adjustStock]]
 - 5 edges to [[_COMMUNITY_Inventory - ProductTable]]
@@ -61,6 +63,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Auth - RequireAdmin]]
 
 ## Top bridge nodes
+
 - [[common.ts]] - degree 28, connects to 14 communities
 - [[ApiResponse]] - degree 11, connects to 7 communities
 - [[MutationRequestOptions]] - degree 8, connects to 6 communities

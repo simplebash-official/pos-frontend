@@ -10,6 +10,7 @@ members: 20
 **Members:** 20 nodes
 
 ## Members
+
 - [[EnqueueInput]] - code - src/offline/outbox/outbox.ts
 - [[LOCAL_ID_PREFIX]] - code - src/offline/ids/localId.ts
 - [[OutboxError]] - code - src/offline/db/tables.ts
@@ -39,6 +40,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 26 edges to [[_COMMUNITY_Offline Sync - constructor_1]]
 - 20 edges to [[_COMMUNITY_Offline Sync - signal]]
 - 12 edges to [[_COMMUNITY_Inventory - StockMovement]]
@@ -60,6 +62,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - MutationRequestOptions]]
 
 ## Top bridge nodes
+
 - [[useSyncedMutation.ts]] - degree 18, connects to 10 communities
 - [[outbox.ts]] - degree 46, connects to 7 communities
 - [[SyncResourceId]] - degree 17, connects to 6 communities

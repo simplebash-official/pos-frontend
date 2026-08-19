@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/purchases.resource.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L19"
+source_file: 'src/offline/resources/purchases.resource.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L19'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # purchasesResource
 
 ## Connections
+
 - [[appendStockDelta()]] - `calls` [EXTRACTED]
 - [[createPurchase()]] - `calls` [EXTRACTED]
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]

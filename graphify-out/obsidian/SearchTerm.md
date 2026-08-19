@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/search.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L42"
+source_file: 'src/shared/lib/search.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L42'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SearchTerm
 
 ## Connections
+
 - [[EntitySearchResult]] - `references` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductCatalogTree.tsx]] - `imports` [EXTRACTED]

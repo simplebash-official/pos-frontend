@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/AppShell.tsx"
-type: "code"
-community: "Billing - ROUTE TITLES"
-location: "L1"
+source_file: 'src/app/layout/AppShell.tsx'
+type: 'code'
+community: 'Billing - ROUTE TITLES'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AppShell.tsx
 
 ## Connections
+
 - [[AppShell()]] - `contains` [EXTRACTED]
 - [[BILLING_HEADER_HEIGHT]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `imports` [EXTRACTED]

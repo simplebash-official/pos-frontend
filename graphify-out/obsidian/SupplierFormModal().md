@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierFormModal.tsx"
-type: "code"
-community: "Billing - HeldSalesDrawer"
-location: "L628"
+source_file: 'src/features/suppliers/components/SupplierFormModal.tsx'
+type: 'code'
+community: 'Billing - HeldSalesDrawer'
+location: 'L628'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierFormModal()
 
 ## Connections
+
 - [[SupplierFormModal.tsx]] - `contains` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
 - [[useIsMobile()]] - `calls` [EXTRACTED]

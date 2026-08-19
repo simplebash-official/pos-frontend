@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/types.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L1"
+source_file: 'src/features/sync/types.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # sync/types.ts
 
 ## Connections
+
 - [[MODULE_STATUS_PRESENTATION]] - `contains` [EXTRACTED]
 - [[ModuleSyncStatus]] - `re_exports` [EXTRACTED]
 - [[ModuleSyncView]] - `re_exports` [EXTRACTED]

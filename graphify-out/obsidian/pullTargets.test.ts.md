@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/__tests__/pullTargets.test.ts"
-type: "code"
-community: "Offline Sync - signal"
-location: "L1"
+source_file: 'src/offline/__tests__/pullTargets.test.ts'
+type: 'code'
+community: 'Offline Sync - signal'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pullTargets.test.ts
 
 ## Connections
+
 - [[AnySyncResource]] - `imports` [EXTRACTED]
 - [[RFC-3339_1]] - `cites` [EXTRACTED]
 - [[SyncResourceId]] - `imports` [EXTRACTED]

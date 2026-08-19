@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/AmountInput.tsx"
-type: "code"
-community: "Shared UI - AmountInput"
-location: "L48"
+source_file: 'src/shared/components/AmountInput.tsx'
+type: 'code'
+community: 'Shared UI - AmountInput'
+location: 'L48'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AmountInput
 
 ## Connections
+
 - [[AmountInput.tsx]] - `contains` [EXTRACTED]
 - [[DiscountInput.tsx]] - `imports` [EXTRACTED]
 - [[DiscountPopover.tsx]] - `imports` [EXTRACTED]

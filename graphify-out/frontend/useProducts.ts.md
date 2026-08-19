@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useProducts.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L1"
+source_file: 'src/features/inventory/hooks/useProducts.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useProducts.ts
 
 ## Connections
+
 - [[AdjustStockPayload]] - `imports` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CreateProductInput]] - `imports` [EXTRACTED]

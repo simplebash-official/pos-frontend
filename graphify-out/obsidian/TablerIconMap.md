@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/tablerIcons.ts"
-type: "code"
-community: "Inventory - AddSubcategoryRow"
-location: "L10"
+source_file: 'src/shared/lib/tablerIcons.ts'
+type: 'code'
+community: 'Inventory - AddSubcategoryRow'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # TablerIconMap
 
 ## Connections
+
 - [[ProductCatalogTree.tsx]] - `imports` [EXTRACTED]
 - [[ProductCatalogTreeProps]] - `references` [EXTRACTED]
 - [[categoryIcons.ts]] - `imports` [EXTRACTED]

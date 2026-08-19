@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/roles.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L7"
+source_file: 'src/constants/roles.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # UserRole
 
 ## Connections
+
 - [[AuthUser]] - `references` [EXTRACTED]
 - [[RoleGuard.tsx]] - `imports` [EXTRACTED]
 - [[RoleGuardProps]] - `references` [EXTRACTED]

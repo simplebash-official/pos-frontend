@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/SyncEngine.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L55"
+source_file: 'src/offline/engine/SyncEngine.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L55'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .start()
 
 ## Connections
+
 - [[dot-publish()]] - `calls` [EXTRACTED]
 - [[dot-startLoops()]] - `calls` [EXTRACTED]
 - [[dot-stopLoops()]] - `calls` [EXTRACTED]

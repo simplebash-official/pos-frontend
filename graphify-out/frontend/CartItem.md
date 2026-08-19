@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L6"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L6'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CartItem
 
 ## Connections
+
 - [[CartLineItem.tsx]] - `imports` [EXTRACTED]
 - [[CartLineItemProps]] - `references` [EXTRACTED]
 - [[LineSourceType]] - `references` [EXTRACTED]

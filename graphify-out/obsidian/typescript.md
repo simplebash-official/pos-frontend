@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - eslint"
-location: "L32"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - eslint'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # typescript
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[typescript_1]] - `imports` [EXTRACTED]
 

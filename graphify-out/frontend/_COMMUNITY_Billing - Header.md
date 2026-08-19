@@ -10,6 +10,7 @@ members: 9
 **Members:** 9 nodes
 
 ## Members
+
 - [[BillingCounter()]] - code - src/features/billing/components/BillingCounter.tsx
 - [[Header()]] - code - src/app/layout/Header.tsx
 - [[Header.tsx]] - code - src/app/layout/Header.tsx
@@ -28,6 +29,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Billing - PAYMENT METHODS]]
 - 9 edges to [[_COMMUNITY_Billing - PaymentMethod]]
 - 7 edges to [[_COMMUNITY_Inventory - AppUpdatePrompt]]
@@ -42,6 +44,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Auth - RequireAdmin]]
 
 ## Top bridge nodes
+
 - [[Header.tsx]] - degree 19, connects to 9 communities
 - [[BillingCounter()]] - degree 16, connects to 8 communities
 - [[useCartSound()]] - degree 12, connects to 5 communities

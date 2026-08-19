@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L99"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L99'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .getSnapshot()
 
 ## Connections
+
 - [[ConnectivityMonitor]] - `method` [EXTRACTED]
 - [[ConnectivitySnapshot]] - `references` [EXTRACTED]
 

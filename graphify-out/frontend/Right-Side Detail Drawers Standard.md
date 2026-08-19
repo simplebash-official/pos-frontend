@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "rationale"
-community: "Animation Performance and Compositor"
+source_file: 'CLAUDE.md'
+type: 'rationale'
+community: 'Animation Performance and Compositor'
 tags:
   - graphify/rationale
   - graphify/INFERRED
@@ -11,6 +11,7 @@ tags:
 # Right-Side Detail Drawers Standard
 
 ## Connections
+
 - [[Center Modals Standard]] - `semantically_similar_to` [INFERRED]
 - [[Responsive and Mobile Layout Tiers]] - `conceptually_related_to` [EXTRACTED]
 

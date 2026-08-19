@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/types.ts"
-type: "code"
-community: "Employees - JOB STATUS"
-location: "L25"
+source_file: 'src/features/print-jobs/types.ts'
+type: 'code'
+community: 'Employees - JOB STATUS'
+location: 'L25'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PrintJobInput
 
 ## Connections
+
 - [[AssignmentInfo]] - `references` [EXTRACTED]
 - [[CustomerRef]] - `references` [EXTRACTED]
 - [[JobStatus]] - `references` [EXTRACTED]

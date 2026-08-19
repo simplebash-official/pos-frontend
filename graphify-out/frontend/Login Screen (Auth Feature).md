@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/wall_login.jpg"
-type: "concept"
-community: "Login Screen Auth Feature"
+source_file: 'src/assets/wall_login.jpg'
+type: 'concept'
+community: 'Login Screen Auth Feature'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

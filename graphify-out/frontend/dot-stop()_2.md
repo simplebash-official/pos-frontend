@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L69"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L69'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .stop()
 
 ## Connections
+
 - [[dot-clearTimers()]] - `calls` [EXTRACTED]
 - [[ConnectivityMonitor]] - `method` [EXTRACTED]
 

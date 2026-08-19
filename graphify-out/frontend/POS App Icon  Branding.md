@@ -1,7 +1,7 @@
 ---
-source_file: "public/icon-512.png"
-type: "concept"
-community: "POS App Icon /"
+source_file: 'public/icon-512.png'
+type: 'concept'
+community: 'POS App Icon /'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

@@ -10,6 +10,7 @@ members: 21
 **Members:** 21 nodes
 
 ## Members
+
 - [[Acceptance Criteria Checklist]] - concept - backend-sync-requirements.html
 - [[Backend Requirements — Offline Sync Spec]] - document - backend-sync-requirements.html
 - [[Error Codes the Client Acts On]] - concept - backend-sync-requirements.html

@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L507"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L507'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # selectCartDiscountCents()
 
 ## Connections
+
 - [[cartSlice.ts]] - `indirect_call` [INFERRED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 - [[useCartTotals()]] - `indirect_call` [INFERRED]

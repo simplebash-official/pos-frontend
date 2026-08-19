@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/tablerIcons.ts"
-type: "code"
-community: "Shared UI - TablerIconPicker"
-location: "L59"
+source_file: 'src/shared/lib/tablerIcons.ts'
+type: 'code'
+community: 'Shared UI - TablerIconPicker'
+location: 'L59'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # useShards()
 
 ## Connections
+
 - [[getServerSnapshot()]] - `indirect_call` [INFERRED]
 - [[getSnapshot()]] - `indirect_call` [INFERRED]
 - [[loadShard()]] - `indirect_call` [INFERRED]

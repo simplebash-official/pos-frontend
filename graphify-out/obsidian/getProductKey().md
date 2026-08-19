@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/api/productsApi.ts"
-type: "code"
-community: "Inventory - adjustStock"
-location: "L120"
+source_file: 'src/features/inventory/api/productsApi.ts'
+type: 'code'
+community: 'Inventory - adjustStock'
+location: 'L120'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getProductKey()
 
 ## Connections
+
 - [[productsApi.ts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/components/RequireAuth.tsx"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L1"
+source_file: 'src/app/components/RequireAuth.tsx'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RequireAuth.tsx
 
 ## Connections
+
 - [[PageLoader()]] - `imports` [EXTRACTED]
 - [[PageLoader.tsx]] - `imports_from` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]

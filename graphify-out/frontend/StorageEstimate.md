@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/maintenance.ts"
-type: "code"
-community: "Offline Sync - STORAGE"
-location: "L14"
+source_file: 'src/offline/db/maintenance.ts'
+type: 'code'
+community: 'Offline Sync - STORAGE'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # StorageEstimate
 
 ## Connections
+
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[maintenance.ts]] - `contains` [EXTRACTED]
 

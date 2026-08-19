@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/GlobalQuickSearchModal.tsx"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L88"
+source_file: 'src/shared/components/GlobalQuickSearchModal.tsx'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L88'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # GlobalQuickSearchModal()
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `contains` [EXTRACTED]
 - [[fetchPrintJobs()]] - `indirect_call` [INFERRED]

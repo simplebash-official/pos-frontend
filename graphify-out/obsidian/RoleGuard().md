@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/RoleGuard.tsx"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L14"
+source_file: 'src/shared/components/RoleGuard.tsx'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RoleGuard()
 
 ## Connections
+
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]
 - [[RoleGuard.tsx]] - `contains` [EXTRACTED]
 - [[selectUserRole()]] - `indirect_call` [INFERRED]

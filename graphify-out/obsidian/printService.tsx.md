@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/print/printService.tsx"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L1"
+source_file: 'src/shared/print/printService.tsx'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # printService.tsx
 
 ## Connections
+
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[StandalonePrintView.tsx]] - `imports_from` [EXTRACTED]

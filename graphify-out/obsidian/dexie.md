@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - axios"
-location: "L52"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - axios'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # dexie
 
 ## Connections
+
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[dexie_1]] - `imports` [EXTRACTED]
 

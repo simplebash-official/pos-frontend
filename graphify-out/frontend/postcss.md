@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - postcss"
-location: "L28"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - postcss'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # postcss
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[postcss_1]] - `imports` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/CartLineItem.tsx"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L12"
+source_file: 'src/features/billing/components/CartLineItem.tsx'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CartLineItemProps
 
 ## Connections
+
 - [[CartItem]] - `references` [EXTRACTED]
 - [[CartLineItem.tsx]] - `contains` [EXTRACTED]
 

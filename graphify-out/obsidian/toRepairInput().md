@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/moneyFormUtils.ts"
-type: "code"
-community: "Employees - CURRENCY"
-location: "L50"
+source_file: 'src/shared/lib/moneyFormUtils.ts'
+type: 'code'
+community: 'Employees - CURRENCY'
+location: 'L50'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toRepairInput()
 
 ## Connections
+
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
 - [[moneyFormUtils.ts]] - `contains` [EXTRACTED]
 - [[toCents()]] - `calls` [EXTRACTED]

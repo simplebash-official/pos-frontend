@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/types.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L11"
+source_file: 'src/offline/connectivity/types.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ConnectivitySnapshot
 
 ## Connections
+
 - [[dot-getSnapshot()]] - `references` [EXTRACTED]
 - [[dot-update()_1]] - `references` [EXTRACTED]
 - [[ConnectivityMonitor]] - `references` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/styles/cssVariablesResolver.ts"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L97"
+source_file: 'src/styles/cssVariablesResolver.ts'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L97'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # mantineCssVariableResolver()
 
 ## Connections
+
 - [[cssVariablesResolver.ts]] - `contains` [EXTRACTED]
 - [[providers.tsx]] - `imports` [EXTRACTED]
 

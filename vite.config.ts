@@ -59,6 +59,15 @@ export default defineConfig({
     }),
   ],
   server: {
+    watch: {
+      ignored: [
+        '**/graphify-out/**',
+        '**/.obsidian/**',
+        '**/.agents/**',
+        '**/*.md',
+        '**/backend-sync-requirements.html',
+      ],
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L64"
+source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L64'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useSuppliersForProduct()
 
 ## Connections
+
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[supplier-productsindex.ts]] - `re_exports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/ProductTable.tsx"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L88"
+source_file: 'src/features/inventory/components/ProductTable.tsx'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L88'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ProductTable()
 
 ## Connections
+
 - [[ProductTable.tsx]] - `contains` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]
 - [[formatMoney()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/api/mockEmployees.ts"
-type: "code"
-community: "Employees - createEmployee"
-location: "L111"
+source_file: 'src/features/employees/api/mockEmployees.ts'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L111'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # fetchEmployees()
 
 ## Connections
+
 - [[dot-getAll()]] - `calls` [INFERRED]
 - [[EmployeeList()]] - `indirect_call` [INFERRED]
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]

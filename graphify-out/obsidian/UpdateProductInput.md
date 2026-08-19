@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Inventory - adjustStock"
-location: "L81"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Inventory - adjustStock'
+location: 'L81'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # UpdateProductInput
 
 ## Connections
+
 - [[FormContentProps_2]] - `references` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductFormModalProps]] - `references` [EXTRACTED]

@@ -10,6 +10,7 @@ members: 10
 **Members:** 10 nodes
 
 ## Members
+
 - [[ClearLocalDataOptions]] - code - src/offline/db/maintenance.ts
 - [[MIRROR_TABLE_NAMES]] - code - src/offline/db/schema.ts
 - [[STORAGE_QUOTA_WARN_RATIO]] - code - src/offline/constants.ts
@@ -29,6 +30,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_Offline Sync - start]]
 - 7 edges to [[_COMMUNITY_Settings - SyncDrawer]]
 - 5 edges to [[_COMMUNITY_Offline Sync - OutboxError]]
@@ -37,6 +39,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Inventory - StockMovement]]
 
 ## Top bridge nodes
+
 - [[maintenance.ts]] - degree 23, connects to 6 communities
 - [[countUnsettled()]] - degree 6, connects to 2 communities
 - [[clearLocalData()]] - degree 5, connects to 2 communities

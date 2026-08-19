@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/EmptyState.tsx"
-type: "code"
-community: "Inventory - StockMovement"
-location: "L12"
+source_file: 'src/shared/components/EmptyState.tsx'
+type: 'code'
+community: 'Inventory - StockMovement'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EmptyState()
 
 ## Connections
+
 - [[EmptyState.tsx]] - `contains` [EXTRACTED]
 - [[PendingOperationsList.tsx]] - `imports` [EXTRACTED]
 

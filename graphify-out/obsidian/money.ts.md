@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/money.ts"
-type: "code"
-community: "Employees - CURRENCY"
-location: "L1"
+source_file: 'src/shared/lib/money.ts'
+type: 'code'
+community: 'Employees - CURRENCY'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # money.ts
 
 ## Connections
+
 - [[BillingTabBar.tsx]] - `imports_from` [EXTRACTED]
 - [[CURRENCY]] - `imports` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports_from` [EXTRACTED]

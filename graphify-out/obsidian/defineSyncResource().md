@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/registry/registry.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L30"
+source_file: 'src/offline/registry/registry.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L30'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # defineSyncResource()
 
 ## Connections
+
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]

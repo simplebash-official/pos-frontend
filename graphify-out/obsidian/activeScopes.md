@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useShortcuts.ts"
-type: "code"
-community: "Shared UI - activeScopes"
-location: "L15"
+source_file: 'src/shared/hooks/useShortcuts.ts'
+type: 'code'
+community: 'Shared UI - activeScopes'
+location: 'L15'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # activeScopes
 
 ## Connections
+
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Shared_UI_-_activeScopes

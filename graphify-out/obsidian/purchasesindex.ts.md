@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/index.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L1"
+source_file: 'src/features/purchases/index.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # purchases/index.ts
 
 ## Connections
+
 - [[ReceiveStockModal()]] - `re_exports` [EXTRACTED]
 - [[ReceiveStockModal.tsx]] - `re_exports` [EXTRACTED]
 - [[purchasestypes.ts]] - `re_exports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/api/mockEmployees.ts"
-type: "code"
-community: "Employees - createEmployee"
-location: "L100"
+source_file: 'src/features/employees/api/mockEmployees.ts'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L100'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # employeesStore
 
 ## Connections
+
 - [[mockEmployees.ts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee

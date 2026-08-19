@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/BillingPageSkeleton.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L1"
+source_file: 'src/shared/components/BillingPageSkeleton.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BillingPageSkeleton.tsx
 
 ## Connections
+
 - [[BillingPageSkeleton()]] - `contains` [EXTRACTED]
 - [[FILL_1]] - `contains` [EXTRACTED]
 - [[RegionPlaceholder()]] - `contains` [EXTRACTED]

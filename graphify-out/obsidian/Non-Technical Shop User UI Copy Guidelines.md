@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "rationale"
-community: "Non Technical Shop User"
+source_file: 'CLAUDE.md'
+type: 'rationale'
+community: 'Non Technical Shop User'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED

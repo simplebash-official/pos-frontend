@@ -10,6 +10,7 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
+
 - [[Graphify Knowledge Graph Guidelines in CLAUDE]] - document - CLAUDE.md
 - [[Graphify Knowledge Graph Rules]] - document - .agents/rules/graphify.md
 - [[Graphify Knowledge Graph Workflow]] - document - .agents/workflows/graphify.md

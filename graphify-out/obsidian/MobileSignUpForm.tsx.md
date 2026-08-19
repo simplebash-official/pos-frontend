@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/components/mobile/MobileSignUpForm.tsx"
-type: "code"
-community: "Auth - MobileSignUpForm"
-location: "L1"
+source_file: 'src/features/auth/components/mobile/MobileSignUpForm.tsx'
+type: 'code'
+community: 'Auth - MobileSignUpForm'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MobileSignUpForm.tsx
 
 ## Connections
+
 - [[MobileSignUpForm()]] - `contains` [EXTRACTED]
 - [[MobileSignUpFormProps]] - `contains` [EXTRACTED]
 - [[MobileSocialButtons()]] - `imports` [EXTRACTED]

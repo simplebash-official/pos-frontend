@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useProducts.ts"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L43"
+source_file: 'src/features/inventory/hooks/useProducts.ts'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L43'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useLowStockProducts()
 
 ## Connections
+
 - [[LowStockNotifier()]] - `calls` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports` [EXTRACTED]
 - [[Sidebar()]] - `calls` [EXTRACTED]

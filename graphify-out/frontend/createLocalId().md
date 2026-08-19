@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/localId.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L46"
+source_file: 'src/offline/ids/localId.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L46'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # createLocalId()
 
 ## Connections
+
 - [[idMap.ts]] - `imports` [EXTRACTED]
 - [[localId.ts]] - `contains` [EXTRACTED]
 - [[mintLocalId()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/components/PrintJobList.tsx"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L24"
+source_file: 'src/features/print-jobs/components/PrintJobList.tsx'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L24'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PrintJobList()
 
 ## Connections
+
 - [[PrintJobList.tsx]] - `contains` [EXTRACTED]
 - [[getListEmptyText()]] - `calls` [EXTRACTED]
 - [[print-jobsindex.ts]] - `re_exports` [EXTRACTED]

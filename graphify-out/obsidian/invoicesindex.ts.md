@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/index.ts"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L1"
+source_file: 'src/features/invoices/index.ts'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # invoices/index.ts
 
 ## Connections
+
 - [[InvoiceDetailDrawer()]] - `re_exports` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `re_exports` [EXTRACTED]
 - [[InvoicesList]] - `imports_from` [EXTRACTED]

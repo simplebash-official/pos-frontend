@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/flush.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L1"
+source_file: 'src/offline/outbox/flush.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # flush.ts
 
 ## Connections
+
 - [[AbandonedReferenceError]] - `imports` [EXTRACTED]
 - [[AnySyncResource]] - `imports` [EXTRACTED]
 - [[ApiErrorLike]] - `contains` [EXTRACTED]

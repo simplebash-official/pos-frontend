@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useEntitySearch.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L1"
+source_file: 'src/shared/hooks/useEntitySearch.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useEntitySearch.ts
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports_from` [EXTRACTED]

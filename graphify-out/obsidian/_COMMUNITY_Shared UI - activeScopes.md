@@ -10,6 +10,7 @@ members: 7
 **Members:** 7 nodes
 
 ## Members
+
 - [[Shortcut]] - code - src/shared/hooks/useShortcuts.ts
 - [[ShortcutScope]] - code - src/shared/hooks/useShortcuts.ts
 - [[activeScopes]] - code - src/shared/hooks/useShortcuts.ts
@@ -26,12 +27,14 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 4 edges to [[_COMMUNITY_Billing - getInvoiceDocument]]
 - 2 edges to [[_COMMUNITY_Billing - PAYMENT METHODS]]
 - 1 edge to [[_COMMUNITY_Shared UI - mergeByCategory]]
 - 1 edge to [[_COMMUNITY_Billing - ROUTE TITLES]]
 
 ## Top bridge nodes
+
 - [[useShortcuts.ts]] - degree 12, connects to 4 communities
 - [[handleKeyDown()]] - degree 4, connects to 1 community
 - [[Shortcut]] - degree 2, connects to 1 community

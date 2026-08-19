@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/queryStatusText.ts"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L14"
+source_file: 'src/shared/lib/queryStatusText.ts'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getListEmptyText()
 
 ## Connections
+
 - [[InvoicesList()]] - `calls` [EXTRACTED]
 - [[InvoicesList.tsx]] - `imports` [EXTRACTED]
 - [[PrintJobList()]] - `calls` [EXTRACTED]

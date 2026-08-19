@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useResponsive.tsx"
-type: "code"
-community: "Billing - HeldSalesDrawer"
-location: "L44"
+source_file: 'src/shared/hooks/useResponsive.tsx'
+type: 'code'
+community: 'Billing - HeldSalesDrawer'
+location: 'L44'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LayoutTierProvider()
 
 ## Connections
+
 - [[below()]] - `calls` [EXTRACTED]
 - [[providers.tsx]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `contains` [EXTRACTED]

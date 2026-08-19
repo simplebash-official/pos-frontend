@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L106"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L106'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # countUnsettledForResource()
 
 ## Connections
+
 - [[dot-publish()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[outbox.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/providers.tsx"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L1"
+source_file: 'src/app/providers.tsx'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # providers.tsx
 
 ## Connections
+
 - [[AppProviders()]] - `contains` [EXTRACTED]
 - [[AppProvidersProps]] - `contains` [EXTRACTED]
 - [[AppUpdatePrompt()]] - `imports` [EXTRACTED]

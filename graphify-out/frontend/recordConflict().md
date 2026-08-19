@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/flush.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L144"
+source_file: 'src/offline/outbox/flush.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L144'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # recordConflict()
 
 ## Connections
+
 - [[createIdempotencyKey()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `contains` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]

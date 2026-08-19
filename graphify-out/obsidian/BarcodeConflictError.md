@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/errors.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L97"
+source_file: 'src/offline/errors.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L97'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BarcodeConflictError
 
 ## Connections
+
 - [[dot-constructor()_4]] - `method` [EXTRACTED]
 - [[errors.ts]] - `contains` [EXTRACTED]
 - [[products.resource.ts]] - `imports` [EXTRACTED]

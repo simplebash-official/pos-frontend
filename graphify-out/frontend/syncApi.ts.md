@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L1"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # syncApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiEnvelope]] - `contains` [EXTRACTED]
 - [[CursorInvalidError]] - `imports` [EXTRACTED]

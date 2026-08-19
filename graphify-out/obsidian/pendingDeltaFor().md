@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/stockLedger.ts"
-type: "code"
-community: "Offline Sync - readServerVersion"
-location: "L58"
+source_file: 'src/offline/engine/stockLedger.ts'
+type: 'code'
+community: 'Offline Sync - readServerVersion'
+location: 'L58'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pendingDeltaFor()
 
 ## Connections
+
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[stockLedger.ts]] - `contains` [EXTRACTED]
 

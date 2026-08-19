@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/pull.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L145"
+source_file: 'src/offline/engine/pull.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L145'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pullResource()
 
 ## Connections
+
 - [[dot-runPull()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[applyChanges()]] - `calls` [EXTRACTED]

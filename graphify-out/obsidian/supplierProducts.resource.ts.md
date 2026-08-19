@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/supplierProducts.resource.ts"
-type: "code"
-community: "Offline Sync - fetchSupplierProducts"
-location: "L1"
+source_file: 'src/offline/resources/supplierProducts.resource.ts'
+type: 'code'
+community: 'Offline Sync - fetchSupplierProducts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # supplierProducts.resource.ts
 
 ## Connections
+
 - [[SetLinksPayload]] - `contains` [EXTRACTED]
 - [[SupplierProduct]] - `imports` [EXTRACTED]
 - [[SupplierProductInput]] - `imports` [EXTRACTED]

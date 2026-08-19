@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L60"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L60'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # tryRestoreFromCache()
 
 ## Connections
+
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 - [[initializeAuth]] - `calls` [EXTRACTED]
 

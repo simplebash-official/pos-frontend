@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/components/CategoryManagerModal.tsx"
-type: "code"
-community: "Inventory - AddSubcategoryRow"
-location: "L80"
+source_file: 'src/features/inventory/components/CategoryManagerModal.tsx'
+type: 'code'
+community: 'Inventory - AddSubcategoryRow'
+location: 'L80'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AddSubcategoryRow()
 
 ## Connections
+
 - [[CategoryManagerModal.tsx]] - `contains` [EXTRACTED]
 - [[useCreateSubcategory()]] - `calls` [EXTRACTED]
 

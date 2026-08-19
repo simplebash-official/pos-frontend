@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/types/common.ts"
-type: "code"
-community: "Suppliers - createSupplier"
-location: "L42"
+source_file: 'src/shared/types/common.ts'
+type: 'code'
+community: 'Suppliers - createSupplier'
+location: 'L42'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncedEntityFields
 
 ## Connections
+
 - [[Category]] - `inherits` [EXTRACTED]
 - [[Product]] - `inherits` [EXTRACTED]
 - [[StockMovement]] - `inherits` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/index.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L1"
+source_file: 'src/features/supplier-products/index.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # supplier-products/index.ts
 
 ## Connections
+
 - [[SupplierFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports_from` [EXTRACTED]
 - [[supplier-productstypes.ts]] - `re_exports` [EXTRACTED]

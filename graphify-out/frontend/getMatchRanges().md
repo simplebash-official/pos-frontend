@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/search.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L231"
+source_file: 'src/shared/lib/search.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L231'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getMatchRanges()
 
 ## Connections
+
 - [[SearchHighlight()]] - `calls` [EXTRACTED]
 - [[SearchHighlight.tsx]] - `imports` [EXTRACTED]
 - [[search.test.ts]] - `imports` [EXTRACTED]

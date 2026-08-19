@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "rationale"
-community: "Animation Performance and Compositor"
+source_file: 'CLAUDE.md'
+type: 'rationale'
+community: 'Animation Performance and Compositor'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Responsive and Mobile Layout Tiers
 
 ## Connections
+
 - [[Animation Performance and Compositor Rules]] - `conceptually_related_to` [EXTRACTED]
 - [[Center Modals Standard]] - `conceptually_related_to` [EXTRACTED]
 - [[Global Scoped Keyboard Shortcuts]] - `conceptually_related_to` [EXTRACTED]

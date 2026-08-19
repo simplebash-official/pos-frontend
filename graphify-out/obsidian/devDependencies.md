@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - eslint"
-location: "L17"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - eslint'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # devDependencies
 
 ## Connections
+
 - [[@eslintjs]] - `contains` [EXTRACTED]
 - [[@typesreact]] - `contains` [EXTRACTED]
 - [[@typesreact-dom]] - `contains` [EXTRACTED]

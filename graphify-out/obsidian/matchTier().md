@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/search.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L123"
+source_file: 'src/shared/lib/search.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L123'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # matchTier()
 
 ## Connections
+
 - [[isWordChar()]] - `calls` [EXTRACTED]
 - [[scoreEntry()]] - `calls` [EXTRACTED]
 - [[search.ts]] - `contains` [EXTRACTED]

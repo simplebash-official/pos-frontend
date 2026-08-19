@@ -10,6 +10,7 @@ members: 62
 **Members:** 62 nodes
 
 ## Members
+
 - [[ExpandableCard()]] - code - src/shared/components/ExpandableCard.tsx
 - [[ExpandableCard.tsx]] - code - src/shared/components/ExpandableCard.tsx
 - [[ExpandableCardAction()]] - code - src/shared/components/ExpandableCard.tsx
@@ -81,6 +82,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Billing - fetchInvoices]]
 - 7 edges to [[_COMMUNITY_Offline Sync - STORAGE]]
 - 7 edges to [[_COMMUNITY_Inventory - StockMovement]]
@@ -104,6 +106,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications - clearConnectivityNotification]]
 
 ## Top bridge nodes
+
 - [[useSyncedQuery.ts]] - degree 18, connects to 11 communities
 - [[SyncPanel.tsx]] - degree 39, connects to 10 communities
 - [[syncSlice.ts]] - degree 40, connects to 7 communities

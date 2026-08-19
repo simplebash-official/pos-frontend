@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/schema.ts"
-type: "code"
-community: "Offline Sync - STORAGE"
-location: "L98"
+source_file: 'src/offline/db/schema.ts'
+type: 'code'
+community: 'Offline Sync - STORAGE'
+location: 'L98'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MIRROR_TABLE_NAMES
 
 ## Connections
+
 - [[maintenance.ts]] - `imports` [EXTRACTED]
 - [[outbox.ts]] - `imports` [EXTRACTED]
 - [[schema.ts]] - `contains` [EXTRACTED]

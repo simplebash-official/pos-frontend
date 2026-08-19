@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/SettingsNav.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L102"
+source_file: 'src/features/settings/components/SettingsNav.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L102'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SettingsNavDrillDownList()
 
 ## Connections
+
 - [[SettingsNav.tsx]] - `contains` [EXTRACTED]
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 

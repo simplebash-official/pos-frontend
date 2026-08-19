@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncPanel.tsx"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L1"
+source_file: 'src/features/sync/components/SyncPanel.tsx'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncPanel.tsx
 
 ## Connections
+
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]
 - [[ExpandableCard.tsx]] - `imports_from` [EXTRACTED]

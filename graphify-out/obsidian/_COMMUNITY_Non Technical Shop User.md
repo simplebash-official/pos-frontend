@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[Non-Technical Shop User UI Copy Guidelines]] - rationale - CLAUDE.md
 
 ## Live Query (requires Dataview plugin)

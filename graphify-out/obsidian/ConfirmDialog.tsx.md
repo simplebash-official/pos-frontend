@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/ConfirmDialog.tsx"
-type: "code"
-community: "Suppliers - useSetSupplierLinks"
-location: "L1"
+source_file: 'src/shared/components/ConfirmDialog.tsx'
+type: 'code'
+community: 'Suppliers - useSetSupplierLinks'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ConfirmDialog.tsx
 
 ## Connections
+
 - [[CartPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[ConfirmDialog()]] - `contains` [EXTRACTED]
 - [[ConfirmDialogProps]] - `contains` [EXTRACTED]

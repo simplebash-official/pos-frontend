@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/stockMovements.resource.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L1"
+source_file: 'src/offline/resources/stockMovements.resource.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # stockMovements.resource.ts
 
 ## Connections
+
 - [[StockMovement]] - `imports` [EXTRACTED]
 - [[db]] - `imports` [EXTRACTED]
 - [[defineSyncResource()]] - `imports` [EXTRACTED]

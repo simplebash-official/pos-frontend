@@ -10,6 +10,7 @@ members: 15
 **Members:** 15 nodes
 
 ## Members
+
 - [[dot-constructor()_8]] - code - src/offline/errors.ts
 - [[MirrorMeta]] - code - src/offline/db/tables.ts
 - [[OutboxFullError]] - code - src/offline/errors.ts
@@ -34,6 +35,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Offline Sync - start]]
 - 9 edges to [[_COMMUNITY_Offline Sync - OutboxError]]
 - 7 edges to [[_COMMUNITY_Inventory - StockMovement]]
@@ -56,6 +58,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Customers - createCustomer]]
 
 ## Top bridge nodes
+
 - [[offlineindex.ts]] - degree 43, connects to 11 communities
 - [[mirror.ts]] - degree 22, connects to 11 communities
 - [[stockLedger.ts]] - degree 18, connects to 7 communities

@@ -1,7 +1,7 @@
 ---
-source_file: "AGENTS.md"
-type: "document"
-community: "AGENTS md Instructions Document"
+source_file: 'AGENTS.md'
+type: 'document'
+community: 'AGENTS md Instructions Document'
 tags:
   - graphify/document
   - graphify/EXTRACTED

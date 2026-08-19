@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/hooks/useCustomers.ts"
-type: "code"
-community: "Billing - fetchInvoices"
-location: "L52"
+source_file: 'src/features/customers/hooks/useCustomers.ts'
+type: 'code'
+community: 'Billing - fetchInvoices'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useDeleteCustomer()
 
 ## Connections
+
 - [[CustomerList()]] - `calls` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
 - [[useCustomers.ts]] - `contains` [EXTRACTED]

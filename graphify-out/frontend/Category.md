@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Inventory - createCategory"
-location: "L11"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Inventory - createCategory'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Category
 
 ## Connections
+
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[ProductCatalogTree.tsx]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/PendingOperationsList.tsx"
-type: "code"
-community: "Inventory - StockMovement"
-location: "L29"
+source_file: 'src/features/sync/components/PendingOperationsList.tsx'
+type: 'code'
+community: 'Inventory - StockMovement'
+location: 'L29'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PendingOperationsList()
 
 ## Connections
+
 - [[PendingOperationsList.tsx]] - `contains` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[discardOperation()]] - `calls` [EXTRACTED]

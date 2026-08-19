@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/index.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L1"
+source_file: 'src/offline/resources/index.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resources/index.ts
 
 ## Connections
+
 - [[SyncProvider.tsx]] - `imports_from` [EXTRACTED]
 - [[categories.resource.ts]] - `imports_from` [EXTRACTED]
 - [[categoriesResource]] - `imports` [EXTRACTED]

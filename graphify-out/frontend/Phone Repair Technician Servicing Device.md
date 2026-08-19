@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/wall_login.jpg"
-type: "concept"
-community: "Phone Repair Technician Servicing"
+source_file: 'src/assets/wall_login.jpg'
+type: 'concept'
+community: 'Phone Repair Technician Servicing'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

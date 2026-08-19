@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/BillingCounter.tsx"
-type: "code"
-community: "Billing - Header"
-location: "L37"
+source_file: 'src/features/billing/components/BillingCounter.tsx'
+type: 'code'
+community: 'Billing - Header'
+location: 'L37'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BillingCounter()
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `contains` [EXTRACTED]
 - [[billingindex.ts]] - `re_exports` [EXTRACTED]
 - [[completeSale()]] - `calls` [EXTRACTED]

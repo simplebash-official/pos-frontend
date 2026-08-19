@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/App.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L1"
+source_file: 'src/app/App.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # app/App.tsx
 
 ## Connections
+
 - [[App()]] - `contains` [EXTRACTED]
 - [[AppProviders()]] - `imports` [EXTRACTED]
 - [[main.tsx]] - `imports_from` [EXTRACTED]

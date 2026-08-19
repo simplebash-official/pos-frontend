@@ -10,6 +10,7 @@ members: 17
 **Members:** 17 nodes
 
 ## Members
+
 - [[AddSubcategoryPayload]] - code - src/offline/resources/categories.resource.ts
 - [[Category]] - code - src/features/inventory/types.ts
 - [[CategoryInput]] - code - src/features/inventory/types.ts
@@ -36,6 +37,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 10 edges to [[_COMMUNITY_Inventory - AddSubcategoryRow]]
 - 9 edges to [[_COMMUNITY_Purchases - createPurchase]]
 - 8 edges to [[_COMMUNITY_Inventory - adjustStock]]
@@ -52,6 +54,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - readServerVersion]]
 
 ## Top bridge nodes
+
 - [[categories.resource.ts]] - degree 32, connects to 9 communities
 - [[Category]] - degree 11, connects to 5 communities
 - [[categoriesApi.ts]] - degree 19, connects to 4 communities

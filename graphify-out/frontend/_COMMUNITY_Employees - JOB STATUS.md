@@ -10,6 +10,7 @@ members: 21
 **Members:** 21 nodes
 
 ## Members
+
 - [[AssignmentInfo]] - code - src/shared/types/ticketInput.ts
 - [[CustomerRef]] - code - src/shared/types/ticketInput.ts
 - [[JOB_STATUS]] - code - src/constants/jobs.ts
@@ -40,6 +41,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 24 edges to [[_COMMUNITY_Employees - CURRENCY]]
 - 14 edges to [[_COMMUNITY_Repairs - InvoicesList]]
 - 10 edges to [[_COMMUNITY_Employees - createEmployee]]
@@ -50,6 +52,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Billing - CartLineItem]]
 
 ## Top bridge nodes
+
 - [[PrintJobFormModal.tsx]] - degree 26, connects to 6 communities
 - [[RepairFormModal.tsx]] - degree 26, connects to 6 communities
 - [[print-jobstypes.ts]] - degree 15, connects to 4 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/suppliers.resource.ts"
-type: "code"
-community: "Suppliers - createSupplier"
-location: "L1"
+source_file: 'src/offline/resources/suppliers.resource.ts'
+type: 'code'
+community: 'Suppliers - createSupplier'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # suppliers.resource.ts
 
 ## Connections
+
 - [[DeleteSupplierPayload]] - `contains` [EXTRACTED]
 - [[DeleteSuppliersPayload]] - `contains` [EXTRACTED]
 - [[Supplier]] - `imports` [EXTRACTED]

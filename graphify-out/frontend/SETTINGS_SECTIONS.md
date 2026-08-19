@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/settingsSections.ts"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L22"
+source_file: 'src/features/settings/settingsSections.ts'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L22'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SETTINGS_SECTIONS
 
 ## Connections
+
 - [[SettingsNav.tsx]] - `imports` [EXTRACTED]
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[settingsSections.ts]] - `contains` [EXTRACTED]

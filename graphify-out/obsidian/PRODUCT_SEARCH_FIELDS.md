@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/searchFields.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L27"
+source_file: 'src/shared/lib/searchFields.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L27'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PRODUCT_SEARCH_FIELDS
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductPickerModal.tsx]] - `imports` [EXTRACTED]

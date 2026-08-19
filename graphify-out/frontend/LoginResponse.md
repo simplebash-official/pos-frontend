@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/types.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L21"
+source_file: 'src/features/auth/types.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LoginResponse
 
 ## Connections
+
 - [[authtypes.ts]] - `contains` [EXTRACTED]
 - [[authApi.ts]] - `imports` [EXTRACTED]
 

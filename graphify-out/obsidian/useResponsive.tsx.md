@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useResponsive.tsx"
-type: "code"
-community: "Billing - HeldSalesDrawer"
-location: "L1"
+source_file: 'src/shared/hooks/useResponsive.tsx'
+type: 'code'
+community: 'Billing - HeldSalesDrawer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useResponsive.tsx
 
 ## Connections
+
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/payment.ts"
-type: "code"
-community: "Billing - PAYMENT METHODS"
-location: "L1"
+source_file: 'src/constants/payment.ts'
+type: 'code'
+community: 'Billing - PAYMENT METHODS'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # payment.ts
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[CURRENCY]] - `contains` [EXTRACTED]
 - [[PAYMENT_METHODS]] - `contains` [EXTRACTED]

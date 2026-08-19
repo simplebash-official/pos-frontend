@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L161"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L161'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchResourceSnapshotPage()
 
 ## Connections
+
 - [[fetchSyncChanges()]] - `calls` [EXTRACTED]
 - [[readChanges()]] - `calls` [EXTRACTED]
 - [[syncApi.ts]] - `contains` [EXTRACTED]

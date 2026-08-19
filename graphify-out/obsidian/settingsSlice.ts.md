@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/settingsSlice.ts"
-type: "code"
-community: "Settings - DEFAULT PRINT"
-location: "L1"
+source_file: 'src/store/slices/settingsSlice.ts'
+type: 'code'
+community: 'Settings - DEFAULT PRINT'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # settingsSlice.ts
 
 ## Connections
+
 - [[BankDetailsSection.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports_from` [EXTRACTED]

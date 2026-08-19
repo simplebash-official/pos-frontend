@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
-type: "code"
-community: "Offline Sync - fetchSupplierProducts"
-location: "L1"
+source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
+type: 'code'
+community: 'Offline Sync - fetchSupplierProducts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useSupplierProducts.ts
 
 ## Connections
+
 - [[EnrichedLinkedProduct]] - `contains` [EXTRACTED]
 - [[EnrichedLinkedSupplier]] - `contains` [EXTRACTED]
 - [[NO_LINKED_PRODUCTS]] - `contains` [EXTRACTED]

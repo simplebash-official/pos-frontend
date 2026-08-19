@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[Integer Cents Money Representation]] - rationale - CLAUDE.md
 
 ## Live Query (requires Dataview plugin)

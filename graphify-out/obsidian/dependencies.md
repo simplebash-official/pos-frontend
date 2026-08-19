@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - axios"
-location: "L39"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - axios'
+location: 'L39'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # dependencies
 
 ## Connections
+
 - [[@mantinecore]] - `contains` [EXTRACTED]
 - [[@mantinedates]] - `contains` [EXTRACTED]
 - [[@mantineform]] - `contains` [EXTRACTED]

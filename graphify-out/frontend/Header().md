@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/Header.tsx"
-type: "code"
-community: "Billing - Header"
-location: "L46"
+source_file: 'src/app/layout/Header.tsx'
+type: 'code'
+community: 'Billing - Header'
+location: 'L46'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Header()
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[Header.tsx]] - `contains` [EXTRACTED]
 - [[selectAuthUser()]] - `indirect_call` [INFERRED]

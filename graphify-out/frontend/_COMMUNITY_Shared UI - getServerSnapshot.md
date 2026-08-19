@@ -10,6 +10,7 @@ members: 13
 **Members:** 13 nodes
 
 ## Members
+
 - [[SearchHistoryData]] - code - src/shared/hooks/useSearchHistory.ts
 - [[SearchHistoryItem]] - code - src/shared/hooks/useSearchHistory.ts
 - [[UseSearchHistoryOptions]] - code - src/shared/hooks/useSearchHistory.ts
@@ -32,9 +33,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 3 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 2 edges to [[_COMMUNITY_Notifications - initialState]]
 
 ## Top bridge nodes
+
 - [[useSearchHistory.ts]] - degree 15, connects to 2 communities
 - [[useSearchHistory()]] - degree 9, connects to 1 community

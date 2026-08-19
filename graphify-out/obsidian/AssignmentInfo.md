@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/types/ticketInput.ts"
-type: "code"
-community: "Employees - JOB STATUS"
-location: "L17"
+source_file: 'src/shared/types/ticketInput.ts'
+type: 'code'
+community: 'Employees - JOB STATUS'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AssignmentInfo
 
 ## Connections
+
 - [[PrintJobInput]] - `references` [EXTRACTED]
 - [[RepairJobInput]] - `references` [EXTRACTED]
 - [[SplitType]] - `references` [EXTRACTED]

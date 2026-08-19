@@ -10,6 +10,7 @@ members: 26
 **Members:** 26 nodes
 
 ## Members
+
 - [[Column]] - code - src/shared/components/DataTable.tsx
 - [[DataTable()]] - code - src/shared/components/DataTable.tsx
 - [[DataTable.tsx]] - code - src/shared/components/DataTable.tsx
@@ -45,6 +46,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 14 edges to [[_COMMUNITY_Employees - JOB STATUS]]
 - 13 edges to [[_COMMUNITY_Employees - createEmployee]]
 - 10 edges to [[_COMMUNITY_Billing - fetchInvoices]]
@@ -70,6 +72,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 
 ## Top bridge nodes
+
 - [[queryKeys.ts]] - degree 22, connects to 13 communities
 - [[queryKeys]] - degree 22, connects to 13 communities
 - [[InvoicesList.tsx]] - degree 22, connects to 8 communities

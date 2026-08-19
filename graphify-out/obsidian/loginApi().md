@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/api/authApi.ts"
-type: "code"
-community: "Auth - EmailLoginScreen"
-location: "L10"
+source_file: 'src/features/auth/api/authApi.ts'
+type: 'code'
+community: 'Auth - EmailLoginScreen'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # loginApi()
 
 ## Connections
+
 - [[LoginForm()]] - `calls` [EXTRACTED]
 - [[LoginForm.tsx]] - `imports` [EXTRACTED]
 - [[MobileLoginForm()]] - `calls` [EXTRACTED]

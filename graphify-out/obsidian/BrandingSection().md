@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/BrandingSection.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L14"
+source_file: 'src/features/settings/components/sections/BrandingSection.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L14'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BrandingSection()
 
 ## Connections
+
 - [[BrandingSection.tsx]] - `contains` [EXTRACTED]
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[selectShopProfile()]] - `indirect_call` [INFERRED]

@@ -10,6 +10,7 @@ members: 20
 **Members:** 20 nodes
 
 ## Members
+
 - [[AppRoute]] - code - src/constants/routes.ts
 - [[AppShell.tsx]] - code - src/app/layout/AppShell.tsx
 - [[BILLING_HEADER_HEIGHT]] - code - src/app/layout/constants.ts
@@ -39,6 +40,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 13 edges to [[_COMMUNITY_Inventory - AppUpdatePrompt]]
 - 8 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 7 edges to [[_COMMUNITY_Auth - RequireAdmin]]
@@ -58,6 +60,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications - initialState]]
 
 ## Top bridge nodes
+
 - [[AppShell.tsx]] - degree 30, connects to 11 communities
 - [[ROUTES]] - degree 17, connects to 7 communities
 - [[Sidebar.tsx]] - degree 20, connects to 6 communities

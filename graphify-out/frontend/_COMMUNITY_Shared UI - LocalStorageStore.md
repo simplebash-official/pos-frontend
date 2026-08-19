@@ -10,6 +10,7 @@ members: 11
 **Members:** 11 nodes
 
 ## Members
+
 - [[dot-add()]] - code - src/shared/lib/localStorageStore.ts
 - [[dot-constructor()_1]] - code - src/shared/lib/localStorageStore.ts
 - [[dot-filter()]] - code - src/shared/lib/localStorageStore.ts
@@ -30,11 +31,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 7 edges to [[_COMMUNITY_Employees - createEmployee]]
 - 4 edges to [[_COMMUNITY_Billing - getInvoiceDocument]]
 - 2 edges to [[_COMMUNITY_Employees - addEarningRecord]]
 
 ## Top bridge nodes
+
 - [[dot-add()]] - degree 5, connects to 3 communities
 - [[LocalStorageStore]] - degree 14, connects to 2 communities
 - [[dot-update()]] - degree 4, connects to 2 communities

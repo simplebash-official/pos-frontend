@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/documentsApi.ts"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L1"
+source_file: 'src/features/billing/api/documentsApi.ts'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # documentsApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[InvoiceDocumentType]] - `contains` [EXTRACTED]
 - [[client.ts]] - `imports_from` [EXTRACTED]

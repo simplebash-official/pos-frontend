@@ -10,6 +10,7 @@ members: 12
 **Members:** 12 nodes
 
 ## Members
+
 - [[LiveQueryResult]] - code - src/offline/react/useLiveQuery.ts
 - [[NO_CONFLICTS]] - code - src/offline/react/useSyncData.ts
 - [[NO_KEYS]] - code - src/offline/react/useSyncData.ts
@@ -31,6 +32,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 5 edges to [[_COMMUNITY_Settings - SyncDrawer]]
 - 4 edges to [[_COMMUNITY_Inventory - StockMovement]]
 - 2 edges to [[_COMMUNITY_Offline Sync - readServerVersion]]
@@ -39,6 +41,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Inventory - ProductTable]]
 
 ## Top bridge nodes
+
 - [[useSyncData.ts]] - degree 17, connects to 4 communities
 - [[useLiveQuery()]] - degree 10, connects to 3 communities
 - [[useLiveQuery.ts]] - degree 6, connects to 2 communities

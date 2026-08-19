@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useSyncData.ts"
-type: "code"
-community: "Offline Sync - depsChanged"
-location: "L1"
+source_file: 'src/offline/react/useSyncData.ts'
+type: 'code'
+community: 'Offline Sync - depsChanged'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useSyncData.ts
 
 ## Connections
+
 - [[ConflictRecord]] - `imports` [EXTRACTED]
 - [[NO_CONFLICTS]] - `contains` [EXTRACTED]
 - [[NO_KEYS]] - `contains` [EXTRACTED]

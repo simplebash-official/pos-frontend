@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/LogoUpload.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L8"
+source_file: 'src/features/settings/components/LogoUpload.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L8'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LogoUploadProps
 
 ## Connections
+
 - [[LogoUpload.tsx]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

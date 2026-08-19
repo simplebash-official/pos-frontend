@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Inventory - adjustStock"
-location: "L1"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Inventory - adjustStock'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # inventory/types.ts
 
 ## Connections
+
 - [[BarcodeSource]] - `contains` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Category]] - `contains` [EXTRACTED]

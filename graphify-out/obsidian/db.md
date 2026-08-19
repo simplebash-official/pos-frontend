@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/schema.ts"
-type: "code"
-community: "Offline Sync - signal"
-location: "L95"
+source_file: 'src/offline/db/schema.ts'
+type: 'code'
+community: 'Offline Sync - signal'
+location: 'L95'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # db
 
 ## Connections
+
 - [[auditLog.ts]] - `imports` [EXTRACTED]
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]

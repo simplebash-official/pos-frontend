@@ -1,8 +1,8 @@
 ---
-source_file: "src/styles/theme.ts"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L1"
+source_file: 'src/styles/theme.ts'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # theme.ts
 
 ## Connections
+
 - [[CONTAINER_SIZES]] - `contains` [EXTRACTED]
 - [[mantineTheme]] - `contains` [EXTRACTED]
 - [[providers.tsx]] - `imports_from` [EXTRACTED]

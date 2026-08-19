@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - axios"
-location: "L47"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - axios'
+location: 'L47'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @tabler/icons-react
 
 ## Connections
+
 - [[@tablericons-react_1]] - `imports` [EXTRACTED]
 - [[dependencies]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/types.ts"
-type: "code"
-community: "Billing - BackendInvoice"
-location: "L1"
+source_file: 'src/features/billing/types.ts'
+type: 'code'
+community: 'Billing - BackendInvoice'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # billing/types.ts
 
 ## Connections
+
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]

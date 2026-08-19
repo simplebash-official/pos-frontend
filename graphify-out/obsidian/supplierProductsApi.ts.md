@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/api/supplierProductsApi.ts"
-type: "code"
-community: "Offline Sync - fetchSupplierProducts"
-location: "L1"
+source_file: 'src/features/supplier-products/api/supplierProductsApi.ts'
+type: 'code'
+community: 'Offline Sync - fetchSupplierProducts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # supplierProductsApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[MutationRequestOptions]] - `imports` [EXTRACTED]

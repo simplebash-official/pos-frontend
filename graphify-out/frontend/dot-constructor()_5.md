@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L83"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L83'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .constructor()
 
 ## Connections
+
 - [[ApiClient]] - `method` [EXTRACTED]
 - [[getDeviceId()]] - `calls` [EXTRACTED]
 - [[isApiErrorLike()]] - `calls` [EXTRACTED]

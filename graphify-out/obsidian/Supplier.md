@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/types.ts"
-type: "code"
-community: "Suppliers - createSupplier"
-location: "L3"
+source_file: 'src/features/suppliers/types.ts'
+type: 'code'
+community: 'Suppliers - createSupplier'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # Supplier
 
 ## Connections
+
 - [[EnrichedLinkedSupplier]] - `references` [EXTRACTED]
 - [[FormContentProps_1]] - `references` [EXTRACTED]
 - [[OfflineDb]] - `references` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/NotFoundPage.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L1"
+source_file: 'src/shared/components/NotFoundPage.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # NotFoundPage.tsx
 
 ## Connections
+
 - [[NotFoundPage()]] - `contains` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
 - [[constantsindex.ts]] - `imports_from` [EXTRACTED]

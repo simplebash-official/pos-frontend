@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/CatalogPanel.tsx"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L63"
+source_file: 'src/features/billing/components/CatalogPanel.tsx'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L63'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CatalogPanel
 
 ## Connections
+
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `contains` [EXTRACTED]
 - [[buildCatalogCategoryFilters()]] - `calls` [EXTRACTED]

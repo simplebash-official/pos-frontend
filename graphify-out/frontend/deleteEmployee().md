@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/api/mockEmployees.ts"
-type: "code"
-community: "Employees - createEmployee"
-location: "L147"
+source_file: 'src/features/employees/api/mockEmployees.ts'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L147'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # deleteEmployee()
 
 ## Connections
+
 - [[dot-remove()]] - `calls` [INFERRED]
 - [[EmployeeList()]] - `indirect_call` [INFERRED]
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]

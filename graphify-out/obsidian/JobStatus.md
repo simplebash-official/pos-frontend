@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/jobs.ts"
-type: "code"
-community: "Employees - JOB STATUS"
-location: "L10"
+source_file: 'src/constants/jobs.ts'
+type: 'code'
+community: 'Employees - JOB STATUS'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # JobStatus
 
 ## Connections
+
 - [[PrintJob]] - `references` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
 - [[PrintJobInput]] - `references` [EXTRACTED]

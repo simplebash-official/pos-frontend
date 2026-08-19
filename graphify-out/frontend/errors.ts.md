@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/errors.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L1"
+source_file: 'src/offline/errors.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # errors.ts
 
 ## Connections
+
 - [[AbandonedReferenceError]] - `contains` [EXTRACTED]
 - [[BarcodeConflictError]] - `contains` [EXTRACTED]
 - [[CursorInvalidError]] - `contains` [EXTRACTED]

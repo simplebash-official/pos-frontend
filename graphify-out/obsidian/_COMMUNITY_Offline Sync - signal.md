@@ -10,6 +10,7 @@ members: 53
 **Members:** 53 nodes
 
 ## Members
+
 - [[AnySyncResource]] - code - src/offline/types.ts
 - [[ConflictPolicy]] - code - src/offline/types.ts
 - [[ConflictStrategy]] - code - src/offline/types.ts
@@ -23,17 +24,17 @@ members: 53
 - [[PushHandler]] - code - src/offline/types.ts
 - [[PushResult]] - code - src/offline/types.ts
 - [[RFC-3339]] - concept - src/offline/engine/pullTargets.ts
-- [[RFC-3339_1]] - concept - src/offline/__tests__/pullTargets.test.ts
+- [[RFC-3339_1]] - concept - src/offline/**tests**/pullTargets.test.ts
 - [[ReferenceDeclaration]] - code - src/offline/types.ts
 - [[SyncMetaPatch]] - code - src/offline/db/syncMeta.ts
 - [[SyncOperation]] - code - src/offline/types.ts
 - [[SyncResource]] - code - src/offline/types.ts
-- [[Widget_1]] - code - src/offline/__tests__/outbox.test.ts
-- [[Widget]] - code - src/offline/__tests__/pull.test.ts
+- [[Widget_1]] - code - src/offline/**tests**/outbox.test.ts
+- [[Widget]] - code - src/offline/**tests**/pull.test.ts
 - [[blankMeta()]] - code - src/offline/db/syncMeta.ts
 - [[db]] - code - src/offline/db/schema.ts
-- [[deltaCursors]] - code - src/offline/__tests__/pull.test.ts
-- [[deltaPages]] - code - src/offline/__tests__/pull.test.ts
+- [[deltaCursors]] - code - src/offline/**tests**/pull.test.ts
+- [[deltaPages]] - code - src/offline/**tests**/pull.test.ts
 - [[fetchSyncStatus()]] - code - src/offline/resources/syncApi.ts
 - [[getAllSyncMeta()]] - code - src/offline/db/syncMeta.ts
 - [[getReferringResources()]] - code - src/offline/registry/registry.ts
@@ -42,27 +43,27 @@ members: 53
 - [[hasSyncResource()]] - code - src/offline/registry/registry.ts
 - [[invalidateCursor()]] - code - src/offline/db/syncMeta.ts
 - [[offlinetypes.ts]] - code - src/offline/types.ts
-- [[outbox.test.ts]] - code - src/offline/__tests__/outbox.test.ts
+- [[outbox.test.ts]] - code - src/offline/**tests**/outbox.test.ts
 - [[patchSyncMeta()]] - code - src/offline/db/syncMeta.ts
-- [[pull.test.ts]] - code - src/offline/__tests__/pull.test.ts
-- [[pullTargets.test.ts]] - code - src/offline/__tests__/pullTargets.test.ts
+- [[pull.test.ts]] - code - src/offline/**tests**/pull.test.ts
+- [[pullTargets.test.ts]] - code - src/offline/**tests**/pullTargets.test.ts
 - [[pullTargets.ts]] - code - src/offline/engine/pullTargets.ts
-- [[putRow()_1]] - code - src/offline/__tests__/outbox.test.ts
-- [[putRow()]] - code - src/offline/__tests__/pull.test.ts
+- [[putRow()_1]] - code - src/offline/**tests**/outbox.test.ts
+- [[putRow()]] - code - src/offline/**tests**/pull.test.ts
 - [[reclaimInflightOperations()]] - code - src/offline/outbox/outbox.ts
 - [[registry.ts]] - code - src/offline/registry/registry.ts
 - [[resetRegistry()]] - code - src/offline/registry/registry.ts
 - [[resolvePullTargets()]] - code - src/offline/engine/pullTargets.ts
 - [[resources]] - code - src/offline/registry/registry.ts
 - [[seedSyncMeta()]] - code - src/offline/db/syncMeta.ts
-- [[signal()_1]] - code - src/offline/__tests__/outbox.test.ts
-- [[signal()]] - code - src/offline/__tests__/pull.test.ts
-- [[signal()_2]] - code - src/offline/__tests__/pullTargets.test.ts
-- [[snapshot]] - code - src/offline/__tests__/pull.test.ts
-- [[stubResource()]] - code - src/offline/__tests__/pullTargets.test.ts
+- [[signal()_1]] - code - src/offline/**tests**/outbox.test.ts
+- [[signal()]] - code - src/offline/**tests**/pull.test.ts
+- [[signal()_2]] - code - src/offline/**tests**/pullTargets.test.ts
+- [[snapshot]] - code - src/offline/**tests**/pull.test.ts
+- [[stubResource()]] - code - src/offline/**tests**/pullTargets.test.ts
 - [[syncMeta.ts]] - code - src/offline/db/syncMeta.ts
-- [[widgetResource_1]] - code - src/offline/__tests__/outbox.test.ts
-- [[widgetResource]] - code - src/offline/__tests__/pull.test.ts
+- [[widgetResource_1]] - code - src/offline/**tests**/outbox.test.ts
+- [[widgetResource]] - code - src/offline/**tests**/pull.test.ts
 
 ## Live Query (requires Dataview plugin)
 
@@ -72,6 +73,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 31 edges to [[_COMMUNITY_Offline Sync - start]]
 - 20 edges to [[_COMMUNITY_Purchases - createPurchase]]
 - 20 edges to [[_COMMUNITY_Offline Sync - OutboxError]]
@@ -95,6 +97,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Auth - RequireAdmin]]
 
 ## Top bridge nodes
+
 - [[db]] - degree 30, connects to 18 communities
 - [[registry.ts]] - degree 42, connects to 13 communities
 - [[offlinetypes.ts]] - degree 42, connects to 9 communities

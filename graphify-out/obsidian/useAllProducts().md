@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useProducts.ts"
-type: "code"
-community: "Billing - HeldSalesDrawer"
-location: "L24"
+source_file: 'src/features/inventory/hooks/useProducts.ts'
+type: 'code'
+community: 'Billing - HeldSalesDrawer'
+location: 'L24'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useAllProducts()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]

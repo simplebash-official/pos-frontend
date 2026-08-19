@@ -10,6 +10,7 @@ members: 10
 **Members:** 10 nodes
 
 ## Members
+
 - [[build]] - code - package.json
 - [[dev]] - code - package.json
 - [[format]] - code - package.json
@@ -29,7 +30,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 1 edge to [[_COMMUNITY_Dependencies - name]]
 
 ## Top bridge nodes
+
 - [[scripts]] - degree 10, connects to 1 community

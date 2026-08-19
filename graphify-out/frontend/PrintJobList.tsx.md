@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/components/PrintJobList.tsx"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L1"
+source_file: 'src/features/print-jobs/components/PrintJobList.tsx'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PrintJobList.tsx
 
 ## Connections
+
 - [[Column]] - `imports` [EXTRACTED]
 - [[DataTable()]] - `imports` [EXTRACTED]
 - [[DataTable.tsx]] - `imports_from` [EXTRACTED]

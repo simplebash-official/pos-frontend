@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/payment.ts"
-type: "code"
-community: "Employees - CURRENCY"
-location: "L1"
+source_file: 'src/constants/payment.ts'
+type: 'code'
+community: 'Employees - CURRENCY'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CURRENCY
 
 ## Connections
+
 - [[MoneyInput.tsx]] - `imports` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `imports` [EXTRACTED]
 - [[money.ts]] - `imports` [EXTRACTED]

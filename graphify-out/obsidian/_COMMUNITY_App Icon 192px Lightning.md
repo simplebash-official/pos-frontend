@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[App Icon 192px (Lightning Bolt)]] - image - public/icon-192.png
 
 ## Live Query (requires Dataview plugin)

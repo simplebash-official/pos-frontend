@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/deviceId.ts"
-type: "code"
-community: "Offline Sync - OutboxError"
-location: "L1"
+source_file: 'src/offline/ids/deviceId.ts'
+type: 'code'
+community: 'Offline Sync - OutboxError'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # deviceId.ts
 
 ## Connections
+
 - [[STORAGE_KEYS]] - `imports` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[client.ts]] - `imports_from` [EXTRACTED]

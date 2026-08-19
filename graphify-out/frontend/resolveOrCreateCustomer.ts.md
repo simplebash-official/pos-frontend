@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/resolveOrCreateCustomer.ts"
-type: "code"
-community: "Billing - fetchInvoices"
-location: "L1"
+source_file: 'src/features/billing/lib/resolveOrCreateCustomer.ts'
+type: 'code'
+community: 'Billing - fetchInvoices'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resolveOrCreateCustomer.ts
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Customer]] - `imports` [EXTRACTED]
 - [[CustomerInput]] - `imports` [EXTRACTED]

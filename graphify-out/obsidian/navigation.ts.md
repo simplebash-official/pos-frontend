@@ -1,8 +1,8 @@
 ---
-source_file: "src/config/navigation.ts"
-type: "code"
-community: "Billing - ROUTE TITLES"
-location: "L1"
+source_file: 'src/config/navigation.ts'
+type: 'code'
+community: 'Billing - ROUTE TITLES'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # navigation.ts
 
 ## Connections
+
 - [[NAV_ITEMS]] - `contains` [EXTRACTED]
 - [[NavItemConfig]] - `contains` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]

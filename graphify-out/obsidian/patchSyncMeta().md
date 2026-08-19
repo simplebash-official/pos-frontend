@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/syncMeta.ts"
-type: "code"
-community: "Offline Sync - signal"
-location: "L68"
+source_file: 'src/offline/db/syncMeta.ts'
+type: 'code'
+community: 'Offline Sync - signal'
+location: 'L68'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # patchSyncMeta()
 
 ## Connections
+
 - [[dot-publish()]] - `calls` [EXTRACTED]
 - [[dot-runFlush()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]

@@ -10,10 +10,8 @@ import {
   Badge,
   SimpleGrid,
   ThemeIcon,
-  Table,
   Button,
   Skeleton,
-  ActionIcon,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -23,7 +21,6 @@ import {
   IconChartPie,
   IconRefresh,
   IconFileInvoice,
-  IconChevronRight,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchInvoices } from '@/features/billing/api/invoicesApi';
@@ -35,6 +32,7 @@ import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
 import { getListEmptyText } from '@/shared/lib/queryStatusText';
+import { DataTable, type Column } from '@/shared/components/DataTable';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
 export const InvoicesList = () => {
@@ -138,6 +136,118 @@ export const InvoicesList = () => {
     setSelectedInvoice(inv);
     setDrawerOpened(true);
   };
+
+  const columns: Column<Invoice>[] = useMemo(
+    () => [
+      {
+        key: 'invoiceNumber',
+        header: 'Invoice #',
+        align: 'left',
+        sortable: true,
+        render: (inv) => (
+          <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
+            {inv.invoiceNumber}
+          </Text>
+        ),
+      },
+      {
+        key: 'createdAt',
+        header: 'Date & Time',
+        align: 'left',
+        sortable: true,
+        sortFn: (a, b, direction) => {
+          const aTime = new Date(a.createdAt).getTime();
+          const bTime = new Date(b.createdAt).getTime();
+          return direction === 'asc' ? aTime - bTime : bTime - aTime;
+        },
+        render: (inv) => (
+          <Text size="xs">
+            {new Date(inv.createdAt).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })}{' '}
+            {new Date(inv.createdAt).toLocaleTimeString('en-GB', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        ),
+      },
+      {
+        key: 'customer',
+        header: 'Customer',
+        align: 'left',
+        sortable: true,
+        sortFn: (a, b, direction) => {
+          const nameA = a.customerName || 'Walk-in Customer';
+          const nameB = b.customerName || 'Walk-in Customer';
+          const cmp = nameA.localeCompare(nameB);
+          return direction === 'asc' ? cmp : -cmp;
+        },
+        render: (inv) => (
+          <div>
+            <Text size="xs" fw={600}>
+              {inv.customerName || 'Walk-in Customer'}
+            </Text>
+            {inv.customerPhone && (
+              <Text size="3xs" c="dimmed">
+                {inv.customerPhone}
+              </Text>
+            )}
+          </div>
+        ),
+      },
+      {
+        key: 'items',
+        header: 'Items',
+        align: 'center',
+        render: (inv) => (
+          <Badge size="xs" variant="light" color="gray">
+            {inv.items.length} items
+          </Badge>
+        ),
+      },
+      {
+        key: 'paymentMethod',
+        header: 'Payment Method',
+        align: 'left',
+        render: (inv) => (
+          <Text size="xs" tt="uppercase" fw={600}>
+            {inv.paymentMethod}
+          </Text>
+        ),
+      },
+      {
+        key: 'status',
+        header: 'Status',
+        align: 'center',
+        render: (inv) => (
+          <Badge size="xs" color={inv.status === 'paid' && !inv.isCredit ? 'green' : 'amber'}>
+            {inv.status === 'paid' && !inv.isCredit ? 'PAID' : 'CREDIT'}
+          </Badge>
+        ),
+      },
+      {
+        key: 'totalCents',
+        header: 'Total',
+        align: 'left',
+        sortable: true,
+        render: (inv) => (
+          <Text
+            size="xs"
+            fw={700}
+            style={{
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {formatMoney(inv.totalCents)}
+          </Text>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <Box p="md" style={{ width: '100%', minHeight: '100vh', backgroundColor: 'var(--bg-app)' }}>
@@ -313,151 +423,17 @@ export const InvoicesList = () => {
         </Paper>
 
         {/* Data Table */}
-        <Paper withBorder style={{ overflow: 'hidden', backgroundColor: 'var(--bg-card)' }}>
-          <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover striped>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Invoice #</Table.Th>
-                <Table.Th>Date & Time</Table.Th>
-                <Table.Th>Customer</Table.Th>
-                <Table.Th style={{ textAlign: 'center' }}>Items</Table.Th>
-                <Table.Th>Payment Method</Table.Th>
-                <Table.Th style={{ textAlign: 'center' }}>Status</Table.Th>
-                <Table.Th>Total</Table.Th>
-                <Table.Th style={{ width: 40, textAlign: 'right' }} aria-label="View Details" />
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {isLoading ? (
-                Array.from({ length: 6 }, (_, i) => (
-                  <Table.Tr key={`inv-skel-${i}`}>
-                    <Table.Td>
-                      <Skeleton height={16} width={80} />
-                    </Table.Td>
-                    <Table.Td>
-                      <Skeleton height={14} width={100} />
-                    </Table.Td>
-                    <Table.Td>
-                      <Skeleton height={14} width={120} />
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>
-                      <Skeleton height={16} width={40} mx="auto" />
-                    </Table.Td>
-                    <Table.Td>
-                      <Skeleton height={20} width={70} />
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>
-                      <Skeleton height={20} width={60} mx="auto" />
-                    </Table.Td>
-                    <Table.Td>
-                      <Skeleton height={16} width={70} />
-                    </Table.Td>
-                    <Table.Td style={{ width: 40, textAlign: 'right', verticalAlign: 'middle' }}>
-                      <Skeleton
-                        height={16}
-                        width={16}
-                        radius="xl"
-                        style={{ marginInlineStart: 'auto' }}
-                      />
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              ) : filteredInvoices.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={8} style={{ textAlign: 'center', padding: '32px' }}>
-                    <Text size="sm" c="dimmed">
-                      {emptyText}
-                    </Text>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                filteredInvoices.map((inv) => (
-                  <Table.Tr
-                    key={inv.id}
-                    className="data-table-row"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleRowClick(inv)}
-                  >
-                    <Table.Td style={{ fontWeight: 700, fontFamily: 'monospace' }}>
-                      {inv.invoiceNumber}
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="xs">
-                        {new Date(inv.createdAt).toLocaleDateString('en-GB', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric',
-                        })}{' '}
-                        {new Date(inv.createdAt).toLocaleTimeString('en-GB', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="xs" fw={600}>
-                        {inv.customerName || 'Walk-in Customer'}
-                      </Text>
-                      {inv.customerPhone && (
-                        <Text size="3xs" c="dimmed">
-                          {inv.customerPhone}
-                        </Text>
-                      )}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>
-                      <Badge size="xs" variant="light" color="gray">
-                        {inv.items.length} items
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="xs" tt="uppercase" fw={600}>
-                        {inv.paymentMethod}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>
-                      <Badge
-                        size="xs"
-                        color={inv.status === 'paid' && !inv.isCredit ? 'green' : 'amber'}
-                      >
-                        {inv.status === 'paid' && !inv.isCredit ? 'PAID' : 'CREDIT'}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td
-                      style={{
-                        fontWeight: 700,
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {formatMoney(inv.totalCents)}
-                    </Table.Td>
-                    <Table.Td
-                      style={{
-                        width: 40,
-                        textAlign: 'right',
-                        verticalAlign: 'middle',
-                      }}
-                    >
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        size="sm"
-                        aria-label="View invoice details"
-                        className="data-table-row-chevron"
-                        tabIndex={-1}
-                        style={{
-                          opacity: 0.45,
-                          marginInlineStart: 'auto',
-                        }}
-                      >
-                        <IconChevronRight size={16} />
-                      </ActionIcon>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              )}
-            </Table.Tbody>
-          </Table>
-        </Paper>
+        <DataTable<Invoice>
+          data={filteredInvoices}
+          columns={columns}
+          keyExtractor={(inv) => inv.id}
+          loading={isLoading}
+          emptyText={emptyText}
+          selectable={false}
+          onRowClick={handleRowClick}
+          clientPagination={true}
+          pageSize={10}
+        />
       </Stack>
 
       {/* Drawer */}

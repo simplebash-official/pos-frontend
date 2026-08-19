@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/components/LoginForm.tsx"
-type: "code"
-community: "Auth - EmailLoginScreen"
-location: "L23"
+source_file: 'src/features/auth/components/LoginForm.tsx'
+type: 'code'
+community: 'Auth - EmailLoginScreen'
+location: 'L23'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LoginForm()
 
 ## Connections
+
 - [[EmailLoginScreen.tsx]] - `imports` [EXTRACTED]
 - [[LoginForm.tsx]] - `contains` [EXTRACTED]
 - [[authindex.ts]] - `re_exports` [EXTRACTED]

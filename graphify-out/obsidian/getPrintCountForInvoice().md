@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/api/printLogStore.ts"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L32"
+source_file: 'src/features/invoices/api/printLogStore.ts'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getPrintCountForInvoice()
 
 ## Connections
+
 - [[getPrintLogsForInvoice()]] - `calls` [EXTRACTED]
 - [[printLogStore.ts]] - `contains` [EXTRACTED]
 

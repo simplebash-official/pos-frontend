@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L8"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L8'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # HEADER_DEVICE_ID
 
 ## Connections
+
 - [[client.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

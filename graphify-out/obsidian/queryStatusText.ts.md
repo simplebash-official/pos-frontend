@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/queryStatusText.ts"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L1"
+source_file: 'src/shared/lib/queryStatusText.ts'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # queryStatusText.ts
 
 ## Connections
+
 - [[InvoicesList.tsx]] - `imports_from` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports_from` [EXTRACTED]
 - [[QueryConnectivityStatus]] - `contains` [EXTRACTED]

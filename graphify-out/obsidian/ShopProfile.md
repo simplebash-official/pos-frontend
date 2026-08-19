@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/types.ts"
-type: "code"
-community: "Settings - DEFAULT PRINT"
-location: "L1"
+source_file: 'src/features/settings/types.ts'
+type: 'code'
+community: 'Settings - DEFAULT PRINT'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ShopProfile
 
 ## Connections
+
 - [[SettingsState]] - `references` [EXTRACTED]
 - [[settingsconstants.ts]] - `imports` [EXTRACTED]
 - [[settingstypes.ts]] - `contains` [EXTRACTED]

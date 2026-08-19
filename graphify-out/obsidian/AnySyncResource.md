@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/types.ts"
-type: "code"
-community: "Offline Sync - signal"
-location: "L235"
+source_file: 'src/offline/types.ts'
+type: 'code'
+community: 'Offline Sync - signal'
+location: 'L235'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AnySyncResource
 
 ## Connections
+
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[offlinetypes.ts]] - `contains` [EXTRACTED]
 - [[outbox.test.ts]] - `imports` [EXTRACTED]

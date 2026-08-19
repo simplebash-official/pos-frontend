@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/PrintingSection.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L1"
+source_file: 'src/features/settings/components/sections/PrintingSection.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PrintingSection.tsx
 
 ## Connections
+
 - [[PrintingFormValues]] - `contains` [EXTRACTED]
 - [[PrintingSection()]] - `contains` [EXTRACTED]
 - [[SectionProps]] - `imports` [EXTRACTED]

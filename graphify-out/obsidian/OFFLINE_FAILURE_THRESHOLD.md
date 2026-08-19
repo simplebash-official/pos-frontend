@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L21"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OFFLINE_FAILURE_THRESHOLD
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Backend Sync, Multiplexed Delta,"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Backend Sync, Multiplexed Delta,'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Offline-First Dexie Mirror and Outbox Engine
 
 ## Connections
+
 - [[Backend Sync, Multiplexed Delta, and Idempotency Contract]] - `conceptually_related_to` [EXTRACTED]
 - [[Connectivity Monitor and Asymmetric Hysteresis]] - `conceptually_related_to` [EXTRACTED]
 - [[Offline Authentication and Grace Period]] - `conceptually_related_to` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/backoff.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L10"
+source_file: 'src/offline/outbox/backoff.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # nextAttemptDelayMs()
 
 ## Connections
+
 - [[backoff.ts]] - `contains` [EXTRACTED]
 - [[nextAttemptAt()]] - `calls` [EXTRACTED]
 

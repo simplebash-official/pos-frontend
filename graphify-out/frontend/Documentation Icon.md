@@ -1,8 +1,8 @@
 ---
-source_file: "public/icons.svg"
-type: "image"
-community: "Bluesky Icon"
-location: "symbol#documentation-icon (line 9-13)"
+source_file: 'public/icons.svg'
+type: 'image'
+community: 'Bluesky Icon'
+location: 'symbol#documentation-icon (line 9-13)'
 tags:
   - graphify/image
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # Documentation Icon
 
 ## Connections
+
 - [[GitHub Icon]] - `related_to` [INFERRED]
 - [[icons.svg (SocialDoc Icon Sprite Sheet)]] - `references` [EXTRACTED]
 

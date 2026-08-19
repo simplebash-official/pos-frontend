@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/BankDetailsSection.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L23"
+source_file: 'src/features/settings/components/sections/BankDetailsSection.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L23'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BankDetailsSection()
 
 ## Connections
+
 - [[BankDetailsSection.tsx]] - `contains` [EXTRACTED]
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[selectPrintSettings()]] - `indirect_call` [INFERRED]

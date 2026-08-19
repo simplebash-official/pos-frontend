@@ -10,9 +10,10 @@ members: 33
 **Members:** 33 nodes
 
 ## Members
+
 - [[CUSTOMER_SEARCH_FIELDS]] - code - src/shared/lib/searchFields.ts
 - [[EntitySearchResult]] - code - src/shared/hooks/useEntitySearch.ts
-- [[FIELDS]] - code - src/shared/lib/__tests__/search.test.ts
+- [[FIELDS]] - code - src/shared/lib/**tests**/search.test.ts
 - [[GlobalQuickSearchModal.tsx]] - code - src/shared/components/GlobalQuickSearchModal.tsx
 - [[IndexedField]] - code - src/shared/lib/search.ts
 - [[MatchRange]] - code - src/shared/lib/search.ts
@@ -20,7 +21,7 @@ members: 33
 - [[PRODUCT_SEARCH_FIELDS]] - code - src/shared/lib/searchFields.ts
 - [[QuickSearchResult]] - code - src/shared/components/GlobalQuickSearchModal.tsx
 - [[REPAIR_JOB_SEARCH_FIELDS]] - code - src/shared/lib/searchFields.ts
-- [[Row]] - code - src/shared/lib/__tests__/search.test.ts
+- [[Row]] - code - src/shared/lib/**tests**/search.test.ts
 - [[SearchEntry]] - code - src/shared/lib/search.ts
 - [[SearchField]] - code - src/shared/lib/search.ts
 - [[SearchFieldKind]] - code - src/shared/lib/search.ts
@@ -35,9 +36,9 @@ members: 33
 - [[mergeByCategory()]] - code - src/shared/components/GlobalQuickSearchModal.tsx
 - [[normalizeDigits()]] - code - src/shared/lib/search.ts
 - [[normalizeText()]] - code - src/shared/lib/search.ts
-- [[run()]] - code - src/shared/lib/__tests__/search.test.ts
+- [[run()]] - code - src/shared/lib/**tests**/search.test.ts
 - [[scoreEntry()]] - code - src/shared/lib/search.ts
-- [[search.test.ts]] - code - src/shared/lib/__tests__/search.test.ts
+- [[search.test.ts]] - code - src/shared/lib/**tests**/search.test.ts
 - [[search.ts]] - code - src/shared/lib/search.ts
 - [[searchFields.ts]] - code - src/shared/lib/searchFields.ts
 - [[searchIndex]] - code - src/shared/lib/search.ts
@@ -52,6 +53,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 20 edges to [[_COMMUNITY_Billing - CartLineItem]]
 - 12 edges to [[_COMMUNITY_Billing - fetchInvoices]]
 - 11 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
@@ -71,6 +73,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Shared UI - activeScopes]]
 
 ## Top bridge nodes
+
 - [[searchFields.ts]] - degree 34, connects to 13 communities
 - [[GlobalQuickSearchModal.tsx]] - degree 33, connects to 10 communities
 - [[useEntitySearch.ts]] - degree 20, connects to 7 communities

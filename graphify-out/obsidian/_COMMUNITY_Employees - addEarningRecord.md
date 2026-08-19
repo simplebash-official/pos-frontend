@@ -10,6 +10,7 @@ members: 20
 **Members:** 20 nodes
 
 ## Members
+
 - [[BackendPrintJob]] - code - src/features/print-jobs/api/printJobsApi.ts
 - [[BackendRepair]] - code - src/features/repairs/api/repairsApi.ts
 - [[PrintJobListResponseData]] - code - src/features/print-jobs/api/printJobsApi.ts
@@ -39,6 +40,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_Employees - JOB STATUS]]
 - 8 edges to [[_COMMUNITY_Repairs - InvoicesList]]
 - 8 edges to [[_COMMUNITY_Billing - CartLineItem]]
@@ -51,6 +53,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - fetchInvoices]]
 
 ## Top bridge nodes
+
 - [[repairsApi.ts]] - degree 24, connects to 9 communities
 - [[printJobsApi.ts]] - degree 24, connects to 8 communities
 - [[addEarningRecord()]] - degree 7, connects to 2 communities

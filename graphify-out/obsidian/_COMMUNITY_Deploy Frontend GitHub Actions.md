@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[Deploy Frontend GitHub Actions Workflow]] - code - .github/workflows/deploy.yml
 
 ## Live Query (requires Dataview plugin)

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "Billing - BackendInvoice"
-location: "L174"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'Billing - BackendInvoice'
+location: 'L174'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toInvoice()
 
 ## Connections
+
 - [[completeSale()]] - `calls` [EXTRACTED]
 - [[fetchInvoiceById()]] - `calls` [EXTRACTED]
 - [[fetchInvoices()]] - `indirect_call` [INFERRED]

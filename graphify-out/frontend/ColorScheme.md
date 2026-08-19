@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/themeSlice.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L4"
+source_file: 'src/store/slices/themeSlice.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L4'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ColorScheme
 
 ## Connections
+
 - [[colorSchemeManager.ts]] - `imports` [EXTRACTED]
 - [[themeSlice.ts]] - `contains` [EXTRACTED]
 

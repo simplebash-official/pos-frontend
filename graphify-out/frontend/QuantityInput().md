@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/QuantityInput.tsx"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L20"
+source_file: 'src/shared/components/QuantityInput.tsx'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # QuantityInput()
 
 ## Connections
+
 - [[CartLineItem.tsx]] - `imports` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[QuantityInput.tsx]] - `contains` [EXTRACTED]

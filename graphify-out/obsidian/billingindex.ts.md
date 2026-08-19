@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/index.ts"
-type: "code"
-community: "Billing - BackendInvoice"
-location: "L1"
+source_file: 'src/features/billing/index.ts'
+type: 'code'
+community: 'Billing - BackendInvoice'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # billing/index.ts
 
 ## Connections
+
 - [[BillingCounter]] - `imports_from` [EXTRACTED]
 - [[BillingCounter()]] - `re_exports` [EXTRACTED]
 - [[BillingCounter.tsx]] - `re_exports` [EXTRACTED]

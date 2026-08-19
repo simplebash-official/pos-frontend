@@ -1,8 +1,8 @@
 ---
-source_file: "tsconfig.json"
-type: "code"
-community: "DOM"
-location: "L24"
+source_file: 'tsconfig.json'
+type: 'code'
+community: 'DOM'
+location: 'L24'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # noUnusedLocals
 
 ## Connections
+
 - [[compilerOptions]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/DOM

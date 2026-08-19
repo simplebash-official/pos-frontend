@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/suppliers/components/SupplierList.tsx"
-type: "code"
-community: "Suppliers - useSetSupplierLinks"
-location: "L1"
+source_file: 'src/features/suppliers/components/SupplierList.tsx'
+type: 'code'
+community: 'Suppliers - useSetSupplierLinks'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SupplierList.tsx
 
 ## Connections
+
 - [[Column]] - `imports` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]

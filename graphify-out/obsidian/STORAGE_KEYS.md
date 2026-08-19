@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/storage.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L1"
+source_file: 'src/constants/storage.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # STORAGE_KEYS
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[authSlice.ts]] - `imports` [EXTRACTED]
 - [[cartSlice.ts]] - `imports` [EXTRACTED]

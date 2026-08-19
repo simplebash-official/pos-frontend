@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/KeyboardShortcutsModal.tsx"
-type: "code"
-community: "Billing - ROUTE TITLES"
-location: "L1"
+source_file: 'src/features/billing/components/KeyboardShortcutsModal.tsx'
+type: 'code'
+community: 'Billing - ROUTE TITLES'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # KeyboardShortcutsModal.tsx
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[KeyboardShortcutsModal()]] - `contains` [EXTRACTED]
 - [[KeyboardShortcutsModalProps]] - `contains` [EXTRACTED]

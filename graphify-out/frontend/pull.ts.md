@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/pull.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L1"
+source_file: 'src/offline/engine/pull.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pull.ts
 
 ## Connections
+
 - [[AnySyncResource]] - `imports` [EXTRACTED]
 - [[CursorInvalidError]] - `imports` [EXTRACTED]
 - [[PullPage]] - `imports` [EXTRACTED]

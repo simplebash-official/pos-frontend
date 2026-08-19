@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/onlineManagerBridge.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L1"
+source_file: 'src/offline/connectivity/onlineManagerBridge.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # onlineManagerBridge.ts
 
 ## Connections
+
 - [[ConnectivityMonitor]] - `imports` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[providers.tsx]] - `imports_from` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/maintenance.ts"
-type: "code"
-community: "Offline Sync - STORAGE"
-location: "L1"
+source_file: 'src/offline/db/maintenance.ts'
+type: 'code'
+community: 'Offline Sync - STORAGE'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # maintenance.ts
 
 ## Connections
+
 - [[ClearLocalDataOptions]] - `contains` [EXTRACTED]
 - [[MIRROR_TABLE_NAMES]] - `imports` [EXTRACTED]
 - [[STORAGE_QUOTA_WARN_RATIO]] - `imports` [EXTRACTED]

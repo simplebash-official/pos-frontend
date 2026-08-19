@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncStatusBadge.tsx"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L28"
+source_file: 'src/features/sync/components/SyncStatusBadge.tsx'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L28'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncStatusBadge()
 
 ## Connections
+
 - [[Header.tsx]] - `imports` [EXTRACTED]
 - [[SyncStatusBadge.tsx]] - `contains` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]

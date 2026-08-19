@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L143"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L143'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resetCartState()
 
 ## Connections
+
 - [[cartSlice]] - `calls` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 

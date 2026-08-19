@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/tables.ts"
-type: "code"
-community: "Inventory - StockMovement"
-location: "L34"
+source_file: 'src/offline/db/tables.ts'
+type: 'code'
+community: 'Inventory - StockMovement'
+location: 'L34'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OutboxStatus
 
 ## Connections
+
 - [[PendingOperationsList.tsx]] - `imports` [EXTRACTED]
 - [[outbox.ts]] - `imports` [EXTRACTED]
 - [[tables.ts]] - `contains` [EXTRACTED]

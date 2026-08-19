@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/ui.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L11"
+source_file: 'src/constants/ui.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SKELETON_WIDTH_PATTERN
 
 ## Connections
+
 - [[ui.ts]] - `contains` [EXTRACTED]
 - [[utils.ts]] - `imports` [EXTRACTED]
 

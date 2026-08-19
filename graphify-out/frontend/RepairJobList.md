@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/router.tsx"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L21"
+source_file: 'src/app/router.tsx'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RepairJobList
 
 ## Connections
+
 - [[repairsindex.ts]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 

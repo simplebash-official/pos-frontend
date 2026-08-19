@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/ServiceJobPickerModal.tsx"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L71"
+source_file: 'src/features/billing/components/ServiceJobPickerModal.tsx'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L71'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ServiceJobPickerModal()
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[ServiceJobPickerModal.tsx]] - `contains` [EXTRACTED]
 - [[fetchPrintJobs()]] - `indirect_call` [INFERRED]

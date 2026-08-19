@@ -10,6 +10,7 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
+
 - [[vite-plugin-pwa]] - code - package.json
 - [[vite-plugin-pwa_1]] - concept - package.json
 
@@ -21,7 +22,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 1 edge to [[_COMMUNITY_Dependencies - eslint]]
 
 ## Top bridge nodes
+
 - [[vite-plugin-pwa]] - degree 2, connects to 1 community

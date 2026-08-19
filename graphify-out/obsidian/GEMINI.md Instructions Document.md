@@ -1,7 +1,7 @@
 ---
-source_file: "GEMINI.md"
-type: "document"
-community: "GEMINI md Instructions Document"
+source_file: 'GEMINI.md'
+type: 'document'
+community: 'GEMINI md Instructions Document'
 tags:
   - graphify/document
   - graphify/EXTRACTED

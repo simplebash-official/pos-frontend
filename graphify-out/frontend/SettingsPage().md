@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/SettingsPage.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L36"
+source_file: 'src/features/settings/components/SettingsPage.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L36'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SettingsPage()
 
 ## Connections
+
 - [[SettingsPage.tsx]] - `contains` [EXTRACTED]
 - [[renderSection()]] - `calls` [EXTRACTED]
 - [[settingsindex.ts]] - `re_exports` [EXTRACTED]

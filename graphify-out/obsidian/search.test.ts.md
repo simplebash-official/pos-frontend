@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/__tests__/search.test.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L1"
+source_file: 'src/shared/lib/__tests__/search.test.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # search.test.ts
 
 ## Connections
+
 - [[FIELDS]] - `contains` [EXTRACTED]
 - [[Row]] - `contains` [EXTRACTED]
 - [[SearchField]] - `imports` [EXTRACTED]

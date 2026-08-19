@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/components/mobile/MobileLoginForm.tsx"
-type: "code"
-community: "Auth - EmailLoginScreen"
-location: "L1"
+source_file: 'src/features/auth/components/mobile/MobileLoginForm.tsx'
+type: 'code'
+community: 'Auth - EmailLoginScreen'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MobileLoginForm.tsx
 
 ## Connections
+
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[MobileAuthContainer.tsx]] - `imports_from` [EXTRACTED]
 - [[MobileLoginForm()]] - `contains` [EXTRACTED]

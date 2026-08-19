@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useLiveQuery.ts"
-type: "code"
-community: "Offline Sync - depsChanged"
-location: "L21"
+source_file: 'src/offline/react/useLiveQuery.ts'
+type: 'code'
+community: 'Offline Sync - depsChanged'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # depsChanged()
 
 ## Connections
+
 - [[useLiveQuery()]] - `calls` [EXTRACTED]
 - [[useLiveQuery.ts]] - `contains` [EXTRACTED]
 

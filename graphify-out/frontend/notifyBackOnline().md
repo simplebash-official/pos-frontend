@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/lib/syncNotifications.ts"
-type: "code"
-community: "Notifications - clearConnectivityNotification"
-location: "L52"
+source_file: 'src/features/sync/lib/syncNotifications.ts'
+type: 'code'
+community: 'Notifications - clearConnectivityNotification'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # notifyBackOnline()
 
 ## Connections
+
 - [[SyncProvider()]] - `calls` [EXTRACTED]
 - [[SyncProvider.tsx]] - `imports` [EXTRACTED]
 - [[showOrUpdate()]] - `calls` [EXTRACTED]

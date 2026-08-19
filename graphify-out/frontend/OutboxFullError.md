@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/errors.ts"
-type: "code"
-community: "Offline Sync - readServerVersion"
-location: "L77"
+source_file: 'src/offline/errors.ts'
+type: 'code'
+community: 'Offline Sync - readServerVersion'
+location: 'L77'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # OutboxFullError
 
 ## Connections
+
 - [[dot-constructor()_8]] - `method` [EXTRACTED]
 - [[errors.ts]] - `contains` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]

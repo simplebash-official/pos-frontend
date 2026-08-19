@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/session.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L1"
+source_file: 'src/offline/db/session.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # session.ts
 
 ## Connections
+
 - [[AuthUser]] - `imports` [EXTRACTED]
 - [[OFFLINE_SESSION_GRACE_MS]] - `imports` [EXTRACTED]
 - [[SESSION_RECORD_ID]] - `imports` [EXTRACTED]

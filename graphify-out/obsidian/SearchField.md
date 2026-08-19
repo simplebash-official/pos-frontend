@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/search.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L32"
+source_file: 'src/shared/lib/search.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L32'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SearchField
 
 ## Connections
+
 - [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[search.test.ts]] - `imports` [EXTRACTED]
 - [[search.ts]] - `contains` [EXTRACTED]

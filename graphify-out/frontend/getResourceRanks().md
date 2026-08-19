@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/registry/registry.ts"
-type: "code"
-community: "Offline Sync - OutboxError"
-location: "L118"
+source_file: 'src/offline/registry/registry.ts'
+type: 'code'
+community: 'Offline Sync - OutboxError'
+location: 'L118'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getResourceRanks()
 
 ## Connections
+
 - [[claimReadyOperations()]] - `calls` [EXTRACTED]
 - [[getResourcesInDependencyOrder()]] - `calls` [EXTRACTED]
 - [[outbox.ts]] - `imports` [EXTRACTED]

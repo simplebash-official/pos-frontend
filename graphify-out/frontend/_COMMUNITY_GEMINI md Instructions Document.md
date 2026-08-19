@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[GEMINI.md Instructions Document]] - document - GEMINI.md
 
 ## Live Query (requires Dataview plugin)

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/api/productsApi.ts"
-type: "code"
-community: "Inventory - adjustStock"
-location: "L81"
+source_file: 'src/features/inventory/api/productsApi.ts'
+type: 'code'
+community: 'Inventory - adjustStock'
+location: 'L81'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # deleteProducts()
 
 ## Connections
+
 - [[products.resource.ts]] - `imports` [EXTRACTED]
 - [[productsApi.ts]] - `contains` [EXTRACTED]
 - [[productsResource]] - `calls` [EXTRACTED]

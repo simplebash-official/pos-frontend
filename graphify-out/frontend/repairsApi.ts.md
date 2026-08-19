@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/repairs/api/repairsApi.ts"
-type: "code"
-community: "Employees - addEarningRecord"
-location: "L1"
+source_file: 'src/features/repairs/api/repairsApi.ts'
+type: 'code'
+community: 'Employees - addEarningRecord'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # repairsApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendRepair]] - `contains` [EXTRACTED]

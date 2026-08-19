@@ -10,6 +10,7 @@ members: 22
 **Members:** 22 nodes
 
 ## Members
+
 - [[CURRENCY]] - code - src/constants/payment.ts
 - [[Employee]] - code - src/features/employees/types.ts
 - [[EmployeeFormModal()]] - code - src/features/employees/components/EmployeeFormModal.tsx
@@ -41,6 +42,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 24 edges to [[_COMMUNITY_Employees - JOB STATUS]]
 - 17 edges to [[_COMMUNITY_Employees - createEmployee]]
 - 12 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
@@ -64,6 +66,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - fetchPaymentsForInvoice]]
 
 ## Top bridge nodes
+
 - [[money.ts]] - degree 39, connects to 13 communities
 - [[constantsindex.ts]] - degree 27, connects to 12 communities
 - [[EmployeeFormModal.tsx]] - degree 16, connects to 4 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/react/useSyncData.ts"
-type: "code"
-community: "Offline Sync - depsChanged"
-location: "L40"
+source_file: 'src/offline/react/useSyncData.ts'
+type: 'code'
+community: 'Offline Sync - depsChanged'
+location: 'L40'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # usePendingKeys()
 
 ## Connections
+
 - [[useLiveQuery()]] - `calls` [EXTRACTED]
 - [[useSyncData.ts]] - `contains` [EXTRACTED]
 

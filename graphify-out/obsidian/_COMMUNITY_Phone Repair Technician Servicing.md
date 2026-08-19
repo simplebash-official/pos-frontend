@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[Phone Repair Technician Servicing Device]] - concept - src/assets/wall_login.jpg
 
 ## Live Query (requires Dataview plugin)

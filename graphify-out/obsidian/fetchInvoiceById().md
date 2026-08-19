@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/invoicesApi.ts"
-type: "code"
-community: "Billing - BackendInvoice"
-location: "L232"
+source_file: 'src/features/billing/api/invoicesApi.ts'
+type: 'code'
+community: 'Billing - BackendInvoice'
+location: 'L232'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchInvoiceById()
 
 ## Connections
+
 - [[invoicesApi.ts]] - `contains` [EXTRACTED]
 - [[toInvoice()]] - `calls` [EXTRACTED]
 

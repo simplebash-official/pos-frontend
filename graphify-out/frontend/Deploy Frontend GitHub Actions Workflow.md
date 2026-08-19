@@ -1,7 +1,7 @@
 ---
-source_file: ".github/workflows/deploy.yml"
-type: "code"
-community: "Deploy Frontend GitHub Actions"
+source_file: '.github/workflows/deploy.yml'
+type: 'code'
+community: 'Deploy Frontend GitHub Actions'
 tags:
   - graphify/code
   - graphify/EXTRACTED

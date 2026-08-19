@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/index.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L23"
+source_file: 'src/store/index.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L23'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RootState
 
 ## Connections
+
 - [[hooks.ts]] - `imports` [EXTRACTED]
 - [[listenerMiddleware.ts]] - `imports` [EXTRACTED]
 - [[notificationSlice.test.ts]] - `imports` [EXTRACTED]

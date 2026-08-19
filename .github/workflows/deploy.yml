@@ -3,6 +3,26 @@ name: Deploy Frontend
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.agents/**'
+      - '.claude/**'
+      - '.claudeignore'
+      - '.gemini/**'
+      - '.cursor/**'
+      - '.cursorrules'
+      - '.windsurfrules'
+      - '.obsidian/**'
+      - '**/.*.obsidian/**'
+      - 'graphify-out/**'
+      - 'backend-sync-requirements.html'
+      - 'docs/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - '**/.DS_Store'
+      - '.gitattributes'
+      - '.prettierignore'
+      - '.prettierrc'
 
 env:
   DEPLOY_PATH: /opt/jana2u-frontend

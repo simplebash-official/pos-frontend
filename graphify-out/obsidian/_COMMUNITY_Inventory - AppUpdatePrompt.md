@@ -10,6 +10,7 @@ members: 33
 **Members:** 33 nodes
 
 ## Members
+
 - [[AppProvidersProps]] - code - src/app/providers.tsx
 - [[AppShell()]] - code - src/app/layout/AppShell.tsx
 - [[AppUpdatePrompt()]] - code - src/app/components/AppUpdatePrompt.tsx
@@ -52,6 +53,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 25 edges to [[_COMMUNITY_Settings - ACCEPTED TYPES]]
 - 15 edges to [[_COMMUNITY_Auth - RequireAdmin]]
 - 13 edges to [[_COMMUNITY_Billing - ROUTE TITLES]]
@@ -71,6 +73,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - constructor]]
 
 ## Top bridge nodes
+
 - [[useAppSelector]] - degree 60, connects to 11 communities
 - [[providers.tsx]] - degree 27, connects to 7 communities
 - [[HeldCartCatchupNotifier.tsx]] - degree 13, connects to 7 communities

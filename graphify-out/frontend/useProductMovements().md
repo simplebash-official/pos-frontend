@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/hooks/useProducts.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L58"
+source_file: 'src/features/inventory/hooks/useProducts.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L58'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useProductMovements()
 
 ## Connections
+
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[useProducts.ts]] - `contains` [EXTRACTED]

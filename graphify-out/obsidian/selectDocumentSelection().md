@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L515"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L515'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectDocumentSelection()
 
 ## Connections
+
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 - [[useCartCheckout()]] - `indirect_call` [INFERRED]

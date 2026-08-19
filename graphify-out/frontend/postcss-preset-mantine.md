@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - eslint"
-location: "L29"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - eslint'
+location: 'L29'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # postcss-preset-mantine
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[postcss-preset-mantine_1]] - `imports` [EXTRACTED]
 

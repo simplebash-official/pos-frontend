@@ -10,6 +10,7 @@ members: 21
 **Members:** 21 nodes
 
 ## Members
+
 - [[EnrichedLinkedProduct]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
 - [[EnrichedLinkedSupplier]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
 - [[NO_LINKED_PRODUCTS]] - code - src/features/supplier-products/hooks/useSupplierProducts.ts
@@ -40,6 +41,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Purchases - createPurchase]]
 - 9 edges to [[_COMMUNITY_Inventory - ProductTable]]
 - 7 edges to [[_COMMUNITY_Suppliers - createSupplier]]
@@ -59,6 +61,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - OutboxError]]
 
 ## Top bridge nodes
+
 - [[useSupplierProducts.ts]] - degree 28, connects to 9 communities
 - [[supplierProducts.resource.ts]] - degree 27, connects to 6 communities
 - [[markDeleted()]] - degree 12, connects to 6 communities

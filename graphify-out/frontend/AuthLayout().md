@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/components/AuthLayout.tsx"
-type: "code"
-community: "Auth - EmailLoginScreen"
-location: "L11"
+source_file: 'src/features/auth/components/AuthLayout.tsx'
+type: 'code'
+community: 'Auth - EmailLoginScreen'
+location: 'L11'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AuthLayout()
 
 ## Connections
+
 - [[AuthLayout.tsx]] - `contains` [EXTRACTED]
 - [[EmailLoginScreen.tsx]] - `imports` [EXTRACTED]
 - [[authindex.ts]] - `re_exports` [EXTRACTED]

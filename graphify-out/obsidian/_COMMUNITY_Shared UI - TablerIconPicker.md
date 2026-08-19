@@ -10,6 +10,7 @@ members: 49
 **Members:** 49 nodes
 
 ## Members
+
 - [[EMPTY_MAP]] - code - src/shared/lib/tablerIcons.ts
 - [[ICON_SHARD_KEYS]] - code - src/shared/lib/tablerIconShards/index.ts
 - [[ICON_SHARD_LOADERS]] - code - src/shared/lib/tablerIconShards/index.ts
@@ -68,10 +69,12 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Inventory - AddSubcategoryRow]]
 - 1 edge to [[_COMMUNITY_Billing - CartLineItem]]
 
 ## Top bridge nodes
+
 - [[tablerIcons.ts]] - degree 24, connects to 2 communities
 - [[TablerIconPicker.tsx]] - degree 8, connects to 1 community
 - [[useTablerIcons()]] - degree 7, connects to 1 community

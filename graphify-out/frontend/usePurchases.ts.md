@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/hooks/usePurchases.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L1"
+source_file: 'src/features/purchases/hooks/usePurchases.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # usePurchases.ts
 
 ## Connections
+
 - [[EnrichedStockPurchase]] - `imports` [EXTRACTED]
 - [[NO_PURCHASES]] - `contains` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports_from` [EXTRACTED]

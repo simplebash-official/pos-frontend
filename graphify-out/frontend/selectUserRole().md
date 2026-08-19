@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L238"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L238'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectUserRole()
 
 ## Connections
+
 - [[ProductTable()]] - `indirect_call` [INFERRED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[RequireAdmin()]] - `indirect_call` [INFERRED]

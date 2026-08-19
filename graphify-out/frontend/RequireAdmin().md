@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/components/RequireAdmin.tsx"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L12"
+source_file: 'src/app/components/RequireAdmin.tsx'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L12'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RequireAdmin()
 
 ## Connections
+
 - [[RequireAdmin.tsx]] - `contains` [EXTRACTED]
 - [[router.tsx]] - `imports` [EXTRACTED]
 - [[selectUserRole()]] - `indirect_call` [INFERRED]

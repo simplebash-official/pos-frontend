@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/typescript.svg"
-type: "image"
-community: "TypeScript Logo typescript svg"
+source_file: 'src/assets/typescript.svg'
+type: 'image'
+community: 'TypeScript Logo typescript svg'
 tags:
   - graphify/image
   - graphify/EXTRACTED

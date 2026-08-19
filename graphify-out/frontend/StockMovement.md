@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/types.ts"
-type: "code"
-community: "Inventory - StockMovement"
-location: "L107"
+source_file: 'src/features/inventory/types.ts'
+type: 'code'
+community: 'Inventory - StockMovement'
+location: 'L107'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # StockMovement
 
 ## Connections
+
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[SyncedEntityFields]] - `inherits` [EXTRACTED]
 - [[inventorytypes.ts]] - `contains` [EXTRACTED]

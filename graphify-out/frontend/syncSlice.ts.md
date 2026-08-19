@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/syncSlice.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L1"
+source_file: 'src/store/slices/syncSlice.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # syncSlice.ts
 
 ## Connections
+
 - [[ConnectivitySnapshot]] - `imports` [EXTRACTED]
 - [[ModuleSyncStatus]] - `imports` [EXTRACTED]
 - [[ModuleSyncView]] - `imports` [EXTRACTED]

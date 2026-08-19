@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L226"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L226'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .recordFailure()
 
 ## Connections
+
 - [[dot-handleNetworkObservation()]] - `calls` [EXTRACTED]
 - [[dot-runProbe()]] - `calls` [EXTRACTED]
 - [[dot-transitionTo()]] - `calls` [EXTRACTED]

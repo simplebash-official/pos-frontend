@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useResponsive.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L64"
+source_file: 'src/shared/hooks/useResponsive.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L64'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useLayoutTier()
 
 ## Connections
+
 - [[AppShell()]] - `calls` [EXTRACTED]
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[BillingPageSkeleton()]] - `calls` [EXTRACTED]

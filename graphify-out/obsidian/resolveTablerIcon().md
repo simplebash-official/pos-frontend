@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/tablerIcons.ts"
-type: "code"
-community: "Shared UI - TablerIconPicker"
-location: "L108"
+source_file: 'src/shared/lib/tablerIcons.ts'
+type: 'code'
+community: 'Shared UI - TablerIconPicker'
+location: 'L108'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # resolveTablerIcon()
 
 ## Connections
+
 - [[TablerIconPicker()]] - `calls` [EXTRACTED]
 - [[TablerIconPicker.tsx]] - `imports` [EXTRACTED]
 - [[inventoryconstants.ts]] - `imports` [EXTRACTED]

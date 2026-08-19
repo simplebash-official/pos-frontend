@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "concept"
-community: "Dependencies - axios"
-location: "L44"
+source_file: 'package.json'
+type: 'concept'
+community: 'Dependencies - axios'
+location: 'L44'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @mantine/modals
 
 ## Connections
+
 - [[@mantinemodals]] - `imports` [EXTRACTED]
 
 #graphify/concept #graphify/EXTRACTED #community/Dependencies_-_axios

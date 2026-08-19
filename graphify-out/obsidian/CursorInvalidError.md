@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/errors.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L66"
+source_file: 'src/offline/errors.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L66'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CursorInvalidError
 
 ## Connections
+
 - [[dot-constructor()]] - `method` [EXTRACTED]
 - [[errors.ts]] - `contains` [EXTRACTED]
 - [[pull.test.ts]] - `imports` [EXTRACTED]

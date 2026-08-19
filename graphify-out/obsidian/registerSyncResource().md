@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/registry/registry.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L52"
+source_file: 'src/offline/registry/registry.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L52'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # registerSyncResource()
 
 ## Connections
+
 - [[outbox.test.ts]] - `imports` [EXTRACTED]
 - [[pull.test.ts]] - `imports` [EXTRACTED]
 - [[pullTargets.test.ts]] - `imports` [EXTRACTED]

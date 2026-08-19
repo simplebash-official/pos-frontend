@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/components/ReceiveStockModal.tsx"
-type: "code"
-community: "Billing - HeldSalesDrawer"
-location: "L1"
+source_file: 'src/features/purchases/components/ReceiveStockModal.tsx'
+type: 'code'
+community: 'Billing - HeldSalesDrawer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ReceiveStockModal.tsx
 
 ## Connections
+
 - [[ProductPickerModal()]] - `imports` [EXTRACTED]
 - [[ProductPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[ReceiveStockModal()]] - `contains` [EXTRACTED]

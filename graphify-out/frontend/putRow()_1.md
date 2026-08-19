@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/__tests__/outbox.test.ts"
-type: "code"
-community: "Offline Sync - signal"
-location: "L73"
+source_file: 'src/offline/__tests__/outbox.test.ts'
+type: 'code'
+community: 'Offline Sync - signal'
+location: 'L73'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # putRow()
 
 ## Connections
+
 - [[outbox.test.ts]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_signal

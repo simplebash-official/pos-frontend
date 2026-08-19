@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/types.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L262"
+source_file: 'src/offline/types.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L262'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ModuleSyncView
 
 ## Connections
+
 - [[SyncModuleCard.tsx]] - `imports` [EXTRACTED]
 - [[SyncModuleCardProps]] - `references` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]

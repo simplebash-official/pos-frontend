@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/colorSchemeManager.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L9"
+source_file: 'src/store/colorSchemeManager.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L9'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toMantineScheme()
 
 ## Connections
+
 - [[colorSchemeManager.ts]] - `contains` [EXTRACTED]
 - [[createReduxColorSchemeManager()]] - `calls` [EXTRACTED]
 

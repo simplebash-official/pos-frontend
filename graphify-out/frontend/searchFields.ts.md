@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/searchFields.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L1"
+source_file: 'src/shared/lib/searchFields.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # searchFields.ts
 
 ## Connections
+
 - [[CUSTOMER_SEARCH_FIELDS]] - `contains` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Customer]] - `imports` [EXTRACTED]

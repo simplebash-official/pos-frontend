@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[Vite Logo (vite.svg)]] - image - src/assets/vite.svg
 
 ## Live Query (requires Dataview plugin)

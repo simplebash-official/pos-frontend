@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/audio.ts"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L21"
+source_file: 'src/features/billing/lib/audio.ts'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # playScanSuccessSound()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/SegmentedToggle.tsx"
-type: "code"
-community: "Shared UI - EntityListPage"
-location: "L1"
+source_file: 'src/shared/components/SegmentedToggle.tsx'
+type: 'code'
+community: 'Shared UI - EntityListPage'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SegmentedToggle.tsx
 
 ## Connections
+
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]
 - [[DiscountPopover.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports_from` [EXTRACTED]

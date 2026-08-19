@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/hooks/useCart.ts"
-type: "code"
-community: "Billing - Header"
-location: "L250"
+source_file: 'src/features/billing/hooks/useCart.ts'
+type: 'code'
+community: 'Billing - Header'
+location: 'L250'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCartSound()
 
 ## Connections
+
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CatalogPanel]] - `calls` [EXTRACTED]

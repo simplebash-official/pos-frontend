@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/settingsSlice.ts"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L165"
+source_file: 'src/store/slices/settingsSlice.ts'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L165'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectPrintSettings()
 
 ## Connections
+
 - [[BankDetailsSection()]] - `indirect_call` [INFERRED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `indirect_call` [INFERRED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/date.ts"
-type: "code"
-community: "Billing - fetchInvoices"
-location: "L6"
+source_file: 'src/shared/lib/date.ts'
+type: 'code'
+community: 'Billing - fetchInvoices'
+location: 'L6'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # formatDate()
 
 ## Connections
+
 - [[CustomerFormContent()]] - `calls` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]

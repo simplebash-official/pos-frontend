@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/api/customersApi.ts"
-type: "code"
-community: "Customers - createCustomer"
-location: "L1"
+source_file: 'src/features/customers/api/customersApi.ts'
+type: 'code'
+community: 'Customers - createCustomer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # customersApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[Customer]] - `imports` [EXTRACTED]

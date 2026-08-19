@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/categoryIcons.ts"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L37"
+source_file: 'src/features/billing/lib/categoryIcons.ts'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L37'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getCategoryIconInfo()
 
 ## Connections
+
 - [[CartLineItem]] - `calls` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports` [EXTRACTED]
 - [[CatalogPanel]] - `calls` [EXTRACTED]

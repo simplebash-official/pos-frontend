@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "rationale"
-community: "Integer Cents Money Representation"
+source_file: 'CLAUDE.md'
+type: 'rationale'
+community: 'Integer Cents Money Representation'
 tags:
   - graphify/rationale
   - graphify/EXTRACTED

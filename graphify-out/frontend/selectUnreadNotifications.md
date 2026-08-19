@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/notificationSlice.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L66"
+source_file: 'src/store/slices/notificationSlice.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L66'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectUnreadNotifications
 
 ## Connections
+
 - [[notificationSlice.test.ts]] - `imports` [EXTRACTED]
 - [[notificationSlice.ts]] - `contains` [EXTRACTED]
 

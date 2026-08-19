@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/PageHeader.tsx"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L4"
+source_file: 'src/shared/components/PageHeader.tsx'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L4'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PageHeaderProps
 
 ## Connections
+
 - [[PageHeader.tsx]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList

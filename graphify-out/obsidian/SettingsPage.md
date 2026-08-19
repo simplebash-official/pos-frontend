@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/router.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L42"
+source_file: 'src/app/router.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L42'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SettingsPage
 
 ## Connections
+
 - [[router.tsx]] - `contains` [EXTRACTED]
 - [[settingsindex.ts]] - `imports_from` [EXTRACTED]
 

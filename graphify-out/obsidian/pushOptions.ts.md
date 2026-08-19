@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/pushOptions.ts"
-type: "code"
-community: "Customers - createCustomer"
-location: "L1"
+source_file: 'src/offline/resources/pushOptions.ts'
+type: 'code'
+community: 'Customers - createCustomer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # pushOptions.ts
 
 ## Connections
+
 - [[MutationRequestOptions]] - `imports` [EXTRACTED]
 - [[PushContext]] - `imports` [EXTRACTED]
 - [[categories.resource.ts]] - `imports_from` [EXTRACTED]

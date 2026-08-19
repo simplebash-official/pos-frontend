@@ -10,6 +10,7 @@ members: 72
 **Members:** 72 nodes
 
 ## Members
+
 - [[dot-checkNow()]] - code - src/offline/connectivity/ConnectivityMonitor.ts
 - [[dot-clearProbeTimer()]] - code - src/offline/connectivity/ConnectivityMonitor.ts
 - [[dot-clearSettleTimer()]] - code - src/offline/connectivity/ConnectivityMonitor.ts
@@ -91,6 +92,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Offline Sync - start]]
 - 7 edges to [[_COMMUNITY_Settings - SyncDrawer]]
 - 7 edges to [[_COMMUNITY_Offline Sync - OutboxError]]
@@ -118,6 +120,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Inventory - AppUpdatePrompt]]
 
 ## Top bridge nodes
+
 - [[client.ts]] - degree 37, connects to 16 communities
 - [[offlineconstants.ts]] - degree 42, connects to 9 communities
 - [[ConnectivityMonitor.ts]] - degree 25, connects to 7 communities

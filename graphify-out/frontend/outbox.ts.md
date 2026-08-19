@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Offline Sync - OutboxError"
-location: "L1"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Offline Sync - OutboxError'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # outbox.ts
 
 ## Connections
+
 - [[EnqueueInput]] - `contains` [EXTRACTED]
 - [[MIRROR_TABLE_NAMES]] - `imports` [EXTRACTED]
 - [[OUTBOX_CAPACITY]] - `imports` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L29"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L29'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ONLINE_SETTLE_MS
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/CartLineItem.tsx"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L1"
+source_file: 'src/features/billing/components/CartLineItem.tsx'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CartLineItem.tsx
 
 ## Connections
+
 - [[CartItem]] - `imports` [EXTRACTED]
 - [[CartLineItem]] - `contains` [EXTRACTED]
 - [[CartLineItemProps]] - `contains` [EXTRACTED]

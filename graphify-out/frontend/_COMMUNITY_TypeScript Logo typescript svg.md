@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[TypeScript Logo (typescript.svg)]] - image - src/assets/typescript.svg
 
 ## Live Query (requires Dataview plugin)

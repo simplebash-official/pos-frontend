@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/localStorageStore.ts"
-type: "code"
-community: "Employees - createEmployee"
-location: "L48"
+source_file: 'src/shared/lib/localStorageStore.ts'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L48'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # .getAll()
 
 ## Connections
+
 - [[LocalStorageStore]] - `method` [EXTRACTED]
 - [[fetchEmployeeEarnings()]] - `calls` [INFERRED]
 - [[fetchEmployees()]] - `calls` [INFERRED]

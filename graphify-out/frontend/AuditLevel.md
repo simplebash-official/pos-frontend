@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/tables.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L222"
+source_file: 'src/offline/db/tables.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L222'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AuditLevel
 
 ## Connections
+
 - [[auditLog.ts]] - `imports` [EXTRACTED]
 - [[tables.ts]] - `contains` [EXTRACTED]
 

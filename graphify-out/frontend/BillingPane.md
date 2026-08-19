@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/BillingTabBar.tsx"
-type: "code"
-community: "Billing - PAYMENT METHODS"
-location: "L9"
+source_file: 'src/features/billing/components/BillingTabBar.tsx'
+type: 'code'
+community: 'Billing - PAYMENT METHODS'
+location: 'L9'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BillingPane
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[BillingRegionsProps]] - `references` [EXTRACTED]

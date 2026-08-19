@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/api/printLogStore.ts"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L1"
+source_file: 'src/features/invoices/api/printLogStore.ts'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # printLogStore.ts
 
 ## Connections
+
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[LocalStorageStore]] - `imports` [EXTRACTED]

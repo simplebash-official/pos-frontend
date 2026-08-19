@@ -1,7 +1,7 @@
 ---
-source_file: "public/icons.svg"
-type: "image"
-community: "Bluesky Icon"
+source_file: 'public/icons.svg'
+type: 'image'
+community: 'Bluesky Icon'
 tags:
   - graphify/image
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # icons.svg (Social/Doc Icon Sprite Sheet)
 
 ## Connections
+
 - [[Bluesky Icon]] - `references` [EXTRACTED]
 - [[Discord Icon]] - `references` [EXTRACTED]
 - [[Documentation Icon]] - `references` [EXTRACTED]

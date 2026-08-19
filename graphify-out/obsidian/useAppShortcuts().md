@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/hooks/useShortcuts.ts"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L70"
+source_file: 'src/shared/hooks/useShortcuts.ts'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L70'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useAppShortcuts()
 
 ## Connections
+
 - [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[AppShell()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/types.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L246"
+source_file: 'src/offline/types.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L246'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ModuleSyncStatus
 
 ## Connections
+
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[offlinetypes.ts]] - `contains` [EXTRACTED]
 - [[synctypes.ts]] - `re_exports` [EXTRACTED]

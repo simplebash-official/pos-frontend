@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/syncSlice.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L156"
+source_file: 'src/store/slices/syncSlice.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L156'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectResourceIsSyncing()
 
 ## Connections
+
 - [[selectModuleViews]] - `calls` [EXTRACTED]
 - [[syncSlice.ts]] - `contains` [EXTRACTED]
 - [[useSyncedQuery()]] - `calls` [EXTRACTED]

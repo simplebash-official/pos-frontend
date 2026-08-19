@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/utils.ts"
-type: "code"
-community: "Employees - createEmployee"
-location: "L21"
+source_file: 'src/shared/lib/utils.ts'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getAvatarColor()
 
 ## Connections
+
 - [[CustomerList()]] - `calls` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeList()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/types/common.ts"
-type: "code"
-community: "Auth - EmailLoginScreen"
-location: "L9"
+source_file: 'src/shared/types/common.ts'
+type: 'code'
+community: 'Auth - EmailLoginScreen'
+location: 'L9'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ApiError
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]

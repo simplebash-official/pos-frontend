@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/MoneyInput.tsx"
-type: "code"
-community: "Employees - CURRENCY"
-location: "L10"
+source_file: 'src/shared/components/MoneyInput.tsx'
+type: 'code'
+community: 'Employees - CURRENCY'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MoneyInput()
 
 ## Connections
+
 - [[MoneyInput.tsx]] - `contains` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[fromCents()]] - `calls` [EXTRACTED]

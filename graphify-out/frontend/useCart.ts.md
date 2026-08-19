@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/hooks/useCart.ts"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L1"
+source_file: 'src/features/billing/hooks/useCart.ts'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCart.ts
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingTabBar.tsx]] - `imports_from` [EXTRACTED]
 - [[CartItem]] - `imports` [EXTRACTED]

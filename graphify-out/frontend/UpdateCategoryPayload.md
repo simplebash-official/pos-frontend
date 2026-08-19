@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/categories.resource.ts"
-type: "code"
-community: "Inventory - createCategory"
-location: "L17"
+source_file: 'src/offline/resources/categories.resource.ts'
+type: 'code'
+community: 'Inventory - createCategory'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # UpdateCategoryPayload
 
 ## Connections
+
 - [[CategoryInput]] - `references` [EXTRACTED]
 - [[categories.resource.ts]] - `contains` [EXTRACTED]
 - [[useCategories.ts]] - `imports` [EXTRACTED]

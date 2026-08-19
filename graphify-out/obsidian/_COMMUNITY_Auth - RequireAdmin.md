@@ -10,6 +10,7 @@ members: 36
 **Members:** 36 nodes
 
 ## Members
+
 - [[AuthInitializer()]] - code - src/app/providers.tsx
 - [[AuthState]] - code - src/store/slices/authSlice.ts
 - [[AuthUser]] - code - src/features/auth/types.ts
@@ -55,6 +56,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 15 edges to [[_COMMUNITY_Inventory - AppUpdatePrompt]]
 - 8 edges to [[_COMMUNITY_Auth - EmailLoginScreen]]
 - 7 edges to [[_COMMUNITY_Billing - ROUTE TITLES]]
@@ -75,6 +77,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications - clearConnectivityNotification]]
 
 ## Top bridge nodes
+
 - [[authSlice.ts]] - degree 48, connects to 11 communities
 - [[RequireAdmin.tsx]] - degree 11, connects to 4 communities
 - [[roles.ts]] - degree 11, connects to 4 communities

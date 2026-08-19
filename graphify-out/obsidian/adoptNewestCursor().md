@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/pull.ts"
-type: "code"
-community: "Offline Sync - start"
-location: "L95"
+source_file: 'src/offline/engine/pull.ts'
+type: 'code'
+community: 'Offline Sync - start'
+location: 'L95'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # adoptNewestCursor()
 
 ## Connections
+
 - [[describeError()]] - `calls` [EXTRACTED]
 - [[fetchNewestCursors()]] - `calls` [EXTRACTED]
 - [[fullRefresh()]] - `calls` [EXTRACTED]

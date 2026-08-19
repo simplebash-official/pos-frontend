@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/schema.ts"
-type: "code"
-community: "Inventory - StockMovement"
-location: "L1"
+source_file: 'src/offline/db/schema.ts'
+type: 'code'
+community: 'Inventory - StockMovement'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # schema.ts
 
 ## Connections
+
 - [[AuditEvent]] - `imports` [EXTRACTED]
 - [[Category]] - `imports` [EXTRACTED]
 - [[ConflictRecord]] - `imports` [EXTRACTED]

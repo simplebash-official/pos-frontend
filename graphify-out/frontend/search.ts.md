@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/search.ts"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L1"
+source_file: 'src/shared/lib/search.ts'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # search.ts
 
 ## Connections
+
 - [[GlobalQuickSearchModal.tsx]] - `imports_from` [EXTRACTED]
 - [[IndexedField]] - `contains` [EXTRACTED]
 - [[MatchRange]] - `contains` [EXTRACTED]

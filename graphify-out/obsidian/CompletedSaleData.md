@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "Billing - BackendInvoice"
-location: "L35"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'Billing - BackendInvoice'
+location: 'L35'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CompletedSaleData
 
 ## Connections
+
 - [[Invoice]] - `references` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 

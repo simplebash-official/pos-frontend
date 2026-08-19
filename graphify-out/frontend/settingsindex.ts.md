@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/index.ts"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L1"
+source_file: 'src/features/settings/index.ts'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # settings/index.ts
 
 ## Connections
+
 - [[SettingsPage]] - `imports_from` [EXTRACTED]
 - [[SettingsPage()]] - `re_exports` [EXTRACTED]
 - [[SettingsPage.tsx]] - `re_exports` [EXTRACTED]

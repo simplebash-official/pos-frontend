@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/components/AppUpdatePrompt.tsx"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L1"
+source_file: 'src/app/components/AppUpdatePrompt.tsx'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AppUpdatePrompt.tsx
 
 ## Connections
+
 - [[AppUpdatePrompt()]] - `contains` [EXTRACTED]
 - [[cartSlice.ts]] - `imports_from` [EXTRACTED]
 - [[hooks.ts]] - `imports_from` [EXTRACTED]

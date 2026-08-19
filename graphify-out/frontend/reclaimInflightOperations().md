@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Offline Sync - signal"
-location: "L99"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Offline Sync - signal'
+location: 'L99'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # reclaimInflightOperations()
 
 ## Connections
+
 - [[dot-startLoops()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[outbox.test.ts]] - `imports` [EXTRACTED]

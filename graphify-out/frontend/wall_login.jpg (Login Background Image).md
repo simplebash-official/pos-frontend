@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/wall_login.jpg"
-type: "image"
-community: "wall login jpg Login"
+source_file: 'src/assets/wall_login.jpg'
+type: 'image'
+community: 'wall login jpg Login'
 tags:
   - graphify/image
   - graphify/EXTRACTED

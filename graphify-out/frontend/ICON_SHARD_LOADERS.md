@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/tablerIconShards/index.ts"
-type: "code"
-community: "Shared UI - TablerIconPicker"
-location: "L3"
+source_file: 'src/shared/lib/tablerIconShards/index.ts'
+type: 'code'
+community: 'Shared UI - TablerIconPicker'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ICON_SHARD_LOADERS
 
 ## Connections
+
 - [[tablerIconShardsindex.ts]] - `contains` [EXTRACTED]
 - [[tablerIcons.ts]] - `imports` [EXTRACTED]
 

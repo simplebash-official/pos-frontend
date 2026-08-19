@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/hooks/usePurchases.ts"
-type: "code"
-community: "Inventory - ProductTable"
-location: "L17"
+source_file: 'src/features/purchases/hooks/usePurchases.ts'
+type: 'code'
+community: 'Inventory - ProductTable'
+location: 'L17'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # enrich()
 
 ## Connections
+
 - [[usePurchases.ts]] - `contains` [EXTRACTED]
 - [[usePurchasesByProduct()]] - `calls` [EXTRACTED]
 - [[usePurchasesBySupplier()]] - `calls` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/hooks/useCustomers.ts"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L44"
+source_file: 'src/features/customers/hooks/useCustomers.ts'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L44'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCreateCustomer()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CustomerList()]] - `calls` [EXTRACTED]

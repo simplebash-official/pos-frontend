@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/typescript.svg"
-type: "concept"
-community: "TypeScript Language/Technology"
+source_file: 'src/assets/typescript.svg'
+type: 'concept'
+community: 'TypeScript Language/Technology'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

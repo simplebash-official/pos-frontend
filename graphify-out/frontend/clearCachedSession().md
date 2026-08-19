@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/session.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L20"
+source_file: 'src/offline/db/session.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # clearCachedSession()
 
 ## Connections
+
 - [[authSlice.ts]] - `imports` [EXTRACTED]
 - [[readCachedSession()]] - `calls` [EXTRACTED]
 - [[session.ts]] - `contains` [EXTRACTED]

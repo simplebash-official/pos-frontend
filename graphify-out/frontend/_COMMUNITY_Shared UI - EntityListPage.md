@@ -10,6 +10,7 @@ members: 6
 **Members:** 6 nodes
 
 ## Members
+
 - [[EntityListPage()]] - code - src/shared/components/EntityListPage.tsx
 - [[EntityListPage.tsx]] - code - src/shared/components/EntityListPage.tsx
 - [[EntityListPageProps]] - code - src/shared/components/EntityListPage.tsx
@@ -25,6 +26,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 4 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 4 edges to [[_COMMUNITY_Repairs - InvoicesList]]
 - 4 edges to [[_COMMUNITY_Billing - PAYMENT METHODS]]
@@ -38,6 +40,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Settings - ACCEPTED TYPES]]
 
 ## Top bridge nodes
+
 - [[SegmentedToggle.tsx]] - degree 13, connects to 7 communities
 - [[SegmentedToggle()]] - degree 12, connects to 7 communities
 - [[EntityListPage.tsx]] - degree 13, connects to 5 communities

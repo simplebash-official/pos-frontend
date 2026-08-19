@@ -10,6 +10,7 @@ members: 27
 **Members:** 27 nodes
 
 ## Members
+
 - [[ApiEnvelope]] - code - src/offline/resources/syncApi.ts
 - [[PULL_PAGE_LIMIT]] - code - src/offline/constants.ts
 - [[ResourceSyncStatus]] - code - src/offline/resources/syncApi.ts
@@ -25,7 +26,7 @@ members: 27
 - [[fetchResourceSnapshotPage()]] - code - src/offline/resources/syncApi.ts
 - [[fetchSyncChanges()]] - code - src/offline/resources/syncApi.ts
 - [[isCursorInvalid()]] - code - src/offline/resources/syncApi.ts
-- [[mockStatus()]] - code - src/offline/__tests__/pullTargets.test.ts
+- [[mockStatus()]] - code - src/offline/**tests**/pullTargets.test.ts
 - [[purchases.resource.ts]] - code - src/offline/resources/purchases.resource.ts
 - [[purchasesResource]] - code - src/offline/resources/purchases.resource.ts
 - [[readChanges()]] - code - src/offline/resources/syncApi.ts
@@ -46,6 +47,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 20 edges to [[_COMMUNITY_Offline Sync - signal]]
 - 12 edges to [[_COMMUNITY_Customers - createCustomer]]
 - 12 edges to [[_COMMUNITY_Inventory - adjustStock]]
@@ -63,6 +65,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_ApiClient]]
 
 ## Top bridge nodes
+
 - [[syncApi.ts]] - degree 35, connects to 10 communities
 - [[resourcesindex.ts]] - degree 18, connects to 7 communities
 - [[toLocalRow()]] - degree 15, connects to 7 communities

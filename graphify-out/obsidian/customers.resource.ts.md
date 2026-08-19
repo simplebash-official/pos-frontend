@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/customers.resource.ts"
-type: "code"
-community: "Customers - createCustomer"
-location: "L1"
+source_file: 'src/offline/resources/customers.resource.ts'
+type: 'code'
+community: 'Customers - createCustomer'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # customers.resource.ts
 
 ## Connections
+
 - [[Customer]] - `imports` [EXTRACTED]
 - [[CustomerInput]] - `imports` [EXTRACTED]
 - [[DeleteCustomerPayload]] - `contains` [EXTRACTED]

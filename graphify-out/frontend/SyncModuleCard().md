@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/components/SyncModuleCard.tsx"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L13"
+source_file: 'src/features/sync/components/SyncModuleCard.tsx'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L13'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SyncModuleCard()
 
 ## Connections
+
 - [[SyncModuleCard.tsx]] - `contains` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]

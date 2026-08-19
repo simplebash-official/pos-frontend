@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/api/authApi.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L18"
+source_file: 'src/features/auth/api/authApi.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # getMeApi()
 
 ## Connections
+
 - [[authApi.ts]] - `contains` [EXTRACTED]
 - [[authSlice.ts]] - `imports` [EXTRACTED]
 

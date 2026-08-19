@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/index.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L1"
+source_file: 'src/store/index.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # store/index.ts
 
 ## Connections
+
 - [[AppDispatch]] - `contains` [EXTRACTED]
 - [[RootState]] - `contains` [EXTRACTED]
 - [[authSlice.ts]] - `imports_from` [EXTRACTED]

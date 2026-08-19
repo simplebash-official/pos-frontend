@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/ShopProfileSection.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L24"
+source_file: 'src/features/settings/components/sections/ShopProfileSection.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L24'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ShopProfileSection()
 
 ## Connections
+
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[ShopProfileSection.tsx]] - `contains` [EXTRACTED]
 - [[selectShopProfile()]] - `indirect_call` [INFERRED]

@@ -10,6 +10,7 @@ members: 36
 **Members:** 36 nodes
 
 ## Members
+
 - [[AdjustStockPayload]] - code - src/offline/resources/products.resource.ts
 - [[BarcodeSource]] - code - src/features/inventory/types.ts
 - [[CreateProductInput]] - code - src/features/inventory/types.ts
@@ -55,6 +56,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 12 edges to [[_COMMUNITY_Inventory - ProductTable]]
 - 12 edges to [[_COMMUNITY_Inventory - AddSubcategoryRow]]
 - 12 edges to [[_COMMUNITY_Purchases - createPurchase]]
@@ -78,6 +80,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - constructor]]
 
 ## Top bridge nodes
+
 - [[inventorytypes.ts]] - degree 34, connects to 10 communities
 - [[products.resource.ts]] - degree 35, connects to 9 communities
 - [[ProductFormModal.tsx]] - degree 26, connects to 8 communities

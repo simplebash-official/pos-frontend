@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/SectionShell.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L20"
+source_file: 'src/features/settings/components/SectionShell.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L20'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SectionShell()
 
 ## Connections
+
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports` [EXTRACTED]
 - [[DocumentTemplatesSection.tsx]] - `imports` [EXTRACTED]

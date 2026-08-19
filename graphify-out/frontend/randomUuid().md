@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/localId.ts"
-type: "code"
-community: "Offline Sync - OutboxError"
-location: "L22"
+source_file: 'src/offline/ids/localId.ts'
+type: 'code'
+community: 'Offline Sync - OutboxError'
+location: 'L22'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # randomUuid()
 
 ## Connections
+
 - [[createIdempotencyKey()]] - `calls` [EXTRACTED]
 - [[createLocalId()]] - `calls` [EXTRACTED]
 - [[deviceId.ts]] - `imports` [EXTRACTED]

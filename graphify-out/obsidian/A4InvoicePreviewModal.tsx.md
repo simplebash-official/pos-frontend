@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/A4InvoicePreviewModal.tsx"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L1"
+source_file: 'src/features/billing/components/A4InvoicePreviewModal.tsx'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # A4InvoicePreviewModal.tsx
 
 ## Connections
+
 - [[A4InvoicePreviewModal()]] - `contains` [EXTRACTED]
 - [[A4InvoicePreviewModalProps]] - `contains` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]

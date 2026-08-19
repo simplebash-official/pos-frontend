@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/maintenance.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L26"
+source_file: 'src/offline/db/maintenance.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L26'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # estimateStorage()
 
 ## Connections
+
 - [[SyncPanel()]] - `calls` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[exportDiagnostics()]] - `calls` [EXTRACTED]

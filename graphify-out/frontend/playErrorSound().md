@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/lib/audio.ts"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L46"
+source_file: 'src/features/billing/lib/audio.ts'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L46'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # playErrorSound()
 
 ## Connections
+
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[audio.ts]] - `contains` [EXTRACTED]

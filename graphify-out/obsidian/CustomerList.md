@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/router.tsx"
-type: "code"
-community: "Billing - SettingsPage"
-location: "L30"
+source_file: 'src/app/router.tsx'
+type: 'code'
+community: 'Billing - SettingsPage'
+location: 'L30'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CustomerList
 
 ## Connections
+
 - [[customersindex.ts]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 

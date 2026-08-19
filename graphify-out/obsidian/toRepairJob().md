@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/repairs/api/repairsApi.ts"
-type: "code"
-community: "Employees - addEarningRecord"
-location: "L65"
+source_file: 'src/features/repairs/api/repairsApi.ts'
+type: 'code'
+community: 'Employees - addEarningRecord'
+location: 'L65'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toRepairJob()
 
 ## Connections
+
 - [[calculateRepairEarnings()]] - `calls` [EXTRACTED]
 - [[createRepairJob()]] - `calls` [EXTRACTED]
 - [[fetchRepairs()]] - `indirect_call` [INFERRED]

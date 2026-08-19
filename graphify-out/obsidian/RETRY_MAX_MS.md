@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L38"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L38'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RETRY_MAX_MS
 
 ## Connections
+
 - [[backoff.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

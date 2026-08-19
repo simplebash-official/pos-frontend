@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/wall_login.jpg"
-type: "concept"
-community: "Repair/Retail Shop POS Domain"
+source_file: 'src/assets/wall_login.jpg'
+type: 'concept'
+community: 'Repair/Retail Shop POS Domain'
 tags:
   - graphify/concept
   - graphify/EXTRACTED

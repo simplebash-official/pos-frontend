@@ -1,7 +1,7 @@
 ---
-source_file: "src/assets/vite.svg"
-type: "image"
-community: "Vite Logo vite svg"
+source_file: 'src/assets/vite.svg'
+type: 'image'
+community: 'Vite Logo vite svg'
 tags:
   - graphify/image
   - graphify/EXTRACTED

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/auth/types.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L3"
+source_file: 'src/features/auth/types.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # AuthUser
 
 ## Connections
+
 - [[SessionRecord]] - `references` [EXTRACTED]
 - [[UserRole]] - `references` [EXTRACTED]
 - [[authtypes.ts]] - `contains` [EXTRACTED]

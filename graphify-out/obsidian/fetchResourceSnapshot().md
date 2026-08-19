@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L181"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L181'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchResourceSnapshot()
 
 ## Connections
+
 - [[purchases.resource.ts]] - `imports` [EXTRACTED]
 - [[purchasesResource]] - `calls` [EXTRACTED]
 - [[stockMovements.resource.ts]] - `imports` [EXTRACTED]

@@ -10,6 +10,7 @@ members: 34
 **Members:** 34 nodes
 
 ## Members
+
 - [[App()]] - code - src/app/App.tsx
 - [[AppProviders()]] - code - src/app/providers.tsx
 - [[BillingCounter]] - code - src/app/router.tsx
@@ -53,6 +54,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 8 edges to [[_COMMUNITY_Inventory - AppUpdatePrompt]]
 - 6 edges to [[_COMMUNITY_Billing - ROUTE TITLES]]
 - 6 edges to [[_COMMUNITY_Repairs - InvoicesList]]
@@ -72,6 +74,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Settings - DEFAULT PRINT]]
 
 ## Top bridge nodes
+
 - [[router.tsx]] - degree 45, connects to 12 communities
 - [[useLayoutTier()]] - degree 14, connects to 7 communities
 - [[settingsindex.ts]] - degree 6, connects to 2 communities

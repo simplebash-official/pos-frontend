@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/tables.ts"
-type: "code"
-community: "Offline Sync - readServerVersion"
-location: "L8"
+source_file: 'src/offline/db/tables.ts'
+type: 'code'
+community: 'Offline Sync - readServerVersion'
+location: 'L8'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MirrorMeta
 
 ## Connections
+
 - [[mirror.ts]] - `imports` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[tables.ts]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/authSlice.ts"
-type: "code"
-community: "Inventory - AppUpdatePrompt"
-location: "L241"
+source_file: 'src/store/slices/authSlice.ts'
+type: 'code'
+community: 'Inventory - AppUpdatePrompt'
+location: 'L241'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectIsAuthInitialized()
 
 ## Connections
+
 - [[GuestOnly()]] - `indirect_call` [INFERRED]
 - [[GuestOnly.tsx]] - `imports` [EXTRACTED]
 - [[RequireAuth()]] - `indirect_call` [INFERRED]

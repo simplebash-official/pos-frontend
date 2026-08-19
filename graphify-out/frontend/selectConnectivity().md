@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/syncSlice.ts"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L74"
+source_file: 'src/store/slices/syncSlice.ts'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L74'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # selectConnectivity()
 
 ## Connections
+
 - [[SyncPanel()]] - `indirect_call` [INFERRED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[SyncStatusBadge()]] - `indirect_call` [INFERRED]

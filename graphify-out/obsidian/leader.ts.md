@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/engine/leader.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L1"
+source_file: 'src/offline/engine/leader.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # leader.ts
 
 ## Connections
+
 - [[LeaderElection]] - `contains` [EXTRACTED]
 - [[SYNC_LEADER_LOCK]] - `imports` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/resources/syncApi.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L126"
+source_file: 'src/offline/resources/syncApi.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L126'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchResourceDelta()
 
 ## Connections
+
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[categoriesResource]] - `calls` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]

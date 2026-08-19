@@ -10,6 +10,7 @@ members: 33
 **Members:** 33 nodes
 
 ## Members
+
 - [[CartItem]] - code - src/store/slices/cartSlice.ts
 - [[CartLineItemProps]] - code - src/features/billing/components/CartLineItem.tsx
 - [[CartState]] - code - src/store/slices/cartSlice.ts
@@ -52,6 +53,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 28 edges to [[_COMMUNITY_Billing - PAYMENT METHODS]]
 - 9 edges to [[_COMMUNITY_Billing - Header]]
 - 8 edges to [[_COMMUNITY_Billing - BackendInvoice]]
@@ -62,6 +64,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 
 ## Top bridge nodes
+
 - [[useCart.ts]] - degree 42, connects to 7 communities
 - [[cartSlice.ts]] - degree 45, connects to 6 communities
 - [[useCartCheckout()]] - degree 12, connects to 5 communities

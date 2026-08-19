@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/PageHeader.tsx"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L10"
+source_file: 'src/shared/components/PageHeader.tsx'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L10'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # PageHeader()
 
 ## Connections
+
 - [[EntityListPage.tsx]] - `imports` [EXTRACTED]
 - [[PageHeader.tsx]] - `contains` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]

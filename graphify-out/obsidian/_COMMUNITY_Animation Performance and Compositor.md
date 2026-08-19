@@ -10,6 +10,7 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
+
 - [[Animation Performance and Compositor Rules]] - rationale - CLAUDE.md
 - [[Center Modals Standard]] - rationale - CLAUDE.md
 - [[Global Scoped Keyboard Shortcuts]] - concept - CLAUDE.md

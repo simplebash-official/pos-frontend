@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/types/common.ts"
-type: "code"
-community: "Billing - MutationRequestOptions"
-location: "L16"
+source_file: 'src/shared/types/common.ts'
+type: 'code'
+community: 'Billing - MutationRequestOptions'
+location: 'L16'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ApiResponse
 
 ## Connections
+
 - [[categoriesApi.ts]] - `imports` [EXTRACTED]
 - [[common.ts]] - `contains` [EXTRACTED]
 - [[customersApi.ts]] - `imports` [EXTRACTED]

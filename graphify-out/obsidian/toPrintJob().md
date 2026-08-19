@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/print-jobs/api/printJobsApi.ts"
-type: "code"
-community: "Employees - addEarningRecord"
-location: "L58"
+source_file: 'src/features/print-jobs/api/printJobsApi.ts'
+type: 'code'
+community: 'Employees - addEarningRecord'
+location: 'L58'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # toPrintJob()
 
 ## Connections
+
 - [[calculatePrintEarnings()]] - `calls` [EXTRACTED]
 - [[createPrintJob()]] - `calls` [EXTRACTED]
 - [[fetchPrintJobs()]] - `indirect_call` [INFERRED]

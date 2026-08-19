@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/moneyFormUtils.ts"
-type: "code"
-community: "Employees - CURRENCY"
-location: "L1"
+source_file: 'src/shared/lib/moneyFormUtils.ts'
+type: 'code'
+community: 'Employees - CURRENCY'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # moneyFormUtils.ts
 
 ## Connections
+
 - [[Employee]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeFormValues]] - `contains` [EXTRACTED]

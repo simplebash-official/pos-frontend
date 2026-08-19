@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/localId.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L51"
+source_file: 'src/offline/ids/localId.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L51'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # isLocalId()
 
 ## Connections
+
 - [[commitSuccess()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]

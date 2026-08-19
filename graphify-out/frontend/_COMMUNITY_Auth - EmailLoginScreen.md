@@ -10,6 +10,7 @@ members: 20
 **Members:** 20 nodes
 
 ## Members
+
 - [[ApiError]] - code - src/shared/types/common.ts
 - [[AuthLayout()]] - code - src/features/auth/components/AuthLayout.tsx
 - [[AuthLayout.tsx]] - code - src/features/auth/components/AuthLayout.tsx
@@ -39,6 +40,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 8 edges to [[_COMMUNITY_Auth - RequireAdmin]]
 - 6 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 6 edges to [[_COMMUNITY_Settings - ACCEPTED TYPES]]
@@ -54,6 +56,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - OutboxError]]
 
 ## Top bridge nodes
+
 - [[ApiError]] - degree 10, connects to 8 communities
 - [[LoginForm.tsx]] - degree 16, connects to 6 communities
 - [[MobileLoginForm.tsx]] - degree 13, connects to 4 communities

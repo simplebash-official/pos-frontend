@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/GlobalQuickSearchModal.tsx"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L70"
+source_file: 'src/shared/components/GlobalQuickSearchModal.tsx'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L70'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # mergeByCategory()
 
 ## Connections
+
 - [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `contains` [EXTRACTED]
 

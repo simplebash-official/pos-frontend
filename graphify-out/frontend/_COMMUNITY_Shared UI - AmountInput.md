@@ -10,6 +10,7 @@ members: 10
 **Members:** 10 nodes
 
 ## Members
+
 - [[AmountInput]] - code - src/shared/components/AmountInput.tsx
 - [[AmountInput.tsx]] - code - src/shared/components/AmountInput.tsx
 - [[AmountInputProps]] - code - src/shared/components/AmountInput.tsx
@@ -29,10 +30,12 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 3 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 2 edges to [[_COMMUNITY_Billing - CartLineItem]]
 - 2 edges to [[_COMMUNITY_Billing - PAYMENT METHODS]]
 
 ## Top bridge nodes
+
 - [[AmountInput.tsx]] - degree 11, connects to 3 communities
 - [[AmountInput]] - degree 5, connects to 3 communities

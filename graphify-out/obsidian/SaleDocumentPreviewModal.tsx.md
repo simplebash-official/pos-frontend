@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/components/SaleDocumentPreviewModal.tsx"
-type: "code"
-community: "Billing - getInvoiceDocument"
-location: "L1"
+source_file: 'src/features/billing/components/SaleDocumentPreviewModal.tsx'
+type: 'code'
+community: 'Billing - getInvoiceDocument'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SaleDocumentPreviewModal.tsx
 
 ## Connections
+
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `imports_from` [EXTRACTED]

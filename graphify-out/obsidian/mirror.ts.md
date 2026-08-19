@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/db/mirror.ts"
-type: "code"
-community: "Offline Sync - readServerVersion"
-location: "L1"
+source_file: 'src/offline/db/mirror.ts'
+type: 'code'
+community: 'Offline Sync - readServerVersion'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # mirror.ts
 
 ## Connections
+
 - [[MirrorMeta]] - `imports` [EXTRACTED]
 - [[MirroredRow]] - `imports` [EXTRACTED]
 - [[UNSYNCED_VERSION]] - `contains` [EXTRACTED]

@@ -10,6 +10,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
+
 - [[POS App Icon  Branding]] - concept - public/icon-512.png
 
 ## Live Query (requires Dataview plugin)

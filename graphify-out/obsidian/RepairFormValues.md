@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/moneyFormUtils.ts"
-type: "code"
-community: "Employees - JOB STATUS"
-location: "L6"
+source_file: 'src/shared/lib/moneyFormUtils.ts'
+type: 'code'
+community: 'Employees - JOB STATUS'
+location: 'L6'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # RepairFormValues
 
 ## Connections
+
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
 - [[RepairJob]] - `references` [EXTRACTED]
 - [[moneyFormUtils.ts]] - `contains` [EXTRACTED]

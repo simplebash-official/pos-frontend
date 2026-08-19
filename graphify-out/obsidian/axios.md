@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - axios"
-location: "L50"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - axios'
+location: 'L50'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # axios
 
 ## Connections
+
 - [[axios_1]] - `imports` [EXTRACTED]
 - [[dependencies]] - `contains` [EXTRACTED]
 

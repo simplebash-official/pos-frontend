@@ -1,7 +1,7 @@
 ---
-source_file: "CLAUDE.md"
-type: "concept"
-community: "Backend Sync, Multiplexed Delta,"
+source_file: 'CLAUDE.md'
+type: 'concept'
+community: 'Backend Sync, Multiplexed Delta,'
 tags:
   - graphify/concept
   - graphify/EXTRACTED
@@ -11,6 +11,7 @@ tags:
 # Redux Toolkit State Architecture
 
 ## Connections
+
 - [[CSS Variable Design Tokens and Dark Mode System]] - `conceptually_related_to` [EXTRACTED]
 - [[Offline-First Dexie Mirror and Outbox Engine]] - `conceptually_related_to` [EXTRACTED]
 

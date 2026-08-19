@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/customers/components/CustomerDetailDrawer.tsx"
-type: "code"
-community: "Billing - fetchInvoices"
-location: "L1"
+source_file: 'src/features/customers/components/CustomerDetailDrawer.tsx'
+type: 'code'
+community: 'Billing - fetchInvoices'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # CustomerDetailDrawer.tsx
 
 ## Connections
+
 - [[Customer]] - `imports` [EXTRACTED]
 - [[CustomerDetailDrawer()]] - `contains` [EXTRACTED]
 - [[CustomerDetailDrawerProps]] - `contains` [EXTRACTED]

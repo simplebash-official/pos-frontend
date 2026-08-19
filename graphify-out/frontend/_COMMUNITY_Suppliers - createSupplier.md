@@ -10,6 +10,7 @@ members: 19
 **Members:** 19 nodes
 
 ## Members
+
 - [[FormContentProps_1]] - code - src/features/suppliers/components/SupplierFormModal.tsx
 - [[Supplier]] - code - src/features/suppliers/types.ts
 - [[SupplierDetailDrawerProps]] - code - src/features/suppliers/components/SupplierDetailDrawer.tsx
@@ -38,6 +39,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 11 edges to [[_COMMUNITY_Suppliers - useSetSupplierLinks]]
 - 9 edges to [[_COMMUNITY_Purchases - createPurchase]]
 - 8 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
@@ -55,6 +57,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - readServerVersion]]
 
 ## Top bridge nodes
+
 - [[suppliers.resource.ts]] - degree 30, connects to 9 communities
 - [[Supplier]] - degree 16, connects to 5 communities
 - [[supplierstypes.ts]] - degree 13, connects to 5 communities

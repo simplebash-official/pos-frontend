@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "Billing - MutationRequestOptions"
-location: "L34"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'Billing - MutationRequestOptions'
+location: 'L34'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # MutationRequestOptions
 
 ## Connections
+
 - [[categoriesApi.ts]] - `imports` [EXTRACTED]
 - [[client.ts]] - `contains` [EXTRACTED]
 - [[customersApi.ts]] - `imports` [EXTRACTED]

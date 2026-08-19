@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/localId.ts"
-type: "code"
-community: "Offline Sync - OutboxError"
-location: "L1"
+source_file: 'src/offline/ids/localId.ts'
+type: 'code'
+community: 'Offline Sync - OutboxError'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # localId.ts
 
 ## Connections
+
 - [[LOCAL_ID_PREFIX]] - `contains` [EXTRACTED]
 - [[createIdempotencyKey()]] - `contains` [EXTRACTED]
 - [[createLocalId()]] - `contains` [EXTRACTED]

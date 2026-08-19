@@ -10,6 +10,7 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
+
 - [[App Entry, Layout Shell, and Router Architecture]] - concept - CLAUDE.md
 - [[Point of Sale System Overview]] - concept - CLAUDE.md
 

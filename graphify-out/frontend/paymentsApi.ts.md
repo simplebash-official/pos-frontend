@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/api/paymentsApi.ts"
-type: "code"
-community: "Billing - MutationRequestOptions"
-location: "L1"
+source_file: 'src/features/billing/api/paymentsApi.ts'
+type: 'code'
+community: 'Billing - MutationRequestOptions'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # paymentsApi.ts
 
 ## Connections
+
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendPaymentRecord]] - `contains` [EXTRACTED]

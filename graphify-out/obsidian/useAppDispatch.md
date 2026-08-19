@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/hooks.ts"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L4"
+source_file: 'src/store/hooks.ts'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L4'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useAppDispatch
 
 ## Connections
+
 - [[BankDetailsSection()]] - `calls` [EXTRACTED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BrandingSection()]] - `calls` [EXTRACTED]

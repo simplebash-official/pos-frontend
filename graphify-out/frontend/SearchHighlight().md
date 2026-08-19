@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/SearchHighlight.tsx"
-type: "code"
-community: "Shared UI - mergeByCategory"
-location: "L18"
+source_file: 'src/shared/components/SearchHighlight.tsx'
+type: 'code'
+community: 'Shared UI - mergeByCategory'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # SearchHighlight()
 
 ## Connections
+
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]

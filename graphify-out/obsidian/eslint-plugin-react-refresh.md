@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - eslint"
-location: "L25"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - eslint'
+location: 'L25'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # eslint-plugin-react-refresh
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[eslint-plugin-react-refresh_1]] - `imports` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/reports/components/ReportsDashboard.tsx"
-type: "code"
-community: "Employees - createEmployee"
-location: "L1"
+source_file: 'src/features/reports/components/ReportsDashboard.tsx'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # ReportsDashboard.tsx
 
 ## Connections
+
 - [[EMPLOYEE_ROLE_LABELS]] - `imports` [EXTRACTED]
 - [[PageHeader()]] - `imports` [EXTRACTED]
 - [[PageHeader.tsx]] - `imports_from` [EXTRACTED]

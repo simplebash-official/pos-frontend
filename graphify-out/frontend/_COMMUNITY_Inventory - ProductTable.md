@@ -10,6 +10,7 @@ members: 26
 **Members:** 26 nodes
 
 ## Members
+
 - [[HEIGHT_MAP]] - code - src/shared/components/QuantityInput.tsx
 - [[NO_MOVEMENTS]] - code - src/features/inventory/hooks/useProducts.ts
 - [[NO_PRODUCTS]] - code - src/features/inventory/hooks/useProducts.ts
@@ -45,6 +46,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 31 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 20 edges to [[_COMMUNITY_Inventory - AddSubcategoryRow]]
 - 15 edges to [[_COMMUNITY_Suppliers - useSetSupplierLinks]]
@@ -68,6 +70,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - ROUTE TITLES]]
 
 ## Top bridge nodes
+
 - [[ProductTable.tsx]] - degree 56, connects to 13 communities
 - [[useProducts.ts]] - degree 36, connects to 11 communities
 - [[useSyncedQuery()]] - degree 22, connects to 9 communities

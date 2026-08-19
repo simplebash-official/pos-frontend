@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/notificationSlice.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L1"
+source_file: 'src/store/slices/notificationSlice.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # notificationSlice.ts
 
 ## Connections
+
 - [[AppNotification]] - `imports` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports_from` [EXTRACTED]

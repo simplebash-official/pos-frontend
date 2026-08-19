@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - eslint"
-location: "L21"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - eslint'
+location: 'L21'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # @vitejs/plugin-react
 
 ## Connections
+
 - [[@vitejsplugin-react_1]] - `imports` [EXTRACTED]
 - [[devDependencies]] - `contains` [EXTRACTED]
 

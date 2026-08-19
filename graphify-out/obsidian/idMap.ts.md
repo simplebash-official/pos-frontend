@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/ids/idMap.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L1"
+source_file: 'src/offline/ids/idMap.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # idMap.ts
 
 ## Connections
+
 - [[AbandonedReferenceError]] - `imports` [EXTRACTED]
 - [[DROP_ELEMENT]] - `contains` [EXTRACTED]
 - [[IdMapRecord]] - `imports` [EXTRACTED]

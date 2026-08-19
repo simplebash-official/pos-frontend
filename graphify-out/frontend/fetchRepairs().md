@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/repairs/api/repairsApi.ts"
-type: "code"
-community: "Billing - CartLineItem"
-location: "L92"
+source_file: 'src/features/repairs/api/repairsApi.ts'
+type: 'code'
+community: 'Billing - CartLineItem'
+location: 'L92'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # fetchRepairs()
 
 ## Connections
+
 - [[CatalogPanel]] - `indirect_call` [INFERRED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CustomerDetailDrawer()]] - `indirect_call` [INFERRED]

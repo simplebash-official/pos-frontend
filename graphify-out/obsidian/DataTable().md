@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/DataTable.tsx"
-type: "code"
-community: "Repairs - InvoicesList"
-location: "L76"
+source_file: 'src/shared/components/DataTable.tsx'
+type: 'code'
+community: 'Repairs - InvoicesList'
+location: 'L76'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # DataTable()
 
 ## Connections
+
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
 - [[DataTable.tsx]] - `contains` [EXTRACTED]
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]

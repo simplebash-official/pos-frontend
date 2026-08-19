@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/purchases/types.ts"
-type: "code"
-community: "Billing - MutationRequestOptions"
-location: "L3"
+source_file: 'src/features/purchases/types.ts'
+type: 'code'
+community: 'Billing - MutationRequestOptions'
+location: 'L3'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # StockPurchase
 
 ## Connections
+
 - [[EnrichedStockPurchase]] - `inherits` [EXTRACTED]
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[SyncedEntityFields]] - `inherits` [EXTRACTED]

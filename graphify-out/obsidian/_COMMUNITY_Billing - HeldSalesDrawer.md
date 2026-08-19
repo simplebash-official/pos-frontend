@@ -10,6 +10,7 @@ members: 37
 **Members:** 37 nodes
 
 ## Members
+
 - [[DEFAULT_SUGGESTED_TAGS]] - code - src/features/suppliers/constants.ts
 - [[DetailDrawer()]] - code - src/shared/components/DetailDrawer.tsx
 - [[DetailDrawer.tsx]] - code - src/shared/components/DetailDrawer.tsx
@@ -56,6 +57,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 31 edges to [[_COMMUNITY_Inventory - ProductTable]]
 - 27 edges to [[_COMMUNITY_Billing - CartLineItem]]
 - 15 edges to [[_COMMUNITY_Billing - fetchInvoices]]
@@ -87,6 +89,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Settings - ACCEPTED TYPES]]
 
 ## Top bridge nodes
+
 - [[useResponsive.tsx]] - degree 51, connects to 21 communities
 - [[useIsMobile()]] - degree 75, connects to 19 communities
 - [[SearchHistoryInput.tsx]] - degree 15, connects to 8 communities

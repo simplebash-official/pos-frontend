@@ -10,6 +10,7 @@ members: 31
 **Members:** 31 nodes
 
 ## Members
+
 - [[dot-getAll()]] - code - src/shared/lib/localStorageStore.ts
 - [[dot-remove()]] - code - src/shared/lib/localStorageStore.ts
 - [[EMPLOYEE_ROLE_LABELS]] - code - src/features/employees/types.ts
@@ -50,6 +51,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 17 edges to [[_COMMUNITY_Employees - CURRENCY]]
 - 13 edges to [[_COMMUNITY_Repairs - InvoicesList]]
 - 12 edges to [[_COMMUNITY_Billing - fetchInvoices]]
@@ -67,6 +69,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Notifications - initialState]]
 
 ## Top bridge nodes
+
 - [[EmployeeList.tsx]] - degree 40, connects to 8 communities
 - [[EmployeeDetailDrawer.tsx]] - degree 22, connects to 5 communities
 - [[utils.ts]] - degree 9, connects to 5 communities

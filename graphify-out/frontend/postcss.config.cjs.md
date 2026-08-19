@@ -1,8 +1,8 @@
 ---
-source_file: "postcss.config.cjs"
-type: "code"
-community: "postcss config cjs"
-location: "L1"
+source_file: 'postcss.config.cjs'
+type: 'code'
+community: 'postcss config cjs'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED

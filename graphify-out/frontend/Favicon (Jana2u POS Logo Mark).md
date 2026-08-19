@@ -1,7 +1,7 @@
 ---
-source_file: "public/favicon.svg"
-type: "image"
-community: "Favicon Jana2u POS Logo"
+source_file: 'public/favicon.svg'
+type: 'image'
+community: 'Favicon Jana2u POS Logo'
 tags:
   - graphify/image
   - graphify/EXTRACTED

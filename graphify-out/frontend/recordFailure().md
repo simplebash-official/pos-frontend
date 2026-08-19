@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L160"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L160'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # recordFailure()
 
 ## Connections
+
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]
 - [[nextAttemptAt()]] - `calls` [EXTRACTED]

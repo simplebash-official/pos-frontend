@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/localStorageStore.ts"
-type: "code"
-community: "Shared UI - LocalStorageStore"
-location: "L4"
+source_file: 'src/shared/lib/localStorageStore.ts'
+type: 'code'
+community: 'Shared UI - LocalStorageStore'
+location: 'L4'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # LocalStorageStore
 
 ## Connections
+
 - [[dot-add()]] - `method` [EXTRACTED]
 - [[dot-constructor()_1]] - `method` [EXTRACTED]
 - [[dot-filter()]] - `method` [EXTRACTED]

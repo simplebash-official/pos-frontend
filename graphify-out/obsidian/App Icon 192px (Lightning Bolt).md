@@ -1,7 +1,7 @@
 ---
-source_file: "public/icon-192.png"
-type: "image"
-community: "App Icon 192px Lightning"
+source_file: 'public/icon-192.png'
+type: 'image'
+community: 'App Icon 192px Lightning'
 tags:
   - graphify/image
   - graphify/EXTRACTED

@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/roles.ts"
-type: "code"
-community: "Auth - RequireAdmin"
-location: "L1"
+source_file: 'src/constants/roles.ts'
+type: 'code'
+community: 'Auth - RequireAdmin'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # roles.ts
 
 ## Connections
+
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports_from` [EXTRACTED]
 - [[RequireAdmin.tsx]] - `imports_from` [EXTRACTED]

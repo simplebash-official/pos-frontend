@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/notificationSlice.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L6"
+source_file: 'src/store/slices/notificationSlice.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L6'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # NotificationState
 
 ## Connections
+
 - [[AppNotification]] - `references` [EXTRACTED]
 - [[notificationSlice.ts]] - `contains` [EXTRACTED]
 

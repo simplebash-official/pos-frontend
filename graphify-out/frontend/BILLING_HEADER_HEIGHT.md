@@ -1,8 +1,8 @@
 ---
-source_file: "src/app/layout/constants.ts"
-type: "code"
-community: "Billing - ROUTE TITLES"
-location: "L6"
+source_file: 'src/app/layout/constants.ts'
+type: 'code'
+community: 'Billing - ROUTE TITLES'
+location: 'L6'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # BILLING_HEADER_HEIGHT
 
 ## Connections
+
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[layoutconstants.ts]] - `contains` [EXTRACTED]

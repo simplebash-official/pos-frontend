@@ -1,7 +1,7 @@
 ---
-source_file: "public/icon-512.png"
-type: "image"
-community: "App Icon 512x512, Lightning"
+source_file: 'public/icon-512.png'
+type: 'image'
+community: 'App Icon 512x512, Lightning'
 tags:
   - graphify/image
   - graphify/EXTRACTED

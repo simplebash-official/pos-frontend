@@ -1,7 +1,7 @@
 ---
-source_file: "public/apple-touch-icon.png"
-type: "image"
-community: "App Shell - Apple"
+source_file: 'public/apple-touch-icon.png'
+type: 'image'
+community: 'App Shell - Apple'
 tags:
   - graphify/image
   - graphify/EXTRACTED

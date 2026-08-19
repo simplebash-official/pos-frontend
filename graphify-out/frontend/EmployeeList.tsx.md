@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/employees/components/EmployeeList.tsx"
-type: "code"
-community: "Employees - createEmployee"
-location: "L1"
+source_file: 'src/features/employees/components/EmployeeList.tsx'
+type: 'code'
+community: 'Employees - createEmployee'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # EmployeeList.tsx
 
 ## Connections
+
 - [[Column]] - `imports` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]

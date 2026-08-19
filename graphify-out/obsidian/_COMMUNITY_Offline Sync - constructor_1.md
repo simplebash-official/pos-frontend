@@ -10,6 +10,7 @@ members: 40
 **Members:** 40 nodes
 
 ## Members
+
 - [[dot-constructor()_6]] - code - src/offline/errors.ts
 - [[dot-constructor()_7]] - code - src/offline/errors.ts
 - [[AbandonedReferenceError]] - code - src/offline/errors.ts
@@ -59,6 +60,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 26 edges to [[_COMMUNITY_Offline Sync - OutboxError]]
 - 18 edges to [[_COMMUNITY_Offline Sync - start]]
 - 15 edges to [[_COMMUNITY_Offline Sync - signal]]
@@ -67,6 +69,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Offline Sync - readServerVersion]]
 
 ## Top bridge nodes
+
 - [[flush.ts]] - degree 62, connects to 6 communities
 - [[idMap.ts]] - degree 24, connects to 4 communities
 - [[flushOutbox()]] - degree 27, connects to 3 communities

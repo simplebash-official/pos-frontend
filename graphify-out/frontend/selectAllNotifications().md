@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/notificationSlice.ts"
-type: "code"
-community: "Notifications - initialState"
-location: "L64"
+source_file: 'src/store/slices/notificationSlice.ts'
+type: 'code'
+community: 'Notifications - initialState'
+location: 'L64'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # selectAllNotifications()
 
 ## Connections
+
 - [[NotificationPopover()]] - `indirect_call` [INFERRED]
 - [[NotificationPopover.tsx]] - `imports` [EXTRACTED]
 - [[notificationSlice.test.ts]] - `imports` [EXTRACTED]

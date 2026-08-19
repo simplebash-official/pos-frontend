@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/components/InteractiveTooltip.tsx"
-type: "code"
-community: "Settings - SyncDrawer"
-location: "L16"
+source_file: 'src/shared/components/InteractiveTooltip.tsx'
+type: 'code'
+community: 'Settings - SyncDrawer'
+location: 'L16'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # InteractiveTooltipProps
 
 ## Connections
+
 - [[ExpandableCard.tsx]] - `imports` [EXTRACTED]
 - [[ExpandableCardProps]] - `references` [EXTRACTED]
 - [[InteractiveTooltip.tsx]] - `contains` [EXTRACTED]

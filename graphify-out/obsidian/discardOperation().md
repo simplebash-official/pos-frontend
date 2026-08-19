@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Inventory - StockMovement"
-location: "L209"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Inventory - StockMovement'
+location: 'L209'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # discardOperation()
 
 ## Connections
+
 - [[PendingOperationsList()]] - `calls` [EXTRACTED]
 - [[PendingOperationsList.tsx]] - `imports` [EXTRACTED]
 - [[getSyncResource()]] - `calls` [EXTRACTED]

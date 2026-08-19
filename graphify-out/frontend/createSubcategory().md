@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/api/categoriesApi.ts"
-type: "code"
-community: "Inventory - createCategory"
-location: "L57"
+source_file: 'src/features/inventory/api/categoriesApi.ts'
+type: 'code'
+community: 'Inventory - createCategory'
+location: 'L57'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # createSubcategory()
 
 ## Connections
+
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[categoriesApi.ts]] - `contains` [EXTRACTED]
 - [[categoriesResource]] - `calls` [EXTRACTED]

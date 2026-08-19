@@ -1,8 +1,8 @@
 ---
-source_file: "src/store/slices/cartSlice.ts"
-type: "code"
-community: "Billing - PAYMENT METHODS"
-location: "L506"
+source_file: 'src/store/slices/cartSlice.ts'
+type: 'code'
+community: 'Billing - PAYMENT METHODS'
+location: 'L506'
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -12,6 +12,7 @@ tags:
 # selectCartItems()
 
 ## Connections
+
 - [[cartSlice.ts]] - `indirect_call` [INFERRED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 - [[useCartItems()]] - `indirect_call` [INFERRED]

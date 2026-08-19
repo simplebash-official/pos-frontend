@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/outbox/outbox.ts"
-type: "code"
-community: "Offline Sync - STORAGE"
-location: "L72"
+source_file: 'src/offline/outbox/outbox.ts'
+type: 'code'
+community: 'Offline Sync - STORAGE'
+location: 'L72'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # countUnsettled()
 
 ## Connections
+
 - [[dot-publish()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[assertOutboxHasCapacity()]] - `calls` [EXTRACTED]

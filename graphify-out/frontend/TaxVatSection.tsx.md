@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/settings/components/sections/TaxVatSection.tsx"
-type: "code"
-community: "Settings - ACCEPTED TYPES"
-location: "L1"
+source_file: 'src/features/settings/components/sections/TaxVatSection.tsx'
+type: 'code'
+community: 'Settings - ACCEPTED TYPES'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # TaxVatSection.tsx
 
 ## Connections
+
 - [[SectionProps]] - `imports` [EXTRACTED]
 - [[SectionShell()]] - `imports` [EXTRACTED]
 - [[SectionShell.tsx]] - `imports_from` [EXTRACTED]

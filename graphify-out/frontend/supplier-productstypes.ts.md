@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/supplier-products/types.ts"
-type: "code"
-community: "Offline Sync - fetchSupplierProducts"
-location: "L1"
+source_file: 'src/features/supplier-products/types.ts'
+type: 'code'
+community: 'Offline Sync - fetchSupplierProducts'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # supplier-products/types.ts
 
 ## Connections
+
 - [[SupplierProduct]] - `contains` [EXTRACTED]
 - [[SupplierProductInput]] - `contains` [EXTRACTED]
 - [[SyncedEntityFields]] - `imports` [EXTRACTED]

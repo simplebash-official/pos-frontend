@@ -1,8 +1,8 @@
 ---
-source_file: "src/shared/lib/localStorageStore.ts"
-type: "code"
-community: "Shared UI - LocalStorageStore"
-location: "L1"
+source_file: 'src/shared/lib/localStorageStore.ts'
+type: 'code'
+community: 'Shared UI - LocalStorageStore'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # localStorageStore.ts
 
 ## Connections
+
 - [[LocalStorageStore]] - `contains` [EXTRACTED]
 - [[mockEmployees.ts]] - `imports_from` [EXTRACTED]
 - [[printLogStore.ts]] - `imports_from` [EXTRACTED]

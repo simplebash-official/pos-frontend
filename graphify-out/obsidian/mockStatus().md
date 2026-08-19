@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/__tests__/pullTargets.test.ts"
-type: "code"
-community: "Purchases - createPurchase"
-location: "L40"
+source_file: 'src/offline/__tests__/pullTargets.test.ts'
+type: 'code'
+community: 'Purchases - createPurchase'
+location: 'L40'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # mockStatus()
 
 ## Connections
+
 - [[pullTargets.test.ts]] - `contains` [EXTRACTED]
 - [[syncApi.ts]] - `imports_from` [EXTRACTED]
 

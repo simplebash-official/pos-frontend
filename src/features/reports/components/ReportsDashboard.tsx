@@ -141,7 +141,7 @@ export const ReportsDashboard = () => {
       </SimpleGrid>
 
       {/* Employee Profit Split Leaderboard */}
-      <Paper p="md" withBorder radius="var(--mantine-radius-default)">
+      <Paper p="md" withBorder bg="var(--bg-card)" radius="var(--mantine-radius-default)">
         <Stack gap="md">
           <Group justify="space-between" align="center">
             <div>
@@ -157,7 +157,13 @@ export const ReportsDashboard = () => {
             </Badge>
           </Group>
 
-          <Table striped highlightOnHover withTableBorder>
+          <Table
+            striped
+            highlightOnHover
+            withTableBorder={false}
+            verticalSpacing="sm"
+            horizontalSpacing="md"
+          >
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Employee Name & Role</Table.Th>

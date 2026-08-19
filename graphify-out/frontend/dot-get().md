@@ -1,8 +1,8 @@
 ---
-source_file: "src/api/client.ts"
-type: "code"
-community: "ApiClient"
-location: "L156"
+source_file: 'src/api/client.ts'
+type: 'code'
+community: 'ApiClient'
+location: 'L156'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .get()
 
 ## Connections
+
 - [[dot-request()]] - `calls` [EXTRACTED]
 - [[ApiClient]] - `method` [EXTRACTED]
 

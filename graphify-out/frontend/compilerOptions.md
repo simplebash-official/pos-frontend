@@ -1,8 +1,8 @@
 ---
-source_file: "tsconfig.json"
-type: "code"
-community: "DOM"
-location: "L2"
+source_file: 'tsconfig.json'
+type: 'code'
+community: 'DOM'
+location: 'L2'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # compilerOptions
 
 ## Connections
+
 - [[allowArbitraryExtensions]] - `contains` [EXTRACTED]
 - [[allowImportingTsExtensions]] - `contains` [EXTRACTED]
 - [[erasableSyntaxOnly]] - `contains` [EXTRACTED]

@@ -1,8 +1,8 @@
 ---
-source_file: "package.json"
-type: "code"
-community: "Dependencies - vitest"
-location: "L37"
+source_file: 'package.json'
+type: 'code'
+community: 'Dependencies - vitest'
+location: 'L37'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # vitest
 
 ## Connections
+
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[vitest_1]] - `imports` [EXTRACTED]
 

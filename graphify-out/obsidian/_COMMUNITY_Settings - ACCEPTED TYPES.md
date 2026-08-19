@@ -10,6 +10,7 @@ members: 40
 **Members:** 40 nodes
 
 ## Members
+
 - [[ACCEPTED_TYPES]] - code - src/features/settings/components/LogoUpload.tsx
 - [[BankDetailsFormValues]] - code - src/features/settings/components/sections/BankDetailsSection.tsx
 - [[BankDetailsSection()]] - code - src/features/settings/components/sections/BankDetailsSection.tsx
@@ -59,6 +60,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 25 edges to [[_COMMUNITY_Inventory - AppUpdatePrompt]]
 - 9 edges to [[_COMMUNITY_Notifications - initialState]]
 - 8 edges to [[_COMMUNITY_Settings - DEFAULT PRINT]]
@@ -79,6 +81,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 
 ## Top bridge nodes
+
 - [[hooks.ts]] - degree 38, connects to 13 communities
 - [[useAppDispatch]] - degree 39, connects to 9 communities
 - [[SettingsPage.tsx]] - degree 30, connects to 5 communities

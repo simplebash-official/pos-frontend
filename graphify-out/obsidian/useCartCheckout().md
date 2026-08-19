@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/billing/hooks/useCart.ts"
-type: "code"
-community: "Billing - PaymentMethod"
-location: "L157"
+source_file: 'src/features/billing/hooks/useCart.ts'
+type: 'code'
+community: 'Billing - PaymentMethod'
+location: 'L157'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # useCartCheckout()
 
 ## Connections
+
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `calls` [EXTRACTED]

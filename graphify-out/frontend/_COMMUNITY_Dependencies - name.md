@@ -10,6 +10,7 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
+
 - [[name]] - code - package.json
 - [[package.json]] - code - package.json
 - [[private]] - code - package.json
@@ -24,9 +25,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 1 edge to [[_COMMUNITY_Dependencies - axios]]
 - 1 edge to [[_COMMUNITY_Dependencies - eslint]]
 - 1 edge to [[_COMMUNITY_Dependencies - scripts]]
 
 ## Top bridge nodes
+
 - [[package.json]] - degree 7, connects to 3 communities

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/types.ts"
-type: "code"
-community: "Billing - BackendInvoice"
-location: "L1"
+source_file: 'src/features/invoices/types.ts'
+type: 'code'
+community: 'Billing - BackendInvoice'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # invoices/types.ts
 
 ## Connections
+
 - [[Invoice]] - `re_exports` [EXTRACTED]
 - [[InvoiceItem]] - `re_exports` [EXTRACTED]
 - [[PrintLogEntry]] - `re_exports` [EXTRACTED]

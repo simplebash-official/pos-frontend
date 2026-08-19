@@ -10,6 +10,7 @@ members: 30
 **Members:** 30 nodes
 
 ## Members
+
 - [[A4InvoicePreviewModal()]] - code - src/features/billing/components/A4InvoicePreviewModal.tsx
 - [[A4InvoicePreviewModal.tsx]] - code - src/features/billing/components/A4InvoicePreviewModal.tsx
 - [[A4InvoicePreviewModalProps]] - code - src/features/billing/components/A4InvoicePreviewModal.tsx
@@ -49,6 +50,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 9 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 8 edges to [[_COMMUNITY_Billing - BackendInvoice]]
 - 8 edges to [[_COMMUNITY_Billing - PAYMENT METHODS]]
@@ -70,6 +72,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - constructor]]
 
 ## Top bridge nodes
+
 - [[SaleDocumentPreviewModal.tsx]] - degree 31, connects to 12 communities
 - [[SaleDocumentPreviewModal()]] - degree 16, connects to 8 communities
 - [[useAppShortcuts()]] - degree 12, connects to 7 communities

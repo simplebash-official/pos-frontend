@@ -1,8 +1,8 @@
 ---
-source_file: "src/constants/routes.ts"
-type: "code"
-community: "Billing - ROUTE TITLES"
-location: "L1"
+source_file: 'src/constants/routes.ts'
+type: 'code'
+community: 'Billing - ROUTE TITLES'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # routes.ts
 
 ## Connections
+
 - [[AppRoute]] - `contains` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports_from` [EXTRACTED]

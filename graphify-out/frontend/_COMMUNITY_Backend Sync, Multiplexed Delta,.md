@@ -10,6 +10,7 @@ members: 8
 **Members:** 8 nodes
 
 ## Members
+
 - [[Backend Sync, Multiplexed Delta, and Idempotency Contract]] - concept - CLAUDE.md
 - [[CSS Variable Design Tokens and Dark Mode System]] - concept - CLAUDE.md
 - [[Connectivity Monitor and Asymmetric Hysteresis]] - concept - CLAUDE.md

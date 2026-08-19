@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/invoices/components/InvoiceDetailDrawer.tsx"
-type: "code"
-community: "Billing - fetchPaymentsForInvoice"
-location: "L1"
+source_file: 'src/features/invoices/components/InvoiceDetailDrawer.tsx'
+type: 'code'
+community: 'Billing - fetchPaymentsForInvoice'
+location: 'L1'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # InvoiceDetailDrawer.tsx
 
 ## Connections
+
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[InvoiceDetailDrawer()]] - `contains` [EXTRACTED]
 - [[InvoiceDetailDrawerProps]] - `contains` [EXTRACTED]

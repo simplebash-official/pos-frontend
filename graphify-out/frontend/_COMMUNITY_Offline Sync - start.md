@@ -10,6 +10,7 @@ members: 46
 **Members:** 46 nodes
 
 ## Members
+
 - [[dot-canSync()]] - code - src/offline/engine/SyncEngine.ts
 - [[dot-constructor()_4]] - code - src/offline/errors.ts
 - [[dot-constructor()]] - code - src/offline/errors.ts
@@ -65,6 +66,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 31 edges to [[_COMMUNITY_Offline Sync - signal]]
 - 18 edges to [[_COMMUNITY_Offline Sync - constructor_1]]
 - 11 edges to [[_COMMUNITY_Offline Sync - constructor]]
@@ -79,6 +81,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Inventory - adjustStock]]
 
 ## Top bridge nodes
+
 - [[SyncEngine.ts]] - degree 48, connects to 10 communities
 - [[SyncEngine]] - degree 21, connects to 6 communities
 - [[errors.ts]] - degree 15, connects to 6 communities

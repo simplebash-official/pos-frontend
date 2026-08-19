@@ -10,6 +10,7 @@ members: 34
 **Members:** 34 nodes
 
 ## Members
+
 - [[Customer]] - code - src/features/customers/types.ts
 - [[CustomerDetailDrawer()]] - code - src/features/customers/components/CustomerDetailDrawer.tsx
 - [[CustomerDetailDrawer.tsx]] - code - src/features/customers/components/CustomerDetailDrawer.tsx
@@ -53,6 +54,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 25 edges to [[_COMMUNITY_Billing - CartLineItem]]
 - 15 edges to [[_COMMUNITY_Billing - HeldSalesDrawer]]
 - 13 edges to [[_COMMUNITY_Customers - createCustomer]]
@@ -79,6 +81,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Billing - PAYMENT METHODS]]
 
 ## Top bridge nodes
+
 - [[date.ts]] - degree 18, connects to 9 communities
 - [[useCustomers.ts]] - degree 29, connects to 8 communities
 - [[CustomerList.tsx]] - degree 34, connects to 7 communities

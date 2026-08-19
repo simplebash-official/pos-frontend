@@ -10,6 +10,7 @@ members: 19
 **Members:** 19 nodes
 
 ## Members
+
 - [[CustomerListParams]] - code - src/features/customers/types.ts
 - [[CustomerListResponse]] - code - src/features/customers/types.ts
 - [[CustomerTagsResponse]] - code - src/features/customers/types.ts
@@ -38,6 +39,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 13 edges to [[_COMMUNITY_Billing - fetchInvoices]]
 - 12 edges to [[_COMMUNITY_Purchases - createPurchase]]
 - 5 edges to [[_COMMUNITY_Inventory - adjustStock]]
@@ -53,6 +55,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Offline Sync - readServerVersion]]
 
 ## Top bridge nodes
+
 - [[customers.resource.ts]] - degree 30, connects to 8 communities
 - [[pushOptions.ts]] - degree 11, connects to 8 communities
 - [[pushOptions()]] - degree 13, connects to 5 communities

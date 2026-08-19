@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/constants.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L18"
+source_file: 'src/offline/constants.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L18'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # HEALTH_PROBE_INTERVAL_ONLINE_MS
 
 ## Connections
+
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 

@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/sync/lib/syncNotifications.ts"
-type: "code"
-community: "Notifications - clearConnectivityNotification"
-location: "L86"
+source_file: 'src/features/sync/lib/syncNotifications.ts'
+type: 'code'
+community: 'Notifications - clearConnectivityNotification'
+location: 'L86'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # notifySyncProblems()
 
 ## Connections
+
 - [[SyncProvider()]] - `calls` [EXTRACTED]
 - [[SyncProvider.tsx]] - `imports` [EXTRACTED]
 - [[syncNotifications.ts]] - `contains` [EXTRACTED]

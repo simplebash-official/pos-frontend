@@ -10,6 +10,7 @@ members: 6
 **Members:** 6 nodes
 
 ## Members
+
 - [[InvoiceDetailDrawer()]] - code - src/features/invoices/components/InvoiceDetailDrawer.tsx
 - [[InvoiceDetailDrawer.tsx]] - code - src/features/invoices/components/InvoiceDetailDrawer.tsx
 - [[InvoiceDetailDrawerProps]] - code - src/features/invoices/components/InvoiceDetailDrawer.tsx
@@ -25,6 +26,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+
 - 6 edges to [[_COMMUNITY_Repairs - InvoicesList]]
 - 5 edges to [[_COMMUNITY_Billing - getInvoiceDocument]]
 - 4 edges to [[_COMMUNITY_Billing - MutationRequestOptions]]
@@ -34,6 +36,7 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Employees - CURRENCY]]
 
 ## Top bridge nodes
+
 - [[InvoiceDetailDrawer.tsx]] - degree 19, connects to 7 communities
 - [[InvoiceDetailDrawer()]] - degree 7, connects to 4 communities
 - [[fetchPaymentsForInvoice()]] - degree 4, connects to 1 community

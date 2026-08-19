@@ -1,8 +1,8 @@
 ---
-source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
-type: "code"
-community: "Offline Sync - constructor"
-location: "L132"
+source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
+type: 'code'
+community: 'Offline Sync - constructor'
+location: 'L132'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # .handleLinkDown()
 
 ## Connections
+
 - [[dot-scheduleNextProbe()]] - `calls` [EXTRACTED]
 - [[dot-transitionTo()]] - `calls` [EXTRACTED]
 - [[dot-update()_1]] - `calls` [EXTRACTED]

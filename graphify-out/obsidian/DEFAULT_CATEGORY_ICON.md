@@ -1,8 +1,8 @@
 ---
-source_file: "src/features/inventory/constants.ts"
-type: "code"
-community: "Inventory - AddSubcategoryRow"
-location: "L7"
+source_file: 'src/features/inventory/constants.ts'
+type: 'code'
+community: 'Inventory - AddSubcategoryRow'
+location: 'L7'
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # DEFAULT_CATEGORY_ICON
 
 ## Connections
+
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[categoryIcons.ts]] - `imports` [EXTRACTED]
 - [[inventoryconstants.ts]] - `contains` [EXTRACTED]
