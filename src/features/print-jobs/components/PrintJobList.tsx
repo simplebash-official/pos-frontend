@@ -16,6 +16,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
+import { getListEmptyText } from '@/shared/lib/queryStatusText';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { PrintJobFormModal } from './PrintJobFormModal';
@@ -27,7 +28,12 @@ export const PrintJobList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
 
-  const { data: printJobs = [], isLoading } = useQuery({
+  const {
+    data: printJobs = [],
+    isLoading,
+    isError,
+    fetchStatus,
+  } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: fetchPrintJobs,
   });
@@ -231,7 +237,10 @@ export const PrintJobList = () => {
         keyExtractor={(job) => job.id}
         onRowClick={(job) => handleOpenEdit(job)}
         onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
-        emptyText="No print orders recorded yet"
+        emptyText={getListEmptyText(
+          { isPaused: fetchStatus === 'paused', isError },
+          'No print orders recorded yet'
+        )}
       />
 
       <PrintJobFormModal
