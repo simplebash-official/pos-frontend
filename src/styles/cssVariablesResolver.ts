@@ -106,6 +106,5 @@ export const mantineCssVariableResolver: CSSVariablesResolver = () => ({
   },
   dark: {
     ...darkTokens,
-    ...semanticVars,
   },
 });
