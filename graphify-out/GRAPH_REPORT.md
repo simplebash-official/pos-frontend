@@ -5,90 +5,98 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1552 nodes · 4692 edges · 88 communities (72 shown, 16 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 123 edges (avg confidence: 0.73)
+- 1552 nodes · 4685 edges · 97 communities (75 shown, 22 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 116 edges (avg confidence: 0.73)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- Inventory & Suppliers
-- Sync Status UI & Maintenance
-- Sync Resource Descriptors
-- Outbox, IDs & Flush
-- Sync Engine & Pull
-- Customers Feature
-- Sync Architecture Docs
-- Cart & Payment State
-- Sync Registry & Tests
-- App Providers & Theme
-- Responsive Layout Hooks
-- Runtime Dependencies
-- Document Preview & Print
+- Offline Connectivity Monitoring
+- Offline Connectivity Monitoring
+- Notifications & Storage Keys
+- Sync Metadata & Cursors
+- Offline Connectivity Monitoring
+- Offline Connectivity Monitoring
+- ID Mapping & Reference Resolution
+- POS Billing Flow (useResponsive)
+- POS Cart & Checkout State
+- Outbox Queue & Status
+- Invoice & Document Printing
+- Employee Accounts & Earnings
+- Runtime Packages & UI Dependencies
+- POS Billing Flow (useCustomers)
+- POS Billing Flow (routes)
+- Authentication & Access Control
+- POS Billing Flow (printLogStore)
+- Build & Dev Dependencies
+- Product Catalog & Hierarchy
+- Supplier Directory & Stock Receipts
+- POS Cart & Checkout State
+- Supplier Directory & Stock Receipts
+- POS Cart & Checkout State
+- Outbox Queue & Status
+- DOM Module
+- Outbox Queue & Status
+- POS Billing Flow (router)
+- Shop Settings & Profile
+- Offline Sync Engine (productsApi)
+- Inventory & Products API
+- Offline Sync Engine (useProducts)
+- Employee Accounts & Earnings
+- Authentication & Access Control
+- Supplier Directory & Stock Receipts
 - Tabler Icon Shards
-- Dev Dependencies
-- Billing Screen Layout
-- Settings Sections
-- Job & Repair Form Modals
-- Employee & Customer Drawers
-- Connectivity & Env Config
-- Offline DB Schema & Tables
-- Invoices & Payments Types
-- TypeScript Config
-- Search Highlighting
-- App Routing
-- Global Quick Search
-- Notifications Feature
-- Auth Login Screens
-- Category & Product Pickers
-- Offline Mirror & Stock Ledger
-- Connectivity Monitor Internals
-- API Client Core
-- Settings State Slice
-- Tabler Icon Picker
-- Catalog & Service Job Picker
-- Employee Form & List Chrome
-- Shared Data Table & Confirm Dialog
-- Invoices API Mapping
-- Print Job List & API
-- Category Sync Resource
-- Money Formatting & Cart Line Items
-- Product Catalog Tree & Icons
-- Route Auth Guards
-- Role-Based Access Guards
-- Settings Page Navigation
-- Auth Session Caching
-- Employee Local Storage Store
-- Search History Hook
-- Icon Shard Generator Script
-- Held Cart & Low Stock Notifiers
-- Repair Jobs List & API
-- Sync Provider & Toast Notifications
-- Auth Types & Roles
-- NPM Scripts
-- Amount & Discount Inputs
-- Sync/Connectivity State Types
-- Social & Docs Icon Sprite
-- App Entry Chain
-- Mobile Sign-Up Forms
-- Network Signal Observer
-- Package Metadata
-- Login Background Image
-- Logo Upload Component
-- Modal & Drawer UI Patterns Docs
-- App Icon & PWA Manifest Docs
-- React Hooks Lint Plugin
-- Mantine Form Dependency
-- React DOM Dependency
-- TanStack Query Dependency
-- Prettier Dependency
-- TypeScript Dependency
-- TypeScript ESLint Dependency
-- Vite PWA Plugin Dependency
-- Vitest Dependency
-- TypeScript Logo Asset
-- Apple Touch Icon Asset
-- Favicon Asset
-- App Icon 192px Asset
-- Vite Logo Asset
+- Customer Management & Drawers
+- Supplier Directory & Stock Receipts
+- App Layout & Routing
+- index Module
+- POS Billing Flow (invoicesApi)
+- Billing Chrome & Navigation
+- POS Cart & Checkout State
+- Employee Accounts & Earnings
+- Inventory & Products API
+- Supplier Directory & Stock Receipts
+- Offline Sync Engine (syncApi)
+- Employee Accounts & Earnings
+- generate-icon-shards.mjs Module
+- MutationRequestOptions Module
+- POS Billing Flow (saleHeroPresentation)
+- Employee Accounts & Earnings
+- Employee Accounts & Earnings
+- POS Billing Flow (paymentsApi)
+- Billing Chrome & Navigation
+- scripts Module
+- Billing Catalog & Line Items
+- Offline Connectivity Monitoring
+- AmountInput Module
+- ExpandableCard Module
+- Shop Settings & Profile
+- useShortcuts Module
+- Invoice & Document Printing
+- Authentication & Access Control
+- package.json Module
+- Invoice & Document Printing
+- eslint-plugin-react-hooks Module
+- @mantine/form Module
+- react-dom Module
+- @tanstack/react-query Module
+- prettier Module
+- Build & Dev Dependencies
+- typescript-eslint Module
+- vite-plugin-pwa Module
+- vitest Module
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Invoice & Document Printing
+- Community 91
+- Invoice & Document Printing
+- Invoice & Document Printing
 
 ## God Nodes (most connected - your core abstractions)
 1. `useIsMobile()` - 75 edges
@@ -109,303 +117,311 @@
   backend-sync-requirements.html → CLAUDE.md
 - `SYNC-14: Batch Push Endpoint (Conditional)` --conceptually_related_to--> `Offline & Sync Architecture`  [INFERRED]
   backend-sync-requirements.html → CLAUDE.md
-- `index.html App Entry Document` --references--> `Architecture Overview & Entry Chain`  [EXTRACTED]
-  index.html → CLAUDE.md
+- `AGENTS.md Instructions Document` --references--> `Offline & Sync Architecture`  [EXTRACTED]
+  AGENTS.md → CLAUDE.md
 - `AGENTS.md Instructions Document` --references--> `Project Overview (POS System)`  [EXTRACTED]
   AGENTS.md → CLAUDE.md
 
 ## Import Cycles
-- 3-file cycle: `src/features/customers/components/CustomerList.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerList.tsx`
-- 3-file cycle: `src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx`
-- 3-file cycle: `src/features/employees/components/EmployeeList.tsx -> src/shared/lib/searchFields.ts -> src/features/employees/index.ts -> src/features/employees/components/EmployeeList.tsx`
-- 3-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductPickerModal.tsx`
 - 3-file cycle: `src/features/inventory/components/ProductTable.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductTable.tsx`
+- 3-file cycle: `src/features/customers/components/CustomerList.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerList.tsx`
+- 3-file cycle: `src/features/employees/components/EmployeeList.tsx -> src/shared/lib/searchFields.ts -> src/features/employees/index.ts -> src/features/employees/components/EmployeeList.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierList.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierPickerModal.tsx`
+- 3-file cycle: `src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx`
+- 3-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductPickerModal.tsx`
 - 4-file cycle: `src/features/suppliers/components/SupplierFormModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx -> src/features/suppliers/components/SupplierFormModal.tsx`
-- 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/billing/components/BillingRegions.tsx -> src/features/billing/components/CatalogPanel.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/customers/index.ts -> src/features/customers/components/CustomerList.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
+- 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/billing/components/BillingRegions.tsx -> src/features/billing/components/CatalogPanel.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 5-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx -> src/features/suppliers/components/SupplierDetailDrawer.tsx -> src/features/inventory/components/ProductPickerModal.tsx`
 
 ## Hyperedges (group relationships)
+- **CI Build and Quality Gate Flow** — github_workflows_deploy_pipeline, claude_commands, claude_project_overview [INFERRED 0.75]
 - **Duplicated AI Assistant Instruction Files** — claude_project_overview, agents_md_doc, gemini_md_doc [EXTRACTED 1.00]
 - **Backend Requirements Supporting the Four Hard Rules** — claude_offline_sync_four_hard_rules, backend_sync_requirements_stock_authority, backend_sync_requirements_local_id_prefix, backend_sync_requirements_idempotency_key [INFERRED 0.85]
-- **CI Build and Quality Gate Flow** — github_workflows_deploy_pipeline, claude_commands, claude_project_overview [INFERRED 0.75]
 
-## Communities (88 total, 16 thin omitted)
+## Communities (97 total, 22 thin omitted)
 
-### Community 0 - "Inventory & Suppliers"
+### Community 0 - "Offline Connectivity Monitoring"
 Cohesion: 0.06
-Nodes (77): FormContentProps, ProductFormModal(), ProductFormModalProps, SupplierIntakeRow, ProductTable(), NO_MOVEMENTS, NO_PRODUCTS, useAdjustStock() (+69 more)
+Nodes (41): isApiErrorLike(), readServerTime(), RequestOptions, env, ConnectivityMonitor, probeClient, probeHealth(), ProbeResult (+33 more)
 
-### Community 1 - "Sync Status UI & Maintenance"
-Cohesion: 0.05
-Nodes (58): PendingOperationsList(), SyncDrawer(), SyncDrawerProps, SyncModuleCard(), SyncModuleCardProps, formatBytes(), SyncPanel(), SyncSettingsSection() (+50 more)
+### Community 1 - "Offline Connectivity Monitoring"
+Cohesion: 0.06
+Nodes (45): SyncDrawer(), SyncDrawerProps, SyncModuleCard(), SyncModuleCardProps, formatBytes(), SyncPanel(), SyncSettingsSection(), SyncStatusBadge() (+37 more)
 
-### Community 2 - "Sync Resource Descriptors"
+### Community 2 - "Notifications & Storage Keys"
 Cohesion: 0.07
-Nodes (54): MutationRequestOptions, adjustStock(), createProduct(), deleteProducts(), fetchProducts(), ProductListParams, ProductsPageData, updateProduct() (+46 more)
+Nodes (41): STORAGE_KEYS, NotificationItem(), NotificationItemProps, NotificationPopover(), NotificationPopoverProps, AppNotification, NotificationActor, NotificationCategory (+33 more)
 
-### Community 3 - "Outbox, IDs & Flush"
+### Community 3 - "Sync Metadata & Cursors"
 Cohesion: 0.08
-Nodes (54): MIRROR_TABLE_NAMES, OutboxError, assignLedgerEntriesToOperation(), AbandonedReferenceError, UnresolvedReferenceError, getDeviceId(), abandonMapping(), DROP_ELEMENT (+46 more)
+Nodes (33): blankMeta(), getAllSyncMeta(), getSyncMeta(), invalidateCursor(), patchSyncMeta(), seedSyncMeta(), resolvePullTargets(), RFC-3339 (+25 more)
 
-### Community 4 - "Sync Engine & Pull"
-Cohesion: 0.09
-Nodes (33): pruneByRetention(), readServerVersion(), toServerRow(), blankMeta(), getAllSyncMeta(), getSyncMeta(), invalidateCursor(), patchSyncMeta() (+25 more)
-
-### Community 5 - "Customers Feature"
-Cohesion: 0.12
-Nodes (32): createCustomer(), deleteCustomer(), deleteCustomers(), fetchAllCustomers(), fetchCustomers(), updateCustomer(), CustomerDetailDrawer(), CustomerDetailDrawerProps (+24 more)
-
-### Community 6 - "Sync Architecture Docs"
+### Community 4 - "Offline Connectivity Monitoring"
 Cohesion: 0.07
 Nodes (43): AGENTS.md Instructions Document, Acceptance Criteria Checklist, SYNC-14: Batch Push Endpoint (Conditional), SYNC-02: Unfiltered Collection List Endpoints, SYNC-10: Conditional Writes (If-Match / VERSION_CONFLICT), SYNC-12: X-Device-Id on Every Request, Backend Requirements — Offline Sync Spec, Error Codes the Client Acts On (+35 more)
 
-### Community 7 - "Cart & Payment State"
+### Community 5 - "Offline Connectivity Monitoring"
+Cohesion: 0.12
+Nodes (19): clearLocalData(), ClearLocalDataOptions, forceFullResync(), pruneByRetention(), rowAgeTimestamp(), logError(), logInfo(), logSyncEvent() (+11 more)
+
+### Community 6 - "ID Mapping & Reference Resolution"
 Cohesion: 0.10
-Nodes (33): PAYMENT_METHODS, PaymentMethod, CartLineItemProps, useCartCheckout(), SaleHeroPresentation, LineSourceType, SplitPaymentDetail, CartItem (+25 more)
+Nodes (37): AbandonedReferenceError, UnresolvedReferenceError, abandonMapping(), DROP_ELEMENT, isRecord(), loadIdMap(), mintLocalId(), resolveMapping() (+29 more)
 
-### Community 8 - "Sync Registry & Tests"
-Cohesion: 0.08
-Nodes (28): reclaimInflightOperations(), defineOperation(), getReferringResources(), registerSyncResource(), resetRegistry(), resources, Widget, widgetResource (+20 more)
+### Community 7 - "POS Billing Flow (useResponsive)"
+Cohesion: 0.11
+Nodes (27): HeldSalesDrawer(), HeldSalesDrawerProps, fetchEmployeeEarnings(), EmployeeDetailDrawer(), ReceiveStockModal(), enrich(), NO_PURCHASES, useCreatePurchase() (+19 more)
 
-### Community 9 - "App Providers & Theme"
-Cohesion: 0.09
-Nodes (22): AppUpdatePrompt(), AppProvidersProps, AuthInitializer(), STORAGE_KEYS, createReduxColorSchemeManager(), reduxColorSchemeManager, toAppScheme(), toMantineScheme() (+14 more)
+### Community 8 - "POS Cart & Checkout State"
+Cohesion: 0.11
+Nodes (31): PaymentMethod, CartLineItemProps, useCartCheckout(), LineSourceType, SplitPaymentDetail, CartItem, cartSlice, CartState (+23 more)
 
-### Community 10 - "Responsive Layout Hooks"
-Cohesion: 0.10
-Nodes (24): ROUTE_TITLES, BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT, SHELL_NAVBAR_RAIL_WIDTH, SHELL_NAVBAR_WIDTH, BillingRegions, HeldSalesDrawer(), HeldSalesDrawerProps (+16 more)
+### Community 9 - "Outbox Queue & Status"
+Cohesion: 0.11
+Nodes (30): StockMovement, readServerVersion(), stripMirrorMeta(), UNSYNCED_VERSION, db, MirrorTableName, OfflineDb, AuditEvent (+22 more)
 
-### Community 11 - "Runtime Dependencies"
+### Community 10 - "Invoice & Document Printing"
+Cohesion: 0.19
+Nodes (23): AppUpdatePrompt(), ACCEPTED_TYPES, LogoUpload(), LogoUploadProps, BankDetailsFormValues, BankDetailsSection(), BrandingFormValues, BrandingSection() (+15 more)
+
+### Community 11 - "Employee Accounts & Earnings"
+Cohesion: 0.11
+Nodes (18): createEmployee(), deleteEmployee(), deleteEmployees(), earningsStore, employeesStore, INITIAL_EARNINGS, INITIAL_EMPLOYEES, normalizeEmployee() (+10 more)
+
+### Community 12 - "Runtime Packages & UI Dependencies"
 Cohesion: 0.06
 Nodes (31): axios, dayjs, dexie, @mantine/core, @mantine/dates, @mantine/hooks, @mantine/modals, @mantine/notifications (+23 more)
 
-### Community 12 - "Document Preview & Print"
-Cohesion: 0.17
-Nodes (21): getInvoiceDocument(), InvoiceDocumentType, A4InvoicePreviewModal(), SaleDocumentPreviewModal(), StandalonePrintView(), useInvoiceDocument(), UseInvoiceDocumentResult, usePrint() (+13 more)
+### Community 13 - "POS Billing Flow (useCustomers)"
+Cohesion: 0.18
+Nodes (22): CustomerDetailDrawer(), CustomerDetailDrawerProps, CustomerFormContent(), CustomerFormModal(), CustomerFormModalProps, FormContentProps, CustomerList(), CustomerPickerModal() (+14 more)
 
-### Community 14 - "Dev Dependencies"
+### Community 14 - "POS Billing Flow (routes)"
+Cohesion: 0.11
+Nodes (22): RequireAdmin(), RequireAdminProps, ROUTE_TITLES, BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT, SHELL_NAVBAR_RAIL_WIDTH, SHELL_NAVBAR_WIDTH, Sidebar() (+14 more)
+
+### Community 15 - "Authentication & Access Control"
+Cohesion: 0.14
+Nodes (23): AuthInitializer(), USER_ROLE_LABELS, USER_ROLES, UserRole, getMeApi(), AuthUser, LoginPayload, LoginResponse (+15 more)
+
+### Community 16 - "POS Billing Flow (printLogStore)"
+Cohesion: 0.17
+Nodes (19): getInvoiceDocument(), InvoiceDocumentType, A4InvoicePreviewModal(), A4InvoicePreviewModalProps, SaleDocumentPreviewModal(), StandalonePrintView(), useInvoiceDocument(), UseInvoiceDocumentResult (+11 more)
+
+### Community 17 - "Build & Dev Dependencies"
 Cohesion: 0.07
 Nodes (29): eslint, eslint-config-prettier, @eslint/js, eslint-plugin-react-refresh, fake-indexeddb, globals, devDependencies, eslint (+21 more)
 
-### Community 15 - "Billing Screen Layout"
-Cohesion: 0.19
-Nodes (21): Header(), HeaderProps, completeSale(), BillingCounter(), BillingRegionsProps, FILL, BillingPane, BillingSummaryStrip() (+13 more)
+### Community 18 - "Product Catalog & Hierarchy"
+Cohesion: 0.15
+Nodes (24): ProductCatalogTree, ProductCatalogTreeProps, ProductHierarchy, SearchHighlight(), SearchHighlightProps, EntitySearchResult, buildSearchIndex(), getMatchRanges() (+16 more)
 
-### Community 16 - "Settings Sections"
-Cohesion: 0.22
-Nodes (20): Sidebar(), BankDetailsFormValues, BankDetailsSection(), BrandingFormValues, BrandingSection(), DocumentTemplatesFormValues, DocumentTemplatesSection(), PrintingFormValues (+12 more)
+### Community 19 - "Supplier Directory & Stock Receipts"
+Cohesion: 0.16
+Nodes (21): ReceiveStockModalProps, useSetSupplierLinks(), SupplierDetailDrawerProps, FormContentProps, SupplierFormModal(), SupplierFormModalProps, SupplierList(), SupplierPickerModal() (+13 more)
 
-### Community 17 - "Job & Repair Form Modals"
-Cohesion: 0.22
-Nodes (20): JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, JobStatus, SplitType, PrintJobFormModalProps, PrintJob, PrintJobInput (+12 more)
+### Community 20 - "POS Cart & Checkout State"
+Cohesion: 0.18
+Nodes (22): Header(), HeaderProps, completeSale(), BillingCounter(), BillingRegions, BillingRegionsProps, FILL, BillingPane (+14 more)
 
-### Community 18 - "Employee & Customer Drawers"
-Cohesion: 0.14
-Nodes (17): queryKeys, earningsStore, employeesStore, fetchAllEmployeeEarnings, fetchEmployeeEarnings(), fetchEmployees(), INITIAL_EARNINGS, INITIAL_EMPLOYEES (+9 more)
+### Community 21 - "Supplier Directory & Stock Receipts"
+Cohesion: 0.11
+Nodes (20): ProductListParams, ProductsPageData, FormContentProps, ProductFormModal(), ProductFormModalProps, SupplierIntakeRow, useValidCategories(), BarcodeSource (+12 more)
 
-### Community 19 - "Connectivity & Env Config"
-Cohesion: 0.12
-Nodes (22): env, probeClient, probeHealth(), ProbeResult, AUDIT_LOG_LIMIT, DEGRADED_LATENCY_MS, HEADER_SERVER_TIME, HEALTH_PROBE_BACKOFF_MS (+14 more)
+### Community 23 - "POS Cart & Checkout State"
+Cohesion: 0.17
+Nodes (23): CartLineItem, CatalogPanel, CatalogPanelProps, chunk(), DiscountPopover(), CombinedServiceJob, generateServiceJobId(), SERVICE_JOB_SEARCH_FIELDS (+15 more)
 
-### Community 20 - "Offline DB Schema & Tables"
-Cohesion: 0.13
-Nodes (22): StockMovement, PendingOperationsListProps, STATUS_LABEL, OFFLINE_DB_NAME, MirrorTableName, OfflineDb, AuditEvent, ConflictReason (+14 more)
+### Community 24 - "Outbox Queue & Status"
+Cohesion: 0.18
+Nodes (18): PendingOperationsList(), PendingOperationsListProps, STATUS_LABEL, MIRROR_TABLE_NAMES, OutboxStatus, assignLedgerEntriesToOperation(), getDeviceId(), createIdempotencyKey() (+10 more)
 
-### Community 21 - "Invoices & Payments Types"
-Cohesion: 0.12
-Nodes (21): CompleteSaleResult, BackendPaymentRecord, fetchPaymentsForInvoice(), PaymentListResponseData, PaymentRecord, recordPayment(), RecordPaymentInput, toPaymentRecord() (+13 more)
-
-### Community 22 - "TypeScript Config"
+### Community 25 - "DOM Module"
 Cohesion: 0.08
 Nodes (24): DOM, ES2023, src, vite/client, compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly (+16 more)
 
-### Community 23 - "Search Highlighting"
-Cohesion: 0.17
-Nodes (21): SearchHighlight(), SearchHighlightProps, EntitySearchResult, buildSearchIndex(), getMatchRanges(), IndexedField, isWordChar(), MatchRange (+13 more)
+### Community 26 - "Outbox Queue & Status"
+Cohesion: 0.14
+Nodes (17): toServerRow(), SyncMetaPatch, adoptNewestCursor(), applyChanges(), fullRefresh(), pullResource(), PullSummary, CursorInvalidError (+9 more)
 
-### Community 24 - "App Routing"
-Cohesion: 0.11
-Nodes (16): BillingCounter, CustomerList, EmailLoginScreen, EmployeeList, PrintJobList, ProductTable, RepairJobList, ReportsDashboard (+8 more)
+### Community 27 - "POS Billing Flow (router)"
+Cohesion: 0.12
+Nodes (15): AppShell(), BillingCounter, CustomerList, EmailLoginScreen, PrintJobList, RepairJobList, StandalonePrintView, SupplierList (+7 more)
 
-### Community 25 - "Global Quick Search"
-Cohesion: 0.16
-Nodes (17): InvoicesList, fetchInvoices(), InvoicesList(), SupplierPickerModalProps, GlobalQuickSearchModal(), mergeByCategory(), QuickSearchResult, SearchHistoryInput (+9 more)
+### Community 28 - "Shop Settings & Profile"
+Cohesion: 0.13
+Nodes (17): SettingsPage, renderSection(), SettingsPage(), DEFAULT_PRINT_SETTINGS, DEFAULT_SHOP_PROFILE, AutoPrintOption, DocumentSelection, InvoiceCopyOption (+9 more)
 
-### Community 26 - "Notifications Feature"
-Cohesion: 0.17
-Nodes (16): NotificationItem(), NotificationItemProps, NotificationPopover(), NotificationPopoverProps, AppNotification, NotificationActor, NotificationCategory, NotificationPriority (+8 more)
+### Community 29 - "Offline Sync Engine (productsApi)"
+Cohesion: 0.19
+Nodes (17): adjustStock(), createProduct(), deleteProducts(), fetchProducts(), updateProduct(), createPurchase(), toLocalRow(), appendStockDelta() (+9 more)
 
-### Community 27 - "Auth Login Screens"
+### Community 30 - "Inventory & Products API"
+Cohesion: 0.19
+Nodes (17): createCategory(), createSubcategory(), deleteCategory(), deleteSubcategory(), fetchCategories(), updateCategory(), NO_CATEGORIES, Category (+9 more)
+
+### Community 31 - "Offline Sync Engine (useProducts)"
+Cohesion: 0.19
+Nodes (17): ProductTable(), NO_MOVEMENTS, NO_PRODUCTS, useAdjustStock(), useCreateProduct(), useDeleteProducts(), useProductMovements(), useUpdateProduct() (+9 more)
+
+### Community 32 - "Employee Accounts & Earnings"
+Cohesion: 0.27
+Nodes (15): JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, JobStatus, SplitType, PrintJobFormModalProps, PrintJob, PrintJobInput (+7 more)
+
+### Community 33 - "Authentication & Access Control"
 Cohesion: 0.20
 Nodes (13): loginApi(), AuthLayout(), AuthLayoutProps, EmailLoginScreen(), LoginForm(), MobileAuthContainer(), MobileAuthView, MobileLoginForm() (+5 more)
 
-### Community 28 - "Category & Product Pickers"
-Cohesion: 0.20
-Nodes (17): AddSubcategoryRow(), CategoryItem(), CategoryManagerModal(), CategoryManagerModalProps, ProductPickerModal(), ProductPickerModalProps, buildCategoryLookup(), NO_CATEGORIES (+9 more)
+### Community 34 - "Supplier Directory & Stock Receipts"
+Cohesion: 0.21
+Nodes (16): fetchSupplierProducts(), getLinksForProduct(), getLinksForSupplier(), linkSupplierProduct(), setLinksForSupplier(), SupplierProductListParams, unlinkSupplierProduct(), EnrichedLinkedSupplier (+8 more)
 
-### Community 29 - "Offline Mirror & Stock Ledger"
-Cohesion: 0.13
-Nodes (14): stripMirrorMeta(), UNSYNCED_VERSION, db, MirrorMeta, applyLedgerToProducts(), pendingDeltaFor(), pendingDeltasByProduct(), pruneConfirmedLedgerEntries() (+6 more)
-
-### Community 31 - "API Client Core"
-Cohesion: 0.16
-Nodes (11): ApiClient, buildParams(), buildSyncHeaders(), isApiErrorLike(), readServerTime(), RequestOptions, reportNetworkObservation(), HEADER_DEVICE_ID (+3 more)
-
-### Community 32 - "Settings State Slice"
+### Community 35 - "Tabler Icon Shards"
 Cohesion: 0.17
-Nodes (14): DEFAULT_PRINT_SETTINGS, DEFAULT_SHOP_PROFILE, AutoPrintOption, DocumentSelection, InvoiceCopyOption, PrintSettings, ShopProfile, initialState (+6 more)
+Nodes (18): TablerIconPicker(), TablerIconPickerProps, EMPTY_MAP, getServerSnapshot(), getSnapshot(), listeners, loadShard(), resolved (+10 more)
 
-### Community 33 - "Tabler Icon Picker"
-Cohesion: 0.20
-Nodes (17): TablerIconPicker(), TablerIconPickerProps, EMPTY_MAP, getServerSnapshot(), getSnapshot(), listeners, loadShard(), resolved (+9 more)
+### Community 36 - "Customer Management & Drawers"
+Cohesion: 0.19
+Nodes (13): createCustomer(), deleteCustomer(), deleteCustomers(), fetchAllCustomers(), fetchCustomers(), updateCustomer(), CustomerListParams, CustomerListResponse (+5 more)
 
-### Community 34 - "Catalog & Service Job Picker"
-Cohesion: 0.23
-Nodes (15): CatalogPanel, CatalogPanelProps, chunk(), CombinedServiceJob, generateServiceJobId(), SERVICE_JOB_SEARCH_FIELDS, ServiceJobPickerModal(), ServiceJobPickerModalProps (+7 more)
+### Community 37 - "Supplier Directory & Stock Receipts"
+Cohesion: 0.21
+Nodes (14): ProductPickerModal(), ProductPickerModalProps, useAllProducts(), SupplierFormContent(), GlobalQuickSearchModal(), mergeByCategory(), QuickSearchResult, SearchHistoryInput (+6 more)
 
-### Community 35 - "Employee Form & List Chrome"
-Cohesion: 0.16
-Nodes (14): EmployeeDetailDrawerProps, EmployeeFormModal(), EmployeeFormModalProps, Employee, EmployeeInput, EntityListPage(), EntityListPageProps, PageHeader() (+6 more)
+### Community 38 - "App Layout & Routing"
+Cohesion: 0.15
+Nodes (11): App(), AppProviders(), AppProvidersProps, router, container, darkTokens, lightTokens, mantineCssVariableResolver() (+3 more)
 
-### Community 36 - "Shared Data Table & Confirm Dialog"
-Cohesion: 0.24
-Nodes (12): deleteEmployee(), deleteEmployees(), updateEmployee(), EmployeeList(), ConfirmDialog(), ConfirmDialogProps, Column, DataTable() (+4 more)
+### Community 39 - "index Module"
+Cohesion: 0.17
+Nodes (13): CURRENCY, DEFAULT_PAGINATION, HELD_CART_REMINDER_MS, SKELETON_WIDTH_PATTERN, MoneyInput(), MoneyInputProps, fromCents(), parseMoneyToCents() (+5 more)
 
-### Community 37 - "Invoices API Mapping"
+### Community 40 - "POS Billing Flow (invoicesApi)"
 Cohesion: 0.15
 Nodes (15): BackendInvoice, BackendInvoiceItem, BackendPaymentRecord, BackendSplitPayment, CompleteSaleInput, CompleteSaleItemInput, CompleteSalePaymentInput, CompleteSalePricingAdjustments (+7 more)
 
-### Community 38 - "Print Job List & API"
-Cohesion: 0.28
-Nodes (12): deleteEarningRecordsForWork(), BackendPrintJob, calculatePrintEarnings(), createPrintJob(), deletePrintJobs(), fetchPrintJobs(), PrintJobListResponseData, toPrintJob() (+4 more)
+### Community 41 - "Billing Chrome & Navigation"
+Cohesion: 0.18
+Nodes (8): ApiClient, buildParams(), buildSyncHeaders(), BackendPaymentRecord, PaymentListResponseData, PaymentRecord, RecordPaymentInput, ApiResponse
 
-### Community 39 - "Category Sync Resource"
-Cohesion: 0.24
-Nodes (12): createCategory(), createSubcategory(), deleteCategory(), deleteSubcategory(), fetchCategories(), updateCategory(), CategoryInput, AddSubcategoryPayload (+4 more)
+### Community 42 - "POS Cart & Checkout State"
+Cohesion: 0.23
+Nodes (10): GuestOnly(), GuestOnlyProps, HeldCartCatchupNotifier(), RequireAuth(), RequireAuthProps, PageLoader(), PageLoaderProps, selectIsAuthenticated() (+2 more)
 
-### Community 40 - "Money Formatting & Cart Line Items"
-Cohesion: 0.24
-Nodes (11): CURRENCY, CartLineItem, DiscountPopover(), DiscountPopoverProps, ProductFormContent(), MoneyInput(), MoneyInputProps, formatMoney() (+3 more)
+### Community 43 - "Employee Accounts & Earnings"
+Cohesion: 0.30
+Nodes (10): EmployeeList, EmployeeDetailDrawerProps, EmployeeFormModal(), EmployeeFormModalProps, Employee, EmployeeInput, EmployeeRole, EmployeeFormValues (+2 more)
 
-### Community 41 - "Product Catalog Tree & Icons"
-Cohesion: 0.28
-Nodes (11): CatalogCategoryFilter, CategoryIconInfo, ProductCatalogTree, ProductCatalogTreeProps, ProductHierarchy, CATEGORY_COLOR_OPTIONS, DEFAULT_CATEGORY_ICON, resolveCategoryIcon() (+3 more)
-
-### Community 42 - "Route Auth Guards"
-Cohesion: 0.20
-Nodes (10): GuestOnly(), GuestOnlyProps, RequireAuth(), RequireAuthProps, AppRoute, ROUTE_PATHS, PageLoader(), PageLoaderProps (+2 more)
-
-### Community 43 - "Role-Based Access Guards"
+### Community 44 - "Inventory & Products API"
 Cohesion: 0.22
-Nodes (9): RequireAdmin(), RequireAdminProps, SidebarProps, NAV_ITEMS, NavItemConfig, USER_ROLE_LABELS, USER_ROLES, RoleGuard() (+1 more)
+Nodes (11): ProductTable, AddSubcategoryRow(), CategoryItem(), CategoryManagerModal(), CategoryManagerModalProps, CATEGORY_COLOR_OPTIONS, useCreateCategory(), useCreateSubcategory() (+3 more)
 
-### Community 44 - "Settings Page Navigation"
+### Community 45 - "Supplier Directory & Stock Receipts"
 Cohesion: 0.26
-Nodes (10): SettingsPage, SettingsNavDrillDownList(), SettingsNavList(), SettingsNavProps, SettingsNavTabs(), renderSection(), SettingsPage(), SETTINGS_SECTIONS (+2 more)
+Nodes (10): createSupplier(), deleteSupplier(), deleteSuppliers(), fetchSuppliers(), SupplierListParams, updateSupplier(), markDeleted(), DeleteSupplierPayload (+2 more)
 
-### Community 45 - "Auth Session Caching"
-Cohesion: 0.29
-Nodes (10): getMeApi(), OFFLINE_SESSION_GRACE_MS, cacheSession(), clearCachedSession(), readCachedSession(), authSlice, initializeAuth, initialState (+2 more)
-
-### Community 46 - "Employee Local Storage Store"
+### Community 46 - "Offline Sync Engine (syncApi)"
 Cohesion: 0.22
-Nodes (3): createEmployee(), normalizeEmployee(), LocalStorageStore
+Nodes (13): PULL_PAGE_LIMIT, ApiEnvelope, fetchResourceDelta(), fetchResourceSnapshotPage(), fetchSyncChanges(), isCursorInvalid(), readChanges(), ResourceSyncStatus (+5 more)
 
-### Community 47 - "Search History Hook"
-Cohesion: 0.27
-Nodes (12): getServerSnapshot(), getSnapshot(), parseHistory(), parseHistoryBlob(), prune(), readAllHistory(), SearchHistoryData, SearchHistoryItem (+4 more)
+### Community 47 - "Employee Accounts & Earnings"
+Cohesion: 0.35
+Nodes (11): deleteEarningRecordsForWork(), BackendPrintJob, calculatePrintEarnings(), createPrintJob(), deletePrintJobs(), fetchPrintJobs(), PrintJobListResponseData, toPrintJob() (+3 more)
 
-### Community 48 - "Icon Shard Generator Script"
+### Community 48 - "generate-icon-shards.mjs Module"
 Cohesion: 0.17
 Nodes (9): barrelPath, keys, loaderEntries, outDir, projectRoot, scriptDir, shards, total (+1 more)
 
-### Community 49 - "Held Cart & Low Stock Notifiers"
-Cohesion: 0.21
-Nodes (9): HeldCartCatchupNotifier(), AppShell(), DEFAULT_PAGINATION, HELD_CART_REMINDER_MS, SKELETON_WIDTH_PATTERN, LowStockNotifier(), notifiedProductIds, useLowStockProducts() (+1 more)
+### Community 49 - "MutationRequestOptions Module"
+Cohesion: 0.24
+Nodes (10): MutationRequestOptions, fetchPurchases(), fetchPurchasesByProduct(), fetchPurchasesBySupplier(), PurchaseListParams, EnrichedStockPurchase, PurchaseProductSummary, PurchaseSupplierSummary (+2 more)
 
-### Community 50 - "Repair Jobs List & API"
-Cohesion: 0.39
-Nodes (10): addEarningRecord(), updateEarningRecordForWork(), calculateRepairEarnings(), createRepairJob(), deleteRepairs(), fetchRepairs(), RepairListResponseData, toRepairJob() (+2 more)
+### Community 50 - "POS Billing Flow (saleHeroPresentation)"
+Cohesion: 0.26
+Nodes (9): PAYMENT_METHODS, CompleteSaleResult, PaymentPanelProps, SaleDocumentPreviewModalProps, getSaleHeroPresentation(), SaleHeroPresentation, Invoice, InvoiceDetailDrawerProps (+1 more)
 
-### Community 51 - "Sync Provider & Toast Notifications"
-Cohesion: 0.38
-Nodes (10): clearConnectivityNotification(), notifyBackOnline(), notifySyncComplete(), notifySyncProblems(), notifyWentOffline(), showOrUpdate(), NOTIFICATION_ID_CONNECTIVITY, NOTIFICATION_ID_SYNC_ERROR (+2 more)
+### Community 51 - "Employee Accounts & Earnings"
+Cohesion: 0.35
+Nodes (10): addEarningRecord(), updateEarningRecordForWork(), BackendRepair, calculateRepairEarnings(), createRepairJob(), deleteRepairs(), RepairListResponseData, toRepairJob() (+2 more)
 
-### Community 52 - "Auth Types & Roles"
+### Community 52 - "Employee Accounts & Earnings"
+Cohesion: 0.25
+Nodes (7): queryKeys, ReportsDashboard, fetchAllEmployeeEarnings, fetchEmployees(), EMPLOYEE_ROLE_LABELS, ReportsDashboard(), DailySalesReportSummary
+
+### Community 53 - "POS Billing Flow (paymentsApi)"
 Cohesion: 0.31
-Nodes (9): UserRole, AuthUser, LoginPayload, LoginResponse, LoginResponseData, MeResponse, UserSession, RoleGuardProps (+1 more)
+Nodes (8): InvoicesList, fetchInvoices(), fetchPaymentsForInvoice(), recordPayment(), toPaymentRecord(), InvoiceDetailDrawer(), InvoicesList(), INVOICE_SEARCH_FIELDS
 
-### Community 53 - "NPM Scripts"
+### Community 54 - "Billing Chrome & Navigation"
+Cohesion: 0.24
+Nodes (7): DiscountPopoverProps, EntityListPage(), EntityListPageProps, PageHeader(), PageHeaderProps, SegmentedToggle(), SegmentedToggleProps
+
+### Community 55 - "scripts Module"
 Cohesion: 0.20
 Nodes (10): scripts, build, dev, format, generate:icons, lint, preview, test (+2 more)
 
-### Community 54 - "Amount & Discount Inputs"
+### Community 56 - "Billing Catalog & Line Items"
+Cohesion: 0.38
+Nodes (8): buildCatalogCategoryFilters(), CatalogCategoryFilter, CategoryIconInfo, DEFAULT_CATEGORY_ICON, resolveCategoryIcon(), TablerIcon, resolveTablerIcon(), TablerIconMap
+
+### Community 57 - "Offline Connectivity Monitoring"
+Cohesion: 0.51
+Nodes (8): clearConnectivityNotification(), notifyBackOnline(), notifySyncComplete(), notifySyncProblems(), notifyWentOffline(), showOrUpdate(), SyncProvider(), registerSyncResources()
+
+### Community 58 - "AmountInput Module"
 Cohesion: 0.24
 Nodes (8): AmountInput, AmountInputProps, BUTTON_WIDTH_MAP, FONT_SIZE_MAP, HEIGHT_MAP, PADDING_MAP, DiscountInput, DiscountInputProps
 
-### Community 55 - "Sync/Connectivity State Types"
-Cohesion: 0.25
-Nodes (6): ConnectivityListener, ConnectivitySnapshot, ConnectivityState, SyncMetaRecord, SyncEngineState, SyncState
+### Community 59 - "ExpandableCard Module"
+Cohesion: 0.27
+Nodes (8): ExpandableCard(), ExpandableCardAction(), ExpandableCardActionProps, ExpandableCardGroup(), ExpandableCardGroupProps, ExpandableCardProps, InteractiveTooltip(), InteractiveTooltipProps
 
-### Community 56 - "Social & Docs Icon Sprite"
+### Community 60 - "Shop Settings & Profile"
+Cohesion: 0.31
+Nodes (7): SettingsNavDrillDownList(), SettingsNavList(), SettingsNavProps, SettingsNavTabs(), SETTINGS_SECTIONS, SettingsSectionId, SettingsSectionMeta
+
+### Community 61 - "useShortcuts Module"
+Cohesion: 0.36
+Nodes (7): activeScopes, handleKeyDown(), isInputFocused(), parseCombo(), Shortcut, ShortcutScope, useAppShortcuts()
+
+### Community 62 - "Invoice & Document Printing"
 Cohesion: 0.43
 Nodes (7): Bluesky Icon, Discord Icon, Documentation Icon, GitHub Icon, icons.svg (Social/Doc Icon Sprite Sheet), Social/Community Icon, X (Twitter) Icon
 
-### Community 57 - "App Entry Chain"
-Cohesion: 0.38
-Nodes (4): App(), AppProviders(), router, container
-
-### Community 58 - "Mobile Sign-Up Forms"
+### Community 63 - "Authentication & Access Control"
 Cohesion: 0.40
 Nodes (3): MobileSignUpFormProps, MobileSocialButtons(), MobileSocialButtonsProps
 
-### Community 59 - "Network Signal Observer"
-Cohesion: 0.33
-Nodes (4): Listener, listeners, NetworkObservation, observeNetwork()
-
-### Community 60 - "Package Metadata"
+### Community 64 - "package.json Module"
 Cohesion: 0.40
 Nodes (4): name, private, type, version
 
-### Community 61 - "Login Background Image"
-Cohesion: 0.67
-Nodes (4): Login Screen (Auth Feature), Phone Repair Technician Servicing Device, Repair/Retail Shop POS Domain, wall_login.jpg (Login Background Image)
-
-### Community 62 - "Logo Upload Component"
-Cohesion: 0.50
-Nodes (3): ACCEPTED_TYPES, LogoUpload(), LogoUploadProps
-
-### Community 63 - "Modal & Drawer UI Patterns Docs"
+### Community 65 - "Invoice & Document Printing"
 Cohesion: 0.67
 Nodes (3): Center Modals Visual Family Pattern, Right-Side Detail & Profile Drawers Pattern, UI Copy for Non-Technical Shop User
 
-### Community 64 - "App Icon & PWA Manifest Docs"
-Cohesion: 0.67
-Nodes (3): POS App Icon / Branding, App Icon (512x512, Lightning Bolt), PWA Manifest / App Icons
-
 ## Knowledge Gaps
-- **299 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+294 more)
+- **304 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+299 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useIsMobile()` connect `Responsive Layout Hooks` to `Inventory & Suppliers`, `Sync Status UI & Maintenance`, `Catalog & Service Job Picker`, `Employee Form & List Chrome`, `Customers Feature`, `Money Formatting & Cart Line Items`, `Role-Based Access Guards`, `Document Preview & Print`, `Billing Screen Layout`, `Settings Sections`, `Job & Repair Form Modals`, `Employee & Customer Drawers`, `Invoices & Payments Types`, `Amount & Discount Inputs`, `Global Quick Search`, `Notifications Feature`, `Auth Login Screens`, `Category & Product Pickers`?**
+- **Why does `useIsMobile()` connect `POS Billing Flow (useResponsive)` to `Employee Accounts & Earnings`, `Authentication & Access Control`, `Notifications & Storage Keys`, `Offline Connectivity Monitoring`, `Supplier Directory & Stock Receipts`, `Employee Accounts & Earnings`, `Inventory & Products API`, `POS Billing Flow (useCustomers)`, `POS Billing Flow (routes)`, `POS Billing Flow (printLogStore)`, `POS Billing Flow (saleHeroPresentation)`, `Supplier Directory & Stock Receipts`, `POS Cart & Checkout State`, `Supplier Directory & Stock Receipts`, `POS Billing Flow (paymentsApi)`, `POS Cart & Checkout State`, `AmountInput Module`, `Offline Sync Engine (useProducts)`?**
   _High betweenness centrality (0.042) - this node is a cross-community bridge._
-- **Why does `ConnectivityMonitor` connect `Connectivity Monitor Internals` to `Outbox, IDs & Flush`, `Sync Engine & Pull`, `Connectivity & Env Config`, `Sync/Connectivity State Types`, `Network Signal Observer`, `Offline Mirror & Stock Ledger`?**
+- **Why does `ConnectivityMonitor` connect `Offline Connectivity Monitoring` to `Outbox Queue & Status`, `Offline Connectivity Monitoring`, `ID Mapping & Reference Resolution`?**
   _High betweenness centrality (0.039) - this node is a cross-community bridge._
-- **Why does `useAppSelector` connect `Settings Sections` to `Inventory & Suppliers`, `Sync Status UI & Maintenance`, `Cart & Payment State`, `App Providers & Theme`, `Responsive Layout Hooks`, `Route Auth Guards`, `Role-Based Access Guards`, `Document Preview & Print`, `Billing Screen Layout`, `Held Cart & Low Stock Notifiers`, `Sync Provider & Toast Notifications`, `Notifications Feature`?**
+- **Why does `useAppSelector` connect `Invoice & Document Printing` to `Offline Connectivity Monitoring`, `Notifications & Storage Keys`, `POS Cart & Checkout State`, `POS Cart & Checkout State`, `POS Billing Flow (routes)`, `Authentication & Access Control`, `POS Billing Flow (printLogStore)`, `POS Billing Flow (saleHeroPresentation)`, `POS Cart & Checkout State`, `Offline Connectivity Monitoring`, `POS Billing Flow (router)`, `Offline Sync Engine (useProducts)`?**
   _High betweenness centrality (0.034) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _299 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Inventory & Suppliers` be split into smaller, more focused modules?**
-  _Cohesion score 0.05916305916305916 - nodes in this community are weakly interconnected._
-- **Should `Sync Status UI & Maintenance` be split into smaller, more focused modules?**
-  _Cohesion score 0.05063291139240506 - nodes in this community are weakly interconnected._
-- **Should `Sync Resource Descriptors` be split into smaller, more focused modules?**
-  _Cohesion score 0.06572769953051644 - nodes in this community are weakly interconnected._
+  _304 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Offline Connectivity Monitoring` be split into smaller, more focused modules?**
+  _Cohesion score 0.05516431924882629 - nodes in this community are weakly interconnected._
+- **Should `Offline Connectivity Monitoring` be split into smaller, more focused modules?**
+  _Cohesion score 0.0629800307219662 - nodes in this community are weakly interconnected._
+- **Should `Notifications & Storage Keys` be split into smaller, more focused modules?**
+  _Cohesion score 0.06734006734006734 - nodes in this community are weakly interconnected._

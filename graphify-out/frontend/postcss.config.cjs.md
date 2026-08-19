@@ -1,0 +1,14 @@
+---
+source_file: "postcss.config.cjs"
+type: "code"
+community: "postcss.config.cjs Module"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/postcssconfigcjs_Module
+---
+
+# postcss.config.cjs
+
+#graphify/code #graphify/EXTRACTED #community/postcssconfigcjs_Module

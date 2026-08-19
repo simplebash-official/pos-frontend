@@ -1,0 +1,28 @@
+---
+source_file: "src/features/sync/types.ts"
+type: "code"
+community: "Offline Connectivity Monitoring"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Offline_Connectivity_Monitoring
+---
+
+# sync/types.ts
+
+## Connections
+- [[MODULE_STATUS_PRESENTATION]] - `contains` [EXTRACTED]
+- [[ModuleSyncStatus]] - `re_exports` [EXTRACTED]
+- [[ModuleSyncView]] - `re_exports` [EXTRACTED]
+- [[OVERALL_STATUS_PRESENTATION]] - `contains` [EXTRACTED]
+- [[OverallSyncStatus]] - `re_exports` [EXTRACTED]
+- [[StatusPresentation]] - `contains` [EXTRACTED]
+- [[SyncModuleCard.tsx]] - `imports_from` [EXTRACTED]
+- [[SyncPanel.tsx]] - `imports_from` [EXTRACTED]
+- [[SyncStatusBadge.tsx]] - `imports_from` [EXTRACTED]
+- [[offlinetypes.ts]] - `re_exports` [EXTRACTED]
+- [[syncindex.ts]] - `re_exports` [EXTRACTED]
+- [[syncSlice.ts]] - `re_exports` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring

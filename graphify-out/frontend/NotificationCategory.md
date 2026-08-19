@@ -1,0 +1,18 @@
+---
+source_file: "src/features/notifications/types.ts"
+type: "code"
+community: "Notifications & Storage Keys"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Notifications__Storage_Keys
+---
+
+# NotificationCategory
+
+## Connections
+- [[NotificationPopover.tsx]] - `imports` [EXTRACTED]
+- [[notificationstypes.ts]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys

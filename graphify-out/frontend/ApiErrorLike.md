@@ -1,0 +1,17 @@
+---
+source_file: "src/offline/outbox/flush.ts"
+type: "code"
+community: "ID Mapping & Reference Resolution"
+location: "L52"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/ID_Mapping__Reference_Resolution
+---
+
+# ApiErrorLike
+
+## Connections
+- [[flush.ts]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/ID_Mapping__Reference_Resolution
