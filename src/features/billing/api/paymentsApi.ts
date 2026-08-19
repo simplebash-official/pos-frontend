@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 
 // Mirrors the backend's `domain::billing::PaymentRecord` — the server-side
@@ -26,10 +26,6 @@ interface BackendPaymentRecord {
   recordedAt: string;
 }
 
-interface PaymentListResponseData {
-  payments: BackendPaymentRecord[];
-}
-
 const toPaymentRecord = (payment: BackendPaymentRecord): PaymentRecord => ({
   id: payment.key,
   invoiceId: payment.invoiceKey,
@@ -40,26 +36,26 @@ const toPaymentRecord = (payment: BackendPaymentRecord): PaymentRecord => ({
   recordedAt: payment.recordedAt,
 });
 
-export const fetchPaymentsForInvoice = async (invoiceId: string): Promise<PaymentRecord[]> => {
-  const response = await apiClient.get<ApiResponse<PaymentListResponseData>>(
-    `/billing/invoices/${invoiceId}/payments`
-  );
-  return response.data.payments.map(toPaymentRecord);
-};
-
 export interface RecordPaymentInput {
   amountCents: number;
   paymentMethod: string;
   notes?: string;
 }
 
+// The only caller is `payments.resource.ts` — per the offline-sync rule that
+// only `src/offline/resources/` may import a synced resource's `api/`
+// module. Reads go through `/sync/changes`'s snapshot (`fetchResourceSnapshot`
+// in `payments.resource.ts`'s `pull.full`), not a per-invoice list route, so
+// there is no `fetchPaymentsForInvoice` here anymore.
 export const recordPayment = async (
   invoiceId: string,
-  input: RecordPaymentInput
+  input: RecordPaymentInput,
+  options?: MutationRequestOptions
 ): Promise<PaymentRecord> => {
   const response = await apiClient.post<ApiResponse<BackendPaymentRecord>>(
     `/billing/invoices/${invoiceId}/payments`,
-    input
+    input,
+    options
   );
   return toPaymentRecord(response.data);
 };

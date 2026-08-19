@@ -17,7 +17,10 @@ export interface A4InvoicePreviewModalProps {
 export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePreviewModalProps) => {
   const isMobile = useIsMobile();
 
-  const { blob, loading, error } = useInvoiceDocument(invoice?.id, opened ? 'a4-invoice' : null);
+  const { blob, loading, error, isPaused } = useInvoiceDocument(
+    invoice?.id,
+    opened ? 'a4-invoice' : null
+  );
 
   const handlePrint = () => {
     if (!invoice || !blob) return;
@@ -117,7 +120,13 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
 
         {/* Preview pane — windowless: no border/card of its own, just a flush region for PdfCanvasViewer to fill. */}
         <Box style={{ height: '65vh' }}>
-          <PdfCanvasViewer blob={blob} loading={loading} error={error} documentLabel="invoice" />
+          <PdfCanvasViewer
+            blob={blob}
+            loading={loading}
+            error={error}
+            isPaused={isPaused}
+            documentLabel="invoice"
+          />
         </Box>
       </Stack>
     </Modal>

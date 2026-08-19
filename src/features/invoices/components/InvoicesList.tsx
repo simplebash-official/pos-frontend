@@ -22,44 +22,20 @@ import {
   IconRefresh,
   IconFileInvoice,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchInvoices } from '@/features/billing/api/invoicesApi';
+import { useAllInvoices } from '@/features/billing/hooks/useInvoices';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
-import { queryKeys } from '@/api/queryKeys';
-import { getListEmptyText } from '@/shared/lib/queryStatusText';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
 export const InvoicesList = () => {
-  const {
-    data: rawInvoices = [],
-    isLoading,
-    isFetching,
-    isError,
-    fetchStatus,
-    refetch,
-  } = useQuery({
-    queryKey: queryKeys.billing.invoices(),
-    queryFn: fetchInvoices,
-  });
-
-  const invoices = useMemo(
-    () =>
-      [...rawInvoices].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      ),
-    [rawInvoices]
-  );
-
-  const emptyText = getListEmptyText(
-    { isPaused: fetchStatus === 'paused', isError },
-    'No invoices found matching your filters.'
-  );
+  // `invoices` is already newest-first (see `useAllInvoices`) — no extra sort needed.
+  const { data: invoices, isLoading, isFetching } = useAllInvoices();
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -273,7 +249,7 @@ export const InvoicesList = () => {
             variant="light"
             leftSection={<IconRefresh size={14} />}
             loading={isFetching}
-            onClick={() => refetch()}
+            onClick={() => void syncEngine.syncNow()}
           >
             Refresh List
           </Button>
@@ -428,7 +404,7 @@ export const InvoicesList = () => {
           columns={columns}
           keyExtractor={(inv) => inv.id}
           loading={isLoading}
-          emptyText={emptyText}
+          emptyText="No invoices found matching your filters."
           selectable={false}
           onRowClick={handleRowClick}
           clientPagination={true}
@@ -441,9 +417,6 @@ export const InvoicesList = () => {
         opened={drawerOpened}
         onClose={() => setDrawerOpened(false)}
         invoice={selectedInvoice}
-        onRefresh={() => {
-          void refetch();
-        }}
       />
     </Box>
   );

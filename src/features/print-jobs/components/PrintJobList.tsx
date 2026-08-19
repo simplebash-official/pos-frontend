@@ -2,106 +2,33 @@ import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack } from '@mantine/core';
 import { IconPlus, IconCheck, IconUser } from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
 import {
-  fetchPrintJobs,
-  createPrintJob,
-  updatePrintJob,
-  deletePrintJobs,
-} from '../api/printJobsApi';
-import { queryKeys } from '@/api/queryKeys';
+  useAllPrintJobs,
+  useCreatePrintJob,
+  useDeletePrintJobs,
+  useUpdatePrintJob,
+} from '../hooks/usePrintJobs';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
-import { getListEmptyText } from '@/shared/lib/queryStatusText';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { PrintJobFormModal } from './PrintJobFormModal';
 
 export const PrintJobList = () => {
-  const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
 
-  const {
-    data: printJobs = [],
-    isLoading,
-    isError,
-    fetchStatus,
-  } = useQuery({
-    queryKey: queryKeys.printJobs.all,
-    queryFn: fetchPrintJobs,
-  });
+  const { data: printJobs, isLoading } = useAllPrintJobs();
 
-  const createMutation = useMutation({
-    mutationFn: createPrintJob,
-    onSuccess: (newJob) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      notifications.show({
-        title: 'Print Order Created',
-        message: `Saved order ${newJob.ticketNumber} successfully`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: Partial<PrintJobInput>;
-      previousStatus?: PrintJob['status'];
-    }) => updatePrintJob(id, input),
-    onSuccess: (updatedJob, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      notifications.show({
-        title: 'Print Order Updated',
-        message: `Updated order ${updatedJob.ticketNumber}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-
-      if (
-        variables.previousStatus &&
-        variables.previousStatus !== updatedJob.status &&
-        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
-      ) {
-        dispatch(
-          addNotification({
-            category: 'print',
-            actionIconType: 'printer',
-            title: updatedJob.status === 'delivered' ? 'Print Job Delivered' : 'Print Job Ready',
-            message: `${updatedJob.jobType.toUpperCase()} order (${updatedJob.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
-            link: ROUTES.PRINT_JOBS,
-          })
-        );
-      }
-    },
-  });
-
-  const deleteBatchMutation = useMutation({
-    mutationFn: deletePrintJobs,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      notifications.show({
-        title: 'Print Jobs Deleted',
-        message: 'Selected print orders removed',
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
+  const createMutation = useCreatePrintJob();
+  const updateMutation = useUpdatePrintJob();
+  const deleteBatchMutation = useDeletePrintJobs();
 
   const handleOpenAdd = () => {
     setJobToEdit(null);
@@ -115,14 +42,52 @@ export const PrintJobList = () => {
 
   const handleFormSubmit = async (values: PrintJobInput) => {
     if (jobToEdit) {
-      await updateMutation.mutateAsync({
-        id: jobToEdit.id,
+      const previousStatus = jobToEdit.status;
+      const updatedJob = await updateMutation.mutateAsync({
+        printJobKey: jobToEdit.id,
         input: values,
-        previousStatus: jobToEdit.status,
       });
+      notifications.show({
+        title: 'Print Order Updated',
+        message: `Updated order ${updatedJob.ticketNumber || jobToEdit.ticketNumber}`,
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
+      if (
+        previousStatus !== updatedJob.status &&
+        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
+      ) {
+        dispatch(
+          addNotification({
+            category: 'print',
+            actionIconType: 'printer',
+            title: updatedJob.status === 'delivered' ? 'Print Job Delivered' : 'Print Job Ready',
+            message: `${updatedJob.jobType.toUpperCase()} order (${updatedJob.ticketNumber || jobToEdit.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
+            link: ROUTES.PRINT_JOBS,
+          })
+        );
+      }
     } else {
-      await createMutation.mutateAsync(values);
+      const newJob = await createMutation.mutateAsync(values);
+      notifications.show({
+        title: 'Print Order Created',
+        message: newJob.ticketNumber
+          ? `Saved order ${newJob.ticketNumber} successfully`
+          : 'Order saved — it will get its number once back online',
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
     }
+  };
+
+  const handleDeleteSelected = async (ids: string[]) => {
+    await deleteBatchMutation.mutateAsync({ printJobKeys: ids });
+    notifications.show({
+      title: 'Print Jobs Deleted',
+      message: 'Selected print orders removed',
+      color: 'teal',
+      icon: <IconCheck size={16} />,
+    });
   };
 
   const columns: Column<PrintJob>[] = [
@@ -236,11 +201,8 @@ export const PrintJobList = () => {
         loading={isLoading}
         keyExtractor={(job) => job.id}
         onRowClick={(job) => handleOpenEdit(job)}
-        onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
-        emptyText={getListEmptyText(
-          { isPaused: fetchStatus === 'paused', isError },
-          'No print orders recorded yet'
-        )}
+        onDeleteSelected={(ids) => void handleDeleteSelected(ids)}
+        emptyText="No print orders recorded yet"
       />
 
       <PrintJobFormModal

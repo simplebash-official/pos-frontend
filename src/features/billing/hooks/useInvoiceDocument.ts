@@ -5,6 +5,7 @@ interface UseInvoiceDocumentResult {
   blob: Blob | null;
   loading: boolean;
   error: boolean;
+  isPaused: boolean;
 }
 
 // Fetches a backend-rendered invoice/receipt PDF as a raw Blob — consumers
@@ -24,6 +25,7 @@ export const useInvoiceDocument = (
     data: blob,
     isLoading,
     isError,
+    fetchStatus,
   } = useQuery({
     queryKey: ['billing', 'invoiceDocument', invoiceId, documentType, paperWidthMm],
     queryFn: () =>
@@ -35,5 +37,6 @@ export const useInvoiceDocument = (
     blob: blob ?? null,
     loading: enabled && isLoading,
     error: enabled && isError,
+    isPaused: enabled && fetchStatus === 'paused',
   };
 };

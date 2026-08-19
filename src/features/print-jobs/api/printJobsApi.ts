@@ -1,11 +1,6 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { PrintJob, PrintJobInput, PrintJobType } from '../types';
-import {
-  addEarningRecord,
-  updateEarningRecordForWork,
-  deleteEarningRecordsForWork,
-} from '@/features/employees/api/mockEmployees';
 
 export const calculatePrintEarnings = (input: {
   estimatedCostCents: number;
@@ -85,68 +80,54 @@ export const fetchPrintJobs = async (): Promise<PrintJob[]> => {
   return response.data.printJobs.map(toPrintJob);
 };
 
-export const createPrintJob = async (input: PrintJobInput): Promise<PrintJob> => {
-  const response = await apiClient.post<ApiResponse<BackendPrintJob>>('/print-jobs', input);
-  const newJob = toPrintJob(response.data);
-
-  // TODO(employees-backend): see `repairsApi.ts::createRepairJob`'s comment.
-  if (newJob.assignedEmployeeId && newJob.assignedEmployeeName && newJob.employeeEarningsCents) {
-    const profit = Math.max(0, newJob.estimatedCostCents - (newJob.materialCostCents || 0));
-    await addEarningRecord({
-      employeeId: newJob.assignedEmployeeId,
-      employeeName: newJob.assignedEmployeeName,
-      workId: newJob.id,
-      ticketOrInvoiceNumber: newJob.ticketNumber,
-      workType: 'print',
-      description: `${newJob.jobType.toUpperCase()} Printing (${newJob.quantity} units)`,
-      customerName: newJob.customerName,
-      totalAmountCents: newJob.estimatedCostCents,
-      costCents: newJob.materialCostCents,
-      profitCents: profit,
-      splitType: newJob.splitType || 'fixed',
-      splitValue: newJob.splitValue || 0,
-      earnedAmountCents: newJob.employeeEarningsCents,
-      status: newJob.status === 'delivered' ? 'completed' : 'pending',
-    });
-  }
-
-  return newJob;
-};
-
-export const updatePrintJob = async (
-  id: string,
-  input: Partial<PrintJobInput>
+// REST-only — no `mockEmployees` commission side effect here. Per the
+// offline-sync rule that only `src/offline/resources/` may import a synced
+// resource's `api/` module, `printJobs.resource.ts` is the only caller of
+// these three; it runs the commission bookkeeping itself, inside `push`,
+// after the server call below succeeds.
+export const createPrintJobRaw = async (
+  input: PrintJobInput,
+  options?: MutationRequestOptions
 ): Promise<PrintJob> => {
-  const response = await apiClient.patch<ApiResponse<BackendPrintJob>>(`/print-jobs/${id}`, input);
-  const updatedJob = toPrintJob(response.data);
-
-  // TODO(employees-backend): see `repairsApi.ts::updateRepairJob`'s comment.
-  if (updatedJob.assignedEmployeeId && updatedJob.assignedEmployeeName) {
-    const profit = Math.max(0, updatedJob.estimatedCostCents - (updatedJob.materialCostCents || 0));
-    await updateEarningRecordForWork(updatedJob.id, 'print', {
-      employeeId: updatedJob.assignedEmployeeId,
-      employeeName: updatedJob.assignedEmployeeName,
-      workId: updatedJob.id,
-      ticketOrInvoiceNumber: updatedJob.ticketNumber,
-      workType: 'print',
-      description: `${updatedJob.jobType.toUpperCase()} Printing (${updatedJob.quantity} units)`,
-      customerName: updatedJob.customerName,
-      totalAmountCents: updatedJob.estimatedCostCents,
-      costCents: updatedJob.materialCostCents,
-      profitCents: profit,
-      splitType: updatedJob.splitType || 'fixed',
-      splitValue: updatedJob.splitValue || 0,
-      earnedAmountCents: updatedJob.employeeEarningsCents || 0,
-      status: updatedJob.status === 'delivered' ? 'completed' : 'pending',
-    });
-  } else {
-    await deleteEarningRecordsForWork([updatedJob.id], 'print');
-  }
-
-  return updatedJob;
+  const response = await apiClient.post<ApiResponse<BackendPrintJob>>(
+    '/print-jobs',
+    input,
+    options
+  );
+  return toPrintJob(response.data);
 };
 
-export const deletePrintJobs = async (ids: string[]): Promise<void> => {
-  await Promise.all(ids.map((id) => apiClient.delete(`/print-jobs/${id}`)));
-  await deleteEarningRecordsForWork(ids, 'print');
+export const updatePrintJobRaw = async (
+  id: string,
+  input: Partial<PrintJobInput>,
+  options?: MutationRequestOptions
+): Promise<PrintJob> => {
+  const response = await apiClient.patch<ApiResponse<BackendPrintJob>>(
+    `/print-jobs/${id}`,
+    input,
+    options
+  );
+  return toPrintJob(response.data);
+};
+
+/**
+ * There is no `/print-jobs/batch` route, so a bulk delete is N separate
+ * requests. The idempotency store's uniqueness is `(key, user_id)` only —
+ * not scoped per request — so every request here MUST get its own derived
+ * key; reusing `options.idempotencyKey` verbatim across all N calls would
+ * make requests 2..N replay request 1's cached response instead of
+ * actually deleting anything.
+ */
+export const deletePrintJobsRaw = async (
+  ids: string[],
+  options?: MutationRequestOptions
+): Promise<void> => {
+  await Promise.all(
+    ids.map((id) =>
+      apiClient.delete(`/print-jobs/${id}`, {
+        ...options,
+        idempotencyKey: options?.idempotencyKey ? `${options.idempotencyKey}:${id}` : undefined,
+      })
+    )
+  );
 };

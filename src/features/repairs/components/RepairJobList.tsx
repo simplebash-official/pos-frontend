@@ -2,101 +2,33 @@ import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack } from '@mantine/core';
 import { IconPlus, IconCheck, IconUser } from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob, RepairJobInput } from '../types';
-import { fetchRepairs, createRepairJob, updateRepairJob, deleteRepairs } from '../api/repairsApi';
-import { queryKeys } from '@/api/queryKeys';
+import {
+  useAllRepairs,
+  useCreateRepairJob,
+  useDeleteRepairs,
+  useUpdateRepairJob,
+} from '../hooks/useRepairs';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
-import { getListEmptyText } from '@/shared/lib/queryStatusText';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { RepairFormModal } from './RepairFormModal';
 
 export const RepairJobList = () => {
-  const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
 
-  const {
-    data: repairJobs = [],
-    isLoading,
-    isError,
-    fetchStatus,
-  } = useQuery({
-    queryKey: queryKeys.repairs.all,
-    queryFn: fetchRepairs,
-  });
+  const { data: repairJobs, isLoading } = useAllRepairs();
 
-  const createMutation = useMutation({
-    mutationFn: createRepairJob,
-    onSuccess: (newJob) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      notifications.show({
-        title: 'Repair Ticket Created',
-        message: `Registered ticket ${newJob.ticketNumber} successfully`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: Partial<RepairJobInput>;
-      previousStatus?: RepairJob['status'];
-    }) => updateRepairJob(id, input),
-    onSuccess: (updatedJob, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      notifications.show({
-        title: 'Repair Ticket Updated',
-        message: `Updated ticket ${updatedJob.ticketNumber}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-
-      if (
-        variables.previousStatus &&
-        variables.previousStatus !== updatedJob.status &&
-        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
-      ) {
-        dispatch(
-          addNotification({
-            category: 'repair',
-            actionIconType: updatedJob.status === 'delivered' ? 'check' : 'tool',
-            title: updatedJob.status === 'delivered' ? 'Repair Delivered' : 'Ready for Pickup',
-            message: `${updatedJob.deviceModel} (${updatedJob.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
-            link: ROUTES.REPAIRS,
-          })
-        );
-      }
-    },
-  });
-
-  const deleteBatchMutation = useMutation({
-    mutationFn: deleteRepairs,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      notifications.show({
-        title: 'Repair Tickets Deleted',
-        message: 'Selected repair tickets removed',
-        color: 'orange',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
+  const createMutation = useCreateRepairJob();
+  const updateMutation = useUpdateRepairJob();
+  const deleteBatchMutation = useDeleteRepairs();
 
   const handleOpenAdd = () => {
     setJobToEdit(null);
@@ -110,14 +42,52 @@ export const RepairJobList = () => {
 
   const handleFormSubmit = async (values: RepairJobInput) => {
     if (jobToEdit) {
-      await updateMutation.mutateAsync({
-        id: jobToEdit.id,
+      const previousStatus = jobToEdit.status;
+      const updatedJob = await updateMutation.mutateAsync({
+        repairKey: jobToEdit.id,
         input: values,
-        previousStatus: jobToEdit.status,
       });
+      notifications.show({
+        title: 'Repair Ticket Updated',
+        message: `Updated ticket ${updatedJob.ticketNumber || jobToEdit.ticketNumber}`,
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
+      if (
+        previousStatus !== updatedJob.status &&
+        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
+      ) {
+        dispatch(
+          addNotification({
+            category: 'repair',
+            actionIconType: updatedJob.status === 'delivered' ? 'check' : 'tool',
+            title: updatedJob.status === 'delivered' ? 'Repair Delivered' : 'Ready for Pickup',
+            message: `${updatedJob.deviceModel} (${updatedJob.ticketNumber || jobToEdit.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
+            link: ROUTES.REPAIRS,
+          })
+        );
+      }
     } else {
-      await createMutation.mutateAsync(values);
+      const newJob = await createMutation.mutateAsync(values);
+      notifications.show({
+        title: 'Repair Ticket Created',
+        message: newJob.ticketNumber
+          ? `Registered ticket ${newJob.ticketNumber} successfully`
+          : 'Ticket saved — it will get its number once back online',
+        color: 'green',
+        icon: <IconCheck size={16} />,
+      });
     }
+  };
+
+  const handleDeleteSelected = async (ids: string[]) => {
+    await deleteBatchMutation.mutateAsync({ repairKeys: ids });
+    notifications.show({
+      title: 'Repair Tickets Deleted',
+      message: 'Selected repair tickets removed',
+      color: 'orange',
+      icon: <IconCheck size={16} />,
+    });
   };
 
   const columns: Column<RepairJob>[] = [
@@ -229,11 +199,8 @@ export const RepairJobList = () => {
         loading={isLoading}
         keyExtractor={(job) => job.id}
         onRowClick={(job) => handleOpenEdit(job)}
-        onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
-        emptyText={getListEmptyText(
-          { isPaused: fetchStatus === 'paused', isError },
-          'No repair jobs recorded yet'
-        )}
+        onDeleteSelected={(ids) => void handleDeleteSelected(ids)}
+        emptyText="No repair jobs recorded yet"
       />
 
       <RepairFormModal

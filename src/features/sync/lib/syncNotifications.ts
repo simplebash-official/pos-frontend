@@ -83,6 +83,30 @@ export const notifySyncComplete = (pushedCount: number): void => {
   connectivityToastVisible = false;
 };
 
+/**
+ * Fired when a pushed operation's server response carried non-fatal warnings
+ * (currently just a sale's `complete_sale` partially-failed side effect —
+ * see `invoices.resource.ts`'s `create` push). This is the only way a
+ * warning reaches the user once checkout can complete offline: the old
+ * inline "Sale completed with warnings" toast assumed the push happened
+ * synchronously inside the same request that showed the confirmation card,
+ * which is no longer true when the push runs later during a flush.
+ *
+ * A per-entity id, not the shared connectivity id — several distinct sales
+ * can each carry independent warnings within the same flush batch, and
+ * showing only the last would silently drop the others.
+ */
+export const notifySaleWarnings = (entityKey: string, warnings: readonly string[]): void => {
+  notifications.show({
+    id: `sale-warning-${entityKey}`,
+    title: 'Sale completed with warnings',
+    message: warnings.join(' '),
+    color: 'yellow',
+    autoClose: 8000,
+    withCloseButton: true,
+  });
+};
+
 export const notifySyncProblems = (failedCount: number): void => {
   // Its own id: a rejected change outlives the connectivity state that
   // produced it, so it must not be overwritten by the next "back online".

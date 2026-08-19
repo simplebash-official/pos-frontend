@@ -1,11 +1,6 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { RepairJob, RepairJobInput } from '../types';
-import {
-  addEarningRecord,
-  updateEarningRecordForWork,
-  deleteEarningRecordsForWork,
-} from '@/features/employees/api/mockEmployees';
 
 export const calculateRepairEarnings = (input: {
   estimatedCostCents: number;
@@ -96,70 +91,50 @@ export const fetchRepairs = async (): Promise<RepairJob[]> => {
   return response.data.repairs.map(toRepairJob);
 };
 
-export const createRepairJob = async (input: RepairJobInput): Promise<RepairJob> => {
-  const response = await apiClient.post<ApiResponse<BackendRepair>>('/repairs', input);
-  const newJob = toRepairJob(response.data);
-
-  // TODO(employees-backend): commission bookkeeping still lives entirely
-  // client-side against the mocked employees store — this is the seam
-  // where a real `employees` backend module would take over.
-  if (newJob.assignedEmployeeId && newJob.assignedEmployeeName && newJob.employeeEarningsCents) {
-    const profit = Math.max(0, newJob.estimatedCostCents - (newJob.materialCostCents || 0));
-    await addEarningRecord({
-      employeeId: newJob.assignedEmployeeId,
-      employeeName: newJob.assignedEmployeeName,
-      workId: newJob.id,
-      ticketOrInvoiceNumber: newJob.ticketNumber,
-      workType: 'repair',
-      description: `${newJob.deviceModel} - ${newJob.issueDescription}`,
-      customerName: newJob.customerName,
-      totalAmountCents: newJob.estimatedCostCents,
-      costCents: newJob.materialCostCents,
-      profitCents: profit,
-      splitType: newJob.splitType || 'percentage',
-      splitValue: newJob.splitValue || 0,
-      earnedAmountCents: newJob.employeeEarningsCents,
-      status: newJob.status === 'delivered' ? 'completed' : 'pending',
-    });
-  }
-
-  return newJob;
-};
-
-export const updateRepairJob = async (
-  id: string,
-  input: Partial<RepairJobInput>
+// REST-only — no `mockEmployees` commission side effect here. Per the
+// offline-sync rule that only `src/offline/resources/` may import a synced
+// resource's `api/` module, `repairs.resource.ts` is the only caller of
+// these three; it runs the commission bookkeeping itself, inside `push`,
+// after the server call below succeeds.
+export const createRepairJobRaw = async (
+  input: RepairJobInput,
+  options?: MutationRequestOptions
 ): Promise<RepairJob> => {
-  const response = await apiClient.patch<ApiResponse<BackendRepair>>(`/repairs/${id}`, input);
-  const updatedJob = toRepairJob(response.data);
-
-  // TODO(employees-backend): same seam as `createRepairJob` above.
-  if (updatedJob.assignedEmployeeId && updatedJob.assignedEmployeeName) {
-    const profit = Math.max(0, updatedJob.estimatedCostCents - (updatedJob.materialCostCents || 0));
-    await updateEarningRecordForWork(updatedJob.id, 'repair', {
-      employeeId: updatedJob.assignedEmployeeId,
-      employeeName: updatedJob.assignedEmployeeName,
-      workId: updatedJob.id,
-      ticketOrInvoiceNumber: updatedJob.ticketNumber,
-      workType: 'repair',
-      description: `${updatedJob.deviceModel} - ${updatedJob.issueDescription}`,
-      customerName: updatedJob.customerName,
-      totalAmountCents: updatedJob.estimatedCostCents,
-      costCents: updatedJob.materialCostCents,
-      profitCents: profit,
-      splitType: updatedJob.splitType || 'percentage',
-      splitValue: updatedJob.splitValue || 0,
-      earnedAmountCents: updatedJob.employeeEarningsCents || 0,
-      status: updatedJob.status === 'delivered' ? 'completed' : 'pending',
-    });
-  } else {
-    await deleteEarningRecordsForWork([updatedJob.id], 'repair');
-  }
-
-  return updatedJob;
+  const response = await apiClient.post<ApiResponse<BackendRepair>>('/repairs', input, options);
+  return toRepairJob(response.data);
 };
 
-export const deleteRepairs = async (ids: string[]): Promise<void> => {
-  await Promise.all(ids.map((id) => apiClient.delete(`/repairs/${id}`)));
-  await deleteEarningRecordsForWork(ids, 'repair');
+export const updateRepairJobRaw = async (
+  id: string,
+  input: Partial<RepairJobInput>,
+  options?: MutationRequestOptions
+): Promise<RepairJob> => {
+  const response = await apiClient.patch<ApiResponse<BackendRepair>>(
+    `/repairs/${id}`,
+    input,
+    options
+  );
+  return toRepairJob(response.data);
+};
+
+/**
+ * There is no `/repairs/batch` route, so a bulk delete is N separate
+ * requests. The idempotency store's uniqueness is `(key, user_id)` only —
+ * not scoped per request — so every request here MUST get its own derived
+ * key; reusing `options.idempotencyKey` verbatim across all N calls would
+ * make requests 2..N replay request 1's cached response instead of
+ * actually deleting anything.
+ */
+export const deleteRepairsRaw = async (
+  ids: string[],
+  options?: MutationRequestOptions
+): Promise<void> => {
+  await Promise.all(
+    ids.map((id) =>
+      apiClient.delete(`/repairs/${id}`, {
+        ...options,
+        idempotencyKey: options?.idempotencyKey ? `${options.idempotencyKey}:${id}` : undefined,
+      })
+    )
+  );
 };

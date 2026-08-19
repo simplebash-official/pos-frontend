@@ -1,20 +1,24 @@
-# Graph Report - frontend  (2026-08-19)
+# Graph Report - frontend (2026-08-19)
 
 ## Corpus Check
+
 - 302 files · ~156,768 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
+
 - 1558 nodes · 4677 edges · 107 communities (77 shown, 30 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 113 edges (avg confidence: 0.73)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
+
 - Built from commit: `7e2ffd99`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
+
 - offline/constants.ts
 - BillingCounter.tsx
 - registry.ts
@@ -115,6 +119,7 @@
 - resources/index.ts
 
 ## God Nodes (most connected - your core abstractions)
+
 1. `useIsMobile()` - 75 edges
 2. `formatMoney()` - 60 edges
 3. `useAppSelector` - 60 edges
@@ -127,18 +132,20 @@
 10. `ProductTable()` - 22 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Graphify Knowledge Graph Guidelines in CLAUDE.md` --semantically_similar_to--> `Graphify Knowledge Graph Rules`  [INFERRED] [semantically similar]
+
+- `Graphify Knowledge Graph Guidelines in CLAUDE.md` --semantically_similar_to--> `Graphify Knowledge Graph Rules` [INFERRED] [semantically similar]
   CLAUDE.md → .agents/rules/graphify.md
-- `Graphify Knowledge Graph Guidelines in CLAUDE.md` --semantically_similar_to--> `Graphify Knowledge Graph Workflow`  [INFERRED] [semantically similar]
+- `Graphify Knowledge Graph Guidelines in CLAUDE.md` --semantically_similar_to--> `Graphify Knowledge Graph Workflow` [INFERRED] [semantically similar]
   CLAUDE.md → .agents/workflows/graphify.md
-- `ProductsPageData` --references--> `Product`  [EXTRACTED]
+- `ProductsPageData` --references--> `Product` [EXTRACTED]
   src/features/inventory/api/productsApi.ts → src/features/inventory/types.ts
-- `SyncStatus` --references--> `SyncResourceId`  [EXTRACTED]
+- `SyncStatus` --references--> `SyncResourceId` [EXTRACTED]
   src/offline/resources/syncApi.ts → src/offline/types.ts
-- `BackendRepair` --references--> `RepairJob`  [EXTRACTED]
+- `BackendRepair` --references--> `RepairJob` [EXTRACTED]
   src/features/repairs/api/repairsApi.ts → src/features/repairs/types.ts
 
 ## Import Cycles
+
 - 3-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductPickerModal.tsx`
 - 3-file cycle: `src/features/inventory/components/ProductTable.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductTable.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierPickerModal.tsx`
@@ -153,6 +160,7 @@
 - 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 
 ## Hyperedges (group relationships)
+
 - **Offline-First Sync and Storage Architecture** — claude_md_offline_sync_engine, claude_md_sync_resource_descriptor, claude_md_connectivity_monitor, claude_md_backend_sync_contract [EXTRACTED 1.00]
 - **Responsive and Performant UI Design System** — claude_md_responsive_rules, claude_md_center_modal_standard, claude_md_detail_drawer_standard, claude_md_animation_performance [EXTRACTED 1.00]
 - **CI Build and Quality Gate Flow** — github_workflows_deploy_pipeline [INFERRED 0.75]
@@ -162,283 +170,353 @@
 ## Communities (107 total, 30 thin omitted)
 
 ### Community 0 - "offline/constants.ts"
+
 Cohesion: 0.05
 Nodes (44): isApiErrorLike(), readServerTime(), RequestOptions, env, ConnectivityMonitor, probeClient, probeHealth(), ProbeResult (+36 more)
 
 ### Community 1 - "BillingCounter.tsx"
+
 Cohesion: 0.20
 Nodes (19): PAYMENT_METHODS, PaymentMethod, BillingRegions, BillingRegionsProps, FILL, BillingPane, BillingSummaryStrip(), BillingTabBar() (+11 more)
 
 ### Community 2 - "registry.ts"
+
 Cohesion: 0.10
 Nodes (25): getAllSyncMeta(), seedSyncMeta(), resolvePullTargets(), RFC-3339, EnqueueInput, getReferringResources(), resetRegistry(), resources (+17 more)
 
 ### Community 3 - "tablerIconShards/index.ts"
+
 Cohesion: 0.06
 Nodes (19): TablerIconPicker(), TablerIconPickerProps, EMPTY_MAP, getServerSnapshot(), getSnapshot(), listeners, loadShard(), resolved (+11 more)
 
 ### Community 4 - "settingsSlice.ts"
+
 Cohesion: 0.15
 Nodes (15): SettingsPage, DEFAULT_PRINT_SETTINGS, DEFAULT_SHOP_PROFILE, AutoPrintOption, DocumentSelection, InvoiceCopyOption, PrintSettings, ShopProfile (+7 more)
 
 ### Community 5 - "SyncEngine.ts"
+
 Cohesion: 0.11
 Nodes (20): clearLocalData(), ClearLocalDataOptions, forceFullResync(), pruneByRetention(), rowAgeTimestamp(), logError(), logInfo(), logSyncEvent() (+12 more)
 
 ### Community 6 - "useAppSelector"
+
 Cohesion: 0.21
 Nodes (20): AppUpdatePrompt(), BankDetailsFormValues, BankDetailsSection(), BrandingFormValues, BrandingSection(), DocumentTemplatesFormValues, DocumentTemplatesSection(), PrintingFormValues (+12 more)
 
 ### Community 7 - "flush.ts"
+
 Cohesion: 0.09
 Nodes (40): ConflictReason, OutboxError, AbandonedReferenceError, UnresolvedReferenceError, abandonMapping(), DROP_ELEMENT, isRecord(), loadIdMap() (+32 more)
 
 ### Community 8 - "syncSlice.ts"
+
 Cohesion: 0.07
 Nodes (42): SyncDrawer(), SyncDrawerProps, SyncModuleCard(), SyncModuleCardProps, formatBytes(), SyncPanel(), SyncSettingsSection(), SyncStatusBadge() (+34 more)
 
 ### Community 9 - "RequireAdmin.tsx"
+
 Cohesion: 0.26
 Nodes (9): RequireAdmin(), RequireAdminProps, USER_ROLE_LABELS, USER_ROLES, UserRole, UserSession, RoleGuard(), RoleGuardProps (+1 more)
 
 ### Community 10 - "products.resource.ts"
+
 Cohesion: 0.18
 Nodes (11): adjustStock(), createProduct(), deleteProducts(), fetchProducts(), ProductListParams, ProductsPageData, updateProduct(), StockAdjustmentResult (+3 more)
 
 ### Community 11 - "router.tsx"
+
 Cohesion: 0.13
 Nodes (14): BillingCounter, CustomerList, EmailLoginScreen, EmployeeList, PrintJobList, ProductTable, RepairJobList, StandalonePrintView (+6 more)
 
 ### Community 12 - "CustomerList.tsx"
+
 Cohesion: 0.09
 Nodes (44): CustomerDetailDrawer(), CustomerDetailDrawerProps, CustomerFormContent(), CustomerFormModal(), CustomerFormModalProps, FormContentProps, CustomerList(), CustomerPickerModal() (+36 more)
 
 ### Community 13 - "CatalogPanel.tsx"
+
 Cohesion: 0.08
 Nodes (46): CatalogPanel, CatalogPanelProps, chunk(), CombinedServiceJob, generateServiceJobId(), SERVICE_JOB_SEARCH_FIELDS, ServiceJobPickerModal(), ServiceJobPickerModalProps (+38 more)
 
 ### Community 14 - "submit.ts"
+
 Cohesion: 0.30
 Nodes (11): MIRROR_TABLE_NAMES, assignLedgerEntriesToOperation(), getDeviceId(), createIdempotencyKey(), createLocalId(), LOCAL_ID_PREFIX, randomUuid(), assertOutboxHasCapacity() (+3 more)
 
 ### Community 15 - "cartSlice.ts"
+
 Cohesion: 0.11
 Nodes (29): CartLineItemProps, useCartCheckout(), LineSourceType, SplitPaymentDetail, CartItem, cartSlice, CartState, DiscountType (+21 more)
 
 ### Community 16 - "SettingsPage.tsx"
+
 Cohesion: 0.32
 Nodes (9): SettingsNavDrillDownList(), SettingsNavList(), SettingsNavProps, SettingsNavTabs(), renderSection(), SettingsPage(), SETTINGS_SECTIONS, SettingsSectionId (+1 more)
 
 ### Community 17 - "dependencies"
+
 Cohesion: 0.06
 Nodes (31): axios, dayjs, dexie, @mantine/core, @mantine/dates, @mantine/hooks, @mantine/modals, @mantine/notifications (+23 more)
 
 ### Community 18 - "EmployeeList.tsx"
+
 Cohesion: 0.09
 Nodes (24): queryKeys, ReportsDashboard, createEmployee(), deleteEmployee(), deleteEmployees(), earningsStore, employeesStore, fetchAllEmployeeEarnings (+16 more)
 
 ### Community 19 - "SaleDocumentPreviewModal.tsx"
+
 Cohesion: 0.12
 Nodes (29): getInvoiceDocument(), InvoiceDocumentType, fetchPaymentsForInvoice(), recordPayment(), toPaymentRecord(), A4InvoicePreviewModal(), SaleDocumentPreviewModal(), StandalonePrintView() (+21 more)
 
 ### Community 20 - "common.ts"
+
 Cohesion: 0.25
 Nodes (7): BackendPaymentRecord, PaymentListResponseData, PaymentRecord, RecordPaymentInput, ApiResponse, PaginatedResponse, SelectOption
 
 ### Community 21 - "devDependencies"
+
 Cohesion: 0.07
 Nodes (29): eslint, eslint-config-prettier, @eslint/js, eslint-plugin-react-refresh, fake-indexeddb, globals, devDependencies, eslint (+21 more)
 
 ### Community 22 - "SyncProvider.tsx"
+
 Cohesion: 0.58
 Nodes (7): clearConnectivityNotification(), notifyBackOnline(), notifySyncComplete(), notifySyncProblems(), notifyWentOffline(), showOrUpdate(), SyncProvider()
 
 ### Community 23 - "pull.test.ts"
+
 Cohesion: 0.13
 Nodes (21): toServerRow(), blankMeta(), getSyncMeta(), invalidateCursor(), patchSyncMeta(), SyncMetaPatch, adoptNewestCursor(), applyChanges() (+13 more)
 
 ### Community 24 - "syncApi.ts"
+
 Cohesion: 0.18
 Nodes (16): PULL_PAGE_LIMIT, defineSyncResource(), stockMovementsResource, ApiEnvelope, fetchResourceDelta(), fetchResourceSnapshot(), fetchResourceSnapshotPage(), fetchSyncChanges() (+8 more)
 
 ### Community 25 - "Header.tsx"
+
 Cohesion: 0.52
 Nodes (6): Header(), HeaderProps, BillingCounter(), useCartSound(), useHeldCarts(), selectAuthUser()
 
 ### Community 26 - "useIsMobile"
+
 Cohesion: 0.10
 Nodes (28): CURRENCY, CartLineItem, CartPanelProps, DiscountPopover(), DiscountPopoverProps, HeldSalesDrawer(), HeldSalesDrawerProps, ProductFormContent() (+20 more)
 
 ### Community 27 - "compilerOptions"
+
 Cohesion: 0.08
 Nodes (24): DOM, ES2023, src, vite/client, compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly (+16 more)
 
 ### Community 28 - "invoicesApi.ts"
+
 Cohesion: 0.10
 Nodes (24): BackendInvoice, BackendInvoiceItem, BackendPaymentRecord, BackendSplitPayment, completeSale(), CompleteSaleInput, CompleteSaleItemInput, CompleteSalePaymentInput (+16 more)
 
 ### Community 29 - "offline/index.ts"
+
 Cohesion: 0.18
 Nodes (13): readServerVersion(), stripMirrorMeta(), UNSYNCED_VERSION, db, MirroredRow, MirrorMeta, applyLedgerToProducts(), pendingDeltaFor() (+5 more)
 
 ### Community 30 - "Backend Requirements — Offline Sync Spec"
+
 Cohesion: 0.10
 Nodes (21): Acceptance Criteria Checklist, SYNC-14: Batch Push Endpoint (Conditional), SYNC-02: Unfiltered Collection List Endpoints, SYNC-10: Conditional Writes (If-Match / VERSION_CONFLICT), SYNC-12: X-Device-Id on Every Request, Backend Requirements — Offline Sync Spec, Error Codes the Client Acts On, SYNC-11: Health Endpoint & Server Clock (+13 more)
 
 ### Community 31 - "useLayoutTier"
+
 Cohesion: 0.50
 Nodes (3): BillingPageSkeleton(), FILL, useLayoutTier()
 
 ### Community 32 - "constants/index.ts"
+
 Cohesion: 0.17
 Nodes (25): JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, JobStatus, EmployeeRole, SplitType, PrintJobFormModalProps, PrintJob (+17 more)
 
 ### Community 33 - "supplierProducts.resource.ts"
+
 Cohesion: 0.22
 Nodes (14): Subcategory, fetchSupplierProducts(), getLinksForProduct(), getLinksForSupplier(), linkSupplierProduct(), setLinksForSupplier(), SupplierProductListParams, unlinkSupplierProduct() (+6 more)
 
 ### Community 34 - "SupplierList.tsx"
+
 Cohesion: 0.14
 Nodes (23): SupplierDetailDrawerProps, FormContentProps, SupplierFormModalProps, SupplierList(), SupplierPickerModal(), SupplierPickerModalProps, NO_SUPPLIERS, useAllSuppliers() (+15 more)
 
 ### Community 35 - "AppShell.tsx"
+
 Cohesion: 0.10
 Nodes (21): HeldCartCatchupNotifier(), AppShell(), ROUTE_TITLES, BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT, SHELL_NAVBAR_RAIL_WIDTH, SHELL_NAVBAR_WIDTH, Sidebar() (+13 more)
 
 ### Community 36 - "LoginForm.tsx"
+
 Cohesion: 0.22
 Nodes (12): loginApi(), AuthLayout(), AuthLayoutProps, EmailLoginScreen(), LoginForm(), MobileAuthContainer(), MobileAuthView, MobileLoginForm() (+4 more)
 
 ### Community 37 - "PrintJobList.tsx"
+
 Cohesion: 0.35
 Nodes (11): deleteEarningRecordsForWork(), BackendPrintJob, calculatePrintEarnings(), createPrintJob(), deletePrintJobs(), fetchPrintJobs(), PrintJobListResponseData, toPrintJob() (+3 more)
 
 ### Community 38 - "schema.ts"
+
 Cohesion: 0.13
 Nodes (22): StockMovement, PendingOperationsList(), PendingOperationsListProps, STATUS_LABEL, MirrorTableName, OfflineDb, AuditEvent, AuditLevel (+14 more)
 
 ### Community 39 - "LogoUpload.tsx"
+
 Cohesion: 0.50
 Nodes (3): ACCEPTED_TYPES, LogoUpload(), LogoUploadProps
 
 ### Community 40 - "ProductTable.tsx"
+
 Cohesion: 0.14
 Nodes (36): ProductCatalogTree, FormContentProps, ProductFormModalProps, ProductTable(), NO_MOVEMENTS, NO_PRODUCTS, useAdjustStock(), useAllProducts() (+28 more)
 
 ### Community 41 - "suppliers.resource.ts"
+
 Cohesion: 0.31
 Nodes (9): createSupplier(), deleteSupplier(), deleteSuppliers(), fetchSuppliers(), SupplierListParams, updateSupplier(), markDeleted(), markPending() (+1 more)
 
 ### Community 42 - "categories.resource.ts"
+
 Cohesion: 0.23
 Nodes (13): createCategory(), createSubcategory(), deleteCategory(), deleteSubcategory(), fetchCategories(), updateCategory(), Category, CategoryInput (+5 more)
 
 ### Community 43 - "RequireAuth.tsx"
+
 Cohesion: 0.20
 Nodes (10): GuestOnly(), GuestOnlyProps, RequireAuth(), RequireAuthProps, AppRoute, ROUTE_PATHS, PageLoader(), PageLoaderProps (+2 more)
 
 ### Community 44 - "useSearchHistory.ts"
+
 Cohesion: 0.27
 Nodes (12): getServerSnapshot(), getSnapshot(), parseHistory(), parseHistoryBlob(), prune(), readAllHistory(), SearchHistoryData, SearchHistoryItem (+4 more)
 
 ### Community 45 - "EntityListPage.tsx"
+
 Cohesion: 0.21
 Nodes (8): EntityListPage(), EntityListPageProps, FilterTagChips(), FilterTagChipsProps, PageHeader(), PageHeaderProps, SegmentedToggle(), SegmentedToggleProps
 
 ### Community 46 - "generate-icon-shards.mjs"
+
 Cohesion: 0.18
 Nodes (8): barrelPath, keys, loaderEntries, outDir, projectRoot, scriptDir, shards, total
 
 ### Community 47 - "authSlice.ts"
+
 Cohesion: 0.27
 Nodes (11): getMeApi(), cacheSession(), clearCachedSession(), readCachedSession(), SESSION_RECORD_ID, authSlice, initializeAuth, initialState (+3 more)
 
 ### Community 48 - "scripts"
+
 Cohesion: 0.20
 Nodes (10): scripts, build, dev, format, generate:icons, lint, preview, test (+2 more)
 
 ### Community 49 - "customers.resource.ts"
+
 Cohesion: 0.21
 Nodes (12): createCustomer(), deleteCustomer(), deleteCustomers(), fetchAllCustomers(), fetchCustomers(), updateCustomer(), CustomerListParams, CustomerListResponse (+4 more)
 
 ### Community 50 - "AmountInput.tsx"
+
 Cohesion: 0.24
 Nodes (8): AmountInput, AmountInputProps, BUTTON_WIDTH_MAP, FONT_SIZE_MAP, HEIGHT_MAP, PADDING_MAP, DiscountInput, DiscountInputProps
 
 ### Community 51 - "ApiClient"
+
 Cohesion: 0.36
 Nodes (3): ApiClient, buildParams(), buildSyncHeaders()
 
 ### Community 52 - "authApi.ts"
+
 Cohesion: 0.43
 Nodes (6): AuthUser, LoginPayload, LoginResponse, LoginResponseData, MeResponse, AuthState
 
 ### Community 53 - "InvoicesList.tsx"
+
 Cohesion: 0.22
 Nodes (10): InvoicesList, fetchInvoices(), InvoicesList(), Column, DataTable(), DataTableProps, getListEmptyText(), QueryConnectivityStatus (+2 more)
 
 ### Community 54 - "Offline-First Dexie Mirror and Outbox Engine"
+
 Cohesion: 0.25
 Nodes (8): Backend Sync, Multiplexed Delta, and Idempotency Contract, Connectivity Monitor and Asymmetric Hysteresis, CSS Variable Design Tokens and Dark Mode System, Offline Authentication and Grace Period, Offline-First Dexie Mirror and Outbox Engine, PWA Shell Pre-caching and API Guard Policy, Redux Toolkit State Architecture, Sync Resource Descriptor Protocol
 
 ### Community 55 - "icons.svg (Social/Doc Icon Sprite Sheet)"
+
 Cohesion: 0.43
 Nodes (7): Bluesky Icon, Discord Icon, Documentation Icon, GitHub Icon, icons.svg (Social/Doc Icon Sprite Sheet), Social/Community Icon, X (Twitter) Icon
 
 ### Community 56 - "app/App.tsx"
+
 Cohesion: 0.38
 Nodes (4): App(), AppProviders(), router, container
 
 ### Community 57 - "MobileSignUpForm.tsx"
+
 Cohesion: 0.40
 Nodes (3): MobileSignUpFormProps, MobileSocialButtons(), MobileSocialButtonsProps
 
 ### Community 58 - "purchases.resource.ts"
+
 Cohesion: 0.18
 Nodes (16): MutationRequestOptions, createPurchase(), fetchPurchases(), fetchPurchasesByProduct(), fetchPurchasesBySupplier(), PurchaseListParams, EnrichedStockPurchase, PurchaseProductSummary (+8 more)
 
 ### Community 59 - "providers.tsx"
+
 Cohesion: 0.11
 Nodes (17): AppProvidersProps, AuthInitializer(), createReduxColorSchemeManager(), reduxColorSchemeManager, toAppScheme(), toMantineScheme(), store, ColorScheme (+9 more)
 
 ### Community 60 - "Responsive and Mobile Layout Tiers"
+
 Cohesion: 0.50
 Nodes (5): Animation Performance and Compositor Rules, Center Modals Standard, Right-Side Detail Drawers Standard, Global Scoped Keyboard Shortcuts, Responsive and Mobile Layout Tiers
 
 ### Community 61 - "package.json"
+
 Cohesion: 0.40
 Nodes (4): name, private, type, version
 
 ### Community 62 - "Graphify Knowledge Graph Rules"
+
 Cohesion: 1.00
 Nodes (3): Graphify Knowledge Graph Rules, Graphify Knowledge Graph Workflow, Graphify Knowledge Graph Guidelines in CLAUDE.md
 
 ### Community 69 - "ProductCatalogTree.tsx"
+
 Cohesion: 0.29
 Nodes (8): ProductCatalogTreeProps, ProductHierarchy, SearchHighlight(), SearchHighlightProps, EntitySearchResult, getMatchRanges(), SearchTerm, TablerIconMap
 
 ### Community 101 - "RepairJobList.tsx"
+
 Cohesion: 0.30
 Nodes (12): addEarningRecord(), updateEarningRecordForWork(), BackendRepair, calculateRepairEarnings(), createRepairJob(), deleteRepairs(), fetchRepairs(), RepairListResponseData (+4 more)
 
 ### Community 102 - "EmployeeFormModal.tsx"
+
 Cohesion: 0.36
 Nodes (8): EmployeeDetailDrawerProps, EmployeeFormModal(), EmployeeFormModalProps, Employee, EmployeeInput, EmployeeFormValues, fromEmployee(), toEmployeeInput()
 
 ### Community 103 - "notificationSlice.ts"
+
 Cohesion: 0.13
 Nodes (20): STORAGE_KEYS, NotificationItem(), NotificationItemProps, NotificationPopover(), NotificationPopoverProps, AppNotification, NotificationActor, NotificationCategory (+12 more)
 
 ### Community 104 - "useSyncData.ts"
+
 Cohesion: 0.26
 Nodes (10): depsChanged(), LiveQueryResult, useLiveQuery(), NO_CONFLICTS, NO_KEYS, NO_OPERATIONS, useConflictedKeys(), useOpenConflicts() (+2 more)
 
 ## Knowledge Gaps
+
 - **319 isolated node(s):** `ProductHierarchy`, `ProductCatalogTreeProps`, `InvoiceDetailDrawerProps`, `DataTableProps`, `lightTokens` (+314 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
+
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `useIsMobile()` connect `useIsMobile` to `constants/index.ts`, `BillingCounter.tsx`, `SupplierList.tsx`, `AppShell.tsx`, `LoginForm.tsx`, `EmployeeFormModal.tsx`, `notificationSlice.ts`, `ProductTable.tsx`, `syncSlice.ts`, `CustomerList.tsx`, `CatalogPanel.tsx`, `EntityListPage.tsx`, `EmployeeList.tsx`, `SaleDocumentPreviewModal.tsx`, `AmountInput.tsx`, `Header.tsx`?**

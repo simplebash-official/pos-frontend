@@ -6,6 +6,7 @@ import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
+import { getDocumentUnavailableText } from '@/shared/lib/queryStatusText';
 
 // Standalone full-page viewer for a backend-rendered A4 invoice PDF, opened
 // via "Download PDF" in `A4InvoicePreviewModal`. The backend always stamps
@@ -15,7 +16,7 @@ export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
   const printedRef = useRef(false);
 
-  const { blob, loading, error } = useInvoiceDocument(id, 'a4-invoice');
+  const { blob, loading, error, isPaused } = useInvoiceDocument(id, 'a4-invoice');
 
   useEffect(() => {
     if (blob && !printedRef.current) {
@@ -40,6 +41,25 @@ export const StandalonePrintView = () => {
             Preparing document…
           </Text>
         </Stack>
+      </Container>
+    );
+  }
+
+  if (isPaused) {
+    return (
+      <Container size="sm" py={100} style={{ textAlign: 'center' }}>
+        <Paper p="xl" radius="var(--mantine-radius-default)" withBorder>
+          <IconAlertCircle size={28} color="var(--mantine-color-orange-6)" />
+          <Text size="lg" fw={700} c="orange" mt="xs">
+            You&apos;re offline
+          </Text>
+          <Text size="sm" c="dimmed" mt="xs">
+            {getDocumentUnavailableText({ isPaused: true, isError: false })}
+          </Text>
+          <Button mt="md" onClick={() => window.close()}>
+            Close Window
+          </Button>
+        </Paper>
       </Container>
     );
   }
@@ -108,7 +128,13 @@ export const StandalonePrintView = () => {
       </Box>
 
       <Box style={{ flex: 1, overflow: 'hidden' }}>
-        <PdfCanvasViewer blob={blob} loading={loading} error={error} documentLabel="invoice" />
+        <PdfCanvasViewer
+          blob={blob}
+          loading={loading}
+          error={error}
+          isPaused={isPaused}
+          documentLabel="invoice"
+        />
       </Box>
     </Box>
   );

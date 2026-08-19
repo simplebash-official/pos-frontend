@@ -37,7 +37,7 @@ export const SaleDocumentPreviewModal = ({
   const hasPrinted = printLogs.length > 0;
 
   const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
-  const { blob, loading, error } = useInvoiceDocument(
+  const { blob, loading, error, isPaused } = useInvoiceDocument(
     invoice?.id,
     opened && documentKind ? (documentKind === 'invoice' ? 'a4-invoice' : 'thermal-receipt') : null,
     paperWidthMm
@@ -83,6 +83,7 @@ export const SaleDocumentPreviewModal = ({
       blob={blob}
       loading={loading}
       error={error}
+      isPaused={isPaused}
       documentLabel={isReceipt ? 'receipt' : 'invoice'}
     />
   );
