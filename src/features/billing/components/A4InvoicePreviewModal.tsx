@@ -2,7 +2,7 @@ import { Modal, Box, Group, Button, Text, Stack, Divider } from '@mantine/core';
 import { IconPrinter, IconDownload, IconX } from '@tabler/icons-react';
 import type { Invoice } from '../types';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
-import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
+import { getPrintLogsForInvoice, recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
@@ -21,12 +21,14 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
 
   const handlePrint = () => {
     if (!invoice || !blob) return;
+    const printLogs = getPrintLogsForInvoice(invoice.invoiceNumber);
+    const isDuplicate = printLogs.length > 0;
     void printPdfBlob(blob);
     recordPrintEvent({
       invoiceId: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
       format: 'a4',
-      copy: 'ORIGINAL — CUSTOMER COPY',
+      copy: isDuplicate ? 'DUPLICATE COPY' : 'ORIGINAL — CUSTOMER COPY',
       printedBy: invoice.cashierName,
     });
   };
