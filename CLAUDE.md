@@ -185,13 +185,13 @@ Shortcut hint labels baked into component text (`"(F2)"`, `"Hold (Ctrl+H)"`, etc
 
 **Money handling**: all monetary values are stored and passed around as integer cents (`unitPriceCents`, `totalCents`, etc.), never floats. Use `src/shared/lib/money.ts` (`toCents`, `fromCents`, `formatMoney`, `parseMoneyToCents`, `calculateTaxCents`, `calculateTotalCents`) to convert/format/compute — don't do ad hoc float math on currency.
 
-**Backend status — mixed**: inventory (products, categories), suppliers, supplier-products, purchases and auth are on a real REST backend under `env.apiBaseUrl` (`/api` by default). Billing/invoices, customers, repairs, print-jobs, employees and payments still run on `LocalStorageStore` mocks (`src/shared/lib/localStorageStore.ts`) and are the remaining migration work.
+**Backend status — mostly migrated**: every domain except employees is on a real REST backend under `env.apiBaseUrl` (`/api` by default), and inventory (products, categories), suppliers, supplier-products, purchases, customers, billing/invoices, payments, repairs and print-jobs are all synced through the offline engine (see **Offline & sync** below). **Employees/commissions** is the one remaining domain still on `LocalStorageStore` mocks (`src/shared/lib/localStorageStore.ts`, `src/features/employees/api/mockEmployees.ts`) — no `employees` backend module exists yet, so there's nothing to sync against.
 
 ## Offline & sync
 
 The shop loses internet regularly (power cuts, ISP outages), so the app is **offline-first**. Every synced resource is mirrored into IndexedDB via Dexie (`src/offline/db/schema.ts`) and **the UI reads that mirror, never the network**. Writes apply locally first and queue in a durable outbox that flushes when connectivity returns.
 
-`src/offline/` is a cross-cutting layer, peer to `src/api/` and `src/store/` — it sits underneath every feature. `src/features/sync/` holds only the UI (status badge, drawer, settings section). Currently only the **inventory domain** is wired through it; other modules adopt it one descriptor at a time.
+`src/offline/` is a cross-cutting layer, peer to `src/api/` and `src/store/` — it sits underneath every feature. `src/features/sync/` holds only the UI (status badge, drawer, settings section). The **categories, suppliers, customers, products, supplierProducts, purchases, stockMovements, repairs, printJobs, invoices and payments** domains are wired through it (`src/offline/types.ts`'s `SyncResourceId` union is the authoritative list); employees/commissions is the one domain deliberately left on mock storage, since no backend module exists for it.
 
 ### The four hard rules
 
@@ -213,6 +213,8 @@ Write one descriptor in `src/offline/resources/<name>.resource.ts` (`SyncResourc
 - `invalidates`, `allowOfflineCreate`, `retention`.
 
 Then swap the feature's hooks over. Keep the returned shape (`data`/`isLoading`/`isPending`/`isFetching`, `mutate`/`mutateAsync`) so call sites don't churn — the inventory migration touched about a dozen lines across two 1,000-line components.
+
+`invoices.resource.ts` is the second worked example, for a different shape of problem than `products.resource.ts`: checkout is one compound server-side write (invoice + payment + stock decrement + ticket-delivery + customer-balance update, all in `billing::service::sale::complete_sale`) whose non-invoice side effects can each independently fail into a `warnings[]` list. Rather than guessing which side effects landed, `localApply` only writes the invoice row itself (plus the retail-line stock deltas, through the same `stockLedger.ts` `products.resource.ts` already writes to) and `push` requests unscoped `followUp` pulls for `payments`/`repairs`/`printJobs`/`customers` instead of optimistically mirroring any of them. Warnings that arrive with a successful push are surfaced later via `notifySaleWarnings` (`src/features/sync/lib/syncNotifications.ts`), driven off `FlushSummary.saleWarnings` — not inline at the call site, since a queued offline write resolves long before its real push (and thus any warning) is known.
 
 ### Connectivity
 
@@ -251,7 +253,7 @@ The sync contract is **implemented** in `../backend` (Rust/Axum). The engine is 
 - A server-issued `key` must **never** start with `local_`.
 - Mongo indexes are ensured at startup (`backend/src/clients/indexes.rs`). Two of them are correctness-critical, not just performance: `(updated_at, key)` is the exact sort the cursor scan pages by, and the unique `(key, user_id)` on `idempotency_keys` is what makes the replay guard's race branch reachable at all.
 
-`POST /sequences/{name}/reserve` is implemented for server-reserved number blocks. Billing has not adopted it yet: sequential human-facing numbers (`INV-2026-0042`, `REP-…`, `PRT-…`) still come from a localStorage counter that will issue duplicates across terminals, and the repairs/print-job generators derive from array _length_, so deleting a job re-issues a live number. Switch them to reserved blocks when billing adopts sync.
+`POST /sequences/{name}/reserve` is implemented for server-reserved number blocks, and billing, repairs and print-jobs all already use it: sequential human-facing numbers (`INV-2026-0042`, `REP-…`, `PRT-…`) are minted server-side at the moment a sale/repair/print-job is created (`billing::service::sale::complete_sale`, `repairs::service`, `print_jobs::service`), never client-side — there has never been a localStorage counter or array-length-derived number for these. A ticket created **offline** has no number at all until its create operation reaches the server; render that state as the standard "Pending" affordance (rule 4 above), never a client-guessed number.
 
 ### PWA
 

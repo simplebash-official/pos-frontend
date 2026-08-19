@@ -36,6 +36,12 @@ import { createIdempotencyKey } from '../ids/localId';
  * server's answer into the mirror atomically with removing the operation.
  */
 
+/** One pushed operation's non-fatal server-reported warnings — see `notifySaleWarnings`. */
+export interface PushWarning {
+  entityKey: string | null;
+  warnings: readonly string[];
+}
+
 export interface FlushSummary {
   pushed: number;
   failed: number;
@@ -45,6 +51,7 @@ export interface FlushSummary {
   /** Set when the session expired — the queue is paused, not failing. */
   stoppedUnauthorized: boolean;
   followUps: FollowUpPull[];
+  saleWarnings: PushWarning[];
 }
 
 type FailureClass = 'offline' | 'unauthorized' | 'transient' | 'conflict' | 'permanent';
@@ -255,6 +262,7 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
     stoppedOffline: false,
     stoppedUnauthorized: false,
     followUps: [],
+    saleWarnings: [],
   };
 
   if (!connectivityMonitor.isOnline()) {
@@ -350,6 +358,9 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
       });
       summary.pushed += 1;
       summary.followUps.push(...result.followUp);
+      if (result.warnings && result.warnings.length > 0) {
+        summary.saleWarnings.push({ entityKey: op.entityLocalId, warnings: result.warnings });
+      }
       idMap = await loadIdMap();
       // A successful push clears a stale "session expired" block: the
       // credentials evidently work again.

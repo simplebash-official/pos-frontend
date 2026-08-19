@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/client';
+import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import type { Invoice, InvoiceItem, SplitPaymentDetail } from '../types';
 
@@ -208,10 +208,16 @@ export interface CompleteSaleResult {
   warnings: string[];
 }
 
-export const completeSale = async (input: CompleteSaleInput): Promise<CompleteSaleResult> => {
+// The only caller is `invoices.resource.ts` — per the offline-sync rule that
+// only `src/offline/resources/` may import a synced resource's `api/` module.
+export const completeSale = async (
+  input: CompleteSaleInput,
+  options?: MutationRequestOptions
+): Promise<CompleteSaleResult> => {
   const response = await apiClient.post<ApiResponse<CompleteSaleResponseData>>(
     '/billing/sales',
-    input
+    input,
+    options
   );
   return {
     invoice: toInvoice(response.data.invoice),
@@ -231,5 +237,21 @@ export const fetchInvoices = async (): Promise<Invoice[]> => {
 
 export const fetchInvoiceById = async (idOrKey: string): Promise<Invoice> => {
   const response = await apiClient.get<ApiResponse<BackendInvoice>>(`/billing/invoices/${idOrKey}`);
+  return toInvoice(response.data);
+};
+
+// Admin-gated on the backend (`billing::routes::cancel_invoice`). Not called
+// from any UI yet — added so `invoices.resource.ts` can offer a `cancel`
+// sync operation ready for whenever an admin-facing cancel screen exists.
+export const cancelInvoice = async (
+  idOrKey: string,
+  reason: string | undefined,
+  options?: MutationRequestOptions
+): Promise<Invoice> => {
+  const response = await apiClient.post<ApiResponse<BackendInvoice>>(
+    `/billing/invoices/${idOrKey}/cancel`,
+    { reason },
+    options
+  );
   return toInvoice(response.data);
 };

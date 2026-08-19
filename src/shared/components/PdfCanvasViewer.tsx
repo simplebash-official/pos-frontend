@@ -23,6 +23,7 @@ import {
   IconArrowsMaximize,
 } from '@tabler/icons-react';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { getDocumentUnavailableText } from '@/shared/lib/queryStatusText';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -30,6 +31,8 @@ export interface PdfCanvasViewerProps {
   blob: Blob | null;
   loading?: boolean;
   error?: boolean;
+  /** The fetch never ran because we're offline — takes priority over `error`. */
+  isPaused?: boolean;
   /** Label used in the empty/error states and the page-count readout. */
   documentLabel?: string;
   /** Initial scale (default: 1 for 100%) */
@@ -146,6 +149,7 @@ export const PdfCanvasViewer = ({
   blob,
   loading,
   error,
+  isPaused,
   documentLabel,
   initialScale = 1,
   initialAutoFit = false,
@@ -247,7 +251,7 @@ export const PdfCanvasViewer = ({
   }, [autoFit, pdfDoc, isMobile]);
 
   const pageCount = pdfDoc?.numPages ?? 0;
-  const showEmpty = loading || error || loadError || !pdfDoc;
+  const showEmpty = isPaused || loading || error || loadError || !pdfDoc;
 
   // Track active visible page while scrolling
   useEffect(() => {
@@ -508,7 +512,7 @@ export const PdfCanvasViewer = ({
           position: 'relative',
         }}
       >
-        {(loading || error || loadError) && (
+        {(isPaused || loading || error || loadError) && (
           <Box
             style={{
               position: 'absolute',
@@ -518,7 +522,17 @@ export const PdfCanvasViewer = ({
               justifyContent: 'center',
             }}
           >
-            {loading ? (
+            {isPaused ? (
+              <Stack align="center" gap="xs">
+                <IconAlertCircle size={28} color="var(--mantine-color-orange-6)" />
+                <Text size="sm" c="orange" fw={600}>
+                  You&apos;re offline
+                </Text>
+                <Text size="xs" c="dimmed" ta="center">
+                  {getDocumentUnavailableText({ isPaused: true, isError: false })}
+                </Text>
+              </Stack>
+            ) : loading ? (
               <Stack align="center" gap="xs">
                 <Loader size="sm" />
                 <Text size="xs" c="dimmed">
@@ -539,7 +553,7 @@ export const PdfCanvasViewer = ({
           </Box>
         )}
 
-        {!loading && !error && !loadError && pdfDoc && (
+        {!isPaused && !loading && !error && !loadError && pdfDoc && (
           <Box
             style={{
               display: 'flex',

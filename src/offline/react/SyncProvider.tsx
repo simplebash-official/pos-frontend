@@ -6,6 +6,7 @@ import { addNotification } from '@/store/slices/notificationSlice';
 import {
   clearConnectivityNotification,
   notifyBackOnline,
+  notifySaleWarnings,
   notifySyncComplete,
   notifySyncProblems,
   notifyWentOffline,
@@ -99,6 +100,16 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
         notifySyncComplete(summary.pushed);
       }
       hadPendingWork = false;
+
+      // A sale (or any operation) whose server response carried non-fatal
+      // warnings — see `invoices.resource.ts`'s `create` push and
+      // `notifySaleWarnings`'s doc comment for why this can't be shown
+      // inline at checkout anymore.
+      for (const { entityKey, warnings } of summary.saleWarnings) {
+        if (entityKey) {
+          notifySaleWarnings(entityKey, warnings);
+        }
+      }
     });
 
     syncEngine.start();

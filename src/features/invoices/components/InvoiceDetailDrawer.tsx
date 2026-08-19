@@ -16,15 +16,10 @@ import {
 } from '@mantine/core';
 import { IconReceipt, IconFileText, IconCopy, IconCheck, IconCash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
-import {
-  fetchPaymentsForInvoice,
-  recordPayment as recordPaymentApi,
-} from '@/features/billing/api/paymentsApi';
-import { queryKeys } from '@/api/queryKeys';
+import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
 import { SaleDocumentPreviewModal } from '@/features/billing/components/SaleDocumentPreviewModal';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -42,7 +37,6 @@ export const InvoiceDetailDrawer = ({
   onRefresh,
 }: InvoiceDetailDrawerProps) => {
   const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
 
   // Document preview modal state ('receipt' | 'invoice' | null)
   const [previewDocumentKind, setPreviewDocumentKind] = useState<'invoice' | 'receipt' | null>(
@@ -56,16 +50,8 @@ export const InvoiceDetailDrawer = ({
   const [payNotes, setPayNotes] = useState('');
   const [isSubmittingPay, setIsSubmittingPay] = useState(false);
 
-  const { data: payments = [] } = useQuery({
-    queryKey: queryKeys.billing.payments(invoice?.id ?? ''),
-    queryFn: () => fetchPaymentsForInvoice(invoice!.id),
-    enabled: opened && !!invoice,
-  });
-
-  const recordPaymentMutation = useMutation({
-    mutationFn: (input: { amountCents: number; paymentMethod: string; notes?: string }) =>
-      recordPaymentApi(invoice!.id, input),
-  });
+  const { data: payments } = useInvoicePayments(invoice?.id);
+  const recordPaymentMutation = useRecordPayment();
 
   if (!invoice) return null;
 
@@ -100,9 +86,12 @@ export const InvoiceDetailDrawer = ({
     setIsSubmittingPay(true);
     try {
       await recordPaymentMutation.mutateAsync({
-        amountCents: cents,
-        paymentMethod: payMethod,
-        notes: payNotes || undefined,
+        invoiceKey: invoice.id,
+        input: {
+          amountCents: cents,
+          paymentMethod: payMethod,
+          notes: payNotes || undefined,
+        },
       });
 
       notifications.show({
@@ -110,8 +99,6 @@ export const InvoiceDetailDrawer = ({
         message: `Payment of ${formatMoney(cents)} recorded successfully. Customer balance updated.`,
         color: 'green',
       });
-      queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
       setPaymentModalOpen(false);
       setPayNotes('');
       onRefresh?.();

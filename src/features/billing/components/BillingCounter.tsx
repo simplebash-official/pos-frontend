@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import { Box } from '@mantine/core';
-import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext } from 'react-router-dom';
 
@@ -20,9 +19,10 @@ import { CustomerPickerModal } from '@/features/customers';
 import { DiscountPopover } from './DiscountPopover';
 import { SaleDocumentPreviewModal } from './SaleDocumentPreviewModal';
 import type { PaymentPanelHandle } from './PaymentPanel';
-import { completeSale, type CompleteSaleInput } from '../api/invoicesApi';
+import type { CompleteSaleInput } from '../api/invoicesApi';
+import { useCompleteSale } from '../hooks/useInvoices';
+import type { CompleteSalePayload } from '@/offline/resources/invoices.resource';
 import { syncEngine } from '@/offline/engine/SyncEngine';
-import { queryKeys } from '@/api/queryKeys';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { playPaymentCompleteSound } from '../lib/audio';
 import { useAppSelector } from '@/store/hooks';
@@ -35,7 +35,7 @@ import type { ApiError } from '@/shared/types/common';
 import type { Invoice } from '../types';
 
 export const BillingCounter = () => {
-  const queryClient = useQueryClient();
+  const completeSaleMutation = useCompleteSale();
   const authUser = useAppSelector(selectAuthUser);
   const shopProfile = useAppSelector(selectShopProfile);
   const outletContext = useOutletContext<{
@@ -194,33 +194,76 @@ export const BillingCounter = () => {
         documentSelection,
       };
 
-      const { invoice, warnings } = await completeSale(payload);
+      // Everything `localApply` needs to render the sale immediately,
+      // computed from the exact same cart state that built `payload` above
+      // — never re-derived inside the resource, so the optimistic totals
+      // can't drift from what the cashier was just shown on screen.
+      const optimistic: CompleteSalePayload['optimistic'] = {
+        customerId: customerId || undefined,
+        customerName: customerName || undefined,
+        customerPhone: customerPhone || undefined,
+        customerAddress: customerAddress || undefined,
+        cashierId: authUser?.id,
+        cashierName,
+        subtotalCents,
+        discountCents,
+        discountType: discountType || undefined,
+        discountValue: discountValue || undefined,
+        totalCents,
+        paymentMethod,
+        splitPayments: paymentMethod === PAYMENT_METHODS.SPLIT ? splitPayments : undefined,
+        isCredit,
+        amountReceivedCents:
+          paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
+        changeDueCents: calculatedChangeCents,
+        dueDate: isCredit ? payload.payment.dueDate : undefined,
+        cardLast4: cardRef || undefined,
+        cardRef: cardRef || undefined,
+        onlineRef: onlineRef || undefined,
+        onlineNote: onlineNote || undefined,
+        status: isCredit ? 'pending' : 'paid',
+        items: items.map((item) => ({
+          id: item.id,
+          productId:
+            item.sourceType === 'retail' || !item.sourceType
+              ? (item.productKey ?? item.id)
+              : item.productId,
+          name: item.name,
+          sku: item.sku,
+          category: item.category,
+          subcategory: item.subcategory,
+          unitPriceCents: item.unitPriceCents,
+          quantity: item.quantity,
+          discountCents: item.discountCents,
+          totalCents: item.totalCents,
+          sourceType: item.sourceType,
+          sourceTicketNumber: item.sourceTicketNumber,
+          assignedEmployeeId: item.assignedEmployeeId,
+          assignedEmployeeName: item.assignedEmployeeName,
+        })),
+        notes,
+        warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
+        documentSelection: documentSelection as Invoice['documentSelection'],
+      };
 
-      if (warnings.length > 0) {
-        notifications.show({
-          title: 'Sale completed with warnings',
-          message: warnings.join(' '),
-          color: 'yellow',
-          autoClose: 8000,
-        });
-      }
+      // Resolves as soon as the sale is saved locally — instantly whether or
+      // not there's a connection. The real invoice number and PDF only
+      // become available once the queued operation reaches the server (see
+      // `invoices.resource.ts`'s doc comment); until then this invoice shows
+      // the standard "Pending" affordance, same as an unsynced product's SKU.
+      const invoice = await completeSaleMutation.mutateAsync({ input: payload, optimistic });
 
-      // Invalidate queries — ticket status and billing history are read via
-      // plain TanStack Query, so invalidating refetches them immediately.
-      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+      // Sale-completion warnings (e.g. a partial stock-decrement failure)
+      // no longer arrive on this same call now that checkout can complete
+      // offline — see `notifySaleWarnings` in `syncNotifications.ts`, fired
+      // from the outbox flush once the real push actually happens.
 
-      // Stock and customer balance are synced resources — the UI reads
-      // Dexie's local mirror, not TanStack Query (CLAUDE.md's offline/sync
-      // rules), so `invalidateQueries` wouldn't touch them. The sale just
-      // changed both server-side outside the sync engine's own mutation
-      // path (this is a REST call, not a `useSyncedMutation`), so without an
-      // explicit pull the mirror wouldn't catch up until the next periodic
-      // poll (`PULL_INTERVAL_MS`, 60s) — long enough for a cashier to
-      // oversell a just-decremented product. `syncNow()` is a no-op if
-      // there's nothing new for it to fetch, so this is safe to call
-      // unconditionally.
+      // Stock and customer balance are synced resources read from Dexie's
+      // local mirror, not TanStack Query — `syncNow()` promptly pulls
+      // whatever this sale changed server-side rather than waiting for the
+      // next periodic poll (`PULL_INTERVAL_MS`, 60s), long enough for a
+      // cashier to oversell a just-decremented product. A no-op when
+      // there's nothing new to fetch, so safe to call unconditionally.
       void syncEngine.syncNow();
 
       // Play chime sound
@@ -266,6 +309,8 @@ export const BillingCounter = () => {
     customerAddress,
     discountType,
     discountValue,
+    subtotalCents,
+    discountCents,
     totalCents,
     paymentMethod,
     cardRef,
@@ -280,7 +325,7 @@ export const BillingCounter = () => {
     soundEnabled,
     authUser,
     shopProfile,
-    queryClient,
+    completeSaleMutation,
     openDocumentPreview,
     markSaleCompleted,
     isMobile,

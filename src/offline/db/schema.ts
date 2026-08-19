@@ -1,7 +1,11 @@
 import Dexie, { Table } from 'dexie';
+import type { Invoice } from '@/features/billing/types';
+import type { PaymentRecord } from '@/features/billing/api/paymentsApi';
 import type { Customer } from '@/features/customers/types';
 import type { Category, Product, StockMovement } from '@/features/inventory/types';
 import type { StockPurchase } from '@/features/purchases/types';
+import type { PrintJob } from '@/features/print-jobs/types';
+import type { RepairJob } from '@/features/repairs/types';
 import type { SupplierProduct } from '@/features/supplier-products/types';
 import type { Supplier } from '@/features/suppliers/types';
 import { OFFLINE_DB_NAME } from '../constants';
@@ -36,6 +40,10 @@ export class OfflineDb extends Dexie {
   /** Read-only mirror — the server is the sole writer of stock movements. */
   stockMovements!: Table<MirroredRow<StockMovement>, string>;
   customers!: Table<MirroredRow<Customer>, string>;
+  invoices!: Table<MirroredRow<Invoice>, string>;
+  payments!: Table<MirroredRow<PaymentRecord>, string>;
+  repairs!: Table<MirroredRow<RepairJob>, string>;
+  printJobs!: Table<MirroredRow<PrintJob>, string>;
 
   // Engine tables
   outbox!: Table<OutboxOp, number>;
@@ -89,6 +97,17 @@ export class OfflineDb extends Dexie {
     this.version(3).stores({
       customers: 'id, key, name, primaryPhone, _pending, _isDeleted, updatedAt, *tags',
     });
+
+    // v4 adds invoices, payments, repairs and printJobs mirrors. Unlike
+    // products/customers, these entities carry a single `id` field that IS
+    // the backend's `key` (see `invoicesApi.ts`'s `toInvoice` — `id: inv.key`)
+    // — there is no separate `key` column to index here.
+    this.version(4).stores({
+      invoices: 'id, invoiceNumber, customerId, status, createdAt, _pending, _isDeleted',
+      payments: 'id, invoiceId, recordedAt, _pending, _isDeleted',
+      repairs: 'id, ticketNumber, status, assignedEmployeeId, createdAt, _pending, _isDeleted',
+      printJobs: 'id, ticketNumber, status, assignedEmployeeId, createdAt, _pending, _isDeleted',
+    });
   }
 }
 
@@ -103,6 +122,10 @@ export const MIRROR_TABLE_NAMES = [
   'purchases',
   'stockMovements',
   'customers',
+  'invoices',
+  'payments',
+  'repairs',
+  'printJobs',
 ] as const;
 
 export type MirrorTableName = (typeof MIRROR_TABLE_NAMES)[number];

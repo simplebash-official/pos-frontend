@@ -1,8 +1,12 @@
 import { registerSyncResource } from '../registry/registry';
 import { categoriesResource } from './categories.resource';
 import { customersResource } from './customers.resource';
+import { invoicesResource } from './invoices.resource';
+import { paymentsResource } from './payments.resource';
 import { productsResource } from './products.resource';
+import { printJobsResource } from './printJobs.resource';
 import { purchasesResource } from './purchases.resource';
+import { repairsResource } from './repairs.resource';
 import { stockMovementsResource } from './stockMovements.resource';
 import { supplierProductsResource } from './supplierProducts.resource';
 import { suppliersResource } from './suppliers.resource';
@@ -34,4 +38,8 @@ export const registerSyncResources = (): void => {
   registerSyncResource(supplierProductsResource);
   registerSyncResource(purchasesResource);
   registerSyncResource(stockMovementsResource);
+  registerSyncResource(repairsResource);
+  registerSyncResource(printJobsResource);
+  registerSyncResource(invoicesResource);
+  registerSyncResource(paymentsResource);
 };

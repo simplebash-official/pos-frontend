@@ -19,7 +19,11 @@ export type SyncResourceId =
   | 'supplierProducts'
   | 'purchases'
   | 'stockMovements'
-  | 'customers';
+  | 'customers'
+  | 'invoices'
+  | 'payments'
+  | 'repairs'
+  | 'printJobs';
 
 // ---------------------------------------------------------------------------
 // Pull
@@ -84,6 +88,13 @@ export interface PushResult {
   /** Resolves a provisional id. `null` when the operation created nothing. */
   identity: { serverKey: string; serverId: string | null } | null;
   followUp: readonly FollowUpPull[];
+  /**
+   * Non-fatal issues the server reported alongside a successful write (e.g. a
+   * compound sale where one side effect partially failed). Surfaced via a
+   * post-hoc notification rather than the mutation's own promise, since a
+   * queued offline write resolves optimistically long before this is known.
+   */
+  warnings?: readonly string[];
 }
 
 export interface PushContext {
