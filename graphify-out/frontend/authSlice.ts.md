@@ -1,23 +1,24 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L1'
+source_file: "src/store/slices/authSlice.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # authSlice.ts
 
 ## Connections
-
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[AuthState]] - `contains` [EXTRACTED]
 - [[AuthUser]] - `imports` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
+- [[ConnectivityMonitor]] - `imports` [EXTRACTED]
+- [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[GuestOnly.tsx]] - `imports_from` [EXTRACTED]
 - [[Header.tsx]] - `imports_from` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]
@@ -41,7 +42,7 @@ tags:
 - [[clearCachedSession()]] - `imports` [EXTRACTED]
 - [[common.ts]] - `imports_from` [EXTRACTED]
 - [[getMeApi()]] - `imports` [EXTRACTED]
-- [[initialState]] - `contains` [EXTRACTED]
+- [[initialState_4]] - `contains` [EXTRACTED]
 - [[initializeAuth]] - `contains` [EXTRACTED]
 - [[isNetworkError()]] - `contains` [EXTRACTED]
 - [[isRejectedSession()]] - `contains` [EXTRACTED]
@@ -58,5 +59,6 @@ tags:
 - [[session.ts]] - `imports_from` [EXTRACTED]
 - [[storage.ts]] - `imports_from` [EXTRACTED]
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
+- [[tryRestoreFromCache()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

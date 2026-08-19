@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/outbox/flush.ts'
-type: 'code'
-community: 'ID Mapping & Reference Resolution'
-location: 'L421'
+source_file: "src/offline/outbox/flush.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L421"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ID_Mapping__Reference_Resolution
+  - community/Offline_Sync_-_constructor
 ---
 
 # handleConflict()
 
 ## Connections
-
 - [[conflictReasonFor()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `contains` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[retireWithoutServerEntity()]] - `calls` [EXTRACTED]
 - [[strategyFor()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/ID_Mapping__Reference_Resolution
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

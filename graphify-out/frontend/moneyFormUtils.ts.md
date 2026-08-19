@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/moneyFormUtils.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/shared/lib/moneyFormUtils.ts"
+type: "code"
+community: "Employees - CURRENCY"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_CURRENCY
 ---
 
 # moneyFormUtils.ts
 
 ## Connections
-
 - [[Employee]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeFormValues]] - `contains` [EXTRACTED]
@@ -38,4 +37,4 @@ tags:
 - [[toPrintJobInput()]] - `contains` [EXTRACTED]
 - [[toRepairInput()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY

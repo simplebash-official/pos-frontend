@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/purchases/hooks/usePurchases.ts'
-type: 'code'
-community: 'POS Billing Flow (useResponsive)'
-location: 'L89'
+source_file: "src/features/purchases/hooks/usePurchases.ts"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L89"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useResponsive
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # useCreatePurchase()
 
 ## Connections
-
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[ReceiveStockModal()]] - `calls` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[usePurchases.ts]] - `contains` [EXTRACTED]
 - [[useSyncedMutation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useResponsive
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/types.ts'
-type: 'code'
-community: 'Sync Metadata & Cursors'
-location: 'L15'
+source_file: "src/offline/types.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sync_Metadata__Cursors
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # SyncResourceId
 
 ## Connections
-
 - [[EnqueueInput]] - `references` [EXTRACTED]
 - [[SyncStatus]] - `references` [EXTRACTED]
 - [[flush.ts]] - `imports` [EXTRACTED]
@@ -31,4 +30,4 @@ tags:
 - [[useSyncedMutation.ts]] - `imports` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sync_Metadata__Cursors
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Shop Settings & Profile'
-location: 'L61'
+source_file: "src/store/slices/themeSlice.ts"
+type: "code"
+community: "Notifications - initialState"
+location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shop_Settings__Profile
+  - community/Notifications_-_initialState
 ---
 
 # initialState
 
 ## Connections
+- [[themeSlice.ts]] - `contains` [EXTRACTED]
 
-- [[settingsSlice.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Shop_Settings__Profile
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

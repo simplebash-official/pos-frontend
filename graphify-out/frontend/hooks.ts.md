@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/hooks.ts'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L1'
+source_file: "src/store/hooks.ts"
+type: "code"
+community: "Settings - ACCEPTED TYPES"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Settings_-_ACCEPTED_TYPES
 ---
 
 # hooks.ts
 
 ## Connections
-
 - [[AppDispatch]] - `imports` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[AppUpdatePrompt.tsx]] - `imports_from` [EXTRACTED]
@@ -52,4 +51,4 @@ tags:
 - [[usePrint.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

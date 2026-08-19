@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/GlobalQuickSearchModal.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L88'
+source_file: "src/shared/components/GlobalQuickSearchModal.tsx"
+type: "code"
+community: "Billing - CartLineItem"
+location: "L88"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_CartLineItem
 ---
 
 # GlobalQuickSearchModal()
 
 ## Connections
-
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `contains` [EXTRACTED]
 - [[fetchPrintJobs()]] - `indirect_call` [INFERRED]
@@ -24,4 +23,4 @@ tags:
 - [[useAppShortcuts()]] - `calls` [EXTRACTED]
 - [[useEntitySearch()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem

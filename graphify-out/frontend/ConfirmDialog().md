@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/ConfirmDialog.tsx'
-type: 'code'
-community: 'Offline Sync Engine (useProducts)'
-location: 'L16'
+source_file: "src/shared/components/ConfirmDialog.tsx"
+type: "code"
+community: "Suppliers - useSetSupplierLinks"
+location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_useProducts
+  - community/Suppliers_-_useSetSupplierLinks
 ---
 
 # ConfirmDialog()
 
 ## Connections
-
 - [[CartPanel.tsx]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `contains` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_useProducts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks

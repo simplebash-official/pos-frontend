@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L115'
+source_file: "src/store/slices/notificationSlice.ts"
+type: "code"
+community: "Notifications - initialState"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Notifications_-_initialState
 ---
 
 # initialState
 
 ## Connections
+- [[notificationSlice.ts]] - `contains` [EXTRACTED]
 
-- [[cartSlice.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

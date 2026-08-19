@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/purchases/hooks/usePurchases.ts'
-type: 'code'
-community: 'POS Billing Flow (useResponsive)'
-location: 'L17'
+source_file: "src/features/purchases/hooks/usePurchases.ts"
+type: "code"
+community: "Inventory - ProductTable"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useResponsive
+  - community/Inventory_-_ProductTable
 ---
 
 # enrich()
 
 ## Connections
-
 - [[usePurchases.ts]] - `contains` [EXTRACTED]
 - [[usePurchasesByProduct()]] - `calls` [EXTRACTED]
 - [[usePurchasesBySupplier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useResponsive
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable

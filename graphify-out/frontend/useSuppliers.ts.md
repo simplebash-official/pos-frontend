@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/hooks/useSuppliers.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/suppliers/hooks/useSuppliers.ts"
+type: "code"
+community: "Suppliers - useSetSupplierLinks"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_useSetSupplierLinks
 ---
 
 # useSuppliers.ts
 
 ## Connections
-
 - [[DeleteSupplierPayload]] - `imports` [EXTRACTED]
 - [[DeleteSuppliersPayload]] - `imports` [EXTRACTED]
 - [[MirroredRow]] - `imports` [EXTRACTED]
@@ -41,4 +40,4 @@ tags:
 - [[useSyncedQuery.ts]] - `imports_from` [EXTRACTED]
 - [[useUpdateSupplier()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks

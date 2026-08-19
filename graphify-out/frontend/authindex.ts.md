@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/auth/index.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L1'
+source_file: "src/features/auth/index.ts"
+type: "code"
+community: "Auth - EmailLoginScreen"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_EmailLoginScreen
 ---
 
 # auth/index.ts
 
 ## Connections
-
 - [[AuthLayout()]] - `re_exports` [EXTRACTED]
 - [[AuthLayout.tsx]] - `re_exports` [EXTRACTED]
 - [[EmailLoginScreen]] - `imports_from` [EXTRACTED]
@@ -30,4 +29,4 @@ tags:
 - [[authApi.ts]] - `re_exports` [EXTRACTED]
 - [[router.tsx]] - `dynamic_import` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_EmailLoginScreen

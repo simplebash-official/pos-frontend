@@ -1,18 +1,17 @@
 ---
-source_file: 'src/api/queryKeys.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/api/queryKeys.ts"
+type: "code"
+community: "Repairs - InvoicesList"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Repairs_-_InvoicesList
 ---
 
 # queryKeys.ts
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
@@ -20,6 +19,7 @@ tags:
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports_from` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
+- [[InvoicesList.tsx]] - `imports_from` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports_from` [EXTRACTED]
 - [[RepairFormModal.tsx]] - `imports_from` [EXTRACTED]
@@ -35,4 +35,4 @@ tags:
 - [[supplierProducts.resource.ts]] - `imports_from` [EXTRACTED]
 - [[suppliers.resource.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList

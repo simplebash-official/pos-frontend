@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'package.json Module'
-location: 'L1'
+source_file: "package.json"
+type: "code"
+community: "Dependencies - name"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/packagejson_Module
+  - community/Dependencies_-_name
 ---
 
 # package.json
 
 ## Connections
-
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[name]] - `contains` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[type]] - `contains` [EXTRACTED]
 - [[version]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/packagejson_Module
+#graphify/code #graphify/EXTRACTED #community/Dependencies_-_name

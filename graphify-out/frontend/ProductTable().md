@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/components/ProductTable.tsx'
-type: 'code'
-community: 'Offline Sync Engine (useProducts)'
-location: 'L88'
+source_file: "src/features/inventory/components/ProductTable.tsx"
+type: "code"
+community: "Inventory - ProductTable"
+location: "L88"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_useProducts
+  - community/Inventory_-_ProductTable
 ---
 
 # ProductTable()
 
 ## Connections
-
 - [[ProductTable.tsx]] - `contains` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]
 - [[formatMoney()]] - `calls` [EXTRACTED]
@@ -36,4 +35,4 @@ tags:
 - [[useUnlinkProduct()]] - `calls` [EXTRACTED]
 - [[useUpdateProduct()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_useProducts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable

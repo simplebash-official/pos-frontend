@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/components/SyncDrawer.tsx'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L6'
+source_file: "src/features/sync/components/SyncDrawer.tsx"
+type: "code"
+community: "Settings - SyncDrawer"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Settings_-_SyncDrawer
 ---
 
 # SyncDrawerProps
 
 ## Connections
-
 - [[SyncDrawer.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/components/RequireAuth.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L1'
+source_file: "src/app/components/RequireAuth.tsx"
+type: "code"
+community: "Inventory - AppUpdatePrompt"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Inventory_-_AppUpdatePrompt
 ---
 
 # RequireAuth.tsx
 
 ## Connections
-
 - [[PageLoader()]] - `imports` [EXTRACTED]
 - [[PageLoader.tsx]] - `imports_from` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[selectIsAuthenticated()]] - `imports` [EXTRACTED]
 - [[useAppSelector]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt

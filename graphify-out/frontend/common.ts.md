@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/types/common.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L1'
+source_file: "src/shared/types/common.ts"
+type: "code"
+community: "Billing - MutationRequestOptions"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Billing_-_MutationRequestOptions
 ---
 
 # common.ts
 
 ## Connections
-
 - [[ApiError]] - `contains` [EXTRACTED]
 - [[ApiResponse]] - `contains` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
@@ -42,4 +41,4 @@ tags:
 - [[suppliersApi.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Billing_-_MutationRequestOptions

@@ -1,21 +1,20 @@
 ---
-source_file: 'src/shared/lib/searchFields.ts'
-type: 'code'
-community: 'POS Billing Flow (useCustomers)'
-location: 'L35'
+source_file: "src/shared/lib/searchFields.ts"
+type: "code"
+community: "Shared UI - mergeByCategory"
+location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useCustomers
+  - community/Shared_UI_-_mergeByCategory
 ---
 
 # CUSTOMER_SEARCH_FIELDS
 
 ## Connections
-
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
 - [[searchFields.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useCustomers
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory

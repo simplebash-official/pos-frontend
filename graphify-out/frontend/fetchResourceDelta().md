@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/syncApi.ts'
-type: 'code'
-community: 'Offline Sync Engine (syncApi)'
-location: 'L126'
+source_file: "src/offline/resources/syncApi.ts"
+type: "code"
+community: "Purchases - createPurchase"
+location: "L126"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_syncApi
+  - community/Purchases_-_createPurchase
 ---
 
 # fetchResourceDelta()
 
 ## Connections
-
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[categoriesResource]] - `calls` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
@@ -33,4 +32,4 @@ tags:
 - [[syncApi.ts]] - `contains` [EXTRACTED]
 - [[toPullPage()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_syncApi
+#graphify/code #graphify/EXTRACTED #community/Purchases_-_createPurchase

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/engine/SyncEngine.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L232'
+source_file: "src/offline/engine/SyncEngine.ts"
+type: "code"
+community: "Offline Sync - start"
+location: "L232"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_start
 ---
 
 # .runPull()
 
 ## Connections
-
 - [[dot-publish()]] - `calls` [EXTRACTED]
 - [[dot-runFlush()]] - `calls` [EXTRACTED]
 - [[dot-startLoops()]] - `calls` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[pullResource()]] - `calls` [EXTRACTED]
 - [[resolvePullTargets()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start

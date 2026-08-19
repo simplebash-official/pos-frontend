@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/outbox/flush.ts'
-type: 'code'
-community: 'ID Mapping & Reference Resolution'
-location: 'L250'
+source_file: "src/offline/outbox/flush.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L250"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ID_Mapping__Reference_Resolution
+  - community/Offline_Sync_-_constructor
 ---
 
 # flushOutbox()
 
 ## Connections
-
 - [[dot-runFlush()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
 - [[abandonMapping()]] - `calls` [EXTRACTED]
@@ -41,4 +40,4 @@ tags:
 - [[toApiErrorLike()]] - `calls` [EXTRACTED]
 - [[toOutboxError()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/ID_Mapping__Reference_Resolution
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

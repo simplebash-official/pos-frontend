@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/syncSlice.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/store/slices/syncSlice.ts"
+type: "code"
+community: "Settings - SyncDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Settings_-_SyncDrawer
 ---
 
 # syncSlice.ts
 
 ## Connections
-
 - [[ConnectivitySnapshot]] - `imports` [EXTRACTED]
 - [[ModuleSyncStatus]] - `imports` [EXTRACTED]
 - [[ModuleSyncView]] - `imports` [EXTRACTED]
@@ -29,7 +28,7 @@ tags:
 - [[WithSync]] - `contains` [EXTRACTED]
 - [[connectivitytypes.ts]] - `imports_from` [EXTRACTED]
 - [[deriveModuleStatus()]] - `contains` [EXTRACTED]
-- [[initialState_4]] - `contains` [EXTRACTED]
+- [[initialState_5]] - `contains` [EXTRACTED]
 - [[offlineconstants.ts]] - `imports_from` [EXTRACTED]
 - [[offlinetypes.ts]] - `imports_from` [EXTRACTED]
 - [[selectClockSkewMs()]] - `contains` [EXTRACTED]
@@ -54,4 +53,4 @@ tags:
 - [[tables.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer

@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'Runtime Packages & UI Dependencies'
-location: 'L39'
+source_file: "package.json"
+type: "code"
+community: "Dependencies - axios"
+location: "L39"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Runtime_Packages__UI_Dependencies
+  - community/Dependencies_-_axios
 ---
 
 # dependencies
 
 ## Connections
-
 - [[@mantinecore]] - `contains` [EXTRACTED]
 - [[@mantinedates]] - `contains` [EXTRACTED]
 - [[@mantineform]] - `contains` [EXTRACTED]
@@ -33,4 +32,4 @@ tags:
 - [[react-redux]] - `contains` [EXTRACTED]
 - [[react-router-dom]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Runtime_Packages__UI_Dependencies
+#graphify/code #graphify/EXTRACTED #community/Dependencies_-_axios

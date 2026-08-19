@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/ids/deviceId.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/offline/ids/deviceId.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # deviceId.ts
 
 ## Connections
-
 - [[STORAGE_KEYS]] - `imports` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[client.ts]] - `imports_from` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[randomUuid()]] - `imports` [EXTRACTED]
 - [[submit.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

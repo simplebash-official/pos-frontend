@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/components/HeldCartCatchupNotifier.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L17'
+source_file: "src/app/components/HeldCartCatchupNotifier.tsx"
+type: "code"
+community: "Inventory - AppUpdatePrompt"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Inventory_-_AppUpdatePrompt
 ---
 
 # HeldCartCatchupNotifier()
 
 ## Connections
-
 - [[HeldCartCatchupNotifier.tsx]] - `contains` [EXTRACTED]
 - [[providers.tsx]] - `imports` [EXTRACTED]
 - [[selectHeldCarts()]] - `indirect_call` [INFERRED]
@@ -20,4 +19,4 @@ tags:
 - [[useAppDispatch]] - `calls` [EXTRACTED]
 - [[useAppSelector]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt

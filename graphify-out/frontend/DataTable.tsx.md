@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/DataTable.tsx'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/shared/components/DataTable.tsx"
+type: "code"
+community: "Repairs - InvoicesList"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Repairs_-_InvoicesList
 ---
 
 # DataTable.tsx
 
 ## Connections
-
 - [[Column]] - `contains` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[getSkeletonWidthPercent()]] - `imports` [EXTRACTED]
 - [[utils.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList

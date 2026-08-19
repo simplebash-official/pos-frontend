@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/connectivity/networkSignal.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L16'
+source_file: "src/shared/lib/tablerIcons.ts"
+type: "code"
+community: "Shared UI - TablerIconPicker"
+location: "L28"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Shared_UI_-_TablerIconPicker
 ---
 
 # listeners
 
 ## Connections
+- [[tablerIcons.ts]] - `contains` [EXTRACTED]
 
-- [[networkSignal.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker

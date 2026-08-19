@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/purchases/components/ReceiveStockModal.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/purchases/components/ReceiveStockModal.tsx"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # ReceiveStockModal.tsx
 
 ## Connections
-
 - [[ProductPickerModal()]] - `imports` [EXTRACTED]
 - [[ProductPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[ReceiveStockModal()]] - `contains` [EXTRACTED]
@@ -32,4 +31,4 @@ tags:
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 - [[useSuppliers.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

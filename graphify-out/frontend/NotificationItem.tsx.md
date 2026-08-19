@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/notifications/components/NotificationItem.tsx'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L1'
+source_file: "src/features/notifications/components/NotificationItem.tsx"
+type: "code"
+community: "Notifications - initialState"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Notifications_-_initialState
 ---
 
 # NotificationItem.tsx
 
 ## Connections
-
 - [[AppNotification]] - `imports` [EXTRACTED]
 - [[NotificationItem()]] - `contains` [EXTRACTED]
 - [[NotificationItemProps]] - `contains` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[notificationstypes.ts]] - `imports_from` [EXTRACTED]
 - [[useAppDispatch]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

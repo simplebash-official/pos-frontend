@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/index.ts'
-type: 'code'
-community: 'Inventory & Products API'
-location: 'L1'
+source_file: "src/features/inventory/index.ts"
+type: "code"
+community: "Inventory - AddSubcategoryRow"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory__Products_API
+  - community/Inventory_-_AddSubcategoryRow
 ---
 
 # inventory/index.ts
 
 ## Connections
-
 - [[CATEGORY_COLOR_OPTIONS]] - `re_exports` [EXTRACTED]
 - [[CategoryManagerModal()]] - `re_exports` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `re_exports` [EXTRACTED]
@@ -30,4 +29,4 @@ tags:
 - [[router.tsx]] - `dynamic_import` [EXTRACTED]
 - [[searchFields.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory__Products_API
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow

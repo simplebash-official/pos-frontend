@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "acd41c9ad1c48b61",
+        "id": "468bf34792671c9f",
         "type": "tabs",
         "children": [
           {
-            "id": "4bc4896140e90a98",
+            "id": "c15fb71f734cd0e6",
             "type": "leaf",
             "state": {
-              "type": "graph",
+              "type": "empty",
               "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -50,7 +50,891 @@
             "type": "leaf",
             "state": {
               "type": "graph",
-              "state": {},
+              "state": {
+                "collapse-filter": false,
+                "search": "",
+                "showTags": false,
+                "showAttachments": false,
+                "hideUnresolved": false,
+                "showOrphans": true,
+                "collapse-color-groups": false,
+                "colorGroups": [
+                  {
+                    "query": "file:_COMMUNITY_",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16096779
+                    }
+                  },
+                  {
+                    "query": "[source_file:billing] OR [source_file:purchases] OR tag:#community/Billing",
+                    "color": {
+                      "a": 1,
+                      "rgb": 1096065
+                    }
+                  },
+                  {
+                    "query": "[source_file:inventory] OR tag:#community/Inventory",
+                    "color": {
+                      "a": 1,
+                      "rgb": 3900150
+                    }
+                  },
+                  {
+                    "query": "[source_file:repairs] OR tag:#community/Repairs",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16347926
+                    }
+                  },
+                  {
+                    "query": "[source_file:print-jobs] OR [source_file:print_jobs] OR tag:#community/Print",
+                    "color": {
+                      "a": 1,
+                      "rgb": 9133302
+                    }
+                  },
+                  {
+                    "query": "[source_file:invoices] OR tag:#community/Invoices",
+                    "color": {
+                      "a": 1,
+                      "rgb": 1357990
+                    }
+                  },
+                  {
+                    "query": "[source_file:customers] OR tag:#community/Customers",
+                    "color": {
+                      "a": 1,
+                      "rgb": 440020
+                    }
+                  },
+                  {
+                    "query": "[source_file:employees] OR tag:#community/Employees",
+                    "color": {
+                      "a": 1,
+                      "rgb": 6514417
+                    }
+                  },
+                  {
+                    "query": "[source_file:reports] OR tag:#community/Reports",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15485081
+                    }
+                  },
+                  {
+                    "query": "[source_file:suppliers] OR tag:#community/Suppliers",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14251782
+                    }
+                  },
+                  {
+                    "query": "[source_file:settings] OR tag:#community/Settings",
+                    "color": {
+                      "a": 1,
+                      "rgb": 8702998
+                    }
+                  },
+                  {
+                    "query": "[source_file:auth] OR tag:#community/Auth",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15381256
+                    }
+                  },
+                  {
+                    "query": "[source_file:offline] OR [source_file:sync] OR tag:#community/Offline",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15680580
+                    }
+                  },
+                  {
+                    "query": "[source_file:store] OR tag:#community/State",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14239471
+                    }
+                  },
+                  {
+                    "query": "[source_file:api] OR tag:#community/API",
+                    "color": {
+                      "a": 1,
+                      "rgb": 959977
+                    }
+                  },
+                  {
+                    "query": "[source_file:shared] OR tag:#community/Shared",
+                    "color": {
+                      "a": 1,
+                      "rgb": 6583435
+                    }
+                  },
+                  {
+                    "query": "[source_file:app] OR tag:#community/App",
+                    "color": {
+                      "a": 1,
+                      "rgb": 8490232
+                    }
+                  },
+                  {
+                    "query": "tag:#community/offline/constantsts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/syncSlicets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/registryts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/tablerIconShards/indexts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/notificationSlicets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/SyncEnginets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useAppSelector",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/flushts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useResponsivetsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/authApits",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/productsresourcets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/routertsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/CustomerListtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/CatalogPaneltsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/hooksts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/cartSlicets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/searchts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/dependencies",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/EmployeeListtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/SaleDocumentPreviewModaltsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useCategoriests",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/devDependencies",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/schemats",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/BillingCountertsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/syncApits",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/formatMoney",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useIsMobile",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/compilerOptions",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/invoicesApits",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/moneyFormUtilsts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Backend_Requirements__Offline_Sync_Spec",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/purchasesresourcets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/constants/indexts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/supplierProductsresourcets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/SupplierListtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/AppShelltsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/LoginFormtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/PrintJobListtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/submitts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/customersresourcets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/settingsSlicets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/suppliersresourcets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/inventory/typests",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/RequireAuthtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useSearchHistoryts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useSyncDatats",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/generate-icon-shardsmjs",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/authSlicets",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/scripts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/SettingsPagetsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/AmountInputtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/ApiClient",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/SyncEngine",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/SyncProvidertsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Offline-First_Dexie_Mirror_and_Outbox_Engine",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/iconssvg_Social/Doc_Icon_Sprite_Sheet",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/useShortcutsts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/MobileSignUpFormtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/commonts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/EntityListPagetsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Responsive_and_Mobile_Layout_Tiers",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/packagejson",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Graphify_Knowledge_Graph_Rules",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/App_Entry_Layout_Shell_and_Router_Architecture",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/eslint-plugin-react-hooks",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Inline_Color_Scheme_Init_Script",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/mantine/form",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/react-dom",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/tanstack/react-query",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/ProductFormModaltsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/prettier",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/typescript-eslint",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/vite-plugin-pwa",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/vitest",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/setupts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/numberToWordsts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/printts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/AGENTSmd_Instructions_Document",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Integer_Cents_Money_Representation",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Non-Technical_Shop_User_UI_Copy_Guidelines",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Login_Screen_Auth_Feature",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Phone_Repair_Technician_Servicing_Device",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Repair/Retail_Shop_POS_Domain",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/eslintconfigjs",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/GEMINImd_Instructions_Document",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Deploy_Frontend_GitHub_Actions_Workflow",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/POS_App_Icon_/_Branding",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/postcssconfigcjs",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Apple_Touch_Icon_Lightning_Bolt_Logo",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Favicon_Jana2u_POS_Logo_Mark",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/App_Icon_192px_Lightning_Bolt",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/App_Icon_512x512_Lightning_Bolt",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/PWA_Manifest_/_App_Icons",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/heropng",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/TypeScript_Logo_typescriptsvg",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/TypeScript_Language/Technology",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Vite_Logo_vitesvg",
+                    "color": {
+                      "a": 1,
+                      "rgb": 11565729
+                    }
+                  },
+                  {
+                    "query": "tag:#community/wall_loginjpg_Login_Background_Image",
+                    "color": {
+                      "a": 1,
+                      "rgb": 16752039
+                    }
+                  },
+                  {
+                    "query": "tag:#community/vite-envdts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 10253663
+                    }
+                  },
+                  {
+                    "query": "tag:#community/viteconfigts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 12234924
+                    }
+                  },
+                  {
+                    "query": "tag:#community/vitestconfigts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5142951
+                    }
+                  },
+                  {
+                    "query": "tag:#community/Sidebartsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15896107
+                    }
+                  },
+                  {
+                    "query": "tag:#community/EmployeeDetailDrawertsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 14767961
+                    }
+                  },
+                  {
+                    "query": "tag:#community/PendingOperationsListtsx",
+                    "color": {
+                      "a": 1,
+                      "rgb": 7780274
+                    }
+                  },
+                  {
+                    "query": "tag:#community/saleHeroPresentationts",
+                    "color": {
+                      "a": 1,
+                      "rgb": 5873999
+                    }
+                  },
+                  {
+                    "query": "tag:#community/typescript",
+                    "color": {
+                      "a": 1,
+                      "rgb": 15583560
+                    }
+                  }
+                ],
+                "collapse-display": false,
+                "showArrow": true,
+                "textFadeMultiplier": 0,
+                "nodeSizeMultiplier": 1.2,
+                "lineSizeMultiplier": 1.0,
+                "collapse-forces": false,
+                "centerStrength": 0.5,
+                "repelStrength": 10,
+                "repulsionStrength": 10,
+                "linkStrength": 1,
+                "linkDistance": 220,
+                "scale": 0.5,
+                "close": false
+              },
               "icon": "lucide-git-fork",
               "title": "Graph view"
             }
@@ -193,7 +1077,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "4bc4896140e90a98",
+  "active": "c15fb71f734cd0e6",
   "lastOpenFiles": [
     "TaxVatFormValues.md",
     "Untitled.base",

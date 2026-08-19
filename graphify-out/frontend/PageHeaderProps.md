@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/PageHeader.tsx'
-type: 'code'
-community: 'Billing Chrome & Navigation'
-location: 'L4'
+source_file: "src/shared/components/PageHeader.tsx"
+type: "code"
+community: "Repairs - InvoicesList"
+location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Chrome__Navigation
+  - community/Repairs_-_InvoicesList
 ---
 
 # PageHeaderProps
 
 ## Connections
-
 - [[PageHeader.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Chrome__Navigation
+#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList

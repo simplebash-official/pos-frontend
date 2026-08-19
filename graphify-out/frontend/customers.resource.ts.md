@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/customers.resource.ts'
-type: 'code'
-community: 'Customer Management & Drawers'
-location: 'L1'
+source_file: "src/offline/resources/customers.resource.ts"
+type: "code"
+community: "Customers - createCustomer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Customer_Management__Drawers
+  - community/Customers_-_createCustomer
 ---
 
 # customers.resource.ts
 
 ## Connections
-
 - [[Customer]] - `imports` [EXTRACTED]
 - [[CustomerInput]] - `imports` [EXTRACTED]
 - [[DeleteCustomerPayload]] - `contains` [EXTRACTED]
@@ -44,4 +43,4 @@ tags:
 - [[updateCustomer()]] - `imports` [EXTRACTED]
 - [[useCustomers.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Customer_Management__Drawers
+#graphify/code #graphify/EXTRACTED #community/Customers_-_createCustomer

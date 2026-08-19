@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L43'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "Settings - DEFAULT PRINT"
+location: "L61"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Settings_-_DEFAULT_PRINT
 ---
 
 # initialState
 
 ## Connections
+- [[settingsSlice.ts]] - `contains` [EXTRACTED]
 
-- [[authSlice.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT

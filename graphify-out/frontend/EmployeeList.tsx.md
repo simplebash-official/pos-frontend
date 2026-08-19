@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/components/EmployeeList.tsx'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/features/employees/components/EmployeeList.tsx"
+type: "code"
+community: "Employees - createEmployee"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_createEmployee
 ---
 
 # EmployeeList.tsx
 
 ## Connections
-
 - [[Column]] - `imports` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]
@@ -54,4 +53,4 @@ tags:
 - [[useEntitySearch.ts]] - `imports_from` [EXTRACTED]
 - [[utils.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee

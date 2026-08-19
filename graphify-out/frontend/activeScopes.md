@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/hooks/useShortcuts.ts'
-type: 'code'
-community: 'useShortcuts Module'
-location: 'L15'
+source_file: "src/shared/hooks/useShortcuts.ts"
+type: "code"
+community: "Shared UI - activeScopes"
+location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/useShortcuts_Module
+  - community/Shared_UI_-_activeScopes
 ---
 
 # activeScopes
 
 ## Connections
-
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/useShortcuts_Module
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_activeScopes

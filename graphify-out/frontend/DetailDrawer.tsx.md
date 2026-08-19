@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/DetailDrawer.tsx'
-type: 'code'
-community: 'POS Billing Flow (useResponsive)'
-location: 'L1'
+source_file: "src/shared/components/DetailDrawer.tsx"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useResponsive
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # DetailDrawer.tsx
 
 ## Connections
-
 - [[CustomerDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[DetailDrawer()]] - `contains` [EXTRACTED]
 - [[DetailDrawerProps]] - `contains` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useResponsive
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/components/SyncPanel.tsx'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/features/sync/components/SyncPanel.tsx"
+type: "code"
+community: "Settings - SyncDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Settings_-_SyncDrawer
 ---
 
 # SyncPanel.tsx
 
 ## Connections
-
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]
 - [[ExpandableCard.tsx]] - `imports_from` [EXTRACTED]
@@ -53,4 +52,4 @@ tags:
 - [[usePendingOperations()]] - `imports` [EXTRACTED]
 - [[useSyncData.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer

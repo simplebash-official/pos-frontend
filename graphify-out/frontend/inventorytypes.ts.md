@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/types.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/inventory/types.ts"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Inventory_-_adjustStock
 ---
 
 # inventory/types.ts
 
 ## Connections
-
 - [[BarcodeSource]] - `contains` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Category]] - `contains` [EXTRACTED]
@@ -48,4 +47,4 @@ tags:
 - [[useProducts.ts]] - `imports_from` [EXTRACTED]
 - [[useSupplierProducts.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

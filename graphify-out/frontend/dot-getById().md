@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L52'
+source_file: "src/shared/lib/localStorageStore.ts"
+type: "code"
+community: "Shared UI - LocalStorageStore"
+location: "L52"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Shared_UI_-_LocalStorageStore
 ---
 
 # .getById()
 
 ## Connections
-
 - [[LocalStorageStore]] - `method` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_LocalStorageStore

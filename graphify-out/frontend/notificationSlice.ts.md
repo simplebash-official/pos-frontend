@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/notificationSlice.ts'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L1'
+source_file: "src/store/slices/notificationSlice.ts"
+type: "code"
+community: "Notifications - initialState"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Notifications_-_initialState
 ---
 
 # notificationSlice.ts
 
 ## Connections
-
 - [[AppNotification]] - `imports` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports_from` [EXTRACTED]
@@ -24,7 +23,7 @@ tags:
 - [[RootState]] - `imports` [EXTRACTED]
 - [[STORAGE_KEYS]] - `imports` [EXTRACTED]
 - [[SyncProvider.tsx]] - `imports_from` [EXTRACTED]
-- [[initialState_2]] - `contains` [EXTRACTED]
+- [[initialState_1]] - `contains` [EXTRACTED]
 - [[listenerMiddleware.ts]] - `imports_from` [EXTRACTED]
 - [[loadNotificationsFromStorage()]] - `contains` [EXTRACTED]
 - [[notificationSlice]] - `contains` [EXTRACTED]
@@ -37,4 +36,4 @@ tags:
 - [[storage.ts]] - `imports_from` [EXTRACTED]
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

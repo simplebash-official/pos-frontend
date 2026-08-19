@@ -1,20 +1,19 @@
 ---
-source_file: 'src/offline/connectivity/types.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L23'
+source_file: "src/offline/connectivity/types.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_constructor
 ---
 
 # ConnectivityListener
 
 ## Connections
-
-- [[dot-subscribe()]] - `references` [EXTRACTED]
+- [[dot-subscribe()_1]] - `references` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[connectivitytypes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

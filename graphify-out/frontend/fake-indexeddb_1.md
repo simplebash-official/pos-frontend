@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Build & Dev Dependencies'
-location: 'L26'
+source_file: "package.json"
+type: "concept"
+community: "Dependencies - eslint"
+location: "L26"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Build__Dev_Dependencies
+  - community/Dependencies_-_eslint
 ---
 
 # fake-indexeddb
 
 ## Connections
-
 - [[fake-indexeddb]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Build__Dev_Dependencies
+#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_eslint

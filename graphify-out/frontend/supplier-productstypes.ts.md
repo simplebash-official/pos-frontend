@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/supplier-products/types.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/supplier-products/types.ts"
+type: "code"
+community: "Offline Sync - fetchSupplierProducts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Offline_Sync_-_fetchSupplierProducts
 ---
 
 # supplier-products/types.ts
 
 ## Connections
-
 - [[SupplierProduct]] - `contains` [EXTRACTED]
 - [[SupplierProductInput]] - `contains` [EXTRACTED]
 - [[SyncedEntityFields]] - `imports` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[supplierProductsApi.ts]] - `imports_from` [EXTRACTED]
 - [[useSupplierProducts.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts

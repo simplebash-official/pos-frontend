@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/__tests__/search.test.ts'
-type: 'code'
-community: 'Product Catalog & Hierarchy'
-location: 'L1'
+source_file: "src/shared/lib/__tests__/search.test.ts"
+type: "code"
+community: "Shared UI - mergeByCategory"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Product_Catalog__Hierarchy
+  - community/Shared_UI_-_mergeByCategory
 ---
 
 # search.test.ts
 
 ## Connections
-
 - [[FIELDS]] - `contains` [EXTRACTED]
 - [[Row]] - `contains` [EXTRACTED]
 - [[SearchField]] - `imports` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[searchIndex]] - `imports` [EXTRACTED]
 - [[tokenizeQuery()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Product_Catalog__Hierarchy
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/react/useLiveQuery.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L28'
+source_file: "src/offline/react/useLiveQuery.ts"
+type: "code"
+community: "Offline Sync - depsChanged"
+location: "L28"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_depsChanged
 ---
 
 # useLiveQuery()
 
 ## Connections
-
 - [[depsChanged()]] - `calls` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[useConflictedKeys()]] - `calls` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[useSyncedQuery()]] - `calls` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_depsChanged

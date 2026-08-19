@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierList.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L48'
+source_file: "src/features/suppliers/components/SupplierList.tsx"
+type: "code"
+community: "Suppliers - useSetSupplierLinks"
+location: "L48"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_useSetSupplierLinks
 ---
 
 # SupplierList()
 
 ## Connections
-
 - [[SupplierList.tsx]] - `contains` [EXTRACTED]
 - [[getAvatarColor()]] - `calls` [EXTRACTED]
 - [[getInitials()]] - `calls` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[useSetSupplierLinks()]] - `calls` [EXTRACTED]
 - [[useUpdateSupplier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks

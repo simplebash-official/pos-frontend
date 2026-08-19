@@ -1,13 +1,13 @@
 ---
-source_file: 'public/icon-192.png'
-type: 'image'
-community: 'Invoice & Document Printing'
+source_file: "public/icon-192.png"
+type: "image"
+community: "App Icon 192px Lightning"
 tags:
   - graphify/image
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/App_Icon_192px_Lightning
 ---
 
 # App Icon 192px (Lightning Bolt)
 
-#graphify/image #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/image #graphify/EXTRACTED #community/App_Icon_192px_Lightning

@@ -1,21 +1,18 @@
 ---
-source_file: 'src/offline/db/session.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L12'
+source_file: "src/offline/db/session.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # cacheSession()
 
 ## Connections
-
-- [[authSlice]] - `calls` [EXTRACTED]
 - [[authSlice.ts]] - `imports` [EXTRACTED]
-- [[initializeAuth]] - `calls` [EXTRACTED]
 - [[session.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

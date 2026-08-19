@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/PaymentPanel.tsx'
-type: 'code'
-community: 'POS Billing Flow (saleHeroPresentation)'
-location: 'L1'
+source_file: "src/features/billing/components/PaymentPanel.tsx"
+type: "code"
+community: "Billing - PAYMENT METHODS"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_saleHeroPresentation
+  - community/Billing_-_PAYMENT_METHODS
 ---
 
 # PaymentPanel.tsx
 
 ## Connections
-
 - [[AmountInput]] - `imports` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
@@ -44,4 +43,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_saleHeroPresentation
+#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS

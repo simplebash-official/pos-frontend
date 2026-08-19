@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/components/ProductPickerModal.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/inventory/components/ProductPickerModal.tsx"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # ProductPickerModal.tsx
 
 ## Connections
-
 - [[PRODUCT_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[ProductPickerModal()]] - `contains` [EXTRACTED]
 - [[ProductPickerModalProps]] - `contains` [EXTRACTED]
@@ -38,4 +37,4 @@ tags:
 - [[useProducts.ts]] - `imports_from` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

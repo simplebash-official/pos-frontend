@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/repairs/types.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L5'
+source_file: "src/features/repairs/types.ts"
+type: "code"
+community: "Employees - JOB STATUS"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_JOB_STATUS
 ---
 
 # RepairJob
 
 ## Connections
-
 - [[BackendRepair]] - `references` [EXTRACTED]
 - [[JobStatus]] - `references` [EXTRACTED]
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[repairsApi.ts]] - `imports` [EXTRACTED]
 - [[searchFields.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_JOB_STATUS

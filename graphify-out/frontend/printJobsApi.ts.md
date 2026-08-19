@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/print-jobs/api/printJobsApi.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/features/print-jobs/api/printJobsApi.ts"
+type: "code"
+community: "Employees - addEarningRecord"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_addEarningRecord
 ---
 
 # printJobsApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendPrintJob]] - `contains` [EXTRACTED]
@@ -38,4 +37,4 @@ tags:
 - [[updateEarningRecordForWork()]] - `imports` [EXTRACTED]
 - [[updatePrintJob()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord

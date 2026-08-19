@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/syncSlice.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L29'
+source_file: "src/store/slices/authSlice.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L44"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Auth_-_RequireAdmin
 ---
 
 # initialState
 
 ## Connections
+- [[authSlice.ts]] - `contains` [EXTRACTED]
 
-- [[syncSlice.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

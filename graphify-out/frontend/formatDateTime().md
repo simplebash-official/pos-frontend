@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/date.ts'
-type: 'code'
-community: 'POS Billing Flow (useResponsive)'
-location: 'L11'
+source_file: "src/shared/lib/date.ts"
+type: "code"
+community: "Billing - fetchInvoices"
+location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useResponsive
+  - community/Billing_-_fetchInvoices
 ---
 
 # formatDateTime()
 
 ## Connections
-
 - [[CustomerDetailDrawer()]] - `calls` [EXTRACTED]
 - [[CustomerDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeDetailDrawer()]] - `calls` [EXTRACTED]
@@ -35,4 +34,4 @@ tags:
 - [[SyncStatusBadge.tsx]] - `imports` [EXTRACTED]
 - [[date.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useResponsive
+#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices

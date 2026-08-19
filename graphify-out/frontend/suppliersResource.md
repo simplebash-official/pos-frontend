@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/suppliers.resource.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L27'
+source_file: "src/offline/resources/suppliers.resource.ts"
+type: "code"
+community: "Suppliers - createSupplier"
+location: "L27"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_createSupplier
 ---
 
 # suppliersResource
 
 ## Connections
-
 - [[createSupplier()]] - `calls` [EXTRACTED]
 - [[deleteSupplier()]] - `calls` [EXTRACTED]
 - [[deleteSuppliers()]] - `calls` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[toLocalRow()]] - `calls` [EXTRACTED]
 - [[updateSupplier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier

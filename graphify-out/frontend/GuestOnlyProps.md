@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/components/GuestOnly.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L7'
+source_file: "src/app/components/GuestOnly.tsx"
+type: "code"
+community: "Inventory - AppUpdatePrompt"
+location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Inventory_-_AppUpdatePrompt
 ---
 
 # GuestOnlyProps
 
 ## Connections
-
 - [[GuestOnly.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt

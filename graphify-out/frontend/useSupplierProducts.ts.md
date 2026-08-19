@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
+type: "code"
+community: "Offline Sync - fetchSupplierProducts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Offline_Sync_-_fetchSupplierProducts
 ---
 
 # useSupplierProducts.ts
 
 ## Connections
-
 - [[EnrichedLinkedProduct]] - `contains` [EXTRACTED]
 - [[EnrichedLinkedSupplier]] - `contains` [EXTRACTED]
 - [[NO_LINKED_PRODUCTS]] - `contains` [EXTRACTED]
@@ -42,4 +41,4 @@ tags:
 - [[useSyncedQuery.ts]] - `imports_from` [EXTRACTED]
 - [[useUnlinkProduct()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts

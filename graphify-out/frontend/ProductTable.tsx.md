@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/components/ProductTable.tsx'
-type: 'code'
-community: 'Offline Sync Engine (useProducts)'
-location: 'L1'
+source_file: "src/features/inventory/components/ProductTable.tsx"
+type: "code"
+community: "Inventory - ProductTable"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_useProducts
+  - community/Inventory_-_ProductTable
 ---
 
 # ProductTable.tsx
 
 ## Connections
-
 - [[CategoryManagerModal()]] - `imports` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
@@ -70,4 +69,4 @@ tags:
 - [[useUnlinkProduct()]] - `imports` [EXTRACTED]
 - [[useUpdateProduct()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_useProducts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable

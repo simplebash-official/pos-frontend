@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/types.ts'
-type: 'code'
-community: 'Sync Metadata & Cursors'
-location: 'L1'
+source_file: "src/offline/types.ts"
+type: "code"
+community: "Offline Sync - signal"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sync_Metadata__Cursors
+  - community/Offline_Sync_-_signal
 ---
 
 # offline/types.ts
 
 ## Connections
-
 - [[AnySyncResource]] - `contains` [EXTRACTED]
 - [[ConflictPolicy]] - `contains` [EXTRACTED]
 - [[ConflictStrategy]] - `contains` [EXTRACTED]
@@ -56,4 +55,4 @@ tags:
 - [[useSyncedMutation.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sync_Metadata__Cursors
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_signal

@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/suppliers/types.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L3'
+source_file: "src/features/suppliers/types.ts"
+type: "code"
+community: "Suppliers - createSupplier"
+location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_createSupplier
 ---
 
 # Supplier
 
 ## Connections
-
 - [[EnrichedLinkedSupplier]] - `references` [EXTRACTED]
-- [[FormContentProps_2]] - `references` [EXTRACTED]
+- [[FormContentProps_1]] - `references` [EXTRACTED]
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SupplierDetailDrawerProps]] - `references` [EXTRACTED]
@@ -30,4 +29,4 @@ tags:
 - [[useSupplierProducts.ts]] - `imports` [EXTRACTED]
 - [[useSuppliers.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useProducts.ts'
-type: 'code'
-community: 'POS Billing Flow (routes)'
-location: 'L43'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "Inventory - AppUpdatePrompt"
+location: "L43"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_routes
+  - community/Inventory_-_AppUpdatePrompt
 ---
 
 # useLowStockProducts()
 
 ## Connections
-
 - [[LowStockNotifier()]] - `calls` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports` [EXTRACTED]
 - [[Sidebar()]] - `calls` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[useProducts.ts]] - `contains` [EXTRACTED]
 - [[useSyncedQuery()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_routes
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/pushOptions.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L1'
+source_file: "src/offline/resources/pushOptions.ts"
+type: "code"
+community: "Customers - createCustomer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Customers_-_createCustomer
 ---
 
 # pushOptions.ts
 
 ## Connections
-
 - [[MutationRequestOptions]] - `imports` [EXTRACTED]
 - [[PushContext]] - `imports` [EXTRACTED]
 - [[categories.resource.ts]] - `imports_from` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[supplierProducts.resource.ts]] - `imports_from` [EXTRACTED]
 - [[suppliers.resource.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Customers_-_createCustomer

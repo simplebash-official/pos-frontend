@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/money.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L21'
+source_file: "src/shared/lib/money.ts"
+type: "code"
+community: "Billing - CartLineItem"
+location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_CartLineItem
 ---
 
 # formatMoney()
 
 ## Connections
-
 - [[BillingSummaryStrip()]] - `calls` [EXTRACTED]
 - [[BillingTabBar.tsx]] - `imports` [EXTRACTED]
 - [[CartLineItem]] - `calls` [EXTRACTED]
@@ -41,12 +40,10 @@ tags:
 - [[HeldSalesDrawer.tsx]] - `imports` [EXTRACTED]
 - [[InvoiceDetailDrawer()]] - `calls` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
-- [[InvoicesList()]] - `calls` [EXTRACTED]
 - [[InvoicesList.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `calls` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `imports` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
-- [[PrintJobList()]] - `calls` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]
 - [[ProductCatalogTree]] - `calls` [EXTRACTED]
 - [[ProductCatalogTree.tsx]] - `imports` [EXTRACTED]
@@ -57,7 +54,6 @@ tags:
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
-- [[RepairJobList()]] - `calls` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
 - [[ReportsDashboard()]] - `calls` [EXTRACTED]
 - [[ReportsDashboard.tsx]] - `imports` [EXTRACTED]
@@ -74,4 +70,4 @@ tags:
 - [[money.ts]] - `contains` [EXTRACTED]
 - [[saleHeroPresentation.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem

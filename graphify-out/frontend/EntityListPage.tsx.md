@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/EntityListPage.tsx'
-type: 'code'
-community: 'Billing Chrome & Navigation'
-location: 'L1'
+source_file: "src/shared/components/EntityListPage.tsx"
+type: "code"
+community: "Shared UI - EntityListPage"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Chrome__Navigation
+  - community/Shared_UI_-_EntityListPage
 ---
 
 # EntityListPage.tsx
 
 ## Connections
-
 - [[CustomerList.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]
 - [[EntityListPage()]] - `contains` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[SegmentedToggle.tsx]] - `imports_from` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Chrome__Navigation
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_EntityListPage

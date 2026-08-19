@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/errors.ts'
-type: 'code'
-community: 'ID Mapping & Reference Resolution'
-location: 'L37'
+source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L44"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ID_Mapping__Reference_Resolution
+  - community/Offline_Sync_-_constructor
 ---
 
 # .constructor()
 
 ## Connections
+- [[ConnectivityMonitor]] - `method` [EXTRACTED]
 
-- [[UnresolvedReferenceError]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/ID_Mapping__Reference_Resolution
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

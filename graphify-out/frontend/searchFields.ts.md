@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/searchFields.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/shared/lib/searchFields.ts"
+type: "code"
+community: "Shared UI - mergeByCategory"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Shared_UI_-_mergeByCategory
 ---
 
 # searchFields.ts
 
 ## Connections
-
 - [[CUSTOMER_SEARCH_FIELDS]] - `contains` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Customer]] - `imports` [EXTRACTED]
@@ -48,4 +47,4 @@ tags:
 - [[search.ts]] - `imports_from` [EXTRACTED]
 - [[suppliersindex.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory

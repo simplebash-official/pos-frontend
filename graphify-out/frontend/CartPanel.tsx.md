@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/CartPanel.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L1'
+source_file: "src/features/billing/components/CartPanel.tsx"
+type: "code"
+community: "Billing - PAYMENT METHODS"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_PAYMENT_METHODS
 ---
 
 # CartPanel.tsx
 
 ## Connections
-
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]
 - [[CartLineItem]] - `imports` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports_from` [EXTRACTED]
@@ -30,4 +29,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS

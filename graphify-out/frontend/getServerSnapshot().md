@@ -1,19 +1,18 @@
 ---
-source_file: 'src/shared/hooks/useSearchHistory.ts'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L33'
+source_file: "src/shared/lib/tablerIcons.ts"
+type: "code"
+community: "Shared UI - TablerIconPicker"
+location: "L50"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Shared_UI_-_TablerIconPicker
 ---
 
 # getServerSnapshot()
 
 ## Connections
+- [[tablerIcons.ts]] - `contains` [EXTRACTED]
+- [[useShards()]] - `indirect_call` [INFERRED]
 
-- [[useSearchHistory()]] - `indirect_call` [INFERRED]
-- [[useSearchHistory.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker

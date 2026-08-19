@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/types.ts'
-type: 'code'
-community: 'POS Billing Flow (useCustomers)'
-location: 'L1'
+source_file: "src/features/customers/types.ts"
+type: "code"
+community: "Billing - fetchInvoices"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useCustomers
+  - community/Billing_-_fetchInvoices
 ---
 
 # Customer
 
 ## Connections
-
 - [[CustomerDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[CustomerDetailDrawerProps]] - `references` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
@@ -30,4 +29,4 @@ tags:
 - [[searchFields.ts]] - `imports` [EXTRACTED]
 - [[useCustomers.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useCustomers
+#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices

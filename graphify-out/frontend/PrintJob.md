@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/print-jobs/types.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L7'
+source_file: "src/features/print-jobs/types.ts"
+type: "code"
+community: "Employees - JOB STATUS"
+location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_JOB_STATUS
 ---
 
 # PrintJob
 
 ## Connections
-
 - [[BackendPrintJob]] - `references` [EXTRACTED]
 - [[JobStatus]] - `references` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[printJobsApi.ts]] - `imports` [EXTRACTED]
 - [[searchFields.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_JOB_STATUS

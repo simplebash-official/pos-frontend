@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/ids/idMap.ts'
-type: 'code'
-community: 'ID Mapping & Reference Resolution'
-location: 'L1'
+source_file: "src/offline/ids/idMap.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ID_Mapping__Reference_Resolution
+  - community/Offline_Sync_-_constructor
 ---
 
 # idMap.ts
 
 ## Connections
-
 - [[AbandonedReferenceError]] - `imports` [EXTRACTED]
 - [[DROP_ELEMENT]] - `contains` [EXTRACTED]
 - [[IdMapRecord]] - `imports` [EXTRACTED]
@@ -38,4 +37,4 @@ tags:
 - [[schema.ts]] - `imports_from` [EXTRACTED]
 - [[tables.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/ID_Mapping__Reference_Resolution
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

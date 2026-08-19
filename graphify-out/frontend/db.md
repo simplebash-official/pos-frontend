@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/schema.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L95'
+source_file: "src/offline/db/schema.ts"
+type: "code"
+community: "Offline Sync - signal"
+location: "L95"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_signal
 ---
 
 # db
 
 ## Connections
-
 - [[auditLog.ts]] - `imports` [EXTRACTED]
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
@@ -44,4 +43,4 @@ tags:
 - [[useSuppliers.ts]] - `imports` [EXTRACTED]
 - [[useSyncData.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_signal

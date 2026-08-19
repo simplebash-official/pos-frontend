@@ -1,26 +1,20 @@
 ---
-source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L335'
+source_file: "src/shared/lib/localStorageStore.ts"
+type: "code"
+community: "Shared UI - LocalStorageStore"
+location: "L62"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - graphify/INFERRED
+  - community/Shared_UI_-_LocalStorageStore
 ---
 
 # .update()
 
 ## Connections
+- [[dot-persist()]] - `calls` [EXTRACTED]
+- [[LocalStorageStore]] - `method` [EXTRACTED]
+- [[updateEarningRecordForWork()]] - `calls` [INFERRED]
+- [[updateEmployee()]] - `calls` [INFERRED]
 
-- [[dot-commitPendingSettle()]] - `calls` [EXTRACTED]
-- [[dot-handleLinkDown()]] - `calls` [EXTRACTED]
-- [[dot-handleLinkUp()]] - `calls` [EXTRACTED]
-- [[dot-recordFailure()]] - `calls` [EXTRACTED]
-- [[dot-recordSuccess()]] - `calls` [EXTRACTED]
-- [[dot-runProbe()]] - `calls` [EXTRACTED]
-- [[dot-transitionTo()]] - `calls` [EXTRACTED]
-- [[ConnectivityMonitor]] - `method` [EXTRACTED]
-- [[ConnectivitySnapshot]] - `references` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/INFERRED #community/Shared_UI_-_LocalStorageStore

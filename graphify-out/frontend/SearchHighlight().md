@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/SearchHighlight.tsx'
-type: 'code'
-community: 'Product Catalog & Hierarchy'
-location: 'L18'
+source_file: "src/shared/components/SearchHighlight.tsx"
+type: "code"
+community: "Shared UI - mergeByCategory"
+location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Product_Catalog__Hierarchy
+  - community/Shared_UI_-_mergeByCategory
 ---
 
 # SearchHighlight()
 
 ## Connections
-
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[SupplierPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[getMatchRanges()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Product_Catalog__Hierarchy
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory

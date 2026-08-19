@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/tables.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/offline/db/tables.ts"
+type: "code"
+community: "Inventory - StockMovement"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Inventory_-_StockMovement
 ---
 
 # tables.ts
 
 ## Connections
-
 - [[AuditEvent]] - `contains` [EXTRACTED]
 - [[AuditLevel]] - `contains` [EXTRACTED]
 - [[AuthUser]] - `imports` [EXTRACTED]
@@ -53,4 +52,4 @@ tags:
 - [[useSuppliers.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncData.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/api/customersApi.ts'
-type: 'code'
-community: 'Customer Management & Drawers'
-location: 'L1'
+source_file: "src/features/customers/api/customersApi.ts"
+type: "code"
+community: "Customers - createCustomer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Customer_Management__Drawers
+  - community/Customers_-_createCustomer
 ---
 
 # customersApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[Customer]] - `imports` [EXTRACTED]
@@ -35,4 +34,4 @@ tags:
 - [[patchCustomer()]] - `contains` [EXTRACTED]
 - [[updateCustomer()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Customer_Management__Drawers
+#graphify/code #graphify/EXTRACTED #community/Customers_-_createCustomer

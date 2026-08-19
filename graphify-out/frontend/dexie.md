@@ -1,19 +1,18 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'Runtime Packages & UI Dependencies'
-location: 'L52'
+source_file: "package.json"
+type: "code"
+community: "Dependencies - axios"
+location: "L52"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Runtime_Packages__UI_Dependencies
+  - community/Dependencies_-_axios
 ---
 
 # dexie
 
 ## Connections
-
 - [[dependencies]] - `contains` [EXTRACTED]
 - [[dexie_1]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Runtime_Packages__UI_Dependencies
+#graphify/code #graphify/EXTRACTED #community/Dependencies_-_axios

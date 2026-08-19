@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/QuantityInput.tsx'
-type: 'code'
-community: 'Offline Sync Engine (useProducts)'
-location: 'L12'
+source_file: "src/shared/components/AmountInput.tsx"
+type: "code"
+community: "Shared UI - AmountInput"
+location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_useProducts
+  - community/Shared_UI_-_AmountInput
 ---
 
 # HEIGHT_MAP
 
 ## Connections
+- [[AmountInput.tsx]] - `contains` [EXTRACTED]
 
-- [[QuantityInput.tsx]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_useProducts
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_AmountInput

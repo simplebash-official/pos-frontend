@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/react/useSyncedMutation.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/offline/react/useSyncedMutation.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # useSyncedMutation.ts
 
 ## Connections
-
 - [[ApiError]] - `imports` [EXTRACTED]
 - [[SyncEngine]] - `imports` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]
@@ -32,4 +31,4 @@ tags:
 - [[useSuppliers.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedMutation()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

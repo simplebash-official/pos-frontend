@@ -1,20 +1,19 @@
 ---
-source_file: 'src/store/slices/syncSlice.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L188'
+source_file: "src/store/slices/syncSlice.ts"
+type: "code"
+community: "Settings - SyncDrawer"
+location: "L188"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Settings_-_SyncDrawer
 ---
 
 # selectOverallSyncStatus
 
 ## Connections
-
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[SyncStatusBadge.tsx]] - `imports` [EXTRACTED]
 - [[syncSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer

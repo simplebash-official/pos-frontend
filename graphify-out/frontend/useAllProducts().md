@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useProducts.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L24'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L24"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # useAllProducts()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]
@@ -31,4 +30,4 @@ tags:
 - [[useProducts.ts]] - `contains` [EXTRACTED]
 - [[useSyncedQuery()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

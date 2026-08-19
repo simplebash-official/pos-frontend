@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L1'
+source_file: "src/store/slices/cartSlice.ts"
+type: "code"
+community: "Billing - PaymentMethod"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_PaymentMethod
 ---
 
 # cartSlice.ts
 
 ## Connections
-
 - [[AppUpdatePrompt.tsx]] - `imports_from` [EXTRACTED]
 - [[CartItem]] - `contains` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports_from` [EXTRACTED]
@@ -29,7 +28,7 @@ tags:
 - [[SplitPaymentDetail]] - `imports` [EXTRACTED]
 - [[billingtypes.ts]] - `imports_from` [EXTRACTED]
 - [[cartSlice]] - `contains` [EXTRACTED]
-- [[initialState_1]] - `contains` [EXTRACTED]
+- [[initialState_2]] - `contains` [EXTRACTED]
 - [[listenerMiddleware.ts]] - `imports_from` [EXTRACTED]
 - [[loadHeldCartsFromStorage()]] - `contains` [EXTRACTED]
 - [[loadInitialPrintSelection()]] - `contains` [EXTRACTED]
@@ -59,4 +58,4 @@ tags:
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 - [[useCart.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_PaymentMethod

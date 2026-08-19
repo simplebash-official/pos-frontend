@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/api/mockEmployees.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/features/employees/api/mockEmployees.ts"
+type: "code"
+community: "Employees - createEmployee"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_createEmployee
 ---
 
 # mockEmployees.ts
 
 ## Connections
-
 - [[Employee]] - `imports` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeEarningRecord]] - `imports` [EXTRACTED]
@@ -42,4 +41,4 @@ tags:
 - [[updateEarningRecordForWork()]] - `contains` [EXTRACTED]
 - [[updateEmployee()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/search.ts'
-type: 'code'
-community: 'Product Catalog & Hierarchy'
-location: 'L104'
+source_file: "src/shared/lib/search.ts"
+type: "code"
+community: "Shared UI - mergeByCategory"
+location: "L104"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Product_Catalog__Hierarchy
+  - community/Shared_UI_-_mergeByCategory
 ---
 
 # tokenizeQuery()
 
 ## Connections
-
 - [[normalizeDigits()]] - `calls` [EXTRACTED]
 - [[normalizeText()]] - `calls` [EXTRACTED]
 - [[run()]] - `calls` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[useEntitySearch()]] - `calls` [EXTRACTED]
 - [[useEntitySearch.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Product_Catalog__Hierarchy
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory

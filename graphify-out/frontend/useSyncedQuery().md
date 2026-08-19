@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/react/useSyncedQuery.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L34'
+source_file: "src/offline/react/useSyncedQuery.ts"
+type: "code"
+community: "Inventory - ProductTable"
+location: "L34"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Inventory_-_ProductTable
 ---
 
 # useSyncedQuery()
 
 ## Connections
-
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[selectResourceHasNeverSynced()]] - `calls` [EXTRACTED]
 - [[selectResourceIsSyncing()]] - `calls` [EXTRACTED]
@@ -36,4 +35,4 @@ tags:
 - [[useSuppliersForProduct()]] - `calls` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable

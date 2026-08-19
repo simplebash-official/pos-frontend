@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/index.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/suppliers/index.ts"
+type: "code"
+community: "Suppliers - useSetSupplierLinks"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_useSetSupplierLinks
 ---
 
 # suppliers/index.ts
 
 ## Connections
-
 - [[SupplierList]] - `imports_from` [EXTRACTED]
 - [[SupplierList()]] - `re_exports` [EXTRACTED]
 - [[SupplierList.tsx]] - `re_exports` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[searchFields.ts]] - `imports_from` [EXTRACTED]
 - [[supplierstypes.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks

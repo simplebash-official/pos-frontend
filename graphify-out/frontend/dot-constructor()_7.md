@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/errors.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L101'
+source_file: "src/offline/errors.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L37"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Offline_Sync_-_constructor
 ---
 
 # .constructor()
 
 ## Connections
+- [[UnresolvedReferenceError]] - `method` [EXTRACTED]
 
-- [[BarcodeConflictError]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

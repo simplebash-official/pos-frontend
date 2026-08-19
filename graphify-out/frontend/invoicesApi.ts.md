@@ -1,23 +1,22 @@
 ---
-source_file: 'src/features/billing/api/invoicesApi.ts'
-type: 'code'
-community: 'POS Billing Flow (invoicesApi)'
-location: 'L1'
+source_file: "src/features/billing/api/invoicesApi.ts"
+type: "code"
+community: "Billing - BackendInvoice"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_invoicesApi
+  - community/Billing_-_BackendInvoice
 ---
 
 # invoicesApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendInvoice]] - `contains` [EXTRACTED]
 - [[BackendInvoiceItem]] - `contains` [EXTRACTED]
-- [[BackendPaymentRecord]] - `contains` [EXTRACTED]
+- [[BackendPaymentRecord_1]] - `contains` [EXTRACTED]
 - [[BackendSplitPayment]] - `contains` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[CompleteSaleInput]] - `contains` [EXTRACTED]
@@ -43,4 +42,4 @@ tags:
 - [[toInvoiceItem()]] - `contains` [EXTRACTED]
 - [[toSplitPayment()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_invoicesApi
+#graphify/code #graphify/EXTRACTED #community/Billing_-_BackendInvoice

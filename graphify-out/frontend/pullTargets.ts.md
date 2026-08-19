@@ -1,19 +1,18 @@
 ---
-source_file: 'src/offline/engine/pullTargets.ts'
-type: 'code'
-community: 'Sync Metadata & Cursors'
-location: 'L1'
+source_file: "src/offline/engine/pullTargets.ts"
+type: "code"
+community: "Offline Sync - signal"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sync_Metadata__Cursors
+  - community/Offline_Sync_-_signal
 ---
 
 # pullTargets.ts
 
 ## Connections
-
-- [[RFC-3339_1]] - `cites` [EXTRACTED]
+- [[RFC-3339]] - `cites` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]
 - [[SyncResourceId]] - `imports` [EXTRACTED]
 - [[fetchSyncStatus()]] - `imports` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[syncApi.ts]] - `imports_from` [EXTRACTED]
 - [[syncMeta.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sync_Metadata__Cursors
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_signal

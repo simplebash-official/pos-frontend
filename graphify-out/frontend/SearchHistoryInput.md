@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/SearchHistoryInput.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L39'
+source_file: "src/shared/components/SearchHistoryInput.tsx"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L39"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # SearchHistoryInput
 
 ## Connections
-
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[EntityListPage.tsx]] - `imports` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[useIsMobile()]] - `calls` [EXTRACTED]
 - [[useSearchHistory()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

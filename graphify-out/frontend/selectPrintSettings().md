@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L165'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "Settings - ACCEPTED TYPES"
+location: "L165"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Settings_-_ACCEPTED_TYPES
 ---
 
 # selectPrintSettings()
 
 ## Connections
-
 - [[BankDetailsSection()]] - `indirect_call` [INFERRED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `indirect_call` [INFERRED]
@@ -25,4 +24,4 @@ tags:
 - [[usePrint()]] - `indirect_call` [INFERRED]
 - [[usePrint.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

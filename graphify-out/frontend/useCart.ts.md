@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/hooks/useCart.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L1'
+source_file: "src/features/billing/hooks/useCart.ts"
+type: "code"
+community: "Billing - PaymentMethod"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_PaymentMethod
 ---
 
 # useCart.ts
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingTabBar.tsx]] - `imports_from` [EXTRACTED]
 - [[CartItem]] - `imports` [EXTRACTED]
@@ -56,4 +55,4 @@ tags:
 - [[useCartTotals()]] - `contains` [EXTRACTED]
 - [[useHeldCarts()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_PaymentMethod

@@ -1,22 +1,19 @@
 ---
-source_file: 'src/features/invoices/components/InvoicesList.tsx'
-type: 'code'
-community: 'POS Billing Flow (paymentsApi)'
-location: 'L37'
+source_file: "src/features/invoices/components/InvoicesList.tsx"
+type: "code"
+community: "Repairs - InvoicesList"
+location: "L40"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_paymentsApi
+  - community/Repairs_-_InvoicesList
 ---
 
 # InvoicesList()
 
 ## Connections
-
 - [[InvoicesList.tsx]] - `contains` [EXTRACTED]
-- [[fetchInvoices()]] - `calls` [EXTRACTED]
-- [[formatMoney()]] - `calls` [EXTRACTED]
+- [[getListEmptyText()]] - `calls` [EXTRACTED]
 - [[invoicesindex.ts]] - `re_exports` [EXTRACTED]
-- [[useEntitySearch()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_paymentsApi
+#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList

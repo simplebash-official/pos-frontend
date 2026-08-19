@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/api/productsApi.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L120'
+source_file: "src/features/inventory/api/productsApi.ts"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L120"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Inventory_-_adjustStock
 ---
 
 # getProductKey()
 
 ## Connections
-
 - [[productsApi.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

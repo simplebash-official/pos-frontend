@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/components/EmployeeList.tsx'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L53'
+source_file: "src/features/employees/components/EmployeeList.tsx"
+type: "code"
+community: "Employees - createEmployee"
+location: "L53"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_createEmployee
 ---
 
 # EmployeeList()
 
 ## Connections
-
 - [[EmployeeList.tsx]] - `contains` [EXTRACTED]
 - [[createEmployee()]] - `indirect_call` [INFERRED]
 - [[deleteEmployee()]] - `indirect_call` [INFERRED]
@@ -24,4 +23,4 @@ tags:
 - [[updateEmployee()]] - `calls` [EXTRACTED]
 - [[useEntitySearch()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee

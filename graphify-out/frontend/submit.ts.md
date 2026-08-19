@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/outbox/submit.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/offline/outbox/submit.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # submit.ts
 
 ## Connections
-
 - [[IdMapRecord]] - `imports` [EXTRACTED]
 - [[LocalContext]] - `imports` [EXTRACTED]
 - [[MIRROR_TABLE_NAMES]] - `imports` [EXTRACTED]
@@ -36,4 +35,4 @@ tags:
 - [[tables.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

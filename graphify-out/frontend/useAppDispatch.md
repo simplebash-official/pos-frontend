@@ -1,19 +1,17 @@
 ---
-source_file: 'src/store/hooks.ts'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L4'
+source_file: "src/store/hooks.ts"
+type: "code"
+community: "Settings - ACCEPTED TYPES"
+location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Settings_-_ACCEPTED_TYPES
 ---
 
 # useAppDispatch
 
 ## Connections
-
-- [[AuthInitializer()]] - `calls` [EXTRACTED]
 - [[BankDetailsSection()]] - `calls` [EXTRACTED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BrandingSection()]] - `calls` [EXTRACTED]
@@ -32,11 +30,9 @@ tags:
 - [[NotificationItem.tsx]] - `imports` [EXTRACTED]
 - [[NotificationPopover()]] - `calls` [EXTRACTED]
 - [[NotificationPopover.tsx]] - `imports` [EXTRACTED]
-- [[PrintJobList()]] - `calls` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]
 - [[PrintingSection()]] - `calls` [EXTRACTED]
 - [[PrintingSection.tsx]] - `imports` [EXTRACTED]
-- [[RepairJobList()]] - `calls` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
 - [[ShopProfileSection()]] - `calls` [EXTRACTED]
 - [[ShopProfileSection.tsx]] - `imports` [EXTRACTED]
@@ -56,4 +52,4 @@ tags:
 - [[useCartTotals()]] - `calls` [EXTRACTED]
 - [[useHeldCarts()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

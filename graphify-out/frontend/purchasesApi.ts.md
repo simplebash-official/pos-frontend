@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/purchases/api/purchasesApi.ts'
-type: 'code'
-community: 'MutationRequestOptions Module'
-location: 'L1'
+source_file: "src/features/purchases/api/purchasesApi.ts"
+type: "code"
+community: "Billing - MutationRequestOptions"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/MutationRequestOptions_Module
+  - community/Billing_-_MutationRequestOptions
 ---
 
 # purchasesApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[EnrichedStockPurchase]] - `imports` [EXTRACTED]
@@ -28,4 +27,4 @@ tags:
 - [[purchases.resource.ts]] - `imports_from` [EXTRACTED]
 - [[purchasestypes.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/MutationRequestOptions_Module
+#graphify/code #graphify/EXTRACTED #community/Billing_-_MutationRequestOptions

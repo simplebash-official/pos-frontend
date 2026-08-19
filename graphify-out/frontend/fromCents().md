@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/money.ts'
-type: 'code'
-community: 'index Module'
-location: 'L13'
+source_file: "src/shared/lib/money.ts"
+type: "code"
+community: "Employees - CURRENCY"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/index_Module
+  - community/Employees_-_CURRENCY
 ---
 
 # fromCents()
 
 ## Connections
-
 - [[MoneyInput()]] - `calls` [EXTRACTED]
 - [[MoneyInput.tsx]] - `imports` [EXTRACTED]
 - [[ProductFormContent()]] - `calls` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[money.ts]] - `contains` [EXTRACTED]
 - [[moneyFormUtils.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/index_Module
+#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY

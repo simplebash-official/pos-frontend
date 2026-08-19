@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'Build & Dev Dependencies'
-location: 'L17'
+source_file: "package.json"
+type: "code"
+community: "Dependencies - eslint"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Build__Dev_Dependencies
+  - community/Dependencies_-_eslint
 ---
 
 # devDependencies
 
 ## Connections
-
 - [[@eslintjs]] - `contains` [EXTRACTED]
 - [[@typesreact]] - `contains` [EXTRACTED]
 - [[@typesreact-dom]] - `contains` [EXTRACTED]
@@ -35,4 +34,4 @@ tags:
 - [[vite-tsconfig-paths]] - `contains` [EXTRACTED]
 - [[vitest]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Build__Dev_Dependencies
+#graphify/code #graphify/EXTRACTED #community/Dependencies_-_eslint

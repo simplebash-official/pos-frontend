@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/lib/resolveOrCreateCustomer.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L22'
+source_file: "src/features/billing/lib/resolveOrCreateCustomer.ts"
+type: "code"
+community: "Billing - CartLineItem"
+location: "L22"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_CartLineItem
 ---
 
 # resolveOrCreateCustomer()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[resolveOrCreateCustomer.ts]] - `contains` [EXTRACTED]
 - [[stripMirrorMeta()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem

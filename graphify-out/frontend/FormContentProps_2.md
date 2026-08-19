@@ -1,20 +1,20 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierFormModal.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L51'
+source_file: "src/features/inventory/components/ProductFormModal.tsx"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L57"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Inventory_-_adjustStock
 ---
 
 # FormContentProps
 
 ## Connections
+- [[CreateProductInput]] - `references` [EXTRACTED]
+- [[Product]] - `references` [EXTRACTED]
+- [[ProductFormModal.tsx]] - `contains` [EXTRACTED]
+- [[UpdateProductInput]] - `references` [EXTRACTED]
 
-- [[Supplier]] - `references` [EXTRACTED]
-- [[SupplierFormModal.tsx]] - `contains` [EXTRACTED]
-- [[SupplierInput]] - `references` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

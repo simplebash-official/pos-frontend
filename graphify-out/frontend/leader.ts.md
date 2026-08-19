@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/engine/leader.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/offline/engine/leader.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_constructor
 ---
 
 # leader.ts
 
 ## Connections
-
 - [[LeaderElection]] - `contains` [EXTRACTED]
 - [[SYNC_LEADER_LOCK]] - `imports` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports_from` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[logInfo()]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

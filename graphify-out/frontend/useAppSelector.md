@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/hooks.ts'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L5'
+source_file: "src/store/hooks.ts"
+type: "code"
+community: "Inventory - AppUpdatePrompt"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Inventory_-_AppUpdatePrompt
 ---
 
 # useAppSelector
 
 ## Connections
-
 - [[AppShell()]] - `calls` [EXTRACTED]
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[AppUpdatePrompt()]] - `calls` [EXTRACTED]
@@ -74,4 +73,4 @@ tags:
 - [[useSyncedQuery()]] - `calls` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/notifications/types.ts'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L1'
+source_file: "src/features/notifications/types.ts"
+type: "code"
+community: "Notifications - initialState"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Notifications_-_initialState
 ---
 
 # notifications/types.ts
 
 ## Connections
-
 - [[AppNotification]] - `contains` [EXTRACTED]
 - [[NotificationActor]] - `contains` [EXTRACTED]
 - [[NotificationCategory]] - `contains` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[notificationSlice.ts]] - `imports_from` [EXTRACTED]
 - [[notificationsindex.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

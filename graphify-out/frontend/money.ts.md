@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/money.ts'
-type: 'code'
-community: 'index Module'
-location: 'L1'
+source_file: "src/shared/lib/money.ts"
+type: "code"
+community: "Employees - CURRENCY"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/index_Module
+  - community/Employees_-_CURRENCY
 ---
 
 # money.ts
 
 ## Connections
-
 - [[BillingTabBar.tsx]] - `imports_from` [EXTRACTED]
 - [[CURRENCY]] - `imports` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports_from` [EXTRACTED]
@@ -53,4 +52,4 @@ tags:
 - [[saleHeroPresentation.ts]] - `imports_from` [EXTRACTED]
 - [[toCents()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/index_Module
+#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY

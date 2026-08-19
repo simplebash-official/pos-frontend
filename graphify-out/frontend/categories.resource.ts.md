@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/categories.resource.ts'
-type: 'code'
-community: 'Inventory & Products API'
-location: 'L1'
+source_file: "src/offline/resources/categories.resource.ts"
+type: "code"
+community: "Inventory - createCategory"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory__Products_API
+  - community/Inventory_-_createCategory
 ---
 
 # categories.resource.ts
 
 ## Connections
-
 - [[AddSubcategoryPayload]] - `contains` [EXTRACTED]
 - [[Category]] - `imports` [EXTRACTED]
 - [[CategoryInput]] - `imports` [EXTRACTED]
@@ -46,4 +45,4 @@ tags:
 - [[updateCategory()]] - `imports` [EXTRACTED]
 - [[useCategories.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory__Products_API
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_createCategory

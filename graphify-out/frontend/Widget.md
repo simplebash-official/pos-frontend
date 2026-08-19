@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/__tests__/outbox.test.ts'
-type: 'code'
-community: 'Sync Metadata & Cursors'
-location: 'L17'
+source_file: "src/offline/__tests__/pull.test.ts"
+type: "code"
+community: "Offline Sync - signal"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sync_Metadata__Cursors
+  - community/Offline_Sync_-_signal
 ---
 
 # Widget
 
 ## Connections
+- [[pull.test.ts]] - `contains` [EXTRACTED]
 
-- [[outbox.test.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Sync_Metadata__Cursors
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_signal

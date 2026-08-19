@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/constants.ts'
-type: 'code'
-community: 'Billing Catalog & Line Items'
-location: 'L10'
+source_file: "src/features/inventory/constants.ts"
+type: "code"
+community: "Inventory - AddSubcategoryRow"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Catalog__Line_Items
+  - community/Inventory_-_AddSubcategoryRow
 ---
 
 # resolveCategoryIcon()
 
 ## Connections
-
 - [[CategoryItem()]] - `calls` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductCatalogTree]] - `calls` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[inventoryindex.ts]] - `re_exports` [EXTRACTED]
 - [[resolveTablerIcon()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Catalog__Line_Items
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow

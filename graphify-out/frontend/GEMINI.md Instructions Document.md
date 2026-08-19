@@ -1,18 +1,13 @@
 ---
-source_file: 'GEMINI.md'
-type: 'document'
-community: 'Offline Connectivity Monitoring'
+source_file: "GEMINI.md"
+type: "document"
+community: "GEMINI md Instructions Document"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/GEMINI_md_Instructions_Document
 ---
 
 # GEMINI.md Instructions Document
 
-## Connections
-
-- [[Offline & Sync Architecture]] - `references` [EXTRACTED]
-- [[Project Overview (POS System)]] - `references` [EXTRACTED]
-
-#graphify/document #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/document #graphify/EXTRACTED #community/GEMINI_md_Instructions_Document

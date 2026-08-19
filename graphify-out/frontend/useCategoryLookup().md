@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useCategories.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L62'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "Inventory - AddSubcategoryRow"
+location: "L62"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Inventory_-_AddSubcategoryRow
 ---
 
 # useCategoryLookup()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[ProductPickerModal()]] - `calls` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[useCategories()]] - `calls` [EXTRACTED]
 - [[useCategories.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/types/common.ts'
-type: 'code'
-community: 'Billing Chrome & Navigation'
-location: 'L16'
+source_file: "src/shared/types/common.ts"
+type: "code"
+community: "Billing - MutationRequestOptions"
+location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Chrome__Navigation
+  - community/Billing_-_MutationRequestOptions
 ---
 
 # ApiResponse
 
 ## Connections
-
 - [[categoriesApi.ts]] - `imports` [EXTRACTED]
 - [[common.ts]] - `contains` [EXTRACTED]
 - [[customersApi.ts]] - `imports` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[supplierProductsApi.ts]] - `imports` [EXTRACTED]
 - [[suppliersApi.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Chrome__Navigation
+#graphify/code #graphify/EXTRACTED #community/Billing_-_MutationRequestOptions

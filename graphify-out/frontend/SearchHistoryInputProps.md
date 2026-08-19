@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/SearchHistoryInput.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L20'
+source_file: "src/shared/components/SearchHistoryInput.tsx"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # SearchHistoryInputProps
 
 ## Connections
-
 - [[SearchHistoryInput.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

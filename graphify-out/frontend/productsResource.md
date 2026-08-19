@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/products.resource.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L38'
+source_file: "src/offline/resources/products.resource.ts"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L38"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Inventory_-_adjustStock
 ---
 
 # productsResource
 
 ## Connections
-
 - [[adjustStock()]] - `calls` [EXTRACTED]
 - [[appendStockDelta()]] - `calls` [EXTRACTED]
 - [[createProduct()]] - `calls` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[toLocalRow()]] - `calls` [EXTRACTED]
 - [[updateProduct()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

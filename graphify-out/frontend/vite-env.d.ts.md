@@ -1,14 +1,14 @@
 ---
-source_file: 'src/vite-env.d.ts'
-type: 'code'
-community: 'vite-env.d Module'
-location: 'L1'
+source_file: "src/vite-env.d.ts"
+type: "code"
+community: "Vite Env.D"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/vite-envd_Module
+  - community/Vite_EnvD
 ---
 
 # vite-env.d.ts
 
-#graphify/code #graphify/EXTRACTED #community/vite-envd_Module
+#graphify/code #graphify/EXTRACTED #community/Vite_EnvD

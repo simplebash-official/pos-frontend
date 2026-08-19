@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/registry/registry.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L60'
+source_file: "src/offline/registry/registry.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L60"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # getSyncResource()
 
 ## Connections
-
 - [[discardOperation()]] - `calls` [EXTRACTED]
 - [[flush.ts]] - `imports` [EXTRACTED]
 - [[flushOutbox()]] - `calls` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[useSyncedMutation()]] - `calls` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

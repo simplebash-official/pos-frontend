@@ -1,19 +1,18 @@
 ---
-source_file: 'src/shared/lib/tablerIcons.ts'
-type: 'code'
-community: 'Tabler Icon Shards'
-location: 'L46'
+source_file: "src/shared/hooks/useSearchHistory.ts"
+type: "code"
+community: "Shared UI - getServerSnapshot"
+location: "L32"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Tabler_Icon_Shards
+  - community/Shared_UI_-_getServerSnapshot
 ---
 
 # getSnapshot()
 
 ## Connections
+- [[useSearchHistory()]] - `indirect_call` [INFERRED]
+- [[useSearchHistory.ts]] - `contains` [EXTRACTED]
 
-- [[tablerIcons.ts]] - `contains` [EXTRACTED]
-- [[useShards()]] - `indirect_call` [INFERRED]
-
-#graphify/code #graphify/EXTRACTED #community/Tabler_Icon_Shards
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_getServerSnapshot

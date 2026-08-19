@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/index.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L1'
+source_file: "src/offline/resources/index.ts"
+type: "code"
+community: "Purchases - createPurchase"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Purchases_-_createPurchase
 ---
 
 # resources/index.ts
 
 ## Connections
-
 - [[SyncProvider.tsx]] - `imports_from` [EXTRACTED]
 - [[categories.resource.ts]] - `imports_from` [EXTRACTED]
 - [[categoriesResource]] - `imports` [EXTRACTED]
@@ -32,4 +31,4 @@ tags:
 - [[suppliers.resource.ts]] - `imports_from` [EXTRACTED]
 - [[suppliersResource]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Purchases_-_createPurchase

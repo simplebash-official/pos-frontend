@@ -1,19 +1,17 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L11'
+source_file: "src/store/slices/authSlice.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # AuthState
 
 ## Connections
-
-- [[AuthUser]] - `references` [EXTRACTED]
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

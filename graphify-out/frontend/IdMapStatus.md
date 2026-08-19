@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/tables.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L165'
+source_file: "src/offline/db/tables.ts"
+type: "code"
+community: "Inventory - StockMovement"
+location: "L165"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Inventory_-_StockMovement
 ---
 
 # IdMapStatus
 
 ## Connections
-
 - [[tables.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement

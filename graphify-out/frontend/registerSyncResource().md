@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/registry/registry.ts'
-type: 'code'
-community: 'Sync Metadata & Cursors'
-location: 'L52'
+source_file: "src/offline/registry/registry.ts"
+type: "code"
+community: "Purchases - createPurchase"
+location: "L52"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sync_Metadata__Cursors
+  - community/Purchases_-_createPurchase
 ---
 
 # registerSyncResource()
 
 ## Connections
-
 - [[outbox.test.ts]] - `imports` [EXTRACTED]
 - [[pull.test.ts]] - `imports` [EXTRACTED]
 - [[pullTargets.test.ts]] - `imports` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[registry.ts]] - `contains` [EXTRACTED]
 - [[resourcesindex.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sync_Metadata__Cursors
+#graphify/code #graphify/EXTRACTED #community/Purchases_-_createPurchase

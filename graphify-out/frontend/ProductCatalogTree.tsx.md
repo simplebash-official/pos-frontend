@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/components/ProductCatalogTree.tsx'
-type: 'code'
-community: 'Product Catalog & Hierarchy'
-location: 'L1'
+source_file: "src/features/inventory/components/ProductCatalogTree.tsx"
+type: "code"
+community: "Inventory - AddSubcategoryRow"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Product_Catalog__Hierarchy
+  - community/Inventory_-_AddSubcategoryRow
 ---
 
 # ProductCatalogTree.tsx
 
 ## Connections
-
 - [[Category]] - `imports` [EXTRACTED]
 - [[Product]] - `imports` [EXTRACTED]
 - [[ProductCatalogTree]] - `contains` [EXTRACTED]
@@ -33,4 +32,4 @@ tags:
 - [[search.ts]] - `imports_from` [EXTRACTED]
 - [[tablerIcons.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Product_Catalog__Hierarchy
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow

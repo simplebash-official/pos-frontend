@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/numberToWords.ts'
-type: 'code'
-community: 'numberToWords Module'
-location: 'L6'
+source_file: "src/shared/lib/numberToWords.ts"
+type: "code"
+community: "Shared UI - numberToWordsRupees"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/numberToWords_Module
+  - community/Shared_UI_-_numberToWordsRupees
 ---
 
 # numberToWordsRupees()
 
 ## Connections
-
 - [[numberToWords.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/numberToWords_Module
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_numberToWordsRupees

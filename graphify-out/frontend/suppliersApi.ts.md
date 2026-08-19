@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/api/suppliersApi.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/suppliers/api/suppliersApi.ts"
+type: "code"
+community: "Suppliers - createSupplier"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_createSupplier
 ---
 
 # suppliersApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[MutationRequestOptions]] - `imports` [EXTRACTED]
@@ -31,4 +30,4 @@ tags:
 - [[supplierstypes.ts]] - `imports_from` [EXTRACTED]
 - [[updateSupplier()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier

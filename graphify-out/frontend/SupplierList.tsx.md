@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierList.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/suppliers/components/SupplierList.tsx"
+type: "code"
+community: "Suppliers - useSetSupplierLinks"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_useSetSupplierLinks
 ---
 
 # SupplierList.tsx
 
 ## Connections
-
 - [[Column]] - `imports` [EXTRACTED]
 - [[ConfirmDialog()]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `imports_from` [EXTRACTED]
@@ -47,4 +46,4 @@ tags:
 - [[useUpdateSupplier()]] - `imports` [EXTRACTED]
 - [[utils.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks

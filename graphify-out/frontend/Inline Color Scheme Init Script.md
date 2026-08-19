@@ -1,18 +1,16 @@
 ---
-source_file: 'index.html'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
+source_file: "index.html"
+type: "code"
+community: "Inline Color Scheme Init"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Inline_Color_Scheme_Init
 ---
 
 # Inline Color Scheme Init Script
 
 ## Connections
-
-- [[Redux Toolkit State Management]] - `references` [EXTRACTED]
 - [[index.html App Entry Document]] - `references` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Inline_Color_Scheme_Init

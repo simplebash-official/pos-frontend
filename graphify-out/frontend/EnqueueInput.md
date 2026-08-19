@@ -1,19 +1,18 @@
 ---
-source_file: 'src/offline/outbox/outbox.ts'
-type: 'code'
-community: 'Sync Metadata & Cursors'
-location: 'L19'
+source_file: "src/offline/outbox/outbox.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sync_Metadata__Cursors
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # EnqueueInput
 
 ## Connections
-
 - [[SyncResourceId]] - `references` [EXTRACTED]
 - [[outbox.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sync_Metadata__Cursors
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

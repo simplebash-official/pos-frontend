@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/utils.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/shared/lib/utils.ts"
+type: "code"
+community: "Employees - createEmployee"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_createEmployee
 ---
 
 # utils.ts
 
 ## Connections
-
 - [[CustomerList.tsx]] - `imports_from` [EXTRACTED]
 - [[DataTable.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[getInitials()]] - `contains` [EXTRACTED]
 - [[getSkeletonWidthPercent()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee

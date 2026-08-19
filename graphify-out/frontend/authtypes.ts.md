@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/auth/types.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L1'
+source_file: "src/features/auth/types.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # auth/types.ts
 
 ## Connections
-
 - [[AuthUser]] - `contains` [EXTRACTED]
 - [[LoginPayload]] - `contains` [EXTRACTED]
 - [[LoginResponse]] - `contains` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[session.ts]] - `imports_from` [EXTRACTED]
 - [[tables.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

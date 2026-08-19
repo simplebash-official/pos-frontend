@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/mirror.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L46'
+source_file: "src/offline/db/mirror.ts"
+type: "code"
+community: "Purchases - createPurchase"
+location: "L46"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Purchases_-_createPurchase
 ---
 
 # toLocalRow()
 
 ## Connections
-
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[categoriesResource]] - `calls` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
@@ -29,4 +28,4 @@ tags:
 - [[suppliers.resource.ts]] - `imports` [EXTRACTED]
 - [[suppliersResource]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Purchases_-_createPurchase

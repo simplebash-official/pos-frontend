@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'POS Billing Flow (routes)'
-location: 'L192'
+source_file: "src/store/slices/authSlice.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L238"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_routes
+  - community/Auth_-_RequireAdmin
 ---
 
 # selectUserRole()
 
 ## Connections
-
 - [[ProductTable()]] - `indirect_call` [INFERRED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[RequireAdmin()]] - `indirect_call` [INFERRED]
@@ -23,4 +22,4 @@ tags:
 - [[Sidebar.tsx]] - `imports` [EXTRACTED]
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_routes
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

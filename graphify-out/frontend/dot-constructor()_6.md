@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/errors.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L80'
+source_file: "src/offline/errors.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L53"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_constructor
 ---
 
 # .constructor()
 
 ## Connections
+- [[AbandonedReferenceError]] - `method` [EXTRACTED]
 
-- [[OutboxFullError]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/constants/roles.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L1'
+source_file: "src/constants/roles.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # roles.ts
 
 ## Connections
-
 - [[EmployeeList.tsx]] - `imports_from` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports_from` [EXTRACTED]
 - [[RequireAdmin.tsx]] - `imports_from` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[authSlice.ts]] - `imports_from` [EXTRACTED]
 - [[constantsindex.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

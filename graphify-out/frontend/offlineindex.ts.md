@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/index.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/offline/index.ts"
+type: "code"
+community: "Offline Sync - readServerVersion"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_readServerVersion
 ---
 
 # offline/index.ts
 
 ## Connections
-
 - [[ConnectivityMonitor]] - `re_exports` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `re_exports` [EXTRACTED]
 - [[ConnectivitySnapshot]] - `re_exports` [EXTRACTED]
@@ -57,4 +56,4 @@ tags:
 - [[useSyncedQuery()]] - `re_exports` [EXTRACTED]
 - [[useSyncedQuery.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_readServerVersion

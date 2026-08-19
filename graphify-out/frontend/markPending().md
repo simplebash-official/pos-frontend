@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/mirror.ts'
-type: 'code'
-community: 'Customer Management & Drawers'
-location: 'L63'
+source_file: "src/offline/db/mirror.ts"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L63"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Customer_Management__Drawers
+  - community/Inventory_-_adjustStock
 ---
 
 # markPending()
 
 ## Connections
-
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[categoriesResource]] - `calls` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[suppliers.resource.ts]] - `imports` [EXTRACTED]
 - [[suppliersResource]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Customer_Management__Drawers
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

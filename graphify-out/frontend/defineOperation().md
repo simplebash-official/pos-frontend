@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/registry/registry.ts'
-type: 'code'
-community: 'Inventory & Products API'
-location: 'L43'
+source_file: "src/offline/registry/registry.ts"
+type: "code"
+community: "Purchases - createPurchase"
+location: "L43"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory__Products_API
+  - community/Purchases_-_createPurchase
 ---
 
 # defineOperation()
 
 ## Connections
-
 - [[categories.resource.ts]] - `imports` [EXTRACTED]
 - [[customers.resource.ts]] - `imports` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[supplierProducts.resource.ts]] - `imports` [EXTRACTED]
 - [[suppliers.resource.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory__Products_API
+#graphify/code #graphify/EXTRACTED #community/Purchases_-_createPurchase

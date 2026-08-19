@@ -1,20 +1,19 @@
 ---
-source_file: 'src/offline/connectivity/networkSignal.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L18'
+source_file: "src/offline/connectivity/networkSignal.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_constructor
 ---
 
 # observeNetwork()
 
 ## Connections
-
-- [[dot-start()]] - `calls` [EXTRACTED]
+- [[dot-start()_2]] - `calls` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `imports` [EXTRACTED]
 - [[networkSignal.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

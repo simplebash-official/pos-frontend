@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/hooks/useCustomers.ts'
-type: 'code'
-community: 'POS Billing Flow (useCustomers)'
-location: 'L38'
+source_file: "src/features/customers/hooks/useCustomers.ts"
+type: "code"
+community: "Billing - fetchInvoices"
+location: "L38"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useCustomers
+  - community/Billing_-_fetchInvoices
 ---
 
 # useCustomerTags()
 
 ## Connections
-
 - [[CustomerFormContent()]] - `calls` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerList()]] - `calls` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[useAllCustomers()]] - `calls` [EXTRACTED]
 - [[useCustomers.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useCustomers
+#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices

@@ -1,21 +1,25 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L62'
+source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L335"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Employee_Accounts__Earnings
+  - graphify/EXTRACTED
+  - community/Offline_Sync_-_constructor
 ---
 
 # .update()
 
 ## Connections
+- [[dot-commitPendingSettle()]] - `calls` [EXTRACTED]
+- [[dot-handleLinkDown()]] - `calls` [EXTRACTED]
+- [[dot-handleLinkUp()]] - `calls` [EXTRACTED]
+- [[dot-recordFailure()]] - `calls` [EXTRACTED]
+- [[dot-recordSuccess()]] - `calls` [EXTRACTED]
+- [[dot-runProbe()]] - `calls` [EXTRACTED]
+- [[dot-transitionTo()]] - `calls` [EXTRACTED]
+- [[ConnectivityMonitor]] - `method` [EXTRACTED]
+- [[ConnectivitySnapshot]] - `references` [EXTRACTED]
 
-- [[dot-persist()]] - `calls` [EXTRACTED]
-- [[LocalStorageStore]] - `method` [EXTRACTED]
-- [[updateEarningRecordForWork()]] - `calls` [INFERRED]
-- [[updateEmployee()]] - `calls` [INFERRED]
-
-#graphify/code #graphify/INFERRED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/engine/auditLog.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L67'
+source_file: "src/offline/engine/auditLog.ts"
+type: "code"
+community: "Offline Sync - start"
+location: "L67"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_start
 ---
 
 # logWarn()
 
 ## Connections
-
 - [[dot-runMaintenance()]] - `calls` [EXTRACTED]
 - [[dot-startLoops()]] - `calls` [EXTRACTED]
 - [[SyncEngine.ts]] - `imports` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[pull.ts]] - `imports` [EXTRACTED]
 - [[pullResource()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start

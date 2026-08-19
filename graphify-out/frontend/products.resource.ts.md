@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/products.resource.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L1'
+source_file: "src/offline/resources/products.resource.ts"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Inventory_-_adjustStock
 ---
 
 # products.resource.ts
 
 ## Connections
-
 - [[AdjustStockPayload]] - `contains` [EXTRACTED]
 - [[BarcodeConflictError]] - `imports` [EXTRACTED]
 - [[CreateProductInput]] - `imports` [EXTRACTED]
@@ -49,4 +48,4 @@ tags:
 - [[updateProduct()]] - `imports` [EXTRACTED]
 - [[useProducts.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

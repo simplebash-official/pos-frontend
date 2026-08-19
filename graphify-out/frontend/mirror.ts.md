@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/mirror.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/offline/db/mirror.ts"
+type: "code"
+community: "Offline Sync - readServerVersion"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_readServerVersion
 ---
 
 # mirror.ts
 
 ## Connections
-
 - [[MirrorMeta]] - `imports` [EXTRACTED]
 - [[MirroredRow]] - `imports` [EXTRACTED]
 - [[UNSYNCED_VERSION]] - `contains` [EXTRACTED]
@@ -36,4 +35,4 @@ tags:
 - [[toLocalRow()]] - `contains` [EXTRACTED]
 - [[toServerRow()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_readServerVersion

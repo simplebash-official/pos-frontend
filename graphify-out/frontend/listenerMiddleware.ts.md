@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/listenerMiddleware.ts'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L1'
+source_file: "src/store/listenerMiddleware.ts"
+type: "code"
+community: "Notifications - initialState"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Notifications_-_initialState
 ---
 
 # listenerMiddleware.ts
 
 ## Connections
-
 - [[HELD_CART_REMINDER_MS]] - `imports` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
 - [[RootState]] - `imports` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 - [[themeSlice.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

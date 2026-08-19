@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/print-jobs/types.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/features/print-jobs/types.ts"
+type: "code"
+community: "Employees - JOB STATUS"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_JOB_STATUS
 ---
 
 # print-jobs/types.ts
 
 ## Connections
-
 - [[AssignmentInfo]] - `imports` [EXTRACTED]
 - [[CustomerRef]] - `imports` [EXTRACTED]
 - [[JobStatus]] - `imports` [EXTRACTED]
@@ -29,4 +28,4 @@ tags:
 - [[printJobsApi.ts]] - `imports_from` [EXTRACTED]
 - [[ticketInput.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_JOB_STATUS

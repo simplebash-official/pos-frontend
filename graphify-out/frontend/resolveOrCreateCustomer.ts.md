@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/lib/resolveOrCreateCustomer.ts'
-type: 'code'
-community: 'POS Billing Flow (useCustomers)'
-location: 'L1'
+source_file: "src/features/billing/lib/resolveOrCreateCustomer.ts"
+type: "code"
+community: "Billing - fetchInvoices"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useCustomers
+  - community/Billing_-_fetchInvoices
 ---
 
 # resolveOrCreateCustomer.ts
 
 ## Connections
-
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Customer]] - `imports` [EXTRACTED]
 - [[CustomerInput]] - `imports` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[schema.ts]] - `imports_from` [EXTRACTED]
 - [[stripMirrorMeta()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useCustomers
+#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices

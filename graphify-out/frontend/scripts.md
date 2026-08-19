@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'scripts Module'
-location: 'L6'
+source_file: "package.json"
+type: "code"
+community: "Dependencies - scripts"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/scripts_Module
+  - community/Dependencies_-_scripts
 ---
 
 # scripts
 
 ## Connections
-
 - [[build]] - `contains` [EXTRACTED]
 - [[dev]] - `contains` [EXTRACTED]
 - [[format]] - `contains` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[testwatch]] - `contains` [EXTRACTED]
 - [[type-check]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/scripts_Module
+#graphify/code #graphify/EXTRACTED #community/Dependencies_-_scripts

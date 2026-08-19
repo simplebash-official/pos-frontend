@@ -1,18 +1,17 @@
 ---
-source_file: 'src/constants/index.ts'
-type: 'code'
-community: 'index Module'
-location: 'L1'
+source_file: "src/constants/index.ts"
+type: "code"
+community: "Employees - CURRENCY"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/index_Module
+  - community/Employees_-_CURRENCY
 ---
 
 # constants/index.ts
 
 ## Connections
-
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[ErrorBoundary.tsx]] - `imports_from` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]
@@ -41,4 +40,4 @@ tags:
 - [[ui.ts]] - `re_exports` [EXTRACTED]
 - [[utils.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/index_Module
+#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY

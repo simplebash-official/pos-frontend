@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/types.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/features/sync/types.ts"
+type: "code"
+community: "Settings - SyncDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Settings_-_SyncDrawer
 ---
 
 # sync/types.ts
 
 ## Connections
-
 - [[MODULE_STATUS_PRESENTATION]] - `contains` [EXTRACTED]
 - [[ModuleSyncStatus]] - `re_exports` [EXTRACTED]
 - [[ModuleSyncView]] - `re_exports` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[syncindex.ts]] - `re_exports` [EXTRACTED]
 - [[syncSlice.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer

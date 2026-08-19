@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/outbox/submit.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L19'
+source_file: "src/offline/outbox/submit.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # submitOperation()
 
 ## Connections
-
 - [[assertOutboxHasCapacity()]] - `calls` [EXTRACTED]
 - [[assignLedgerEntriesToOperation()]] - `calls` [EXTRACTED]
 - [[createLocalId()]] - `calls` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[useSyncedMutation()]] - `calls` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

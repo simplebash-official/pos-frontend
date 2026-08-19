@@ -1,18 +1,17 @@
 ---
-source_file: 'src/constants/routes.ts'
-type: 'code'
-community: 'POS Billing Flow (routes)'
-location: 'L1'
+source_file: "src/constants/routes.ts"
+type: "code"
+community: "Billing - ROUTE TITLES"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_routes
+  - community/Billing_-_ROUTE_TITLES
 ---
 
 # routes.ts
 
 ## Connections
-
 - [[AppRoute]] - `contains` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports_from` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[Sidebar.tsx]] - `imports_from` [EXTRACTED]
 - [[constantsindex.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_routes
+#graphify/code #graphify/EXTRACTED #community/Billing_-_ROUTE_TITLES

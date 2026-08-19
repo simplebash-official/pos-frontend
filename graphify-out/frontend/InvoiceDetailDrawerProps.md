@@ -1,19 +1,17 @@
 ---
-source_file: 'src/features/invoices/components/InvoiceDetailDrawer.tsx'
-type: 'code'
-community: 'POS Billing Flow (saleHeroPresentation)'
-location: 'L32'
+source_file: "src/features/invoices/components/InvoiceDetailDrawer.tsx"
+type: "code"
+community: "Billing - fetchPaymentsForInvoice"
+location: "L31"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_saleHeroPresentation
+  - community/Billing_-_fetchPaymentsForInvoice
 ---
 
 # InvoiceDetailDrawerProps
 
 ## Connections
-
-- [[Invoice]] - `references` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_saleHeroPresentation
+#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchPaymentsForInvoice

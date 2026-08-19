@@ -1,19 +1,18 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'POS Billing Flow (saleHeroPresentation)'
-location: 'L35'
+source_file: "src/store/slices/cartSlice.ts"
+type: "code"
+community: "Billing - BackendInvoice"
+location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_saleHeroPresentation
+  - community/Billing_-_BackendInvoice
 ---
 
 # CompletedSaleData
 
 ## Connections
-
 - [[Invoice]] - `references` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_saleHeroPresentation
+#graphify/code #graphify/EXTRACTED #community/Billing_-_BackendInvoice

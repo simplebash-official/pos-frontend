@@ -1,24 +1,23 @@
 ---
-source_file: 'src/shared/lib/tablerIcons.ts'
-type: 'code'
-community: 'Tabler Icon Shards'
-location: 'L59'
+source_file: "src/shared/lib/tablerIcons.ts"
+type: "code"
+community: "Shared UI - TablerIconPicker"
+location: "L59"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Tabler_Icon_Shards
+  - community/Shared_UI_-_TablerIconPicker
 ---
 
 # useShards()
 
 ## Connections
-
-- [[getServerSnapshot()_1]] - `indirect_call` [INFERRED]
-- [[getSnapshot()_1]] - `indirect_call` [INFERRED]
+- [[getServerSnapshot()]] - `indirect_call` [INFERRED]
+- [[getSnapshot()]] - `indirect_call` [INFERRED]
 - [[loadShard()]] - `indirect_call` [INFERRED]
-- [[subscribe()_1]] - `indirect_call` [INFERRED]
+- [[subscribe()]] - `indirect_call` [INFERRED]
 - [[tablerIcons.ts]] - `contains` [EXTRACTED]
 - [[useAllTablerIcons()]] - `calls` [EXTRACTED]
 - [[useTablerIcons()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Tabler_Icon_Shards
+#graphify/code #graphify/INFERRED #community/Shared_UI_-_TablerIconPicker

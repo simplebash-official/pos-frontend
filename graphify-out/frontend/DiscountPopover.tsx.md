@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/DiscountPopover.tsx'
-type: 'code'
-community: 'Billing Chrome & Navigation'
-location: 'L1'
+source_file: "src/features/billing/components/DiscountPopover.tsx"
+type: "code"
+community: "Billing - CartLineItem"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Chrome__Navigation
+  - community/Billing_-_CartLineItem
 ---
 
 # DiscountPopover.tsx
 
 ## Connections
-
 - [[AmountInput]] - `imports` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[formatMoney()]] - `imports` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Chrome__Navigation
+#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem

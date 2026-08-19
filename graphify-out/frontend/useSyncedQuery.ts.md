@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/react/useSyncedQuery.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/offline/react/useSyncedQuery.ts"
+type: "code"
+community: "Settings - SyncDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Settings_-_SyncDrawer
 ---
 
 # useSyncedQuery.ts
 
 ## Connections
-
 - [[SyncResourceId]] - `imports` [EXTRACTED]
 - [[SyncedQueryResult]] - `contains` [EXTRACTED]
 - [[hooks.ts]] - `imports_from` [EXTRACTED]
@@ -32,4 +31,4 @@ tags:
 - [[useSuppliers.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedQuery()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer

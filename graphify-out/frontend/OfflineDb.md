@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/schema.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L29'
+source_file: "src/offline/db/schema.ts"
+type: "code"
+community: "Inventory - StockMovement"
+location: "L29"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Inventory_-_StockMovement
 ---
 
 # OfflineDb
 
 ## Connections
-
 - [[dot-constructor()_2]] - `method` [EXTRACTED]
 - [[AuditEvent]] - `references` [EXTRACTED]
 - [[Category]] - `references` [EXTRACTED]
@@ -31,4 +30,4 @@ tags:
 - [[SyncMetaRecord]] - `references` [EXTRACTED]
 - [[schema.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement

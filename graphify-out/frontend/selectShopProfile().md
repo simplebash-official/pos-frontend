@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L140'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "Settings - ACCEPTED TYPES"
+location: "L140"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Settings_-_ACCEPTED_TYPES
 ---
 
 # selectShopProfile()
 
 ## Connections
-
 - [[BankDetailsSection()]] - `indirect_call` [INFERRED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BillingCounter()]] - `indirect_call` [INFERRED]
@@ -27,4 +26,4 @@ tags:
 - [[TaxVatSection.tsx]] - `imports` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/router.tsx'
-type: 'code'
-community: 'POS Billing Flow (router)'
-location: 'L1'
+source_file: "src/app/router.tsx"
+type: "code"
+community: "Billing - SettingsPage"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_router
+  - community/Billing_-_SettingsPage
 ---
 
 # router.tsx
 
 ## Connections
-
 - [[AppShell()]] - `imports` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter]] - `contains` [EXTRACTED]
@@ -59,4 +58,4 @@ tags:
 - [[settingsindex.ts]] - `dynamic_import` [EXTRACTED]
 - [[suppliersindex.ts]] - `dynamic_import` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_router
+#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
-type: 'code'
-community: 'POS Billing Flow (useResponsive)'
-location: 'L35'
+source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useResponsive
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # useProductsForSupplier()
 
 ## Connections
-
 - [[SupplierDetailDrawer()]] - `calls` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SupplierFormContent()]] - `calls` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[useSupplierProducts.ts]] - `contains` [EXTRACTED]
 - [[useSyncedQuery()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useResponsive
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

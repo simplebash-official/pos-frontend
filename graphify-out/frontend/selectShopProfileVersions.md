@@ -1,19 +1,18 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Shop Settings & Profile'
-location: 'L150'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "Settings - DEFAULT PRINT"
+location: "L150"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shop_Settings__Profile
+  - community/Settings_-_DEFAULT_PRINT
 ---
 
 # selectShopProfileVersions
 
 ## Connections
-
 - [[selectShopProfileByVersion()]] - `calls` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shop_Settings__Profile
+#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT

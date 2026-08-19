@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/auth/components/AuthLayout.tsx'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L1'
+source_file: "src/features/auth/components/AuthLayout.tsx"
+type: "code"
+community: "Auth - EmailLoginScreen"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_EmailLoginScreen
 ---
 
 # AuthLayout.tsx
 
 ## Connections
-
 - [[AuthLayout()]] - `contains` [EXTRACTED]
 - [[AuthLayoutProps]] - `contains` [EXTRACTED]
 - [[EmailLoginScreen.tsx]] - `imports_from` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_EmailLoginScreen

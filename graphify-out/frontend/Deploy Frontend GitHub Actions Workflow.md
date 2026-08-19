@@ -1,18 +1,13 @@
 ---
-source_file: '.github/workflows/deploy.yml'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
+source_file: ".github/workflows/deploy.yml"
+type: "code"
+community: "Deploy Frontend GitHub Actions"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Offline_Connectivity_Monitoring
+  - graphify/EXTRACTED
+  - community/Deploy_Frontend_GitHub_Actions
 ---
 
 # Deploy Frontend GitHub Actions Workflow
 
-## Connections
-
-- [[Architecture Overview & Entry Chain]] - `conceptually_related_to` [INFERRED]
-- [[npm Script Commands]] - `references` [EXTRACTED]
-
-#graphify/code #graphify/INFERRED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Deploy_Frontend_GitHub_Actions

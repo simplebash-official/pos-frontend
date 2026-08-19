@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/invoices/api/printLogStore.ts'
-type: 'code'
-community: 'POS Billing Flow (printLogStore)'
-location: 'L15'
+source_file: "src/features/invoices/api/printLogStore.ts"
+type: "code"
+community: "Billing - getInvoiceDocument"
+location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_printLogStore
+  - community/Billing_-_getInvoiceDocument
 ---
 
 # recordPrintEvent()
 
 ## Connections
-
 - [[dot-add()]] - `calls` [INFERRED]
 - [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[usePrint()]] - `calls` [EXTRACTED]
 - [[usePrint.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_printLogStore
+#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument

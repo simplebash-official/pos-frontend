@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/lib/syncNotifications.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/features/sync/lib/syncNotifications.ts"
+type: "code"
+community: "Notifications - clearConnectivityNotification"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Notifications_-_clearConnectivityNotification
 ---
 
 # syncNotifications.ts
 
 ## Connections
-
 - [[NOTIFICATION_ID_CONNECTIVITY]] - `imports` [EXTRACTED]
 - [[NOTIFICATION_ID_SYNC_ERROR]] - `imports` [EXTRACTED]
 - [[SyncProvider.tsx]] - `imports_from` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[offlineconstants.ts]] - `imports_from` [EXTRACTED]
 - [[showOrUpdate()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_clearConnectivityNotification

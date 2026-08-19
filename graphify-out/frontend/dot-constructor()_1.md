@@ -1,18 +1,18 @@
 ---
-source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L44'
+source_file: "src/shared/lib/localStorageStore.ts"
+type: "code"
+community: "Shared UI - LocalStorageStore"
+location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Shared_UI_-_LocalStorageStore
 ---
 
 # .constructor()
 
 ## Connections
+- [[dot-load()]] - `calls` [EXTRACTED]
+- [[LocalStorageStore]] - `method` [EXTRACTED]
 
-- [[ConnectivityMonitor]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_LocalStorageStore

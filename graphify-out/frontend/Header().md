@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/layout/Header.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L46'
+source_file: "src/app/layout/Header.tsx"
+type: "code"
+community: "Billing - Header"
+location: "L46"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_Header
 ---
 
 # Header()
 
 ## Connections
-
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[Header.tsx]] - `contains` [EXTRACTED]
 - [[selectAuthUser()]] - `indirect_call` [INFERRED]
@@ -22,4 +21,4 @@ tags:
 - [[useHeldCarts()]] - `calls` [EXTRACTED]
 - [[useIsMobile()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_Header

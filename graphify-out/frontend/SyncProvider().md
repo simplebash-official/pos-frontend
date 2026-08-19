@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/react/SyncProvider.tsx'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L39'
+source_file: "src/offline/react/SyncProvider.tsx"
+type: "code"
+community: "Notifications - clearConnectivityNotification"
+location: "L39"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Notifications_-_clearConnectivityNotification
 ---
 
 # SyncProvider()
 
 ## Connections
-
 - [[SyncProvider.tsx]] - `contains` [EXTRACTED]
 - [[clearConnectivityNotification()]] - `calls` [EXTRACTED]
 - [[getResourcesInDependencyOrder()]] - `calls` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[useAppDispatch]] - `calls` [EXTRACTED]
 - [[useAppSelector]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_clearConnectivityNotification

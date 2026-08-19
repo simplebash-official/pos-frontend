@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/components/CustomerList.tsx'
-type: 'code'
-community: 'POS Billing Flow (useCustomers)'
-location: 'L48'
+source_file: "src/features/customers/components/CustomerList.tsx"
+type: "code"
+community: "Billing - fetchInvoices"
+location: "L48"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_useCustomers
+  - community/Billing_-_fetchInvoices
 ---
 
 # CustomerList()
 
 ## Connections
-
 - [[CustomerList.tsx]] - `contains` [EXTRACTED]
 - [[customersindex.ts]] - `re_exports` [EXTRACTED]
 - [[formatMoney()]] - `calls` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[useEntitySearch()]] - `calls` [EXTRACTED]
 - [[useUpdateCustomer()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_useCustomers
+#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices

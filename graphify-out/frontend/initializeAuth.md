@@ -1,25 +1,22 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L53'
+source_file: "src/store/slices/authSlice.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L71"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # initializeAuth
 
 ## Connections
-
 - [[AuthInitializer()]] - `calls` [EXTRACTED]
 - [[authSlice.ts]] - `contains` [EXTRACTED]
-- [[cacheSession()]] - `calls` [EXTRACTED]
-- [[getMeApi()]] - `calls` [EXTRACTED]
 - [[isNetworkError()]] - `calls` [EXTRACTED]
 - [[isRejectedSession()]] - `calls` [EXTRACTED]
 - [[providers.tsx]] - `imports` [EXTRACTED]
-- [[readCachedSession()]] - `calls` [EXTRACTED]
+- [[tryRestoreFromCache()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

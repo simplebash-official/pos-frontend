@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/tablerIcons.ts'
-type: 'code'
-community: 'Tabler Icon Shards'
-location: 'L28'
+source_file: "src/offline/connectivity/networkSignal.ts"
+type: "code"
+community: "Offline Sync - constructor"
+location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Tabler_Icon_Shards
+  - community/Offline_Sync_-_constructor
 ---
 
 # listeners
 
 ## Connections
+- [[networkSignal.ts]] - `contains` [EXTRACTED]
 
-- [[tablerIcons.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Tabler_Icon_Shards
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor

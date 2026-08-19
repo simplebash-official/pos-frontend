@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/MoneyInput.tsx'
-type: 'code'
-community: 'index Module'
-location: 'L1'
+source_file: "src/shared/components/MoneyInput.tsx"
+type: "code"
+community: "Employees - CURRENCY"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/index_Module
+  - community/Employees_-_CURRENCY
 ---
 
 # MoneyInput.tsx
 
 ## Connections
-
 - [[CURRENCY]] - `imports` [EXTRACTED]
 - [[MoneyInput()]] - `contains` [EXTRACTED]
 - [[MoneyInputProps]] - `contains` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[toCents()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/index_Module
+#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY

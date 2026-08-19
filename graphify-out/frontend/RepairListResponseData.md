@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/repairs/api/repairsApi.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L52'
+source_file: "src/features/repairs/api/repairsApi.ts"
+type: "code"
+community: "Employees - addEarningRecord"
+location: "L52"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_addEarningRecord
 ---
 
 # RepairListResponseData
 
 ## Connections
-
 - [[repairsApi.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord

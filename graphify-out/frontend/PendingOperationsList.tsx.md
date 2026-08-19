@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/components/PendingOperationsList.tsx'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L1'
+source_file: "src/features/sync/components/PendingOperationsList.tsx"
+type: "code"
+community: "Inventory - StockMovement"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Inventory_-_StockMovement
 ---
 
 # PendingOperationsList.tsx
 
 ## Connections
-
 - [[EmptyState()]] - `imports` [EXTRACTED]
 - [[EmptyState.tsx]] - `imports_from` [EXTRACTED]
 - [[OutboxOp]] - `imports` [EXTRACTED]
@@ -31,4 +30,4 @@ tags:
 - [[syncindex.ts]] - `re_exports` [EXTRACTED]
 - [[tables.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement

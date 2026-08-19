@@ -1,19 +1,18 @@
 ---
-source_file: 'src/api/client.ts'
-type: 'code'
-community: 'Billing Chrome & Navigation'
-location: 'L80'
+source_file: "src/api/client.ts"
+type: "code"
+community: "ApiClient"
+location: "L80"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Chrome__Navigation
+  - community/ApiClient
 ---
 
 # ApiClient
 
 ## Connections
-
-- [[dot-constructor()]] - `method` [EXTRACTED]
+- [[dot-constructor()_5]] - `method` [EXTRACTED]
 - [[dot-delete()]] - `method` [EXTRACTED]
 - [[dot-get()]] - `method` [EXTRACTED]
 - [[dot-patch()]] - `method` [EXTRACTED]
@@ -35,4 +34,4 @@ tags:
 - [[suppliersApi.ts]] - `imports` [EXTRACTED]
 - [[syncApi.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Chrome__Navigation
+#graphify/code #graphify/EXTRACTED #community/ApiClient

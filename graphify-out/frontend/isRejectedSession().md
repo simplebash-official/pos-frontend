@@ -1,19 +1,18 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L32'
+source_file: "src/store/slices/authSlice.ts"
+type: "code"
+community: "Auth - RequireAdmin"
+location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_RequireAdmin
 ---
 
 # isRejectedSession()
 
 ## Connections
-
 - [[authSlice.ts]] - `contains` [EXTRACTED]
 - [[initializeAuth]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/supplierProducts.resource.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/offline/resources/supplierProducts.resource.ts"
+type: "code"
+community: "Offline Sync - fetchSupplierProducts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Offline_Sync_-_fetchSupplierProducts
 ---
 
 # supplierProducts.resource.ts
 
 ## Connections
-
 - [[SetLinksPayload]] - `contains` [EXTRACTED]
 - [[SupplierProduct]] - `imports` [EXTRACTED]
 - [[SupplierProductInput]] - `imports` [EXTRACTED]
@@ -41,4 +40,4 @@ tags:
 - [[unlinkSupplierProduct()]] - `imports` [EXTRACTED]
 - [[useSupplierProducts.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts

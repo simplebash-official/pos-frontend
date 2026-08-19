@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/CatalogPanel.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L63'
+source_file: "src/features/billing/components/CatalogPanel.tsx"
+type: "code"
+community: "Billing - CartLineItem"
+location: "L63"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_CartLineItem
 ---
 
 # CatalogPanel
 
 ## Connections
-
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `contains` [EXTRACTED]
 - [[buildCatalogCategoryFilters()]] - `calls` [EXTRACTED]
@@ -35,4 +34,4 @@ tags:
 - [[useEntitySearch()]] - `calls` [EXTRACTED]
 - [[useLayoutTier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem

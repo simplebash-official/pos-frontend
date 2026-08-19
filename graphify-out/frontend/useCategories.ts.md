@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useCategories.ts'
-type: 'code'
-community: 'Inventory & Products API'
-location: 'L1'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "Inventory - AddSubcategoryRow"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory__Products_API
+  - community/Inventory_-_AddSubcategoryRow
 ---
 
 # useCategories.ts
 
 ## Connections
-
 - [[AddSubcategoryPayload]] - `imports` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[Category]] - `imports` [EXTRACTED]
@@ -50,4 +49,4 @@ tags:
 - [[useUpdateCategory()]] - `contains` [EXTRACTED]
 - [[useValidCategories()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory__Products_API
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/types/common.ts'
-type: 'code'
-community: 'Authentication & Access Control'
-location: 'L9'
+source_file: "src/shared/types/common.ts"
+type: "code"
+community: "Auth - EmailLoginScreen"
+location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Authentication__Access_Control
+  - community/Auth_-_EmailLoginScreen
 ---
 
 # ApiError
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[common.ts]] - `contains` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Authentication__Access_Control
+#graphify/code #graphify/EXTRACTED #community/Auth_-_EmailLoginScreen

@@ -1,23 +1,21 @@
 ---
-source_file: 'backend-sync-requirements.html'
-type: 'document'
-community: 'Offline Connectivity Monitoring'
+source_file: "backend-sync-requirements.html"
+type: "document"
+community: "Offline Sync - Acceptance"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_Acceptance
 ---
 
 # Backend Requirements — Offline Sync Spec
 
 ## Connections
-
 - [[Acceptance Criteria Checklist]] - `references` [EXTRACTED]
 - [[Error Codes the Client Acts On]] - `references` [EXTRACTED]
 - [[OPS-01 Reconnect Stampede Capacity Planning]] - `references` [EXTRACTED]
 - [[OPS-02 Keep Compound Writes Transactional]] - `references` [EXTRACTED]
 - [[OPS-03 Scheduled Cleanup Jobs]] - `references` [EXTRACTED]
-- [[Offline & Sync Architecture]] - `cites` [EXTRACTED]
 - [[SYNC-01 Idempotency-Key on Mutating Requests]] - `references` [EXTRACTED]
 - [[SYNC-02 Unfiltered Collection List Endpoints]] - `references` [EXTRACTED]
 - [[SYNC-03 Server as Stock Authority, Reject Overselling]] - `references` [EXTRACTED]
@@ -34,4 +32,4 @@ tags:
 - [[SYNC-14 Batch Push Endpoint (Conditional)]] - `references` [EXTRACTED]
 - [[SYNC-15 Collapse Dual idkey Identity]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/document #graphify/EXTRACTED #community/Offline_Sync_-_Acceptance

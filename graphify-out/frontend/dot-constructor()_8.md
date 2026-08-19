@@ -1,19 +1,17 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L9'
+source_file: "src/offline/errors.ts"
+type: "code"
+community: "Offline Sync - readServerVersion"
+location: "L80"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Offline_Sync_-_readServerVersion
 ---
 
 # .constructor()
 
 ## Connections
+- [[OutboxFullError]] - `method` [EXTRACTED]
 
-- [[dot-load()]] - `calls` [EXTRACTED]
-- [[LocalStorageStore]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_readServerVersion

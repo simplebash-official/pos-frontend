@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/outbox/outbox.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L36'
+source_file: "src/offline/outbox/outbox.ts"
+type: "code"
+community: "Offline Sync - OutboxError"
+location: "L36"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_OutboxError
 ---
 
 # enqueueOperation()
 
 ## Connections
-
 - [[createIdempotencyKey()]] - `calls` [EXTRACTED]
 - [[getDeviceId()]] - `calls` [EXTRACTED]
 - [[outbox.test.ts]] - `imports` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[submit.ts]] - `imports` [EXTRACTED]
 - [[submitOperation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError

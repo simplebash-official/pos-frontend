@@ -1,21 +1,19 @@
 ---
-source_file: 'src/features/billing/hooks/usePrint.ts'
-type: 'code'
-community: 'POS Billing Flow (printLogStore)'
-location: 'L1'
+source_file: "src/features/billing/hooks/usePrint.ts"
+type: "code"
+community: "Billing - getInvoiceDocument"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_printLogStore
+  - community/Billing_-_getInvoiceDocument
 ---
 
 # usePrint.ts
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]
-- [[InvoiceDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[billingtypes.ts]] - `imports_from` [EXTRACTED]
 - [[documentsApi.ts]] - `imports_from` [EXTRACTED]
 - [[getInvoiceDocument()]] - `imports` [EXTRACTED]
@@ -29,4 +27,4 @@ tags:
 - [[useAppSelector]] - `imports` [EXTRACTED]
 - [[usePrint()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_printLogStore
+#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument

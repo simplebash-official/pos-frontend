@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/db/maintenance.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/offline/db/maintenance.ts"
+type: "code"
+community: "Offline Sync - STORAGE"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_STORAGE
 ---
 
 # maintenance.ts
 
 ## Connections
-
 - [[ClearLocalDataOptions]] - `contains` [EXTRACTED]
 - [[MIRROR_TABLE_NAMES]] - `imports` [EXTRACTED]
 - [[STORAGE_QUOTA_WARN_RATIO]] - `imports` [EXTRACTED]
@@ -37,4 +36,4 @@ tags:
 - [[rowAgeTimestamp()]] - `contains` [EXTRACTED]
 - [[schema.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_STORAGE

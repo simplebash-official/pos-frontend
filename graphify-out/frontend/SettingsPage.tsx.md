@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/settings/components/SettingsPage.tsx'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L1'
+source_file: "src/features/settings/components/SettingsPage.tsx"
+type: "code"
+community: "Settings - ACCEPTED TYPES"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Settings_-_ACCEPTED_TYPES
 ---
 
 # SettingsPage.tsx
 
 ## Connections
-
 - [[BankDetailsSection()]] - `imports` [EXTRACTED]
 - [[BankDetailsSection.tsx]] - `imports_from` [EXTRACTED]
 - [[BrandingSection()]] - `imports` [EXTRACTED]
@@ -44,4 +43,4 @@ tags:
 - [[useLayoutTier()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

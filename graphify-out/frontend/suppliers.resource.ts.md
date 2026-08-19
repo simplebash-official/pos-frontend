@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/suppliers.resource.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/offline/resources/suppliers.resource.ts"
+type: "code"
+community: "Suppliers - createSupplier"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_createSupplier
 ---
 
 # suppliers.resource.ts
 
 ## Connections
-
 - [[DeleteSupplierPayload]] - `contains` [EXTRACTED]
 - [[DeleteSuppliersPayload]] - `contains` [EXTRACTED]
 - [[Supplier]] - `imports` [EXTRACTED]
@@ -44,4 +43,4 @@ tags:
 - [[updateSupplier()]] - `imports` [EXTRACTED]
 - [[useSuppliers.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier

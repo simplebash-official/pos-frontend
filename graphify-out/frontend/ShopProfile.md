@@ -1,21 +1,20 @@
 ---
-source_file: 'src/features/settings/types.ts'
-type: 'code'
-community: 'Shop Settings & Profile'
-location: 'L1'
+source_file: "src/features/settings/types.ts"
+type: "code"
+community: "Settings - DEFAULT PRINT"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shop_Settings__Profile
+  - community/Settings_-_DEFAULT_PRINT
 ---
 
 # ShopProfile
 
 ## Connections
-
 - [[SettingsState]] - `references` [EXTRACTED]
 - [[settingsconstants.ts]] - `imports` [EXTRACTED]
 - [[settingstypes.ts]] - `contains` [EXTRACTED]
 - [[settingsSlice.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shop_Settings__Profile
+#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT

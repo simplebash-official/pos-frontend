@@ -1,13 +1,13 @@
 ---
-source_file: 'src/assets/typescript.svg'
-type: 'image'
-community: 'Invoice & Document Printing'
+source_file: "src/assets/typescript.svg"
+type: "image"
+community: "TypeScript Logo typescript svg"
 tags:
   - graphify/image
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/TypeScript_Logo_typescript_svg
 ---
 
 # TypeScript Logo (typescript.svg)
 
-#graphify/image #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/image #graphify/EXTRACTED #community/TypeScript_Logo_typescript_svg

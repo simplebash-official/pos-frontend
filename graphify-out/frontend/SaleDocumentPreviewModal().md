@@ -1,19 +1,19 @@
 ---
-source_file: 'src/features/billing/components/SaleDocumentPreviewModal.tsx'
-type: 'code'
-community: 'POS Billing Flow (printLogStore)'
-location: 'L24'
+source_file: "src/features/billing/components/SaleDocumentPreviewModal.tsx"
+type: "code"
+community: "Billing - getInvoiceDocument"
+location: "L24"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_printLogStore
+  - community/Billing_-_getInvoiceDocument
 ---
 
 # SaleDocumentPreviewModal()
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
+- [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `contains` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]
 - [[formatMoney()]] - `calls` [EXTRACTED]
@@ -29,4 +29,4 @@ tags:
 - [[useIsMobile()]] - `calls` [EXTRACTED]
 - [[useLayoutTier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_printLogStore
+#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument

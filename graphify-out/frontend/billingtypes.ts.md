@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/types.ts'
-type: 'code'
-community: 'POS Billing Flow (printLogStore)'
-location: 'L1'
+source_file: "src/features/billing/types.ts"
+type: "code"
+community: "Billing - BackendInvoice"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_printLogStore
+  - community/Billing_-_BackendInvoice
 ---
 
 # billing/types.ts
 
 ## Connections
-
 - [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]
@@ -33,4 +32,4 @@ tags:
 - [[useCartCheckout()]] - `imports_from` [EXTRACTED]
 - [[usePrint.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_printLogStore
+#graphify/code #graphify/EXTRACTED #community/Billing_-_BackendInvoice

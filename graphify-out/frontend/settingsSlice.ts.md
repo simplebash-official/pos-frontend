@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Shop Settings & Profile'
-location: 'L1'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "Settings - DEFAULT PRINT"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shop_Settings__Profile
+  - community/Settings_-_DEFAULT_PRINT
 ---
 
 # settingsSlice.ts
 
 ## Connections
-
 - [[BankDetailsSection.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports_from` [EXTRACTED]
@@ -29,7 +28,7 @@ tags:
 - [[ShopProfileSection.tsx]] - `imports_from` [EXTRACTED]
 - [[StoredShopProfileVersion]] - `contains` [EXTRACTED]
 - [[TaxVatSection.tsx]] - `imports_from` [EXTRACTED]
-- [[initialState_3]] - `contains` [EXTRACTED]
+- [[initialState]] - `contains` [EXTRACTED]
 - [[loadSettingsFromStorage()]] - `contains` [EXTRACTED]
 - [[saveSettingsToStorage()]] - `contains` [EXTRACTED]
 - [[selectPrintSettings()]] - `contains` [EXTRACTED]
@@ -44,4 +43,4 @@ tags:
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 - [[usePrint.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shop_Settings__Profile
+#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT

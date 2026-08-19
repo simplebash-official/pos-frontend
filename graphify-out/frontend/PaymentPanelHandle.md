@@ -1,21 +1,20 @@
 ---
-source_file: 'src/features/billing/components/PaymentPanel.tsx'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L55'
+source_file: "src/features/billing/components/PaymentPanel.tsx"
+type: "code"
+community: "Billing - PAYMENT METHODS"
+location: "L55"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_PAYMENT_METHODS
 ---
 
 # PaymentPanelHandle
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[BillingRegionsProps]] - `references` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS

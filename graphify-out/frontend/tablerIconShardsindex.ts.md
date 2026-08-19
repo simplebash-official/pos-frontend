@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/tablerIconShards/index.ts'
-type: 'code'
-community: 'Tabler Icon Shards'
-location: 'L1'
+source_file: "src/shared/lib/tablerIconShards/index.ts"
+type: "code"
+community: "Shared UI - TablerIconPicker"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Tabler_Icon_Shards
+  - community/Shared_UI_-_TablerIconPicker
 ---
 
 # tablerIconShards/index.ts
 
 ## Connections
-
 - [[ICON_SHARD_KEYS]] - `contains` [EXTRACTED]
 - [[ICON_SHARD_LOADERS]] - `contains` [EXTRACTED]
 - [[_.ts]] - `dynamic_import` [EXTRACTED]
@@ -45,4 +44,4 @@ tags:
 - [[y.ts]] - `dynamic_import` [EXTRACTED]
 - [[z.ts]] - `dynamic_import` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Tabler_Icon_Shards
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker

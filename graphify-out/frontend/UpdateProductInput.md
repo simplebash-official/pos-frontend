@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/inventory/types.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L81'
+source_file: "src/features/inventory/types.ts"
+type: "code"
+community: "Inventory - adjustStock"
+location: "L81"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Inventory_-_adjustStock
 ---
 
 # UpdateProductInput
 
 ## Connections
-
-- [[FormContentProps_1]] - `references` [EXTRACTED]
+- [[FormContentProps_2]] - `references` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductFormModalProps]] - `references` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[products.resource.ts]] - `imports` [EXTRACTED]
 - [[productsApi.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock

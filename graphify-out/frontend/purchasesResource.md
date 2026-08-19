@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/purchases.resource.ts'
-type: 'code'
-community: 'Offline Sync Engine (productsApi)'
-location: 'L19'
+source_file: "src/offline/resources/purchases.resource.ts"
+type: "code"
+community: "Purchases - createPurchase"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_productsApi
+  - community/Purchases_-_createPurchase
 ---
 
 # purchasesResource
 
 ## Connections
-
 - [[appendStockDelta()]] - `calls` [EXTRACTED]
 - [[createPurchase()]] - `calls` [EXTRACTED]
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[resourcesindex.ts]] - `imports` [EXTRACTED]
 - [[toLocalRow()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_productsApi
+#graphify/code #graphify/EXTRACTED #community/Purchases_-_createPurchase

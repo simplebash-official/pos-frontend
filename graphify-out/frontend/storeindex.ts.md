@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/index.ts'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L1'
+source_file: "src/store/index.ts"
+type: "code"
+community: "Notifications - initialState"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Notifications_-_initialState
 ---
 
 # store/index.ts
 
 ## Connections
-
 - [[AppDispatch]] - `contains` [EXTRACTED]
 - [[RootState]] - `contains` [EXTRACTED]
 - [[authSlice.ts]] - `imports_from` [EXTRACTED]
@@ -29,4 +28,4 @@ tags:
 - [[syncSlice.ts]] - `imports_from` [EXTRACTED]
 - [[themeSlice.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

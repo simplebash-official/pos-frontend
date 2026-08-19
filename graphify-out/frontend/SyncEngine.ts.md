@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/engine/SyncEngine.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L1'
+source_file: "src/offline/engine/SyncEngine.ts"
+type: "code"
+community: "Offline Sync - start"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_start
 ---
 
 # SyncEngine.ts
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[ConnectivityMonitor]] - `imports` [EXTRACTED]
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
@@ -62,4 +61,4 @@ tags:
 - [[tables.ts]] - `imports_from` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start

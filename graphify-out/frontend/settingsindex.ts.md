@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/settings/index.ts'
-type: 'code'
-community: 'Shop Settings & Profile'
-location: 'L1'
+source_file: "src/features/settings/index.ts"
+type: "code"
+community: "Billing - SettingsPage"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shop_Settings__Profile
+  - community/Billing_-_SettingsPage
 ---
 
 # settings/index.ts
 
 ## Connections
-
 - [[SettingsPage]] - `imports_from` [EXTRACTED]
 - [[SettingsPage()]] - `re_exports` [EXTRACTED]
 - [[SettingsPage.tsx]] - `re_exports` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[settingsconstants.ts]] - `re_exports` [EXTRACTED]
 - [[settingstypes.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shop_Settings__Profile
+#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage

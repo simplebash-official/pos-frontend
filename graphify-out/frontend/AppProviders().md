@@ -1,19 +1,18 @@
 ---
-source_file: 'src/app/providers.tsx'
-type: 'code'
-community: 'App Layout & Routing'
-location: 'L40'
+source_file: "src/app/providers.tsx"
+type: "code"
+community: "Billing - SettingsPage"
+location: "L41"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/App_Layout__Routing
+  - community/Billing_-_SettingsPage
 ---
 
 # AppProviders()
 
 ## Connections
-
 - [[appApp.tsx]] - `imports` [EXTRACTED]
 - [[providers.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/App_Layout__Routing
+#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage

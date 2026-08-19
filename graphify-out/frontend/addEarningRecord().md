@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/api/mockEmployees.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L186'
+source_file: "src/features/employees/api/mockEmployees.ts"
+type: "code"
+community: "Employees - addEarningRecord"
+location: "L186"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_addEarningRecord
 ---
 
 # addEarningRecord()
 
 ## Connections
-
 - [[dot-add()]] - `calls` [INFERRED]
 - [[createPrintJob()]] - `calls` [EXTRACTED]
 - [[createRepairJob()]] - `calls` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[repairsApi.ts]] - `imports` [EXTRACTED]
 - [[updateEarningRecordForWork()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord

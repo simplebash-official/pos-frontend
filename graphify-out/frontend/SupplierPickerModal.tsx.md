@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierPickerModal.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/suppliers/components/SupplierPickerModal.tsx"
+type: "code"
+community: "Suppliers - useSetSupplierLinks"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Suppliers_-_useSetSupplierLinks
 ---
 
 # SupplierPickerModal.tsx
 
 ## Connections
-
 - [[ReceiveStockModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SUPPLIER_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[SearchHighlight()]] - `imports` [EXTRACTED]
@@ -30,4 +29,4 @@ tags:
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 - [[useSuppliers.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks

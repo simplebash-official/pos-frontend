@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/reports/components/ReportsDashboard.tsx'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L1'
+source_file: "src/features/reports/components/ReportsDashboard.tsx"
+type: "code"
+community: "Employees - createEmployee"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_createEmployee
 ---
 
 # ReportsDashboard.tsx
 
 ## Connections
-
 - [[EMPLOYEE_ROLE_LABELS]] - `imports` [EXTRACTED]
 - [[PageHeader()]] - `imports` [EXTRACTED]
 - [[PageHeader.tsx]] - `imports_from` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[queryKeys.ts]] - `imports_from` [EXTRACTED]
 - [[reportsindex.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee

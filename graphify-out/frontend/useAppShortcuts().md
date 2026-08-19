@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/hooks/useShortcuts.ts'
-type: 'code'
-community: 'useShortcuts Module'
-location: 'L70'
+source_file: "src/shared/hooks/useShortcuts.ts"
+type: "code"
+community: "Billing - getInvoiceDocument"
+location: "L70"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/useShortcuts_Module
+  - community/Billing_-_getInvoiceDocument
 ---
 
 # useAppShortcuts()
 
 ## Connections
-
 - [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
 - [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[AppShell()]] - `calls` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[handleKeyDown()]] - `indirect_call` [INFERRED]
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/useShortcuts_Module
+#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument

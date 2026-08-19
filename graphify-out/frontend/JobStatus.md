@@ -1,18 +1,17 @@
 ---
-source_file: 'src/constants/jobs.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L10'
+source_file: "src/constants/jobs.ts"
+type: "code"
+community: "Employees - JOB STATUS"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_JOB_STATUS
 ---
 
 # JobStatus
 
 ## Connections
-
 - [[PrintJob]] - `references` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
 - [[PrintJobInput]] - `references` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[print-jobstypes.ts]] - `imports` [EXTRACTED]
 - [[repairstypes.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_JOB_STATUS

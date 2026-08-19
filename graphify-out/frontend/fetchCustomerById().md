@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/api/customersApi.ts'
-type: 'code'
-community: 'Customer Management & Drawers'
-location: 'L35'
+source_file: "src/features/customers/api/customersApi.ts"
+type: "code"
+community: "Customers - createCustomer"
+location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Customer_Management__Drawers
+  - community/Customers_-_createCustomer
 ---
 
 # fetchCustomerById()
 
 ## Connections
-
 - [[customersApi.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Customer_Management__Drawers
+#graphify/code #graphify/EXTRACTED #community/Customers_-_createCustomer

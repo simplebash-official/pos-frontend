@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/settings/types.ts'
-type: 'code'
-community: 'Shop Settings & Profile'
-location: 'L1'
+source_file: "src/features/settings/types.ts"
+type: "code"
+community: "Settings - DEFAULT PRINT"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shop_Settings__Profile
+  - community/Settings_-_DEFAULT_PRINT
 ---
 
 # settings/types.ts
 
 ## Connections
-
 - [[AutoPrintOption]] - `contains` [EXTRACTED]
 - [[DocumentSelection]] - `contains` [EXTRACTED]
 - [[InvoiceCopyOption]] - `contains` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[settingsindex.ts]] - `re_exports` [EXTRACTED]
 - [[settingsSlice.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shop_Settings__Profile
+#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT

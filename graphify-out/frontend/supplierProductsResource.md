@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/resources/supplierProducts.resource.ts'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L32'
+source_file: "src/offline/resources/supplierProducts.resource.ts"
+type: "code"
+community: "Offline Sync - fetchSupplierProducts"
+location: "L32"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Offline_Sync_-_fetchSupplierProducts
 ---
 
 # supplierProductsResource
 
 ## Connections
-
 - [[fetchResourceDelta()]] - `calls` [EXTRACTED]
 - [[fetchResourceSnapshot()]] - `calls` [EXTRACTED]
 - [[linkSupplierProduct()]] - `calls` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[toLocalRow()]] - `calls` [EXTRACTED]
 - [[unlinkSupplierProduct()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts

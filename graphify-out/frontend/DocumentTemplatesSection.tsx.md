@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/settings/components/sections/DocumentTemplatesSection.tsx'
-type: 'code'
-community: 'Invoice & Document Printing'
-location: 'L1'
+source_file: "src/features/settings/components/sections/DocumentTemplatesSection.tsx"
+type: "code"
+community: "Settings - ACCEPTED TYPES"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Settings_-_ACCEPTED_TYPES
 ---
 
 # DocumentTemplatesSection.tsx
 
 ## Connections
-
 - [[DocumentTemplatesFormValues]] - `contains` [EXTRACTED]
 - [[DocumentTemplatesSection()]] - `contains` [EXTRACTED]
 - [[SectionProps]] - `imports` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[useAppDispatch]] - `imports` [EXTRACTED]
 - [[useAppSelector]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES

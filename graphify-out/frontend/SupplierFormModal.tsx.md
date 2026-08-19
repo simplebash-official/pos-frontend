@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierFormModal.tsx'
-type: 'code'
-community: 'Supplier Directory & Stock Receipts'
-location: 'L1'
+source_file: "src/features/suppliers/components/SupplierFormModal.tsx"
+type: "code"
+community: "Billing - HeldSalesDrawer"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Supplier_Directory__Stock_Receipts
+  - community/Billing_-_HeldSalesDrawer
 ---
 
 # SupplierFormModal.tsx
 
 ## Connections
-
 - [[DEFAULT_SUGGESTED_TAGS]] - `imports` [EXTRACTED]
-- [[FormContentProps_2]] - `contains` [EXTRACTED]
+- [[FormContentProps_1]] - `contains` [EXTRACTED]
 - [[PRODUCT_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[Supplier]] - `imports` [EXTRACTED]
 - [[SupplierFormContent()]] - `contains` [EXTRACTED]
@@ -36,4 +35,4 @@ tags:
 - [[useProductsForSupplier()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Supplier_Directory__Stock_Receipts
+#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer

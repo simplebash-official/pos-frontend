@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/SegmentedToggle.tsx'
-type: 'code'
-community: 'Billing Chrome & Navigation'
-location: 'L12'
+source_file: "src/shared/components/SegmentedToggle.tsx"
+type: "code"
+community: "Shared UI - EntityListPage"
+location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_Chrome__Navigation
+  - community/Shared_UI_-_EntityListPage
 ---
 
 # SegmentedToggle()
 
 ## Connections
-
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[DiscountPopover.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[Sidebar.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_Chrome__Navigation
+#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_EntityListPage

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/engine/SyncEngine.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L40'
+source_file: "src/offline/engine/SyncEngine.ts"
+type: "code"
+community: "Offline Sync - start"
+location: "L40"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_start
 ---
 
 # SyncEngine
 
 ## Connections
-
 - [[dot-canSync()]] - `method` [EXTRACTED]
 - [[dot-handleConnectivityChange()]] - `method` [EXTRACTED]
 - [[dot-onFlushComplete()]] - `method` [EXTRACTED]
@@ -25,7 +24,7 @@ tags:
 - [[dot-startLoops()]] - `method` [EXTRACTED]
 - [[dot-stop()_1]] - `method` [EXTRACTED]
 - [[dot-stopLoops()]] - `method` [EXTRACTED]
-- [[dot-subscribe()_1]] - `method` [EXTRACTED]
+- [[dot-subscribe()]] - `method` [EXTRACTED]
 - [[dot-syncNow()]] - `method` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[PendingOperationsList.tsx]] - `imports` [EXTRACTED]
@@ -35,4 +34,4 @@ tags:
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[useSyncedMutation.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start

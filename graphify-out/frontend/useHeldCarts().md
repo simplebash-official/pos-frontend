@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/hooks/useCart.ts'
-type: 'code'
-community: 'POS Cart & Checkout State'
-location: 'L239'
+source_file: "src/features/billing/hooks/useCart.ts"
+type: "code"
+community: "Billing - Header"
+location: "L239"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Cart__Checkout_State
+  - community/Billing_-_Header
 ---
 
 # useHeldCarts()
 
 ## Connections
-
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CartPanel]] - `calls` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[useAppSelector]] - `calls` [EXTRACTED]
 - [[useCart.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Cart__Checkout_State
+#graphify/code #graphify/EXTRACTED #community/Billing_-_Header

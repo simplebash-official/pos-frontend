@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/App.tsx'
-type: 'code'
-community: 'App Layout & Routing'
-location: 'L1'
+source_file: "src/app/App.tsx"
+type: "code"
+community: "Billing - SettingsPage"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/App_Layout__Routing
+  - community/Billing_-_SettingsPage
 ---
 
 # app/App.tsx
 
 ## Connections
-
 - [[App()]] - `contains` [EXTRACTED]
 - [[AppProviders()]] - `imports` [EXTRACTED]
 - [[main.tsx]] - `imports_from` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[router.tsx]] - `imports_from` [EXTRACTED]
 - [[srcApp.tsx]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/App_Layout__Routing
+#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage

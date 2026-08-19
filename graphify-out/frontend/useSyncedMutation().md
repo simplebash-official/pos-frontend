@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/react/useSyncedMutation.ts'
-type: 'code'
-community: 'Offline Sync Engine (useProducts)'
-location: 'L17'
+source_file: "src/offline/react/useSyncedMutation.ts"
+type: "code"
+community: "Inventory - ProductTable"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_Engine_useProducts
+  - community/Inventory_-_ProductTable
 ---
 
 # useSyncedMutation()
 
 ## Connections
-
 - [[getSyncResource()]] - `calls` [EXTRACTED]
 - [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 - [[submitOperation()]] - `calls` [EXTRACTED]
@@ -45,4 +44,4 @@ tags:
 - [[useUpdateProduct()]] - `calls` [EXTRACTED]
 - [[useUpdateSupplier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_Engine_useProducts
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable

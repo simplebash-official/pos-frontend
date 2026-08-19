@@ -1,23 +1,21 @@
 ---
-source_file: 'src/features/repairs/api/repairsApi.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L129'
+source_file: "src/features/repairs/api/repairsApi.ts"
+type: "code"
+community: "Employees - addEarningRecord"
+location: "L129"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_addEarningRecord
 ---
 
 # updateRepairJob()
 
 ## Connections
-
-- [[RepairJobList()]] - `calls` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
 - [[deleteEarningRecordsForWork()]] - `calls` [EXTRACTED]
 - [[repairsApi.ts]] - `contains` [EXTRACTED]
 - [[toRepairJob()]] - `calls` [EXTRACTED]
 - [[updateEarningRecordForWork()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord

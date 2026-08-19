@@ -1,19 +1,17 @@
 ---
-source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
-type: 'code'
-community: 'Offline Connectivity Monitoring'
-location: 'L69'
+source_file: "src/offline/engine/leader.ts"
+type: "code"
+community: "Offline Sync - start"
+location: "L74"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Connectivity_Monitoring
+  - community/Offline_Sync_-_start
 ---
 
 # .stop()
 
 ## Connections
+- [[LeaderElection]] - `method` [EXTRACTED]
 
-- [[dot-clearTimers()]] - `calls` [EXTRACTED]
-- [[ConnectivityMonitor]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Connectivity_Monitoring
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start

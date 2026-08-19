@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/__tests__/pull.test.ts'
-type: 'code'
-community: 'Outbox Queue & Status'
-location: 'L33'
+source_file: "src/offline/__tests__/outbox.test.ts"
+type: "code"
+community: "Offline Sync - signal"
+location: "L26"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Outbox_Queue__Status
+  - community/Offline_Sync_-_signal
 ---
 
 # widgetResource
 
 ## Connections
+- [[outbox.test.ts]] - `contains` [EXTRACTED]
 
-- [[pull.test.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Outbox_Queue__Status
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_signal

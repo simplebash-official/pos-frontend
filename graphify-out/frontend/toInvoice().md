@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/api/invoicesApi.ts'
-type: 'code'
-community: 'POS Billing Flow (invoicesApi)'
-location: 'L174'
+source_file: "src/features/billing/api/invoicesApi.ts"
+type: "code"
+community: "Billing - BackendInvoice"
+location: "L174"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_invoicesApi
+  - community/Billing_-_BackendInvoice
 ---
 
 # toInvoice()
 
 ## Connections
-
 - [[completeSale()]] - `calls` [EXTRACTED]
 - [[fetchInvoiceById()]] - `calls` [EXTRACTED]
 - [[fetchInvoices()]] - `indirect_call` [INFERRED]
@@ -20,4 +19,4 @@ tags:
 - [[toInvoiceItem()]] - `indirect_call` [INFERRED]
 - [[toSplitPayment()]] - `indirect_call` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_invoicesApi
+#graphify/code #graphify/EXTRACTED #community/Billing_-_BackendInvoice

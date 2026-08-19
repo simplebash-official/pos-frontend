@@ -1,18 +1,17 @@
 ---
-source_file: 'tsconfig.json'
-type: 'code'
-community: 'DOM Module'
-location: 'L2'
+source_file: "tsconfig.json"
+type: "code"
+community: "DOM"
+location: "L2"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/DOM_Module
+  - community/DOM
 ---
 
 # compilerOptions
 
 ## Connections
-
 - [[allowArbitraryExtensions]] - `contains` [EXTRACTED]
 - [[allowImportingTsExtensions]] - `contains` [EXTRACTED]
 - [[erasableSyntaxOnly]] - `contains` [EXTRACTED]
@@ -33,4 +32,4 @@ tags:
 - [[types]] - `contains` [EXTRACTED]
 - [[verbatimModuleSyntax]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/DOM_Module
+#graphify/code #graphify/EXTRACTED #community/DOM

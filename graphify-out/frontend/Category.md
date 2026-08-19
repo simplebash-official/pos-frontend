@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/types.ts'
-type: 'code'
-community: 'Inventory & Products API'
-location: 'L11'
+source_file: "src/features/inventory/types.ts"
+type: "code"
+community: "Inventory - createCategory"
+location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory__Products_API
+  - community/Inventory_-_createCategory
 ---
 
 # Category
 
 ## Connections
-
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
 - [[OfflineDb]] - `references` [EXTRACTED]
 - [[ProductCatalogTree.tsx]] - `imports` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[schema.ts]] - `imports` [EXTRACTED]
 - [[useCategories.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory__Products_API
+#graphify/code #graphify/EXTRACTED #community/Inventory_-_createCategory

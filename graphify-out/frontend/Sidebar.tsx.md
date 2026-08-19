@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/layout/Sidebar.tsx'
-type: 'code'
-community: 'POS Billing Flow (routes)'
-location: 'L1'
+source_file: "src/app/layout/Sidebar.tsx"
+type: "code"
+community: "Billing - ROUTE TITLES"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/POS_Billing_Flow_routes
+  - community/Billing_-_ROUTE_TITLES
 ---
 
 # Sidebar.tsx
 
 ## Connections
-
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[NAV_ITEMS]] - `imports` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
@@ -34,4 +33,4 @@ tags:
 - [[useProducts.ts]] - `imports_from` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/POS_Billing_Flow_routes
+#graphify/code #graphify/EXTRACTED #community/Billing_-_ROUTE_TITLES

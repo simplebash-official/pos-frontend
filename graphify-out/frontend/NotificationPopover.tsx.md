@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/notifications/components/NotificationPopover.tsx'
-type: 'code'
-community: 'Notifications & Storage Keys'
-location: 'L1'
+source_file: "src/features/notifications/components/NotificationPopover.tsx"
+type: "code"
+community: "Notifications - initialState"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications__Storage_Keys
+  - community/Notifications_-_initialState
 ---
 
 # NotificationPopover.tsx
 
 ## Connections
-
 - [[NotificationCategory]] - `imports` [EXTRACTED]
 - [[NotificationItem()]] - `imports` [EXTRACTED]
 - [[NotificationItem.tsx]] - `imports_from` [EXTRACTED]
@@ -29,4 +28,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications__Storage_Keys
+#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState

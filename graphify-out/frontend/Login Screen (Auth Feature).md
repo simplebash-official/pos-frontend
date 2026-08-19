@@ -1,13 +1,13 @@
 ---
-source_file: 'src/assets/wall_login.jpg'
-type: 'concept'
-community: 'Invoice & Document Printing'
+source_file: "src/assets/wall_login.jpg"
+type: "concept"
+community: "Login Screen Auth Feature"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Invoice__Document_Printing
+  - community/Login_Screen_Auth_Feature
 ---
 
 # Login Screen (Auth Feature)
 
-#graphify/concept #graphify/EXTRACTED #community/Invoice__Document_Printing
+#graphify/concept #graphify/EXTRACTED #community/Login_Screen_Auth_Feature

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/errors.ts'
-type: 'code'
-community: 'ID Mapping & Reference Resolution'
-location: 'L53'
+source_file: "src/offline/errors.ts"
+type: "code"
+community: "Offline Sync - start"
+location: "L101"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ID_Mapping__Reference_Resolution
+  - community/Offline_Sync_-_start
 ---
 
 # .constructor()
 
 ## Connections
+- [[BarcodeConflictError]] - `method` [EXTRACTED]
 
-- [[AbandonedReferenceError]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/ID_Mapping__Reference_Resolution
+#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start

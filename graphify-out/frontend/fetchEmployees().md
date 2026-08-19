@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/api/mockEmployees.ts'
-type: 'code'
-community: 'Employee Accounts & Earnings'
-location: 'L111'
+source_file: "src/features/employees/api/mockEmployees.ts"
+type: "code"
+community: "Employees - createEmployee"
+location: "L111"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Employee_Accounts__Earnings
+  - community/Employees_-_createEmployee
 ---
 
 # fetchEmployees()
 
 ## Connections
-
 - [[dot-getAll()]] - `calls` [INFERRED]
 - [[EmployeeList()]] - `indirect_call` [INFERRED]
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]
@@ -22,4 +21,4 @@ tags:
 - [[ReportsDashboard.tsx]] - `imports` [EXTRACTED]
 - [[mockEmployees.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Employee_Accounts__Earnings
+#graphify/code #graphify/INFERRED #community/Employees_-_createEmployee
