@@ -11,10 +11,10 @@
             "id": "c15fb71f734cd0e6",
             "type": "leaf",
             "state": {
-              "type": "empty",
+              "type": "graph",
               "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -925,7 +925,7 @@
                 "showArrow": true,
                 "textFadeMultiplier": 0,
                 "nodeSizeMultiplier": 1.2,
-                "lineSizeMultiplier": 1.0,
+                "lineSizeMultiplier": 1,
                 "collapse-forces": false,
                 "centerStrength": 0.5,
                 "repelStrength": 10,
@@ -1079,6 +1079,8 @@
   },
   "active": "c15fb71f734cd0e6",
   "lastOpenFiles": [
+    "wall_login.jpg (Login Background Image).md",
+    "Untitled 1.base",
     "TaxVatFormValues.md",
     "Untitled.base",
     "2026-08-19.md",
