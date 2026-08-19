@@ -96,6 +96,12 @@ export const SyncPanel = () => {
     setIsSyncing(true);
     try {
       await syncEngine.syncNow();
+    } catch (error) {
+      notifications.show({
+        title: 'Could not sync',
+        message: error instanceof Error ? error.message : String(error),
+        color: 'red',
+      });
     } finally {
       setIsSyncing(false);
     }
@@ -159,17 +165,22 @@ export const SyncPanel = () => {
       {/* Connection */}
       <Paper p="md" withBorder>
         <Group justify="space-between" align="flex-start" wrap="nowrap">
-          <Group gap="sm" wrap="nowrap">
-            <ThemeIcon variant="light" color={presentation.color} size="lg">
+          <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+            <ThemeIcon
+              variant="light"
+              color={presentation.color}
+              size="lg"
+              style={{ flexShrink: 0 }}
+            >
               {connectivity.state === 'offline' ? (
                 <IconCloudOff size={20} />
               ) : (
                 <IconRefresh size={20} />
               )}
             </ThemeIcon>
-            <Stack gap={2}>
+            <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
               <Text fw={600}>{presentation.label}</Text>
-              <Text size="xs" c="dimmed">
+              <Text size="xs" c="dimmed" style={{ wordBreak: 'break-word' }}>
                 {connectivity.lastReachableAt !== null
                   ? `Server last reached ${formatDateTime(new Date(connectivity.lastReachableAt).toISOString())}`
                   : 'Server has not been reached yet'}
@@ -188,6 +199,7 @@ export const SyncPanel = () => {
               onClick={handleSyncNow}
               loading={isSyncing}
               disabled={!canSync}
+              style={{ flexShrink: 0 }}
             >
               Sync now
             </Button>
