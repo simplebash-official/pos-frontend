@@ -14,19 +14,18 @@ import {
   Select,
   TextInput,
 } from '@mantine/core';
-import { IconPrinter, IconFileText, IconCopy, IconCheck, IconCash } from '@tabler/icons-react';
+import { IconReceipt, IconFileText, IconCopy, IconCheck, IconCash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
-import { usePrint } from '@/features/billing/hooks/usePrint';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
 import {
   fetchPaymentsForInvoice,
   recordPayment as recordPaymentApi,
 } from '@/features/billing/api/paymentsApi';
 import { queryKeys } from '@/api/queryKeys';
-import { A4InvoicePreviewModal } from '@/features/billing/components/A4InvoicePreviewModal';
+import { SaleDocumentPreviewModal } from '@/features/billing/components/SaleDocumentPreviewModal';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface InvoiceDetailDrawerProps {
@@ -44,10 +43,11 @@ export const InvoiceDetailDrawer = ({
 }: InvoiceDetailDrawerProps) => {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
-  const { printReceipt } = usePrint();
 
-  // Preview modal (self-contained — not shared with BillingCounter)
-  const [previewOpen, setPreviewOpen] = useState(false);
+  // Document preview modal state ('receipt' | 'invoice' | null)
+  const [previewDocumentKind, setPreviewDocumentKind] = useState<'invoice' | 'receipt' | null>(
+    null
+  );
 
   // Payment Record Modal State
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -395,19 +395,19 @@ export const InvoiceDetailDrawer = ({
               <Button
                 variant="outline"
                 color="blue"
-                leftSection={<IconPrinter size={16} />}
-                onClick={() => printReceipt(invoice)}
+                leftSection={<IconReceipt size={16} />}
+                onClick={() => setPreviewDocumentKind('receipt')}
               >
-                Print Receipt
+                Show Receipt
               </Button>
 
               <Button
                 variant="outline"
                 color="violet"
                 leftSection={<IconFileText size={16} />}
-                onClick={() => setPreviewOpen(true)}
+                onClick={() => setPreviewDocumentKind('invoice')}
               >
-                Print Invoice
+                Show Invoice
               </Button>
             </Group>
 
@@ -423,11 +423,15 @@ export const InvoiceDetailDrawer = ({
         </Stack>
       </Drawer>
 
-      {/* A4 Invoice Preview Modal (self-contained in drawer) */}
-      <A4InvoicePreviewModal
-        opened={previewOpen}
-        onClose={() => setPreviewOpen(false)}
+      {/* Sale Document Preview Modal (shows Receipt or Invoice in PdfCanvasViewer) */}
+      <SaleDocumentPreviewModal
+        opened={previewDocumentKind !== null}
+        onClose={() => {
+          setPreviewDocumentKind(null);
+          onRefresh?.();
+        }}
         invoice={invoice}
+        documentKind={previewDocumentKind}
       />
 
       {/* Record Payment Modal */}
