@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -25,6 +25,7 @@ import {
   IconFileInvoice,
   IconChevronRight,
 } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { fetchInvoices } from '@/features/billing/api/invoicesApi';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
@@ -32,11 +33,35 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { queryKeys } from '@/api/queryKeys';
+import { getListEmptyText } from '@/shared/lib/queryStatusText';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
 export const InvoicesList = () => {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: rawInvoices = [],
+    isLoading,
+    isFetching,
+    isError,
+    fetchStatus,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.billing.invoices(),
+    queryFn: fetchInvoices,
+  });
+
+  const invoices = useMemo(
+    () =>
+      [...rawInvoices].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
+    [rawInvoices]
+  );
+
+  const emptyText = getListEmptyText(
+    { isPaused: fetchStatus === 'paused', isError },
+    'No invoices found matching your filters.'
+  );
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,34 +72,6 @@ export const InvoicesList = () => {
   // Selected invoice drawer
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchInvoices();
-      // Sort newest first
-      setInvoices(
-        data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-    fetchInvoices().then((data) => {
-      if (mounted) {
-        setInvoices(
-          data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        );
-        setLoading(false);
-      }
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Status, payment and date filters first; the shared scorer then ranks what is
   // left, so a bill number or ticket the user half-remembers surfaces first.
@@ -165,8 +162,8 @@ export const InvoicesList = () => {
             size="xs"
             variant="light"
             leftSection={<IconRefresh size={14} />}
-            loading={loading}
-            onClick={loadData}
+            loading={isFetching}
+            onClick={() => refetch()}
           >
             Refresh List
           </Button>
@@ -202,7 +199,7 @@ export const InvoicesList = () => {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   TODAY'S INVOICES
                 </Text>
-                {loading ? (
+                {isLoading ? (
                   <Skeleton height={28} width={50} mt={4} />
                 ) : (
                   <Text size="xl" fw={700} mt={2}>
@@ -222,7 +219,7 @@ export const InvoicesList = () => {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   OUTSTANDING CREDIT
                 </Text>
-                {loading ? (
+                {isLoading ? (
                   <Skeleton height={28} width={110} mt={4} />
                 ) : (
                   <Text
@@ -248,7 +245,7 @@ export const InvoicesList = () => {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   AVG BASKET VALUE
                 </Text>
-                {loading ? (
+                {isLoading ? (
                   <Skeleton height={28} width={90} mt={4} />
                 ) : (
                   <Text size="xl" fw={700} mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -331,7 +328,7 @@ export const InvoicesList = () => {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {loading ? (
+              {isLoading ? (
                 Array.from({ length: 6 }, (_, i) => (
                   <Table.Tr key={`inv-skel-${i}`}>
                     <Table.Td>
@@ -369,7 +366,7 @@ export const InvoicesList = () => {
                 <Table.Tr>
                   <Table.Td colSpan={8} style={{ textAlign: 'center', padding: '32px' }}>
                     <Text size="sm" c="dimmed">
-                      No invoices found matching your filters.
+                      {emptyText}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -468,7 +465,9 @@ export const InvoicesList = () => {
         opened={drawerOpened}
         onClose={() => setDrawerOpened(false)}
         invoice={selectedInvoice}
-        onRefresh={loadData}
+        onRefresh={() => {
+          void refetch();
+        }}
       />
     </Box>
   );

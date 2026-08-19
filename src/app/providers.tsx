@@ -15,6 +15,7 @@ import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
+import '@/offline/connectivity/onlineManagerBridge';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';

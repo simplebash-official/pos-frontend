@@ -4,6 +4,7 @@ import { USER_ROLES, UserRole } from '@/constants/roles';
 import { getMeApi } from '@/features/auth/api/authApi';
 import type { AuthUser } from '@/features/auth/types';
 import { cacheSession, clearCachedSession, readCachedSession } from '@/offline/db/session';
+import { connectivityMonitor } from '@/offline/connectivity/ConnectivityMonitor';
 import type { ApiError } from '@/shared/types/common';
 
 export type { AuthUser };
@@ -50,6 +51,23 @@ const initialState: AuthState = {
   isOfflineSession: false,
 };
 
+/**
+ * Restores the cached identity from Dexie, dispatching `restoreOfflineSession`
+ * on a hit. Shared by the already-offline fast path and the slow-timeout
+ * fallback below so both apply the same "unreachable backend never
+ * invalidates a session" rule via one code path.
+ */
+const tryRestoreFromCache = async (
+  dispatch: (action: ReturnType<typeof restoreOfflineSession>) => void
+): Promise<boolean> => {
+  const cachedUser = await readCachedSession();
+  if (cachedUser) {
+    dispatch(restoreOfflineSession(cachedUser));
+    return true;
+  }
+  return false;
+};
+
 export const initializeAuth = createAsyncThunk(
   'auth/initializeAuth',
   async (_, { dispatch, getState }) => {
@@ -65,10 +83,38 @@ export const initializeAuth = createAsyncThunk(
     }
 
     dispatch(setLoading(true));
+
+    // `subscribe()` replays the current snapshot synchronously, so if the
+    // app already knows it's offline (e.g. the connection dropped before
+    // this reload) this resolves in the same tick — instead of RequireAuth
+    // blocking the entire app behind getMeApi()'s full network timeout for
+    // a request that cannot possibly succeed.
+    connectivityMonitor.start();
+    let unsubscribe: (() => void) | undefined;
+    const offlineDetected = new Promise<void>((resolve) => {
+      unsubscribe = connectivityMonitor.subscribe((snapshot) => {
+        if (snapshot.state === 'offline') {
+          resolve();
+        }
+      });
+    });
+
     try {
-      const user = await getMeApi();
-      dispatch(setUser(user));
-      await cacheSession(user);
+      const outcome = await Promise.race([
+        getMeApi().then((user) => ({ kind: 'user' as const, user })),
+        offlineDetected.then(() => ({ kind: 'offline' as const })),
+      ]);
+
+      if (outcome.kind === 'offline') {
+        const restored = await tryRestoreFromCache(dispatch);
+        if (!restored) {
+          dispatch(logout());
+        }
+        return;
+      }
+
+      dispatch(setUser(outcome.user));
+      await cacheSession(outcome.user);
     } catch (error) {
       // A power cut is not a failed login. When the backend is simply
       // unreachable, restore the cached identity and carry on offline —
@@ -78,9 +124,8 @@ export const initializeAuth = createAsyncThunk(
       // erroring, says nothing about whether the session is still valid.
       const rejected = isRejectedSession(error);
       if (!rejected) {
-        const cachedUser = await readCachedSession();
-        if (cachedUser) {
-          dispatch(restoreOfflineSession(cachedUser));
+        const restored = await tryRestoreFromCache(dispatch);
+        if (restored) {
           return;
         }
         if (isNetworkError(error)) {
@@ -92,6 +137,7 @@ export const initializeAuth = createAsyncThunk(
       console.warn('Failed to restore authentication session:', error);
       dispatch(logout());
     } finally {
+      unsubscribe?.();
       dispatch(setLoading(false));
       dispatch(setInitialized(true));
     }

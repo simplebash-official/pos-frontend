@@ -11,6 +11,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
+import { getListEmptyText } from '@/shared/lib/queryStatusText';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { RepairFormModal } from './RepairFormModal';
@@ -22,7 +23,12 @@ export const RepairJobList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
 
-  const { data: repairJobs = [], isLoading } = useQuery({
+  const {
+    data: repairJobs = [],
+    isLoading,
+    isError,
+    fetchStatus,
+  } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: fetchRepairs,
   });
@@ -224,7 +230,10 @@ export const RepairJobList = () => {
         keyExtractor={(job) => job.id}
         onRowClick={(job) => handleOpenEdit(job)}
         onDeleteSelected={(ids) => deleteBatchMutation.mutate(ids)}
-        emptyText="No repair jobs recorded yet"
+        emptyText={getListEmptyText(
+          { isPaused: fetchStatus === 'paused', isError },
+          'No repair jobs recorded yet'
+        )}
       />
 
       <RepairFormModal

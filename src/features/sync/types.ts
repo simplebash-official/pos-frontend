@@ -24,6 +24,7 @@ export const MODULE_STATUS_PRESENTATION: Record<ModuleSyncStatus, StatusPresenta
 
 export const OVERALL_STATUS_PRESENTATION: Record<OverallSyncStatus, StatusPresentation> = {
   online: { label: 'Online', color: 'green', token: 'var(--status-ok)' },
+  checking: { label: 'Checking…', color: 'gray', token: 'var(--status-idle)' },
   degraded: { label: 'Slow', color: 'yellow', token: 'var(--status-warn)' },
   syncing: { label: 'Syncing', color: 'blue', token: 'var(--status-busy)' },
   pending: { label: 'Pending', color: 'orange', token: 'var(--status-warn)' },

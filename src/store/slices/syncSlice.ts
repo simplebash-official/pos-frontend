@@ -177,7 +177,7 @@ export const selectHasBlockingProblem = createSelector(
 );
 
 export type OverallSyncStatus =
-  'offline' | 'conflict' | 'error' | 'syncing' | 'pending' | 'degraded' | 'online';
+  'offline' | 'conflict' | 'error' | 'syncing' | 'pending' | 'degraded' | 'checking' | 'online';
 
 /**
  * The single status the header badge shows.
@@ -205,6 +205,9 @@ export const selectOverallSyncStatus = createSelector(
     }
     if (connectivity === 'degraded') {
       return 'degraded';
+    }
+    if (connectivity === 'checking') {
+      return 'checking';
     }
     return 'online';
   }
