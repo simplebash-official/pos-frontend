@@ -1,452 +1,503 @@
 # Graph Report - frontend  (2026-08-19)
 
 ## Corpus Check
-- 310 files · ~160,956 words
+- 44 files · ~160,963 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1601 nodes · 4932 edges · 106 communities (76 shown, 30 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 105 edges (avg confidence: 0.73)
-- Token cost: 0 input · 0 output
-
-## Graph Freshness
-- Built from commit: `db56fbaa`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
+- 1652 nodes · 4801 edges · 119 communities (88 shown, 31 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 102 edges (avg confidence: 0.73)
+- Token cost: 78,823 input · 0 output
 
 ## Community Hubs (Navigation)
-- schema.ts
-- useCategories.ts
-- offline/types.ts
-- tablerIconShards/index.ts
-- settingsSlice.ts
-- maintenance.ts
-- SettingsPage.tsx
-- flush.ts
-- syncSlice.ts
-- offline/constants.ts
-- ConnectivityMonitor
-- useAppDispatch
-- CustomerList.tsx
-- CatalogPanel.tsx
-- outbox.ts
-- cartSlice.ts
-- products.resource.ts
-- dependencies
-- PrintJobFormModal.tsx
-- SaleDocumentPreviewModal.tsx
-- registry.ts
-- devDependencies
-- mockEmployees.ts
-- invoicesApi.ts
-- syncApi.ts
-- common.ts
-- client.ts
-- compilerOptions
-- ApiClient
-- toCents
-- Backend Requirements — Offline Sync Spec
-- healthProbe.ts
-- customers.resource.ts
-- db
-- SupplierList.tsx
-- useResponsive.tsx
-- app/App.tsx
-- printJobs.resource.ts
-- searchFields.ts
-- SyncEngine.ts
-- ProductTable.tsx
-- EmployeeFormModal.tsx
-- categories.resource.ts
-- search.ts
-- authSlice.ts
-- formatMoney
-- generate-icon-shards.mjs
-- SyncProvider.tsx
-- scripts
-- ReportsDashboard.tsx
-- CartLineItem.tsx
-- router.tsx
-- useSearchHistory.ts
-- notifications/types.ts
-- Offline-First Dexie Mirror and Outbox Engine
-- icons.svg (Social/Doc Icon Sprite Sheet)
-- navigation.ts
-- MobileSignUpForm.tsx
-- suppliers.resource.ts
-- themeSlice.ts
-- Responsive and Mobile Layout Tiers
-- package.json
-- Graphify Knowledge Graph Rules
-- App Entry, Layout Shell, and Router Architecture
-- ui.ts
-- Inline Color Scheme Init Script
-- @mantine/form
-- react-dom
-- @tanstack/react-query
-- useIsMobile
-- prettier
-- typescript-eslint
-- vite-plugin-pwa
-- vitest
-- AGENTS.md Instructions Document
-- Integer Cents Money Representation
-- Non-Technical Shop User UI Copy Guidelines
-- Login Screen (Auth Feature)
-- Phone Repair Technician Servicing Device
-- Repair/Retail Shop POS Domain
-- GEMINI.md Instructions Document
-- Deploy Frontend GitHub Actions Workflow
-- POS App Icon / Branding
-- Apple Touch Icon (Lightning Bolt Logo)
-- Favicon (Jana2u POS Logo Mark)
-- App Icon 192px (Lightning Bolt)
-- App Icon (512x512, Lightning Bolt)
-- PWA Manifest / App Icons
-- TypeScript Logo (typescript.svg)
-- TypeScript (Language/Technology)
-- Vite Logo (vite.svg)
-- wall_login.jpg (Login Background Image)
-- PrintJobList.tsx
-- notificationSlice.ts
-- typescript
-- RepairJobList.tsx
-- eslint-plugin-react-hooks
+- Sync Redux Slice
+- Notifications Feature
+- Settings Feature
+- Employees Feature
+- Billing Feature
+- Billing Feature
+- Cart Redux Slice
+- Customers Feature
+- Offline Sync Types
+- Offline DB (Dexie)
+- Offline Sync Engine
+- package.json Dependencies
+- Shared Hooks
+- Shared Utility Library
+- Suppliers Feature
+- Offline Local ID Handling
+- package.json Dependencies
+- Offline Outbox
+- Shared Utility Library
+- Shared UI Components
+- Inventory Feature
+- TypeScript Config
+- App Layout Shell
+- Inventory Feature
+- Offline Connectivity Monitor
+- Auth Redux Slice
+- Billing Feature
+- Supplier Products Feature
+- Offline Connectivity Monitor
+- Backend Sync Requirements Doc
+- Shared UI Components
+- Auth Feature
+- Offline Sync Resource Descriptors
+- Inventory Feature
+- Offline Sync Engine
+- Shared Utility Library
+- App Config
+- Offline Sync Engine
+- API Client Layer
+- Customers Feature
+- Settings Redux Slice
+- Inventory Feature
+- Inventory Feature
+- Inventory Feature
+- Print Jobs Feature
+- Settings Feature
+- App-Level Components
+- Purchases Feature
+- Repairs Feature
+- Offline Sync Constants
+- Shared Utility Library
+- Print Jobs Feature
+- Suppliers Feature
+- Invoices Feature
+- Billing Feature
+- Offline DB (Dexie)
+- CI Verification Steps (Deploy Workflow x CLAUDE.md)
+- Icon Shard Generator Script
+- Sync Feature UI
+- Sync Feature UI
+- CLAUDE.md Project Docs
+- CLAUDE.md Project Docs
+- CLAUDE.md Project Docs
+- package.json Dependencies
+- Repairs Feature
+- Shared UI Components
+- Shared Utility Library
+- CLAUDE.md Project Docs
+- CLAUDE.md Project Docs
+- Public Social/Doc Icons
+- App Entry Chain (main.tsx, App.tsx, router)
+- Billing Feature
+- Auth Feature
+- CLAUDE.md Project Docs
+- package.json Dependencies
+- Theme & Styling
+- CLAUDE.md Project Docs
+- Settings Feature
+- Shared UI Components
+- graphify Agent Config Docs
+- ESLint Config
+- index.html Color-Scheme Init
+- @mantine/form Dependency
+- package.json Dependencies
+- package.json Dependencies
+- package.json Dependencies
+- package.json Dependencies
+- package.json Dependencies
+- package.json Dependencies
+- package.json Dependencies
+- AGENTS.md Doc
+- CLAUDE.md Project Docs
+- CLAUDE.md Project Docs
+- CLAUDE.md Project Docs
+- CLAUDE.md Project Docs
+- Login Screen Concept
+- Phone Repair Technician Concept
+- Repair/Retail POS Domain Concept
+- GEMINI.md Doc
+- POS App Icon Concept
+- Apple Touch Icon Asset
+- Favicon Asset
+- Icon 192 Asset
+- Icon 512 Asset
+- PWA Manifest Concept
+- TypeScript Logo Asset
+- TypeScript Language Concept
+- Vite Logo Asset
+- Wall Login Background Asset
 
 ## God Nodes (most connected - your core abstractions)
-1. `useIsMobile()` - 75 edges
-2. `formatMoney()` - 60 edges
-3. `useAppSelector` - 60 edges
-4. `useSyncedMutation()` - 44 edges
-5. `useAppDispatch` - 42 edges
-6. `db` - 38 edges
+1. `useIsMobile()` - 67 edges
+2. `formatMoney()` - 53 edges
+3. `useAppSelector` - 53 edges
+4. `db` - 38 edges
+5. `useAppDispatch` - 37 edges
+6. `useSyncedMutation()` - 35 edges
 7. `ConnectivityMonitor` - 30 edges
-8. `useSyncedQuery()` - 30 edges
-9. `useEntitySearch()` - 28 edges
-10. `fetchResourceDelta()` - 27 edges
+8. `useEntitySearch()` - 27 edges
+9. `useSyncedQuery()` - 26 edges
+10. `fetchResourceDelta()` - 23 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Graphify Knowledge Graph Guidelines in CLAUDE.md` --semantically_similar_to--> `Graphify Knowledge Graph Rules`  [INFERRED] [semantically similar]
-  CLAUDE.md → .agents/rules/graphify.md
-- `Graphify Knowledge Graph Guidelines in CLAUDE.md` --semantically_similar_to--> `Graphify Knowledge Graph Workflow`  [INFERRED] [semantically similar]
-  CLAUDE.md → .agents/workflows/graphify.md
-- `Sidebar()` --indirect_call--> `selectUserRole()`  [INFERRED]
-  src/app/layout/Sidebar.tsx → src/store/slices/authSlice.ts
-- `CartLineItemProps` --references--> `CartItem`  [EXTRACTED]
-  src/features/billing/components/CartLineItem.tsx → src/store/slices/cartSlice.ts
-- `BackendRepair` --references--> `RepairJob`  [EXTRACTED]
-  src/features/repairs/api/repairsApi.ts → src/features/repairs/types.ts
+- `build-and-deploy Job` --conceptually_related_to--> `Post-Change Verification Rule`  [INFERRED]
+  .github/workflows/deploy.yml → CLAUDE.md
+- `Type Check Step (npm run type-check)` --references--> `npm run type-check`  [INFERRED]
+  .github/workflows/deploy.yml → CLAUDE.md
+- `Lint Step (npm run lint)` --references--> `npm run lint`  [INFERRED]
+  .github/workflows/deploy.yml → CLAUDE.md
+- `Build Step (npm run build)` --references--> `npm run build`  [INFERRED]
+  .github/workflows/deploy.yml → CLAUDE.md
+- `paths-ignore Trigger Filter` --shares_data_with--> `graphify Knowledge Graph Integration`  [INFERRED]
+  .github/workflows/deploy.yml → CLAUDE.md
 
 ## Import Cycles
-- 3-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductPickerModal.tsx`
-- 3-file cycle: `src/features/inventory/components/ProductTable.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductTable.tsx`
+- 3-file cycle: `src/features/employees/components/EmployeeList.tsx -> src/shared/lib/searchFields.ts -> src/features/employees/index.ts -> src/features/employees/components/EmployeeList.tsx`
 - 3-file cycle: `src/features/customers/components/CustomerList.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerList.tsx`
 - 3-file cycle: `src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx`
+- 3-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductPickerModal.tsx`
+- 3-file cycle: `src/features/inventory/components/ProductTable.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductTable.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierList.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierPickerModal.tsx`
-- 3-file cycle: `src/features/employees/components/EmployeeList.tsx -> src/shared/lib/searchFields.ts -> src/features/employees/index.ts -> src/features/employees/components/EmployeeList.tsx`
 - 4-file cycle: `src/features/suppliers/components/SupplierFormModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx -> src/features/suppliers/components/SupplierFormModal.tsx`
 - 5-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx -> src/features/suppliers/components/SupplierDetailDrawer.tsx -> src/features/inventory/components/ProductPickerModal.tsx`
-- 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/billing/components/BillingRegions.tsx -> src/features/billing/components/CatalogPanel.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/customers/index.ts -> src/features/customers/components/CustomerList.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
+- 5-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/billing/components/BillingRegions.tsx -> src/features/billing/components/CatalogPanel.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 
 ## Hyperedges (group relationships)
-- **Offline-First Sync and Storage Architecture** — claude_md_offline_sync_engine, claude_md_sync_resource_descriptor, claude_md_connectivity_monitor, claude_md_backend_sync_contract [EXTRACTED 1.00]
-- **Responsive and Performant UI Design System** — claude_md_responsive_rules, claude_md_center_modal_standard, claude_md_detail_drawer_standard, claude_md_animation_performance [EXTRACTED 1.00]
-- **CI Build and Quality Gate Flow** — github_workflows_deploy_pipeline [INFERRED 0.75]
+- **Center Modal Visual Family (ProductFormModal, ConfirmDialog, A4InvoicePreviewModal)** — claude_center_modal_pattern, claude_productformmodal_component, claude_confirmdialog_component, claude_a4invoicepreviewmodal_component [EXTRACTED 1.00]
+- **Right-Side Detail Drawer Family (ProductTable, SupplierDetailDrawer, EmployeeDetailDrawer)** — claude_detail_drawer_pattern, claude_producttable_component, claude_supplierdetaildrawer_component, claude_employeedetaildrawer_component [EXTRACTED 1.00]
+- **Offline Sync Four Hard Rules (apiClient bypass ban, Dexie source of truth, delta ledger, no locally-invented identity)** — claude_offline_sync_architecture, claude_apiclient, claude_dexie_schema, claude_stockledger, claude_localid_module [INFERRED 0.85]
 - **Backend Requirements Supporting the Four Hard Rules** — backend_sync_requirements_stock_authority, backend_sync_requirements_local_id_prefix, backend_sync_requirements_idempotency_key [INFERRED 0.85]
-- **Graphify Knowledge Graph Integration** — agents_rules_graphify_rule, agents_workflows_graphify_workflow, claude_md_graphify_guidelines [INFERRED 0.95]
+- **Graphify Knowledge Graph Integration** — agents_rules_graphify_rule, agents_workflows_graphify_workflow [INFERRED 0.95]
 
-## Communities (106 total, 30 thin omitted)
+## Communities (119 total, 31 thin omitted)
 
-### Community 0 - "schema.ts"
-Cohesion: 0.14
-Nodes (21): PaymentRecord, PendingOperationsList(), PendingOperationsListProps, STATUS_LABEL, MirrorTableName, OfflineDb, AuditEvent, ConflictRecord (+13 more)
-
-### Community 1 - "useCategories.ts"
-Cohesion: 0.16
-Nodes (20): AddSubcategoryRow(), CategoryItem(), CategoryManagerModal(), CategoryManagerModalProps, ProductCatalogTreeProps, ProductFormModal(), CATEGORY_COLOR_OPTIONS, DEFAULT_CATEGORY_ICON (+12 more)
-
-### Community 2 - "offline/types.ts"
-Cohesion: 0.12
-Nodes (13): reclaimInflightOperations(), Widget, widgetResource, ConflictPolicy, ConflictStrategy, LocalApplyHandler, LocalContext, ModuleSyncStatus (+5 more)
-
-### Community 3 - "tablerIconShards/index.ts"
+### Community 0 - "Sync Redux Slice"
 Cohesion: 0.06
-Nodes (19): TablerIconPicker(), TablerIconPickerProps, EMPTY_MAP, getServerSnapshot(), getSnapshot(), listeners, loadShard(), resolved (+11 more)
+Nodes (42): SyncDrawer(), SyncDrawerProps, SyncModuleCard(), SyncModuleCardProps, formatBytes(), SyncPanel(), SyncSettingsSection(), SyncStatusBadge() (+34 more)
 
-### Community 4 - "settingsSlice.ts"
+### Community 1 - "Notifications Feature"
+Cohesion: 0.06
+Nodes (44): STORAGE_KEYS, DEFAULT_PAGINATION, HELD_CART_REMINDER_MS, SKELETON_WIDTH_PATTERN, NotificationItem(), NotificationItemProps, NotificationPopover(), NotificationPopoverProps (+36 more)
+
+### Community 2 - "Settings Feature"
 Cohesion: 0.13
-Nodes (17): SettingsPage, renderSection(), SettingsPage(), DEFAULT_PRINT_SETTINGS, DEFAULT_SHOP_PROFILE, AutoPrintOption, DocumentSelection, InvoiceCopyOption (+9 more)
+Nodes (29): AppUpdatePrompt(), HeldCartCatchupNotifier(), AppProvidersProps, AuthInitializer(), useCartSound(), LowStockNotifier(), notifiedProductIds, BankDetailsFormValues (+21 more)
 
-### Community 5 - "maintenance.ts"
+### Community 3 - "Employees Feature"
+Cohesion: 0.10
+Nodes (30): queryKeys, createEmployee(), deleteEarningRecordsForWork(), deleteEmployee(), deleteEmployees(), earningsStore, employeesStore, fetchAllEmployeeEarnings (+22 more)
+
+### Community 4 - "Billing Feature"
 Cohesion: 0.12
-Nodes (16): clearLocalData(), ClearLocalDataOptions, forceFullResync(), pruneByRetention(), rowAgeTimestamp(), MIRROR_TABLE_NAMES, AuditLevel, logError() (+8 more)
+Nodes (28): PAYMENT_METHODS, CompleteSaleInput, BillingCounter(), BillingRegions, BillingRegionsProps, FILL, BillingPane, BillingSummaryStrip() (+20 more)
 
-### Community 6 - "SettingsPage.tsx"
+### Community 5 - "Billing Feature"
+Cohesion: 0.13
+Nodes (23): StandalonePrintView, getInvoiceDocument(), InvoiceDocumentType, A4InvoicePreviewModal(), A4InvoicePreviewModalProps, SaleDocumentPreviewModal(), SaleDocumentPreviewModalProps, StandalonePrintView() (+15 more)
+
+### Community 6 - "Cart Redux Slice"
 Cohesion: 0.11
-Nodes (29): ACCEPTED_TYPES, LogoUpload(), LogoUploadProps, BankDetailsFormValues, BankDetailsSection(), BrandingFormValues, BrandingSection(), DocumentTemplatesFormValues (+21 more)
+Nodes (29): PaymentMethod, CartLineItemProps, useCartCheckout(), LineSourceType, SplitPaymentDetail, CartItem, cartSlice, CartState (+21 more)
 
-### Community 7 - "flush.ts"
+### Community 7 - "Customers Feature"
+Cohesion: 0.16
+Nodes (24): CustomerDetailDrawer(), CustomerDetailDrawerProps, CustomerFormContent(), CustomerFormModal(), CustomerFormModalProps, FormContentProps, CustomerList(), CustomerPickerModal() (+16 more)
+
+### Community 8 - "Offline Sync Types"
 Cohesion: 0.09
-Nodes (37): ConflictReason, AbandonedReferenceError, UnresolvedReferenceError, abandonMapping(), DROP_ELEMENT, isRecord(), loadIdMap(), mintLocalId() (+29 more)
+Nodes (25): EnqueueInput, reclaimInflightOperations(), getReferringResources(), registerSyncResource(), resetRegistry(), resources, SyncStatus, Widget (+17 more)
 
-### Community 8 - "syncSlice.ts"
-Cohesion: 0.05
-Nodes (51): SyncDrawer(), SyncDrawerProps, SyncModuleCard(), SyncModuleCardProps, formatBytes(), SyncPanel(), SyncSettingsSection(), SyncStatusBadge() (+43 more)
-
-### Community 9 - "offline/constants.ts"
-Cohesion: 0.10
-Nodes (22): ConnectivityListener, ConnectivityState, AUDIT_LOG_LIMIT, DEGRADED_LATENCY_MS, HEALTH_PROBE_BACKOFF_MS, HEALTH_PROBE_INTERVAL_ONLINE_MS, MAX_CLOCK_SKEW_MS, MAX_PUSH_ATTEMPTS (+14 more)
-
-### Community 11 - "useAppDispatch"
+### Community 9 - "Offline DB (Dexie)"
 Cohesion: 0.09
-Nodes (32): AppUpdatePrompt(), GuestOnly(), GuestOnlyProps, HeldCartCatchupNotifier(), RequireAuth(), RequireAuthProps, Sidebar(), SidebarProps (+24 more)
+Nodes (27): readServerVersion(), stripMirrorMeta(), UNSYNCED_VERSION, ConflictReason, ConflictRecord, IdMapRecord, IdMapStatus, MirroredRow (+19 more)
 
-### Community 12 - "CustomerList.tsx"
-Cohesion: 0.21
-Nodes (19): CustomerDetailDrawerProps, CustomerFormContent(), CustomerFormModal(), CustomerFormModalProps, FormContentProps, CustomerList(), CustomerPickerModal(), CustomerPickerModalProps (+11 more)
-
-### Community 13 - "CatalogPanel.tsx"
-Cohesion: 0.15
-Nodes (23): CatalogPanel, CatalogPanelProps, chunk(), CombinedServiceJob, generateServiceJobId(), SERVICE_JOB_SEARCH_FIELDS, ServiceJobPickerModal(), ServiceJobPickerModalProps (+15 more)
-
-### Community 14 - "outbox.ts"
-Cohesion: 0.19
-Nodes (18): OutboxError, assignLedgerEntriesToOperation(), getDeviceId(), createIdempotencyKey(), createLocalId(), isLocalId(), randomUuid(), assertOutboxHasCapacity() (+10 more)
-
-### Community 15 - "cartSlice.ts"
+### Community 10 - "Offline Sync Engine"
 Cohesion: 0.12
-Nodes (30): PAYMENT_METHODS, PaymentMethod, useCartCheckout(), LineSourceType, SplitPaymentDetail, CartItem, cartSlice, CartState (+22 more)
+Nodes (23): toServerRow(), blankMeta(), getSyncMeta(), invalidateCursor(), patchSyncMeta(), seedSyncMeta(), SyncMetaPatch, logInfo() (+15 more)
 
-### Community 16 - "products.resource.ts"
-Cohesion: 0.10
-Nodes (27): CURRENCY, adjustStock(), createProduct(), deleteProducts(), fetchProducts(), ProductListParams, ProductsPageData, updateProduct() (+19 more)
-
-### Community 17 - "dependencies"
+### Community 11 - "package.json Dependencies"
 Cohesion: 0.06
 Nodes (31): axios, dayjs, dexie, @mantine/core, @mantine/dates, @mantine/hooks, @mantine/modals, @mantine/notifications (+23 more)
 
-### Community 18 - "PrintJobFormModal.tsx"
-Cohesion: 0.26
-Nodes (17): JobStatus, EmployeeRole, SplitType, BackendPrintJob, PrintJobFormModalProps, PrintJob, PrintJobInput, PrintJobType (+9 more)
+### Community 12 - "Shared Hooks"
+Cohesion: 0.14
+Nodes (24): KeyboardShortcutsModal(), KeyboardShortcutsModalProps, SHORTCUTS, ProductPickerModal(), ProductPickerModalProps, useAllProducts(), ReceiveStockModal(), ReceiveStockModalProps (+16 more)
 
-### Community 19 - "SaleDocumentPreviewModal.tsx"
-Cohesion: 0.09
-Nodes (36): InvoicesList, StandalonePrintView, getInvoiceDocument(), InvoiceDocumentType, CompleteSaleResult, A4InvoicePreviewModal(), A4InvoicePreviewModalProps, PaymentPanelProps (+28 more)
+### Community 13 - "Shared Utility Library"
+Cohesion: 0.14
+Nodes (26): CombinedServiceJob, generateServiceJobId(), SERVICE_JOB_SEARCH_FIELDS, ServiceJobPickerModalProps, SearchHighlight(), SearchHighlightProps, EntitySearchResult, useEntitySearch() (+18 more)
 
-### Community 20 - "registry.ts"
-Cohesion: 0.19
-Nodes (20): queryKeys, RecordPaymentInput, createPurchase(), toLocalRow(), defineOperation(), defineSyncResource(), getReferringResources(), registerSyncResource() (+12 more)
+### Community 14 - "Suppliers Feature"
+Cohesion: 0.15
+Nodes (23): useSetSupplierLinks(), SupplierDetailDrawerProps, FormContentProps, SupplierFormModal(), SupplierFormModalProps, SupplierList(), SupplierPickerModal(), SupplierPickerModalProps (+15 more)
 
-### Community 21 - "devDependencies"
+### Community 15 - "Offline Local ID Handling"
+Cohesion: 0.13
+Nodes (23): assignLedgerEntriesToOperation(), AbandonedReferenceError, UnresolvedReferenceError, getDeviceId(), abandonMapping(), DROP_ELEMENT, isRecord(), loadIdMap() (+15 more)
+
+### Community 16 - "package.json Dependencies"
 Cohesion: 0.07
 Nodes (29): eslint, eslint-config-prettier, @eslint/js, eslint-plugin-react-refresh, fake-indexeddb, globals, devDependencies, eslint (+21 more)
 
-### Community 22 - "mockEmployees.ts"
-Cohesion: 0.14
-Nodes (8): createEmployee(), earningsStore, employeesStore, INITIAL_EARNINGS, INITIAL_EMPLOYEES, normalizeEmployee(), EmployeeEarningRecord, LocalStorageStore
+### Community 17 - "Offline Outbox"
+Cohesion: 0.13
+Nodes (26): ApiErrorLike, classifyFailure(), commitSuccess(), conflictReasonFor(), FailureClass, flushOutbox(), FlushSummary, handleConflict() (+18 more)
 
-### Community 23 - "invoicesApi.ts"
-Cohesion: 0.12
-Nodes (24): BackendInvoice, BackendInvoiceItem, BackendPaymentRecord, BackendSplitPayment, cancelInvoice(), completeSale(), CompleteSaleInput, CompleteSaleItemInput (+16 more)
+### Community 18 - "Shared Utility Library"
+Cohesion: 0.22
+Nodes (20): JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, JobStatus, EmployeeRole, SplitType, PrintJobFormModalProps, PrintJob (+12 more)
 
-### Community 24 - "syncApi.ts"
-Cohesion: 0.08
-Nodes (37): toServerRow(), blankMeta(), getAllSyncMeta(), getSyncMeta(), invalidateCursor(), patchSyncMeta(), seedSyncMeta(), SyncMetaPatch (+29 more)
+### Community 20 - "Shared UI Components"
+Cohesion: 0.10
+Nodes (17): BillingCounter, CustomerList, EmailLoginScreen, EmployeeList, PrintJobList, ReportsDashboard, SettingsPage, SupplierList (+9 more)
 
-### Community 25 - "common.ts"
-Cohesion: 0.15
-Nodes (17): BackendPaymentRecord, recordPayment(), toPaymentRecord(), Subcategory, fetchPurchases(), fetchPurchasesByProduct(), fetchPurchasesBySupplier(), PurchaseListParams (+9 more)
+### Community 21 - "Inventory Feature"
+Cohesion: 0.13
+Nodes (19): adjustStock(), createProduct(), deleteProducts(), fetchProducts(), ProductListParams, ProductsPageData, updateProduct(), FormContentProps (+11 more)
 
-### Community 26 - "client.ts"
-Cohesion: 0.15
-Nodes (12): isApiErrorLike(), readServerTime(), RequestOptions, Listener, listeners, NetworkObservation, observeNetwork(), reportNetworkObservation() (+4 more)
-
-### Community 27 - "compilerOptions"
+### Community 22 - "TypeScript Config"
 Cohesion: 0.08
 Nodes (24): DOM, ES2023, src, vite/client, compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly (+16 more)
 
-### Community 28 - "ApiClient"
-Cohesion: 0.36
-Nodes (3): ApiClient, buildParams(), buildSyncHeaders()
+### Community 23 - "App Layout Shell"
+Cohesion: 0.13
+Nodes (19): AppShell(), ROUTE_TITLES, BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT, SHELL_NAVBAR_RAIL_WIDTH, SHELL_NAVBAR_WIDTH, Header(), HeaderProps (+11 more)
 
-### Community 29 - "toCents"
-Cohesion: 0.31
-Nodes (8): ProductFormContent(), MoneyInput(), MoneyInputProps, fromCents(), parseMoneyToCents(), toCents(), fromPrintJob(), toPrintJobInput()
+### Community 24 - "Inventory Feature"
+Cohesion: 0.12
+Nodes (20): PaymentRecord, BarcodeSource, Category, Product, ProductInput, ProductListResponse, ProductSupplierIntake, StockMovement (+12 more)
 
-### Community 30 - "Backend Requirements — Offline Sync Spec"
+### Community 25 - "Offline Connectivity Monitor"
+Cohesion: 0.11
+Nodes (17): env, probeClient, probeHealth(), ProbeResult, Listener, listeners, NetworkObservation, observeNetwork() (+9 more)
+
+### Community 26 - "Auth Redux Slice"
+Cohesion: 0.19
+Nodes (17): getMeApi(), AuthUser, LoginPayload, LoginResponse, LoginResponseData, MeResponse, cacheSession(), clearCachedSession() (+9 more)
+
+### Community 27 - "Billing Feature"
+Cohesion: 0.14
+Nodes (20): BackendInvoice, BackendInvoiceItem, BackendPaymentRecord, BackendSplitPayment, cancelInvoice(), completeSale(), CompleteSaleItemInput, CompleteSalePaymentInput (+12 more)
+
+### Community 28 - "Supplier Products Feature"
+Cohesion: 0.19
+Nodes (17): fetchSupplierProducts(), getLinksForProduct(), getLinksForSupplier(), linkSupplierProduct(), setLinksForSupplier(), SupplierProductListParams, unlinkSupplierProduct(), EnrichedLinkedProduct (+9 more)
+
+### Community 30 - "Backend Sync Requirements Doc"
 Cohesion: 0.10
 Nodes (21): Acceptance Criteria Checklist, SYNC-14: Batch Push Endpoint (Conditional), SYNC-02: Unfiltered Collection List Endpoints, SYNC-10: Conditional Writes (If-Match / VERSION_CONFLICT), SYNC-12: X-Device-Id on Every Request, Backend Requirements — Offline Sync Spec, Error Codes the Client Acts On, SYNC-11: Health Endpoint & Server Clock (+13 more)
 
-### Community 31 - "healthProbe.ts"
-Cohesion: 0.29
-Nodes (6): env, probeClient, probeHealth(), ProbeResult, HEADER_SERVER_TIME, HEALTH_PROBE_TIMEOUT_MS
+### Community 31 - "Shared UI Components"
+Cohesion: 0.18
+Nodes (14): CURRENCY, CartLineItem, DiscountPopover(), DiscountPopoverProps, ProductFormContent(), SupplierIntakeRow, MoneyInput(), MoneyInputProps (+6 more)
 
-### Community 32 - "customers.resource.ts"
-Cohesion: 0.16
-Nodes (16): createCustomer(), deleteCustomer(), deleteCustomers(), fetchAllCustomers(), fetchCustomers(), updateCustomer(), CustomerListParams, CustomerListResponse (+8 more)
+### Community 32 - "Auth Feature"
+Cohesion: 0.20
+Nodes (13): loginApi(), AuthLayout(), AuthLayoutProps, EmailLoginScreen(), LoginForm(), MobileAuthContainer(), MobileAuthView, MobileLoginForm() (+5 more)
 
-### Community 33 - "db"
+### Community 33 - "Offline Sync Resource Descriptors"
 Cohesion: 0.19
-Nodes (16): fetchSupplierProducts(), getLinksForProduct(), getLinksForSupplier(), linkSupplierProduct(), setLinksForSupplier(), SupplierProductListParams, unlinkSupplierProduct(), EnrichedLinkedProduct (+8 more)
+Nodes (17): RecordPaymentInput, defineSyncResource(), paymentsResource, RecordPaymentPayload, stockMovementsResource, ApiEnvelope, fetchNewestCursors(), fetchResourceDelta() (+9 more)
 
-### Community 34 - "SupplierList.tsx"
-Cohesion: 0.14
-Nodes (22): useSetSupplierLinks(), SupplierList(), SupplierPickerModal(), SupplierPickerModalProps, NO_SUPPLIERS, useAllSuppliers(), useCreateSupplier(), useDeleteSupplier() (+14 more)
+### Community 34 - "Inventory Feature"
+Cohesion: 0.24
+Nodes (17): ProductTable(), NO_MOVEMENTS, NO_PRODUCTS, useAdjustStock(), useCreateProduct(), useDeleteProducts(), useLowStockProducts(), useProductMovements() (+9 more)
 
-### Community 35 - "useResponsive.tsx"
-Cohesion: 0.10
-Nodes (25): AppShell(), ROUTE_TITLES, BILLING_HEADER_HEIGHT, SHELL_HEADER_HEIGHT, SHELL_NAVBAR_RAIL_WIDTH, SHELL_NAVBAR_WIDTH, BillingRegions, KeyboardShortcutsModal() (+17 more)
+### Community 35 - "Offline Sync Engine"
+Cohesion: 0.13
+Nodes (15): ConnectivitySnapshot, AUDIT_LOG_LIMIT, SYNC_LEADER_LOCK, AuditEvent, AuditLevel, SyncMetaRecord, logError(), logSyncEvent() (+7 more)
 
-### Community 36 - "app/App.tsx"
-Cohesion: 0.38
-Nodes (4): App(), AppProviders(), router, container
-
-### Community 37 - "printJobs.resource.ts"
+### Community 36 - "Shared Utility Library"
 Cohesion: 0.17
-Nodes (24): MutationRequestOptions, addEarningRecord(), deleteEarningRecordsForWork(), updateEarningRecordForWork(), calculatePrintEarnings(), createPrintJobRaw(), deletePrintJobsRaw(), PrintJobListResponseData (+16 more)
+Nodes (19): TablerIconPicker(), TablerIconPickerProps, EMPTY_MAP, getServerSnapshot(), getSnapshot(), listeners, loadShard(), resolved (+11 more)
 
-### Community 38 - "searchFields.ts"
+### Community 37 - "App Config"
 Cohesion: 0.15
-Nodes (16): useAllInvoices(), InvoicesList(), SupplierFormModal(), DEFAULT_SUGGESTED_TAGS, EntityListPage(), EntityListPageProps, QuickSearchResult, SearchHistoryInput (+8 more)
+Nodes (15): RequireAdmin(), RequireAdminProps, Sidebar(), SidebarProps, NAV_CATEGORIES, NAV_ITEMS, NavCategoryGroup, NavItemConfig (+7 more)
 
-### Community 39 - "SyncEngine.ts"
+### Community 38 - "Offline Sync Engine"
+Cohesion: 0.22
+Nodes (6): getAllSyncMeta(), resolvePullTargets(), RFC-3339, SyncEngine, getResourcesInDependencyOrder(), fetchSyncStatus()
+
+### Community 39 - "API Client Layer"
 Cohesion: 0.16
-Nodes (15): ConnectivitySnapshot, MirrorMeta, SyncMetaRecord, applyLedgerToProducts(), pendingDeltaFor(), pendingDeltasByProduct(), pruneConfirmedLedgerEntries(), StockDeltaInput (+7 more)
+Nodes (11): ApiClient, buildParams(), buildSyncHeaders(), isApiErrorLike(), readServerTime(), RequestOptions, reportNetworkObservation(), HEADER_DEVICE_ID (+3 more)
 
-### Community 40 - "ProductTable.tsx"
+### Community 40 - "Customers Feature"
 Cohesion: 0.18
-Nodes (26): ProductPickerModal(), ProductPickerModalProps, ProductTable(), NO_MOVEMENTS, NO_PRODUCTS, useAdjustStock(), useAllProducts(), useCreateProduct() (+18 more)
+Nodes (13): createCustomer(), deleteCustomer(), deleteCustomers(), fetchAllCustomers(), fetchCustomers(), updateCustomer(), CustomerListParams, CustomerListResponse (+5 more)
 
-### Community 41 - "EmployeeFormModal.tsx"
-Cohesion: 0.36
-Nodes (8): EmployeeDetailDrawerProps, EmployeeFormModal(), EmployeeFormModalProps, Employee, EmployeeInput, EmployeeFormValues, fromEmployee(), toEmployeeInput()
-
-### Community 42 - "categories.resource.ts"
-Cohesion: 0.21
-Nodes (14): createCategory(), createSubcategory(), deleteCategory(), deleteSubcategory(), fetchCategories(), updateCategory(), Category, CategoryInput (+6 more)
-
-### Community 43 - "search.ts"
+### Community 41 - "Settings Redux Slice"
 Cohesion: 0.17
-Nodes (21): SearchHighlight(), SearchHighlightProps, EntitySearchResult, buildSearchIndex(), getMatchRanges(), IndexedField, isWordChar(), MatchRange (+13 more)
+Nodes (14): DEFAULT_PRINT_SETTINGS, DEFAULT_SHOP_PROFILE, AutoPrintOption, DocumentSelection, InvoiceCopyOption, PrintSettings, ShopProfile, initialState (+6 more)
 
-### Community 44 - "authSlice.ts"
-Cohesion: 0.08
-Nodes (40): RequireAdmin(), RequireAdminProps, AuthInitializer(), EmailLoginScreen, USER_ROLE_LABELS, USER_ROLES, UserRole, getMeApi() (+32 more)
+### Community 42 - "Inventory Feature"
+Cohesion: 0.20
+Nodes (14): ProductTable, buildCatalogCategoryFilters(), CatalogCategoryFilter, CategoryIconInfo, getCategoryIconInfo(), ProductCatalogTree, ProductCatalogTreeProps, ProductHierarchy (+6 more)
 
-### Community 45 - "formatMoney"
-Cohesion: 0.18
-Nodes (17): CustomerDetailDrawer(), deleteEmployee(), deleteEmployees(), fetchEmployeeEarnings(), updateEmployee(), EmployeeDetailDrawer(), EmployeeList(), EMPLOYEE_ROLE_LABELS (+9 more)
+### Community 43 - "Inventory Feature"
+Cohesion: 0.20
+Nodes (14): createCategory(), createSubcategory(), deleteCategory(), deleteSubcategory(), fetchCategories(), updateCategory(), CategoryInput, ValidCategoryOption (+6 more)
 
-### Community 46 - "generate-icon-shards.mjs"
+### Community 44 - "Inventory Feature"
+Cohesion: 0.26
+Nodes (13): AddSubcategoryRow(), CategoryItem(), CategoryManagerModal(), CategoryManagerModalProps, NO_CATEGORIES, useCategories(), useCategoryIcons(), useCreateCategory() (+5 more)
+
+### Community 45 - "Print Jobs Feature"
+Cohesion: 0.21
+Nodes (12): PrintJobList(), NO_PRINT_JOBS, useAllPrintJobs(), useCreatePrintJob(), useDeletePrintJobs(), useUpdatePrintJob(), DeletePrintJobsPayload, UpdatePrintJobPayload (+4 more)
+
+### Community 46 - "Settings Feature"
+Cohesion: 0.23
+Nodes (12): SettingsNavDrillDownList(), SettingsNavList(), SettingsNavProps, SettingsNavTabs(), renderSection(), SettingsPage(), SETTINGS_SECTIONS, SettingsSectionId (+4 more)
+
+### Community 47 - "App-Level Components"
+Cohesion: 0.21
+Nodes (11): GuestOnly(), GuestOnlyProps, RequireAuth(), RequireAuthProps, AppRoute, ROUTE_PATHS, PageLoader(), PageLoaderProps (+3 more)
+
+### Community 48 - "Purchases Feature"
+Cohesion: 0.24
+Nodes (12): createPurchase(), fetchPurchases(), fetchPurchasesByProduct(), fetchPurchasesBySupplier(), PurchaseListParams, EnrichedStockPurchase, PurchaseProductSummary, PurchaseSupplierSummary (+4 more)
+
+### Community 49 - "Repairs Feature"
+Cohesion: 0.29
+Nodes (13): BackendRepair, calculateRepairEarnings(), createRepairJobRaw(), deleteRepairsRaw(), fetchRepairs(), RepairListResponseData, toRepairJob(), updateRepairJobRaw() (+5 more)
+
+### Community 50 - "Offline Sync Constants"
+Cohesion: 0.17
+Nodes (13): MAX_CLOCK_SKEW_MS, MAX_PUSH_ATTEMPTS, NOTIFICATION_ID_CONNECTIVITY, NOTIFICATION_ID_SYNC_ERROR, OFFLINE_DB_NAME, OFFLINE_SESSION_GRACE_MS, OUTBOX_CAPACITY, PULL_PAGE_LIMIT (+5 more)
+
+### Community 51 - "Shared Utility Library"
+Cohesion: 0.21
+Nodes (4): addEarningRecord(), updateEarningRecordForWork(), updateEmployee(), LocalStorageStore
+
+### Community 52 - "Print Jobs Feature"
+Cohesion: 0.32
+Nodes (12): BackendPrintJob, calculatePrintEarnings(), createPrintJobRaw(), deletePrintJobsRaw(), fetchPrintJobs(), PrintJobListResponseData, toPrintJob(), updatePrintJobRaw() (+4 more)
+
+### Community 53 - "Suppliers Feature"
+Cohesion: 0.26
+Nodes (10): createSupplier(), deleteSupplier(), deleteSuppliers(), fetchSuppliers(), SupplierListParams, updateSupplier(), toLocalRow(), DeleteSupplierPayload (+2 more)
+
+### Community 54 - "Invoices Feature"
+Cohesion: 0.30
+Nodes (8): InvoicesList, useAllInvoices(), NO_PAYMENTS, useInvoicePayments(), useRecordPayment(), InvoiceDetailDrawer(), InvoiceDetailDrawerProps, InvoicesList()
+
+### Community 55 - "Billing Feature"
+Cohesion: 0.32
+Nodes (10): CatalogPanel, CatalogPanelProps, chunk(), getAudioContext(), playErrorSound(), playPaymentCompleteSound(), playScanSuccessSound(), resolveOrCreateCustomer() (+2 more)
+
+### Community 56 - "Offline DB (Dexie)"
+Cohesion: 0.20
+Nodes (10): STORAGE_QUOTA_WARN_RATIO, clearLocalData(), ClearLocalDataOptions, forceFullResync(), pruneByRetention(), rowAgeTimestamp(), StorageEstimate, db (+2 more)
+
+### Community 57 - "CI Verification Steps (Deploy Workflow x CLAUDE.md)"
+Cohesion: 0.24
+Nodes (11): build-and-deploy Job, Build Step (npm run build), DEPLOY_PATH Environment Variable, Deploy dist/ via rsync, Lint Step (npm run lint), Type Check Step (npm run type-check), npm run build, npm run format (+3 more)
+
+### Community 58 - "Icon Shard Generator Script"
 Cohesion: 0.18
 Nodes (8): barrelPath, keys, loaderEntries, outDir, projectRoot, scriptDir, shards, total
 
-### Community 47 - "SyncProvider.tsx"
+### Community 59 - "Sync Feature UI"
+Cohesion: 0.25
+Nodes (9): PendingOperationsList(), PendingOperationsListProps, STATUS_LABEL, OutboxOp, OutboxStatus, discardOperation(), retryOperation(), EmptyState() (+1 more)
+
+### Community 60 - "Sync Feature UI"
 Cohesion: 0.47
 Nodes (9): clearConnectivityNotification(), notifyBackOnline(), notifySaleWarnings(), notifySyncComplete(), notifySyncProblems(), notifyWentOffline(), showOrUpdate(), SyncProvider() (+1 more)
 
-### Community 48 - "scripts"
+### Community 61 - "CLAUDE.md Project Docs"
+Cohesion: 0.20
+Nodes (10): Deploy Frontend Workflow, paths-ignore Trigger Filter, AppShell.tsx, cssVariablesResolver.ts Design Tokens, App Entry Chain, Feature Module Pattern (components/, types.ts, index.ts barrel), graphify Knowledge Graph Integration, @/* Path Alias (+2 more)
+
+### Community 62 - "CLAUDE.md Project Docs"
+Cohesion: 0.29
+Nodes (10): AmountInput.tsx, Animation Performance Rules, BillingRegions.tsx, CartLineItem.tsx, CartPanel.tsx, CatalogPanel.tsx, LayoutTierProvider, Responsive & Mobile UI Layout Tiers (+2 more)
+
+### Community 63 - "CLAUDE.md Project Docs"
+Cohesion: 0.27
+Nodes (10): ApiClient (src/api/client.ts), AppUpdatePrompt.tsx, Backend Sync Contract (Rust/Axum), ConnectivityMonitor, isBillingBoundaryChange Render-Time State Adjustment, localId.ts (Provisional local_ IDs), Offline & Sync Architecture, Durable Outbox Pattern (+2 more)
+
+### Community 64 - "package.json Dependencies"
 Cohesion: 0.20
 Nodes (10): scripts, build, dev, format, generate:icons, lint, preview, test (+2 more)
 
-### Community 49 - "ReportsDashboard.tsx"
-Cohesion: 0.25
-Nodes (7): ReportsDashboard, fetchAllEmployeeEarnings, fetchEmployees(), ReportsDashboard(), DailySalesReportSummary, PageHeader(), PageHeaderProps
+### Community 65 - "Repairs Feature"
+Cohesion: 0.40
+Nodes (7): RepairJobList, RepairJobList(), NO_REPAIRS, useAllRepairs(), useCreateRepairJob(), useDeleteRepairs(), useUpdateRepairJob()
 
-### Community 50 - "CartLineItem.tsx"
-Cohesion: 0.13
-Nodes (14): CartLineItemProps, DiscountPopover(), DiscountPopoverProps, AmountInput, AmountInputProps, BUTTON_WIDTH_MAP, FONT_SIZE_MAP, HEIGHT_MAP (+6 more)
+### Community 66 - "Shared UI Components"
+Cohesion: 0.24
+Nodes (8): AmountInput, AmountInputProps, BUTTON_WIDTH_MAP, FONT_SIZE_MAP, HEIGHT_MAP, PADDING_MAP, DiscountInput, DiscountInputProps
 
-### Community 51 - "router.tsx"
-Cohesion: 0.11
-Nodes (14): BillingCounter, CustomerList, EmployeeList, PrintJobList, ProductTable, RepairJobList, SupplierList, ROUTE_PATHS (+6 more)
-
-### Community 52 - "useSearchHistory.ts"
-Cohesion: 0.27
-Nodes (12): getServerSnapshot(), getSnapshot(), parseHistory(), parseHistoryBlob(), prune(), readAllHistory(), SearchHistoryData, SearchHistoryItem (+4 more)
-
-### Community 53 - "notifications/types.ts"
+### Community 67 - "Shared Utility Library"
 Cohesion: 0.29
-Nodes (6): NotificationItemProps, AppNotification, NotificationActor, NotificationCategory, NotificationPriority, NotificationState
+Nodes (8): GlobalQuickSearchModal(), mergeByCategory(), QuickSearchResult, EMPLOYEE_SEARCH_FIELDS, INVOICE_SEARCH_FIELDS, PRINT_JOB_SEARCH_FIELDS, PRODUCT_SEARCH_FIELDS, REPAIR_JOB_SEARCH_FIELDS
 
-### Community 54 - "Offline-First Dexie Mirror and Outbox Engine"
-Cohesion: 0.25
-Nodes (8): Backend Sync, Multiplexed Delta, and Idempotency Contract, Connectivity Monitor and Asymmetric Hysteresis, CSS Variable Design Tokens and Dark Mode System, Offline Authentication and Grace Period, Offline-First Dexie Mirror and Outbox Engine, PWA Shell Pre-caching and API Guard Policy, Redux Toolkit State Architecture, Sync Resource Descriptor Protocol
+### Community 68 - "CLAUDE.md Project Docs"
+Cohesion: 0.22
+Nodes (9): initializeAuth (Offline Auth Grace Period), authSlice (login/loginSuccess cacheSession), cartSlice.ts, Dexie Schema (src/offline/db/schema.ts), money.ts (Integer-Cents Money Handling), Redux Toolkit Store (src/store/), SyncProvider, syncSlice.ts (Read-Only Mirror) (+1 more)
 
-### Community 55 - "icons.svg (Social/Doc Icon Sprite Sheet)"
+### Community 69 - "CLAUDE.md Project Docs"
+Cohesion: 0.29
+Nodes (7): A4InvoicePreviewModal.tsx, Center Modal Visual Family, ConfirmDialog.tsx, KeyboardShortcutsModal.tsx, ProductFormModal.tsx, UI Copy — Plain Language Rule, useAppShortcuts (Global Keyboard Shortcut Engine)
+
+### Community 70 - "Public Social/Doc Icons"
 Cohesion: 0.43
 Nodes (7): Bluesky Icon, Discord Icon, Documentation Icon, GitHub Icon, icons.svg (Social/Doc Icon Sprite Sheet), Social/Community Icon, X (Twitter) Icon
 
-### Community 56 - "navigation.ts"
-Cohesion: 0.40
-Nodes (4): NAV_CATEGORIES, NAV_ITEMS, NavCategoryGroup, NavItemConfig
+### Community 71 - "App Entry Chain (main.tsx, App.tsx, router)"
+Cohesion: 0.38
+Nodes (4): App(), AppProviders(), router, container
 
-### Community 57 - "MobileSignUpForm.tsx"
+### Community 72 - "Billing Feature"
+Cohesion: 0.40
+Nodes (5): MutationRequestOptions, BackendPaymentRecord, recordPayment(), toPaymentRecord(), ApiResponse
+
+### Community 73 - "Auth Feature"
 Cohesion: 0.40
 Nodes (3): MobileSignUpFormProps, MobileSocialButtons(), MobileSocialButtonsProps
 
-### Community 58 - "suppliers.resource.ts"
-Cohesion: 0.23
-Nodes (13): createSupplier(), deleteSupplier(), deleteSuppliers(), fetchSuppliers(), SupplierListParams, updateSupplier(), SupplierDetailDrawerProps, FormContentProps (+5 more)
+### Community 74 - "CLAUDE.md Project Docs"
+Cohesion: 0.40
+Nodes (5): invoices.resource.ts, products.resource.ts, stockLedger.ts (Local Delta Ledger), syncNotifications.ts, SyncResource Descriptor Pattern
 
-### Community 59 - "themeSlice.ts"
-Cohesion: 0.21
-Nodes (9): createReduxColorSchemeManager(), reduxColorSchemeManager, toAppScheme(), toMantineScheme(), store, ColorScheme, initialState, themeSlice (+1 more)
-
-### Community 60 - "Responsive and Mobile Layout Tiers"
-Cohesion: 0.50
-Nodes (5): Animation Performance and Compositor Rules, Center Modals Standard, Right-Side Detail Drawers Standard, Global Scoped Keyboard Shortcuts, Responsive and Mobile Layout Tiers
-
-### Community 61 - "package.json"
+### Community 75 - "package.json Dependencies"
 Cohesion: 0.40
 Nodes (4): name, private, type, version
 
-### Community 62 - "Graphify Knowledge Graph Rules"
-Cohesion: 1.00
-Nodes (3): Graphify Knowledge Graph Rules, Graphify Knowledge Graph Workflow, Graphify Knowledge Graph Guidelines in CLAUDE.md
+### Community 76 - "Theme & Styling"
+Cohesion: 0.40
+Nodes (4): darkTokens, lightTokens, mantineCssVariableResolver(), semanticVars
 
-### Community 64 - "ui.ts"
+### Community 77 - "CLAUDE.md Project Docs"
 Cohesion: 0.50
-Nodes (3): DEFAULT_PAGINATION, HELD_CART_REMINDER_MS, SKELETON_WIDTH_PATTERN
+Nodes (4): Right-Side Detail Drawer Visual Family, EmployeeDetailDrawer.tsx, ProductTable.tsx (Item Specifications Drawer), SupplierDetailDrawer.tsx
 
-### Community 69 - "useIsMobile"
-Cohesion: 0.16
-Nodes (28): Header(), HeaderProps, BillingCounter(), BillingRegionsProps, FILL, BillingPane, BillingSummaryStrip(), BillingTabBar() (+20 more)
+### Community 78 - "Settings Feature"
+Cohesion: 0.50
+Nodes (3): ACCEPTED_TYPES, LogoUpload(), LogoUploadProps
 
-### Community 101 - "PrintJobList.tsx"
-Cohesion: 0.35
-Nodes (9): PrintJobList(), NO_PRINT_JOBS, useAllPrintJobs(), useCreatePrintJob(), useDeletePrintJobs(), useUpdatePrintJob(), DeletePrintJobsPayload, UpdatePrintJobPayload (+1 more)
-
-### Community 103 - "notificationSlice.ts"
-Cohesion: 0.23
-Nodes (10): STORAGE_KEYS, AppDispatch, RootState, listenerMiddleware, initialState, notificationSlice, selectAllNotifications(), selectNotificationsByCategory() (+2 more)
-
-### Community 106 - "RepairJobList.tsx"
-Cohesion: 0.24
-Nodes (11): JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, RepairJobList(), NO_REPAIRS, useAllRepairs(), useCreateRepairJob(), useDeleteRepairs() (+3 more)
+### Community 79 - "Shared UI Components"
+Cohesion: 0.50
+Nodes (3): HEIGHT_MAP, QuantityInput(), QuantityInputProps
 
 ## Knowledge Gaps
-- **321 isolated node(s):** `SidebarProps`, `NavItemConfig`, `NavCategoryGroup`, `NAV_ITEMS`, `MirrorTableName` (+316 more)
+- **344 isolated node(s):** `IdMapStatus`, `PullState`, `PushState`, `EmptyStateProps`, `CategoryManagerModalProps` (+339 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useIsMobile()` connect `useIsMobile` to `useCategories.ts`, `SupplierList.tsx`, `useResponsive.tsx`, `searchFields.ts`, `ProductTable.tsx`, `EmployeeFormModal.tsx`, `syncSlice.ts`, `useAppDispatch`, `authSlice.ts`, `CatalogPanel.tsx`, `CustomerList.tsx`, `cartSlice.ts`, `formatMoney`, `products.resource.ts`, `CartLineItem.tsx`, `SaleDocumentPreviewModal.tsx`, `PrintJobFormModal.tsx`, `toCents`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
-- **Why does `useAppSelector` connect `useIsMobile` to `useResponsive.tsx`, `SettingsPage.tsx`, `ProductTable.tsx`, `syncSlice.ts`, `useAppDispatch`, `authSlice.ts`, `cartSlice.ts`, `SyncProvider.tsx`, `SaleDocumentPreviewModal.tsx`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
-- **Why does `SyncEngine` connect `maintenance.ts` to `schema.ts`, `useIsMobile`, `searchFields.ts`, `SyncEngine.ts`, `syncSlice.ts`, `outbox.ts`, `SyncProvider.tsx`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **What connects `SidebarProps`, `NavItemConfig`, `NavCategoryGroup` to the rest of the system?**
-  _321 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `schema.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.14153846153846153 - nodes in this community are weakly interconnected._
-- **Should `offline/types.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.125 - nodes in this community are weakly interconnected._
-- **Should `tablerIconShards/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.05697278911564626 - nodes in this community are weakly interconnected._
+- **Why does `useIsMobile()` connect `Shared Hooks` to `Auth Feature`, `Notifications Feature`, `Inventory Feature`, `Employees Feature`, `Billing Feature`, `Billing Feature`, `App Config`, `Customers Feature`, `Sync Redux Slice`, `Shared UI Components`, `Inventory Feature`, `Inventory Feature`, `Shared Utility Library`, `Suppliers Feature`, `Shared Utility Library`, `Invoices Feature`, `App Layout Shell`, `Shared UI Components`?**
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+- **Why does `useAppSelector` connect `Settings Feature` to `Sync Redux Slice`, `Notifications Feature`, `Inventory Feature`, `Billing Feature`, `Billing Feature`, `App Config`, `Cart Redux Slice`, `App-Level Components`, `App Layout Shell`, `Sync Feature UI`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `formatMoney()` connect `Shared UI Components` to `Repairs Feature`, `Inventory Feature`, `Employees Feature`, `Billing Feature`, `Billing Feature`, `Shared Utility Library`, `Customers Feature`, `Inventory Feature`, `Shared Hooks`, `Shared Utility Library`, `Print Jobs Feature`, `Suppliers Feature`, `Shared Utility Library`, `Billing Feature`, `Invoices Feature`, `App Layout Shell`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **What connects `IdMapStatus`, `PullState`, `PushState` to the rest of the system?**
+  _344 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Sync Redux Slice` be split into smaller, more focused modules?**
+  _Cohesion score 0.06448087431693988 - nodes in this community are weakly interconnected._
+- **Should `Notifications Feature` be split into smaller, more focused modules?**
+  _Cohesion score 0.06019871420222092 - nodes in this community are weakly interconnected._
+- **Should `Settings Feature` be split into smaller, more focused modules?**
+  _Cohesion score 0.12956810631229235 - nodes in this community are weakly interconnected._
