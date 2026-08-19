@@ -43,8 +43,95 @@ const ZOOM_MIN = 0.4;
 const ZOOM_MAX = 3;
 
 // A themed, windowless in-app PDF renderer built on pdf.js's canvas API.
-// Displays the document centered at 100% zoom with a floating HUD controller
-// rather than enclosing the document in an inner sub-window.
+// Displays the document centered with all pages vertically scrollable and a floating HUD controller.
+
+interface PdfPageCanvasProps {
+  pdfDoc: PDFDocumentProxy;
+  pageNumber: number;
+  scale: number;
+  registerPageRef: (pageNumber: number, el: HTMLDivElement | null) => void;
+}
+
+const PdfPageCanvas = ({ pdfDoc, pageNumber, scale, registerPageRef }: PdfPageCanvasProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderTaskRef = useRef<RenderTask | null>(null);
+  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const renderPage = async () => {
+      try {
+        const page = await pdfDoc.getPage(pageNumber);
+        if (cancelled) return;
+
+        const viewport = page.getViewport({ scale });
+        const outputScale = window.devicePixelRatio || 1;
+
+        setDimensions({ width: viewport.width, height: viewport.height });
+
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const context = canvas.getContext('2d');
+        if (!context) return;
+
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        canvas.style.width = `${viewport.width}px`;
+        canvas.style.height = `${viewport.height}px`;
+
+        renderTaskRef.current?.cancel();
+        const task = page.render({
+          canvas,
+          canvasContext: context,
+          viewport,
+          transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : undefined,
+        });
+        renderTaskRef.current = task;
+        await task.promise;
+      } catch (e) {
+        if (!cancelled && e instanceof Error && e.name !== 'RenderingCancelledException') {
+          console.error(`Failed to render PDF page ${pageNumber}:`, e);
+        }
+      }
+    };
+
+    void renderPage();
+    return () => {
+      cancelled = true;
+      renderTaskRef.current?.cancel();
+    };
+  }, [pdfDoc, pageNumber, scale]);
+
+  return (
+    <Box
+      ref={(el) => registerPageRef(pageNumber, el)}
+      data-page-number={pageNumber}
+      style={{
+        position: 'relative',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.18)',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 2,
+        flexShrink: 0,
+        width: dimensions ? `${dimensions.width}px` : undefined,
+        height: dimensions ? `${dimensions.height}px` : undefined,
+        minHeight: dimensions ? `${dimensions.height}px` : 200,
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          display: 'block',
+          width: dimensions ? `${dimensions.width}px` : '100%',
+          height: dimensions ? `${dimensions.height}px` : '100%',
+          borderRadius: 2,
+        }}
+      />
+    </Box>
+  );
+};
+
 export const PdfCanvasViewer = ({
   blob,
   loading,
@@ -55,21 +142,24 @@ export const PdfCanvasViewer = ({
 }: PdfCanvasViewerProps) => {
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const renderTaskRef = useRef<RenderTask | null>(null);
+  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
-  const [pageNum, setPageNum] = useState(1);
+  const [activePage, setActivePage] = useState(1);
   const [scale, setScale] = useState(initialScale);
   const [autoFit, setAutoFit] = useState(initialAutoFit);
   const [loadError, setLoadError] = useState(false);
+
+  const registerPageRef = (pageNumber: number, el: HTMLDivElement | null) => {
+    pageRefs.current[pageNumber] = el;
+  };
 
   // Reset view state synchronously during render when the blob identity changes.
   const [prevBlob, setPrevBlob] = useState(blob);
   if (blob !== prevBlob) {
     setPrevBlob(blob);
     setPdfDoc(null);
-    setPageNum(1);
+    setActivePage(1);
     setAutoFit(initialAutoFit);
     setScale(initialScale);
     setLoadError(false);
@@ -77,6 +167,7 @@ export const PdfCanvasViewer = ({
 
   // Load the document whenever the blob changes.
   useEffect(() => {
+    pageRefs.current = {};
     if (!blob) return;
     let cancelled = false;
     let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
@@ -106,15 +197,19 @@ export const PdfCanvasViewer = ({
     let cancelled = false;
 
     const fit = async () => {
-      const page = await pdfDoc.getPage(pageNum);
-      if (cancelled) return;
-      const unscaled = page.getViewport({ scale: 1 });
-      const availableWidth = container.clientWidth - (isMobile ? 32 : 64);
-      const fitScale = Math.max(
-        ZOOM_MIN,
-        Math.min(ZOOM_MAX, +(availableWidth / unscaled.width).toFixed(2))
-      );
-      setScale(fitScale);
+      try {
+        const page = await pdfDoc.getPage(1);
+        if (cancelled) return;
+        const unscaled = page.getViewport({ scale: 1 });
+        const availableWidth = container.clientWidth - (isMobile ? 32 : 64);
+        const fitScale = Math.max(
+          ZOOM_MIN,
+          Math.min(ZOOM_MAX, +(availableWidth / unscaled.width).toFixed(2))
+        );
+        setScale(fitScale);
+      } catch {
+        // Ignore cancelled or load errors
+      }
     };
 
     void fit();
@@ -124,49 +219,52 @@ export const PdfCanvasViewer = ({
       cancelled = true;
       observer.disconnect();
     };
-  }, [autoFit, pdfDoc, pageNum, isMobile]);
+  }, [autoFit, pdfDoc, isMobile]);
 
-  // Paint the current page to the canvas.
+  const pageCount = pdfDoc?.numPages ?? 0;
+  const showEmpty = loading || error || loadError || !pdfDoc;
+
+  // Track active visible page while scrolling
   useEffect(() => {
-    if (!pdfDoc || !canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    if (!context) return;
-    let cancelled = false;
+    const container = containerRef.current;
+    if (!container || pageCount <= 1) return;
 
-    const render = async () => {
-      try {
-        const page = await pdfDoc.getPage(pageNum);
-        if (cancelled) return;
-        const viewport = page.getViewport({ scale });
-        const outputScale = window.devicePixelRatio || 1;
-
-        canvas.width = Math.floor(viewport.width * outputScale);
-        canvas.height = Math.floor(viewport.height * outputScale);
-        canvas.style.width = `${viewport.width}px`;
-        canvas.style.height = `${viewport.height}px`;
-
-        renderTaskRef.current?.cancel();
-        const task = page.render({
-          canvas,
-          canvasContext: context,
-          viewport,
-          transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : undefined,
-        });
-        renderTaskRef.current = task;
-        await task.promise;
-      } catch (e) {
-        if (!cancelled && e instanceof Error && e.name !== 'RenderingCancelledException') {
-          setLoadError(true);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let bestPage = activePage;
+        let maxRatio = 0;
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            const num = Number(entry.target.getAttribute('data-page-number'));
+            if (num) bestPage = num;
+          }
         }
+        if (maxRatio > 0) {
+          setActivePage(bestPage);
+        }
+      },
+      {
+        root: container,
+        threshold: [0.1, 0.3, 0.5, 0.7, 0.9],
       }
-    };
+    );
 
-    void render();
-    return () => {
-      cancelled = true;
-    };
-  }, [pdfDoc, pageNum, scale]);
+    Object.values(pageRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [pageCount, pdfDoc, scale, activePage]);
+
+  const scrollToPage = (targetPage: number) => {
+    const clamped = Math.max(1, Math.min(pageCount, targetPage));
+    const targetEl = pageRefs.current[clamped];
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActivePage(clamped);
+    }
+  };
 
   const resetTo100 = () => {
     setAutoFit(false);
@@ -190,9 +288,6 @@ export const PdfCanvasViewer = ({
       setAutoFit(true);
     }
   };
-
-  const pageCount = pdfDoc?.numPages ?? 0;
-  const showEmpty = loading || error || loadError || !pdfDoc;
 
   return (
     <Box
@@ -284,8 +379,8 @@ export const PdfCanvasViewer = ({
                   variant="subtle"
                   color="gray"
                   size={isMobile ? 36 : 28}
-                  disabled={pageNum <= 1}
-                  onClick={() => setPageNum((p) => Math.max(1, p - 1))}
+                  disabled={activePage <= 1}
+                  onClick={() => scrollToPage(activePage - 1)}
                   aria-label="Previous page"
                 >
                   <IconChevronLeft size={14} />
@@ -295,14 +390,14 @@ export const PdfCanvasViewer = ({
                   fw={600}
                   style={{ padding: '0 4px', textAlign: 'center', whiteSpace: 'nowrap' }}
                 >
-                  {pageNum} / {pageCount}
+                  {activePage} / {pageCount}
                 </Text>
                 <ActionIcon
                   variant="subtle"
                   color="gray"
                   size={isMobile ? 36 : 28}
-                  disabled={pageNum >= pageCount}
-                  onClick={() => setPageNum((p) => Math.min(pageCount, p + 1))}
+                  disabled={activePage >= pageCount}
+                  onClick={() => scrollToPage(activePage + 1)}
                   aria-label="Next page"
                 >
                   <IconChevronRight size={14} />
@@ -354,26 +449,28 @@ export const PdfCanvasViewer = ({
           </Box>
         )}
 
-        {!loading && !error && !loadError && (
+        {!loading && !error && !loadError && pdfDoc && (
           <Box
             style={{
               display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
               minWidth: '100%',
               minHeight: '100%',
               padding: isMobile ? 16 : 32,
+              gap: isMobile ? 16 : 24,
               boxSizing: 'border-box',
             }}
           >
-            <canvas
-              ref={canvasRef}
-              style={{
-                margin: '0 auto',
-                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.18)',
-                backgroundColor: '#FFFFFF',
-                borderRadius: 2,
-                flexShrink: 0,
-              }}
-            />
+            {Array.from({ length: pageCount }, (_, i) => i + 1).map((pNum) => (
+              <PdfPageCanvas
+                key={`${pdfDoc.fingerprints?.[0] || 'doc'}-p${pNum}`}
+                pdfDoc={pdfDoc}
+                pageNumber={pNum}
+                scale={scale}
+                registerPageRef={registerPageRef}
+              />
+            ))}
           </Box>
         )}
       </Box>
