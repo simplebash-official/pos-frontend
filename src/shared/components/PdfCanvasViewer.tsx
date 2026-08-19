@@ -257,6 +257,31 @@ export const PdfCanvasViewer = ({
     return () => observer.disconnect();
   }, [pageCount, pdfDoc, scale, activePage]);
 
+  // Handle Cmd + scroll (macOS) and Ctrl + scroll (Windows / Linux / trackpad pinch) to zoom in/out.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // ctrlKey matches Windows/Linux Ctrl as well as macOS pinch gestures; metaKey matches macOS Command key
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setAutoFit(false);
+
+        // Trackpad pinch gestures produce small deltaY values with ctrlKey; mouse wheels produce ~100 deltaY.
+        const delta = -e.deltaY;
+        const zoomDelta = Math.abs(delta) < 20 ? delta * 0.01 : delta > 0 ? ZOOM_STEP : -ZOOM_STEP;
+
+        setScale((prev) => Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +(prev + zoomDelta).toFixed(2))));
+      }
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
   const scrollToPage = (targetPage: number) => {
     const clamped = Math.max(1, Math.min(pageCount, targetPage));
     const targetEl = pageRefs.current[clamped];
