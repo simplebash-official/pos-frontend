@@ -1,16 +1,5 @@
 import { useState, useMemo } from 'react';
-import {
-  Paper,
-  Stack,
-  Group,
-  Text,
-  Select,
-  Badge,
-  SimpleGrid,
-  ThemeIcon,
-  Button,
-  Skeleton,
-} from '@mantine/core';
+import { Paper, Stack, Group, Text, Select, Badge, Button } from '@mantine/core';
 import {
   IconSearch,
   IconReceipt,
@@ -21,6 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useAllInvoices } from '@/features/billing/hooks/useInvoices';
+import { useBillingStats } from '@/features/billing/hooks/useBillingStats';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
@@ -29,11 +19,13 @@ import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
+import { MetricCardRow } from '@/shared/components/MetricCard';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
 
 export const InvoicesList = () => {
   // `invoices` is already newest-first (see `useAllInvoices`) — no extra sort needed.
   const { data: invoices, isLoading, isFetching } = useAllInvoices();
+  const { data: stats, isLoading: statsLoading, staleAsOf } = useBillingStats();
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,30 +73,6 @@ export const InvoicesList = () => {
     searchQuery,
     null
   );
-
-  // KPI Calculations
-  const kpis = useMemo(() => {
-    const todayStr = new Date().toDateString();
-    const todayInvoices = invoices.filter(
-      (inv) => new Date(inv.createdAt).toDateString() === todayStr
-    );
-
-    const todaySalesCents = todayInvoices.reduce((acc, inv) => acc + inv.totalCents, 0);
-    const todayCount = todayInvoices.length;
-
-    const outstandingCreditCents = invoices
-      .filter((inv) => inv.isCredit || inv.status === 'pending')
-      .reduce((acc, inv) => acc + inv.totalCents, 0);
-
-    const avgBasketCents = todayCount > 0 ? Math.round(todaySalesCents / todayCount) : 0;
-
-    return {
-      todaySalesCents,
-      todayCount,
-      outstandingCreditCents,
-      avgBasketCents,
-    };
-  }, [invoices]);
 
   const handleRowClick = (inv: Invoice) => {
     setSelectedInvoice(inv);
@@ -244,95 +212,47 @@ export const InvoicesList = () => {
         />
 
         {/* KPI Strip */}
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  TODAY'S SALES
-                </Text>
-                <Text
-                  size="xl"
-                  fw={700}
-                  color="blue"
-                  mt={2}
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
-                  {formatMoney(kpis.todaySalesCents)}
-                </Text>
-              </div>
-              <ThemeIcon color="blue" variant="light" size="lg">
-                <IconCash size={20} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  TODAY'S INVOICES
-                </Text>
-                {isLoading ? (
-                  <Skeleton height={28} width={50} mt={4} />
-                ) : (
-                  <Text size="xl" fw={700} mt={2}>
-                    {kpis.todayCount}
-                  </Text>
-                )}
-              </div>
-              <ThemeIcon color="teal" variant="light" size="lg">
-                <IconReceipt size={20} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  OUTSTANDING CREDIT
-                </Text>
-                {isLoading ? (
-                  <Skeleton height={28} width={110} mt={4} />
-                ) : (
-                  <Text
-                    size="xl"
-                    fw={700}
-                    color="amber"
-                    mt={2}
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {formatMoney(kpis.outstandingCreditCents)}
-                  </Text>
-                )}
-              </div>
-              <ThemeIcon color="amber" variant="light" size="lg">
-                <IconAlertCircle size={20} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  AVG BASKET VALUE
-                </Text>
-                {isLoading ? (
-                  <Skeleton height={28} width={90} mt={4} />
-                ) : (
-                  <Text size="xl" fw={700} mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {formatMoney(kpis.avgBasketCents)}
-                  </Text>
-                )}
-              </div>
-              <ThemeIcon color="violet" variant="light" size="lg">
-                <IconChartPie size={20} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-        </SimpleGrid>
+        <MetricCardRow
+          staleAsOf={staleAsOf}
+          cards={[
+            {
+              key: 'sales',
+              label: "TODAY'S SALES",
+              value: formatMoney(stats?.todaySalesCents ?? 0),
+              color: 'blue',
+              icon: <IconCash size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 90,
+            },
+            {
+              key: 'count',
+              label: "TODAY'S INVOICES",
+              value: stats?.todayInvoiceCount ?? 0,
+              color: 'teal',
+              icon: <IconReceipt size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 50,
+            },
+            {
+              key: 'credit',
+              label: 'OUTSTANDING CREDIT',
+              value: formatMoney(stats?.outstandingCreditCents ?? 0),
+              color: 'amber',
+              icon: <IconAlertCircle size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 110,
+            },
+            {
+              key: 'avg',
+              label: 'AVG BASKET VALUE',
+              value: formatMoney(stats?.avgBasketCents ?? 0),
+              color: 'violet',
+              icon: <IconChartPie size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 90,
+            },
+          ]}
+        />
 
         {/* Filter Controls Bar */}
         <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>

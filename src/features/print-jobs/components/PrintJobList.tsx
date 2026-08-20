@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack } from '@mantine/core';
-import { IconPlus, IconCheck, IconUser } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconCheck,
+  IconUser,
+  IconPrinter,
+  IconCash,
+  IconAlertCircle,
+  IconChartPie,
+} from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
@@ -11,11 +19,13 @@ import {
   useDeletePrintJobs,
   useUpdatePrintJob,
 } from '../hooks/usePrintJobs';
+import { usePrintJobStats } from '../hooks/usePrintJobStats';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
+import { MetricCardRow } from '@/shared/components/MetricCard';
 import { PrintJobFormModal } from './PrintJobFormModal';
 
 export const PrintJobList = () => {
@@ -25,6 +35,7 @@ export const PrintJobList = () => {
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
 
   const { data: printJobs, isLoading } = useAllPrintJobs();
+  const { data: stats, isLoading: statsLoading, staleAsOf } = usePrintJobStats();
 
   const createMutation = useCreatePrintJob();
   const updateMutation = useUpdatePrintJob();
@@ -193,6 +204,48 @@ export const PrintJobList = () => {
             New Print Order
           </Button>
         }
+      />
+
+      <MetricCardRow
+        staleAsOf={staleAsOf}
+        cards={[
+          {
+            key: 'orders',
+            label: "TODAY'S ORDERS",
+            value: stats?.todayJobCount ?? 0,
+            color: 'teal',
+            icon: <IconPrinter size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 50,
+          },
+          {
+            key: 'revenue',
+            label: "TODAY'S REVENUE",
+            value: formatMoney(stats?.todayRevenueCents ?? 0),
+            color: 'blue',
+            icon: <IconCash size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 90,
+          },
+          {
+            key: 'open',
+            label: 'OPEN ORDERS',
+            value: stats?.pendingJobCount ?? 0,
+            color: 'amber',
+            icon: <IconAlertCircle size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 50,
+          },
+          {
+            key: 'avg',
+            label: 'AVG ORDER VALUE',
+            value: formatMoney(stats?.avgJobValueCents ?? 0),
+            color: 'violet',
+            icon: <IconChartPie size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 90,
+          },
+        ]}
       />
 
       <DataTable
