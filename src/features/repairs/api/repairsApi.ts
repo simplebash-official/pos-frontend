@@ -3,12 +3,12 @@ import { ApiResponse } from '@/shared/types/common';
 import { RepairJob, RepairJobInput } from '../types';
 
 export const calculateRepairEarnings = (input: {
-  estimatedCostCents: number;
+  estimatedCostCents?: number;
   materialCostCents?: number;
   splitType?: 'percentage' | 'fixed';
   splitValue?: number;
 }): number => {
-  if (!input.splitType || !input.splitValue) return 0;
+  if (!input.splitType || !input.splitValue || input.estimatedCostCents === undefined) return 0;
   const revenue = input.estimatedCostCents;
   const cost = input.materialCostCents || 0;
   const profit = Math.max(0, revenue - cost);
@@ -35,7 +35,7 @@ interface BackendRepair {
   serialNumber?: string;
   issueDescription: string;
   status: RepairJob['status'];
-  estimatedCostCents: number;
+  estimatedCostCents?: number;
   materialCostCents?: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;

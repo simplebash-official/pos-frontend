@@ -37,7 +37,8 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
     deviceModel: job.deviceModel,
     issueDescription: job.issueDescription,
     status: job.status,
-    estimatedPriceRupees: fromCents(job.estimatedCostCents),
+    estimatedPriceRupees:
+      job.estimatedCostCents !== undefined ? fromCents(job.estimatedCostCents) : '',
     materialCostRupees: job.materialCostCents ? fromCents(job.materialCostCents) : '',
     assignedEmployeeId: job.assignedEmployeeId,
     assignedEmployeeName: job.assignedEmployeeName,
@@ -46,6 +47,9 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
       job.splitType === 'fixed' ? fromCents(job.splitValue || 0) : job.splitValue,
   };
 };
+
+const rupeesFieldToCents = (value: number | string): number | undefined =>
+  value === '' || value === undefined || value === null ? undefined : toCents(Number(value));
 
 export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
   const splitValNum = Number(form.splitValueRupeesOrPercent) || 0;
@@ -67,8 +71,8 @@ export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
     deviceModel: form.deviceModel,
     issueDescription: form.issueDescription,
     status: form.status,
-    estimatedCostCents: toCents(Number(form.estimatedPriceRupees) || 0),
-    materialCostCents: toCents(Number(form.materialCostRupees) || 0),
+    estimatedCostCents: rupeesFieldToCents(form.estimatedPriceRupees),
+    materialCostCents: rupeesFieldToCents(form.materialCostRupees),
   };
 };
 

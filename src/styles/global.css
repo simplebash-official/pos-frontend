@@ -261,7 +261,7 @@ body,
 }
 
 .segmented-toggle-label {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-weight: 500;
 }
 
