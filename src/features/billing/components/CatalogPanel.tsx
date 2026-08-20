@@ -554,7 +554,11 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         value={mode}
         onChange={(val) => onModeChange(val as CatalogMode)}
         styles={{
-          root: { flexShrink: 0 },
+          root: {
+            flexShrink: 0,
+            backgroundColor: 'var(--bg-active)',
+            border: '1px solid var(--border-strong)',
+          },
           label: {
             minHeight: isMobile ? 44 : 40,
             padding: isMobile ? '0 8px' : '0 16px',
@@ -569,16 +573,22 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           {
             value: 'goods',
             label: (
-              <Group gap={8} wrap="nowrap" justify="center" align="center">
+              <Group
+                gap={8}
+                wrap="nowrap"
+                justify="center"
+                align="center"
+                style={{ opacity: mode === 'goods' ? 1 : 0.9 }}
+              >
                 <IconShoppingCart
                   size={18}
                   stroke={mode === 'goods' ? 2.2 : 1.8}
-                  color={mode === 'goods' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                  color="var(--text-primary)"
                 />
                 <Text
                   size="sm"
                   fw={mode === 'goods' ? 700 : 600}
-                  c={mode === 'goods' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                  c="var(--text-primary)"
                   style={{ whiteSpace: 'nowrap' }}
                 >
                   {isMobile ? 'Goods' : 'Goods & Inventory'}
@@ -589,16 +599,22 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           {
             value: 'jobs',
             label: (
-              <Group gap={8} wrap="nowrap" justify="center" align="center">
+              <Group
+                gap={8}
+                wrap="nowrap"
+                justify="center"
+                align="center"
+                style={{ opacity: mode === 'jobs' ? 1 : 0.9 }}
+              >
                 <IconTools
                   size={18}
                   stroke={mode === 'jobs' ? 2.2 : 1.8}
-                  color={mode === 'jobs' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                  color="var(--text-primary)"
                 />
                 <Text
                   size="sm"
                   fw={mode === 'jobs' ? 700 : 600}
-                  c={mode === 'jobs' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                  c="var(--text-primary)"
                   style={{ whiteSpace: 'nowrap' }}
                 >
                   {isMobile ? 'Jobs' : 'Service Jobs'}
