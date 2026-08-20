@@ -403,20 +403,19 @@ export const CustomerDetailDrawer = ({
                               {formatDateTime(rep.createdAt)}
                             </Text>
                           </div>
-                          {rep.estimatedCostCents !== undefined ? (
+                          {rep.estimatedCostCents !== undefined && rep.estimatedCostCents > 0 ? (
                             <Text size="sm" fw={700} ta="right" style={{ flexShrink: 0 }}>
                               {formatMoney(rep.estimatedCostCents)}
                             </Text>
                           ) : (
-                            <Text
+                            <Badge
                               size="xs"
-                              c="dimmed"
-                              fs="italic"
-                              ta="right"
+                              color="yellow"
+                              variant="light"
                               style={{ flexShrink: 0 }}
                             >
                               Pending diagnosis
-                            </Text>
+                            </Badge>
                           )}
                         </Group>
                       </Paper>
