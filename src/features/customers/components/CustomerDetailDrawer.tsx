@@ -57,7 +57,7 @@ export const CustomerDetailDrawer = ({
 
   const { data: allInvoices = [] } = useQuery({
     queryKey: queryKeys.billing.invoices(),
-    queryFn: fetchInvoices,
+    queryFn: () => fetchInvoices(),
     enabled: opened && !!customer,
   });
 
@@ -75,7 +75,7 @@ export const CustomerDetailDrawer = ({
 
   const { data: allRepairs = [] } = useQuery({
     queryKey: queryKeys.repairs.all,
-    queryFn: fetchRepairs,
+    queryFn: () => fetchRepairs(),
     enabled: opened && !!customer,
   });
 

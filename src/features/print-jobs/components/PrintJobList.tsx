@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { Button, Badge, Group, Text, Stack } from '@mantine/core';
+import { Button, Badge, Group, Text, Stack, Paper } from '@mantine/core';
 import {
   IconPlus,
   IconCheck,
@@ -9,6 +9,7 @@ import {
   IconCash,
   IconAlertCircle,
   IconChartPie,
+  IconSearch,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -20,12 +21,17 @@ import {
   useUpdatePrintJob,
 } from '../hooks/usePrintJobs';
 import { usePrintJobStats } from '../hooks/usePrintJobStats';
+import { fetchPrintJobs } from '../api/printJobsApi';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { MetricCardRow } from '@/shared/components/MetricCard';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { useBackendSearch } from '@/shared/hooks/useBackendSearch';
+import { PRINT_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { queryKeys } from '@/api/queryKeys';
 import { PrintJobFormModal } from './PrintJobFormModal';
 
 export const PrintJobList = () => {
@@ -33,9 +39,24 @@ export const PrintJobList = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: printJobs, isLoading } = useAllPrintJobs();
   const { data: stats, isLoading: statsLoading, staleAsOf } = usePrintJobStats();
+
+  // Search hits the backend while online, falls back to a local fuzzy
+  // search over the Dexie mirror while offline — see `useBackendSearch`.
+  const {
+    results: filteredPrintJobs,
+    isSearching,
+    isOffline: searchIsOffline,
+  } = useBackendSearch(
+    printJobs,
+    PRINT_JOB_SEARCH_FIELDS,
+    searchQuery,
+    fetchPrintJobs,
+    queryKeys.printJobs.list({ search: searchQuery.trim() })
+  );
 
   const createMutation = useCreatePrintJob();
   const updateMutation = useUpdatePrintJob();
@@ -248,8 +269,25 @@ export const PrintJobList = () => {
         ]}
       />
 
+      <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+        <SearchHistoryInput
+          namespace="printJobs"
+          placeholder="Search ticket #, customer name, phone, job type"
+          leftSection={<IconSearch size={16} />}
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          wrapperStyle={{ maxWidth: 420 }}
+          size="sm"
+        />
+        {searchQuery.trim() !== '' && (searchIsOffline || isSearching) && (
+          <Text size="xs" c="dimmed" mt="xs">
+            {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+          </Text>
+        )}
+      </Paper>
+
       <DataTable
-        data={printJobs}
+        data={filteredPrintJobs}
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
