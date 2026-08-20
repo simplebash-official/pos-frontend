@@ -116,7 +116,7 @@ export const SettingsPage = () => {
   }
 
   return (
-    <Box style={{ width: '100%', minHeight: '100vh', backgroundColor: 'var(--bg-app)' }}>
+    <>
       <Stack gap="lg" style={{ maxWidth: 1100 }}>
         {header}
         {body}
@@ -137,6 +137,6 @@ export const SettingsPage = () => {
       >
         You have unsaved changes in this section. Leaving now will discard them.
       </ConfirmDialog>
-    </Box>
+    </>
   );
 };

@@ -97,7 +97,7 @@ export const AppShell = () => {
         breakpoint: 'sm',
         collapsed: { mobile: !opened, desktop: isBillingPage && focusMode },
       }}
-      padding={isBillingPage ? 0 : 'md'}
+      padding={isBillingPage ? 0 : { base: 'md', sm: '3xl' }}
       transitionDuration={isBillingBoundaryChange ? 0 : 200}
       transitionTimingFunction="ease"
     >
