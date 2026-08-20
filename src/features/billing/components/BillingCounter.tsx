@@ -14,7 +14,7 @@ import {
 import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
-import { ServiceJobPickerModal } from './ServiceJobPickerModal';
+import type { CatalogMode } from './CatalogPanel';
 import { CustomerPickerModal } from '@/features/customers';
 import { DiscountPopover } from './DiscountPopover';
 import { SaleDocumentPreviewModal } from './SaleDocumentPreviewModal';
@@ -74,14 +74,15 @@ export const BillingCounter = () => {
   // Which region is on screen below desktop tier
   const [activePane, setActivePane] = useState<BillingPane>('catalog');
 
+  // Which mode CatalogPanel is showing: the product catalog, or the repair/print jobs list.
+  const [catalogMode, setCatalogMode] = useState<CatalogMode>('goods');
+
   // Modals state
-  const [servicePickerOpen, setServicePickerOpen] = useState(false);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [orderDiscountOpen, setOrderDiscountOpen] = useState(false);
 
   // Stable references so CatalogPanel/CartPanel (both React.memo'd) don't re-render just because
   // BillingCounter re-rendered for an unrelated reason (e.g. a Notes/Card-Ref keystroke).
-  const openServicePicker = useCallback(() => setServicePickerOpen(true), []);
   const openCustomerPicker = useCallback(() => setCustomerModalOpen(true), []);
   const openOrderDiscount = useCallback(() => setOrderDiscountOpen(true), []);
 
@@ -392,7 +393,8 @@ export const BillingCounter = () => {
       },
     },
     { key: 'F3', ignoreInput: true, handler: () => setCustomerModalOpen(true) },
-    { key: 'F4', ignoreInput: true, handler: () => setServicePickerOpen(true) },
+    { key: 'F4', ignoreInput: true, handler: () => setCatalogMode('jobs') },
+    { key: 'Ctrl+G', ignoreInput: true, handler: () => setCatalogMode('goods') },
     {
       key: 'F6',
       ignoreInput: true,
@@ -466,7 +468,8 @@ export const BillingCounter = () => {
         onChangePane={setActivePane}
         isProcessing={isProcessing}
         onCompleteCheckout={handleCompleteCheckout}
-        onOpenServicePicker={openServicePicker}
+        catalogMode={catalogMode}
+        onCatalogModeChange={setCatalogMode}
         onOpenCustomerPicker={openCustomerPicker}
         onOpenOrderDiscount={openOrderDiscount}
         onOpenDocumentPreview={openDocumentPreview}
@@ -474,11 +477,6 @@ export const BillingCounter = () => {
       />
 
       {/* Modals */}
-      <ServiceJobPickerModal
-        opened={servicePickerOpen}
-        onClose={() => setServicePickerOpen(false)}
-      />
-
       <CustomerPickerModal
         opened={customerModalOpen}
         onClose={() => setCustomerModalOpen(false)}

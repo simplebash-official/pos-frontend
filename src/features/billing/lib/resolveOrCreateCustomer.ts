@@ -5,7 +5,7 @@ import { stripMirrorMeta } from '@/offline/db/mirror';
 /**
  * Finds an existing customer by exact phone match, or creates one — used
  * wherever billing auto-attaches a customer inferred from a scanned/picked
- * repair or print-job ticket (`ServiceJobPickerModal`, `CatalogPanel`'s
+ * repair or print-job ticket (`CatalogPanel`'s Jobs mode and its
  * barcode-scan match). Returns `null` (no attempt to create) when there's
  * no phone number, since `primaryPhone` is required to create a customer
  * record — the caller should fall back to attaching a walk-in snapshot

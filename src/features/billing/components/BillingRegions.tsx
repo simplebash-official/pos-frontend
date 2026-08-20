@@ -2,7 +2,7 @@ import { memo, useCallback, type Ref } from 'react';
 import { Box, Grid } from '@mantine/core';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 
-import { CatalogPanel } from './CatalogPanel';
+import { CatalogPanel, type CatalogMode } from './CatalogPanel';
 import { CartPanel } from './CartPanel';
 import { PaymentPanel, type PaymentPanelHandle } from './PaymentPanel';
 import { BillingSummaryStrip, BillingTabBar, type BillingPane } from './BillingTabBar';
@@ -15,7 +15,8 @@ export interface BillingRegionsProps {
   onChangePane: (pane: BillingPane) => void;
   isProcessing: boolean;
   onCompleteCheckout: () => void;
-  onOpenServicePicker: () => void;
+  catalogMode: CatalogMode;
+  onCatalogModeChange: (mode: CatalogMode) => void;
   onOpenCustomerPicker: () => void;
   onOpenOrderDiscount: () => void;
   onOpenDocumentPreview: (invoice: Invoice, kind: 'invoice' | 'receipt') => void;
@@ -38,7 +39,8 @@ export const BillingRegions = memo(function BillingRegions({
   onChangePane,
   isProcessing,
   onCompleteCheckout,
-  onOpenServicePicker,
+  catalogMode,
+  onCatalogModeChange,
   onOpenCustomerPicker,
   onOpenOrderDiscount,
   onOpenDocumentPreview,
@@ -51,7 +53,7 @@ export const BillingRegions = memo(function BillingRegions({
   const requestPayment = useCallback(() => onChangePane('pay'), [onChangePane]);
   const openCart = useCallback(() => onChangePane('cart'), [onChangePane]);
 
-  const catalog = <CatalogPanel onOpenServicePicker={onOpenServicePicker} />;
+  const catalog = <CatalogPanel mode={catalogMode} onModeChange={onCatalogModeChange} />;
   const cart = (
     <CartPanel onOpenCustomerPicker={onOpenCustomerPicker} onRequestPayment={requestPayment} />
   );
