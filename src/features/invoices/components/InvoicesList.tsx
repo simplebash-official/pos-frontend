@@ -11,12 +11,14 @@ import {
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useAllInvoices } from '@/features/billing/hooks/useInvoices';
 import { useBillingStats } from '@/features/billing/hooks/useBillingStats';
+import { fetchInvoices } from '@/features/billing/api/invoicesApi';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
-import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { useBackendSearch } from '@/shared/hooks/useBackendSearch';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { queryKeys } from '@/api/queryKeys';
 import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { MetricCardRow } from '@/shared/components/MetricCard';
@@ -37,10 +39,26 @@ export const InvoicesList = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
 
-  // Status, payment and date filters first; the shared scorer then ranks what is
-  // left, so a bill number or ticket the user half-remembers surfaces first.
-  const scopedInvoices = useMemo(() => {
-    return invoices.filter((inv) => {
+  // Search hits the backend while online (via `fetchInvoices`'s `search`
+  // param) and falls back to the local fuzzy search over the Dexie mirror
+  // while offline — see `useBackendSearch`. Runs over the full `invoices`
+  // mirror; status/payment/date narrow the search results afterwards
+  // (set intersection is commutative, so the combined result is the same
+  // either order).
+  const {
+    results: searchedInvoices,
+    isSearching,
+    isOffline: searchIsOffline,
+  } = useBackendSearch(
+    invoices,
+    INVOICE_SEARCH_FIELDS,
+    searchQuery,
+    fetchInvoices,
+    queryKeys.billing.invoices({ search: searchQuery.trim() })
+  );
+
+  const filteredInvoices = useMemo(() => {
+    return searchedInvoices.filter((inv) => {
       // Status filter
       if (statusFilter === 'paid' && (inv.status !== 'paid' || inv.isCredit)) return false;
       if (statusFilter === 'credit' && !inv.isCredit && inv.status !== 'pending') return false;
@@ -65,14 +83,7 @@ export const InvoicesList = () => {
 
       return true;
     });
-  }, [invoices, statusFilter, paymentFilter, datePreset]);
-
-  const { results: filteredInvoices } = useEntitySearch(
-    scopedInvoices,
-    INVOICE_SEARCH_FIELDS,
-    searchQuery,
-    null
-  );
+  }, [searchedInvoices, statusFilter, paymentFilter, datePreset]);
 
   const handleRowClick = (inv: Invoice) => {
     setSelectedInvoice(inv);
@@ -304,6 +315,11 @@ export const InvoicesList = () => {
               />
             </Group>
           </Group>
+          {searchQuery.trim() !== '' && (searchIsOffline || isSearching) && (
+            <Text size="xs" c="dimmed" mt="xs">
+              {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+            </Text>
+          )}
         </Paper>
 
         {/* Data Table */}

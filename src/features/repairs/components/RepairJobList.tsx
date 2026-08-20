@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { Button, Badge, Group, Text, Stack } from '@mantine/core';
+import { Button, Badge, Group, Text, Stack, Paper } from '@mantine/core';
 import {
   IconPlus,
   IconCheck,
@@ -9,6 +9,7 @@ import {
   IconCash,
   IconAlertCircle,
   IconChartPie,
+  IconSearch,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -20,12 +21,17 @@ import {
   useUpdateRepairJob,
 } from '../hooks/useRepairs';
 import { useRepairStats } from '../hooks/useRepairStats';
+import { fetchRepairs } from '../api/repairsApi';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { MetricCardRow } from '@/shared/components/MetricCard';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { useBackendSearch } from '@/shared/hooks/useBackendSearch';
+import { REPAIR_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { queryKeys } from '@/api/queryKeys';
 import { RepairFormModal } from './RepairFormModal';
 
 export const RepairJobList = () => {
@@ -33,9 +39,24 @@ export const RepairJobList = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: repairJobs, isLoading } = useAllRepairs();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useRepairStats();
+
+  // Search hits the backend while online, falls back to a local fuzzy
+  // search over the Dexie mirror while offline — see `useBackendSearch`.
+  const {
+    results: filteredRepairJobs,
+    isSearching,
+    isOffline: searchIsOffline,
+  } = useBackendSearch(
+    repairJobs,
+    REPAIR_JOB_SEARCH_FIELDS,
+    searchQuery,
+    fetchRepairs,
+    queryKeys.repairs.list({ search: searchQuery.trim() })
+  );
 
   const createMutation = useCreateRepairJob();
   const updateMutation = useUpdateRepairJob();
@@ -253,8 +274,25 @@ export const RepairJobList = () => {
         ]}
       />
 
+      <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+        <SearchHistoryInput
+          namespace="repairs"
+          placeholder="Search ticket #, customer name, phone, device"
+          leftSection={<IconSearch size={16} />}
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          wrapperStyle={{ maxWidth: 420 }}
+          size="sm"
+        />
+        {searchQuery.trim() !== '' && (searchIsOffline || isSearching) && (
+          <Text size="xs" c="dimmed" mt="xs">
+            {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+          </Text>
+        )}
+      </Paper>
+
       <DataTable
-        data={repairJobs}
+        data={filteredRepairJobs}
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}

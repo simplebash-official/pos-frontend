@@ -180,13 +180,13 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
     queryKey: queryKeys.repairs.all,
-    queryFn: fetchRepairs,
+    queryFn: () => fetchRepairs(),
     enabled: isScanningRep || isJobsMode,
   });
 
   const { data: printJobs = [], isLoading: loadingPrintJobs } = useQuery({
     queryKey: queryKeys.printJobs.all,
-    queryFn: fetchPrintJobs,
+    queryFn: () => fetchPrintJobs(),
     enabled: isScanningPrt || isJobsMode,
   });
 

@@ -225,12 +225,20 @@ export const completeSale = async (
   };
 };
 
+export interface FetchInvoicesParams {
+  /** Free-text match against invoice number / customer name / customer phone. */
+  search?: string;
+}
+
 // `limit: 200` rather than paginating — mirrors `repairsApi.ts`/
 // `printJobsApi.ts`'s reasoning: the mock this replaces always returned
 // every invoice, and `InvoicesList.tsx` has no pagination UI today.
-export const fetchInvoices = async (): Promise<Invoice[]> => {
+// `search` is only passed by `useBackendSearch` (`InvoicesList.tsx`) — the
+// sync engine's `pull.full` (`invoices.resource.ts`) always calls this with
+// no params, so a search never scopes what gets mirrored offline.
+export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoice[]> => {
   const response = await apiClient.get<ApiResponse<InvoiceListResponseData>>('/billing/invoices', {
-    params: { limit: 200 },
+    params: { limit: 200, search: params?.search },
   });
   return response.data.invoices.map(toInvoice);
 };
