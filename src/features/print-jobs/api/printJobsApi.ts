@@ -76,15 +76,24 @@ const toPrintJob = (job: BackendPrintJob): PrintJob => ({
 export interface FetchPrintJobsParams {
   /** Free-text match against ticket number / customer name / phone / job type. */
   search?: string;
+  /** Exact status match: received | diagnosing | in_repair | ready | delivered | cancelled. */
+  status?: string;
+  /** Only `"today"` is meaningful; omit for all time. */
+  datePreset?: 'today';
 }
 
-// `search` is only passed by `useBackendSearch` (`PrintJobList.tsx`) — the
-// sync engine's `pull.full` (`printJobs.resource.ts`) and `CatalogPanel.tsx`
-// always call this with no params, so a search never scopes what gets
-// mirrored offline.
+// These params are only passed by `useBackendFilteredList`
+// (`PrintJobList.tsx`) — the sync engine's `pull.full`
+// (`printJobs.resource.ts`) and `CatalogPanel.tsx` always call this with no
+// params, so a filter never scopes what gets mirrored offline.
 export const fetchPrintJobs = async (params?: FetchPrintJobsParams): Promise<PrintJob[]> => {
   const response = await apiClient.get<ApiResponse<PrintJobListResponseData>>('/print-jobs', {
-    params: { limit: 200, search: params?.search },
+    params: {
+      limit: 200,
+      search: params?.search,
+      status: params?.status,
+      datePreset: params?.datePreset,
+    },
   });
   return response.data.printJobs.map(toPrintJob);
 };

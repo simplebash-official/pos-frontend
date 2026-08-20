@@ -228,17 +228,30 @@ export const completeSale = async (
 export interface FetchInvoicesParams {
   /** Free-text match against invoice number / customer name / customer phone. */
   search?: string;
+  /** `"paid"` (status paid, not credit) or `"credit"` (credit OR pending). */
+  paymentStatus?: 'paid' | 'credit';
+  /** Exact match: "cash" | "card" | "online" | "split". */
+  paymentMethod?: string;
+  /** Only `"today"` is meaningful; omit for all time. */
+  datePreset?: 'today';
 }
 
 // `limit: 200` rather than paginating — mirrors `repairsApi.ts`/
 // `printJobsApi.ts`'s reasoning: the mock this replaces always returned
 // every invoice, and `InvoicesList.tsx` has no pagination UI today.
-// `search` is only passed by `useBackendSearch` (`InvoicesList.tsx`) — the
-// sync engine's `pull.full` (`invoices.resource.ts`) always calls this with
-// no params, so a search never scopes what gets mirrored offline.
+// These params are only passed by `useBackendFilteredList`
+// (`InvoicesList.tsx`) — the sync engine's `pull.full`
+// (`invoices.resource.ts`) always calls this with no params, so a filter
+// never scopes what gets mirrored offline.
 export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoice[]> => {
   const response = await apiClient.get<ApiResponse<InvoiceListResponseData>>('/billing/invoices', {
-    params: { limit: 200, search: params?.search },
+    params: {
+      limit: 200,
+      search: params?.search,
+      paymentStatus: params?.paymentStatus,
+      paymentMethod: params?.paymentMethod,
+      datePreset: params?.datePreset,
+    },
   });
   return response.data.invoices.map(toInvoice);
 };

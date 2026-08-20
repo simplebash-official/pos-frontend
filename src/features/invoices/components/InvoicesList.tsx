@@ -16,13 +16,54 @@ import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
-import { useBackendSearch } from '@/shared/hooks/useBackendSearch';
+import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
 import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
+
+interface InvoiceFilters {
+  search: string;
+  /** 'all' | 'paid' | 'credit' */
+  status: string;
+  /** 'all' | 'cash' | 'card' | 'online' | 'split' */
+  paymentMethod: string;
+  /** 'all' | 'today' */
+  datePreset: string;
+}
+
+const isInvoiceFilterActive = (f: InvoiceFilters) =>
+  f.search.trim() !== '' ||
+  f.status !== 'all' ||
+  f.paymentMethod !== 'all' ||
+  f.datePreset !== 'all';
+
+const applyLocalInvoiceFilters = (items: Invoice[], f: InvoiceFilters) =>
+  items.filter((inv) => {
+    // Status filter
+    if (f.status === 'paid' && (inv.status !== 'paid' || inv.isCredit)) return false;
+    if (f.status === 'credit' && !inv.isCredit && inv.status !== 'pending') return false;
+
+    // Payment method filter
+    if (f.paymentMethod !== 'all' && inv.paymentMethod !== f.paymentMethod) return false;
+
+    // Date preset filter
+    if (f.datePreset === 'today') {
+      const invDate = new Date(inv.createdAt);
+      const now = new Date();
+      if (
+        invDate.getDate() !== now.getDate() ||
+        invDate.getMonth() !== now.getMonth() ||
+        invDate.getFullYear() !== now.getFullYear()
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
 export const InvoicesList = () => {
   // `invoices` is already newest-first (see `useAllInvoices`) — no extra sort needed.
@@ -39,51 +80,35 @@ export const InvoicesList = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
 
-  // Search hits the backend while online (via `fetchInvoices`'s `search`
-  // param) and falls back to the local fuzzy search over the Dexie mirror
-  // while offline — see `useBackendSearch`. Runs over the full `invoices`
-  // mirror; status/payment/date narrow the search results afterwards
-  // (set intersection is commutative, so the combined result is the same
-  // either order).
+  const filters: InvoiceFilters = {
+    search: searchQuery,
+    status: statusFilter,
+    paymentMethod: paymentFilter,
+    datePreset,
+  };
+
+  // All 4 filters hit the backend while online (via `fetchInvoices`'s
+  // params) and fall back to a local pass over the Dexie mirror while
+  // offline — see `useBackendFilteredList`.
   const {
-    results: searchedInvoices,
+    results: filteredInvoices,
     isSearching,
     isOffline: searchIsOffline,
-  } = useBackendSearch(
+  } = useBackendFilteredList(
     invoices,
     INVOICE_SEARCH_FIELDS,
-    searchQuery,
-    fetchInvoices,
-    queryKeys.billing.invoices({ search: searchQuery.trim() })
+    filters,
+    isInvoiceFilterActive,
+    applyLocalInvoiceFilters,
+    (f) =>
+      fetchInvoices({
+        search: f.search.trim() || undefined,
+        paymentStatus: f.status === 'all' ? undefined : (f.status as 'paid' | 'credit'),
+        paymentMethod: f.paymentMethod === 'all' ? undefined : f.paymentMethod,
+        datePreset: f.datePreset === 'all' ? undefined : 'today',
+      }),
+    queryKeys.billing.invoices({ ...filters, search: filters.search.trim() })
   );
-
-  const filteredInvoices = useMemo(() => {
-    return searchedInvoices.filter((inv) => {
-      // Status filter
-      if (statusFilter === 'paid' && (inv.status !== 'paid' || inv.isCredit)) return false;
-      if (statusFilter === 'credit' && !inv.isCredit && inv.status !== 'pending') return false;
-
-      // Payment method filter
-      if (paymentFilter !== 'all' && inv.paymentMethod !== paymentFilter) return false;
-
-      // Date preset filter
-      if (datePreset !== 'all') {
-        const invDate = new Date(inv.createdAt);
-        const now = new Date();
-        if (datePreset === 'today') {
-          if (
-            invDate.getDate() !== now.getDate() ||
-            invDate.getMonth() !== now.getMonth() ||
-            invDate.getFullYear() !== now.getFullYear()
-          ) {
-            return false;
-          }
-        }
-      }
-
-      return true;
-    });
-  }, [searchedInvoices, statusFilter, paymentFilter, datePreset]);
 
   const handleRowClick = (inv: Invoice) => {
     setSelectedInvoice(inv);
