@@ -718,7 +718,7 @@
       "_origin": "ast",
       "id": "src_features_employees_types_splittype",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "splittype"
     },
     {
@@ -731,7 +731,7 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_api_printjobsapi_backendprintjob",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "backendprintjob"
     },
     {
@@ -744,7 +744,7 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_components_printjobformmodal_printjobformmodalprops",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "printjobformmodalprops"
     },
     {
@@ -757,7 +757,7 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_types_printjob",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "printjob"
     },
     {
@@ -770,7 +770,7 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_types_printjobinput",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "printjobinput"
     },
     {
@@ -783,21 +783,34 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_types_printjobtype",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "printjobtype"
     },
     {
-      "label": "SegmentedToggleProps",
+      "label": "DeletePrintJobsPayload",
       "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L4",
+      "source_file": "src/offline/resources/printJobs.resource.ts",
+      "source_location": "L26",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_shared_components_segmentedtoggle_segmentedtoggleprops",
+      "id": "src_offline_resources_printjobs_resource_deleteprintjobspayload",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
-      "norm_label": "segmentedtoggleprops"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "deleteprintjobspayload"
+    },
+    {
+      "label": "UpdatePrintJobPayload",
+      "file_type": "code",
+      "source_file": "src/offline/resources/printJobs.resource.ts",
+      "source_location": "L21",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_resources_printjobs_resource_updateprintjobpayload",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "updateprintjobpayload"
     },
     {
       "label": "PrintJobFormValues",
@@ -809,7 +822,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_moneyformutils_printjobformvalues",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "printjobformvalues"
     },
     {
@@ -822,7 +835,7 @@
       "_origin": "ast",
       "id": "src_shared_types_ticketinput_assignmentinfo",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "assignmentinfo"
     },
     {
@@ -835,7 +848,7 @@
       "_origin": "ast",
       "id": "src_shared_types_ticketinput_customerref",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "customerref"
     },
     {
@@ -2256,32 +2269,6 @@
       "norm_label": "requestoptions"
     },
     {
-      "label": "DeletePrintJobsPayload",
-      "file_type": "code",
-      "source_file": "src/offline/resources/printJobs.resource.ts",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_printjobs_resource_deleteprintjobspayload",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "deleteprintjobspayload"
-    },
-    {
-      "label": "UpdatePrintJobPayload",
-      "file_type": "code",
-      "source_file": "src/offline/resources/printJobs.resource.ts",
-      "source_location": "L21",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_printjobs_resource_updateprintjobpayload",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "updateprintjobpayload"
-    },
-    {
       "label": "ConfirmDialogProps",
       "file_type": "code",
       "source_file": "src/shared/components/ConfirmDialog.tsx",
@@ -2291,7 +2278,7 @@
       "_origin": "ast",
       "id": "src_shared_components_confirmdialog_confirmdialogprops",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "confirmdialogprops"
     },
     {
@@ -2304,7 +2291,7 @@
       "_origin": "ast",
       "id": "src_shared_components_datatable_column",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "column"
     },
     {
@@ -2317,7 +2304,7 @@
       "_origin": "ast",
       "id": "src_shared_components_datatable_datatableprops",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "datatableprops"
     },
     {
@@ -2330,7 +2317,7 @@
       "_origin": "ast",
       "id": "src_shared_components_entitylistpage_entitylistpageprops",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "entitylistpageprops"
     },
     {
@@ -2343,7 +2330,7 @@
       "_origin": "ast",
       "id": "src_shared_components_filtertagchips_filtertagchipsprops",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "filtertagchipsprops"
     },
     {
@@ -2356,8 +2343,21 @@
       "_origin": "ast",
       "id": "src_shared_components_pageheader_pageheaderprops",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "pageheaderprops"
+    },
+    {
+      "label": "SegmentedToggleProps",
+      "file_type": "code",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_location": "L4",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_components_segmentedtoggle_segmentedtoggleprops",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "segmentedtoggleprops"
     },
     {
       "label": "AutoPrintOption",
@@ -3231,6 +3231,19 @@
       "norm_label": "supplierlistparams"
     },
     {
+      "label": "AppProvidersProps",
+      "file_type": "code",
+      "source_file": "src/app/providers.tsx",
+      "source_location": "L24",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_providers_appprovidersprops",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "appprovidersprops"
+    },
+    {
       "label": "MoneyInputProps",
       "file_type": "code",
       "source_file": "src/shared/components/MoneyInput.tsx",
@@ -3985,19 +3998,6 @@
       "norm_label": "mobilesocialbuttonsprops"
     },
     {
-      "label": "AppProvidersProps",
-      "file_type": "code",
-      "source_file": "src/app/providers.tsx",
-      "source_location": "L24",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_providers_appprovidersprops",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "appprovidersprops"
-    },
-    {
       "label": "ExpandableCardActionProps",
       "file_type": "code",
       "source_file": "src/shared/components/ExpandableCard.tsx",
@@ -4006,7 +4006,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_shared_components_expandablecard_expandablecardactionprops",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "expandablecardactionprops"
     },
@@ -4019,7 +4019,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_shared_components_expandablecard_expandablecardgroupprops",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "expandablecardgroupprops"
     },
@@ -4032,7 +4032,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_shared_components_expandablecard_expandablecardprops",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "expandablecardprops"
     },
@@ -4045,7 +4045,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_shared_components_interactivetooltip_interactivetooltipprops",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "interactivetooltipprops"
     },
@@ -4058,9 +4058,35 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_features_sync_components_syncstatusbadge_syncstatusbadgeprops",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "syncstatusbadgeprops"
+    },
+    {
+      "label": "Shortcut",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L3",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts_shortcut",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "shortcut"
+    },
+    {
+      "label": "ShortcutScope",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts_shortcutscope",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "shortcutscope"
     },
     {
       "label": "Widget",
@@ -4282,32 +4308,6 @@
       "community": 8,
       "community_name": "registry.ts",
       "norm_label": "syncresource"
-    },
-    {
-      "label": "Shortcut",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L3",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts_shortcut",
-      "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "shortcut"
-    },
-    {
-      "label": "ShortcutScope",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts_shortcutscope",
-      "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "shortcutscope"
     },
     {
       "label": "MutationRequestOptions",
@@ -5784,16 +5784,64 @@
       "norm_label": "requeue()"
     },
     {
-      "label": "SegmentedToggle()",
+      "label": "PrintJobList()",
       "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L12",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
+      "source_location": "L21",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_segmentedtoggle_segmentedtoggle",
+      "id": "src_features_print_jobs_components_printjoblist_printjoblist",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
-      "norm_label": "segmentedtoggle()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "printjoblist()"
+    },
+    {
+      "label": "useAllPrintJobs()",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L14",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_print_jobs_hooks_useprintjobs_useallprintjobs",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "useallprintjobs()"
+    },
+    {
+      "label": "useCreatePrintJob()",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L25",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_print_jobs_hooks_useprintjobs_usecreateprintjob",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "usecreateprintjob()"
+    },
+    {
+      "label": "useDeletePrintJobs()",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L33",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_print_jobs_hooks_useprintjobs_usedeleteprintjobs",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "usedeleteprintjobs()"
+    },
+    {
+      "label": "useUpdatePrintJob()",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_print_jobs_hooks_useprintjobs_useupdateprintjob",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "useupdateprintjob()"
     },
     {
       "label": "TablerIconPicker()",
@@ -7332,18 +7380,6 @@
       "norm_label": "fetchemployeeearnings()"
     },
     {
-      "label": "fetchEmployees()",
-      "file_type": "code",
-      "source_file": "src/features/employees/api/mockEmployees.ts",
-      "source_location": "L111",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_employees_api_mockemployees_fetchemployees",
-      "community": 3,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "fetchemployees()"
-    },
-    {
       "label": "EmployeeDetailDrawer()",
       "file_type": "code",
       "source_file": "src/features/employees/components/EmployeeDetailDrawer.tsx",
@@ -7354,18 +7390,6 @@
       "community": 3,
       "community_name": "EmployeeList.tsx",
       "norm_label": "employeedetaildrawer()"
-    },
-    {
-      "label": "ReportsDashboard()",
-      "file_type": "code",
-      "source_file": "src/features/reports/components/ReportsDashboard.tsx",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_reports_components_reportsdashboard_reportsdashboard",
-      "community": 3,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "reportsdashboard()"
     },
     {
       "label": "PhoneDisplay()",
@@ -8400,66 +8424,6 @@
       "norm_label": "reportnetworkobservation()"
     },
     {
-      "label": "PrintJobList()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L21",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist_printjoblist",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "printjoblist()"
-    },
-    {
-      "label": "useAllPrintJobs()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L14",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_useallprintjobs",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "useallprintjobs()"
-    },
-    {
-      "label": "useCreatePrintJob()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L25",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_usecreateprintjob",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "usecreateprintjob()"
-    },
-    {
-      "label": "useDeletePrintJobs()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L33",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_usedeleteprintjobs",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "usedeleteprintjobs()"
-    },
-    {
-      "label": "useUpdatePrintJob()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_useupdateprintjob",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "useupdateprintjob()"
-    },
-    {
       "label": "ConfirmDialog()",
       "file_type": "code",
       "source_file": "src/shared/components/ConfirmDialog.tsx",
@@ -8468,7 +8432,7 @@
       "_origin": "ast",
       "id": "src_shared_components_confirmdialog_confirmdialog",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "confirmdialog()"
     },
     {
@@ -8480,7 +8444,7 @@
       "_origin": "ast",
       "id": "src_shared_components_datatable_datatable",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "datatable()"
     },
     {
@@ -8492,8 +8456,32 @@
       "_origin": "ast",
       "id": "src_shared_lib_utils_getskeletonwidthpercent",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "getskeletonwidthpercent()"
+    },
+    {
+      "label": "fetchEmployees()",
+      "file_type": "code",
+      "source_file": "src/features/employees/api/mockEmployees.ts",
+      "source_location": "L111",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_employees_api_mockemployees_fetchemployees",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "fetchemployees()"
+    },
+    {
+      "label": "ReportsDashboard()",
+      "file_type": "code",
+      "source_file": "src/features/reports/components/ReportsDashboard.tsx",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_reports_components_reportsdashboard_reportsdashboard",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "reportsdashboard()"
     },
     {
       "label": "EntityListPage()",
@@ -8504,7 +8492,7 @@
       "_origin": "ast",
       "id": "src_shared_components_entitylistpage_entitylistpage",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "entitylistpage()"
     },
     {
@@ -8516,7 +8504,7 @@
       "_origin": "ast",
       "id": "src_shared_components_filtertagchips_filtertagchips",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "filtertagchips()"
     },
     {
@@ -8528,8 +8516,20 @@
       "_origin": "ast",
       "id": "src_shared_components_pageheader_pageheader",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "pageheader()"
+    },
+    {
+      "label": "SegmentedToggle()",
+      "file_type": "code",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_segmentedtoggle_segmentedtoggle",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "segmentedtoggle()"
     },
     {
       "label": "loadSettingsFromStorage()",
@@ -9816,6 +9816,54 @@
       "norm_label": "markpending()"
     },
     {
+      "label": "App()",
+      "file_type": "code",
+      "source_file": "src/app/App.tsx",
+      "source_location": "L5",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_app_app",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "app()"
+    },
+    {
+      "label": "AppUpdatePrompt()",
+      "file_type": "code",
+      "source_file": "src/app/components/AppUpdatePrompt.tsx",
+      "source_location": "L17",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_components_appupdateprompt_appupdateprompt",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "appupdateprompt()"
+    },
+    {
+      "label": "AppProviders()",
+      "file_type": "code",
+      "source_file": "src/app/providers.tsx",
+      "source_location": "L41",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_providers_appproviders",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "appproviders()"
+    },
+    {
+      "label": "mantineCssVariableResolver()",
+      "file_type": "code",
+      "source_file": "src/styles/cssVariablesResolver.ts",
+      "source_location": "L99",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_styles_cssvariablesresolver_mantinecssvariableresolver",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "mantinecssvariableresolver()"
+    },
+    {
       "label": "getAudioContext()",
       "file_type": "code",
       "source_file": "src/features/billing/lib/audio.ts",
@@ -10944,54 +10992,6 @@
       "norm_label": "mobilesocialbuttons()"
     },
     {
-      "label": "App()",
-      "file_type": "code",
-      "source_file": "src/app/App.tsx",
-      "source_location": "L5",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_app",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "app()"
-    },
-    {
-      "label": "AppUpdatePrompt()",
-      "file_type": "code",
-      "source_file": "src/app/components/AppUpdatePrompt.tsx",
-      "source_location": "L17",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_components_appupdateprompt_appupdateprompt",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "appupdateprompt()"
-    },
-    {
-      "label": "AppProviders()",
-      "file_type": "code",
-      "source_file": "src/app/providers.tsx",
-      "source_location": "L41",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_providers_appproviders",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "appproviders()"
-    },
-    {
-      "label": "mantineCssVariableResolver()",
-      "file_type": "code",
-      "source_file": "src/styles/cssVariablesResolver.ts",
-      "source_location": "L99",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_styles_cssvariablesresolver_mantinecssvariableresolver",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "mantinecssvariableresolver()"
-    },
-    {
       "label": "ExpandableCardAction()",
       "file_type": "code",
       "source_file": "src/shared/components/ExpandableCard.tsx",
@@ -10999,7 +10999,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_shared_components_expandablecard_expandablecardaction",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "expandablecardaction()"
     },
@@ -11011,7 +11011,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_shared_components_expandablecard_expandablecardgroup",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "expandablecardgroup()"
     },
@@ -11023,7 +11023,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_shared_components_interactivetooltip_interactivetooltip",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "interactivetooltip()"
     },
@@ -11035,7 +11035,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_features_sync_components_syncstatusbadge_syncstatusbadge",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "syncstatusbadge()"
     },
@@ -11047,7 +11047,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_store_slices_authslice_selectisofflinesession",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "selectisofflinesession()"
     },
@@ -11059,7 +11059,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_store_slices_syncslice_selectconnectivity",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "selectconnectivity()"
     },
@@ -11071,9 +11071,45 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_store_slices_syncslice_selectsynctotals",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "selectsynctotals()"
+    },
+    {
+      "label": "handleKeyDown()",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L40",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts_handlekeydown",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "handlekeydown()"
+    },
+    {
+      "label": "isInputFocused()",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L35",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts_isinputfocused",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "isinputfocused()"
+    },
+    {
+      "label": "parseCombo()",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L18",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts_parsecombo",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "parsecombo()"
     },
     {
       "label": "reclaimInflightOperations()",
@@ -11206,42 +11242,6 @@
       "community": 8,
       "community_name": "registry.ts",
       "norm_label": "signal()"
-    },
-    {
-      "label": "handleKeyDown()",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L40",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts_handlekeydown",
-      "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "handlekeydown()"
-    },
-    {
-      "label": "isInputFocused()",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L35",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts_isinputfocused",
-      "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "isinputfocused()"
-    },
-    {
-      "label": "parseCombo()",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L18",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts_parsecombo",
-      "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "parsecombo()"
     },
     {
       "label": "recordPayment()",
@@ -12506,17 +12506,6 @@
       "norm_label": "globals"
     },
     {
-      "label": "postcss",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "package_devdependencies_postcss",
-      "community": 16,
-      "community_name": "devDependencies",
-      "norm_label": "postcss"
-    },
-    {
       "label": "postcss-preset-mantine",
       "file_type": "code",
       "source_file": "package.json",
@@ -12570,6 +12559,17 @@
       "community": 16,
       "community_name": "devDependencies",
       "norm_label": "vite"
+    },
+    {
+      "label": "vite-plugin-pwa",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "package_devdependencies_vite_plugin_pwa",
+      "community": 16,
+      "community_name": "devDependencies",
+      "norm_label": "vite-plugin-pwa"
     },
     {
       "label": "vite-tsconfig-paths",
@@ -12660,17 +12660,6 @@
       "norm_label": "globals"
     },
     {
-      "label": "postcss",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "postcss",
-      "community": 16,
-      "community_name": "devDependencies",
-      "norm_label": "postcss"
-    },
-    {
       "label": "postcss-preset-mantine",
       "file_type": "concept",
       "source_file": "package.json",
@@ -12724,6 +12713,17 @@
       "community": 16,
       "community_name": "devDependencies",
       "norm_label": "vite"
+    },
+    {
+      "label": "vite-plugin-pwa",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "vite_plugin_pwa",
+      "community": 16,
+      "community_name": "devDependencies",
+      "norm_label": "vite-plugin-pwa"
     },
     {
       "label": "vite-tsconfig-paths",
@@ -12788,8 +12788,41 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_components_printjobformmodal",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "printjobformmodal.tsx"
+    },
+    {
+      "label": "PrintJobList.tsx",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_print_jobs_components_printjoblist",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "printjoblist.tsx"
+    },
+    {
+      "label": "usePrintJobs.ts",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_print_jobs_hooks_useprintjobs",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "useprintjobs.ts"
+    },
+    {
+      "label": "NO_PRINT_JOBS",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_features_print_jobs_hooks_useprintjobs_no_print_jobs",
+      "community": 18,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "no_print_jobs"
     },
     {
       "label": "print-jobs/types.ts",
@@ -12799,19 +12832,8 @@
       "_origin": "ast",
       "id": "src_features_print_jobs_types",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "print-jobs/types.ts"
-    },
-    {
-      "label": "SegmentedToggle.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_components_segmentedtoggle",
-      "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
-      "norm_label": "segmentedtoggle.tsx"
     },
     {
       "label": "ticketInput.ts",
@@ -12821,7 +12843,7 @@
       "_origin": "ast",
       "id": "src_shared_types_ticketinput",
       "community": 18,
-      "community_name": "PrintJobFormModal.tsx",
+      "community_name": "PrintJobList.tsx",
       "norm_label": "ticketinput.ts"
     },
     {
@@ -14783,17 +14805,6 @@
       "norm_label": "employeesstore"
     },
     {
-      "label": "fetchAllEmployeeEarnings",
-      "file_type": "code",
-      "source_file": "src/features/employees/api/mockEmployees.ts",
-      "source_location": "L184",
-      "_origin": "ast",
-      "id": "src_features_employees_api_mockemployees_fetchallemployeeearnings",
-      "community": 3,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "fetchallemployeeearnings"
-    },
-    {
       "label": "INITIAL_EARNINGS",
       "file_type": "code",
       "source_file": "src/features/employees/api/mockEmployees.ts",
@@ -14880,17 +14891,6 @@
       "community": 3,
       "community_name": "EmployeeList.tsx",
       "norm_label": "employee_role_labels"
-    },
-    {
-      "label": "ReportsDashboard.tsx",
-      "file_type": "code",
-      "source_file": "src/features/reports/components/ReportsDashboard.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_reports_components_reportsdashboard",
-      "community": 3,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "reportsdashboard.tsx"
     },
     {
       "label": "PhoneDisplay.tsx",
@@ -15806,39 +15806,6 @@
       "norm_label": "request_timeout_ms"
     },
     {
-      "label": "PrintJobList.tsx",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "printjoblist.tsx"
-    },
-    {
-      "label": "usePrintJobs.ts",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "useprintjobs.ts"
-    },
-    {
-      "label": "NO_PRINT_JOBS",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_no_print_jobs",
-      "community": 4,
-      "community_name": "PrintJobList.tsx",
-      "norm_label": "no_print_jobs"
-    },
-    {
       "label": "ConfirmDialog.tsx",
       "file_type": "code",
       "source_file": "src/shared/components/ConfirmDialog.tsx",
@@ -15846,7 +15813,7 @@
       "_origin": "ast",
       "id": "src_shared_components_confirmdialog",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "confirmdialog.tsx"
     },
     {
@@ -15857,8 +15824,30 @@
       "_origin": "ast",
       "id": "src_shared_components_datatable",
       "community": 4,
-      "community_name": "PrintJobList.tsx",
+      "community_name": "DataTable.tsx",
       "norm_label": "datatable.tsx"
+    },
+    {
+      "label": "fetchAllEmployeeEarnings",
+      "file_type": "code",
+      "source_file": "src/features/employees/api/mockEmployees.ts",
+      "source_location": "L184",
+      "_origin": "ast",
+      "id": "src_features_employees_api_mockemployees_fetchallemployeeearnings",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "fetchallemployeeearnings"
+    },
+    {
+      "label": "ReportsDashboard.tsx",
+      "file_type": "code",
+      "source_file": "src/features/reports/components/ReportsDashboard.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_reports_components_reportsdashboard",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "reportsdashboard.tsx"
     },
     {
       "label": "EntityListPage.tsx",
@@ -15868,7 +15857,7 @@
       "_origin": "ast",
       "id": "src_shared_components_entitylistpage",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "entitylistpage.tsx"
     },
     {
@@ -15879,7 +15868,7 @@
       "_origin": "ast",
       "id": "src_shared_components_filtertagchips",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "filtertagchips.tsx"
     },
     {
@@ -15890,8 +15879,19 @@
       "_origin": "ast",
       "id": "src_shared_components_pageheader",
       "community": 40,
-      "community_name": "EntityListPage.tsx",
+      "community_name": "ReportsDashboard.tsx",
       "norm_label": "pageheader.tsx"
+    },
+    {
+      "label": "SegmentedToggle.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_components_segmentedtoggle",
+      "community": 40,
+      "community_name": "ReportsDashboard.tsx",
+      "norm_label": "segmentedtoggle.tsx"
     },
     {
       "label": "settings/constants.ts",
@@ -16763,26 +16763,169 @@
       "norm_label": "suppliersresource"
     },
     {
-      "label": "vite-plugin-pwa",
+      "label": "src/App.tsx",
       "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L35",
+      "source_file": "src/App.tsx",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "package_devdependencies_vite_plugin_pwa",
+      "id": "src_app",
       "community": 54,
-      "community_name": "vite-plugin-pwa",
-      "norm_label": "vite-plugin-pwa"
+      "community_name": "providers.tsx",
+      "norm_label": "src/app.tsx"
     },
     {
-      "label": "vite-plugin-pwa",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L35",
+      "label": "app/App.tsx",
+      "file_type": "code",
+      "source_file": "src/app/App.tsx",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "vite_plugin_pwa",
+      "id": "src_app_app",
       "community": 54,
-      "community_name": "vite-plugin-pwa",
-      "norm_label": "vite-plugin-pwa"
+      "community_name": "providers.tsx",
+      "norm_label": "app/app.tsx"
+    },
+    {
+      "label": "AppUpdatePrompt.tsx",
+      "file_type": "code",
+      "source_file": "src/app/components/AppUpdatePrompt.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_components_appupdateprompt",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "appupdateprompt.tsx"
+    },
+    {
+      "label": "providers.tsx",
+      "file_type": "code",
+      "source_file": "src/app/providers.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_providers",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "providers.tsx"
+    },
+    {
+      "label": "router",
+      "file_type": "code",
+      "source_file": "src/app/router.tsx",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_app_router_router",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "router"
+    },
+    {
+      "label": "main.tsx",
+      "file_type": "code",
+      "source_file": "src/main.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_main",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "main.tsx"
+    },
+    {
+      "label": "container",
+      "file_type": "code",
+      "source_file": "src/main.tsx",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_main_container",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "container"
+    },
+    {
+      "label": "onlineManagerBridge.ts",
+      "file_type": "code",
+      "source_file": "src/offline/connectivity/onlineManagerBridge.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_offline_connectivity_onlinemanagerbridge",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "onlinemanagerbridge.ts"
+    },
+    {
+      "label": "cssVariablesResolver.ts",
+      "file_type": "code",
+      "source_file": "src/styles/cssVariablesResolver.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_styles_cssvariablesresolver",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "cssvariablesresolver.ts"
+    },
+    {
+      "label": "darkTokens",
+      "file_type": "code",
+      "source_file": "src/styles/cssVariablesResolver.ts",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "src_styles_cssvariablesresolver_darktokens",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "darktokens"
+    },
+    {
+      "label": "lightTokens",
+      "file_type": "code",
+      "source_file": "src/styles/cssVariablesResolver.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_styles_cssvariablesresolver_lighttokens",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "lighttokens"
+    },
+    {
+      "label": "semanticVars",
+      "file_type": "code",
+      "source_file": "src/styles/cssVariablesResolver.ts",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "src_styles_cssvariablesresolver_semanticvars",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "semanticvars"
+    },
+    {
+      "label": "theme.ts",
+      "file_type": "code",
+      "source_file": "src/styles/theme.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_styles_theme",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "theme.ts"
+    },
+    {
+      "label": "CONTAINER_SIZES",
+      "file_type": "code",
+      "source_file": "src/styles/theme.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_styles_theme_container_sizes",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "container_sizes"
+    },
+    {
+      "label": "mantineTheme",
+      "file_type": "code",
+      "source_file": "src/styles/theme.ts",
+      "source_location": "L29",
+      "_origin": "ast",
+      "id": "src_styles_theme_mantinetheme",
+      "community": 54,
+      "community_name": "providers.tsx",
+      "norm_label": "mantinetheme"
     },
     {
       "label": "audio.ts",
@@ -17687,178 +17830,13 @@
       "norm_label": "version"
     },
     {
-      "label": "src/App.tsx",
-      "file_type": "code",
-      "source_file": "src/App.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "src/app.tsx"
-    },
-    {
-      "label": "app/App.tsx",
-      "file_type": "code",
-      "source_file": "src/app/App.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_app",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "app/app.tsx"
-    },
-    {
-      "label": "AppUpdatePrompt.tsx",
-      "file_type": "code",
-      "source_file": "src/app/components/AppUpdatePrompt.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_components_appupdateprompt",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "appupdateprompt.tsx"
-    },
-    {
-      "label": "providers.tsx",
-      "file_type": "code",
-      "source_file": "src/app/providers.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_providers",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "providers.tsx"
-    },
-    {
-      "label": "router",
-      "file_type": "code",
-      "source_file": "src/app/router.tsx",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "src_app_router_router",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "router"
-    },
-    {
-      "label": "main.tsx",
-      "file_type": "code",
-      "source_file": "src/main.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_main",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "main.tsx"
-    },
-    {
-      "label": "container",
-      "file_type": "code",
-      "source_file": "src/main.tsx",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "src_main_container",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "container"
-    },
-    {
-      "label": "onlineManagerBridge.ts",
-      "file_type": "code",
-      "source_file": "src/offline/connectivity/onlineManagerBridge.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_offline_connectivity_onlinemanagerbridge",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "onlinemanagerbridge.ts"
-    },
-    {
-      "label": "cssVariablesResolver.ts",
-      "file_type": "code",
-      "source_file": "src/styles/cssVariablesResolver.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_styles_cssvariablesresolver",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "cssvariablesresolver.ts"
-    },
-    {
-      "label": "darkTokens",
-      "file_type": "code",
-      "source_file": "src/styles/cssVariablesResolver.ts",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "src_styles_cssvariablesresolver_darktokens",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "darktokens"
-    },
-    {
-      "label": "lightTokens",
-      "file_type": "code",
-      "source_file": "src/styles/cssVariablesResolver.ts",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_styles_cssvariablesresolver_lighttokens",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "lighttokens"
-    },
-    {
-      "label": "semanticVars",
-      "file_type": "code",
-      "source_file": "src/styles/cssVariablesResolver.ts",
-      "source_location": "L84",
-      "_origin": "ast",
-      "id": "src_styles_cssvariablesresolver_semanticvars",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "semanticvars"
-    },
-    {
-      "label": "theme.ts",
-      "file_type": "code",
-      "source_file": "src/styles/theme.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_styles_theme",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "theme.ts"
-    },
-    {
-      "label": "CONTAINER_SIZES",
-      "file_type": "code",
-      "source_file": "src/styles/theme.ts",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "src_styles_theme_container_sizes",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "container_sizes"
-    },
-    {
-      "label": "mantineTheme",
-      "file_type": "code",
-      "source_file": "src/styles/theme.ts",
-      "source_location": "L29",
-      "_origin": "ast",
-      "id": "src_styles_theme_mantinetheme",
-      "community": 76,
-      "community_name": "providers.tsx",
-      "norm_label": "mantinetheme"
-    },
-    {
       "label": "ExpandableCard.tsx",
       "file_type": "code",
       "source_file": "src/shared/components/ExpandableCard.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_shared_components_expandablecard",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "expandablecard.tsx"
     },
@@ -17869,7 +17847,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_shared_components_interactivetooltip",
-      "community": 78,
+      "community": 76,
       "community_name": "ExpandableCard.tsx",
       "norm_label": "interactivetooltip.tsx"
     },
@@ -17880,7 +17858,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_sync_components_syncstatusbadge",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "syncstatusbadge.tsx"
     },
@@ -17891,9 +17869,31 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "src_store_slices_syncslice_selectoverallsyncstatus",
-      "community": 79,
+      "community": 78,
       "community_name": "SyncStatusBadge.tsx",
       "norm_label": "selectoverallsyncstatus"
+    },
+    {
+      "label": "useShortcuts.ts",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "useshortcuts.ts"
+    },
+    {
+      "label": "activeScopes",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useShortcuts.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_shared_hooks_useshortcuts_activescopes",
+      "community": 79,
+      "community_name": "useShortcuts.ts",
+      "norm_label": "activescopes"
     },
     {
       "label": "registry.ts",
@@ -18028,26 +18028,26 @@
       "norm_label": "eslint-plugin-react-hooks"
     },
     {
-      "label": "useShortcuts.ts",
+      "label": "postcss",
       "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L1",
+      "source_file": "package.json",
+      "source_location": "L28",
       "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts",
+      "id": "package_devdependencies_postcss",
       "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "useshortcuts.ts"
+      "community_name": "postcss",
+      "norm_label": "postcss"
     },
     {
-      "label": "activeScopes",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useShortcuts.ts",
-      "source_location": "L15",
+      "label": "postcss",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L28",
       "_origin": "ast",
-      "id": "src_shared_hooks_useshortcuts_activescopes",
+      "id": "postcss",
       "community": 83,
-      "community_name": "useShortcuts.ts",
-      "norm_label": "activescopes"
+      "community_name": "postcss",
+      "norm_label": "postcss"
     },
     {
       "label": "prettier",
@@ -19057,6 +19057,22 @@
       "id": "claude_feature_module_pattern"
     },
     {
+      "label": "isBillingBoundaryChange Render-Time State Adjustment",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "Animation performance",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Suppresses AppShell's Mantine transition for the one render where a billing-specific boundary (header height/navbar width/padding) is crossed, so an animated chrome resize doesn't land in the same frame as a heavy screen's first mount and appear stuck.",
+      "community": 61,
+      "community_name": "App Entry Chain",
+      "norm_label": "isbillingboundarychange render-time state adjustment",
+      "_origin": "semantic",
+      "id": "claude_isbillingboundarychange_pattern"
+    },
+    {
       "label": "AmountInput.tsx",
       "file_type": "code",
       "source_file": "CLAUDE.md",
@@ -19318,22 +19334,6 @@
       "norm_label": "backend sync contract (rust/axum)",
       "_origin": "semantic",
       "id": "claude_backend_sync_contract"
-    },
-    {
-      "label": "isBillingBoundaryChange Render-Time State Adjustment",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": "Animation performance",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Suppresses AppShell's Mantine transition for the one render where a billing-specific boundary (header height/navbar width/padding) is crossed, so an animated chrome resize doesn't land in the same frame as a heavy screen's first mount and appear stuck.",
-      "community": 63,
-      "community_name": "Offline & Sync Architecture",
-      "norm_label": "isbillingboundarychange render-time state adjustment",
-      "_origin": "semantic",
-      "id": "claude_isbillingboundarychange_pattern"
     },
     {
       "label": "Offline & Sync Architecture",
@@ -23685,7 +23685,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/repairs/components/RepairFormModal.tsx",
-      "source_location": "L234",
+      "source_location": "L237",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_repairs_components_repairformmodal_repairformmodal",
@@ -78278,5 +78278,5 @@
       "source_file": ".agents/rules/graphify.md"
     }
   ],
-  "built_at_commit": "7e3aaba04cfb0ba15e64d13f781c49ecef4be3a6"
+  "built_at_commit": "f682776174ddc0b737e75503d777c76ca68cb8ff"
 }

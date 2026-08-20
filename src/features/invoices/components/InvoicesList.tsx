@@ -5,7 +5,6 @@ import {
   Stack,
   Group,
   Text,
-  Title,
   Select,
   Badge,
   SimpleGrid,
@@ -20,8 +19,8 @@ import {
   IconAlertCircle,
   IconChartPie,
   IconRefresh,
-  IconFileInvoice,
 } from '@tabler/icons-react';
+import { PageHeader } from '@/shared/components/PageHeader';
 import { useAllInvoices } from '@/features/billing/hooks/useInvoices';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
@@ -229,31 +228,21 @@ export const InvoicesList = () => {
     <Box p="md" style={{ width: '100%', minHeight: '100vh', backgroundColor: 'var(--bg-app)' }}>
       <Stack gap="md">
         {/* Page Header */}
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <ThemeIcon size="lg" color="slate" variant="light">
-              <IconFileInvoice size={24} />
-            </ThemeIcon>
-            <div>
-              <Title order={2} style={{ fontSize: 20, fontWeight: 700 }}>
-                Sales & Invoices History
-              </Title>
-              <Text size="xs" c="dimmed">
-                Manage past transactions, inspect invoice details, and issue duplicates.
-              </Text>
-            </div>
-          </Group>
-
-          <Button
-            size="xs"
-            variant="light"
-            leftSection={<IconRefresh size={14} />}
-            loading={isFetching}
-            onClick={() => void syncEngine.syncNow()}
-          >
-            Refresh List
-          </Button>
-        </Group>
+        <PageHeader
+          title="Sales & Invoices History"
+          description="Manage past transactions, inspect invoice details, and issue duplicates"
+          action={
+            <Button
+              size="xs"
+              variant="light"
+              leftSection={<IconRefresh size={14} />}
+              loading={isFetching}
+              onClick={() => void syncEngine.syncNow()}
+            >
+              Refresh List
+            </Button>
+          }
+        />
 
         {/* KPI Strip */}
         <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">

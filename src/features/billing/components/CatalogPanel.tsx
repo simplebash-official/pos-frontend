@@ -1238,14 +1238,14 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
                               Estimated Total
                             </Text>
-                            {job.costCents !== undefined ? (
+                            {job.costCents !== undefined && job.costCents > 0 ? (
                               <Text size="sm" fw={800} c="blue" style={{ fontFamily: 'monospace' }}>
                                 {formatMoney(job.costCents)}
                               </Text>
                             ) : (
-                              <Text size="xs" c="dimmed" fs="italic">
+                              <Badge size="xs" color="yellow" variant="light">
                                 Pending diagnosis
-                              </Text>
+                              </Badge>
                             )}
                           </Box>
 

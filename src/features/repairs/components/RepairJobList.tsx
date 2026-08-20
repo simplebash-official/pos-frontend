@@ -171,12 +171,12 @@ export const RepairJobList = () => {
       align: 'left',
       sortable: true,
       render: (job) =>
-        job.estimatedCostCents !== undefined ? (
+        job.estimatedCostCents !== undefined && job.estimatedCostCents > 0 ? (
           formatMoney(job.estimatedCostCents)
         ) : (
-          <Text size="xs" c="dimmed" fs="italic">
+          <Badge color="yellow" variant="light">
             Pending diagnosis
-          </Text>
+          </Badge>
         ),
     },
     {
