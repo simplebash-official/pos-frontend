@@ -4,16 +4,19 @@ export const queryKeys = {
     invoices: (filters?: Record<string, unknown>) => ['billing', 'invoices', filters] as const,
     invoiceDetail: (id: string) => ['billing', 'invoices', id] as const,
     payments: (invoiceId: string) => ['billing', 'invoices', invoiceId, 'payments'] as const,
+    stats: () => ['billing', 'stats'] as const,
   },
   repairs: {
     all: ['repairs'] as const,
     list: (filters?: Record<string, unknown>) => ['repairs', 'list', filters] as const,
     detail: (id: string) => ['repairs', 'detail', id] as const,
+    stats: () => ['repairs', 'stats'] as const,
   },
   printJobs: {
     all: ['printJobs'] as const,
     list: (filters?: Record<string, unknown>) => ['printJobs', 'list', filters] as const,
     detail: (id: string) => ['printJobs', 'detail', id] as const,
+    stats: () => ['printJobs', 'stats'] as const,
   },
   inventory: {
     all: ['inventory'] as const,

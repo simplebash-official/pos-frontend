@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack } from '@mantine/core';
-import { IconPlus, IconCheck, IconUser } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconCheck,
+  IconUser,
+  IconTool,
+  IconCash,
+  IconAlertCircle,
+  IconChartPie,
+} from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob, RepairJobInput } from '../types';
@@ -11,11 +19,13 @@ import {
   useDeleteRepairs,
   useUpdateRepairJob,
 } from '../hooks/useRepairs';
+import { useRepairStats } from '../hooks/useRepairStats';
 import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
+import { MetricCardRow } from '@/shared/components/MetricCard';
 import { RepairFormModal } from './RepairFormModal';
 
 export const RepairJobList = () => {
@@ -25,6 +35,7 @@ export const RepairJobList = () => {
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
 
   const { data: repairJobs, isLoading } = useAllRepairs();
+  const { data: stats, isLoading: statsLoading, staleAsOf } = useRepairStats();
 
   const createMutation = useCreateRepairJob();
   const updateMutation = useUpdateRepairJob();
@@ -198,6 +209,48 @@ export const RepairJobList = () => {
             New Repair Ticket
           </Button>
         }
+      />
+
+      <MetricCardRow
+        staleAsOf={staleAsOf}
+        cards={[
+          {
+            key: 'jobs',
+            label: "TODAY'S JOBS",
+            value: stats?.todayJobCount ?? 0,
+            color: 'orange',
+            icon: <IconTool size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 50,
+          },
+          {
+            key: 'revenue',
+            label: "TODAY'S REVENUE",
+            value: formatMoney(stats?.todayRevenueCents ?? 0),
+            color: 'blue',
+            icon: <IconCash size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 90,
+          },
+          {
+            key: 'open',
+            label: 'OPEN TICKETS',
+            value: stats?.pendingJobCount ?? 0,
+            color: 'amber',
+            icon: <IconAlertCircle size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 50,
+          },
+          {
+            key: 'avg',
+            label: 'AVG JOB VALUE',
+            value: formatMoney(stats?.avgJobValueCents ?? 0),
+            color: 'violet',
+            icon: <IconChartPie size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 90,
+          },
+        ]}
       />
 
       <DataTable

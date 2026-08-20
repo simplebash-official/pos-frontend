@@ -248,3 +248,24 @@ export interface SessionRecord {
 }
 
 export const SESSION_RECORD_ID = 'current';
+
+// ---------------------------------------------------------------------------
+// Dashboard stats cache
+// ---------------------------------------------------------------------------
+
+/**
+ * Last-known dashboard-KPI blob for one module ("billing" | "repairs" |
+ * "printJobs"), so `MetricCardRow` still has numbers to show while offline.
+ *
+ * NOT a mirrored/synced entity — an aggregate has no row identity or
+ * tombstone semantics, so it carries none of `MirrorMeta`, isn't in
+ * `MIRROR_TABLE_NAMES`, and is never touched by the sync engine. It's
+ * written directly by `useModuleStats` after a successful network fetch.
+ */
+export interface StatsCacheRow<T = unknown> {
+  /** Primary key — the module name this row's `data` belongs to. */
+  module: string;
+  data: T;
+  /** ISO timestamp of the last successful fetch that produced `data`. */
+  fetchedAt: string;
+}

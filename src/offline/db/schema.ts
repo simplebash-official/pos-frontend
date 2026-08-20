@@ -16,6 +16,7 @@ import type {
   MirroredRow,
   OutboxOp,
   SessionRecord,
+  StatsCacheRow,
   StockLedgerEntry,
   SyncMetaRecord,
 } from './tables';
@@ -53,6 +54,8 @@ export class OfflineDb extends Dexie {
   conflicts!: Table<ConflictRecord, string>;
   auditLog!: Table<AuditEvent, number>;
   session!: Table<SessionRecord, string>;
+  /** Not an engine table — see `StatsCacheRow`'s doc comment. */
+  statsCache!: Table<StatsCacheRow, string>;
 
   constructor() {
     super(OFFLINE_DB_NAME);
@@ -107,6 +110,14 @@ export class OfflineDb extends Dexie {
       payments: 'id, invoiceId, recordedAt, _pending, _isDeleted',
       repairs: 'id, ticketNumber, status, assignedEmployeeId, createdAt, _pending, _isDeleted',
       printJobs: 'id, ticketNumber, status, assignedEmployeeId, createdAt, _pending, _isDeleted',
+    });
+
+    // v5 adds the dashboard-stats cache — one row per module, overwritten on
+    // every successful `useModuleStats` fetch. Not a mirror table: no
+    // `_pending`/`_isDeleted`, not in `MIRROR_TABLE_NAMES`, never touched by
+    // the sync engine.
+    this.version(5).stores({
+      statsCache: 'module',
     });
   }
 }

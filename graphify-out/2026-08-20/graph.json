@@ -62,10 +62,7 @@
       {
         "id": "graphify_integration_system",
         "label": "Graphify Knowledge Graph Integration",
-        "nodes": [
-          "agents_rules_graphify_rule",
-          "agents_workflows_graphify_workflow"
-        ],
+        "nodes": ["agents_rules_graphify_rule", "agents_workflows_graphify_workflow"],
         "relation": "form",
         "confidence": "INFERRED",
         "confidence_score": 0.95,
@@ -78298,10 +78295,7 @@
     {
       "id": "graphify_integration_system",
       "label": "Graphify Knowledge Graph Integration",
-      "nodes": [
-        "agents_rules_graphify_rule",
-        "agents_workflows_graphify_workflow"
-      ],
+      "nodes": ["agents_rules_graphify_rule", "agents_workflows_graphify_workflow"],
       "relation": "form",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
