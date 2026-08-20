@@ -64,7 +64,16 @@ export const RepairFormModal = ({
         /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
       deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
       issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
-      estimatedPriceRupees: (val) => (val >= 0 ? null : 'Price must be 0 or greater'),
+      estimatedPriceRupees: (val) => {
+        if (val === '' || val === undefined || val === null) {
+          return 'Price is required';
+        }
+        return Number(val) >= 0 ? null : 'Price must be 0 or greater';
+      },
+      materialCostRupees: (val) =>
+        val === '' || val === undefined || val === null || Number(val) >= 0
+          ? null
+          : 'Cost must be 0 or greater',
     },
   });
 
@@ -93,13 +102,13 @@ export const RepairFormModal = ({
     }
   };
 
-  const estPriceRupees = form.values.estimatedPriceRupees || 0;
-  const matCostRupees = form.values.materialCostRupees || 0;
+  const estPriceRupees = Number(form.values.estimatedPriceRupees) || 0;
+  const matCostRupees = Number(form.values.materialCostRupees) || 0;
   const profitRupees = Math.max(0, estPriceRupees - matCostRupees);
 
   const profitCents = toCents(profitRupees);
   let calculatedEarningsCents = 0;
-  const splitVal = form.values.splitValueRupeesOrPercent || 0;
+  const splitVal = Number(form.values.splitValueRupeesOrPercent) || 0;
   const isFixedSplitCapped =
     form.values.splitType === 'fixed' && splitVal > profitRupees && profitRupees > 0;
 

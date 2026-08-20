@@ -9,12 +9,12 @@ export interface RepairFormValues {
   deviceModel: string;
   issueDescription: string;
   status: RepairJob['status'];
-  estimatedPriceRupees: number;
-  materialCostRupees: number;
+  estimatedPriceRupees: number | string;
+  materialCostRupees: number | string;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
-  splitValueRupeesOrPercent?: number;
+  splitValueRupeesOrPercent?: number | string;
 }
 
 export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
@@ -25,8 +25,8 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
       deviceModel: '',
       issueDescription: '',
       status: 'received',
-      estimatedPriceRupees: 0,
-      materialCostRupees: 0,
+      estimatedPriceRupees: '',
+      materialCostRupees: '',
       splitType: 'percentage',
       splitValueRupeesOrPercent: 30,
     };
@@ -38,7 +38,7 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
     issueDescription: job.issueDescription,
     status: job.status,
     estimatedPriceRupees: fromCents(job.estimatedCostCents),
-    materialCostRupees: fromCents(job.materialCostCents || 0),
+    materialCostRupees: job.materialCostCents ? fromCents(job.materialCostCents) : '',
     assignedEmployeeId: job.assignedEmployeeId,
     assignedEmployeeName: job.assignedEmployeeName,
     splitType: job.splitType,
@@ -48,10 +48,8 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
 };
 
 export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
-  const splitValueCentsOrPercent =
-    form.splitType === 'fixed'
-      ? toCents(form.splitValueRupeesOrPercent || 0)
-      : form.splitValueRupeesOrPercent || 0;
+  const splitValNum = Number(form.splitValueRupeesOrPercent) || 0;
+  const splitValueCentsOrPercent = form.splitType === 'fixed' ? toCents(splitValNum) : splitValNum;
 
   return {
     customer: {
@@ -69,8 +67,8 @@ export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
     deviceModel: form.deviceModel,
     issueDescription: form.issueDescription,
     status: form.status,
-    estimatedCostCents: toCents(form.estimatedPriceRupees || 0),
-    materialCostCents: toCents(form.materialCostRupees || 0),
+    estimatedCostCents: toCents(Number(form.estimatedPriceRupees) || 0),
+    materialCostCents: toCents(Number(form.materialCostRupees) || 0),
   };
 };
 
@@ -78,14 +76,14 @@ export interface PrintJobFormValues {
   customerName: string;
   customerPhone: string;
   jobType: PrintJob['jobType'];
-  quantity: number;
+  quantity: number | string;
   status: PrintJob['status'];
-  estimatedPriceRupees: number;
-  materialCostRupees: number;
+  estimatedPriceRupees: number | string;
+  materialCostRupees: number | string;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
-  splitValueRupeesOrPercent?: number;
+  splitValueRupeesOrPercent?: number | string;
 }
 
 export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
@@ -96,8 +94,8 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
       jobType: 'mug',
       quantity: 1,
       status: 'received',
-      estimatedPriceRupees: 0,
-      materialCostRupees: 0,
+      estimatedPriceRupees: '',
+      materialCostRupees: '',
       splitType: 'fixed',
       splitValueRupeesOrPercent: 500,
     };
@@ -109,7 +107,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
     quantity: job.quantity,
     status: job.status,
     estimatedPriceRupees: fromCents(job.estimatedCostCents),
-    materialCostRupees: fromCents(job.materialCostCents || 0),
+    materialCostRupees: job.materialCostCents ? fromCents(job.materialCostCents) : '',
     assignedEmployeeId: job.assignedEmployeeId,
     assignedEmployeeName: job.assignedEmployeeName,
     splitType: job.splitType,
@@ -119,10 +117,8 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
 };
 
 export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
-  const splitValueCentsOrPercent =
-    form.splitType === 'fixed'
-      ? toCents(form.splitValueRupeesOrPercent || 0)
-      : form.splitValueRupeesOrPercent || 0;
+  const splitValNum = Number(form.splitValueRupeesOrPercent) || 0;
+  const splitValueCentsOrPercent = form.splitType === 'fixed' ? toCents(splitValNum) : splitValNum;
 
   return {
     customer: {
@@ -138,10 +134,10 @@ export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
         }
       : undefined,
     jobType: form.jobType,
-    quantity: form.quantity,
+    quantity: Number(form.quantity) || 1,
     status: form.status,
-    estimatedCostCents: toCents(form.estimatedPriceRupees || 0),
-    materialCostCents: toCents(form.materialCostRupees || 0),
+    estimatedCostCents: toCents(Number(form.estimatedPriceRupees) || 0),
+    materialCostCents: toCents(Number(form.materialCostRupees) || 0),
   };
 };
 
@@ -151,7 +147,7 @@ export interface EmployeeFormValues {
   nicOrId?: string;
   role: Employee['role'];
   defaultSplitType: 'percentage' | 'fixed';
-  defaultSplitValueRupeesOrPercent: number;
+  defaultSplitValueRupeesOrPercent: number | string;
   status: Employee['status'];
   notes?: string;
 }
@@ -185,8 +181,8 @@ export const fromEmployee = (emp?: Employee | null): EmployeeFormValues => {
 export const toEmployeeInput = (form: EmployeeFormValues): EmployeeInput => {
   const defaultSplitValue =
     form.defaultSplitType === 'fixed'
-      ? toCents(form.defaultSplitValueRupeesOrPercent || 0)
-      : form.defaultSplitValueRupeesOrPercent || 0;
+      ? toCents(Number(form.defaultSplitValueRupeesOrPercent) || 0)
+      : Number(form.defaultSplitValueRupeesOrPercent) || 0;
 
   return {
     name: form.name,

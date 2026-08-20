@@ -46,10 +46,10 @@ export const EmployeeFormModal = ({
           ? null
           : 'Enter a valid phone number (e.g. 0771234567)',
       defaultSplitValueRupeesOrPercent: (val, values) => {
-        if (val === undefined || val === null || val < 0) {
+        if (val === undefined || val === null || val === '' || Number(val) < 0) {
           return 'Split value must be 0 or greater';
         }
-        if (values.defaultSplitType === 'percentage' && val > 100) {
+        if (values.defaultSplitType === 'percentage' && Number(val) > 100) {
           return 'Percentage cannot exceed 100%';
         }
         return null;

@@ -59,8 +59,17 @@ export const PrintJobFormModal = ({
     initialValues: fromPrintJob(null),
     validate: {
       customerName: (val) => (val.trim() ? null : 'Customer name is required'),
-      quantity: (val) => (val >= 1 ? null : 'Quantity must be at least 1'),
-      estimatedPriceRupees: (val) => (val >= 0 ? null : 'Total price must be 0 or greater'),
+      quantity: (val) => (Number(val) >= 1 ? null : 'Quantity must be at least 1'),
+      estimatedPriceRupees: (val) => {
+        if (val === '' || val === undefined || val === null) {
+          return 'Total price is required';
+        }
+        return Number(val) >= 0 ? null : 'Total price must be 0 or greater';
+      },
+      materialCostRupees: (val) =>
+        val === '' || val === undefined || val === null || Number(val) >= 0
+          ? null
+          : 'Cost must be 0 or greater',
     },
   });
 
@@ -89,13 +98,13 @@ export const PrintJobFormModal = ({
     }
   };
 
-  const estPriceRupees = form.values.estimatedPriceRupees || 0;
-  const matCostRupees = form.values.materialCostRupees || 0;
+  const estPriceRupees = Number(form.values.estimatedPriceRupees) || 0;
+  const matCostRupees = Number(form.values.materialCostRupees) || 0;
   const profitRupees = Math.max(0, estPriceRupees - matCostRupees);
 
   const profitCents = toCents(profitRupees);
   let calculatedEarningsCents = 0;
-  const splitVal = form.values.splitValueRupeesOrPercent || 0;
+  const splitVal = Number(form.values.splitValueRupeesOrPercent) || 0;
   const isFixedSplitCapped =
     form.values.splitType === 'fixed' && splitVal > profitRupees && profitRupees > 0;
 
