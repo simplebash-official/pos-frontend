@@ -11,7 +11,6 @@ import {
   Button,
   Box,
   Anchor,
-  Tooltip,
   Skeleton,
   ThemeIcon,
   Center,
@@ -23,6 +22,7 @@ import {
   IconShoppingCart,
   IconTools,
   IconTool,
+  IconPrinter,
   IconSearch,
   IconPlus,
   IconX,
@@ -111,12 +111,12 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const scanInputRef = useRef<HTMLInputElement>(null);
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
 
   const { add, items } = useCartItems();
-  const { attachCustomer, customerId } = useCartCustomer();
+  const { customerId, attachCustomer } = useCartCustomer();
   const { soundEnabled } = useCartSound();
   const { mutateAsync: createCustomerAsync } = useCreateCustomer();
 
@@ -126,11 +126,6 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   // On a phone the scan bar is a soft-keyboard trigger, not a barcode target — stealing focus would
   // bury half the catalog behind the keyboard on every load and every tap.
   const keepScanInputFocused = !isMobile;
-
-  // Space the scan input reserves for its right section: the Goods/Jobs toggle. Wider than the old
-  // single "Jobs (F4)" button needed, but mobile still keeps its two icon segments at >=44px each
-  // (the responsive touch-target rule) rather than the old single 36px icon button.
-  const scanRightSectionWidth = isMobile ? 96 : 172;
 
   // Product cards per row. The catalog's share of the viewport changes per tier, so the column
   // count has to be picked from the tier rather than from viewport-relative breakpoints. Tablet and
@@ -249,6 +244,14 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   }, [repairs, printJobs]);
 
   const activeJobsCount = combinedJobs.length;
+  const repairJobsCount = useMemo(
+    () => combinedJobs.filter((j) => j.type === 'repair').length,
+    [combinedJobs]
+  );
+  const printJobsCount = useMemo(
+    () => combinedJobs.filter((j) => j.type === 'print').length,
+    [combinedJobs]
+  );
 
   const typeFilteredJobs = useMemo(() => {
     if (jobFilterType === 'all') return combinedJobs;
@@ -543,149 +546,176 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   return (
     <Stack gap="xs" style={{ height: '100%', overflow: 'hidden' }}>
-      {/* 1. Scan Bar (56px, permanently focused) */}
-      <Paper
-        p="xs"
-        withBorder
-        style={{
-          borderColor: shakeError ? 'var(--mantine-color-red-6)' : 'var(--border)',
-          boxShadow: shakeError ? '0 0 0 2px rgba(250, 82, 82, 0.3)' : undefined,
-          animation: shakeError ? 'shake 0.3s ease-in-out' : undefined,
-          transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+      {/* 1. Catalog Mode Navigation: Goods & Inventory vs Service Jobs */}
+      <SegmentedToggle
+        fullWidth
+        size="md"
+        color="blue"
+        value={mode}
+        onChange={(val) => onModeChange(val as CatalogMode)}
+        styles={{
+          root: { flexShrink: 0 },
+          label: {
+            minHeight: isMobile ? 44 : 40,
+            padding: isMobile ? '0 8px' : '0 16px',
+            fontSize: 14,
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
         }}
-      >
-        <form onSubmit={handleScanSubmit}>
-          <SearchHistoryInput
-            namespace="billing"
-            ref={scanInputRef}
-            placeholder={
-              isMobile
-                ? 'Scan or search product'
-                : 'Scan barcode or type SKU / product name / REP-1001 (F1)'
-            }
-            leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
-            rightSection={
-              isMobile ? (
-                <SegmentedToggle
-                  size="xs"
-                  value={mode}
-                  onChange={(val) => onModeChange(val as CatalogMode)}
-                  styles={{ root: { height: 40 }, label: { padding: '0 12px', minHeight: 40 } }}
-                  data={[
-                    {
-                      value: 'goods',
-                      label: (
-                        <Tooltip label="Goods">
-                          <Box style={{ display: 'flex', alignItems: 'center' }}>
-                            <IconShoppingCart size={17} aria-label="Goods" />
-                          </Box>
-                        </Tooltip>
-                      ),
-                    },
-                    {
-                      value: 'jobs',
-                      label: (
-                        <Tooltip label="Jobs">
-                          <Box style={{ display: 'flex', alignItems: 'center' }}>
-                            <IconTools size={17} aria-label="Jobs" />
-                          </Box>
-                        </Tooltip>
-                      ),
-                    },
-                  ]}
+        data={[
+          {
+            value: 'goods',
+            label: (
+              <Group gap={8} wrap="nowrap" justify="center" align="center">
+                <IconShoppingCart
+                  size={18}
+                  stroke={mode === 'goods' ? 2.2 : 1.8}
+                  color={mode === 'goods' ? 'var(--text-primary)' : 'var(--text-secondary)'}
                 />
-              ) : (
-                <Group gap="xs" wrap="nowrap" pr={4}>
-                  <Box style={{ width: 1, height: 24, background: 'var(--border-strong)' }} />
-                  <Tooltip label="Switch view — F4: Jobs · Ctrl+G: Goods" openDelay={400}>
-                    <Box>
-                      <SegmentedToggle
-                        size="xs"
-                        value={mode}
-                        onChange={(val) => onModeChange(val as CatalogMode)}
-                        data={[
-                          {
-                            value: 'goods',
-                            label: (
-                              <Group gap={4} wrap="nowrap">
-                                <IconShoppingCart size={14} />
-                                <span>Goods</span>
-                              </Group>
-                            ),
-                          },
-                          {
-                            value: 'jobs',
-                            label: (
-                              <Group gap={4} wrap="nowrap">
-                                <IconTools size={14} />
-                                <span>Jobs</span>
-                                {activeJobsCount > 0 && (
-                                  <Badge size="xs" variant="filled" color="blue" circle>
-                                    {activeJobsCount}
-                                  </Badge>
-                                )}
-                              </Group>
-                            ),
-                          },
-                        ]}
-                      />
-                    </Box>
-                  </Tooltip>
-                </Group>
-              )
-            }
-            rightSectionWidth={scanRightSectionWidth}
-            value={scanQuery}
-            onChange={(e) => {
-              setScanQuery(e.currentTarget.value);
-              setSearch(e.currentTarget.value);
-              setShakeError(null);
-            }}
-            onSearchSubmit={(val) => {
-              setScanQuery(val);
-              setSearch(val);
-              setShakeError(null);
-            }}
-            onKeyDown={handleKeyDownGrid}
-            size="md"
-            styles={{
-              input: {
-                height: 44,
-                // iOS Safari zooms the whole page when a focused input is under 16px.
-                fontSize: isMobile ? 16 : 15,
-                fontWeight: 600,
-                border: 'none',
-                paddingRight: scanRightSectionWidth,
-                textOverflow: 'ellipsis',
-              },
-            }}
-          />
-        </form>
-
-        {shakeError && (
-          <Group gap={4} mt={4} px="xs" align="center">
-            <IconAlertTriangle size={14} color="var(--mantine-color-red-6)" />
-            <Text size="xs" c="red" fw={600}>
-              No product found for "{shakeError}".
-            </Text>
-            <Anchor
-              size="xs"
-              c="blue"
-              underline="always"
-              onClick={() => {
-                setSearch(shakeError);
-                setShakeError(null);
-              }}
-            >
-              Search manually
-            </Anchor>
-          </Group>
-        )}
-      </Paper>
+                <Text
+                  size="sm"
+                  fw={mode === 'goods' ? 700 : 600}
+                  c={mode === 'goods' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {isMobile ? 'Goods' : 'Goods & Inventory'}
+                </Text>
+              </Group>
+            ),
+          },
+          {
+            value: 'jobs',
+            label: (
+              <Group gap={8} wrap="nowrap" justify="center" align="center">
+                <IconTools
+                  size={18}
+                  stroke={mode === 'jobs' ? 2.2 : 1.8}
+                  color={mode === 'jobs' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                />
+                <Text
+                  size="sm"
+                  fw={mode === 'jobs' ? 700 : 600}
+                  c={mode === 'jobs' ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {isMobile ? 'Jobs' : 'Service Jobs'}
+                </Text>
+                {activeJobsCount > 0 && (
+                  <Badge
+                    size="sm"
+                    variant="light"
+                    color="blue"
+                    radius="xl"
+                    style={{
+                      fontWeight: 800,
+                      padding: '0 6px',
+                      height: 18,
+                      minWidth: 18,
+                      fontSize: 11,
+                    }}
+                  >
+                    {activeJobsCount}
+                  </Badge>
+                )}
+              </Group>
+            ),
+          },
+        ]}
+      />
 
       {mode === 'goods' && (
         <>
-          {/* 2. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
+          {/* 2. Barcode & Product Search Bar (permanently focused) */}
+          <Paper
+            p="xs"
+            withBorder
+            style={{
+              borderColor: shakeError ? 'var(--status-error)' : 'var(--border)',
+              boxShadow: shakeError ? '0 0 0 2px var(--status-error-bg)' : undefined,
+              animation: shakeError ? 'shake 0.3s ease-in-out' : undefined,
+              transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+            }}
+          >
+            <form onSubmit={handleScanSubmit}>
+              <SearchHistoryInput
+                namespace="billing"
+                ref={scanInputRef}
+                placeholder={
+                  isMobile
+                    ? 'Scan barcode or search product'
+                    : 'Scan barcode or type SKU / product name / REP-1001 (F1)'
+                }
+                leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
+                rightSection={
+                  scanQuery ? (
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      size="sm"
+                      aria-label="Clear scan search"
+                      onClick={() => {
+                        setScanQuery('');
+                        setSearch('');
+                        setShakeError(null);
+                        scanInputRef.current?.focus();
+                      }}
+                    >
+                      <IconX size={14} />
+                    </ActionIcon>
+                  ) : undefined
+                }
+                value={scanQuery}
+                onChange={(e) => {
+                  setScanQuery(e.currentTarget.value);
+                  setSearch(e.currentTarget.value);
+                  setShakeError(null);
+                }}
+                onSearchSubmit={(val) => {
+                  setScanQuery(val);
+                  setSearch(val);
+                  setShakeError(null);
+                }}
+                onKeyDown={handleKeyDownGrid}
+                size="md"
+                styles={{
+                  input: {
+                    height: 44,
+                    // iOS Safari zooms the whole page when a focused input is under 16px.
+                    fontSize: isMobile ? 16 : 15,
+                    fontWeight: 600,
+                    border: 'none',
+                    paddingRight: scanQuery ? 36 : undefined,
+                    textOverflow: 'ellipsis',
+                  },
+                }}
+              />
+            </form>
+
+            {shakeError && (
+              <Group gap={4} mt={4} px="xs" align="center">
+                <IconAlertTriangle size={14} color="var(--status-error)" />
+                <Text size="xs" c="red" fw={600}>
+                  No product found for "{shakeError}".
+                </Text>
+                <Anchor
+                  size="xs"
+                  c="blue"
+                  underline="always"
+                  onClick={() => {
+                    setSearch(shakeError);
+                    setShakeError(null);
+                  }}
+                >
+                  Search manually
+                </Anchor>
+              </Group>
+            )}
+          </Paper>
+
+          {/* 3. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
           <Box style={{ position: 'relative' }}>
             <ScrollArea
               viewportRef={chipsViewportRef}
@@ -963,41 +993,84 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
       {mode === 'jobs' && (
         <>
-          {/* 2. Jobs Type Tabs (All jobs / Repairs / Print jobs) */}
-          <SegmentedToggle
-            size="sm"
-            fullWidth={isMobile}
-            value={jobFilterType}
-            onChange={(val) => setJobFilterType(val as 'all' | 'repair' | 'print')}
-            data={[
-              { label: 'All jobs', value: 'all' },
-              { label: 'Repairs', value: 'repair' },
-              { label: 'Print jobs', value: 'print' },
-            ]}
-          />
+          {/* 2. Jobs Search Bar — filters by ticket #, customer name, or device. Mirrors the
+          Goods & Inventory ordering: mode toggle, then search, then filter chips, then list. */}
+          <Paper p="xs" withBorder>
+            <SearchHistoryInput
+              namespace="service_jobs"
+              ref={jobSearchInputRef}
+              placeholder="Search ticket #, customer name, device…"
+              leftSection={<IconSearch size={18} color="var(--text-secondary)" />}
+              rightSection={
+                jobSearch ? (
+                  <ActionIcon
+                    variant="subtle"
+                    size={isMobile ? 'lg' : 'sm'}
+                    color="gray"
+                    aria-label="Clear job search"
+                    onClick={() => {
+                      setJobSearch('');
+                      jobSearchInputRef.current?.focus();
+                    }}
+                  >
+                    <IconX size={14} />
+                  </ActionIcon>
+                ) : undefined
+              }
+              value={jobSearch}
+              onValueChange={setJobSearch}
+              size="md"
+              styles={{
+                input: {
+                  height: 44,
+                  fontSize: isMobile ? 16 : 15,
+                  fontWeight: 600,
+                  border: 'none',
+                  paddingRight: jobSearch ? 36 : undefined,
+                  textOverflow: 'ellipsis',
+                },
+              }}
+            />
+          </Paper>
 
-          {/* 3. Jobs Search Bar — separate from the barcode/SKU bar above; filters by ticket #,
-              customer name, or device. */}
-          <SearchHistoryInput
-            namespace="service_jobs"
-            ref={jobSearchInputRef}
-            placeholder="Search ticket #, customer name, device…"
-            leftSection={<IconSearch size={16} />}
-            rightSection={
-              jobSearch ? (
-                <ActionIcon variant="subtle" size="sm" onClick={() => setJobSearch('')}>
-                  <IconX size={14} />
-                </ActionIcon>
-              ) : (
-                <Badge size="xs" variant="light" color="blue">
-                  {filteredJobs.length}
-                </Badge>
-              )
-            }
-            value={jobSearch}
-            onValueChange={setJobSearch}
-            styles={{ input: { fontSize: isMobile ? 16 : undefined } }}
-          />
+          {/* 3. Jobs Type Sub-filter (All jobs / Repairs / Print jobs) — same filter-pill
+          style as the Goods & Inventory category chips above, so both catalog modes read
+          as one visual family. */}
+          <Group gap={6} wrap="nowrap" grow>
+            <Button
+              size="xs"
+              variant={jobFilterType === 'all' ? 'filled' : 'light'}
+              color="blue"
+              leftSection={<IconLayoutGrid size={15} />}
+              onClick={() => setJobFilterType('all')}
+              radius="var(--mantine-radius-default)"
+              style={{ height: isMobile ? 44 : undefined }}
+            >
+              All Jobs ({activeJobsCount})
+            </Button>
+            <Button
+              size="xs"
+              variant={jobFilterType === 'repair' ? 'filled' : 'light'}
+              color="orange"
+              leftSection={<IconTools size={15} />}
+              onClick={() => setJobFilterType('repair')}
+              radius="var(--mantine-radius-default)"
+              style={{ height: isMobile ? 44 : undefined }}
+            >
+              Repairs ({repairJobsCount})
+            </Button>
+            <Button
+              size="xs"
+              variant={jobFilterType === 'print' ? 'filled' : 'light'}
+              color="teal"
+              leftSection={<IconPrinter size={15} />}
+              onClick={() => setJobFilterType('print')}
+              radius="var(--mantine-radius-default)"
+              style={{ height: isMobile ? 44 : undefined }}
+            >
+              Print Jobs ({printJobsCount})
+            </Button>
+          </Group>
 
           {/* 4. Jobs List */}
           <ScrollArea style={{ flex: 1 }} offsetScrollbars styles={{ viewport: { padding: 0 } }}>
@@ -1055,6 +1128,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       p="md"
                       radius="var(--mantine-radius-default)"
                       className="picker-card"
+                      style={{ backgroundColor: 'var(--bg-card)' }}
                       onClick={() => handleBillJob(job)}
                     >
                       <Group
