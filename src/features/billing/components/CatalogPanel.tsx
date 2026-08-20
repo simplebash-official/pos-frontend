@@ -13,15 +13,29 @@ import {
   Anchor,
   Tooltip,
   Skeleton,
+  ThemeIcon,
+  Center,
 } from '@mantine/core';
-import { IconBarcode, IconAlertTriangle, IconLayoutGrid, IconTools } from '@tabler/icons-react';
+import {
+  IconBarcode,
+  IconAlertTriangle,
+  IconLayoutGrid,
+  IconShoppingCart,
+  IconTools,
+  IconTool,
+  IconSearch,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { notifications } from '@mantine/notifications';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SearchHighlight } from '@/shared/components/SearchHighlight';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import type { SearchField } from '@/shared/lib/search';
 
 import { queryKeys } from '@/api/queryKeys';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
@@ -56,11 +70,44 @@ const chunk = <T,>(items: T[], size: number): T[][] => {
   return rows;
 };
 
-export interface CatalogPanelProps {
-  onOpenServicePicker: () => void;
+export type CatalogMode = 'goods' | 'jobs';
+
+export interface CombinedServiceJob {
+  id: string;
+  ticketNumber: string;
+  type: 'repair' | 'print';
+  title: string;
+  description: string;
+  customerName: string;
+  customerPhone?: string;
+  status: string;
+  costCents: number;
+  assignedEmployeeId?: string;
+  assignedEmployeeName?: string;
 }
 
-export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: CatalogPanelProps) {
+/**
+ * Repairs and print jobs are merged into one shape here, so this config lives
+ * with the component rather than in the shared `searchFields.ts`.
+ */
+const SERVICE_JOB_SEARCH_FIELDS: readonly SearchField<CombinedServiceJob>[] = [
+  { get: (j) => j.ticketNumber, weight: 3, kind: 'text' },
+  { get: (j) => j.customerName, weight: 3, kind: 'text' },
+  { get: (j) => j.customerPhone, weight: 2, kind: 'digits' },
+  { get: (j) => j.title, weight: 2, kind: 'text' },
+  { get: (j) => j.description, weight: 1, kind: 'text' },
+];
+
+const generateServiceJobId = (type: string, id: string): string => {
+  return `svc-${type}-${id}-${Math.random().toString(36).substring(2, 9)}`;
+};
+
+export interface CatalogPanelProps {
+  mode: CatalogMode;
+  onModeChange: (mode: CatalogMode) => void;
+}
+
+export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: CatalogPanelProps) {
   const scanInputRef = useRef<HTMLInputElement>(null);
   const [scanQuery, setScanQuery] = useState('');
   const [search, setSearch] = useState('');
@@ -80,9 +127,10 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
   // bury half the catalog behind the keyboard on every load and every tap.
   const keepScanInputFocused = !isMobile;
 
-  // Space the scan input reserves for its right section: the full "Jobs (F4)" button, or just an
-  // icon button on mobile where 150px would leave almost nothing for the query itself.
-  const scanRightSectionWidth = isMobile ? 48 : 150;
+  // Space the scan input reserves for its right section: the Goods/Jobs toggle. Wider than the old
+  // single "Jobs (F4)" button needed, but mobile still keeps its two icon segments at >=44px each
+  // (the responsive touch-target rule) rather than the old single 36px icon button.
+  const scanRightSectionWidth = isMobile ? 96 : 172;
 
   // Product cards per row. The catalog's share of the viewport changes per tier, so the column
   // count has to be picked from the tier rather than from viewport-relative breakpoints. Tablet and
@@ -133,17 +181,18 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
   const termLower = scanQuery.trim().toLowerCase();
   const isScanningRep = termLower.startsWith('rep');
   const isScanningPrt = termLower.startsWith('prt');
+  const isJobsMode = mode === 'jobs';
 
-  const { data: repairs = [] } = useQuery({
+  const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: fetchRepairs,
-    enabled: isScanningRep,
+    enabled: isScanningRep || isJobsMode,
   });
 
-  const { data: printJobs = [] } = useQuery({
+  const { data: printJobs = [], isLoading: loadingPrintJobs } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: fetchPrintJobs,
-    enabled: isScanningPrt,
+    enabled: isScanningPrt || isJobsMode,
   });
 
   // Permanently auto-focus scanner input
@@ -151,6 +200,120 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
     if (!keepScanInputFocused) return;
     scanInputRef.current?.focus();
   }, [keepScanInputFocused]);
+
+  // Jobs mode: type filter (All jobs / Repairs / Print jobs), a dedicated search box, and the
+  // merged repair+print list, ported from the old ServiceJobPickerModal.
+  const jobSearchInputRef = useRef<HTMLInputElement>(null);
+  const [jobFilterType, setJobFilterType] = useState<'all' | 'repair' | 'print'>('all');
+  const [jobSearch, setJobSearch] = useState('');
+  const isLoadingJobs = loadingRepairs || loadingPrintJobs;
+
+  const combinedJobs = useMemo<CombinedServiceJob[]>(() => {
+    const list: CombinedServiceJob[] = [];
+
+    for (const r of repairs) {
+      if (r.status === 'delivered' || r.status === 'cancelled') continue;
+      list.push({
+        id: r.id,
+        ticketNumber: r.ticketNumber,
+        type: 'repair',
+        title: `${r.deviceModel} repair`,
+        description: r.issueDescription,
+        customerName: r.customerName,
+        customerPhone: r.customerPhone,
+        status: r.status,
+        costCents: r.estimatedCostCents,
+        assignedEmployeeId: r.assignedEmployeeId,
+        assignedEmployeeName: r.assignedEmployeeName,
+      });
+    }
+
+    for (const p of printJobs) {
+      if (p.status === 'delivered' || p.status === 'cancelled') continue;
+      list.push({
+        id: p.id,
+        ticketNumber: p.ticketNumber,
+        type: 'print',
+        title: `${p.jobType.charAt(0).toUpperCase() + p.jobType.slice(1)} printing (${p.quantity} units)`,
+        description: '',
+        customerName: p.customerName,
+        customerPhone: p.customerPhone,
+        status: p.status,
+        costCents: p.estimatedCostCents,
+        assignedEmployeeId: p.assignedEmployeeId,
+        assignedEmployeeName: p.assignedEmployeeName,
+      });
+    }
+
+    return list;
+  }, [repairs, printJobs]);
+
+  const activeJobsCount = combinedJobs.length;
+
+  const typeFilteredJobs = useMemo(() => {
+    if (jobFilterType === 'all') return combinedJobs;
+    return combinedJobs.filter((job) => job.type === jobFilterType);
+  }, [combinedJobs, jobFilterType]);
+
+  const { results: filteredJobs, terms: jobSearchTerms } = useEntitySearch(
+    typeFilteredJobs,
+    SERVICE_JOB_SEARCH_FIELDS,
+    jobSearch,
+    null
+  );
+
+  const handleBillJob = (job: CombinedServiceJob) => {
+    const uniqueId = generateServiceJobId(job.type, job.id);
+    add({
+      id: uniqueId,
+      productId: job.id,
+      name: `${job.ticketNumber}: ${job.title}`,
+      sku: job.ticketNumber,
+      unitPriceCents: job.costCents,
+      quantity: 1,
+      discountCents: 0,
+      sourceType: job.type,
+      sourceTicketNumber: job.ticketNumber,
+      assignedEmployeeId: job.assignedEmployeeId,
+      assignedEmployeeName: job.assignedEmployeeName,
+    });
+
+    // Auto-attach customer if not already attached. Resolved against the real backend (search by
+    // phone, else create) rather than fabricated — a synthesized id here would leave the
+    // invoice's `customerKey` pointing at nothing. Fired off in the background so picking a
+    // ticket stays instant; the cart's customer field updates a moment later.
+    if (job.customerName && (!customerId || customerId === '')) {
+      void resolveOrCreateCustomer(job.customerName, job.customerPhone, createCustomerAsync)
+        .then((customer) => {
+          if (customer) {
+            attachCustomer(
+              customer.key,
+              customer.name,
+              customer.primaryPhone,
+              customer.address,
+              customer.outstandingBalanceCents
+            );
+          } else {
+            attachCustomer(null, job.customerName, job.customerPhone);
+          }
+        })
+        .catch(() => {
+          attachCustomer(null, job.customerName, job.customerPhone);
+        });
+    }
+
+    playScanSuccessSound(soundEnabled);
+    setJobSearch('');
+  };
+
+  // Switching into Jobs mode moves the cashier's attention to its own search box — but only on
+  // desktop, same reasoning as `keepScanInputFocused` above: on mobile this would bury the list
+  // behind the soft keyboard on every tab switch.
+  useEffect(() => {
+    if (isJobsMode && !isMobile) {
+      jobSearchInputRef.current?.focus();
+    }
+  }, [isJobsMode, isMobile]);
 
   const [showInStockOnly, setShowInStockOnly] = useState(false);
 
@@ -403,34 +566,71 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
             leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
             rightSection={
               isMobile ? (
-                <Tooltip label="Service jobs">
-                  <ActionIcon
-                    variant="light"
-                    color="yellow"
-                    size={36}
-                    aria-label="Service jobs"
-                    onClick={onOpenServicePicker}
-                  >
-                    <IconTools size={18} />
-                  </ActionIcon>
-                </Tooltip>
+                <SegmentedToggle
+                  size="xs"
+                  value={mode}
+                  onChange={(val) => onModeChange(val as CatalogMode)}
+                  styles={{ root: { height: 40 }, label: { padding: '0 12px', minHeight: 40 } }}
+                  data={[
+                    {
+                      value: 'goods',
+                      label: (
+                        <Tooltip label="Goods">
+                          <Box style={{ display: 'flex', alignItems: 'center' }}>
+                            <IconShoppingCart size={17} aria-label="Goods" />
+                          </Box>
+                        </Tooltip>
+                      ),
+                    },
+                    {
+                      value: 'jobs',
+                      label: (
+                        <Tooltip label="Jobs">
+                          <Box style={{ display: 'flex', alignItems: 'center' }}>
+                            <IconTools size={17} aria-label="Jobs" />
+                          </Box>
+                        </Tooltip>
+                      ),
+                    },
+                  ]}
+                />
               ) : (
                 <Group gap="xs" wrap="nowrap" pr={4}>
                   <Box style={{ width: 1, height: 24, background: 'var(--border-strong)' }} />
-                  <Button
-                    size="xs"
-                    variant="light"
-                    color="yellow"
-                    leftSection={<IconTools size={14} />}
-                    onClick={onOpenServicePicker}
-                    px="sm"
-                    style={{
-                      height: 30,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Jobs (F4)
-                  </Button>
+                  <Tooltip label="Switch view — F4: Jobs · Ctrl+G: Goods" openDelay={400}>
+                    <Box>
+                      <SegmentedToggle
+                        size="xs"
+                        value={mode}
+                        onChange={(val) => onModeChange(val as CatalogMode)}
+                        data={[
+                          {
+                            value: 'goods',
+                            label: (
+                              <Group gap={4} wrap="nowrap">
+                                <IconShoppingCart size={14} />
+                                <span>Goods</span>
+                              </Group>
+                            ),
+                          },
+                          {
+                            value: 'jobs',
+                            label: (
+                              <Group gap={4} wrap="nowrap">
+                                <IconTools size={14} />
+                                <span>Jobs</span>
+                                {activeJobsCount > 0 && (
+                                  <Badge size="xs" variant="filled" color="blue" circle>
+                                    {activeJobsCount}
+                                  </Badge>
+                                )}
+                              </Group>
+                            ),
+                          },
+                        ]}
+                      />
+                    </Box>
+                  </Tooltip>
                 </Group>
               )
             }
@@ -483,275 +683,479 @@ export const CatalogPanel = memo(function CatalogPanel({ onOpenServicePicker }: 
         )}
       </Paper>
 
-      {/* 2. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
-      <Box style={{ position: 'relative' }}>
-        <ScrollArea
-          viewportRef={chipsViewportRef}
-          scrollbars="x"
-          type="never"
-          offsetScrollbars={false}
-          styles={{
-            viewport: {
-              paddingTop: 2,
-              paddingBottom: 2,
-            },
-          }}
-        >
-          {loadingCategories ? (
-            <Group gap={6} wrap="nowrap" py={2}>
-              <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
-              <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
-              <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
-              <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
-            </Group>
-          ) : (
-            <Group gap={6} wrap="nowrap" py={2}>
-              <Button
-                size="xs"
-                variant={selectedCategory === 'all' ? 'filled' : 'light'}
-                color="blue"
-                leftSection={<IconLayoutGrid size={15} />}
-                onClick={() => setSelectedCategory('all')}
-                radius="var(--mantine-radius-default)"
-                style={{ flexShrink: 0 }}
-              >
-                All
-              </Button>
-              {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
-                <Button
-                  key={key}
-                  size="xs"
-                  variant={selectedCategory === key ? 'filled' : 'light'}
-                  color={color}
-                  leftSection={<Icon size={15} />}
-                  onClick={() => setSelectedCategory(key)}
-                  radius="var(--mantine-radius-default)"
-                  style={{ flexShrink: 0 }}
-                >
-                  {label}
-                </Button>
-              ))}
-              <Button
-                size="xs"
-                variant={showInStockOnly ? 'filled' : 'outline'}
-                color={showInStockOnly ? 'teal' : 'gray'}
-                onClick={() => setShowInStockOnly(!showInStockOnly)}
-                radius="var(--mantine-radius-default)"
-                style={{ flexShrink: 0 }}
-              >
-                In stock only
-              </Button>
-            </Group>
-          )}
-        </ScrollArea>
+      {mode === 'goods' && (
+        <>
+          {/* 2. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
+          <Box style={{ position: 'relative' }}>
+            <ScrollArea
+              viewportRef={chipsViewportRef}
+              scrollbars="x"
+              type="never"
+              offsetScrollbars={false}
+              styles={{
+                viewport: {
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                },
+              }}
+            >
+              {loadingCategories ? (
+                <Group gap={6} wrap="nowrap" py={2}>
+                  <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
+                  <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
+                  <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
+                  <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
+                </Group>
+              ) : (
+                <Group gap={6} wrap="nowrap" py={2}>
+                  <Button
+                    size="xs"
+                    variant={selectedCategory === 'all' ? 'filled' : 'light'}
+                    color="blue"
+                    leftSection={<IconLayoutGrid size={15} />}
+                    onClick={() => setSelectedCategory('all')}
+                    radius="var(--mantine-radius-default)"
+                    style={{ flexShrink: 0 }}
+                  >
+                    All
+                  </Button>
+                  {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+                    <Button
+                      key={key}
+                      size="xs"
+                      variant={selectedCategory === key ? 'filled' : 'light'}
+                      color={color}
+                      leftSection={<Icon size={15} />}
+                      onClick={() => setSelectedCategory(key)}
+                      radius="var(--mantine-radius-default)"
+                      style={{ flexShrink: 0 }}
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                  <Button
+                    size="xs"
+                    variant={showInStockOnly ? 'filled' : 'outline'}
+                    color={showInStockOnly ? 'teal' : 'gray'}
+                    onClick={() => setShowInStockOnly(!showInStockOnly)}
+                    radius="var(--mantine-radius-default)"
+                    style={{ flexShrink: 0 }}
+                  >
+                    In stock only
+                  </Button>
+                </Group>
+              )}
+            </ScrollArea>
 
-        {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
+            {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
             never bleed into the scan bar above or the product grid below. */}
-        <Box
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            right: 0,
-            width: 24,
-            background: 'linear-gradient(to right, transparent, var(--bg-app))',
-            pointerEvents: 'none',
-            opacity: chipScrollState.canScrollRight ? 1 : 0,
-            transition: 'opacity 0.15s ease',
-          }}
-        />
-        <Box
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            width: 24,
-            background: 'linear-gradient(to left, transparent, var(--bg-app))',
-            pointerEvents: 'none',
-            opacity: chipScrollState.canScrollLeft ? 1 : 0,
-            transition: 'opacity 0.15s ease',
-          }}
-        />
-      </Box>
+            <Box
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                right: 0,
+                width: 24,
+                background: 'linear-gradient(to right, transparent, var(--bg-app))',
+                pointerEvents: 'none',
+                opacity: chipScrollState.canScrollRight ? 1 : 0,
+                transition: 'opacity 0.15s ease',
+              }}
+            />
+            <Box
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                width: 24,
+                background: 'linear-gradient(to left, transparent, var(--bg-app))',
+                pointerEvents: 'none',
+                opacity: chipScrollState.canScrollLeft ? 1 : 0,
+                transition: 'opacity 0.15s ease',
+              }}
+            />
+          </Box>
 
-      {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
+          {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
           cards in the DOM, regardless of how many products match the current filter/search. */}
-      <ScrollArea
-        viewportRef={catalogViewportRef}
-        style={{ flex: 1 }}
-        offsetScrollbars
-        styles={{ viewport: { padding: 0 } }}
-      >
-        {loadingProducts ? (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
-              gap: ROW_GAP,
-              paddingTop: 4,
-              paddingBottom: 4,
-              paddingLeft: 4,
-              paddingRight: 4,
-            }}
+          <ScrollArea
+            viewportRef={catalogViewportRef}
+            style={{ flex: 1 }}
+            offsetScrollbars
+            styles={{ viewport: { padding: 0 } }}
           >
-            {Array.from({ length: columnsPerRow * 3 }, (_, i) => (
-              <Card
-                key={`catalog-skel-${i}`}
-                p="xs"
-                withBorder
-                radius="var(--mantine-radius-default)"
-                style={{ height: CARD_HEIGHT }}
-              >
-                <Stack justify="space-between" h="100%" gap={4}>
-                  <Group justify="space-between" align="center">
-                    <Skeleton height={18} width={70} />
-                    <Skeleton height={12} width={40} />
-                  </Group>
-                  <Skeleton height={32} width="90%" />
-                  <Group justify="space-between" align="flex-end">
-                    <Skeleton height={20} width={60} />
-                    <Skeleton height={18} width={50} />
-                  </Group>
-                </Stack>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div
-            style={{
-              height: rowVirtualizer.getTotalSize() + 8,
-              position: 'relative',
-              paddingLeft: 4,
-              paddingRight: 4,
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+            {loadingProducts ? (
               <div
-                key={virtualRow.key}
                 style={{
-                  position: 'absolute',
-                  top: 4,
-                  left: 4,
-                  right: 4,
-                  transform: `translateY(${virtualRow.start}px)`,
                   display: 'grid',
                   gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
                   gap: ROW_GAP,
-                  paddingBottom: ROW_GAP,
+                  paddingTop: 4,
+                  paddingBottom: 4,
+                  paddingLeft: 4,
+                  paddingRight: 4,
                 }}
               >
-                {rows[virtualRow.index].map((p, colIndex) => {
-                  const index = virtualRow.index * columnsPerRow + colIndex;
-                  const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
-                  const isZeroStock = remainingStock <= 0;
-                  const isLowStock = remainingStock > 0 && remainingStock <= p.minStockThreshold;
-                  const isSelected = selectedIndex !== null && index === selectedIndex;
-                  const {
-                    Icon: CatIcon,
-                    color: catColor,
-                    label: catLabel,
-                  } = getCategoryIconInfo({
-                    category: getCategory(p.categoryKey),
-                    categoryLabel: p.category,
-                    iconMap,
-                  });
+                {Array.from({ length: columnsPerRow * 3 }, (_, i) => (
+                  <Card
+                    key={`catalog-skel-${i}`}
+                    p="xs"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    style={{ height: CARD_HEIGHT }}
+                  >
+                    <Stack justify="space-between" h="100%" gap={4}>
+                      <Group justify="space-between" align="center">
+                        <Skeleton height={18} width={70} />
+                        <Skeleton height={12} width={40} />
+                      </Group>
+                      <Skeleton height={32} width="90%" />
+                      <Group justify="space-between" align="flex-end">
+                        <Skeleton height={20} width={60} />
+                        <Skeleton height={18} width={50} />
+                      </Group>
+                    </Stack>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: rowVirtualizer.getTotalSize() + 8,
+                  position: 'relative',
+                  paddingLeft: 4,
+                  paddingRight: 4,
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+                  <div
+                    key={virtualRow.key}
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      left: 4,
+                      right: 4,
+                      transform: `translateY(${virtualRow.start}px)`,
+                      display: 'grid',
+                      gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
+                      gap: ROW_GAP,
+                      paddingBottom: ROW_GAP,
+                    }}
+                  >
+                    {rows[virtualRow.index].map((p, colIndex) => {
+                      const index = virtualRow.index * columnsPerRow + colIndex;
+                      const remainingStock =
+                        p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+                      const isZeroStock = remainingStock <= 0;
+                      const isLowStock =
+                        remainingStock > 0 && remainingStock <= p.minStockThreshold;
+                      const isSelected = selectedIndex !== null && index === selectedIndex;
+                      const {
+                        Icon: CatIcon,
+                        color: catColor,
+                        label: catLabel,
+                      } = getCategoryIconInfo({
+                        category: getCategory(p.categoryKey),
+                        categoryLabel: p.category,
+                        iconMap,
+                      });
+
+                      return (
+                        <Card
+                          key={p.id}
+                          p="xs"
+                          withBorder
+                          className="product-catalog-card"
+                          radius="var(--mantine-radius-default)"
+                          style={{
+                            height: CARD_HEIGHT,
+                            opacity: isZeroStock ? 0.5 : 1,
+                            filter: isZeroStock ? 'grayscale(1)' : undefined,
+                            cursor: isZeroStock ? 'not-allowed' : 'pointer',
+                            borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+                            boxShadow: isSelected
+                              ? '0 0 0 2px var(--mantine-color-blue-4)'
+                              : undefined,
+                          }}
+                          onClick={() => handleAddProduct(p)}
+                        >
+                          <Stack justify="space-between" h="100%" gap={4}>
+                            {/* Top Header Row: Category Badge with Icon + SKU */}
+                            <Group justify="space-between" align="center" wrap="nowrap" gap={4}>
+                              <Badge
+                                size="xs"
+                                color={catColor}
+                                variant="light"
+                                leftSection={<CatIcon size={13} />}
+                                style={{
+                                  textTransform: 'none',
+                                  fontWeight: 700,
+                                  fontSize: 10,
+                                  paddingLeft: 6,
+                                  paddingRight: 8,
+                                  flexShrink: 1,
+                                  minWidth: 0,
+                                }}
+                              >
+                                {catLabel}
+                              </Badge>
+
+                              <Text
+                                size="xs"
+                                c="dimmed"
+                                style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
+                              >
+                                <SearchHighlight text={p.sku} terms={searchTerms} />
+                              </Text>
+                            </Group>
+
+                            {/* Middle Row: Full width Product Name */}
+                            <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
+                              <Text
+                                size="xs"
+                                fw={700}
+                                lineClamp={2}
+                                style={{ lineHeight: 1.3, fontSize: 12 }}
+                              >
+                                <SearchHighlight text={p.name} terms={searchTerms} />
+                              </Text>
+                            </Box>
+
+                            {/* Bottom Row: Price & Stock Badge */}
+                            <Group justify="space-between" align="flex-end">
+                              <Text
+                                size="sm"
+                                fw={800}
+                                c="blue.7"
+                                style={{ fontSize: 14, fontFamily: 'monospace' }}
+                              >
+                                {formatMoney(p.sellingPriceCents)}
+                              </Text>
+
+                              {isZeroStock ? (
+                                <Badge size="xs" color="gray" variant="filled">
+                                  Out of stock
+                                </Badge>
+                              ) : isLowStock ? (
+                                <Badge size="xs" color="yellow" variant="filled">
+                                  {remainingStock} Left
+                                </Badge>
+                              ) : (
+                                <Badge size="xs" color="gray" variant="light">
+                                  {remainingStock} Left
+                                </Badge>
+                              )}
+                            </Group>
+                          </Stack>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </>
+      )}
+
+      {mode === 'jobs' && (
+        <>
+          {/* 2. Jobs Type Tabs (All jobs / Repairs / Print jobs) */}
+          <SegmentedToggle
+            size="sm"
+            fullWidth={isMobile}
+            value={jobFilterType}
+            onChange={(val) => setJobFilterType(val as 'all' | 'repair' | 'print')}
+            data={[
+              { label: 'All jobs', value: 'all' },
+              { label: 'Repairs', value: 'repair' },
+              { label: 'Print jobs', value: 'print' },
+            ]}
+          />
+
+          {/* 3. Jobs Search Bar — separate from the barcode/SKU bar above; filters by ticket #,
+              customer name, or device. */}
+          <SearchHistoryInput
+            namespace="service_jobs"
+            ref={jobSearchInputRef}
+            placeholder="Search ticket #, customer name, device…"
+            leftSection={<IconSearch size={16} />}
+            rightSection={
+              jobSearch ? (
+                <ActionIcon variant="subtle" size="sm" onClick={() => setJobSearch('')}>
+                  <IconX size={14} />
+                </ActionIcon>
+              ) : (
+                <Badge size="xs" variant="light" color="blue">
+                  {filteredJobs.length}
+                </Badge>
+              )
+            }
+            value={jobSearch}
+            onValueChange={setJobSearch}
+            styles={{ input: { fontSize: isMobile ? 16 : undefined } }}
+          />
+
+          {/* 4. Jobs List */}
+          <ScrollArea style={{ flex: 1 }} offsetScrollbars styles={{ viewport: { padding: 0 } }}>
+            <Stack gap="xs" pt={4} pb={4} px={2}>
+              {isLoadingJobs ? (
+                Array.from({ length: 4 }, (_, i) => (
+                  <Paper
+                    key={`job-skel-${i}`}
+                    p="md"
+                    radius="var(--mantine-radius-default)"
+                    withBorder
+                  >
+                    <Group justify="space-between" align="center">
+                      <Group gap="md">
+                        <Skeleton height={36} width={36} />
+                        <div>
+                          <Skeleton height={16} width={140} mb={4} />
+                          <Skeleton height={12} width={90} />
+                        </div>
+                      </Group>
+                      <Skeleton height={20} width={60} />
+                    </Group>
+                  </Paper>
+                ))
+              ) : filteredJobs.length === 0 ? (
+                <Paper
+                  p="xl"
+                  withBorder
+                  radius="var(--mantine-radius-default)"
+                  bg="var(--mantine-color-body)"
+                >
+                  <Center>
+                    <Stack gap="xs" align="center">
+                      <IconTool size={32} style={{ opacity: 0.3 }} />
+                      <Text c="dimmed" size="sm" ta="center">
+                        No active service jobs found matching your search.
+                      </Text>
+                    </Stack>
+                  </Center>
+                </Paper>
+              ) : (
+                filteredJobs.map((job) => {
+                  const iconInfo = getCategoryIconInfo({ sourceType: job.type });
+                  const JobIcon = iconInfo.Icon;
+                  const isRepair = job.type === 'repair';
+                  const jobColor = isRepair ? 'orange' : 'teal';
+
+                  const metaText = [job.description, job.customerName, job.customerPhone]
+                    .filter(Boolean)
+                    .join(' · ');
 
                   return (
-                    <Card
-                      key={p.id}
-                      p="xs"
-                      withBorder
-                      className="product-catalog-card"
+                    <Paper
+                      key={`${job.type}-${job.id}`}
+                      p="md"
                       radius="var(--mantine-radius-default)"
-                      style={{
-                        height: CARD_HEIGHT,
-                        opacity: isZeroStock ? 0.5 : 1,
-                        filter: isZeroStock ? 'grayscale(1)' : undefined,
-                        cursor: isZeroStock ? 'not-allowed' : 'pointer',
-                        borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-                        boxShadow: isSelected ? '0 0 0 2px var(--mantine-color-blue-4)' : undefined,
-                      }}
-                      onClick={() => handleAddProduct(p)}
+                      className="picker-card"
+                      onClick={() => handleBillJob(job)}
                     >
-                      <Stack justify="space-between" h="100%" gap={4}>
-                        {/* Top Header Row: Category Badge with Icon + SKU */}
-                        <Group justify="space-between" align="center" wrap="nowrap" gap={4}>
-                          <Badge
-                            size="xs"
-                            color={catColor}
+                      <Group
+                        justify="space-between"
+                        align="center"
+                        wrap={isMobile ? 'wrap' : 'nowrap'}
+                        gap="md"
+                      >
+                        {/* Left Icon & Info */}
+                        <Group
+                          gap="md"
+                          wrap="nowrap"
+                          style={{ minWidth: 0, flex: 1 }}
+                          align="flex-start"
+                        >
+                          <ThemeIcon
+                            color={jobColor}
                             variant="light"
-                            leftSection={<CatIcon size={13} />}
-                            style={{
-                              textTransform: 'none',
-                              fontWeight: 700,
-                              fontSize: 10,
-                              paddingLeft: 6,
-                              paddingRight: 8,
-                              flexShrink: 1,
-                              minWidth: 0,
+                            size="xl"
+                            radius="var(--mantine-radius-default)"
+                            style={{ flexShrink: 0, marginTop: 2 }}
+                          >
+                            <JobIcon size={22} />
+                          </ThemeIcon>
+
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <Group gap={6} align="center" wrap="wrap">
+                              <Badge
+                                size="xs"
+                                variant="filled"
+                                color="blue"
+                                radius="var(--mantine-radius-default)"
+                              >
+                                <SearchHighlight text={job.ticketNumber} terms={jobSearchTerms} />
+                              </Badge>
+                              <Badge
+                                size="xs"
+                                radius="var(--mantine-radius-default)"
+                                variant="light"
+                                color={job.status === 'ready' ? 'green' : 'blue'}
+                                fw={600}
+                                tt="capitalize"
+                              >
+                                {job.status === 'in_repair'
+                                  ? 'In repair'
+                                  : job.status.replace('_', ' ')}
+                              </Badge>
+                            </Group>
+
+                            <Text size="sm" fw={700} lineClamp={1} mt={4}>
+                              <SearchHighlight text={job.title} terms={jobSearchTerms} />
+                            </Text>
+
+                            {metaText && (
+                              <Text size="xs" c="dimmed" lineClamp={1} mt={2}>
+                                {metaText}
+                              </Text>
+                            )}
+
+                            {job.assignedEmployeeName && (
+                              <Text size="xs" c="dimmed" mt={2}>
+                                Tech: {job.assignedEmployeeName}
+                              </Text>
+                            )}
+                          </div>
+                        </Group>
+
+                        {/* Right: Cost & Bill Action */}
+                        <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
+                          <Box style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                            <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
+                              Estimated Total
+                            </Text>
+                            <Text size="sm" fw={800} c="blue" style={{ fontFamily: 'monospace' }}>
+                              {formatMoney(job.costCents)}
+                            </Text>
+                          </Box>
+
+                          <Button
+                            size="xs"
+                            variant="light"
+                            color="blue"
+                            leftSection={<IconPlus size={14} />}
+                            radius="var(--mantine-radius-default)"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBillJob(job);
                             }}
                           >
-                            {catLabel}
-                          </Badge>
-
-                          <Text
-                            size="xs"
-                            c="dimmed"
-                            style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
-                          >
-                            <SearchHighlight text={p.sku} terms={searchTerms} />
-                          </Text>
+                            Bill ticket
+                          </Button>
                         </Group>
-
-                        {/* Middle Row: Full width Product Name */}
-                        <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
-                          <Text
-                            size="xs"
-                            fw={700}
-                            lineClamp={2}
-                            style={{ lineHeight: 1.3, fontSize: 12 }}
-                          >
-                            <SearchHighlight text={p.name} terms={searchTerms} />
-                          </Text>
-                        </Box>
-
-                        {/* Bottom Row: Price & Stock Badge */}
-                        <Group justify="space-between" align="flex-end">
-                          <Text
-                            size="sm"
-                            fw={800}
-                            c="blue.7"
-                            style={{ fontSize: 14, fontFamily: 'monospace' }}
-                          >
-                            {formatMoney(p.sellingPriceCents)}
-                          </Text>
-
-                          {isZeroStock ? (
-                            <Badge size="xs" color="gray" variant="filled">
-                              Out of stock
-                            </Badge>
-                          ) : isLowStock ? (
-                            <Badge size="xs" color="yellow" variant="filled">
-                              {remainingStock} Left
-                            </Badge>
-                          ) : (
-                            <Badge size="xs" color="gray" variant="light">
-                              {remainingStock} Left
-                            </Badge>
-                          )}
-                        </Group>
-                      </Stack>
-                    </Card>
+                      </Group>
+                    </Paper>
                   );
-                })}
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+                })
+              )}
+            </Stack>
+          </ScrollArea>
+        </>
+      )}
     </Stack>
   );
 });

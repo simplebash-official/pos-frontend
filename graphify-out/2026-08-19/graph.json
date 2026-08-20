@@ -34,9 +34,7 @@
       {
         "id": "ci_build_quality_gate",
         "label": "CI Build and Quality Gate Flow",
-        "nodes": [
-          "github_workflows_deploy_pipeline"
-        ],
+        "nodes": ["github_workflows_deploy_pipeline"],
         "relation": "participate_in",
         "confidence": "INFERRED",
         "confidence_score": 0.75,
@@ -77111,9 +77109,7 @@
     {
       "id": "ci_build_quality_gate",
       "label": "CI Build and Quality Gate Flow",
-      "nodes": [
-        "github_workflows_deploy_pipeline"
-      ],
+      "nodes": ["github_workflows_deploy_pipeline"],
       "relation": "participate_in",
       "confidence": "INFERRED",
       "confidence_score": 0.75,
