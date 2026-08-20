@@ -32,6 +32,8 @@ import { SplitType } from '@/features/employees/types';
 import { RepairFormValues, fromRepairJob, toRepairInput } from '@/shared/lib/moneyFormUtils';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
+const STATUSES_REQUIRING_PRICE: JobStatus[] = ['ready', 'delivered'];
+
 interface RepairFormModalProps {
   opened: boolean;
   onClose: () => void;
@@ -64,9 +66,12 @@ export const RepairFormModal = ({
         /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
       deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
       issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
-      estimatedPriceRupees: (val) => {
-        if (val === '' || val === undefined || val === null) {
-          return 'Price is required';
+      estimatedPriceRupees: (val, values) => {
+        const isEmpty = val === '' || val === undefined || val === null;
+        if (isEmpty) {
+          return STATUSES_REQUIRING_PRICE.includes(values.status)
+            ? 'Enter the repair price before marking this ticket ready or delivered'
+            : null;
         }
         return Number(val) >= 0 ? null : 'Price must be 0 or greater';
       },
@@ -202,7 +207,6 @@ export const RepairFormModal = ({
                   placeholder="e.g. 45000"
                   min={0}
                   prefix="Rs. "
-                  required
                   {...form.getInputProps('estimatedPriceRupees')}
                 />
 
@@ -215,12 +219,22 @@ export const RepairFormModal = ({
                 />
               </Group>
 
+              <Text size="xs" c="dimmed">
+                Leave the price blank until the device is diagnosed. You can add it later.
+              </Text>
+
               <Group justify="space-between">
-                <Text size="xs" c="dimmed">
+                <Text size="sm" c="dimmed">
                   Estimated Repair Net Profit:
                 </Text>
-                <Text size="sm" fw={800} c="green">
-                  {formatMoney(profitCents)}
+                <Text
+                  size="sm"
+                  fw={800}
+                  c={form.values.estimatedPriceRupees === '' ? 'dimmed' : 'green'}
+                >
+                  {form.values.estimatedPriceRupees === ''
+                    ? 'Set a price to see profit'
+                    : formatMoney(profitCents)}
                 </Text>
               </Group>
             </Stack>
@@ -265,18 +279,18 @@ export const RepairFormModal = ({
                         data={[
                           {
                             label: (
-                              <Group gap={4} justify="center">
-                                <IconPercentage size={14} />
-                                <span>Percentage (%)</span>
+                              <Group gap={4} justify="center" wrap="nowrap">
+                                <IconPercentage size={14} style={{ flexShrink: 0 }} />
+                                <span style={{ whiteSpace: 'nowrap' }}>Percentage (%)</span>
                               </Group>
                             ),
                             value: 'percentage',
                           },
                           {
                             label: (
-                              <Group gap={4} justify="center">
-                                <IconCoin size={14} />
-                                <span>Fixed (LKR)</span>
+                              <Group gap={4} justify="center" wrap="nowrap">
+                                <IconCoin size={14} style={{ flexShrink: 0 }} />
+                                <span style={{ whiteSpace: 'nowrap' }}>Fixed (LKR)</span>
                               </Group>
                             ),
                             value: 'fixed',
@@ -317,8 +331,14 @@ export const RepairFormModal = ({
                       <Text size="xs" fw={600}>
                         Employee Commission Payout:
                       </Text>
-                      <Text fw={800} size="md" c="blue">
-                        {formatMoney(calculatedEarningsCents)}
+                      <Text
+                        fw={800}
+                        size="md"
+                        c={form.values.estimatedPriceRupees === '' ? 'dimmed' : 'blue'}
+                      >
+                        {form.values.estimatedPriceRupees === ''
+                          ? 'Set a price to see payout'
+                          : formatMoney(calculatedEarningsCents)}
                       </Text>
                     </Group>
                   </Paper>

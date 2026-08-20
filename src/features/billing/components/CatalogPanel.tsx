@@ -81,7 +81,7 @@ export interface CombinedServiceJob {
   customerName: string;
   customerPhone?: string;
   status: string;
-  costCents: number;
+  costCents?: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
 }
@@ -266,6 +266,16 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   );
 
   const handleBillJob = (job: CombinedServiceJob) => {
+    if (job.costCents === undefined) {
+      playErrorSound(soundEnabled);
+      notifications.show({
+        title: 'Not priced yet',
+        message: `"${job.title}" hasn't been priced yet. Add a price before billing it.`,
+        color: 'red',
+      });
+      return;
+    }
+
     const uniqueId = generateServiceJobId(job.type, job.id);
     add({
       id: uniqueId,
@@ -408,6 +418,16 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     if (term.startsWith('rep-') || term.startsWith('rep')) {
       const matchRep = repairs.find((r) => r.ticketNumber.toLowerCase() === term);
       if (matchRep) {
+        if (matchRep.estimatedCostCents === undefined) {
+          playErrorSound(soundEnabled);
+          notifications.show({
+            title: 'Not priced yet',
+            message: `Ticket ${matchRep.ticketNumber} hasn't been priced yet. Add a price before billing it.`,
+            color: 'red',
+          });
+          setScanQuery('');
+          return;
+        }
         add({
           id: `svc-repair-${matchRep.id}-${Date.now()}`,
           productId: matchRep.id,
@@ -1218,9 +1238,15 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
                               Estimated Total
                             </Text>
-                            <Text size="sm" fw={800} c="blue" style={{ fontFamily: 'monospace' }}>
-                              {formatMoney(job.costCents)}
-                            </Text>
+                            {job.costCents !== undefined ? (
+                              <Text size="sm" fw={800} c="blue" style={{ fontFamily: 'monospace' }}>
+                                {formatMoney(job.costCents)}
+                              </Text>
+                            ) : (
+                              <Text size="xs" c="dimmed" fs="italic">
+                                Pending diagnosis
+                              </Text>
+                            )}
                           </Box>
 
                           <Button
@@ -1229,6 +1255,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             color="blue"
                             leftSection={<IconPlus size={14} />}
                             radius="var(--mantine-radius-default)"
+                            disabled={job.costCents === undefined}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleBillJob(job);

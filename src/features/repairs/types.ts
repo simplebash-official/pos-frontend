@@ -11,7 +11,7 @@ export interface RepairJob {
   serialNumber?: string;
   issueDescription: string;
   status: JobStatus;
-  estimatedCostCents: number; // Customer total price
+  estimatedCostCents?: number; // Customer total price — unset until diagnosis/quote
   materialCostCents?: number; // Cost of repair parts/materials
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
@@ -28,6 +28,6 @@ export interface RepairJobInput {
   serialNumber?: string;
   issueDescription: string;
   status: JobStatus;
-  estimatedCostCents: number;
+  estimatedCostCents?: number;
   materialCostCents?: number;
 }

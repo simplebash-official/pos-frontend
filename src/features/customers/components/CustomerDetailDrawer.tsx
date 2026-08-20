@@ -403,9 +403,21 @@ export const CustomerDetailDrawer = ({
                               {formatDateTime(rep.createdAt)}
                             </Text>
                           </div>
-                          <Text size="sm" fw={700} ta="right" style={{ flexShrink: 0 }}>
-                            {formatMoney(rep.estimatedCostCents)}
-                          </Text>
+                          {rep.estimatedCostCents !== undefined ? (
+                            <Text size="sm" fw={700} ta="right" style={{ flexShrink: 0 }}>
+                              {formatMoney(rep.estimatedCostCents)}
+                            </Text>
+                          ) : (
+                            <Text
+                              size="xs"
+                              c="dimmed"
+                              fs="italic"
+                              ta="right"
+                              style={{ flexShrink: 0 }}
+                            >
+                              Pending diagnosis
+                            </Text>
+                          )}
                         </Group>
                       </Paper>
                     ))}

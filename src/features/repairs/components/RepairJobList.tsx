@@ -170,7 +170,14 @@ export const RepairJobList = () => {
       header: 'Total Price',
       align: 'left',
       sortable: true,
-      render: (job) => formatMoney(job.estimatedCostCents),
+      render: (job) =>
+        job.estimatedCostCents !== undefined ? (
+          formatMoney(job.estimatedCostCents)
+        ) : (
+          <Text size="xs" c="dimmed" fs="italic">
+            Pending diagnosis
+          </Text>
+        ),
     },
     {
       key: 'createdAt',

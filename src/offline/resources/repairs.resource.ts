@@ -37,7 +37,12 @@ export interface DeleteRepairsPayload {
  * delete.
  */
 const creditCommission = async (job: RepairJob): Promise<void> => {
-  if (!job.assignedEmployeeId || !job.assignedEmployeeName || !job.employeeEarningsCents) {
+  if (
+    job.estimatedCostCents === undefined ||
+    !job.assignedEmployeeId ||
+    !job.assignedEmployeeName ||
+    !job.employeeEarningsCents
+  ) {
     return;
   }
   const profit = Math.max(0, job.estimatedCostCents - (job.materialCostCents || 0));
@@ -60,7 +65,7 @@ const creditCommission = async (job: RepairJob): Promise<void> => {
 };
 
 const updateCommission = async (job: RepairJob): Promise<void> => {
-  if (job.assignedEmployeeId && job.assignedEmployeeName) {
+  if (job.estimatedCostCents !== undefined && job.assignedEmployeeId && job.assignedEmployeeName) {
     const profit = Math.max(0, job.estimatedCostCents - (job.materialCostCents || 0));
     await updateEarningRecordForWork(job.id, 'repair', {
       employeeId: job.assignedEmployeeId,
