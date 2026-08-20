@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { Button, Badge, Group, Text, Stack, Paper } from '@mantine/core';
+import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
   IconPlus,
   IconCheck,
@@ -22,17 +22,46 @@ import {
 } from '../hooks/usePrintJobs';
 import { usePrintJobStats } from '../hooks/usePrintJobStats';
 import { fetchPrintJobs } from '../api/printJobsApi';
-import { JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
+import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
-import { useBackendSearch } from '@/shared/hooks/useBackendSearch';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRINT_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
 import { PrintJobFormModal } from './PrintJobFormModal';
+
+interface PrintJobFilters {
+  search: string;
+  /** 'all' or a JOB_STATUS value. */
+  status: string;
+  /** 'all' | 'today' */
+  datePreset: string;
+}
+
+const isPrintJobFilterActive = (f: PrintJobFilters) =>
+  f.search.trim() !== '' || f.status !== 'all' || f.datePreset !== 'all';
+
+const applyLocalPrintJobFilters = (items: PrintJob[], f: PrintJobFilters) =>
+  items.filter((job) => {
+    if (f.status !== 'all' && job.status !== f.status) return false;
+    if (f.datePreset === 'today') {
+      const jobDate = new Date(job.createdAt);
+      const now = new Date();
+      if (
+        jobDate.getDate() !== now.getDate() ||
+        jobDate.getMonth() !== now.getMonth() ||
+        jobDate.getFullYear() !== now.getFullYear()
+      ) {
+        return false;
+      }
+    }
+    return true;
+  });
 
 export const PrintJobList = () => {
   const dispatch = useAppDispatch();
@@ -40,22 +69,33 @@ export const PrintJobList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [datePreset, setDatePreset] = useState('all');
 
   const { data: printJobs, isLoading } = useAllPrintJobs();
   const { data: stats, isLoading: statsLoading, staleAsOf } = usePrintJobStats();
 
-  // Search hits the backend while online, falls back to a local fuzzy
-  // search over the Dexie mirror while offline — see `useBackendSearch`.
+  const filters: PrintJobFilters = { search: searchQuery, status: statusFilter, datePreset };
+
+  // All filters hit the backend while online, fall back to a local pass
+  // over the Dexie mirror while offline — see `useBackendFilteredList`.
   const {
     results: filteredPrintJobs,
     isSearching,
     isOffline: searchIsOffline,
-  } = useBackendSearch(
+  } = useBackendFilteredList(
     printJobs,
     PRINT_JOB_SEARCH_FIELDS,
-    searchQuery,
-    fetchPrintJobs,
-    queryKeys.printJobs.list({ search: searchQuery.trim() })
+    filters,
+    isPrintJobFilterActive,
+    applyLocalPrintJobFilters,
+    (f) =>
+      fetchPrintJobs({
+        search: f.search.trim() || undefined,
+        status: f.status === 'all' ? undefined : f.status,
+        datePreset: f.datePreset === 'all' ? undefined : 'today',
+      }),
+    queryKeys.printJobs.list({ ...filters, search: filters.search.trim() })
   );
 
   const createMutation = useCreatePrintJob();
@@ -270,15 +310,43 @@ export const PrintJobList = () => {
       />
 
       <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-        <SearchHistoryInput
-          namespace="printJobs"
-          placeholder="Search ticket #, customer name, phone, job type"
-          leftSection={<IconSearch size={16} />}
-          value={searchQuery}
-          onValueChange={setSearchQuery}
-          wrapperStyle={{ maxWidth: 420 }}
-          size="sm"
-        />
+        <Group justify="space-between" wrap="wrap">
+          <SearchHistoryInput
+            namespace="printJobs"
+            placeholder="Search ticket #, customer name, phone, job type"
+            leftSection={<IconSearch size={16} />}
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+            wrapperStyle={{ flex: 1, minWidth: 260 }}
+            size="sm"
+          />
+
+          <Group gap="xs" wrap="wrap">
+            <Select
+              size="xs"
+              value={statusFilter}
+              onChange={(v) => setStatusFilter(v || 'all')}
+              data={[
+                { label: 'All Status', value: 'all' },
+                ...Object.values(JOB_STATUS).map((s) => ({
+                  label: JOB_STATUS_LABELS[s],
+                  value: s,
+                })),
+              ]}
+              style={{ width: 160 }}
+            />
+
+            <SegmentedToggle
+              size="xs"
+              value={datePreset}
+              onChange={setDatePreset}
+              data={[
+                { label: 'All Time', value: 'all' },
+                { label: 'Today', value: 'today' },
+              ]}
+            />
+          </Group>
+        </Group>
         {searchQuery.trim() !== '' && (searchIsOffline || isSearching) && (
           <Text size="xs" c="dimmed" mt="xs">
             {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}

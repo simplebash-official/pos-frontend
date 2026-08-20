@@ -84,17 +84,26 @@ const toRepairJob = (repair: BackendRepair): RepairJob => ({
 export interface FetchRepairsParams {
   /** Free-text match against ticket number / customer name / phone / device model. */
   search?: string;
+  /** Exact status match: received | diagnosing | in_repair | ready | delivered | cancelled. */
+  status?: string;
+  /** Only `"today"` is meaningful; omit for all time. */
+  datePreset?: 'today';
 }
 
 // `limit: 200` (the backend's max) rather than paginating — the mock this
 // replaces always returned every ticket, and no repairs list screen has
-// pagination UI today. `search` is only passed by `useBackendSearch`
-// (`RepairJobList.tsx`) — the sync engine's `pull.full`
-// (`repairs.resource.ts`) and `CatalogPanel.tsx` always call this with no
-// params, so a search never scopes what gets mirrored offline.
+// pagination UI today. These params are only passed by
+// `useBackendFilteredList` (`RepairJobList.tsx`) — the sync engine's
+// `pull.full` (`repairs.resource.ts`) and `CatalogPanel.tsx` always call
+// this with no params, so a filter never scopes what gets mirrored offline.
 export const fetchRepairs = async (params?: FetchRepairsParams): Promise<RepairJob[]> => {
   const response = await apiClient.get<ApiResponse<RepairListResponseData>>('/repairs', {
-    params: { limit: 200, search: params?.search },
+    params: {
+      limit: 200,
+      search: params?.search,
+      status: params?.status,
+      datePreset: params?.datePreset,
+    },
   });
   return response.data.repairs.map(toRepairJob);
 };

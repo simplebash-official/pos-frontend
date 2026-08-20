@@ -385,10 +385,10 @@
     "word_count": 100
   },
   "src/features/billing/api/invoicesApi.ts": {
-    "size": 7788,
-    "mtime_ns": 1787150988093696885,
-    "indexed_at_ns": 1787152702601006000,
-    "word_count": 729
+    "size": 8205,
+    "mtime_ns": 1787231672098330883,
+    "indexed_at_ns": 1787238790276570000,
+    "word_count": 783
   },
   "src/features/billing/api/paymentsApi.ts": {
     "size": 1862,
@@ -433,10 +433,10 @@
     "word_count": 1173
   },
   "src/features/billing/components/CatalogPanel.tsx": {
-    "size": 48916,
-    "mtime_ns": 1787218961304693662,
-    "indexed_at_ns": 1787219057537872000,
-    "word_count": 3762
+    "size": 48932,
+    "mtime_ns": 1787232087530734321,
+    "indexed_at_ns": 1787238790280942000,
+    "word_count": 3766
   },
   "src/features/billing/components/DiscountPopover.tsx": {
     "size": 3398,
@@ -535,10 +535,10 @@
     "word_count": 294
   },
   "src/features/customers/components/CustomerDetailDrawer.tsx": {
-    "size": 17778,
-    "mtime_ns": 1787218990040471585,
-    "indexed_at_ns": 1787219057546922000,
-    "word_count": 1192
+    "size": 17794,
+    "mtime_ns": 1787232056091248867,
+    "indexed_at_ns": 1787238790291227000,
+    "word_count": 1196
   },
   "src/features/customers/components/CustomerFormModal.tsx": {
     "size": 12952,
@@ -709,10 +709,10 @@
     "word_count": 1137
   },
   "src/features/invoices/components/InvoicesList.tsx": {
-    "size": 10500,
-    "mtime_ns": 1787227515421066086,
-    "indexed_at_ns": 1787229326318812000,
-    "word_count": 918
+    "size": 11244,
+    "mtime_ns": 1787231821593771932,
+    "indexed_at_ns": 1787238790304769000,
+    "word_count": 994
   },
   "src/features/invoices/index.ts": {
     "size": 155,
@@ -757,10 +757,10 @@
     "word_count": 89
   },
   "src/features/print-jobs/api/printJobsApi.ts": {
-    "size": 4205,
-    "mtime_ns": 1787149973786007914,
-    "indexed_at_ns": 1787152702630494000,
-    "word_count": 436
+    "size": 4651,
+    "mtime_ns": 1787231717906978855,
+    "indexed_at_ns": 1787238790308199000,
+    "word_count": 495
   },
   "src/features/print-jobs/components/PrintJobFormModal.tsx": {
     "size": 11794,
@@ -769,10 +769,10 @@
     "word_count": 898
   },
   "src/features/print-jobs/components/PrintJobList.tsx": {
-    "size": 8063,
-    "mtime_ns": 1787227515517928040,
-    "indexed_at_ns": 1787229326323957000,
-    "word_count": 694
+    "size": 9536,
+    "mtime_ns": 1787231917284105571,
+    "indexed_at_ns": 1787238790309967000,
+    "word_count": 829
   },
   "src/features/print-jobs/index.ts": {
     "size": 83,
@@ -817,10 +817,10 @@
     "word_count": 131
   },
   "src/features/repairs/api/repairsApi.ts": {
-    "size": 4956,
-    "mtime_ns": 1787206962042229691,
-    "indexed_at_ns": 1787207316399036000,
-    "word_count": 534
+    "size": 5398,
+    "mtime_ns": 1787231698313303514,
+    "indexed_at_ns": 1787238790315013000,
+    "word_count": 592
   },
   "src/features/repairs/components/RepairFormModal.tsx": {
     "size": 12675,
@@ -829,10 +829,10 @@
     "word_count": 967
   },
   "src/features/repairs/components/RepairJobList.tsx": {
-    "size": 8228,
-    "mtime_ns": 1787227515569389550,
-    "indexed_at_ns": 1787229326329587000,
-    "word_count": 710
+    "size": 9693,
+    "mtime_ns": 1787231873342783720,
+    "indexed_at_ns": 1787238790316458000,
+    "word_count": 844
   },
   "src/features/repairs/index.ts": {
     "size": 85,
@@ -1435,10 +1435,10 @@
     "word_count": 235
   },
   "src/shared/components/GlobalQuickSearchModal.tsx": {
-    "size": 8714,
-    "mtime_ns": 1787207202046615630,
-    "indexed_at_ns": 1787207316445216000,
-    "word_count": 823
+    "size": 8730,
+    "mtime_ns": 1787232017673659544,
+    "indexed_at_ns": 1787238790370067000,
+    "word_count": 827
   },
   "src/shared/components/InteractiveTooltip.tsx": {
     "size": 6658,
@@ -2024,5 +2024,11 @@
     "mtime_ns": 1787226503039262384,
     "indexed_at_ns": 1787229326381646000,
     "word_count": 242
+  },
+  "src/shared/hooks/useBackendSearch.ts": {
+    "size": 2238,
+    "mtime_ns": 1787231648313730842,
+    "indexed_at_ns": 1787238790376633000,
+    "word_count": 287
   }
 }
