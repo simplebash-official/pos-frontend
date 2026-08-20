@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import {
-  Box,
   Paper,
   Stack,
   Group,
@@ -225,8 +224,8 @@ export const InvoicesList = () => {
   );
 
   return (
-    <Box p="md" style={{ width: '100%', minHeight: '100vh', backgroundColor: 'var(--bg-app)' }}>
-      <Stack gap="md">
+    <>
+      <Stack gap="lg">
         {/* Page Header */}
         <PageHeader
           title="Sales & Invoices History"
@@ -407,6 +406,6 @@ export const InvoicesList = () => {
         onClose={() => setDrawerOpened(false)}
         invoice={selectedInvoice}
       />
-    </Box>
+    </>
   );
 };
