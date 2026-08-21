@@ -37,8 +37,14 @@ export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncR
     const record = meta.get(resource.id);
     const watermark = status.resources[resource.id];
 
-    // Anything that has never completed a pull always pulls.
-    if (!record || record.cursor === null || record.lastPulledAt === null) {
+    // Anything that has never completed a pull, or is currently in error,
+    // always pulls so it can establish a baseline or clear the error state.
+    if (
+      !record ||
+      record.cursor === null ||
+      record.lastPulledAt === null ||
+      record.pullState === 'error'
+    ) {
       continue;
     }
     // The server reports nothing for this resource: it has no rows, so there
