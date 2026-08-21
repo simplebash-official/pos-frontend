@@ -9,6 +9,8 @@ import {
   createRepairJobRaw,
   deleteRepairsRaw,
   fetchRepairs,
+  toRepairJob,
+  type BackendRepair,
   updateRepairJobRaw,
 } from '@/features/repairs/api/repairsApi';
 import type { RepairJob, RepairJobInput } from '@/features/repairs/types';
@@ -104,7 +106,13 @@ export const repairsResource = defineSyncResource<RepairJob>({
   dependsOn: [],
 
   pull: {
-    delta: (cursor, ctx) => fetchResourceDelta<RepairJob>('repairs', cursor, ctx.signal),
+    delta: async (cursor, ctx) => {
+      const page = await fetchResourceDelta<BackendRepair>('repairs', cursor, ctx.signal);
+      return {
+        ...page,
+        items: page.items.map(toRepairJob),
+      };
+    },
     full: () => fetchRepairs(),
     intervalMs: 60_000,
   },

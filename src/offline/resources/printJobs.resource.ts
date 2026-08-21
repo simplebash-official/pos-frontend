@@ -9,6 +9,8 @@ import {
   createPrintJobRaw,
   deletePrintJobsRaw,
   fetchPrintJobs,
+  toPrintJob,
+  type BackendPrintJob,
   updatePrintJobRaw,
 } from '@/features/print-jobs/api/printJobsApi';
 import type { PrintJob, PrintJobInput } from '@/features/print-jobs/types';
@@ -90,7 +92,13 @@ export const printJobsResource = defineSyncResource<PrintJob>({
   dependsOn: [],
 
   pull: {
-    delta: (cursor, ctx) => fetchResourceDelta<PrintJob>('printJobs', cursor, ctx.signal),
+    delta: async (cursor, ctx) => {
+      const page = await fetchResourceDelta<BackendPrintJob>('printJobs', cursor, ctx.signal);
+      return {
+        ...page,
+        items: page.items.map(toPrintJob),
+      };
+    },
     full: () => fetchPrintJobs(),
     intervalMs: 60_000,
   },

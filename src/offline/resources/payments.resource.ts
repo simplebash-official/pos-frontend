@@ -1,6 +1,8 @@
 import { queryKeys } from '@/api/queryKeys';
 import {
   recordPayment,
+  toPaymentRecord,
+  type BackendPaymentRecord,
   type PaymentRecord,
   type RecordPaymentInput,
 } from '@/features/billing/api/paymentsApi';
@@ -32,8 +34,17 @@ export const paymentsResource = defineSyncResource<PaymentRecord>({
   dependsOn: ['invoices'],
 
   pull: {
-    delta: (cursor, ctx) => fetchResourceDelta<PaymentRecord>('payments', cursor, ctx.signal),
-    full: (ctx) => fetchResourceSnapshot<PaymentRecord>('payments', ctx.signal),
+    delta: async (cursor, ctx) => {
+      const page = await fetchResourceDelta<BackendPaymentRecord>('payments', cursor, ctx.signal);
+      return {
+        ...page,
+        items: page.items.map(toPaymentRecord),
+      };
+    },
+    full: async (ctx) => {
+      const snapshot = await fetchResourceSnapshot<BackendPaymentRecord>('payments', ctx.signal);
+      return snapshot.map(toPaymentRecord);
+    },
     intervalMs: 60_000,
   },
 

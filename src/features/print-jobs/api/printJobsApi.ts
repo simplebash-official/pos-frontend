@@ -22,7 +22,7 @@ export const calculatePrintEarnings = (input: {
 
 // Mirrors `repairsApi.ts`'s `BackendRepair` — see that file's comment for
 // why there's no `employeeEarningsCents` here either.
-interface BackendPrintJob {
+export interface BackendPrintJob {
   id: string;
   key: string;
   ticketNumber: string;
@@ -50,7 +50,7 @@ interface PrintJobListResponseData {
 }
 
 // `id` set to the backend's prefixed `key` — see `repairsApi.ts::toRepairJob`.
-const toPrintJob = (job: BackendPrintJob): PrintJob => ({
+export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   id: job.key,
   ticketNumber: job.ticketNumber,
   customerName: job.customerName,

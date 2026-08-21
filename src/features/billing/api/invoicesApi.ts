@@ -90,7 +90,7 @@ interface BackendSplitPayment {
   reference?: string;
 }
 
-interface BackendInvoice {
+export interface BackendInvoice {
   id: string;
   key: string;
   invoiceNumber: string;
@@ -123,7 +123,7 @@ interface BackendInvoice {
   createdAt: string;
 }
 
-interface BackendPaymentRecord {
+export interface BackendPaymentRecord {
   id: string;
   key: string;
   invoiceKey: string;
@@ -149,7 +149,7 @@ interface InvoiceListResponseData {
   totalPages: number;
 }
 
-const toInvoiceItem = (item: BackendInvoiceItem, index: number): InvoiceItem => ({
+export const toInvoiceItem = (item: BackendInvoiceItem, index: number): InvoiceItem => ({
   id: item.sourceTicketKey || item.productKey || `line-${index}`,
   productId: item.sourceTicketKey || item.productKey || '',
   name: item.name,
@@ -163,7 +163,7 @@ const toInvoiceItem = (item: BackendInvoiceItem, index: number): InvoiceItem => 
   assignedEmployeeName: item.assignedEmployeeName,
 });
 
-const toSplitPayment = (sp: BackendSplitPayment, index: number): SplitPaymentDetail => ({
+export const toSplitPayment = (sp: BackendSplitPayment, index: number): SplitPaymentDetail => ({
   id: `split-${index}`,
   method: sp.method,
   amountCents: sp.amountCents,
@@ -171,7 +171,7 @@ const toSplitPayment = (sp: BackendSplitPayment, index: number): SplitPaymentDet
   reference: sp.reference,
 });
 
-const toInvoice = (inv: BackendInvoice): Invoice => ({
+export const toInvoice = (inv: BackendInvoice): Invoice => ({
   id: inv.key,
   invoiceNumber: inv.invoiceNumber,
   customerId: inv.customerKey,

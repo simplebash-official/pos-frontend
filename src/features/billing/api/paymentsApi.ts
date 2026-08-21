@@ -14,7 +14,7 @@ export interface PaymentRecord {
   recordedAt: string;
 }
 
-interface BackendPaymentRecord {
+export interface BackendPaymentRecord {
   id: string;
   key: string;
   invoiceKey: string;
@@ -26,7 +26,7 @@ interface BackendPaymentRecord {
   recordedAt: string;
 }
 
-const toPaymentRecord = (payment: BackendPaymentRecord): PaymentRecord => ({
+export const toPaymentRecord = (payment: BackendPaymentRecord): PaymentRecord => ({
   id: payment.key,
   invoiceId: payment.invoiceKey,
   amountCents: payment.amountCents,

@@ -48,7 +48,7 @@ interface BackendReturnItem {
   reason: string;
 }
 
-interface BackendReturnRecord {
+export interface BackendReturnRecord {
   id: string;
   key?: string;
   originalInvoiceId?: string;
@@ -80,7 +80,7 @@ interface ReturnListResponseData {
   total: number;
 }
 
-const toReturnRecord = (record: BackendReturnRecord): ReturnRecord => {
+export const toReturnRecord = (record: BackendReturnRecord): ReturnRecord => {
   const rawItems = record.returnedItems || record.items || [];
   return {
     id: record.key || record.id,
