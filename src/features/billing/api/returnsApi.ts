@@ -33,32 +33,44 @@ export interface ProcessReturnInput {
 }
 
 interface BackendReturnItem {
-  id: string;
-  productId: string;
+  id?: string;
+  productId?: string;
   productKey?: string;
   name: string;
   sku?: string;
   quantity: number;
   unitPriceCents: number;
-  discountCents: number;
-  refundAmountCents: number;
-  restockInventory: boolean;
+  discountCents?: number;
+  refundAmountCents?: number;
+  totalCents?: number;
+  restockAction?: string;
+  restockInventory?: boolean;
   reason: string;
 }
 
 interface BackendReturnRecord {
   id: string;
   key?: string;
-  originalInvoiceId: string;
-  originalInvoiceNumber: string;
+  originalInvoiceId?: string;
+  invoiceKey?: string;
+  originalInvoiceNumber?: string;
+  invoiceNumber?: string;
   customerId?: string;
+  customerKey?: string;
   customerName?: string;
+  customerNameSnapshot?: string;
   customerPhone?: string;
+  customerPhoneSnapshot?: string;
   cashierId?: string;
   cashierName?: string;
-  items: BackendReturnItem[];
-  totalRefundCents: number;
-  payoutMethod: ReturnPayoutMethod;
+  cashierNameSnapshot?: string;
+  items?: BackendReturnItem[];
+  returnedItems?: BackendReturnItem[];
+  totalRefundCents?: number;
+  netRefundCents?: number;
+  returnSubtotalCents?: number;
+  payoutMethod?: ReturnPayoutMethod;
+  paymentMethod?: string;
   notes?: string;
   createdAt: string;
 }
@@ -68,33 +80,39 @@ interface ReturnListResponseData {
   total: number;
 }
 
-const toReturnRecord = (record: BackendReturnRecord): ReturnRecord => ({
-  id: record.key || record.id,
-  originalInvoiceId: record.originalInvoiceId,
-  originalInvoiceNumber: record.originalInvoiceNumber,
-  customerId: record.customerId,
-  customerName: record.customerName,
-  customerPhone: record.customerPhone,
-  cashierId: record.cashierId,
-  cashierName: record.cashierName,
-  items: record.items.map((item) => ({
-    id: item.id,
-    productId: item.productId,
-    productKey: item.productKey,
-    name: item.name,
-    sku: item.sku,
-    quantity: item.quantity,
-    unitPriceCents: item.unitPriceCents,
-    discountCents: item.discountCents,
-    refundAmountCents: item.refundAmountCents,
-    restockInventory: item.restockInventory,
-    reason: item.reason,
-  })),
-  totalRefundCents: record.totalRefundCents,
-  payoutMethod: record.payoutMethod,
-  notes: record.notes,
-  createdAt: record.createdAt,
-});
+const toReturnRecord = (record: BackendReturnRecord): ReturnRecord => {
+  const rawItems = record.returnedItems || record.items || [];
+  return {
+    id: record.key || record.id,
+    originalInvoiceId: record.invoiceKey || record.originalInvoiceId || '',
+    originalInvoiceNumber: record.invoiceNumber || record.originalInvoiceNumber || '',
+    customerId: record.customerKey || record.customerId,
+    customerName: record.customerNameSnapshot || record.customerName,
+    customerPhone: record.customerPhoneSnapshot || record.customerPhone,
+    cashierId: record.cashierId,
+    cashierName: record.cashierNameSnapshot || record.cashierName,
+    items: rawItems.map((item: BackendReturnItem, idx: number) => ({
+      id: item.id || `item-${idx}`,
+      productId: item.productKey || item.productId || '',
+      productKey: item.productKey,
+      name: item.name,
+      sku: item.sku,
+      quantity: item.quantity,
+      unitPriceCents: item.unitPriceCents,
+      discountCents: item.discountCents || 0,
+      refundAmountCents:
+        item.totalCents ?? item.refundAmountCents ?? item.unitPriceCents * item.quantity,
+      restockInventory:
+        item.restockAction === 'restock_to_inventory' || item.restockInventory !== false,
+      reason: item.reason,
+    })),
+    totalRefundCents:
+      record.netRefundCents ?? record.totalRefundCents ?? record.returnSubtotalCents ?? 0,
+    payoutMethod: (record.paymentMethod as ReturnPayoutMethod) || record.payoutMethod || 'cash',
+    notes: record.notes,
+    createdAt: record.createdAt || new Date().toISOString(),
+  };
+};
 
 export interface FetchReturnsParams {
   invoiceKey?: string;
@@ -105,9 +123,26 @@ export const processReturn = async (
   input: ProcessReturnInput,
   options?: MutationRequestOptions
 ): Promise<ReturnRecord> => {
+  const payload = {
+    invoiceKey: input.originalInvoiceId,
+    returnedItems: input.items.map((item) => ({
+      productKey: item.productKey || item.productId,
+      name: item.name,
+      sku: item.sku,
+      quantity: item.quantity,
+      unitPriceCents: item.unitPriceCents,
+      reason: item.reason,
+      restockAction: item.restockInventory ? 'restock_to_inventory' : 'damaged_discard',
+      restockInventory: item.restockInventory,
+    })),
+    paymentMethod: input.payoutMethod,
+    refundAmountCents: input.totalRefundCents,
+    notes: input.notes,
+  };
+
   const response = await apiClient.post<ApiResponse<BackendReturnRecord>>(
     '/billing/returns',
-    input,
+    payload,
     options
   );
   return toReturnRecord(response.data);
