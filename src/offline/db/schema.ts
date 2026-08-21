@@ -19,6 +19,7 @@ import type {
   StatsCacheRow,
   StockLedgerEntry,
   SyncMetaRecord,
+  ReturnRecord,
 } from './tables';
 
 /**
@@ -45,6 +46,7 @@ export class OfflineDb extends Dexie {
   payments!: Table<MirroredRow<PaymentRecord>, string>;
   repairs!: Table<MirroredRow<RepairJob>, string>;
   printJobs!: Table<MirroredRow<PrintJob>, string>;
+  returns!: Table<MirroredRow<ReturnRecord>, string>;
 
   // Engine tables
   outbox!: Table<OutboxOp, number>;
@@ -119,6 +121,12 @@ export class OfflineDb extends Dexie {
     this.version(5).stores({
       statsCache: 'module',
     });
+
+    // v6 adds the returns mirror table.
+    this.version(6).stores({
+      returns:
+        'id, originalInvoiceId, originalInvoiceNumber, customerId, payoutMethod, createdAt, _pending, _isDeleted',
+    });
   }
 }
 
@@ -137,6 +145,7 @@ export const MIRROR_TABLE_NAMES = [
   'payments',
   'repairs',
   'printJobs',
+  'returns',
 ] as const;
 
 export type MirrorTableName = (typeof MIRROR_TABLE_NAMES)[number];

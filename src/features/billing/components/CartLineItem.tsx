@@ -50,14 +50,18 @@ export const CartLineItem = memo(function CartLineItem({
     typeof item.stockQuantity === 'number' &&
     item.quantity > item.stockQuantity;
 
+  const isReturn = Boolean(item.isReturn);
+
   // Stripe color assignment
-  const stripeColor = isStockNegative
-    ? 'var(--mantine-color-red-6)'
-    : sourceType === 'repair'
-      ? 'var(--mantine-color-orange-6)'
-      : sourceType === 'print'
-        ? 'var(--mantine-color-teal-6)'
-        : `var(--mantine-color-${catColor}-6)`;
+  const stripeColor = isReturn
+    ? 'var(--mantine-color-orange-6)'
+    : isStockNegative
+      ? 'var(--mantine-color-red-6)'
+      : sourceType === 'repair'
+        ? 'var(--mantine-color-orange-6)'
+        : sourceType === 'print'
+          ? 'var(--mantine-color-teal-6)'
+          : `var(--mantine-color-${catColor}-6)`;
 
   return (
     <Paper
@@ -103,7 +107,22 @@ export const CartLineItem = memo(function CartLineItem({
                   style={{ flexShrink: 0 }}
                 />
               )}
-              {sourceType === 'repair' && (
+              {isReturn && (
+                <Badge size="xs" color="orange" variant="light" style={{ flexShrink: 0 }}>
+                  RETURN
+                </Badge>
+              )}
+              {isReturn && item.restockInventory !== undefined && (
+                <Badge
+                  size="xs"
+                  variant="outline"
+                  color={item.restockInventory ? 'blue' : 'red'}
+                  style={{ flexShrink: 0 }}
+                >
+                  {item.restockInventory ? 'Restock' : 'Damaged'}
+                </Badge>
+              )}
+              {sourceType === 'repair' && !isReturn && (
                 <Badge
                   size="xs"
                   color="orange"
@@ -114,7 +133,7 @@ export const CartLineItem = memo(function CartLineItem({
                   Repair
                 </Badge>
               )}
-              {sourceType === 'print' && (
+              {sourceType === 'print' && !isReturn && (
                 <Badge
                   size="xs"
                   color="teal"
@@ -137,12 +156,17 @@ export const CartLineItem = memo(function CartLineItem({
                   {item.sku}
                 </Text>
               )}
-              {isStockNegative && (
+              {isReturn && item.originalInvoiceNumber && (
+                <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
+                  {item.sku ? ' · ' : ''}From #{item.originalInvoiceNumber}
+                </Text>
+              )}
+              {isStockNegative && !isReturn && (
                 <Text size="xs" c="red.6" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
                   {item.sku ? ' · ' : ''}Out of Stock
                 </Text>
               )}
-              {item.assignedEmployeeName && (
+              {item.assignedEmployeeName && !isReturn && (
                 <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10, flexShrink: 0 }}>
                   · Tech: {item.assignedEmployeeName}
                 </Text>
@@ -154,30 +178,32 @@ export const CartLineItem = memo(function CartLineItem({
         {/* Top Right: Discount Column Button & Delete Column Button */}
         <Group gap={0} align="stretch" style={{ flexShrink: 0 }}>
           {/* Discount Column */}
-          <DiscountPopover
-            opened={discountOpen}
-            onClose={() => setDiscountOpen(false)}
-            targetName={item.name}
-            originalCents={originalLineTotal}
-            currentDiscountCents={item.discountCents}
-            onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
-          >
-            <Tooltip label={isMobile ? 'Line discount' : 'Line Discount (D)'} position="top">
-              <ActionIcon
-                variant="light"
-                color={hasLineDiscount ? 'red' : 'blue'}
-                radius={0}
-                onClick={() => setDiscountOpen(true)}
-                style={{
-                  width: railWidth,
-                  height: '100%',
-                  borderLeft: '1px solid var(--border)',
-                }}
-              >
-                <IconTag size={16} />
-              </ActionIcon>
-            </Tooltip>
-          </DiscountPopover>
+          {!isReturn && (
+            <DiscountPopover
+              opened={discountOpen}
+              onClose={() => setDiscountOpen(false)}
+              targetName={item.name}
+              originalCents={originalLineTotal}
+              currentDiscountCents={item.discountCents}
+              onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
+            >
+              <Tooltip label={isMobile ? 'Line discount' : 'Line Discount (D)'} position="top">
+                <ActionIcon
+                  variant="light"
+                  color={hasLineDiscount ? 'red' : 'blue'}
+                  radius={0}
+                  onClick={() => setDiscountOpen(true)}
+                  style={{
+                    width: railWidth,
+                    height: '100%',
+                    borderLeft: '1px solid var(--border)',
+                  }}
+                >
+                  <IconTag size={16} />
+                </ActionIcon>
+              </Tooltip>
+            </DiscountPopover>
+          )}
 
           {/* Delete Column */}
           <Tooltip label={isMobile ? 'Remove line' : 'Remove Line (Delete)'} position="top">
@@ -225,14 +251,19 @@ export const CartLineItem = memo(function CartLineItem({
             </Text>
           )}
 
-          {hasLineDiscount && (
+          {hasLineDiscount && !isReturn && (
             <Text size="xs" c="dimmed" td="line-through" style={{ fontSize: 11 }}>
               {formatMoney(originalLineTotal)}
             </Text>
           )}
 
-          <Text size="sm" fw={700} style={{ fontFamily: 'monospace' }}>
-            {formatMoney(item.totalCents)}
+          <Text
+            size="sm"
+            fw={700}
+            c={isReturn ? 'orange.8' : undefined}
+            style={{ fontFamily: 'monospace' }}
+          >
+            {isReturn ? `- ${formatMoney(item.totalCents)}` : formatMoney(item.totalCents)}
           </Text>
         </Group>
       </Group>

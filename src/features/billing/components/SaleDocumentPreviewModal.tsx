@@ -18,7 +18,7 @@ export interface SaleDocumentPreviewModalProps {
   opened: boolean;
   onClose: () => void;
   invoice: Invoice | null;
-  documentKind: 'invoice' | 'receipt' | null;
+  documentKind: 'invoice' | 'receipt' | 'return-slip' | 'credit-note' | null;
 }
 
 export const SaleDocumentPreviewModal = ({
@@ -37,11 +37,16 @@ export const SaleDocumentPreviewModal = ({
   const hasPrinted = printLogs.length > 0;
 
   const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
-  const { blob, loading, error, isPaused } = useInvoiceDocument(
-    invoice?.id,
-    opened && documentKind ? (documentKind === 'invoice' ? 'a4-invoice' : 'thermal-receipt') : null,
-    paperWidthMm
-  );
+  const docType =
+    opened && documentKind
+      ? documentKind === 'invoice'
+        ? 'a4-invoice'
+        : documentKind === 'receipt'
+          ? 'thermal-receipt'
+          : documentKind
+      : null;
+
+  const { blob, loading, error, isPaused } = useInvoiceDocument(invoice?.id, docType, paperWidthMm);
 
   const handlePrint = () => {
     if (!invoice || !blob) return;
@@ -49,7 +54,12 @@ export const SaleDocumentPreviewModal = ({
     recordPrintEvent({
       invoiceId: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
-      format: documentKind === 'invoice' ? 'a4' : paperWidthMm === 58 ? 'receipt-58' : 'receipt-80',
+      format:
+        documentKind === 'invoice' || documentKind === 'credit-note'
+          ? 'a4'
+          : paperWidthMm === 58
+            ? 'receipt-58'
+            : 'receipt-80',
       copy: hasPrinted ? 'DUPLICATE COPY' : 'ORIGINAL — CUSTOMER COPY',
       printedBy: invoice.cashierName,
     });
@@ -69,12 +79,28 @@ export const SaleDocumentPreviewModal = ({
 
   const hero = getSaleHeroPresentation(invoice, invoice.changeDueCents ?? 0);
   const isReceipt = documentKind === 'receipt';
-  const statusWord = hero.isCreditCompleted
-    ? 'On account'
-    : hero.isChangeDue
-      ? 'Change due'
-      : 'Paid in full';
-  const title = `${isReceipt ? 'Receipt' : 'Invoice'} — ${invoice.invoiceNumber}`;
+  const isReturnSlip = documentKind === 'return-slip';
+  const isCreditNote = documentKind === 'credit-note';
+
+  const statusWord = isReturnSlip
+    ? 'Refund / Return'
+    : isCreditNote
+      ? 'Credit Note'
+      : hero.isCreditCompleted
+        ? 'On account'
+        : hero.isChangeDue
+          ? 'Change due'
+          : 'Paid in full';
+
+  const docLabel = isReceipt
+    ? 'Receipt'
+    : isReturnSlip
+      ? 'Return Slip'
+      : isCreditNote
+        ? 'Credit Note'
+        : 'Invoice';
+
+  const title = `${docLabel} — ${invoice.invoiceNumber}`;
   const subtitle = `${statusWord} · ${hero.methodLabel} · ${formatDateTime(invoice.createdAt)}`;
   const isDesktopTier = tier === 'desktop';
 

@@ -23,7 +23,8 @@ export type SyncResourceId =
   | 'invoices'
   | 'payments'
   | 'repairs'
-  | 'printJobs';
+  | 'printJobs'
+  | 'returns';
 
 // ---------------------------------------------------------------------------
 // Pull
