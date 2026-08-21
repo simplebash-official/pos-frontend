@@ -55,6 +55,8 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     ],
   },
   fontSizes: {
+    '3xs': rem('10px'),
+    '2xs': rem('11px'),
     xs: rem('12px'),
     sm: rem('14px'),
     md: rem('16px'),

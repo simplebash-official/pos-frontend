@@ -23,6 +23,7 @@ import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
+import { getInvoiceStatusMeta } from '../lib/invoiceStatus';
 
 interface InvoiceFilters {
   search: string;
@@ -200,11 +201,14 @@ export const InvoicesList = () => {
         key: 'status',
         header: 'Status',
         align: 'center',
-        render: (inv) => (
-          <Badge size="xs" color={inv.status === 'paid' && !inv.isCredit ? 'green' : 'amber'}>
-            {inv.status === 'paid' && !inv.isCredit ? 'PAID' : 'CREDIT'}
-          </Badge>
-        ),
+        render: (inv) => {
+          const { color, label } = getInvoiceStatusMeta(inv);
+          return (
+            <Badge size="xs" color={color}>
+              {label}
+            </Badge>
+          );
+        },
       },
       {
         key: 'totalCents',
