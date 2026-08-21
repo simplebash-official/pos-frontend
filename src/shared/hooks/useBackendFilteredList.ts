@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsOffline } from '@/store/slices/syncSlice';
+import { useMemo } from 'react';
 import { useEntitySearch } from './useEntitySearch';
 import type { SearchField } from '@/shared/lib/search';
 
@@ -43,7 +44,12 @@ export function useBackendFilteredList<T, F extends { search: string }>(
   const [debouncedFilters] = useDebouncedValue(filters, 300);
 
   const { results: textSearched } = useEntitySearch(allItems, searchFields, filters.search, null);
-  const localResults = applyLocalFilters(textSearched, filters);
+  const serializedFilters = JSON.stringify(filters);
+  const localResults = useMemo(
+    () => applyLocalFilters(textSearched, filters),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [textSearched, serializedFilters, applyLocalFilters]
+  );
 
   const active = isFilterActive(filters);
   const debouncedActive = isFilterActive(debouncedFilters);
@@ -54,17 +60,21 @@ export function useBackendFilteredList<T, F extends { search: string }>(
     enabled: debouncedActive && !isOffline,
   });
 
-  if (!active) {
-    return { results: allItems, isSearching: false, isOffline };
-  }
-  if (isOffline) {
-    return { results: localResults, isSearching: false, isOffline };
-  }
-
-  const debouncedMatchesCurrent = JSON.stringify(debouncedFilters) === JSON.stringify(filters);
+  const debouncedMatchesCurrent = JSON.stringify(debouncedFilters) === serializedFilters;
   const backendReady = debouncedMatchesCurrent && backendQuery.data !== undefined;
+
+  const results = useMemo(() => {
+    if (!active) {
+      return allItems;
+    }
+    if (isOffline) {
+      return localResults;
+    }
+    return backendReady ? (backendQuery.data as T[]) : localResults;
+  }, [active, allItems, isOffline, backendReady, backendQuery.data, localResults]);
+
   return {
-    results: backendReady ? (backendQuery.data as T[]) : localResults,
+    results,
     isSearching: debouncedMatchesCurrent && backendQuery.isFetching,
     isOffline,
   };
