@@ -16,5 +16,6 @@ export default defineConfig({
     // engine against an actual database rather than a mocked one.
     setupFiles: ['./src/offline/__tests__/setup.ts'],
     include: ['src/**/*.test.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/graphify-out/**'],
   },
 });
