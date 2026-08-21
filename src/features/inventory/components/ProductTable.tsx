@@ -3,8 +3,11 @@ import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
-import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { MetricCardRow } from '@/shared/components/MetricCard';
+import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { tokenizeQuery } from '@/shared/lib/search';
+import { queryKeys } from '@/api/queryKeys';
 import {
   Button,
   Badge,
@@ -13,7 +16,6 @@ import {
   Paper,
   TextInput,
   Stack,
-  Card,
   Grid,
   ThemeIcon,
   Tooltip,
@@ -60,6 +62,8 @@ import {
   useDeleteProducts,
   useProductMovements,
 } from '../hooks/useProducts';
+import { useInventoryStats } from '../hooks/useInventoryStats';
+import { fetchProducts } from '../api/productsApi';
 import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
@@ -85,13 +89,23 @@ import { ProductCatalogTree } from './ProductCatalogTree';
  */
 const AUTO_EXPAND_ROW_LIMIT = 300;
 
+interface ProductFilters {
+  search: string;
+  lowStock: boolean;
+}
+
+const isProductFilterActive = (f: ProductFilters) => f.search.trim() !== '' || f.lowStock;
+
+const applyLocalProductFilters = (items: Product[], f: ProductFilters) =>
+  items.filter((p) => !f.lowStock || p.stockQuantity <= p.minStockThreshold);
+
 export const ProductTable = () => {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
   const isMobile = useIsMobile();
 
-  const { data: initialProducts, isLoading, isPending, isFetching } = useAllProducts();
-  const isInventoryLoading = isLoading || isPending || isFetching;
+  const { data: initialProducts, isLoading } = useAllProducts();
+  const { data: stats, isLoading: statsLoading, staleAsOf } = useInventoryStats();
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
 
@@ -296,18 +310,35 @@ export const ProductTable = () => {
     }));
   }, []);
 
-  // Non-text filter first, so search ranks only what the user can actually see.
-  const stockFilteredProducts = useMemo(() => {
-    if (!showLowStockOnly) return initialProducts;
-    return initialProducts.filter((p) => p.stockQuantity <= p.minStockThreshold);
-  }, [initialProducts, showLowStockOnly]);
+  const productFilters: ProductFilters = { search, lowStock: showLowStockOnly };
 
-  const { results: filteredProducts, terms: searchTerms } = useEntitySearch(
-    stockFilteredProducts,
+  // Search and the low-stock toggle hit the backend while online, falling
+  // back to a local pass over the Dexie mirror while offline — see
+  // `useBackendFilteredList`. Category/subcategory browsing stays the
+  // accordion tree below, untouched by this.
+  const {
+    results: filteredProducts,
+    isSearching,
+    isOffline: searchIsOffline,
+  } = useBackendFilteredList(
+    initialProducts,
     PRODUCT_SEARCH_FIELDS,
-    search,
-    null
+    productFilters,
+    isProductFilterActive,
+    applyLocalProductFilters,
+    (f) =>
+      fetchProducts({
+        search: f.search.trim() || undefined,
+        lowStock: f.lowStock || undefined,
+        limit: 200,
+      }).then((r) => r.items),
+    queryKeys.inventory.products({ ...productFilters, search: productFilters.search.trim() })
   );
+  // `tokenizeQuery` is a pure function of the search text — computing it
+  // directly here (rather than threading it out of the search hook) means
+  // the tree's match-highlighting stays correct regardless of whether
+  // `filteredProducts` came from the backend or the local fallback.
+  const searchTerms = useMemo(() => tokenizeQuery(search), [search]);
 
   // Group products hierarchically: categoryKey -> subcategoryKey -> Product[]
   const hierarchy = useMemo(() => {
@@ -397,23 +428,6 @@ export const ProductTable = () => {
     }
   };
 
-  // Memoized because the header cards are outside the search path but inside
-  // the same component: unmemoized, these three full passes over the catalog
-  // ran again on every keystroke, for numbers that only change when the
-  // catalog itself does.
-  const totalProducts = initialProducts.length;
-  const { lowStockCount, categoriesCount } = useMemo(() => {
-    const categories = new Set<string>();
-    let lowStock = 0;
-
-    for (const product of initialProducts) {
-      categories.add(product.categoryKey);
-      if (product.stockQuantity <= product.minStockThreshold) lowStock += 1;
-    }
-
-    return { lowStockCount: lowStock, categoriesCount: categories.size };
-  }, [initialProducts]);
-
   const handleUpdateStockInDrawer = () => {
     if (!selectedProduct || stockAdjustment === 0 || !adjustmentReason.trim()) return;
     const newQty = selectedProduct.stockQuantity + stockAdjustment;
@@ -476,73 +490,38 @@ export const ProductTable = () => {
       />
 
       {/* Summary KPI Bar */}
-      <Grid>
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm">
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Total Items
-                </Text>
-                {isInventoryLoading ? (
-                  <Skeleton height={28} width={60} mt={4} />
-                ) : (
-                  <Text fw={800} size="xl">
-                    {totalProducts}
-                  </Text>
-                )}
-              </div>
-              <ThemeIcon variant="light" color="blue" size="lg">
-                <IconPackage size={22} />
-              </ThemeIcon>
-            </Group>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm">
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Categories & Subcategories
-                </Text>
-                {isInventoryLoading ? (
-                  <Skeleton height={28} width={110} mt={4} />
-                ) : (
-                  <Text fw={800} size="xl">
-                    {categoriesCount} Categories
-                  </Text>
-                )}
-              </div>
-              <ThemeIcon variant="light" color="grape" size="lg">
-                <IconBuildingStore size={22} />
-              </ThemeIcon>
-            </Group>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Card withBorder padding="sm">
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                  Low Stock Alerts
-                </Text>
-                {isInventoryLoading ? (
-                  <Skeleton height={28} width={80} mt={4} />
-                ) : (
-                  <Text fw={800} size="xl" c={lowStockCount > 0 ? 'red' : 'green'}>
-                    {lowStockCount} {lowStockCount === 1 ? 'Item' : 'Items'}
-                  </Text>
-                )}
-              </div>
-              <ThemeIcon variant="light" color={lowStockCount > 0 ? 'red' : 'green'} size="lg">
-                <IconAlertTriangle size={22} />
-              </ThemeIcon>
-            </Group>
-          </Card>
-        </Grid.Col>
-      </Grid>
+      <MetricCardRow
+        staleAsOf={staleAsOf}
+        cards={[
+          {
+            key: 'total',
+            label: 'TOTAL ITEMS',
+            value: stats?.totalItems ?? 0,
+            color: 'blue',
+            icon: <IconPackage size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 60,
+          },
+          {
+            key: 'categories',
+            label: 'CATEGORIES & SUBCATEGORIES',
+            value: `${stats?.totalCategories ?? 0} Categories`,
+            color: 'grape',
+            icon: <IconBuildingStore size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 110,
+          },
+          {
+            key: 'lowStock',
+            label: 'LOW STOCK ALERTS',
+            value: `${stats?.lowStockAlerts ?? 0} ${stats?.lowStockAlerts === 1 ? 'Item' : 'Items'}`,
+            color: (stats?.lowStockAlerts ?? 0) > 0 ? 'red' : 'green',
+            icon: <IconAlertTriangle size={20} />,
+            loading: statsLoading,
+            skeletonWidth: 80,
+          },
+        ]}
+      />
 
       {/* Filter and Control Bar */}
       <Paper p="sm" withBorder>
@@ -629,6 +608,11 @@ export const ProductTable = () => {
             {isAllCategoriesExpanded ? 'Collapse All' : 'Expand All'}
           </Button>
         </Group>
+        {search.trim() !== '' && (searchIsOffline || isSearching) && (
+          <Text size="xs" c="dimmed" mt="xs">
+            {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+          </Text>
+        )}
       </Paper>
 
       {/* Batch Action Bar when items are selected */}

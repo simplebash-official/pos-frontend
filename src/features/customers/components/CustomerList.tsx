@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Badge,
@@ -14,6 +14,8 @@ import {
   Box,
   Tooltip,
   Center,
+  Paper,
+  Select,
 } from '@mantine/core';
 import {
   IconUserPlus,
@@ -23,12 +25,18 @@ import {
   IconTrash,
   IconReceipt,
   IconUsers,
+  IconSearch,
+  IconLayoutGrid,
+  IconList,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { EntityListPage } from '@/shared/components/EntityListPage';
+import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { MetricCardRow } from '@/shared/components/MetricCard';
 import { Customer, CustomerInput } from '../types';
 import {
   useAllCustomers,
@@ -38,16 +46,30 @@ import {
   useDeleteCustomer,
   useDeleteCustomers,
 } from '../hooks/useCustomers';
+import { useCustomerStats } from '../hooks/useCustomerStats';
+import { fetchCustomers } from '../api/customersApi';
 import { CustomerFormModal } from './CustomerFormModal';
 import { CustomerDetailDrawer } from './CustomerDetailDrawer';
 import { formatMoney } from '@/shared/lib/money';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
-import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { CUSTOMER_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { queryKeys } from '@/api/queryKeys';
+
+interface CustomerFilters {
+  search: string;
+  /** 'all' or one of the customer's own `tags`. */
+  tag: string;
+}
+
+const isCustomerFilterActive = (f: CustomerFilters) => f.search.trim() !== '' || f.tag !== 'all';
+
+const applyLocalCustomerFilters = (items: Customer[], f: CustomerFilters) =>
+  items.filter((c) => f.tag === 'all' || (c.tags && c.tags.includes(f.tag)));
 
 export const CustomerList = () => {
   const [search, setSearch] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [tagFilter, setTagFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   // Modals & Drawers state
@@ -58,27 +80,35 @@ export const CustomerList = () => {
 
   const { data: customers = [], isLoading } = useAllCustomers();
   const availableTags = useCustomerTags();
+  const { data: stats, isLoading: statsLoading, staleAsOf } = useCustomerStats();
 
   const createMutation = useCreateCustomer();
   const updateMutation = useUpdateCustomer();
   const deleteMutation = useDeleteCustomer();
   const deleteBatchMutation = useDeleteCustomers();
 
-  const taggedCustomers = useMemo(() => {
-    if (!selectedTag) return customers;
-    return customers.filter((c) => c.tags && c.tags.includes(selectedTag));
-  }, [customers, selectedTag]);
+  const filters: CustomerFilters = { search, tag: tagFilter };
 
-  const { results: filteredCustomers } = useEntitySearch(
-    taggedCustomers,
+  // All filters hit the backend while online, fall back to a local pass
+  // over the Dexie mirror while offline — see `useBackendFilteredList`.
+  const {
+    results: filteredCustomers,
+    isSearching,
+    isOffline: searchIsOffline,
+  } = useBackendFilteredList(
+    customers,
     CUSTOMER_SEARCH_FIELDS,
-    search,
-    null
+    filters,
+    isCustomerFilterActive,
+    applyLocalCustomerFilters,
+    (f) =>
+      fetchCustomers({
+        search: f.search.trim() || undefined,
+        tag: f.tag === 'all' ? undefined : f.tag,
+        limit: 100,
+      }).then((r) => r.customers),
+    queryKeys.customers.list({ ...filters, search: filters.search.trim() })
   );
-
-  const totalCustomersCount = customers.length;
-  const totalBalanceDue = customers.reduce((sum, c) => sum + (c.outstandingBalanceCents || 0), 0);
-  const activeDebtorsCount = customers.filter((c) => (c.outstandingBalanceCents || 0) > 0).length;
 
   const handleOpenAddModal = () => {
     setCustomerToEdit(null);
@@ -250,97 +280,111 @@ export const CustomerList = () => {
     },
   ];
 
-  const kpiCards = (
-    <Grid>
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Total Registered Clients
-              </Text>
-              {isLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl">
-                  {totalCustomersCount}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" size="lg">
-              <IconUsers size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Total Balance Due
-              </Text>
-              {isLoading ? (
-                <Skeleton height={28} width={100} mt={4} />
-              ) : (
-                <Text fw={800} size="xl" c={totalBalanceDue > 0 ? 'red' : 'teal'}>
-                  {formatMoney(totalBalanceDue)}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color={totalBalanceDue > 0 ? 'red' : 'teal'} size="lg">
-              <IconReceipt size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Active Debtors
-              </Text>
-              {isLoading ? (
-                <Skeleton height={28} width={50} mt={4} />
-              ) : (
-                <Text fw={800} size="xl" c={activeDebtorsCount > 0 ? 'red' : 'dimmed'}>
-                  {activeDebtorsCount}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" size="lg">
-              <IconTag size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-    </Grid>
-  );
+  const totalBalanceDue = stats?.totalBalanceDueCents ?? 0;
 
   return (
     <>
-      <EntityListPage
-        namespace="customers"
-        title="Customer Directory"
-        description="Client database, purchase histories, and credit balances"
-        action={
-          <Button leftSection={<IconUserPlus size={16} />} onClick={handleOpenAddModal}>
-            Add New Customer
-          </Button>
-        }
-        kpiCards={kpiCards}
-        search={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Search customers by name, phone, address..."
-        filterTags={availableTags}
-        selectedTag={selectedTag}
-        onSelectTag={setSelectedTag}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      >
+      <Stack gap="lg">
+        <PageHeader
+          title="Customer Directory"
+          description="Client database, purchase histories, and credit balances"
+          action={
+            <Button leftSection={<IconUserPlus size={16} />} onClick={handleOpenAddModal}>
+              Add New Customer
+            </Button>
+          }
+        />
+
+        <MetricCardRow
+          staleAsOf={staleAsOf}
+          cards={[
+            {
+              key: 'total',
+              label: 'TOTAL REGISTERED CLIENTS',
+              value: stats?.totalCustomers ?? 0,
+              color: 'blue',
+              icon: <IconUsers size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 50,
+            },
+            {
+              key: 'balance',
+              label: 'TOTAL BALANCE DUE',
+              value: formatMoney(totalBalanceDue),
+              color: totalBalanceDue > 0 ? 'red' : 'teal',
+              icon: <IconReceipt size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 100,
+            },
+            {
+              key: 'debtors',
+              label: 'ACTIVE DEBTORS',
+              value: stats?.activeDebtorsCount ?? 0,
+              color: (stats?.activeDebtorsCount ?? 0) > 0 ? 'red' : 'gray',
+              icon: <IconTag size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 50,
+            },
+          ]}
+        />
+
+        <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Group justify="space-between" wrap="wrap">
+            <SearchHistoryInput
+              namespace="customers"
+              placeholder="Search customers by name, phone, address..."
+              leftSection={<IconSearch size={16} />}
+              value={search}
+              onValueChange={setSearch}
+              wrapperStyle={{ flex: 1, minWidth: 260 }}
+              size="sm"
+            />
+
+            <Group gap="xs" wrap="wrap">
+              <Select
+                size="xs"
+                value={tagFilter}
+                onChange={(v) => setTagFilter(v || 'all')}
+                data={[
+                  { label: 'All Tags', value: 'all' },
+                  ...availableTags.map((tag) => ({ label: tag, value: tag })),
+                ]}
+                style={{ width: 180 }}
+              />
+
+              <SegmentedToggle
+                value={viewMode}
+                onChange={(val) => setViewMode(val as 'table' | 'grid')}
+                data={[
+                  {
+                    label: (
+                      <Center style={{ gap: 6 }}>
+                        <IconList size={16} />
+                        <span>Table</span>
+                      </Center>
+                    ),
+                    value: 'table',
+                  },
+                  {
+                    label: (
+                      <Center style={{ gap: 6 }}>
+                        <IconLayoutGrid size={16} />
+                        <span>Grid</span>
+                      </Center>
+                    ),
+                    value: 'grid',
+                  },
+                ]}
+              />
+            </Group>
+          </Group>
+          {search.trim() !== '' && (searchIsOffline || isSearching) && (
+            <Text size="xs" c="dimmed" mt="xs">
+              {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+            </Text>
+          )}
+        </Paper>
+
         {viewMode === 'table' ? (
           <DataTable
             data={filteredCustomers}
@@ -490,7 +534,7 @@ export const CustomerList = () => {
             ))}
           </Grid>
         )}
-      </EntityListPage>
+      </Stack>
 
       {/* Form Modal */}
       <CustomerFormModal

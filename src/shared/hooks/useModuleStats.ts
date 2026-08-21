@@ -21,7 +21,7 @@ export interface ModuleStatsResult<T> {
  * `useSyncedQuery`.
  */
 export function useModuleStats<T>(
-  module: 'billing' | 'repairs' | 'printJobs',
+  module: 'billing' | 'repairs' | 'printJobs' | 'inventory' | 'suppliers' | 'customers',
   queryKey: readonly unknown[],
   fetchFn: () => Promise<T>
 ): ModuleStatsResult<T> {
