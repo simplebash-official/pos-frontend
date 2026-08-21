@@ -269,3 +269,39 @@ export interface StatsCacheRow<T = unknown> {
   /** ISO timestamp of the last successful fetch that produced `data`. */
   fetchedAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Returns & Refunds
+// ---------------------------------------------------------------------------
+
+export type ReturnPayoutMethod = 'cash' | 'card' | 'store_credit';
+
+export interface ReturnItem {
+  id: string;
+  productId: string;
+  productKey?: string;
+  name: string;
+  sku?: string;
+  quantity: number;
+  unitPriceCents: number;
+  discountCents: number;
+  refundAmountCents: number;
+  restockInventory: boolean;
+  reason: string;
+}
+
+export interface ReturnRecord {
+  id: string;
+  originalInvoiceId: string;
+  originalInvoiceNumber: string;
+  customerId?: string;
+  customerName?: string;
+  customerPhone?: string;
+  cashierId?: string;
+  cashierName?: string;
+  items: ReturnItem[];
+  totalRefundCents: number;
+  payoutMethod: ReturnPayoutMethod;
+  notes?: string;
+  createdAt: string;
+}

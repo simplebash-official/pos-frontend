@@ -14,13 +14,22 @@ import {
   Select,
   TextInput,
 } from '@mantine/core';
-import { IconReceipt, IconFileText, IconCopy, IconCheck, IconCash } from '@tabler/icons-react';
+import {
+  IconReceipt,
+  IconFileText,
+  IconCopy,
+  IconCheck,
+  IconCash,
+  IconArrowBackUp,
+} from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
 import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
+import { useInvoiceReturns } from '@/features/billing/hooks/useReturns';
 import { SaleDocumentPreviewModal } from '@/features/billing/components/SaleDocumentPreviewModal';
+import { ReturnModal } from './ReturnModal';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface InvoiceDetailDrawerProps {
@@ -43,6 +52,9 @@ export const InvoiceDetailDrawer = ({
     null
   );
 
+  // Return & Exchange Modal State
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+
   // Payment Record Modal State
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [payAmountRupees, setPayAmountRupees] = useState<number | ''>('');
@@ -51,9 +63,17 @@ export const InvoiceDetailDrawer = ({
   const [isSubmittingPay, setIsSubmittingPay] = useState(false);
 
   const { data: payments } = useInvoicePayments(invoice?.id);
+  const { data: invoiceReturns } = useInvoiceReturns(invoice?.id);
   const recordPaymentMutation = useRecordPayment();
 
   if (!invoice) return null;
+
+  const totalReturnedUnits = invoice.items.reduce(
+    (acc, item) => acc + (item.returnedQuantity || 0),
+    0
+  );
+  const totalOriginalUnits = invoice.items.reduce((acc, item) => acc + item.quantity, 0);
+  const isFullyReturned = totalOriginalUnits > 0 && totalReturnedUnits >= totalOriginalUnits;
 
   // Print history — index 0 is newest (LocalStorageStore.add uses unshift)
   const logs = getPrintLogsForInvoice(invoice.invoiceNumber);
@@ -176,32 +196,49 @@ export const InvoiceDetailDrawer = ({
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {invoice.items.map((item) => (
-                  <Table.Tr key={item.id}>
-                    <Table.Td>
-                      <Text size="xs" fw={600}>
-                        {item.name}
-                      </Text>
-                      {item.sku && (
-                        <Text size="3xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
-                          SKU: {item.sku}
-                        </Text>
-                      )}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
-                    <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {formatMoney(item.unitPriceCents)}
-                    </Table.Td>
-                    <Table.Td
-                      style={{
-                        fontWeight: 700,
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {formatMoney(item.totalCents)}
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
+                {invoice.items.map((item) => {
+                  const alreadyReturned = item.returnedQuantity || 0;
+                  const isItemFullyReturned = alreadyReturned >= item.quantity;
+                  return (
+                    <Table.Tr key={item.id}>
+                      <Table.Td>
+                        <Group gap="xs" align="center">
+                          <Text size="xs" fw={600}>
+                            {item.name}
+                          </Text>
+                          {alreadyReturned > 0 && (
+                            <Badge
+                              size="xs"
+                              color={isItemFullyReturned ? 'gray' : 'orange'}
+                              variant="light"
+                            >
+                              {isItemFullyReturned
+                                ? 'Fully Returned'
+                                : `Returned: ${alreadyReturned}`}
+                            </Badge>
+                          )}
+                        </Group>
+                        {item.sku && (
+                          <Text size="3xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
+                            SKU: {item.sku}
+                          </Text>
+                        )}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
+                      <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {formatMoney(item.unitPriceCents)}
+                      </Table.Td>
+                      <Table.Td
+                        style={{
+                          fontWeight: 700,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {formatMoney(item.totalCents)}
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
               </Table.Tbody>
             </Table>
           </Paper>
@@ -349,6 +386,42 @@ export const InvoiceDetailDrawer = ({
             </Stack>
           </Paper>
 
+          {/* Returns History */}
+          {invoiceReturns.length > 0 && (
+            <Paper p="sm" withBorder bg="var(--bg-card)">
+              <Group justify="space-between" mb="xs">
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                  RETURNS & REFUNDS ({invoiceReturns.length})
+                </Text>
+                <Badge size="xs" color="orange" variant="light">
+                  {invoiceReturns.reduce((sum, r) => sum + r.items.length, 0)} Items Returned
+                </Badge>
+              </Group>
+              <Stack gap="xs">
+                {invoiceReturns.map((ret) => (
+                  <Paper key={ret.id} p="xs" withBorder bg="var(--bg-app)">
+                    <Group justify="space-between" mb={2}>
+                      <Text size="xs" fw={700} c="orange.8">
+                        Refund: {formatMoney(ret.totalRefundCents)}
+                      </Text>
+                      <Badge size="xs" color="orange" variant="light" tt="uppercase">
+                        {ret.payoutMethod}
+                      </Badge>
+                    </Group>
+                    <Text size="3xs" c="dimmed">
+                      {new Date(ret.createdAt).toLocaleString()} · {ret.items.length} line(s)
+                    </Text>
+                    {ret.notes && (
+                      <Text size="xs" c="dimmed" mt={2} fs="italic">
+                        &ldquo;{ret.notes}&rdquo;
+                      </Text>
+                    )}
+                  </Paper>
+                ))}
+              </Stack>
+            </Paper>
+          )}
+
           {/* Print History Log */}
           <Paper p="sm" withBorder>
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
@@ -377,6 +450,16 @@ export const InvoiceDetailDrawer = ({
                 Record Payment
               </Button>
             )}
+
+            <Button
+              variant="light"
+              color="orange"
+              leftSection={<IconArrowBackUp size={16} />}
+              disabled={isFullyReturned}
+              onClick={() => setReturnModalOpen(true)}
+            >
+              {isFullyReturned ? 'Fully Returned' : 'Process Return / Exchange'}
+            </Button>
 
             <Group grow gap="xs">
               <Button
@@ -409,6 +492,16 @@ export const InvoiceDetailDrawer = ({
           </Stack>
         </Stack>
       </Drawer>
+
+      {/* Return & Exchange Modal */}
+      <ReturnModal
+        opened={returnModalOpen}
+        onClose={() => setReturnModalOpen(false)}
+        invoice={invoice}
+        onReturnSuccess={() => {
+          onRefresh?.();
+        }}
+      />
 
       {/* Sale Document Preview Modal (shows Receipt or Invoice in PdfCanvasViewer) */}
       <SaleDocumentPreviewModal

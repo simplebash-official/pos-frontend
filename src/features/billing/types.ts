@@ -16,7 +16,11 @@ export interface InvoiceItem {
   sourceTicketNumber?: string;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
+  returnedQuantity?: number;
+  isReturn?: boolean;
 }
+
+export type { ReturnRecord, ReturnPayoutMethod, ReturnItem } from '@/offline/db/tables';
 
 export interface SplitPaymentDetail {
   id: string;

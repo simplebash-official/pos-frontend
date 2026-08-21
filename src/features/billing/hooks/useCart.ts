@@ -24,6 +24,9 @@ import {
   parkCart,
   restoreCart,
   deleteHeldCart,
+  addReturnItem,
+  loadExchangeFromInvoice,
+  clearReturnItems,
   completeSaleSuccess,
   startNewSale,
   clearCart,
@@ -37,6 +40,8 @@ import {
   selectTotalUnitCount,
   selectSourceBreakdown,
   selectSplitRemainingCents,
+  selectHasReturnItems,
+  selectReturnItemsCount,
   selectHeldCarts,
   selectLastRemovedItem,
   selectSoundEnabled,
@@ -67,11 +72,23 @@ export const useCartItems = () => {
   const lastRemovedItem = useAppSelector(selectLastRemovedItem);
   const isCredit = useAppSelector((state) => state.cart.isCredit);
   const completedSale = useAppSelector(selectCompletedSale);
+  const hasReturnItems = useAppSelector(selectHasReturnItems);
+  const returnItemsCount = useAppSelector(selectReturnItemsCount);
 
   const add = useCallback(
     (item: Omit<CartItem, 'totalCents'>) => dispatch(addItem(item)),
     [dispatch]
   );
+  const addReturn = useCallback(
+    (item: Omit<CartItem, 'totalCents'> & { totalCents?: number }) => dispatch(addReturnItem(item)),
+    [dispatch]
+  );
+  const loadExchange = useCallback(
+    (payload: Parameters<typeof loadExchangeFromInvoice>[0]) =>
+      dispatch(loadExchangeFromInvoice(payload)),
+    [dispatch]
+  );
+  const clearReturns = useCallback(() => dispatch(clearReturnItems()), [dispatch]);
   const remove = useCallback((id: string) => dispatch(removeItem(id)), [dispatch]);
   const undoRemove = useCallback(() => dispatch(undoRemoveItem()), [dispatch]);
   const clearUndo = useCallback(() => dispatch(clearLastRemovedItem()), [dispatch]);
@@ -93,7 +110,12 @@ export const useCartItems = () => {
     lastRemovedItem,
     isCredit,
     completedSale,
+    hasReturnItems,
+    returnItemsCount,
     add,
+    addReturn,
+    loadExchange,
+    clearReturns,
     remove,
     undoRemove,
     clearUndo,

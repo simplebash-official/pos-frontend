@@ -5,7 +5,7 @@ import type { Invoice } from '../types';
 export interface SaleHeroPresentation {
   isCreditCompleted: boolean;
   isChangeDue: boolean;
-  heroColor: 'amber' | 'bordeaux' | 'green';
+  heroColor: 'amber' | 'bordeaux' | 'green' | 'orange' | 'blue';
   heroAmountCents: number;
   heroCaption: string;
   methodLabel: string;
@@ -15,13 +15,22 @@ export const getSaleHeroPresentation = (
   invoice: Invoice,
   changeDueCents: number
 ): SaleHeroPresentation => {
-  const isCreditCompleted = invoice.isCredit || invoice.status === 'pending';
-  const isChangeDue = !isCreditCompleted && changeDueCents > 0;
-  const heroColor: 'amber' | 'bordeaux' | 'green' = isCreditCompleted
-    ? 'amber'
-    : isChangeDue
-      ? 'bordeaux'
-      : 'green';
+  const isRefund = invoice.totalCents < 0;
+  const isEvenExchange =
+    invoice.totalCents === 0 && invoice.items.some((i) => i.isReturn || i.quantity < 0);
+  const isCreditCompleted =
+    !isRefund && !isEvenExchange && (invoice.isCredit || invoice.status === 'pending');
+  const isChangeDue = !isCreditCompleted && !isRefund && !isEvenExchange && changeDueCents > 0;
+
+  const heroColor: 'amber' | 'bordeaux' | 'green' | 'orange' | 'blue' = isRefund
+    ? 'orange'
+    : isEvenExchange
+      ? 'blue'
+      : isCreditCompleted
+        ? 'amber'
+        : isChangeDue
+          ? 'bordeaux'
+          : 'green';
 
   const cardSuffix =
     invoice.paymentMethod === PAYMENT_METHODS.CARD && (invoice.cardLast4 || invoice.cardRef)
@@ -29,7 +38,11 @@ export const getSaleHeroPresentation = (
       : '';
 
   let methodLabel: string;
-  if (invoice.paymentMethod === PAYMENT_METHODS.CARD) {
+  if (isRefund) {
+    methodLabel = `Refund (${invoice.paymentMethod.toUpperCase()})`;
+  } else if (isEvenExchange) {
+    methodLabel = 'Even Exchange';
+  } else if (invoice.paymentMethod === PAYMENT_METHODS.CARD) {
     methodLabel = `Card${cardSuffix}`;
   } else if (invoice.paymentMethod === PAYMENT_METHODS.SPLIT) {
     methodLabel = 'Split';
@@ -42,7 +55,11 @@ export const getSaleHeroPresentation = (
   }
 
   let heroCaption: string;
-  if (isCreditCompleted) {
+  if (isRefund) {
+    heroCaption = 'REFUND / CASHBACK PAID';
+  } else if (isEvenExchange) {
+    heroCaption = 'EVEN EXCHANGE COMPLETED';
+  } else if (isCreditCompleted) {
     heroCaption = 'BALANCE DUE · ON ACCOUNT';
   } else if (isChangeDue) {
     heroCaption = `CHANGE DUE · TOTAL ${formatMoney(invoice.totalCents)}`;
@@ -58,7 +75,11 @@ export const getSaleHeroPresentation = (
     heroCaption = `TOTAL PAID · ${paidVia}`;
   }
 
-  const heroAmountCents = isChangeDue ? changeDueCents : invoice.totalCents;
+  const heroAmountCents = isRefund
+    ? Math.abs(invoice.totalCents)
+    : isChangeDue
+      ? changeDueCents
+      : invoice.totalCents;
 
   return { isCreditCompleted, isChangeDue, heroColor, heroAmountCents, heroCaption, methodLabel };
 };

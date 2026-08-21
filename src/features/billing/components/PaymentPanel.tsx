@@ -346,14 +346,19 @@ export const PaymentPanel = memo(
 
     // Complete button disabled logic
     const isCartEmpty = items.length === 0;
+    const isRefundDue = totalCents < 0;
+    const isEvenExchange = totalCents === 0 && !isCartEmpty;
+
     const isButtonDisabled =
       isCartEmpty ||
       isProcessing ||
-      (paymentMethod === PAYMENT_METHODS.CASH && isCashShort && !isCredit) ||
-      (paymentMethod === PAYMENT_METHODS.CARD &&
+      (totalCents > 0 && paymentMethod === PAYMENT_METHODS.CASH && isCashShort && !isCredit) ||
+      (totalCents > 0 &&
+        paymentMethod === PAYMENT_METHODS.CARD &&
         (isCardShort || isCardDigitsMissing) &&
         !isCredit) ||
-      (paymentMethod === PAYMENT_METHODS.SPLIT &&
+      (totalCents > 0 &&
+        paymentMethod === PAYMENT_METHODS.SPLIT &&
         (isSplitIncomplete || isSplitCardDigitsMissing) &&
         !isCredit);
 
@@ -806,17 +811,29 @@ export const PaymentPanel = memo(
               <Text
                 size="xs"
                 fw={700}
-                c="dimmed"
+                c={isRefundDue ? 'orange.8' : isEvenExchange ? 'blue.6' : 'dimmed'}
                 tt="uppercase"
                 ta="right"
                 style={{ fontSize: 11, letterSpacing: '0.04em' }}
               >
-                TOTAL DUE
+                {isRefundDue
+                  ? 'REFUND DUE TO CUSTOMER'
+                  : isEvenExchange
+                    ? 'EVEN EXCHANGE'
+                    : 'TOTAL DUE'}
               </Text>
               <Text
                 fw={800}
                 ta="right"
-                c={isCredit ? 'amber.7' : 'blue.6'}
+                c={
+                  isRefundDue
+                    ? 'orange.8'
+                    : isEvenExchange
+                      ? 'blue.6'
+                      : isCredit
+                        ? 'amber.7'
+                        : 'blue.6'
+                }
                 style={{
                   fontSize: 34,
                   fontFamily: 'monospace',
@@ -824,45 +841,86 @@ export const PaymentPanel = memo(
                   fontVariantNumeric: 'tabular-nums',
                 }}
               >
-                {formatMoney(totalCents)}
+                {isRefundDue
+                  ? formatMoney(Math.abs(totalCents))
+                  : isEvenExchange
+                    ? 'Rs. 0.00'
+                    : formatMoney(totalCents)}
               </Text>
             </Box>
 
-            {/* 5. Pay Now / Credit Sale Segmented Control */}
-            <Tooltip
-              label={
-                isMobile
-                  ? 'Credit requires attaching a customer first'
-                  : 'Credit requires attaching a customer first (F3)'
-              }
-              disabled={Boolean(customerId)}
-              position="top"
-            >
-              <Box>
-                <SegmentedToggle
-                  fullWidth
-                  size="md"
-                  value={isCredit ? 'credit' : 'pay_now'}
-                  onChange={(val) => {
-                    if (val === 'credit') {
-                      if (!customerId) return;
-                      changeIsCredit(true);
-                    } else {
-                      changeIsCredit(false);
-                    }
-                  }}
-                  data={[
-                    { label: 'Pay Now', value: 'pay_now' },
-                    {
-                      label: 'Credit Sale',
-                      value: 'credit',
-                      disabled: !customerId,
-                    },
-                  ]}
-                  color={isCredit ? 'amber' : 'blue'}
-                />
-              </Box>
-            </Tooltip>
+            {/* 5. Mode Selector / Refund Banner */}
+            {isRefundDue ? (
+              <Paper
+                p="xs"
+                withBorder
+                style={{
+                  backgroundColor: 'var(--bg-app)',
+                  borderColor: 'var(--mantine-color-orange-5)',
+                }}
+              >
+                <Group gap="xs">
+                  <IconCash size={16} color="var(--mantine-color-orange-7)" />
+                  <Text size="xs" fw={700} c="orange.8" tt="uppercase">
+                    CUSTOMER CASHBACK / REFUND
+                  </Text>
+                </Group>
+                <Text size="xs" c="dimmed" mt={2}>
+                  Return value exceeds replacement purchase. Choose how to payout the customer.
+                </Text>
+              </Paper>
+            ) : isEvenExchange ? (
+              <Paper
+                p="xs"
+                withBorder
+                style={{
+                  backgroundColor: 'var(--bg-app)',
+                  borderColor: 'var(--mantine-color-blue-4)',
+                }}
+              >
+                <Text size="xs" fw={700} c="blue.6" tt="uppercase">
+                  EVEN EXCHANGE
+                </Text>
+                <Text size="xs" c="dimmed" mt={2}>
+                  Replacement items value matches returns. No payment or refund is required.
+                </Text>
+              </Paper>
+            ) : (
+              <Tooltip
+                label={
+                  isMobile
+                    ? 'Credit requires attaching a customer first'
+                    : 'Credit requires attaching a customer first (F3)'
+                }
+                disabled={Boolean(customerId)}
+                position="top"
+              >
+                <Box>
+                  <SegmentedToggle
+                    fullWidth
+                    size="md"
+                    value={isCredit ? 'credit' : 'pay_now'}
+                    onChange={(val) => {
+                      if (val === 'credit') {
+                        if (!customerId) return;
+                        changeIsCredit(true);
+                      } else {
+                        changeIsCredit(false);
+                      }
+                    }}
+                    data={[
+                      { label: 'Pay Now', value: 'pay_now' },
+                      {
+                        label: 'Credit Sale',
+                        value: 'credit',
+                        disabled: !customerId,
+                      },
+                    ]}
+                    color={isCredit ? 'amber' : 'blue'}
+                  />
+                </Box>
+              </Tooltip>
+            )}
 
             <Divider my={4} color="var(--border-strong)" />
 
@@ -1466,7 +1524,17 @@ export const PaymentPanel = memo(
           <Button
             fullWidth
             size="lg"
-            color={isCredit ? (confirmCreditRequired ? 'orange' : 'amber') : 'blue'}
+            color={
+              isRefundDue
+                ? 'orange'
+                : isEvenExchange
+                  ? 'blue'
+                  : isCredit
+                    ? confirmCreditRequired
+                      ? 'orange'
+                      : 'amber'
+                    : 'blue'
+            }
             disabled={isButtonDisabled}
             loading={isProcessing}
             onClick={handlePrimaryAction}
@@ -1481,30 +1549,38 @@ export const PaymentPanel = memo(
           >
             {isCartEmpty
               ? 'Add items to begin'
-              : isCredit
-                ? confirmCreditRequired
-                  ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
-                  : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
-                : isCashShort || isCardShort
-                  ? `Short by ${formatMoney(shortByCents)}`
-                  : isCardDigitsMissing || isSplitCardDigitsMissing
-                    ? 'Enter Card Last 4 Digits'
-                    : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
+              : isRefundDue
+                ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}${checkoutKeyHint}`
+                : isEvenExchange
+                  ? `Complete Even Exchange${checkoutKeyHint}`
+                  : isCredit
+                    ? confirmCreditRequired
+                      ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
+                      : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
+                    : isCashShort || isCardShort
+                      ? `Short by ${formatMoney(shortByCents)}`
+                      : isCardDigitsMissing || isSplitCardDigitsMissing
+                        ? 'Enter Card Last 4 Digits'
+                        : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
           </Button>
           <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
-            {confirmCreditRequired
-              ? isMobile
-                ? 'Customer has existing debt. Tap again to confirm credit sale.'
-                : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
-              : isButtonDisabled
-                ? isCashShort
-                  ? 'Enter tendered cash amount to complete'
-                  : isCardDigitsMissing || isSplitCardDigitsMissing
-                    ? 'Card last 4 digits required to complete payment'
-                    : isSplitIncomplete
-                      ? 'Allocate the full total across split payments'
-                      : 'Complete disabled'
-                : `${printConsequenceText} · Press F2`}
+            {isRefundDue
+              ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
+              : isEvenExchange
+                ? 'No payment or refund required · Press F2'
+                : confirmCreditRequired
+                  ? isMobile
+                    ? 'Customer has existing debt. Tap again to confirm credit sale.'
+                    : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
+                  : isButtonDisabled
+                    ? isCashShort
+                      ? 'Enter tendered cash amount to complete'
+                      : isCardDigitsMissing || isSplitCardDigitsMissing
+                        ? 'Card last 4 digits required to complete payment'
+                        : isSplitIncomplete
+                          ? 'Allocate the full total across split payments'
+                          : 'Complete disabled'
+                    : `${printConsequenceText} · Press F2`}
           </Text>
         </Box>
       </Paper>

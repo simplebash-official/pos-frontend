@@ -30,6 +30,11 @@ export interface CartItem {
   assignedEmployeeName?: string;
   originalUnitPriceCents?: number;
   stockQuantity?: number;
+  isReturn?: boolean;
+  originalInvoiceKey?: string;
+  originalInvoiceNumber?: string;
+  restockInventory?: boolean;
+  returnReason?: string;
 }
 
 export interface CompletedSaleData {
@@ -186,17 +191,20 @@ const cartSlice = createSlice({
       const item = action.payload;
       const sourceType = item.sourceType || 'retail';
 
-      // Check existing line item
+      // Check existing line item (ignoring return items)
       let existingIndex = -1;
       if (sourceType === 'repair' || sourceType === 'print') {
         if (item.sourceTicketNumber) {
           existingIndex = state.items.findIndex(
-            (i) => i.sourceTicketNumber === item.sourceTicketNumber
+            (i) => !i.isReturn && i.sourceTicketNumber === item.sourceTicketNumber
           );
         }
       } else {
         existingIndex = state.items.findIndex(
-          (i) => i.productId === item.productId && (!i.sourceType || i.sourceType === 'retail')
+          (i) =>
+            !i.isReturn &&
+            i.productId === item.productId &&
+            (!i.sourceType || i.sourceType === 'retail')
         );
       }
 
@@ -220,6 +228,79 @@ const cartSlice = createSlice({
       const totalCents = Math.max(0, item.unitPriceCents * item.quantity - item.discountCents);
       // Newest line is inserted at the TOP
       state.items.unshift({ ...item, sourceType, totalCents });
+    },
+
+    addReturnItem: (
+      state,
+      action: PayloadAction<Omit<CartItem, 'totalCents'> & { totalCents?: number }>
+    ) => {
+      if (state.completedSale) {
+        resetCartState(state);
+      }
+      const item = action.payload;
+      const totalCents =
+        item.totalCents !== undefined
+          ? item.totalCents
+          : Math.max(0, item.unitPriceCents * item.quantity - item.discountCents);
+      state.items.unshift({
+        ...item,
+        isReturn: true,
+        restockInventory: item.restockInventory ?? true,
+        totalCents,
+      });
+    },
+
+    loadExchangeFromInvoice: (
+      state,
+      action: PayloadAction<{
+        invoice: Invoice;
+        returnItems: Array<{
+          item: import('@/features/billing/types').InvoiceItem;
+          quantity: number;
+          restockInventory: boolean;
+          returnReason: string;
+          refundAmountCents: number;
+        }>;
+      }>
+    ) => {
+      resetCartState(state);
+      const { invoice, returnItems } = action.payload;
+
+      if (invoice.customerId || invoice.customerName) {
+        state.customerId = invoice.customerId || null;
+        state.customerName = invoice.customerName || null;
+        state.customerPhone = invoice.customerPhone || null;
+        state.customerAddress = invoice.customerAddress || null;
+      }
+
+      for (const r of returnItems) {
+        const proratedLineDiscount =
+          r.item.quantity > 0
+            ? Math.round((r.item.discountCents / r.item.quantity) * r.quantity)
+            : 0;
+        const cartItem: CartItem = {
+          id: `return-${invoice.id}-${r.item.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          productId: r.item.productId,
+          productKey: r.item.productId,
+          name: r.item.name,
+          sku: r.item.sku,
+          unitPriceCents: r.item.unitPriceCents,
+          quantity: r.quantity,
+          discountCents: proratedLineDiscount,
+          totalCents: r.refundAmountCents,
+          isReturn: true,
+          originalInvoiceKey: invoice.id,
+          originalInvoiceNumber: invoice.invoiceNumber,
+          restockInventory: r.restockInventory,
+          returnReason: r.returnReason,
+          sourceType: r.item.sourceType || 'retail',
+        };
+        state.items.unshift(cartItem);
+      }
+    },
+
+    clearReturnItems: (state) => {
+      state.items = state.items.filter((i) => !i.isReturn);
     },
 
     removeItem: (state, action: PayloadAction<string>) => {
@@ -498,6 +579,9 @@ export const {
   restoreCart,
   deleteHeldCart,
   markHeldCartReminded,
+  addReturnItem,
+  loadExchangeFromInvoice,
+  clearReturnItems,
   completeSaleSuccess,
   startNewSale,
   clearCart,
@@ -539,12 +623,23 @@ export const selectTotalUnitCount = createSelector([selectCartItems], (items) =>
 );
 
 export const selectSubtotalCents = createSelector([selectCartItems], (items) =>
-  items.reduce((acc, item) => acc + item.totalCents, 0)
+  items.reduce((acc, item) => {
+    return item.isReturn ? acc - item.totalCents : acc + item.totalCents;
+  }, 0)
 );
 
 export const selectTotalCents = createSelector(
-  [selectSubtotalCents, selectCartDiscountCents],
-  (subtotal, discount) => Math.max(0, subtotal - discount)
+  [selectCartItems, selectCartDiscountCents],
+  (items, discount) => {
+    const positiveSubtotal = items
+      .filter((i) => !i.isReturn)
+      .reduce((acc, i) => acc + i.totalCents, 0);
+    const returnSubtotal = items
+      .filter((i) => i.isReturn)
+      .reduce((acc, i) => acc + i.totalCents, 0);
+    const netPositive = Math.max(0, positiveSubtotal - discount);
+    return netPositive - returnSubtotal;
+  }
 );
 
 export const selectSourceBreakdown = createSelector([selectCartItems], (items) => {
@@ -553,12 +648,13 @@ export const selectSourceBreakdown = createSelector([selectCartItems], (items) =
   let printCents = 0;
 
   for (const item of items) {
+    const sign = item.isReturn ? -1 : 1;
     if (item.sourceType === 'repair') {
-      repairsCents += item.totalCents;
+      repairsCents += sign * item.totalCents;
     } else if (item.sourceType === 'print') {
-      printCents += item.totalCents;
+      printCents += sign * item.totalCents;
     } else {
-      retailCents += item.totalCents;
+      retailCents += sign * item.totalCents;
     }
   }
 
@@ -570,7 +666,16 @@ export const selectSplitAllocatedCents = (state: { cart: CartState }) =>
 
 export const selectSplitRemainingCents = createSelector(
   [selectTotalCents, selectSplitAllocatedCents],
-  (total, allocated) => total - allocated
+  (total, allocated) => (total > 0 ? Math.max(0, total - allocated) : 0)
+);
+
+export const selectHasReturnItems = createSelector([selectCartItems], (items) =>
+  items.some((i) => i.isReturn)
+);
+
+export const selectReturnItemsCount = createSelector(
+  [selectCartItems],
+  (items) => items.filter((i) => i.isReturn).length
 );
 
 export default cartSlice.reducer;
