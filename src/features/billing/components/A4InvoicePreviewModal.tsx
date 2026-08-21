@@ -17,7 +17,7 @@ export interface A4InvoicePreviewModalProps {
 export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePreviewModalProps) => {
   const isMobile = useIsMobile();
 
-  const { blob, loading, error, isPaused } = useInvoiceDocument(
+  const { blob, loading, error, isPaused, isPending } = useInvoiceDocument(
     invoice?.id,
     opened ? 'a4-invoice' : null
   );
@@ -88,7 +88,7 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
             color="blue"
             leftSection={<IconPrinter size={18} />}
             onClick={handlePrint}
-            disabled={loading || !!error}
+            disabled={loading || !!error || isPending}
             style={{ fontWeight: 700, flex: 2, minWidth: 200 }}
           >
             Print invoice (↵)
@@ -99,7 +99,7 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
             color="gray"
             leftSection={<IconDownload size={16} />}
             onClick={handleDownloadPDF}
-            disabled={loading || !!error}
+            disabled={loading || !!error || isPending}
             style={{ flex: 1, minWidth: 150 }}
           >
             Download PDF
@@ -125,6 +125,7 @@ export const A4InvoicePreviewModal = ({ opened, onClose, invoice }: A4InvoicePre
             loading={loading}
             error={error}
             isPaused={isPaused}
+            isPending={isPending}
             documentLabel="invoice"
           />
         </Box>

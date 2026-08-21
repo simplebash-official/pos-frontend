@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
+import { notifications } from '@mantine/notifications';
 import { useAppSelector } from '@/store/hooks';
 import type { Invoice } from '../types';
 import { getInvoiceDocument } from '../api/documentsApi';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { printPdfBlob } from '@/shared/print/printService';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
+import { isLocalId } from '@/offline/ids/localId';
 
 export const usePrint = () => {
   const printSettings = useAppSelector(selectPrintSettings);
@@ -15,6 +17,20 @@ export const usePrint = () => {
 
   const printReceipt = useCallback(
     async (invoice: Invoice) => {
+      // A sale just completed offline is mirrored under a provisional id — the
+      // server has no document to render yet, so fetching now would only 404.
+      if (isLocalId(invoice.id)) {
+        notifications.show({
+          id: `receipt-pending-${invoice.id}`,
+          title: 'Saved',
+          message: 'The receipt will print once this sale reaches the server.',
+          color: 'blue',
+          autoClose: 5000,
+          withCloseButton: true,
+        });
+        return;
+      }
+
       const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
       const blob = await getInvoiceDocument(invoice.id, 'thermal-receipt', paperWidthMm);
 

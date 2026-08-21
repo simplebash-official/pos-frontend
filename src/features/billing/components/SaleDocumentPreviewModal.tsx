@@ -46,7 +46,11 @@ export const SaleDocumentPreviewModal = ({
           : documentKind
       : null;
 
-  const { blob, loading, error, isPaused } = useInvoiceDocument(invoice?.id, docType, paperWidthMm);
+  const { blob, loading, error, isPaused, isPending } = useInvoiceDocument(
+    invoice?.id,
+    docType,
+    paperWidthMm
+  );
 
   const handlePrint = () => {
     if (!invoice || !blob) return;
@@ -110,6 +114,7 @@ export const SaleDocumentPreviewModal = ({
       loading={loading}
       error={error}
       isPaused={isPaused}
+      isPending={isPending}
       documentLabel={isReceipt ? 'receipt' : 'invoice'}
     />
   );
@@ -164,7 +169,7 @@ export const SaleDocumentPreviewModal = ({
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="blue"
-            disabled={loading || !!error}
+            disabled={loading || !!error || isPending}
             leftSection={<IconPrinter size={16} />}
             onClick={handlePrint}
           >
@@ -319,7 +324,7 @@ export const SaleDocumentPreviewModal = ({
                 <Button
                   fullWidth
                   color="blue"
-                  disabled={loading || !!error}
+                  disabled={loading || !!error || isPending}
                   leftSection={<IconPrinter size={16} />}
                   onClick={handlePrint}
                 >
