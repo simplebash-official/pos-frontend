@@ -139,6 +139,19 @@ describe('watermark comparison', () => {
 
     expect(await resolvePullTargets(signal())).toEqual(new Set(['suppliers']));
   });
+
+  it('always pulls a resource that is currently in an error state to allow recovery', async () => {
+    await patchSyncMeta('products', {
+      pullState: 'error',
+      lastError: 'ExpiredSignature (HTTP 401)',
+    });
+    await mockStatus({
+      products: '2026-08-13T09:00:00.000Z',
+      suppliers: '2026-08-13T09:00:00.000Z',
+    });
+
+    expect(await resolvePullTargets(signal())).toEqual(new Set(['products']));
+  });
 });
 
 describe('when the status endpoint fails', () => {
