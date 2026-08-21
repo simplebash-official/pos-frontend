@@ -1,11 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { getInvoiceDocument, InvoiceDocumentType } from '../api/documentsApi';
+import { useResolvedId } from '@/offline/react/useResolvedId';
 
 interface UseInvoiceDocumentResult {
   blob: Blob | null;
   loading: boolean;
   error: boolean;
   isPaused: boolean;
+  /** The invoice was created offline and hasn't reached the server yet — fetching would 404. */
+  isPending: boolean;
 }
 
 // Fetches a backend-rendered invoice/receipt PDF as a raw Blob — consumers
@@ -19,7 +22,8 @@ export const useInvoiceDocument = (
   documentType: InvoiceDocumentType | null,
   paperWidthMm?: 58 | 80
 ): UseInvoiceDocumentResult => {
-  const enabled = Boolean(invoiceId && documentType);
+  const { resolvedId, isPending } = useResolvedId(invoiceId);
+  const enabled = Boolean(resolvedId && documentType);
 
   const {
     data: blob,
@@ -27,16 +31,19 @@ export const useInvoiceDocument = (
     isError,
     fetchStatus,
   } = useQuery({
-    queryKey: ['billing', 'invoiceDocument', invoiceId, documentType, paperWidthMm],
+    queryKey: ['billing', 'invoiceDocument', resolvedId, documentType, paperWidthMm],
     queryFn: () =>
-      getInvoiceDocument(invoiceId as string, documentType as InvoiceDocumentType, paperWidthMm),
+      getInvoiceDocument(resolvedId as string, documentType as InvoiceDocumentType, paperWidthMm),
     enabled,
   });
+
+  const isStillWaiting = Boolean(invoiceId && documentType) && isPending;
 
   return {
     blob: blob ?? null,
     loading: enabled && isLoading,
     error: enabled && isError,
     isPaused: enabled && fetchStatus === 'paused',
+    isPending: isStillWaiting,
   };
 };

@@ -18,6 +18,17 @@ export class LeaderElection {
   private abortController: AbortController | null = null;
   private releaseLock: (() => void) | null = null;
   private leading = false;
+  /**
+   * Bumped by every `start()`/`stop()`. `abort()`ing the Web Lock request only
+   * cancels it while the browser hasn't granted it yet — if `stop()` runs
+   * after the grant has already been decided (React StrictMode's synchronous
+   * mount→cleanup→mount makes this ordering routine, not theoretical), the
+   * abort is a no-op and the granted callback below is the only thing left
+   * that can hand the lock back. Comparing the generation captured at request
+   * time against the current one is how it tells "still mine" from "a stop()
+   * (and possibly a fresh start()) happened while I was waiting to be granted".
+   */
+  private generation = 0;
 
   get isLeader(): boolean {
     return this.leading;
@@ -33,6 +44,7 @@ export class LeaderElection {
       return;
     }
     this.abortController = new AbortController();
+    const generation = ++this.generation;
 
     // Web Locks needs a secure context. A LAN-served build over plain http
     // has no lock API at all, and letting that throw would take down the
@@ -51,6 +63,13 @@ export class LeaderElection {
         SYNC_LEADER_LOCK,
         { mode: 'exclusive', signal: this.abortController.signal },
         async () => {
+          // Granted after a stop() (and maybe a newer start()) already moved
+          // on without us — release it immediately rather than holding an
+          // orphaned lock that nothing left holding `releaseLock` can free.
+          if (generation !== this.generation) {
+            return;
+          }
+
           this.leading = true;
           logInfo(null, 'This tab is now the sync leader', null);
           onElected();
@@ -72,6 +91,7 @@ export class LeaderElection {
   }
 
   stop(): void {
+    this.generation += 1;
     this.releaseLock?.();
     this.releaseLock = null;
     this.abortController?.abort();

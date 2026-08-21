@@ -397,10 +397,10 @@
     "word_count": 185
   },
   "src/features/billing/components/A4InvoicePreviewModal.tsx": {
-    "size": 4158,
-    "mtime_ns": 1787149604627161917,
-    "indexed_at_ns": 1787152702601967000,
-    "word_count": 376
+    "size": 4229,
+    "mtime_ns": 1787300362646160160,
+    "indexed_at_ns": 1787306207317301000,
+    "word_count": 382
   },
   "src/features/billing/components/BillingCounter.tsx": {
     "size": 18579,
@@ -463,16 +463,16 @@
     "word_count": 4132
   },
   "src/features/billing/components/SaleDocumentPreviewModal.tsx": {
-    "size": 11354,
-    "mtime_ns": 1787294489852974853,
-    "indexed_at_ns": 1787294720597733000,
-    "word_count": 934
+    "size": 11435,
+    "mtime_ns": 1787300312726551701,
+    "indexed_at_ns": 1787306207322697000,
+    "word_count": 942
   },
   "src/features/billing/components/StandalonePrintView.tsx": {
-    "size": 4422,
-    "mtime_ns": 1787149635169573628,
-    "indexed_at_ns": 1787152702608016000,
-    "word_count": 402
+    "size": 4925,
+    "mtime_ns": 1787300411929443585,
+    "indexed_at_ns": 1787306207323439000,
+    "word_count": 445
   },
   "src/features/billing/hooks/useCart.ts": {
     "size": 9172,
@@ -481,16 +481,16 @@
     "word_count": 785
   },
   "src/features/billing/hooks/useInvoiceDocument.ts": {
-    "size": 1353,
-    "mtime_ns": 1787149542658403391,
-    "indexed_at_ns": 1787152702609090000,
-    "word_count": 168
+    "size": 1708,
+    "mtime_ns": 1787300202985132151,
+    "indexed_at_ns": 1787306207324948000,
+    "word_count": 210
   },
   "src/features/billing/hooks/usePrint.ts": {
-    "size": 1818,
-    "mtime_ns": 1786974680886475691,
-    "indexed_at_ns": 1787114337703695000,
-    "word_count": 203
+    "size": 2425,
+    "mtime_ns": 1787300464672803901,
+    "indexed_at_ns": 1787306207326686000,
+    "word_count": 271
   },
   "src/features/billing/index.ts": {
     "size": 87,
@@ -1189,10 +1189,10 @@
     "word_count": 290
   },
   "src/offline/engine/leader.ts": {
-    "size": 2845,
-    "mtime_ns": 1786564895406561961,
-    "indexed_at_ns": 1787114337779582000,
-    "word_count": 401
+    "size": 3893,
+    "mtime_ns": 1787301713831093864,
+    "indexed_at_ns": 1787306207382152000,
+    "word_count": 557
   },
   "src/offline/engine/pull.ts": {
     "size": 7569,
@@ -1465,10 +1465,10 @@
     "word_count": 95
   },
   "src/shared/components/PdfCanvasViewer.tsx": {
-    "size": 18155,
-    "mtime_ns": 1787149574273128928,
-    "indexed_at_ns": 1787152702685159000,
-    "word_count": 1723
+    "size": 18728,
+    "mtime_ns": 1787300273788062812,
+    "indexed_at_ns": 1787306207403005000,
+    "word_count": 1782
   },
   "src/shared/components/PhoneDisplay.tsx": {
     "size": 3183,
@@ -1912,10 +1912,10 @@
     "word_count": 112
   },
   "src/shared/lib/queryStatusText.ts": {
-    "size": 982,
-    "mtime_ns": 1787151943776890807,
-    "indexed_at_ns": 1787152702692708000,
-    "word_count": 148
+    "size": 1191,
+    "mtime_ns": 1787300486940355930,
+    "indexed_at_ns": 1787306207412345000,
+    "word_count": 181
   },
   "src/features/billing/hooks/useInvoices.ts": {
     "size": 1211,
@@ -2078,5 +2078,11 @@
     "mtime_ns": 1787292760846782048,
     "indexed_at_ns": 1787294720968611000,
     "word_count": 371
+  },
+  "src/offline/react/useResolvedId.ts": {
+    "size": 1668,
+    "mtime_ns": 1787300174720328706,
+    "indexed_at_ns": 1787306207388290000,
+    "word_count": 255
   }
 }
