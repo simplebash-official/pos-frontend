@@ -310,7 +310,15 @@ export const ProductTable = () => {
     }));
   }, []);
 
-  const productFilters: ProductFilters = { search, lowStock: showLowStockOnly };
+  const productFilters: ProductFilters = useMemo(
+    () => ({ search, lowStock: showLowStockOnly }),
+    [search, showLowStockOnly]
+  );
+
+  const inventoryQueryKey = useMemo(
+    () => queryKeys.inventory.products({ ...productFilters, search: productFilters.search.trim() }),
+    [productFilters]
+  );
 
   // Search and the low-stock toggle hit the backend while online, falling
   // back to a local pass over the Dexie mirror while offline — see
@@ -332,7 +340,7 @@ export const ProductTable = () => {
         lowStock: f.lowStock || undefined,
         limit: 200,
       }).then((r) => r.items),
-    queryKeys.inventory.products({ ...productFilters, search: productFilters.search.trim() })
+    inventoryQueryKey
   );
   // `tokenizeQuery` is a pure function of the search text — computing it
   // directly here (rather than threading it out of the search hook) means
@@ -366,22 +374,16 @@ export const ProductTable = () => {
 
   // Open every matching group while a filter is active, and close everything
   // again when it clears.
-  //
-  // This latches on `hierarchy` rather than on the search text: results now
-  // settle a tick behind the input (see useEntitySearch), so reacting to the
-  // text alone would expand the *previous* set of categories. Adjusting during
-  // render — the same latch pattern SupplierFormModal uses — keeps the rows
-  // from painting once closed and then again open. A manual collapse changes
-  // neither latch value, so the user's own toggling still sticks.
   const isFilterActive = search.trim().length > 0 || showLowStockOnly;
-  const [autoExpandLatch, setAutoExpandLatch] = useState<{
-    hierarchy: Map<string, Map<string, Product[]>> | null;
-    active: boolean;
-  }>({ hierarchy: null, active: false });
+  const [prevHierarchy, setPrevHierarchy] = useState<Map<string, Map<string, Product[]>> | null>(
+    null
+  );
+  const [prevFilterActive, setPrevFilterActive] = useState(false);
 
-  if (autoExpandLatch.hierarchy !== hierarchy || autoExpandLatch.active !== isFilterActive) {
-    const wasFilterActive = autoExpandLatch.active;
-    setAutoExpandLatch({ hierarchy, active: isFilterActive });
+  if (prevHierarchy !== hierarchy || prevFilterActive !== isFilterActive) {
+    const wasFilterActive = prevFilterActive;
+    setPrevHierarchy(hierarchy);
+    setPrevFilterActive(isFilterActive);
 
     if (isFilterActive) {
       setExpandedCategories(Array.from(hierarchy.keys()));
