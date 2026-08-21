@@ -13,6 +13,9 @@ import {
   Avatar,
   Box,
   Tooltip,
+  Paper,
+  Select,
+  Center,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -25,13 +28,19 @@ import {
   IconCheck,
   IconTools,
   IconUsers,
+  IconSearch,
+  IconLayoutGrid,
+  IconList,
 } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { EntityListPage } from '@/shared/components/EntityListPage';
+import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { MetricCardRow } from '@/shared/components/MetricCard';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
 import { Employee, EmployeeInput, EMPLOYEE_ROLE_LABELS } from '../types';
 import {
@@ -289,97 +298,112 @@ export const EmployeeList = () => {
     ).length;
   }, [employees]);
 
-  const kpiCards = (
-    <Grid>
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Active Staff Members
-              </Text>
-              {isEmployeesLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl">
-                  {employees.filter((e) => e.status === 'active').length}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color="indigo" size="lg">
-              <IconUserCheck size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Technicians & Printers
-              </Text>
-              {isEmployeesLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl" c="teal">
-                  {technicalStaffCount}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color="teal" size="lg">
-              <IconTools size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Sales & Service Staff
-              </Text>
-              {isEmployeesLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl" c="blue">
-                  {salesStaffCount}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color="blue" size="lg">
-              <IconUsers size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-    </Grid>
-  );
+  const activeStaffCount = employees.filter((e) => e.status === 'active').length;
 
   return (
     <>
-      <EntityListPage
-        namespace="employees"
-        title="Employee Directory & Commission Splits"
-        description="Staff profiles, technician assignments, and job profit commission splits"
-        action={
-          <Button leftSection={<IconPlus size={16} />} color="indigo" onClick={handleOpenAddModal}>
-            Register New Employee
-          </Button>
-        }
-        kpiCards={kpiCards}
-        search={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Search staff by name, phone, or NIC..."
-        filterTags={['technician', 'printer', 'sales', 'general']}
-        selectedTag={selectedRole}
-        onSelectTag={setSelectedRole}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      >
+      <Stack gap="lg">
+        <PageHeader
+          title="Employee Directory & Commission Splits"
+          description="Staff profiles, technician assignments, and job profit commission splits"
+          action={
+            <Button
+              leftSection={<IconPlus size={16} />}
+              color="indigo"
+              onClick={handleOpenAddModal}
+            >
+              Register New Employee
+            </Button>
+          }
+        />
+
+        <MetricCardRow
+          cards={[
+            {
+              key: 'active',
+              label: 'ACTIVE STAFF MEMBERS',
+              value: activeStaffCount,
+              color: 'indigo',
+              icon: <IconUserCheck size={20} />,
+              loading: isEmployeesLoading,
+              skeletonWidth: 50,
+            },
+            {
+              key: 'technical',
+              label: 'TECHNICIANS & PRINTERS',
+              value: technicalStaffCount,
+              color: 'teal',
+              icon: <IconTools size={20} />,
+              loading: isEmployeesLoading,
+              skeletonWidth: 50,
+            },
+            {
+              key: 'sales',
+              label: 'SALES & SERVICE STAFF',
+              value: salesStaffCount,
+              color: 'blue',
+              icon: <IconUsers size={20} />,
+              loading: isEmployeesLoading,
+              skeletonWidth: 50,
+            },
+          ]}
+        />
+
+        <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Group justify="space-between" wrap="wrap">
+            <SearchHistoryInput
+              namespace="employees"
+              placeholder="Search staff by name, phone, or NIC..."
+              leftSection={<IconSearch size={16} />}
+              value={search}
+              onValueChange={setSearch}
+              wrapperStyle={{ flex: 1, minWidth: 260 }}
+              size="sm"
+            />
+
+            <Group gap="xs" wrap="wrap">
+              <Select
+                size="xs"
+                value={selectedRole ?? 'all'}
+                onChange={(v) => setSelectedRole(v === 'all' ? null : v)}
+                data={[
+                  { label: 'All Roles', value: 'all' },
+                  { label: 'Technician', value: 'technician' },
+                  { label: 'Printer', value: 'printer' },
+                  { label: 'Sales', value: 'sales' },
+                  { label: 'General', value: 'general' },
+                ]}
+                style={{ width: 160 }}
+              />
+
+              <SegmentedToggle
+                value={viewMode}
+                onChange={(val) => setViewMode(val as 'table' | 'grid')}
+                data={[
+                  {
+                    label: (
+                      <Center style={{ gap: 6 }}>
+                        <IconList size={16} />
+                        <span>Table</span>
+                      </Center>
+                    ),
+                    value: 'table',
+                  },
+                  {
+                    label: (
+                      <Center style={{ gap: 6 }}>
+                        <IconLayoutGrid size={16} />
+                        <span>Grid</span>
+                      </Center>
+                    ),
+                    value: 'grid',
+                  },
+                ]}
+              />
+            </Group>
+          </Group>
+        </Paper>
+
         {viewMode === 'table' ? (
           <DataTable
             data={filteredEmployees}
@@ -544,7 +568,7 @@ export const EmployeeList = () => {
             ))}
           </Grid>
         )}
-      </EntityListPage>
+      </Stack>
 
       {/* Form Modal */}
       <EmployeeFormModal

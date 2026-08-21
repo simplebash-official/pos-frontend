@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Badge,
@@ -14,6 +14,8 @@ import {
   Box,
   Tooltip,
   Center,
+  Paper,
+  Select,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -24,12 +26,18 @@ import {
   IconTruckDelivery,
   IconTags,
   IconUserCheck,
+  IconSearch,
+  IconLayoutGrid,
+  IconList,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { EntityListPage } from '@/shared/components/EntityListPage';
+import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
+import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { MetricCardRow } from '@/shared/components/MetricCard';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
 import { Supplier, SupplierInput } from '../types';
 import {
@@ -37,17 +45,33 @@ import {
   useCreateSupplier,
   useDeleteSupplier,
   useDeleteSuppliers,
+  useSupplierCategories,
   useUpdateSupplier,
 } from '../hooks/useSuppliers';
+import { useSupplierStats } from '../hooks/useSupplierStats';
+import { fetchSuppliers } from '../api/suppliersApi';
 import { SupplierFormModal } from './SupplierFormModal';
 import { SupplierDetailDrawer } from './SupplierDetailDrawer';
 import { useSetSupplierLinks } from '@/features/supplier-products';
-import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
+import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { SUPPLIER_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { queryKeys } from '@/api/queryKeys';
+
+interface SupplierFilters {
+  search: string;
+  /** 'all' or one of the supplier's own `suppliedCategories` tags. */
+  category: string;
+}
+
+const isSupplierFilterActive = (f: SupplierFilters) =>
+  f.search.trim() !== '' || f.category !== 'all';
+
+const applyLocalSupplierFilters = (items: Supplier[], f: SupplierFilters) =>
+  items.filter((s) => f.category === 'all' || s.suppliedCategories.includes(f.category));
 
 export const SupplierList = () => {
   const [search, setSearch] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   // Modal / Drawer state
@@ -56,8 +80,9 @@ export const SupplierList = () => {
   const [selectedSupplierForDrawer, setSelectedSupplierForDrawer] = useState<Supplier | null>(null);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
-  const { data: suppliers, isLoading, isFetching } = useAllSuppliers();
-  const isSuppliersLoading = isLoading || isFetching;
+  const { data: suppliers, isLoading } = useAllSuppliers();
+  const { data: stats, isLoading: statsLoading, staleAsOf } = useSupplierStats();
+  const allSupplyTags = useSupplierCategories();
 
   const createMutation = useCreateSupplier();
   const updateMutation = useUpdateSupplier();
@@ -65,24 +90,26 @@ export const SupplierList = () => {
   const deleteMutation = useDeleteSupplier();
   const deleteBatchMutation = useDeleteSuppliers();
 
-  const allSupplyTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    suppliers.forEach((s) => {
-      s.suppliedCategories?.forEach((tag) => tagSet.add(tag));
-    });
-    return Array.from(tagSet).sort();
-  }, [suppliers]);
+  const filters: SupplierFilters = { search, category: categoryFilter };
 
-  const taggedSuppliers = useMemo(() => {
-    if (!selectedTag) return suppliers;
-    return suppliers.filter((s) => s.suppliedCategories.includes(selectedTag));
-  }, [suppliers, selectedTag]);
-
-  const { results: filteredSuppliers } = useEntitySearch(
-    taggedSuppliers,
+  // All filters hit the backend while online, fall back to a local pass
+  // over the Dexie mirror while offline — see `useBackendFilteredList`.
+  const {
+    results: filteredSuppliers,
+    isSearching,
+    isOffline: searchIsOffline,
+  } = useBackendFilteredList(
+    suppliers,
     SUPPLIER_SEARCH_FIELDS,
-    search,
-    null
+    filters,
+    isSupplierFilterActive,
+    applyLocalSupplierFilters,
+    (f) =>
+      fetchSuppliers({
+        search: f.search.trim() || undefined,
+        category: f.category === 'all' ? undefined : f.category,
+      }),
+    queryKeys.suppliers.list({ ...filters, search: filters.search.trim() })
   );
 
   const handleOpenAddModal = () => {
@@ -238,101 +265,109 @@ export const SupplierList = () => {
     },
   ];
 
-  const contactPersonsCount = useMemo(() => {
-    return suppliers.filter((s) => Boolean(s.contactPerson && s.contactPerson.trim())).length;
-  }, [suppliers]);
-
-  const kpiCards = (
-    <Grid>
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Active Vendors
-              </Text>
-              {isSuppliersLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl">
-                  {suppliers.length}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color="blue" size="lg">
-              <IconTruckDelivery size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Supply Categories
-              </Text>
-              {isSuppliersLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl" c="teal">
-                  {allSupplyTags.length}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color="teal" size="lg">
-              <IconTags size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, sm: 4 }}>
-        <Card withBorder padding="sm">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Direct Contacts
-              </Text>
-              {isSuppliersLoading ? (
-                <Skeleton height={28} width={60} mt={4} />
-              ) : (
-                <Text fw={800} size="xl" c="indigo">
-                  {contactPersonsCount}
-                </Text>
-              )}
-            </div>
-            <ThemeIcon variant="light" color="indigo" size="lg">
-              <IconUserCheck size={22} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Grid.Col>
-    </Grid>
-  );
-
   return (
     <>
-      <EntityListPage
-        namespace="suppliers"
-        title="Suppliers & Distributors"
-        description="Vendor directory, contact persons, and supply product mappings"
-        action={
-          <Button leftSection={<IconPlus size={16} />} color="blue" onClick={handleOpenAddModal}>
-            Register New Supplier
-          </Button>
-        }
-        kpiCards={kpiCards}
-        search={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Search suppliers by business name, contact person, or phone..."
-        filterTags={allSupplyTags}
-        selectedTag={selectedTag}
-        onSelectTag={setSelectedTag}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      >
+      <Stack gap="lg">
+        <PageHeader
+          title="Suppliers & Distributors"
+          description="Vendor directory, contact persons, and supply product mappings"
+          action={
+            <Button leftSection={<IconPlus size={16} />} color="blue" onClick={handleOpenAddModal}>
+              Register New Supplier
+            </Button>
+          }
+        />
+
+        <MetricCardRow
+          staleAsOf={staleAsOf}
+          cards={[
+            {
+              key: 'total',
+              label: 'ACTIVE VENDORS',
+              value: stats?.totalSuppliers ?? 0,
+              color: 'blue',
+              icon: <IconTruckDelivery size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 50,
+            },
+            {
+              key: 'categories',
+              label: 'SUPPLY CATEGORIES',
+              value: stats?.supplyCategoriesCount ?? 0,
+              color: 'teal',
+              icon: <IconTags size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 50,
+            },
+            {
+              key: 'contacts',
+              label: 'DIRECT CONTACTS',
+              value: stats?.directContactsCount ?? 0,
+              color: 'indigo',
+              icon: <IconUserCheck size={20} />,
+              loading: statsLoading,
+              skeletonWidth: 50,
+            },
+          ]}
+        />
+
+        <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+          <Group justify="space-between" wrap="wrap">
+            <SearchHistoryInput
+              namespace="suppliers"
+              placeholder="Search suppliers by business name, contact person, or phone..."
+              leftSection={<IconSearch size={16} />}
+              value={search}
+              onValueChange={setSearch}
+              wrapperStyle={{ flex: 1, minWidth: 260 }}
+              size="sm"
+            />
+
+            <Group gap="xs" wrap="wrap">
+              <Select
+                size="xs"
+                value={categoryFilter}
+                onChange={(v) => setCategoryFilter(v || 'all')}
+                data={[
+                  { label: 'All Categories', value: 'all' },
+                  ...allSupplyTags.map((tag) => ({ label: tag, value: tag })),
+                ]}
+                style={{ width: 180 }}
+              />
+
+              <SegmentedToggle
+                value={viewMode}
+                onChange={(val) => setViewMode(val as 'table' | 'grid')}
+                data={[
+                  {
+                    label: (
+                      <Center style={{ gap: 6 }}>
+                        <IconList size={16} />
+                        <span>Table</span>
+                      </Center>
+                    ),
+                    value: 'table',
+                  },
+                  {
+                    label: (
+                      <Center style={{ gap: 6 }}>
+                        <IconLayoutGrid size={16} />
+                        <span>Grid</span>
+                      </Center>
+                    ),
+                    value: 'grid',
+                  },
+                ]}
+              />
+            </Group>
+          </Group>
+          {search.trim() !== '' && (searchIsOffline || isSearching) && (
+            <Text size="xs" c="dimmed" mt="xs">
+              {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+            </Text>
+          )}
+        </Paper>
+
         {viewMode === 'table' ? (
           <DataTable
             data={filteredSuppliers}
@@ -505,7 +540,7 @@ export const SupplierList = () => {
             ))}
           </Grid>
         )}
-      </EntityListPage>
+      </Stack>
 
       {/* Form Modal */}
       <SupplierFormModal

@@ -24,6 +24,7 @@ export const queryKeys = {
     productDetail: (id: string) => ['inventory', 'products', id] as const,
     lowStock: () => ['inventory', 'lowStock'] as const,
     movements: (productId?: string) => ['inventory', 'movements', productId] as const,
+    stats: () => ['inventory', 'stats'] as const,
   },
   categories: {
     all: ['categories'] as const,
@@ -34,11 +35,13 @@ export const queryKeys = {
     all: ['customers'] as const,
     list: (filters?: Record<string, unknown>) => ['customers', 'list', filters] as const,
     detail: (id: string) => ['customers', 'detail', id] as const,
+    stats: () => ['customers', 'stats'] as const,
   },
   suppliers: {
     all: ['suppliers'] as const,
     list: (filters?: Record<string, unknown>) => ['suppliers', 'list', filters] as const,
     detail: (id: string) => ['suppliers', 'detail', id] as const,
+    stats: () => ['suppliers', 'stats'] as const,
   },
   supplierProducts: {
     all: ['supplierProducts'] as const,
