@@ -24,7 +24,7 @@ export const calculateRepairEarnings = (input: {
 // `employeeEarningsCents` (that's a client-side-only computed value, see
 // `calculateRepairEarnings`; no `employees` backend module exists yet, so
 // no commission math happens server-side — TODO(employees-backend)).
-interface BackendRepair {
+export interface BackendRepair {
   id: string;
   key: string;
   ticketNumber: string;
@@ -57,7 +57,7 @@ interface RepairListResponseData {
 // interchangeably, and every other module (billing's `sourceTicketKey`)
 // needs the key, not the ObjectId, so standardizing on it here means every
 // existing call site that already does `repair.id` keeps working.
-const toRepairJob = (repair: BackendRepair): RepairJob => ({
+export const toRepairJob = (repair: BackendRepair): RepairJob => ({
   id: repair.key,
   ticketNumber: repair.ticketNumber,
   customerName: repair.customerName,

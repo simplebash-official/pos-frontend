@@ -3,6 +3,8 @@ import {
   cancelInvoice,
   completeSale,
   fetchInvoices,
+  toInvoice,
+  type BackendInvoice,
   type CompleteSaleInput,
 } from '@/features/billing/api/invoicesApi';
 import type { Invoice } from '@/features/billing/types';
@@ -54,7 +56,13 @@ export const invoicesResource = defineSyncResource<Invoice>({
   dependsOn: ['customers', 'products', 'repairs', 'printJobs'],
 
   pull: {
-    delta: (cursor, ctx) => fetchResourceDelta<Invoice>('invoices', cursor, ctx.signal),
+    delta: async (cursor, ctx) => {
+      const page = await fetchResourceDelta<BackendInvoice>('invoices', cursor, ctx.signal);
+      return {
+        ...page,
+        items: page.items.map(toInvoice),
+      };
+    },
     full: () => fetchInvoices(),
     intervalMs: 60_000,
   },

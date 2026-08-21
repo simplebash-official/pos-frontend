@@ -127,6 +127,26 @@ export class OfflineDb extends Dexie {
       returns:
         'id, originalInvoiceId, originalInvoiceNumber, customerId, payoutMethod, createdAt, _pending, _isDeleted',
     });
+
+    // v7 cleans up duplicate / untransformed raw delta rows where id was the Mongo ObjectId
+    // instead of the domain key (e.g. key: "inv_...", id: "66...").
+    this.version(7).upgrade(async (tx) => {
+      const mirrorNames = ['invoices', 'payments', 'repairs', 'printJobs', 'returns'];
+      for (const name of mirrorNames) {
+        const table = tx.table(name);
+        await table.toCollection().modify((row: Record<string, unknown>, ref) => {
+          if (
+            row &&
+            typeof row === 'object' &&
+            typeof row.key === 'string' &&
+            typeof row.id === 'string' &&
+            row.id !== row.key
+          ) {
+            delete ref.value;
+          }
+        });
+      }
+    });
   }
 }
 

@@ -2,6 +2,8 @@ import { queryKeys } from '@/api/queryKeys';
 import {
   processReturn,
   fetchReturns,
+  toReturnRecord,
+  type BackendReturnRecord,
   type ProcessReturnInput,
 } from '@/features/billing/api/returnsApi';
 import type { ReturnRecord } from '@/offline/db/tables';
@@ -27,7 +29,13 @@ export const returnsResource = defineSyncResource<ReturnRecord>({
   dependsOn: ['invoices', 'products', 'customers'],
 
   pull: {
-    delta: (cursor, ctx) => fetchResourceDelta<ReturnRecord>('returns', cursor, ctx.signal),
+    delta: async (cursor, ctx) => {
+      const page = await fetchResourceDelta<BackendReturnRecord>('returns', cursor, ctx.signal);
+      return {
+        ...page,
+        items: page.items.map(toReturnRecord),
+      };
+    },
     full: () => fetchReturns(),
     intervalMs: 60_000,
   },

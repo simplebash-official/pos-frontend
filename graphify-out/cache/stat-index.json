@@ -385,16 +385,16 @@
     "word_count": 108
   },
   "src/features/billing/api/invoicesApi.ts": {
-    "size": 8646,
-    "mtime_ns": 1787245782941679663,
-    "indexed_at_ns": 1787247631881597000,
-    "word_count": 832
+    "size": 8681,
+    "mtime_ns": 1787311075203588017,
+    "indexed_at_ns": 1787312204857428000,
+    "word_count": 837
   },
   "src/features/billing/api/paymentsApi.ts": {
-    "size": 1862,
-    "mtime_ns": 1787150426476468847,
-    "indexed_at_ns": 1787152702601492000,
-    "word_count": 185
+    "size": 1876,
+    "mtime_ns": 1787311441287450580,
+    "indexed_at_ns": 1787312204858117000,
+    "word_count": 187
   },
   "src/features/billing/components/A4InvoicePreviewModal.tsx": {
     "size": 4229,
@@ -757,10 +757,10 @@
     "word_count": 89
   },
   "src/features/print-jobs/api/printJobsApi.ts": {
-    "size": 4944,
-    "mtime_ns": 1787245842461426042,
-    "indexed_at_ns": 1787247631913959000,
-    "word_count": 530
+    "size": 4958,
+    "mtime_ns": 1787311321815859120,
+    "indexed_at_ns": 1787312204890182000,
+    "word_count": 532
   },
   "src/features/print-jobs/components/PrintJobFormModal.tsx": {
     "size": 11794,
@@ -817,10 +817,10 @@
     "word_count": 131
   },
   "src/features/repairs/api/repairsApi.ts": {
-    "size": 5691,
-    "mtime_ns": 1787245814521007292,
-    "indexed_at_ns": 1787247631919970000,
-    "word_count": 627
+    "size": 5705,
+    "mtime_ns": 1787311211003604206,
+    "indexed_at_ns": 1787312204896143000,
+    "word_count": 629
   },
   "src/features/repairs/components/RepairFormModal.tsx": {
     "size": 12675,
@@ -1153,10 +1153,10 @@
     "word_count": 430
   },
   "src/offline/db/schema.ts": {
-    "size": 6400,
-    "mtime_ns": 1787292681523722061,
-    "indexed_at_ns": 1787294720914033000,
-    "word_count": 706
+    "size": 7128,
+    "mtime_ns": 1787311789301730945,
+    "indexed_at_ns": 1787312204923410000,
+    "word_count": 792
   },
   "src/offline/db/session.ts": {
     "size": 1257,
@@ -1942,28 +1942,28 @@
     "word_count": 146
   },
   "src/offline/resources/invoices.resource.ts": {
-    "size": 7055,
-    "mtime_ns": 1787151711546976088,
-    "indexed_at_ns": 1787152702672259000,
-    "word_count": 810
+    "size": 7221,
+    "mtime_ns": 1787311167391982708,
+    "indexed_at_ns": 1787312204934771000,
+    "word_count": 826
   },
   "src/offline/resources/payments.resource.ts": {
-    "size": 3522,
-    "mtime_ns": 1787151711550563644,
-    "indexed_at_ns": 1787152702672691000,
-    "word_count": 364
+    "size": 3801,
+    "mtime_ns": 1787311524259716492,
+    "indexed_at_ns": 1787312204935373000,
+    "word_count": 389
   },
   "src/offline/resources/printJobs.resource.ts": {
-    "size": 7479,
-    "mtime_ns": 1787150343317782424,
-    "indexed_at_ns": 1787152702673108000,
-    "word_count": 659
+    "size": 7648,
+    "mtime_ns": 1787311405630667591,
+    "indexed_at_ns": 1787312204935903000,
+    "word_count": 675
   },
   "src/offline/resources/repairs.resource.ts": {
-    "size": 8259,
-    "mtime_ns": 1787207050950410739,
-    "indexed_at_ns": 1787207316438104000,
-    "word_count": 768
+    "size": 8425,
+    "mtime_ns": 1787311284456398006,
+    "indexed_at_ns": 1787312204937851000,
+    "word_count": 784
   },
   "src/features/billing/api/statsApi.ts": {
     "size": 770,
@@ -2056,10 +2056,10 @@
     "word_count": 40
   },
   "src/features/billing/api/returnsApi.ts": {
-    "size": 5617,
-    "mtime_ns": 1787298172032298879,
-    "indexed_at_ns": 1787298630346342000,
-    "word_count": 477
+    "size": 5631,
+    "mtime_ns": 1787311595041989520,
+    "indexed_at_ns": 1787312204858717000,
+    "word_count": 479
   },
   "src/features/billing/hooks/useReturns.ts": {
     "size": 1246,
@@ -2074,15 +2074,21 @@
     "word_count": 1317
   },
   "src/offline/resources/returns.resource.ts": {
-    "size": 3851,
-    "mtime_ns": 1787292760846782048,
-    "indexed_at_ns": 1787294720968611000,
-    "word_count": 371
+    "size": 4032,
+    "mtime_ns": 1787311663359257102,
+    "indexed_at_ns": 1787312204938429000,
+    "word_count": 387
   },
   "src/offline/react/useResolvedId.ts": {
     "size": 1668,
     "mtime_ns": 1787300174720328706,
     "indexed_at_ns": 1787306207388290000,
     "word_count": 255
+  },
+  "src/offline/__tests__/invoicesResource.test.ts": {
+    "size": 2847,
+    "mtime_ns": 1787312105180776203,
+    "indexed_at_ns": 1787312204918078000,
+    "word_count": 266
   }
 }
