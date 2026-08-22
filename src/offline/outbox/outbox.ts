@@ -22,6 +22,8 @@ export interface EnqueueInput {
   entityLocalId: string | null;
   /** Every mirror row this operation wrote, when it wrote more than one. */
   affectedKeys?: string[];
+  /** Rows in other resources' tables this operation's localApply wrote as a side effect. */
+  crossResourceAffected?: { resource: SyncResourceId; key: string }[];
   payload: unknown;
   baseVersion: number | null;
   dependsOn: number[];
@@ -40,6 +42,7 @@ export const enqueueOperation = async (input: EnqueueInput): Promise<number> => 
     idempotencyKey: createIdempotencyKey(),
     entityLocalId: input.entityLocalId,
     affectedKeys: input.affectedKeys,
+    crossResourceAffected: input.crossResourceAffected,
     payload: input.payload,
     baseVersion: input.baseVersion,
     dependsOn: input.dependsOn,
@@ -179,6 +182,29 @@ export const deleteOperation = async (seq: number): Promise<void> => {
   await db.outbox.delete(seq);
 };
 
+/**
+ * Clears `_pending` on every row an operation's `localApply` touched outside
+ * its own resource table, once the operation has settled one way or another.
+ *
+ * Never rewrites the row's content — there is no pre-image to restore, and on
+ * a successful push the optimistic content was already correct. Clearing the
+ * flag is the whole fix: it just un-sticks the row so the next pull (which
+ * unconditionally skips `_pending` rows) can reconcile it against the server,
+ * whichever way this operation actually went. Call inside the same
+ * transaction as the rest of the operation's settlement, alongside whichever
+ * mirror tables are already open there.
+ */
+export const clearCrossResourcePending = async (
+  crossResourceAffected: { resource: string; key: string }[] | undefined
+): Promise<void> => {
+  if (!crossResourceAffected || crossResourceAffected.length === 0) {
+    return;
+  }
+  for (const { resource, key } of crossResourceAffected) {
+    await db.table(resource).update(key, { _pending: 0 });
+  }
+};
+
 /** Puts a dead or conflicted operation back in the queue after the user fixes it. */
 export const retryOperation = async (seq: number): Promise<void> => {
   await db.outbox.update(seq, {
@@ -223,6 +249,7 @@ export const discardOperation = async (seq: number): Promise<void> => {
     // These deltas were never accepted by the server, so they must stop
     // counting toward effective stock.
     await db.stockLedger.where('outboxSeq').equals(seq).delete();
+    await clearCrossResourcePending(op.crossResourceAffected);
     await db.outbox.delete(seq);
   });
 };

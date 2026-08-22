@@ -25,8 +25,12 @@ describe('invoices resource sync delta mapping', () => {
       subtotalCents: 500,
       discountCents: 0,
       totalCents: 500,
-      paymentMethod: 'cash',
+      paymentMethod: 'cash' as const,
       status: 'paid' as const,
+      isOverdue: false,
+      creditNoteCount: 0,
+      hasCreditNotes: false,
+      refundedCents: 0,
       createdAt: '2026-08-21T10:00:00.000Z',
       items: [],
     };
@@ -52,6 +56,10 @@ describe('invoices resource sync delta mapping', () => {
       paymentMethod: 'cash',
       isCredit: false,
       status: 'paid',
+      isOverdue: false,
+      creditNoteCount: 0,
+      hasCreditNotes: false,
+      refundedCents: 0,
       createdAt: '2026-08-21T10:00:00.000Z',
     };
 

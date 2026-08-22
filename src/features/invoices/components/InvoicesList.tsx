@@ -11,7 +11,7 @@ import {
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useAllInvoices } from '@/features/billing/hooks/useInvoices';
 import { useBillingStats } from '@/features/billing/hooks/useBillingStats';
-import { fetchInvoices } from '@/features/billing/api/invoicesApi';
+import { fetchInvoices, type FetchInvoicesParams } from '@/features/billing/api/invoicesApi';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
@@ -23,17 +23,27 @@ import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
-import { getInvoiceStatusMeta } from '../lib/invoiceStatus';
+import { getInvoiceStatusMeta, getOverdueMeta } from '../lib/invoiceStatus';
 
 interface InvoiceFilters {
   search: string;
-  /** 'all' | 'paid' | 'credit' */
+  /** 'all' | Invoice['status'] | 'overdue' */
   status: string;
   /** 'all' | 'cash' | 'card' | 'online' | 'split' */
   paymentMethod: string;
   /** 'all' | 'today' */
   datePreset: string;
 }
+
+const STATUS_FILTER_OPTIONS = [
+  { label: 'All Status', value: 'all' },
+  { label: 'Awaiting Payment', value: 'pending' },
+  { label: 'Partly Paid', value: 'partially_paid' },
+  { label: 'Paid', value: 'paid' },
+  { label: 'Overdue', value: 'overdue' },
+  { label: 'Voided', value: 'voided' },
+  { label: 'Closed', value: 'closed' },
+];
 
 const isInvoiceFilterActive = (f: InvoiceFilters) =>
   f.search.trim() !== '' ||
@@ -43,9 +53,9 @@ const isInvoiceFilterActive = (f: InvoiceFilters) =>
 
 const applyLocalInvoiceFilters = (items: Invoice[], f: InvoiceFilters) =>
   items.filter((inv) => {
-    // Status filter
-    if (f.status === 'paid' && (inv.status !== 'paid' || inv.isCredit)) return false;
-    if (f.status === 'credit' && !inv.isCredit && inv.status !== 'pending') return false;
+    // Status filter — 'overdue' is a derived flag, not a stored status value.
+    if (f.status === 'overdue' && !inv.isOverdue) return false;
+    if (f.status !== 'all' && f.status !== 'overdue' && inv.status !== f.status) return false;
 
     // Payment method filter
     if (f.paymentMethod !== 'all' && inv.paymentMethod !== f.paymentMethod) return false;
@@ -104,7 +114,7 @@ export const InvoicesList = () => {
     (f) =>
       fetchInvoices({
         search: f.search.trim() || undefined,
-        paymentStatus: f.status === 'all' ? undefined : (f.status as 'paid' | 'credit'),
+        status: f.status === 'all' ? undefined : (f.status as FetchInvoicesParams['status']),
         paymentMethod: f.paymentMethod === 'all' ? undefined : f.paymentMethod,
         datePreset: f.datePreset === 'all' ? undefined : 'today',
       }),
@@ -203,10 +213,18 @@ export const InvoicesList = () => {
         align: 'center',
         render: (inv) => {
           const { color, label } = getInvoiceStatusMeta(inv);
+          const overdue = getOverdueMeta(inv);
           return (
-            <Badge size="xs" color={color}>
-              {label}
-            </Badge>
+            <Group gap={4} justify="center" wrap="nowrap">
+              <Badge size="xs" color={color}>
+                {label}
+              </Badge>
+              {overdue && (
+                <Badge size="xs" color={overdue.color}>
+                  {overdue.label}
+                </Badge>
+              )}
+            </Group>
           );
         },
       },
@@ -308,15 +326,12 @@ export const InvoicesList = () => {
             />
 
             <Group gap="xs" wrap="wrap">
-              <SegmentedToggle
+              <Select
                 size="xs"
                 value={statusFilter}
-                onChange={setStatusFilter}
-                data={[
-                  { label: 'All Status', value: 'all' },
-                  { label: 'Paid', value: 'paid' },
-                  { label: 'Credit / Unpaid', value: 'credit' },
-                ]}
+                onChange={(v) => setStatusFilter(v || 'all')}
+                data={STATUS_FILTER_OPTIONS}
+                style={{ width: 170 }}
               />
 
               <Select

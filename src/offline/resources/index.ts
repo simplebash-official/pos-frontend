@@ -10,7 +10,8 @@ import { repairsResource } from './repairs.resource';
 import { stockMovementsResource } from './stockMovements.resource';
 import { supplierProductsResource } from './supplierProducts.resource';
 import { suppliersResource } from './suppliers.resource';
-import { returnsResource } from './returns.resource';
+import { creditNotesResource } from './creditNotes.resource';
+import { productSerialsResource } from './productSerials.resource';
 
 /**
  * Registers every synced resource. Called once from `SyncProvider`.
@@ -43,5 +44,6 @@ export const registerSyncResources = (): void => {
   registerSyncResource(printJobsResource);
   registerSyncResource(invoicesResource);
   registerSyncResource(paymentsResource);
-  registerSyncResource(returnsResource);
+  registerSyncResource(creditNotesResource);
+  registerSyncResource(productSerialsResource);
 };

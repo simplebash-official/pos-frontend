@@ -54,6 +54,7 @@ import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+import { SerialNumberPickerModal } from '@/features/inventory/components/SerialNumberPickerModal';
 
 // Top frequent items section removed per request
 
@@ -114,6 +115,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
+  const [serialPickerProduct, setSerialPickerProduct] = useState<Product | null>(null);
 
   const { add, items } = useCartItems();
   const { customerId, attachCustomer } = useCartCustomer();
@@ -373,18 +375,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     overscan: 4,
   });
 
-  const handleAddProduct = (p: Product) => {
-    const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
-    if (remainingStock <= 0) {
-      playErrorSound(soundEnabled);
-      notifications.show({
-        title: 'Out of Stock',
-        message: `"${p.name}" is currently out of stock.`,
-        color: 'red',
-      });
-      return;
-    }
-
+  const addProductToCart = (p: Product, serialNumber?: string) => {
     add({
       id: `item-${Date.now()}-${Math.random()}`,
       productId: p.id,
@@ -399,6 +390,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       discountCents: 0,
       sourceType: 'retail',
       stockQuantity: p.stockQuantity,
+      serialNumbers: serialNumber ? [serialNumber] : undefined,
     });
     playScanSuccessSound(soundEnabled);
     setScanQuery('');
@@ -407,6 +399,32 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       setTimeout(() => scanInputRef.current?.focus(), 50);
     }
   };
+
+  const handleAddProduct = (p: Product) => {
+    const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+    if (remainingStock <= 0) {
+      playErrorSound(soundEnabled);
+      notifications.show({
+        title: 'Out of Stock',
+        message: `"${p.name}" is currently out of stock.`,
+        color: 'red',
+      });
+      return;
+    }
+
+    if (p.isSerialized) {
+      // Every unit of a serial-tracked product needs an explicit pick, so
+      // this opens the picker instead of adding straight away — the picker's
+      // own onSelect callback is what actually adds the line.
+      setSerialPickerProduct(p);
+      return;
+    }
+
+    addProductToCart(p);
+  };
+
+  const alreadyPickedSerialsForProduct = (productKey: string): string[] =>
+    items.filter((i) => i.productKey === productKey).flatMap((i) => i.serialNumbers ?? []);
 
   // Handle direct barcode or SKU scan
   const handleScanSubmit = (e: React.FormEvent) => {
@@ -565,714 +583,734 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   }, [selectedIndex, columnsPerRow, rowVirtualizer]);
 
   return (
-    <Stack gap="xs" style={{ height: '100%', overflow: 'hidden' }}>
-      {/* 1. Catalog Mode Navigation: Goods & Inventory vs Service Jobs */}
-      <SegmentedToggle
-        fullWidth
-        size="md"
-        color="blue"
-        value={mode}
-        onChange={(val) => onModeChange(val as CatalogMode)}
-        styles={{
-          root: {
-            flexShrink: 0,
-            backgroundColor: 'var(--bg-active)',
-            border: '1px solid var(--border-strong)',
-          },
-          label: {
-            minHeight: isMobile ? 44 : 40,
-            padding: isMobile ? '0 8px' : '0 16px',
-            fontSize: 14,
-            fontWeight: 700,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-        }}
-        data={[
-          {
-            value: 'goods',
-            label: (
-              <Group
-                gap={8}
-                wrap="nowrap"
-                justify="center"
-                align="center"
-                style={{ opacity: mode === 'goods' ? 1 : 0.9 }}
-              >
-                <IconShoppingCart
-                  size={18}
-                  stroke={mode === 'goods' ? 2.2 : 1.8}
-                  color="var(--text-primary)"
-                />
-                <Text
-                  size="sm"
-                  fw={mode === 'goods' ? 700 : 600}
-                  c="var(--text-primary)"
-                  style={{ whiteSpace: 'nowrap' }}
+    <>
+      <Stack gap="xs" style={{ height: '100%', overflow: 'hidden' }}>
+        {/* 1. Catalog Mode Navigation: Goods & Inventory vs Service Jobs */}
+        <SegmentedToggle
+          fullWidth
+          size="md"
+          color="blue"
+          value={mode}
+          onChange={(val) => onModeChange(val as CatalogMode)}
+          styles={{
+            root: {
+              flexShrink: 0,
+              backgroundColor: 'var(--bg-active)',
+              border: '1px solid var(--border-strong)',
+            },
+            label: {
+              minHeight: isMobile ? 44 : 40,
+              padding: isMobile ? '0 8px' : '0 16px',
+              fontSize: 14,
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          }}
+          data={[
+            {
+              value: 'goods',
+              label: (
+                <Group
+                  gap={8}
+                  wrap="nowrap"
+                  justify="center"
+                  align="center"
+                  style={{ opacity: mode === 'goods' ? 1 : 0.9 }}
                 >
-                  {isMobile ? 'Goods' : 'Goods & Inventory'}
-                </Text>
-              </Group>
-            ),
-          },
-          {
-            value: 'jobs',
-            label: (
-              <Group
-                gap={8}
-                wrap="nowrap"
-                justify="center"
-                align="center"
-                style={{ opacity: mode === 'jobs' ? 1 : 0.9 }}
-              >
-                <IconTools
-                  size={18}
-                  stroke={mode === 'jobs' ? 2.2 : 1.8}
-                  color="var(--text-primary)"
-                />
-                <Text
-                  size="sm"
-                  fw={mode === 'jobs' ? 700 : 600}
-                  c="var(--text-primary)"
-                  style={{ whiteSpace: 'nowrap' }}
-                >
-                  {isMobile ? 'Jobs' : 'Service Jobs'}
-                </Text>
-                {activeJobsCount > 0 && (
-                  <Badge
+                  <IconShoppingCart
+                    size={18}
+                    stroke={mode === 'goods' ? 2.2 : 1.8}
+                    color="var(--text-primary)"
+                  />
+                  <Text
                     size="sm"
-                    variant="light"
-                    color="blue"
-                    radius="xl"
-                    style={{
-                      fontWeight: 800,
-                      padding: '0 6px',
-                      height: 18,
-                      minWidth: 18,
-                      fontSize: 11,
+                    fw={mode === 'goods' ? 700 : 600}
+                    c="var(--text-primary)"
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {isMobile ? 'Goods' : 'Goods & Inventory'}
+                  </Text>
+                </Group>
+              ),
+            },
+            {
+              value: 'jobs',
+              label: (
+                <Group
+                  gap={8}
+                  wrap="nowrap"
+                  justify="center"
+                  align="center"
+                  style={{ opacity: mode === 'jobs' ? 1 : 0.9 }}
+                >
+                  <IconTools
+                    size={18}
+                    stroke={mode === 'jobs' ? 2.2 : 1.8}
+                    color="var(--text-primary)"
+                  />
+                  <Text
+                    size="sm"
+                    fw={mode === 'jobs' ? 700 : 600}
+                    c="var(--text-primary)"
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {isMobile ? 'Jobs' : 'Service Jobs'}
+                  </Text>
+                  {activeJobsCount > 0 && (
+                    <Badge
+                      size="sm"
+                      variant="light"
+                      color="blue"
+                      radius="xl"
+                      style={{
+                        fontWeight: 800,
+                        padding: '0 6px',
+                        height: 18,
+                        minWidth: 18,
+                        fontSize: 11,
+                      }}
+                    >
+                      {activeJobsCount}
+                    </Badge>
+                  )}
+                </Group>
+              ),
+            },
+          ]}
+        />
+
+        {mode === 'goods' && (
+          <>
+            {/* 2. Barcode & Product Search Bar (permanently focused) */}
+            <Paper
+              p="xs"
+              withBorder
+              style={{
+                borderColor: shakeError ? 'var(--status-error)' : 'var(--border)',
+                boxShadow: shakeError ? '0 0 0 2px var(--status-error-bg)' : undefined,
+                animation: shakeError ? 'shake 0.3s ease-in-out' : undefined,
+                transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+              }}
+            >
+              <form onSubmit={handleScanSubmit}>
+                <SearchHistoryInput
+                  namespace="billing"
+                  ref={scanInputRef}
+                  placeholder={
+                    isMobile
+                      ? 'Scan barcode or search product'
+                      : 'Scan barcode or type SKU / product name / REP-1001 (F1)'
+                  }
+                  leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
+                  rightSection={
+                    scanQuery ? (
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        aria-label="Clear scan search"
+                        onClick={() => {
+                          setScanQuery('');
+                          setSearch('');
+                          setShakeError(null);
+                          scanInputRef.current?.focus();
+                        }}
+                      >
+                        <IconX size={14} />
+                      </ActionIcon>
+                    ) : undefined
+                  }
+                  value={scanQuery}
+                  onChange={(e) => {
+                    setScanQuery(e.currentTarget.value);
+                    setSearch(e.currentTarget.value);
+                    setShakeError(null);
+                  }}
+                  onSearchSubmit={(val) => {
+                    setScanQuery(val);
+                    setSearch(val);
+                    setShakeError(null);
+                  }}
+                  onKeyDown={handleKeyDownGrid}
+                  size="md"
+                  styles={{
+                    input: {
+                      height: 44,
+                      // iOS Safari zooms the whole page when a focused input is under 16px.
+                      fontSize: isMobile ? 16 : 15,
+                      fontWeight: 600,
+                      border: 'none',
+                      paddingRight: scanQuery ? 36 : undefined,
+                      textOverflow: 'ellipsis',
+                    },
+                  }}
+                />
+              </form>
+
+              {shakeError && (
+                <Group gap={4} mt={4} px="xs" align="center">
+                  <IconAlertTriangle size={14} color="var(--status-error)" />
+                  <Text size="xs" c="red" fw={600}>
+                    No product found for "{shakeError}".
+                  </Text>
+                  <Anchor
+                    size="xs"
+                    c="blue"
+                    underline="always"
+                    onClick={() => {
+                      setSearch(shakeError);
+                      setShakeError(null);
                     }}
                   >
-                    {activeJobsCount}
-                  </Badge>
-                )}
-              </Group>
-            ),
-          },
-        ]}
-      />
+                    Search manually
+                  </Anchor>
+                </Group>
+              )}
+            </Paper>
 
-      {mode === 'goods' && (
-        <>
-          {/* 2. Barcode & Product Search Bar (permanently focused) */}
-          <Paper
-            p="xs"
-            withBorder
-            style={{
-              borderColor: shakeError ? 'var(--status-error)' : 'var(--border)',
-              boxShadow: shakeError ? '0 0 0 2px var(--status-error-bg)' : undefined,
-              animation: shakeError ? 'shake 0.3s ease-in-out' : undefined,
-              transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-            }}
-          >
-            <form onSubmit={handleScanSubmit}>
+            {/* 3. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
+            <Box style={{ position: 'relative' }}>
+              <ScrollArea
+                viewportRef={chipsViewportRef}
+                scrollbars="x"
+                type="never"
+                offsetScrollbars={false}
+                styles={{
+                  viewport: {
+                    paddingTop: 2,
+                    paddingBottom: 2,
+                  },
+                }}
+              >
+                {loadingCategories ? (
+                  <Group gap={6} wrap="nowrap" py={2}>
+                    <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
+                  </Group>
+                ) : (
+                  <Group gap={6} wrap="nowrap" py={2}>
+                    <Button
+                      size="xs"
+                      variant={selectedCategory === 'all' ? 'filled' : 'light'}
+                      color="blue"
+                      leftSection={<IconLayoutGrid size={15} />}
+                      onClick={() => setSelectedCategory('all')}
+                      radius="var(--mantine-radius-default)"
+                      style={{ flexShrink: 0 }}
+                    >
+                      All
+                    </Button>
+                    {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+                      <Button
+                        key={key}
+                        size="xs"
+                        variant={selectedCategory === key ? 'filled' : 'light'}
+                        color={color}
+                        leftSection={<Icon size={15} />}
+                        onClick={() => setSelectedCategory(key)}
+                        radius="var(--mantine-radius-default)"
+                        style={{ flexShrink: 0 }}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                    <Button
+                      size="xs"
+                      variant={showInStockOnly ? 'filled' : 'outline'}
+                      color={showInStockOnly ? 'teal' : 'gray'}
+                      onClick={() => setShowInStockOnly(!showInStockOnly)}
+                      radius="var(--mantine-radius-default)"
+                      style={{ flexShrink: 0 }}
+                    >
+                      In stock only
+                    </Button>
+                  </Group>
+                )}
+              </ScrollArea>
+
+              {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
+            never bleed into the scan bar above or the product grid below. */}
+              <Box
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  right: 0,
+                  width: 24,
+                  background: 'linear-gradient(to right, transparent, var(--bg-app))',
+                  pointerEvents: 'none',
+                  opacity: chipScrollState.canScrollRight ? 1 : 0,
+                  transition: 'opacity 0.15s ease',
+                }}
+              />
+              <Box
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: 24,
+                  background: 'linear-gradient(to left, transparent, var(--bg-app))',
+                  pointerEvents: 'none',
+                  opacity: chipScrollState.canScrollLeft ? 1 : 0,
+                  transition: 'opacity 0.15s ease',
+                }}
+              />
+            </Box>
+
+            {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
+          cards in the DOM, regardless of how many products match the current filter/search. */}
+            <ScrollArea
+              viewportRef={catalogViewportRef}
+              style={{ flex: 1 }}
+              offsetScrollbars
+              styles={{ viewport: { padding: 0 } }}
+            >
+              {loadingProducts ? (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
+                    gap: ROW_GAP,
+                    paddingTop: 4,
+                    paddingBottom: 4,
+                    paddingLeft: 4,
+                    paddingRight: 4,
+                  }}
+                >
+                  {Array.from({ length: columnsPerRow * 3 }, (_, i) => (
+                    <Card
+                      key={`catalog-skel-${i}`}
+                      p="xs"
+                      withBorder
+                      radius="var(--mantine-radius-default)"
+                      style={{ height: CARD_HEIGHT }}
+                    >
+                      <Stack justify="space-between" h="100%" gap={4}>
+                        <Group justify="space-between" align="center">
+                          <Skeleton height={18} width={70} />
+                          <Skeleton height={12} width={40} />
+                        </Group>
+                        <Skeleton height={32} width="90%" />
+                        <Group justify="space-between" align="flex-end">
+                          <Skeleton height={20} width={60} />
+                          <Skeleton height={18} width={50} />
+                        </Group>
+                      </Stack>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    height: rowVirtualizer.getTotalSize() + 8,
+                    position: 'relative',
+                    paddingLeft: 4,
+                    paddingRight: 4,
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+                    <div
+                      key={virtualRow.key}
+                      style={{
+                        position: 'absolute',
+                        top: 4,
+                        left: 4,
+                        right: 4,
+                        transform: `translateY(${virtualRow.start}px)`,
+                        display: 'grid',
+                        gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
+                        gap: ROW_GAP,
+                        paddingBottom: ROW_GAP,
+                      }}
+                    >
+                      {rows[virtualRow.index].map((p, colIndex) => {
+                        const index = virtualRow.index * columnsPerRow + colIndex;
+                        const remainingStock =
+                          p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+                        const isZeroStock = remainingStock <= 0;
+                        const isLowStock =
+                          remainingStock > 0 && remainingStock <= p.minStockThreshold;
+                        const isSelected = selectedIndex !== null && index === selectedIndex;
+                        const {
+                          Icon: CatIcon,
+                          color: catColor,
+                          label: catLabel,
+                        } = getCategoryIconInfo({
+                          category: getCategory(p.categoryKey),
+                          categoryLabel: p.category,
+                          iconMap,
+                        });
+
+                        return (
+                          <Card
+                            key={p.id}
+                            p="xs"
+                            withBorder
+                            className="product-catalog-card"
+                            radius="var(--mantine-radius-default)"
+                            style={{
+                              height: CARD_HEIGHT,
+                              opacity: isZeroStock ? 0.5 : 1,
+                              filter: isZeroStock ? 'grayscale(1)' : undefined,
+                              cursor: isZeroStock ? 'not-allowed' : 'pointer',
+                              borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+                              boxShadow: isSelected
+                                ? '0 0 0 2px var(--mantine-color-blue-4)'
+                                : undefined,
+                            }}
+                            onClick={() => handleAddProduct(p)}
+                          >
+                            <Stack justify="space-between" h="100%" gap={4}>
+                              {/* Top Header Row: Category Badge with Icon + SKU */}
+                              <Group justify="space-between" align="center" wrap="nowrap" gap={4}>
+                                <Badge
+                                  size="xs"
+                                  color={catColor}
+                                  variant="light"
+                                  leftSection={<CatIcon size={13} />}
+                                  style={{
+                                    textTransform: 'none',
+                                    fontWeight: 700,
+                                    fontSize: 10,
+                                    paddingLeft: 6,
+                                    paddingRight: 8,
+                                    flexShrink: 1,
+                                    minWidth: 0,
+                                  }}
+                                >
+                                  {catLabel}
+                                </Badge>
+
+                                <Text
+                                  size="xs"
+                                  c="dimmed"
+                                  style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
+                                >
+                                  <SearchHighlight text={p.sku} terms={searchTerms} />
+                                </Text>
+                              </Group>
+
+                              {/* Middle Row: Full width Product Name */}
+                              <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
+                                <Text
+                                  size="xs"
+                                  fw={700}
+                                  lineClamp={2}
+                                  style={{ lineHeight: 1.3, fontSize: 12 }}
+                                >
+                                  <SearchHighlight text={p.name} terms={searchTerms} />
+                                </Text>
+                              </Box>
+
+                              {/* Bottom Row: Price & Stock Badge */}
+                              <Group justify="space-between" align="flex-end">
+                                <Text
+                                  size="sm"
+                                  fw={800}
+                                  c="blue.7"
+                                  style={{ fontSize: 14, fontFamily: 'monospace' }}
+                                >
+                                  {formatMoney(p.sellingPriceCents)}
+                                </Text>
+
+                                {isZeroStock ? (
+                                  <Badge size="xs" color="gray" variant="filled">
+                                    Out of stock
+                                  </Badge>
+                                ) : isLowStock ? (
+                                  <Badge size="xs" color="yellow" variant="filled">
+                                    {remainingStock} Left
+                                  </Badge>
+                                ) : (
+                                  <Badge size="xs" color="gray" variant="light">
+                                    {remainingStock} Left
+                                  </Badge>
+                                )}
+                              </Group>
+                            </Stack>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </>
+        )}
+
+        {mode === 'jobs' && (
+          <>
+            {/* 2. Jobs Search Bar — filters by ticket #, customer name, or device. Mirrors the
+          Goods & Inventory ordering: mode toggle, then search, then filter chips, then list. */}
+            <Paper p="xs" withBorder>
               <SearchHistoryInput
-                namespace="billing"
-                ref={scanInputRef}
-                placeholder={
-                  isMobile
-                    ? 'Scan barcode or search product'
-                    : 'Scan barcode or type SKU / product name / REP-1001 (F1)'
-                }
-                leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
+                namespace="service_jobs"
+                ref={jobSearchInputRef}
+                placeholder="Search ticket #, customer name, device…"
+                leftSection={<IconSearch size={18} color="var(--text-secondary)" />}
                 rightSection={
-                  scanQuery ? (
+                  jobSearch ? (
                     <ActionIcon
                       variant="subtle"
+                      size={isMobile ? 'lg' : 'sm'}
                       color="gray"
-                      size="sm"
-                      aria-label="Clear scan search"
+                      aria-label="Clear job search"
                       onClick={() => {
-                        setScanQuery('');
-                        setSearch('');
-                        setShakeError(null);
-                        scanInputRef.current?.focus();
+                        setJobSearch('');
+                        jobSearchInputRef.current?.focus();
                       }}
                     >
                       <IconX size={14} />
                     </ActionIcon>
                   ) : undefined
                 }
-                value={scanQuery}
-                onChange={(e) => {
-                  setScanQuery(e.currentTarget.value);
-                  setSearch(e.currentTarget.value);
-                  setShakeError(null);
-                }}
-                onSearchSubmit={(val) => {
-                  setScanQuery(val);
-                  setSearch(val);
-                  setShakeError(null);
-                }}
-                onKeyDown={handleKeyDownGrid}
+                value={jobSearch}
+                onValueChange={setJobSearch}
                 size="md"
                 styles={{
                   input: {
                     height: 44,
-                    // iOS Safari zooms the whole page when a focused input is under 16px.
                     fontSize: isMobile ? 16 : 15,
                     fontWeight: 600,
                     border: 'none',
-                    paddingRight: scanQuery ? 36 : undefined,
+                    paddingRight: jobSearch ? 36 : undefined,
                     textOverflow: 'ellipsis',
                   },
                 }}
               />
-            </form>
+            </Paper>
 
-            {shakeError && (
-              <Group gap={4} mt={4} px="xs" align="center">
-                <IconAlertTriangle size={14} color="var(--status-error)" />
-                <Text size="xs" c="red" fw={600}>
-                  No product found for "{shakeError}".
-                </Text>
-                <Anchor
-                  size="xs"
-                  c="blue"
-                  underline="always"
-                  onClick={() => {
-                    setSearch(shakeError);
-                    setShakeError(null);
-                  }}
-                >
-                  Search manually
-                </Anchor>
-              </Group>
-            )}
-          </Paper>
-
-          {/* 3. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
-          <Box style={{ position: 'relative' }}>
-            <ScrollArea
-              viewportRef={chipsViewportRef}
-              scrollbars="x"
-              type="never"
-              offsetScrollbars={false}
-              styles={{
-                viewport: {
-                  paddingTop: 2,
-                  paddingBottom: 2,
-                },
-              }}
-            >
-              {loadingCategories ? (
-                <Group gap={6} wrap="nowrap" py={2}>
-                  <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
-                  <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
-                  <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
-                  <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
-                </Group>
-              ) : (
-                <Group gap={6} wrap="nowrap" py={2}>
-                  <Button
-                    size="xs"
-                    variant={selectedCategory === 'all' ? 'filled' : 'light'}
-                    color="blue"
-                    leftSection={<IconLayoutGrid size={15} />}
-                    onClick={() => setSelectedCategory('all')}
-                    radius="var(--mantine-radius-default)"
-                    style={{ flexShrink: 0 }}
-                  >
-                    All
-                  </Button>
-                  {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
-                    <Button
-                      key={key}
-                      size="xs"
-                      variant={selectedCategory === key ? 'filled' : 'light'}
-                      color={color}
-                      leftSection={<Icon size={15} />}
-                      onClick={() => setSelectedCategory(key)}
-                      radius="var(--mantine-radius-default)"
-                      style={{ flexShrink: 0 }}
-                    >
-                      {label}
-                    </Button>
-                  ))}
-                  <Button
-                    size="xs"
-                    variant={showInStockOnly ? 'filled' : 'outline'}
-                    color={showInStockOnly ? 'teal' : 'gray'}
-                    onClick={() => setShowInStockOnly(!showInStockOnly)}
-                    radius="var(--mantine-radius-default)"
-                    style={{ flexShrink: 0 }}
-                  >
-                    In stock only
-                  </Button>
-                </Group>
-              )}
-            </ScrollArea>
-
-            {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
-            never bleed into the scan bar above or the product grid below. */}
-            <Box
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                right: 0,
-                width: 24,
-                background: 'linear-gradient(to right, transparent, var(--bg-app))',
-                pointerEvents: 'none',
-                opacity: chipScrollState.canScrollRight ? 1 : 0,
-                transition: 'opacity 0.15s ease',
-              }}
-            />
-            <Box
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                left: 0,
-                width: 24,
-                background: 'linear-gradient(to left, transparent, var(--bg-app))',
-                pointerEvents: 'none',
-                opacity: chipScrollState.canScrollLeft ? 1 : 0,
-                transition: 'opacity 0.15s ease',
-              }}
-            />
-          </Box>
-
-          {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
-          cards in the DOM, regardless of how many products match the current filter/search. */}
-          <ScrollArea
-            viewportRef={catalogViewportRef}
-            style={{ flex: 1 }}
-            offsetScrollbars
-            styles={{ viewport: { padding: 0 } }}
-          >
-            {loadingProducts ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
-                  gap: ROW_GAP,
-                  paddingTop: 4,
-                  paddingBottom: 4,
-                  paddingLeft: 4,
-                  paddingRight: 4,
-                }}
-              >
-                {Array.from({ length: columnsPerRow * 3 }, (_, i) => (
-                  <Card
-                    key={`catalog-skel-${i}`}
-                    p="xs"
-                    withBorder
-                    radius="var(--mantine-radius-default)"
-                    style={{ height: CARD_HEIGHT }}
-                  >
-                    <Stack justify="space-between" h="100%" gap={4}>
-                      <Group justify="space-between" align="center">
-                        <Skeleton height={18} width={70} />
-                        <Skeleton height={12} width={40} />
-                      </Group>
-                      <Skeleton height={32} width="90%" />
-                      <Group justify="space-between" align="flex-end">
-                        <Skeleton height={20} width={60} />
-                        <Skeleton height={18} width={50} />
-                      </Group>
-                    </Stack>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div
-                style={{
-                  height: rowVirtualizer.getTotalSize() + 8,
-                  position: 'relative',
-                  paddingLeft: 4,
-                  paddingRight: 4,
-                }}
-              >
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => (
-                  <div
-                    key={virtualRow.key}
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      left: 4,
-                      right: 4,
-                      transform: `translateY(${virtualRow.start}px)`,
-                      display: 'grid',
-                      gridTemplateColumns: `repeat(${columnsPerRow}, 1fr)`,
-                      gap: ROW_GAP,
-                      paddingBottom: ROW_GAP,
-                    }}
-                  >
-                    {rows[virtualRow.index].map((p, colIndex) => {
-                      const index = virtualRow.index * columnsPerRow + colIndex;
-                      const remainingStock =
-                        p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
-                      const isZeroStock = remainingStock <= 0;
-                      const isLowStock =
-                        remainingStock > 0 && remainingStock <= p.minStockThreshold;
-                      const isSelected = selectedIndex !== null && index === selectedIndex;
-                      const {
-                        Icon: CatIcon,
-                        color: catColor,
-                        label: catLabel,
-                      } = getCategoryIconInfo({
-                        category: getCategory(p.categoryKey),
-                        categoryLabel: p.category,
-                        iconMap,
-                      });
-
-                      return (
-                        <Card
-                          key={p.id}
-                          p="xs"
-                          withBorder
-                          className="product-catalog-card"
-                          radius="var(--mantine-radius-default)"
-                          style={{
-                            height: CARD_HEIGHT,
-                            opacity: isZeroStock ? 0.5 : 1,
-                            filter: isZeroStock ? 'grayscale(1)' : undefined,
-                            cursor: isZeroStock ? 'not-allowed' : 'pointer',
-                            borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-                            boxShadow: isSelected
-                              ? '0 0 0 2px var(--mantine-color-blue-4)'
-                              : undefined,
-                          }}
-                          onClick={() => handleAddProduct(p)}
-                        >
-                          <Stack justify="space-between" h="100%" gap={4}>
-                            {/* Top Header Row: Category Badge with Icon + SKU */}
-                            <Group justify="space-between" align="center" wrap="nowrap" gap={4}>
-                              <Badge
-                                size="xs"
-                                color={catColor}
-                                variant="light"
-                                leftSection={<CatIcon size={13} />}
-                                style={{
-                                  textTransform: 'none',
-                                  fontWeight: 700,
-                                  fontSize: 10,
-                                  paddingLeft: 6,
-                                  paddingRight: 8,
-                                  flexShrink: 1,
-                                  minWidth: 0,
-                                }}
-                              >
-                                {catLabel}
-                              </Badge>
-
-                              <Text
-                                size="xs"
-                                c="dimmed"
-                                style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
-                              >
-                                <SearchHighlight text={p.sku} terms={searchTerms} />
-                              </Text>
-                            </Group>
-
-                            {/* Middle Row: Full width Product Name */}
-                            <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
-                              <Text
-                                size="xs"
-                                fw={700}
-                                lineClamp={2}
-                                style={{ lineHeight: 1.3, fontSize: 12 }}
-                              >
-                                <SearchHighlight text={p.name} terms={searchTerms} />
-                              </Text>
-                            </Box>
-
-                            {/* Bottom Row: Price & Stock Badge */}
-                            <Group justify="space-between" align="flex-end">
-                              <Text
-                                size="sm"
-                                fw={800}
-                                c="blue.7"
-                                style={{ fontSize: 14, fontFamily: 'monospace' }}
-                              >
-                                {formatMoney(p.sellingPriceCents)}
-                              </Text>
-
-                              {isZeroStock ? (
-                                <Badge size="xs" color="gray" variant="filled">
-                                  Out of stock
-                                </Badge>
-                              ) : isLowStock ? (
-                                <Badge size="xs" color="yellow" variant="filled">
-                                  {remainingStock} Left
-                                </Badge>
-                              ) : (
-                                <Badge size="xs" color="gray" variant="light">
-                                  {remainingStock} Left
-                                </Badge>
-                              )}
-                            </Group>
-                          </Stack>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </>
-      )}
-
-      {mode === 'jobs' && (
-        <>
-          {/* 2. Jobs Search Bar — filters by ticket #, customer name, or device. Mirrors the
-          Goods & Inventory ordering: mode toggle, then search, then filter chips, then list. */}
-          <Paper p="xs" withBorder>
-            <SearchHistoryInput
-              namespace="service_jobs"
-              ref={jobSearchInputRef}
-              placeholder="Search ticket #, customer name, device…"
-              leftSection={<IconSearch size={18} color="var(--text-secondary)" />}
-              rightSection={
-                jobSearch ? (
-                  <ActionIcon
-                    variant="subtle"
-                    size={isMobile ? 'lg' : 'sm'}
-                    color="gray"
-                    aria-label="Clear job search"
-                    onClick={() => {
-                      setJobSearch('');
-                      jobSearchInputRef.current?.focus();
-                    }}
-                  >
-                    <IconX size={14} />
-                  </ActionIcon>
-                ) : undefined
-              }
-              value={jobSearch}
-              onValueChange={setJobSearch}
-              size="md"
-              styles={{
-                input: {
-                  height: 44,
-                  fontSize: isMobile ? 16 : 15,
-                  fontWeight: 600,
-                  border: 'none',
-                  paddingRight: jobSearch ? 36 : undefined,
-                  textOverflow: 'ellipsis',
-                },
-              }}
-            />
-          </Paper>
-
-          {/* 3. Jobs Type Sub-filter (All jobs / Repairs / Print jobs) — same filter-pill
+            {/* 3. Jobs Type Sub-filter (All jobs / Repairs / Print jobs) — same filter-pill
           style as the Goods & Inventory category chips above, so both catalog modes read
           as one visual family. */}
-          <Group gap={6} wrap="nowrap" grow>
-            <Button
-              size="xs"
-              variant={jobFilterType === 'all' ? 'filled' : 'light'}
-              color="blue"
-              leftSection={<IconLayoutGrid size={15} />}
-              onClick={() => setJobFilterType('all')}
-              radius="var(--mantine-radius-default)"
-              style={{ height: isMobile ? 44 : undefined }}
-            >
-              All Jobs ({activeJobsCount})
-            </Button>
-            <Button
-              size="xs"
-              variant={jobFilterType === 'repair' ? 'filled' : 'light'}
-              color="orange"
-              leftSection={<IconTools size={15} />}
-              onClick={() => setJobFilterType('repair')}
-              radius="var(--mantine-radius-default)"
-              style={{ height: isMobile ? 44 : undefined }}
-            >
-              Repairs ({repairJobsCount})
-            </Button>
-            <Button
-              size="xs"
-              variant={jobFilterType === 'print' ? 'filled' : 'light'}
-              color="teal"
-              leftSection={<IconPrinter size={15} />}
-              onClick={() => setJobFilterType('print')}
-              radius="var(--mantine-radius-default)"
-              style={{ height: isMobile ? 44 : undefined }}
-            >
-              Print Jobs ({printJobsCount})
-            </Button>
-          </Group>
+            <Group gap={6} wrap="nowrap" grow>
+              <Button
+                size="xs"
+                variant={jobFilterType === 'all' ? 'filled' : 'light'}
+                color="blue"
+                leftSection={<IconLayoutGrid size={15} />}
+                onClick={() => setJobFilterType('all')}
+                radius="var(--mantine-radius-default)"
+                style={{ height: isMobile ? 44 : undefined }}
+              >
+                All Jobs ({activeJobsCount})
+              </Button>
+              <Button
+                size="xs"
+                variant={jobFilterType === 'repair' ? 'filled' : 'light'}
+                color="orange"
+                leftSection={<IconTools size={15} />}
+                onClick={() => setJobFilterType('repair')}
+                radius="var(--mantine-radius-default)"
+                style={{ height: isMobile ? 44 : undefined }}
+              >
+                Repairs ({repairJobsCount})
+              </Button>
+              <Button
+                size="xs"
+                variant={jobFilterType === 'print' ? 'filled' : 'light'}
+                color="teal"
+                leftSection={<IconPrinter size={15} />}
+                onClick={() => setJobFilterType('print')}
+                radius="var(--mantine-radius-default)"
+                style={{ height: isMobile ? 44 : undefined }}
+              >
+                Print Jobs ({printJobsCount})
+              </Button>
+            </Group>
 
-          {/* 4. Jobs List */}
-          <ScrollArea style={{ flex: 1 }} offsetScrollbars styles={{ viewport: { padding: 0 } }}>
-            <Stack gap="xs" pt={4} pb={4} px={2}>
-              {isLoadingJobs ? (
-                Array.from({ length: 4 }, (_, i) => (
-                  <Paper
-                    key={`job-skel-${i}`}
-                    p="md"
-                    radius="var(--mantine-radius-default)"
-                    withBorder
-                  >
-                    <Group justify="space-between" align="center">
-                      <Group gap="md">
-                        <Skeleton height={36} width={36} />
-                        <div>
-                          <Skeleton height={16} width={140} mb={4} />
-                          <Skeleton height={12} width={90} />
-                        </div>
-                      </Group>
-                      <Skeleton height={20} width={60} />
-                    </Group>
-                  </Paper>
-                ))
-              ) : filteredJobs.length === 0 ? (
-                <Paper
-                  p="xl"
-                  withBorder
-                  radius="var(--mantine-radius-default)"
-                  bg="var(--mantine-color-body)"
-                >
-                  <Center>
-                    <Stack gap="xs" align="center">
-                      <IconTool size={32} style={{ opacity: 0.3 }} />
-                      <Text c="dimmed" size="sm" ta="center">
-                        No active service jobs found matching your search.
-                      </Text>
-                    </Stack>
-                  </Center>
-                </Paper>
-              ) : (
-                filteredJobs.map((job) => {
-                  const iconInfo = getCategoryIconInfo({ sourceType: job.type });
-                  const JobIcon = iconInfo.Icon;
-                  const isRepair = job.type === 'repair';
-                  const jobColor = isRepair ? 'orange' : 'teal';
-
-                  const metaText = [job.description, job.customerName, job.customerPhone]
-                    .filter(Boolean)
-                    .join(' · ');
-
-                  return (
+            {/* 4. Jobs List */}
+            <ScrollArea style={{ flex: 1 }} offsetScrollbars styles={{ viewport: { padding: 0 } }}>
+              <Stack gap="xs" pt={4} pb={4} px={2}>
+                {isLoadingJobs ? (
+                  Array.from({ length: 4 }, (_, i) => (
                     <Paper
-                      key={`${job.type}-${job.id}`}
+                      key={`job-skel-${i}`}
                       p="md"
                       radius="var(--mantine-radius-default)"
-                      className="picker-card"
-                      style={{ backgroundColor: 'var(--bg-card)' }}
-                      onClick={() => handleBillJob(job)}
+                      withBorder
                     >
-                      <Group
-                        justify="space-between"
-                        align="center"
-                        wrap={isMobile ? 'wrap' : 'nowrap'}
-                        gap="md"
-                      >
-                        {/* Left Icon & Info */}
-                        <Group
-                          gap="md"
-                          wrap="nowrap"
-                          style={{ minWidth: 0, flex: 1 }}
-                          align="flex-start"
-                        >
-                          <ThemeIcon
-                            color={jobColor}
-                            variant="light"
-                            size="xl"
-                            radius="var(--mantine-radius-default)"
-                            style={{ flexShrink: 0, marginTop: 2 }}
-                          >
-                            <JobIcon size={22} />
-                          </ThemeIcon>
-
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <Group gap={6} align="center" wrap="wrap">
-                              <Badge
-                                size="xs"
-                                variant="filled"
-                                color="blue"
-                                radius="var(--mantine-radius-default)"
-                              >
-                                <SearchHighlight text={job.ticketNumber} terms={jobSearchTerms} />
-                              </Badge>
-                              <Badge
-                                size="xs"
-                                radius="var(--mantine-radius-default)"
-                                variant="light"
-                                color={job.status === 'ready' ? 'green' : 'blue'}
-                                fw={600}
-                                tt="capitalize"
-                              >
-                                {job.status === 'in_repair'
-                                  ? 'In repair'
-                                  : job.status.replace('_', ' ')}
-                              </Badge>
-                            </Group>
-
-                            <Text size="sm" fw={700} lineClamp={1} mt={4}>
-                              <SearchHighlight text={job.title} terms={jobSearchTerms} />
-                            </Text>
-
-                            {metaText && (
-                              <Text size="xs" c="dimmed" lineClamp={1} mt={2}>
-                                {metaText}
-                              </Text>
-                            )}
-
-                            {job.assignedEmployeeName && (
-                              <Text size="xs" c="dimmed" mt={2}>
-                                Tech: {job.assignedEmployeeName}
-                              </Text>
-                            )}
+                      <Group justify="space-between" align="center">
+                        <Group gap="md">
+                          <Skeleton height={36} width={36} />
+                          <div>
+                            <Skeleton height={16} width={140} mb={4} />
+                            <Skeleton height={12} width={90} />
                           </div>
                         </Group>
-
-                        {/* Right: Cost & Bill Action */}
-                        <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
-                          <Box style={{ textAlign: isMobile ? 'left' : 'right' }}>
-                            <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
-                              Estimated Total
-                            </Text>
-                            {job.costCents !== undefined && job.costCents > 0 ? (
-                              <Text size="sm" fw={800} c="blue" style={{ fontFamily: 'monospace' }}>
-                                {formatMoney(job.costCents)}
-                              </Text>
-                            ) : (
-                              <Badge size="xs" color="yellow" variant="light">
-                                Pending diagnosis
-                              </Badge>
-                            )}
-                          </Box>
-
-                          <Button
-                            size="xs"
-                            variant="light"
-                            color="blue"
-                            leftSection={<IconPlus size={14} />}
-                            radius="var(--mantine-radius-default)"
-                            disabled={job.costCents === undefined}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleBillJob(job);
-                            }}
-                          >
-                            Bill ticket
-                          </Button>
-                        </Group>
+                        <Skeleton height={20} width={60} />
                       </Group>
                     </Paper>
-                  );
-                })
-              )}
-            </Stack>
-          </ScrollArea>
-        </>
-      )}
-    </Stack>
+                  ))
+                ) : filteredJobs.length === 0 ? (
+                  <Paper
+                    p="xl"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
+                    <Center>
+                      <Stack gap="xs" align="center">
+                        <IconTool size={32} style={{ opacity: 0.3 }} />
+                        <Text c="dimmed" size="sm" ta="center">
+                          No active service jobs found matching your search.
+                        </Text>
+                      </Stack>
+                    </Center>
+                  </Paper>
+                ) : (
+                  filteredJobs.map((job) => {
+                    const iconInfo = getCategoryIconInfo({ sourceType: job.type });
+                    const JobIcon = iconInfo.Icon;
+                    const isRepair = job.type === 'repair';
+                    const jobColor = isRepair ? 'orange' : 'teal';
+
+                    const metaText = [job.description, job.customerName, job.customerPhone]
+                      .filter(Boolean)
+                      .join(' · ');
+
+                    return (
+                      <Paper
+                        key={`${job.type}-${job.id}`}
+                        p="md"
+                        radius="var(--mantine-radius-default)"
+                        className="picker-card"
+                        style={{ backgroundColor: 'var(--bg-card)' }}
+                        onClick={() => handleBillJob(job)}
+                      >
+                        <Group
+                          justify="space-between"
+                          align="center"
+                          wrap={isMobile ? 'wrap' : 'nowrap'}
+                          gap="md"
+                        >
+                          {/* Left Icon & Info */}
+                          <Group
+                            gap="md"
+                            wrap="nowrap"
+                            style={{ minWidth: 0, flex: 1 }}
+                            align="flex-start"
+                          >
+                            <ThemeIcon
+                              color={jobColor}
+                              variant="light"
+                              size="xl"
+                              radius="var(--mantine-radius-default)"
+                              style={{ flexShrink: 0, marginTop: 2 }}
+                            >
+                              <JobIcon size={22} />
+                            </ThemeIcon>
+
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <Group gap={6} align="center" wrap="wrap">
+                                <Badge
+                                  size="xs"
+                                  variant="filled"
+                                  color="blue"
+                                  radius="var(--mantine-radius-default)"
+                                >
+                                  <SearchHighlight text={job.ticketNumber} terms={jobSearchTerms} />
+                                </Badge>
+                                <Badge
+                                  size="xs"
+                                  radius="var(--mantine-radius-default)"
+                                  variant="light"
+                                  color={job.status === 'ready' ? 'green' : 'blue'}
+                                  fw={600}
+                                  tt="capitalize"
+                                >
+                                  {job.status === 'in_repair'
+                                    ? 'In repair'
+                                    : job.status.replace('_', ' ')}
+                                </Badge>
+                              </Group>
+
+                              <Text size="sm" fw={700} lineClamp={1} mt={4}>
+                                <SearchHighlight text={job.title} terms={jobSearchTerms} />
+                              </Text>
+
+                              {metaText && (
+                                <Text size="xs" c="dimmed" lineClamp={1} mt={2}>
+                                  {metaText}
+                                </Text>
+                              )}
+
+                              {job.assignedEmployeeName && (
+                                <Text size="xs" c="dimmed" mt={2}>
+                                  Tech: {job.assignedEmployeeName}
+                                </Text>
+                              )}
+                            </div>
+                          </Group>
+
+                          {/* Right: Cost & Bill Action */}
+                          <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
+                            <Box style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                              <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
+                                Estimated Total
+                              </Text>
+                              {job.costCents !== undefined && job.costCents > 0 ? (
+                                <Text
+                                  size="sm"
+                                  fw={800}
+                                  c="blue"
+                                  style={{ fontFamily: 'monospace' }}
+                                >
+                                  {formatMoney(job.costCents)}
+                                </Text>
+                              ) : (
+                                <Badge size="xs" color="yellow" variant="light">
+                                  Pending diagnosis
+                                </Badge>
+                              )}
+                            </Box>
+
+                            <Button
+                              size="xs"
+                              variant="light"
+                              color="blue"
+                              leftSection={<IconPlus size={14} />}
+                              radius="var(--mantine-radius-default)"
+                              disabled={job.costCents === undefined}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleBillJob(job);
+                              }}
+                            >
+                              Bill ticket
+                            </Button>
+                          </Group>
+                        </Group>
+                      </Paper>
+                    );
+                  })
+                )}
+              </Stack>
+            </ScrollArea>
+          </>
+        )}
+      </Stack>
+
+      <SerialNumberPickerModal
+        opened={serialPickerProduct !== null}
+        onClose={() => setSerialPickerProduct(null)}
+        productName={serialPickerProduct?.name ?? ''}
+        productKey={serialPickerProduct?.key ?? ''}
+        excludeSerialNumbers={
+          serialPickerProduct ? alreadyPickedSerialsForProduct(serialPickerProduct.key) : []
+        }
+        onSelect={(serialNumber) => {
+          if (serialPickerProduct) addProductToCart(serialPickerProduct, serialNumber);
+        }}
+      />
+    </>
   );
 });

@@ -19,6 +19,7 @@ import { logError, logInfo, logWarn } from '../engine/auditLog';
 import {
   areDependenciesSatisfied,
   claimReadyOperations,
+  clearCrossResourcePending,
   deleteOperation,
   markConflict,
   markDead,
@@ -179,50 +180,63 @@ const commitSuccess = async (
   identity: { serverKey: string; serverId: string | null } | null,
   options: { isDelete: boolean } = { isDelete: false }
 ): Promise<void> => {
-  await db.transaction('rw', [resource.table, db.outbox, db.idMap, db.stockLedger], async () => {
-    const localId = op.entityLocalId;
-    // A bulk delete tombstones many rows but names only one; all of them are
-    // retired here, or the rest stay `_pending` forever and become invisible
-    // to every pull, refresh and prune.
-    const affectedKeys =
-      op.affectedKeys && op.affectedKeys.length > 0
-        ? op.affectedKeys
-        : localId !== null && localId !== ''
-          ? [localId]
-          : [];
+  const crossResourceTables = Array.from(
+    new Set((op.crossResourceAffected ?? []).map((a) => a.resource))
+  ).map((name) => db.table(name));
 
-    if (serverEntity !== null && typeof serverEntity === 'object') {
-      const row = toServerRow(serverEntity as object);
-      const serverKey = resource.primaryKey(serverEntity as never);
+  await db.transaction(
+    'rw',
+    [resource.table, db.outbox, db.idMap, db.stockLedger, ...crossResourceTables],
+    async () => {
+      const localId = op.entityLocalId;
+      // A bulk delete tombstones many rows but names only one; all of them are
+      // retired here, or the rest stay `_pending` forever and become invisible
+      // to every pull, refresh and prune.
+      const affectedKeys =
+        op.affectedKeys && op.affectedKeys.length > 0
+          ? op.affectedKeys
+          : localId !== null && localId !== ''
+            ? [localId]
+            : [];
 
-      // A provisional row is replaced wholesale rather than updated: its
-      // primary key changes, so the old row has to go.
-      if (localId !== null && isLocalId(localId) && localId !== serverKey) {
-        await resource.table.delete(localId);
+      if (serverEntity !== null && typeof serverEntity === 'object') {
+        const row = toServerRow(serverEntity as object);
+        const serverKey = resource.primaryKey(serverEntity as never);
+
+        // A provisional row is replaced wholesale rather than updated: its
+        // primary key changes, so the old row has to go.
+        if (localId !== null && isLocalId(localId) && localId !== serverKey) {
+          await resource.table.delete(localId);
+        }
+        await resource.table.put(row);
+      } else if (options.isDelete) {
+        // A confirmed delete — drop every tombstone it covered.
+        for (const key of affectedKeys) {
+          await resource.table.delete(key);
+        }
       }
-      await resource.table.put(row);
-    } else if (options.isDelete) {
-      // A confirmed delete — drop every tombstone it covered.
-      for (const key of affectedKeys) {
-        await resource.table.delete(key);
+      // Otherwise the server acknowledged without a body (an idempotency
+      // replay, or a conflict resolved as "already applied"). The local row
+      // stays: deleting it here would make a *create* vanish from the mirror
+      // until some later pull happened to bring it back.
+
+      if (identity !== null && localId !== null && isLocalId(localId)) {
+        await resolveMapping(localId, identity.serverId ?? identity.serverKey, identity.serverKey);
       }
-    }
-    // Otherwise the server acknowledged without a body (an idempotency
-    // replay, or a conflict resolved as "already applied"). The local row
-    // stays: deleting it here would make a *create* vanish from the mirror
-    // until some later pull happened to bring it back.
 
-    if (identity !== null && localId !== null && isLocalId(localId)) {
-      await resolveMapping(localId, identity.serverId ?? identity.serverKey, identity.serverKey);
-    }
+      // Stock deltas this operation carried are now reflected in the server's
+      // baseline, so they must stop counting toward effective stock.
+      if (op.seq !== undefined) {
+        await db.stockLedger.where('outboxSeq').equals(op.seq).modify({ status: 'confirmed' });
+        await deleteOperation(op.seq);
+      }
 
-    // Stock deltas this operation carried are now reflected in the server's
-    // baseline, so they must stop counting toward effective stock.
-    if (op.seq !== undefined) {
-      await db.stockLedger.where('outboxSeq').equals(op.seq).modify({ status: 'confirmed' });
-      await deleteOperation(op.seq);
+      // Content was already correct optimistically on a success — only the
+      // pending flag on any row this op touched outside its own table needs
+      // clearing, so the next pull can freely reconcile it.
+      await clearCrossResourcePending(op.crossResourceAffected);
     }
-  });
+  );
 };
 
 /**
@@ -411,6 +425,11 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
           // Nothing downstream can ever reference this successfully.
           await abandonMapping(op.entityLocalId);
         }
+        // A permanent rejection abandons this op's own row, but anything it
+        // optimistically touched outside its own table (e.g. a credit note's
+        // invoice-side bump) would otherwise stay `_pending` forever — clear
+        // it so the next pull can reconcile from the server.
+        await clearCrossResourcePending(op.crossResourceAffected);
         summary.conflicted += 1;
         logError(resource.id, `Change permanently rejected: ${apiError.message}`, {
           operation: op.operation,

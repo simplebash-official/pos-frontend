@@ -3,8 +3,9 @@ import type { MirroredRow } from '@/offline/db/tables';
 import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
 import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
 import type {
-  CancelInvoicePayload,
+  CloseInvoicePayload,
   CompleteSalePayload,
+  VoidInvoicePayload,
 } from '@/offline/resources/invoices.resource';
 import type { Invoice } from '../types';
 
@@ -26,7 +27,12 @@ export const useCompleteSale = () => {
   return useSyncedMutation<CompleteSalePayload, Invoice>('invoices', 'create');
 };
 
-/** Not wired into any screen yet — see `invoices.resource.ts`'s `cancel` operation doc comment. */
-export const useCancelInvoice = () => {
-  return useSyncedMutation<CancelInvoicePayload, Invoice>('invoices', 'cancel');
+/** Reverses an invoice's stock/payment effects — admin-gated in the UI, mandatory reason. */
+export const useVoidInvoice = () => {
+  return useSyncedMutation<VoidInvoicePayload, Invoice>('invoices', 'void');
+};
+
+/** Manual terminal action — only valid from Paid with zero open credit notes. */
+export const useCloseInvoice = () => {
+  return useSyncedMutation<CloseInvoicePayload, Invoice>('invoices', 'close');
 };

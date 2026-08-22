@@ -128,6 +128,8 @@ export const productsResource = defineSyncResource<Product>({
           // mirror, so the first pull cannot double-count it.
           stockQuantity: 0,
           minStockThreshold: input.minStockThreshold,
+          isSerialized: input.isSerialized ?? false,
+          warrantyMonths: input.warrantyMonths,
           createdAt: ctx.now,
           updatedAt: ctx.now,
         };

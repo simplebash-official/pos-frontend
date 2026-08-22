@@ -2,7 +2,7 @@ import { STORAGE_QUOTA_WARN_RATIO } from '../constants';
 import { logInfo, logWarn } from '../engine/auditLog';
 import { getResourcesInDependencyOrder } from '../registry/registry';
 import { db, MIRROR_TABLE_NAMES } from './schema';
-import { countUnsettled } from '../outbox/outbox';
+import { countUnsettled, listOperations } from '../outbox/outbox';
 
 /**
  * Escape hatches and housekeeping for the local database.
@@ -60,15 +60,54 @@ export const requestPersistentStorage = async (): Promise<boolean> => {
  *
  * Queued work is deliberately preserved: mirrors are derived state and can
  * always be rebuilt, but the outbox holds changes that exist nowhere else.
+ *
+ * A `_pending` row only deserves that protection while some live outbox
+ * operation still actually references it (as its own entity, one of its
+ * `affectedKeys`, or a `crossResourceAffected` side effect). A row that's
+ * `_pending` with nothing left in the outbox pointing at it is an orphan —
+ * typically a pre-fix leftover from an operation that settled before this
+ * bookkeeping existed — and preserving it would defeat the whole point of a
+ * forced resync: it can never be corrected by any pull, forever, since pulls
+ * skip every `_pending` row unconditionally. Orphans are dropped here rather
+ * than preserved, so the resync that follows can actually repopulate them
+ * from the server.
  */
 export const forceFullResync = async (): Promise<void> => {
   const mirrorTables = MIRROR_TABLE_NAMES.map((tableName) => db.table(tableName));
 
+  const ops = await listOperations();
+  const protectedKeysByTable = new Map<string, Set<string>>();
+  const protect = (table: string, key: string | null | undefined) => {
+    if (!key) return;
+    const set = protectedKeysByTable.get(table) ?? new Set<string>();
+    set.add(key);
+    protectedKeysByTable.set(table, set);
+  };
+  for (const op of ops) {
+    protect(op.resource, op.entityLocalId);
+    for (const key of op.affectedKeys ?? []) {
+      protect(op.resource, key);
+    }
+    for (const affected of op.crossResourceAffected ?? []) {
+      protect(affected.resource, affected.key);
+    }
+  }
+
   await db.transaction('rw', [...mirrorTables, db.syncMeta], async () => {
     for (const tableName of MIRROR_TABLE_NAMES) {
       // Rows carrying unpushed changes survive — clearing them would drop
-      // the local half of work the outbox is still going to push.
-      const pending = await db.table(tableName).where('_pending').equals(1).toArray();
+      // the local half of work the outbox is still going to push. Only rows
+      // an actual live outbox operation still references qualify; anything
+      // else with a stale `_pending` flag is an orphan (see doc comment
+      // above) and is left to be cleared along with the rest of the table.
+      const protectedKeys = protectedKeysByTable.get(tableName);
+      const pending = protectedKeys?.size
+        ? (await db.table(tableName).where('_pending').equals(1).toArray()).filter((row) =>
+            protectedKeys.has(
+              (row as { id?: string; key?: string }).id ?? (row as { key: string }).key
+            )
+          )
+        : [];
       await db.table(tableName).clear();
       if (pending.length > 0) {
         await db.table(tableName).bulkPut(pending);

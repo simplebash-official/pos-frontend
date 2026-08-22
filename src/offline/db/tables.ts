@@ -69,6 +69,12 @@ export interface OutboxOp {
    * Omitted for single-row operations, where `entityLocalId` says it all.
    */
   affectedKeys?: string[];
+  /**
+   * Rows in OTHER resources' mirror tables this operation's `localApply`
+   * wrote as a side effect — see `LocalApplyResult.crossResourceAffected`.
+   * Cleared of `_pending` once this operation settles, regardless of outcome.
+   */
+  crossResourceAffected?: { resource: string; key: string }[];
   payload: unknown;
   /** Human-readable summary for the pending-changes list, e.g. `Create product "Lens"`. */
   label: string;
@@ -271,12 +277,29 @@ export interface StatsCacheRow<T = unknown> {
 }
 
 // ---------------------------------------------------------------------------
-// Returns & Refunds
+// Credit Notes (returns, refunds & exchanges)
 // ---------------------------------------------------------------------------
 
-export type ReturnPayoutMethod = 'cash' | 'card' | 'store_credit';
+/**
+ * What state a returned unit is actually in — independent of whether the
+ * Credit Note itself has been resolved. Drives the stock movement (or lack
+ * of one) written on Issue: `resalable`/`openBoxDiscount` restock the item,
+ * `damaged` requires a `CreditNoteDisposition`, `pendingInspection` writes
+ * no stock movement at all until someone re-processes it.
+ */
+export type CreditNoteItemCondition =
+  'resalable' | 'damaged' | 'open_box_discount' | 'pending_inspection';
 
-export interface ReturnItem {
+/** Only meaningful (and required) when `condition === 'damaged'`. */
+export type CreditNoteItemDisposition = 'return_to_supplier' | 'write_off_scrap' | 'repair_pending';
+
+/** A leg of a refund paid out via a specific method — see `refundBreakdown` below. */
+export interface RefundBreakdownLeg {
+  method: 'cash' | 'card' | 'online';
+  amountCents: number;
+}
+
+export interface CreditNoteItem {
   id: string;
   productId: string;
   productKey?: string;
@@ -286,22 +309,100 @@ export interface ReturnItem {
   unitPriceCents: number;
   discountCents: number;
   refundAmountCents: number;
-  restockInventory: boolean;
   reason: string;
+  condition: CreditNoteItemCondition;
+  /** Required when `condition === 'damaged'`, absent otherwise. */
+  disposition?: CreditNoteItemDisposition;
+  /** Present when the returned line was a serial-tracked unit. */
+  serialNumber?: string;
+  /** Computed server-side from the matched serial's warranty expiry. */
+  withinWarranty?: boolean;
 }
 
-export interface ReturnRecord {
+/**
+ * `resolved` — the normal single-atomic-write outcome (a refund/store-credit
+ * decision was made at creation time). `awaitingResolution` — created with
+ * at least one `pending_inspection` line and no payout decision yet; this
+ * codebase has no edit-in-place workflow to move it forward (a deliberate
+ * scope boundary, see the plan's Phase B2), so the only way out is `voided`.
+ * `voided` — reversed via the admin-gated void action.
+ */
+export type CreditNoteStatus = 'resolved' | 'awaiting_resolution' | 'voided';
+
+export interface CreditNote {
   id: string;
-  originalInvoiceId: string;
-  originalInvoiceNumber: string;
+  creditNoteNumber: string;
+  /** Absent for a no-receipt credit note. */
+  invoiceId?: string;
+  invoiceNumber?: string;
   customerId?: string;
   customerName?: string;
   customerPhone?: string;
   cashierId?: string;
   cashierName?: string;
-  items: ReturnItem[];
-  totalRefundCents: number;
-  payoutMethod: ReturnPayoutMethod;
+  items: CreditNoteItem[];
+  /** Replacement items taken as part of an exchange — empty for a plain return. */
+  exchangeItems: CreditNoteExchangeItem[];
+  returnSubtotalCents: number;
+  exchangeSubtotalCents: number;
+  /** `returnSubtotalCents - exchangeSubtotalCents`; positive = owed to customer. */
+  netRefundCents: number;
+  /** The portion of `netRefundCents` actually paid out, capped at what was collected on the invoice. */
+  refundCashCents: number;
+  /** The remainder of `netRefundCents` applied to reduce the invoice's outstanding balance instead of paid in cash. */
+  balanceReductionCents: number;
+  /** How `refundCashCents` was split across payment methods — one leg for a single-method invoice. */
+  refundBreakdown: RefundBreakdownLeg[];
+  noReceipt: boolean;
+  isManagerOverride: boolean;
+  overrideReason?: string;
+  /** Set whenever `exchangeItems` is non-empty — links the return and the replacement sale for reporting. */
+  exchangeReference?: string;
+  status: CreditNoteStatus;
   notes?: string;
   createdAt: string;
+}
+
+/** A replacement line taken as part of an exchange — a normal sale line, not a returned one. */
+export interface CreditNoteExchangeItem {
+  id: string;
+  productId: string;
+  productKey?: string;
+  name: string;
+  sku?: string;
+  unitPriceCents: number;
+  quantity: number;
+  discountCents: number;
+  totalCents: number;
+  sourceType?: 'retail' | 'repair' | 'print';
+  sourceTicketNumber?: string;
+}
+
+/**
+ * The lifecycle of one serial-tracked unit, independent of the product's
+ * aggregate stock count. Server-owned end to end (minted on stock receipt,
+ * transitioned on sale/return) — this mirror has no sync operations, only a
+ * pull, matching `StockMovement`'s read-only pattern.
+ */
+export type ProductSerialStatus =
+  | 'in_stock'
+  | 'sold'
+  | 'returned_resalable'
+  | 'returned_faulty'
+  | 'under_warranty_claim'
+  | 'written_off';
+
+export interface ProductSerial {
+  id: string;
+  key: string;
+  productKey: string;
+  serialNumber: string;
+  status: ProductSerialStatus;
+  invoiceKey?: string;
+  soldAt?: string;
+  warrantyMonths?: number;
+  warrantyExpiresAt?: string;
+  creditNoteKey?: string;
+  createdAt: string;
+  updatedAt: string;
 }

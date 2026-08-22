@@ -1,5 +1,6 @@
 import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse, PaginatedResponse } from '@/shared/types/common';
+import type { ProductSerial, ProductSerialStatus } from '@/offline/db/tables';
 import {
   Product,
   CreateProductInput,
@@ -101,6 +102,22 @@ export const adjustStock = async (
     options
   );
   return response.data;
+};
+
+/**
+ * Live server read of one product's serial units, e.g. `status: 'in_stock'`
+ * for a checkout serial picker where a stale offline mirror could let
+ * someone pick a unit that's already been sold on another terminal.
+ */
+export const fetchProductSerials = async (
+  productKey: string,
+  status?: ProductSerialStatus
+): Promise<ProductSerial[]> => {
+  const response = await apiClient.get<ApiResponse<{ items: ProductSerial[] }>>(
+    `/inventory/products/${productKey}/serials`,
+    { params: status ? { status } : undefined }
+  );
+  return response.data.items;
 };
 
 export const fetchLowStockProducts = async (): Promise<Product[]> => {

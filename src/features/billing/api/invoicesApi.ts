@@ -1,6 +1,6 @@
 import { apiClient, type MutationRequestOptions } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
-import type { Invoice, InvoiceItem, SplitPaymentDetail } from '../types';
+import type { Invoice, InvoiceItem, InvoiceStatus, SplitPaymentDetail } from '../types';
 
 // Request shape for `POST /billing/sales` — mirrors the backend's
 // `domain::billing::CreateSaleRequest`. `cashierId` is deliberately absent:
@@ -22,6 +22,8 @@ export interface CompleteSaleItemInput {
   totalCents?: number;
   sourceTicketNumber?: string;
   assignedEmployeeName?: string;
+  /** Which specific in-stock units are being sold, for a serial-tracked product. */
+  serialNumbers?: string[];
 }
 
 export interface CompleteSaleSplitPaymentInput {
@@ -81,6 +83,7 @@ interface BackendInvoiceItem {
   sourceTicketKey?: string;
   sourceTicketNumber?: string;
   assignedEmployeeName?: string;
+  serialNumbers?: string[];
 }
 
 interface BackendSplitPayment {
@@ -116,7 +119,16 @@ export interface BackendInvoice {
   cardRef?: string;
   onlineRef?: string;
   onlineNote?: string;
-  status: 'paid' | 'pending' | 'cancelled';
+  status: InvoiceStatus;
+  isOverdue: boolean;
+  creditNoteCount: number;
+  hasCreditNotes: boolean;
+  refundedCents: number;
+  voidedAt?: string;
+  voidedBy?: string;
+  voidedReason?: string;
+  closedAt?: string;
+  closedBy?: string;
   notes?: string;
   warrantyTermsSnapshot?: string;
   documentSelection?: string;
@@ -161,11 +173,12 @@ export const toInvoiceItem = (item: BackendInvoiceItem, index: number): InvoiceI
   sourceType: item.sourceType as InvoiceItem['sourceType'],
   sourceTicketNumber: item.sourceTicketNumber,
   assignedEmployeeName: item.assignedEmployeeName,
+  serialNumbers: item.serialNumbers,
 });
 
 export const toSplitPayment = (sp: BackendSplitPayment, index: number): SplitPaymentDetail => ({
   id: `split-${index}`,
-  method: sp.method,
+  method: sp.method as SplitPaymentDetail['method'],
   amountCents: sp.amountCents,
   cardLast4: sp.cardLast4,
   reference: sp.reference,
@@ -185,7 +198,7 @@ export const toInvoice = (inv: BackendInvoice): Invoice => ({
   discountType: inv.discountType,
   discountValue: inv.discountValue,
   totalCents: inv.totalCents,
-  paymentMethod: inv.paymentMethod,
+  paymentMethod: inv.paymentMethod as Invoice['paymentMethod'],
   splitPayments: inv.splitPayments?.map(toSplitPayment),
   isCredit: inv.isCredit,
   amountReceivedCents: inv.amountReceivedCents,
@@ -196,6 +209,15 @@ export const toInvoice = (inv: BackendInvoice): Invoice => ({
   onlineRef: inv.onlineRef,
   onlineNote: inv.onlineNote,
   status: inv.status,
+  isOverdue: inv.isOverdue,
+  creditNoteCount: inv.creditNoteCount,
+  hasCreditNotes: inv.hasCreditNotes,
+  refundedCents: inv.refundedCents,
+  voidedAt: inv.voidedAt,
+  voidedBy: inv.voidedBy,
+  voidedReason: inv.voidedReason,
+  closedAt: inv.closedAt,
+  closedBy: inv.closedBy,
   createdAt: inv.createdAt,
   items: inv.items.map(toInvoiceItem),
   notes: inv.notes,
@@ -228,8 +250,12 @@ export const completeSale = async (
 export interface FetchInvoicesParams {
   /** Free-text match against invoice number / customer name / customer phone. */
   search?: string;
-  /** `"paid"` (status paid, not credit) or `"credit"` (credit OR pending). */
-  paymentStatus?: 'paid' | 'credit';
+  /**
+   * `InvoiceStatus` value, or the synthetic `"overdue"` value (Pending/
+   * PartiallyPaid past `dueDate`, computed server-side — see
+   * `InvoiceListQuery.status` in the backend).
+   */
+  status?: InvoiceStatus | 'overdue';
   /** Exact match: "cash" | "card" | "online" | "split". */
   paymentMethod?: string;
   /** Only `"today"` is meaningful; omit for all time. */
@@ -248,7 +274,7 @@ export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoi
     params: {
       limit: 200,
       search: params?.search,
-      paymentStatus: params?.paymentStatus,
+      status: params?.status,
       paymentMethod: params?.paymentMethod,
       datePreset: params?.datePreset,
     },
@@ -261,17 +287,33 @@ export const fetchInvoiceById = async (idOrKey: string): Promise<Invoice> => {
   return toInvoice(response.data);
 };
 
-// Admin-gated on the backend (`billing::routes::cancel_invoice`). Not called
-// from any UI yet — added so `invoices.resource.ts` can offer a `cancel`
-// sync operation ready for whenever an admin-facing cancel screen exists.
-export const cancelInvoice = async (
+// Admin-gated on the backend (`billing::routes::void_invoice`). Reverses an
+// invoice's stock/payment effects after the fact — the only "call this off"
+// action this codebase has, since a sale is one atomic write with no
+// pre-payment draft state to cancel without impact (see invoiceStatus.ts).
+// `reason` is mandatory server-side.
+export const voidInvoice = async (
   idOrKey: string,
-  reason: string | undefined,
+  reason: string,
   options?: MutationRequestOptions
 ): Promise<Invoice> => {
   const response = await apiClient.post<ApiResponse<BackendInvoice>>(
-    `/billing/invoices/${idOrKey}/cancel`,
+    `/billing/invoices/${idOrKey}/void`,
     { reason },
+    options
+  );
+  return toInvoice(response.data);
+};
+
+// Admin-gated on the backend (`billing::routes::close_invoice`). Manual
+// terminal action — only valid from Paid with zero open credit notes.
+export const closeInvoice = async (
+  idOrKey: string,
+  options?: MutationRequestOptions
+): Promise<Invoice> => {
+  const response = await apiClient.post<ApiResponse<BackendInvoice>>(
+    `/billing/invoices/${idOrKey}/close`,
+    {},
     options
   );
   return toInvoice(response.data);

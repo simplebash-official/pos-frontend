@@ -38,6 +38,7 @@ export const ReceiveStockModal = ({
   const [unitCost, setUnitCost] = useState<number | string>(''); // in rupees
   const [date, setDate] = useState<Date | null>(new Date());
   const [referenceNo, setReferenceNo] = useState('');
+  const [serialNumbers, setSerialNumbers] = useState<string[]>([]);
 
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [supplierPickerOpen, setSupplierPickerOpen] = useState(false);
@@ -57,15 +58,37 @@ export const ReceiveStockModal = ({
       setUnitCost('');
       setDate(new Date());
       setReferenceNo('');
+      setSerialNumbers([]);
     }
   }, [opened, initialProductKey, initialSupplierKey]);
 
   const selectedProduct = products?.find((p) => p.key === productKey);
   const selectedSupplier = suppliers?.find((s) => s.key === supplierKey);
+  const needsSerials = Boolean(selectedProduct?.isSerialized);
+  const serialUnitCount = Math.max(0, Number(quantity) || 0);
+
+  // Keep the serial-number input list the same length as the quantity.
+  useEffect(() => {
+    if (!needsSerials) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (serialNumbers.length > 0) setSerialNumbers([]);
+      return;
+    }
+    setSerialNumbers((prev) => {
+      if (prev.length === serialUnitCount) return prev;
+      const next = prev.slice(0, serialUnitCount);
+      while (next.length < serialUnitCount) next.push('');
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsSerials, serialUnitCount]);
+
+  const hasBlankSerial = needsSerials && serialNumbers.some((s) => !s.trim());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!productKey || !supplierKey || !quantity || !unitCost || !date) return;
+    if (hasBlankSerial) return;
 
     createPurchase(
       {
@@ -75,6 +98,7 @@ export const ReceiveStockModal = ({
         unitCostCents: toCents(Number(unitCost)),
         date: date.toISOString(),
         referenceNo,
+        serialNumbers: needsSerials ? serialNumbers.map((s) => s.trim()) : undefined,
       },
       {
         onSuccess: () => {
@@ -198,6 +222,32 @@ export const ReceiveStockModal = ({
               />
             </Group>
 
+            {needsSerials && serialUnitCount > 0 && (
+              <Stack gap={4}>
+                <Text size="sm" fw={500}>
+                  Serial Numbers
+                </Text>
+                <Text size="xs" c="dimmed">
+                  This item is tracked by serial number. Enter the serial for each unit received.
+                </Text>
+                {Array.from({ length: serialUnitCount }).map((_, index) => (
+                  <TextInput
+                    key={index}
+                    placeholder={`Serial number for unit ${index + 1} of ${serialUnitCount}`}
+                    value={serialNumbers[index] ?? ''}
+                    onChange={(e) => {
+                      const value = e.currentTarget.value;
+                      setSerialNumbers((prev) => {
+                        const next = [...prev];
+                        next[index] = value;
+                        return next;
+                      });
+                    }}
+                  />
+                ))}
+              </Stack>
+            )}
+
             <Group grow>
               <DateInput
                 label="Date Received"
@@ -217,7 +267,11 @@ export const ReceiveStockModal = ({
               <Button variant="default" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" loading={isPending} disabled={!productKey || !supplierKey}>
+              <Button
+                type="submit"
+                loading={isPending}
+                disabled={!productKey || !supplierKey || hasBlankSerial}
+              >
                 Receive Stock
               </Button>
             </Group>

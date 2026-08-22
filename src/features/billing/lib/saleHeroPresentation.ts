@@ -16,8 +16,7 @@ export const getSaleHeroPresentation = (
   changeDueCents: number
 ): SaleHeroPresentation => {
   const isRefund = invoice.totalCents < 0;
-  const isEvenExchange =
-    invoice.totalCents === 0 && invoice.items.some((i) => i.isReturn || i.quantity < 0);
+  const isEvenExchange = invoice.totalCents === 0 && invoice.items.some((i) => i.quantity < 0);
   const isCreditCompleted =
     !isRefund && !isEvenExchange && (invoice.isCredit || invoice.status === 'pending');
   const isChangeDue = !isCreditCompleted && !isRefund && !isEvenExchange && changeDueCents > 0;

@@ -153,6 +153,7 @@ export const BillingCounter = () => {
             quantity: i.quantity,
             discountCents: i.discountCents,
             sourceType,
+            serialNumbers: i.serialNumbers,
             ...(isResolved
               ? {}
               : {
@@ -223,6 +224,10 @@ export const BillingCounter = () => {
         onlineRef: onlineRef || undefined,
         onlineNote: onlineNote || undefined,
         status: isCredit ? 'pending' : 'paid',
+        isOverdue: false,
+        creditNoteCount: 0,
+        hasCreditNotes: false,
+        refundedCents: 0,
         items: items.map((item) => ({
           id: item.id,
           productId:
@@ -241,6 +246,7 @@ export const BillingCounter = () => {
           sourceTicketNumber: item.sourceTicketNumber,
           assignedEmployeeId: item.assignedEmployeeId,
           assignedEmployeeName: item.assignedEmployeeName,
+          serialNumbers: item.serialNumbers,
         })),
         notes,
         warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
@@ -510,7 +516,7 @@ export const BillingCounter = () => {
       <SaleDocumentPreviewModal
         opened={!!preview}
         onClose={closeDocumentPreview}
-        invoice={preview?.invoice ?? null}
+        subject={preview?.invoice ? { kind: 'invoice', invoice: preview.invoice } : null}
         documentKind={preview?.kind ?? null}
       />
     </Box>

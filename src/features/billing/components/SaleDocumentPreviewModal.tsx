@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
 import { IconX, IconPrinter } from '@tabler/icons-react';
 import type { Invoice } from '../types';
+import type { CreditNote } from '@/offline/db/tables';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { useCreditNoteDocument } from '../hooks/useCreditNoteDocument';
+import { getCreditNoteStatusMeta } from '@/features/invoices/lib/invoiceStatus';
 import { getPrintLogsForInvoice, recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
@@ -14,50 +17,57 @@ import { formatDateTime, formatTime } from '@/shared/lib/date';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
 
+export type DocumentPreviewSubject =
+  { kind: 'invoice'; invoice: Invoice } | { kind: 'creditNote'; creditNote: CreditNote };
+
 export interface SaleDocumentPreviewModalProps {
   opened: boolean;
   onClose: () => void;
-  invoice: Invoice | null;
-  documentKind: 'invoice' | 'receipt' | 'return-slip' | 'credit-note' | null;
+  subject: DocumentPreviewSubject | null;
+  documentKind: 'invoice' | 'receipt' | 'credit-note' | null;
 }
 
 export const SaleDocumentPreviewModal = ({
   opened,
   onClose,
-  invoice,
+  subject,
   documentKind,
 }: SaleDocumentPreviewModalProps) => {
   const isMobile = useIsMobile();
   const tier = useLayoutTier();
   const printSettings = useAppSelector(selectPrintSettings);
 
+  const invoice = subject?.kind === 'invoice' ? subject.invoice : null;
+  const creditNote = subject?.kind === 'creditNote' ? subject.creditNote : null;
+
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
-  const printLogs = opened && invoice ? getPrintLogsForInvoice(invoice.invoiceNumber) : [];
+  const printLogNumber = invoice?.invoiceNumber ?? creditNote?.creditNoteNumber;
+  const printLogs = opened && printLogNumber ? getPrintLogsForInvoice(printLogNumber) : [];
   const hasPrinted = printLogs.length > 0;
 
   const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
-  const docType =
-    opened && documentKind
+  const invoiceDocType =
+    opened && invoice && documentKind
       ? documentKind === 'invoice'
         ? 'a4-invoice'
         : documentKind === 'receipt'
           ? 'thermal-receipt'
-          : documentKind
+          : null
       : null;
 
-  const { blob, loading, error, isPaused, isPending } = useInvoiceDocument(
-    invoice?.id,
-    docType,
-    paperWidthMm
-  );
+  // Both hooks are always called (Rules of Hooks) — each is a no-op query
+  // (`enabled: false`) when its subject isn't the active one.
+  const invoiceDoc = useInvoiceDocument(invoice?.id, invoiceDocType, paperWidthMm);
+  const creditNoteDoc = useCreditNoteDocument(opened && creditNote ? creditNote.id : undefined);
+  const { blob, loading, error, isPaused, isPending } = creditNote ? creditNoteDoc : invoiceDoc;
 
   const handlePrint = () => {
-    if (!invoice || !blob) return;
+    if (!blob || !printLogNumber) return;
     void printPdfBlob(blob);
     recordPrintEvent({
-      invoiceId: invoice.id,
-      invoiceNumber: invoice.invoiceNumber,
+      invoiceId: invoice?.id ?? creditNote?.id ?? '',
+      invoiceNumber: printLogNumber,
       format:
         documentKind === 'invoice' || documentKind === 'credit-note'
           ? 'a4'
@@ -65,7 +75,7 @@ export const SaleDocumentPreviewModal = ({
             ? 'receipt-58'
             : 'receipt-80',
       copy: hasPrinted ? 'DUPLICATE COPY' : 'ORIGINAL — CUSTOMER COPY',
-      printedBy: invoice.cashierName,
+      printedBy: invoice?.cashierName ?? creditNote?.cashierName ?? '',
     });
     window.setTimeout(() => forcePrintLogRefresh((t) => t + 1), 300);
   };
@@ -79,34 +89,33 @@ export const SaleDocumentPreviewModal = ({
     opened
   );
 
-  if (!invoice || !documentKind) return null;
+  if (!subject || !documentKind) return null;
 
-  const hero = getSaleHeroPresentation(invoice, invoice.changeDueCents ?? 0);
   const isReceipt = documentKind === 'receipt';
-  const isReturnSlip = documentKind === 'return-slip';
   const isCreditNote = documentKind === 'credit-note';
-
-  const statusWord = isReturnSlip
-    ? 'Refund / Return'
-    : isCreditNote
-      ? 'Credit Note'
-      : hero.isCreditCompleted
-        ? 'On account'
-        : hero.isChangeDue
-          ? 'Change due'
-          : 'Paid in full';
-
-  const docLabel = isReceipt
-    ? 'Receipt'
-    : isReturnSlip
-      ? 'Return Slip'
-      : isCreditNote
-        ? 'Credit Note'
-        : 'Invoice';
-
-  const title = `${docLabel} — ${invoice.invoiceNumber}`;
-  const subtitle = `${statusWord} · ${hero.methodLabel} · ${formatDateTime(invoice.createdAt)}`;
   const isDesktopTier = tier === 'desktop';
+
+  // `getSaleHeroPresentation` only understands an `Invoice` — the credit
+  // note case builds its own, much simpler header values below instead.
+  const hero = invoice ? getSaleHeroPresentation(invoice, invoice.changeDueCents ?? 0) : null;
+
+  const statusWord = isCreditNote
+    ? getCreditNoteStatusMeta(creditNote!.status).label
+    : hero!.isCreditCompleted
+      ? 'On account'
+      : hero!.isChangeDue
+        ? 'Change due'
+        : 'Paid in full';
+
+  const docLabel = isReceipt ? 'Receipt' : isCreditNote ? 'Credit Note' : 'Invoice';
+  const heroColor = isCreditNote
+    ? getCreditNoteStatusMeta(creditNote!.status).color
+    : hero!.heroColor;
+
+  const title = `${docLabel} — ${printLogNumber}`;
+  const subtitle = isCreditNote
+    ? `${statusWord} · ${formatDateTime(creditNote!.createdAt)}`
+    : `${statusWord} · ${hero!.methodLabel} · ${formatDateTime(invoice!.createdAt)}`;
 
   const documentPane = (
     <PdfCanvasViewer
@@ -151,7 +160,7 @@ export const SaleDocumentPreviewModal = ({
               width: 8,
               height: 8,
               borderRadius: '50%',
-              backgroundColor: `var(--mantine-color-${hero.heroColor}-6)`,
+              backgroundColor: `var(--mantine-color-${heroColor}-6)`,
               flexShrink: 0,
             }}
           />
@@ -190,7 +199,7 @@ export const SaleDocumentPreviewModal = ({
         </Group>
       </Box>
 
-      {isReceipt ? (
+      {isReceipt && invoice && hero ? (
         <Box
           style={{
             flex: 1,

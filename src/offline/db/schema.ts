@@ -15,11 +15,12 @@ import type {
   IdMapRecord,
   MirroredRow,
   OutboxOp,
+  ProductSerial,
   SessionRecord,
   StatsCacheRow,
   StockLedgerEntry,
   SyncMetaRecord,
-  ReturnRecord,
+  CreditNote,
 } from './tables';
 
 /**
@@ -46,7 +47,9 @@ export class OfflineDb extends Dexie {
   payments!: Table<MirroredRow<PaymentRecord>, string>;
   repairs!: Table<MirroredRow<RepairJob>, string>;
   printJobs!: Table<MirroredRow<PrintJob>, string>;
-  returns!: Table<MirroredRow<ReturnRecord>, string>;
+  creditNotes!: Table<MirroredRow<CreditNote>, string>;
+  /** Read-only mirror — the server is the sole writer of serial lifecycle transitions. */
+  productSerials!: Table<MirroredRow<ProductSerial>, string>;
 
   // Engine tables
   outbox!: Table<OutboxOp, number>;
@@ -147,6 +150,33 @@ export class OfflineDb extends Dexie {
         });
       }
     });
+
+    // v8 replaces the `returns` mirror with `creditNotes` (Credit Note model
+    // upgrade — condition/disposition, refund caps/allocation, no-receipt,
+    // return-window overrides) and adds a read-only `productSerials` mirror
+    // for serialized/warranty tracking. Mirror tables are derived state, so
+    // `returns` is dropped rather than migrated row-by-row — the next pull
+    // repopulates `creditNotes` from scratch under its new shape.
+    this.version(8).stores({
+      returns: null,
+      creditNotes:
+        'id, invoiceId, invoiceNumber, customerId, status, createdAt, _pending, _isDeleted',
+      productSerials: 'id, key, productKey, serialNumber, status, _pending, _isDeleted',
+    });
+
+    // v9 cleans up a v8 oversight: dropping the `returns` mirror table above
+    // doesn't touch `syncMeta`'s bookkeeping row for it (a separate engine
+    // table, keyed by resource id, untouched by a mirror-table schema
+    // change). Left alone, `getAllSyncMeta`'s unfiltered `toArray()` keeps
+    // reporting a "returns" module forever, permanently stuck "out of date"
+    // since nothing pulls it anymore. No store changes here — this version
+    // exists purely to run the cleanup, same "derived state, drop it"
+    // treatment `returns` itself already got in v8.
+    this.version(9)
+      .stores({})
+      .upgrade(async (tx) => {
+        await tx.table('syncMeta').delete('returns');
+      });
   }
 }
 
@@ -165,7 +195,8 @@ export const MIRROR_TABLE_NAMES = [
   'payments',
   'repairs',
   'printJobs',
-  'returns',
+  'creditNotes',
+  'productSerials',
 ] as const;
 
 export type MirrorTableName = (typeof MIRROR_TABLE_NAMES)[number];

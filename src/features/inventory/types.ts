@@ -53,6 +53,8 @@ export interface Product extends SyncedEntityFields {
   sellingPriceCents: number;
   stockQuantity: number;
   minStockThreshold: number;
+  isSerialized: boolean;
+  warrantyMonths?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -76,6 +78,8 @@ export interface CreateProductInput {
   barcode?: string;
   autoGenerateBarcode?: boolean;
   suppliers?: ProductSupplierIntake[];
+  isSerialized?: boolean;
+  warrantyMonths?: number;
 }
 
 export interface UpdateProductInput {
@@ -86,6 +90,8 @@ export interface UpdateProductInput {
   sellingPriceCents?: number;
   stockQuantity?: number;
   minStockThreshold?: number;
+  isSerialized?: boolean;
+  warrantyMonths?: number;
 }
 
 export type ProductInput = CreateProductInput;

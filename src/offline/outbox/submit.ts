@@ -77,6 +77,7 @@ export const submitOperation = async <TResult>(
       operation: operationName,
       entityLocalId: entityKey,
       affectedKeys: result.affectedKeys,
+      crossResourceAffected: result.crossResourceAffected,
       payload,
       baseVersion,
       dependsOn: [],

@@ -1,9 +1,10 @@
 import { queryKeys } from '@/api/queryKeys';
 import {
-  cancelInvoice,
+  closeInvoice,
   completeSale,
   fetchInvoices,
   toInvoice,
+  voidInvoice,
   type BackendInvoice,
   type CompleteSaleInput,
 } from '@/features/billing/api/invoicesApi';
@@ -27,9 +28,13 @@ export interface CompleteSalePayload {
   optimistic: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt'>;
 }
 
-export interface CancelInvoicePayload {
+export interface VoidInvoicePayload {
   invoiceKey: string;
-  reason?: string;
+  reason: string;
+}
+
+export interface CloseInvoicePayload {
+  invoiceKey: string;
 }
 
 /**
@@ -132,27 +137,51 @@ export const invoicesResource = defineSyncResource<Invoice>({
       },
     }),
 
-    cancel: defineOperation<CancelInvoicePayload>({
+    void: defineOperation<VoidInvoicePayload>({
       references: [{ path: 'invoiceKey', target: 'invoices', kind: 'id', blocking: true }],
-      describe: (payload) => `Cancel invoice ${payload.invoiceKey}`,
+      describe: (payload) => `Void invoice ${payload.invoiceKey}`,
       localApply: async (payload) => {
         const row = await db.invoices.get(payload.invoiceKey);
         if (!row) {
           throw new Error(`Invoice ${payload.invoiceKey} is not in the local mirror`);
         }
-        const next = markPending(row, { status: 'cancelled' as const });
+        const next = markPending(row, { status: 'voided' as const });
         await db.invoices.put(next);
         return { entity: next, entityKey: payload.invoiceKey };
       },
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.invoiceKey, 'invoices');
-        const cancelled = await cancelInvoice(id, payload.reason, pushOptions(ctx));
+        const voided = await voidInvoice(id, payload.reason, pushOptions(ctx));
         return {
-          serverEntity: cancelled,
+          serverEntity: voided,
           removesRows: false,
           identity: null,
-          // Cancelling restores stock server-side.
+          // Voiding restores stock server-side.
           followUp: [{ resource: 'stockMovements', scope: null }],
+        };
+      },
+    }),
+
+    close: defineOperation<CloseInvoicePayload>({
+      references: [{ path: 'invoiceKey', target: 'invoices', kind: 'id', blocking: true }],
+      describe: (payload) => `Close invoice ${payload.invoiceKey}`,
+      localApply: async (payload) => {
+        const row = await db.invoices.get(payload.invoiceKey);
+        if (!row) {
+          throw new Error(`Invoice ${payload.invoiceKey} is not in the local mirror`);
+        }
+        const next = markPending(row, { status: 'closed' as const });
+        await db.invoices.put(next);
+        return { entity: next, entityKey: payload.invoiceKey };
+      },
+      push: async (payload, _op, ctx) => {
+        const id = ctx.resolveId(payload.invoiceKey, 'invoices');
+        const closed = await closeInvoice(id, pushOptions(ctx));
+        return {
+          serverEntity: closed,
+          removesRows: false,
+          identity: null,
+          followUp: [],
         };
       },
     }),
