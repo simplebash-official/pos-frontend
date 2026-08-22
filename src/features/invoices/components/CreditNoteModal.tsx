@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Modal,
   Stack,
@@ -103,54 +103,105 @@ export const CreditNoteModal = ({
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const items = invoice?.items ?? [];
+  const [prevInvoiceId, setPrevInvoiceId] = useState(invoice?.id);
+  if (invoice?.id !== prevInvoiceId) {
+    setPrevInvoiceId(invoice?.id);
+    setLineStates({});
+    setNoReceipt(false);
+    setNoReceiptProductKey(null);
+    setNoReceiptQty(1);
+    setOverrideReason('');
+    setRefundBreakdown({});
+    setExchangeLines([]);
+    setExchangeProductKey(null);
+    setNotes('');
+  }
+
+  const items = useMemo(() => invoice?.items ?? [], [invoice?.items]);
   const [nowMs] = useState(() => Date.now());
 
-  const getLineState = (item: InvoiceItem): LineState => {
-    if (lineStates[item.id]) return lineStates[item.id];
-    const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
-    const serialUnits: Record<string, SerialUnitState> | undefined = item.serialNumbers?.length
-      ? Object.fromEntries(
-          item.serialNumbers.map((serial) => [
-            serial,
-            {
-              selected: false,
-              condition: 'resalable' as CreditNoteItemCondition,
-              disposition: null,
-              reason: 'defective',
-            },
-          ])
-        )
-      : undefined;
-    return {
-      selected: remaining > 0,
-      quantity: Math.min(1, remaining) || 1,
-      condition: 'resalable',
-      disposition: null,
-      reason: 'defective',
-      serialUnits,
-    };
-  };
+  const resetForm = useCallback(() => {
+    setLineStates({});
+    setNoReceipt(false);
+    setNoReceiptProductKey(null);
+    setNoReceiptQty(1);
+    setOverrideReason('');
+    setRefundBreakdown({});
+    setExchangeLines([]);
+    setExchangeProductKey(null);
+    setNotes('');
+  }, []);
 
-  const updateLine = (itemId: string, patch: Partial<LineState>) => {
-    setLineStates((prev) => ({
-      ...prev,
-      [itemId]: { ...getLineState({ id: itemId } as InvoiceItem), ...prev[itemId], ...patch },
-    }));
-  };
+  const handleClose = useCallback(() => {
+    resetForm();
+    onClose();
+  }, [resetForm, onClose]);
 
-  const updateSerialUnit = (item: InvoiceItem, serial: string, patch: Partial<SerialUnitState>) => {
-    const current = getLineState(item);
-    const currentUnit = current.serialUnits?.[serial] ?? {
-      selected: false,
-      condition: 'resalable' as CreditNoteItemCondition,
-      disposition: null,
-      reason: 'defective',
-    };
-    updateLine(item.id, {
-      serialUnits: { ...current.serialUnits, [serial]: { ...currentUnit, ...patch } },
-    });
-  };
+  const getLineState = useCallback(
+    (item: InvoiceItem): LineState => {
+      if (lineStates[item.id]) return lineStates[item.id];
+      const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
+      const serialUnits: Record<string, SerialUnitState> | undefined = item.serialNumbers?.length
+        ? Object.fromEntries(
+            item.serialNumbers.map((serial) => [
+              serial,
+              {
+                selected: false,
+                condition: 'resalable' as CreditNoteItemCondition,
+                disposition: null,
+                reason: 'defective',
+              },
+            ])
+          )
+        : undefined;
+      return {
+        selected: remaining > 0,
+        quantity: Math.min(1, remaining) || 1,
+        condition: 'resalable',
+        disposition: null,
+        reason: 'defective',
+        serialUnits,
+      };
+    },
+    [lineStates]
+  );
+
+  const updateLine = useCallback(
+    (itemId: string, patch: Partial<LineState>) => {
+      const item = items.find((i) => i.id === itemId);
+      if (!item) return;
+      setLineStates((prev) => {
+        const current = prev[itemId] || getLineState(item);
+        return {
+          ...prev,
+          [itemId]: { ...current, ...patch },
+        };
+      });
+    },
+    [items, getLineState]
+  );
+
+  const updateSerialUnit = useCallback(
+    (item: InvoiceItem, serial: string, patch: Partial<SerialUnitState>) => {
+      setLineStates((prev) => {
+        const current = prev[item.id] || getLineState(item);
+        const currentUnit = current.serialUnits?.[serial] ?? {
+          selected: false,
+          condition: 'resalable' as CreditNoteItemCondition,
+          disposition: null,
+          reason: 'defective',
+        };
+        return {
+          ...prev,
+          [item.id]: {
+            ...current,
+            serialUnits: { ...current.serialUnits, [serial]: { ...currentUnit, ...patch } },
+          },
+        };
+      });
+    },
+    [getLineState]
+  );
 
   const selectedLines = useMemo(() => {
     if (!invoice) return [];
@@ -335,6 +386,7 @@ export const CreditNoteModal = ({
               : 'Exchange settled — no money changed hands.',
         color: 'green',
       });
+      resetForm();
       onCreditNoteSuccess?.();
       onClose();
     } catch (error) {
@@ -357,7 +409,7 @@ export const CreditNoteModal = ({
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
       title={
         <Text fw={700} size="lg">
           Process Credit Note — #{invoice.invoiceNumber}
@@ -823,7 +875,7 @@ export const CreditNoteModal = ({
         </Paper>
 
         <Group justify="flex-end" mt="md" gap="sm">
-          <Button variant="default" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="default" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button color="blue" loading={isSubmitting} disabled={!canSubmit} onClick={handleSubmit}>
