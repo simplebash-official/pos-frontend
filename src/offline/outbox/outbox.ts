@@ -205,6 +205,47 @@ export const clearCrossResourcePending = async (
   }
 };
 
+/**
+ * Settles the row(s) this operation itself wrote — its own `resource.table`,
+ * via `entityLocalId`/`affectedKeys` — once the operation has ended as dead
+ * or conflicted (never called on success, since `commitSuccess` already
+ * settles it there) or been manually discarded.
+ *
+ * Branches on what kind of operation this was:
+ * - `create` invented the row locally — there's no server counterpart to
+ *   fall back to and the engine keeps no pre-change copy, so the row is
+ *   deleted outright. Leaving it `_pending` forever would strand a phantom
+ *   entity nothing can ever correct; clearing `_pending` instead would wrongly
+ *   make it look like confirmed, synced data when it never existed server-side.
+ * - Anything else (`void`, `close`, and similar) mutated a row that already
+ *   existed before the optimistic write — deleting it would erase a real
+ *   entity from the local mirror, not just undo the bad guess at its new
+ *   state. Clear `_pending` instead: the next pull re-fetches the row and
+ *   overwrites the optimistic mutation with the server's actual state.
+ */
+export const settleOwnRow = async (
+  resource: {
+    table: {
+      delete: (key: string) => Promise<void>;
+      update: (key: string, changes: Record<string, unknown>) => Promise<number>;
+    };
+  },
+  op: Pick<OutboxOp, 'entityLocalId' | 'affectedKeys' | 'operation'>
+): Promise<void> => {
+  const keys = op.affectedKeys?.length
+    ? op.affectedKeys
+    : op.entityLocalId
+      ? [op.entityLocalId]
+      : [];
+  for (const key of keys) {
+    if (op.operation === 'create') {
+      await resource.table.delete(key);
+    } else {
+      await resource.table.update(key, { _pending: 0 });
+    }
+  }
+};
+
 /** Puts a dead or conflicted operation back in the queue after the user fixes it. */
 export const retryOperation = async (seq: number): Promise<void> => {
   await db.outbox.update(seq, {
@@ -228,9 +269,15 @@ export const listOperations = async (): Promise<OutboxOp[]> => {
  * server, leaving the terminal permanently out of step on that row. The
  * stock ledger and id map hold the same kind of dangling state.
  *
- * The local row is dropped rather than reverted: the engine keeps no
- * pre-change copy, so the honest recovery is to forget it and let the next
- * pull re-deliver the server's version.
+ * Only a `create` operation's row is dropped outright — it was invented
+ * locally, so there's no server counterpart to fall back to, and the engine
+ * keeps no pre-change copy to revert to either. Any other operation
+ * (`void`, `close`, and similar) mutated a row that already existed before
+ * the optimistic write — deleting it would erase a real entity from the
+ * local mirror, not just undo the bad guess at its new state. For those,
+ * clear `_pending` instead: the next pull re-fetches the row and overwrites
+ * the optimistic mutation with the server's actual (unvoided/unclosed/etc.)
+ * state.
  */
 export const discardOperation = async (seq: number): Promise<void> => {
   const op = await db.outbox.get(seq);
@@ -243,8 +290,10 @@ export const discardOperation = async (seq: number): Promise<void> => {
 
   await db.transaction('rw', [...mirrorTables, db.outbox, db.idMap, db.stockLedger], async () => {
     if (op.entityLocalId !== null && op.entityLocalId !== '') {
-      await resource.table.delete(op.entityLocalId);
-      await db.idMap.delete(op.entityLocalId);
+      await settleOwnRow(resource, op);
+      if (op.operation === 'create') {
+        await db.idMap.delete(op.entityLocalId);
+      }
     }
     // These deltas were never accepted by the server, so they must stop
     // counting toward effective stock.

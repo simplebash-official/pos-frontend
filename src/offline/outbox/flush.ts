@@ -26,6 +26,7 @@ import {
   markInflight,
   recordFailure,
   requeue,
+  settleOwnRow,
 } from './outbox';
 import { createIdempotencyKey } from '../ids/localId';
 
@@ -425,10 +426,13 @@ export const flushOutbox = async (signal: AbortSignal): Promise<FlushSummary> =>
           // Nothing downstream can ever reference this successfully.
           await abandonMapping(op.entityLocalId);
         }
-        // A permanent rejection abandons this op's own row, but anything it
-        // optimistically touched outside its own table (e.g. a credit note's
-        // invoice-side bump) would otherwise stay `_pending` forever — clear
-        // it so the next pull can reconcile from the server.
+        // A permanent rejection abandons this op — settle its own row
+        // (delete a phantom `create`, or clear `_pending` on a mutated
+        // pre-existing row so the next pull corrects it) and anything it
+        // optimistically touched outside its own table (e.g. a credit
+        // note's invoice-side bump), both of which would otherwise stay
+        // `_pending`/phantom forever with nothing left to correct them.
+        await settleOwnRow(resource, op);
         await clearCrossResourcePending(op.crossResourceAffected);
         summary.conflicted += 1;
         logError(resource.id, `Change permanently rejected: ${apiError.message}`, {
@@ -477,6 +481,10 @@ const handleConflict = async (
       if (attempts >= MAX_PUSH_ATTEMPTS) {
         await markConflict(op.seq, outboxError);
         await recordConflict(op, apiError, reason);
+        // Exhausted — this row's optimistic guess is never getting confirmed
+        // through this operation. Settle it the same way a permanent
+        // rejection does, so the next pull can correct it.
+        await settleOwnRow(resource, op);
         summary.conflicted += 1;
         return;
       }
@@ -503,6 +511,13 @@ const handleConflict = async (
     case 'manual': {
       await markConflict(op.seq, outboxError);
       await recordConflict(op, apiError, reason);
+      // A business-rule rejection (e.g. "this invoice can't be voided") is
+      // never going to succeed on its own — settle the row now rather than
+      // waiting for a human to notice and discard it, so the local view
+      // stops showing the never-confirmed optimistic guess as if it had
+      // taken effect. The outbox entry itself stays visible in the Sync
+      // panel either way, for awareness of what didn't go through and why.
+      await settleOwnRow(resource, op);
       summary.conflicted += 1;
       return;
     }

@@ -261,7 +261,21 @@ export const InvoiceDetailDrawer = ({
           const overdueMeta = getOverdueMeta(inv);
           const isCreditPending = inv.status === 'pending' || inv.status === 'partially_paid';
           const canClose = inv.status === 'paid' && !inv.hasCreditNotes;
-          const canVoid = inv.status !== 'voided' && inv.status !== 'closed';
+          // Mirrors the backend's own guard (`void_invoice` refuses when the
+          // invoice's payment records no longer match exactly what the
+          // original sale created): any credit note against it means a
+          // refund payment was recorded, and any payment on a credit
+          // invoice beyond "none yet" means an installment was recorded —
+          // either way, voiding can't safely reverse that automatically.
+          const hasExtraPayments = inv.hasCreditNotes || (inv.isCredit && inv.status !== 'pending');
+          const isAlreadyFinal = inv.status === 'voided' || inv.status === 'closed';
+          const canVoid = !isAlreadyFinal && !hasExtraPayments;
+          const voidBlockedReason =
+            !isAlreadyFinal && hasExtraPayments
+              ? inv.hasCreditNotes
+                ? 'This invoice has a return or refund recorded against it, so it can no longer be voided directly.'
+                : 'This invoice has payment installments recorded against it, so it can no longer be voided directly.'
+              : null;
 
           return (
             <Stack gap="md" pt="xs">
@@ -914,6 +928,11 @@ export const InvoiceDetailDrawer = ({
                     >
                       Void Invoice
                     </Button>
+                  )}
+                  {isAdmin && voidBlockedReason && (
+                    <Text size="xs" c="dimmed" maw={280}>
+                      {voidBlockedReason}
+                    </Text>
                   )}
                 </Group>
 
