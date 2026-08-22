@@ -24,7 +24,8 @@ export type SyncResourceId =
   | 'payments'
   | 'repairs'
   | 'printJobs'
-  | 'returns';
+  | 'creditNotes'
+  | 'productSerials';
 
 // ---------------------------------------------------------------------------
 // Pull
@@ -139,9 +140,21 @@ export interface LocalApplyResult {
   /**
    * Every mirror row the local apply wrote, when it wrote more than one.
    * A bulk delete must list all of them, or the commit can only retire the
-   * first and the rest stay pending forever.
+   * first and the rest stay pending forever. Same-table only — see
+   * `crossResourceAffected` for a write that reaches into a table this
+   * operation doesn't own.
    */
   affectedKeys?: string[];
+  /**
+   * Rows in OTHER resources' mirror tables that this local apply wrote as a
+   * side effect — e.g. a credit-note create bumping the linked invoice's
+   * `returnedQuantity`. Each entry gets `_pending` cleared once this
+   * operation settles (success, permanent rejection, or discard), so the
+   * next pull can reconcile it against the server. Without this, a
+   * side-effect write outside the operation's own table is marked pending
+   * and then never un-marked by anything — no pull will ever touch it again.
+   */
+  crossResourceAffected?: { resource: SyncResourceId; key: string }[];
 }
 
 export type LocalApplyHandler = (payload: never, ctx: LocalContext) => Promise<LocalApplyResult>;

@@ -21,6 +21,7 @@ export type StockPurchaseInput = {
   date: string;
   referenceNo?: string;
   notes?: string;
+  serialNumbers?: string[];
 };
 
 /** Partial supplier snapshot the backend embeds on each enriched purchase — not a full Supplier. */

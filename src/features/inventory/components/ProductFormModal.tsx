@@ -178,6 +178,12 @@ const ProductFormContent = ({
   );
   const [stockQuantity, setStockQuantity] = useState<number | string>('');
 
+  // Serial number & warranty tracking
+  const [isSerialized, setIsSerialized] = useState(productToEdit?.isSerialized ?? false);
+  const [warrantyMonths, setWarrantyMonths] = useState<number | string>(
+    productToEdit?.warrantyMonths ?? ''
+  );
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Computed Profit & Margin Analytics
@@ -289,6 +295,8 @@ const ProductFormContent = ({
         costPriceCents: toCents(Number(costPrice)),
         sellingPriceCents: toCents(Number(sellingPrice)),
         minStockThreshold: Number(minStockThreshold || 0),
+        isSerialized,
+        warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
       };
 
       try {
@@ -325,6 +333,8 @@ const ProductFormContent = ({
         stockQuantity: finalStockQuantity,
         minStockThreshold: Number(minStockThreshold || 0),
         suppliers: suppliersPayload.length > 0 ? suppliersPayload : undefined,
+        isSerialized,
+        warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
       };
 
       if (autoGenerateBarcode) {
@@ -793,6 +803,66 @@ const ProductFormContent = ({
             </Group>
           </Paper>
         )}
+
+        {/* Serial Numbers & Warranty */}
+        <Stack gap={6}>
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+            Serial Numbers &amp; Warranty
+          </Text>
+
+          <Box
+            p="sm"
+            style={{
+              borderRadius: 'var(--mantine-radius-default)',
+              border: '1px solid var(--border)',
+              backgroundColor: 'var(--bg-app)',
+            }}
+          >
+            <Group justify="space-between" align="center" wrap="nowrap">
+              <Group gap="sm" align="center" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+                <ThemeIcon
+                  size={38}
+                  radius="var(--mantine-radius-default)"
+                  variant="light"
+                  color="blue"
+                  style={{ flexShrink: 0 }}
+                >
+                  <IconTag size={18} stroke={1.6} />
+                </ThemeIcon>
+
+                <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                  <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
+                    Track serial numbers for this item
+                  </Text>
+                  <Text size="xs" c="dimmed" lh={1.3}>
+                    Turn this on for electronics or appliances where each unit needs its own serial
+                    number and warranty, like a phone or a fridge.
+                  </Text>
+                </Stack>
+              </Group>
+
+              <Switch
+                checked={isSerialized}
+                onChange={(e) => setIsSerialized(e.currentTarget.checked)}
+                color="blue"
+                size="md"
+                aria-label="Track serial numbers for this item"
+              />
+            </Group>
+          </Box>
+
+          {isSerialized && (
+            <NumberInput
+              mt={4}
+              label="Warranty period (months)"
+              placeholder="e.g. 12"
+              min={0}
+              value={warrantyMonths}
+              onChange={setWarrantyMonths}
+              description="How many months of warranty this item comes with, starting from the sale date. Leave blank if it has no warranty."
+            />
+          )}
+        </Stack>
 
         {/* Pricing */}
         {hasSupplierIntakes ? (

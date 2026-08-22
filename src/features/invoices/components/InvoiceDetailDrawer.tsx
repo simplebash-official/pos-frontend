@@ -12,6 +12,7 @@ import {
   NumberInput,
   Select,
   TextInput,
+  Textarea,
   ThemeIcon,
   Grid,
   Tabs,
@@ -30,19 +31,30 @@ import {
   IconCalendar,
   IconClock,
   IconKey,
+  IconBan,
+  IconSquareCheck,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
-import { getInvoiceStatusMeta } from '../lib/invoiceStatus';
+import {
+  getInvoiceStatusMeta,
+  getOverdueMeta,
+  getCreditNoteStatusMeta,
+} from '../lib/invoiceStatus';
 import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
-import { useInvoiceReturns } from '@/features/billing/hooks/useReturns';
+import { useInvoiceCreditNotes } from '@/features/billing/hooks/useCreditNotes';
+import { useVoidInvoice, useCloseInvoice } from '@/features/billing/hooks/useInvoices';
 import { SaleDocumentPreviewModal } from '@/features/billing/components/SaleDocumentPreviewModal';
-import { ReturnModal } from './ReturnModal';
+import { CreditNoteModal } from './CreditNoteModal';
+import type { CreditNote } from '@/offline/db/tables';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
+import { useAppSelector } from '@/store/hooks';
+import { selectAuthUser } from '@/store/slices/authSlice';
+import { USER_ROLES } from '@/constants/roles';
 
 export interface InvoiceDetailDrawerProps {
   opened: boolean;
@@ -67,9 +79,10 @@ export const InvoiceDetailDrawer = ({
   const [previewDocumentKind, setPreviewDocumentKind] = useState<'invoice' | 'receipt' | null>(
     null
   );
+  const [previewCreditNote, setPreviewCreditNote] = useState<CreditNote | null>(null);
 
-  // Return & Exchange Modal State
-  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  // Credit Note Modal State
+  const [creditNoteModalOpen, setCreditNoteModalOpen] = useState(false);
 
   // Payment Record Modal State
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -78,9 +91,19 @@ export const InvoiceDetailDrawer = ({
   const [payNotes, setPayNotes] = useState('');
   const [isSubmittingPay, setIsSubmittingPay] = useState(false);
 
+  // Void Modal State
+  const [voidModalOpen, setVoidModalOpen] = useState(false);
+  const [voidReason, setVoidReason] = useState('');
+  const [isVoiding, setIsVoiding] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
   const { data: payments } = useInvoicePayments(invoice?.id);
-  const { data: invoiceReturns } = useInvoiceReturns(invoice?.id);
+  const { data: invoiceCreditNotes } = useInvoiceCreditNotes(invoice?.id);
   const recordPaymentMutation = useRecordPayment();
+  const voidInvoiceMutation = useVoidInvoice();
+  const closeInvoiceMutation = useCloseInvoice();
+  const authUser = useAppSelector(selectAuthUser);
+  const isAdmin = authUser?.role === USER_ROLES.ADMIN;
 
   const totalPaidCents = payments.reduce((sum, p) => sum + p.amountCents, 0);
   const remainingCents = invoice ? Math.max(0, invoice.totalCents - totalPaidCents) : 0;
@@ -141,6 +164,57 @@ export const InvoiceDetailDrawer = ({
     }
   };
 
+  const handleVoidInvoice = async () => {
+    if (!invoice || !voidReason.trim()) return;
+    setIsVoiding(true);
+    try {
+      await voidInvoiceMutation.mutateAsync({
+        invoiceKey: invoice.id,
+        reason: voidReason.trim(),
+      });
+      notifications.show({
+        title: 'Invoice Voided',
+        message: `Invoice #${invoice.invoiceNumber} has been voided and its stock/payment effects reversed.`,
+        color: 'gray',
+      });
+      setVoidModalOpen(false);
+      setVoidReason('');
+      onRefresh?.();
+      handleClose();
+    } catch {
+      notifications.show({
+        title: 'Could Not Void Invoice',
+        message: 'Please try again.',
+        color: 'red',
+      });
+    } finally {
+      setIsVoiding(false);
+    }
+  };
+
+  const handleCloseInvoice = async () => {
+    if (!invoice) return;
+    setIsClosing(true);
+    try {
+      await closeInvoiceMutation.mutateAsync({ invoiceKey: invoice.id });
+      notifications.show({
+        title: 'Invoice Closed',
+        message: `Invoice #${invoice.invoiceNumber} is now marked closed.`,
+        color: 'violet',
+      });
+      onRefresh?.();
+      handleClose();
+    } catch {
+      notifications.show({
+        title: 'Could Not Close Invoice',
+        message: 'This invoice may still have an open credit note against it.',
+        color: 'red',
+      });
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
   return (
     <>
       <DetailDrawer
@@ -183,8 +257,11 @@ export const InvoiceDetailDrawer = ({
           const logs = getPrintLogsForInvoice(inv.invoiceNumber);
           const lastLog = logs.length > 0 ? logs[0] : null;
 
-          const statusMeta = getInvoiceStatusMeta(inv, totalPaidCents);
-          const isCreditPending = !!inv.isCredit && totalPaidCents < inv.totalCents;
+          const statusMeta = getInvoiceStatusMeta(inv);
+          const overdueMeta = getOverdueMeta(inv);
+          const isCreditPending = inv.status === 'pending' || inv.status === 'partially_paid';
+          const canClose = inv.status === 'paid' && !inv.hasCreditNotes;
+          const canVoid = inv.status !== 'voided' && inv.status !== 'closed';
 
           return (
             <Stack gap="md" pt="xs">
@@ -196,16 +273,30 @@ export const InvoiceDetailDrawer = ({
                 bg="var(--mantine-color-body)"
               >
                 <Group justify="space-between" align="flex-start" mb="xs">
-                  <Badge color={statusMeta.color} variant="filled" size="sm">
-                    {statusMeta.label}
-                  </Badge>
-                  {(isFullyReturned || isPartiallyReturned) && (
-                    <Badge color={isFullyReturned ? 'gray' : 'orange'} variant="light" size="sm">
-                      {isFullyReturned
-                        ? 'Fully Returned'
-                        : `Partially Returned (${totalReturnedUnits})`}
+                  <Group gap={6}>
+                    <Badge color={statusMeta.color} variant="filled" size="sm">
+                      {statusMeta.label}
                     </Badge>
-                  )}
+                    {overdueMeta && (
+                      <Badge color={overdueMeta.color} variant="filled" size="sm">
+                        {overdueMeta.label}
+                      </Badge>
+                    )}
+                  </Group>
+                  <Group gap={6}>
+                    {inv.hasCreditNotes && (
+                      <Badge color="indigo" variant="light" size="sm">
+                        {inv.creditNoteCount} Credit Note{inv.creditNoteCount === 1 ? '' : 's'}
+                      </Badge>
+                    )}
+                    {(isFullyReturned || isPartiallyReturned) && (
+                      <Badge color={isFullyReturned ? 'gray' : 'orange'} variant="light" size="sm">
+                        {isFullyReturned
+                          ? 'Fully Returned'
+                          : `Partially Returned (${totalReturnedUnits})`}
+                      </Badge>
+                    )}
+                  </Group>
                 </Group>
 
                 <Text fw={800} size="lg" mb={4}>
@@ -346,52 +437,79 @@ export const InvoiceDetailDrawer = ({
                 </Grid>
               </Paper>
 
-              {/* Returns & Refunds — always visible, never tucked behind a tab */}
+              {/* Credit Notes — always visible, never tucked behind a tab */}
               <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={sectionLabelStyle}>
-                      Returns & Refunds
+                      Credit Notes
                     </Text>
-                    {invoiceReturns.length > 0 && (
+                    {invoiceCreditNotes.length > 0 && (
                       <Badge size="xs" color="orange" variant="light">
-                        {invoiceReturns.reduce((sum, r) => sum + r.items.length, 0)} items returned
+                        {invoiceCreditNotes.reduce((sum, cn) => sum + cn.items.length, 0)} items
+                        returned
                       </Badge>
                     )}
                   </Group>
 
-                  {invoiceReturns.length === 0 ? (
+                  {invoiceCreditNotes.length === 0 ? (
                     <Text size="xs" c="dimmed">
-                      No returns have been processed for this invoice yet.
+                      No credit notes have been issued against this invoice yet.
                     </Text>
                   ) : (
                     <Stack gap="xs">
-                      {invoiceReturns.map((ret) => (
-                        <Paper
-                          key={ret.id}
-                          p="xs"
-                          withBorder
-                          bg="var(--bg-app)"
-                          radius="var(--mantine-radius-default)"
-                        >
-                          <Group justify="space-between" mb={2}>
-                            <Text size="xs" fw={700} c="orange.8">
-                              Refund: {formatMoney(ret.totalRefundCents)}
-                            </Text>
-                            <Badge size="xs" color="orange" variant="light" tt="uppercase">
-                              {ret.payoutMethod}
-                            </Badge>
-                          </Group>
-                          <Text size="2xs" c="dimmed">
-                            {formatDateTime(ret.createdAt)} · {ret.items.length} line(s)
-                          </Text>
-                          {ret.notes && (
-                            <Text size="xs" c="dimmed" mt={2} fs="italic">
-                              &ldquo;{ret.notes}&rdquo;
-                            </Text>
-                          )}
-                        </Paper>
-                      ))}
+                      {invoiceCreditNotes.map((cn) => {
+                        const statusMeta = getCreditNoteStatusMeta(cn.status);
+                        return (
+                          <Paper
+                            key={cn.id}
+                            p="xs"
+                            withBorder
+                            bg="var(--bg-app)"
+                            radius="var(--mantine-radius-default)"
+                          >
+                            <Group justify="space-between" mb={2}>
+                              <Text size="xs" fw={700} c="orange.8">
+                                {cn.netRefundCents >= 0 ? 'Refund' : 'Charged'}:{' '}
+                                {formatMoney(Math.abs(cn.netRefundCents))}
+                              </Text>
+                              <Group gap={4}>
+                                {cn.exchangeReference && (
+                                  <Badge size="xs" color="indigo" variant="light">
+                                    Exchange
+                                  </Badge>
+                                )}
+                                {cn.noReceipt && (
+                                  <Badge size="xs" color="red" variant="light">
+                                    No Receipt
+                                  </Badge>
+                                )}
+                                <Badge size="xs" color={statusMeta.color} variant="light">
+                                  {statusMeta.label}
+                                </Badge>
+                              </Group>
+                            </Group>
+                            <Group justify="space-between" align="center">
+                              <Text size="2xs" c="dimmed">
+                                {formatDateTime(cn.createdAt)} · {cn.creditNoteNumber} ·{' '}
+                                {cn.items.length} line(s)
+                              </Text>
+                              <Button
+                                size="compact-xs"
+                                variant="subtle"
+                                onClick={() => setPreviewCreditNote(cn)}
+                              >
+                                View / Print
+                              </Button>
+                            </Group>
+                            {cn.notes && (
+                              <Text size="xs" c="dimmed" mt={2} fs="italic">
+                                &ldquo;{cn.notes}&rdquo;
+                              </Text>
+                            )}
+                          </Paper>
+                        );
+                      })}
                     </Stack>
                   )}
 
@@ -404,7 +522,7 @@ export const InvoiceDetailDrawer = ({
                       variant="light"
                       color="orange"
                       leftSection={<IconArrowBackUp size={16} />}
-                      onClick={() => setReturnModalOpen(true)}
+                      onClick={() => setCreditNoteModalOpen(true)}
                     >
                       Process Return / Exchange
                     </Button>
@@ -761,20 +879,43 @@ export const InvoiceDetailDrawer = ({
               </Group>
 
               {/* Footer */}
-              <Group justify="space-between" mt="md">
-                {isCreditPending ? (
-                  <Button
-                    variant="filled"
-                    color="blue"
-                    size="sm"
-                    leftSection={<IconCash size={16} />}
-                    onClick={handleOpenPaymentModal}
-                  >
-                    Record Payment
-                  </Button>
-                ) : (
-                  <div />
-                )}
+              <Group justify="space-between" mt="md" wrap="wrap" gap="sm">
+                <Group gap="sm">
+                  {isCreditPending && (
+                    <Button
+                      variant="filled"
+                      color="blue"
+                      size="sm"
+                      leftSection={<IconCash size={16} />}
+                      onClick={handleOpenPaymentModal}
+                    >
+                      Record Payment
+                    </Button>
+                  )}
+                  {isAdmin && canClose && (
+                    <Button
+                      variant="light"
+                      color="violet"
+                      size="sm"
+                      leftSection={<IconSquareCheck size={16} />}
+                      loading={isClosing}
+                      onClick={handleCloseInvoice}
+                    >
+                      Close Invoice
+                    </Button>
+                  )}
+                  {isAdmin && canVoid && (
+                    <Button
+                      variant="light"
+                      color="red"
+                      size="sm"
+                      leftSection={<IconBan size={16} />}
+                      onClick={() => setVoidModalOpen(true)}
+                    >
+                      Void Invoice
+                    </Button>
+                  )}
+                </Group>
 
                 <Group gap="sm">
                   <Button
@@ -796,12 +937,12 @@ export const InvoiceDetailDrawer = ({
         }}
       </DetailDrawer>
 
-      {/* Return & Exchange Modal */}
-      <ReturnModal
-        opened={returnModalOpen}
-        onClose={() => setReturnModalOpen(false)}
+      {/* Credit Note (Return & Exchange) Modal */}
+      <CreditNoteModal
+        opened={creditNoteModalOpen}
+        onClose={() => setCreditNoteModalOpen(false)}
         invoice={invoice}
-        onReturnSuccess={() => {
+        onCreditNoteSuccess={() => {
           onRefresh?.();
         }}
       />
@@ -813,8 +954,16 @@ export const InvoiceDetailDrawer = ({
           setPreviewDocumentKind(null);
           onRefresh?.();
         }}
-        invoice={invoice}
+        subject={invoice ? { kind: 'invoice', invoice } : null}
         documentKind={previewDocumentKind}
+      />
+
+      {/* Credit Note Document Preview */}
+      <SaleDocumentPreviewModal
+        opened={previewCreditNote !== null}
+        onClose={() => setPreviewCreditNote(null)}
+        subject={previewCreditNote ? { kind: 'creditNote', creditNote: previewCreditNote } : null}
+        documentKind="credit-note"
       />
 
       {/* Record Payment Modal */}
@@ -871,6 +1020,51 @@ export const InvoiceDetailDrawer = ({
               leftSection={<IconCheck size={16} />}
             >
               Confirm & Update Balance
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Void Invoice Confirmation — small centered dialog, not fullScreen, per
+          the "very small confirmation dialogs" exception to the center-modal
+          family (see ConfirmDialog.tsx). Needs its own Modal rather than
+          ConfirmDialog since a void reason is mandatory input, not just a
+          yes/no message. */}
+      <Modal
+        opened={voidModalOpen}
+        onClose={() => setVoidModalOpen(false)}
+        title={
+          <Text fw={700} size="lg">
+            Void Invoice — #{invoice?.invoiceNumber}
+          </Text>
+        }
+        centered
+        size="sm"
+      >
+        <Stack gap="md">
+          <Text size="sm">
+            This reverses the sale — any stock and payments already recorded against this invoice
+            are undone. This cannot be undone from here, so please explain why.
+          </Text>
+          <Textarea
+            label="Reason for voiding"
+            placeholder="e.g. Entered by mistake, duplicate sale"
+            required
+            minRows={2}
+            value={voidReason}
+            onChange={(e) => setVoidReason(e.currentTarget.value)}
+          />
+          <Group justify="flex-end" gap="sm">
+            <Button variant="default" onClick={() => setVoidModalOpen(false)} disabled={isVoiding}>
+              Cancel
+            </Button>
+            <Button
+              color="red"
+              onClick={handleVoidInvoice}
+              loading={isVoiding}
+              disabled={!voidReason.trim()}
+            >
+              Void Invoice
             </Button>
           </Group>
         </Stack>
