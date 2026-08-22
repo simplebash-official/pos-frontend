@@ -1,7 +1,7 @@
 export const CURRENCY = {
   symbol: 'Rs.',
   code: 'LKR',
-  decimals: 0,
+  decimals: 2,
 };
 
 export const PAYMENT_METHODS = {

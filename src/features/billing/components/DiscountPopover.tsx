@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Popover, Stack, Group, Button, Text } from '@mantine/core';
-import { formatMoney } from '@/shared/lib/money';
+import { formatMoney, fromCents } from '@/shared/lib/money';
+import { calculateOrderDiscount } from '@/shared/lib/posCalculations';
 import { AmountInput } from '@/shared/components/AmountInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 
@@ -29,21 +30,21 @@ export const DiscountPopover = ({
 }: DiscountPopoverProps) => {
   const [mode, setMode] = useState<'percentage' | 'amount'>('percentage');
   const [val, setVal] = useState<number | ''>(
-    currentDiscountCents > 0 ? Math.round(currentDiscountCents / 100) : ''
+    currentDiscountCents > 0 ? fromCents(currentDiscountCents) : ''
   );
 
   const handleApply = () => {
     const num = typeof val === 'number' ? val : 0;
-    const clampedPct = Math.min(100, Math.max(0, num));
-    const computedCents =
-      mode === 'percentage'
-        ? Math.round((originalCents * clampedPct) / 100)
-        : Math.min(originalCents, Math.max(0, Math.round(num * 100)));
+    const computedCents = calculateOrderDiscount(
+      originalCents,
+      mode === 'percentage' ? 'percentage' : 'fixed',
+      mode === 'percentage' ? num : Math.round(num * 100)
+    );
 
     onApplyDiscount(
       computedCents,
       mode === 'percentage' ? 'percentage' : 'fixed',
-      mode === 'percentage' ? clampedPct : Math.max(0, Math.round(num * 100))
+      mode === 'percentage' ? Math.min(100, Math.max(0, num)) : Math.max(0, Math.round(num * 100))
     );
     onClose();
   };
@@ -93,7 +94,7 @@ export const DiscountPopover = ({
             onModeChange={setMode}
             value={val}
             onChange={setVal}
-            maxAmount={Math.round(originalCents / 100)}
+            maxAmount={fromCents(originalCents)}
             autoFocus
           />
 

@@ -93,12 +93,22 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
 
     const effectiveMax = max !== undefined ? max : isPercent ? 100 : maxAmount;
 
-    const [localVal, setLocalVal] = useState<string>(value === '' ? '' : value.toString());
+    const formatForDisplay = (val: number | ''): string => {
+      if (val === '') return '';
+      if (typeof val === 'number' && !isPercent) {
+        return val % 1 === 0 ? val.toString() : val.toFixed(2);
+      }
+      return val.toString();
+    };
+
+    const [localVal, setLocalVal] = useState<string>(() => formatForDisplay(value));
     const [prevValue, setPrevValue] = useState(value);
 
     if (value !== prevValue) {
       setPrevValue(value);
-      setLocalVal(value === '' ? '' : value.toString());
+      if (!focused) {
+        setLocalVal(formatForDisplay(value));
+      }
     }
 
     const controlHeight = HEIGHT_MAP[size] || 36;
@@ -125,16 +135,44 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
         return;
       }
 
-      const digitsOnly = rawVal.replace(/[^0-9]/g, '');
-      if (digitsOnly === '') return;
-
-      let num = Number(digitsOnly);
-      if (effectiveMax !== undefined && num > effectiveMax) {
-        num = effectiveMax;
+      // Allow digits and at most one decimal point with up to 2 decimal places
+      let cleanVal = rawVal.replace(/[^0-9.]/g, '');
+      const parts = cleanVal.split('.');
+      if (parts.length > 2) {
+        cleanVal = `${parts[0]}.${parts.slice(1).join('')}`;
+      }
+      if (parts.length === 2 && parts[1].length > 2) {
+        cleanVal = `${parts[0]}.${parts[1].slice(0, 2)}`;
       }
 
-      setLocalVal(num.toString());
+      if (cleanVal === '' || cleanVal === '.') {
+        setLocalVal(cleanVal);
+        return;
+      }
+
+      let num = parseFloat(cleanVal);
+      if (isNaN(num)) return;
+
+      if (effectiveMax !== undefined && num > effectiveMax) {
+        num = effectiveMax;
+        cleanVal = num.toString();
+      }
+
+      setLocalVal(cleanVal);
       onChange(num);
+    };
+
+    const handleBlur = () => {
+      setFocused(false);
+      if (localVal === '' || localVal === '.') {
+        setLocalVal('');
+        onChange('');
+      } else {
+        const num = parseFloat(localVal);
+        if (!isNaN(num)) {
+          setLocalVal(formatForDisplay(num));
+        }
+      }
     };
 
     const displaySymbol = isPercent ? '%' : unitSymbol;
@@ -214,7 +252,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             value={localVal}
             onChange={handleChange}
             onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
+            onBlur={handleBlur}
             placeholder={placeholder}
             autoFocus={autoFocus}
             style={{ width: '100%', height: '100%' }}
