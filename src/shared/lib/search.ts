@@ -20,7 +20,7 @@
  * `digits` strips everything but 0-9 on both sides, so a phone typed as
  * "077 123" or "077-123" still finds the number stored as "0771234567".
  */
-export type SearchFieldKind = 'text' | 'digits';
+export type SearchFieldKind = 'text' | 'digits' | 'sequence';
 
 /**
  * One searchable field on an entity.
@@ -50,6 +50,7 @@ interface IndexedField {
   readonly value: string;
   readonly weight: number;
   readonly kind: SearchFieldKind;
+  readonly unpaddedNumbers?: readonly string[];
 }
 
 /** One row with all of its searchable text pre-normalized. */
@@ -137,6 +138,50 @@ function matchTier(value: string, term: string): number {
 }
 
 /**
+ * Scores a sequence identifier (e.g. "INV-000001", "REP-000019") against a search term.
+ *
+ * Sequence matching rules:
+ * - Exact string match (e.g. "inv-000001" on "inv-000001") -> TIER_EXACT (1000)
+ * - Normalized prefix + unpadded number match (e.g. "inv-1" or "inv1" on "inv-000001") -> TIER_EXACT (1000)
+ * - Numeric sequence match: if the query consists of digits (e.g. "1", "01", "000001", "00001"),
+ *   and its unpadded number matches the sequence unpadded number (e.g. "1" === "1") -> TIER_EXACT (1000)
+ * - Prefix match (e.g. "inv", "inv-") -> TIER_PREFIX (500)
+ * - Word start / substring match fallback -> TIER_WORD_START (250) or TIER_SUBSTRING (100)
+ */
+function matchSequenceTier(field: IndexedField, term: SearchTerm): number {
+  const val = field.value;
+  const termText = term.text;
+  const termDigits = term.digits;
+  const termUnpadded = termDigits ? termDigits.replace(/^0+/, '') || '0' : '';
+
+  // 1. Exact full text match (e.g. "inv-000001" === "inv-000001")
+  if (val === termText) return TIER_EXACT;
+
+  // 2. Exact match with prefix + unpadded sequence (e.g. "inv-1" or "inv1" on "inv-000001")
+  const valUnpaddedForm = val.replace(/([a-z-]+?)0+(\d+)/g, '$1$2');
+  const termUnpaddedForm = termText.replace(/([a-z-]+?)0+(\d+)/g, '$1$2');
+  if (
+    valUnpaddedForm === termUnpaddedForm ||
+    valUnpaddedForm.replace(/-/g, '') === termUnpaddedForm.replace(/-/g, '')
+  ) {
+    return TIER_EXACT;
+  }
+
+  // 3. Exact sequence number match when querying digits (e.g. "1", "01", "000001", "00001")
+  if (termDigits && termUnpadded && field.unpaddedNumbers?.includes(termUnpadded)) {
+    if (termText === termDigits) {
+      return TIER_EXACT;
+    }
+  }
+
+  // 4. Prefix match (e.g. "inv", "inv-")
+  if (val.startsWith(termText)) return TIER_PREFIX;
+
+  // 5. Fall back to standard word-start or substring matching
+  return matchTier(val, termText);
+}
+
+/**
  * Normalizes every field of every row once.
  *
  * `fields` should be a stable reference (the module-level configs in
@@ -153,10 +198,27 @@ export function buildSearchIndex<T>(
       const raw = field.get(item);
       if (raw === undefined || raw === null || raw === '') continue;
 
-      const value = field.kind === 'digits' ? normalizeDigits(raw) : normalizeText(raw);
+      let value: string;
+      let unpaddedNumbers: string[] | undefined;
+
+      if (field.kind === 'digits') {
+        value = normalizeDigits(raw);
+      } else if (field.kind === 'sequence') {
+        value = normalizeText(raw);
+        const numbers = raw.match(/\d+/g) || [];
+        unpaddedNumbers = numbers.map((n) => n.replace(/^0+/, '') || '0');
+      } else {
+        value = normalizeText(raw);
+      }
+
       if (!value) continue;
 
-      indexed.push({ value, weight: field.weight, kind: field.kind });
+      indexed.push({
+        value,
+        weight: field.weight,
+        kind: field.kind,
+        unpaddedNumbers,
+      });
     }
 
     return { item, fields: indexed };
@@ -175,12 +237,17 @@ export function scoreEntry<T>(entry: SearchEntry<T>, terms: readonly SearchTerm[
     let best = 0;
 
     for (const field of entry.fields) {
-      // A term with no digits can never match a digits-only field.
-      const needle = field.kind === 'digits' ? term.digits : term.text;
-      if (!needle) continue;
+      if (field.kind === 'sequence') {
+        const score = matchSequenceTier(field, term) * field.weight;
+        if (score > best) best = score;
+      } else {
+        // A term with no digits can never match a digits-only field.
+        const needle = field.kind === 'digits' ? term.digits : term.text;
+        if (!needle) continue;
 
-      const score = matchTier(field.value, needle) * field.weight;
-      if (score > best) best = score;
+        const score = matchTier(field.value, needle) * field.weight;
+        if (score > best) best = score;
+      }
     }
 
     if (best === 0) return null;

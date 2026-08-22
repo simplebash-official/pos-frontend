@@ -95,7 +95,7 @@ export const RepairJobList = () => {
         status: f.status === 'all' ? undefined : f.status,
         datePreset: f.datePreset === 'all' ? undefined : 'today',
       }),
-    queryKeys.repairs.list({ ...filters, search: filters.search.trim() })
+    (f) => queryKeys.repairs.list({ ...f, search: f.search.trim() })
   );
 
   const createMutation = useCreateRepairJob();

@@ -109,7 +109,7 @@ export const SupplierList = () => {
         search: f.search.trim() || undefined,
         category: f.category === 'all' ? undefined : f.category,
       }),
-    queryKeys.suppliers.list({ ...filters, search: filters.search.trim() })
+    (f) => queryKeys.suppliers.list({ ...f, search: f.search.trim() })
   );
 
   const handleOpenAddModal = () => {

@@ -315,11 +315,6 @@ export const ProductTable = () => {
     [search, showLowStockOnly]
   );
 
-  const inventoryQueryKey = useMemo(
-    () => queryKeys.inventory.products({ ...productFilters, search: productFilters.search.trim() }),
-    [productFilters]
-  );
-
   // Search and the low-stock toggle hit the backend while online, falling
   // back to a local pass over the Dexie mirror while offline — see
   // `useBackendFilteredList`. Category/subcategory browsing stays the
@@ -340,7 +335,7 @@ export const ProductTable = () => {
         lowStock: f.lowStock || undefined,
         limit: 200,
       }).then((r) => r.items),
-    inventoryQueryKey
+    (f) => queryKeys.inventory.products({ ...f, search: f.search.trim() })
   );
   // `tokenizeQuery` is a pure function of the search text — computing it
   // directly here (rather than threading it out of the search hook) means

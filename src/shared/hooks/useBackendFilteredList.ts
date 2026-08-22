@@ -4,7 +4,12 @@ import { useAppSelector } from '@/store/hooks';
 import { selectIsOffline } from '@/store/slices/syncSlice';
 import { useMemo } from 'react';
 import { useEntitySearch } from './useEntitySearch';
-import type { SearchField } from '@/shared/lib/search';
+import {
+  buildSearchIndex,
+  searchIndex,
+  tokenizeQuery,
+  type SearchField,
+} from '@/shared/lib/search';
 
 export interface UseBackendFilteredListResult<T> {
   results: T[];
@@ -12,6 +17,8 @@ export interface UseBackendFilteredListResult<T> {
   isSearching: boolean;
   isOffline: boolean;
 }
+
+export type QueryKeyFactory<F> = readonly unknown[] | ((debouncedFilters: F) => readonly unknown[]);
 
 /**
  * Search + filters that hit the backend while online, and fall back to a
@@ -24,8 +31,9 @@ export interface UseBackendFilteredListResult<T> {
  * smooths text-input typing. The local pass runs on every render (cheap —
  * see `useEntitySearch`'s doc comment) and is shown immediately; once the
  * debounced backend request for that exact filter set resolves, its results
- * replace the local ones. This avoids both a per-keystroke network call and
- * a flash back to the unfiltered list while a request is in flight.
+ * replace the local ones with full client-side relevance & sequence ranking
+ * applied. This avoids per-keystroke network calls, stale query cache poisoning,
+ * and flashes back to unranked or unfiltered lists.
  *
  * `filters` must carry a `search: string` field (used for the local fuzzy
  * pass); any other fields are opaque to this hook and are entirely up to
@@ -38,13 +46,15 @@ export function useBackendFilteredList<T, F extends { search: string }>(
   isFilterActive: (filters: F) => boolean,
   applyLocalFilters: (searchedItems: T[], filters: F) => T[],
   fetchFn: (filters: F) => Promise<T[]>,
-  queryKey: readonly unknown[]
+  queryKeyOrFn: QueryKeyFactory<F>
 ): UseBackendFilteredListResult<T> {
   const isOffline = useAppSelector(selectIsOffline);
   const [debouncedFilters] = useDebouncedValue(filters, 300);
 
   const { results: textSearched } = useEntitySearch(allItems, searchFields, filters.search, null);
   const serializedFilters = JSON.stringify(filters);
+  const serializedDebouncedFilters = JSON.stringify(debouncedFilters);
+
   const localResults = useMemo(
     () => applyLocalFilters(textSearched, filters),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,14 +64,41 @@ export function useBackendFilteredList<T, F extends { search: string }>(
   const active = isFilterActive(filters);
   const debouncedActive = isFilterActive(debouncedFilters);
 
+  const effectiveQueryKey = useMemo(() => {
+    if (typeof queryKeyOrFn === 'function') {
+      return queryKeyOrFn(debouncedFilters);
+    }
+    return queryKeyOrFn;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryKeyOrFn, serializedDebouncedFilters]);
+
   const backendQuery = useQuery({
-    queryKey,
+    queryKey: effectiveQueryKey,
     queryFn: () => fetchFn(debouncedFilters),
     enabled: debouncedActive && !isOffline,
   });
 
-  const debouncedMatchesCurrent = JSON.stringify(debouncedFilters) === serializedFilters;
+  const debouncedMatchesCurrent = serializedDebouncedFilters === serializedFilters;
   const backendReady = debouncedMatchesCurrent && backendQuery.data !== undefined;
+
+  // When backend data is returned, re-rank it with client scoring (sequence, exact, prefix, substring)
+  // using searchFields and the active search query. This ensures relevance and sequence ranking (e.g. INV-000001
+  // matching sequence 000001 with score 1000) is preserved instead of falling back to raw Mongo date sort.
+  const rankedBackendResults = useMemo(() => {
+    if (!backendQuery.data) {
+      return undefined;
+    }
+    const rawData = backendQuery.data as T[];
+    const trimmedSearch = filters.search.trim();
+    if (!trimmedSearch) {
+      return applyLocalFilters(rawData, filters);
+    }
+    const index = buildSearchIndex(rawData, searchFields);
+    const terms = tokenizeQuery(trimmedSearch);
+    const searched = searchIndex(index, terms, null);
+    return applyLocalFilters(searched, filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backendQuery.data, searchFields, serializedFilters, applyLocalFilters]);
 
   const results = useMemo(() => {
     if (!active) {
@@ -70,8 +107,8 @@ export function useBackendFilteredList<T, F extends { search: string }>(
     if (isOffline) {
       return localResults;
     }
-    return backendReady ? (backendQuery.data as T[]) : localResults;
-  }, [active, allItems, isOffline, backendReady, backendQuery.data, localResults]);
+    return backendReady && rankedBackendResults !== undefined ? rankedBackendResults : localResults;
+  }, [active, allItems, isOffline, backendReady, rankedBackendResults, localResults]);
 
   return {
     results,

@@ -123,7 +123,7 @@ export const InvoicesList = () => {
         paymentMethod: f.paymentMethod === 'all' ? undefined : f.paymentMethod,
         datePreset: f.datePreset === 'all' ? undefined : 'today',
       }),
-    queryKeys.billing.invoices({ ...filters, search: filters.search.trim() })
+    (f) => queryKeys.billing.invoices({ ...f, search: f.search.trim() })
   );
 
   const handleRowClick = (inv: Invoice) => {

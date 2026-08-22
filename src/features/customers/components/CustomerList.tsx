@@ -107,7 +107,7 @@ export const CustomerList = () => {
         tag: f.tag === 'all' ? undefined : f.tag,
         limit: 100,
       }).then((r) => r.customers),
-    queryKeys.customers.list({ ...filters, search: filters.search.trim() })
+    (f) => queryKeys.customers.list({ ...f, search: f.search.trim() })
   );
 
   const handleOpenAddModal = () => {

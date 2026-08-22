@@ -95,7 +95,7 @@ export const PrintJobList = () => {
         status: f.status === 'all' ? undefined : f.status,
         datePreset: f.datePreset === 'all' ? undefined : 'today',
       }),
-    queryKeys.printJobs.list({ ...filters, search: filters.search.trim() })
+    (f) => queryKeys.printJobs.list({ ...f, search: f.search.trim() })
   );
 
   const createMutation = useCreatePrintJob();
