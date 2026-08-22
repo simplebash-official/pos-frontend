@@ -2,6 +2,7 @@ import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolki
 import { PAYMENT_METHODS, type PaymentMethod } from '@/constants/payment';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
+import { calculateLineItem, calculateCartTotals } from '@/shared/lib/posCalculations';
 
 export interface CartItem {
   id: string;
@@ -208,10 +209,12 @@ const cartSlice = createSlice({
         const addQty = sourceType === 'repair' || sourceType === 'print' ? 0 : item.quantity;
         const newQty = existing.quantity + addQty;
         existing.quantity = newQty;
-        existing.totalCents = Math.max(
-          0,
-          existing.unitPriceCents * newQty - existing.discountCents
-        );
+        const calculated = calculateLineItem({
+          unitPriceCents: existing.unitPriceCents,
+          quantity: newQty,
+          discountCents: existing.discountCents,
+        });
+        existing.totalCents = calculated.totalCents;
         if (item.serialNumbers && item.serialNumbers.length > 0) {
           existing.serialNumbers = [...(existing.serialNumbers ?? []), ...item.serialNumbers];
         }
@@ -222,9 +225,13 @@ const cartSlice = createSlice({
         return;
       }
 
-      const totalCents = Math.max(0, item.unitPriceCents * item.quantity - item.discountCents);
+      const calculated = calculateLineItem({
+        unitPriceCents: item.unitPriceCents,
+        quantity: item.quantity,
+        discountCents: item.discountCents,
+      });
       // Newest line is inserted at the TOP
-      state.items.unshift({ ...item, sourceType, totalCents });
+      state.items.unshift({ ...item, sourceType, totalCents: calculated.totalCents });
     },
 
     removeItem: (state, action: PayloadAction<string>) => {
@@ -274,7 +281,12 @@ const cartSlice = createSlice({
       }
 
       item.quantity = quantity;
-      item.totalCents = Math.max(0, item.unitPriceCents * quantity - item.discountCents);
+      const calculated = calculateLineItem({
+        unitPriceCents: item.unitPriceCents,
+        quantity,
+        discountCents: item.discountCents,
+      });
+      item.totalCents = calculated.totalCents;
     },
 
     updateLineDiscount: (state, action: PayloadAction<{ id: string; discountCents: number }>) => {
@@ -282,7 +294,12 @@ const cartSlice = createSlice({
       const item = state.items.find((i) => i.id === id);
       if (item) {
         item.discountCents = Math.max(0, discountCents);
-        item.totalCents = Math.max(0, item.unitPriceCents * item.quantity - item.discountCents);
+        const calculated = calculateLineItem({
+          unitPriceCents: item.unitPriceCents,
+          quantity: item.quantity,
+          discountCents: item.discountCents,
+        });
+        item.totalCents = calculated.totalCents;
       }
     },
 
@@ -545,41 +562,37 @@ export const selectCustomerInfo = createSelector(
   })
 );
 
-export const selectCartItemsCount = createSelector([selectCartItems], (items) => items.length);
-
-export const selectTotalUnitCount = createSelector([selectCartItems], (items) =>
-  items.reduce((acc, item) => acc + item.quantity, 0)
+export const selectCartTotals = createSelector(
+  [selectCartItems, selectCartDiscountType, selectCartDiscountValue],
+  (items, discountType, discountValue) =>
+    calculateCartTotals({
+      items,
+      orderDiscountType: discountType,
+      orderDiscountValue: discountValue,
+    })
 );
 
-export const selectSubtotalCents = createSelector([selectCartItems], (items) =>
-  items.reduce((acc, item) => acc + item.totalCents, 0)
+export const selectCartItemsCount = createSelector(
+  [selectCartTotals],
+  (totals) => totals.itemCount
 );
 
-export const selectTotalCents = createSelector(
-  [selectCartItems, selectCartDiscountCents],
-  (items, discount) => {
-    const subtotal = items.reduce((acc, i) => acc + i.totalCents, 0);
-    return Math.max(0, subtotal - discount);
-  }
+export const selectTotalUnitCount = createSelector(
+  [selectCartTotals],
+  (totals) => totals.totalUnitCount
 );
 
-export const selectSourceBreakdown = createSelector([selectCartItems], (items) => {
-  let retailCents = 0;
-  let repairsCents = 0;
-  let printCents = 0;
+export const selectSubtotalCents = createSelector(
+  [selectCartTotals],
+  (totals) => totals.subtotalCents
+);
 
-  for (const item of items) {
-    if (item.sourceType === 'repair') {
-      repairsCents += item.totalCents;
-    } else if (item.sourceType === 'print') {
-      printCents += item.totalCents;
-    } else {
-      retailCents += item.totalCents;
-    }
-  }
+export const selectTotalCents = createSelector([selectCartTotals], (totals) => totals.totalCents);
 
-  return { retailCents, repairsCents, printCents };
-});
+export const selectSourceBreakdown = createSelector(
+  [selectCartTotals],
+  (totals) => totals.sourceBreakdown
+);
 
 export const selectSplitAllocatedCents = (state: { cart: CartState }) =>
   state.cart.splitPayments.reduce((acc, p) => acc + p.amountCents, 0);

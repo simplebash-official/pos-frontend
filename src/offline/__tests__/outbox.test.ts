@@ -261,7 +261,7 @@ describe('discarding a change', () => {
 
     const seq = await enqueueOperation({
       resource: 'products',
-      operation: 'deleteMany',
+      operation: 'create',
       entityLocalId: 'a',
       payload: {},
       baseVersion: null,

@@ -308,8 +308,8 @@ export const PrintJobFormModal = ({
                       title="Fixed Commission Capped"
                       p="xs"
                     >
-                      Fixed split (Rs. {splitVal.toLocaleString()}) exceeds the job net profit (Rs.{' '}
-                      {profitRupees.toLocaleString()}). Commission will be capped at the total
+                      Fixed split ({formatMoney(toCents(splitVal))}) exceeds the job net profit ({' '}
+                      {formatMoney(toCents(profitRupees))}). Commission will be capped at the total
                       profit.
                     </Alert>
                   )}

@@ -37,7 +37,12 @@ import {
 import { useCartItems, useCartTotals, useCartCustomer, useCartCheckout } from '../hooks/useCart';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
-import { formatMoney } from '@/shared/lib/money';
+import { formatMoney, fromCents } from '@/shared/lib/money';
+import {
+  calculateOrderDiscount,
+  calculatePaymentState,
+  calculateQuickTenderSuggestions,
+} from '@/shared/lib/posCalculations';
 import { AmountInput } from '@/shared/components/AmountInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
@@ -138,14 +143,11 @@ export const PaymentPanel = memo(
       ) {
         return 0;
       }
-      if (discountMode === 'percentage') {
-        const clampedPct = Math.min(100, Math.max(0, discountInput));
-        const disc = Math.round((subtotalCents * clampedPct) / 100);
-        return Math.min(disc, subtotalCents);
-      } else {
-        const disc = Math.round(discountInput * 100);
-        return Math.min(disc, subtotalCents);
-      }
+      return calculateOrderDiscount(
+        subtotalCents,
+        discountMode === 'percentage' ? 'percentage' : 'fixed',
+        discountMode === 'percentage' ? discountInput : Math.round(discountInput * 100)
+      );
     }, [showDiscountInput, discountInput, discountMode, subtotalCents]);
 
     // Sync calculated discount to cart store
@@ -175,7 +177,7 @@ export const PaymentPanel = memo(
       if (discountMode === 'percentage' && subtotalCents > 0) {
         setDiscountInput(Math.round((discountCents / subtotalCents) * 100));
       } else {
-        setDiscountInput(Math.round(discountCents / 100));
+        setDiscountInput(fromCents(discountCents));
       }
     }
 
@@ -244,7 +246,7 @@ export const PaymentPanel = memo(
         !isCredit &&
         totalCents > 0
       ) {
-        setTenderedRupees(Math.round(totalCents / 100));
+        setTenderedRupees(fromCents(totalCents));
       }
       prevPaymentMethodRef.current = paymentMethod;
     }, [paymentMethod, isCredit, completedSale, totalCents, isMobile]);
@@ -267,19 +269,26 @@ export const PaymentPanel = memo(
       }
     }, [isCredit]);
 
-    // Payment calculations
-    const effectiveTenderedCents =
-      typeof tenderedRupees === 'number'
-        ? Math.round(tenderedRupees * 100)
-        : paymentMethod === PAYMENT_METHODS.CARD
-          ? totalCents
-          : 0;
-    const changeDueCents = Math.max(0, effectiveTenderedCents - totalCents);
-    const shortByCents = totalCents - effectiveTenderedCents;
-    const isCashShort =
-      paymentMethod === PAYMENT_METHODS.CASH && effectiveTenderedCents < totalCents;
-    const isCardShort =
-      paymentMethod === PAYMENT_METHODS.CARD && effectiveTenderedCents < totalCents;
+    // Payment calculations via centralized Calculation Engine
+    const paymentState = useMemo(() => {
+      const tenderedCents =
+        typeof tenderedRupees === 'number'
+          ? Math.round(tenderedRupees * 100)
+          : paymentMethod === PAYMENT_METHODS.CARD
+            ? totalCents
+            : 0;
+
+      return calculatePaymentState({
+        totalCents,
+        tenderedAmountCents: tenderedCents,
+        paymentMethod,
+        splitPayments,
+        customerBalanceCents,
+        isCredit,
+      });
+    }, [tenderedRupees, paymentMethod, totalCents, splitPayments, customerBalanceCents, isCredit]);
+
+    const { changeDueCents, shortByCents, isCashShort, isCardShort } = paymentState;
 
     // Default due date calculation (30 days from now)
     const [defaultDueDate] = useState(() => new Date(Date.now() + 30 * 86400000));
@@ -291,21 +300,7 @@ export const PaymentPanel = memo(
 
     // Quick Tender Chips calculation
     const quickChips = useMemo(() => {
-      if (totalCents <= 0) return [];
-      const totalRs = Math.ceil(totalCents / 100);
-      const set = new Set<number>();
-      set.add(totalRs);
-
-      const next500 = Math.ceil(totalRs / 500) * 500;
-      if (next500 > totalRs) set.add(next500);
-
-      const next1000 = Math.ceil(totalRs / 1000) * 1000;
-      if (next1000 > totalRs) set.add(next1000);
-
-      const next5000 = Math.ceil(totalRs / 5000) * 5000;
-      if (next5000 > totalRs) set.add(next5000);
-
-      return Array.from(set).sort((a, b) => a - b);
+      return calculateQuickTenderSuggestions(totalCents);
     }, [totalCents]);
 
     // Handle Split Rows
@@ -1149,29 +1144,49 @@ export const PaymentPanel = memo(
                         onChange={(val) => setTenderedRupees(val)}
                       />
 
-                      {/* Quick Tender Chips */}
-                      <Group gap={8} grow>
-                        {quickChips.slice(0, 2).map((amt, idx) => (
-                          <Button
-                            key={amt}
-                            size="sm"
-                            variant={idx === 0 ? 'light' : 'outline'}
-                            color={idx === 0 ? 'blue' : 'gray'}
-                            radius="var(--mantine-radius-default)"
-                            onClick={() => setTenderedRupees(amt)}
-                            style={{
-                              height: isMobile ? 48 : 42,
-                              fontWeight: 600,
-                              fontSize: 13,
-                              fontFamily: 'monospace',
-                            }}
-                          >
-                            {idx === 0
-                              ? `Exact · Rs. ${amt.toLocaleString()}`
-                              : `Rs. ${amt.toLocaleString()}`}
-                          </Button>
-                        ))}
-                      </Group>
+                      {/* Quick Tender Exact & Round Chips */}
+                      <Stack gap={6}>
+                        <Button
+                          size="sm"
+                          variant="light"
+                          color="blue"
+                          radius="var(--mantine-radius-default)"
+                          onClick={() => setTenderedRupees(fromCents(totalCents))}
+                          style={{
+                            height: isMobile ? 48 : 40,
+                            fontWeight: 700,
+                            fontSize: 13,
+                          }}
+                        >
+                          Exact Cash · {formatMoney(totalCents)}
+                        </Button>
+
+                        {quickChips.filter((c) => c !== totalCents).length > 0 && (
+                          <Group gap={6} grow>
+                            {quickChips
+                              .filter((c) => c !== totalCents)
+                              .slice(0, 3)
+                              .map((chipCents) => (
+                                <Button
+                                  key={chipCents}
+                                  size="xs"
+                                  variant="outline"
+                                  color="gray"
+                                  radius="var(--mantine-radius-default)"
+                                  onClick={() => setTenderedRupees(fromCents(chipCents))}
+                                  style={{
+                                    height: isMobile ? 44 : 36,
+                                    fontWeight: 600,
+                                    fontSize: 12,
+                                    padding: '0 4px',
+                                  }}
+                                >
+                                  {formatMoney(chipCents)}
+                                </Button>
+                              ))}
+                          </Group>
+                        )}
+                      </Stack>
 
                       {/* Change Due / Short By Display Row */}
                       <Group justify="space-between" align="center" py={4}>
@@ -1203,12 +1218,10 @@ export const PaymentPanel = memo(
                       </Text>
 
                       <AmountInput
-                        placeholder={Math.round(totalCents / 100).toString()}
+                        placeholder={fromCents(totalCents).toString()}
                         mode="amount"
                         size="lg"
-                        value={
-                          tenderedRupees === '' ? Math.round(totalCents / 100) : tenderedRupees
-                        }
+                        value={tenderedRupees === '' ? fromCents(totalCents) : tenderedRupees}
                         onChange={(val) => setTenderedRupees(val)}
                       />
 
@@ -1218,15 +1231,14 @@ export const PaymentPanel = memo(
                         variant="light"
                         color="blue"
                         radius="var(--mantine-radius-default)"
-                        onClick={() => setTenderedRupees(Math.round(totalCents / 100))}
+                        onClick={() => setTenderedRupees(fromCents(totalCents))}
                         style={{
-                          height: isMobile ? 48 : 42,
-                          fontWeight: 600,
+                          height: isMobile ? 48 : 40,
+                          fontWeight: 700,
                           fontSize: 13,
-                          fontFamily: 'monospace',
                         }}
                       >
-                        Exact Total · Rs. {Math.round(totalCents / 100).toLocaleString()}
+                        Exact Total · {formatMoney(totalCents)}
                       </Button>
 
                       <TextInput

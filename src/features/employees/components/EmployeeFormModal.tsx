@@ -17,6 +17,7 @@ import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/i
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { Employee, EmployeeInput, SplitType } from '../types';
 import { EmployeeFormValues, fromEmployee, toEmployeeInput } from '@/shared/lib/moneyFormUtils';
+import { formatMoney, toCents } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface EmployeeFormModalProps {
@@ -197,7 +198,7 @@ export const EmployeeFormModal = ({
               <Text size="xs" c="dimmed">
                 {form.values.defaultSplitType === 'percentage'
                   ? `Employee receives ${form.values.defaultSplitValueRupeesOrPercent}% of the profit on every completed task assigned to them.`
-                  : `Employee receives a flat Rs. ${Number(form.values.defaultSplitValueRupeesOrPercent || 0).toLocaleString()} payout for every job completed.`}
+                  : `Employee receives a flat ${formatMoney(toCents(Number(form.values.defaultSplitValueRupeesOrPercent || 0)))} payout for every job completed.`}
               </Text>
             </Stack>
           </Paper>
