@@ -159,3 +159,56 @@ describe('getMatchRanges', () => {
     expect(text.slice(range[0], range[1])).toBe('Blue');
   });
 });
+
+describe('sequence field matching', () => {
+  interface InvoiceRow {
+    invoiceNumber: string;
+    customerName: string;
+  }
+
+  const INVOICE_FIELDS: readonly SearchField<InvoiceRow>[] = [
+    { get: (r) => r.invoiceNumber, weight: 3, kind: 'sequence' },
+    { get: (r) => r.customerName, weight: 2, kind: 'text' },
+  ];
+
+  const searchInvoices = (rows: InvoiceRow[], query: string) =>
+    searchIndex(buildSearchIndex(rows, INVOICE_FIELDS), tokenizeQuery(query), null);
+
+  const sampleInvoices: InvoiceRow[] = [
+    { invoiceNumber: 'INV-000019', customerName: 'Walk-in Customer' },
+    { invoiceNumber: 'INV-000018', customerName: 'Walk-in Customer' },
+    { invoiceNumber: 'INV-000010', customerName: 'Walk-in Customer' },
+    { invoiceNumber: 'INV-000001', customerName: 'Walk-in Customer' },
+  ];
+
+  it('ranks INV-000001 first when searching 000001', () => {
+    const results = searchInvoices(sampleInvoices, '000001');
+    expect(results.map((r) => r.invoiceNumber)).toEqual(['INV-000001']);
+  });
+
+  it('ranks INV-000001 first when searching 00001', () => {
+    const results = searchInvoices(sampleInvoices, '00001');
+    expect(results[0].invoiceNumber).toBe('INV-000001');
+  });
+
+  it('ranks INV-000001 first when searching 1', () => {
+    const results = searchInvoices(sampleInvoices, '1');
+    expect(results[0].invoiceNumber).toBe('INV-000001');
+  });
+
+  it('ranks INV-000001 first when searching INV-1 or inv-1', () => {
+    const results = searchInvoices(sampleInvoices, 'INV-1');
+    expect(results[0].invoiceNumber).toBe('INV-000001');
+  });
+
+  it('ranks INV-000019 first when searching 19 or INV-19 or 000019', () => {
+    const results19 = searchInvoices(sampleInvoices, '19');
+    expect(results19[0].invoiceNumber).toBe('INV-000019');
+
+    const resultsPadded = searchInvoices(sampleInvoices, '000019');
+    expect(resultsPadded[0].invoiceNumber).toBe('INV-000019');
+
+    const resultsPrefix = searchInvoices(sampleInvoices, 'INV-19');
+    expect(resultsPrefix[0].invoiceNumber).toBe('INV-000019');
+  });
+});

@@ -58,7 +58,7 @@ export const EMPLOYEE_SEARCH_FIELDS: readonly SearchField<Employee>[] = [
 ];
 
 export const INVOICE_SEARCH_FIELDS: readonly SearchField<Invoice>[] = [
-  { get: (i) => i.invoiceNumber, weight: 3, kind: 'text' },
+  { get: (i) => i.invoiceNumber, weight: 3, kind: 'sequence' },
   { get: (i) => i.customerName, weight: 3, kind: 'text' },
   { get: (i) => i.customerPhone, weight: 2, kind: 'digits' },
   // A bill is often looked up by the repair/print ticket that ended up on it.
@@ -69,12 +69,12 @@ export const INVOICE_SEARCH_FIELDS: readonly SearchField<Invoice>[] = [
         .filter((ticket): ticket is string => Boolean(ticket))
         .join(' '),
     weight: 2,
-    kind: 'text',
+    kind: 'sequence',
   },
 ];
 
 export const REPAIR_JOB_SEARCH_FIELDS: readonly SearchField<RepairJob>[] = [
-  { get: (r) => r.ticketNumber, weight: 3, kind: 'text' },
+  { get: (r) => r.ticketNumber, weight: 3, kind: 'sequence' },
   { get: (r) => r.customerName, weight: 3, kind: 'text' },
   { get: (r) => r.customerPhone, weight: 2, kind: 'digits' },
   { get: (r) => r.deviceModel, weight: 2, kind: 'text' },
@@ -83,7 +83,7 @@ export const REPAIR_JOB_SEARCH_FIELDS: readonly SearchField<RepairJob>[] = [
 ];
 
 export const PRINT_JOB_SEARCH_FIELDS: readonly SearchField<PrintJob>[] = [
-  { get: (p) => p.ticketNumber, weight: 3, kind: 'text' },
+  { get: (p) => p.ticketNumber, weight: 3, kind: 'sequence' },
   { get: (p) => p.customerName, weight: 3, kind: 'text' },
   { get: (p) => p.customerPhone, weight: 2, kind: 'digits' },
   { get: (p) => p.jobType, weight: 2, kind: 'text' },
