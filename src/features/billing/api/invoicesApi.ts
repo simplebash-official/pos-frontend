@@ -83,6 +83,7 @@ interface BackendInvoiceItem {
   sourceTicketKey?: string;
   sourceTicketNumber?: string;
   assignedEmployeeName?: string;
+  returnedQuantity?: number;
   serialNumbers?: string[];
 }
 
@@ -176,6 +177,7 @@ export const toInvoiceItem = (item: BackendInvoiceItem, index: number): InvoiceI
   sourceType: item.sourceType as InvoiceItem['sourceType'],
   sourceTicketNumber: item.sourceTicketNumber,
   assignedEmployeeName: item.assignedEmployeeName,
+  returnedQuantity: item.returnedQuantity ?? 0,
   serialNumbers: item.serialNumbers,
 });
 

@@ -167,7 +167,18 @@ export const creditNotesResource = defineSyncResource<CreditNote>({
           if (inv) {
             const updatedItems = inv.items.map((line) => {
               const matchedQuantity = input.returnedItems
-                .filter((retItem) => retItem.productKey && retItem.productKey === line.productId)
+                .filter((retItem) => {
+                  if (retItem.productKey && retItem.productKey === line.productId) return true;
+                  if (retItem.sourceTicketKey && retItem.sourceTicketKey === line.productId)
+                    return true;
+                  if (
+                    retItem.name &&
+                    line.name &&
+                    retItem.name.toLowerCase() === line.name.toLowerCase()
+                  )
+                    return true;
+                  return false;
+                })
                 .reduce((sum, retItem) => sum + retItem.quantity, 0);
               if (matchedQuantity > 0) {
                 return {
@@ -182,6 +193,7 @@ export const creditNotesResource = defineSyncResource<CreditNote>({
                 items: updatedItems,
                 hasCreditNotes: true,
                 creditNoteCount: (inv.creditNoteCount || 0) + 1,
+                refundedCents: (inv.refundedCents || 0) + Math.max(0, netRefundCents),
               })
             );
             touchedInvoice = true;
