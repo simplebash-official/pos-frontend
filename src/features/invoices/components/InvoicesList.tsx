@@ -91,6 +91,11 @@ export const InvoicesList = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
 
+  const liveSelectedInvoice = useMemo(() => {
+    if (!selectedInvoice) return null;
+    return invoices.find((inv) => inv.id === selectedInvoice.id) ?? selectedInvoice;
+  }, [invoices, selectedInvoice]);
+
   const filters: InvoiceFilters = {
     search: searchQuery,
     status: statusFilter,
@@ -384,7 +389,7 @@ export const InvoicesList = () => {
       <InvoiceDetailDrawer
         opened={drawerOpened}
         onClose={() => setDrawerOpened(false)}
-        invoice={selectedInvoice}
+        invoice={liveSelectedInvoice}
       />
     </>
   );

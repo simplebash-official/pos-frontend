@@ -265,14 +265,20 @@ export const CreditNoteModal = ({
           ]
         : [
             ...selectedLines.map(({ item, state, quantity }) => ({
-              productKey: item.productId || undefined,
+              productKey:
+                item.sourceType === 'retail' || !item.sourceType
+                  ? item.productId || undefined
+                  : undefined,
+              sourceTicketKey:
+                item.sourceType && item.sourceType !== 'retail'
+                  ? item.productId || undefined
+                  : undefined,
               name: item.name,
               quantity,
               reason: state.reason,
               condition: state.condition,
               disposition: state.condition === 'damaged' ? state.disposition! : undefined,
               unitPriceCents: item.unitPriceCents,
-              sourceTicketKey: item.sourceTicketNumber ? undefined : undefined,
             })),
             ...serializedLines.map(({ item, serial, unit }) => ({
               productKey: item.productId || undefined,
