@@ -413,14 +413,14 @@ export const CreditNoteModal = ({
             </Stack>
           </Paper>
         ) : (
-          <Paper withBorder style={{ overflow: 'hidden' }}>
+          <Paper withBorder style={{ overflowX: 'auto' }}>
             <Table verticalSpacing="sm" horizontalSpacing="sm" striped highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th style={{ width: 40 }} />
                   <Table.Th>Item & Condition</Table.Th>
-                  <Table.Th style={{ width: 110, textAlign: 'center' }}>Qty</Table.Th>
-                  <Table.Th style={{ width: 100, textAlign: 'right' }}>Refund</Table.Th>
+                  <Table.Th style={{ width: 135, textAlign: 'center' }}>Qty</Table.Th>
+                  <Table.Th style={{ width: 110, textAlign: 'right' }}>Refund</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -446,7 +446,8 @@ export const CreditNoteModal = ({
                               {item.name}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              Tracked by serial number — pick which unit(s) are being returned.
+                              Tracked by serial number — {itemSerialLines.length} of{' '}
+                              {item.serialNumbers?.length ?? 0} selected for return.
                             </Text>
                             {(item.serialNumbers ?? []).map((serial) => {
                               const unit = state.serialUnits?.[serial] ?? {
@@ -605,22 +606,66 @@ export const CreditNoteModal = ({
                       </Table.Td>
                       <Table.Td style={{ verticalAlign: 'top', textAlign: 'center' }}>
                         {isFullyReturned ? (
-                          <Text size="xs" c="dimmed">
-                            0 available
-                          </Text>
+                          <Stack gap={2} align="center">
+                            <Badge size="xs" color="gray" variant="light">
+                              0 available
+                            </Badge>
+                            {item.quantity > 0 && (
+                              <Text size="3xs" c="dimmed">
+                                All {item.quantity} returned
+                              </Text>
+                            )}
+                          </Stack>
                         ) : (
-                          <QuantityInput
-                            value={state.quantity}
-                            min={1}
-                            max={remaining}
-                            disabled={!state.selected}
-                            size="xs"
-                            onChange={(v) =>
-                              updateLine(item.id, {
-                                quantity: typeof v === 'number' ? Math.min(v, remaining) : 1,
-                              })
-                            }
-                          />
+                          <Stack gap={4} align="center">
+                            <QuantityInput
+                              value={state.quantity}
+                              min={1}
+                              max={remaining}
+                              disabled={!state.selected}
+                              size="xs"
+                              onChange={(v) =>
+                                updateLine(item.id, {
+                                  quantity: typeof v === 'number' ? Math.min(v, remaining) : 1,
+                                })
+                              }
+                            />
+                            <Group gap={4} align="center" justify="center" wrap="nowrap">
+                              <Text
+                                size="xs"
+                                c="dimmed"
+                                style={{ fontSize: 11, whiteSpace: 'nowrap' }}
+                              >
+                                Max: {remaining}
+                              </Text>
+                              <Button
+                                size="compact-xs"
+                                variant="light"
+                                color="blue"
+                                disabled={state.selected && state.quantity >= remaining}
+                                onClick={() =>
+                                  updateLine(item.id, { selected: true, quantity: remaining })
+                                }
+                                style={{
+                                  fontSize: 10,
+                                  height: 18,
+                                  paddingLeft: 6,
+                                  paddingRight: 6,
+                                }}
+                              >
+                                Max
+                              </Button>
+                            </Group>
+                            {Boolean(item.returnedQuantity && item.returnedQuantity > 0) && (
+                              <Text
+                                size="3xs"
+                                c="dimmed"
+                                style={{ fontSize: 10, whiteSpace: 'nowrap' }}
+                              >
+                                ({item.returnedQuantity} of {item.quantity} returned)
+                              </Text>
+                            )}
+                          </Stack>
                         )}
                       </Table.Td>
                       <Table.Td style={{ verticalAlign: 'top', textAlign: 'right' }}>
