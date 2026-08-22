@@ -58,7 +58,6 @@ describe('invoices resource sync delta mapping', () => {
       status: 'paid',
       isOverdue: false,
       creditNoteCount: 0,
-      hasCreditNotes: false,
       refundedCents: 0,
       createdAt: '2026-08-21T10:00:00.000Z',
     };

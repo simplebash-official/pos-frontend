@@ -121,8 +121,11 @@ export interface BackendInvoice {
   onlineNote?: string;
   status: InvoiceStatus;
   isOverdue: boolean;
+  // The backend only ever sends `creditNoteCount` — there is no
+  // `hasCreditNotes` field on the wire. It's a convenience flag computed
+  // client-side in `toInvoice` (`creditNoteCount > 0`), never read directly
+  // off this response type.
   creditNoteCount: number;
-  hasCreditNotes: boolean;
   refundedCents: number;
   voidedAt?: string;
   voidedBy?: string;
@@ -211,7 +214,7 @@ export const toInvoice = (inv: BackendInvoice): Invoice => ({
   status: inv.status,
   isOverdue: inv.isOverdue,
   creditNoteCount: inv.creditNoteCount,
-  hasCreditNotes: inv.hasCreditNotes,
+  hasCreditNotes: inv.creditNoteCount > 0,
   refundedCents: inv.refundedCents,
   voidedAt: inv.voidedAt,
   voidedBy: inv.voidedBy,
