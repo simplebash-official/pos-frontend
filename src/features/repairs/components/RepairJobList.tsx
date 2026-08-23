@@ -3,6 +3,7 @@ import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
   IconPlus,
+  IconRefresh,
   IconCheck,
   IconUser,
   IconTool,
@@ -12,6 +13,7 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob, RepairJobInput } from '../types';
 import {
@@ -72,7 +74,7 @@ export const RepairJobList = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
 
-  const { data: repairJobs, isLoading } = useAllRepairs();
+  const { data: repairJobs, isLoading, isFetching } = useAllRepairs();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useRepairStats();
 
   const filters: RepairFilters = { search: searchQuery, status: statusFilter, datePreset };
@@ -266,9 +268,19 @@ export const RepairJobList = () => {
         title="Repair Jobs & Hardware Service"
         description="Track device diagnostic, repair, ticket status, assigned technician, and profit split"
         action={
-          <Button leftSection={<IconPlus size={16} />} color="orange" onClick={handleOpenAdd}>
-            New Repair Ticket
-          </Button>
+          <Group gap="sm">
+            <Button
+              variant="light"
+              leftSection={<IconRefresh size={16} />}
+              loading={isFetching}
+              onClick={() => void syncEngine.syncNow()}
+            >
+              Refresh List
+            </Button>
+            <Button leftSection={<IconPlus size={16} />} color="orange" onClick={handleOpenAdd}>
+              New Repair Ticket
+            </Button>
+          </Group>
         }
       />
 

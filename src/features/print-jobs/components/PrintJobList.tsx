@@ -3,6 +3,7 @@ import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
   IconPlus,
+  IconRefresh,
   IconCheck,
   IconUser,
   IconPrinter,
@@ -11,6 +12,7 @@ import {
   IconChartPie,
   IconSearch,
 } from '@tabler/icons-react';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { notifications } from '@mantine/notifications';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
@@ -72,7 +74,7 @@ export const PrintJobList = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
 
-  const { data: printJobs, isLoading } = useAllPrintJobs();
+  const { data: printJobs, isLoading, isFetching } = useAllPrintJobs();
   const { data: stats, isLoading: statsLoading, staleAsOf } = usePrintJobStats();
 
   const filters: PrintJobFilters = { search: searchQuery, status: statusFilter, datePreset };
@@ -261,9 +263,19 @@ export const PrintJobList = () => {
         title="Print Jobs & Sublimation Orders"
         description="Custom mug, t-shirt, handbill, banner printing order tracking & operator profit split"
         action={
-          <Button leftSection={<IconPlus size={16} />} color="teal" onClick={handleOpenAdd}>
-            New Print Order
-          </Button>
+          <Group gap="sm">
+            <Button
+              variant="light"
+              leftSection={<IconRefresh size={16} />}
+              loading={isFetching}
+              onClick={() => void syncEngine.syncNow()}
+            >
+              Refresh List
+            </Button>
+            <Button leftSection={<IconPlus size={16} />} color="teal" onClick={handleOpenAdd}>
+              New Print Order
+            </Button>
+          </Group>
         }
       />
 

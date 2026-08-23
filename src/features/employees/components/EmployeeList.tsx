@@ -19,6 +19,7 @@ import {
 } from '@mantine/core';
 import {
   IconPlus,
+  IconRefresh,
   IconUserCheck,
   IconUser,
   IconPhone,
@@ -67,6 +68,7 @@ export const EmployeeList = () => {
     isLoading,
     isPending,
     isFetching,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
@@ -307,13 +309,23 @@ export const EmployeeList = () => {
           title="Employee Directory & Commission Splits"
           description="Staff profiles, technician assignments, and job profit commission splits"
           action={
-            <Button
-              leftSection={<IconPlus size={16} />}
-              color="indigo"
-              onClick={handleOpenAddModal}
-            >
-              Register New Employee
-            </Button>
+            <Group gap="sm">
+              <Button
+                variant="light"
+                leftSection={<IconRefresh size={16} />}
+                loading={isFetching}
+                onClick={() => void refetch()}
+              >
+                Refresh List
+              </Button>
+              <Button
+                leftSection={<IconPlus size={16} />}
+                color="indigo"
+                onClick={handleOpenAddModal}
+              >
+                Register New Employee
+              </Button>
+            </Group>
           }
         />
 
