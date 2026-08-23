@@ -19,6 +19,7 @@ import {
 } from '@mantine/core';
 import {
   IconUserPlus,
+  IconRefresh,
   IconUser,
   IconTag,
   IconEdit,
@@ -30,6 +31,7 @@ import {
   IconList,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -78,7 +80,7 @@ export const CustomerList = () => {
   const [selectedCustomerForDrawer, setSelectedCustomerForDrawer] = useState<Customer | null>(null);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
-  const { data: customers = [], isLoading } = useAllCustomers();
+  const { data: customers = [], isLoading, isFetching } = useAllCustomers();
   const availableTags = useCustomerTags();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useCustomerStats();
 
@@ -289,9 +291,19 @@ export const CustomerList = () => {
           title="Customer Directory"
           description="Client database, purchase histories, and credit balances"
           action={
-            <Button leftSection={<IconUserPlus size={16} />} onClick={handleOpenAddModal}>
-              Add New Customer
-            </Button>
+            <Group gap="sm">
+              <Button
+                variant="light"
+                leftSection={<IconRefresh size={16} />}
+                loading={isFetching}
+                onClick={() => void syncEngine.syncNow()}
+              >
+                Refresh List
+              </Button>
+              <Button leftSection={<IconUserPlus size={16} />} onClick={handleOpenAddModal}>
+                Add New Customer
+              </Button>
+            </Group>
           }
         />
 

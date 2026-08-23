@@ -19,6 +19,7 @@ import {
 } from '@mantine/core';
 import {
   IconPlus,
+  IconRefresh,
   IconBuildingStore,
   IconEdit,
   IconTrash,
@@ -31,6 +32,7 @@ import {
   IconList,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -80,7 +82,7 @@ export const SupplierList = () => {
   const [selectedSupplierForDrawer, setSelectedSupplierForDrawer] = useState<Supplier | null>(null);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
-  const { data: suppliers, isLoading } = useAllSuppliers();
+  const { data: suppliers, isLoading, isFetching } = useAllSuppliers();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useSupplierStats();
   const allSupplyTags = useSupplierCategories();
 
@@ -272,9 +274,23 @@ export const SupplierList = () => {
           title="Suppliers & Distributors"
           description="Vendor directory, contact persons, and supply product mappings"
           action={
-            <Button leftSection={<IconPlus size={16} />} color="blue" onClick={handleOpenAddModal}>
-              Register New Supplier
-            </Button>
+            <Group gap="sm">
+              <Button
+                variant="light"
+                leftSection={<IconRefresh size={16} />}
+                loading={isFetching}
+                onClick={() => void syncEngine.syncNow()}
+              >
+                Refresh List
+              </Button>
+              <Button
+                leftSection={<IconPlus size={16} />}
+                color="blue"
+                onClick={handleOpenAddModal}
+              >
+                Register New Supplier
+              </Button>
+            </Group>
           }
         />
 

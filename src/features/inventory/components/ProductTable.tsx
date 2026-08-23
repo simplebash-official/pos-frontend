@@ -33,6 +33,7 @@ import {
 } from '@mantine/core';
 import {
   IconPlus,
+  IconRefresh,
   IconSearch,
   IconAlertTriangle,
   IconArrowsMaximize,
@@ -52,6 +53,7 @@ import {
   IconCategory,
   IconHistory,
 } from '@tabler/icons-react';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { notifications } from '@mantine/notifications';
 import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import {
@@ -104,7 +106,7 @@ export const ProductTable = () => {
   const isAdmin = role === USER_ROLES.ADMIN;
   const isMobile = useIsMobile();
 
-  const { data: initialProducts, isLoading } = useAllProducts();
+  const { data: initialProducts, isLoading, isFetching } = useAllProducts();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useInventoryStats();
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
@@ -465,6 +467,14 @@ export const ProductTable = () => {
         description="Catalog across every stocked category and subcategory"
         action={
           <Group gap="sm">
+            <Button
+              variant="light"
+              leftSection={<IconRefresh size={16} />}
+              loading={isFetching}
+              onClick={() => void syncEngine.syncNow()}
+            >
+              Refresh List
+            </Button>
             {isAdmin && (
               <Button
                 variant="light"
