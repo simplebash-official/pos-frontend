@@ -293,8 +293,9 @@ export const CustomerList = () => {
           action={
             <Group gap="sm">
               <Button
+                size="xs"
                 variant="light"
-                leftSection={<IconRefresh size={16} />}
+                leftSection={<IconRefresh size={14} />}
                 loading={isFetching}
                 onClick={() => void syncEngine.syncNow()}
               >
