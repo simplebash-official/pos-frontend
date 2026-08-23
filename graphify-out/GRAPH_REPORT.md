@@ -1,7 +1,7 @@
 # Graph Report - frontend  (2026-08-23)
 
 ## Corpus Check
-- 335 files · ~179,754 words
+- 335 files · ~179,760 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6e64e644`
+- Built from commit: `ca495c2c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -465,9 +465,9 @@ Nodes (23): AddSubcategoryRow(), CategoryItem(), CategoryManagerModal(), Categor
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `useAppSelector` connect `useAppSelector` to `notificationSlice.ts`, `search.ts`, `CreditNoteModal.tsx`, `cartSlice.ts`, `syncSlice.ts`, `BillingCounter.tsx`, `router.tsx`, `providers.tsx`, `posCalculations.ts`, `InvoiceDetailDrawer.tsx`, `SyncProvider.tsx`, `ProductTable.tsx`, `authSlice.ts`, `AppShell.tsx`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Why does `useIsMobile()` connect `useIsMobile` to `notificationSlice.ts`, `CreditNoteModal.tsx`, `A4InvoicePreviewModal.tsx`, `cartSlice.ts`, `BillingCounter.tsx`, `InvoiceDetailDrawer.tsx`, `ProductTable.tsx`, `authSlice.ts`, `AppShell.tsx`, `searchFields.ts`, `CatalogPanel.tsx`, `RepairFormModal.tsx`, `products.resource.ts`, `syncSlice.ts`, `SupplierList.tsx`, `formatMoney`, `mockEmployees.ts`, `useResponsive.tsx`, `posCalculations.ts`, `useCategories.ts`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Why does `ConnectivityMonitor` connect `ConnectivityMonitor` to `registry.ts`, `SyncEngine.ts`, `flush.ts`, `authSlice.ts`, `offline/constants.ts`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `CustomerFilters`, `ProductFilters`, `PrintJobFilters` to the rest of the system?**
