@@ -42,8 +42,15 @@ export const SaleDocumentPreviewModal = ({
 
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
-  const printLogNumber = invoice?.invoiceNumber ?? creditNote?.creditNoteNumber;
-  const printLogs = opened && printLogNumber ? getPrintLogsForInvoice(printLogNumber) : [];
+  // Right after checkout the invoice is still the local optimistic copy — its
+  // server-issued number hasn't arrived yet (`invoices.resource.ts` seeds it
+  // as `''`), even though the document itself may already be ready to print.
+  // Fall back to the id so print-log lookups/recording still work (the
+  // lookup already matches on either field) instead of treating "number not
+  // hydrated yet" as "nothing to print".
+  const printLogNumber = invoice?.invoiceNumber || creditNote?.creditNoteNumber;
+  const printLogKey = printLogNumber || invoice?.id || creditNote?.id || '';
+  const printLogs = opened && printLogKey ? getPrintLogsForInvoice(printLogKey) : [];
   const hasPrinted = printLogs.length > 0;
 
   const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
@@ -63,11 +70,11 @@ export const SaleDocumentPreviewModal = ({
   const { blob, loading, error, isPaused, isPending } = creditNote ? creditNoteDoc : invoiceDoc;
 
   const handlePrint = () => {
-    if (!blob || !printLogNumber) return;
+    if (!blob) return;
     void printPdfBlob(blob);
     recordPrintEvent({
       invoiceId: invoice?.id ?? creditNote?.id ?? '',
-      invoiceNumber: printLogNumber,
+      invoiceNumber: printLogKey,
       format:
         documentKind === 'invoice' || documentKind === 'credit-note'
           ? 'a4'
@@ -112,7 +119,7 @@ export const SaleDocumentPreviewModal = ({
     ? getCreditNoteStatusMeta(creditNote!.status).color
     : hero!.heroColor;
 
-  const title = `${docLabel} — ${printLogNumber}`;
+  const title = `${docLabel} — ${printLogNumber || 'Pending'}`;
   const subtitle = isCreditNote
     ? `${statusWord} · ${formatDateTime(creditNote!.createdAt)}`
     : `${statusWord} · ${hero!.methodLabel} · ${formatDateTime(invoice!.createdAt)}`;

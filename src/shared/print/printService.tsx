@@ -9,9 +9,25 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 // iframe straight at the blob URL no longer works in Chrome — its built-in PDF
 // viewer owns that frame, so `contentWindow.print()` is silently ignored and
 // nothing happens.
-const PRINT_DPI = 300;
+//
+// 300 DPI (the original value here) rasterises an A4 page to ~2480x3508px per
+// page. Chrome's print-preview generation has to decode and lay out that
+// bitmap on the main thread before the dialog ever appears, and on ordinary
+// hardware that pass can take long enough that the tab looks frozen and the
+// dialog never seems to open — indistinguishable, from the user's side, from
+// "the print button does nothing". 200 DPI cuts the pixel count to under half
+// while still being well above what a laser/inkjet needs for an invoice
+// that's mostly text, and JPEG (vs. the previous PNG) shrinks the embedded
+// data URI further without a visible quality loss at print size.
+const PRINT_DPI = 200;
+const PRINT_IMAGE_TYPE = 'image/jpeg';
+const PRINT_IMAGE_QUALITY = 0.92;
 const PT_TO_MM = 25.4 / 72;
 const PRINT_IFRAME_ID = 'pdf-print-iframe';
+// If the iframe never fires `load` (seen on some engines with a very large
+// `srcdoc` payload), fall back to printing anyway rather than hanging forever
+// with no dialog and no error — see `printPdfBlob` below.
+const PRINT_LOAD_FALLBACK_MS = 4_000;
 
 interface PrintedPageImage {
   dataUrl: string;
@@ -47,7 +63,7 @@ const renderPagesToImages = async (blob: Blob): Promise<PrintedPageImage[]> => {
       await page.render({ canvas, canvasContext: context, viewport: printViewport }).promise;
 
       pages.push({
-        dataUrl: canvas.toDataURL('image/png'),
+        dataUrl: canvas.toDataURL(PRINT_IMAGE_TYPE, PRINT_IMAGE_QUALITY),
         widthMm: pointViewport.width * PT_TO_MM,
         heightMm: pointViewport.height * PT_TO_MM,
       });
@@ -115,30 +131,48 @@ export const printPdfBlob = async (blob: Blob): Promise<void> => {
     style.padding = '0';
     style.border = '0';
 
-    iframe.onload = () => {
+    let triggered = false;
+
+    const triggerPrint = () => {
+      if (triggered) return;
+      triggered = true;
+      window.clearTimeout(fallbackTimer);
+
       const win = iframe.contentWindow;
+      try {
+        win?.focus();
+        win?.print();
+      } catch (e) {
+        console.error('Failed to print PDF:', e);
+      } finally {
+        resolve();
+        // Removing the frame mid-job can cancel the print — wait for the
+        // dialog to close, with a generous fallback for engines that never
+        // fire 'afterprint'.
+        win?.addEventListener('afterprint', () => iframe.remove(), { once: true });
+        window.setTimeout(() => iframe.remove(), 60_000);
+      }
+    };
+
+    iframe.onload = () => {
       const images = Array.from(iframe.contentDocument?.images ?? []);
       void Promise.all(
         images.map((img) => (img.decode ? img.decode().catch(() => undefined) : Promise.resolve()))
       ).then(() => {
         // Let layout settle before opening the print dialog.
-        window.setTimeout(() => {
-          try {
-            win?.focus();
-            win?.print();
-          } catch (e) {
-            console.error('Failed to print PDF:', e);
-          } finally {
-            resolve();
-            // Removing the frame mid-job can cancel the print — wait for the
-            // dialog to close, with a generous fallback for engines that never
-            // fire 'afterprint'.
-            win?.addEventListener('afterprint', () => iframe.remove(), { once: true });
-            window.setTimeout(() => iframe.remove(), 60_000);
-          }
-        }, 100);
+        window.setTimeout(triggerPrint, 100);
       });
     };
+
+    iframe.onerror = (e) => {
+      console.error('Print frame failed to load:', e);
+      triggerPrint();
+    };
+
+    // Some engines can fail to fire `load` for a large `srcdoc` payload —
+    // without this, that would hang the caller forever with no dialog and no
+    // error (indistinguishable from the Print button "doing nothing").
+    const fallbackTimer = window.setTimeout(triggerPrint, PRINT_LOAD_FALLBACK_MS);
 
     iframe.srcdoc = html;
     document.body.appendChild(iframe);
