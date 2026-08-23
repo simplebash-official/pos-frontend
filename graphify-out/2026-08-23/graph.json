@@ -894,95 +894,95 @@
       "norm_label": "layouttiercontextvalue"
     },
     {
-      "label": "GuestOnlyProps",
+      "label": "InvoiceFilters",
       "file_type": "code",
-      "source_file": "src/app/components/GuestOnly.tsx",
-      "source_location": "L7",
+      "source_file": "src/features/invoices/components/InvoicesList.tsx",
+      "source_location": "L28",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_app_components_guestonly_guestonlyprops",
+      "id": "src_features_invoices_components_invoiceslist_invoicefilters",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "guestonlyprops"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "invoicefilters"
     },
     {
-      "label": "RequireAuthProps",
+      "label": "PrintJobFilters",
       "file_type": "code",
-      "source_file": "src/app/components/RequireAuth.tsx",
-      "source_location": "L12",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
+      "source_location": "L38",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_app_components_requireauth_requireauthprops",
+      "id": "src_features_print_jobs_components_printjoblist_printjobfilters",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "requireauthprops"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "printjobfilters"
     },
     {
-      "label": "SidebarProps",
+      "label": "DeletePrintJobsPayload",
       "file_type": "code",
-      "source_file": "src/app/layout/Sidebar.tsx",
-      "source_location": "L27",
+      "source_file": "src/offline/resources/printJobs.resource.ts",
+      "source_location": "L28",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_app_layout_sidebar_sidebarprops",
+      "id": "src_offline_resources_printjobs_resource_deleteprintjobspayload",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "sidebarprops"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "deleteprintjobspayload"
     },
     {
-      "label": "NavCategoryGroup",
+      "label": "UpdatePrintJobPayload",
       "file_type": "code",
-      "source_file": "src/config/navigation.ts",
-      "source_location": "L27",
+      "source_file": "src/offline/resources/printJobs.resource.ts",
+      "source_location": "L23",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_config_navigation_navcategorygroup",
+      "id": "src_offline_resources_printjobs_resource_updateprintjobpayload",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "navcategorygroup"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "updateprintjobpayload"
     },
     {
-      "label": "NavItemConfig",
+      "label": "MetricCardDef",
       "file_type": "code",
-      "source_file": "src/config/navigation.ts",
-      "source_location": "L16",
+      "source_file": "src/shared/components/MetricCard.tsx",
+      "source_location": "L5",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_config_navigation_navitemconfig",
+      "id": "src_shared_components_metriccard_metriccarddef",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "navitemconfig"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "metriccarddef"
     },
     {
-      "label": "AppRoute",
+      "label": "MetricCardRowProps",
       "file_type": "code",
-      "source_file": "src/constants/routes.ts",
-      "source_location": "L16",
+      "source_file": "src/shared/components/MetricCard.tsx",
+      "source_location": "L56",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_constants_routes_approute",
+      "id": "src_shared_components_metriccard_metriccardrowprops",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "approute"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "metriccardrowprops"
     },
     {
-      "label": "PageLoaderProps",
+      "label": "SegmentedToggleProps",
       "file_type": "code",
-      "source_file": "src/shared/components/PageLoader.tsx",
-      "source_location": "L3",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_location": "L4",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_shared_components_pageloader_pageloaderprops",
+      "id": "src_shared_components_segmentedtoggle_segmentedtoggleprops",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "pageloaderprops"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "segmentedtoggleprops"
     },
     {
       "label": "RequireAdminProps",
@@ -996,6 +996,45 @@
       "community": 23,
       "community_name": "authSlice.ts",
       "norm_label": "requireadminprops"
+    },
+    {
+      "label": "SidebarProps",
+      "file_type": "code",
+      "source_file": "src/app/layout/Sidebar.tsx",
+      "source_location": "L27",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_layout_sidebar_sidebarprops",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "sidebarprops"
+    },
+    {
+      "label": "NavCategoryGroup",
+      "file_type": "code",
+      "source_file": "src/config/navigation.ts",
+      "source_location": "L27",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_config_navigation_navcategorygroup",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "navcategorygroup"
+    },
+    {
+      "label": "NavItemConfig",
+      "file_type": "code",
+      "source_file": "src/config/navigation.ts",
+      "source_location": "L16",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_config_navigation_navitemconfig",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "navitemconfig"
     },
     {
       "label": "UserRole",
@@ -1557,6 +1596,45 @@
       "norm_label": "storedshopprofileversion"
     },
     {
+      "label": "GuestOnlyProps",
+      "file_type": "code",
+      "source_file": "src/app/components/GuestOnly.tsx",
+      "source_location": "L7",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_components_guestonly_guestonlyprops",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "guestonlyprops"
+    },
+    {
+      "label": "RequireAuthProps",
+      "file_type": "code",
+      "source_file": "src/app/components/RequireAuth.tsx",
+      "source_location": "L12",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_components_requireauth_requireauthprops",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "requireauthprops"
+    },
+    {
+      "label": "AppRoute",
+      "file_type": "code",
+      "source_file": "src/constants/routes.ts",
+      "source_location": "L16",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_constants_routes_approute",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "approute"
+    },
+    {
       "label": "AuthLayoutProps",
       "file_type": "code",
       "source_file": "src/features/auth/components/AuthLayout.tsx",
@@ -1607,6 +1685,19 @@
       "community": 27,
       "community_name": "common.ts",
       "norm_label": "mobilesplashscreenprops"
+    },
+    {
+      "label": "PageLoaderProps",
+      "file_type": "code",
+      "source_file": "src/shared/components/PageLoader.tsx",
+      "source_location": "L3",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_components_pageloader_pageloaderprops",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "pageloaderprops"
     },
     {
       "label": "ApiError",
@@ -2129,19 +2220,6 @@
       "norm_label": "printjobformmodalprops"
     },
     {
-      "label": "PrintJobFilters",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L38",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist_printjobfilters",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "printjobfilters"
-    },
-    {
       "label": "PrintJob",
       "file_type": "code",
       "source_file": "src/features/print-jobs/types.ts",
@@ -2220,32 +2298,6 @@
       "norm_label": "repairjobinput"
     },
     {
-      "label": "DeletePrintJobsPayload",
-      "file_type": "code",
-      "source_file": "src/offline/resources/printJobs.resource.ts",
-      "source_location": "L28",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_printjobs_resource_deleteprintjobspayload",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "deleteprintjobspayload"
-    },
-    {
-      "label": "UpdatePrintJobPayload",
-      "file_type": "code",
-      "source_file": "src/offline/resources/printJobs.resource.ts",
-      "source_location": "L23",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_printjobs_resource_updateprintjobpayload",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "updateprintjobpayload"
-    },
-    {
       "label": "DeleteRepairsPayload",
       "file_type": "code",
       "source_file": "src/offline/resources/repairs.resource.ts",
@@ -2270,19 +2322,6 @@
       "community": 34,
       "community_name": "RepairJobList.tsx",
       "norm_label": "updaterepairpayload"
-    },
-    {
-      "label": "SegmentedToggleProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L4",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_segmentedtoggle_segmentedtoggleprops",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "segmentedtoggleprops"
     },
     {
       "label": "PrintJobFormValues",
@@ -2543,6 +2582,45 @@
       "community": 37,
       "community_name": "SupplierList.tsx",
       "norm_label": "supplierpickermodalprops"
+    },
+    {
+      "label": "ConfirmDialogProps",
+      "file_type": "code",
+      "source_file": "src/shared/components/ConfirmDialog.tsx",
+      "source_location": "L4",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_components_confirmdialog_confirmdialogprops",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "confirmdialogprops"
+    },
+    {
+      "label": "Column",
+      "file_type": "code",
+      "source_file": "src/shared/components/DataTable.tsx",
+      "source_location": "L29",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_components_datatable_column",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "column"
+    },
+    {
+      "label": "DataTableProps",
+      "file_type": "code",
+      "source_file": "src/shared/components/DataTable.tsx",
+      "source_location": "L40",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_components_datatable_datatableprops",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "datatableprops"
     },
     {
       "label": "SyncDrawerProps",
@@ -3206,6 +3284,19 @@
       "community": 44,
       "community_name": "formatMoney",
       "norm_label": "heldsalesdrawerprops"
+    },
+    {
+      "label": "ProductHierarchy",
+      "file_type": "code",
+      "source_file": "src/features/inventory/components/ProductCatalogTree.tsx",
+      "source_location": "L26",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_inventory_components_productcatalogtree_producthierarchy",
+      "community": 44,
+      "community_name": "formatMoney",
+      "norm_label": "producthierarchy"
     },
     {
       "label": "SupplierIntakeRow",
@@ -4469,32 +4560,6 @@
       "norm_label": "discountinputprops"
     },
     {
-      "label": "ProductHierarchy",
-      "file_type": "code",
-      "source_file": "src/features/inventory/components/ProductCatalogTree.tsx",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_inventory_components_productcatalogtree_producthierarchy",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "producthierarchy"
-    },
-    {
-      "label": "QuickSearchResult",
-      "file_type": "code",
-      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
-      "source_location": "L48",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_globalquicksearchmodal_quicksearchresult",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "quicksearchresult"
-    },
-    {
       "label": "SearchHighlightProps",
       "file_type": "code",
       "source_file": "src/shared/components/SearchHighlight.tsx",
@@ -4504,7 +4569,7 @@
       "_origin": "ast",
       "id": "src_shared_components_searchhighlight_searchhighlightprops",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "searchhighlightprops"
     },
     {
@@ -4517,7 +4582,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist_querykeyfactory",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "querykeyfactory"
     },
     {
@@ -4530,7 +4595,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist_usebackendfilteredlistresult",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "usebackendfilteredlistresult"
     },
     {
@@ -4543,7 +4608,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_useentitysearch_entitysearchresult",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "entitysearchresult"
     },
     {
@@ -4556,7 +4621,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_indexedfield",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "indexedfield"
     },
     {
@@ -4569,7 +4634,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_matchrange",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "matchrange"
     },
     {
@@ -4582,7 +4647,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchentry",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "searchentry"
     },
     {
@@ -4595,7 +4660,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchfield",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "searchfield"
     },
     {
@@ -4608,7 +4673,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchfieldkind",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "searchfieldkind"
     },
     {
@@ -4621,7 +4686,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchindex",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "searchindex"
     },
     {
@@ -4634,7 +4699,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchterm",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "searchterm"
     },
     {
@@ -4647,7 +4712,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_invoicerow",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "invoicerow"
     },
     {
@@ -4660,7 +4725,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_row",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "row"
     },
     {
@@ -4755,82 +4820,17 @@
       "norm_label": "customerpickermodalprops"
     },
     {
-      "label": "InvoiceFilters",
+      "label": "QuickSearchResult",
       "file_type": "code",
-      "source_file": "src/features/invoices/components/InvoicesList.tsx",
-      "source_location": "L28",
+      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
+      "source_location": "L48",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_invoices_components_invoiceslist_invoicefilters",
+      "id": "src_shared_components_globalquicksearchmodal_quicksearchresult",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "invoicefilters"
-    },
-    {
-      "label": "ConfirmDialogProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/ConfirmDialog.tsx",
-      "source_location": "L4",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_confirmdialog_confirmdialogprops",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "confirmdialogprops"
-    },
-    {
-      "label": "Column",
-      "file_type": "code",
-      "source_file": "src/shared/components/DataTable.tsx",
-      "source_location": "L29",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_datatable_column",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "column"
-    },
-    {
-      "label": "DataTableProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/DataTable.tsx",
-      "source_location": "L40",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_datatable_datatableprops",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "datatableprops"
-    },
-    {
-      "label": "MetricCardDef",
-      "file_type": "code",
-      "source_file": "src/shared/components/MetricCard.tsx",
-      "source_location": "L5",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_metriccard_metriccarddef",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "metriccarddef"
-    },
-    {
-      "label": "MetricCardRowProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/MetricCard.tsx",
-      "source_location": "L56",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_metriccard_metriccardrowprops",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "metriccardrowprops"
+      "norm_label": "quicksearchresult"
     },
     {
       "label": "SearchHistoryInputProps",
@@ -5576,6 +5576,42 @@
       "norm_label": "formatrelativetime()"
     },
     {
+      "label": "createReduxColorSchemeManager()",
+      "file_type": "code",
+      "source_file": "src/store/colorSchemeManager.ts",
+      "source_location": "L15",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_store_colorschememanager_createreduxcolorschememanager",
+      "community": 1,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "createreduxcolorschememanager()"
+    },
+    {
+      "label": "toAppScheme()",
+      "file_type": "code",
+      "source_file": "src/store/colorSchemeManager.ts",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_store_colorschememanager_toappscheme",
+      "community": 1,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "toappscheme()"
+    },
+    {
+      "label": "toMantineScheme()",
+      "file_type": "code",
+      "source_file": "src/store/colorSchemeManager.ts",
+      "source_location": "L9",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_store_colorschememanager_tomantinescheme",
+      "community": 1,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "tomantinescheme()"
+    },
+    {
       "label": "loadNotificationsFromStorage()",
       "file_type": "code",
       "source_file": "src/store/slices/notificationSlice.ts",
@@ -5624,64 +5660,28 @@
       "norm_label": "getinitialcolorscheme()"
     },
     {
-      "label": "AppShell()",
+      "label": "App()",
       "file_type": "code",
-      "source_file": "src/app/layout/AppShell.tsx",
-      "source_location": "L37",
+      "source_file": "src/app/App.tsx",
+      "source_location": "L5",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_layout_appshell_appshell",
+      "id": "src_app_app_app",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "appshell()"
+      "norm_label": "app()"
     },
     {
-      "label": "renderSection()",
+      "label": "AppProviders()",
       "file_type": "code",
-      "source_file": "src/features/settings/components/SettingsPage.tsx",
-      "source_location": "L17",
+      "source_file": "src/app/providers.tsx",
+      "source_location": "L41",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_settings_components_settingspage_rendersection",
+      "id": "src_app_providers_appproviders",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "rendersection()"
-    },
-    {
-      "label": "SettingsPage()",
-      "file_type": "code",
-      "source_file": "src/features/settings/components/SettingsPage.tsx",
-      "source_location": "L36",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_settings_components_settingspage_settingspage",
-      "community": 10,
-      "community_name": "router.tsx",
-      "norm_label": "settingspage()"
-    },
-    {
-      "label": "BillingPageSkeleton()",
-      "file_type": "code",
-      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
-      "source_location": "L23",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_components_billingpageskeleton_billingpageskeleton",
-      "community": 10,
-      "community_name": "router.tsx",
-      "norm_label": "billingpageskeleton()"
-    },
-    {
-      "label": "RegionPlaceholder()",
-      "file_type": "code",
-      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
-      "source_location": "L6",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_components_billingpageskeleton_regionplaceholder",
-      "community": 10,
-      "community_name": "router.tsx",
-      "norm_label": "regionplaceholder()"
+      "norm_label": "appproviders()"
     },
     {
       "label": "ErrorBoundary()",
@@ -5720,42 +5720,6 @@
       "norm_label": "pageskeleton()"
     },
     {
-      "label": "useLayoutTier()",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useResponsive.tsx",
-      "source_location": "L64",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useresponsive_uselayouttier",
-      "community": 10,
-      "community_name": "router.tsx",
-      "norm_label": "uselayouttier()"
-    },
-    {
-      "label": "useLayoutTierContext()",
-      "file_type": "code",
-      "source_file": "src/shared/hooks/useResponsive.tsx",
-      "source_location": "L56",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_hooks_useresponsive_uselayouttiercontext",
-      "community": 10,
-      "community_name": "router.tsx",
-      "norm_label": "uselayouttiercontext()"
-    },
-    {
-      "label": "App()",
-      "file_type": "code",
-      "source_file": "src/app/App.tsx",
-      "source_location": "L5",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_app",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "app()"
-    },
-    {
       "label": "AppUpdatePrompt()",
       "file_type": "code",
       "source_file": "src/app/components/AppUpdatePrompt.tsx",
@@ -5768,16 +5732,16 @@
       "norm_label": "appupdateprompt()"
     },
     {
-      "label": "AppProviders()",
+      "label": "HeldCartCatchupNotifier()",
       "file_type": "code",
-      "source_file": "src/app/providers.tsx",
-      "source_location": "L41",
+      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
+      "source_location": "L17",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_providers_appproviders",
+      "id": "src_app_components_heldcartcatchupnotifier_heldcartcatchupnotifier",
       "community": 12,
       "community_name": "providers.tsx",
-      "norm_label": "appproviders()"
+      "norm_label": "heldcartcatchupnotifier()"
     },
     {
       "label": "AuthInitializer()",
@@ -5792,40 +5756,40 @@
       "norm_label": "authinitializer()"
     },
     {
-      "label": "createReduxColorSchemeManager()",
+      "label": "LowStockNotifier()",
       "file_type": "code",
-      "source_file": "src/store/colorSchemeManager.ts",
-      "source_location": "L15",
+      "source_file": "src/features/inventory/components/LowStockNotifier.tsx",
+      "source_location": "L17",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_store_colorschememanager_createreduxcolorschememanager",
+      "id": "src_features_inventory_components_lowstocknotifier_lowstocknotifier",
       "community": 12,
       "community_name": "providers.tsx",
-      "norm_label": "createreduxcolorschememanager()"
+      "norm_label": "lowstocknotifier()"
     },
     {
-      "label": "toAppScheme()",
+      "label": "useLowStockProducts()",
       "file_type": "code",
-      "source_file": "src/store/colorSchemeManager.ts",
-      "source_location": "L12",
+      "source_file": "src/features/inventory/hooks/useProducts.ts",
+      "source_location": "L43",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_store_colorschememanager_toappscheme",
+      "id": "src_features_inventory_hooks_useproducts_uselowstockproducts",
       "community": 12,
       "community_name": "providers.tsx",
-      "norm_label": "toappscheme()"
+      "norm_label": "uselowstockproducts()"
     },
     {
-      "label": "toMantineScheme()",
+      "label": "selectIsAuthenticated()",
       "file_type": "code",
-      "source_file": "src/store/colorSchemeManager.ts",
-      "source_location": "L9",
+      "source_file": "src/store/slices/authSlice.ts",
+      "source_location": "L240",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_store_colorschememanager_tomantinescheme",
+      "id": "src_store_slices_authslice_selectisauthenticated",
       "community": 12,
       "community_name": "providers.tsx",
-      "norm_label": "tomantinescheme()"
+      "norm_label": "selectisauthenticated()"
     },
     {
       "label": "mantineCssVariableResolver()",
@@ -7268,124 +7232,148 @@
       "norm_label": "formatdatetime()"
     },
     {
-      "label": "GuestOnly()",
+      "label": "CustomerFormContent()",
       "file_type": "code",
-      "source_file": "src/app/components/GuestOnly.tsx",
-      "source_location": "L11",
+      "source_file": "src/features/customers/components/CustomerFormModal.tsx",
+      "source_location": "L47",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_components_guestonly_guestonly",
+      "id": "src_features_customers_components_customerformmodal_customerformcontent",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "guestonly()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "customerformcontent()"
     },
     {
-      "label": "HeldCartCatchupNotifier()",
+      "label": "applyLocalPrintJobFilters()",
       "file_type": "code",
-      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
-      "source_location": "L17",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
+      "source_location": "L49",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_components_heldcartcatchupnotifier_heldcartcatchupnotifier",
+      "id": "src_features_print_jobs_components_printjoblist_applylocalprintjobfilters",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "heldcartcatchupnotifier()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "applylocalprintjobfilters()"
     },
     {
-      "label": "RequireAuth()",
+      "label": "isPrintJobFilterActive()",
       "file_type": "code",
-      "source_file": "src/app/components/RequireAuth.tsx",
-      "source_location": "L16",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
+      "source_location": "L46",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_components_requireauth_requireauth",
+      "id": "src_features_print_jobs_components_printjoblist_isprintjobfilteractive",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "requireauth()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "isprintjobfilteractive()"
     },
     {
-      "label": "Sidebar()",
+      "label": "PrintJobList()",
       "file_type": "code",
-      "source_file": "src/app/layout/Sidebar.tsx",
-      "source_location": "L32",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
+      "source_location": "L66",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_layout_sidebar_sidebar",
+      "id": "src_features_print_jobs_components_printjoblist_printjoblist",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "sidebar()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "printjoblist()"
     },
     {
-      "label": "LowStockNotifier()",
+      "label": "useAllPrintJobs()",
       "file_type": "code",
-      "source_file": "src/features/inventory/components/LowStockNotifier.tsx",
-      "source_location": "L17",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L14",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_inventory_components_lowstocknotifier_lowstocknotifier",
+      "id": "src_features_print_jobs_hooks_useprintjobs_useallprintjobs",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "lowstocknotifier()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "useallprintjobs()"
     },
     {
-      "label": "useLowStockProducts()",
+      "label": "useCreatePrintJob()",
       "file_type": "code",
-      "source_file": "src/features/inventory/hooks/useProducts.ts",
-      "source_location": "L43",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L25",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_inventory_hooks_useproducts_uselowstockproducts",
+      "id": "src_features_print_jobs_hooks_useprintjobs_usecreateprintjob",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "uselowstockproducts()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "usecreateprintjob()"
     },
     {
-      "label": "PageLoader()",
+      "label": "useDeletePrintJobs()",
       "file_type": "code",
-      "source_file": "src/shared/components/PageLoader.tsx",
-      "source_location": "L9",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L33",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_pageloader_pageloader",
+      "id": "src_features_print_jobs_hooks_useprintjobs_usedeleteprintjobs",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "pageloader()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "usedeleteprintjobs()"
     },
     {
-      "label": "selectIsAuthenticated()",
+      "label": "useUpdatePrintJob()",
       "file_type": "code",
-      "source_file": "src/store/slices/authSlice.ts",
-      "source_location": "L240",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
+      "source_location": "L29",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_store_slices_authslice_selectisauthenticated",
+      "id": "src_features_print_jobs_hooks_useprintjobs_useupdateprintjob",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "selectisauthenticated()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "useupdateprintjob()"
     },
     {
-      "label": "selectIsAuthInitialized()",
+      "label": "MetricCard()",
       "file_type": "code",
-      "source_file": "src/store/slices/authSlice.ts",
-      "source_location": "L241",
+      "source_file": "src/shared/components/MetricCard.tsx",
+      "source_location": "L21",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_store_slices_authslice_selectisauthinitialized",
+      "id": "src_shared_components_metriccard_metriccard",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "selectisauthinitialized()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "metriccard()"
     },
     {
-      "label": "selectIsAuthLoading()",
+      "label": "MetricCardRow()",
       "file_type": "code",
-      "source_file": "src/store/slices/authSlice.ts",
-      "source_location": "L242",
+      "source_file": "src/shared/components/MetricCard.tsx",
+      "source_location": "L63",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_store_slices_authslice_selectisauthloading",
+      "id": "src_shared_components_metriccard_metriccardrow",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "selectisauthloading()"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "metriccardrow()"
+    },
+    {
+      "label": "SegmentedToggle()",
+      "file_type": "code",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_segmentedtoggle_segmentedtoggle",
+      "community": 21,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "segmentedtoggle()"
+    },
+    {
+      "label": "formatDate()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/date.ts",
+      "source_location": "L6",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_lib_date_formatdate",
+      "community": 21,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "formatdate()"
     },
     {
       "label": "RequireAdmin()",
@@ -7398,6 +7386,18 @@
       "community": 23,
       "community_name": "authSlice.ts",
       "norm_label": "requireadmin()"
+    },
+    {
+      "label": "Sidebar()",
+      "file_type": "code",
+      "source_file": "src/app/layout/Sidebar.tsx",
+      "source_location": "L32",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_layout_sidebar_sidebar",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "sidebar()"
     },
     {
       "label": "getMeApi()",
@@ -7784,6 +7784,30 @@
       "norm_label": "selectshopprofilebyversion()"
     },
     {
+      "label": "GuestOnly()",
+      "file_type": "code",
+      "source_file": "src/app/components/GuestOnly.tsx",
+      "source_location": "L11",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_components_guestonly_guestonly",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "guestonly()"
+    },
+    {
+      "label": "RequireAuth()",
+      "file_type": "code",
+      "source_file": "src/app/components/RequireAuth.tsx",
+      "source_location": "L16",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_components_requireauth_requireauth",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "requireauth()"
+    },
+    {
       "label": "loginApi()",
       "file_type": "code",
       "source_file": "src/features/auth/api/authApi.ts",
@@ -7866,6 +7890,42 @@
       "community": 27,
       "community_name": "common.ts",
       "norm_label": "mobilesplashscreen()"
+    },
+    {
+      "label": "PageLoader()",
+      "file_type": "code",
+      "source_file": "src/shared/components/PageLoader.tsx",
+      "source_location": "L9",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_pageloader_pageloader",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "pageloader()"
+    },
+    {
+      "label": "selectIsAuthInitialized()",
+      "file_type": "code",
+      "source_file": "src/store/slices/authSlice.ts",
+      "source_location": "L241",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_store_slices_authslice_selectisauthinitialized",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "selectisauthinitialized()"
+    },
+    {
+      "label": "selectIsAuthLoading()",
+      "file_type": "code",
+      "source_file": "src/store/slices/authSlice.ts",
+      "source_location": "L242",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_store_slices_authslice_selectisauthloading",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "selectisauthloading()"
     },
     {
       "label": "deleteEarningRecordsForWork()",
@@ -8624,100 +8684,16 @@
       "norm_label": "usecategorylookup()"
     },
     {
-      "label": "CustomerFormContent()",
+      "label": "RepairFormModal()",
       "file_type": "code",
-      "source_file": "src/features/customers/components/CustomerFormModal.tsx",
-      "source_location": "L47",
+      "source_file": "src/features/repairs/components/RepairFormModal.tsx",
+      "source_location": "L45",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_customers_components_customerformmodal_customerformcontent",
+      "id": "src_features_repairs_components_repairformmodal_repairformmodal",
       "community": 34,
       "community_name": "RepairJobList.tsx",
-      "norm_label": "customerformcontent()"
-    },
-    {
-      "label": "applyLocalPrintJobFilters()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L49",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist_applylocalprintjobfilters",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "applylocalprintjobfilters()"
-    },
-    {
-      "label": "isPrintJobFilterActive()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L46",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist_isprintjobfilteractive",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "isprintjobfilteractive()"
-    },
-    {
-      "label": "PrintJobList()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L66",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist_printjoblist",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "printjoblist()"
-    },
-    {
-      "label": "useAllPrintJobs()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L14",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_useallprintjobs",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "useallprintjobs()"
-    },
-    {
-      "label": "useCreatePrintJob()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L25",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_usecreateprintjob",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "usecreateprintjob()"
-    },
-    {
-      "label": "useDeletePrintJobs()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L33",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_usedeleteprintjobs",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "usedeleteprintjobs()"
-    },
-    {
-      "label": "useUpdatePrintJob()",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_useupdateprintjob",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "useupdateprintjob()"
+      "norm_label": "repairformmodal()"
     },
     {
       "label": "applyLocalRepairFilters()",
@@ -8804,30 +8780,6 @@
       "norm_label": "useupdaterepairjob()"
     },
     {
-      "label": "SegmentedToggle()",
-      "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L12",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_components_segmentedtoggle_segmentedtoggle",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "segmentedtoggle()"
-    },
-    {
-      "label": "formatDate()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/date.ts",
-      "source_location": "L6",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_lib_date_formatdate",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "formatdate()"
-    },
-    {
       "label": "fromPrintJob()",
       "file_type": "code",
       "source_file": "src/shared/lib/moneyFormUtils.ts",
@@ -8840,6 +8792,30 @@
       "norm_label": "fromprintjob()"
     },
     {
+      "label": "fromRepairJob()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L20",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_lib_moneyformutils_fromrepairjob",
+      "community": 34,
+      "community_name": "RepairJobList.tsx",
+      "norm_label": "fromrepairjob()"
+    },
+    {
+      "label": "rupeesFieldToCents()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L51",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_lib_moneyformutils_rupeesfieldtocents",
+      "community": 34,
+      "community_name": "RepairJobList.tsx",
+      "norm_label": "rupeesfieldtocents()"
+    },
+    {
       "label": "toPrintJobInput()",
       "file_type": "code",
       "source_file": "src/shared/lib/moneyFormUtils.ts",
@@ -8850,6 +8826,18 @@
       "community": 34,
       "community_name": "RepairJobList.tsx",
       "norm_label": "toprintjobinput()"
+    },
+    {
+      "label": "toRepairInput()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L54",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_lib_moneyformutils_torepairinput",
+      "community": 34,
+      "community_name": "RepairJobList.tsx",
+      "norm_label": "torepairinput()"
     },
     {
       "label": "adjustStock()",
@@ -9246,6 +9234,42 @@
       "community": 37,
       "community_name": "SupplierList.tsx",
       "norm_label": "useupdatesupplier()"
+    },
+    {
+      "label": "ConfirmDialog()",
+      "file_type": "code",
+      "source_file": "src/shared/components/ConfirmDialog.tsx",
+      "source_location": "L16",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_confirmdialog_confirmdialog",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "confirmdialog()"
+    },
+    {
+      "label": "DataTable()",
+      "file_type": "code",
+      "source_file": "src/shared/components/DataTable.tsx",
+      "source_location": "L76",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_datatable_datatable",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "datatable()"
+    },
+    {
+      "label": "getSkeletonWidthPercent()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/utils.ts",
+      "source_location": "L3",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_lib_utils_getskeletonwidthpercent",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "getskeletonwidthpercent()"
     },
     {
       "label": "PendingOperationsList()",
@@ -10016,6 +10040,18 @@
       "norm_label": "selectauthuser()"
     },
     {
+      "label": "AppShell()",
+      "file_type": "code",
+      "source_file": "src/app/layout/AppShell.tsx",
+      "source_location": "L37",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_layout_appshell_appshell",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "appshell()"
+    },
+    {
       "label": "KeyboardShortcutsModal()",
       "file_type": "code",
       "source_file": "src/features/billing/components/KeyboardShortcutsModal.tsx",
@@ -10026,6 +10062,78 @@
       "community": 40,
       "community_name": "AppShell.tsx",
       "norm_label": "keyboardshortcutsmodal()"
+    },
+    {
+      "label": "renderSection()",
+      "file_type": "code",
+      "source_file": "src/features/settings/components/SettingsPage.tsx",
+      "source_location": "L17",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_settings_components_settingspage_rendersection",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "rendersection()"
+    },
+    {
+      "label": "SettingsPage()",
+      "file_type": "code",
+      "source_file": "src/features/settings/components/SettingsPage.tsx",
+      "source_location": "L36",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_settings_components_settingspage_settingspage",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "settingspage()"
+    },
+    {
+      "label": "BillingPageSkeleton()",
+      "file_type": "code",
+      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
+      "source_location": "L23",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_billingpageskeleton_billingpageskeleton",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "billingpageskeleton()"
+    },
+    {
+      "label": "RegionPlaceholder()",
+      "file_type": "code",
+      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
+      "source_location": "L6",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_components_billingpageskeleton_regionplaceholder",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "regionplaceholder()"
+    },
+    {
+      "label": "useLayoutTier()",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useResponsive.tsx",
+      "source_location": "L64",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useresponsive_uselayouttier",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "uselayouttier()"
+    },
+    {
+      "label": "useLayoutTierContext()",
+      "file_type": "code",
+      "source_file": "src/shared/hooks/useResponsive.tsx",
+      "source_location": "L56",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_shared_hooks_useresponsive_uselayouttiercontext",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "uselayouttiercontext()"
     },
     {
       "label": ".constructor()",
@@ -10556,18 +10664,6 @@
       "norm_label": "usevalidcategories()"
     },
     {
-      "label": "RepairFormModal()",
-      "file_type": "code",
-      "source_file": "src/features/repairs/components/RepairFormModal.tsx",
-      "source_location": "L45",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_repairs_components_repairformmodal_repairformmodal",
-      "community": 44,
-      "community_name": "formatMoney",
-      "norm_label": "repairformmodal()"
-    },
-    {
       "label": "MoneyInput()",
       "file_type": "code",
       "source_file": "src/shared/components/MoneyInput.tsx",
@@ -10640,30 +10736,6 @@
       "norm_label": "fromemployee()"
     },
     {
-      "label": "fromRepairJob()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L20",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_lib_moneyformutils_fromrepairjob",
-      "community": 44,
-      "community_name": "formatMoney",
-      "norm_label": "fromrepairjob()"
-    },
-    {
-      "label": "rupeesFieldToCents()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L51",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_lib_moneyformutils_rupeesfieldtocents",
-      "community": 44,
-      "community_name": "formatMoney",
-      "norm_label": "rupeesfieldtocents()"
-    },
-    {
       "label": "toEmployeeInput()",
       "file_type": "code",
       "source_file": "src/shared/lib/moneyFormUtils.ts",
@@ -10674,18 +10746,6 @@
       "community": 44,
       "community_name": "formatMoney",
       "norm_label": "toemployeeinput()"
-    },
-    {
-      "label": "toRepairInput()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L54",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_lib_moneyformutils_torepairinput",
-      "community": 44,
-      "community_name": "formatMoney",
-      "norm_label": "torepairinput()"
     },
     {
       "label": "clearConnectivityNotification()",
@@ -12152,42 +12212,6 @@
       "norm_label": "selecttenderedamountcents()"
     },
     {
-      "label": "GlobalQuickSearchModal()",
-      "file_type": "code",
-      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
-      "source_location": "L88",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_components_globalquicksearchmodal_globalquicksearchmodal",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "globalquicksearchmodal()"
-    },
-    {
-      "label": "mergeByCategory()",
-      "file_type": "code",
-      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
-      "source_location": "L70",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_components_globalquicksearchmodal_mergebycategory",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "mergebycategory()"
-    },
-    {
-      "label": "SearchHighlight()",
-      "file_type": "code",
-      "source_file": "src/shared/components/SearchHighlight.tsx",
-      "source_location": "L18",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_components_searchhighlight_searchhighlight",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "searchhighlight()"
-    },
-    {
       "label": "useBackendFilteredList()",
       "file_type": "code",
       "source_file": "src/shared/hooks/useBackendFilteredList.ts",
@@ -12196,7 +12220,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist_usebackendfilteredlist",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "usebackendfilteredlist()"
     },
     {
@@ -12208,7 +12232,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_useentitysearch_useentitysearch",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "useentitysearch()"
     },
     {
@@ -12220,20 +12244,8 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_buildsearchindex",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "buildsearchindex()"
-    },
-    {
-      "label": "getMatchRanges()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/search.ts",
-      "source_location": "L298",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_lib_search_getmatchranges",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "getmatchranges()"
     },
     {
       "label": "isWordChar()",
@@ -12244,7 +12256,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_iswordchar",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "iswordchar()"
     },
     {
@@ -12256,7 +12268,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_matchsequencetier",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "matchsequencetier()"
     },
     {
@@ -12268,7 +12280,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_matchtier",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "matchtier()"
     },
     {
@@ -12280,7 +12292,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_normalizedigits",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "normalizedigits()"
     },
     {
@@ -12292,7 +12304,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_normalizetext",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "normalizetext()"
     },
     {
@@ -12304,7 +12316,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_scoreentry",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "scoreentry()"
     },
     {
@@ -12316,7 +12328,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_tokenizequery",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "tokenizequery()"
     },
     {
@@ -12328,7 +12340,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_run",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "run()"
     },
     {
@@ -12340,7 +12352,7 @@
       "_origin": "ast",
       "id": "src_store_slices_syncslice_selectisoffline",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "selectisoffline()"
     },
     {
@@ -12500,64 +12512,52 @@
       "norm_label": "useupdatecustomer()"
     },
     {
-      "label": "ConfirmDialog()",
+      "label": "GlobalQuickSearchModal()",
       "file_type": "code",
-      "source_file": "src/shared/components/ConfirmDialog.tsx",
-      "source_location": "L16",
+      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
+      "source_location": "L88",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_confirmdialog_confirmdialog",
+      "id": "src_shared_components_globalquicksearchmodal_globalquicksearchmodal",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "confirmdialog()"
+      "norm_label": "globalquicksearchmodal()"
     },
     {
-      "label": "DataTable()",
+      "label": "mergeByCategory()",
       "file_type": "code",
-      "source_file": "src/shared/components/DataTable.tsx",
-      "source_location": "L76",
+      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
+      "source_location": "L70",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_datatable_datatable",
+      "id": "src_shared_components_globalquicksearchmodal_mergebycategory",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "datatable()"
+      "norm_label": "mergebycategory()"
     },
     {
-      "label": "MetricCard()",
+      "label": "SearchHighlight()",
       "file_type": "code",
-      "source_file": "src/shared/components/MetricCard.tsx",
-      "source_location": "L21",
+      "source_file": "src/shared/components/SearchHighlight.tsx",
+      "source_location": "L18",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_metriccard_metriccard",
+      "id": "src_shared_components_searchhighlight_searchhighlight",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "metriccard()"
+      "norm_label": "searchhighlight()"
     },
     {
-      "label": "MetricCardRow()",
+      "label": "getMatchRanges()",
       "file_type": "code",
-      "source_file": "src/shared/components/MetricCard.tsx",
-      "source_location": "L63",
+      "source_file": "src/shared/lib/search.ts",
+      "source_location": "L298",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_metriccard_metriccardrow",
+      "id": "src_shared_lib_search_getmatchranges",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "metriccardrow()"
-    },
-    {
-      "label": "getSkeletonWidthPercent()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/utils.ts",
-      "source_location": "L3",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_shared_lib_utils_getskeletonwidthpercent",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "getskeletonwidthpercent()"
+      "norm_label": "getmatchranges()"
     },
     {
       "label": "MobileSignUpForm()",
@@ -13021,6 +13021,28 @@
       "norm_label": "notifications/types.ts"
     },
     {
+      "label": "colorSchemeManager.ts",
+      "file_type": "code",
+      "source_file": "src/store/colorSchemeManager.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_store_colorschememanager",
+      "community": 1,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "colorschememanager.ts"
+    },
+    {
+      "label": "reduxColorSchemeManager",
+      "file_type": "code",
+      "source_file": "src/store/colorSchemeManager.ts",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "src_store_colorschememanager_reduxcolorschememanager",
+      "community": 1,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "reduxcolorschememanager"
+    },
+    {
       "label": "store/index.ts",
       "file_type": "code",
       "source_file": "src/store/index.ts",
@@ -13030,6 +13052,17 @@
       "community": 1,
       "community_name": "notificationSlice.ts",
       "norm_label": "store/index.ts"
+    },
+    {
+      "label": "store",
+      "file_type": "code",
+      "source_file": "src/store/index.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_store_index_store",
+      "community": 1,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "store"
     },
     {
       "label": "listenerMiddleware.ts",
@@ -13142,6 +13175,28 @@
       "norm_label": "themeslice"
     },
     {
+      "label": "src/App.tsx",
+      "file_type": "code",
+      "source_file": "src/App.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app",
+      "community": 10,
+      "community_name": "router.tsx",
+      "norm_label": "src/app.tsx"
+    },
+    {
+      "label": "app/App.tsx",
+      "file_type": "code",
+      "source_file": "src/app/App.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_app",
+      "community": 10,
+      "community_name": "router.tsx",
+      "norm_label": "app/app.tsx"
+    },
+    {
       "label": "router.tsx",
       "file_type": "code",
       "source_file": "src/app/router.tsx",
@@ -13241,6 +13296,17 @@
       "norm_label": "reportsdashboard"
     },
     {
+      "label": "router",
+      "file_type": "code",
+      "source_file": "src/app/router.tsx",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_app_router_router",
+      "community": 10,
+      "community_name": "router.tsx",
+      "norm_label": "router"
+    },
+    {
       "label": "StandalonePrintView",
       "file_type": "code",
       "source_file": "src/app/router.tsx",
@@ -13307,26 +13373,26 @@
       "norm_label": "reports/types.ts"
     },
     {
-      "label": "BillingPageSkeleton.tsx",
+      "label": "main.tsx",
       "file_type": "code",
-      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
+      "source_file": "src/main.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_shared_components_billingpageskeleton",
+      "id": "src_main",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "billingpageskeleton.tsx"
+      "norm_label": "main.tsx"
     },
     {
-      "label": "FILL",
+      "label": "container",
       "file_type": "code",
-      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
-      "source_location": "L4",
+      "source_file": "src/main.tsx",
+      "source_location": "L5",
       "_origin": "ast",
-      "id": "src_shared_components_billingpageskeleton_fill",
+      "id": "src_main_container",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "fill"
+      "norm_label": "container"
     },
     {
       "label": "ErrorBoundary.tsx",
@@ -13461,15 +13527,15 @@
       "norm_label": "@mantine/dates"
     },
     {
-      "label": "@mantine/form",
+      "label": "@mantine/hooks",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "package_dependencies_mantine_form",
+      "id": "package_dependencies_mantine_hooks",
       "community": 11,
       "community_name": "dependencies",
-      "norm_label": "@mantine/form"
+      "norm_label": "@mantine/hooks"
     },
     {
       "label": "@mantine/modals",
@@ -13505,15 +13571,15 @@
       "norm_label": "pdfjs-dist"
     },
     {
-      "label": "react-dom",
+      "label": "react",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L55",
+      "source_location": "L54",
       "_origin": "ast",
-      "id": "package_dependencies_react_dom",
+      "id": "package_dependencies_react",
       "community": 11,
       "community_name": "dependencies",
-      "norm_label": "react-dom"
+      "norm_label": "react"
     },
     {
       "label": "react-redux",
@@ -13525,6 +13591,17 @@
       "community": 11,
       "community_name": "dependencies",
       "norm_label": "react-redux"
+    },
+    {
+      "label": "react-router-dom",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "package_dependencies_react_router_dom",
+      "community": 11,
+      "community_name": "dependencies",
+      "norm_label": "react-router-dom"
     },
     {
       "label": "@reduxjs/toolkit",
@@ -13547,17 +13624,6 @@
       "community": 11,
       "community_name": "dependencies",
       "norm_label": "@tabler/icons-react"
-    },
-    {
-      "label": "@tanstack/react-query",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L48",
-      "_origin": "ast",
-      "id": "package_dependencies_tanstack_react_query",
-      "community": 11,
-      "community_name": "dependencies",
-      "norm_label": "@tanstack/react-query"
     },
     {
       "label": "@tanstack/react-virtual",
@@ -13626,15 +13692,15 @@
       "norm_label": "@mantine/dates"
     },
     {
-      "label": "@mantine/form",
+      "label": "@mantine/hooks",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "mantine_form",
+      "id": "mantine_hooks",
       "community": 11,
       "community_name": "dependencies",
-      "norm_label": "@mantine/form"
+      "norm_label": "@mantine/hooks"
     },
     {
       "label": "@mantine/modals",
@@ -13670,15 +13736,15 @@
       "norm_label": "pdfjs-dist"
     },
     {
-      "label": "react-dom",
+      "label": "react",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L55",
+      "source_location": "L54",
       "_origin": "ast",
-      "id": "react_dom",
+      "id": "react",
       "community": 11,
       "community_name": "dependencies",
-      "norm_label": "react-dom"
+      "norm_label": "react"
     },
     {
       "label": "react-redux",
@@ -13690,6 +13756,17 @@
       "community": 11,
       "community_name": "dependencies",
       "norm_label": "react-redux"
+    },
+    {
+      "label": "react-router-dom",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "react_router_dom",
+      "community": 11,
+      "community_name": "dependencies",
+      "norm_label": "react-router-dom"
     },
     {
       "label": "@reduxjs/toolkit",
@@ -13712,17 +13789,6 @@
       "community": 11,
       "community_name": "dependencies",
       "norm_label": "@tabler/icons-react"
-    },
-    {
-      "label": "@tanstack/react-query",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L48",
-      "_origin": "ast",
-      "id": "tanstack_react_query",
-      "community": 11,
-      "community_name": "dependencies",
-      "norm_label": "@tanstack/react-query"
     },
     {
       "label": "@tanstack/react-virtual",
@@ -13769,28 +13835,6 @@
       "norm_label": "vitest.config.ts"
     },
     {
-      "label": "src/App.tsx",
-      "file_type": "code",
-      "source_file": "src/App.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "src/app.tsx"
-    },
-    {
-      "label": "app/App.tsx",
-      "file_type": "code",
-      "source_file": "src/app/App.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_app",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "app/app.tsx"
-    },
-    {
       "label": "AppUpdatePrompt.tsx",
       "file_type": "code",
       "source_file": "src/app/components/AppUpdatePrompt.tsx",
@@ -13800,6 +13844,17 @@
       "community": 12,
       "community_name": "providers.tsx",
       "norm_label": "appupdateprompt.tsx"
+    },
+    {
+      "label": "HeldCartCatchupNotifier.tsx",
+      "file_type": "code",
+      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_components_heldcartcatchupnotifier",
+      "community": 12,
+      "community_name": "providers.tsx",
+      "norm_label": "heldcartcatchupnotifier.tsx"
     },
     {
       "label": "providers.tsx",
@@ -13813,37 +13868,70 @@
       "norm_label": "providers.tsx"
     },
     {
-      "label": "router",
+      "label": "ui.ts",
       "file_type": "code",
-      "source_file": "src/app/router.tsx",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "src_app_router_router",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "router"
-    },
-    {
-      "label": "main.tsx",
-      "file_type": "code",
-      "source_file": "src/main.tsx",
+      "source_file": "src/constants/ui.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_main",
+      "id": "src_constants_ui",
       "community": 12,
       "community_name": "providers.tsx",
-      "norm_label": "main.tsx"
+      "norm_label": "ui.ts"
     },
     {
-      "label": "container",
+      "label": "DEFAULT_PAGINATION",
       "file_type": "code",
-      "source_file": "src/main.tsx",
-      "source_location": "L5",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "src_main_container",
+      "id": "src_constants_ui_default_pagination",
       "community": 12,
       "community_name": "providers.tsx",
-      "norm_label": "container"
+      "norm_label": "default_pagination"
+    },
+    {
+      "label": "HELD_CART_REMINDER_MS",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "src_constants_ui_held_cart_reminder_ms",
+      "community": 12,
+      "community_name": "providers.tsx",
+      "norm_label": "held_cart_reminder_ms"
+    },
+    {
+      "label": "SKELETON_WIDTH_PATTERN",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_constants_ui_skeleton_width_pattern",
+      "community": 12,
+      "community_name": "providers.tsx",
+      "norm_label": "skeleton_width_pattern"
+    },
+    {
+      "label": "LowStockNotifier.tsx",
+      "file_type": "code",
+      "source_file": "src/features/inventory/components/LowStockNotifier.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_inventory_components_lowstocknotifier",
+      "community": 12,
+      "community_name": "providers.tsx",
+      "norm_label": "lowstocknotifier.tsx"
+    },
+    {
+      "label": "notifiedProductIds",
+      "file_type": "code",
+      "source_file": "src/features/inventory/components/LowStockNotifier.tsx",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_features_inventory_components_lowstocknotifier_notifiedproductids",
+      "community": 12,
+      "community_name": "providers.tsx",
+      "norm_label": "notifiedproductids"
     },
     {
       "label": "onlineManagerBridge.ts",
@@ -13855,39 +13943,6 @@
       "community": 12,
       "community_name": "providers.tsx",
       "norm_label": "onlinemanagerbridge.ts"
-    },
-    {
-      "label": "colorSchemeManager.ts",
-      "file_type": "code",
-      "source_file": "src/store/colorSchemeManager.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_store_colorschememanager",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "colorschememanager.ts"
-    },
-    {
-      "label": "reduxColorSchemeManager",
-      "file_type": "code",
-      "source_file": "src/store/colorSchemeManager.ts",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "src_store_colorschememanager_reduxcolorschememanager",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "reduxcolorschememanager"
-    },
-    {
-      "label": "store",
-      "file_type": "code",
-      "source_file": "src/store/index.ts",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "src_store_index_store",
-      "community": 12,
-      "community_name": "providers.tsx",
-      "norm_label": "store"
     },
     {
       "label": "cssVariablesResolver.ts",
@@ -14198,6 +14253,17 @@
       "norm_label": "@eslint/js"
     },
     {
+      "label": "eslint-plugin-react-hooks",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "package_devdependencies_eslint_plugin_react_hooks",
+      "community": 16,
+      "community_name": "devDependencies",
+      "norm_label": "eslint-plugin-react-hooks"
+    },
+    {
       "label": "eslint-plugin-react-refresh",
       "file_type": "code",
       "source_file": "package.json",
@@ -14231,17 +14297,6 @@
       "norm_label": "globals"
     },
     {
-      "label": "postcss",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "package_devdependencies_postcss",
-      "community": 16,
-      "community_name": "devDependencies",
-      "norm_label": "postcss"
-    },
-    {
       "label": "postcss-preset-mantine",
       "file_type": "code",
       "source_file": "package.json",
@@ -14251,6 +14306,17 @@
       "community": 16,
       "community_name": "devDependencies",
       "norm_label": "postcss-preset-mantine"
+    },
+    {
+      "label": "postcss-simple-vars",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "package_devdependencies_postcss_simple_vars",
+      "community": 16,
+      "community_name": "devDependencies",
+      "norm_label": "postcss-simple-vars"
     },
     {
       "label": "@types/react",
@@ -14284,17 +14350,6 @@
       "community": 16,
       "community_name": "devDependencies",
       "norm_label": "vite"
-    },
-    {
-      "label": "vite-plugin-pwa",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L35",
-      "_origin": "ast",
-      "id": "package_devdependencies_vite_plugin_pwa",
-      "community": 16,
-      "community_name": "devDependencies",
-      "norm_label": "vite-plugin-pwa"
     },
     {
       "label": "vite-tsconfig-paths",
@@ -14352,6 +14407,17 @@
       "norm_label": "@eslint/js"
     },
     {
+      "label": "eslint-plugin-react-hooks",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "eslint_plugin_react_hooks",
+      "community": 16,
+      "community_name": "devDependencies",
+      "norm_label": "eslint-plugin-react-hooks"
+    },
+    {
       "label": "eslint-plugin-react-refresh",
       "file_type": "concept",
       "source_file": "package.json",
@@ -14385,17 +14451,6 @@
       "norm_label": "globals"
     },
     {
-      "label": "postcss",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "postcss",
-      "community": 16,
-      "community_name": "devDependencies",
-      "norm_label": "postcss"
-    },
-    {
       "label": "postcss-preset-mantine",
       "file_type": "concept",
       "source_file": "package.json",
@@ -14405,6 +14460,17 @@
       "community": 16,
       "community_name": "devDependencies",
       "norm_label": "postcss-preset-mantine"
+    },
+    {
+      "label": "postcss-simple-vars",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "postcss_simple_vars",
+      "community": 16,
+      "community_name": "devDependencies",
+      "norm_label": "postcss-simple-vars"
     },
     {
       "label": "@types/react",
@@ -14438,17 +14504,6 @@
       "community": 16,
       "community_name": "devDependencies",
       "norm_label": "vite"
-    },
-    {
-      "label": "vite-plugin-pwa",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L35",
-      "_origin": "ast",
-      "id": "vite_plugin_pwa",
-      "community": 16,
-      "community_name": "devDependencies",
-      "norm_label": "vite-plugin-pwa"
     },
     {
       "label": "vite-tsconfig-paths",
@@ -15287,191 +15342,114 @@
       "norm_label": "product_search_fields"
     },
     {
-      "label": "GuestOnly.tsx",
+      "label": "queryKeys.ts",
       "file_type": "code",
-      "source_file": "src/app/components/GuestOnly.tsx",
+      "source_file": "src/api/queryKeys.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_components_guestonly",
+      "id": "src_api_querykeys",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "guestonly.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "querykeys.ts"
     },
     {
-      "label": "HeldCartCatchupNotifier.tsx",
+      "label": "queryKeys",
       "file_type": "code",
-      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
+      "source_file": "src/api/queryKeys.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_components_heldcartcatchupnotifier",
+      "id": "src_api_querykeys_querykeys",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "heldcartcatchupnotifier.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "querykeys"
     },
     {
-      "label": "RequireAuth.tsx",
+      "label": "InvoicesList.tsx",
       "file_type": "code",
-      "source_file": "src/app/components/RequireAuth.tsx",
+      "source_file": "src/features/invoices/components/InvoicesList.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_components_requireauth",
+      "id": "src_features_invoices_components_invoiceslist",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "requireauth.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "invoiceslist.tsx"
     },
     {
-      "label": "Sidebar.tsx",
+      "label": "STATUS_FILTER_OPTIONS",
       "file_type": "code",
-      "source_file": "src/app/layout/Sidebar.tsx",
+      "source_file": "src/features/invoices/components/InvoicesList.tsx",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "src_features_invoices_components_invoiceslist_status_filter_options",
+      "community": 21,
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "status_filter_options"
+    },
+    {
+      "label": "PrintJobList.tsx",
+      "file_type": "code",
+      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_layout_sidebar",
+      "id": "src_features_print_jobs_components_printjoblist",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "sidebar.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "printjoblist.tsx"
     },
     {
-      "label": "navigation.ts",
+      "label": "usePrintJobs.ts",
       "file_type": "code",
-      "source_file": "src/config/navigation.ts",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_config_navigation",
+      "id": "src_features_print_jobs_hooks_useprintjobs",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "navigation.ts"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "useprintjobs.ts"
     },
     {
-      "label": "NAV_CATEGORIES",
+      "label": "NO_PRINT_JOBS",
       "file_type": "code",
-      "source_file": "src/config/navigation.ts",
-      "source_location": "L33",
-      "_origin": "ast",
-      "id": "src_config_navigation_nav_categories",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "nav_categories"
-    },
-    {
-      "label": "NAV_ITEMS",
-      "file_type": "code",
-      "source_file": "src/config/navigation.ts",
-      "source_location": "L116",
-      "_origin": "ast",
-      "id": "src_config_navigation_nav_items",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "nav_items"
-    },
-    {
-      "label": "routes.ts",
-      "file_type": "code",
-      "source_file": "src/constants/routes.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_constants_routes",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "routes.ts"
-    },
-    {
-      "label": "ROUTES",
-      "file_type": "code",
-      "source_file": "src/constants/routes.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_constants_routes_routes",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "routes"
-    },
-    {
-      "label": "ui.ts",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_constants_ui",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "ui.ts"
-    },
-    {
-      "label": "DEFAULT_PAGINATION",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_constants_ui_default_pagination",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "default_pagination"
-    },
-    {
-      "label": "HELD_CART_REMINDER_MS",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "src_constants_ui_held_cart_reminder_ms",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "held_cart_reminder_ms"
-    },
-    {
-      "label": "SKELETON_WIDTH_PATTERN",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
       "source_location": "L11",
       "_origin": "ast",
-      "id": "src_constants_ui_skeleton_width_pattern",
+      "id": "src_features_print_jobs_hooks_useprintjobs_no_print_jobs",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "skeleton_width_pattern"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "no_print_jobs"
     },
     {
-      "label": "LoginForm.tsx",
+      "label": "MetricCard.tsx",
       "file_type": "code",
-      "source_file": "src/features/auth/components/LoginForm.tsx",
+      "source_file": "src/shared/components/MetricCard.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_auth_components_loginform",
+      "id": "src_shared_components_metriccard",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "loginform.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "metriccard.tsx"
     },
     {
-      "label": "LowStockNotifier.tsx",
+      "label": "SegmentedToggle.tsx",
       "file_type": "code",
-      "source_file": "src/features/inventory/components/LowStockNotifier.tsx",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_inventory_components_lowstocknotifier",
+      "id": "src_shared_components_segmentedtoggle",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "lowstocknotifier.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "segmentedtoggle.tsx"
     },
     {
-      "label": "notifiedProductIds",
+      "label": "INVOICE_SEARCH_FIELDS",
       "file_type": "code",
-      "source_file": "src/features/inventory/components/LowStockNotifier.tsx",
-      "source_location": "L15",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "src_features_inventory_components_lowstocknotifier_notifiedproductids",
+      "id": "src_shared_lib_searchfields_invoice_search_fields",
       "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "notifiedproductids"
-    },
-    {
-      "label": "PageLoader.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/PageLoader.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_components_pageloader",
-      "community": 21,
-      "community_name": "Sidebar.tsx",
-      "norm_label": "pageloader.tsx"
+      "community_name": "PrintJobList.tsx",
+      "norm_label": "invoice_search_fields"
     },
     {
       "label": "tsconfig.json",
@@ -15802,6 +15780,50 @@
       "community": 23,
       "community_name": "authSlice.ts",
       "norm_label": "requireadmin.tsx"
+    },
+    {
+      "label": "Sidebar.tsx",
+      "file_type": "code",
+      "source_file": "src/app/layout/Sidebar.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_layout_sidebar",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "sidebar.tsx"
+    },
+    {
+      "label": "navigation.ts",
+      "file_type": "code",
+      "source_file": "src/config/navigation.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_config_navigation",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "navigation.ts"
+    },
+    {
+      "label": "NAV_CATEGORIES",
+      "file_type": "code",
+      "source_file": "src/config/navigation.ts",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "src_config_navigation_nav_categories",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "nav_categories"
+    },
+    {
+      "label": "NAV_ITEMS",
+      "file_type": "code",
+      "source_file": "src/config/navigation.ts",
+      "source_location": "L116",
+      "_origin": "ast",
+      "id": "src_config_navigation_nav_items",
+      "community": 23,
+      "community_name": "authSlice.ts",
+      "norm_label": "nav_items"
     },
     {
       "label": "roles.ts",
@@ -16233,6 +16255,50 @@
       "norm_label": "settingsslice"
     },
     {
+      "label": "GuestOnly.tsx",
+      "file_type": "code",
+      "source_file": "src/app/components/GuestOnly.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_components_guestonly",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "guestonly.tsx"
+    },
+    {
+      "label": "RequireAuth.tsx",
+      "file_type": "code",
+      "source_file": "src/app/components/RequireAuth.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_components_requireauth",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "requireauth.tsx"
+    },
+    {
+      "label": "routes.ts",
+      "file_type": "code",
+      "source_file": "src/constants/routes.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_constants_routes",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "routes.ts"
+    },
+    {
+      "label": "ROUTES",
+      "file_type": "code",
+      "source_file": "src/constants/routes.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_constants_routes_routes",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "routes"
+    },
+    {
       "label": "AuthLayout.tsx",
       "file_type": "code",
       "source_file": "src/features/auth/components/AuthLayout.tsx",
@@ -16253,6 +16319,17 @@
       "community": 27,
       "community_name": "common.ts",
       "norm_label": "emailloginscreen.tsx"
+    },
+    {
+      "label": "LoginForm.tsx",
+      "file_type": "code",
+      "source_file": "src/features/auth/components/LoginForm.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_auth_components_loginform",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "loginform.tsx"
     },
     {
       "label": "MobileAuthContainer.tsx",
@@ -16297,6 +16374,17 @@
       "community": 27,
       "community_name": "common.ts",
       "norm_label": "auth/index.ts"
+    },
+    {
+      "label": "PageLoader.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/PageLoader.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_components_pageloader",
+      "community": 27,
+      "community_name": "common.ts",
+      "norm_label": "pageloader.tsx"
     },
     {
       "label": "common.ts",
@@ -16871,28 +16959,6 @@
       "norm_label": "audio.ts"
     },
     {
-      "label": "queryKeys.ts",
-      "file_type": "code",
-      "source_file": "src/api/queryKeys.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_api_querykeys",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "querykeys.ts"
-    },
-    {
-      "label": "queryKeys",
-      "file_type": "code",
-      "source_file": "src/api/queryKeys.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_api_querykeys_querykeys",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "querykeys"
-    },
-    {
       "label": "constants/index.ts",
       "file_type": "code",
       "source_file": "src/constants/index.ts",
@@ -16970,39 +17036,6 @@
       "norm_label": "printjobformmodal.tsx"
     },
     {
-      "label": "PrintJobList.tsx",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/components/PrintJobList.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_print_jobs_components_printjoblist",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "printjoblist.tsx"
-    },
-    {
-      "label": "usePrintJobs.ts",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "useprintjobs.ts"
-    },
-    {
-      "label": "NO_PRINT_JOBS",
-      "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobs.ts",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobs_no_print_jobs",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "no_print_jobs"
-    },
-    {
       "label": "print-jobs/types.ts",
       "file_type": "code",
       "source_file": "src/features/print-jobs/types.ts",
@@ -17078,17 +17111,6 @@
       "community": 34,
       "community_name": "RepairJobList.tsx",
       "norm_label": "repairs/types.ts"
-    },
-    {
-      "label": "SegmentedToggle.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_components_segmentedtoggle",
-      "community": 34,
-      "community_name": "RepairJobList.tsx",
-      "norm_label": "segmentedtoggle.tsx"
     },
     {
       "label": "moneyFormUtils.ts",
@@ -17243,6 +17265,28 @@
       "community": 37,
       "community_name": "SupplierList.tsx",
       "norm_label": "suppliers/index.ts"
+    },
+    {
+      "label": "ConfirmDialog.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/ConfirmDialog.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_components_confirmdialog",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "confirmdialog.tsx"
+    },
+    {
+      "label": "DataTable.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/DataTable.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_components_datatable",
+      "community": 37,
+      "community_name": "SupplierList.tsx",
+      "norm_label": "datatable.tsx"
     },
     {
       "label": "SUPPLIER_SEARCH_FIELDS",
@@ -17850,6 +17894,28 @@
       "norm_label": "shortcuts"
     },
     {
+      "label": "BillingPageSkeleton.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_components_billingpageskeleton",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "billingpageskeleton.tsx"
+    },
+    {
+      "label": "FILL",
+      "file_type": "code",
+      "source_file": "src/shared/components/BillingPageSkeleton.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_shared_components_billingpageskeleton_fill",
+      "community": 40,
+      "community_name": "AppShell.tsx",
+      "norm_label": "fill"
+    },
+    {
       "label": "client.ts",
       "file_type": "code",
       "source_file": "src/api/client.ts",
@@ -18169,6 +18235,28 @@
       "norm_label": "employeeformmodal.tsx"
     },
     {
+      "label": "ProductCatalogTree.tsx",
+      "file_type": "code",
+      "source_file": "src/features/inventory/components/ProductCatalogTree.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_inventory_components_productcatalogtree",
+      "community": 44,
+      "community_name": "formatMoney",
+      "norm_label": "productcatalogtree.tsx"
+    },
+    {
+      "label": "ProductCatalogTree",
+      "file_type": "code",
+      "source_file": "src/features/inventory/components/ProductCatalogTree.tsx",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "src_features_inventory_components_productcatalogtree_productcatalogtree",
+      "community": 44,
+      "community_name": "formatMoney",
+      "norm_label": "productcatalogtree"
+    },
+    {
       "label": "ProductFormModal.tsx",
       "file_type": "code",
       "source_file": "src/features/inventory/components/ProductFormModal.tsx",
@@ -18202,48 +18290,48 @@
       "norm_label": "money.ts"
     },
     {
-      "label": "@mantine/hooks",
+      "label": "@mantine/form",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L43",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "package_dependencies_mantine_hooks",
+      "id": "package_dependencies_mantine_form",
       "community": 45,
-      "community_name": "@mantine/hooks",
-      "norm_label": "@mantine/hooks"
+      "community_name": "@mantine/form",
+      "norm_label": "@mantine/form"
     },
     {
-      "label": "@mantine/hooks",
+      "label": "@mantine/form",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L43",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "mantine_hooks",
+      "id": "mantine_form",
       "community": 45,
-      "community_name": "@mantine/hooks",
-      "norm_label": "@mantine/hooks"
+      "community_name": "@mantine/form",
+      "norm_label": "@mantine/form"
     },
     {
-      "label": "react",
+      "label": "react-dom",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L54",
+      "source_location": "L55",
       "_origin": "ast",
-      "id": "package_dependencies_react",
+      "id": "package_dependencies_react_dom",
       "community": 46,
-      "community_name": "react",
-      "norm_label": "react"
+      "community_name": "react-dom",
+      "norm_label": "react-dom"
     },
     {
-      "label": "react",
+      "label": "react-dom",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L54",
+      "source_location": "L55",
       "_origin": "ast",
-      "id": "react",
+      "id": "react_dom",
       "community": 46,
-      "community_name": "react",
-      "norm_label": "react"
+      "community_name": "react-dom",
+      "norm_label": "react-dom"
     },
     {
       "label": "syncNotifications.ts",
@@ -18290,48 +18378,48 @@
       "norm_label": "syncprovider.tsx"
     },
     {
-      "label": "react-router-dom",
+      "label": "@tanstack/react-query",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L57",
+      "source_location": "L48",
       "_origin": "ast",
-      "id": "package_dependencies_react_router_dom",
+      "id": "package_dependencies_tanstack_react_query",
       "community": 48,
-      "community_name": "react-router-dom",
-      "norm_label": "react-router-dom"
+      "community_name": "@tanstack/react-query",
+      "norm_label": "@tanstack/react-query"
     },
     {
-      "label": "react-router-dom",
+      "label": "@tanstack/react-query",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L57",
+      "source_location": "L48",
       "_origin": "ast",
-      "id": "react_router_dom",
+      "id": "tanstack_react_query",
       "community": 48,
-      "community_name": "react-router-dom",
-      "norm_label": "react-router-dom"
+      "community_name": "@tanstack/react-query",
+      "norm_label": "@tanstack/react-query"
     },
     {
-      "label": "postcss-simple-vars",
+      "label": "postcss",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L30",
+      "source_location": "L28",
       "_origin": "ast",
-      "id": "package_devdependencies_postcss_simple_vars",
+      "id": "package_devdependencies_postcss",
       "community": 49,
-      "community_name": "postcss-simple-vars",
-      "norm_label": "postcss-simple-vars"
+      "community_name": "postcss",
+      "norm_label": "postcss"
     },
     {
-      "label": "postcss-simple-vars",
+      "label": "postcss",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L30",
+      "source_location": "L28",
       "_origin": "ast",
-      "id": "postcss_simple_vars",
+      "id": "postcss",
       "community": 49,
-      "community_name": "postcss-simple-vars",
-      "norm_label": "postcss-simple-vars"
+      "community_name": "postcss",
+      "norm_label": "postcss"
     },
     {
       "label": "documentsApi.ts",
@@ -18508,6 +18596,28 @@
       "community": 5,
       "community_name": "SaleDocumentPreviewModal.tsx",
       "norm_label": "printservice.tsx"
+    },
+    {
+      "label": "vite-plugin-pwa",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "package_devdependencies_vite_plugin_pwa",
+      "community": 50,
+      "community_name": "vite-plugin-pwa",
+      "norm_label": "vite-plugin-pwa"
+    },
+    {
+      "label": "vite-plugin-pwa",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "vite_plugin_pwa",
+      "community": 50,
+      "community_name": "vite-plugin-pwa",
+      "norm_label": "vite-plugin-pwa"
     },
     {
       "label": "repairsApi.ts",
@@ -19467,61 +19577,6 @@
       "norm_label": "discountinput"
     },
     {
-      "label": "employees/index.ts",
-      "file_type": "code",
-      "source_file": "src/features/employees/index.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_employees_index",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "employees/index.ts"
-    },
-    {
-      "label": "ProductCatalogTree.tsx",
-      "file_type": "code",
-      "source_file": "src/features/inventory/components/ProductCatalogTree.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_inventory_components_productcatalogtree",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "productcatalogtree.tsx"
-    },
-    {
-      "label": "ProductCatalogTree",
-      "file_type": "code",
-      "source_file": "src/features/inventory/components/ProductCatalogTree.tsx",
-      "source_location": "L56",
-      "_origin": "ast",
-      "id": "src_features_inventory_components_productcatalogtree_productcatalogtree",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "productcatalogtree"
-    },
-    {
-      "label": "GlobalQuickSearchModal.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_components_globalquicksearchmodal",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "globalquicksearchmodal.tsx"
-    },
-    {
-      "label": "SearchHighlight.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/SearchHighlight.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_components_searchhighlight",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "searchhighlight.tsx"
-    },
-    {
       "label": "useBackendFilteredList.ts",
       "file_type": "code",
       "source_file": "src/shared/hooks/useBackendFilteredList.ts",
@@ -19529,7 +19584,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "usebackendfilteredlist.ts"
     },
     {
@@ -19540,7 +19595,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_useentitysearch",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "useentitysearch.ts"
     },
     {
@@ -19551,52 +19606,8 @@
       "_origin": "ast",
       "id": "src_shared_lib_search",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "search.ts"
-    },
-    {
-      "label": "searchFields.ts",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "searchfields.ts"
-    },
-    {
-      "label": "EMPLOYEE_SEARCH_FIELDS",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields_employee_search_fields",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "employee_search_fields"
-    },
-    {
-      "label": "PRINT_JOB_SEARCH_FIELDS",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L85",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields_print_job_search_fields",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "print_job_search_fields"
-    },
-    {
-      "label": "REPAIR_JOB_SEARCH_FIELDS",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L76",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields_repair_job_search_fields",
-      "community": 66,
-      "community_name": "searchFields.ts",
-      "norm_label": "repair_job_search_fields"
     },
     {
       "label": "search.test.ts",
@@ -19606,7 +19617,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "search.test.ts"
     },
     {
@@ -19617,7 +19628,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_fields",
       "community": 66,
-      "community_name": "searchFields.ts",
+      "community_name": "search.ts",
       "norm_label": "fields"
     },
     {
@@ -19731,59 +19742,37 @@
       "norm_label": "customerpickermodal.tsx"
     },
     {
-      "label": "InvoicesList.tsx",
+      "label": "employees/index.ts",
       "file_type": "code",
-      "source_file": "src/features/invoices/components/InvoicesList.tsx",
+      "source_file": "src/features/employees/index.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_invoices_components_invoiceslist",
+      "id": "src_features_employees_index",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "invoiceslist.tsx"
+      "norm_label": "employees/index.ts"
     },
     {
-      "label": "STATUS_FILTER_OPTIONS",
+      "label": "GlobalQuickSearchModal.tsx",
       "file_type": "code",
-      "source_file": "src/features/invoices/components/InvoicesList.tsx",
-      "source_location": "L38",
-      "_origin": "ast",
-      "id": "src_features_invoices_components_invoiceslist_status_filter_options",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "status_filter_options"
-    },
-    {
-      "label": "ConfirmDialog.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/ConfirmDialog.tsx",
+      "source_file": "src/shared/components/GlobalQuickSearchModal.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_shared_components_confirmdialog",
+      "id": "src_shared_components_globalquicksearchmodal",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "confirmdialog.tsx"
+      "norm_label": "globalquicksearchmodal.tsx"
     },
     {
-      "label": "DataTable.tsx",
+      "label": "SearchHighlight.tsx",
       "file_type": "code",
-      "source_file": "src/shared/components/DataTable.tsx",
+      "source_file": "src/shared/components/SearchHighlight.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_shared_components_datatable",
+      "id": "src_shared_components_searchhighlight",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "datatable.tsx"
-    },
-    {
-      "label": "MetricCard.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/MetricCard.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_components_metriccard",
-      "community": 7,
-      "community_name": "CustomerList.tsx",
-      "norm_label": "metriccard.tsx"
+      "norm_label": "searchhighlight.tsx"
     },
     {
       "label": "SearchHistoryInput.tsx",
@@ -19808,6 +19797,17 @@
       "norm_label": "searchhistoryinput"
     },
     {
+      "label": "searchFields.ts",
+      "file_type": "code",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_lib_searchfields",
+      "community": 7,
+      "community_name": "CustomerList.tsx",
+      "norm_label": "searchfields.ts"
+    },
+    {
       "label": "CUSTOMER_SEARCH_FIELDS",
       "file_type": "code",
       "source_file": "src/shared/lib/searchFields.ts",
@@ -19819,15 +19819,37 @@
       "norm_label": "customer_search_fields"
     },
     {
-      "label": "INVOICE_SEARCH_FIELDS",
+      "label": "EMPLOYEE_SEARCH_FIELDS",
       "file_type": "code",
       "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L60",
+      "source_location": "L54",
       "_origin": "ast",
-      "id": "src_shared_lib_searchfields_invoice_search_fields",
+      "id": "src_shared_lib_searchfields_employee_search_fields",
       "community": 7,
       "community_name": "CustomerList.tsx",
-      "norm_label": "invoice_search_fields"
+      "norm_label": "employee_search_fields"
+    },
+    {
+      "label": "PRINT_JOB_SEARCH_FIELDS",
+      "file_type": "code",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L85",
+      "_origin": "ast",
+      "id": "src_shared_lib_searchfields_print_job_search_fields",
+      "community": 7,
+      "community_name": "CustomerList.tsx",
+      "norm_label": "print_job_search_fields"
+    },
+    {
+      "label": "REPAIR_JOB_SEARCH_FIELDS",
+      "file_type": "code",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "src_shared_lib_searchfields_repair_job_search_fields",
+      "community": 7,
+      "community_name": "CustomerList.tsx",
+      "norm_label": "repair_job_search_fields"
     },
     {
       "label": "MobileSignUpForm.tsx",
@@ -20015,28 +20037,6 @@
       "community": 8,
       "community_name": "PaymentPanel.tsx",
       "norm_label": "invoices/types.ts"
-    },
-    {
-      "label": "eslint-plugin-react-hooks",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "package_devdependencies_eslint_plugin_react_hooks",
-      "community": 81,
-      "community_name": "eslint-plugin-react-hooks",
-      "norm_label": "eslint-plugin-react-hooks"
-    },
-    {
-      "label": "eslint-plugin-react-hooks",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "eslint_plugin_react_hooks",
-      "community": 81,
-      "community_name": "eslint-plugin-react-hooks",
-      "norm_label": "eslint-plugin-react-hooks"
     },
     {
       "label": "CategoryManagerModal.tsx",
@@ -23493,7 +23493,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L100",
+      "source_location": "L107",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23505,7 +23505,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L103",
+      "source_location": "L110",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23517,7 +23517,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L117",
+      "source_location": "L124",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23529,7 +23529,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L260",
+      "source_location": "L267",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23541,7 +23541,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L325",
+      "source_location": "L332",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23589,7 +23589,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L46",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23601,7 +23601,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L61",
+      "source_location": "L68",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23613,7 +23613,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L62",
+      "source_location": "L69",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23625,7 +23625,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L67",
+      "source_location": "L74",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23637,7 +23637,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L68",
+      "source_location": "L75",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
@@ -23649,7 +23649,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/billing/components/SaleDocumentPreviewModal.tsx",
-      "source_location": "L84",
+      "source_location": "L91",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_billing_components_saledocumentpreviewmodal_saledocumentpreviewmodal",
