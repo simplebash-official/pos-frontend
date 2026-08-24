@@ -594,8 +594,11 @@ export const selectSourceBreakdown = createSelector(
   (totals) => totals.sourceBreakdown
 );
 
-export const selectSplitAllocatedCents = (state: { cart: CartState }) =>
-  state.cart.splitPayments.reduce((acc, p) => acc + p.amountCents, 0);
+export const selectSplitPayments = (state: { cart: CartState }) => state.cart.splitPayments;
+
+export const selectSplitAllocatedCents = createSelector([selectSplitPayments], (splitPayments) =>
+  splitPayments.reduce((acc, p) => acc + p.amountCents, 0)
+);
 
 export const selectSplitRemainingCents = createSelector(
   [selectTotalCents, selectSplitAllocatedCents],

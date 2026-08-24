@@ -26,8 +26,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useMantineColorScheme } from '@mantine/core';
 
 import { useCartItems, useHeldCarts, useCartSound } from '@/features/billing/hooks/useCart';
-import { SyncStatusBadge } from '@/features/sync';
-import { NotificationPopover } from '@/features/notifications';
+import { SyncStatusBadge } from '@/features/sync/components/SyncStatusBadge';
+import { NotificationPopover } from '@/features/notifications/components/NotificationPopover';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';

@@ -112,10 +112,36 @@ export const GlobalQuickSearchModal = () => {
     enabled: opened,
   });
 
-  const productHits = useEntitySearch(products, PRODUCT_SEARCH_FIELDS, query, MAX_RESULTS);
-  const customerHits = useEntitySearch(customers, CUSTOMER_SEARCH_FIELDS, query, MAX_RESULTS);
-  const repairHits = useEntitySearch(repairs, REPAIR_JOB_SEARCH_FIELDS, query, MAX_RESULTS);
-  const printJobHits = useEntitySearch(printJobs, PRINT_JOB_SEARCH_FIELDS, query, MAX_RESULTS);
+  const activeProducts = opened ? products : [];
+  const activeCustomers = opened ? customers : [];
+  const activeRepairs = opened ? repairs : [];
+  const activePrintJobs = opened ? printJobs : [];
+  const activeQuery = opened ? query : '';
+
+  const productHits = useEntitySearch(
+    activeProducts,
+    PRODUCT_SEARCH_FIELDS,
+    activeQuery,
+    MAX_RESULTS
+  );
+  const customerHits = useEntitySearch(
+    activeCustomers,
+    CUSTOMER_SEARCH_FIELDS,
+    activeQuery,
+    MAX_RESULTS
+  );
+  const repairHits = useEntitySearch(
+    activeRepairs,
+    REPAIR_JOB_SEARCH_FIELDS,
+    activeQuery,
+    MAX_RESULTS
+  );
+  const printJobHits = useEntitySearch(
+    activePrintJobs,
+    PRINT_JOB_SEARCH_FIELDS,
+    activeQuery,
+    MAX_RESULTS
+  );
 
   // Every list is searched with the same query, so any one of them carries the
   // terms the highlighter needs.

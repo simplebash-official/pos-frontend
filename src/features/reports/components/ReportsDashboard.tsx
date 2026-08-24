@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import {
   SimpleGrid,
@@ -31,7 +32,6 @@ export const ReportsDashboard = () => {
     data: employees,
     isLoading: isLoadingEmployees,
     isPending: isPendingEmployees,
-    isFetching: isFetchingEmployees,
   } = useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: fetchEmployees,
@@ -41,71 +41,90 @@ export const ReportsDashboard = () => {
     data: earnings,
     isLoading: isLoadingEarnings,
     isPending: isPendingEarnings,
-    isFetching: isFetchingEarnings,
   } = useQuery({
     queryKey: queryKeys.employees.allEarnings(),
     queryFn: () => fetchAllEmployeeEarnings(),
   });
 
   const isLoading =
-    isLoadingEmployees ||
-    isLoadingEarnings ||
-    isPendingEmployees ||
-    isPendingEarnings ||
-    isFetchingEmployees ||
-    isFetchingEarnings ||
-    !employees ||
-    !earnings;
+    ((isLoadingEmployees || isPendingEmployees) && !employees) ||
+    ((isLoadingEarnings || isPendingEarnings) && !earnings);
 
-  const safeEmployees = employees ?? [];
-  const safeEarnings = earnings ?? [];
+  const { totalCommissionsCents, employeePerformance } = useMemo(() => {
+    const safeEmployees = employees ?? [];
+    const safeEarnings = earnings ?? [];
+    let commissionsCents = 0;
+    const earningsByEmployee = new Map<
+      string,
+      { jobsCount: number; revCents: number; profitCents: number; earnedSplitCents: number }
+    >();
 
-  const totalCommissionsCents = safeEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
-  const totalRevenueCents = 20750000; // LKR 207,500 total
-  const estimatedGrossProfitCents = 7400000; // LKR 74,000 gross profit
-  const netShopProfitCents = Math.max(0, estimatedGrossProfitCents - totalCommissionsCents);
+    for (const e of safeEarnings) {
+      commissionsCents += e.earnedAmountCents;
+      const existing = earningsByEmployee.get(e.employeeId) ?? {
+        jobsCount: 0,
+        revCents: 0,
+        profitCents: 0,
+        earnedSplitCents: 0,
+      };
+      existing.jobsCount += 1;
+      existing.revCents += e.totalAmountCents;
+      existing.profitCents += e.profitCents;
+      existing.earnedSplitCents += e.earnedAmountCents;
+      earningsByEmployee.set(e.employeeId, existing);
+    }
 
-  const stats = [
-    {
-      title: 'Total Revenue Today',
-      valueCents: totalRevenueCents,
-      icon: IconReceipt,
-      color: 'blue',
-    },
-    { title: 'Repair Services Revenue', valueCents: 6300000, icon: IconHammer, color: 'orange' },
-    { title: 'Print Jobs Revenue', valueCents: 4000000, icon: IconPrinter, color: 'teal' },
-    {
-      title: 'Employee Commission Splits',
-      valueCents: totalCommissionsCents,
-      icon: IconUserCheck,
-      color: 'indigo',
-    },
-    {
-      title: 'Net Shop Profit (After Splits)',
-      valueCents: netShopProfitCents,
-      icon: IconScale,
-      color: 'green',
-    },
-  ];
-
-  // Map employee performance for leaderboard
-  const employeePerformance = safeEmployees.map((emp) => {
-    const empEarnings = safeEarnings.filter((e) => e.employeeId === emp.id);
-    const jobsCount = empEarnings.length;
-    const revCents = empEarnings.reduce((acc, curr) => acc + curr.totalAmountCents, 0);
-    const profitCents = empEarnings.reduce((acc, curr) => acc + curr.profitCents, 0);
-    const earnedSplitCents = empEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
-    const netShopContributionCents = Math.max(0, profitCents - earnedSplitCents);
+    const performance = safeEmployees.map((emp) => {
+      const stats = earningsByEmployee.get(emp.id) ?? {
+        jobsCount: 0,
+        revCents: 0,
+        profitCents: 0,
+        earnedSplitCents: 0,
+      };
+      return {
+        employee: emp,
+        jobsCount: stats.jobsCount,
+        revCents: stats.revCents,
+        profitCents: stats.profitCents,
+        earnedSplitCents: stats.earnedSplitCents,
+        netShopContributionCents: Math.max(0, stats.profitCents - stats.earnedSplitCents),
+      };
+    });
 
     return {
-      employee: emp,
-      jobsCount,
-      revCents,
-      profitCents,
-      earnedSplitCents,
-      netShopContributionCents,
+      totalCommissionsCents: commissionsCents,
+      employeePerformance: performance,
     };
-  });
+  }, [employees, earnings]);
+
+  const stats = useMemo(() => {
+    const totalRevenueCents = 20750000; // LKR 207,500 total
+    const estimatedGrossProfitCents = 7400000; // LKR 74,000 gross profit
+    const netShopProfitCents = Math.max(0, estimatedGrossProfitCents - totalCommissionsCents);
+
+    return [
+      {
+        title: 'Total Revenue Today',
+        valueCents: totalRevenueCents,
+        icon: IconReceipt,
+        color: 'blue',
+      },
+      { title: 'Repair Services Revenue', valueCents: 6300000, icon: IconHammer, color: 'orange' },
+      { title: 'Print Jobs Revenue', valueCents: 4000000, icon: IconPrinter, color: 'teal' },
+      {
+        title: 'Employee Commission Splits',
+        valueCents: totalCommissionsCents,
+        icon: IconUserCheck,
+        color: 'indigo',
+      },
+      {
+        title: 'Net Shop Profit (After Splits)',
+        valueCents: netShopProfitCents,
+        icon: IconScale,
+        color: 'green',
+      },
+    ];
+  }, [totalCommissionsCents]);
 
   return (
     <Stack gap="lg">
