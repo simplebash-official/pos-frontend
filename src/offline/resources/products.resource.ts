@@ -50,20 +50,19 @@ export const productsResource = defineSyncResource<Product>({
   pull: {
     delta: (cursor, ctx) => fetchResourceDelta<Product>('products', cursor, ctx.signal),
     full: async () => {
-      const collected: Product[] = [];
-      let page = 1;
-      for (;;) {
-        const result = await fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE });
-        collected.push(...result.items);
-        // A short page means the last one, whatever the pagination metadata
-        // claims. Trusting `totalPages` alone loops forever if the server
-        // ever omits it — `page >= undefined` is false.
-        if (result.items.length < ALL_PRODUCTS_PAGE_SIZE || page >= result.totalPages) {
-          break;
-        }
-        page += 1;
+      const firstPage = await fetchProducts({ page: 1, limit: ALL_PRODUCTS_PAGE_SIZE });
+      const totalPages = firstPage.totalPages || 1;
+
+      if (firstPage.items.length < ALL_PRODUCTS_PAGE_SIZE || totalPages <= 1) {
+        return firstPage.items;
       }
-      return collected;
+
+      const remainingPageNumbers = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+      const remainingPages = await Promise.all(
+        remainingPageNumbers.map((page) => fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE }))
+      );
+
+      return [...firstPage.items, ...remainingPages.flatMap((res) => res.items)];
     },
     intervalMs: 60_000,
   },

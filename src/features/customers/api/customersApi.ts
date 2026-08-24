@@ -18,18 +18,20 @@ export const fetchCustomers = async (
 };
 
 export const fetchAllCustomers = async (): Promise<Customer[]> => {
-  const collected: Customer[] = [];
-  let page = 1;
   const limit = 100;
-  for (;;) {
-    const result = await fetchCustomers({ page, limit });
-    collected.push(...result.customers);
-    if (page >= result.totalPages || result.customers.length === 0) {
-      break;
-    }
-    page += 1;
+  const firstPage = await fetchCustomers({ page: 1, limit });
+  const totalPages = firstPage.totalPages || 1;
+
+  if (totalPages <= 1 || firstPage.customers.length === 0) {
+    return firstPage.customers;
   }
-  return collected;
+
+  const remainingPageNumbers = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+  const remainingPages = await Promise.all(
+    remainingPageNumbers.map((page) => fetchCustomers({ page, limit }))
+  );
+
+  return [...firstPage.customers, ...remainingPages.flatMap((res) => res.customers)];
 };
 
 export const fetchCustomerById = async (idOrKey: string): Promise<Customer> => {

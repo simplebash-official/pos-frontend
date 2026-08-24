@@ -16,7 +16,8 @@ const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']
 const EXTENSIONS = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
 const INDEX_FILES = ['index.ts', 'index.tsx', 'index.js', 'index.jsx', 'index.mjs'];
 const SUFFIX_FANOUT_RE = /(^|\/)(content|data|loader|fetch|service|metadata|actions)\.tsx?$/;
-const EXPORT_FORWARD_RE = /export\s+(?:type\s+)?(?:\*|\*\s+as\s+[A-Za-z_$][\w$]*|\{[^}]*\})\s+from\s+['"][^'"\n]+['"]\s*;?/gs;
+const EXPORT_FORWARD_RE =
+  /export\s+(?:type\s+)?(?:\*|\*\s+as\s+[A-Za-z_$][\w$]*|\{[^}]*\})\s+from\s+['"][^'"\n]+['"]\s*;?/gs;
 
 export async function detectMonorepoRoot(startDir) {
   let dir = pathResolve(startDir);
@@ -53,9 +54,15 @@ export function parsePnpmWorkspaceYaml(text) {
   for (const rawLine of text.split('\n')) {
     const line = rawLine.replace(/#.*$/, '').trimEnd();
     if (!line.trim()) continue;
-    if (/^packages\s*:/.test(line)) { inPackages = true; continue; }
+    if (/^packages\s*:/.test(line)) {
+      inPackages = true;
+      continue;
+    }
     if (!inPackages) continue;
-    if (!/^\s/.test(line)) { inPackages = false; continue; }
+    if (!/^\s/.test(line)) {
+      inPackages = false;
+      continue;
+    }
     const m = line.match(/^\s*-\s+['"]?([^'"\s]+)['"]?\s*$/);
     if (m) out.push(m[1]);
   }
@@ -91,7 +98,9 @@ async function expandParts(currentDir, parts) {
     let entries = [];
     try {
       entries = await readdir(currentDir, { withFileTypes: true });
-    } catch { return []; }
+    } catch {
+      return [];
+    }
     const childDirs = entries.filter((e) => e.isDirectory()).map((e) => join(currentDir, e.name));
     const out = [];
     for (const d of childDirs) {
@@ -251,7 +260,12 @@ async function expandResolvedSpecifier(startFile, importedNames, resolver, opts)
     barrelVisited.add(file);
     const text = await tryReadText(file);
     if (text == null || !isPureBarrel(text)) return;
-    const refs = await selectRelevantForwards(file, extractExportForwardRefs(text), requestedNames, resolver);
+    const refs = await selectRelevantForwards(
+      file,
+      extractExportForwardRefs(text),
+      requestedNames,
+      resolver
+    );
     for (const { ref, next } of refs) {
       if (!add(next)) return;
       await expandPureBarrel(next, requestedNamesForForward(ref, requestedNames), depth + 1);
@@ -280,10 +294,15 @@ async function selectRelevantForwards(fromFile, refs, requestedNames, resolver) 
   for (const [index, ref] of refs.entries()) {
     const next = await resolveModuleSpecifier(fromFile, ref.specifier, resolver);
     if (!next) continue;
-    let score = requestedNames && requestedNames.size > 0
-      ? forwardRelevanceScore(ref, requestedNames, refs.length)
-      : 1;
-    if (requestedNames && requestedNames.size > 0 && await fileExportsAnyName(next, requestedNames)) {
+    let score =
+      requestedNames && requestedNames.size > 0
+        ? forwardRelevanceScore(ref, requestedNames, refs.length)
+        : 1;
+    if (
+      requestedNames &&
+      requestedNames.size > 0 &&
+      (await fileExportsAnyName(next, requestedNames))
+    ) {
       score = Math.max(score, 75);
     }
     resolved.push({ ref, next, index, score });
@@ -318,9 +337,7 @@ function requestedNamesForForward(ref, requestedNames) {
 }
 
 async function resolveModuleSpecifier(fromFile, specifier, resolver) {
-  const raw = specifier.startsWith('.')
-    ? join(dirname(fromFile), specifier)
-    : resolver(specifier);
+  const raw = specifier.startsWith('.') ? join(dirname(fromFile), specifier) : resolver(specifier);
   if (!raw) return null;
   return await resolveExistingPath(raw);
 }
@@ -375,7 +392,8 @@ function extractDynamicImportReferences(text) {
 
 function extractExportForwardRefs(text) {
   const out = [];
-  const re = /export\s+(?:type\s+)?(\*|\*\s+as\s+[A-Za-z_$][\w$]*|\{[^}]*\})\s+from\s+['"]([^'"\n]+)['"]\s*;?/g;
+  const re =
+    /export\s+(?:type\s+)?(\*|\*\s+as\s+[A-Za-z_$][\w$]*|\{[^}]*\})\s+from\s+['"]([^'"\n]+)['"]\s*;?/g;
   let m;
   while ((m = re.exec(text)) !== null) {
     const clause = m[1].trim();
@@ -404,7 +422,10 @@ function parseImportNames(clause) {
       if (source?.trim()) names.add(source.trim());
     }
   }
-  const withoutNamed = trimmed.replace(/\{[^}]*\}/s, '').replace(/,\s*$/, '').trim();
+  const withoutNamed = trimmed
+    .replace(/\{[^}]*\}/s, '')
+    .replace(/,\s*$/, '')
+    .trim();
   if (withoutNamed && !withoutNamed.startsWith('*')) names.add('default');
   return names.size > 0 ? names : null;
 }
@@ -427,15 +448,16 @@ function parseExportNames(clause) {
 }
 
 function splitImportList(value) {
-  return value.split(',').map((part) => part.trim()).filter(Boolean);
+  return value
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
 }
 
 function isPureBarrel(text) {
   const refs = extractExportForwardRefs(text);
   if (refs.length === 0) return false;
-  const withoutComments = text
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/^\s*\/\/.*$/gm, '');
+  const withoutComments = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
   return withoutComments.replace(EXPORT_FORWARD_RE, '').trim() === '';
 }
 
@@ -451,7 +473,9 @@ function specifierMatchesNames(specifier, names) {
 }
 
 function normalizeName(value) {
-  return String(value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 }
 
 function isSuffixFanoutFile(file) {
@@ -469,7 +493,9 @@ async function fileExportsAnyName(file, names) {
 
 function textExportsName(text, name) {
   const escaped = escapeRegExp(name);
-  const declaration = new RegExp(`export\\s+(?:async\\s+)?(?:function|const|let|var|class|interface|type)\\s+${escaped}\\b`);
+  const declaration = new RegExp(
+    `export\\s+(?:async\\s+)?(?:function|const|let|var|class|interface|type)\\s+${escaped}\\b`
+  );
   if (declaration.test(text)) return true;
   const listRe = /export\s+\{([^}]+)\}(?!\s+from\b)/gs;
   let m;
@@ -499,7 +525,12 @@ async function tryReadText(path) {
 }
 
 async function fileExists(p) {
-  try { await stat(p); return true; } catch { return false; }
+  try {
+    await stat(p);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function isFile(p) {

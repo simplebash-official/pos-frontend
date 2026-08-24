@@ -203,25 +203,32 @@ export const CreditNoteModal = ({
     [getLineState]
   );
 
+  const productMap = useMemo(() => new Map(products.map((p) => [p.key, p])), [products]);
+
   const selectedLines = useMemo(() => {
     if (!invoice) return [];
-    return items
-      .filter((item) => !item.serialNumbers?.length)
-      .map((item) => ({ item, state: getLineState(item) }))
-      .filter(({ item, state }) => {
-        const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
-        return state.selected && remaining > 0;
-      })
-      .map(({ item, state }) => {
-        const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
+    const rows: {
+      item: InvoiceItem;
+      state: LineState;
+      quantity: number;
+      refundAmountCents: number;
+    }[] = [];
+
+    for (const item of items) {
+      if (item.serialNumbers?.length) continue;
+      const state = getLineState(item);
+      const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
+      if (state.selected && remaining > 0) {
         const qty = Math.min(Math.max(1, state.quantity), remaining);
         const proratedDiscount =
           item.quantity > 0 ? Math.round((item.discountCents / item.quantity) * qty) : 0;
         const refundAmountCents = Math.max(0, item.unitPriceCents * qty - proratedDiscount);
-        return { item, state, quantity: qty, refundAmountCents };
-      });
+        rows.push({ item, state, quantity: qty, refundAmountCents });
+      }
+    }
+    return rows;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoice, items, lineStates]);
+  }, [invoice, items, lineStates, getLineState]);
 
   const serializedLines = useMemo(() => {
     if (!invoice) return [];
@@ -238,7 +245,7 @@ export const CreditNoteModal = ({
       const proratedDiscount =
         item.quantity > 0 ? Math.round(item.discountCents / item.quantity) : 0;
       const refundAmountCents = Math.max(0, item.unitPriceCents - proratedDiscount);
-      const product = products.find((p) => p.key === item.productId);
+      const product = productMap.get(item.productId);
       const withinWarranty = Boolean(
         product?.warrantyMonths &&
         nowMs < new Date(invoice.createdAt).getTime() + product.warrantyMonths * 30 * 86_400_000
@@ -251,9 +258,9 @@ export const CreditNoteModal = ({
     }
     return rows;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoice, items, lineStates, products]);
+  }, [invoice, items, lineStates, productMap, getLineState, nowMs]);
 
-  const noReceiptProduct = products.find((p) => p.key === noReceiptProductKey);
+  const noReceiptProduct = noReceiptProductKey ? productMap.get(noReceiptProductKey) : undefined;
   const noReceiptRefundCents =
     noReceipt && noReceiptProduct && typeof noReceiptQty === 'number'
       ? noReceiptProduct.sellingPriceCents * noReceiptQty

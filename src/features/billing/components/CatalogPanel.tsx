@@ -205,8 +205,10 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const [jobSearch, setJobSearch] = useState('');
   const isLoadingJobs = loadingRepairs || loadingPrintJobs;
 
-  const combinedJobs = useMemo<CombinedServiceJob[]>(() => {
+  const { combinedJobs, repairJobsCount, printJobsCount } = useMemo(() => {
     const list: CombinedServiceJob[] = [];
+    let repairsCount = 0;
+    let printCount = 0;
 
     for (const r of repairs) {
       if (r.status === 'delivered' || r.status === 'cancelled') continue;
@@ -223,6 +225,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         assignedEmployeeId: r.assignedEmployeeId,
         assignedEmployeeName: r.assignedEmployeeName,
       });
+      repairsCount += 1;
     }
 
     for (const p of printJobs) {
@@ -240,20 +243,17 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         assignedEmployeeId: p.assignedEmployeeId,
         assignedEmployeeName: p.assignedEmployeeName,
       });
+      printCount += 1;
     }
 
-    return list;
+    return {
+      combinedJobs: list,
+      repairJobsCount: repairsCount,
+      printJobsCount: printCount,
+    };
   }, [repairs, printJobs]);
 
   const activeJobsCount = combinedJobs.length;
-  const repairJobsCount = useMemo(
-    () => combinedJobs.filter((j) => j.type === 'repair').length,
-    [combinedJobs]
-  );
-  const printJobsCount = useMemo(
-    () => combinedJobs.filter((j) => j.type === 'print').length,
-    [combinedJobs]
-  );
 
   const typeFilteredJobs = useMemo(() => {
     if (jobFilterType === 'all') return combinedJobs;

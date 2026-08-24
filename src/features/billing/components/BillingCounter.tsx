@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, lazy, Suspense } from 'react';
 import { Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext } from 'react-router-dom';
@@ -15,10 +15,15 @@ import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
 import type { CatalogMode } from './CatalogPanel';
-import { CustomerPickerModal } from '@/features/customers';
+import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { DiscountPopover } from './DiscountPopover';
-import { SaleDocumentPreviewModal } from './SaleDocumentPreviewModal';
 import type { PaymentPanelHandle } from './PaymentPanel';
+
+const SaleDocumentPreviewModal = lazy(() =>
+  import('./SaleDocumentPreviewModal').then((m) => ({
+    default: m.SaleDocumentPreviewModal,
+  }))
+);
 import type { CompleteSaleInput } from '../api/invoicesApi';
 import { useCompleteSale } from '../hooks/useInvoices';
 import type { CompleteSalePayload } from '@/offline/resources/invoices.resource';
@@ -513,12 +518,16 @@ export const BillingCounter = () => {
         <span />
       </DiscountPopover>
 
-      <SaleDocumentPreviewModal
-        opened={!!preview}
-        onClose={closeDocumentPreview}
-        subject={preview?.invoice ? { kind: 'invoice', invoice: preview.invoice } : null}
-        documentKind={preview?.kind ?? null}
-      />
+      <Suspense fallback={null}>
+        {preview && (
+          <SaleDocumentPreviewModal
+            opened={!!preview}
+            onClose={closeDocumentPreview}
+            subject={preview?.invoice ? { kind: 'invoice', invoice: preview.invoice } : null}
+            documentKind={preview?.kind ?? null}
+          />
+        )}
+      </Suspense>
     </Box>
   );
 };

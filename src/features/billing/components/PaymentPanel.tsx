@@ -121,11 +121,16 @@ export const PaymentPanel = memo(
       }
     }, [notes, showNotes]);
 
-    // Collapse the order-note panel once the cart empties (cleared or a new sale started) —
-    // otherwise the previous order's now-empty note box stays expanded.
+    // Reset secondary input panels when the cart empties (cleared or a new sale started) —
+    // collapses note/discount inputs and clears tendered cash.
     useEffect(() => {
       if (items.length === 0) {
         setShowNotes(false);
+        setShowDiscountInput(false);
+        setDiscountInput('');
+        setHasEditedDiscount(false);
+        setLastSyncedDiscountCents(null);
+        setTenderedRupees('');
       }
     }, [items.length]);
 
@@ -181,28 +186,9 @@ export const PaymentPanel = memo(
       }
     }
 
-    // Reset the discount panel once the cart empties (cleared or a new sale started) —
-    // otherwise the previous order's discount input stays visible with a stale value.
-    useEffect(() => {
-      if (items.length === 0) {
-        setShowDiscountInput(false);
-        setDiscountInput('');
-        setHasEditedDiscount(false);
-        setLastSyncedDiscountCents(null);
-      }
-    }, [items.length]);
-
     // Tendered cash state in rupees
     const [tenderedRupees, setTenderedRupees] = useState<number | ''>('');
     const cashInputRef = useRef<HTMLInputElement>(null);
-
-    // Reset tendered cash once the cart empties (cleared or a new sale started) —
-    // otherwise the previous sale's "Cash Received" / change due lingers on screen.
-    useEffect(() => {
-      if (items.length === 0) {
-        setTenderedRupees('');
-      }
-    }, [items.length]);
 
     const printSettings = useAppSelector(selectPrintSettings);
     const prevCustomerIdRef = useRef(customerId);

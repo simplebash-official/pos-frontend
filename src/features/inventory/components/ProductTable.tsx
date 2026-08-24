@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -81,9 +81,14 @@ import { useAppSelector } from '@/store/hooks';
 import { selectUserRole } from '@/store/slices/authSlice';
 import { USER_ROLES } from '@/constants/roles';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { ProductFormModal } from './ProductFormModal';
-import { CategoryManagerModal } from './CategoryManagerModal';
 import { ProductCatalogTree } from './ProductCatalogTree';
+
+const ProductFormModal = lazy(() =>
+  import('./ProductFormModal').then((m) => ({ default: m.ProductFormModal }))
+);
+const CategoryManagerModal = lazy(() =>
+  import('./CategoryManagerModal').then((m) => ({ default: m.CategoryManagerModal }))
+);
 
 /**
  * Above this many matches, a search opens the category groups but leaves their
@@ -1394,20 +1399,24 @@ export const ProductTable = () => {
         )}
       </Drawer>
 
-      <ProductFormModal
-        opened={productFormOpen}
-        onClose={() => setProductFormOpen(false)}
-        onSubmit={handleProductFormSubmit}
-        productToEdit={productToEdit}
-        loading={createProductMutation.isPending || updateProductMutation.isPending}
-      />
+      <Suspense fallback={null}>
+        {productFormOpen && (
+          <ProductFormModal
+            opened={productFormOpen}
+            onClose={() => setProductFormOpen(false)}
+            onSubmit={handleProductFormSubmit}
+            productToEdit={productToEdit}
+            loading={createProductMutation.isPending || updateProductMutation.isPending}
+          />
+        )}
 
-      {isAdmin && (
-        <CategoryManagerModal
-          opened={categoryManagerOpen}
-          onClose={() => setCategoryManagerOpen(false)}
-        />
-      )}
+        {isAdmin && categoryManagerOpen && (
+          <CategoryManagerModal
+            opened={categoryManagerOpen}
+            onClose={() => setCategoryManagerOpen(false)}
+          />
+        )}
+      </Suspense>
     </Stack>
   );
 };

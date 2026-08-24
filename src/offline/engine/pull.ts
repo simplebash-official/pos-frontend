@@ -41,14 +41,19 @@ const applyChanges = async (
   let deleted = 0;
 
   await db.transaction('rw', resource.table, async () => {
+    const pendingKeys = new Set(await resource.table.where('_pending').equals(1).primaryKeys());
+    const rowsToApply: object[] = [];
+
     for (const item of items) {
       const key = resource.primaryKey(item as never);
-      const existing = await resource.table.get(key);
-      if (existing && existing._pending === 1) {
-        continue;
+      if (!pendingKeys.has(key)) {
+        rowsToApply.push(toServerRow(item as object));
       }
-      await resource.table.put(toServerRow(item as object));
-      applied += 1;
+    }
+
+    if (rowsToApply.length > 0) {
+      await resource.table.bulkPut(rowsToApply);
+      applied = rowsToApply.length;
     }
 
     for (const key of deletedKeys) {

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Paper, Stack, Group, Text, Select, Badge, Button } from '@mantine/core';
 import {
   IconSearch,
@@ -103,6 +103,22 @@ export const InvoicesList = () => {
     datePreset,
   };
 
+  const fetchInvoicesFn = useCallback(
+    (f: InvoiceFilters) =>
+      fetchInvoices({
+        search: f.search.trim() || undefined,
+        status: f.status === 'all' ? undefined : (f.status as FetchInvoicesParams['status']),
+        paymentMethod: f.paymentMethod === 'all' ? undefined : f.paymentMethod,
+        datePreset: f.datePreset === 'all' ? undefined : 'today',
+      }),
+    []
+  );
+
+  const invoiceQueryKeyFn = useCallback(
+    (f: InvoiceFilters) => queryKeys.billing.invoices({ ...f, search: f.search.trim() }),
+    []
+  );
+
   // All 4 filters hit the backend while online (via `fetchInvoices`'s
   // params) and fall back to a local pass over the Dexie mirror while
   // offline — see `useBackendFilteredList`.
@@ -116,14 +132,8 @@ export const InvoicesList = () => {
     filters,
     isInvoiceFilterActive,
     applyLocalInvoiceFilters,
-    (f) =>
-      fetchInvoices({
-        search: f.search.trim() || undefined,
-        status: f.status === 'all' ? undefined : (f.status as FetchInvoicesParams['status']),
-        paymentMethod: f.paymentMethod === 'all' ? undefined : f.paymentMethod,
-        datePreset: f.datePreset === 'all' ? undefined : 'today',
-      }),
-    (f) => queryKeys.billing.invoices({ ...f, search: f.search.trim() })
+    fetchInvoicesFn,
+    invoiceQueryKeyFn
   );
 
   const handleRowClick = (inv: Invoice) => {

@@ -4,7 +4,8 @@
 
 export const metadata = {
   id: 'cache-tag-invalidation-certainty',
-  description: 'Remove unsupported certainty that existing cache tags already preserve CMS/on-demand invalidation.',
+  description:
+    'Remove unsupported certainty that existing cache tags already preserve CMS/on-demand invalidation.',
 };
 
 const STRING_FIELDS = ['what', 'why', 'fix', 'currentBehavior', 'desiredBehavior', 'verify'];
@@ -14,7 +15,9 @@ const SAFE_REPLACEMENT =
   'Confirm a matching revalidateTag() or updateTag() path for each cacheTag() before increasing the cache lifetime.';
 
 export function apply(rec) {
-  const text = STRING_FIELDS.map((field) => rec?.[field]).filter((s) => typeof s === 'string').join('\n');
+  const text = STRING_FIELDS.map((field) => rec?.[field])
+    .filter((s) => typeof s === 'string')
+    .join('\n');
   if (!/\bcache(?:Life|Tag)\b/.test(text)) return {};
   const tags = [];
   for (const field of STRING_FIELDS) {

@@ -123,24 +123,19 @@ const ProductFormContent = ({
 
   const hasSupplierIntakes = supplierIntakes.length > 0;
 
-  const totalIntakeQuantity = useMemo(
-    () =>
-      supplierIntakes.reduce(
-        (sum, row) => sum + (Number(row.quantity) > 0 ? Number(row.quantity) : 0),
-        0
-      ),
-    [supplierIntakes]
-  );
+  const { totalIntakeQuantity, totalIntakeCostCents } = useMemo(() => {
+    let quantity = 0;
+    let costCents = 0;
 
-  const totalIntakeCostCents = useMemo(
-    () =>
-      supplierIntakes.reduce((sum, row) => {
-        const qty = Number(row.quantity) > 0 ? Number(row.quantity) : 0;
-        const unitCents = toCents(Number(row.costPrice) > 0 ? Number(row.costPrice) : 0);
-        return sum + qty * unitCents;
-      }, 0),
-    [supplierIntakes]
-  );
+    for (const row of supplierIntakes) {
+      const qty = Number(row.quantity) > 0 ? Number(row.quantity) : 0;
+      const unitCents = toCents(Number(row.costPrice) > 0 ? Number(row.costPrice) : 0);
+      quantity += qty;
+      costCents += qty * unitCents;
+    }
+
+    return { totalIntakeQuantity: quantity, totalIntakeCostCents: costCents };
+  }, [supplierIntakes]);
 
   const getAvailableSupplierOptions = (currentRowId: string, currentSelectedKey: string) => {
     const chosenKeysInOtherRows = new Set(

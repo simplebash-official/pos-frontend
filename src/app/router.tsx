@@ -11,39 +11,45 @@ import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { NotFoundPage } from '@/shared/components/NotFoundPage';
 import { ROUTES, ROUTE_PATHS } from '@/constants';
 
-// Code-split features using dynamic imports
+// Code-split features using direct dynamic imports (avoids barrel re-export bloat)
 const BillingCounter = lazy(() =>
-  import('@/features/billing').then((m) => ({ default: m.BillingCounter }))
+  import('@/features/billing/components/BillingCounter').then((m) => ({
+    default: m.BillingCounter,
+  }))
 );
 const InvoicesList = lazy(() =>
-  import('@/features/invoices').then((m) => ({ default: m.InvoicesList }))
+  import('@/features/invoices/components/InvoicesList').then((m) => ({ default: m.InvoicesList }))
 );
 const RepairJobList = lazy(() =>
-  import('@/features/repairs').then((m) => ({ default: m.RepairJobList }))
+  import('@/features/repairs/components/RepairJobList').then((m) => ({ default: m.RepairJobList }))
 );
 const PrintJobList = lazy(() =>
-  import('@/features/print-jobs').then((m) => ({ default: m.PrintJobList }))
+  import('@/features/print-jobs/components/PrintJobList').then((m) => ({ default: m.PrintJobList }))
 );
 const ProductTable = lazy(() =>
-  import('@/features/inventory').then((m) => ({ default: m.ProductTable }))
+  import('@/features/inventory/components/ProductTable').then((m) => ({ default: m.ProductTable }))
 );
 const CustomerList = lazy(() =>
-  import('@/features/customers').then((m) => ({ default: m.CustomerList }))
+  import('@/features/customers/components/CustomerList').then((m) => ({ default: m.CustomerList }))
 );
 const SupplierList = lazy(() =>
-  import('@/features/suppliers').then((m) => ({ default: m.SupplierList }))
+  import('@/features/suppliers/components/SupplierList').then((m) => ({ default: m.SupplierList }))
 );
 const EmployeeList = lazy(() =>
-  import('@/features/employees').then((m) => ({ default: m.EmployeeList }))
+  import('@/features/employees/components/EmployeeList').then((m) => ({ default: m.EmployeeList }))
 );
 const ReportsDashboard = lazy(() =>
-  import('@/features/reports').then((m) => ({ default: m.ReportsDashboard }))
+  import('@/features/reports/components/ReportsDashboard').then((m) => ({
+    default: m.ReportsDashboard,
+  }))
 );
 const SettingsPage = lazy(() =>
-  import('@/features/settings').then((m) => ({ default: m.SettingsPage }))
+  import('@/features/settings/components/SettingsPage').then((m) => ({ default: m.SettingsPage }))
 );
 const EmailLoginScreen = lazy(() =>
-  import('@/features/auth').then((m) => ({ default: m.EmailLoginScreen }))
+  import('@/features/auth/components/EmailLoginScreen').then((m) => ({
+    default: m.EmailLoginScreen,
+  }))
 );
 const StandalonePrintView = lazy(() =>
   import('@/features/billing/components/StandalonePrintView').then((m) => ({

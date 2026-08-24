@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import {
   Stack,
   Group,
@@ -47,11 +47,20 @@ import {
 import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
 import { useInvoiceCreditNotes } from '@/features/billing/hooks/useCreditNotes';
 import { useVoidInvoice, useCloseInvoice } from '@/features/billing/hooks/useInvoices';
-import { SaleDocumentPreviewModal } from '@/features/billing/components/SaleDocumentPreviewModal';
-import { CreditNoteModal } from './CreditNoteModal';
 import type { CreditNote } from '@/offline/db/tables';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
+
+const SaleDocumentPreviewModal = lazy(() =>
+  import('@/features/billing/components/SaleDocumentPreviewModal').then((m) => ({
+    default: m.SaleDocumentPreviewModal,
+  }))
+);
+const CreditNoteModal = lazy(() =>
+  import('./CreditNoteModal').then((m) => ({
+    default: m.CreditNoteModal,
+  }))
+);
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { USER_ROLES } from '@/constants/roles';
@@ -956,34 +965,44 @@ export const InvoiceDetailDrawer = ({
         }}
       </DetailDrawer>
 
-      {/* Credit Note (Return & Exchange) Modal */}
-      <CreditNoteModal
-        opened={creditNoteModalOpen}
-        onClose={() => setCreditNoteModalOpen(false)}
-        invoice={invoice}
-        onCreditNoteSuccess={() => {
-          onRefresh?.();
-        }}
-      />
+      <Suspense fallback={null}>
+        {/* Credit Note (Return & Exchange) Modal */}
+        {creditNoteModalOpen && (
+          <CreditNoteModal
+            opened={creditNoteModalOpen}
+            onClose={() => setCreditNoteModalOpen(false)}
+            invoice={invoice}
+            onCreditNoteSuccess={() => {
+              onRefresh?.();
+            }}
+          />
+        )}
 
-      {/* Sale Document Preview Modal (shows Receipt or Invoice in PdfCanvasViewer) */}
-      <SaleDocumentPreviewModal
-        opened={previewDocumentKind !== null}
-        onClose={() => {
-          setPreviewDocumentKind(null);
-          onRefresh?.();
-        }}
-        subject={invoice ? { kind: 'invoice', invoice } : null}
-        documentKind={previewDocumentKind}
-      />
+        {/* Sale Document Preview Modal (shows Receipt or Invoice in PdfCanvasViewer) */}
+        {previewDocumentKind !== null && (
+          <SaleDocumentPreviewModal
+            opened={previewDocumentKind !== null}
+            onClose={() => {
+              setPreviewDocumentKind(null);
+              onRefresh?.();
+            }}
+            subject={invoice ? { kind: 'invoice', invoice } : null}
+            documentKind={previewDocumentKind}
+          />
+        )}
 
-      {/* Credit Note Document Preview */}
-      <SaleDocumentPreviewModal
-        opened={previewCreditNote !== null}
-        onClose={() => setPreviewCreditNote(null)}
-        subject={previewCreditNote ? { kind: 'creditNote', creditNote: previewCreditNote } : null}
-        documentKind="credit-note"
-      />
+        {/* Credit Note Document Preview */}
+        {previewCreditNote !== null && (
+          <SaleDocumentPreviewModal
+            opened={previewCreditNote !== null}
+            onClose={() => setPreviewCreditNote(null)}
+            subject={
+              previewCreditNote ? { kind: 'creditNote', creditNote: previewCreditNote } : null
+            }
+            documentKind="credit-note"
+          />
+        )}
+      </Suspense>
 
       {/* Record Payment Modal */}
       <Modal

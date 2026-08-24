@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "468bf34792671c9f",
+        "id": "99ede91294dd5530",
         "type": "tabs",
         "children": [
           {
-            "id": "c15fb71f734cd0e6",
+            "id": "a261bbd01f7f93bf",
             "type": "leaf",
             "state": {
-              "type": "graph",
+              "type": "empty",
               "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -1077,7 +1077,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "c15fb71f734cd0e6",
+  "active": "a261bbd01f7f93bf",
   "lastOpenFiles": [
     "money.ts.md",
     "ProductTable.tsx.md",

@@ -17,14 +17,15 @@ import type { SyncResourceId } from '../types';
  */
 export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncResourceId>> => {
   const resources = getResourcesInDependencyOrder();
-  await seedSyncMeta(resources.map((resource) => resource.id));
+  const resourceIds = resources.map((resource) => resource.id);
+  const targets = new Set<SyncResourceId>(resourceIds);
 
-  const targets = new Set<SyncResourceId>(resources.map((resource) => resource.id));
+  const [, statusResult] = await Promise.all([
+    seedSyncMeta(resourceIds),
+    fetchSyncStatus(signal).catch(() => null),
+  ]);
 
-  let status: Awaited<ReturnType<typeof fetchSyncStatus>>;
-  try {
-    status = await fetchSyncStatus(signal);
-  } catch {
+  if (!statusResult) {
     // No watermarks available: pull everything. Skipping work on the strength
     // of a failed request is how a broken status endpoint turns into an app
     // that never loads any data.
@@ -35,7 +36,7 @@ export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncR
 
   for (const resource of resources) {
     const record = meta.get(resource.id);
-    const watermark = status.resources[resource.id];
+    const watermark = statusResult.resources[resource.id];
 
     // Anything that has never completed a pull, or is currently in error,
     // always pulls so it can establish a baseline or clear the error state.

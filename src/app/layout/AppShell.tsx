@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { AppShell as MantineAppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
@@ -15,11 +15,24 @@ import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
-import { HeldSalesDrawer } from '@/features/billing/components/HeldSalesDrawer';
-import { KeyboardShortcutsModal } from '@/features/billing/components/KeyboardShortcutsModal';
-import { SyncDrawer } from '@/features/sync';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+
+const HeldSalesDrawer = lazy(() =>
+  import('@/features/billing/components/HeldSalesDrawer').then((m) => ({
+    default: m.HeldSalesDrawer,
+  }))
+);
+const KeyboardShortcutsModal = lazy(() =>
+  import('@/features/billing/components/KeyboardShortcutsModal').then((m) => ({
+    default: m.KeyboardShortcutsModal,
+  }))
+);
+const SyncDrawer = lazy(() =>
+  import('@/features/sync/components/SyncDrawer').then((m) => ({
+    default: m.SyncDrawer,
+  }))
+);
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
@@ -136,9 +149,17 @@ export const AppShell = () => {
 
       <GlobalQuickSearchModal />
 
-      <HeldSalesDrawer opened={heldDrawerOpen} onClose={() => setHeldDrawerOpen(false)} />
-      <KeyboardShortcutsModal opened={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      <SyncDrawer opened={syncDrawerOpen} onClose={() => setSyncDrawerOpen(false)} />
+      <Suspense fallback={null}>
+        {heldDrawerOpen && (
+          <HeldSalesDrawer opened={heldDrawerOpen} onClose={() => setHeldDrawerOpen(false)} />
+        )}
+        {shortcutsOpen && (
+          <KeyboardShortcutsModal opened={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+        )}
+        {syncDrawerOpen && (
+          <SyncDrawer opened={syncDrawerOpen} onClose={() => setSyncDrawerOpen(false)} />
+        )}
+      </Suspense>
     </MantineAppShell>
   );
 };
