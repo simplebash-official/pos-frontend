@@ -92,9 +92,12 @@ export default defineConfig({
   server: {
     watch: {
       ignored: [
+        '**/dist/**',
         '**/graphify-out/**',
         '**/.obsidian/**',
         '**/.agents/**',
+        '**/.claude/**',
+        '**/.github/**',
         '**/*.md',
         '**/backend-sync-requirements.html',
       ],

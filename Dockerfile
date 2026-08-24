@@ -7,7 +7,8 @@ WORKDIR /app
 
 # Copy package manifests and install dependencies
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit --no-fund
 
 # Copy source and config files
 COPY . .
