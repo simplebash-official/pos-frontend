@@ -1,68 +1,56 @@
-name: Deploy Frontend
+name: Build and Deploy Frontend
 
 on:
   push:
-    branches: [main]
-    paths-ignore:
-      - '**.md'
-      - '.agents/**'
-      - '.claude/**'
-      - '.claudeignore'
-      - '.gemini/**'
-      - '.cursor/**'
-      - '.cursorrules'
-      - '.windsurfrules'
-      - '.obsidian/**'
-      - '**/.*.obsidian/**'
-      - 'graphify-out/**'
-      - 'backend-sync-requirements.html'
-      - 'docs/**'
-      - '.vscode/**'
-      - '.idea/**'
-      - '**/.DS_Store'
-      - '.gitattributes'
-      - '.prettierignore'
-      - '.prettierrc'
+    branches: [ "main" ]
 
 env:
-  DEPLOY_PATH: /opt/jana2u-frontend
+  REGISTRY: ghcr.io
+  IMAGE_NAME: jana2u-pos-system/jana2u-frontend
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
         with:
-          node-version: 22
-          cache: npm
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npm run type-check
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
-        run: npm run build
-
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
         with:
-          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Add server to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy dist/ to server
-        run: |
-          rsync -avz --delete dist/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute deployment via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ~/jana2u-pos
+            
+            # Pull the latest frontend image
+            docker compose pull frontend
+            
+            # Recreate the frontend container
+            docker compose up -d frontend
+            
+            # Clean up old images
+            docker image prune -f
