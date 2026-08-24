@@ -36,11 +36,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Expose HTTP port
-EXPOSE 8081
+EXPOSE 80
 
 # Health check to verify web server availability
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO- http://localhost:8081/ || exit 1
+  CMD wget -qO- http://localhost:80/ || exit 1
 
 # Start Nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
