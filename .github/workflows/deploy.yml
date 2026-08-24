@@ -44,7 +44,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd ~/jana2u-pos
+            cd /opt/jana2u
             
             # Pull the latest frontend image
             docker compose pull frontend
