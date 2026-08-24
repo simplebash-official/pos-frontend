@@ -6,7 +6,18 @@ import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'graphify-out/**', 'graph.json'] },
+  {
+    ignores: [
+      'dist',
+      'node_modules',
+      'graphify-out/**',
+      'graph.json',
+      '.agents/**',
+      '.claude/**',
+      '.github/**',
+      '.obsidian/**',
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended, eslintConfigPrettier],
     files: ['**/*.{ts,tsx}'],

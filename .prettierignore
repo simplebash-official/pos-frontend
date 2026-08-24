@@ -1,6 +1,8 @@
-dist
 node_modules
-package-lock.json
-graphify-out/
-graph.json
-
+dist
+.agents
+.claude
+.github
+.obsidian
+graphify-out
+*.log
