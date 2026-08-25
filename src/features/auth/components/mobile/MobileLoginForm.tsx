@@ -1,8 +1,19 @@
 import { useState } from 'react';
-import { TextInput, PasswordInput, Checkbox, Button, Anchor, Group, Stack } from '@mantine/core';
+import {
+  TextInput,
+  PasswordInput,
+  Checkbox,
+  Button,
+  Anchor,
+  Group,
+  Stack,
+  Portal,
+  Overlay,
+} from '@mantine/core';
 import { IconChevronLeft, IconLock } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
+import { PageLoader } from '@/shared/components/PageLoader';
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
@@ -76,6 +87,28 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
   return (
     <>
+      {isSubmitting && (
+        <Portal>
+          <Overlay
+            color="#000"
+            backgroundOpacity={0.7}
+            blur={5}
+            zIndex={9999}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <PageLoader
+              variant="orb"
+              orbState="connecting"
+              orbTheme="dark"
+              size={60}
+              title="Signing in..."
+              subtitle="Connecting to POS console..."
+              height="auto"
+            />
+          </Overlay>
+        </Portal>
+      )}
+
       {/* Top Header with Back Button */}
       <div className="mobile-auth-topbar">
         <button

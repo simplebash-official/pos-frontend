@@ -1,20 +1,61 @@
 import { Center, Loader, Stack, Text } from '@mantine/core';
+import { ThinkingOrb, OrbState } from './ThinkingOrb';
 
 export interface PageLoaderProps {
   title?: string;
+  subtitle?: string;
   size?: number;
   height?: string | number;
+  variant?: 'dots' | 'orb';
+  orbState?: OrbState;
+  orbTheme?: 'auto' | 'light' | 'dark';
+  speed?: number;
 }
 
-export const PageLoader = ({ title, size = 45, height = '70vh' }: PageLoaderProps) => {
+export const PageLoader = ({
+  title,
+  subtitle,
+  size = 45,
+  height = '70vh',
+  variant = 'dots',
+  orbState = 'connecting',
+  orbTheme = 'auto',
+  speed = 1,
+}: PageLoaderProps) => {
+  const isOrb = variant === 'orb' || Boolean(orbState && variant !== 'dots');
+
+  const titleColor =
+    orbTheme === 'dark' ? '#FFFFFF' : orbTheme === 'light' ? '#18181B' : 'var(--text-primary)';
+
+  const subtitleColor =
+    orbTheme === 'dark'
+      ? 'rgba(255, 255, 255, 0.75)'
+      : orbTheme === 'light'
+        ? '#6E6E73'
+        : 'var(--text-secondary)';
+
   return (
     <Center h={height} style={{ width: '100%' }}>
       <Stack align="center" gap="sm">
-        <Loader size={size} type="dots" />
-        {title && (
-          <Text size="sm" fw={600} c="var(--text-primary)">
-            {title}
-          </Text>
+        {isOrb ? (
+          <ThinkingOrb state={orbState} size={size || 64} theme={orbTheme} speed={speed} />
+        ) : (
+          <Loader size={size} type="dots" />
+        )}
+
+        {(title || subtitle) && (
+          <Stack align="center" gap={2}>
+            {title && (
+              <Text size="sm" fw={600} c={titleColor} ta="center">
+                {title}
+              </Text>
+            )}
+            {subtitle && (
+              <Text size="xs" c={subtitleColor} ta="center">
+                {subtitle}
+              </Text>
+            )}
+          </Stack>
         )}
       </Stack>
     </Center>
