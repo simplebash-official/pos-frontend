@@ -1,7 +1,13 @@
-import { getAllSyncMeta, seedSyncMeta } from '../db/syncMeta';
+import { getAllSyncMeta, patchSyncMeta, seedSyncMeta } from '../db/syncMeta';
 import { getResourcesInDependencyOrder } from '../registry/registry';
 import { fetchSyncStatus } from '../resources/syncApi';
+import { connectivityMonitor } from '../connectivity/ConnectivityMonitor';
 import type { SyncResourceId } from '../types';
+
+export interface ResolvePullTargetsOptions {
+  /** When true, forces all registered resources into the worklist regardless of watermarks. */
+  force?: boolean;
+}
 
 /**
  * Decides which resources a pull pass should refresh.
@@ -13,12 +19,21 @@ import type { SyncResourceId } from '../types';
  * nothing, permanently.
  *
  * `/sync/status` is an optimisation on top of that: it can only ever remove a
- * resource that has already completed a pull and is provably unchanged.
+ * resource that has already completed a pull and is provably unchanged. When
+ * a resource is verified unchanged against `/sync/status`, its `lastPulledAt`
+ * timestamp is refreshed so the UI dashboard stays accurate.
  */
-export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncResourceId>> => {
+export const resolvePullTargets = async (
+  signal: AbortSignal,
+  options?: ResolvePullTargetsOptions
+): Promise<Set<SyncResourceId>> => {
   const resources = getResourcesInDependencyOrder();
   const resourceIds = resources.map((resource) => resource.id);
   const targets = new Set<SyncResourceId>(resourceIds);
+
+  if (options?.force) {
+    return targets;
+  }
 
   const [, statusResult] = await Promise.all([
     seedSyncMeta(resourceIds),
@@ -33,6 +48,9 @@ export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncR
   }
 
   const meta = new Map((await getAllSyncMeta()).map((record) => [record.resource, record]));
+  const snapshot = connectivityMonitor.getSnapshot();
+  const clockSkewMs = snapshot.clockSkewMs ?? 0;
+  const verifiedFresh: SyncResourceId[] = [];
 
   for (const resource of resources) {
     const record = meta.get(resource.id);
@@ -40,18 +58,14 @@ export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncR
 
     // Anything that has never completed a pull, or is currently in error,
     // always pulls so it can establish a baseline or clear the error state.
-    if (
-      !record ||
-      record.cursor === null ||
-      record.lastPulledAt === null ||
-      record.pullState === 'error'
-    ) {
+    if (!record || record.lastPulledAt === null || record.pullState === 'error') {
       continue;
     }
     // The server reports nothing for this resource: it has no rows, so there
     // is nothing to fetch.
     if (!watermark) {
       targets.delete(resource.id);
+      verifiedFresh.push(resource.id);
       continue;
     }
 
@@ -64,9 +78,27 @@ export const resolvePullTargets = async (signal: AbortSignal): Promise<Set<SyncR
     if (Number.isNaN(serverAt) || Number.isNaN(localAt)) {
       continue;
     }
-    if (serverAt <= localAt) {
+
+    // Adjust local timestamp for any measured clock skew between client and server.
+    const adjustedLocalAt = localAt - clockSkewMs;
+    if (serverAt <= adjustedLocalAt) {
       targets.delete(resource.id);
+      verifiedFresh.push(resource.id);
     }
+  }
+
+  // Update lastPulledAt for verified unchanged resources so their freshness is recorded.
+  if (verifiedFresh.length > 0) {
+    const nowIso = new Date().toISOString();
+    await Promise.all(
+      verifiedFresh.map((id) =>
+        patchSyncMeta(id, {
+          lastPulledAt: nowIso,
+          pullState: 'fresh',
+          lastError: null,
+        })
+      )
+    );
   }
 
   return targets;

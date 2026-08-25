@@ -96,6 +96,10 @@ const applyChanges = async (
  * Must not be derived from a delta response: `/sync/changes` pages
  * oldest-first, so its `nextCursor` after a one-row read points at the
  * *oldest* row and the next "delta" would replay the whole collection.
+ *
+ * If the endpoint responds successfully but the collection is empty on the server,
+ * returns '' (empty string) as an established baseline cursor.
+ * If the network request fails, returns null so a snapshot retry is scheduled.
  */
 const adoptNewestCursor = async (
   resource: AnySyncResource,
@@ -103,7 +107,7 @@ const adoptNewestCursor = async (
 ): Promise<string | null> => {
   try {
     const cursors = await fetchNewestCursors([resource.id], signal);
-    return cursors[resource.id] ?? null;
+    return cursors[resource.id] ?? '';
   } catch (error) {
     logWarn(resource.id, `Could not establish a delta cursor: ${describeError(error)}`, null);
     return null;
@@ -141,7 +145,7 @@ const fullRefresh = async (
 
   logInfo(
     resource.id,
-    `Full refresh loaded ${items.length} row(s)${cursor === null ? ' (no delta cursor)' : ''}`,
+    `Full refresh loaded ${items.length} row(s)${cursor === null ? ' (no delta cursor)' : cursor === '' ? ' (empty collection cursor established)' : ''}`,
     null
   );
   return { resource: resource.id, applied: items.length, deleted: 0, fullRefresh: true };
@@ -160,7 +164,7 @@ export const pullResource = async (
 
   try {
     const cursor = meta?.cursor ?? null;
-    if (cursor === null) {
+    if (cursor === null || meta?.lastPulledAt === null) {
       return await fullRefresh(resource, signal);
     }
 
