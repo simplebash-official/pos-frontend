@@ -138,9 +138,9 @@ export class SyncEngine {
    * later makes the button a no-op for the first few seconds after a
    * connection returns, which is exactly when someone reaches for it.
    */
-  async syncNow(): Promise<void> {
+  async syncNow(force = true): Promise<void> {
     await connectivityMonitor.checkNow();
-    await this.runPull();
+    await this.runPull(force);
     await this.runFlush();
   }
 
@@ -229,7 +229,7 @@ export class SyncEngine {
     }
   }
 
-  private async runPull(): Promise<void> {
+  private async runPull(force = false): Promise<void> {
     if (this.isPulling || !leaderElection.isLeader || !connectivityMonitor.isOnline()) {
       return;
     }
@@ -242,7 +242,7 @@ export class SyncEngine {
     await this.publish();
 
     try {
-      const targets = await resolvePullTargets(signal);
+      const targets = await resolvePullTargets(signal, { force });
       if (targets.size === 0) {
         logInfo(null, 'All modules up to date — skipping pull', null);
         return;
@@ -308,9 +308,7 @@ export class SyncEngine {
             await patchSyncMeta(resource.id, { lastPulledAt: null });
           }
         }
-        this.isPushing = false;
-        await this.runPull();
-        this.isPushing = true;
+        await this.runPull(true);
       }
     } catch (error) {
       logError(null, `Flush failed: ${describeError(error)}`, null);

@@ -147,10 +147,10 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_app_components_requireauth_requireauthprops",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "requireauthprops"
+      "norm_label": "requireauthprops",
+      "id": "src_app_components_requireauth_requireauthprops"
     },
     {
       "label": "AppRoute",
@@ -199,10 +199,10 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_auth_components_mobile_mobileloginform_mobileloginformprops",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "mobileloginformprops"
+      "norm_label": "mobileloginformprops",
+      "id": "src_features_auth_components_mobile_mobileloginform_mobileloginformprops"
     },
     {
       "label": "MobileSplashScreenProps",
@@ -225,10 +225,10 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_shared_components_pageloader_pageloaderprops",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "pageloaderprops"
+      "norm_label": "pageloaderprops",
+      "id": "src_shared_components_pageloader_pageloaderprops"
     },
     {
       "label": "OrbState",
@@ -270,121 +270,30 @@
       "id": "src_store_index_appdispatch"
     },
     {
-      "label": "DiscountPopoverProps",
+      "label": "ColorScheme",
       "file_type": "code",
-      "source_file": "src/features/billing/components/DiscountPopover.tsx",
-      "source_location": "L8",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "discountpopoverprops",
-      "id": "src_features_billing_components_discountpopover_discountpopoverprops"
-    },
-    {
-      "label": "EmployeeDetailDrawerProps",
-      "file_type": "code",
-      "source_file": "src/features/employees/components/EmployeeDetailDrawer.tsx",
-      "source_location": "L46",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeedetaildrawerprops",
-      "id": "src_features_employees_components_employeedetaildrawer_employeedetaildrawerprops"
-    },
-    {
-      "label": "EmployeeFormModalProps",
-      "file_type": "code",
-      "source_file": "src/features/employees/components/EmployeeFormModal.tsx",
-      "source_location": "L23",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeeformmodalprops",
-      "id": "src_features_employees_components_employeeformmodal_employeeformmodalprops"
-    },
-    {
-      "label": "Employee",
-      "file_type": "code",
-      "source_file": "src/features/employees/types.ts",
-      "source_location": "L12",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employee",
-      "id": "src_features_employees_types_employee"
-    },
-    {
-      "label": "EmployeeInput",
-      "file_type": "code",
-      "source_file": "src/features/employees/types.ts",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeeinput",
-      "id": "src_features_employees_types_employeeinput"
-    },
-    {
-      "label": "EmployeeRole",
-      "file_type": "code",
-      "source_file": "src/features/employees/types.ts",
-      "source_location": "L3",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeerole",
-      "id": "src_features_employees_types_employeerole"
-    },
-    {
-      "label": "MoneyInputProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/MoneyInput.tsx",
-      "source_location": "L5",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "moneyinputprops",
-      "id": "src_shared_components_moneyinput_moneyinputprops"
-    },
-    {
-      "label": "SegmentedToggleProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_file": "src/store/slices/themeSlice.ts",
       "source_location": "L4",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "segmentedtoggleprops",
-      "id": "src_shared_components_segmentedtoggle_segmentedtoggleprops"
+      "community_name": "constants/index.ts",
+      "norm_label": "colorscheme",
+      "id": "src_store_slices_themeslice_colorscheme"
     },
     {
-      "label": "EmployeeFormValues",
+      "label": "ThemeState",
       "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L148",
+      "source_file": "src/store/slices/themeSlice.ts",
+      "source_location": "L6",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeeformvalues",
-      "id": "src_shared_lib_moneyformutils_employeeformvalues"
+      "community_name": "constants/index.ts",
+      "norm_label": "themestate",
+      "id": "src_store_slices_themeslice_themestate"
     },
     {
       "label": "SemaphoreAbortError",
@@ -2779,30 +2688,121 @@
       "id": "src_shared_types_ticketinput_customerref"
     },
     {
-      "label": "ColorScheme",
+      "label": "DiscountPopoverProps",
       "file_type": "code",
-      "source_file": "src/store/slices/themeSlice.ts",
+      "source_file": "src/features/billing/components/DiscountPopover.tsx",
+      "source_location": "L8",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "discountpopoverprops",
+      "id": "src_features_billing_components_discountpopover_discountpopoverprops"
+    },
+    {
+      "label": "EmployeeDetailDrawerProps",
+      "file_type": "code",
+      "source_file": "src/features/employees/components/EmployeeDetailDrawer.tsx",
+      "source_location": "L46",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeedetaildrawerprops",
+      "id": "src_features_employees_components_employeedetaildrawer_employeedetaildrawerprops"
+    },
+    {
+      "label": "EmployeeFormModalProps",
+      "file_type": "code",
+      "source_file": "src/features/employees/components/EmployeeFormModal.tsx",
+      "source_location": "L23",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeeformmodalprops",
+      "id": "src_features_employees_components_employeeformmodal_employeeformmodalprops"
+    },
+    {
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "src/features/employees/types.ts",
+      "source_location": "L12",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employee",
+      "id": "src_features_employees_types_employee"
+    },
+    {
+      "label": "EmployeeInput",
+      "file_type": "code",
+      "source_file": "src/features/employees/types.ts",
+      "source_location": "L26",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeeinput",
+      "id": "src_features_employees_types_employeeinput"
+    },
+    {
+      "label": "EmployeeRole",
+      "file_type": "code",
+      "source_file": "src/features/employees/types.ts",
+      "source_location": "L3",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeerole",
+      "id": "src_features_employees_types_employeerole"
+    },
+    {
+      "label": "MoneyInputProps",
+      "file_type": "code",
+      "source_file": "src/shared/components/MoneyInput.tsx",
+      "source_location": "L5",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "moneyinputprops",
+      "id": "src_shared_components_moneyinput_moneyinputprops"
+    },
+    {
+      "label": "SegmentedToggleProps",
+      "file_type": "code",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
       "source_location": "L4",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "colorscheme",
-      "id": "src_store_slices_themeslice_colorscheme"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "segmentedtoggleprops",
+      "id": "src_shared_components_segmentedtoggle_segmentedtoggleprops"
     },
     {
-      "label": "ThemeState",
+      "label": "EmployeeFormValues",
       "file_type": "code",
-      "source_file": "src/store/slices/themeSlice.ts",
-      "source_location": "L6",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L148",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "themestate",
-      "id": "src_store_slices_themeslice_themestate"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeeformvalues",
+      "id": "src_shared_lib_moneyformutils_employeeformvalues"
     },
     {
       "label": "SyncMetaPatch",
@@ -5968,10 +5968,10 @@
       "source_location": "L16",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_components_requireauth_requireauth",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "requireauth()"
+      "norm_label": "requireauth()",
+      "id": "src_app_components_requireauth_requireauth"
     },
     {
       "label": "AppProviders()",
@@ -6028,10 +6028,10 @@
       "source_location": "L23",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_auth_components_loginform_loginform",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "loginform()"
+      "norm_label": "loginform()",
+      "id": "src_features_auth_components_loginform_loginform"
     },
     {
       "label": "MobileAuthContainer()",
@@ -6052,10 +6052,10 @@
       "source_location": "L27",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_auth_components_mobile_mobileloginform_mobileloginform",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "mobileloginform()"
+      "norm_label": "mobileloginform()",
+      "id": "src_features_auth_components_mobile_mobileloginform_mobileloginform"
     },
     {
       "label": "MobileSplashScreen()",
@@ -6100,10 +6100,10 @@
       "source_location": "L15",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_shared_components_pageloader_pageloader",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "pageloader()"
+      "norm_label": "pageloader()",
+      "id": "src_shared_components_pageloader_pageloader"
     },
     {
       "label": "PageSkeleton()",
@@ -6706,184 +6706,16 @@
       "id": "agents_skills_vercel_optimize_scripts_collect_sub_agent_outputs_walkdir"
     },
     {
-      "label": "EmployeeFormModal()",
+      "label": "getInitialColorScheme()",
       "file_type": "code",
-      "source_file": "src/features/employees/components/EmployeeFormModal.tsx",
-      "source_location": "L31",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeeformmodal()",
-      "id": "src_features_employees_components_employeeformmodal_employeeformmodal"
-    },
-    {
-      "label": "ProductFormContent()",
-      "file_type": "code",
-      "source_file": "src/features/inventory/components/ProductFormModal.tsx",
-      "source_location": "L64",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "productformcontent()",
-      "id": "src_features_inventory_components_productformmodal_productformcontent"
-    },
-    {
-      "label": "RepairFormModal()",
-      "file_type": "code",
-      "source_file": "src/features/repairs/components/RepairFormModal.tsx",
-      "source_location": "L45",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "repairformmodal()",
-      "id": "src_features_repairs_components_repairformmodal_repairformmodal"
-    },
-    {
-      "label": "MoneyInput()",
-      "file_type": "code",
-      "source_file": "src/shared/components/MoneyInput.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "moneyinput()",
-      "id": "src_shared_components_moneyinput_moneyinput"
-    },
-    {
-      "label": "SegmentedToggle()",
-      "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_file": "src/store/slices/themeSlice.ts",
       "source_location": "L12",
       "_callable": true,
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "segmentedtoggle()",
-      "id": "src_shared_components_segmentedtoggle_segmentedtoggle"
-    },
-    {
-      "label": "fromCents()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/money.ts",
-      "source_location": "L13",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "fromcents()",
-      "id": "src_shared_lib_money_fromcents"
-    },
-    {
-      "label": "parseMoneyToCents()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/money.ts",
-      "source_location": "L34",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "parsemoneytocents()",
-      "id": "src_shared_lib_money_parsemoneytocents"
-    },
-    {
-      "label": "toCents()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/money.ts",
-      "source_location": "L6",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "tocents()",
-      "id": "src_shared_lib_money_tocents"
-    },
-    {
-      "label": "fromEmployee()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L159",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "fromemployee()",
-      "id": "src_shared_lib_moneyformutils_fromemployee"
-    },
-    {
-      "label": "fromPrintJob()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L93",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "fromprintjob()",
-      "id": "src_shared_lib_moneyformutils_fromprintjob"
-    },
-    {
-      "label": "fromRepairJob()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L20",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "fromrepairjob()",
-      "id": "src_shared_lib_moneyformutils_fromrepairjob"
-    },
-    {
-      "label": "rupeesFieldToCents()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L51",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "rupeesfieldtocents()",
-      "id": "src_shared_lib_moneyformutils_rupeesfieldtocents"
-    },
-    {
-      "label": "toEmployeeInput()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L185",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "toemployeeinput()",
-      "id": "src_shared_lib_moneyformutils_toemployeeinput"
-    },
-    {
-      "label": "toPrintJobInput()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L123",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "toprintjobinput()",
-      "id": "src_shared_lib_moneyformutils_toprintjobinput"
-    },
-    {
-      "label": "toRepairInput()",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L54",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "torepairinput()",
-      "id": "src_shared_lib_moneyformutils_torepairinput"
+      "community_name": "constants/index.ts",
+      "norm_label": "getinitialcolorscheme()",
+      "id": "src_store_slices_themeslice_getinitialcolorscheme"
     },
     {
       "label": "citationSubset()",
@@ -13810,16 +13642,184 @@
       "id": "src_shared_lib_date_formatdate"
     },
     {
-      "label": "getInitialColorScheme()",
+      "label": "EmployeeFormModal()",
       "file_type": "code",
-      "source_file": "src/store/slices/themeSlice.ts",
+      "source_file": "src/features/employees/components/EmployeeFormModal.tsx",
+      "source_location": "L31",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeeformmodal()",
+      "id": "src_features_employees_components_employeeformmodal_employeeformmodal"
+    },
+    {
+      "label": "ProductFormContent()",
+      "file_type": "code",
+      "source_file": "src/features/inventory/components/ProductFormModal.tsx",
+      "source_location": "L64",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "productformcontent()",
+      "id": "src_features_inventory_components_productformmodal_productformcontent"
+    },
+    {
+      "label": "RepairFormModal()",
+      "file_type": "code",
+      "source_file": "src/features/repairs/components/RepairFormModal.tsx",
+      "source_location": "L45",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "repairformmodal()",
+      "id": "src_features_repairs_components_repairformmodal_repairformmodal"
+    },
+    {
+      "label": "MoneyInput()",
+      "file_type": "code",
+      "source_file": "src/shared/components/MoneyInput.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "moneyinput()",
+      "id": "src_shared_components_moneyinput_moneyinput"
+    },
+    {
+      "label": "SegmentedToggle()",
+      "file_type": "code",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
       "source_location": "L12",
       "_callable": true,
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "getinitialcolorscheme()",
-      "id": "src_store_slices_themeslice_getinitialcolorscheme"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "segmentedtoggle()",
+      "id": "src_shared_components_segmentedtoggle_segmentedtoggle"
+    },
+    {
+      "label": "fromCents()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/money.ts",
+      "source_location": "L13",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "fromcents()",
+      "id": "src_shared_lib_money_fromcents"
+    },
+    {
+      "label": "parseMoneyToCents()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/money.ts",
+      "source_location": "L34",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "parsemoneytocents()",
+      "id": "src_shared_lib_money_parsemoneytocents"
+    },
+    {
+      "label": "toCents()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/money.ts",
+      "source_location": "L6",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "tocents()",
+      "id": "src_shared_lib_money_tocents"
+    },
+    {
+      "label": "fromEmployee()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L159",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "fromemployee()",
+      "id": "src_shared_lib_moneyformutils_fromemployee"
+    },
+    {
+      "label": "fromPrintJob()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L93",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "fromprintjob()",
+      "id": "src_shared_lib_moneyformutils_fromprintjob"
+    },
+    {
+      "label": "fromRepairJob()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L20",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "fromrepairjob()",
+      "id": "src_shared_lib_moneyformutils_fromrepairjob"
+    },
+    {
+      "label": "rupeesFieldToCents()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L51",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "rupeesfieldtocents()",
+      "id": "src_shared_lib_moneyformutils_rupeesfieldtocents"
+    },
+    {
+      "label": "toEmployeeInput()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L185",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "toemployeeinput()",
+      "id": "src_shared_lib_moneyformutils_toemployeeinput"
+    },
+    {
+      "label": "toPrintJobInput()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L123",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "toprintjobinput()",
+      "id": "src_shared_lib_moneyformutils_toprintjobinput"
+    },
+    {
+      "label": "toRepairInput()",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L54",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "torepairinput()",
+      "id": "src_shared_lib_moneyformutils_torepairinput"
     },
     {
       "label": "toServerRow()",
@@ -21915,10 +21915,10 @@
       "source_file": "src/app/components/RequireAuth.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_components_requireauth",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "requireauth.tsx"
+      "norm_label": "requireauth.tsx",
+      "id": "src_app_components_requireauth"
     },
     {
       "label": "router.tsx",
@@ -22124,10 +22124,10 @@
       "source_file": "src/features/auth/components/LoginForm.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_auth_components_loginform",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "loginform.tsx"
+      "norm_label": "loginform.tsx",
+      "id": "src_features_auth_components_loginform"
     },
     {
       "label": "MobileAuthContainer.tsx",
@@ -22146,10 +22146,10 @@
       "source_file": "src/features/auth/components/mobile/MobileLoginForm.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_auth_components_mobile_mobileloginform",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "mobileloginform.tsx"
+      "norm_label": "mobileloginform.tsx",
+      "id": "src_features_auth_components_mobile_mobileloginform"
     },
     {
       "label": "MobileSplashScreen.tsx",
@@ -22223,10 +22223,10 @@
       "source_file": "src/shared/components/PageLoader.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_shared_components_pageloader",
       "community": 10,
       "community_name": "router.tsx",
-      "norm_label": "pageloader.tsx"
+      "norm_label": "pageloader.tsx",
+      "id": "src_shared_components_pageloader"
     },
     {
       "label": "PageSkeleton.tsx",
@@ -23492,125 +23492,125 @@
       "id": "agents_skills_vercel_optimize_scripts_collect_sub_agent_outputs"
     },
     {
-      "label": "CURRENCY",
+      "label": "constants/index.ts",
       "file_type": "code",
-      "source_file": "src/constants/payment.ts",
+      "source_file": "src/constants/index.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "currency",
-      "id": "src_constants_payment_currency"
+      "community_name": "constants/index.ts",
+      "norm_label": "constants/index.ts",
+      "id": "src_constants_index"
     },
     {
-      "label": "DiscountPopover.tsx",
+      "label": "storage.ts",
       "file_type": "code",
-      "source_file": "src/features/billing/components/DiscountPopover.tsx",
+      "source_file": "src/constants/storage.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "discountpopover.tsx",
-      "id": "src_features_billing_components_discountpopover"
+      "community_name": "constants/index.ts",
+      "norm_label": "storage.ts",
+      "id": "src_constants_storage"
     },
     {
-      "label": "EmployeeFormModal.tsx",
+      "label": "STORAGE_KEYS",
       "file_type": "code",
-      "source_file": "src/features/employees/components/EmployeeFormModal.tsx",
+      "source_file": "src/constants/storage.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeeformmodal.tsx",
-      "id": "src_features_employees_components_employeeformmodal"
+      "community_name": "constants/index.ts",
+      "norm_label": "storage_keys",
+      "id": "src_constants_storage_storage_keys"
     },
     {
-      "label": "EmployeeList.tsx",
+      "label": "ui.ts",
       "file_type": "code",
-      "source_file": "src/features/employees/components/EmployeeList.tsx",
+      "source_file": "src/constants/ui.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employeelist.tsx",
-      "id": "src_features_employees_components_employeelist"
+      "community_name": "constants/index.ts",
+      "norm_label": "ui.ts",
+      "id": "src_constants_ui"
     },
     {
-      "label": "employees/index.ts",
+      "label": "DEFAULT_PAGINATION",
       "file_type": "code",
-      "source_file": "src/features/employees/index.ts",
+      "source_file": "src/constants/ui.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employees/index.ts",
-      "id": "src_features_employees_index"
+      "community_name": "constants/index.ts",
+      "norm_label": "default_pagination",
+      "id": "src_constants_ui_default_pagination"
     },
     {
-      "label": "employees/types.ts",
+      "label": "HELD_CART_REMINDER_MS",
       "file_type": "code",
-      "source_file": "src/features/employees/types.ts",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "community": 125,
+      "community_name": "constants/index.ts",
+      "norm_label": "held_cart_reminder_ms",
+      "id": "src_constants_ui_held_cart_reminder_ms"
+    },
+    {
+      "label": "SKELETON_WIDTH_PATTERN",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "community": 125,
+      "community_name": "constants/index.ts",
+      "norm_label": "skeleton_width_pattern",
+      "id": "src_constants_ui_skeleton_width_pattern"
+    },
+    {
+      "label": "listenerMiddleware.ts",
+      "file_type": "code",
+      "source_file": "src/store/listenerMiddleware.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employees/types.ts",
-      "id": "src_features_employees_types"
+      "community_name": "constants/index.ts",
+      "norm_label": "listenermiddleware.ts",
+      "id": "src_store_listenermiddleware"
     },
     {
-      "label": "EMPLOYEE_ROLE_LABELS",
+      "label": "themeSlice.ts",
       "file_type": "code",
-      "source_file": "src/features/employees/types.ts",
-      "source_location": "L5",
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "employee_role_labels",
-      "id": "src_features_employees_types_employee_role_labels"
-    },
-    {
-      "label": "MoneyInput.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/MoneyInput.tsx",
+      "source_file": "src/store/slices/themeSlice.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "moneyinput.tsx",
-      "id": "src_shared_components_moneyinput"
+      "community_name": "constants/index.ts",
+      "norm_label": "themeslice.ts",
+      "id": "src_store_slices_themeslice"
     },
     {
-      "label": "SegmentedToggle.tsx",
+      "label": "initialState",
       "file_type": "code",
-      "source_file": "src/shared/components/SegmentedToggle.tsx",
-      "source_location": "L1",
+      "source_file": "src/store/slices/themeSlice.ts",
+      "source_location": "L18",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "segmentedtoggle.tsx",
-      "id": "src_shared_components_segmentedtoggle"
+      "community_name": "constants/index.ts",
+      "norm_label": "initialstate",
+      "id": "src_store_slices_themeslice_initialstate"
     },
     {
-      "label": "money.ts",
+      "label": "themeSlice",
       "file_type": "code",
-      "source_file": "src/shared/lib/money.ts",
-      "source_location": "L1",
+      "source_file": "src/store/slices/themeSlice.ts",
+      "source_location": "L22",
       "_origin": "ast",
       "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "money.ts",
-      "id": "src_shared_lib_money"
-    },
-    {
-      "label": "moneyFormUtils.ts",
-      "file_type": "code",
-      "source_file": "src/shared/lib/moneyFormUtils.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "EmployeeList.tsx",
-      "norm_label": "moneyformutils.ts",
-      "id": "src_shared_lib_moneyformutils"
+      "community_name": "constants/index.ts",
+      "norm_label": "themeslice",
+      "id": "src_store_slices_themeslice_themeslice"
     },
     {
       "label": "Accessibility",
@@ -41136,125 +41136,125 @@
       "id": "agents_skills_vercel_react_best_practices_rules_server_serialization_minimize_serialization_at_rsc_boundaries"
     },
     {
-      "label": "constants/index.ts",
+      "label": "CURRENCY",
       "file_type": "code",
-      "source_file": "src/constants/index.ts",
+      "source_file": "src/constants/payment.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "constants/index.ts",
-      "id": "src_constants_index"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "currency",
+      "id": "src_constants_payment_currency"
     },
     {
-      "label": "storage.ts",
+      "label": "DiscountPopover.tsx",
       "file_type": "code",
-      "source_file": "src/constants/storage.ts",
+      "source_file": "src/features/billing/components/DiscountPopover.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "storage.ts",
-      "id": "src_constants_storage"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "discountpopover.tsx",
+      "id": "src_features_billing_components_discountpopover"
     },
     {
-      "label": "STORAGE_KEYS",
+      "label": "EmployeeFormModal.tsx",
       "file_type": "code",
-      "source_file": "src/constants/storage.ts",
+      "source_file": "src/features/employees/components/EmployeeFormModal.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "storage_keys",
-      "id": "src_constants_storage_storage_keys"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeeformmodal.tsx",
+      "id": "src_features_employees_components_employeeformmodal"
     },
     {
-      "label": "ui.ts",
+      "label": "EmployeeList.tsx",
       "file_type": "code",
-      "source_file": "src/constants/ui.ts",
+      "source_file": "src/features/employees/components/EmployeeList.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "ui.ts",
-      "id": "src_constants_ui"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employeelist.tsx",
+      "id": "src_features_employees_components_employeelist"
     },
     {
-      "label": "DEFAULT_PAGINATION",
+      "label": "employees/index.ts",
       "file_type": "code",
-      "source_file": "src/constants/ui.ts",
+      "source_file": "src/features/employees/index.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "default_pagination",
-      "id": "src_constants_ui_default_pagination"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employees/index.ts",
+      "id": "src_features_employees_index"
     },
     {
-      "label": "HELD_CART_REMINDER_MS",
+      "label": "employees/types.ts",
       "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L7",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "held_cart_reminder_ms",
-      "id": "src_constants_ui_held_cart_reminder_ms"
-    },
-    {
-      "label": "SKELETON_WIDTH_PATTERN",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L11",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "skeleton_width_pattern",
-      "id": "src_constants_ui_skeleton_width_pattern"
-    },
-    {
-      "label": "listenerMiddleware.ts",
-      "file_type": "code",
-      "source_file": "src/store/listenerMiddleware.ts",
+      "source_file": "src/features/employees/types.ts",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "listenermiddleware.ts",
-      "id": "src_store_listenermiddleware"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employees/types.ts",
+      "id": "src_features_employees_types"
     },
     {
-      "label": "themeSlice.ts",
+      "label": "EMPLOYEE_ROLE_LABELS",
       "file_type": "code",
-      "source_file": "src/store/slices/themeSlice.ts",
+      "source_file": "src/features/employees/types.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "employee_role_labels",
+      "id": "src_features_employees_types_employee_role_labels"
+    },
+    {
+      "label": "MoneyInput.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/MoneyInput.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "themeslice.ts",
-      "id": "src_store_slices_themeslice"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "moneyinput.tsx",
+      "id": "src_shared_components_moneyinput"
     },
     {
-      "label": "initialState",
+      "label": "SegmentedToggle.tsx",
       "file_type": "code",
-      "source_file": "src/store/slices/themeSlice.ts",
-      "source_location": "L18",
+      "source_file": "src/shared/components/SegmentedToggle.tsx",
+      "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "initialstate",
-      "id": "src_store_slices_themeslice_initialstate"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "segmentedtoggle.tsx",
+      "id": "src_shared_components_segmentedtoggle"
     },
     {
-      "label": "themeSlice",
+      "label": "money.ts",
       "file_type": "code",
-      "source_file": "src/store/slices/themeSlice.ts",
-      "source_location": "L22",
+      "source_file": "src/shared/lib/money.ts",
+      "source_location": "L1",
       "_origin": "ast",
       "community": 35,
-      "community_name": "constants/index.ts",
-      "norm_label": "themeslice",
-      "id": "src_store_slices_themeslice_themeslice"
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "money.ts",
+      "id": "src_shared_lib_money"
+    },
+    {
+      "label": "moneyFormUtils.ts",
+      "file_type": "code",
+      "source_file": "src/shared/lib/moneyFormUtils.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 35,
+      "community_name": "EmployeeList.tsx",
+      "norm_label": "moneyformutils.ts",
+      "id": "src_shared_lib_moneyformutils"
     },
     {
       "label": "vercel-react-best-practices/rules/_template.md",
@@ -69350,7 +69350,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/shared/components/ThinkingOrb.tsx",
-      "source_location": "L443",
+      "source_location": "L445",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_shared_components_thinkingorb_thinkingorb",
@@ -72473,9 +72473,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_shared_components_pageloader_pageloaderprops",
-      "target": "src_shared_components_thinkingorb_orbstate",
-      "confidence_score": 1.0
+      "target": "src_shared_components_thinkingorb_orbstate"
     },
     {
       "relation": "references",
@@ -75939,9 +75939,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_constants_routes_routes",
-      "confidence_score": 1.0
+      "target": "src_constants_routes_routes"
     },
     {
       "relation": "imports",
@@ -75951,9 +75951,9 @@
       "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_store_hooks_useappselector",
-      "confidence_score": 1.0
+      "target": "src_store_hooks_useappselector"
     },
     {
       "relation": "imports",
@@ -75963,9 +75963,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_store_slices_authslice_selectisauthenticated",
-      "confidence_score": 1.0
+      "target": "src_store_slices_authslice_selectisauthenticated"
     },
     {
       "relation": "imports",
@@ -75975,9 +75975,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_store_slices_authslice_selectisauthinitialized",
-      "confidence_score": 1.0
+      "target": "src_store_slices_authslice_selectisauthinitialized"
     },
     {
       "relation": "imports",
@@ -75987,9 +75987,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_store_slices_authslice_selectisauthloading",
-      "confidence_score": 1.0
+      "target": "src_store_slices_authslice_selectisauthloading"
     },
     {
       "relation": "imports",
@@ -75999,9 +75999,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_shared_components_pageloader_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader_pageloader"
     },
     {
       "relation": "imports",
@@ -76755,9 +76755,9 @@
       "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_shared_components_pageloader_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader_pageloader"
     },
     {
       "relation": "imports",
@@ -76767,9 +76767,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_constants_routes_routes",
-      "confidence_score": 1.0
+      "target": "src_constants_routes_routes"
     },
     {
       "relation": "imports",
@@ -76779,9 +76779,9 @@
       "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_store_hooks_useappdispatch",
-      "confidence_score": 1.0
+      "target": "src_store_hooks_useappdispatch"
     },
     {
       "relation": "imports",
@@ -76791,9 +76791,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_features_auth_api_authapi_loginapi",
-      "confidence_score": 1.0
+      "target": "src_features_auth_api_authapi_loginapi"
     },
     {
       "relation": "imports",
@@ -76803,9 +76803,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_shared_types_common_apierror",
-      "confidence_score": 1.0
+      "target": "src_shared_types_common_apierror"
     },
     {
       "relation": "imports",
@@ -76815,9 +76815,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_shared_hooks_useresponsive_useismobile",
-      "confidence_score": 1.0
+      "target": "src_shared_hooks_useresponsive_useismobile"
     },
     {
       "relation": "imports",
@@ -76851,9 +76851,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_shared_components_pageloader_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader_pageloader"
     },
     {
       "relation": "imports",
@@ -76863,9 +76863,9 @@
       "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_constants_routes_routes",
-      "confidence_score": 1.0
+      "target": "src_constants_routes_routes"
     },
     {
       "relation": "imports",
@@ -76875,9 +76875,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_store_hooks_useappdispatch",
-      "confidence_score": 1.0
+      "target": "src_store_hooks_useappdispatch"
     },
     {
       "relation": "imports",
@@ -76887,9 +76887,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_features_auth_api_authapi_loginapi",
-      "confidence_score": 1.0
+      "target": "src_features_auth_api_authapi_loginapi"
     },
     {
       "relation": "imports",
@@ -76899,9 +76899,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_shared_types_common_apierror",
-      "confidence_score": 1.0
+      "target": "src_shared_types_common_apierror"
     },
     {
       "relation": "imports",
@@ -94191,9 +94191,9 @@
       "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_shared_components_pageloader",
-      "target": "src_shared_components_thinkingorb_orbstate",
-      "confidence_score": 1.0
+      "target": "src_shared_components_thinkingorb_orbstate"
     },
     {
       "relation": "imports",
@@ -94203,9 +94203,9 @@
       "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_shared_components_pageloader",
-      "target": "src_shared_components_thinkingorb_thinkingorb",
-      "confidence_score": 1.0
+      "target": "src_shared_components_thinkingorb_thinkingorb"
     },
     {
       "relation": "imports",
@@ -97251,9 +97251,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_constants_routes",
-      "confidence_score": 1.0
+      "target": "src_constants_routes"
     },
     {
       "relation": "imports_from",
@@ -97263,9 +97263,9 @@
       "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_store_hooks",
-      "confidence_score": 1.0
+      "target": "src_store_hooks"
     },
     {
       "relation": "imports_from",
@@ -97275,9 +97275,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_store_slices_authslice",
-      "confidence_score": 1.0
+      "target": "src_store_slices_authslice"
     },
     {
       "relation": "imports_from",
@@ -97287,9 +97287,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_shared_components_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader"
     },
     {
       "relation": "imports_from",
@@ -97923,9 +97923,9 @@
       "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_shared_components_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader"
     },
     {
       "relation": "imports_from",
@@ -97935,9 +97935,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_constants_routes",
-      "confidence_score": 1.0
+      "target": "src_constants_routes"
     },
     {
       "relation": "imports_from",
@@ -97947,9 +97947,9 @@
       "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_store_hooks",
-      "confidence_score": 1.0
+      "target": "src_store_hooks"
     },
     {
       "relation": "imports_from",
@@ -97959,9 +97959,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_store_slices_authslice",
-      "confidence_score": 1.0
+      "target": "src_store_slices_authslice"
     },
     {
       "relation": "imports_from",
@@ -97971,9 +97971,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_features_auth_api_authapi",
-      "confidence_score": 1.0
+      "target": "src_features_auth_api_authapi"
     },
     {
       "relation": "imports_from",
@@ -97983,9 +97983,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_shared_types_common",
-      "confidence_score": 1.0
+      "target": "src_shared_types_common"
     },
     {
       "relation": "imports_from",
@@ -97995,9 +97995,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_shared_hooks_useresponsive",
-      "confidence_score": 1.0
+      "target": "src_shared_hooks_useresponsive"
     },
     {
       "relation": "imports_from",
@@ -98031,9 +98031,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_shared_components_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader"
     },
     {
       "relation": "imports_from",
@@ -98043,9 +98043,9 @@
       "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_constants_routes",
-      "confidence_score": 1.0
+      "target": "src_constants_routes"
     },
     {
       "relation": "imports_from",
@@ -98055,9 +98055,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_store_hooks",
-      "confidence_score": 1.0
+      "target": "src_store_hooks"
     },
     {
       "relation": "imports_from",
@@ -98067,9 +98067,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_store_slices_authslice",
-      "confidence_score": 1.0
+      "target": "src_store_slices_authslice"
     },
     {
       "relation": "imports_from",
@@ -98079,9 +98079,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_features_auth_api_authapi",
-      "confidence_score": 1.0
+      "target": "src_features_auth_api_authapi"
     },
     {
       "relation": "imports_from",
@@ -98091,9 +98091,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_shared_types_common",
-      "confidence_score": 1.0
+      "target": "src_shared_types_common"
     },
     {
       "relation": "imports_from",
@@ -109659,9 +109659,9 @@
       "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_shared_components_pageloader",
-      "target": "src_shared_components_thinkingorb",
-      "confidence_score": 1.0
+      "target": "src_shared_components_thinkingorb"
     },
     {
       "relation": "imports_from",
@@ -132080,9 +132080,9 @@
       "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_app_components_requireauth_requireauthprops",
-      "confidence_score": 1.0
+      "target": "src_app_components_requireauth_requireauthprops"
     },
     {
       "relation": "contains",
@@ -132091,9 +132091,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_app_components_requireauth",
-      "target": "src_app_components_requireauth_requireauth",
-      "confidence_score": 1.0
+      "target": "src_app_components_requireauth_requireauth"
     },
     {
       "relation": "contains",
@@ -132718,9 +132718,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_loginform",
-      "target": "src_features_auth_components_loginform_loginform",
-      "confidence_score": 1.0
+      "target": "src_features_auth_components_loginform_loginform"
     },
     {
       "relation": "contains",
@@ -132751,9 +132751,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_features_auth_components_mobile_mobileloginform_mobileloginformprops",
-      "confidence_score": 1.0
+      "target": "src_features_auth_components_mobile_mobileloginform_mobileloginformprops"
     },
     {
       "relation": "contains",
@@ -132762,9 +132762,9 @@
       "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_features_auth_components_mobile_mobileloginform",
-      "target": "src_features_auth_components_mobile_mobileloginform_mobileloginform",
-      "confidence_score": 1.0
+      "target": "src_features_auth_components_mobile_mobileloginform_mobileloginform"
     },
     {
       "relation": "contains",
@@ -142101,9 +142101,9 @@
       "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_shared_components_pageloader",
-      "target": "src_shared_components_pageloader_pageloader",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader_pageloader"
     },
     {
       "relation": "contains",
@@ -142112,9 +142112,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "src_shared_components_pageloader",
-      "target": "src_shared_components_pageloader_pageloaderprops",
-      "confidence_score": 1.0
+      "target": "src_shared_components_pageloader_pageloaderprops"
     },
     {
       "relation": "contains",
@@ -149863,5 +149863,5 @@
       "source_file": ".agents/rules/graphify.md"
     }
   ],
-  "built_at_commit": "9270af8a3e0b1c43e0e21dfdeb692e045993f826"
+  "built_at_commit": "8092bd911df3eff0d77f4a41b81852e8829fd622"
 }

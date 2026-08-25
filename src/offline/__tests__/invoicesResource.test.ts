@@ -69,7 +69,11 @@ describe('invoices resource sync delta mapping', () => {
       hasMore: false,
     });
 
-    await db.syncMeta.update('invoices', { cursor: 'cursor-1' });
+    await db.syncMeta.update('invoices', {
+      cursor: 'cursor-1',
+      lastPulledAt: '2026-08-21T10:00:00.000Z',
+      pullState: 'fresh',
+    });
 
     // 3. Pull delta
     const summary = await pullResource(invoicesResource, new AbortController().signal);

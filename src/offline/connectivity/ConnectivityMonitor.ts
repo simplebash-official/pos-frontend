@@ -219,8 +219,14 @@ export class ConnectivityMonitor {
     // Reachable but slow is its own state: sync works, just badly. Real API
     // traffic reports no latency, so those observations leave the current
     // verdict alone rather than pretending the connection is fast.
-    const isSlow = latencyMs !== null && latencyMs >= DEGRADED_LATENCY_MS;
-    this.transitionTo(isSlow ? 'degraded' : 'online');
+    if (latencyMs === null) {
+      if (this.snapshot.state !== 'degraded') {
+        this.transitionTo('online');
+      }
+    } else {
+      const isSlow = latencyMs >= DEGRADED_LATENCY_MS;
+      this.transitionTo(isSlow ? 'degraded' : 'online');
+    }
   }
 
   private recordFailure(): void {

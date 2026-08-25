@@ -1,7 +1,7 @@
 # Graph Report - frontend  (2026-08-25)
 
 ## Corpus Check
-- 640 files · ~345,194 words
+- 640 files · ~345,210 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9270af8a`
+- Built from commit: `8092bd91`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -50,7 +50,7 @@
 - products.resource.ts
 - investigation-brief.mjs
 - RepairJobList.tsx
-- constants/index.ts
+- EmployeeList.tsx
 - pull.ts
 - syncSlice.ts
 - schema.ts
@@ -131,7 +131,7 @@
 - Patterns
 - React Composition Patterns
 - collect-sub-agent-outputs.mjs
-- EmployeeList.tsx
+- constants/index.ts
 - React View Transitions
 - prepare-investigation-brief.mjs
 - observation-safety.mjs
@@ -421,15 +421,15 @@
   .github/workflows/deploy.yml → CLAUDE.md
 
 ## Import Cycles
+- 3-file cycle: `src/features/repairs/components/RepairJobList.tsx -> src/shared/lib/searchFields.ts -> src/features/repairs/index.ts -> src/features/repairs/components/RepairJobList.tsx`
 - 3-file cycle: `src/features/inventory/components/ProductPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductPickerModal.tsx`
 - 3-file cycle: `src/features/inventory/components/ProductTable.tsx -> src/shared/lib/searchFields.ts -> src/features/inventory/index.ts -> src/features/inventory/components/ProductTable.tsx`
-- 3-file cycle: `src/features/print-jobs/components/PrintJobList.tsx -> src/shared/lib/searchFields.ts -> src/features/print-jobs/index.ts -> src/features/print-jobs/components/PrintJobList.tsx`
-- 3-file cycle: `src/features/repairs/components/RepairJobList.tsx -> src/shared/lib/searchFields.ts -> src/features/repairs/index.ts -> src/features/repairs/components/RepairJobList.tsx`
-- 3-file cycle: `src/features/employees/components/EmployeeList.tsx -> src/shared/lib/searchFields.ts -> src/features/employees/index.ts -> src/features/employees/components/EmployeeList.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierList.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx`
 - 3-file cycle: `src/features/suppliers/components/SupplierPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierPickerModal.tsx`
+- 3-file cycle: `src/features/print-jobs/components/PrintJobList.tsx -> src/shared/lib/searchFields.ts -> src/features/print-jobs/index.ts -> src/features/print-jobs/components/PrintJobList.tsx`
 - 3-file cycle: `src/features/customers/components/CustomerList.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerList.tsx`
 - 3-file cycle: `src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/customers/index.ts -> src/features/customers/components/CustomerPickerModal.tsx`
+- 3-file cycle: `src/features/employees/components/EmployeeList.tsx -> src/shared/lib/searchFields.ts -> src/features/employees/index.ts -> src/features/employees/components/EmployeeList.tsx`
 - 4-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/billing/components/CatalogPanel.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 4-file cycle: `src/features/billing/components/BillingCounter.tsx -> src/features/customers/components/CustomerPickerModal.tsx -> src/shared/lib/searchFields.ts -> src/features/billing/index.ts -> src/features/billing/components/BillingCounter.tsx`
 - 4-file cycle: `src/features/suppliers/components/SupplierFormModal.tsx -> src/shared/lib/searchFields.ts -> src/features/suppliers/index.ts -> src/features/suppliers/components/SupplierList.tsx -> src/features/suppliers/components/SupplierFormModal.tsx`
@@ -585,9 +585,9 @@ Nodes (23): absoluteBriefPath(), briefRoots(), buildBrief(), cachePolicyGuidance
 Cohesion: 0.10
 Nodes (40): queryKeys, JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, JobStatus, SplitType, PrintJobFormModalProps, applyLocalPrintJobFilters() (+32 more)
 
-### Community 35 - "constants/index.ts"
-Cohesion: 0.19
-Nodes (8): STORAGE_KEYS, DEFAULT_PAGINATION, HELD_CART_REMINDER_MS, SKELETON_WIDTH_PATTERN, ColorScheme, initialState, themeSlice, ThemeState
+### Community 35 - "EmployeeList.tsx"
+Cohesion: 0.14
+Nodes (26): CURRENCY, DiscountPopoverProps, EmployeeDetailDrawerProps, EmployeeFormModal(), EmployeeFormModalProps, Employee, EMPLOYEE_ROLE_LABELS, EmployeeInput (+18 more)
 
 ### Community 36 - "pull.ts"
 Cohesion: 0.12
@@ -805,9 +805,9 @@ Nodes (16): 1.1 Avoid Boolean Prop Proliferation, 1.2 Use Compound Components, 1
 Cohesion: 0.24
 Nodes (16): collectInputFiles(), escapeRegExp(), extractFenceBlocks(), extractJsonValue(), findBalancedJsonSpans(), inferCandidateRefFromFile(), isRecordObject(), log() (+8 more)
 
-### Community 125 - "EmployeeList.tsx"
-Cohesion: 0.14
-Nodes (26): CURRENCY, DiscountPopoverProps, EmployeeDetailDrawerProps, EmployeeFormModal(), EmployeeFormModalProps, Employee, EMPLOYEE_ROLE_LABELS, EmployeeInput (+18 more)
+### Community 125 - "constants/index.ts"
+Cohesion: 0.19
+Nodes (8): STORAGE_KEYS, DEFAULT_PAGINATION, HELD_CART_REMINDER_MS, SKELETON_WIDTH_PATTERN, ColorScheme, initialState, themeSlice, ThemeState
 
 ### Community 126 - "React View Transitions"
 Cohesion: 0.12
@@ -1374,20 +1374,20 @@ Cohesion: 0.67
 Nodes (3): extractRows(), gate(), metadata
 
 ## Knowledge Gaps
-- **1336 isolated node(s):** `RequireAuthProps`, `MobileLoginFormProps`, `ThinkingOrbProps`, `Dot`, `Line` (+1331 more)
+- **1336 isolated node(s):** `ThinkingOrbProps`, `Dot`, `Line`, `OrbRenderData`, `OrbBaseOpts` (+1331 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **148 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useAppSelector` connect `useAppSelector` to `searchFields.ts`, `CreditNoteModal.tsx`, `SaleDocumentPreviewModal.tsx`, `syncSlice.ts`, `router.tsx`, `cartSlice.ts`, `ProductTable.tsx`, `useIsMobile`, `date.ts`, `SyncProvider.tsx`, `AppShell.tsx`, `authSlice.ts`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `useIsMobile()` connect `useIsMobile` to `useAppSelector`, `CreditNoteModal.tsx`, `SaleDocumentPreviewModal.tsx`, `CustomerList.tsx`, `router.tsx`, `useCategories.ts`, `authSlice.ts`, `products.resource.ts`, `RepairJobList.tsx`, `EmployeeList.tsx`, `syncSlice.ts`, `schema.ts`, `cartSlice.ts`, `ProductTable.tsx`, `date.ts`, `SupplierList.tsx`, `AppShell.tsx`, `searchFields.ts`, `AmountInput.tsx`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Why does `gates` connect `gates/index.mjs` to `support-topics.mjs`, `lib/render-report.mjs`, `gate-investigations.mjs`, `scanners/index.mjs`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
-- **Why does `useIsMobile()` connect `useIsMobile` to `useAppSelector`, `CreditNoteModal.tsx`, `SaleDocumentPreviewModal.tsx`, `CustomerList.tsx`, `router.tsx`, `useCategories.ts`, `authSlice.ts`, `products.resource.ts`, `RepairJobList.tsx`, `syncSlice.ts`, `schema.ts`, `cartSlice.ts`, `ProductTable.tsx`, `date.ts`, `SupplierList.tsx`, `AppShell.tsx`, `searchFields.ts`, `AmountInput.tsx`, `EmployeeList.tsx`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **What connects `RequireAuthProps`, `MobileLoginFormProps`, `ThinkingOrbProps` to the rest of the system?**
+- **Why does `scanners` connect `scanners/index.mjs` to `workspace-resolver.mjs`, `gates/index.mjs`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+- **What connects `ThinkingOrbProps`, `Dot`, `Line` to the rest of the system?**
   _1336 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `verify-claim.mjs` be split into smaller, more focused modules?**
   _Cohesion score 0.12550607287449392 - nodes in this community are weakly interconnected._

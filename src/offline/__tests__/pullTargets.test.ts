@@ -62,10 +62,6 @@ beforeEach(async () => {
 
 describe('a fresh install', () => {
   it('pulls every registered resource even though syncMeta is empty', async () => {
-    // The bug this exists for: the work list used to be derived from the rows
-    // already in `syncMeta`. On a new device that table is empty, so nothing
-    // was ever selected, the pass reported "all modules up to date", and the
-    // app downloaded nothing — permanently.
     await mockStatus({
       products: new Date().toISOString(),
       suppliers: new Date().toISOString(),
@@ -102,20 +98,32 @@ describe('watermark comparison', () => {
     }
   });
 
-  it('skips a resource the server reports as unchanged', async () => {
+  it('skips a resource the server reports as unchanged and updates lastPulledAt', async () => {
     await mockStatus({
       products: '2026-08-13T09:59:00.000Z',
       suppliers: '2026-08-13T09:59:00.000Z',
     });
 
-    expect(await resolvePullTargets(signal())).toEqual(new Set());
+    const targets = await resolvePullTargets(signal());
+    expect(targets).toEqual(new Set());
+
+    // Verified fresh resources update their lastPulledAt so they do not falsely turn out of date
+    const productMeta = await db.syncMeta.get('products');
+    expect(productMeta?.lastPulledAt).not.toBe(syncedAt);
+    expect(productMeta?.pullState).toBe('fresh');
+  });
+
+  it('forces all resources into worklist when force option is true', async () => {
+    await mockStatus({
+      products: '2026-08-13T09:59:00.000Z',
+      suppliers: '2026-08-13T09:59:00.000Z',
+    });
+
+    const targets = await resolvePullTargets(signal(), { force: true });
+    expect(targets).toEqual(new Set(['products', 'suppliers']));
   });
 
   it('pulls a resource whose server timestamp is newer despite a different format', async () => {
-    // The server emits RFC 3339 with an offset and sub-millisecond precision;
-    // the client stores `toISOString()`. Compared as strings, '4' sorts before
-    // 'Z', so a newer server time read as *older* and the resource was
-    // silently skipped forever.
     await mockStatus({
       products: '2026-08-13T10:00:00.123456789+00:00',
       suppliers: '2026-08-13T09:00:00.000000000+00:00',
@@ -124,10 +132,12 @@ describe('watermark comparison', () => {
     expect(await resolvePullTargets(signal())).toEqual(new Set(['products']));
   });
 
-  it('skips a resource the server has no rows for', async () => {
+  it('skips a resource the server has no rows for and refreshes its timestamp', async () => {
     await mockStatus({ products: '2026-08-13T11:00:00.000Z' });
 
     expect(await resolvePullTargets(signal())).toEqual(new Set(['products']));
+    const suppliersMeta = await db.syncMeta.get('suppliers');
+    expect(suppliersMeta?.lastPulledAt).not.toBe(syncedAt);
   });
 
   it('always pulls a resource that has never completed one', async () => {
