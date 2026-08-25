@@ -9,13 +9,16 @@ A point-of-sale system for a repair/retail shop (billing, repairs, print jobs, i
 ## Commands
 
 - `npm run dev` — start the Vite dev server
+- `npm run test` — run unit tests using Vitest
+- `npm run test:jest` — run unit tests using Jest
+- `npm run test:all` — run unit tests across both Vitest and Jest
 - `npm run format` — format code using Prettier
 - `npm run lint` — lint code using ESLint
 - `npm run type-check` — run TypeScript type checker (`tsc --noEmit`)
 - `npm run build` — type-check (`tsc`) then production build
 - `npm run preview` — preview the production build locally
 
-**After every change**, run `npm run format && npm run lint && npm run type-check && npm run build` and fix any errors reported before considering the work done.
+**After every change or new implementation**, create comprehensive Jest/Vitest unit tests for all modified and new parts, run `npm run test:all && npm run format && npm run lint && npm run type-check && npm run build`, and fix any errors reported before considering the work done.
 
 **Every UI change must be responsive** — verify it holds up across mobile, tablet, and desktop widths (the `AppShell` navbar already collapses at the `sm` breakpoint; follow that pattern rather than hard-coding fixed widths/pixel layouts). See **Responsive & mobile UI** below for the tiers, the hook to use, and the rules every new screen has to satisfy.
 
