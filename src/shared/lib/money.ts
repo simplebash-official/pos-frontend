@@ -33,8 +33,22 @@ export const formatMoney = (cents: number, includeSymbol = true): string => {
  */
 export const parseMoneyToCents = (input: string): number => {
   if (!input) return 0;
-  const cleanStr = input.replace(/[^0-9.-]/g, '');
-  const parsed = parseFloat(cleanStr);
+  const isNegative = input.includes('-');
+  const digitsAndDots = input.replace(/[^0-9.]/g, '');
+  if (!digitsAndDots) return 0;
+
+  const parts = digitsAndDots.split('.');
+  let normalized: string;
+  if (parts.length <= 1) {
+    normalized = parts[0] || '0';
+  } else {
+    const decimal = parts.pop() ?? '0';
+    const integerPart = parts.join('');
+    normalized = `${integerPart || '0'}.${decimal}`;
+  }
+
+  const parsed = parseFloat(normalized);
   if (isNaN(parsed)) return 0;
-  return toCents(parsed);
+  const cents = toCents(parsed);
+  return isNegative ? -Math.abs(cents) : cents;
 };
