@@ -77,12 +77,20 @@ export const LoginForm = () => {
         <Portal>
           <Overlay
             color="#000"
-            backgroundOpacity={0.65}
-            blur={4}
+            backgroundOpacity={0.7}
+            blur={5}
             zIndex={9999}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <PageLoader size={45} title="Signing in..." height="auto" />
+            <PageLoader
+              variant="orb"
+              orbState="connecting"
+              orbTheme="dark"
+              size={64}
+              title="Signing in..."
+              subtitle="Connecting to POS console..."
+              height="auto"
+            />
           </Overlay>
         </Portal>
       )}

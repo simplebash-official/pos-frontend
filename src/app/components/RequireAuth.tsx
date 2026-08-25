@@ -20,7 +20,16 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   const location = useLocation();
 
   if (!isInitialized || isLoading) {
-    return <PageLoader title="Authenticating session..." height="100vh" />;
+    return (
+      <PageLoader
+        variant="orb"
+        orbState="connecting"
+        size={72}
+        title="Authenticating session..."
+        subtitle="Connecting to Jana2U POS console"
+        height="100vh"
+      />
+    );
   }
 
   if (!isAuthenticated) {
