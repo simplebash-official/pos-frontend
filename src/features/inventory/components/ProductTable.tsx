@@ -77,9 +77,7 @@ import {
 } from '@/features/supplier-products/hooks/useSupplierProducts';
 import { usePurchasesByProduct, useCreatePurchase } from '@/features/purchases/hooks/usePurchases';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
-import { useAppSelector } from '@/store/hooks';
-import { selectUserRole } from '@/store/slices/authSlice';
-import { USER_ROLES } from '@/constants/roles';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { ProductCatalogTree } from './ProductCatalogTree';
 
@@ -107,8 +105,7 @@ const applyLocalProductFilters = (items: Product[], f: ProductFilters) =>
   items.filter((p) => !f.lowStock || p.stockQuantity <= p.minStockThreshold);
 
 export const ProductTable = () => {
-  const role = useAppSelector(selectUserRole);
-  const isAdmin = role === USER_ROLES.ADMIN;
+  const isAdmin = useIsAdmin();
   const isMobile = useIsMobile();
 
   const { data: initialProducts, isLoading, isFetching } = useAllProducts();

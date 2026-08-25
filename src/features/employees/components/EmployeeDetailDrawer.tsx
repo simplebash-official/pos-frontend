@@ -32,11 +32,15 @@ import {
   IconTrendingUp,
   IconCalculator,
   IconTag,
+  IconKey,
+  IconMail,
+  IconLock,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { Employee, EMPLOYEE_ROLE_LABELS, EmployeeEarningRecord } from '../types';
-import { fetchEmployeeEarnings } from '../api/mockEmployees';
-import { queryKeys } from '@/api/queryKeys';
+import { useEmployeeEarnings } from '../hooks/useEmployeeEarnings';
+import { CreateLoginModal } from '@/features/users/components/CreateLoginModal';
+import { PermissionGuard } from '@/shared/components/PermissionGuard';
+import { PERMISSIONS } from '@/constants/permissions';
 import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
@@ -60,20 +64,15 @@ export const EmployeeDetailDrawer = ({
 }: EmployeeDetailDrawerProps) => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<string>('history');
-  const [workTypeFilter, setWorkTypeFilter] = useState<'all' | 'repair' | 'print' | 'billing'>(
-    'all'
-  );
+  const [workTypeFilter, setWorkTypeFilter] = useState<'all' | 'repair' | 'print'>('all');
+  const [createLoginOpen, setCreateLoginOpen] = useState(false);
 
   const {
     data: earnings = [],
     isLoading: loadingEarnings,
     isPending: pendingEarnings,
     isFetching: fetchingEarnings,
-  } = useQuery({
-    queryKey: queryKeys.employees.earnings(employee?.id || ''),
-    queryFn: () => fetchEmployeeEarnings(employee?.id),
-    enabled: Boolean(employee?.id),
-  });
+  } = useEmployeeEarnings(employee?.key);
 
   const isEarningsLoading = loadingEarnings || pendingEarnings || fetchingEarnings || !earnings;
   const safeEarnings = useMemo(() => earnings ?? [], [earnings]);
@@ -297,6 +296,7 @@ export const EmployeeDetailDrawer = ({
                 History
               </Tabs.Tab>
               <Tabs.Tab value="rules">Split Rules</Tabs.Tab>
+              <Tabs.Tab value="login">Login</Tabs.Tab>
               <Tabs.Tab value="details">Details</Tabs.Tab>
             </Tabs.List>
           </Tabs>
@@ -317,9 +317,7 @@ export const EmployeeDetailDrawer = ({
                 {/* Work Type Filter */}
                 <SegmentedControl
                   value={workTypeFilter}
-                  onChange={(val) =>
-                    setWorkTypeFilter(val as 'all' | 'repair' | 'print' | 'billing')
-                  }
+                  onChange={(val) => setWorkTypeFilter(val as 'all' | 'repair' | 'print')}
                   data={[
                     { label: `All (${safeEarnings.length})`, value: 'all' },
                     {
@@ -329,10 +327,6 @@ export const EmployeeDetailDrawer = ({
                     {
                       label: `Prints (${safeEarnings.filter((e) => e.workType === 'print').length})`,
                       value: 'print',
-                    },
-                    {
-                      label: `Sales (${safeEarnings.filter((e) => e.workType === 'billing').length})`,
-                      value: 'billing',
                     },
                   ]}
                   fullWidth
@@ -369,22 +363,12 @@ export const EmployeeDetailDrawer = ({
                   >
                     <Stack gap={6} pt={2} pb={2} px={1}>
                       {filteredEarnings.map((rec: EmployeeEarningRecord) => {
-                        const WorkIcon =
-                          rec.workType === 'repair'
-                            ? IconHammer
-                            : rec.workType === 'print'
-                              ? IconPrinter
-                              : IconReceipt;
-                        const workColor =
-                          rec.workType === 'repair'
-                            ? 'orange'
-                            : rec.workType === 'print'
-                              ? 'teal'
-                              : 'blue';
+                        const WorkIcon = rec.workType === 'repair' ? IconHammer : IconPrinter;
+                        const workColor = rec.workType === 'repair' ? 'orange' : 'teal';
 
                         return (
                           <Paper
-                            key={rec.id}
+                            key={rec.workId}
                             p="xs"
                             withBorder
                             radius="var(--mantine-radius-default)"
@@ -583,7 +567,80 @@ export const EmployeeDetailDrawer = ({
             </Paper>
           )}
 
-          {/* TAB 3: Contact & Staff Details */}
+          {/* TAB 3: Login Access */}
+          {activeTab === 'login' && (
+            <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
+              <Stack gap="md">
+                {emp.login ? (
+                  <div>
+                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+                      Login Account
+                    </Text>
+                    <Paper
+                      p="md"
+                      withBorder
+                      bg="var(--mantine-color-body)"
+                      radius="var(--mantine-radius-default)"
+                    >
+                      <Stack gap="xs">
+                        <Group gap="xs">
+                          <IconMail size={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
+                          <Text size="sm" fw={600}>
+                            {emp.login.email}
+                          </Text>
+                        </Group>
+                        <Group gap="xs" wrap="wrap">
+                          <Badge color="blue" variant="light" size="sm">
+                            {emp.login.role}
+                          </Badge>
+                          <Badge
+                            color={emp.login.isActive ? 'green' : 'gray'}
+                            variant="light"
+                            size="sm"
+                          >
+                            {emp.login.isActive ? 'Active' : 'Deactivated'}
+                          </Badge>
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  </div>
+                ) : (
+                  <Paper
+                    p="md"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
+                    <Center py="sm">
+                      <Stack gap={8} align="center">
+                        <IconLock size={24} style={{ opacity: 0.4 }} />
+                        <Text size="xs" c="dimmed" ta="center">
+                          This employee does not have a login yet. Create one so they can sign in to
+                          the app.
+                        </Text>
+                        <PermissionGuard
+                          permissions={[PERMISSIONS.USERS_MANAGE, PERMISSIONS.USERS_MANAGE_STAFF]}
+                          fallback={null}
+                        >
+                          <Button
+                            variant="light"
+                            color="blue"
+                            size="xs"
+                            leftSection={<IconKey size={14} />}
+                            onClick={() => setCreateLoginOpen(true)}
+                          >
+                            Create Login
+                          </Button>
+                        </PermissionGuard>
+                      </Stack>
+                    </Center>
+                  </Paper>
+                )}
+              </Stack>
+            </Paper>
+          )}
+
+          {/* TAB 4: Contact & Staff Details */}
           {activeTab === 'details' && (
             <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
               <Stack gap="md">
@@ -715,6 +772,12 @@ export const EmployeeDetailDrawer = ({
               </Button>
             </Group>
           </Group>
+
+          <CreateLoginModal
+            opened={createLoginOpen}
+            onClose={() => setCreateLoginOpen(false)}
+            employee={emp}
+          />
         </Stack>
       )}
     </DetailDrawer>

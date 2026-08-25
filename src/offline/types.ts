@@ -20,6 +20,7 @@ export type SyncResourceId =
   | 'purchases'
   | 'stockMovements'
   | 'customers'
+  | 'employees'
   | 'invoices'
   | 'payments'
   | 'repairs'

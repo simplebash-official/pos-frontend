@@ -13,7 +13,6 @@ import {
   Alert,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useQuery } from '@tanstack/react-query';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import {
   IconUser,
@@ -23,8 +22,7 @@ import {
   IconAlertTriangle,
 } from '@tabler/icons-react';
 import { PrintJob, PrintJobInput } from '../types';
-import { fetchEmployees } from '@/features/employees/api/mockEmployees';
-import { queryKeys } from '@/api/queryKeys';
+import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
@@ -49,11 +47,7 @@ export const PrintJobFormModal = ({
   const isEditing = Boolean(jobToEdit);
   const isMobile = useIsMobile();
 
-  const { data: employees = [] } = useQuery({
-    queryKey: queryKeys.employees.all,
-    queryFn: fetchEmployees,
-    enabled: opened,
-  });
+  const { data: employees = [] } = useAllEmployees();
 
   const form = useForm<PrintJobFormValues>({
     initialValues: fromPrintJob(null),
@@ -82,10 +76,12 @@ export const PrintJobFormModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobToEdit, opened]);
 
-  const handleEmployeeChange = (employeeId: string) => {
-    const emp = employees.find((e) => e.id === employeeId);
+  const handleEmployeeChange = (employeeKey: string) => {
+    const emp = employees.find((e) => e.key === employeeKey);
     if (emp) {
-      form.setFieldValue('assignedEmployeeId', emp.id);
+      // The backend resolves `assignedEmployeeId` by business key, not the
+      // local mirror id — see `employees::service::get_employee_by_key`.
+      form.setFieldValue('assignedEmployeeId', emp.key);
       form.setFieldValue('assignedEmployeeName', emp.name);
       form.setFieldValue('splitType', emp.defaultSplitType);
       form.setFieldValue(
@@ -246,7 +242,7 @@ export const PrintJobFormModal = ({
                 data={[
                   { value: '', label: 'Unassigned (No Employee)' },
                   ...employees.map((e) => ({
-                    value: e.id,
+                    value: e.key,
                     label: `${e.name} (${e.role.toUpperCase()})`,
                   })),
                 ]}

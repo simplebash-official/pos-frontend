@@ -22,9 +22,7 @@ import type { Invoice, InvoiceItem } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { useAppSelector } from '@/store/hooks';
-import { selectAuthUser } from '@/store/slices/authSlice';
-import { USER_ROLES } from '@/constants/roles';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useCreateCreditNote } from '@/features/billing/hooks/useCreditNotes';
 import { syncEngine } from '@/offline/engine/SyncEngine';
@@ -87,8 +85,14 @@ export const CreditNoteModal = ({
   onCreditNoteSuccess,
 }: CreditNoteModalProps) => {
   const isMobile = useIsMobile();
-  const authUser = useAppSelector(selectAuthUser);
-  const isAdmin = authUser?.role === USER_ROLES.ADMIN;
+  // TODO: this override is Admin-only, but the copy at line ~434 tells the
+  // cashier "a manager needs to approve this" — the backend has no
+  // permission distinguishing "may override the return window" from Admin
+  // specifically (`POST /credit-notes` only requires `billing:write`), so
+  // this mismatch predates the permission-system migration and is left
+  // for a follow-up decision (extend to Manager, or fix the copy) rather
+  // than silently resolved here.
+  const isAdmin = useIsAdmin();
   const createCreditNoteMutation = useCreateCreditNote();
   const { data: products } = useAllProducts();
 

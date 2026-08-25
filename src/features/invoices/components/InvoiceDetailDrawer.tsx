@@ -61,9 +61,7 @@ const CreditNoteModal = lazy(() =>
     default: m.CreditNoteModal,
   }))
 );
-import { useAppSelector } from '@/store/hooks';
-import { selectAuthUser } from '@/store/slices/authSlice';
-import { USER_ROLES } from '@/constants/roles';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 
 export interface InvoiceDetailDrawerProps {
   opened: boolean;
@@ -111,8 +109,7 @@ export const InvoiceDetailDrawer = ({
   const recordPaymentMutation = useRecordPayment();
   const voidInvoiceMutation = useVoidInvoice();
   const closeInvoiceMutation = useCloseInvoice();
-  const authUser = useAppSelector(selectAuthUser);
-  const isAdmin = authUser?.role === USER_ROLES.ADMIN;
+  const isAdmin = useIsAdmin();
 
   const totalPaidCents = payments.reduce((sum, p) => sum + p.amountCents, 0);
   const remainingCents = invoice ? Math.max(0, invoice.totalCents - totalPaidCents) : 0;

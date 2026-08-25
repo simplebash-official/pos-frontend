@@ -10,15 +10,20 @@ import {
   IconUserCheck,
   IconChartBar,
   IconSettings,
+  IconKey,
 } from '@tabler/icons-react';
-import { ROUTES } from '@/constants';
+import { ROUTES, PERMISSIONS } from '@/constants';
+import type { Permission } from '@/constants/permissions';
 
 export interface NavItemConfig {
   label: string;
   icon: ComponentType<{ size?: number | string; stroke?: number | string }>;
   to: string;
   color: string;
+  /** Reserved for routes backed by the backend's `AdminUser` extractor (e.g. Suppliers). */
   adminOnly?: boolean;
+  /** OR semantics — any one of these grants visibility. For routes backed by a permission check. */
+  requiredPermissions?: Permission[];
   badgeCountKey?: 'lowStock';
   description?: string;
   subItems?: NavItemConfig[];
@@ -96,6 +101,14 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         icon: IconUserCheck,
         to: ROUTES.EMPLOYEES,
         color: 'indigo',
+        requiredPermissions: [PERMISSIONS.EMPLOYEES_READ],
+      },
+      {
+        label: 'Login Accounts',
+        icon: IconKey,
+        to: ROUTES.ACCOUNTS,
+        color: 'indigo',
+        requiredPermissions: [PERMISSIONS.USERS_MANAGE, PERMISSIONS.USERS_MANAGE_STAFF],
       },
     ],
   },
@@ -108,6 +121,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         icon: IconChartBar,
         to: ROUTES.REPORTS,
         color: 'green',
+        requiredPermissions: [PERMISSIONS.REPORTS_VIEW],
       },
     ],
   },

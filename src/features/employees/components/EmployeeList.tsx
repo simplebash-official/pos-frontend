@@ -33,7 +33,6 @@ import {
   IconLayoutGrid,
   IconList,
 } from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -45,35 +44,23 @@ import { MetricCardRow } from '@/shared/components/MetricCard';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
 import { Employee, EmployeeInput, EMPLOYEE_ROLE_LABELS } from '../types';
 import {
-  fetchEmployees,
-  createEmployee,
-  updateEmployee,
-  deleteEmployee,
-  deleteEmployees,
-} from '../api/mockEmployees';
+  useAllEmployees,
+  useCreateEmployee,
+  useUpdateEmployee,
+  useDeleteEmployee,
+  useDeleteEmployees,
+} from '../hooks/useEmployees';
 import { EmployeeFormModal } from './EmployeeFormModal';
 import { EmployeeDetailDrawer } from './EmployeeDetailDrawer';
-import { queryKeys } from '@/api/queryKeys';
+import { syncEngine } from '@/offline/engine/SyncEngine';
 import { formatMoney } from '@/shared/lib/money';
-import { RoleGuard } from '@/shared/components/RoleGuard';
-import { USER_ROLES } from '@/constants/roles';
+import { PermissionGuard } from '@/shared/components/PermissionGuard';
+import { PERMISSIONS } from '@/constants/permissions';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { EMPLOYEE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 export const EmployeeList = () => {
-  const queryClient = useQueryClient();
-
-  const {
-    data: employees = [],
-    isLoading,
-    isPending,
-    isFetching,
-    refetch,
-  } = useQuery({
-    queryKey: queryKeys.employees.all,
-    queryFn: fetchEmployees,
-  });
-  const isEmployeesLoading = isLoading || isPending || isFetching;
+  const { data: employees = [], isLoading: isEmployeesLoading, isFetching } = useAllEmployees();
 
   const [search, setSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
@@ -84,64 +71,10 @@ export const EmployeeList = () => {
   const [selectedEmployeeForDrawer, setSelectedEmployeeForDrawer] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
-  const createMutation = useMutation({
-    mutationFn: createEmployee,
-    onSuccess: (newEmp) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.allEarnings() });
-      notifications.show({
-        title: 'Employee Registered',
-        message: `Saved ${newEmp.name} to employee directory`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: Partial<EmployeeInput> }) =>
-      updateEmployee(id, input),
-    onSuccess: (updatedEmp) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.allEarnings() });
-      notifications.show({
-        title: 'Employee Updated',
-        message: `Updated details for ${updatedEmp.name}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteEmployee,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.allEarnings() });
-      notifications.show({
-        title: 'Employee Deleted',
-        message: 'Employee record removed successfully',
-        color: 'blue',
-      });
-      if (selectedEmployeeForDrawer?.id === employeeToDelete?.id) {
-        setSelectedEmployeeForDrawer(null);
-      }
-      setEmployeeToDelete(null);
-    },
-  });
-
-  const deleteBatchMutation = useMutation({
-    mutationFn: deleteEmployees,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.employees.allEarnings() });
-      notifications.show({
-        title: 'Employees Deleted',
-        message: 'Selected employee records removed successfully',
-        color: 'blue',
-      });
-    },
-  });
+  const createMutation = useCreateEmployee();
+  const updateMutation = useUpdateEmployee();
+  const deleteMutation = useDeleteEmployee();
+  const deleteBatchMutation = useDeleteEmployees();
 
   const roleFilteredEmployees = useMemo(() => {
     if (!selectedRole) return employees;
@@ -167,15 +100,39 @@ export const EmployeeList = () => {
 
   const handleFormSubmit = async (values: EmployeeInput) => {
     if (employeeToEdit) {
-      await updateMutation.mutateAsync({ id: employeeToEdit.id, input: values });
+      const updated = await updateMutation.mutateAsync({
+        employeeKey: employeeToEdit.id,
+        input: values,
+      });
+      notifications.show({
+        title: 'Employee Updated',
+        message: `Updated details for ${updated.name}`,
+        color: 'teal',
+        icon: <IconCheck size={16} />,
+      });
     } else {
-      await createMutation.mutateAsync(values);
+      const created = await createMutation.mutateAsync(values);
+      notifications.show({
+        title: 'Employee Registered',
+        message: `Saved ${created.name} to employee directory`,
+        color: 'green',
+        icon: <IconCheck size={16} />,
+      });
     }
   };
 
   const handleConfirmDelete = async () => {
     if (employeeToDelete) {
-      await deleteMutation.mutateAsync(employeeToDelete.id);
+      await deleteMutation.mutateAsync({ employeeKey: employeeToDelete.id });
+      notifications.show({
+        title: 'Employee Deleted',
+        message: 'Employee record removed successfully',
+        color: 'blue',
+      });
+      if (selectedEmployeeForDrawer?.id === employeeToDelete.id) {
+        setSelectedEmployeeForDrawer(null);
+      }
+      setEmployeeToDelete(null);
     }
   };
 
@@ -236,8 +193,8 @@ export const EmployeeList = () => {
         return direction === 'asc' ? valA - valB : valB - valA;
       },
       render: (e) => (
-        <RoleGuard
-          allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.CASHIER]}
+        <PermissionGuard
+          permissions={[PERMISSIONS.EMPLOYEES_WRITE]}
           fallback={
             <Text size="xs" c="dimmed">
               Restricted
@@ -253,7 +210,7 @@ export const EmployeeList = () => {
               ? `${e.defaultSplitValue}% Profit`
               : formatMoney(e.defaultSplitValue)}
           </Badge>
-        </RoleGuard>
+        </PermissionGuard>
       ),
     },
     {
@@ -315,7 +272,7 @@ export const EmployeeList = () => {
                 variant="light"
                 leftSection={<IconRefresh size={14} />}
                 loading={isFetching}
-                onClick={() => void refetch()}
+                onClick={() => void syncEngine.syncNow()}
               >
                 Refresh List
               </Button>
@@ -422,11 +379,11 @@ export const EmployeeList = () => {
             data={filteredEmployees}
             columns={columns}
             keyExtractor={(e) => e.id}
-            loading={isLoading}
+            loading={isEmployeesLoading}
             onRowClick={(e) => setSelectedEmployeeForDrawer(e)}
-            onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync(ids)}
+            onDeleteSelected={(ids) => deleteBatchMutation.mutateAsync({ employeeKeys: ids })}
           />
-        ) : isLoading ? (
+        ) : isEmployeesLoading ? (
           <Grid gap="md">
             {Array.from({ length: 6 }, (_, i) => (
               <Grid.Col key={`emp-skel-${i}`} span={{ base: 12, sm: 6, lg: 4 }}>
@@ -551,7 +508,10 @@ export const EmployeeList = () => {
                       </Text>
 
                       <Group gap="xs">
-                        <RoleGuard allowedRoles={[USER_ROLES.ADMIN]} fallback={null}>
+                        <PermissionGuard
+                          permissions={[PERMISSIONS.EMPLOYEES_WRITE]}
+                          fallback={null}
+                        >
                           <Tooltip label="Edit Employee" withArrow>
                             <ActionIcon
                               variant="subtle"
@@ -572,7 +532,7 @@ export const EmployeeList = () => {
                               <IconTrash size={16} />
                             </ActionIcon>
                           </Tooltip>
-                        </RoleGuard>
+                        </PermissionGuard>
                       </Group>
                     </Group>
                   </Stack>

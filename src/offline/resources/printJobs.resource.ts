@@ -1,10 +1,5 @@
 import { queryKeys } from '@/api/queryKeys';
 import {
-  addEarningRecord,
-  deleteEarningRecordsForWork,
-  updateEarningRecordForWork,
-} from '@/features/employees/api/mockEmployees';
-import {
   calculatePrintEarnings,
   createPrintJobRaw,
   deletePrintJobsRaw,
@@ -28,58 +23,6 @@ export interface UpdatePrintJobPayload {
 export interface DeletePrintJobsPayload {
   printJobKeys: string[];
 }
-
-/**
- * Same seam as `repairs.resource.ts`: the commission ledger has no backend
- * of its own, so it stays a client-side side-effect, but moves into `push`
- * (after the server call succeeds) rather than `localApply`.
- */
-const creditCommission = async (job: PrintJob): Promise<void> => {
-  if (!job.assignedEmployeeId || !job.assignedEmployeeName || !job.employeeEarningsCents) {
-    return;
-  }
-  const profit = Math.max(0, job.estimatedCostCents - (job.materialCostCents || 0));
-  await addEarningRecord({
-    employeeId: job.assignedEmployeeId,
-    employeeName: job.assignedEmployeeName,
-    workId: job.id,
-    ticketOrInvoiceNumber: job.ticketNumber,
-    workType: 'print',
-    description: `${job.jobType.toUpperCase()} x${job.quantity}`,
-    customerName: job.customerName,
-    totalAmountCents: job.estimatedCostCents,
-    costCents: job.materialCostCents,
-    profitCents: profit,
-    splitType: job.splitType || 'percentage',
-    splitValue: job.splitValue || 0,
-    earnedAmountCents: job.employeeEarningsCents,
-    status: job.status === 'delivered' ? 'completed' : 'pending',
-  });
-};
-
-const updateCommission = async (job: PrintJob): Promise<void> => {
-  if (job.assignedEmployeeId && job.assignedEmployeeName) {
-    const profit = Math.max(0, job.estimatedCostCents - (job.materialCostCents || 0));
-    await updateEarningRecordForWork(job.id, 'print', {
-      employeeId: job.assignedEmployeeId,
-      employeeName: job.assignedEmployeeName,
-      workId: job.id,
-      ticketOrInvoiceNumber: job.ticketNumber,
-      workType: 'print',
-      description: `${job.jobType.toUpperCase()} x${job.quantity}`,
-      customerName: job.customerName,
-      totalAmountCents: job.estimatedCostCents,
-      costCents: job.materialCostCents,
-      profitCents: profit,
-      splitType: job.splitType || 'percentage',
-      splitValue: job.splitValue || 0,
-      earnedAmountCents: job.employeeEarningsCents || 0,
-      status: job.status === 'delivered' ? 'completed' : 'pending',
-    });
-  } else {
-    await deleteEarningRecordsForWork([job.id], 'print');
-  }
-};
 
 export const printJobsResource = defineSyncResource<PrintJob>({
   id: 'printJobs',
@@ -139,7 +82,6 @@ export const printJobsResource = defineSyncResource<PrintJob>({
       },
       push: async (input, _op, ctx) => {
         const created = await createPrintJobRaw(input, pushOptions(ctx));
-        await creditCommission(created);
         return {
           serverEntity: created,
           removesRows: false,
@@ -164,7 +106,6 @@ export const printJobsResource = defineSyncResource<PrintJob>({
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.printJobKey, 'printJobs');
         const updated = await updatePrintJobRaw(id, payload.input, pushOptions(ctx));
-        await updateCommission(updated);
         return { serverEntity: updated, removesRows: false, identity: null, followUp: [] };
       },
     }),
@@ -186,7 +127,6 @@ export const printJobsResource = defineSyncResource<PrintJob>({
       push: async (payload, _op, ctx) => {
         const ids = payload.printJobKeys.map((key) => ctx.resolveId(key, 'printJobs'));
         await deletePrintJobsRaw(ids, pushOptions(ctx));
-        await deleteEarningRecordsForWork(ids, 'print');
         return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),

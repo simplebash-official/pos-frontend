@@ -1,10 +1,5 @@
 import { queryKeys } from '@/api/queryKeys';
 import {
-  addEarningRecord,
-  deleteEarningRecordsForWork,
-  updateEarningRecordForWork,
-} from '@/features/employees/api/mockEmployees';
-import {
   calculateRepairEarnings,
   createRepairJobRaw,
   deleteRepairsRaw,
@@ -28,67 +23,6 @@ export interface UpdateRepairPayload {
 export interface DeleteRepairsPayload {
   repairKeys: string[];
 }
-
-/**
- * The commission ledger (`mockEmployees.ts`) has no backend of its own —
- * see `frontend/CLAUDE.md`'s employees note. It stays a client-side
- * side-effect, but moves from `repairsApi.ts`'s exported functions (the old
- * pre-sync shape) into `push`, run only after the real server call
- * succeeds — never in `localApply`. Commission is only credited once the
- * ticket is server-confirmed, so a failed flush never needs a compensating
- * delete.
- */
-const creditCommission = async (job: RepairJob): Promise<void> => {
-  if (
-    job.estimatedCostCents === undefined ||
-    !job.assignedEmployeeId ||
-    !job.assignedEmployeeName ||
-    !job.employeeEarningsCents
-  ) {
-    return;
-  }
-  const profit = Math.max(0, job.estimatedCostCents - (job.materialCostCents || 0));
-  await addEarningRecord({
-    employeeId: job.assignedEmployeeId,
-    employeeName: job.assignedEmployeeName,
-    workId: job.id,
-    ticketOrInvoiceNumber: job.ticketNumber,
-    workType: 'repair',
-    description: `${job.deviceModel} - ${job.issueDescription}`,
-    customerName: job.customerName,
-    totalAmountCents: job.estimatedCostCents,
-    costCents: job.materialCostCents,
-    profitCents: profit,
-    splitType: job.splitType || 'percentage',
-    splitValue: job.splitValue || 0,
-    earnedAmountCents: job.employeeEarningsCents,
-    status: job.status === 'delivered' ? 'completed' : 'pending',
-  });
-};
-
-const updateCommission = async (job: RepairJob): Promise<void> => {
-  if (job.estimatedCostCents !== undefined && job.assignedEmployeeId && job.assignedEmployeeName) {
-    const profit = Math.max(0, job.estimatedCostCents - (job.materialCostCents || 0));
-    await updateEarningRecordForWork(job.id, 'repair', {
-      employeeId: job.assignedEmployeeId,
-      employeeName: job.assignedEmployeeName,
-      workId: job.id,
-      ticketOrInvoiceNumber: job.ticketNumber,
-      workType: 'repair',
-      description: `${job.deviceModel} - ${job.issueDescription}`,
-      customerName: job.customerName,
-      totalAmountCents: job.estimatedCostCents,
-      costCents: job.materialCostCents,
-      profitCents: profit,
-      splitType: job.splitType || 'percentage',
-      splitValue: job.splitValue || 0,
-      earnedAmountCents: job.employeeEarningsCents || 0,
-      status: job.status === 'delivered' ? 'completed' : 'pending',
-    });
-  } else {
-    await deleteEarningRecordsForWork([job.id], 'repair');
-  }
-};
 
 export const repairsResource = defineSyncResource<RepairJob>({
   id: 'repairs',
@@ -154,7 +88,6 @@ export const repairsResource = defineSyncResource<RepairJob>({
       },
       push: async (input, _op, ctx) => {
         const created = await createRepairJobRaw(input, pushOptions(ctx));
-        await creditCommission(created);
         return {
           serverEntity: created,
           removesRows: false,
@@ -179,7 +112,6 @@ export const repairsResource = defineSyncResource<RepairJob>({
       push: async (payload, _op, ctx) => {
         const id = ctx.resolveId(payload.repairKey, 'repairs');
         const updated = await updateRepairJobRaw(id, payload.input, pushOptions(ctx));
-        await updateCommission(updated);
         return { serverEntity: updated, removesRows: false, identity: null, followUp: [] };
       },
     }),
@@ -201,7 +133,6 @@ export const repairsResource = defineSyncResource<RepairJob>({
       push: async (payload, _op, ctx) => {
         const ids = payload.repairKeys.map((key) => ctx.resolveId(key, 'repairs'));
         await deleteRepairsRaw(ids, pushOptions(ctx));
-        await deleteEarningRecordsForWork(ids, 'repair');
         return { serverEntity: null, removesRows: true, identity: null, followUp: [] };
       },
     }),

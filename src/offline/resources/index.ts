@@ -1,6 +1,7 @@
 import { registerSyncResource } from '../registry/registry';
 import { categoriesResource } from './categories.resource';
 import { customersResource } from './customers.resource';
+import { employeesResource } from './employees.resource';
 import { invoicesResource } from './invoices.resource';
 import { paymentsResource } from './payments.resource';
 import { productsResource } from './products.resource';
@@ -36,6 +37,7 @@ export const registerSyncResources = (): void => {
   registerSyncResource(categoriesResource);
   registerSyncResource(suppliersResource);
   registerSyncResource(customersResource);
+  registerSyncResource(employeesResource);
   registerSyncResource(productsResource);
   registerSyncResource(supplierProductsResource);
   registerSyncResource(purchasesResource);

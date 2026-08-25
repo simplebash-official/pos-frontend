@@ -12,7 +12,20 @@ import { connectivityMonitor } from './ConnectivityMonitor';
  * `setEventListener()` replaces the default listener wholesale, so this must
  * run exactly once — done here via a side-effect import evaluated at module
  * load, which ES modules guarantee happens only once per session.
+ *
+ * Deliberately `snapshot.state !== 'offline'` rather than
+ * `connectivityMonitor.isOnline()` (which is `false` for `'checking'` too):
+ * `subscribe()` replays synchronously, and this bridge is wired up before
+ * `connectivityMonitor.start()`'s first probe has resolved, so the very
+ * first call would otherwise pause every plain `useQuery` in the app the
+ * instant it mounts — before a single request has even been attempted —
+ * and some of those queries never got un-paused again once the real
+ * verdict came in. `ConnectivityMonitor` itself is pessimistic-first
+ * ("bad news immediate, good news needs a settle window"); for *this*
+ * purpose that should flip: treat "not yet proven offline" as online and
+ * let a real failed request (via `apiClient`'s interceptor) be what
+ * eventually pauses queries, never the *absence* of a verdict yet.
  */
 onlineManager.setEventListener((setOnline) =>
-  connectivityMonitor.subscribe(() => setOnline(connectivityMonitor.isOnline()))
+  connectivityMonitor.subscribe((snapshot) => setOnline(snapshot.state !== 'offline'))
 );

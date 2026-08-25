@@ -9,6 +9,12 @@ export interface RequireAdminProps {
   children: ReactNode;
 }
 
+/**
+ * Route guard for anything backed by the backend's `AdminUser` extractor
+ * (e.g. Suppliers, which requires Admin on every route including reads —
+ * not just a permission). For a route backed by `require_permission`/
+ * `require_any_permission` instead, use `RequirePermission`.
+ */
 export const RequireAdmin = ({ children }: RequireAdminProps) => {
   const role = useAppSelector(selectUserRole);
 

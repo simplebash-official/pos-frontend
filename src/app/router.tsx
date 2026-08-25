@@ -4,12 +4,14 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppShell } from './layout/AppShell';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
+import { RequirePermission } from './components/RequirePermission';
 import { GuestOnly } from './components/GuestOnly';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
 import { BillingPageSkeleton } from '@/shared/components/BillingPageSkeleton';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { NotFoundPage } from '@/shared/components/NotFoundPage';
 import { ROUTES, ROUTE_PATHS } from '@/constants';
+import { PERMISSIONS } from '@/constants/permissions';
 
 // Code-split features using direct dynamic imports (avoids barrel re-export bloat)
 const BillingCounter = lazy(() =>
@@ -37,6 +39,9 @@ const SupplierList = lazy(() =>
 );
 const EmployeeList = lazy(() =>
   import('@/features/employees/components/EmployeeList').then((m) => ({ default: m.EmployeeList }))
+);
+const UsersList = lazy(() =>
+  import('@/features/users/components/UsersList').then((m) => ({ default: m.UsersList }))
 );
 const ReportsDashboard = lazy(() =>
   import('@/features/reports/components/ReportsDashboard').then((m) => ({
@@ -132,9 +137,23 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.EMPLOYEES,
         element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <EmployeeList />
-          </Suspense>
+          <RequirePermission permissions={[PERMISSIONS.EMPLOYEES_READ]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <EmployeeList />
+            </Suspense>
+          </RequirePermission>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.ACCOUNTS,
+        element: (
+          <RequirePermission
+            permissions={[PERMISSIONS.USERS_MANAGE, PERMISSIONS.USERS_MANAGE_STAFF]}
+          >
+            <Suspense fallback={<PageSkeleton />}>
+              <UsersList />
+            </Suspense>
+          </RequirePermission>
         ),
       },
       {

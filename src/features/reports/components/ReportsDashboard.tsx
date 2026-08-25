@@ -23,79 +23,48 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { formatMoney } from '@/shared/lib/money';
-import { fetchEmployees, fetchAllEmployeeEarnings } from '@/features/employees/api/mockEmployees';
+import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
+import { fetchEmployeeCommissions } from '@/features/reports/api/reportsApi';
 import { queryKeys } from '@/api/queryKeys';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
 
 export const ReportsDashboard = () => {
-  const {
-    data: employees,
-    isLoading: isLoadingEmployees,
-    isPending: isPendingEmployees,
-  } = useQuery({
-    queryKey: queryKeys.employees.all,
-    queryFn: fetchEmployees,
-  });
+  const { data: employees, isLoading: isLoadingEmployees } = useAllEmployees();
 
   const {
-    data: earnings,
-    isLoading: isLoadingEarnings,
-    isPending: isPendingEarnings,
+    data: commissionsReport,
+    isLoading: isLoadingCommissions,
+    isPending: isPendingCommissions,
   } = useQuery({
     queryKey: queryKeys.employees.allEarnings(),
-    queryFn: () => fetchAllEmployeeEarnings(),
+    queryFn: fetchEmployeeCommissions,
   });
 
   const isLoading =
-    ((isLoadingEmployees || isPendingEmployees) && !employees) ||
-    ((isLoadingEarnings || isPendingEarnings) && !earnings);
+    isLoadingEmployees || ((isLoadingCommissions || isPendingCommissions) && !commissionsReport);
 
   const { totalCommissionsCents, employeePerformance } = useMemo(() => {
     const safeEmployees = employees ?? [];
-    const safeEarnings = earnings ?? [];
-    let commissionsCents = 0;
-    const earningsByEmployee = new Map<
-      string,
-      { jobsCount: number; revCents: number; profitCents: number; earnedSplitCents: number }
-    >();
+    const entries = commissionsReport?.employees ?? [];
+    const employeesByKey = new Map(safeEmployees.map((emp) => [emp.key, emp]));
 
-    for (const e of safeEarnings) {
-      commissionsCents += e.earnedAmountCents;
-      const existing = earningsByEmployee.get(e.employeeId) ?? {
-        jobsCount: 0,
-        revCents: 0,
-        profitCents: 0,
-        earnedSplitCents: 0,
-      };
-      existing.jobsCount += 1;
-      existing.revCents += e.totalAmountCents;
-      existing.profitCents += e.profitCents;
-      existing.earnedSplitCents += e.earnedAmountCents;
-      earningsByEmployee.set(e.employeeId, existing);
-    }
-
-    const performance = safeEmployees.map((emp) => {
-      const stats = earningsByEmployee.get(emp.id) ?? {
-        jobsCount: 0,
-        revCents: 0,
-        profitCents: 0,
-        earnedSplitCents: 0,
-      };
-      return {
-        employee: emp,
-        jobsCount: stats.jobsCount,
-        revCents: stats.revCents,
-        profitCents: stats.profitCents,
-        earnedSplitCents: stats.earnedSplitCents,
-        netShopContributionCents: Math.max(0, stats.profitCents - stats.earnedSplitCents),
-      };
-    });
+    const performance = entries
+      .filter((entry) => entry.employeeKey)
+      .map((entry) => ({
+        employee: employeesByKey.get(entry.employeeKey as string),
+        employeeName: entry.employeeName,
+        role: entry.role,
+        jobsCount: entry.assignedJobsCount,
+        revCents: entry.revenueGeneratedCents,
+        earnedSplitCents: entry.earnedCommissionCents,
+        netShopContributionCents: entry.netShopContributionCents,
+      }));
 
     return {
-      totalCommissionsCents: commissionsCents,
+      totalCommissionsCents: commissionsReport?.totalCommissionsCents ?? 0,
       employeePerformance: performance,
     };
-  }, [employees, earnings]);
+  }, [employees, commissionsReport]);
 
   const stats = useMemo(() => {
     const totalRevenueCents = 20750000; // LKR 207,500 total
@@ -221,40 +190,49 @@ export const ReportsDashboard = () => {
                 : employeePerformance.map(
                     ({
                       employee,
+                      employeeName,
+                      role,
                       jobsCount,
                       revCents,
                       earnedSplitCents,
                       netShopContributionCents,
                     }) => (
-                      <Table.Tr key={employee.id}>
+                      <Table.Tr key={employee?.key ?? employeeName}>
                         <Table.Td>
                           <div>
                             <Text size="sm" fw={700}>
-                              {employee.name}
+                              {employeeName}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              {EMPLOYEE_ROLE_LABELS[employee.role]}
+                              {EMPLOYEE_ROLE_LABELS[role as keyof typeof EMPLOYEE_ROLE_LABELS] ??
+                                role}
                             </Text>
                           </div>
                         </Table.Td>
                         <Table.Td ta="center">
-                          <Badge
-                            size="xs"
-                            variant="light"
-                            color={employee.defaultSplitType === 'percentage' ? 'indigo' : 'teal'}
-                          >
-                            {employee.defaultSplitType === 'percentage' ? (
-                              <Group gap={2}>
-                                <IconPercentage size={12} />
-                                <span>{employee.defaultSplitValue}% Profit</span>
-                              </Group>
-                            ) : (
-                              <Group gap={2}>
-                                <IconCoin size={12} />
-                                <span>{formatMoney(employee.defaultSplitValue)} Fixed</span>
-                              </Group>
-                            )}
-                          </Badge>
+                          {employee ? (
+                            <Badge
+                              size="xs"
+                              variant="light"
+                              color={employee.defaultSplitType === 'percentage' ? 'indigo' : 'teal'}
+                            >
+                              {employee.defaultSplitType === 'percentage' ? (
+                                <Group gap={2}>
+                                  <IconPercentage size={12} />
+                                  <span>{employee.defaultSplitValue}% Profit</span>
+                                </Group>
+                              ) : (
+                                <Group gap={2}>
+                                  <IconCoin size={12} />
+                                  <span>{formatMoney(employee.defaultSplitValue)} Fixed</span>
+                                </Group>
+                              )}
+                            </Badge>
+                          ) : (
+                            <Text size="xs" c="dimmed">
+                              —
+                            </Text>
+                          )}
                         </Table.Td>
                         <Table.Td ta="right">
                           <Text size="sm" fw={600}>
