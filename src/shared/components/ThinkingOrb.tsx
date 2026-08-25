@@ -402,18 +402,20 @@ export const ThinkingOrb = ({
 }: ThinkingOrbProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mantineColorScheme = useComputedColorScheme('light');
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
   const defaultLabel = DEFAULT_LABELS[state] || 'Connecting...';
 
   // Determine effective theme (dark vs light)
   const isDark =
     theme === 'dark' ? true : theme === 'light' ? false : mantineColorScheme === 'dark';
 
-  // Check prefers-reduced-motion
+  // Listen to prefers-reduced-motion changes
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
