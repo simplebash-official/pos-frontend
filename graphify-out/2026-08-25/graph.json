@@ -1904,7 +1904,7 @@
       "_origin": "ast",
       "id": "src_features_billing_api_paymentsapi_backendpaymentrecord",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "backendpaymentrecord"
     },
     {
@@ -1917,7 +1917,7 @@
       "_origin": "ast",
       "id": "src_features_billing_api_paymentsapi_paymentrecord",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "paymentrecord"
     },
     {
@@ -1930,7 +1930,7 @@
       "_origin": "ast",
       "id": "src_features_billing_api_paymentsapi_recordpaymentinput",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "recordpaymentinput"
     },
     {
@@ -1943,7 +1943,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_payments_resource_recordpaymentpayload",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "recordpaymentpayload"
     },
     {
@@ -5245,7 +5245,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_supplierlistparams",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "supplierlistparams"
     },
     {
@@ -5258,7 +5258,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_suppliers_resource_deletesupplierpayload",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "deletesupplierpayload"
     },
     {
@@ -5271,7 +5271,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_suppliers_resource_deletesupplierspayload",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "deletesupplierspayload"
     },
     {
@@ -6927,42 +6927,6 @@
       "norm_label": "splitcustomersafeobservations()"
     },
     {
-      "label": "buildFinalReportMessage()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
-      "source_location": "L224",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_render_report_buildfinalreportmessage",
-      "community": 119,
-      "community_name": "scripts/render-report.mjs",
-      "norm_label": "buildfinalreportmessage()"
-    },
-    {
-      "label": "extractCoverageLine()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
-      "source_location": "L296",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_render_report_extractcoverageline",
-      "community": 119,
-      "community_name": "scripts/render-report.mjs",
-      "norm_label": "extractcoverageline()"
-    },
-    {
-      "label": "stripDetailsLink()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
-      "source_location": "L301",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_render_report_stripdetailslink",
-      "community": 119,
-      "community_name": "scripts/render-report.mjs",
-      "norm_label": "stripdetailslink()"
-    },
-    {
       "label": "buildDebugArtifact()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/scripts/render-report.mjs",
@@ -7971,16 +7935,16 @@
       "norm_label": "updatecustomer()"
     },
     {
-      "label": "pushOptions()",
+      "label": "markPending()",
       "file_type": "code",
-      "source_file": "src/offline/resources/pushOptions.ts",
-      "source_location": "L12",
+      "source_file": "src/offline/db/mirror.ts",
+      "source_location": "L63",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_offline_resources_pushoptions_pushoptions",
+      "id": "src_offline_db_mirror_markpending",
       "community": 125,
       "community_name": "customers.resource.ts",
-      "norm_label": "pushoptions()"
+      "norm_label": "markpending()"
     },
     {
       "label": "citationSubset()",
@@ -8905,6 +8869,18 @@
       "community": 144,
       "community_name": "lib/budget-summary.mjs",
       "norm_label": "renderbudgetsummarymarkdown()"
+    },
+    {
+      "label": "formatCandidateLine()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/display-labels.mjs",
+      "source_location": "L170",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_display_labels_formatcandidateline",
+      "community": 144,
+      "community_name": "lib/budget-summary.mjs",
+      "norm_label": "formatcandidateline()"
     },
     {
       "label": "main()",
@@ -11835,16 +11811,16 @@
       "norm_label": "updateemployee()"
     },
     {
-      "label": "markPending()",
+      "label": "defineOperation()",
       "file_type": "code",
-      "source_file": "src/offline/db/mirror.ts",
-      "source_location": "L63",
+      "source_file": "src/offline/registry/registry.ts",
+      "source_location": "L43",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_offline_db_mirror_markpending",
+      "id": "src_offline_registry_registry_defineoperation",
       "community": 193,
       "community_name": "employees.resource.ts",
-      "norm_label": "markpending()"
+      "norm_label": "defineoperation()"
     },
     {
       "label": "Sidebar()",
@@ -13127,7 +13103,7 @@
       "_origin": "ast",
       "id": "src_features_billing_api_paymentsapi_recordpayment",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "recordpayment()"
     },
     {
@@ -13139,8 +13115,20 @@
       "_origin": "ast",
       "id": "src_features_billing_api_paymentsapi_topaymentrecord",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "topaymentrecord()"
+    },
+    {
+      "label": "toLocalRow()",
+      "file_type": "code",
+      "source_file": "src/offline/db/mirror.ts",
+      "source_location": "L46",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_offline_db_mirror_tolocalrow",
+      "community": 260,
+      "community_name": "toLocalRow",
+      "norm_label": "tolocalrow()"
     },
     {
       "label": "grade()",
@@ -14355,18 +14343,6 @@
       "norm_label": "markdeleted()"
     },
     {
-      "label": "toLocalRow()",
-      "file_type": "code",
-      "source_file": "src/offline/db/mirror.ts",
-      "source_location": "L46",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_db_mirror_tolocalrow",
-      "community": 32,
-      "community_name": "products.resource.ts",
-      "norm_label": "tolocalrow()"
-    },
-    {
       "label": "appendStockDelta()",
       "file_type": "code",
       "source_file": "src/offline/engine/stockLedger.ts",
@@ -14391,52 +14367,16 @@
       "norm_label": ".constructor()"
     },
     {
-      "label": "defineOperation()",
+      "label": "pushOptions()",
       "file_type": "code",
-      "source_file": "src/offline/registry/registry.ts",
-      "source_location": "L43",
+      "source_file": "src/offline/resources/pushOptions.ts",
+      "source_location": "L12",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_offline_registry_registry_defineoperation",
+      "id": "src_offline_resources_pushoptions_pushoptions",
       "community": 32,
       "community_name": "products.resource.ts",
-      "norm_label": "defineoperation()"
-    },
-    {
-      "label": "registerSyncResource()",
-      "file_type": "code",
-      "source_file": "src/offline/registry/registry.ts",
-      "source_location": "L52",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_registry_registry_registersyncresource",
-      "community": 32,
-      "community_name": "products.resource.ts",
-      "norm_label": "registersyncresource()"
-    },
-    {
-      "label": "registerSyncResources()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/index.ts",
-      "source_location": "L28",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_index_registersyncresources",
-      "community": 32,
-      "community_name": "products.resource.ts",
-      "norm_label": "registersyncresources()"
-    },
-    {
-      "label": "fetchResourceSnapshot()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L181",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_fetchresourcesnapshot",
-      "community": 32,
-      "community_name": "products.resource.ts",
-      "norm_label": "fetchresourcesnapshot()"
+      "norm_label": "pushoptions()"
     },
     {
       "label": "absoluteBriefPath()",
@@ -16333,18 +16273,6 @@
       "community": 42,
       "community_name": "display-labels.mjs",
       "norm_label": "formatcandidatelabel()"
-    },
-    {
-      "label": "formatCandidateLine()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/display-labels.mjs",
-      "source_location": "L170",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_display_labels_formatcandidateline",
-      "community": 42,
-      "community_name": "display-labels.mjs",
-      "norm_label": "formatcandidateline()"
     },
     {
       "label": "formatKind()",
@@ -18471,6 +18399,18 @@
       "norm_label": "fetchresourcedelta()"
     },
     {
+      "label": "fetchResourceSnapshot()",
+      "file_type": "code",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L181",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_offline_resources_syncapi_fetchresourcesnapshot",
+      "community": 54,
+      "community_name": "syncApi.ts",
+      "norm_label": "fetchresourcesnapshot()"
+    },
+    {
       "label": "fetchResourceSnapshotPage()",
       "file_type": "code",
       "source_file": "src/offline/resources/syncApi.ts",
@@ -19931,7 +19871,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_createsupplier",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "createsupplier()"
     },
     {
@@ -19943,7 +19883,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_deletesupplier",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "deletesupplier()"
     },
     {
@@ -19955,7 +19895,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_deletesuppliers",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "deletesuppliers()"
     },
     {
@@ -19967,7 +19907,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_fetchsupplierbyid",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "fetchsupplierbyid()"
     },
     {
@@ -19979,7 +19919,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_fetchsuppliercategories",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "fetchsuppliercategories()"
     },
     {
@@ -19991,7 +19931,7 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_fetchsuppliers",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "fetchsuppliers()"
     },
     {
@@ -20003,8 +19943,32 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi_updatesupplier",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "updatesupplier()"
+    },
+    {
+      "label": "registerSyncResource()",
+      "file_type": "code",
+      "source_file": "src/offline/registry/registry.ts",
+      "source_location": "L52",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_offline_registry_registry_registersyncresource",
+      "community": 67,
+      "community_name": "resources/index.ts",
+      "norm_label": "registersyncresource()"
+    },
+    {
+      "label": "registerSyncResources()",
+      "file_type": "code",
+      "source_file": "src/offline/resources/index.ts",
+      "source_location": "L28",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_offline_resources_index_registersyncresources",
+      "community": 67,
+      "community_name": "resources/index.ts",
+      "norm_label": "registersyncresources()"
     },
     {
       "label": "CustomerDetailDrawer()",
@@ -21711,6 +21675,18 @@
       "norm_label": "assertvalidobservations()"
     },
     {
+      "label": "buildFinalReportMessage()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
+      "source_location": "L224",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_render_report_buildfinalreportmessage",
+      "community": 9,
+      "community_name": "lib/render-report.mjs",
+      "norm_label": "buildfinalreportmessage()"
+    },
+    {
       "label": "candidateForDisplay()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
@@ -21817,6 +21793,18 @@
       "community": 9,
       "community_name": "lib/render-report.mjs",
       "norm_label": "escape()"
+    },
+    {
+      "label": "extractCoverageLine()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
+      "source_location": "L296",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_render_report_extractcoverageline",
+      "community": 9,
+      "community_name": "lib/render-report.mjs",
+      "norm_label": "extractcoverageline()"
     },
     {
       "label": "formatBytes()",
@@ -22225,6 +22213,18 @@
       "community": 9,
       "community_name": "lib/render-report.mjs",
       "norm_label": "splitinvestigationoutcomes()"
+    },
+    {
+      "label": "stripDetailsLink()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/render-report.mjs",
+      "source_location": "L301",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_render_report_stripdetailslink",
+      "community": 9,
+      "community_name": "lib/render-report.mjs",
+      "norm_label": "stripdetailslink()"
     },
     {
       "label": "tierScore()",
@@ -24077,17 +24077,6 @@
       "norm_label": "customersresource"
     },
     {
-      "label": "pushOptions.ts",
-      "file_type": "code",
-      "source_file": "src/offline/resources/pushOptions.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_offline_resources_pushoptions",
-      "community": 125,
-      "community_name": "customers.resource.ts",
-      "norm_label": "pushoptions.ts"
-    },
-    {
       "label": "Accessibility",
       "file_type": "document",
       "node_kind": "heading",
@@ -24098,6 +24087,18 @@
       "community": 126,
       "community_name": "React View Transitions",
       "norm_label": "accessibility"
+    },
+    {
+      "label": "Animation Triggers",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_skill_animation_triggers",
+      "community": 126,
+      "community_name": "React View Transitions",
+      "norm_label": "animation triggers"
     },
     {
       "label": "Availability",
@@ -24122,6 +24123,30 @@
       "community": 126,
       "community_name": "React View Transitions",
       "norm_label": "choosing animation style"
+    },
+    {
+      "label": "Core Concepts",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_skill_core_concepts",
+      "community": 126,
+      "community_name": "React View Transitions",
+      "norm_label": "core concepts"
+    },
+    {
+      "label": "Critical Placement Rule",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_skill_critical_placement_rule",
+      "community": 126,
+      "community_name": "React View Transitions",
+      "norm_label": "critical placement rule"
     },
     {
       "label": "CSS Pseudo-Elements",
@@ -24208,30 +24233,6 @@
       "norm_label": "reference files"
     },
     {
-      "label": "`router.back()` and Browser Back Button",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L178",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_router_back_and_browser_back_button",
-      "community": 126,
-      "community_name": "React View Transitions",
-      "norm_label": "`router.back()` and browser back button"
-    },
-    {
-      "label": "Shared Element Readiness",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L186",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_shared_element_readiness",
-      "community": 126,
-      "community_name": "React View Transitions",
-      "norm_label": "shared element readiness"
-    },
-    {
       "label": "Shared Element Transitions",
       "file_type": "document",
       "node_kind": "heading",
@@ -24256,28 +24257,16 @@
       "norm_label": "styling with view transition classes"
     },
     {
-      "label": "Transition Types",
+      "label": "The `<ViewTransition>` Component",
       "file_type": "document",
       "node_kind": "heading",
       "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L125",
+      "source_location": "L59",
       "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_transition_types",
+      "id": "agents_skills_vercel_react_view_transitions_skill_the_viewtransition_component",
       "community": 126,
       "community_name": "React View Transitions",
-      "norm_label": "transition types"
-    },
-    {
-      "label": "Types and Suspense",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L182",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_types_and_suspense",
-      "community": 126,
-      "community_name": "React View Transitions",
-      "norm_label": "types and suspense"
+      "norm_label": "the `<viewtransition>` component"
     },
     {
       "label": "When to Animate",
@@ -31423,7 +31412,7 @@
       "label": "NAV_ITEMS",
       "file_type": "code",
       "source_file": "src/config/navigation.ts",
-      "source_location": "L132",
+      "source_location": "L130",
       "_origin": "ast",
       "id": "src_config_navigation_nav_items",
       "community": 18,
@@ -37702,7 +37691,7 @@
       "_origin": "ast",
       "id": "src_features_billing_api_paymentsapi",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "paymentsapi.ts"
     },
     {
@@ -37713,7 +37702,7 @@
       "_origin": "ast",
       "id": "src_features_billing_hooks_usepayments",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "usepayments.ts"
     },
     {
@@ -37724,7 +37713,7 @@
       "_origin": "ast",
       "id": "src_features_billing_hooks_usepayments_no_payments",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "no_payments"
     },
     {
@@ -37735,7 +37724,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_payments_resource",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "payments.resource.ts"
     },
     {
@@ -37746,7 +37735,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_payments_resource_paymentsresource",
       "community": 260,
-      "community_name": "payments.resource.ts",
+      "community_name": "toLocalRow",
       "norm_label": "paymentsresource"
     },
     {
@@ -40267,17 +40256,6 @@
       "norm_label": "css content-visibility for long lists"
     },
     {
-      "label": "resources/index.ts",
-      "file_type": "code",
-      "source_file": "src/offline/resources/index.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_offline_resources_index",
-      "community": 32,
-      "community_name": "products.resource.ts",
-      "norm_label": "resources/index.ts"
-    },
-    {
       "label": "products.resource.ts",
       "file_type": "code",
       "source_file": "src/offline/resources/products.resource.ts",
@@ -40298,17 +40276,6 @@
       "community": 32,
       "community_name": "products.resource.ts",
       "norm_label": "productsresource"
-    },
-    {
-      "label": "productSerialsResource",
-      "file_type": "code",
-      "source_file": "src/offline/resources/productSerials.resource.ts",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "src_offline_resources_productserials_resource_productserialsresource",
-      "community": 32,
-      "community_name": "products.resource.ts",
-      "norm_label": "productserialsresource"
     },
     {
       "label": "purchases.resource.ts",
@@ -40333,15 +40300,15 @@
       "norm_label": "purchasesresource"
     },
     {
-      "label": "stockMovementsResource",
+      "label": "pushOptions.ts",
       "file_type": "code",
-      "source_file": "src/offline/resources/stockMovements.resource.ts",
-      "source_location": "L17",
+      "source_file": "src/offline/resources/pushOptions.ts",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "src_offline_resources_stockmovements_resource_stockmovementsresource",
+      "id": "src_offline_resources_pushoptions",
       "community": 32,
       "community_name": "products.resource.ts",
-      "norm_label": "stockmovementsresource"
+      "norm_label": "pushoptions.ts"
     },
     {
       "label": "rendering-hoist-jsx.md",
@@ -43161,52 +43128,52 @@
       "norm_label": "ts-jest"
     },
     {
-      "label": "Animation Triggers",
+      "label": "`router.back()` and Browser Back Button",
       "file_type": "document",
       "node_kind": "heading",
       "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L71",
+      "source_location": "L178",
       "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_animation_triggers",
+      "id": "agents_skills_vercel_react_view_transitions_skill_router_back_and_browser_back_button",
       "community": 391,
-      "community_name": "Core Concepts",
-      "norm_label": "animation triggers"
+      "community_name": "Transition Types",
+      "norm_label": "`router.back()` and browser back button"
     },
     {
-      "label": "Core Concepts",
+      "label": "Shared Element Readiness",
       "file_type": "document",
       "node_kind": "heading",
       "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L57",
+      "source_location": "L186",
       "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_core_concepts",
+      "id": "agents_skills_vercel_react_view_transitions_skill_shared_element_readiness",
       "community": 391,
-      "community_name": "Core Concepts",
-      "norm_label": "core concepts"
+      "community_name": "Transition Types",
+      "norm_label": "shared element readiness"
     },
     {
-      "label": "Critical Placement Rule",
+      "label": "Transition Types",
       "file_type": "document",
       "node_kind": "heading",
       "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L82",
+      "source_location": "L125",
       "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_critical_placement_rule",
+      "id": "agents_skills_vercel_react_view_transitions_skill_transition_types",
       "community": 391,
-      "community_name": "Core Concepts",
-      "norm_label": "critical placement rule"
+      "community_name": "Transition Types",
+      "norm_label": "transition types"
     },
     {
-      "label": "The `<ViewTransition>` Component",
+      "label": "Types and Suspense",
       "file_type": "document",
       "node_kind": "heading",
       "source_file": ".agents/skills/vercel-react-view-transitions/SKILL.md",
-      "source_location": "L59",
+      "source_location": "L182",
       "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_skill_the_viewtransition_component",
+      "id": "agents_skills_vercel_react_view_transitions_skill_types_and_suspense",
       "community": 391,
-      "community_name": "Core Concepts",
-      "norm_label": "the `<viewtransition>` component"
+      "community_name": "Transition Types",
+      "norm_label": "types and suspense"
     },
     {
       "label": "invoices/types.ts",
@@ -45519,6 +45486,28 @@
       "norm_label": "pull_page_limit"
     },
     {
+      "label": "productSerialsResource",
+      "file_type": "code",
+      "source_file": "src/offline/resources/productSerials.resource.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_offline_resources_productserials_resource_productserialsresource",
+      "community": 54,
+      "community_name": "syncApi.ts",
+      "norm_label": "productserialsresource"
+    },
+    {
+      "label": "stockMovementsResource",
+      "file_type": "code",
+      "source_file": "src/offline/resources/stockMovements.resource.ts",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "src_offline_resources_stockmovements_resource_stockmovementsresource",
+      "community": 54,
+      "community_name": "syncApi.ts",
+      "norm_label": "stockmovementsresource"
+    },
+    {
       "label": "syncApi.ts",
       "file_type": "code",
       "source_file": "src/offline/resources/syncApi.ts",
@@ -46263,8 +46252,19 @@
       "_origin": "ast",
       "id": "src_features_suppliers_api_suppliersapi",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "suppliersapi.ts"
+    },
+    {
+      "label": "resources/index.ts",
+      "file_type": "code",
+      "source_file": "src/offline/resources/index.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_offline_resources_index",
+      "community": 67,
+      "community_name": "resources/index.ts",
+      "norm_label": "resources/index.ts"
     },
     {
       "label": "suppliers.resource.ts",
@@ -46274,7 +46274,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_suppliers_resource",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "suppliers.resource.ts"
     },
     {
@@ -46285,7 +46285,7 @@
       "_origin": "ast",
       "id": "src_offline_resources_suppliers_resource_suppliersresource",
       "community": 67,
-      "community_name": "suppliers.resource.ts",
+      "community_name": "resources/index.ts",
       "norm_label": "suppliersresource"
     },
     {
@@ -48682,6 +48682,22 @@
       "id": "claude_feature_module_pattern"
     },
     {
+      "label": "isBillingBoundaryChange Render-Time State Adjustment",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "Animation performance",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Suppresses AppShell's Mantine transition for the one render where a billing-specific boundary (header height/navbar width/padding) is crossed, so an animated chrome resize doesn't land in the same frame as a heavy screen's first mount and appear stuck.",
+      "community": 61,
+      "community_name": "App Entry Chain",
+      "norm_label": "isbillingboundarychange render-time state adjustment",
+      "_origin": "semantic",
+      "id": "claude_isbillingboundarychange_pattern"
+    },
+    {
       "label": "AmountInput.tsx",
       "file_type": "code",
       "source_file": "CLAUDE.md",
@@ -48943,22 +48959,6 @@
       "norm_label": "backend sync contract (rust/axum)",
       "_origin": "semantic",
       "id": "claude_backend_sync_contract"
-    },
-    {
-      "label": "isBillingBoundaryChange Render-Time State Adjustment",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": "Animation performance",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Suppresses AppShell's Mantine transition for the one render where a billing-specific boundary (header height/navbar width/padding) is crossed, so an animated chrome resize doesn't land in the same frame as a heavy screen's first mount and appear stuck.",
-      "community": 63,
-      "community_name": "Offline & Sync Architecture",
-      "norm_label": "isbillingboundarychange render-time state adjustment",
-      "_origin": "semantic",
-      "id": "claude_isbillingboundarychange_pattern"
     },
     {
       "label": "Offline & Sync Architecture",
@@ -136888,7 +136888,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/config/navigation.ts",
-      "source_location": "L132",
+      "source_location": "L130",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_config_navigation",
