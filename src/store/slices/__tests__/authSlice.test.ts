@@ -12,6 +12,7 @@ import authReducer, {
   switchRole,
   selectAuthUser,
   selectUserRole,
+  selectUserPermissions,
   selectIsAuthenticated,
   selectIsAuthInitialized,
   selectIsAuthLoading,
@@ -30,8 +31,8 @@ vi.mock('@/offline/db/session', () => ({
 const mockUser: AuthUser = {
   id: 'user_1',
   email: 'test@example.com',
-  name: 'Test Cashier',
-  role: USER_ROLES.CASHIER,
+  name: 'Test Manager',
+  role: USER_ROLES.MANAGER,
 };
 
 describe('authSlice reducer & actions', () => {
@@ -139,12 +140,32 @@ describe('authSlice reducer & actions', () => {
       };
 
       expect(selectAuthUser(rootState)).toEqual(mockUser);
-      expect(selectUserRole(rootState)).toBe(USER_ROLES.CASHIER);
+      expect(selectUserRole(rootState)).toBe(USER_ROLES.MANAGER);
       expect(selectIsAuthenticated(rootState)).toBe(true);
       expect(selectIsAuthInitialized(rootState)).toBe(true);
       expect(selectIsAuthLoading(rootState)).toBe(false);
       expect(selectIsPOSLocked(rootState)).toBe(true);
       expect(selectIsOfflineSession(rootState)).toBe(true);
+    });
+
+    it('defaults to the least-privileged role, not Admin, when there is no user', () => {
+      const rootState = { auth: getInitialState() };
+      expect(rootState.auth.user).toBeNull();
+      expect(selectUserRole(rootState)).toBe(USER_ROLES.STAFF);
+    });
+
+    it('returns an empty array from selectUserPermissions when there is no user', () => {
+      const rootState = { auth: getInitialState() };
+      expect(selectUserPermissions(rootState)).toEqual([]);
+    });
+
+    it('returns the permissions carried on the logged-in user', () => {
+      const withPermissions: AuthUser = { ...mockUser, permissions: ['inventory:read'] };
+      const state = authReducer(
+        getInitialState(),
+        loginSuccess({ user: withPermissions, token: 'token-123' })
+      );
+      expect(selectUserPermissions({ auth: state })).toEqual(['inventory:read']);
     });
   });
 });

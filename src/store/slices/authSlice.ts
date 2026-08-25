@@ -235,8 +235,12 @@ export const {
 } = authSlice.actions;
 
 export const selectAuthUser = (state: { auth: AuthState }) => state.auth.user;
+// Defaults to the least-privileged role, not Admin — a null/not-yet-loaded
+// user should never briefly render as if it were the most powerful role.
 export const selectUserRole = (state: { auth: AuthState }): UserRole =>
-  (state.auth.user?.role as UserRole) || USER_ROLES.ADMIN;
+  (state.auth.user?.role as UserRole) || USER_ROLES.STAFF;
+export const selectUserPermissions = (state: { auth: AuthState }): string[] =>
+  state.auth.user?.permissions ?? [];
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
 export const selectIsAuthInitialized = (state: { auth: AuthState }) => state.auth.isInitialized;
 export const selectIsAuthLoading = (state: { auth: AuthState }) => state.auth.isLoading;

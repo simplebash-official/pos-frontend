@@ -2,6 +2,7 @@ import Dexie, { Table } from 'dexie';
 import type { Invoice } from '@/features/billing/types';
 import type { PaymentRecord } from '@/features/billing/api/paymentsApi';
 import type { Customer } from '@/features/customers/types';
+import type { Employee } from '@/features/employees/types';
 import type { Category, Product, StockMovement } from '@/features/inventory/types';
 import type { StockPurchase } from '@/features/purchases/types';
 import type { PrintJob } from '@/features/print-jobs/types';
@@ -43,6 +44,7 @@ export class OfflineDb extends Dexie {
   /** Read-only mirror — the server is the sole writer of stock movements. */
   stockMovements!: Table<MirroredRow<StockMovement>, string>;
   customers!: Table<MirroredRow<Customer>, string>;
+  employees!: Table<MirroredRow<Employee>, string>;
   invoices!: Table<MirroredRow<Invoice>, string>;
   payments!: Table<MirroredRow<PaymentRecord>, string>;
   repairs!: Table<MirroredRow<RepairJob>, string>;
@@ -177,6 +179,12 @@ export class OfflineDb extends Dexie {
       .upgrade(async (tx) => {
         await tx.table('syncMeta').delete('returns');
       });
+
+    // v10 adds the employees mirror table (HR/commission profiles, optionally
+    // linked to a login account — never the login itself, which is not synced).
+    this.version(10).stores({
+      employees: 'id, key, name, role, status, _pending, _isDeleted, updatedAt',
+    });
   }
 }
 
@@ -191,6 +199,7 @@ export const MIRROR_TABLE_NAMES = [
   'purchases',
   'stockMovements',
   'customers',
+  'employees',
   'invoices',
   'payments',
   'repairs',

@@ -11,6 +11,7 @@ import {
   Text,
   Paper,
   Badge,
+  ThemeIcon,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/icons-react';
@@ -128,91 +129,137 @@ export const EmployeeFormModal = ({
             />
           </Group>
 
-          <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-            <Stack gap="xs">
-              <Group justify="space-between" align="center">
-                <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                  Default Profit Split / Commission Rule
-                </Text>
-                <Badge color="blue" variant="light" size="xs">
-                  No Fixed Salary
-                </Badge>
-              </Group>
+          <Stack gap={6}>
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+              Commission & Pay
+            </Text>
 
-              <Group align="flex-end" grow>
-                <div>
-                  <Text size="xs" fw={600} mb={4}>
-                    Split Calculation Mode
-                  </Text>
-                  <SegmentedToggle
-                    value={form.values.defaultSplitType}
-                    onChange={(val) => form.setFieldValue('defaultSplitType', val as SplitType)}
-                    data={[
-                      {
-                        label: (
-                          <Group gap={4} justify="center">
-                            <IconPercentage size={14} />
-                            <span>Percentage (%)</span>
-                          </Group>
-                        ),
-                        value: 'percentage',
-                      },
-                      {
-                        label: (
-                          <Group gap={4} justify="center">
-                            <IconCoin size={14} />
-                            <span>Fixed Amount (LKR)</span>
-                          </Group>
-                        ),
-                        value: 'fixed',
-                      },
-                    ]}
-                    fullWidth
-                    size="sm"
-                  />
-                </div>
-
-                <NumberInput
-                  label={
-                    form.values.defaultSplitType === 'percentage'
-                      ? 'Default Profit Split (%)'
-                      : 'Fixed Commission per Work (LKR)'
-                  }
-                  placeholder={
-                    form.values.defaultSplitType === 'percentage' ? 'e.g. 25' : 'e.g. 1500'
-                  }
-                  min={0}
-                  max={form.values.defaultSplitType === 'percentage' ? 100 : 1000000}
-                  leftSection={
-                    form.values.defaultSplitType === 'percentage' ? (
-                      <IconPercentage size={16} />
-                    ) : (
-                      <Text size="xs" fw={700}>
-                        Rs.
+            <Paper
+              withBorder
+              p="sm"
+              radius="var(--mantine-radius-default)"
+              bg="light-dark(var(--bg-card), var(--mantine-color-dark-7))"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              <Stack gap="sm">
+                <Group justify="space-between" align="flex-start" wrap="nowrap">
+                  <Group gap="sm" align="center" wrap="nowrap" style={{ minWidth: 0 }}>
+                    <ThemeIcon
+                      size={38}
+                      radius="var(--mantine-radius-default)"
+                      variant="light"
+                      color="blue"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <IconCoin size={18} stroke={1.6} />
+                    </ThemeIcon>
+                    <div style={{ minWidth: 0 }}>
+                      <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
+                        How this employee gets paid
                       </Text>
-                    )
-                  }
-                  {...form.getInputProps('defaultSplitValueRupeesOrPercent')}
-                />
-              </Group>
-              <Text size="xs" c="dimmed">
-                {form.values.defaultSplitType === 'percentage'
-                  ? `Employee receives ${form.values.defaultSplitValueRupeesOrPercent}% of the profit on every completed task assigned to them.`
-                  : `Employee receives a flat ${formatMoney(toCents(Number(form.values.defaultSplitValueRupeesOrPercent || 0)))} payout for every job completed.`}
-              </Text>
-            </Stack>
-          </Paper>
+                      <Text size="xs" c="dimmed" lh={1.3}>
+                        Earnings come from a share of the profit on every job they complete.
+                      </Text>
+                    </div>
+                  </Group>
+                  <Badge color="blue" variant="light" size="xs" style={{ flexShrink: 0 }}>
+                    No Fixed Salary
+                  </Badge>
+                </Group>
 
-          <Group grow align="flex-start">
-            <Select
-              label="Employment Status"
-              data={[
-                { value: 'active', label: 'Active Staff' },
-                { value: 'inactive', label: 'Inactive / Suspended' },
-              ]}
-              {...form.getInputProps('status')}
-            />
-          </Group>
+                <Group align="flex-end" grow>
+                  <div>
+                    <Text size="xs" fw={600} mb={4}>
+                      Split Calculation Mode
+                    </Text>
+                    <SegmentedToggle
+                      value={form.values.defaultSplitType}
+                      onChange={(val) => form.setFieldValue('defaultSplitType', val as SplitType)}
+                      data={[
+                        {
+                          label: (
+                            <Group gap={4} justify="center" wrap="nowrap">
+                              <IconPercentage size={14} style={{ flexShrink: 0 }} />
+                              <span style={{ whiteSpace: 'nowrap' }}>Percentage (%)</span>
+                            </Group>
+                          ),
+                          value: 'percentage',
+                        },
+                        {
+                          label: (
+                            <Group gap={4} justify="center" wrap="nowrap">
+                              <IconCoin size={14} style={{ flexShrink: 0 }} />
+                              <span style={{ whiteSpace: 'nowrap' }}>Fixed (LKR)</span>
+                            </Group>
+                          ),
+                          value: 'fixed',
+                        },
+                      ]}
+                      fullWidth
+                      size="sm"
+                    />
+                  </div>
+
+                  <NumberInput
+                    label={
+                      form.values.defaultSplitType === 'percentage'
+                        ? 'Default Profit Split (%)'
+                        : 'Fixed Commission per Work (LKR)'
+                    }
+                    placeholder={
+                      form.values.defaultSplitType === 'percentage' ? 'e.g. 25' : 'e.g. 1500'
+                    }
+                    min={0}
+                    max={form.values.defaultSplitType === 'percentage' ? 100 : 1000000}
+                    leftSection={
+                      form.values.defaultSplitType === 'percentage' ? (
+                        <IconPercentage size={16} />
+                      ) : (
+                        <Text size="xs" fw={700}>
+                          Rs.
+                        </Text>
+                      )
+                    }
+                    {...form.getInputProps('defaultSplitValueRupeesOrPercent')}
+                  />
+                </Group>
+
+                <Paper
+                  withBorder
+                  px="sm"
+                  py={7}
+                  radius="var(--mantine-radius-default)"
+                  bg="light-dark(rgba(18, 184, 134, 0.06), rgba(18, 184, 134, 0.12))"
+                  style={{
+                    borderColor: 'light-dark(rgba(18, 184, 134, 0.3), rgba(18, 184, 134, 0.4))',
+                  }}
+                >
+                  <Group gap="xs" align="center" wrap="nowrap">
+                    <ThemeIcon size={22} radius="xl" variant="light" color="teal">
+                      <IconCoin size={13} />
+                    </ThemeIcon>
+                    <Text
+                      size="xs"
+                      c="light-dark(var(--mantine-color-teal-9), var(--mantine-color-teal-3))"
+                    >
+                      {form.values.defaultSplitType === 'percentage'
+                        ? `Employee receives ${form.values.defaultSplitValueRupeesOrPercent || 0}% of the profit on every completed task assigned to them.`
+                        : `Employee receives a flat ${formatMoney(toCents(Number(form.values.defaultSplitValueRupeesOrPercent || 0)))} payout for every job completed.`}
+                    </Text>
+                  </Group>
+                </Paper>
+              </Stack>
+            </Paper>
+          </Stack>
+
+          <Select
+            label="Employment Status"
+            data={[
+              { value: 'active', label: 'Active Staff' },
+              { value: 'inactive', label: 'Inactive / Suspended' },
+            ]}
+            {...form.getInputProps('status')}
+          />
 
           <Textarea
             label="Notes / Qualifications"
@@ -221,7 +268,7 @@ export const EmployeeFormModal = ({
             {...form.getInputProps('notes')}
           />
 
-          <Group justify="flex-end" mt="md">
+          <Group justify="flex-end" mt="md" gap="sm">
             <Button variant="default" onClick={onClose} disabled={loading}>
               Cancel
             </Button>

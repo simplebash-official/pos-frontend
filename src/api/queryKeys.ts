@@ -75,4 +75,9 @@ export const queryKeys = {
     outstanding: () => ['reports', 'outstanding'] as const,
     monthlyProfit: (yearMonth: string) => ['reports', 'monthlyProfit', yearMonth] as const,
   },
+  users: {
+    all: ['users'] as const,
+    list: (filters?: Record<string, unknown>) => ['users', 'list', filters] as const,
+    detail: (id: string) => ['users', 'detail', id] as const,
+  },
 };

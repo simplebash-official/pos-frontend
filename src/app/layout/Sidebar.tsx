@@ -22,7 +22,7 @@ import { useLowStockProducts } from '@/features/inventory/hooks/useProducts';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logout, selectUserRole } from '@/store/slices/authSlice';
+import { logout, selectUserPermissions, selectUserRole } from '@/store/slices/authSlice';
 
 export interface SidebarProps {
   closeMobile?: () => void;
@@ -37,18 +37,33 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   const isDark = useComputedColorScheme('light') === 'dark';
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === USER_ROLES.ADMIN;
+  const permissions = useAppSelector(selectUserPermissions);
 
   const { data: lowStockProducts } = useLowStockProducts();
   const lowStockCount = lowStockProducts.length;
   const isMobile = useIsMobile();
 
+  const isVisible = (item: { adminOnly?: boolean; requiredPermissions?: string[] }) => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (
+      item.requiredPermissions &&
+      !item.requiredPermissions.some((permission) => permissions.includes(permission))
+    ) {
+      return false;
+    }
+    return true;
+  };
+
   const visibleCategories = useMemo(
     () =>
       NAV_CATEGORIES.map((category) => ({
         ...category,
-        items: category.items.filter((item) => !item.adminOnly || isAdmin),
+        items: category.items
+          .filter(isVisible)
+          .map((item) => ({ ...item, subItems: item.subItems?.filter(isVisible) })),
       })).filter((category) => category.items.length > 0),
-    [isAdmin]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isAdmin, permissions]
   );
 
   const handleLogout = () => {

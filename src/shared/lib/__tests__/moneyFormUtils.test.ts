@@ -104,6 +104,7 @@ describe('moneyFormUtils conversions', () => {
     it('converts employee entity to form values', () => {
       const emp: Employee = {
         id: 'emp_1',
+        key: 'emp_1',
         name: 'Eve',
         phone: '0751234567',
         role: 'technician',
