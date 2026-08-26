@@ -1,0 +1,149 @@
+import { Paper, Stack, Group, Text, Badge, ThemeIcon, Button, Box } from '@mantine/core';
+import { IconFlame, IconAlertTriangle, IconArrowRight } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
+import { FastMovingItem } from '../types';
+import { formatMoney } from '@/shared/lib/money';
+import { ROUTES } from '@/constants/routes';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+
+export interface FastMoversWidgetProps {
+  items: FastMovingItem[];
+}
+
+export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+
+  return (
+    <Paper
+      p={isMobile ? 'md' : 'lg'}
+      withBorder
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        borderColor: 'var(--border)',
+      }}
+    >
+      <Stack gap="md">
+        <Group justify="space-between" align="center">
+          <Group gap="xs">
+            <ThemeIcon color="red" variant="light" size="lg" radius="md">
+              <IconFlame size={20} />
+            </ThemeIcon>
+            <div>
+              <Group gap="xs" align="center">
+                <Text fw={800} size="md">
+                  Fast-Moving Products Today
+                </Text>
+                <Badge color="red" variant="light" size="sm">
+                  Counter Velocity
+                </Badge>
+              </Group>
+              <Text size="xs" c="dimmed">
+                Top selling accessories and supplies today with remaining shelf stock
+              </Text>
+            </div>
+          </Group>
+
+          <Button
+            size="xs"
+            variant="subtle"
+            color="blue"
+            rightSection={<IconArrowRight size={14} />}
+            onClick={() => navigate(ROUTES.INVENTORY)}
+          >
+            Inventory
+          </Button>
+        </Group>
+
+        {/* Product rows */}
+        <Stack gap="xs">
+          {items.map((item, index) => {
+            const isLowStock = item.remainingStock <= item.minThreshold;
+
+            return (
+              <Paper
+                key={item.productId}
+                p="sm"
+                withBorder
+                radius="md"
+                bg="var(--mantine-color-body)"
+                style={{
+                  borderColor: isLowStock ? 'var(--mantine-color-red-3)' : 'var(--border)',
+                }}
+              >
+                <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+                  <Group gap="sm" style={{ flex: 1, minWidth: 200 }}>
+                    <ThemeIcon
+                      color={index === 0 ? 'orange' : index === 1 ? 'yellow' : 'gray'}
+                      variant="light"
+                      size="md"
+                      radius="xl"
+                    >
+                      <Text size="xs" fw={800}>
+                        #{index + 1}
+                      </Text>
+                    </ThemeIcon>
+
+                    <Box style={{ flex: 1 }}>
+                      <Text fw={700} size="sm" lineClamp={1}>
+                        {item.name}
+                      </Text>
+                      <Group gap="xs" mt={2}>
+                        <Text size="3xs" c="dimmed">
+                          {item.category}
+                        </Text>
+                        <Text size="3xs" c="dimmed">
+                          •
+                        </Text>
+                        <Text size="3xs" fw={700} c="blue">
+                          {formatMoney(item.sellingPriceCents)}
+                        </Text>
+                      </Group>
+                    </Box>
+                  </Group>
+
+                  <Group gap="md">
+                    <div>
+                      <Text size="3xs" c="dimmed" fw={700} tt="uppercase" ta="right">
+                        Sold Today
+                      </Text>
+                      <Text
+                        size="sm"
+                        fw={800}
+                        c="green"
+                        ta="right"
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {item.soldTodayUnits} units
+                      </Text>
+                    </div>
+
+                    <Box style={{ minWidth: 90, textAlign: 'right' }}>
+                      <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
+                        Shelf Stock
+                      </Text>
+                      {isLowStock ? (
+                        <Badge
+                          size="xs"
+                          color="red"
+                          variant="filled"
+                          leftSection={<IconAlertTriangle size={10} />}
+                        >
+                          {item.remainingStock} left
+                        </Badge>
+                      ) : (
+                        <Badge size="xs" color="teal" variant="light">
+                          {item.remainingStock} available
+                        </Badge>
+                      )}
+                    </Box>
+                  </Group>
+                </Group>
+              </Paper>
+            );
+          })}
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+};

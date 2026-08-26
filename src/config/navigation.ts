@@ -1,5 +1,6 @@
 import { ComponentType } from 'react';
 import {
+  IconLayoutDashboard,
   IconReceipt,
   IconFileInvoice,
   IconHammer,
@@ -36,6 +37,18 @@ export interface NavCategoryGroup {
 }
 
 export const NAV_CATEGORIES: NavCategoryGroup[] = [
+  {
+    id: 'overview',
+    title: 'Overview',
+    items: [
+      {
+        label: 'Dashboard',
+        icon: IconLayoutDashboard,
+        to: ROUTES.DASHBOARD,
+        color: 'blue',
+      },
+    ],
+  },
   {
     id: 'sales-operations',
     title: 'Sales & Operations',
