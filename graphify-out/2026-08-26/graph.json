@@ -88,32 +88,6 @@
       "norm_label": "appprovidersprops"
     },
     {
-      "label": "AppDispatch",
-      "file_type": "code",
-      "source_file": "src/store/index.ts",
-      "source_location": "L24",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_store_index_appdispatch",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "appdispatch"
-    },
-    {
-      "label": "RootState",
-      "file_type": "code",
-      "source_file": "src/store/index.ts",
-      "source_location": "L23",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_store_index_rootstate",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "rootstate"
-    },
-    {
       "label": "ColorScheme",
       "file_type": "code",
       "source_file": "src/store/slices/themeSlice.ts",
@@ -320,6 +294,19 @@
       "community": 12,
       "community_name": "SyncEngine.ts",
       "norm_label": "cursorinvaliderror"
+    },
+    {
+      "label": "SupplierStats",
+      "file_type": "code",
+      "source_file": "src/features/suppliers/api/statsApi.ts",
+      "source_location": "L6",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_suppliers_api_statsapi_supplierstats",
+      "community": 125,
+      "community_name": "useSupplierStats.ts",
+      "norm_label": "supplierstats"
     },
     {
       "label": "SemaphoreAbortError",
@@ -676,7 +663,7 @@
       "label": "DashboardKpiStripProps",
       "file_type": "code",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L12",
+      "source_location": "L6",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -2623,6 +2610,32 @@
       "norm_label": "notificationpriority"
     },
     {
+      "label": "AppDispatch",
+      "file_type": "code",
+      "source_file": "src/store/index.ts",
+      "source_location": "L24",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_store_index_appdispatch",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "appdispatch"
+    },
+    {
+      "label": "RootState",
+      "file_type": "code",
+      "source_file": "src/store/index.ts",
+      "source_location": "L23",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_store_index_rootstate",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "rootstate"
+    },
+    {
       "label": "NotificationState",
       "file_type": "code",
       "source_file": "src/store/slices/notificationSlice.ts",
@@ -3037,6 +3050,136 @@
       "community": 32,
       "community_name": "purchasesApi.ts",
       "norm_label": "stockpurchaseinput"
+    },
+    {
+      "label": "BackendCreditNote",
+      "file_type": "code",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L86",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_billing_api_creditnotesapi_backendcreditnote",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "backendcreditnote"
+    },
+    {
+      "label": "BackendCreditNoteExchangeItem",
+      "file_type": "code",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L74",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_billing_api_creditnotesapi_backendcreditnoteexchangeitem",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "backendcreditnoteexchangeitem"
+    },
+    {
+      "label": "CreateCreditNoteExchangeItemInput",
+      "file_type": "code",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L32",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_billing_api_creditnotesapi_createcreditnoteexchangeiteminput",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "createcreditnoteexchangeiteminput"
+    },
+    {
+      "label": "CreateCreditNoteRefundBreakdownInput",
+      "file_type": "code",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L42",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_billing_api_creditnotesapi_createcreditnoterefundbreakdowninput",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "createcreditnoterefundbreakdowninput"
+    },
+    {
+      "label": "CreditNoteListResponseData",
+      "file_type": "code",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L116",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_billing_api_creditnotesapi_creditnotelistresponsedata",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "creditnotelistresponsedata"
+    },
+    {
+      "label": "FetchCreditNotesParams",
+      "file_type": "code",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L182",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_billing_api_creditnotesapi_fetchcreditnotesparams",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "fetchcreditnotesparams"
+    },
+    {
+      "label": "CreditNoteExchangeItem",
+      "file_type": "code",
+      "source_file": "src/offline/db/tables.ts",
+      "source_location": "L367",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_db_tables_creditnoteexchangeitem",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "creditnoteexchangeitem"
+    },
+    {
+      "label": "CreditNoteItem",
+      "file_type": "code",
+      "source_file": "src/offline/db/tables.ts",
+      "source_location": "L302",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_db_tables_creditnoteitem",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "creditnoteitem"
+    },
+    {
+      "label": "CreditNoteStatus",
+      "file_type": "code",
+      "source_file": "src/offline/db/tables.ts",
+      "source_location": "L330",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_db_tables_creditnotestatus",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "creditnotestatus"
+    },
+    {
+      "label": "RefundBreakdownLeg",
+      "file_type": "code",
+      "source_file": "src/offline/db/tables.ts",
+      "source_location": "L297",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_db_tables_refundbreakdownleg",
+      "community": 33,
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "refundbreakdownleg"
     },
     {
       "label": "CartLineItemSource",
@@ -3481,6 +3624,19 @@
       "norm_label": "apiclient"
     },
     {
+      "label": "MutationRequestOptions",
+      "file_type": "code",
+      "source_file": "src/api/client.ts",
+      "source_location": "L34",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_api_client_mutationrequestoptions",
+      "community": 36,
+      "community_name": "client.ts",
+      "norm_label": "mutationrequestoptions"
+    },
+    {
       "label": "RequestOptions",
       "file_type": "code",
       "source_file": "src/api/client.ts",
@@ -3494,43 +3650,30 @@
       "norm_label": "requestoptions"
     },
     {
-      "label": "DailySalesReportSummary",
+      "label": "BackendPaymentRecord",
       "file_type": "code",
-      "source_file": "src/features/reports/types.ts",
-      "source_location": "L1",
+      "source_file": "src/features/billing/api/paymentsApi.ts",
+      "source_location": "L17",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_reports_types_dailysalesreportsummary",
+      "id": "src_features_billing_api_paymentsapi_backendpaymentrecord",
       "community": 36,
       "community_name": "client.ts",
-      "norm_label": "dailysalesreportsummary"
+      "norm_label": "backendpaymentrecord"
     },
     {
-      "label": "EmployeeCommissionsReportResponse",
+      "label": "SupplierListParams",
       "file_type": "code",
-      "source_file": "src/features/reports/types.ts",
-      "source_location": "L24",
+      "source_file": "src/features/suppliers/api/suppliersApi.ts",
+      "source_location": "L5",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_reports_types_employeecommissionsreportresponse",
+      "id": "src_features_suppliers_api_suppliersapi_supplierlistparams",
       "community": 36,
       "community_name": "client.ts",
-      "norm_label": "employeecommissionsreportresponse"
-    },
-    {
-      "label": "EmployeePerformanceEntry",
-      "file_type": "code",
-      "source_file": "src/features/reports/types.ts",
-      "source_location": "L11",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_reports_types_employeeperformanceentry",
-      "community": 36,
-      "community_name": "client.ts",
-      "norm_label": "employeeperformanceentry"
+      "norm_label": "supplierlistparams"
     },
     {
       "label": "SyncDrawerProps",
@@ -3700,136 +3843,6 @@
       "community": 37,
       "community_name": "syncSlice.ts",
       "norm_label": "withsync"
-    },
-    {
-      "label": "BackendCreditNote",
-      "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L86",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_backendcreditnote",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "backendcreditnote"
-    },
-    {
-      "label": "BackendCreditNoteExchangeItem",
-      "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L74",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_backendcreditnoteexchangeitem",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "backendcreditnoteexchangeitem"
-    },
-    {
-      "label": "CreateCreditNoteExchangeItemInput",
-      "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L32",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_createcreditnoteexchangeiteminput",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "createcreditnoteexchangeiteminput"
-    },
-    {
-      "label": "CreateCreditNoteRefundBreakdownInput",
-      "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L42",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_createcreditnoterefundbreakdowninput",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "createcreditnoterefundbreakdowninput"
-    },
-    {
-      "label": "CreditNoteListResponseData",
-      "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L116",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_creditnotelistresponsedata",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "creditnotelistresponsedata"
-    },
-    {
-      "label": "FetchCreditNotesParams",
-      "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L182",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_fetchcreditnotesparams",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "fetchcreditnotesparams"
-    },
-    {
-      "label": "CreditNoteExchangeItem",
-      "file_type": "code",
-      "source_file": "src/offline/db/tables.ts",
-      "source_location": "L367",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_db_tables_creditnoteexchangeitem",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "creditnoteexchangeitem"
-    },
-    {
-      "label": "CreditNoteItem",
-      "file_type": "code",
-      "source_file": "src/offline/db/tables.ts",
-      "source_location": "L302",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_db_tables_creditnoteitem",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "creditnoteitem"
-    },
-    {
-      "label": "CreditNoteStatus",
-      "file_type": "code",
-      "source_file": "src/offline/db/tables.ts",
-      "source_location": "L330",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_db_tables_creditnotestatus",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "creditnotestatus"
-    },
-    {
-      "label": "RefundBreakdownLeg",
-      "file_type": "code",
-      "source_file": "src/offline/db/tables.ts",
-      "source_location": "L297",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_db_tables_refundbreakdownleg",
-      "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "refundbreakdownleg"
     },
     {
       "label": "InvoiceItem",
@@ -4313,17 +4326,17 @@
       "norm_label": "customerstats"
     },
     {
-      "label": "InventoryStats",
+      "label": "PrintJobStats",
       "file_type": "code",
-      "source_file": "src/features/inventory/api/statsApi.ts",
-      "source_location": "L9",
+      "source_file": "src/features/print-jobs/api/statsApi.ts",
+      "source_location": "L8",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_inventory_api_statsapi_inventorystats",
+      "id": "src_features_print_jobs_api_statsapi_printjobstats",
       "community": 41,
       "community_name": "useModuleStats",
-      "norm_label": "inventorystats"
+      "norm_label": "printjobstats"
     },
     {
       "label": "ModuleStatsResult",
@@ -4417,121 +4430,69 @@
       "norm_label": "heldcart"
     },
     {
-      "label": "MutationRequestOptions",
+      "label": "ApiEnvelope",
       "file_type": "code",
-      "source_file": "src/api/client.ts",
-      "source_location": "L34",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L46",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_api_client_mutationrequestoptions",
+      "id": "src_offline_resources_syncapi_apienvelope",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "mutationrequestoptions"
+      "community_name": "syncApi.ts",
+      "norm_label": "apienvelope"
     },
     {
-      "label": "BackendPaymentRecord",
+      "label": "ResourceSyncStatus",
       "file_type": "code",
-      "source_file": "src/features/billing/api/paymentsApi.ts",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L35",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_resources_syncapi_resourcesyncstatus",
+      "community": 45,
+      "community_name": "syncApi.ts",
+      "norm_label": "resourcesyncstatus"
+    },
+    {
+      "label": "SyncChangesEnvelope",
+      "file_type": "code",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L29",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_offline_resources_syncapi_syncchangesenvelope",
+      "community": 45,
+      "community_name": "syncApi.ts",
+      "norm_label": "syncchangesenvelope"
+    },
+    {
+      "label": "SyncResourceChanges",
+      "file_type": "code",
+      "source_file": "src/offline/resources/syncApi.ts",
       "source_location": "L17",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_paymentsapi_backendpaymentrecord",
+      "id": "src_offline_resources_syncapi_syncresourcechanges",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "backendpaymentrecord"
+      "community_name": "syncApi.ts",
+      "norm_label": "syncresourcechanges"
     },
     {
-      "label": "EmployeeListParams",
+      "label": "SyncStatus",
       "file_type": "code",
-      "source_file": "src/features/employees/api/employeesApi.ts",
-      "source_location": "L5",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L41",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_employees_api_employeesapi_employeelistparams",
+      "id": "src_offline_resources_syncapi_syncstatus",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "employeelistparams"
-    },
-    {
-      "label": "SupplierProductListParams",
-      "file_type": "code",
-      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
-      "source_location": "L5",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_supplier_products_api_supplierproductsapi_supplierproductlistparams",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "supplierproductlistparams"
-    },
-    {
-      "label": "SupplierListParams",
-      "file_type": "code",
-      "source_file": "src/features/suppliers/api/suppliersApi.ts",
-      "source_location": "L5",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_suppliers_api_suppliersapi_supplierlistparams",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "supplierlistparams"
-    },
-    {
-      "label": "ApiError",
-      "file_type": "code",
-      "source_file": "src/shared/types/common.ts",
-      "source_location": "L9",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_types_common_apierror",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "apierror"
-    },
-    {
-      "label": "ApiResponse",
-      "file_type": "code",
-      "source_file": "src/shared/types/common.ts",
-      "source_location": "L16",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_types_common_apiresponse",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "apiresponse"
-    },
-    {
-      "label": "PaginatedResponse",
-      "file_type": "code",
-      "source_file": "src/shared/types/common.ts",
-      "source_location": "L1",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_types_common_paginatedresponse",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "paginatedresponse"
-    },
-    {
-      "label": "SelectOption",
-      "file_type": "code",
-      "source_file": "src/shared/types/common.ts",
-      "source_location": "L22",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_types_common_selectoption",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "selectoption"
+      "community_name": "syncApi.ts",
+      "norm_label": "syncstatus"
     },
     {
       "label": "BackendCreditNoteItem",
@@ -4651,69 +4612,30 @@
       "norm_label": "creditnoteitemdisposition"
     },
     {
-      "label": "ApiEnvelope",
+      "label": "AmountInputProps",
       "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L46",
+      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_location": "L6",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_offline_resources_syncapi_apienvelope",
+      "id": "src_shared_components_amountinput_amountinputprops",
       "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "apienvelope"
+      "community_name": "AmountInput.tsx",
+      "norm_label": "amountinputprops"
     },
     {
-      "label": "ResourceSyncStatus",
+      "label": "DiscountInputProps",
       "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L35",
+      "source_file": "src/shared/components/DiscountInput.tsx",
+      "source_location": "L3",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_offline_resources_syncapi_resourcesyncstatus",
+      "id": "src_shared_components_discountinput_discountinputprops",
       "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "resourcesyncstatus"
-    },
-    {
-      "label": "SyncChangesEnvelope",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_syncchangesenvelope",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "syncchangesenvelope"
-    },
-    {
-      "label": "SyncResourceChanges",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L17",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_syncresourcechanges",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "syncresourcechanges"
-    },
-    {
-      "label": "SyncStatus",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L41",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_syncstatus",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "syncstatus"
+      "community_name": "AmountInput.tsx",
+      "norm_label": "discountinputprops"
     },
     {
       "label": "EmployeeEarningRecord",
@@ -5145,32 +5067,6 @@
       "norm_label": "quantityinputprops"
     },
     {
-      "label": "AmountInputProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
-      "source_location": "L6",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_amountinput_amountinputprops",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "amountinputprops"
-    },
-    {
-      "label": "DiscountInputProps",
-      "file_type": "code",
-      "source_file": "src/shared/components/DiscountInput.tsx",
-      "source_location": "L3",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_shared_components_discountinput_discountinputprops",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "discountinputprops"
-    },
-    {
       "label": "SettingsNavProps",
       "file_type": "code",
       "source_file": "src/features/settings/components/SettingsNav.tsx",
@@ -5179,7 +5075,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_features_settings_components_settingsnav_settingsnavprops",
-      "community": 56,
+      "community": 54,
       "community_name": "SettingsNav.tsx",
       "norm_label": "settingsnavprops"
     },
@@ -5192,7 +5088,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_features_settings_settingssections_settingssectionid",
-      "community": 56,
+      "community": 54,
       "community_name": "SettingsNav.tsx",
       "norm_label": "settingssectionid"
     },
@@ -5205,9 +5101,22 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_features_settings_settingssections_settingssectionmeta",
-      "community": 56,
+      "community": 54,
       "community_name": "SettingsNav.tsx",
       "norm_label": "settingssectionmeta"
+    },
+    {
+      "label": "InventoryStats",
+      "file_type": "code",
+      "source_file": "src/features/inventory/api/statsApi.ts",
+      "source_location": "L9",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_inventory_api_statsapi_inventorystats",
+      "community": 56,
+      "community_name": "useInventoryStats.ts",
+      "norm_label": "inventorystats"
     },
     {
       "label": "BackendRepair",
@@ -5479,7 +5388,7 @@
       "_origin": "ast",
       "id": "src_features_customers_types_customerlistparams",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "customerlistparams"
     },
     {
@@ -5492,7 +5401,7 @@
       "_origin": "ast",
       "id": "src_features_customers_types_customerlistresponse",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "customerlistresponse"
     },
     {
@@ -5505,8 +5414,73 @@
       "_origin": "ast",
       "id": "src_features_customers_types_customertagsresponse",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "customertagsresponse"
+    },
+    {
+      "label": "EmployeeListParams",
+      "file_type": "code",
+      "source_file": "src/features/employees/api/employeesApi.ts",
+      "source_location": "L5",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_employees_api_employeesapi_employeelistparams",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "employeelistparams"
+    },
+    {
+      "label": "ApiError",
+      "file_type": "code",
+      "source_file": "src/shared/types/common.ts",
+      "source_location": "L9",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_types_common_apierror",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "apierror"
+    },
+    {
+      "label": "ApiResponse",
+      "file_type": "code",
+      "source_file": "src/shared/types/common.ts",
+      "source_location": "L16",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_types_common_apiresponse",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "apiresponse"
+    },
+    {
+      "label": "PaginatedResponse",
+      "file_type": "code",
+      "source_file": "src/shared/types/common.ts",
+      "source_location": "L1",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_types_common_paginatedresponse",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "paginatedresponse"
+    },
+    {
+      "label": "SelectOption",
+      "file_type": "code",
+      "source_file": "src/shared/types/common.ts",
+      "source_location": "L22",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_shared_types_common_selectoption",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "selectoption"
     },
     {
       "label": "CustomerDetailDrawerProps",
@@ -5743,17 +5717,17 @@
       "norm_label": "mobilesocialbuttonsprops"
     },
     {
-      "label": "PrintJobStats",
+      "label": "RepairStats",
       "file_type": "code",
-      "source_file": "src/features/print-jobs/api/statsApi.ts",
+      "source_file": "src/features/repairs/api/statsApi.ts",
       "source_location": "L8",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_print_jobs_api_statsapi_printjobstats",
+      "id": "src_features_repairs_api_statsapi_repairstats",
       "community": 76,
-      "community_name": "usePrintJobStats.ts",
-      "norm_label": "printjobstats"
+      "community_name": "useRepairStats.ts",
+      "norm_label": "repairstats"
     },
     {
       "label": "SearchHistoryData",
@@ -5808,17 +5782,43 @@
       "norm_label": "candidatecontracterror"
     },
     {
-      "label": "RepairStats",
+      "label": "DailySalesReportSummary",
       "file_type": "code",
-      "source_file": "src/features/repairs/api/statsApi.ts",
-      "source_location": "L8",
+      "source_file": "src/features/reports/types.ts",
+      "source_location": "L1",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_repairs_api_statsapi_repairstats",
+      "id": "src_features_reports_types_dailysalesreportsummary",
       "community": 84,
-      "community_name": "useRepairStats.ts",
-      "norm_label": "repairstats"
+      "community_name": "reportsApi.ts",
+      "norm_label": "dailysalesreportsummary"
+    },
+    {
+      "label": "EmployeeCommissionsReportResponse",
+      "file_type": "code",
+      "source_file": "src/features/reports/types.ts",
+      "source_location": "L24",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_reports_types_employeecommissionsreportresponse",
+      "community": 84,
+      "community_name": "reportsApi.ts",
+      "norm_label": "employeecommissionsreportresponse"
+    },
+    {
+      "label": "EmployeePerformanceEntry",
+      "file_type": "code",
+      "source_file": "src/features/reports/types.ts",
+      "source_location": "L11",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_reports_types_employeeperformanceentry",
+      "community": 84,
+      "community_name": "reportsApi.ts",
+      "norm_label": "employeeperformanceentry"
     },
     {
       "label": "ProductListParams",
@@ -5886,17 +5886,17 @@
       "norm_label": "productserialstatus"
     },
     {
-      "label": "SupplierStats",
+      "label": "SupplierProductListParams",
       "file_type": "code",
-      "source_file": "src/features/suppliers/api/statsApi.ts",
-      "source_location": "L6",
+      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
+      "source_location": "L5",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_features_suppliers_api_statsapi_supplierstats",
+      "id": "src_features_supplier_products_api_supplierproductsapi_supplierproductlistparams",
       "community": 88,
-      "community_name": "useSupplierStats.ts",
-      "norm_label": "supplierstats"
+      "community_name": "supplierProductsApi.ts",
+      "norm_label": "supplierproductlistparams"
     },
     {
       "label": "ResizeObserverMock",
@@ -6776,18 +6776,6 @@
       "norm_label": "app()"
     },
     {
-      "label": "HeldCartCatchupNotifier()",
-      "file_type": "code",
-      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
-      "source_location": "L17",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_components_heldcartcatchupnotifier_heldcartcatchupnotifier",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "heldcartcatchupnotifier()"
-    },
-    {
       "label": "AppProviders()",
       "file_type": "code",
       "source_file": "src/app/providers.tsx",
@@ -6846,18 +6834,6 @@
       "community": 1,
       "community_name": "providers.tsx",
       "norm_label": "tomantinescheme()"
-    },
-    {
-      "label": "selectHeldCarts()",
-      "file_type": "code",
-      "source_file": "src/store/slices/cartSlice.ts",
-      "source_location": "L540",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_store_slices_cartslice_selectheldcarts",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "selectheldcarts()"
     },
     {
       "label": "getInitialColorScheme()",
@@ -8060,6 +8036,30 @@
       "norm_label": "walkdir()"
     },
     {
+      "label": "fetchSupplierStats()",
+      "file_type": "code",
+      "source_file": "src/features/suppliers/api/statsApi.ts",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_suppliers_api_statsapi_fetchsupplierstats",
+      "community": 125,
+      "community_name": "useSupplierStats.ts",
+      "norm_label": "fetchsupplierstats()"
+    },
+    {
+      "label": "useSupplierStats()",
+      "file_type": "code",
+      "source_file": "src/features/suppliers/hooks/useSupplierStats.ts",
+      "source_location": "L6",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_suppliers_hooks_usesupplierstats_usesupplierstats",
+      "community": 125,
+      "community_name": "useSupplierStats.ts",
+      "norm_label": "usesupplierstats()"
+    },
+    {
       "label": "candidateTarget()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/observation-safety.mjs",
@@ -9155,7 +9155,7 @@
       "label": "DashboardKpiStrip()",
       "file_type": "code",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L17",
+      "source_location": "L11",
       "_callable": true,
       "_origin": "ast",
       "id": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistrip",
@@ -11588,6 +11588,18 @@
       "norm_label": "appupdateprompt()"
     },
     {
+      "label": "HeldCartCatchupNotifier()",
+      "file_type": "code",
+      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
+      "source_location": "L17",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_components_heldcartcatchupnotifier_heldcartcatchupnotifier",
+      "community": 2,
+      "community_name": "useAppSelector",
+      "norm_label": "heldcartcatchupnotifier()"
+    },
+    {
       "label": "Header()",
       "file_type": "code",
       "source_file": "src/app/layout/Header.tsx",
@@ -11790,6 +11802,18 @@
       "community": 2,
       "community_name": "useAppSelector",
       "norm_label": "selectauthuser()"
+    },
+    {
+      "label": "selectHeldCarts()",
+      "file_type": "code",
+      "source_file": "src/store/slices/cartSlice.ts",
+      "source_location": "L540",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_store_slices_cartslice_selectheldcarts",
+      "community": 2,
+      "community_name": "useAppSelector",
+      "norm_label": "selectheldcarts()"
     },
     {
       "label": "selectSoundEnabled()",
@@ -13964,196 +13988,88 @@
       "norm_label": "fetchpurchasesbysupplier()"
     },
     {
-      "label": "annotateCodebaseScan()",
+      "label": "createCreditNote()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L60",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L187",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_annotatecodebasescan",
+      "id": "src_features_billing_api_creditnotesapi_createcreditnote",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "annotatecodebasescan()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "createcreditnote()"
     },
     {
-      "label": "annotateFinding()",
+      "label": "fetchCreditNoteById()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L68",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L210",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_annotatefinding",
+      "id": "src_features_billing_api_creditnotesapi_fetchcreditnotebyid",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "annotatefinding()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "fetchcreditnotebyid()"
     },
     {
-      "label": "assertObject()",
+      "label": "fetchCreditNotes()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L170",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L199",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_assertobject",
+      "id": "src_features_billing_api_creditnotesapi_fetchcreditnotes",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "assertobject()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "fetchcreditnotes()"
     },
     {
-      "label": "bestRouteSummary()",
+      "label": "toCreditNote()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L118",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L155",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_bestroutesummary",
+      "id": "src_features_billing_api_creditnotesapi_tocreditnote",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "bestroutesummary()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "tocreditnote()"
     },
     {
-      "label": "buildRouteMetricIndex()",
+      "label": "toCreditNoteExchangeItem()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L78",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L138",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_buildroutemetricindex",
+      "id": "src_features_billing_api_creditnotesapi_tocreditnoteexchangeitem",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "buildroutemetricindex()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "tocreditnoteexchangeitem()"
     },
     {
-      "label": "exists()",
+      "label": "toCreditNoteItem()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L186",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L121",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_exists",
+      "id": "src_features_billing_api_creditnotesapi_tocreditnoteitem",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "exists()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "tocreditnoteitem()"
     },
     {
-      "label": "formatRouteSignal()",
+      "label": "voidCreditNote()",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L136",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_location": "L221",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_formatroutesignal",
+      "id": "src_features_billing_api_creditnotesapi_voidcreditnote",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "formatroutesignal()"
-    },
-    {
-      "label": "hasTraffic()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L132",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_hastraffic",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "hastraffic()"
-    },
-    {
-      "label": "log()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L13",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_log",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "log()"
-    },
-    {
-      "label": "main()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L15",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_main",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "main()"
-    },
-    {
-      "label": "mergeSignals()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L39",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_mergesignals",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "mergesignals()"
-    },
-    {
-      "label": "numeric()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L113",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_numeric",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "numeric()"
-    },
-    {
-      "label": "parseArgs()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L148",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_parseargs",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "parseargs()"
-    },
-    {
-      "label": "readJson()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L162",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_readjson",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "readjson()"
-    },
-    {
-      "label": "rows()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L108",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_rows",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "rows()"
-    },
-    {
-      "label": "writeOutput()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
-      "source_location": "L176",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals_writeoutput",
-      "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "writeoutput()"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "voidcreditnote()"
     },
     {
       "label": "calculateCartTotals()",
@@ -14588,6 +14504,30 @@
       "norm_label": "readservertime()"
     },
     {
+      "label": "fetchSupplierById()",
+      "file_type": "code",
+      "source_file": "src/features/suppliers/api/suppliersApi.ts",
+      "source_location": "L18",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_suppliers_api_suppliersapi_fetchsupplierbyid",
+      "community": 36,
+      "community_name": "client.ts",
+      "norm_label": "fetchsupplierbyid()"
+    },
+    {
+      "label": "fetchSupplierCategories()",
+      "file_type": "code",
+      "source_file": "src/features/suppliers/api/suppliersApi.ts",
+      "source_location": "L55",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_suppliers_api_suppliersapi_fetchsuppliercategories",
+      "community": 36,
+      "community_name": "client.ts",
+      "norm_label": "fetchsuppliercategories()"
+    },
+    {
       "label": "reportNetworkObservation()",
       "file_type": "code",
       "source_file": "src/offline/connectivity/networkSignal.ts",
@@ -14984,88 +14924,196 @@
       "norm_label": "selectsynctotals()"
     },
     {
-      "label": "createCreditNote()",
+      "label": "annotateCodebaseScan()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L187",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L60",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_createcreditnote",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_annotatecodebasescan",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "createcreditnote()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "annotatecodebasescan()"
     },
     {
-      "label": "fetchCreditNoteById()",
+      "label": "annotateFinding()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L210",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L68",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_fetchcreditnotebyid",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_annotatefinding",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "fetchcreditnotebyid()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "annotatefinding()"
     },
     {
-      "label": "fetchCreditNotes()",
+      "label": "assertObject()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L199",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L170",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_fetchcreditnotes",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_assertobject",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "fetchcreditnotes()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "assertobject()"
     },
     {
-      "label": "toCreditNote()",
+      "label": "bestRouteSummary()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L155",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L118",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_tocreditnote",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_bestroutesummary",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "tocreditnote()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "bestroutesummary()"
     },
     {
-      "label": "toCreditNoteExchangeItem()",
+      "label": "buildRouteMetricIndex()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L138",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L78",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_tocreditnoteexchangeitem",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_buildroutemetricindex",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "tocreditnoteexchangeitem()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "buildroutemetricindex()"
     },
     {
-      "label": "toCreditNoteItem()",
+      "label": "exists()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L121",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L186",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_tocreditnoteitem",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_exists",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "tocreditnoteitem()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "exists()"
     },
     {
-      "label": "voidCreditNote()",
+      "label": "formatRouteSignal()",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
-      "source_location": "L221",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L136",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi_voidcreditnote",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_formatroutesignal",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "voidcreditnote()"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "formatroutesignal()"
+    },
+    {
+      "label": "hasTraffic()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L132",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_hastraffic",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "hastraffic()"
+    },
+    {
+      "label": "log()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L13",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_log",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "log()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L15",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_main",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "main()"
+    },
+    {
+      "label": "mergeSignals()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L39",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_mergesignals",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "mergesignals()"
+    },
+    {
+      "label": "numeric()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L113",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_numeric",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "numeric()"
+    },
+    {
+      "label": "parseArgs()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L148",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_parseargs",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "parseargs()"
+    },
+    {
+      "label": "readJson()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L162",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_readjson",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "readjson()"
+    },
+    {
+      "label": "rows()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L108",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_rows",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "rows()"
+    },
+    {
+      "label": "writeOutput()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_location": "L176",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals_writeoutput",
+      "community": 38,
+      "community_name": "merge-signals.mjs",
+      "norm_label": "writeoutput()"
     },
     {
       "label": "defaultNormalize()",
@@ -16160,28 +16208,28 @@
       "norm_label": "usecustomerstats()"
     },
     {
-      "label": "fetchInventoryStats()",
+      "label": "fetchPrintJobStats()",
       "file_type": "code",
-      "source_file": "src/features/inventory/api/statsApi.ts",
-      "source_location": "L16",
+      "source_file": "src/features/print-jobs/api/statsApi.ts",
+      "source_location": "L15",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_inventory_api_statsapi_fetchinventorystats",
+      "id": "src_features_print_jobs_api_statsapi_fetchprintjobstats",
       "community": 41,
       "community_name": "useModuleStats",
-      "norm_label": "fetchinventorystats()"
+      "norm_label": "fetchprintjobstats()"
     },
     {
-      "label": "useInventoryStats()",
+      "label": "usePrintJobStats()",
       "file_type": "code",
-      "source_file": "src/features/inventory/hooks/useInventoryStats.ts",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobStats.ts",
       "source_location": "L6",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_inventory_hooks_useinventorystats_useinventorystats",
+      "id": "src_features_print_jobs_hooks_useprintjobstats_useprintjobstats",
       "community": 41,
       "community_name": "useModuleStats",
-      "norm_label": "useinventorystats()"
+      "norm_label": "useprintjobstats()"
     },
     {
       "label": "useModuleStats()",
@@ -16760,76 +16808,76 @@
       "norm_label": "selecttenderedamountcents()"
     },
     {
-      "label": "fetchEmployeeById()",
+      "label": "fetchResourceSnapshotPage()",
       "file_type": "code",
-      "source_file": "src/features/employees/api/employeesApi.ts",
-      "source_location": "L19",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L161",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_employees_api_employeesapi_fetchemployeebyid",
+      "id": "src_offline_resources_syncapi_fetchresourcesnapshotpage",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "fetchemployeebyid()"
+      "community_name": "syncApi.ts",
+      "norm_label": "fetchresourcesnapshotpage()"
     },
     {
-      "label": "fetchSupplierProducts()",
+      "label": "fetchSyncChanges()",
       "file_type": "code",
-      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
-      "source_location": "L11",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L63",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_supplier_products_api_supplierproductsapi_fetchsupplierproducts",
+      "id": "src_offline_resources_syncapi_fetchsyncchanges",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "fetchsupplierproducts()"
+      "community_name": "syncApi.ts",
+      "norm_label": "fetchsyncchanges()"
     },
     {
-      "label": "getLinksForProduct()",
+      "label": "isCursorInvalid()",
       "file_type": "code",
-      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
-      "source_location": "L28",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L50",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_supplier_products_api_supplierproductsapi_getlinksforproduct",
+      "id": "src_offline_resources_syncapi_iscursorinvalid",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "getlinksforproduct()"
+      "community_name": "syncApi.ts",
+      "norm_label": "iscursorinvalid()"
     },
     {
-      "label": "getLinksForSupplier()",
+      "label": "readChanges()",
       "file_type": "code",
-      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
-      "source_location": "L24",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L92",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_supplier_products_api_supplierproductsapi_getlinksforsupplier",
+      "id": "src_offline_resources_syncapi_readchanges",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "getlinksforsupplier()"
+      "community_name": "syncApi.ts",
+      "norm_label": "readchanges()"
     },
     {
-      "label": "fetchSupplierById()",
+      "label": "toPullPage()",
       "file_type": "code",
-      "source_file": "src/features/suppliers/api/suppliersApi.ts",
-      "source_location": "L18",
+      "source_file": "src/offline/resources/syncApi.ts",
+      "source_location": "L106",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_suppliers_api_suppliersapi_fetchsupplierbyid",
+      "id": "src_offline_resources_syncapi_topullpage",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "fetchsupplierbyid()"
+      "community_name": "syncApi.ts",
+      "norm_label": "topullpage()"
     },
     {
-      "label": "fetchSupplierCategories()",
+      "label": "mockStatus()",
       "file_type": "code",
-      "source_file": "src/features/suppliers/api/suppliersApi.ts",
-      "source_location": "L55",
+      "source_file": "src/offline/__tests__/pullTargets.test.ts",
+      "source_location": "L40",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_suppliers_api_suppliersapi_fetchsuppliercategories",
+      "id": "src_offline_tests_pulltargets_test_mockstatus",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "fetchsuppliercategories()"
+      "community_name": "syncApi.ts",
+      "norm_label": "mockstatus()"
     },
     {
       "label": "fetchInvoices()",
@@ -17070,78 +17118,6 @@
       "community": 46,
       "community_name": "InvoicesList.tsx",
       "norm_label": "useisadmin()"
-    },
-    {
-      "label": "fetchResourceSnapshotPage()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L161",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_fetchresourcesnapshotpage",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "fetchresourcesnapshotpage()"
-    },
-    {
-      "label": "fetchSyncChanges()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L63",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_fetchsyncchanges",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "fetchsyncchanges()"
-    },
-    {
-      "label": "isCursorInvalid()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L50",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_iscursorinvalid",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "iscursorinvalid()"
-    },
-    {
-      "label": "readChanges()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L92",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_readchanges",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "readchanges()"
-    },
-    {
-      "label": "toPullPage()",
-      "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
-      "source_location": "L106",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_resources_syncapi_topullpage",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "topullpage()"
-    },
-    {
-      "label": "mockStatus()",
-      "file_type": "code",
-      "source_file": "src/offline/__tests__/pullTargets.test.ts",
-      "source_location": "L40",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_offline_tests_pulltargets_test_mockstatus",
-      "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "mockstatus()"
     },
     {
       "label": "fetchEmployeeEarnings()",
@@ -18092,6 +18068,42 @@
       "norm_label": "formatmoney()"
     },
     {
+      "label": "SettingsNavDrillDownList()",
+      "file_type": "code",
+      "source_file": "src/features/settings/components/SettingsNav.tsx",
+      "source_location": "L102",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_settings_components_settingsnav_settingsnavdrilldownlist",
+      "community": 54,
+      "community_name": "SettingsNav.tsx",
+      "norm_label": "settingsnavdrilldownlist()"
+    },
+    {
+      "label": "SettingsNavList()",
+      "file_type": "code",
+      "source_file": "src/features/settings/components/SettingsNav.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_settings_components_settingsnav_settingsnavlist",
+      "community": 54,
+      "community_name": "SettingsNav.tsx",
+      "norm_label": "settingsnavlist()"
+    },
+    {
+      "label": "SettingsNavTabs()",
+      "file_type": "code",
+      "source_file": "src/features/settings/components/SettingsNav.tsx",
+      "source_location": "L78",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_settings_components_settingsnav_settingsnavtabs",
+      "community": 54,
+      "community_name": "SettingsNav.tsx",
+      "norm_label": "settingsnavtabs()"
+    },
+    {
       "label": "escapeODataString()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/deep-dive.mjs",
@@ -18296,40 +18308,28 @@
       "norm_label": "tryextractfrombroadpass()"
     },
     {
-      "label": "SettingsNavDrillDownList()",
+      "label": "fetchInventoryStats()",
       "file_type": "code",
-      "source_file": "src/features/settings/components/SettingsNav.tsx",
-      "source_location": "L102",
+      "source_file": "src/features/inventory/api/statsApi.ts",
+      "source_location": "L16",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_settings_components_settingsnav_settingsnavdrilldownlist",
+      "id": "src_features_inventory_api_statsapi_fetchinventorystats",
       "community": 56,
-      "community_name": "SettingsNav.tsx",
-      "norm_label": "settingsnavdrilldownlist()"
+      "community_name": "useInventoryStats.ts",
+      "norm_label": "fetchinventorystats()"
     },
     {
-      "label": "SettingsNavList()",
+      "label": "useInventoryStats()",
       "file_type": "code",
-      "source_file": "src/features/settings/components/SettingsNav.tsx",
-      "source_location": "L10",
+      "source_file": "src/features/inventory/hooks/useInventoryStats.ts",
+      "source_location": "L6",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_settings_components_settingsnav_settingsnavlist",
+      "id": "src_features_inventory_hooks_useinventorystats_useinventorystats",
       "community": 56,
-      "community_name": "SettingsNav.tsx",
-      "norm_label": "settingsnavlist()"
-    },
-    {
-      "label": "SettingsNavTabs()",
-      "file_type": "code",
-      "source_file": "src/features/settings/components/SettingsNav.tsx",
-      "source_location": "L78",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_settings_components_settingsnav_settingsnavtabs",
-      "community": 56,
-      "community_name": "SettingsNav.tsx",
-      "norm_label": "settingsnavtabs()"
+      "community_name": "useInventoryStats.ts",
+      "norm_label": "useinventorystats()"
     },
     {
       "label": "readIconNames()",
@@ -19708,7 +19708,7 @@
       "_origin": "ast",
       "id": "src_features_customers_api_customersapi_fetchcustomerbyid",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "fetchcustomerbyid()"
     },
     {
@@ -19720,7 +19720,7 @@
       "_origin": "ast",
       "id": "src_features_customers_api_customersapi_fetchcustomertags",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "fetchcustomertags()"
     },
     {
@@ -19732,8 +19732,20 @@
       "_origin": "ast",
       "id": "src_features_customers_api_customersapi_patchcustomer",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "patchcustomer()"
+    },
+    {
+      "label": "fetchEmployeeById()",
+      "file_type": "code",
+      "source_file": "src/features/employees/api/employeesApi.ts",
+      "source_location": "L19",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_employees_api_employeesapi_fetchemployeebyid",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "fetchemployeebyid()"
     },
     {
       "label": "fetchCustomers()",
@@ -20468,28 +20480,28 @@
       "norm_label": "mobilesocialbuttons()"
     },
     {
-      "label": "fetchPrintJobStats()",
+      "label": "fetchRepairStats()",
       "file_type": "code",
-      "source_file": "src/features/print-jobs/api/statsApi.ts",
+      "source_file": "src/features/repairs/api/statsApi.ts",
       "source_location": "L15",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_print_jobs_api_statsapi_fetchprintjobstats",
+      "id": "src_features_repairs_api_statsapi_fetchrepairstats",
       "community": 76,
-      "community_name": "usePrintJobStats.ts",
-      "norm_label": "fetchprintjobstats()"
+      "community_name": "useRepairStats.ts",
+      "norm_label": "fetchrepairstats()"
     },
     {
-      "label": "usePrintJobStats()",
+      "label": "useRepairStats()",
       "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobStats.ts",
+      "source_file": "src/features/repairs/hooks/useRepairStats.ts",
       "source_location": "L6",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobstats_useprintjobstats",
+      "id": "src_features_repairs_hooks_userepairstats_userepairstats",
       "community": 76,
-      "community_name": "usePrintJobStats.ts",
-      "norm_label": "useprintjobstats()"
+      "community_name": "useRepairStats.ts",
+      "norm_label": "userepairstats()"
     },
     {
       "label": "clearConnectivityNotification()",
@@ -21440,30 +21452,6 @@
       "norm_label": "stablecompare()"
     },
     {
-      "label": "fetchRepairStats()",
-      "file_type": "code",
-      "source_file": "src/features/repairs/api/statsApi.ts",
-      "source_location": "L15",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_repairs_api_statsapi_fetchrepairstats",
-      "community": 84,
-      "community_name": "useRepairStats.ts",
-      "norm_label": "fetchrepairstats()"
-    },
-    {
-      "label": "useRepairStats()",
-      "file_type": "code",
-      "source_file": "src/features/repairs/hooks/useRepairStats.ts",
-      "source_location": "L6",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_repairs_hooks_userepairstats_userepairstats",
-      "community": 84,
-      "community_name": "useRepairStats.ts",
-      "norm_label": "userepairstats()"
-    },
-    {
       "label": "computeImpactLabel()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/impact-label.mjs",
@@ -21968,28 +21956,40 @@
       "norm_label": "walk()"
     },
     {
-      "label": "fetchSupplierStats()",
+      "label": "fetchSupplierProducts()",
       "file_type": "code",
-      "source_file": "src/features/suppliers/api/statsApi.ts",
-      "source_location": "L12",
+      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
+      "source_location": "L11",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_suppliers_api_statsapi_fetchsupplierstats",
+      "id": "src_features_supplier_products_api_supplierproductsapi_fetchsupplierproducts",
       "community": 88,
-      "community_name": "useSupplierStats.ts",
-      "norm_label": "fetchsupplierstats()"
+      "community_name": "supplierProductsApi.ts",
+      "norm_label": "fetchsupplierproducts()"
     },
     {
-      "label": "useSupplierStats()",
+      "label": "getLinksForProduct()",
       "file_type": "code",
-      "source_file": "src/features/suppliers/hooks/useSupplierStats.ts",
-      "source_location": "L6",
+      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
+      "source_location": "L28",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_features_suppliers_hooks_usesupplierstats_usesupplierstats",
+      "id": "src_features_supplier_products_api_supplierproductsapi_getlinksforproduct",
       "community": 88,
-      "community_name": "useSupplierStats.ts",
-      "norm_label": "usesupplierstats()"
+      "community_name": "supplierProductsApi.ts",
+      "norm_label": "getlinksforproduct()"
+    },
+    {
+      "label": "getLinksForSupplier()",
+      "file_type": "code",
+      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
+      "source_location": "L24",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_supplier_products_api_supplierproductsapi_getlinksforsupplier",
+      "community": 88,
+      "community_name": "supplierProductsApi.ts",
+      "norm_label": "getlinksforsupplier()"
     },
     {
       "label": "length()",
@@ -22670,17 +22670,6 @@
       "norm_label": "app/app.tsx"
     },
     {
-      "label": "HeldCartCatchupNotifier.tsx",
-      "file_type": "code",
-      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_components_heldcartcatchupnotifier",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "heldcartcatchupnotifier.tsx"
-    },
-    {
       "label": "providers.tsx",
       "file_type": "code",
       "source_file": "src/app/providers.tsx",
@@ -22701,50 +22690,6 @@
       "community": 1,
       "community_name": "providers.tsx",
       "norm_label": "router"
-    },
-    {
-      "label": "ui.ts",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_constants_ui",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "ui.ts"
-    },
-    {
-      "label": "DEFAULT_PAGINATION",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_constants_ui_default_pagination",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "default_pagination"
-    },
-    {
-      "label": "HELD_CART_REMINDER_MS",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "src_constants_ui_held_cart_reminder_ms",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "held_cart_reminder_ms"
-    },
-    {
-      "label": "SKELETON_WIDTH_PATTERN",
-      "file_type": "code",
-      "source_file": "src/constants/ui.ts",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_constants_ui_skeleton_width_pattern",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "skeleton_width_pattern"
     },
     {
       "label": "main.tsx",
@@ -22802,17 +22747,6 @@
       "norm_label": "reduxcolorschememanager"
     },
     {
-      "label": "store/index.ts",
-      "file_type": "code",
-      "source_file": "src/store/index.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_store_index",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "store/index.ts"
-    },
-    {
       "label": "store",
       "file_type": "code",
       "source_file": "src/store/index.ts",
@@ -22822,28 +22756,6 @@
       "community": 1,
       "community_name": "providers.tsx",
       "norm_label": "store"
-    },
-    {
-      "label": "listenerMiddleware.ts",
-      "file_type": "code",
-      "source_file": "src/store/listenerMiddleware.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_store_listenermiddleware",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "listenermiddleware.ts"
-    },
-    {
-      "label": "listenerMiddleware",
-      "file_type": "code",
-      "source_file": "src/store/listenerMiddleware.ts",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "src_store_listenermiddleware_listenermiddleware",
-      "community": 1,
-      "community_name": "providers.tsx",
-      "norm_label": "listenermiddleware"
     },
     {
       "label": "themeSlice.test.ts",
@@ -23077,6 +22989,17 @@
       "norm_label": "axios"
     },
     {
+      "label": "dayjs",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "package_dependencies_dayjs",
+      "community": 11,
+      "community_name": "dependencies",
+      "norm_label": "dayjs"
+    },
+    {
       "label": "dexie",
       "file_type": "code",
       "source_file": "package.json",
@@ -23209,17 +23132,6 @@
       "norm_label": "react-router-dom"
     },
     {
-      "label": "@reduxjs/toolkit",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L52",
-      "_origin": "ast",
-      "id": "package_dependencies_reduxjs_toolkit",
-      "community": 11,
-      "community_name": "dependencies",
-      "norm_label": "@reduxjs/toolkit"
-    },
-    {
       "label": "@tabler/icons-react",
       "file_type": "code",
       "source_file": "package.json",
@@ -23262,6 +23174,17 @@
       "community": 11,
       "community_name": "dependencies",
       "norm_label": "axios"
+    },
+    {
+      "label": "dayjs",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "dayjs",
+      "community": 11,
+      "community_name": "dependencies",
+      "norm_label": "dayjs"
     },
     {
       "label": "dexie",
@@ -23394,17 +23317,6 @@
       "community": 11,
       "community_name": "dependencies",
       "norm_label": "react-router-dom"
-    },
-    {
-      "label": "@reduxjs/toolkit",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L52",
-      "_origin": "ast",
-      "id": "reduxjs_toolkit",
-      "community": 11,
-      "community_name": "dependencies",
-      "norm_label": "@reduxjs/toolkit"
     },
     {
       "label": "@tabler/icons-react",
@@ -24505,15 +24417,26 @@
       "norm_label": "collect-sub-agent-outputs.mjs"
     },
     {
-      "label": "ts-jest",
+      "label": "suppliers/api/statsApi.ts",
       "file_type": "code",
-      "source_file": "ts-jest",
-      "confidence": "EXTRACTED",
+      "source_file": "src/features/suppliers/api/statsApi.ts",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "ts_jest_ts_jest",
+      "id": "src_features_suppliers_api_statsapi",
       "community": 125,
-      "community_name": "ts-jest",
-      "norm_label": "ts-jest"
+      "community_name": "useSupplierStats.ts",
+      "norm_label": "suppliers/api/statsapi.ts"
+    },
+    {
+      "label": "useSupplierStats.ts",
+      "file_type": "code",
+      "source_file": "src/features/suppliers/hooks/useSupplierStats.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_suppliers_hooks_usesupplierstats",
+      "community": 125,
+      "community_name": "useSupplierStats.ts",
+      "norm_label": "usesupplierstats.ts"
     },
     {
       "label": "Accessibility",
@@ -24718,6 +24641,28 @@
       "community": 126,
       "community_name": "React View Transitions",
       "norm_label": "when to animate"
+    },
+    {
+      "label": "eslint-config-prettier",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "package_devdependencies_eslint_config_prettier",
+      "community": 127,
+      "community_name": "eslint-config-prettier",
+      "norm_label": "eslint-config-prettier"
+    },
+    {
+      "label": "eslint-config-prettier",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "eslint_config_prettier",
+      "community": 127,
+      "community_name": "eslint-config-prettier",
+      "norm_label": "eslint-config-prettier"
     },
     {
       "label": "observation-safety.mjs",
@@ -27674,6 +27619,28 @@
       "norm_label": "timing variables"
     },
     {
+      "label": "@reduxjs/toolkit",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L52",
+      "_origin": "ast",
+      "id": "package_dependencies_reduxjs_toolkit",
+      "community": 143,
+      "community_name": "@reduxjs/toolkit",
+      "norm_label": "@reduxjs/toolkit"
+    },
+    {
+      "label": "@reduxjs/toolkit",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L52",
+      "_origin": "ast",
+      "id": "reduxjs_toolkit",
+      "community": 143,
+      "community_name": "@reduxjs/toolkit",
+      "norm_label": "@reduxjs/toolkit"
+    },
+    {
       "label": "lib/budget-summary.mjs",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/budget-summary.mjs",
@@ -29742,26 +29709,15 @@
       "norm_label": "voice.md"
     },
     {
-      "label": "dayjs",
+      "label": "ts-jest",
       "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L57",
+      "source_file": "ts-jest",
+      "confidence": "EXTRACTED",
       "_origin": "ast",
-      "id": "package_dependencies_dayjs",
+      "id": "ts_jest_ts_jest",
       "community": 157,
-      "community_name": "dayjs",
-      "norm_label": "dayjs"
-    },
-    {
-      "label": "dayjs",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L57",
-      "_origin": "ast",
-      "id": "dayjs",
-      "community": 157,
-      "community_name": "dayjs",
-      "norm_label": "dayjs"
+      "community_name": "ts-jest",
+      "norm_label": "ts-jest"
     },
     {
       "label": "observability-events-attribution.mjs",
@@ -29819,15 +29775,15 @@
       "norm_label": "devdependencies"
     },
     {
-      "label": "eslint-config-prettier",
+      "label": "eslint",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L26",
+      "source_location": "L25",
       "_origin": "ast",
-      "id": "package_devdependencies_eslint_config_prettier",
+      "id": "package_devdependencies_eslint",
       "community": 16,
       "community_name": "devDependencies",
-      "norm_label": "eslint-config-prettier"
+      "norm_label": "eslint"
     },
     {
       "label": "eslint-plugin-react-hooks",
@@ -29984,15 +29940,15 @@
       "norm_label": "vite-plugin-pwa"
     },
     {
-      "label": "eslint-config-prettier",
+      "label": "eslint",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L26",
+      "source_location": "L25",
       "_origin": "ast",
-      "id": "eslint_config_prettier",
+      "id": "eslint",
       "community": 16,
       "community_name": "devDependencies",
-      "norm_label": "eslint-config-prettier"
+      "norm_label": "eslint"
     },
     {
       "label": "eslint-plugin-react-hooks",
@@ -33867,6 +33823,17 @@
       "community": 2,
       "community_name": "useAppSelector",
       "norm_label": "appupdateprompt.tsx"
+    },
+    {
+      "label": "HeldCartCatchupNotifier.tsx",
+      "file_type": "code",
+      "source_file": "src/app/components/HeldCartCatchupNotifier.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_components_heldcartcatchupnotifier",
+      "community": 2,
+      "community_name": "useAppSelector",
+      "norm_label": "heldcartcatchupnotifier.tsx"
     },
     {
       "label": "Header.tsx",
@@ -39433,6 +39400,50 @@
       "norm_label": "create explicit component variants"
     },
     {
+      "label": "ui.ts",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_constants_ui",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "ui.ts"
+    },
+    {
+      "label": "DEFAULT_PAGINATION",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_constants_ui_default_pagination",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "default_pagination"
+    },
+    {
+      "label": "HELD_CART_REMINDER_MS",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "src_constants_ui_held_cart_reminder_ms",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "held_cart_reminder_ms"
+    },
+    {
+      "label": "SKELETON_WIDTH_PATTERN",
+      "file_type": "code",
+      "source_file": "src/constants/ui.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_constants_ui_skeleton_width_pattern",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "skeleton_width_pattern"
+    },
+    {
       "label": "NotificationItem.tsx",
       "file_type": "code",
       "source_file": "src/features/notifications/components/NotificationItem.tsx",
@@ -39486,6 +39497,39 @@
       "community": 28,
       "community_name": "notificationSlice.ts",
       "norm_label": "notifications/types.ts"
+    },
+    {
+      "label": "store/index.ts",
+      "file_type": "code",
+      "source_file": "src/store/index.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_store_index",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "store/index.ts"
+    },
+    {
+      "label": "listenerMiddleware.ts",
+      "file_type": "code",
+      "source_file": "src/store/listenerMiddleware.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_store_listenermiddleware",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "listenermiddleware.ts"
+    },
+    {
+      "label": "listenerMiddleware",
+      "file_type": "code",
+      "source_file": "src/store/listenerMiddleware.ts",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "src_store_listenermiddleware_listenermiddleware",
+      "community": 28,
+      "community_name": "notificationSlice.ts",
+      "norm_label": "listenermiddleware"
     },
     {
       "label": "notificationSlice.ts",
@@ -41593,15 +41637,15 @@
       "norm_label": "subscribe to derived state"
     },
     {
-      "label": "merge-signals.mjs",
+      "label": "creditNotesApi.ts",
       "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
+      "source_file": "src/features/billing/api/creditNotesApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_scripts_merge_signals",
+      "id": "src_features_billing_api_creditnotesapi",
       "community": 33,
-      "community_name": "merge-signals.mjs",
-      "norm_label": "merge-signals.mjs"
+      "community_name": "creditNotesApi.ts",
+      "norm_label": "creditnotesapi.ts"
     },
     {
       "label": "rerender-derived-state-no-effect.md",
@@ -42800,26 +42844,26 @@
       "norm_label": "client.ts"
     },
     {
-      "label": "reportsApi.ts",
+      "label": "paymentsApi.ts",
       "file_type": "code",
-      "source_file": "src/features/reports/api/reportsApi.ts",
+      "source_file": "src/features/billing/api/paymentsApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_reports_api_reportsapi",
+      "id": "src_features_billing_api_paymentsapi",
       "community": 36,
       "community_name": "client.ts",
-      "norm_label": "reportsapi.ts"
+      "norm_label": "paymentsapi.ts"
     },
     {
-      "label": "reports/types.ts",
+      "label": "suppliersApi.ts",
       "file_type": "code",
-      "source_file": "src/features/reports/types.ts",
+      "source_file": "src/features/suppliers/api/suppliersApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_reports_types",
+      "id": "src_features_suppliers_api_suppliersapi",
       "community": 36,
       "community_name": "client.ts",
-      "norm_label": "reports/types.ts"
+      "norm_label": "suppliersapi.ts"
     },
     {
       "label": "list-performance-callbacks.md",
@@ -43653,15 +43697,15 @@
       "norm_label": "rule title here"
     },
     {
-      "label": "creditNotesApi.ts",
+      "label": "merge-signals.mjs",
       "file_type": "code",
-      "source_file": "src/features/billing/api/creditNotesApi.ts",
+      "source_file": ".agents/skills/vercel-optimize/scripts/merge-signals.mjs",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_billing_api_creditnotesapi",
+      "id": "agents_skills_vercel_optimize_scripts_merge_signals",
       "community": 38,
-      "community_name": "creditNotesApi.ts",
-      "norm_label": "creditnotesapi.ts"
+      "community_name": "merge-signals.mjs",
+      "norm_label": "merge-signals.mjs"
     },
     {
       "label": "ui-expo-image.md",
@@ -43932,28 +43976,6 @@
       "community": 388,
       "community_name": "ui-styling.md",
       "norm_label": "modern react native styling patterns"
-    },
-    {
-      "label": "eslint",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "package_devdependencies_eslint",
-      "community": 389,
-      "community_name": "eslint",
-      "norm_label": "eslint"
-    },
-    {
-      "label": "eslint",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "eslint",
-      "community": 389,
-      "community_name": "eslint",
-      "norm_label": "eslint"
     },
     {
       "label": "queries.mjs",
@@ -44440,26 +44462,26 @@
       "norm_label": "usecustomerstats.ts"
     },
     {
-      "label": "inventory/api/statsApi.ts",
+      "label": "print-jobs/api/statsApi.ts",
       "file_type": "code",
-      "source_file": "src/features/inventory/api/statsApi.ts",
+      "source_file": "src/features/print-jobs/api/statsApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_inventory_api_statsapi",
+      "id": "src_features_print_jobs_api_statsapi",
       "community": 41,
       "community_name": "useModuleStats",
-      "norm_label": "inventory/api/statsapi.ts"
+      "norm_label": "print-jobs/api/statsapi.ts"
     },
     {
-      "label": "useInventoryStats.ts",
+      "label": "usePrintJobStats.ts",
       "file_type": "code",
-      "source_file": "src/features/inventory/hooks/useInventoryStats.ts",
+      "source_file": "src/features/print-jobs/hooks/usePrintJobStats.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_inventory_hooks_useinventorystats",
+      "id": "src_features_print_jobs_hooks_useprintjobstats",
       "community": 41,
       "community_name": "useModuleStats",
-      "norm_label": "useinventorystats.ts"
+      "norm_label": "useprintjobstats.ts"
     },
     {
       "label": "useModuleStats.ts",
@@ -44781,59 +44803,15 @@
       "norm_label": "sampleitem"
     },
     {
-      "label": "paymentsApi.ts",
+      "label": "syncApi.ts",
       "file_type": "code",
-      "source_file": "src/features/billing/api/paymentsApi.ts",
+      "source_file": "src/offline/resources/syncApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_billing_api_paymentsapi",
+      "id": "src_offline_resources_syncapi",
       "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "paymentsapi.ts"
-    },
-    {
-      "label": "employeesApi.ts",
-      "file_type": "code",
-      "source_file": "src/features/employees/api/employeesApi.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_employees_api_employeesapi",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "employeesapi.ts"
-    },
-    {
-      "label": "supplierProductsApi.ts",
-      "file_type": "code",
-      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_supplier_products_api_supplierproductsapi",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "supplierproductsapi.ts"
-    },
-    {
-      "label": "suppliersApi.ts",
-      "file_type": "code",
-      "source_file": "src/features/suppliers/api/suppliersApi.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_suppliers_api_suppliersapi",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "suppliersapi.ts"
-    },
-    {
-      "label": "common.ts",
-      "file_type": "code",
-      "source_file": "src/shared/types/common.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_types_common",
-      "community": 45,
-      "community_name": "common.ts",
-      "norm_label": "common.ts"
+      "community_name": "syncApi.ts",
+      "norm_label": "syncapi.ts"
     },
     {
       "label": "InvoicesList",
@@ -45045,15 +45023,92 @@
       "norm_label": "todo: this override is admin-only, but the copy at line ~434 tells the"
     },
     {
-      "label": "syncApi.ts",
+      "label": "AmountInput.tsx",
       "file_type": "code",
-      "source_file": "src/offline/resources/syncApi.ts",
+      "source_file": "src/shared/components/AmountInput.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_offline_resources_syncapi",
+      "id": "src_shared_components_amountinput",
       "community": 47,
-      "community_name": "syncApi.ts",
-      "norm_label": "syncapi.ts"
+      "community_name": "AmountInput.tsx",
+      "norm_label": "amountinput.tsx"
+    },
+    {
+      "label": "AmountInput",
+      "file_type": "code",
+      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_shared_components_amountinput_amountinput",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "amountinput"
+    },
+    {
+      "label": "BUTTON_WIDTH_MAP",
+      "file_type": "code",
+      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_shared_components_amountinput_button_width_map",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "button_width_map"
+    },
+    {
+      "label": "FONT_SIZE_MAP",
+      "file_type": "code",
+      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "src_shared_components_amountinput_font_size_map",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "font_size_map"
+    },
+    {
+      "label": "HEIGHT_MAP",
+      "file_type": "code",
+      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "src_shared_components_amountinput_height_map",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "height_map"
+    },
+    {
+      "label": "PADDING_MAP",
+      "file_type": "code",
+      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_location": "L41",
+      "_origin": "ast",
+      "id": "src_shared_components_amountinput_padding_map",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "padding_map"
+    },
+    {
+      "label": "DiscountInput.tsx",
+      "file_type": "code",
+      "source_file": "src/shared/components/DiscountInput.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_components_discountinput",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "discountinput.tsx"
+    },
+    {
+      "label": "DiscountInput",
+      "file_type": "code",
+      "source_file": "src/shared/components/DiscountInput.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_shared_components_discountinput_discountinput",
+      "community": 47,
+      "community_name": "AmountInput.tsx",
+      "norm_label": "discountinput"
     },
     {
       "label": "employeeEarningsApi.ts",
@@ -45760,92 +45815,37 @@
       "norm_label": "height_map"
     },
     {
-      "label": "AmountInput.tsx",
+      "label": "SettingsNav.tsx",
       "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
+      "source_file": "src/features/settings/components/SettingsNav.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_shared_components_amountinput",
+      "id": "src_features_settings_components_settingsnav",
       "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "amountinput.tsx"
+      "community_name": "SettingsNav.tsx",
+      "norm_label": "settingsnav.tsx"
     },
     {
-      "label": "AmountInput",
+      "label": "settingsSections.ts",
       "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
-      "source_location": "L48",
-      "_origin": "ast",
-      "id": "src_shared_components_amountinput_amountinput",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "amountinput"
-    },
-    {
-      "label": "BUTTON_WIDTH_MAP",
-      "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
-      "source_location": "L27",
-      "_origin": "ast",
-      "id": "src_shared_components_amountinput_button_width_map",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "button_width_map"
-    },
-    {
-      "label": "FONT_SIZE_MAP",
-      "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
-      "source_location": "L34",
-      "_origin": "ast",
-      "id": "src_shared_components_amountinput_font_size_map",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "font_size_map"
-    },
-    {
-      "label": "HEIGHT_MAP",
-      "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
-      "source_location": "L20",
-      "_origin": "ast",
-      "id": "src_shared_components_amountinput_height_map",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "height_map"
-    },
-    {
-      "label": "PADDING_MAP",
-      "file_type": "code",
-      "source_file": "src/shared/components/AmountInput.tsx",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "src_shared_components_amountinput_padding_map",
-      "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "padding_map"
-    },
-    {
-      "label": "DiscountInput.tsx",
-      "file_type": "code",
-      "source_file": "src/shared/components/DiscountInput.tsx",
+      "source_file": "src/features/settings/settingsSections.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_shared_components_discountinput",
+      "id": "src_features_settings_settingssections",
       "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "discountinput.tsx"
+      "community_name": "SettingsNav.tsx",
+      "norm_label": "settingssections.ts"
     },
     {
-      "label": "DiscountInput",
+      "label": "SETTINGS_SECTIONS",
       "file_type": "code",
-      "source_file": "src/shared/components/DiscountInput.tsx",
-      "source_location": "L4",
+      "source_file": "src/features/settings/settingsSections.ts",
+      "source_location": "L22",
       "_origin": "ast",
-      "id": "src_shared_components_discountinput_discountinput",
+      "id": "src_features_settings_settingssections_settings_sections",
       "community": 54,
-      "community_name": "AmountInput.tsx",
-      "norm_label": "discountinput"
+      "community_name": "SettingsNav.tsx",
+      "norm_label": "settings_sections"
     },
     {
       "label": "lib/deep-dive.mjs",
@@ -45892,37 +45892,26 @@
       "norm_label": "scripts/deep-dive.mjs"
     },
     {
-      "label": "SettingsNav.tsx",
+      "label": "inventory/api/statsApi.ts",
       "file_type": "code",
-      "source_file": "src/features/settings/components/SettingsNav.tsx",
+      "source_file": "src/features/inventory/api/statsApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_settings_components_settingsnav",
+      "id": "src_features_inventory_api_statsapi",
       "community": 56,
-      "community_name": "SettingsNav.tsx",
-      "norm_label": "settingsnav.tsx"
+      "community_name": "useInventoryStats.ts",
+      "norm_label": "inventory/api/statsapi.ts"
     },
     {
-      "label": "settingsSections.ts",
+      "label": "useInventoryStats.ts",
       "file_type": "code",
-      "source_file": "src/features/settings/settingsSections.ts",
+      "source_file": "src/features/inventory/hooks/useInventoryStats.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_settings_settingssections",
+      "id": "src_features_inventory_hooks_useinventorystats",
       "community": 56,
-      "community_name": "SettingsNav.tsx",
-      "norm_label": "settingssections.ts"
-    },
-    {
-      "label": "SETTINGS_SECTIONS",
-      "file_type": "code",
-      "source_file": "src/features/settings/settingsSections.ts",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "src_features_settings_settingssections_settings_sections",
-      "community": 56,
-      "community_name": "SettingsNav.tsx",
-      "norm_label": "settings_sections"
+      "community_name": "useInventoryStats.ts",
+      "norm_label": "useinventorystats.ts"
     },
     {
       "label": "./${key}",
@@ -46460,8 +46449,30 @@
       "_origin": "ast",
       "id": "src_features_customers_api_customersapi",
       "community": 67,
-      "community_name": "customersApi.ts",
+      "community_name": "common.ts",
       "norm_label": "customersapi.ts"
+    },
+    {
+      "label": "employeesApi.ts",
+      "file_type": "code",
+      "source_file": "src/features/employees/api/employeesApi.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_employees_api_employeesapi",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "employeesapi.ts"
+    },
+    {
+      "label": "common.ts",
+      "file_type": "code",
+      "source_file": "src/shared/types/common.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_types_common",
+      "community": 67,
+      "community_name": "common.ts",
+      "norm_label": "common.ts"
     },
     {
       "label": "CustomerDetailDrawer.tsx",
@@ -47357,26 +47368,26 @@
       "norm_label": "version"
     },
     {
-      "label": "print-jobs/api/statsApi.ts",
+      "label": "repairs/api/statsApi.ts",
       "file_type": "code",
-      "source_file": "src/features/print-jobs/api/statsApi.ts",
+      "source_file": "src/features/repairs/api/statsApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_print_jobs_api_statsapi",
+      "id": "src_features_repairs_api_statsapi",
       "community": 76,
-      "community_name": "usePrintJobStats.ts",
-      "norm_label": "print-jobs/api/statsapi.ts"
+      "community_name": "useRepairStats.ts",
+      "norm_label": "repairs/api/statsapi.ts"
     },
     {
-      "label": "usePrintJobStats.ts",
+      "label": "useRepairStats.ts",
       "file_type": "code",
-      "source_file": "src/features/print-jobs/hooks/usePrintJobStats.ts",
+      "source_file": "src/features/repairs/hooks/useRepairStats.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_print_jobs_hooks_useprintjobstats",
+      "id": "src_features_repairs_hooks_userepairstats",
       "community": 76,
-      "community_name": "usePrintJobStats.ts",
-      "norm_label": "useprintjobstats.ts"
+      "community_name": "useRepairStats.ts",
+      "norm_label": "userepairstats.ts"
     },
     {
       "label": "syncNotifications.ts",
@@ -47817,26 +47828,26 @@
       "norm_label": "gate-investigations.mjs"
     },
     {
-      "label": "repairs/api/statsApi.ts",
+      "label": "reportsApi.ts",
       "file_type": "code",
-      "source_file": "src/features/repairs/api/statsApi.ts",
+      "source_file": "src/features/reports/api/reportsApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_repairs_api_statsapi",
+      "id": "src_features_reports_api_reportsapi",
       "community": 84,
-      "community_name": "useRepairStats.ts",
-      "norm_label": "repairs/api/statsapi.ts"
+      "community_name": "reportsApi.ts",
+      "norm_label": "reportsapi.ts"
     },
     {
-      "label": "useRepairStats.ts",
+      "label": "reports/types.ts",
       "file_type": "code",
-      "source_file": "src/features/repairs/hooks/useRepairStats.ts",
+      "source_file": "src/features/reports/types.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_repairs_hooks_userepairstats",
+      "id": "src_features_reports_types",
       "community": 84,
-      "community_name": "useRepairStats.ts",
-      "norm_label": "userepairstats.ts"
+      "community_name": "reportsApi.ts",
+      "norm_label": "reports/types.ts"
     },
     {
       "label": "impact-label.mjs",
@@ -48224,26 +48235,15 @@
       "norm_label": "skip_path_prefixes"
     },
     {
-      "label": "suppliers/api/statsApi.ts",
+      "label": "supplierProductsApi.ts",
       "file_type": "code",
-      "source_file": "src/features/suppliers/api/statsApi.ts",
+      "source_file": "src/features/supplier-products/api/supplierProductsApi.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_suppliers_api_statsapi",
+      "id": "src_features_supplier_products_api_supplierproductsapi",
       "community": 88,
-      "community_name": "useSupplierStats.ts",
-      "norm_label": "suppliers/api/statsapi.ts"
-    },
-    {
-      "label": "useSupplierStats.ts",
-      "file_type": "code",
-      "source_file": "src/features/suppliers/hooks/useSupplierStats.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_suppliers_hooks_usesupplierstats",
-      "community": 88,
-      "community_name": "useSupplierStats.ts",
-      "norm_label": "usesupplierstats.ts"
+      "community_name": "supplierProductsApi.ts",
+      "norm_label": "supplierproductsapi.ts"
     },
     {
       "label": "setupTests.ts",
@@ -49176,6 +49176,22 @@
       "id": "claude_feature_module_pattern"
     },
     {
+      "label": "isBillingBoundaryChange Render-Time State Adjustment",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "Animation performance",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Suppresses AppShell's Mantine transition for the one render where a billing-specific boundary (header height/navbar width/padding) is crossed, so an animated chrome resize doesn't land in the same frame as a heavy screen's first mount and appear stuck.",
+      "community": 61,
+      "community_name": "App Entry Chain",
+      "norm_label": "isbillingboundarychange render-time state adjustment",
+      "_origin": "semantic",
+      "id": "claude_isbillingboundarychange_pattern"
+    },
+    {
       "label": "AmountInput.tsx",
       "file_type": "code",
       "source_file": "CLAUDE.md",
@@ -49437,22 +49453,6 @@
       "norm_label": "backend sync contract (rust/axum)",
       "_origin": "semantic",
       "id": "claude_backend_sync_contract"
-    },
-    {
-      "label": "isBillingBoundaryChange Render-Time State Adjustment",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": "Animation performance",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Suppresses AppShell's Mantine transition for the one render where a billing-specific boundary (header height/navbar width/padding) is crossed, so an animated chrome resize doesn't land in the same frame as a heavy screen's first mount and appear stuck.",
-      "community": 63,
-      "community_name": "Offline & Sync Architecture",
-      "norm_label": "isbillingboundarychange render-time state adjustment",
-      "_origin": "semantic",
-      "id": "claude_isbillingboundarychange_pattern"
     },
     {
       "label": "Offline & Sync Architecture",
@@ -63548,7 +63548,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L22",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistrip",
@@ -73963,7 +73963,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L13",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistripprops",
@@ -83371,11 +83371,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L10",
+      "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip",
-      "target": "src_features_dashboard_types_dashboardpulsekpis",
+      "target": "src_shared_lib_money_formatmoney",
       "confidence_score": 1.0
     },
     {
@@ -83383,11 +83383,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L9",
+      "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip",
-      "target": "src_shared_lib_money_formatmoney",
+      "target": "src_features_dashboard_types_dashboardpulsekpis",
       "confidence_score": 1.0
     },
     {
@@ -105667,11 +105667,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L10",
+      "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip",
-      "target": "src_features_dashboard_types",
+      "target": "src_shared_lib_money",
       "confidence_score": 1.0
     },
     {
@@ -105679,11 +105679,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L9",
+      "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip",
-      "target": "src_shared_lib_money",
+      "target": "src_features_dashboard_types",
       "confidence_score": 1.0
     },
     {
@@ -140986,22 +140986,22 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L12",
+      "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip",
-      "target": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistripprops",
+      "target": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistrip",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/components/DashboardKpiStrip.tsx",
-      "source_location": "L17",
+      "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_dashboardkpistrip",
-      "target": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistrip",
+      "target": "src_features_dashboard_components_dashboardkpistrip_dashboardkpistripprops",
       "confidence_score": 1.0
     },
     {
@@ -156729,5 +156729,5 @@
       "source_file": ".agents/rules/graphify.md"
     }
   ],
-  "built_at_commit": "f92d2d2406742c7eb2f71c2ab6e1257033b505a7"
+  "built_at_commit": "6a1311b7803e91f17a82ad288e08e59435dc19b0"
 }

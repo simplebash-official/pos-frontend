@@ -1,11 +1,5 @@
 import { Paper, Group, Text, ThemeIcon, SimpleGrid, Stack, Badge } from '@mantine/core';
-import {
-  IconCash,
-  IconHammer,
-  IconDeviceMobileCheck,
-  IconCoin,
-  IconArrowUpRight,
-} from '@tabler/icons-react';
+import { IconCash, IconHammer, IconDeviceMobileCheck, IconCoin } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
 import { DashboardPulseKpis } from '../types';
 
@@ -106,13 +100,6 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
                 <ThemeIcon color={card.iconColor} variant="light" size={42} radius="md">
                   <Icon size={22} stroke={1.5} />
                 </ThemeIcon>
-              </Group>
-
-              <Group gap={4} mt={4} align="center">
-                <IconArrowUpRight size={14} color="var(--mantine-color-dimmed)" />
-                <Text size="3xs" c="dimmed" fw={600}>
-                  Updated live from store register
-                </Text>
               </Group>
             </Stack>
           </Paper>
