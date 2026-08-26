@@ -1,5 +1,5 @@
-import { Paper, Stack, Group, Text, Badge, Progress, ThemeIcon, Avatar, Box } from '@mantine/core';
-import { IconUserCheck, IconTool } from '@tabler/icons-react';
+import { Paper, Stack, Group, Text, Badge, Progress, ThemeIcon, Box } from '@mantine/core';
+import { IconUserCheck, IconTool, IconUser } from '@tabler/icons-react';
 import { TechnicianWorkload } from '../types';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -76,13 +76,9 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                 <Stack gap="xs">
                   <Group justify="space-between" align="center" wrap="wrap">
                     <Group gap="xs">
-                      <Avatar color="gray" variant="light" radius="xl" size={36}>
-                        {tech.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .slice(0, 2)}
-                      </Avatar>
+                      <ThemeIcon color="blue" variant="light" radius="md" size={36}>
+                        <IconUser size={20} />
+                      </ThemeIcon>
 
                       <div>
                         <Group gap="xs" align="center">
@@ -118,7 +114,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
 
                   {/* Current Active Task Pill */}
                   {tech.currentTask && (
-                    <Paper p={6} px="xs" radius="sm" withBorder bg="var(--bg-card)">
+                    <Paper p={6} px="xs" withBorder bg="var(--bg-card)">
                       <Group gap={6}>
                         <ThemeIcon color="gray" size="xs" variant="transparent">
                           <IconTool size={12} />

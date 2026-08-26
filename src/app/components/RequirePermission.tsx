@@ -20,7 +20,7 @@ export const RequirePermission = ({ permissions, children }: RequirePermissionPr
   const mine = useAppSelector(selectUserPermissions);
 
   if (!permissions.some((permission) => mine.includes(permission))) {
-    return <Navigate to={ROUTES.BILLING} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   return <>{children}</>;
