@@ -23,7 +23,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { UrgentActionItem, UrgentItemType } from '../types';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { formatMoney } from '@/shared/lib/money';
 
 export interface UrgentActionCenterProps {
   items: UrgentActionItem[];
@@ -187,38 +186,14 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                               {item.referenceId}
                             </Badge>
                           )}
+                          <Text size="3xs" c="dimmed">
+                            · {item.timestamp}
+                          </Text>
                         </Group>
 
                         <Text size="xs" c="dimmed" mt={2}>
                           {item.subtitle}
                         </Text>
-
-                        {/* Metadata Pills */}
-                        <Group gap="xs" mt={6} wrap="wrap">
-                          {item.customerName && (
-                            <Badge size="xs" variant="outline" color="gray">
-                              {item.customerName}
-                            </Badge>
-                          )}
-                          {item.customerPhone && (
-                            <Badge
-                              size="xs"
-                              variant="outline"
-                              color="gray"
-                              leftSection={<IconPhone size={10} />}
-                            >
-                              {item.customerPhone}
-                            </Badge>
-                          )}
-                          {item.amountCents !== undefined && (
-                            <Badge size="xs" variant="outline" color="gray">
-                              {formatMoney(item.amountCents)}
-                            </Badge>
-                          )}
-                          <Text size="3xs" c="dimmed">
-                            {item.timestamp}
-                          </Text>
-                        </Group>
                       </Box>
                     </Group>
 
