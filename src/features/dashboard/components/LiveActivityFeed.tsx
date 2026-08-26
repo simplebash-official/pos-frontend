@@ -47,7 +47,7 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
+            <ThemeIcon color="blue" variant="light" size="lg" radius="md">
               <IconActivity size={20} />
             </ThemeIcon>
             <div>

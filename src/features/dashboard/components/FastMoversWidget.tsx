@@ -26,7 +26,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
+            <ThemeIcon color="orange" variant="light" size="lg" radius="md">
               <IconFlame size={20} />
             </ThemeIcon>
             <div>

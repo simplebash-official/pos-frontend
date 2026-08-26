@@ -32,9 +32,9 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: `${kpis.activeRepairsCount} in shop`,
       subtext: 'Repair workshop currently processing',
       icon: IconHammer,
-      iconColor: 'gray',
+      iconColor: 'orange',
       badge: `${kpis.activeRepairsCount} Jobs`,
-      badgeColor: 'gray',
+      badgeColor: 'orange',
     },
     {
       key: 'ready',
@@ -42,9 +42,9 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: `${kpis.readyRepairsCount} devices ready`,
       subtext: `${formatMoney(kpis.uncollectedReadyValueCents)} uncollected value`,
       icon: IconDeviceMobileCheck,
-      iconColor: 'gray',
+      iconColor: 'teal',
       badge: 'Ready',
-      badgeColor: 'gray',
+      badgeColor: 'teal',
     },
     {
       key: 'cash',
@@ -52,9 +52,9 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: formatMoney(kpis.cashDrawerBalanceCents),
       subtext: `Float: ${formatMoney(kpis.openingFloatCents)} + Cash: ${formatMoney(kpis.cashSalesCents)}`,
       icon: IconCoin,
-      iconColor: 'gray',
+      iconColor: 'green',
       badge: 'Balanced',
-      badgeColor: 'gray',
+      badgeColor: 'green',
     },
   ];
 

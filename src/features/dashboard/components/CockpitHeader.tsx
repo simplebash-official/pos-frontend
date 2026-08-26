@@ -115,7 +115,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
             style={{ minWidth: isMobile ? '100%' : 'auto' }}
           >
             <Group gap="xs" justify={isMobile ? 'space-between' : 'flex-start'}>
-              <ThemeIcon color="gray" variant="light" size="md">
+              <ThemeIcon color="blue" variant="light" size="md">
                 <IconClock size={16} />
               </ThemeIcon>
               <div>
@@ -149,7 +149,8 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
             <Button
               leftSection={<IconHammer size={16} />}
-              variant="default"
+              variant="light"
+              color="orange"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.REPAIRS)}
               style={{
@@ -162,7 +163,8 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
             <Button
               leftSection={<IconPrinter size={16} />}
-              variant="default"
+              variant="light"
+              color="teal"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.PRINT_JOBS)}
               style={{
@@ -175,7 +177,8 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
             <Button
               leftSection={<IconPackage size={16} />}
-              variant="default"
+              variant="light"
+              color="blue"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.INVENTORY)}
               style={{
