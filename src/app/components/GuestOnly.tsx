@@ -13,7 +13,7 @@ export const GuestOnly = ({ children }: GuestOnlyProps) => {
   const isInitialized = useAppSelector(selectIsAuthInitialized);
 
   if (isInitialized && isAuthenticated) {
-    return <Navigate to={ROUTES.BILLING} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   return <>{children}</>;

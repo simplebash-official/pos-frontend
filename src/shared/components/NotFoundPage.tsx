@@ -21,8 +21,8 @@ export const NotFoundPage = () => {
           <Text size="sm" c="dimmed">
             The page you are trying to access does not exist or has been moved.
           </Text>
-          <Button size="md" mt="md" onClick={() => navigate(ROUTES.BILLING)}>
-            Go to Billing Console
+          <Button size="md" mt="md" onClick={() => navigate(ROUTES.DASHBOARD)}>
+            Go to Dashboard
           </Button>
         </Stack>
       </Paper>

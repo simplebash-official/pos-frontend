@@ -225,14 +225,22 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                     {/* Action Triggers */}
                     <Group
                       gap="xs"
-                      style={{ width: isMobile ? '100%' : 'auto' }}
-                      justify={isMobile ? 'flex-end' : 'flex-start'}
+                      wrap="nowrap"
+                      style={{
+                        width: isMobile ? '100%' : 'auto',
+                        flexShrink: 0,
+                      }}
+                      justify="flex-end"
                     >
                       <Button
                         size="xs"
                         variant="default"
                         onClick={(e) => handleDismiss(item.id, e)}
-                        style={{ minHeight: isMobile ? 44 : undefined }}
+                        style={{
+                          width: isMobile ? undefined : 76,
+                          minHeight: isMobile ? 44 : undefined,
+                          flexShrink: 0,
+                        }}
                       >
                         Dismiss
                       </Button>
@@ -242,7 +250,11 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                         color={item.severity === 'critical' ? 'red' : undefined}
                         rightSection={<IconArrowRight size={14} />}
                         onClick={() => item.linkTo && navigate(item.linkTo)}
-                        style={{ minHeight: isMobile ? 44 : undefined }}
+                        style={{
+                          width: isMobile ? undefined : 155,
+                          minHeight: isMobile ? 44 : undefined,
+                          flexShrink: 0,
+                        }}
                       >
                         {item.actionLabel}
                       </Button>

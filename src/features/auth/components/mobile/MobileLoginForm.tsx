@@ -35,7 +35,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   const location = useLocation();
 
   const from =
-    (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.BILLING;
+    (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

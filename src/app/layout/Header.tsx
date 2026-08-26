@@ -91,7 +91,7 @@ export const Header = ({
           <Title
             order={5}
             style={{ cursor: 'pointer', letterSpacing: '-0.3px' }}
-            onClick={() => navigate(ROUTES.BILLING)}
+            onClick={() => navigate(ROUTES.DASHBOARD)}
           >
             JANA2U POS
           </Title>
@@ -194,7 +194,7 @@ export const Header = ({
         <Title
           order={isMobile ? 5 : 3}
           style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-          onClick={() => navigate(ROUTES.BILLING)}
+          onClick={() => navigate(ROUTES.DASHBOARD)}
         >
           {isMobile ? 'Jana2U POS' : 'Jana2U Service Center'}
         </Title>

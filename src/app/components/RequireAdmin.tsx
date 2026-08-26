@@ -19,7 +19,7 @@ export const RequireAdmin = ({ children }: RequireAdminProps) => {
   const role = useAppSelector(selectUserRole);
 
   if (role !== USER_ROLES.ADMIN) {
-    return <Navigate to={ROUTES.BILLING} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   return <>{children}</>;
