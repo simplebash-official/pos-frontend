@@ -8,8 +8,9 @@ import {
   SimpleGrid,
   ThemeIcon,
   Button,
+  Box,
 } from '@mantine/core';
-import { IconHammer, IconPrinter, IconArrowRight, IconCircleCheck } from '@tabler/icons-react';
+import { IconHammer, IconPrinter, IconArrowRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { PipelineStageCount } from '../types';
 import { ROUTES } from '@/constants/routes';
@@ -73,60 +74,67 @@ export const ServicePipelineWidget = ({
             </Button>
           </Group>
 
-          {/* Multi-segment Progress Bar */}
-          <Progress.Root size="lg" radius="xl">
-            {repairPipeline.map((stage) => {
-              const value = totalRepairs > 0 ? (stage.count / totalRepairs) * 100 : 0;
-              const sectionColor =
+          {/* Modern Connected Workflow Cards */}
+          <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="xs">
+            {repairPipeline.map((stage, idx) => {
+              const stageColor =
                 stage.stage === 'ready'
                   ? 'teal'
                   : stage.stage === 'pending_approval'
                     ? 'orange'
                     : 'blue';
-              return (
-                <Progress.Section key={stage.stage} value={value} color={sectionColor}>
-                  <Progress.Label>{stage.count > 0 ? stage.count : ''}</Progress.Label>
-                </Progress.Section>
-              );
-            })}
-          </Progress.Root>
 
-          {/* Stage Cards Grid */}
-          <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="xs">
-            {repairPipeline.map((stage) => {
-              const countColor =
-                stage.stage === 'ready'
-                  ? 'teal'
-                  : stage.stage === 'pending_approval'
-                    ? 'orange'
-                    : undefined;
+              const pct = totalRepairs > 0 ? Math.round((stage.count / totalRepairs) * 100) : 0;
 
               return (
                 <Paper
                   key={stage.stage}
-                  p="xs"
+                  p="sm"
                   withBorder
-                  radius="md"
                   bg="var(--mantine-color-body)"
                   style={{
                     cursor: 'pointer',
                     borderColor: 'var(--border)',
-                    textAlign: 'center',
+                    transition: 'transform 0.15s ease, border-color 0.15s ease',
                   }}
                   onClick={() => navigate(ROUTES.REPAIRS)}
                 >
-                  <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                    {stage.label}
-                  </Text>
-                  <Text
-                    size="lg"
-                    fw={800}
-                    c={countColor}
-                    mt={2}
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {stage.count}
-                  </Text>
+                  <Stack gap="xs" justify="space-between" h="100%">
+                    {/* Consistent Header Row */}
+                    <Group justify="space-between" align="center" wrap="nowrap">
+                      <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
+                        Step {idx + 1}
+                      </Text>
+                      <Text
+                        size="3xs"
+                        c="dimmed"
+                        fw={600}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {pct}%
+                      </Text>
+                    </Group>
+
+                    {/* Fixed Height Title Area */}
+                    <Box style={{ minHeight: 34, display: 'flex', alignItems: 'center' }}>
+                      <Text size="xs" fw={700} lineClamp={2} style={{ lineHeight: 1.25 }}>
+                        {stage.label}
+                      </Text>
+                    </Box>
+
+                    {/* Unified Metric */}
+                    <div>
+                      <Text size="xl" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {stage.count}
+                        <Text component="span" size="xs" c="dimmed" fw={500} ml={4}>
+                          tickets
+                        </Text>
+                      </Text>
+                    </div>
+
+                    {/* Bottom Progress Track */}
+                    <Progress value={pct} color={stageColor} size={4} radius="xl" />
+                  </Stack>
                 </Paper>
               );
             })}
@@ -175,55 +183,65 @@ export const ServicePipelineWidget = ({
             </Button>
           </Group>
 
-          {/* Multi-segment Progress Bar */}
-          <Progress.Root size="lg" radius="xl">
-            {printPipeline.map((stage) => {
-              const value = totalPrints > 0 ? (stage.count / totalPrints) * 100 : 0;
-              const sectionColor =
-                stage.stage === 'delivered' || stage.stage === 'ready' ? 'teal' : 'blue';
+          {/* Modern Connected Workflow Cards */}
+          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
+            {printPipeline.map((stage, idx) => {
+              const isDelivered = stage.stage === 'delivered';
+              const stageColor = isDelivered ? 'teal' : 'blue';
+              const pct = totalPrints > 0 ? Math.round((stage.count / totalPrints) * 100) : 0;
+
               return (
-                <Progress.Section key={stage.stage} value={value} color={sectionColor}>
-                  <Progress.Label>{stage.count > 0 ? stage.count : ''}</Progress.Label>
-                </Progress.Section>
+                <Paper
+                  key={stage.stage}
+                  p="sm"
+                  withBorder
+                  bg="var(--mantine-color-body)"
+                  style={{
+                    cursor: 'pointer',
+                    borderColor: 'var(--border)',
+                    transition: 'transform 0.15s ease, border-color 0.15s ease',
+                  }}
+                  onClick={() => navigate(ROUTES.PRINT_JOBS)}
+                >
+                  <Stack gap="xs" justify="space-between" h="100%">
+                    {/* Consistent Header Row */}
+                    <Group justify="space-between" align="center" wrap="nowrap">
+                      <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
+                        Step {idx + 1}
+                      </Text>
+                      <Text
+                        size="3xs"
+                        c="dimmed"
+                        fw={600}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {pct}%
+                      </Text>
+                    </Group>
+
+                    {/* Fixed Height Title Area */}
+                    <Box style={{ minHeight: 34, display: 'flex', alignItems: 'center' }}>
+                      <Text size="xs" fw={700} lineClamp={2} style={{ lineHeight: 1.25 }}>
+                        {stage.label}
+                      </Text>
+                    </Box>
+
+                    {/* Unified Metric */}
+                    <div>
+                      <Text size="xl" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {stage.count}
+                        <Text component="span" size="xs" c="dimmed" fw={500} ml={4}>
+                          orders
+                        </Text>
+                      </Text>
+                    </div>
+
+                    {/* Bottom Progress Track */}
+                    <Progress value={pct} color={stageColor} size={4} radius="xl" />
+                  </Stack>
+                </Paper>
               );
             })}
-          </Progress.Root>
-
-          {/* Stage Cards Grid */}
-          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
-            {printPipeline.map((stage) => (
-              <Paper
-                key={stage.stage}
-                p="xs"
-                withBorder
-                radius="md"
-                bg="var(--mantine-color-body)"
-                style={{
-                  cursor: 'pointer',
-                  borderColor: 'var(--border)',
-                  textAlign: 'center',
-                }}
-                onClick={() => navigate(ROUTES.PRINT_JOBS)}
-              >
-                <Group gap={4} justify="center">
-                  {stage.stage === 'delivered' && (
-                    <IconCircleCheck size={12} color="var(--mantine-color-teal-6)" />
-                  )}
-                  <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                    {stage.label}
-                  </Text>
-                </Group>
-                <Text
-                  size="lg"
-                  fw={800}
-                  c={stage.stage === 'delivered' ? 'teal' : undefined}
-                  mt={2}
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
-                  {stage.count}
-                </Text>
-              </Paper>
-            ))}
           </SimpleGrid>
         </Stack>
       </Paper>
