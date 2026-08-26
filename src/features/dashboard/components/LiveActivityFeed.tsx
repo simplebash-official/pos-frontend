@@ -47,7 +47,7 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
               <IconActivity size={20} />
             </ThemeIcon>
             <div>
@@ -55,7 +55,7 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
                 <Text fw={800} size="md">
                   Live Shop Activity Stream
                 </Text>
-                <Badge color="blue" variant="light" size="sm">
+                <Badge variant="outline" color="gray" size="sm">
                   Real-time Feed
                 </Badge>
               </Group>
@@ -84,7 +84,13 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
             >
               <Group justify="space-between" align="center" wrap="wrap" gap="xs">
                 <Group gap="sm" align="flex-start" style={{ flex: 1, minWidth: 220 }}>
-                  <ThemeIcon color={act.color} variant="light" size="md" radius="md" mt={2}>
+                  <ThemeIcon
+                    color={act.type === 'stock_alert' ? 'red' : 'gray'}
+                    variant="light"
+                    size="md"
+                    radius="md"
+                    mt={2}
+                  >
                     {getEventIcon(act.type)}
                   </ThemeIcon>
 

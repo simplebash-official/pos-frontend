@@ -78,10 +78,10 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
             <Group gap="xs" align="center" mb={4}>
               <Badge
                 variant="light"
-                color="green"
+                color="teal"
                 size="md"
                 leftSection={
-                  <ThemeIcon color="green" size={8} radius="xl" variant="transparent">
+                  <ThemeIcon color="teal" size={8} radius="xl" variant="transparent">
                     <IconCircleFilled size={8} />
                   </ThemeIcon>
                 }
@@ -115,7 +115,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
             style={{ minWidth: isMobile ? '100%' : 'auto' }}
           >
             <Group gap="xs" justify={isMobile ? 'space-between' : 'flex-start'}>
-              <ThemeIcon color="blue" variant="light" size="md">
+              <ThemeIcon color="gray" variant="light" size="md">
                 <IconClock size={16} />
               </ThemeIcon>
               <div>
@@ -149,8 +149,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
             <Button
               leftSection={<IconHammer size={16} />}
-              variant="light"
-              color="orange"
+              variant="default"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.REPAIRS)}
               style={{
@@ -163,8 +162,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
             <Button
               leftSection={<IconPrinter size={16} />}
-              variant="light"
-              color="teal"
+              variant="default"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.PRINT_JOBS)}
               style={{
@@ -177,8 +175,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
             <Button
               leftSection={<IconPackage size={16} />}
-              variant="light"
-              color="blue"
+              variant="default"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.INVENTORY)}
               style={{

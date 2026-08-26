@@ -50,7 +50,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="green" variant="light" size="lg" radius="md">
+            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
               <IconCoin size={20} />
             </ThemeIcon>
             <div>
@@ -58,7 +58,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <Text fw={800} size="md">
                   Cash Register & Shift Summary
                 </Text>
-                <Badge color="green" variant="light" size="sm">
+                <Badge variant="outline" color="gray" size="sm">
                   Active Shift
                 </Badge>
               </Group>
@@ -74,17 +74,17 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
         </Group>
 
         {/* Multi-segment Payment Method Bar */}
-        <Progress.Root size="xl" radius="xl">
-          <Progress.Section value={cashPct} color="green">
+        <Progress.Root size="lg" radius="xl">
+          <Progress.Section value={cashPct} color="blue">
             <Progress.Label>{cashPct > 15 ? 'Cash' : ''}</Progress.Label>
           </Progress.Section>
-          <Progress.Section value={cardPct} color="blue">
+          <Progress.Section value={cardPct} color="blue.4">
             <Progress.Label>{cardPct > 15 ? 'Card' : ''}</Progress.Label>
           </Progress.Section>
-          <Progress.Section value={onlinePct} color="teal">
+          <Progress.Section value={onlinePct} color="cyan.6">
             <Progress.Label>{onlinePct > 15 ? 'Online' : ''}</Progress.Label>
           </Progress.Section>
-          <Progress.Section value={creditPct} color="violet">
+          <Progress.Section value={creditPct} color="gray.5">
             <Progress.Label>{creditPct > 15 ? 'Credit' : ''}</Progress.Label>
           </Progress.Section>
         </Progress.Root>
@@ -93,14 +93,14 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
           <Paper p="xs" withBorder radius="md" bg="var(--mantine-color-body)">
             <Group gap="xs" align="center" mb={4}>
-              <ThemeIcon color="green" variant="light" size="sm">
+              <ThemeIcon color="gray" variant="light" size="sm">
                 <IconCoin size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                 Cash Sales
               </Text>
             </Group>
-            <Text size="sm" fw={800} c="green" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.cashSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
@@ -110,14 +110,14 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
 
           <Paper p="xs" withBorder radius="md" bg="var(--mantine-color-body)">
             <Group gap="xs" align="center" mb={4}>
-              <ThemeIcon color="blue" variant="light" size="sm">
+              <ThemeIcon color="gray" variant="light" size="sm">
                 <IconCreditCard size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                 Card Swipes
               </Text>
             </Group>
-            <Text size="sm" fw={800} c="blue" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.cardSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
@@ -127,14 +127,14 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
 
           <Paper p="xs" withBorder radius="md" bg="var(--mantine-color-body)">
             <Group gap="xs" align="center" mb={4}>
-              <ThemeIcon color="teal" variant="light" size="sm">
+              <ThemeIcon color="gray" variant="light" size="sm">
                 <IconBuildingBank size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                 Bank Transfer
               </Text>
             </Group>
-            <Text size="sm" fw={800} c="teal" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.onlineSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
@@ -144,14 +144,14 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
 
           <Paper p="xs" withBorder radius="md" bg="var(--mantine-color-body)">
             <Group gap="xs" align="center" mb={4}>
-              <ThemeIcon color="violet" variant="light" size="sm">
+              <ThemeIcon color="gray" variant="light" size="sm">
                 <IconReceipt size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                 Store Credit
               </Text>
             </Group>
-            <Text size="sm" fw={800} c="violet" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.creditSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
@@ -183,7 +183,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                   Cash In
                 </Text>
-                <Text size="xs" fw={700} c="green" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Text size="xs" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatMoney(shiftSummary.cashSalesCents)}
                 </Text>
               </div>
@@ -196,18 +196,13 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                   Expected in Drawer
                 </Text>
-                <Text size="sm" fw={800} c="green.7" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatMoney(shiftSummary.expectedDrawerCashCents)}
                 </Text>
               </div>
             </Group>
 
-            <Badge
-              color="green"
-              variant="light"
-              size="xs"
-              leftSection={<IconChecklist size={12} />}
-            >
+            <Badge color="teal" variant="light" size="xs" leftSection={<IconChecklist size={12} />}>
               Till Reconciled
             </Badge>
           </Group>

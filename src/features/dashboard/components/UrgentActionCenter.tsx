@@ -159,10 +159,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                   radius="md"
                   style={{
                     backgroundColor: 'var(--mantine-color-body)',
-                    borderColor:
-                      item.severity === 'critical' ? 'var(--mantine-color-red-3)' : 'var(--border)',
-                    borderLeftWidth: 4,
-                    borderLeftColor: `var(--mantine-color-${color}-6)`,
+                    borderColor: 'var(--border)',
                     transition: 'transform 0.15s ease, border-color 0.15s ease',
                   }}
                 >
@@ -199,7 +196,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                         {/* Metadata Pills */}
                         <Group gap="xs" mt={6} wrap="wrap">
                           {item.customerName && (
-                            <Badge size="xs" variant="dot" color="blue">
+                            <Badge size="xs" variant="outline" color="gray">
                               {item.customerName}
                             </Badge>
                           )}
@@ -214,7 +211,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                             </Badge>
                           )}
                           {item.amountCents !== undefined && (
-                            <Badge size="xs" variant="light" color="teal">
+                            <Badge size="xs" variant="outline" color="gray">
                               {formatMoney(item.amountCents)}
                             </Badge>
                           )}
@@ -241,8 +238,8 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                       </Button>
                       <Button
                         size="xs"
-                        variant="filled"
-                        color={color}
+                        variant={item.severity === 'critical' ? 'light' : 'default'}
+                        color={item.severity === 'critical' ? 'red' : undefined}
                         rightSection={<IconArrowRight size={14} />}
                         onClick={() => item.linkTo && navigate(item.linkTo)}
                         style={{ minHeight: isMobile ? 44 : undefined }}
