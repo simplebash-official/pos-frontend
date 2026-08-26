@@ -13,16 +13,16 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
   const getStatusColor = (status: TechnicianWorkload['status']) => {
     switch (status) {
       case 'available':
-        return 'green';
+        return 'teal';
       case 'busy':
-        return 'orange';
+        return 'gray';
       case 'overloaded':
         return 'red';
     }
   };
 
   const getCapacityColor = (pct: number) => {
-    if (pct < 50) return 'teal';
+    if (pct < 50) return 'blue';
     if (pct < 80) return 'orange';
     return 'red';
   };
@@ -39,7 +39,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="indigo" variant="light" size="lg" radius="md">
+            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
               <IconUserCheck size={20} />
             </ThemeIcon>
             <div>
@@ -47,7 +47,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                 <Text fw={800} size="md">
                   Technician Workload & Floor Capacity
                 </Text>
-                <Badge color="indigo" variant="light" size="sm">
+                <Badge variant="outline" color="gray" size="sm">
                   {technicians.length} Technicians On Shift
                 </Badge>
               </Group>
@@ -76,7 +76,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                 <Stack gap="xs">
                   <Group justify="space-between" align="center" wrap="wrap">
                     <Group gap="xs">
-                      <Avatar color="indigo" radius="xl" size={36}>
+                      <Avatar color="gray" variant="light" radius="xl" size={36}>
                         {tech.name
                           .split(' ')
                           .map((n) => n[0])
@@ -107,7 +107,6 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                         <Text
                           size="sm"
                           fw={800}
-                          c="indigo"
                           ta="right"
                           style={{ fontVariantNumeric: 'tabular-nums' }}
                         >
@@ -121,7 +120,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                   {tech.currentTask && (
                     <Paper p={6} px="xs" radius="sm" withBorder bg="var(--bg-card)">
                       <Group gap={6}>
-                        <ThemeIcon color="orange" size="xs" variant="transparent">
+                        <ThemeIcon color="gray" size="xs" variant="transparent">
                           <IconTool size={12} />
                         </ThemeIcon>
                         <Text size="3xs" fw={600} c="dimmed">
@@ -140,7 +139,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                       <Text size="3xs" c="dimmed" fw={600}>
                         Bench Capacity
                       </Text>
-                      <Text size="3xs" fw={700} c={capacityColor}>
+                      <Text size="3xs" fw={700} c={capacityColor === 'red' ? 'red' : 'dimmed'}>
                         {tech.capacityPercentage}%
                       </Text>
                     </Group>

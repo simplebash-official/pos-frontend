@@ -26,7 +26,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="red" variant="light" size="lg" radius="md">
+            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
               <IconFlame size={20} />
             </ThemeIcon>
             <div>
@@ -34,7 +34,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                 <Text fw={800} size="md">
                   Fast-Moving Products Today
                 </Text>
-                <Badge color="red" variant="light" size="sm">
+                <Badge variant="outline" color="gray" size="sm">
                   Counter Velocity
                 </Badge>
               </Group>
@@ -68,17 +68,12 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                 radius="md"
                 bg="var(--mantine-color-body)"
                 style={{
-                  borderColor: isLowStock ? 'var(--mantine-color-red-3)' : 'var(--border)',
+                  borderColor: isLowStock ? 'var(--mantine-color-red-4)' : 'var(--border)',
                 }}
               >
                 <Group justify="space-between" align="center" wrap="wrap" gap="sm">
                   <Group gap="sm" style={{ flex: 1, minWidth: 200 }}>
-                    <ThemeIcon
-                      color={index === 0 ? 'orange' : index === 1 ? 'yellow' : 'gray'}
-                      variant="light"
-                      size="md"
-                      radius="xl"
-                    >
+                    <ThemeIcon color="gray" variant="light" size="md" radius="xl">
                       <Text size="xs" fw={800}>
                         #{index + 1}
                       </Text>
@@ -95,7 +90,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                         <Text size="3xs" c="dimmed">
                           •
                         </Text>
-                        <Text size="3xs" fw={700} c="blue">
+                        <Text size="3xs" fw={700} c="dimmed">
                           {formatMoney(item.sellingPriceCents)}
                         </Text>
                       </Group>
@@ -110,7 +105,6 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                       <Text
                         size="sm"
                         fw={800}
-                        c="green"
                         ta="right"
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
@@ -126,13 +120,13 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                         <Badge
                           size="xs"
                           color="red"
-                          variant="filled"
+                          variant="light"
                           leftSection={<IconAlertTriangle size={10} />}
                         >
                           {item.remainingStock} left
                         </Badge>
                       ) : (
-                        <Badge size="xs" color="teal" variant="light">
+                        <Badge size="xs" color="gray" variant="outline">
                           {item.remainingStock} available
                         </Badge>
                       )}

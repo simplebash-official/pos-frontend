@@ -22,7 +22,7 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: formatMoney(kpis.todaySalesCents),
       subtext: `${kpis.todayInvoicesCount} invoices · Avg ${formatMoney(kpis.avgBasketCents)}`,
       icon: IconCash,
-      color: 'blue',
+      iconColor: 'blue',
       badge: 'Live',
       badgeColor: 'blue',
     },
@@ -32,9 +32,9 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: `${kpis.activeRepairsCount} in shop`,
       subtext: 'Repair workshop currently processing',
       icon: IconHammer,
-      color: 'orange',
+      iconColor: 'gray',
       badge: `${kpis.activeRepairsCount} Jobs`,
-      badgeColor: 'orange',
+      badgeColor: 'gray',
     },
     {
       key: 'ready',
@@ -42,9 +42,9 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: `${kpis.readyRepairsCount} devices ready`,
       subtext: `${formatMoney(kpis.uncollectedReadyValueCents)} uncollected value`,
       icon: IconDeviceMobileCheck,
-      color: 'teal',
+      iconColor: 'gray',
       badge: 'Ready',
-      badgeColor: 'teal',
+      badgeColor: 'gray',
     },
     {
       key: 'cash',
@@ -52,9 +52,9 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
       value: formatMoney(kpis.cashDrawerBalanceCents),
       subtext: `Float: ${formatMoney(kpis.openingFloatCents)} + Cash: ${formatMoney(kpis.cashSalesCents)}`,
       icon: IconCoin,
-      color: 'green',
+      iconColor: 'gray',
       badge: 'Balanced',
-      badgeColor: 'green',
+      badgeColor: 'gray',
     },
   ];
 
@@ -94,7 +94,6 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
                   <Text
                     size="xl"
                     fw={800}
-                    c={card.color}
                     style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
                   >
                     {card.value}
@@ -104,7 +103,7 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
                   </Text>
                 </div>
 
-                <ThemeIcon color={card.color} variant="light" size={42} radius="md">
+                <ThemeIcon color={card.iconColor} variant="light" size={42} radius="md">
                   <Icon size={22} stroke={1.5} />
                 </ThemeIcon>
               </Group>
