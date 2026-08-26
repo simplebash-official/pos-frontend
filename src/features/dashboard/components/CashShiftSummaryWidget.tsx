@@ -50,7 +50,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <ThemeIcon color="gray" variant="light" size="lg" radius="md">
+            <ThemeIcon color="green" variant="light" size="lg" radius="md">
               <IconCoin size={20} />
             </ThemeIcon>
             <div>
