@@ -181,11 +181,6 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                           <Badge size="xs" color={color} variant="light">
                             {item.severity.toUpperCase()}
                           </Badge>
-                          {item.referenceId && (
-                            <Badge size="xs" variant="outline" color="gray">
-                              {item.referenceId}
-                            </Badge>
-                          )}
                           <Text size="3xs" c="dimmed">
                             · {item.timestamp}
                           </Text>
