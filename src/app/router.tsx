@@ -14,6 +14,11 @@ import { ROUTES, ROUTE_PATHS } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
 
 // Code-split features using direct dynamic imports (avoids barrel re-export bloat)
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/components/DashboardPage').then((m) => ({
+    default: m.DashboardPage,
+  }))
+);
 const BillingCounter = lazy(() =>
   import('@/features/billing/components/BillingCounter').then((m) => ({
     default: m.BillingCounter,
@@ -74,7 +79,15 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to={ROUTES.BILLING} replace />,
+        element: <Navigate to={ROUTES.DASHBOARD} replace />,
+      },
+      {
+        path: ROUTE_PATHS.DASHBOARD,
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <DashboardPage />
+          </Suspense>
+        ),
       },
       {
         path: ROUTE_PATHS.BILLING,

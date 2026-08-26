@@ -35,6 +35,7 @@ const SyncDrawer = lazy(() =>
 );
 
 const ROUTE_TITLES: Record<string, string> = {
+  [ROUTES.DASHBOARD]: 'Shop Cockpit · JANA2U POS',
   [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
   [ROUTES.INVOICES]: 'Invoices · JANA2U POS',
   [ROUTES.REPAIRS]: 'Phone Repairs · JANA2U POS',
