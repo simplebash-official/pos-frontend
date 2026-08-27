@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { configureStore } from '@reduxjs/toolkit';
 import authReducer, {
   loginSuccess,
   login,
   setUser,
-  restoreOfflineSession,
   logout,
   setInitialized,
   setLoading,
@@ -17,16 +17,12 @@ import authReducer, {
   selectIsAuthInitialized,
   selectIsAuthLoading,
   selectIsPOSLocked,
-  selectIsOfflineSession,
+  initializeAuth,
   type AuthUser,
 } from '../authSlice';
+import * as authApi from '@/features/auth/api/authApi';
 import { USER_ROLES } from '@/constants/roles';
-
-vi.mock('@/offline/db/session', () => ({
-  cacheSession: vi.fn().mockResolvedValue(undefined),
-  clearCachedSession: vi.fn().mockResolvedValue(undefined),
-  readCachedSession: vi.fn().mockResolvedValue(null),
-}));
+import { STORAGE_KEYS } from '@/constants/storage';
 
 const mockUser: AuthUser = {
   id: 'user_1',
@@ -48,7 +44,6 @@ describe('authSlice reducer & actions', () => {
     expect(state.user).toBeNull();
     expect(state.isLoading).toBe(false);
     expect(state.isLocked).toBe(false);
-    expect(state.isOfflineSession).toBe(false);
   });
 
   it('handles loginSuccess and updates token and user', () => {
@@ -61,7 +56,6 @@ describe('authSlice reducer & actions', () => {
     expect(state.token).toBe('token-123');
     expect(state.isAuthenticated).toBe(true);
     expect(state.isInitialized).toBe(true);
-    expect(state.isOfflineSession).toBe(false);
   });
 
   it('handles login action', () => {
@@ -76,14 +70,6 @@ describe('authSlice reducer & actions', () => {
     const state = authReducer(getInitialState(), setUser(mockUser));
     expect(state.user).toEqual(mockUser);
     expect(state.isAuthenticated).toBe(true);
-    expect(state.isOfflineSession).toBe(false);
-  });
-
-  it('handles restoreOfflineSession and marks isOfflineSession true', () => {
-    const state = authReducer(getInitialState(), restoreOfflineSession(mockUser));
-    expect(state.user).toEqual(mockUser);
-    expect(state.isAuthenticated).toBe(true);
-    expect(state.isOfflineSession).toBe(true);
   });
 
   it('handles logout and clears auth state', () => {
@@ -96,7 +82,6 @@ describe('authSlice reducer & actions', () => {
     expect(state.user).toBeNull();
     expect(state.token).toBeNull();
     expect(state.isAuthenticated).toBe(false);
-    expect(state.isOfflineSession).toBe(false);
   });
 
   it('handles lockPOS and unlockPOS', () => {
@@ -135,7 +120,6 @@ describe('authSlice reducer & actions', () => {
           isInitialized: true,
           isLoading: false,
           isLocked: true,
-          isOfflineSession: true,
         },
       };
 
@@ -145,7 +129,6 @@ describe('authSlice reducer & actions', () => {
       expect(selectIsAuthInitialized(rootState)).toBe(true);
       expect(selectIsAuthLoading(rootState)).toBe(false);
       expect(selectIsPOSLocked(rootState)).toBe(true);
-      expect(selectIsOfflineSession(rootState)).toBe(true);
     });
 
     it('defaults to the least-privileged role, not Admin, when there is no user', () => {
@@ -166,6 +149,61 @@ describe('authSlice reducer & actions', () => {
         loginSuccess({ user: withPermissions, token: 'token-123' })
       );
       expect(selectUserPermissions({ auth: state })).toEqual(['inventory:read']);
+    });
+  });
+
+  describe('initializeAuth (strict online-only)', () => {
+    const buildStore = () => configureStore({ reducer: { auth: authReducer } });
+
+    it('sets the user on a successful /auth/me', async () => {
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, 'token-123');
+      vi.spyOn(authApi, 'getMeApi').mockResolvedValue(mockUser);
+
+      const store = buildStore();
+      await store.dispatch(initializeAuth());
+
+      const state = store.getState().auth;
+      expect(state.user).toEqual(mockUser);
+      expect(state.isAuthenticated).toBe(true);
+      expect(state.isInitialized).toBe(true);
+      expect(state.isLoading).toBe(false);
+    });
+
+    it('logs out when /auth/me rejects with 401', async () => {
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, 'token-123');
+      vi.spyOn(authApi, 'getMeApi').mockRejectedValue({ statusCode: 401, message: 'Unauthorized' });
+
+      const store = buildStore();
+      await store.dispatch(initializeAuth());
+
+      const state = store.getState().auth;
+      expect(state.user).toBeNull();
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.isInitialized).toBe(true);
+    });
+
+    it('logs out when the backend is unreachable, with no cached-session fallback', async () => {
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, 'token-123');
+      vi.spyOn(authApi, 'getMeApi').mockRejectedValue({ statusCode: 0, message: 'Network error' });
+
+      const store = buildStore();
+      await store.dispatch(initializeAuth());
+
+      const state = store.getState().auth;
+      expect(state.user).toBeNull();
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.isInitialized).toBe(true);
+    });
+
+    it('does nothing when there is no stored token, other than marking initialized', async () => {
+      const getMeApiSpy = vi.spyOn(authApi, 'getMeApi');
+      const store = buildStore();
+      await store.dispatch(initializeAuth());
+
+      expect(getMeApiSpy).not.toHaveBeenCalled();
+      const state = store.getState().auth;
+      expect(state.isInitialized).toBe(true);
+      expect(state.isAuthenticated).toBe(false);
     });
   });
 });

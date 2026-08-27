@@ -10,7 +10,6 @@ import type { RepairJob } from '@/features/repairs/types';
 import type { PrintJob } from '@/features/print-jobs/types';
 import type { Product } from '@/features/inventory/types';
 import type { Employee } from '@/features/employees/types';
-import type { PaymentRecord } from '@/features/billing/api/paymentsApi';
 
 describe('computeDashboardData', () => {
   const now = dayjs('2026-08-27T12:00:00.000Z');
@@ -119,15 +118,12 @@ describe('computeDashboardData', () => {
       },
     ];
 
-    const payments: PaymentRecord[] = [];
-
     const data = computeDashboardData({
       invoices,
       repairs,
       printJobs,
       products,
       employees,
-      payments,
       now,
     });
 
@@ -178,7 +174,6 @@ describe('computeDashboardData', () => {
       printJobs: [],
       products: [],
       employees: [],
-      payments: [],
       now,
     });
 

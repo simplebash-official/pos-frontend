@@ -1,8 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { db } from '@/offline/db/schema';
-import { useLiveQuery } from '@/offline/react/useLiveQuery';
-import { syncEngine } from '@/offline/engine/SyncEngine';
+import { queryKeys } from '@/api/queryKeys';
+import { useAllInvoices } from '@/features/billing/hooks/useInvoices';
+import { useAllRepairs } from '@/features/repairs/hooks/useRepairs';
+import { useAllPrintJobs } from '@/features/print-jobs/hooks/usePrintJobs';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
 import { JOB_STATUS } from '@/constants/jobs';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
 import { formatRelativeTime } from '@/shared/lib/date';
@@ -11,7 +15,6 @@ import type { RepairJob } from '@/features/repairs/types';
 import type { PrintJob } from '@/features/print-jobs/types';
 import type { Product } from '@/features/inventory/types';
 import type { Employee } from '@/features/employees/types';
-import type { PaymentRecord } from '@/features/billing/api/paymentsApi';
 import type {
   DashboardData,
   DashboardPulseKpis,
@@ -73,13 +76,19 @@ export interface RawDashboardEntities {
   printJobs: PrintJob[];
   products: Product[];
   employees: Employee[];
-  payments: PaymentRecord[];
   now?: dayjs.Dayjs;
 }
 
 /**
  * Pure aggregation function that calculates all 7 Dashboard metric zones
  * from raw in-memory entity arrays with zero side-effects.
+ *
+ * There is no backend endpoint for "every payment across every invoice" (the
+ * only route is `GET /billing/invoices/{id}/payments`, scoped to one
+ * invoice), so same-day installment top-ups against an already-existing
+ * credit invoice are not reflected here — only the sale itself, at the
+ * moment it was made, is. A live pulse over every invoice's payments would
+ * mean one request per invoice; not worth it for a best-effort dashboard.
  */
 export const computeDashboardData = ({
   invoices,
@@ -87,7 +96,6 @@ export const computeDashboardData = ({
   printJobs,
   products,
   employees,
-  payments,
   now = dayjs(),
 }: RawDashboardEntities): DashboardData => {
   // -----------------------------------------------------------------------
@@ -96,7 +104,6 @@ export const computeDashboardData = ({
   const todayInvoices = invoices.filter(
     (inv) => inv.status !== 'voided' && dayjs(inv.createdAt).isSame(now, 'day')
   );
-  const todayPayments = payments.filter((pay) => dayjs(pay.recordedAt).isSame(now, 'day'));
 
   // -----------------------------------------------------------------------
   // 2. High-Velocity KPIs
@@ -153,13 +160,6 @@ export const computeDashboardData = ({
       else if (inv.paymentMethod === 'card') cardSalesCents += collected;
       else if (inv.paymentMethod === 'online') onlineSalesCents += collected;
     }
-  }
-
-  // Add independent installment payments recorded today
-  for (const pay of todayPayments) {
-    if (pay.paymentMethod === 'cash') cashSalesCents += pay.amountCents || 0;
-    else if (pay.paymentMethod === 'card') cardSalesCents += pay.amountCents || 0;
-    else if (pay.paymentMethod === 'online') onlineSalesCents += pay.amountCents || 0;
   }
 
   const openingFloatCents = 0;
@@ -484,21 +484,6 @@ export const computeDashboardData = ({
     });
   }
 
-  // Recent Credit Payments
-  for (const pay of payments.slice(-10)) {
-    activities.push({
-      id: `pay-${pay.id}`,
-      type: 'credit_payment',
-      title: 'Payment Received',
-      description: `Rs. ${((pay.amountCents || 0) / 100).toLocaleString()} recorded towards ${pay.invoiceId || 'Credit Invoice'}`,
-      amountCents: pay.amountCents,
-      timeAgo: formatRelativeTime(pay.recordedAt),
-      icon: 'IconCoin',
-      color: 'green',
-      linkTo: '/invoices',
-    });
-  }
-
   const recentActivities = activities.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 8);
 
   return {
@@ -514,40 +499,68 @@ export const computeDashboardData = ({
   };
 };
 
-export const useDashboardLivePulse = () => {
-  const queryResult = useLiveQuery<DashboardData>(
-    async () => {
-      // Read mirrored tables in a single transaction-safe batch
-      const [invoices, repairs, printJobs, products, employees, payments] = await Promise.all([
-        db.invoices.where('_isDeleted').equals(0).toArray(),
-        db.repairs.where('_isDeleted').equals(0).toArray(),
-        db.printJobs.where('_isDeleted').equals(0).toArray(),
-        db.products.where('_isDeleted').equals(0).toArray(),
-        db.employees.where('_isDeleted').equals(0).toArray(),
-        db.payments.where('_isDeleted').equals(0).toArray(),
-      ]);
+/** Poll interval for a near-real-time feel without a dedicated push channel. */
+const LIVE_PULSE_REFETCH_MS = 30_000;
 
-      return computeDashboardData({
-        invoices,
-        repairs,
-        printJobs,
-        products,
-        employees,
-        payments,
-      });
-    },
-    INITIAL_DASHBOARD_DATA,
-    []
+export const useDashboardLivePulse = () => {
+  const queryClient = useQueryClient();
+  const invoicesQuery = useAllInvoices();
+  const repairsQuery = useAllRepairs();
+  const printJobsQuery = useAllPrintJobs();
+  const productsQuery = useAllProducts();
+  const employeesQuery = useAllEmployees();
+
+  const data = useMemo(
+    () =>
+      computeDashboardData({
+        invoices: invoicesQuery.data,
+        repairs: repairsQuery.data,
+        printJobs: printJobsQuery.data,
+        products: productsQuery.data,
+        employees: employeesQuery.data,
+      }),
+    [
+      invoicesQuery.data,
+      repairsQuery.data,
+      printJobsQuery.data,
+      productsQuery.data,
+      employeesQuery.data,
+    ]
   );
 
-  const refresh = useCallback(async () => {
-    await syncEngine.syncNow(true);
-  }, []);
+  const isLoading =
+    invoicesQuery.isLoading ||
+    repairsQuery.isLoading ||
+    printJobsQuery.isLoading ||
+    productsQuery.isLoading ||
+    employeesQuery.isLoading;
 
-  return {
-    data: queryResult.data,
-    isLoading: queryResult.isLoading,
-    error: queryResult.error,
-    refresh,
-  };
+  const error =
+    invoicesQuery.error ||
+    repairsQuery.error ||
+    printJobsQuery.error ||
+    productsQuery.error ||
+    employeesQuery.error;
+
+  const refresh = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.billing.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    ]);
+  }, [queryClient]);
+
+  // Polled rather than instantly reactive — there is no push channel from
+  // the backend, so this is a near-real-time approximation. Scoped to this
+  // hook's own lifetime so it only polls while the dashboard is mounted.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void refresh();
+    }, LIVE_PULSE_REFETCH_MS);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
+  return { data, isLoading, error, refresh };
 };

@@ -1,36 +1,57 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  DeleteRepairsPayload,
-  UpdateRepairPayload,
-} from '@/offline/resources/repairs.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  createRepairJobRaw,
+  deleteRepairsRaw,
+  fetchRepairs,
+  updateRepairJobRaw,
+} from '../api/repairsApi';
 import type { RepairJob, RepairJobInput } from '../types';
 
-const NO_REPAIRS: MirroredRow<RepairJob>[] = [];
+export interface UpdateRepairPayload {
+  repairKey: string;
+  input: Partial<RepairJobInput>;
+}
+export interface DeleteRepairsPayload {
+  repairKeys: string[];
+}
 
-/** Local-first repair-ticket access — reads Dexie's mirror, writes queue through the outbox. */
+const NO_REPAIRS: RepairJob[] = [];
+
 export const useAllRepairs = () => {
-  return useSyncedQuery(
-    'repairs',
-    // Dexie's `sortBy` always sorts ascending and ignores `.reverse()` on the
-    // collection (it re-sorts in JS from a fresh fetch) — reverse the
-    // resolved array instead to get newest-first.
-    async () => (await db.repairs.where('_isDeleted').equals(0).sortBy('createdAt')).reverse(),
-    NO_REPAIRS,
-    []
-  );
+  const query = useQuery({
+    queryKey: queryKeys.repairs.all,
+    queryFn: () => fetchRepairs(),
+  });
+  return { ...query, data: query.data ?? NO_REPAIRS };
 };
 
 export const useCreateRepairJob = () => {
-  return useSyncedMutation<RepairJobInput, RepairJob>('repairs', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: RepairJobInput) => createRepairJobRaw(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
+    },
+  });
 };
 
 export const useUpdateRepairJob = () => {
-  return useSyncedMutation<UpdateRepairPayload, RepairJob>('repairs', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ repairKey, input }: UpdateRepairPayload) => updateRepairJobRaw(repairKey, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
+    },
+  });
 };
 
 export const useDeleteRepairs = () => {
-  return useSyncedMutation<DeleteRepairsPayload, void>('repairs', 'deleteMany');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ repairKeys }: DeleteRepairsPayload) => deleteRepairsRaw(repairKeys),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
+    },
+  });
 };

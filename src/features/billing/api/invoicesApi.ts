@@ -1,4 +1,4 @@
-import { apiClient, type MutationRequestOptions } from '@/api/client';
+import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import type { Invoice, InvoiceItem, InvoiceStatus, SplitPaymentDetail } from '../types';
 
@@ -235,16 +235,10 @@ export interface CompleteSaleResult {
   warnings: string[];
 }
 
-// The only caller is `invoices.resource.ts` — per the offline-sync rule that
-// only `src/offline/resources/` may import a synced resource's `api/` module.
-export const completeSale = async (
-  input: CompleteSaleInput,
-  options?: MutationRequestOptions
-): Promise<CompleteSaleResult> => {
+export const completeSale = async (input: CompleteSaleInput): Promise<CompleteSaleResult> => {
   const response = await apiClient.post<ApiResponse<CompleteSaleResponseData>>(
     '/billing/sales',
-    input,
-    options
+    input
   );
   return {
     invoice: toInvoice(response.data.invoice),
@@ -269,13 +263,11 @@ export interface FetchInvoicesParams {
   customerKey?: string;
 }
 
-// `limit: 200` rather than paginating — mirrors `repairsApi.ts`/
-// `printJobsApi.ts`'s reasoning: the mock this replaces always returned
-// every invoice, and `InvoicesList.tsx` has no pagination UI today.
-// These params are only passed by `useBackendFilteredList`
-// (`InvoicesList.tsx`) — the sync engine's `pull.full`
-// (`invoices.resource.ts`) always calls this with no params, so a filter
-// never scopes what gets mirrored offline.
+// One page (backend's 200 max), used for a filtered/searched request —
+// called by `useBackendFilteredList` (`InvoicesList.tsx`) with `search`/
+// `status`/`paymentMethod`/`datePreset`/`customerKey`, where the top-200
+// matches are what's wanted, not every invoice. See `fetchAllInvoices`
+// below for the unfiltered default view.
 export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoice[]> => {
   const response = await apiClient.get<ApiResponse<InvoiceListResponseData>>('/billing/invoices', {
     params: {
@@ -290,6 +282,29 @@ export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoi
   return response.data.invoices.map(toInvoice);
 };
 
+/**
+ * Every invoice, looping past the backend's 200-per-page cap — for the
+ * unfiltered `InvoicesList` default view, which (unlike a search) must not
+ * silently truncate a shop's history once it grows past one page.
+ */
+export const fetchAllInvoices = async (): Promise<Invoice[]> => {
+  const fetchPage = async (page: number) => {
+    const response = await apiClient.get<ApiResponse<InvoiceListResponseData>>(
+      '/billing/invoices',
+      { params: { page, limit: 200 } }
+    );
+    return response.data;
+  };
+
+  const firstPage = await fetchPage(1);
+  const invoices = [...firstPage.invoices];
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const next = await fetchPage(page);
+    invoices.push(...next.invoices);
+  }
+  return invoices.map(toInvoice);
+};
+
 export const fetchInvoiceById = async (idOrKey: string): Promise<Invoice> => {
   const response = await apiClient.get<ApiResponse<BackendInvoice>>(`/billing/invoices/${idOrKey}`);
   return toInvoice(response.data);
@@ -300,29 +315,20 @@ export const fetchInvoiceById = async (idOrKey: string): Promise<Invoice> => {
 // action this codebase has, since a sale is one atomic write with no
 // pre-payment draft state to cancel without impact (see invoiceStatus.ts).
 // `reason` is mandatory server-side.
-export const voidInvoice = async (
-  idOrKey: string,
-  reason: string,
-  options?: MutationRequestOptions
-): Promise<Invoice> => {
+export const voidInvoice = async (idOrKey: string, reason: string): Promise<Invoice> => {
   const response = await apiClient.post<ApiResponse<BackendInvoice>>(
     `/billing/invoices/${idOrKey}/void`,
-    { reason },
-    options
+    { reason }
   );
   return toInvoice(response.data);
 };
 
 // Admin-gated on the backend (`billing::routes::close_invoice`). Manual
 // terminal action — only valid from Paid with zero open credit notes.
-export const closeInvoice = async (
-  idOrKey: string,
-  options?: MutationRequestOptions
-): Promise<Invoice> => {
+export const closeInvoice = async (idOrKey: string): Promise<Invoice> => {
   const response = await apiClient.post<ApiResponse<BackendInvoice>>(
     `/billing/invoices/${idOrKey}/close`,
-    {},
-    options
+    {}
   );
   return toInvoice(response.data);
 };

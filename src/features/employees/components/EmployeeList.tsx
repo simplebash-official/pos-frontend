@@ -52,7 +52,8 @@ import {
 } from '../hooks/useEmployees';
 import { EmployeeFormModal } from './EmployeeFormModal';
 import { EmployeeDetailDrawer } from './EmployeeDetailDrawer';
-import { syncEngine } from '@/offline/engine/SyncEngine';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { formatMoney } from '@/shared/lib/money';
 import { PermissionGuard } from '@/shared/components/PermissionGuard';
 import { PERMISSIONS } from '@/constants/permissions';
@@ -60,6 +61,7 @@ import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { EMPLOYEE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 
 export const EmployeeList = () => {
+  const queryClient = useQueryClient();
   const { data: employees = [], isLoading: isEmployeesLoading, isFetching } = useAllEmployees();
 
   const [search, setSearch] = useState('');
@@ -272,7 +274,9 @@ export const EmployeeList = () => {
                 variant="light"
                 leftSection={<IconRefresh size={14} />}
                 loading={isFetching}
-                onClick={() => void syncEngine.syncNow()}
+                onClick={() =>
+                  void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all })
+                }
               >
                 Refresh List
               </Button>

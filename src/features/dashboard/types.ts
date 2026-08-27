@@ -66,7 +66,7 @@ export interface FastMovingItem {
 
 export interface ActivityEvent {
   id: string;
-  type: 'sale' | 'repair_update' | 'print_new' | 'stock_alert' | 'credit_payment';
+  type: 'sale' | 'repair_update' | 'print_new' | 'stock_alert';
   title: string;
   description: string;
   amountCents?: number;

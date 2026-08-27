@@ -18,20 +18,23 @@ import {
 } from '@mantine/core';
 import { IconAlertTriangle, IconShieldLock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import type { Invoice, InvoiceItem } from '@/features/billing/types';
+import type {
+  Invoice,
+  InvoiceItem,
+  CreditNoteItemCondition,
+  CreditNoteItemDisposition,
+} from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useCreateCreditNote } from '@/features/billing/hooks/useCreditNotes';
-import { syncEngine } from '@/offline/engine/SyncEngine';
 import type {
   CreateCreditNoteExchangeItemInput,
   CreateCreditNoteItemInput,
   CreateCreditNoteRefundBreakdownInput,
 } from '@/features/billing/api/creditNotesApi';
-import type { CreditNoteItemCondition, CreditNoteItemDisposition } from '@/offline/db/tables';
 import {
   ITEM_CONDITION_OPTIONS,
   ITEM_DISPOSITION_OPTIONS,
@@ -384,8 +387,6 @@ export const CreditNoteModal = ({
           refundBreakdown: refundBreakdownInput,
         },
       });
-
-      void syncEngine.syncNow();
 
       notifications.show({
         title: 'Credit Note Created',

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
 import { IconX, IconPrinter } from '@tabler/icons-react';
-import type { Invoice } from '../types';
-import type { CreditNote } from '@/offline/db/tables';
+import type { Invoice, CreditNote } from '../types';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
 import { useCreditNoteDocument } from '../hooks/useCreditNoteDocument';
@@ -42,12 +41,9 @@ export const SaleDocumentPreviewModal = ({
 
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
-  // Right after checkout the invoice is still the local optimistic copy — its
-  // server-issued number hasn't arrived yet (`invoices.resource.ts` seeds it
-  // as `''`), even though the document itself may already be ready to print.
   // Fall back to the id so print-log lookups/recording still work (the
-  // lookup already matches on either field) instead of treating "number not
-  // hydrated yet" as "nothing to print".
+  // lookup already matches on either field) on the rare chance the number
+  // is somehow absent.
   const printLogNumber = invoice?.invoiceNumber || creditNote?.creditNoteNumber;
   const printLogKey = printLogNumber || invoice?.id || creditNote?.id || '';
   const printLogs = opened && printLogKey ? getPrintLogsForInvoice(printLogKey) : [];
@@ -67,7 +63,7 @@ export const SaleDocumentPreviewModal = ({
   // (`enabled: false`) when its subject isn't the active one.
   const invoiceDoc = useInvoiceDocument(invoice?.id, invoiceDocType, paperWidthMm);
   const creditNoteDoc = useCreditNoteDocument(opened && creditNote ? creditNote.id : undefined);
-  const { blob, loading, error, isPaused, isPending } = creditNote ? creditNoteDoc : invoiceDoc;
+  const { blob, loading, error, isPaused } = creditNote ? creditNoteDoc : invoiceDoc;
 
   const handlePrint = () => {
     if (!blob) return;
@@ -130,7 +126,6 @@ export const SaleDocumentPreviewModal = ({
       loading={loading}
       error={error}
       isPaused={isPaused}
-      isPending={isPending}
       documentLabel={isReceipt ? 'receipt' : 'invoice'}
     />
   );
@@ -185,7 +180,7 @@ export const SaleDocumentPreviewModal = ({
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="blue"
-            disabled={loading || !!error || isPending}
+            disabled={loading || !!error}
             leftSection={<IconPrinter size={16} />}
             onClick={handlePrint}
           >
@@ -340,7 +335,7 @@ export const SaleDocumentPreviewModal = ({
                 <Button
                   fullWidth
                   color="blue"
-                  disabled={loading || !!error || isPending}
+                  disabled={loading || !!error}
                   leftSection={<IconPrinter size={16} />}
                   onClick={handlePrint}
                 >

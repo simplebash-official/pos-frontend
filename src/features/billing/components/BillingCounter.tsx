@@ -26,8 +26,6 @@ const SaleDocumentPreviewModal = lazy(() =>
 );
 import type { CompleteSaleInput } from '../api/invoicesApi';
 import { useCompleteSale } from '../hooks/useInvoices';
-import type { CompleteSalePayload } from '@/offline/resources/invoices.resource';
-import { syncEngine } from '@/offline/engine/SyncEngine';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { playPaymentCompleteSound } from '../lib/audio';
 import { useAppSelector } from '@/store/hooks';
@@ -201,82 +199,15 @@ export const BillingCounter = () => {
         documentSelection,
       };
 
-      // Everything `localApply` needs to render the sale immediately,
-      // computed from the exact same cart state that built `payload` above
-      // — never re-derived inside the resource, so the optimistic totals
-      // can't drift from what the cashier was just shown on screen.
-      const optimistic: CompleteSalePayload['optimistic'] = {
-        customerId: customerId || undefined,
-        customerName: customerName || undefined,
-        customerPhone: customerPhone || undefined,
-        customerAddress: customerAddress || undefined,
-        cashierId: authUser?.id,
-        cashierName,
-        subtotalCents,
-        discountCents,
-        discountType: discountType || undefined,
-        discountValue: discountValue || undefined,
-        totalCents,
-        paymentMethod,
-        splitPayments: paymentMethod === PAYMENT_METHODS.SPLIT ? splitPayments : undefined,
-        isCredit,
-        amountReceivedCents:
-          paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
-        changeDueCents: calculatedChangeCents,
-        dueDate: isCredit ? payload.payment.dueDate : undefined,
-        cardLast4: cardRef || undefined,
-        cardRef: cardRef || undefined,
-        onlineRef: onlineRef || undefined,
-        onlineNote: onlineNote || undefined,
-        status: isCredit ? 'pending' : 'paid',
-        isOverdue: false,
-        creditNoteCount: 0,
-        hasCreditNotes: false,
-        refundedCents: 0,
-        items: items.map((item) => ({
-          id: item.id,
-          productId:
-            item.sourceType === 'retail' || !item.sourceType
-              ? (item.productKey ?? item.id)
-              : item.productId,
-          name: item.name,
-          sku: item.sku,
-          category: item.category,
-          subcategory: item.subcategory,
-          unitPriceCents: item.unitPriceCents,
-          quantity: item.quantity,
-          discountCents: item.discountCents,
-          totalCents: item.totalCents,
-          sourceType: item.sourceType,
-          sourceTicketNumber: item.sourceTicketNumber,
-          assignedEmployeeId: item.assignedEmployeeId,
-          assignedEmployeeName: item.assignedEmployeeName,
-          serialNumbers: item.serialNumbers,
-        })),
-        notes,
-        warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
-        documentSelection: documentSelection as Invoice['documentSelection'],
-      };
+      const { invoice, warnings } = await completeSaleMutation.mutateAsync(payload);
 
-      // Resolves as soon as the sale is saved locally — instantly whether or
-      // not there's a connection. The real invoice number and PDF only
-      // become available once the queued operation reaches the server (see
-      // `invoices.resource.ts`'s doc comment); until then this invoice shows
-      // the standard "Pending" affordance, same as an unsynced product's SKU.
-      const invoice = await completeSaleMutation.mutateAsync({ input: payload, optimistic });
-
-      // Sale-completion warnings (e.g. a partial stock-decrement failure)
-      // no longer arrive on this same call now that checkout can complete
-      // offline — see `notifySaleWarnings` in `syncNotifications.ts`, fired
-      // from the outbox flush once the real push actually happens.
-
-      // Stock and customer balance are synced resources read from Dexie's
-      // local mirror, not TanStack Query — `syncNow()` promptly pulls
-      // whatever this sale changed server-side rather than waiting for the
-      // next periodic poll (`PULL_INTERVAL_MS`, 60s), long enough for a
-      // cashier to oversell a just-decremented product. A no-op when
-      // there's nothing new to fetch, so safe to call unconditionally.
-      void syncEngine.syncNow();
+      if (warnings.length > 0) {
+        notifications.show({
+          title: 'Sale Completed With Warnings',
+          message: warnings.join(' '),
+          color: 'orange',
+        });
+      }
 
       // Play chime sound
       playPaymentCompleteSound(soundEnabled);

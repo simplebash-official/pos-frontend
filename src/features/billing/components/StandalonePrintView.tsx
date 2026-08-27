@@ -16,7 +16,7 @@ export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
   const printedRef = useRef(false);
 
-  const { blob, loading, error, isPaused, isPending } = useInvoiceDocument(id, 'a4-invoice');
+  const { blob, loading, error, isPaused } = useInvoiceDocument(id, 'a4-invoice');
 
   useEffect(() => {
     if (blob && !printedRef.current) {
@@ -39,22 +39,6 @@ export const StandalonePrintView = () => {
           <Loader size="sm" />
           <Text size="sm" c="dimmed">
             Preparing document…
-          </Text>
-        </Stack>
-      </Container>
-    );
-  }
-
-  if (isPending) {
-    return (
-      <Container size="sm" py={100} style={{ textAlign: 'center' }}>
-        <Stack align="center" gap="xs">
-          <Loader size="sm" />
-          <Text size="sm" fw={700}>
-            Finishing this sale…
-          </Text>
-          <Text size="sm" c="dimmed">
-            {getDocumentUnavailableText({ isPaused: false, isError: false, isPending: true })}
           </Text>
         </Stack>
       </Container>
@@ -149,7 +133,6 @@ export const StandalonePrintView = () => {
           loading={loading}
           error={error}
           isPaused={isPaused}
-          isPending={isPending}
           documentLabel="invoice"
         />
       </Box>

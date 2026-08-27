@@ -26,7 +26,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useMantineColorScheme } from '@mantine/core';
 
 import { useCartItems, useHeldCarts, useCartSound } from '@/features/billing/hooks/useCart';
-import { SyncStatusBadge } from '@/features/sync/components/SyncStatusBadge';
 import { NotificationPopover } from '@/features/notifications/components/NotificationPopover';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
@@ -40,7 +39,6 @@ export interface HeaderProps {
   onToggleFocusMode?: () => void;
   onOpenHeldDrawer?: () => void;
   onOpenShortcuts?: () => void;
-  onOpenSyncPanel: () => void;
 }
 
 export const Header = ({
@@ -50,7 +48,6 @@ export const Header = ({
   onToggleFocusMode,
   onOpenHeldDrawer,
   onOpenShortcuts,
-  onOpenSyncPanel,
 }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,7 +92,6 @@ export const Header = ({
           >
             JANA2U POS
           </Title>
-          <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
           <Text
             size="xs"
             c="dimmed"
@@ -201,8 +197,6 @@ export const Header = ({
       </Group>
 
       <Group gap="xs" wrap="nowrap">
-        <SyncStatusBadge onOpenPanel={onOpenSyncPanel} />
-
         <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
         {isMobile ? (

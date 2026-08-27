@@ -1,58 +1,80 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  DeleteSupplierPayload,
-  DeleteSuppliersPayload,
-  UpdateSupplierPayload,
-} from '@/offline/resources/suppliers.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  createSupplier,
+  deleteSupplier,
+  deleteSuppliers,
+  fetchSuppliers,
+  updateSupplier,
+} from '../api/suppliersApi';
 import { Supplier, SupplierInput } from '../types';
 
-/**
- * Local-first supplier access.
- *
- * Suppliers previously had no hook at all — five components each ran their own
- * inline `useQuery`. Consolidating them here is what let the whole feature
- * move to the mirror in one change.
- */
+export interface UpdateSupplierPayload {
+  supplierKey: string;
+  input: SupplierInput;
+}
+export interface DeleteSupplierPayload {
+  supplierKey: string;
+}
+export interface DeleteSuppliersPayload {
+  supplierKeys: string[];
+}
 
-const NO_SUPPLIERS: MirroredRow<Supplier>[] = [];
+const NO_SUPPLIERS: Supplier[] = [];
 
 export const useAllSuppliers = (options?: { enabled?: boolean }) => {
   const enabled = options?.enabled ?? true;
-
-  return useSyncedQuery(
-    'suppliers',
-    async () => {
-      if (!enabled) {
-        return NO_SUPPLIERS;
-      }
-      return db.suppliers.where('_isDeleted').equals(0).sortBy('name');
-    },
-    NO_SUPPLIERS,
-    [enabled]
-  );
+  const query = useQuery({
+    queryKey: queryKeys.suppliers.all,
+    queryFn: () => fetchSuppliers(),
+    enabled,
+  });
+  return { ...query, data: query.data ?? NO_SUPPLIERS };
 };
 
-/** Distinct categories across every mirrored supplier, for the filter chips. */
+/** Distinct categories across every supplier, for the filter chips. */
 export const useSupplierCategories = () => {
   const { data: suppliers } = useAllSuppliers();
   return [...new Set(suppliers.flatMap((supplier) => supplier.suppliedCategories))].sort();
 };
 
 export const useCreateSupplier = () => {
-  return useSyncedMutation<SupplierInput, Supplier>('suppliers', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: SupplierInput) => createSupplier(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+    },
+  });
 };
 
 export const useUpdateSupplier = () => {
-  return useSyncedMutation<UpdateSupplierPayload, Supplier>('suppliers', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ supplierKey, input }: UpdateSupplierPayload) =>
+      updateSupplier(supplierKey, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+    },
+  });
 };
 
 export const useDeleteSupplier = () => {
-  return useSyncedMutation<DeleteSupplierPayload, void>('suppliers', 'delete');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ supplierKey }: DeleteSupplierPayload) => deleteSupplier(supplierKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+    },
+  });
 };
 
 export const useDeleteSuppliers = () => {
-  return useSyncedMutation<DeleteSuppliersPayload, void>('suppliers', 'deleteMany');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ supplierKeys }: DeleteSuppliersPayload) => deleteSuppliers(supplierKeys),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+    },
+  });
 };

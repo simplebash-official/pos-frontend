@@ -27,5 +27,14 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "graphify-out", ".agents", ".claude", ".github", ".obsidian"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "graphify-out",
+    ".agents",
+    ".claude",
+    ".github",
+    ".obsidian",
+    "src/features/sync"
+  ]
 }

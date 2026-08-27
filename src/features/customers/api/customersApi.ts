@@ -1,4 +1,4 @@
-import { apiClient, type MutationRequestOptions } from '@/api/client';
+import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import {
   Customer,
@@ -44,59 +44,34 @@ export const fetchCustomerTags = async (): Promise<string[]> => {
   return response.data.tags;
 };
 
-export const createCustomer = async (
-  input: CustomerInput,
-  options?: MutationRequestOptions
-): Promise<Customer> => {
-  const response = await apiClient.post<ApiResponse<Customer>>('/customers', input, options);
+export const createCustomer = async (input: CustomerInput): Promise<Customer> => {
+  const response = await apiClient.post<ApiResponse<Customer>>('/customers', input);
   return response.data;
 };
 
 /** Full replace — omitted optional fields are cleared server-side. */
-export const updateCustomer = async (
-  idOrKey: string,
-  input: CustomerInput,
-  options?: MutationRequestOptions
-): Promise<Customer> => {
-  const response = await apiClient.put<ApiResponse<Customer>>(
-    `/customers/${idOrKey}`,
-    input,
-    options
-  );
+export const updateCustomer = async (idOrKey: string, input: CustomerInput): Promise<Customer> => {
+  const response = await apiClient.put<ApiResponse<Customer>>(`/customers/${idOrKey}`, input);
   return response.data;
 };
 
 /** Partial update — preserves fields not specified in the payload. */
 export const patchCustomer = async (
   idOrKey: string,
-  updates: Partial<CustomerInput>,
-  options?: MutationRequestOptions
+  updates: Partial<CustomerInput>
 ): Promise<Customer> => {
-  const response = await apiClient.patch<ApiResponse<Customer>>(
-    `/customers/${idOrKey}`,
-    updates,
-    options
-  );
+  const response = await apiClient.patch<ApiResponse<Customer>>(`/customers/${idOrKey}`, updates);
   return response.data;
 };
 
-export const deleteCustomer = async (
-  idOrKey: string,
-  options?: MutationRequestOptions
-): Promise<void> => {
-  await apiClient.delete(`/customers/${idOrKey}`, options);
+export const deleteCustomer = async (idOrKey: string): Promise<void> => {
+  await apiClient.delete(`/customers/${idOrKey}`);
 };
 
-export const deleteCustomers = async (
-  ids: string[],
-  options?: MutationRequestOptions
-): Promise<{ deletedCount: number }> => {
+export const deleteCustomers = async (ids: string[]): Promise<{ deletedCount: number }> => {
   const response = await apiClient.delete<ApiResponse<{ deletedCount: number }>>(
     '/customers/batch',
-    {
-      ...options,
-      data: { ids },
-    }
+    { data: { ids } }
   );
   return response.data;
 };

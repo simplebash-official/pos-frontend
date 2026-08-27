@@ -33,8 +33,6 @@ export interface PdfCanvasViewerProps {
   error?: boolean;
   /** The fetch never ran because we're offline — takes priority over `error`. */
   isPaused?: boolean;
-  /** The sale hasn't reached the server yet — takes priority over `error` and `loading`. */
-  isPending?: boolean;
   /** Label used in the empty/error states and the page-count readout. */
   documentLabel?: string;
   /** Initial scale (default: 1 for 100%) */
@@ -152,7 +150,6 @@ export const PdfCanvasViewer = ({
   loading,
   error,
   isPaused,
-  isPending,
   documentLabel,
   initialScale = 1,
   initialAutoFit = false,
@@ -254,7 +251,7 @@ export const PdfCanvasViewer = ({
   }, [autoFit, pdfDoc, isMobile]);
 
   const pageCount = pdfDoc?.numPages ?? 0;
-  const showEmpty = isPending || isPaused || loading || error || loadError || !pdfDoc;
+  const showEmpty = isPaused || loading || error || loadError || !pdfDoc;
 
   // Track active visible page while scrolling
   useEffect(() => {
@@ -515,7 +512,7 @@ export const PdfCanvasViewer = ({
           position: 'relative',
         }}
       >
-        {(isPending || isPaused || loading || error || loadError) && (
+        {(isPaused || loading || error || loadError) && (
           <Box
             style={{
               position: 'absolute',
@@ -525,17 +522,7 @@ export const PdfCanvasViewer = ({
               justifyContent: 'center',
             }}
           >
-            {isPending ? (
-              <Stack align="center" gap="xs">
-                <Loader size="sm" />
-                <Text size="sm" fw={600}>
-                  Finishing this sale…
-                </Text>
-                <Text size="xs" c="dimmed" ta="center">
-                  The {documentLabel || 'document'} will be ready in a moment.
-                </Text>
-              </Stack>
-            ) : isPaused ? (
+            {isPaused ? (
               <Stack align="center" gap="xs">
                 <IconAlertCircle size={28} color="var(--mantine-color-orange-6)" />
                 <Text size="sm" c="orange" fw={600}>
@@ -566,7 +553,7 @@ export const PdfCanvasViewer = ({
           </Box>
         )}
 
-        {!isPending && !isPaused && !loading && !error && !loadError && pdfDoc && (
+        {!isPaused && !loading && !error && !loadError && pdfDoc && (
           <Box
             style={{
               display: 'flex',

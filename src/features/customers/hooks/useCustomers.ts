@@ -1,58 +1,82 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  DeleteCustomerPayload,
-  DeleteCustomersPayload,
-  UpdateCustomerPayload,
-} from '@/offline/resources/customers.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  createCustomer,
+  deleteCustomer,
+  deleteCustomers,
+  fetchAllCustomers,
+  updateCustomer,
+} from '../api/customersApi';
 import { PRESET_CUSTOMER_TAGS } from '../constants';
 import { Customer, CustomerInput } from '../types';
 
-const NO_CUSTOMERS: MirroredRow<Customer>[] = [];
+export interface UpdateCustomerPayload {
+  customerKey: string;
+  input: CustomerInput;
+}
+export interface DeleteCustomerPayload {
+  customerKey: string;
+}
+export interface DeleteCustomersPayload {
+  customerKeys: string[];
+}
 
-/**
- * Local-first customer access.
- *
- * Reads from Dexie's local mirror for instant zero-latency loading and offline
- * availability across billing counter, service tickets, and directory management.
- */
+const NO_CUSTOMERS: Customer[] = [];
+
 export const useAllCustomers = (options?: { enabled?: boolean }) => {
   const enabled = options?.enabled ?? true;
-
-  return useSyncedQuery(
-    'customers',
-    async () => {
-      if (!enabled) {
-        return NO_CUSTOMERS;
-      }
-      return db.customers.where('_isDeleted').equals(0).sortBy('name');
-    },
-    NO_CUSTOMERS,
-    [enabled]
-  );
+  const query = useQuery({
+    queryKey: queryKeys.customers.all,
+    queryFn: fetchAllCustomers,
+    enabled,
+  });
+  return { ...query, data: query.data ?? NO_CUSTOMERS };
 };
 
-/** Distinct customer tags derived from live mirror rows + preset suggestions. */
+/** Distinct customer tags derived from the current customer list + preset suggestions. */
 export const useCustomerTags = () => {
   const { data: customers } = useAllCustomers();
-  const tagsFromDb = customers.flatMap((c) => c.tags || []);
-  return [...new Set([...PRESET_CUSTOMER_TAGS, ...tagsFromDb])].filter(Boolean).sort();
+  const tagsFromApi = customers.flatMap((c) => c.tags || []);
+  return [...new Set([...PRESET_CUSTOMER_TAGS, ...tagsFromApi])].filter(Boolean).sort();
 };
 
 export const useCreateCustomer = () => {
-  return useSyncedMutation<CustomerInput, Customer>('customers', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CustomerInput) => createCustomer(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };
 
 export const useUpdateCustomer = () => {
-  return useSyncedMutation<UpdateCustomerPayload, Customer>('customers', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ customerKey, input }: UpdateCustomerPayload) =>
+      updateCustomer(customerKey, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };
 
 export const useDeleteCustomer = () => {
-  return useSyncedMutation<DeleteCustomerPayload, void>('customers', 'delete');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ customerKey }: DeleteCustomerPayload) => deleteCustomer(customerKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };
 
 export const useDeleteCustomers = () => {
-  return useSyncedMutation<DeleteCustomersPayload, void>('customers', 'deleteMany');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ customerKeys }: DeleteCustomersPayload) => deleteCustomers(customerKeys),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };

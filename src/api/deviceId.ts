@@ -1,16 +1,14 @@
 import { STORAGE_KEYS } from '@/constants';
-import { randomUuid } from './localId';
+import { randomUuid } from '@/shared/lib/id';
 
 /**
  * A stable per-install identity for this browser profile.
  *
- * Sent as `X-Device-Id` on every request so the backend can attribute writes,
- * and used locally to stamp outbox operations. It lives in localStorage rather
- * than IndexedDB because `ApiClient` needs it synchronously in a request
- * interceptor, exactly like the auth token.
+ * Sent as `X-Device-Id` on every request so the backend can attribute writes.
+ * It lives in localStorage rather than IndexedDB because `ApiClient` needs it
+ * synchronously in a request interceptor, exactly like the auth token.
  *
- * Clearing site data mints a new device id. That is correct: a wiped profile
- * has no queued operations to attribute.
+ * Clearing site data mints a new device id — that's the expected reset.
  */
 
 let cached: string | null = null;

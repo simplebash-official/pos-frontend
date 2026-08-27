@@ -1,27 +1,35 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type { RecordPaymentPayload } from '@/offline/resources/payments.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import { fetchInvoicePayments, recordPayment } from '../api/paymentsApi';
 import type { PaymentRecord } from '../api/paymentsApi';
+import type { RecordPaymentInput } from '../api/paymentsApi';
 
-const NO_PAYMENTS: MirroredRow<PaymentRecord>[] = [];
+export interface RecordPaymentPayload {
+  invoiceKey: string;
+  input: RecordPaymentInput;
+}
 
-/** Local-first payment history for one invoice — reads Dexie's mirror. */
+const NO_PAYMENTS: PaymentRecord[] = [];
+
 export const useInvoicePayments = (invoiceId: string | undefined) => {
-  return useSyncedQuery(
-    'payments',
-    async () => {
-      if (!invoiceId) {
-        return NO_PAYMENTS;
-      }
-      return db.payments.where('invoiceId').equals(invoiceId).sortBy('recordedAt');
-    },
-    NO_PAYMENTS,
-    [invoiceId]
-  );
+  const query = useQuery({
+    queryKey: queryKeys.billing.payments(invoiceId ?? ''),
+    queryFn: () => fetchInvoicePayments(invoiceId as string),
+    enabled: Boolean(invoiceId),
+  });
+  return { ...query, data: query.data ?? NO_PAYMENTS };
 };
 
 export const useRecordPayment = () => {
-  return useSyncedMutation<RecordPaymentPayload, PaymentRecord>('payments', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ invoiceKey, input }: RecordPaymentPayload) => recordPayment(invoiceKey, input),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.billing.payments(variables.invoiceKey),
+      });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };

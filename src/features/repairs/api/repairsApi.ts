@@ -1,4 +1,4 @@
-import { apiClient, type MutationRequestOptions } from '@/api/client';
+import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { RepairJob, RepairJobInput } from '../types';
 
@@ -90,12 +90,10 @@ export interface FetchRepairsParams {
   datePreset?: 'today';
 }
 
-// `limit: 200` (the backend's max) rather than paginating — the mock this
-// replaces always returned every ticket, and no repairs list screen has
-// pagination UI today. These params are only passed by
-// `useBackendFilteredList` (`RepairJobList.tsx`) — the sync engine's
-// `pull.full` (`repairs.resource.ts`) and `CatalogPanel.tsx` always call
-// this with no params, so a filter never scopes what gets mirrored offline.
+// One page (backend's 200 max), used for a filtered/searched request —
+// called by `useBackendFilteredList` (`RepairJobList.tsx`) with `search`/
+// `status`/`datePreset`, where the top-200 matches are what's wanted, not
+// every ticket.
 export const fetchRepairs = async (params?: FetchRepairsParams): Promise<RepairJob[]> => {
   const response = await apiClient.get<ApiResponse<RepairListResponseData>>('/repairs', {
     params: {
@@ -108,50 +106,46 @@ export const fetchRepairs = async (params?: FetchRepairsParams): Promise<RepairJ
   return response.data.repairs.map(toRepairJob);
 };
 
-// REST-only — no `mockEmployees` commission side effect here. Per the
-// offline-sync rule that only `src/offline/resources/` may import a synced
-// resource's `api/` module, `repairs.resource.ts` is the only caller of
-// these three; it runs the commission bookkeeping itself, inside `push`,
-// after the server call below succeeds.
-export const createRepairJobRaw = async (
-  input: RepairJobInput,
-  options?: MutationRequestOptions
-): Promise<RepairJob> => {
-  const response = await apiClient.post<ApiResponse<BackendRepair>>('/repairs', input, options);
+/**
+ * Every repair ticket, looping past the backend's 200-per-page cap — for the
+ * unfiltered `RepairJobList` default view, which must not silently truncate
+ * a shop's ticket history once it grows past one page.
+ */
+export const fetchAllRepairs = async (): Promise<RepairJob[]> => {
+  const fetchPage = async (page: number) => {
+    const response = await apiClient.get<ApiResponse<RepairListResponseData>>('/repairs', {
+      params: { page, limit: 200 },
+    });
+    return response.data;
+  };
+
+  const firstPage = await fetchPage(1);
+  const repairs = [...firstPage.repairs];
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const next = await fetchPage(page);
+    repairs.push(...next.repairs);
+  }
+  return repairs.map(toRepairJob);
+};
+
+export const createRepairJobRaw = async (input: RepairJobInput): Promise<RepairJob> => {
+  const response = await apiClient.post<ApiResponse<BackendRepair>>('/repairs', input);
   return toRepairJob(response.data);
 };
 
 export const updateRepairJobRaw = async (
   id: string,
-  input: Partial<RepairJobInput>,
-  options?: MutationRequestOptions
+  input: Partial<RepairJobInput>
 ): Promise<RepairJob> => {
-  const response = await apiClient.patch<ApiResponse<BackendRepair>>(
-    `/repairs/${id}`,
-    input,
-    options
-  );
+  const response = await apiClient.patch<ApiResponse<BackendRepair>>(`/repairs/${id}`, input);
   return toRepairJob(response.data);
 };
 
 /**
  * There is no `/repairs/batch` route, so a bulk delete is N separate
- * requests. The idempotency store's uniqueness is `(key, user_id)` only —
- * not scoped per request — so every request here MUST get its own derived
- * key; reusing `options.idempotencyKey` verbatim across all N calls would
- * make requests 2..N replay request 1's cached response instead of
- * actually deleting anything.
+ * requests — each gets its own auto-generated `Idempotency-Key` from
+ * `apiClient`'s request interceptor, so a retry of one never replays another.
  */
-export const deleteRepairsRaw = async (
-  ids: string[],
-  options?: MutationRequestOptions
-): Promise<void> => {
-  await Promise.all(
-    ids.map((id) =>
-      apiClient.delete(`/repairs/${id}`, {
-        ...options,
-        idempotencyKey: options?.idempotencyKey ? `${options.idempotencyKey}:${id}` : undefined,
-      })
-    )
-  );
+export const deleteRepairsRaw = async (ids: string[]): Promise<void> => {
+  await Promise.all(ids.map((id) => apiClient.delete(`/repairs/${id}`)));
 };

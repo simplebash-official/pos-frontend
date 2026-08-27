@@ -1,4 +1,4 @@
-import { apiClient, type MutationRequestOptions } from '@/api/client';
+import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { Employee, EmployeeInput } from '../types';
 
@@ -21,34 +21,24 @@ export const fetchEmployeeById = async (id: string): Promise<Employee> => {
   return response.data;
 };
 
-export const createEmployee = async (
-  input: EmployeeInput,
-  options?: MutationRequestOptions
-): Promise<Employee> => {
-  const response = await apiClient.post<ApiResponse<Employee>>('/employees', input, options);
+export const createEmployee = async (input: EmployeeInput): Promise<Employee> => {
+  const response = await apiClient.post<ApiResponse<Employee>>('/employees', input);
   return response.data;
 };
 
 /** Partial update — omitted fields keep their existing value server-side. */
 export const updateEmployee = async (
   id: string,
-  input: Partial<EmployeeInput>,
-  options?: MutationRequestOptions
+  input: Partial<EmployeeInput>
 ): Promise<Employee> => {
-  const response = await apiClient.patch<ApiResponse<Employee>>(`/employees/${id}`, input, options);
+  const response = await apiClient.patch<ApiResponse<Employee>>(`/employees/${id}`, input);
   return response.data;
 };
 
-export const deleteEmployee = async (
-  id: string,
-  options?: MutationRequestOptions
-): Promise<void> => {
-  await apiClient.delete(`/employees/${id}`, options);
+export const deleteEmployee = async (id: string): Promise<void> => {
+  await apiClient.delete(`/employees/${id}`);
 };
 
-export const deleteEmployees = async (
-  ids: string[],
-  options?: MutationRequestOptions
-): Promise<void> => {
-  await apiClient.delete('/employees/batch', { ...options, data: { ids } });
+export const deleteEmployees = async (ids: string[]): Promise<void> => {
+  await apiClient.delete('/employees/batch', { data: { ids } });
 };

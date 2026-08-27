@@ -1,29 +1,17 @@
 /**
- * Public surface of the offline sync engine.
+ * Public surface of what's left of the local database layer.
  *
- * Features import from here and from `@/offline/db/schema` for the mirror
- * tables; nothing should reach into the engine's internal modules.
+ * The offline-first sync engine has been removed — the app depends on the
+ * backend directly, via TanStack Query. What remains is Dexie scaffolding
+ * kept for a possible future non-sync local-storage feature, plus
+ * connectivity detection (used to drive TanStack Query's `onlineManager`).
  */
 
 export { db } from './db/schema';
-export type { MirroredRow, MirrorMeta } from './db/tables';
-export { UNSYNCED_VERSION, stripMirrorMeta } from './db/mirror';
+export type { StatsCacheRow } from './db/tables';
+export { estimateStorage, requestPersistentStorage } from './db/maintenance';
 
-export { syncEngine } from './engine/SyncEngine';
-export type { SyncEngineState } from './engine/SyncEngine';
 export { connectivityMonitor } from './connectivity/ConnectivityMonitor';
 export type { ConnectivitySnapshot, ConnectivityState } from './connectivity/types';
 
-export { SyncProvider } from './react/SyncProvider';
 export { useLiveQuery } from './react/useLiveQuery';
-export { useSyncedQuery } from './react/useSyncedQuery';
-export type { SyncedQueryResult } from './react/useSyncedQuery';
-export { useSyncedMutation } from './react/useSyncedMutation';
-
-export { applyLedgerToProducts, pendingDeltaFor } from './engine/stockLedger';
-export { isLocalId, LOCAL_ID_PREFIX } from './ids/localId';
-export { getDeviceId } from './ids/deviceId';
-
-export { defineSyncResource, defineOperation } from './registry/registry';
-export type { ModuleSyncStatus, ModuleSyncView, SyncResource, SyncResourceId } from './types';
-export { OutboxFullError } from './errors';

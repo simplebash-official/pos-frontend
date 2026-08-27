@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { useDebouncedValue } from '@mantine/hooks';
-import { useAppSelector } from '@/store/hooks';
-import { selectIsOffline } from '@/store/slices/syncSlice';
 import { useMemo } from 'react';
 import { useEntitySearch } from './useEntitySearch';
 import {
@@ -15,16 +13,13 @@ export interface UseBackendFilteredListResult<T> {
   results: T[];
   /** A backend request for the current (debounced) filter set is in flight. */
   isSearching: boolean;
-  isOffline: boolean;
 }
 
 export type QueryKeyFactory<F> = readonly unknown[] | ((debouncedFilters: F) => readonly unknown[]);
 
 /**
- * Search + filters that hit the backend while online, and fall back to a
- * local pass over the Dexie mirror (fuzzy text search plus `applyLocalFilters`
- * for the rest) while offline — so filtering a synced resource degrades
- * gracefully instead of breaking during an outage.
+ * Search + filters that hit the backend, with an instant local pass over the
+ * already-loaded list shown while the backend request is in flight.
  *
  * The whole `filters` object is debounced together 300ms: harmless for
  * discrete controls (a status `Select`, a date `SegmentedToggle`) and it
@@ -48,7 +43,6 @@ export function useBackendFilteredList<T, F extends { search: string }>(
   fetchFn: (filters: F) => Promise<T[]>,
   queryKeyOrFn: QueryKeyFactory<F>
 ): UseBackendFilteredListResult<T> {
-  const isOffline = useAppSelector(selectIsOffline);
   const [debouncedFilters] = useDebouncedValue(filters, 300);
 
   const { results: textSearched } = useEntitySearch(allItems, searchFields, filters.search, null);
@@ -75,7 +69,7 @@ export function useBackendFilteredList<T, F extends { search: string }>(
   const backendQuery = useQuery({
     queryKey: effectiveQueryKey,
     queryFn: () => fetchFn(debouncedFilters),
-    enabled: debouncedActive && !isOffline,
+    enabled: debouncedActive,
   });
 
   const debouncedMatchesCurrent = serializedDebouncedFilters === serializedFilters;
@@ -104,15 +98,11 @@ export function useBackendFilteredList<T, F extends { search: string }>(
     if (!active) {
       return allItems;
     }
-    if (isOffline) {
-      return localResults;
-    }
     return backendReady && rankedBackendResults !== undefined ? rankedBackendResults : localResults;
-  }, [active, allItems, isOffline, backendReady, rankedBackendResults, localResults]);
+  }, [active, allItems, backendReady, rankedBackendResults, localResults]);
 
   return {
     results,
     isSearching: debouncedMatchesCurrent && backendQuery.isFetching,
-    isOffline,
   };
 }

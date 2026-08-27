@@ -1,66 +1,19 @@
 import Dexie, { Table } from 'dexie';
-import type { Invoice } from '@/features/billing/types';
-import type { PaymentRecord } from '@/features/billing/api/paymentsApi';
-import type { Customer } from '@/features/customers/types';
-import type { Employee } from '@/features/employees/types';
-import type { Category, Product, StockMovement } from '@/features/inventory/types';
-import type { StockPurchase } from '@/features/purchases/types';
-import type { PrintJob } from '@/features/print-jobs/types';
-import type { RepairJob } from '@/features/repairs/types';
-import type { SupplierProduct } from '@/features/supplier-products/types';
-import type { Supplier } from '@/features/suppliers/types';
 import { OFFLINE_DB_NAME } from '../constants';
-import type {
-  AuditEvent,
-  ConflictRecord,
-  IdMapRecord,
-  MirroredRow,
-  OutboxOp,
-  ProductSerial,
-  SessionRecord,
-  StatsCacheRow,
-  StockLedgerEntry,
-  SyncMetaRecord,
-  CreditNote,
-} from './tables';
+import type { StatsCacheRow } from './tables';
 
 /**
- * The local mirror of the backend, plus the engine's own bookkeeping.
- *
- * This — not the server and not the TanStack cache — is what the UI reads, so
- * every screen behaves identically online and offline.
+ * The local IndexedDB database. The offline-first sync engine (mirror
+ * tables, outbox, id map, conflicts, audit log, cached session) has been
+ * removed — the app depends on the backend directly now, via TanStack
+ * Query. This class is kept, empty but for `statsCache`, as scaffolding for
+ * any future non-sync local-storage feature.
  *
  * Schema changes MUST add a new `this.version(n)` block with an `upgrade`
- * callback. Editing an existing version in place bricks the app for anyone who
- * already has data at the old version.
+ * callback. Editing an existing version in place bricks the app for anyone
+ * who already has data at the old version.
  */
 export class OfflineDb extends Dexie {
-  // Entity mirrors
-  products!: Table<MirroredRow<Product>, string>;
-  categories!: Table<MirroredRow<Category>, string>;
-  suppliers!: Table<MirroredRow<Supplier>, string>;
-  supplierProducts!: Table<MirroredRow<SupplierProduct>, string>;
-  purchases!: Table<MirroredRow<StockPurchase>, string>;
-  /** Read-only mirror — the server is the sole writer of stock movements. */
-  stockMovements!: Table<MirroredRow<StockMovement>, string>;
-  customers!: Table<MirroredRow<Customer>, string>;
-  employees!: Table<MirroredRow<Employee>, string>;
-  invoices!: Table<MirroredRow<Invoice>, string>;
-  payments!: Table<MirroredRow<PaymentRecord>, string>;
-  repairs!: Table<MirroredRow<RepairJob>, string>;
-  printJobs!: Table<MirroredRow<PrintJob>, string>;
-  creditNotes!: Table<MirroredRow<CreditNote>, string>;
-  /** Read-only mirror — the server is the sole writer of serial lifecycle transitions. */
-  productSerials!: Table<MirroredRow<ProductSerial>, string>;
-
-  // Engine tables
-  outbox!: Table<OutboxOp, number>;
-  stockLedger!: Table<StockLedgerEntry, number>;
-  syncMeta!: Table<SyncMetaRecord, string>;
-  idMap!: Table<IdMapRecord, string>;
-  conflicts!: Table<ConflictRecord, string>;
-  auditLog!: Table<AuditEvent, number>;
-  session!: Table<SessionRecord, string>;
   /** Not an engine table — see `StatsCacheRow`'s doc comment. */
   statsCache!: Table<StatsCacheRow, string>;
 
@@ -185,27 +138,36 @@ export class OfflineDb extends Dexie {
     this.version(10).stores({
       employees: 'id, key, name, role, status, _pending, _isDeleted, updatedAt',
     });
+
+    // v11 removes the offline-first sync engine entirely: every mirror table,
+    // the engine's own bookkeeping (outbox, stockLedger, syncMeta, idMap,
+    // conflicts, auditLog), and the cached-session table (auth is
+    // strictly online-only now, with no offline grace period to serve). Only
+    // `statsCache` survives — see this file's class doc comment.
+    this.version(11).stores({
+      products: null,
+      categories: null,
+      suppliers: null,
+      supplierProducts: null,
+      purchases: null,
+      stockMovements: null,
+      customers: null,
+      employees: null,
+      invoices: null,
+      payments: null,
+      repairs: null,
+      printJobs: null,
+      creditNotes: null,
+      productSerials: null,
+      outbox: null,
+      stockLedger: null,
+      syncMeta: null,
+      idMap: null,
+      conflicts: null,
+      auditLog: null,
+      session: null,
+    });
   }
 }
 
 export const db = new OfflineDb();
-
-/** Every mirror table, for maintenance routines that operate across all of them. */
-export const MIRROR_TABLE_NAMES = [
-  'products',
-  'categories',
-  'suppliers',
-  'supplierProducts',
-  'purchases',
-  'stockMovements',
-  'customers',
-  'employees',
-  'invoices',
-  'payments',
-  'repairs',
-  'printJobs',
-  'creditNotes',
-  'productSerials',
-] as const;
-
-export type MirrorTableName = (typeof MIRROR_TABLE_NAMES)[number];

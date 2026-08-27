@@ -1,44 +1,37 @@
-import { db } from '@/offline/db/schema';
-import type { CreditNote, MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type { CreateCreditNotePayload } from '@/offline/resources/creditNotes.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import { createCreditNote, fetchCreditNotes, voidCreditNote } from '../api/creditNotesApi';
+import type { CreditNote } from '../types';
+import type { CreateCreditNoteInput } from '../api/creditNotesApi';
 
-const NO_CREDIT_NOTES: MirroredRow<CreditNote>[] = [];
+export interface CreateCreditNotePayload {
+  input: CreateCreditNoteInput;
+}
 
-/** Local-first credit note history for a specific invoice — reads Dexie's mirror. */
+const NO_CREDIT_NOTES: CreditNote[] = [];
+
+/** Credit note history for a specific invoice. */
 export const useInvoiceCreditNotes = (invoiceId: string | undefined) => {
-  return useSyncedQuery(
-    'creditNotes',
-    async () => {
-      if (!invoiceId) {
-        return NO_CREDIT_NOTES;
-      }
-      return db.creditNotes
-        .where('invoiceId')
-        .equals(invoiceId)
-        .filter((row) => row._isDeleted === 0)
-        .reverse()
-        .sortBy('createdAt');
-    },
-    NO_CREDIT_NOTES,
-    [invoiceId]
-  );
+  const query = useQuery({
+    queryKey: queryKeys.billing.creditNotes.byInvoice(invoiceId ?? ''),
+    queryFn: () => fetchCreditNotes({ invoiceKey: invoiceId }),
+    enabled: Boolean(invoiceId),
+  });
+  return { ...query, data: query.data ?? NO_CREDIT_NOTES };
 };
 
-/** Local-first list of all credit notes. */
-export const useCreditNotes = () => {
-  return useSyncedQuery(
-    'creditNotes',
-    async () => db.creditNotes.where('_isDeleted').equals(0).reverse().sortBy('createdAt'),
-    NO_CREDIT_NOTES,
-    []
-  );
-};
-
-/** Synced mutation hook for creating a credit note (return / refund / exchange). */
+/** Creates a credit note (return / refund / exchange). */
 export const useCreateCreditNote = () => {
-  return useSyncedMutation<CreateCreditNotePayload, CreditNote>('creditNotes', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ input }: CreateCreditNotePayload) => createCreditNote(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.creditNotes.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };
 
 /**
@@ -46,8 +39,15 @@ export const useCreateCreditNote = () => {
  * the UI, mandatory reason (mirrors `useVoidInvoice`).
  */
 export const useVoidCreditNote = () => {
-  return useSyncedMutation<{ creditNoteKey: string; reason: string }, CreditNote>(
-    'creditNotes',
-    'void'
-  );
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ creditNoteKey, reason }: { creditNoteKey: string; reason: string }) =>
+      voidCreditNote(creditNoteKey, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.creditNotes.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
 };

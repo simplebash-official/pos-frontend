@@ -1,35 +1,58 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  DeletePrintJobsPayload,
-  UpdatePrintJobPayload,
-} from '@/offline/resources/printJobs.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  createPrintJobRaw,
+  deletePrintJobsRaw,
+  fetchPrintJobs,
+  updatePrintJobRaw,
+} from '../api/printJobsApi';
 import type { PrintJob, PrintJobInput } from '../types';
 
-const NO_PRINT_JOBS: MirroredRow<PrintJob>[] = [];
+export interface UpdatePrintJobPayload {
+  printJobKey: string;
+  input: Partial<PrintJobInput>;
+}
+export interface DeletePrintJobsPayload {
+  printJobKeys: string[];
+}
 
-/** Local-first print-job access — reads Dexie's mirror, writes queue through the outbox. */
+const NO_PRINT_JOBS: PrintJob[] = [];
+
 export const useAllPrintJobs = () => {
-  return useSyncedQuery(
-    'printJobs',
-    // Dexie's `sortBy` always sorts ascending — reverse the resolved array
-    // for newest-first (see `useRepairs.ts`'s identical comment).
-    async () => (await db.printJobs.where('_isDeleted').equals(0).sortBy('createdAt')).reverse(),
-    NO_PRINT_JOBS,
-    []
-  );
+  const query = useQuery({
+    queryKey: queryKeys.printJobs.all,
+    queryFn: () => fetchPrintJobs(),
+  });
+  return { ...query, data: query.data ?? NO_PRINT_JOBS };
 };
 
 export const useCreatePrintJob = () => {
-  return useSyncedMutation<PrintJobInput, PrintJob>('printJobs', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: PrintJobInput) => createPrintJobRaw(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+    },
+  });
 };
 
 export const useUpdatePrintJob = () => {
-  return useSyncedMutation<UpdatePrintJobPayload, PrintJob>('printJobs', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ printJobKey, input }: UpdatePrintJobPayload) =>
+      updatePrintJobRaw(printJobKey, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+    },
+  });
 };
 
 export const useDeletePrintJobs = () => {
-  return useSyncedMutation<DeletePrintJobsPayload, void>('printJobs', 'deleteMany');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ printJobKeys }: DeletePrintJobsPayload) => deletePrintJobsRaw(printJobKeys),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+    },
+  });
 };

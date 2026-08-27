@@ -7,7 +7,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
-import { SyncProvider } from '@/offline/react/SyncProvider';
 import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
 import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
@@ -55,24 +54,22 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
     <ReduxProvider store={store}>
       <AuthInitializer>
-        <SyncProvider>
-          <QueryClientProvider client={queryClient}>
-            <MantineProvider
-              theme={mantineTheme}
-              cssVariablesResolver={mantineCssVariableResolver}
-              colorSchemeManager={reduxColorSchemeManager}
-              defaultColorScheme="light"
-            >
-              <Notifications position="top-right" zIndex={1000} />
-              <LayoutTierProvider>
-                <AppUpdatePrompt />
-                <HeldCartCatchupNotifier />
-                <LowStockNotifier />
-                <ModalsProvider>{children}</ModalsProvider>
-              </LayoutTierProvider>
-            </MantineProvider>
-          </QueryClientProvider>
-        </SyncProvider>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider
+            theme={mantineTheme}
+            cssVariablesResolver={mantineCssVariableResolver}
+            colorSchemeManager={reduxColorSchemeManager}
+            defaultColorScheme="light"
+          >
+            <Notifications position="top-right" zIndex={1000} />
+            <LayoutTierProvider>
+              <AppUpdatePrompt />
+              <HeldCartCatchupNotifier />
+              <LowStockNotifier />
+              <ModalsProvider>{children}</ModalsProvider>
+            </LayoutTierProvider>
+          </MantineProvider>
+        </QueryClientProvider>
       </AuthInitializer>
     </ReduxProvider>
   );
