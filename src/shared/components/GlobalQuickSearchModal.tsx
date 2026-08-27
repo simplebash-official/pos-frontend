@@ -158,7 +158,7 @@ export const GlobalQuickSearchModal = () => {
       subtitle: `${p.sku} · ${formatMoney(p.sellingPriceCents)} · Stock: ${p.stockQuantity}`,
       category: 'Product',
       icon: IconPackage,
-      color: 'blue',
+      color: 'indigo',
       route: ROUTES.INVENTORY,
     }));
 
@@ -168,7 +168,7 @@ export const GlobalQuickSearchModal = () => {
       subtitle: `${c.primaryPhone}${c.email ? ` · ${c.email}` : ''}`,
       category: 'Customer',
       icon: IconUser,
-      color: 'grape',
+      color: 'violet',
       route: ROUTES.CUSTOMERS,
     }));
 

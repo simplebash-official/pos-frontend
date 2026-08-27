@@ -137,7 +137,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               to={ROUTES.SETTINGS}
               size="lg"
               variant={location.pathname.startsWith(ROUTES.SETTINGS) ? 'filled' : 'subtle'}
-              color="blue"
+              color="gray"
               onClick={closeMobile}
             >
               <IconSettings size={20} stroke={1.5} />
@@ -278,7 +278,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               label="Settings"
               leftSection={<IconSettings size={20} stroke={1.5} />}
               active={location.pathname.startsWith(ROUTES.SETTINGS)}
-              color="blue"
+              color="gray"
               variant="light"
               onClick={closeMobile}
               style={{

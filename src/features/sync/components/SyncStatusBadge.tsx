@@ -1,3 +1,5 @@
+// DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
+// this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Badge, Button, Group, Loader, Text, UnstyledButton } from '@mantine/core';
 import { IconCloudOff, IconRefresh } from '@tabler/icons-react';
 import { InteractiveTooltip } from '@/shared/components/InteractiveTooltip';

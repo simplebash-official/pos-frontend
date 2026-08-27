@@ -161,18 +161,27 @@ export const NotificationPopover = ({
           {unreadCount > 0 ? (
             <Button
               variant="subtle"
-              size="xs"
+              size="compact-xs"
               color="blue"
-              p={0}
+              px="xs"
+              radius="sm"
               onClick={handleMarkAllRead}
-              style={{ fontWeight: 600, height: 'auto' }}
+              style={{ fontWeight: 600 }}
             >
               Mark all as read
             </Button>
           ) : (
-            <Text size="xs" fw={600} c="var(--text-muted)">
+            <Button
+              variant="subtle"
+              size="compact-xs"
+              color="gray"
+              px="xs"
+              radius="sm"
+              disabled
+              style={{ fontWeight: 500 }}
+            >
               Mark all as read
-            </Text>
+            </Button>
           )}
         </Group>
 

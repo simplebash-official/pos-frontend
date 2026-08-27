@@ -1,3 +1,5 @@
+// DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
+// this file is kept for a future sync backend. See src/features/sync/README.md.
 export { SyncStatusBadge } from './components/SyncStatusBadge';
 export { SyncDrawer } from './components/SyncDrawer';
 export { SyncPanel } from './components/SyncPanel';
