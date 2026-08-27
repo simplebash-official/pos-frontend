@@ -30,14 +30,9 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
               <IconFlame size={20} />
             </ThemeIcon>
             <div>
-              <Group gap="xs" align="center">
-                <Text fw={800} size="md">
-                  Fast-Moving Products Today
-                </Text>
-                <Badge variant="outline" color="gray" size="sm">
-                  Counter Velocity
-                </Badge>
-              </Group>
+              <Text fw={800} size="md">
+                Fast-Moving Products Today
+              </Text>
               <Text size="xs" c="dimmed">
                 Top selling accessories and supplies today with remaining shelf stock
               </Text>
@@ -67,6 +62,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                 withBorder
                 radius="md"
                 bg="var(--mantine-color-body)"
+                className="dashboard-interactive-card"
                 style={{
                   borderColor: isLowStock ? 'var(--mantine-color-red-4)' : 'var(--border)',
                 }}

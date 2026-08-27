@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Group, Stack, Title, Text, Badge, Button, Paper, Box, ThemeIcon } from '@mantine/core';
-import {
-  IconReceipt,
-  IconHammer,
-  IconPrinter,
-  IconPackage,
-  IconClock,
-  IconCircleFilled,
-  IconUserCheck,
-} from '@tabler/icons-react';
+import { Group, Stack, Title, Text, Button, Paper, Box, ThemeIcon } from '@mantine/core';
+import { IconReceipt, IconHammer, IconPrinter, IconPackage, IconClock } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
@@ -75,28 +67,6 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
           gap="sm"
         >
           <div>
-            <Group gap="xs" align="center" mb={4}>
-              <Badge
-                variant="light"
-                color="teal"
-                size="md"
-                leftSection={
-                  <ThemeIcon color="teal" size={8} radius="xl" variant="transparent">
-                    <IconCircleFilled size={8} />
-                  </ThemeIcon>
-                }
-              >
-                Store Open & Trading
-              </Badge>
-              <Badge
-                variant="outline"
-                color="gray"
-                size="md"
-                leftSection={<IconUserCheck size={12} />}
-              >
-                Shift #1 · {cashierName}
-              </Badge>
-            </Group>
             <Title order={isMobile ? 3 : 2} fw={800} style={{ letterSpacing: '-0.02em' }}>
               {getGreeting()}, {cashierName.split(' ')[0]}!
             </Title>

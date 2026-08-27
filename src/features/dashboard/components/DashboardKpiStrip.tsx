@@ -64,7 +64,6 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border)',
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
             }}
           >
             <Stack gap="xs">

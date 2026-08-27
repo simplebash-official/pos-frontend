@@ -156,10 +156,10 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                   p="sm"
                   withBorder
                   radius="md"
+                  className="dashboard-interactive-card"
                   style={{
                     backgroundColor: 'var(--mantine-color-body)',
                     borderColor: 'var(--border)',
-                    transition: 'transform 0.15s ease, border-color 0.15s ease',
                   }}
                 >
                   <Group

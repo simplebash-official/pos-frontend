@@ -54,14 +54,9 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
               <IconCoin size={20} />
             </ThemeIcon>
             <div>
-              <Group gap="xs" align="center">
-                <Text fw={800} size="md">
-                  Cash Register & Shift Summary
-                </Text>
-                <Badge variant="outline" color="gray" size="sm">
-                  Active Shift
-                </Badge>
-              </Group>
+              <Text fw={800} size="md">
+                Cash Register & Shift Summary
+              </Text>
               <Text size="xs" c="dimmed">
                 Live cash in till reconciliation and payment method distribution
               </Text>

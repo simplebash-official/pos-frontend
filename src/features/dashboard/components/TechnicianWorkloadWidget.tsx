@@ -43,14 +43,9 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
               <IconUserCheck size={20} />
             </ThemeIcon>
             <div>
-              <Group gap="xs" align="center">
-                <Text fw={800} size="md">
-                  Technician Workload & Floor Capacity
-                </Text>
-                <Badge variant="outline" color="gray" size="sm">
-                  {technicians.length} Technicians On Shift
-                </Badge>
-              </Group>
+              <Text fw={800} size="md">
+                Technician Workload & Floor Capacity
+              </Text>
               <Text size="xs" c="dimmed">
                 Live bench capacity, assigned repair tickets, and current tasks
               </Text>
@@ -71,6 +66,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                 withBorder
                 radius="md"
                 bg="var(--mantine-color-body)"
+                className="dashboard-interactive-card"
                 style={{ borderColor: 'var(--border)' }}
               >
                 <Stack gap="xs">

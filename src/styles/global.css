@@ -393,3 +393,26 @@ th.mantine-Table-th {
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* Dashboard Child Interactive Card Hover Behavior */
+.dashboard-interactive-card {
+  cursor: pointer;
+  transition:
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+  user-select: none;
+}
+
+.dashboard-interactive-card:hover {
+  transform: translateY(-2px);
+  border-color: light-dark(var(--mantine-color-blue-4), var(--mantine-color-blue-7)) !important;
+  background-color: light-dark(var(--mantine-color-blue-0), rgba(34, 139, 230, 0.08)) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-interactive-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
