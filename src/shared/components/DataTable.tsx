@@ -1,4 +1,5 @@
-import { ReactNode, useState, useMemo } from 'react';
+import { ReactNode, useState, useMemo, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   Table,
   Text,
@@ -23,7 +24,7 @@ import {
   IconSelector,
   IconChevronRight,
 } from '@tabler/icons-react';
-import { getSkeletonWidthPercent } from '@/shared/lib/utils';
+import { getSkeletonWidthPercent, buildGridTemplateColumns } from '@/shared/lib/utils';
 import { ConfirmDialog } from './ConfirmDialog';
 
 export interface Column<T> {
@@ -71,6 +72,19 @@ export interface DataTableProps<T> {
 
   skeletonRows?: number;
   onRowClick?: (item: T) => void;
+
+  /**
+   * Opt-in row virtualization for long lists (default off — every existing
+   * consumer keeps today's plain `.map()` rendering unless it asks for this).
+   * Requires every `Column.width` to be set to a pixel number, since an
+   * absolutely-positioned virtual row can't participate in the browser's
+   * shared table column-sizing pass the way a normal `<tr>` does.
+   */
+  virtualized?: boolean;
+  /** Estimated row height in px, used by the virtualizer before it measures. Must match the CSS row height (see `.data-table-row` in global.css). */
+  estimatedRowHeight?: number;
+  /** Height of the scrollable viewport when `virtualized` is on. */
+  virtualizedHeight?: number;
 }
 
 export const DataTable = <T,>({
@@ -104,6 +118,10 @@ export const DataTable = <T,>({
 
   skeletonRows = 6,
   onRowClick,
+
+  virtualized = false,
+  estimatedRowHeight = 60,
+  virtualizedHeight = 480,
 }: DataTableProps<T>) => {
   // Internal selection state if not controlled externally
   const [internalSelectedKeys, setInternalSelectedKeys] = useState<string[]>([]);
@@ -235,6 +253,27 @@ export const DataTable = <T,>({
     () => displayData.map((item, index) => keyExtractor(item, index)),
     [displayData, keyExtractor]
   );
+
+  // Virtualization (opt-in) — a grid-based row layout rather than real
+  // `<table>` rows, since an absolutely-positioned `<tr>` is taken out of
+  // the table's shared column-sizing pass and drifts out of alignment with
+  // the header. `useVirtualizer` is always called (rules of hooks); it's
+  // simply unused when `virtualized` is false.
+  const virtualScrollRef = useRef<HTMLDivElement>(null);
+  const virtualGridTemplate = useMemo(
+    () =>
+      buildGridTemplateColumns(
+        columns.map((c) => c.width),
+        { selectable, hasRowClick: !!onRowClick }
+      ),
+    [columns, selectable, onRowClick]
+  );
+  const rowVirtualizer = useVirtualizer({
+    count: displayData.length,
+    getScrollElement: () => virtualScrollRef.current,
+    estimateSize: () => estimatedRowHeight,
+    overscan: 8,
+  });
 
   const isAllVisibleSelected =
     visibleKeys.length > 0 && visibleKeys.every((key) => selectedKeys.includes(key));
@@ -425,8 +464,12 @@ export const DataTable = <T,>({
     );
   }
 
-  const showingStart = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
-  const showingEnd = Math.min(page * pageSize, totalCount);
+  // When a consumer turns pagination off in favor of virtualization, every
+  // row is "on screen" (windowed by the virtualizer, not by a page slice),
+  // so the footer should say so rather than reporting a stale page-sized range.
+  const isActuallyPaginated = clientPagination || externalTotal !== undefined;
+  const showingStart = totalCount === 0 ? 0 : isActuallyPaginated ? (page - 1) * pageSize + 1 : 1;
+  const showingEnd = isActuallyPaginated ? Math.min(page * pageSize, totalCount) : totalCount;
 
   return (
     <Stack gap="xs">
@@ -481,6 +524,219 @@ export const DataTable = <T,>({
               {emptyText}
             </Text>
           </Center>
+        ) : virtualized ? (
+          <Box role="table" style={{ overflowX: 'auto' }}>
+            <div
+              role="row"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: virtualGridTemplate,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--bg-card)',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+              }}
+            >
+              {selectable && (
+                <div
+                  role="columnheader"
+                  style={{ width: 40, display: 'flex', justifyContent: 'center', padding: 8 }}
+                >
+                  <Checkbox
+                    size="xs"
+                    aria-label="Select all rows"
+                    checked={isAllVisibleSelected}
+                    indeterminate={isSomeVisibleSelected}
+                    onChange={handleToggleAll}
+                  />
+                </div>
+              )}
+              {columns.map((col) => {
+                const isSortable = !!col.sortable;
+                const colSortKey = col.sortKey || col.key;
+                const isCurrentSorted = sortBy === colSortKey && sortDirection !== null;
+                return (
+                  <div
+                    key={col.key}
+                    role="columnheader"
+                    className={isSortable ? 'data-table-sort-th' : undefined}
+                    onClick={isSortable ? () => handleSort(colSortKey) : undefined}
+                    onKeyDown={
+                      isSortable
+                        ? (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleSort(colSortKey);
+                            }
+                          }
+                        : undefined
+                    }
+                    tabIndex={isSortable ? 0 : undefined}
+                    aria-sort={
+                      isSortable
+                        ? isCurrentSorted
+                          ? sortDirection === 'asc'
+                            ? 'ascending'
+                            : sortDirection === 'desc'
+                              ? 'descending'
+                              : 'none'
+                          : 'none'
+                        : undefined
+                    }
+                    style={{
+                      textAlign: col.align,
+                      padding: '8px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      minWidth: 0,
+                      justifyContent:
+                        col.align === 'right'
+                          ? 'flex-end'
+                          : col.align === 'center'
+                            ? 'center'
+                            : 'flex-start',
+                    }}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {col.header}
+                    </span>
+                    {isSortable &&
+                      (isCurrentSorted ? (
+                        sortDirection === 'asc' ? (
+                          <IconChevronUp
+                            size={14}
+                            stroke={2.5}
+                            style={{ flexShrink: 0, color: 'var(--text-primary)' }}
+                          />
+                        ) : (
+                          <IconChevronDown
+                            size={14}
+                            stroke={2.5}
+                            style={{ flexShrink: 0, color: 'var(--text-primary)' }}
+                          />
+                        )
+                      ) : (
+                        <IconSelector
+                          size={14}
+                          stroke={1.5}
+                          className="sort-icon-inactive"
+                          style={{ flexShrink: 0 }}
+                        />
+                      ))}
+                  </div>
+                );
+              })}
+              {onRowClick && (
+                <div role="columnheader" style={{ width: 40 }} aria-label="View Details" />
+              )}
+            </div>
+
+            <div ref={virtualScrollRef} style={{ height: virtualizedHeight, overflow: 'auto' }}>
+              <div
+                style={{
+                  height: rowVirtualizer.getTotalSize(),
+                  position: 'relative',
+                  width: '100%',
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const item = displayData[virtualRow.index];
+                  const key = keyExtractor(item, virtualRow.index);
+                  const isSelected = selectedKeys.includes(key);
+                  const rowClickable = !!onRowClick;
+
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      role="row"
+                      className="data-table-row"
+                      onClick={rowClickable ? () => onRowClick(item) : undefined}
+                      tabIndex={rowClickable ? 0 : undefined}
+                      onKeyDown={
+                        rowClickable
+                          ? (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                onRowClick(item);
+                              }
+                            }
+                          : undefined
+                      }
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        transform: `translateY(${virtualRow.start}px)`,
+                        display: 'grid',
+                        gridTemplateColumns: virtualGridTemplate,
+                        alignItems: 'center',
+                        height: estimatedRowHeight,
+                        borderBottom: '1px solid var(--border)',
+                        background: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
+                        cursor: rowClickable ? 'pointer' : undefined,
+                      }}
+                    >
+                      {selectable && (
+                        <div
+                          role="cell"
+                          style={{ width: 40, display: 'flex', justifyContent: 'center' }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            size="xs"
+                            aria-label={`Select row ${key}`}
+                            checked={isSelected}
+                            onChange={() => handleToggleRow(key)}
+                          />
+                        </div>
+                      )}
+                      {columns.map((col) => (
+                        <div
+                          key={col.key}
+                          role="cell"
+                          style={{
+                            textAlign: col.align,
+                            padding: '0 12px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            minWidth: 0,
+                          }}
+                        >
+                          {col.render(item, virtualRow.index)}
+                        </div>
+                      ))}
+                      {onRowClick && (
+                        <div
+                          role="cell"
+                          style={{
+                            width: 40,
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            paddingRight: 8,
+                          }}
+                        >
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="sm"
+                            aria-label="View details"
+                            className="data-table-row-chevron"
+                            tabIndex={-1}
+                            style={{ opacity: 0.45 }}
+                          >
+                            <IconChevronRight size={16} />
+                          </ActionIcon>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Box>
         ) : (
           <Box style={{ overflowX: 'auto' }}>
             <Table verticalSpacing="sm" horizontalSpacing="md" striped highlightOnHover>
@@ -578,27 +834,31 @@ export const DataTable = <T,>({
         >
           <Group gap="sm">
             <Text size="xs" c="dimmed">
-              Showing {showingStart}–{showingEnd} of {totalCount} entries
+              {isActuallyPaginated
+                ? `Showing ${showingStart}–${showingEnd} of ${totalCount} entries`
+                : `Showing all ${totalCount} entries`}
             </Text>
 
-            <Group gap={6} align="center">
-              <Text size="xs" c="dimmed">
-                Rows per page:
-              </Text>
-              <Select
-                size="xs"
-                style={{ width: 70 }}
-                value={String(pageSize)}
-                onChange={(val) => val && handlePageSizeChange(Number(val))}
-                data={pageSizeOptions.map((opt) => ({
-                  value: String(opt),
-                  label: String(opt),
-                }))}
-              />
-            </Group>
+            {isActuallyPaginated && (
+              <Group gap={6} align="center">
+                <Text size="xs" c="dimmed">
+                  Rows per page:
+                </Text>
+                <Select
+                  size="xs"
+                  style={{ width: 70 }}
+                  value={String(pageSize)}
+                  onChange={(val) => val && handlePageSizeChange(Number(val))}
+                  data={pageSizeOptions.map((opt) => ({
+                    value: String(opt),
+                    label: String(opt),
+                  }))}
+                />
+              </Group>
+            )}
           </Group>
 
-          {computedTotalPages > 1 && (
+          {isActuallyPaginated && computedTotalPages > 1 && (
             <Pagination
               value={page}
               onChange={handlePageChange}

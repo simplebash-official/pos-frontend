@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Drawer,
   Stack,
@@ -54,6 +54,16 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
     return `${hours}h ${elapsedMins % 60}m ago`;
   };
 
+  const heldWithTotals = useMemo(
+    () =>
+      heldCarts.map((h) => {
+        const subtotal = h.items.reduce((acc, i) => acc + i.totalCents, 0);
+        const total = Math.max(0, subtotal - h.discountCents);
+        return { ...h, subtotal, total };
+      }),
+    [heldCarts]
+  );
+
   return (
     <Drawer
       opened={opened}
@@ -84,11 +94,10 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
             </Text>
           </Center>
         ) : (
-          heldCarts.map((h) => {
+          heldWithTotals.map((h) => {
             const ageHours = getAgeHours(h.heldAt, nowMs);
             const isStale = ageHours >= 2;
-            const subtotal = h.items.reduce((acc, i) => acc + i.totalCents, 0);
-            const total = Math.max(0, subtotal - h.discountCents);
+            const { total } = h;
 
             return (
               <Paper

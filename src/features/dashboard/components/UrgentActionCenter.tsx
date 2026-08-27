@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Paper,
   Stack,
@@ -39,20 +39,27 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
     setDismissedIds((prev) => new Set(prev).add(id));
   };
 
-  const activeItems = items.filter((item) => !dismissedIds.has(item.id));
+  const activeItems = useMemo(
+    () => items.filter((item) => !dismissedIds.has(item.id)),
+    [items, dismissedIds]
+  );
 
-  const filteredItems = activeItems.filter((item) => {
-    if (filter === 'all') return true;
-    if (filter === 'repairs')
-      return (
-        item.type === 'pending_approval' ||
-        item.type === 'overdue_repair' ||
-        item.type === 'uncollected'
-      );
-    if (filter === 'stock') return item.type === 'stockout';
-    if (filter === 'credit') return item.type === 'credit_overdue';
-    return true;
-  });
+  const filteredItems = useMemo(
+    () =>
+      activeItems.filter((item) => {
+        if (filter === 'all') return true;
+        if (filter === 'repairs')
+          return (
+            item.type === 'pending_approval' ||
+            item.type === 'overdue_repair' ||
+            item.type === 'uncollected'
+          );
+        if (filter === 'stock') return item.type === 'stockout';
+        if (filter === 'credit') return item.type === 'credit_overdue';
+        return true;
+      }),
+    [activeItems, filter]
+  );
 
   const getItemIcon = (type: UrgentItemType) => {
     switch (type) {

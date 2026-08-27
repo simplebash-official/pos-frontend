@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Paper,
   Stack,
@@ -27,8 +28,14 @@ export const ServicePipelineWidget = ({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const totalRepairs = repairPipeline.reduce((sum, item) => sum + item.count, 0);
-  const totalPrints = printPipeline.reduce((sum, item) => sum + item.count, 0);
+  const totalRepairs = useMemo(
+    () => repairPipeline.reduce((sum, item) => sum + item.count, 0),
+    [repairPipeline]
+  );
+  const totalPrints = useMemo(
+    () => printPipeline.reduce((sum, item) => sum + item.count, 0),
+    [printPipeline]
+  );
 
   return (
     <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">

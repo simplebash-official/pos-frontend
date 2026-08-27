@@ -96,9 +96,7 @@ export const computeDashboardData = ({
   const todayInvoices = invoices.filter(
     (inv) => inv.status !== 'voided' && dayjs(inv.createdAt).isSame(now, 'day')
   );
-  const todayPayments = payments.filter((pay) =>
-    dayjs(pay.recordedAt).isSame(now, 'day')
-  );
+  const todayPayments = payments.filter((pay) => dayjs(pay.recordedAt).isSame(now, 'day'));
 
   // -----------------------------------------------------------------------
   // 2. High-Velocity KPIs

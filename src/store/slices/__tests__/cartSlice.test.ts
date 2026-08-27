@@ -10,6 +10,11 @@ import cartReducer, {
   setPaymentMethod,
   setSplitPayments,
   setIsCredit,
+  setCardRef,
+  setOnlineRef,
+  setOnlineNote,
+  setNotes,
+  setAssignedStaff,
   parkCart,
   restoreCart,
   deleteHeldCart,
@@ -21,6 +26,15 @@ import cartReducer, {
   selectTotalUnitCount,
   selectSplitAllocatedCents,
   selectSplitRemainingCents,
+  selectPaymentMethod,
+  selectSplitPayments,
+  selectIsCredit,
+  selectCardRef,
+  selectOnlineRef,
+  selectOnlineNote,
+  selectNotes,
+  selectAssignedStaffId,
+  selectAssignedStaffName,
   type CartItem,
 } from '../cartSlice';
 import { PAYMENT_METHODS } from '@/constants/payment';
@@ -233,6 +247,32 @@ describe('cartSlice reducer & selectors', () => {
       expect(selectTotalUnitCount(rootState)).toBe(3); // 2 + 1
       expect(selectSplitAllocatedCents(rootState)).toBe(1000);
       expect(selectSplitRemainingCents(rootState)).toBe(selectTotalCents(rootState) - 1000);
+    });
+
+    it('exposes named plain selectors for checkout fields (useCart.ts reads these instead of inline lambdas)', () => {
+      let state = cartReducer(getInitialState(), setPaymentMethod(PAYMENT_METHODS.CARD));
+      state = cartReducer(
+        state,
+        setSplitPayments([{ id: 'sp-1', method: 'cash', amountCents: 500 }])
+      );
+      state = cartReducer(state, setCustomer({ id: 'cust_1', name: 'John Doe' }));
+      state = cartReducer(state, setIsCredit(true));
+      state = cartReducer(state, setCardRef('card-ref-1'));
+      state = cartReducer(state, setOnlineRef('online-ref-1'));
+      state = cartReducer(state, setOnlineNote('paid via bank transfer'));
+      state = cartReducer(state, setNotes('gift wrap requested'));
+      state = cartReducer(state, setAssignedStaff({ id: 'staff_1', name: 'Jane' }));
+
+      const rootState = { cart: state };
+      expect(selectPaymentMethod(rootState)).toBe(PAYMENT_METHODS.CARD);
+      expect(selectSplitPayments(rootState)).toHaveLength(1);
+      expect(selectIsCredit(rootState)).toBe(true);
+      expect(selectCardRef(rootState)).toBe('card-ref-1');
+      expect(selectOnlineRef(rootState)).toBe('online-ref-1');
+      expect(selectOnlineNote(rootState)).toBe('paid via bank transfer');
+      expect(selectNotes(rootState)).toBe('gift wrap requested');
+      expect(selectAssignedStaffId(rootState)).toBe('staff_1');
+      expect(selectAssignedStaffName(rootState)).toBe('Jane');
     });
   });
 });

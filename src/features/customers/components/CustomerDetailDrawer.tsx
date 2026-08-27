@@ -55,15 +55,17 @@ export const CustomerDetailDrawer = ({
 }: CustomerDetailDrawerProps) => {
   const [historyTab, setHistoryTab] = useState<'invoices' | 'repairs' | 'notes'>('invoices');
 
-  const { data: allInvoices = [] } = useQuery({
-    queryKey: queryKeys.billing.invoices(),
-    queryFn: () => fetchInvoices(),
+  const { data: scopedInvoices = [] } = useQuery({
+    queryKey: queryKeys.billing.invoices({ customerKey: customer?.key }),
+    queryFn: () => fetchInvoices({ customerKey: customer?.key }),
     enabled: opened && !!customer,
   });
 
   const customerInvoices = useMemo(() => {
     if (!customer) return [];
-    return allInvoices
+    // `customerKey` is an exact server-side filter, so this is a defensive
+    // pass only (e.g. a legacy invoice snapshot recorded under a stale key).
+    return scopedInvoices
       .filter(
         (inv) =>
           inv.customerId === customer.id ||
@@ -71,24 +73,27 @@ export const CustomerDetailDrawer = ({
           (inv.customerName && inv.customerName.toLowerCase() === customer.name.toLowerCase())
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer, allInvoices]);
+  }, [customer, scopedInvoices]);
 
-  const { data: allRepairs = [] } = useQuery({
-    queryKey: queryKeys.repairs.all,
-    queryFn: () => fetchRepairs(),
-    enabled: opened && !!customer,
+  // Repairs has no server-side customer-key filter, so `search` (name/phone,
+  // case-insensitive substring match) is the closest scoping available.
+  const repairsSearchTerm = customer?.primaryPhone || customer?.name;
+  const { data: scopedRepairs = [] } = useQuery({
+    queryKey: queryKeys.repairs.list({ search: repairsSearchTerm }),
+    queryFn: () => fetchRepairs({ search: repairsSearchTerm }),
+    enabled: opened && !!customer && !!repairsSearchTerm,
   });
 
   const customerRepairs = useMemo(() => {
     if (!customer) return [];
-    return allRepairs
+    return scopedRepairs
       .filter(
         (r) =>
           (customer.primaryPhone && r.customerPhone === customer.primaryPhone) ||
           (r.customerName && r.customerName.toLowerCase() === customer.name.toLowerCase())
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer, allRepairs]);
+  }, [customer, scopedRepairs]);
 
   return (
     <DetailDrawer

@@ -545,6 +545,14 @@ export const selectTenderedAmountCents = (state: { cart: CartState }) =>
 export const selectDocumentSelection = (state: { cart: CartState }) => state.cart.documentSelection;
 export const selectDueDate = (state: { cart: CartState }) => state.cart.dueDate;
 export const selectCompletedSale = (state: { cart: CartState }) => state.cart.completedSale;
+export const selectPaymentMethod = (state: { cart: CartState }) => state.cart.paymentMethod;
+export const selectIsCredit = (state: { cart: CartState }) => state.cart.isCredit;
+export const selectCardRef = (state: { cart: CartState }) => state.cart.cardRef;
+export const selectOnlineRef = (state: { cart: CartState }) => state.cart.onlineRef;
+export const selectOnlineNote = (state: { cart: CartState }) => state.cart.onlineNote;
+export const selectNotes = (state: { cart: CartState }) => state.cart.notes;
+export const selectAssignedStaffId = (state: { cart: CartState }) => state.cart.assignedStaffId;
+export const selectAssignedStaffName = (state: { cart: CartState }) => state.cart.assignedStaffName;
 export const selectCustomerInfo = createSelector(
   [
     (state: { cart: CartState }) => state.cart.customerId,

@@ -45,6 +45,15 @@ import {
   selectDocumentSelection,
   selectDueDate,
   selectCompletedSale,
+  selectPaymentMethod,
+  selectSplitPayments,
+  selectIsCredit,
+  selectCardRef,
+  selectOnlineRef,
+  selectOnlineNote,
+  selectNotes,
+  selectAssignedStaffId,
+  selectAssignedStaffName,
   type CartItem,
 } from '@/store/slices/cartSlice';
 import type { PaymentMethod } from '@/constants/payment';
@@ -65,7 +74,7 @@ export const useCartItems = () => {
   const totalUnitCount = useAppSelector(selectTotalUnitCount);
   const sourceBreakdown = useAppSelector(selectSourceBreakdown);
   const lastRemovedItem = useAppSelector(selectLastRemovedItem);
-  const isCredit = useAppSelector((state) => state.cart.isCredit);
+  const isCredit = useAppSelector(selectIsCredit);
   const completedSale = useAppSelector(selectCompletedSale);
 
   const add = useCallback(
@@ -156,18 +165,18 @@ export const useCartCustomer = () => {
 
 export const useCartCheckout = () => {
   const dispatch = useAppDispatch();
-  const paymentMethod = useAppSelector((state) => state.cart.paymentMethod);
-  const splitPayments = useAppSelector((state) => state.cart.splitPayments);
-  const isCredit = useAppSelector((state) => state.cart.isCredit);
+  const paymentMethod = useAppSelector(selectPaymentMethod);
+  const splitPayments = useAppSelector(selectSplitPayments);
+  const isCredit = useAppSelector(selectIsCredit);
   const tenderedAmountCents = useAppSelector(selectTenderedAmountCents);
   const documentSelection = useAppSelector(selectDocumentSelection);
   const dueDate = useAppSelector(selectDueDate);
-  const cardRef = useAppSelector((state) => state.cart.cardRef);
-  const onlineRef = useAppSelector((state) => state.cart.onlineRef);
-  const onlineNote = useAppSelector((state) => state.cart.onlineNote);
-  const notes = useAppSelector((state) => state.cart.notes);
-  const assignedStaffId = useAppSelector((state) => state.cart.assignedStaffId);
-  const assignedStaffName = useAppSelector((state) => state.cart.assignedStaffName);
+  const cardRef = useAppSelector(selectCardRef);
+  const onlineRef = useAppSelector(selectOnlineRef);
+  const onlineNote = useAppSelector(selectOnlineNote);
+  const notes = useAppSelector(selectNotes);
+  const assignedStaffId = useAppSelector(selectAssignedStaffId);
+  const assignedStaffName = useAppSelector(selectAssignedStaffName);
   const completedSale = useAppSelector(selectCompletedSale);
 
   const changePaymentMethod = useCallback(

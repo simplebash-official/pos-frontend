@@ -329,10 +329,20 @@ th.mantine-Table-th {
   height: 60px;
 }
 
+/* Skip layout/paint for off-screen rows in long tables without full virtualization */
+.data-table-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 60px;
+}
+
 @media (max-width: 47.99em) {
   .mantine-Table-tbody tr,
   .data-table-row {
     height: 52px;
+  }
+
+  .data-table-row {
+    contain-intrinsic-size: auto 52px;
   }
 }
 
