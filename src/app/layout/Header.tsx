@@ -22,6 +22,7 @@ import {
   IconPlayerPause,
   IconMoon,
   IconSun,
+  IconCalculator,
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMantineColorScheme } from '@mantine/core';
@@ -42,6 +43,7 @@ export interface HeaderProps {
   onToggleFocusMode?: () => void;
   onOpenHeldDrawer?: () => void;
   onOpenShortcuts?: () => void;
+  onOpenCalculator?: () => void;
 }
 
 export const Header = ({
@@ -52,6 +54,7 @@ export const Header = ({
   onToggleFocusMode,
   onOpenHeldDrawer,
   onOpenShortcuts,
+  onOpenCalculator,
 }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -145,6 +148,18 @@ export const Header = ({
             </ActionIcon>
           </Tooltip>
 
+          <Tooltip label={t('Calculator (Alt+C)')}>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="sm"
+              onClick={onOpenCalculator}
+              aria-label={t('Calculator')}
+            >
+              <IconCalculator size={16} />
+            </ActionIcon>
+          </Tooltip>
+
           <Tooltip label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
             <ActionIcon
               variant="subtle"
@@ -202,6 +217,18 @@ export const Header = ({
       </Box>
 
       <Group gap="xs" wrap="nowrap" align="center">
+        <Tooltip label={t('Calculator (Alt+C)')}>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size={isMobile ? 44 : 32}
+            onClick={onOpenCalculator}
+            aria-label={t('Calculator')}
+          >
+            <IconCalculator size={isMobile ? 20 : 18} />
+          </ActionIcon>
+        </Tooltip>
+
         <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
         {isMobile ? (
