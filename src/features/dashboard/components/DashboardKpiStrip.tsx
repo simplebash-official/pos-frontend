@@ -1,4 +1,4 @@
-import { Paper, Group, Text, ThemeIcon, SimpleGrid, Stack, Badge } from '@mantine/core';
+import { Paper, Group, Text, ThemeIcon, SimpleGrid, Stack, Badge, Skeleton } from '@mantine/core';
 import { IconCash, IconHammer, IconDeviceMobileCheck, IconCoin } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
 import { DashboardPulseKpis } from '../types';
@@ -8,7 +8,7 @@ export interface DashboardKpiStripProps {
   loading?: boolean;
 }
 
-export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
+export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => {
   const cards = [
     {
       key: 'sales',
@@ -83,17 +83,26 @@ export const DashboardKpiStrip = ({ kpis }: DashboardKpiStripProps) => {
               </Group>
 
               <Group justify="space-between" align="center" mt={2}>
-                <div>
-                  <Text
-                    size="xl"
-                    fw={800}
-                    style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
-                  >
-                    {card.value}
-                  </Text>
-                  <Text size="xs" c="dimmed" mt={2}>
-                    {card.subtext}
-                  </Text>
+                <div style={{ flex: 1 }}>
+                  {loading ? (
+                    <>
+                      <Skeleton height={28} width="70%" mb={6} />
+                      <Skeleton height={14} width="90%" />
+                    </>
+                  ) : (
+                    <>
+                      <Text
+                        size="xl"
+                        fw={800}
+                        style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
+                      >
+                        {card.value}
+                      </Text>
+                      <Text size="xs" c="dimmed" mt={2}>
+                        {card.subtext}
+                      </Text>
+                    </>
+                  )}
                 </div>
 
                 <ThemeIcon color={card.iconColor} variant="light" size={42} radius="md">
