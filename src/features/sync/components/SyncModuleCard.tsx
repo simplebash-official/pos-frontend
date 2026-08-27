@@ -1,3 +1,5 @@
+// DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
+// this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { ExpandableCard } from '@/shared/components/ExpandableCard';
 import { formatDateTime } from '@/shared/lib/date';

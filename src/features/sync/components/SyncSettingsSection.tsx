@@ -1,3 +1,5 @@
+// DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
+// this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconCloudCog } from '@tabler/icons-react';
 import { SyncPanel } from './SyncPanel';

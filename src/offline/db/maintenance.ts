@@ -1,6 +1,15 @@
 import { STORAGE_QUOTA_WARN_RATIO } from '../constants';
 
-/** Generic local-storage housekeeping, independent of any sync engine. */
+/**
+ * Generic local-storage housekeeping, independent of any sync engine.
+ *
+ * DO NOT DELETE as "unused": their only caller, `SyncPanel.tsx`, is
+ * excluded from the compiled project (see `src/features/sync/README.md`),
+ * so a reachability-based dead-code sweep will find zero live call sites for
+ * `estimateStorage`/`requestPersistentStorage` right now. They are kept
+ * deliberately — see `src/offline/README.md` and this frontend's
+ * `CLAUDE.md`'s "Local database" section.
+ */
 
 export interface StorageEstimate {
   usageBytes: number | null;

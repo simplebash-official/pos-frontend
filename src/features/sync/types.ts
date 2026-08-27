@@ -1,3 +1,5 @@
+// DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
+// this file is kept for a future sync backend. See src/features/sync/README.md.
 import type { ModuleSyncStatus } from '@/offline/types';
 import type { OverallSyncStatus } from '@/store/slices/syncSlice';
 

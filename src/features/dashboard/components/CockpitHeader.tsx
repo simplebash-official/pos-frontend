@@ -103,7 +103,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
             <Button
               leftSection={<IconPackage size={16} />}
               variant="light"
-              color="blue"
+              color="indigo"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.INVENTORY)}
               style={{

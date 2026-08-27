@@ -1,3 +1,5 @@
+// DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
+// this file is kept for a future sync backend. See src/features/sync/README.md.
 import { notifications } from '@mantine/notifications';
 import { NOTIFICATION_ID_CONNECTIVITY, NOTIFICATION_ID_SYNC_ERROR } from '@/offline/constants';
 
