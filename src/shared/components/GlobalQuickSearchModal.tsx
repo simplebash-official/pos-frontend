@@ -104,12 +104,14 @@ export const GlobalQuickSearchModal = () => {
     queryKey: queryKeys.repairs.all,
     queryFn: () => fetchRepairs(),
     enabled: opened,
+    placeholderData: (prev) => prev,
   });
 
   const { data: printJobs = [] } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: () => fetchPrintJobs(),
     enabled: opened,
+    placeholderData: (prev) => prev,
   });
 
   const activeProducts = opened ? products : [];

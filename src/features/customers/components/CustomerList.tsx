@@ -406,6 +406,8 @@ export const CustomerList = () => {
             loading={isLoading}
             onRowClick={(c) => setSelectedCustomerForDrawer(c)}
             onDeleteSelected={handleBatchDelete}
+            virtualized
+            clientPagination={false}
           />
         ) : isLoading ? (
           <Grid gap="md">

@@ -265,6 +265,8 @@ export interface FetchInvoicesParams {
   paymentMethod?: string;
   /** Only `"today"` is meaningful; omit for all time. */
   datePreset?: 'today';
+  /** Exact match on the customer's server-issued key — scopes to one customer's invoices. */
+  customerKey?: string;
 }
 
 // `limit: 200` rather than paginating — mirrors `repairsApi.ts`/
@@ -282,6 +284,7 @@ export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoi
       status: params?.status,
       paymentMethod: params?.paymentMethod,
       datePreset: params?.datePreset,
+      customerKey: params?.customerKey,
     },
   });
   return response.data.invoices.map(toInvoice);
