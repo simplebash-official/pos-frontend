@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useEffect, useMemo } from 'react';
 import {
   Drawer,
@@ -75,10 +76,10 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
           </ThemeIcon>
           <Box>
             <Text fw={700} size="md" lh={1.2}>
-              Parked / held sales
+              {t('Parked / held sales')}
             </Text>
             <Text size="xs" c="dimmed" fw={500}>
-              {heldCarts.length} parked · Ctrl+H to park the active cart
+              {heldCarts.length} {t('parked · Ctrl+H to park the active cart')}
             </Text>
           </Box>
         </Group>
@@ -90,7 +91,8 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
         {heldCarts.length === 0 ? (
           <Center py="xl">
             <Text c="dimmed" size="sm" ta="center">
-              No sales currently parked. Press <b>Ctrl+H</b> to park the active cart.
+              {t('No sales currently parked. Press')} <b>{t('Ctrl+H')}</b>{' '}
+              {t('to park the active cart.')}
             </Text>
           </Center>
         ) : (
@@ -127,9 +129,9 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
                     </Group>
                     <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
                       {isStale && (
-                        <Tooltip label="Held for over 2 hours">
+                        <Tooltip label={t('Held for over 2 hours')}>
                           <Badge size="xs" radius="xl" variant="light" color="yellow" fw={600}>
-                            Stale (&gt;2h)
+                            {t('Stale (&gt;2h)')}
                           </Badge>
                         </Tooltip>
                       )}
@@ -149,7 +151,7 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
                   </Group>
 
                   <Text size="xs" c="dimmed">
-                    {h.items.length} item(s) · Total:{' '}
+                    {h.items.length} {t('item(s) · Total:')}{' '}
                     <Text span fw={700} c="var(--text-primary)" inherit>
                       {formatMoney(total)}
                     </Text>
@@ -168,14 +170,14 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
                       onClose();
                     }}
                   >
-                    Restore to cart
+                    {t('Restore to cart')}
                   </Button>
                   <ActionIcon
                     variant="default"
                     size={36}
                     style={{ color: 'var(--mantine-color-red-6)' }}
                     onClick={() => removeHeldCart(h.id)}
-                    title="Discard held sale"
+                    title={t('Discard held sale')}
                   >
                     <IconTrash size={16} />
                   </ActionIcon>

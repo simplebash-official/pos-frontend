@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useEffect } from 'react';
 import {
   Modal,
@@ -115,7 +116,7 @@ export const ReceiveStockModal = ({
         onClose={onClose}
         title={
           <Text fw={700} size="lg">
-            Receive Stock
+            {t('Receive Stock')}
           </Text>
         }
         size="md"
@@ -128,7 +129,7 @@ export const ReceiveStockModal = ({
             {!initialProductKey && (
               <Stack gap={4}>
                 <Text size="sm" fw={500}>
-                  Product
+                  {t('Product')}
                 </Text>
                 {selectedProduct ? (
                   <Group
@@ -157,7 +158,7 @@ export const ReceiveStockModal = ({
                     leftSection={<IconPackage size={16} />}
                     onClick={() => setProductPickerOpen(true)}
                   >
-                    Select Product
+                    {t('Select Product')}
                   </Button>
                 )}
               </Stack>
@@ -167,7 +168,7 @@ export const ReceiveStockModal = ({
             {!initialSupplierKey && (
               <Stack gap={4}>
                 <Text size="sm" fw={500}>
-                  Supplier
+                  {t('Supplier')}
                 </Text>
                 {selectedSupplier ? (
                   <Group
@@ -196,7 +197,7 @@ export const ReceiveStockModal = ({
                     leftSection={<IconBuildingStore size={16} />}
                     onClick={() => setSupplierPickerOpen(true)}
                   >
-                    Select Supplier
+                    {t('Select Supplier')}
                   </Button>
                 )}
               </Stack>
@@ -204,7 +205,7 @@ export const ReceiveStockModal = ({
 
             <Group grow>
               <NumberInput
-                label="Quantity Received"
+                label={t('Quantity Received')}
                 placeholder="0"
                 min={1}
                 value={quantity}
@@ -212,7 +213,7 @@ export const ReceiveStockModal = ({
                 required
               />
               <NumberInput
-                label="Unit Cost (Rs.)"
+                label={t('Unit Cost (Rs.)')}
                 placeholder="0.00"
                 decimalScale={2}
                 min={0}
@@ -225,10 +226,12 @@ export const ReceiveStockModal = ({
             {needsSerials && serialUnitCount > 0 && (
               <Stack gap={4}>
                 <Text size="sm" fw={500}>
-                  Serial Numbers
+                  {t('Serial Numbers')}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  This item is tracked by serial number. Enter the serial for each unit received.
+                  {t(
+                    'This item is tracked by serial number. Enter the serial for each unit received.'
+                  )}
                 </Text>
                 {Array.from({ length: serialUnitCount }).map((_, index) => (
                   <TextInput
@@ -250,14 +253,14 @@ export const ReceiveStockModal = ({
 
             <Group grow>
               <DateInput
-                label="Date Received"
+                label={t('Date Received')}
                 value={date}
                 onChange={(val) => setDate(val as Date | null)}
                 required
               />
               <TextInput
-                label="Reference / Invoice No."
-                placeholder="INV-1234"
+                label={t('Reference / Invoice No.')}
+                placeholder={t('INV-1234')}
                 value={referenceNo}
                 onChange={(e) => setReferenceNo(e.target.value)}
               />
@@ -265,14 +268,14 @@ export const ReceiveStockModal = ({
 
             <Group justify="flex-end" mt="md">
               <Button variant="default" onClick={onClose}>
-                Cancel
+                {t('Cancel')}
               </Button>
               <Button
                 type="submit"
                 loading={isPending}
                 disabled={!productKey || !supplierKey || hasBlankSerial}
               >
-                Receive Stock
+                {t('Receive Stock')}
               </Button>
             </Group>
           </Stack>

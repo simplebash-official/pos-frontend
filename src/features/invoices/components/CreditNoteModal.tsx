@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useCallback, useMemo, useState } from 'react';
 import {
   Modal,
@@ -424,7 +425,8 @@ export const CreditNoteModal = ({
       onClose={handleClose}
       title={
         <Text fw={700} size="lg">
-          Process Credit Note — #{invoice.invoiceNumber}
+          {t('Process Credit Note — #')}
+          {invoice.invoiceNumber}
         </Text>
       }
       size="lg"
@@ -434,21 +436,22 @@ export const CreditNoteModal = ({
       <Stack gap="md">
         {isPastReturnWindow && !noReceipt && (
           <Alert color="amber" icon={<IconAlertTriangle size={16} />}>
-            This sale was made {daysSinceSale} days ago — outside our {RETURN_WINDOW_DAYS_FALLBACK}
-            -day return window.{' '}
+            {t('This sale was made')} {daysSinceSale} {t('days ago — outside our')}{' '}
+            {RETURN_WINDOW_DAYS_FALLBACK}
+            {t('-day return window.')}{' '}
             {isAdmin ? 'You can approve it anyway below.' : 'A manager needs to approve this.'}
           </Alert>
         )}
 
         {isAdmin ? (
           <Switch
-            label="This customer has no receipt"
+            label={t('This customer has no receipt')}
             checked={noReceipt}
             onChange={(e) => setNoReceipt(e.currentTarget.checked)}
           />
         ) : (
           <Text size="xs" c="dimmed">
-            A manager needs to approve a return with no receipt.
+            {t('A manager needs to approve a return with no receipt.')}
           </Text>
         )}
 
@@ -462,11 +465,11 @@ export const CreditNoteModal = ({
                 tt="uppercase"
                 style={{ letterSpacing: '0.05em' }}
               >
-                Item Being Returned (No Receipt)
+                {t('Item Being Returned (No Receipt)')}
               </Text>
               <Select
-                label="Product"
-                placeholder="Search for the item"
+                label={t('Product')}
+                placeholder={t('Search for the item')}
                 searchable
                 data={productOptions}
                 value={noReceiptProductKey}
@@ -475,9 +478,9 @@ export const CreditNoteModal = ({
               <QuantityInput value={noReceiptQty} min={1} onChange={setNoReceiptQty} />
               {noReceiptProduct && (
                 <Text size="xs" c="dimmed">
-                  Valued at today&apos;s selling price:{' '}
-                  {formatMoney(noReceiptProduct.sellingPriceCents)} each —{' '}
-                  {formatMoney(noReceiptRefundCents)} total.
+                  {t('Valued at today&apos;s selling price:')}{' '}
+                  {formatMoney(noReceiptProduct.sellingPriceCents)} {t('each —')}{' '}
+                  {formatMoney(noReceiptRefundCents)} {t('total.')}
                 </Text>
               )}
             </Stack>
@@ -488,9 +491,9 @@ export const CreditNoteModal = ({
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th style={{ width: 40 }} />
-                  <Table.Th>Item & Condition</Table.Th>
-                  <Table.Th style={{ width: 135, textAlign: 'center' }}>Qty</Table.Th>
-                  <Table.Th style={{ width: 110, textAlign: 'right' }}>Refund</Table.Th>
+                  <Table.Th>{t('Item & Condition')}</Table.Th>
+                  <Table.Th style={{ width: 135, textAlign: 'center' }}>{t('Qty')}</Table.Th>
+                  <Table.Th style={{ width: 110, textAlign: 'right' }}>{t('Refund')}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -516,8 +519,8 @@ export const CreditNoteModal = ({
                               {item.name}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              Tracked by serial number — {itemSerialLines.length} of{' '}
-                              {item.serialNumbers?.length ?? 0} selected for return.
+                              {t('Tracked by serial number —')} {itemSerialLines.length} {t('of')}{' '}
+                              {item.serialNumbers?.length ?? 0} {t('selected for return.')}
                             </Text>
                             {(item.serialNumbers ?? []).map((serial) => {
                               const unit = state.serialUnits?.[serial] ?? {
@@ -560,7 +563,7 @@ export const CreditNoteModal = ({
                                       <Group grow>
                                         <Select
                                           size="xs"
-                                          label="Condition"
+                                          label={t('Condition')}
                                           data={ITEM_CONDITION_OPTIONS}
                                           value={unit.condition}
                                           onChange={(v) =>
@@ -575,8 +578,8 @@ export const CreditNoteModal = ({
                                         {unit.condition === 'damaged' && (
                                           <Select
                                             size="xs"
-                                            label="What happens to it?"
-                                            placeholder="Choose one"
+                                            label={t('What happens to it?')}
+                                            placeholder={t('Choose one')}
                                             required
                                             error={
                                               !unit.disposition
@@ -635,14 +638,14 @@ export const CreditNoteModal = ({
                             <Stack gap={6} mt={4}>
                               <Select
                                 size="xs"
-                                label="Reason"
+                                label={t('Reason')}
                                 data={RETURN_REASON_OPTIONS}
                                 value={state.reason}
                                 onChange={(v) => updateLine(item.id, { reason: v || 'defective' })}
                               />
                               <Select
                                 size="xs"
-                                label="Condition"
+                                label={t('Condition')}
                                 data={ITEM_CONDITION_OPTIONS}
                                 value={state.condition}
                                 onChange={(v) =>
@@ -655,8 +658,8 @@ export const CreditNoteModal = ({
                               {state.condition === 'damaged' && (
                                 <Select
                                   size="xs"
-                                  label="What happens to it?"
-                                  placeholder="Choose one"
+                                  label={t('What happens to it?')}
+                                  placeholder={t('Choose one')}
                                   required
                                   error={
                                     !state.disposition ? 'Required for a damaged item' : undefined
@@ -678,11 +681,11 @@ export const CreditNoteModal = ({
                         {isFullyReturned ? (
                           <Stack gap={2} align="center">
                             <Badge size="xs" color="gray" variant="light">
-                              0 available
+                              {t('0 available')}
                             </Badge>
                             {item.quantity > 0 && (
                               <Text size="3xs" c="dimmed">
-                                All {item.quantity} returned
+                                {t('All')} {item.quantity} {t('returned')}
                               </Text>
                             )}
                           </Stack>
@@ -706,7 +709,7 @@ export const CreditNoteModal = ({
                                 c="dimmed"
                                 style={{ fontSize: 11, whiteSpace: 'nowrap' }}
                               >
-                                Max: {remaining}
+                                {t('Max:')} {remaining}
                               </Text>
                               <Button
                                 size="compact-xs"
@@ -723,7 +726,7 @@ export const CreditNoteModal = ({
                                   paddingRight: 6,
                                 }}
                               >
-                                Max
+                                {t('Max')}
                               </Button>
                             </Group>
                             {Boolean(item.returnedQuantity && item.returnedQuantity > 0) && (
@@ -732,7 +735,7 @@ export const CreditNoteModal = ({
                                 c="dimmed"
                                 style={{ fontSize: 10, whiteSpace: 'nowrap' }}
                               >
-                                ({item.returnedQuantity} of {item.quantity} returned)
+                                ({item.returnedQuantity} {t('of')} {item.quantity} {t('returned)')}
                               </Text>
                             )}
                           </Stack>
@@ -753,8 +756,8 @@ export const CreditNoteModal = ({
 
         {needsOverride && (
           <Textarea
-            label="Manager override reason"
-            placeholder="Why is this being approved?"
+            label={t('Manager override reason')}
+            placeholder={t('Why is this being approved?')}
             required
             minRows={2}
             disabled={!isAdmin}
@@ -766,14 +769,16 @@ export const CreditNoteModal = ({
 
         <Box>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Add Replacement Items (Exchange)
+            {t('Add Replacement Items (Exchange)')}
           </Text>
           <Text size="xs" c="dimmed" mb={4}>
-            Optional — add items the customer is taking instead. Leave empty for a plain refund.
+            {t(
+              'Optional — add items the customer is taking instead. Leave empty for a plain refund.'
+            )}
           </Text>
           <Group gap="xs" align="flex-end">
             <Select
-              placeholder="Search for a replacement item"
+              placeholder={t('Search for a replacement item')}
               searchable
               style={{ flex: 1 }}
               data={productOptions}
@@ -800,7 +805,7 @@ export const CreditNoteModal = ({
                 setExchangeProductKey(null);
               }}
             >
-              Add
+              {t('Add')}
             </Button>
           </Group>
           {exchangeLines.length > 0 && (
@@ -822,7 +827,7 @@ export const CreditNoteModal = ({
                         setExchangeLines((prev) => prev.filter((l) => l.key !== line.key))
                       }
                     >
-                      Remove
+                      {t('Remove')}
                     </Button>
                   </Group>
                 </Group>
@@ -841,7 +846,7 @@ export const CreditNoteModal = ({
               mb="xs"
               style={{ letterSpacing: '0.05em' }}
             >
-              Refund Split Across Payment Methods
+              {t('Refund Split Across Payment Methods')}
             </Text>
             <Stack gap="xs">
               {refundLegTargets.map((leg) => (
@@ -878,7 +883,7 @@ export const CreditNoteModal = ({
             </Group>
             <Textarea
               size="xs"
-              label="Notes (Optional)"
+              label={t('Notes (Optional)')}
               minRows={2}
               value={notes}
               onChange={(e) => setNotes(e.currentTarget.value)}
@@ -888,10 +893,10 @@ export const CreditNoteModal = ({
 
         <Group justify="flex-end" mt="md" gap="sm">
           <Button variant="default" onClick={handleClose} disabled={isSubmitting}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button color="blue" loading={isSubmitting} disabled={!canSubmit} onClick={handleSubmit}>
-            Create Credit Note
+            {t('Create Credit Note')}
           </Button>
         </Group>
       </Stack>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Badge, Button, Text, ActionIcon, Tooltip, Stack } from '@mantine/core';
 import { IconPlus, IconTrash, IconKey } from '@tabler/icons-react';
@@ -87,12 +88,12 @@ export const UsersList = () => {
       render: (u) => {
         if (!allowedRoles.includes(u.role)) return null;
         return (
-          <Tooltip label="Remove Login" withArrow>
+          <Tooltip label={t('Remove Login')} withArrow>
             <ActionIcon
               variant="subtle"
               color="red"
               onClick={() => setUserToDelete(u)}
-              aria-label="Remove Login"
+              aria-label={t('Remove Login')}
             >
               <IconTrash size={16} />
             </ActionIcon>
@@ -105,19 +106,21 @@ export const UsersList = () => {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="Login Accounts"
-        description="People who can sign in to this app, and what they're allowed to do"
+        title={t('Login Accounts')}
+        description={t("People who can sign in to this app, and what they're allowed to do")}
         action={
           <Button leftSection={<IconPlus size={16} />} onClick={() => setCreateOpen(true)}>
-            Create Login
+            {t('Create Login')}
           </Button>
         }
       />
 
       {users.length === 0 && !isLoading ? (
         <Text size="sm" c="dimmed" ta="center" py="xl">
-          <IconKey size={20} style={{ verticalAlign: 'middle', opacity: 0.5 }} /> No logins yet.
-          Create one for a shop employee so they can sign in.
+          <IconKey size={20} style={{ verticalAlign: 'middle', opacity: 0.5 }} />{' '}
+          {t(
+            'No logins yet.\n                            Create one for a shop employee so they can sign in.'
+          )}
         </Text>
       ) : (
         <DataTable
@@ -135,8 +138,8 @@ export const UsersList = () => {
         opened={Boolean(userToDelete)}
         onClose={() => setUserToDelete(null)}
         onConfirm={handleConfirmDelete}
-        title="Remove Login"
-        confirmLabel="Remove Login"
+        title={t('Remove Login')}
+        confirmLabel={t('Remove Login')}
         confirmColor="red"
         loading={deleteMutation.isPending}
       >

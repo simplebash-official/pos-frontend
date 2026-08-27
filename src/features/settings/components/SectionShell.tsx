@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { ReactNode } from 'react';
 import { Box, Button, Divider, Group, Paper, Stack, Text } from '@mantine/core';
 
@@ -43,7 +44,7 @@ export const SectionShell = ({
           </Box>
           <Group gap="sm" style={{ flexShrink: 0 }}>
             <Button variant="default" onClick={onCancel} disabled={!isDirty || saving}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button color="blue" onClick={onSave} disabled={!isDirty} loading={saving}>
               {saveLabel}

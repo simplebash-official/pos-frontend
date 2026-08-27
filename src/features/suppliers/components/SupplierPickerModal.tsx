@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import {
   Modal,
@@ -97,7 +98,7 @@ export const SupplierPickerModal = ({
         {/* Search Bar */}
         <SearchHistoryInput
           namespace="suppliers_picker"
-          placeholder="Search by vendor name, contact person, or category…"
+          placeholder={t('Search by vendor name, contact person, or category…')}
           leftSection={<IconSearch size={16} />}
           rightSection={
             search ? (
@@ -247,7 +248,7 @@ export const SupplierPickerModal = ({
                         handleSelect(s.key);
                       }}
                     >
-                      Link
+                      {t('Link')}
                     </Button>
                   </Group>
                 </Paper>
@@ -278,7 +279,7 @@ export const SupplierPickerModal = ({
             }}
             radius="var(--mantine-radius-default)"
           >
-            Cancel
+            {t('Cancel')}
           </Button>
         </Group>
       </Stack>

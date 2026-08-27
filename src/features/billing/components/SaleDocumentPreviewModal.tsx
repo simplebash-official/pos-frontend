@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
 import { IconX, IconPrinter } from '@tabler/icons-react';
@@ -193,7 +194,7 @@ export const SaleDocumentPreviewModal = ({
             variant="subtle"
             color="gray"
             size={isMobile ? 44 : 36}
-            aria-label="Close preview"
+            aria-label={t('Close preview')}
             onClick={onClose}
           >
             <IconX size={18} />
@@ -270,12 +271,12 @@ export const SaleDocumentPreviewModal = ({
 
               <Box>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                  Sale details
+                  {t('Sale details')}
                 </Text>
                 <Stack gap={6}>
                   <Group justify="space-between">
                     <Text size="xs" c="dimmed">
-                      Items
+                      {t('Items')}
                     </Text>
                     <Text size="xs" fw={600}>
                       {invoice.items.length}
@@ -283,7 +284,7 @@ export const SaleDocumentPreviewModal = ({
                   </Group>
                   <Group justify="space-between">
                     <Text size="xs" c="dimmed">
-                      Payment method
+                      {t('Payment method')}
                     </Text>
                     <Text size="xs" fw={600}>
                       {hero.methodLabel}
@@ -291,7 +292,7 @@ export const SaleDocumentPreviewModal = ({
                   </Group>
                   <Group justify="space-between">
                     <Text size="xs" c="dimmed">
-                      Cashier
+                      {t('Cashier')}
                     </Text>
                     <Text size="xs" fw={600}>
                       {invoice.cashierName}
@@ -300,7 +301,7 @@ export const SaleDocumentPreviewModal = ({
                   {invoice.customerName && (
                     <Group justify="space-between">
                       <Text size="xs" c="dimmed">
-                        Customer
+                        {t('Customer')}
                       </Text>
                       <Text size="xs" fw={600}>
                         {invoice.customerName}
@@ -314,17 +315,17 @@ export const SaleDocumentPreviewModal = ({
 
               <Box>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                  Print activity
+                  {t('Print activity')}
                 </Text>
                 {printLogs.length === 0 ? (
                   <Text size="xs" c="dimmed">
-                    Not yet sent to printer
+                    {t('Not yet sent to printer')}
                   </Text>
                 ) : (
                   <Stack gap={4}>
                     {printLogs.map((log) => (
                       <Text key={log.id} size="xs" c="dimmed">
-                        Printed at {formatTime(log.printedAt)}
+                        {t('Printed at')} {formatTime(log.printedAt)}
                       </Text>
                     ))}
                   </Stack>
@@ -342,11 +343,11 @@ export const SaleDocumentPreviewModal = ({
                   {hasPrinted ? 'Print Another Copy' : 'Print receipt'}
                 </Button>
                 <Button fullWidth variant="default" onClick={onClose}>
-                  Done
+                  {t('Done')}
                 </Button>
               </Stack>
               <Text size="xs" c="dimmed" ta="center">
-                Tip: choose &quot;Save as PDF&quot; in the print dialog to save a copy.
+                {t('Tip: choose &quot;Save as PDF&quot; in the print dialog to save a copy.')}
               </Text>
             </Stack>
           </Box>

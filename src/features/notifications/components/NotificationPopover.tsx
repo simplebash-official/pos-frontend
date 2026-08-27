@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   Popover,
@@ -149,11 +150,11 @@ export const NotificationPopover = ({
         <Group justify="space-between" align="center" px="md" py="sm">
           <Group gap="xs" align="center">
             <Text fw={800} size="md" c="var(--text-primary)">
-              Notifications
+              {t('Notifications')}
             </Text>
             {unreadCount > 0 && (
               <Badge color="blue" variant="light" size="sm">
-                {unreadCount} new
+                {unreadCount} {t('new')}
               </Badge>
             )}
           </Group>
@@ -168,7 +169,7 @@ export const NotificationPopover = ({
               onClick={handleMarkAllRead}
               style={{ fontWeight: 600 }}
             >
-              Mark all as read
+              {t('Mark all as read')}
             </Button>
           ) : (
             <Button
@@ -180,7 +181,7 @@ export const NotificationPopover = ({
               disabled
               style={{ fontWeight: 500 }}
             >
-              Mark all as read
+              {t('Mark all as read')}
             </Button>
           )}
         </Group>
@@ -198,13 +199,13 @@ export const NotificationPopover = ({
           >
             <Tabs.List style={{ gap: 4 }}>
               <Tabs.Tab value="all" style={{ fontSize: 12, fontWeight: 600, padding: '4px 10px' }}>
-                All Notifications
+                {t('All Notifications')}
               </Tabs.Tab>
               <Tabs.Tab
                 value="unread"
                 style={{ fontSize: 12, fontWeight: 600, padding: '4px 10px' }}
               >
-                Unread {unreadCount > 0 ? `(${unreadCount})` : ''}
+                {t('Unread')} {unreadCount > 0 ? `(${unreadCount})` : ''}
               </Tabs.Tab>
             </Tabs.List>
           </Tabs>
@@ -212,19 +213,19 @@ export const NotificationPopover = ({
           {/* Category Filter Menu */}
           <Menu position="bottom-end" shadow="md" width={180}>
             <Menu.Target>
-              <Tooltip label="Filter category">
+              <Tooltip label={t('Filter category')}>
                 <ActionIcon
                   variant={selectedCategory !== 'all' ? 'filled' : 'light'}
                   color={selectedCategory !== 'all' ? 'blue' : 'gray'}
                   size="sm"
-                  aria-label="Filter notifications by category"
+                  aria-label={t('Filter notifications by category')}
                 >
                   <IconFilter size={14} />
                 </ActionIcon>
               </Tooltip>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Label>Filter by Category</Menu.Label>
+              <Menu.Label>{t('Filter by Category')}</Menu.Label>
               {Object.entries(categoryLabels).map(([catKey, { label, icon }]) => (
                 <Menu.Item
                   key={catKey}

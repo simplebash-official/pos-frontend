@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useMemo } from 'react';
 import {
   Paper,
@@ -56,10 +57,10 @@ export const ServicePipelineWidget = ({
               </ThemeIcon>
               <div>
                 <Text fw={800} size="md">
-                  Phone Repairs Workshop
+                  {t('Phone Repairs Workshop')}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Live workflow pipeline across diagnosis and repair stages
+                  {t('Live workflow pipeline across diagnosis and repair stages')}
                 </Text>
               </div>
             </Group>
@@ -71,7 +72,7 @@ export const ServicePipelineWidget = ({
               rightSection={<IconArrowRight size={14} />}
               onClick={() => navigate(ROUTES.REPAIRS)}
             >
-              Open Board
+              {t('Open Board')}
             </Button>
           </Group>
 
@@ -103,7 +104,7 @@ export const ServicePipelineWidget = ({
                     {/* Consistent Header Row */}
                     <Group justify="space-between" align="center" wrap="nowrap">
                       <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                        Step {idx + 1}
+                        {t('Step')} {idx + 1}
                       </Text>
                       <Text
                         size="3xs"
@@ -127,7 +128,7 @@ export const ServicePipelineWidget = ({
                       <Text size="xl" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {stage.count}
                         <Text component="span" size="xs" c="dimmed" fw={500} ml={4}>
-                          tickets
+                          {t('tickets')}
                         </Text>
                       </Text>
                     </div>
@@ -159,10 +160,10 @@ export const ServicePipelineWidget = ({
               </ThemeIcon>
               <div>
                 <Text fw={800} size="md">
-                  Print Services Queue
+                  {t('Print Services Queue')}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Mugs, t-shirts, documents, and promotional media
+                  {t('Mugs, t-shirts, documents, and promotional media')}
                 </Text>
               </div>
             </Group>
@@ -174,7 +175,7 @@ export const ServicePipelineWidget = ({
               rightSection={<IconArrowRight size={14} />}
               onClick={() => navigate(ROUTES.PRINT_JOBS)}
             >
-              View Queue
+              {t('View Queue')}
             </Button>
           </Group>
 
@@ -201,7 +202,7 @@ export const ServicePipelineWidget = ({
                     {/* Consistent Header Row */}
                     <Group justify="space-between" align="center" wrap="nowrap">
                       <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                        Step {idx + 1}
+                        {t('Step')} {idx + 1}
                       </Text>
                       <Text
                         size="3xs"
@@ -225,7 +226,7 @@ export const ServicePipelineWidget = ({
                       <Text size="xl" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {stage.count}
                         <Text component="span" size="xs" c="dimmed" fw={500} ml={4}>
-                          orders
+                          {t('orders')}
                         </Text>
                       </Text>
                     </div>

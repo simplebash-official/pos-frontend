@@ -1,3 +1,5 @@
+import { t } from '@/shared/i18n/t';
+
 // DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
 // this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Badge, Group, Stack, Text } from '@mantine/core';
@@ -29,7 +31,7 @@ export const SyncModuleCard = ({ module, pendingCount }: SyncModuleCardProps) =>
         <Group gap="xs" wrap="nowrap">
           {pendingCount > 0 && (
             <Badge size="xs" color="orange" variant="light">
-              {pendingCount} queued
+              {pendingCount} {t('queued')}
             </Badge>
           )}
           <Badge size="xs" color={presentation.color} variant="light">
@@ -41,7 +43,7 @@ export const SyncModuleCard = ({ module, pendingCount }: SyncModuleCardProps) =>
       <Stack gap={6} pt="xs">
         <Group justify="space-between" gap="xs">
           <Text size="xs" c="dimmed">
-            Last downloaded
+            {t('Last downloaded')}
           </Text>
           <Text size="xs">
             {module.lastPulledAt ? formatDateTime(module.lastPulledAt) : 'Never'}
@@ -49,7 +51,7 @@ export const SyncModuleCard = ({ module, pendingCount }: SyncModuleCardProps) =>
         </Group>
         <Group justify="space-between" gap="xs">
           <Text size="xs" c="dimmed">
-            Last uploaded
+            {t('Last uploaded')}
           </Text>
           <Text size="xs">
             {module.lastPushedAt ? formatDateTime(module.lastPushedAt) : 'Never'}

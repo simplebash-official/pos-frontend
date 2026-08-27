@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   TextInput,
@@ -283,7 +284,7 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
                   tt="uppercase"
                   style={{ letterSpacing: '0.05em' }}
                 >
-                  Recent searches
+                  {t('Recent searches')}
                 </Text>
               </Group>
               {history.length > 0 && (
@@ -299,7 +300,7 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
                     setOpened(false);
                   }}
                 >
-                  Clear all
+                  {t('Clear all')}
                 </Button>
               )}
             </Group>
@@ -309,12 +310,14 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
             {displayHistory.length === 0 ? (
               <Center py="sm" px="xs">
                 <Text size="xs" c="dimmed" ta="center">
-                  No matching past searches for &ldquo;{currentQuery}&rdquo;.
+                  {t('No matching past searches for &ldquo;')}
+                  {currentQuery}
+                  {t('&rdquo;.')}
                 </Text>
               </Center>
             ) : (
               <ScrollArea.Autosize mah={220} type="auto">
-                <Stack gap={2} role="listbox" aria-label="Recent searches">
+                <Stack gap={2} role="listbox" aria-label={t('Recent searches')}>
                   {displayHistory.map((query, index) => (
                     <UnstyledButton
                       key={query}

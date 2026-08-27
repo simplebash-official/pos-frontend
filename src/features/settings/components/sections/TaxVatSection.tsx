@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Group, SimpleGrid, Switch, Text, TextInput, NumberInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -64,8 +65,8 @@ export const TaxVatSection = ({ onDirtyChange }: SectionProps) => {
 
   return (
     <SectionShell
-      title="Tax & VAT"
-      description="Turn this on if your shop is registered for VAT, so it appears on invoices."
+      title={t('Tax & VAT')}
+      description={t('Turn this on if your shop is registered for VAT, so it appears on invoices.')}
       isDirty={isDirty}
       onSave={handleSave}
       onCancel={() => form.reset()}
@@ -73,10 +74,10 @@ export const TaxVatSection = ({ onDirtyChange }: SectionProps) => {
       <Group justify="space-between" align="center">
         <div>
           <Text fw={600} size="sm">
-            VAT Registration
+            {t('VAT Registration')}
           </Text>
           <Text size="xs" c="dimmed">
-            Enable if your shop is VAT registered to include tax columns on invoices.
+            {t('Enable if your shop is VAT registered to include tax columns on invoices.')}
           </Text>
         </div>
         <Switch
@@ -87,10 +88,10 @@ export const TaxVatSection = ({ onDirtyChange }: SectionProps) => {
 
       {form.values.isVatRegistered && (
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-          <TextInput label="Business Reg No" {...form.getInputProps('businessRegNo')} />
-          <TextInput label="VAT Registration Number" {...form.getInputProps('vatNo')} />
+          <TextInput label={t('Business Reg No')} {...form.getInputProps('businessRegNo')} />
+          <TextInput label={t('VAT Registration Number')} {...form.getInputProps('vatNo')} />
           <NumberInput
-            label="VAT Rate (%)"
+            label={t('VAT Rate (%)')}
             suffix="%"
             min={0}
             max={100}

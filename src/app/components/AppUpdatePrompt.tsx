@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Button, Group, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -35,9 +36,9 @@ export const AppUpdatePrompt = () => {
       withCloseButton: true,
       message: (
         <Group gap="sm" mt="xs">
-          <Text size="sm">A newer version of the POS is ready.</Text>
+          <Text size="sm">{t('A newer version of the POS is ready.')}</Text>
           <Button size="xs" variant="light" onClick={() => void updateServiceWorker(true)}>
-            Update now
+            {t('Update now')}
           </Button>
         </Group>
       ),

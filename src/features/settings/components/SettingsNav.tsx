@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Box, Paper, Stack, Tabs, Text, ThemeIcon } from '@mantine/core';
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
 
@@ -20,7 +21,7 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
         pt={4}
         pb="xs"
       >
-        Menu
+        {t('Menu')}
       </Text>
       <Stack gap={2}>
         {SETTINGS_SECTIONS.map((section) => {
@@ -103,7 +104,7 @@ export const SettingsNavDrillDownList = ({ active, onChange }: SettingsNavProps)
   return (
     <Stack gap="xs">
       <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-        Menu
+        {t('Menu')}
       </Text>
       {SETTINGS_SECTIONS.map((section) => (
         <Box

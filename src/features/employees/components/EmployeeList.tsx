@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import {
   Button,
@@ -199,7 +200,7 @@ export const EmployeeList = () => {
           permissions={[PERMISSIONS.EMPLOYEES_WRITE]}
           fallback={
             <Text size="xs" c="dimmed">
-              Restricted
+              {t('Restricted')}
             </Text>
           }
         >
@@ -265,8 +266,10 @@ export const EmployeeList = () => {
     <>
       <Stack gap="lg">
         <PageHeader
-          title="Employee Directory & Commission Splits"
-          description="Staff profiles, technician assignments, and job profit commission splits"
+          title={t('Employee Directory & Commission Splits')}
+          description={t(
+            'Staff profiles, technician assignments, and job profit commission splits'
+          )}
           action={
             <Group gap="sm">
               <Button
@@ -278,14 +281,14 @@ export const EmployeeList = () => {
                   void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all })
                 }
               >
-                Refresh List
+                {t('Refresh List')}
               </Button>
               <Button
                 leftSection={<IconPlus size={16} />}
                 color="indigo"
                 onClick={handleOpenAddModal}
               >
-                Register New Employee
+                {t('Register New Employee')}
               </Button>
             </Group>
           }
@@ -327,7 +330,7 @@ export const EmployeeList = () => {
           <Group justify="space-between" wrap="wrap">
             <SearchHistoryInput
               namespace="employees"
-              placeholder="Search staff by name, phone, or NIC..."
+              placeholder={t('Search staff by name, phone, or NIC...')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onValueChange={setSearch}
@@ -358,7 +361,7 @@ export const EmployeeList = () => {
                     label: (
                       <Center style={{ gap: 6 }}>
                         <IconList size={16} />
-                        <span>Table</span>
+                        <span>{t('Table')}</span>
                       </Center>
                     ),
                     value: 'table',
@@ -367,7 +370,7 @@ export const EmployeeList = () => {
                     label: (
                       <Center style={{ gap: 6 }}>
                         <IconLayoutGrid size={16} />
-                        <span>Grid</span>
+                        <span>{t('Grid')}</span>
                       </Center>
                     ),
                     value: 'grid',
@@ -460,7 +463,7 @@ export const EmployeeList = () => {
                               {emp.name}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              NIC/ID: {emp.nicOrId || 'N/A'}
+                              {t('NIC/ID:')} {emp.nicOrId || 'N/A'}
                             </Text>
                           </div>
                         </Group>
@@ -477,7 +480,7 @@ export const EmployeeList = () => {
                           <PhoneDisplay primaryPhone={emp.phone} />
                           <Group justify="space-between" align="center">
                             <Text size="xs" c="dimmed">
-                              Split Rule:
+                              {t('Split Rule:')}
                             </Text>
                             <Badge
                               size="xs"
@@ -508,7 +511,7 @@ export const EmployeeList = () => {
                         style={{ cursor: 'pointer' }}
                         onClick={() => setSelectedEmployeeForDrawer(emp)}
                       >
-                        View Profile →
+                        {t('View Profile →')}
                       </Text>
 
                       <Group gap="xs">
@@ -516,22 +519,22 @@ export const EmployeeList = () => {
                           permissions={[PERMISSIONS.EMPLOYEES_WRITE]}
                           fallback={null}
                         >
-                          <Tooltip label="Edit Employee" withArrow>
+                          <Tooltip label={t('Edit Employee')} withArrow>
                             <ActionIcon
                               variant="subtle"
                               color="blue"
                               onClick={() => handleOpenEditModal(emp)}
-                              aria-label="Edit Employee"
+                              aria-label={t('Edit Employee')}
                             >
                               <IconEdit size={16} />
                             </ActionIcon>
                           </Tooltip>
-                          <Tooltip label="Delete Employee" withArrow>
+                          <Tooltip label={t('Delete Employee')} withArrow>
                             <ActionIcon
                               variant="subtle"
                               color="red"
                               onClick={() => setEmployeeToDelete(emp)}
-                              aria-label="Delete Employee"
+                              aria-label={t('Delete Employee')}
                             >
                               <IconTrash size={16} />
                             </ActionIcon>
@@ -575,11 +578,11 @@ export const EmployeeList = () => {
         opened={Boolean(employeeToDelete)}
         onClose={() => setEmployeeToDelete(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete Employee"
-        confirmLabel="Delete Employee"
+        title={t('Delete Employee')}
+        confirmLabel={t('Delete Employee')}
         confirmColor="red"
       >
-        Are you sure you want to delete <strong>{employeeToDelete?.name}</strong>?
+        {t('Are you sure you want to delete')} <strong>{employeeToDelete?.name}</strong>?
       </ConfirmDialog>
     </>
   );

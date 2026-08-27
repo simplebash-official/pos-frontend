@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Paper, Stack, Group, Text, Badge, Progress, ThemeIcon, Box } from '@mantine/core';
 import { IconUserCheck, IconTool, IconUser } from '@tabler/icons-react';
 import { TechnicianWorkload } from '../types';
@@ -44,10 +45,10 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Technician Workload & Floor Capacity
+                {t('Technician Workload & Floor Capacity')}
               </Text>
               <Text size="xs" c="dimmed">
-                Live bench capacity, assigned repair tickets, and current tasks
+                {t('Live bench capacity, assigned repair tickets, and current tasks')}
               </Text>
             </div>
           </Group>
@@ -61,10 +62,12 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                 <IconUser size={22} />
               </ThemeIcon>
               <Text fw={700} size="sm">
-                No Active Technicians On Duty
+                {t('No Active Technicians On Duty')}
               </Text>
               <Text size="xs" c="dimmed" ta="center">
-                Technicians registered in staff profiles will appear here with live repair capacity.
+                {t(
+                  'Technicians registered in staff profiles will appear here with live repair capacity.'
+                )}
               </Text>
             </Stack>
           </Paper>
@@ -109,7 +112,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                       <Group gap="md">
                         <div>
                           <Text size="3xs" c="dimmed" fw={700} tt="uppercase" ta="right">
-                            Active Jobs
+                            {t('Active Jobs')}
                           </Text>
                           <Text
                             size="sm"
@@ -117,7 +120,8 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                             ta="right"
                             style={{ fontVariantNumeric: 'tabular-nums' }}
                           >
-                            {tech.activeJobsCount} active ({tech.completedTodayCount} done today)
+                            {tech.activeJobsCount} {t('active (')}
+                            {tech.completedTodayCount} {t('done today)')}
                           </Text>
                         </div>
                       </Group>
@@ -131,7 +135,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                             <IconTool size={12} />
                           </ThemeIcon>
                           <Text size="3xs" fw={600} c="dimmed">
-                            Working on:
+                            {t('Working on:')}
                           </Text>
                           <Text size="3xs" fw={700}>
                             {tech.currentTask}
@@ -144,7 +148,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
                     <Box>
                       <Group justify="space-between" mb={2}>
                         <Text size="3xs" c="dimmed" fw={600}>
-                          Bench Capacity
+                          {t('Bench Capacity')}
                         </Text>
                         <Text size="3xs" fw={700} c={capacityColor === 'red' ? 'red' : 'dimmed'}>
                           {tech.capacityPercentage}%

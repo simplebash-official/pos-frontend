@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import React, { useMemo, useState } from 'react';
 import {
   Modal,
@@ -201,7 +202,7 @@ export const GlobalQuickSearchModal = () => {
       onClose={() => setOpened(false)}
       title={
         <Text fw={700} size="lg">
-          Quick Search Palette
+          {t('Quick Search Palette')}
         </Text>
       }
       size="lg"
@@ -210,7 +211,7 @@ export const GlobalQuickSearchModal = () => {
       <Stack gap="md">
         <SearchHistoryInput
           namespace="global"
-          placeholder="Search products, customers, repairs, or tickets..."
+          placeholder={t('Search products, customers, repairs, or tickets...')}
           leftSection={<IconSearch size={18} />}
           value={query}
           onValueChange={setQuery}
@@ -223,13 +224,13 @@ export const GlobalQuickSearchModal = () => {
             {!query.trim() ? (
               <Center py="xl">
                 <Text size="sm" c="dimmed">
-                  Type to search across Products, Customers, Repairs, and Print Jobs...
+                  {t('Type to search across Products, Customers, Repairs, and Print Jobs...')}
                 </Text>
               </Center>
             ) : results.length === 0 ? (
               <Center py="xl">
                 <Text size="sm" c="dimmed">
-                  No matching results found.
+                  {t('No matching results found.')}
                 </Text>
               </Center>
             ) : (

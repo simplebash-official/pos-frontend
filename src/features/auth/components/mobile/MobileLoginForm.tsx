@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   TextInput,
@@ -101,7 +102,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
               orbState="connecting"
               orbTheme="dark"
               size={60}
-              title="Signing in..."
+              title={t('Signing in...')}
               subtitle="Connecting to POS console..."
               height="auto"
             />
@@ -115,10 +116,10 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
           type="button"
           className="mobile-back-btn"
           onClick={onBack}
-          aria-label="Back to Welcome Screen"
+          aria-label={t('Back to Welcome Screen')}
         >
           <IconChevronLeft size={18} stroke={2.5} />
-          <span>Back</span>
+          <span>{t('Back')}</span>
         </button>
       </div>
 
@@ -128,17 +129,17 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       {/* Bottom Sheet Card */}
       <div className="mobile-auth-sheet">
         <div className="mobile-sheet-header">
-          <h2 className="mobile-sheet-title">Staff Sign In</h2>
+          <h2 className="mobile-sheet-title">{t('Staff Sign In')}</h2>
           <p className="mobile-sheet-subtitle">
-            Access the POS terminal for repairs, printing &amp; sales
+            {t('Access the POS terminal for repairs, printing &amp; sales')}
           </p>
         </div>
 
         <form onSubmit={handleLogin} noValidate>
           <Stack gap="md">
             <TextInput
-              label="Email"
-              placeholder="you@jana2u.local"
+              label={t('Email')}
+              placeholder={t('you@jana2u.local')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               className="mobile-auth-input"
@@ -148,7 +149,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
             />
 
             <PasswordInput
-              label="Password"
+              label={t('Password')}
               placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.currentTarget.value)}
@@ -159,7 +160,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
             <Group justify="space-between" align="center" mt={2}>
               <Checkbox
-                label="Remember me"
+                label={t('Remember me')}
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.currentTarget.checked)}
                 size="sm"
@@ -172,7 +173,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
                 fw={600}
                 c="blue"
               >
-                Forgot password?
+                {t('Forgot password?')}
               </Anchor>
             </Group>
 
@@ -184,12 +185,12 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
               className="mobile-primary-btn"
               mt="sm"
             >
-              Sign In
+              {t('Sign In')}
             </Button>
 
             <div className="mobile-auth-security-badge">
               <IconLock size={14} stroke={2} />
-              <span>JANA2U Service Center - Internal Use Only</span>
+              <span>{t('JANA2U Service Center - Internal Use Only')}</span>
             </div>
           </Stack>
         </form>

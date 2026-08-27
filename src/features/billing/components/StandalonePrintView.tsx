@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Button, Group, Text, Paper, Container, Loader, Stack } from '@mantine/core';
@@ -38,7 +39,7 @@ export const StandalonePrintView = () => {
         <Stack align="center" gap="xs">
           <Loader size="sm" />
           <Text size="sm" c="dimmed">
-            Preparing document…
+            {t('Preparing document…')}
           </Text>
         </Stack>
       </Container>
@@ -51,13 +52,13 @@ export const StandalonePrintView = () => {
         <Paper p="xl" radius="var(--mantine-radius-default)" withBorder>
           <IconAlertCircle size={28} color="var(--mantine-color-orange-6)" />
           <Text size="lg" fw={700} c="orange" mt="xs">
-            You&apos;re offline
+            {t('You&apos;re offline')}
           </Text>
           <Text size="sm" c="dimmed" mt="xs">
             {getDocumentUnavailableText({ isPaused: true, isError: false })}
           </Text>
           <Button mt="md" onClick={() => window.close()}>
-            Close Window
+            {t('Close Window')}
           </Button>
         </Paper>
       </Container>
@@ -70,13 +71,15 @@ export const StandalonePrintView = () => {
         <Paper p="xl" radius="var(--mantine-radius-default)" withBorder>
           <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
           <Text size="lg" fw={700} c="red" mt="xs">
-            Invoice Not Found
+            {t('Invoice Not Found')}
           </Text>
           <Text size="sm" c="dimmed" mt="xs">
-            No document matching identifier &quot;{id}&quot; was found.
+            {t('No document matching identifier &quot;')}
+            {id}
+            {t('&quot; was found.')}
           </Text>
           <Button mt="md" onClick={() => window.close()}>
-            Close Window
+            {t('Close Window')}
           </Button>
         </Paper>
       </Container>
@@ -102,7 +105,7 @@ export const StandalonePrintView = () => {
       >
         <Group justify="space-between" align="center">
           <Text size="sm" fw={700}>
-            Invoice — {id}
+            {t('Invoice —')} {id}
           </Text>
 
           <Group gap="sm">
@@ -112,7 +115,7 @@ export const StandalonePrintView = () => {
               leftSection={<IconPrinter size={14} />}
               onClick={() => void printPdfBlob(blob)}
             >
-              Print Document
+              {t('Print Document')}
             </Button>
             <Button
               size="xs"
@@ -121,7 +124,7 @@ export const StandalonePrintView = () => {
               leftSection={<IconX size={14} />}
               onClick={() => window.close()}
             >
-              Close
+              {t('Close')}
             </Button>
           </Group>
         </Group>

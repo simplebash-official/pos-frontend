@@ -1,3 +1,5 @@
+import { t } from '@/shared/i18n/t';
+
 // DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
 // this file is kept for a future sync backend. See src/features/sync/README.md.
 import { ActionIcon, Badge, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
@@ -33,8 +35,8 @@ export const PendingOperationsList = ({ operations }: PendingOperationsListProps
     return (
       <EmptyState
         icon={<IconCheck size={28} />}
-        title="Nothing waiting to sync"
-        description="Every change on this device has been saved to the server."
+        title={t('Nothing waiting to sync')}
+        description={t('Every change on this device has been saved to the server.')}
       />
     );
   }
@@ -98,23 +100,23 @@ export const PendingOperationsList = ({ operations }: PendingOperationsListProps
                 </Badge>
                 {isActionable && (
                   <>
-                    <Tooltip label="Try again">
+                    <Tooltip label={t('Try again')}>
                       <ActionIcon
                         variant="subtle"
                         color="blue"
                         size="lg"
-                        aria-label="Retry this change"
+                        aria-label={t('Retry this change')}
                         onClick={() => void handleRetry(op)}
                       >
                         <IconRefresh size={16} />
                       </ActionIcon>
                     </Tooltip>
-                    <Tooltip label="Discard this change">
+                    <Tooltip label={t('Discard this change')}>
                       <ActionIcon
                         variant="subtle"
                         color="red"
                         size="lg"
-                        aria-label="Discard this change"
+                        aria-label={t('Discard this change')}
                         onClick={() => void handleDiscard(op)}
                       >
                         <IconTrash size={16} />

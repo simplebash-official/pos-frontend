@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -107,10 +108,10 @@ export const CustomerDetailDrawer = ({
           </ThemeIcon>
           <div>
             <Text fw={800} size="md">
-              Customer Specifications
+              {t('Customer Specifications')}
             </Text>
             <Text size="xs" c="dimmed">
-              JANA2U Client & Account Detail
+              {t('JANA2U Client & Account Detail')}
             </Text>
           </div>
         </Group>
@@ -142,7 +143,7 @@ export const CustomerDetailDrawer = ({
 
             {c.contactPerson ? (
               <Text size="xs" c="dimmed" mb={c.tags && c.tags.length > 0 ? 'xs' : 0}>
-                Primary Contact:{' '}
+                {t('Primary Contact:')}{' '}
                 <Text component="span" fw={600} c="var(--text-primary)">
                   {c.contactPerson}
                 </Text>
@@ -162,7 +163,7 @@ export const CustomerDetailDrawer = ({
 
           {/* Financial Snapshot */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Financial Snapshot
+            {t('Financial Snapshot')}
           </Text>
 
           <Paper p="md" withBorder>
@@ -174,7 +175,7 @@ export const CustomerDetailDrawer = ({
               >
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed" tt="uppercase">
-                    Total Purchases
+                    {t('Total Purchases')}
                   </Text>
                   <Text fw={800} size="md" c="blue">
                     {formatMoney(c.totalPurchasesCents || 0)}
@@ -185,7 +186,7 @@ export const CustomerDetailDrawer = ({
               <Grid.Col span={6} pl="md">
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed" tt="uppercase">
-                    Balance Due
+                    {t('Balance Due')}
                   </Text>
                   <Group gap="xs" align="center" wrap="nowrap">
                     <Text fw={800} size="md" c={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}>
@@ -209,26 +210,28 @@ export const CustomerDetailDrawer = ({
           {c.outstandingBalanceCents > 0 && (
             <Alert
               icon={<IconAlertCircle size={16} />}
-              title="Outstanding Balance Notice"
+              title={t('Outstanding Balance Notice')}
               color="red"
               radius="var(--mantine-radius-default)"
             >
-              This client has an outstanding balance of{' '}
-              <strong>{formatMoney(c.outstandingBalanceCents)}</strong>. Outstanding debt must be
-              settled before this profile can be deleted.
+              {t('This client has an outstanding balance of')}{' '}
+              <strong>{formatMoney(c.outstandingBalanceCents)}</strong>
+              {t(
+                '. Outstanding debt must be\n                                        settled before this profile can be deleted.'
+              )}
             </Alert>
           )}
 
           {/* Contact & Location Details */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
-            Contact & Address
+            {t('Contact & Address')}
           </Text>
 
           <Paper p="md" withBorder>
             <Stack gap="sm">
               <Box>
                 <Text size="xs" c="dimmed" fw={500} mb={4}>
-                  Contact Numbers
+                  {t('Contact Numbers')}
                 </Text>
                 <PhoneDisplay
                   primaryPhone={c.primaryPhone}
@@ -242,7 +245,7 @@ export const CustomerDetailDrawer = ({
                   <Divider color="var(--mantine-color-default-border)" />
                   <Box>
                     <Text size="xs" c="dimmed" fw={500} mb={4}>
-                      Physical Location / Address
+                      {t('Physical Location / Address')}
                     </Text>
                     <Group gap="xs" align="flex-start">
                       <IconMapPin
@@ -262,7 +265,7 @@ export const CustomerDetailDrawer = ({
                   <Divider color="var(--mantine-color-default-border)" />
                   <Box>
                     <Text size="xs" c="dimmed" fw={500} mb={4}>
-                      Email Address
+                      {t('Email Address')}
                     </Text>
                     <Group gap="xs" align="center">
                       <IconMail size={16} style={{ opacity: 0.6, flexShrink: 0 }} />
@@ -292,7 +295,7 @@ export const CustomerDetailDrawer = ({
                   </Badge>
                 }
               >
-                Invoices
+                {t('Invoices')}
               </Tabs.Tab>
               <Tabs.Tab
                 value="repairs"
@@ -302,9 +305,9 @@ export const CustomerDetailDrawer = ({
                   </Badge>
                 }
               >
-                Repairs
+                {t('Repairs')}
               </Tabs.Tab>
-              {c.notes ? <Tabs.Tab value="notes">Notes</Tabs.Tab> : null}
+              {c.notes ? <Tabs.Tab value="notes">{t('Notes')}</Tabs.Tab> : null}
             </Tabs.List>
           </Tabs>
 
@@ -315,7 +318,7 @@ export const CustomerDetailDrawer = ({
                   <Stack gap={4} align="center">
                     <IconReceipt size={20} style={{ opacity: 0.4 }} />
                     <Text size="xs" c="dimmed" ta="center">
-                      No sales or invoices recorded for this customer.
+                      {t('No sales or invoices recorded for this customer.')}
                     </Text>
                   </Stack>
                 </Center>
@@ -351,7 +354,7 @@ export const CustomerDetailDrawer = ({
                               </Badge>
                             </Group>
                             <Text size="xs" c="dimmed" mt={2}>
-                              {formatDateTime(inv.createdAt)} · {inv.items.length} item(s)
+                              {formatDateTime(inv.createdAt)} · {inv.items.length} {t('item(s)')}
                             </Text>
                           </div>
                           <Text size="sm" fw={700} ta="right" style={{ flexShrink: 0 }}>
@@ -370,7 +373,7 @@ export const CustomerDetailDrawer = ({
                   <Stack gap={4} align="center">
                     <IconTools size={20} style={{ opacity: 0.4 }} />
                     <Text size="xs" c="dimmed" ta="center">
-                      No repair tickets found for this customer.
+                      {t('No repair tickets found for this customer.')}
                     </Text>
                   </Stack>
                 </Center>
@@ -419,7 +422,7 @@ export const CustomerDetailDrawer = ({
                               variant="light"
                               style={{ flexShrink: 0 }}
                             >
-                              Pending diagnosis
+                              {t('Pending diagnosis')}
                             </Badge>
                           )}
                         </Group>
@@ -442,7 +445,7 @@ export const CustomerDetailDrawer = ({
 
           {/* Metadata */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Metadata
+            {t('Metadata')}
           </Text>
 
           <Stack gap="xs">
@@ -450,7 +453,7 @@ export const CustomerDetailDrawer = ({
               <Group gap="xs">
                 <IconClock size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Registered On
+                  {t('Registered On')}
                 </Text>
               </Group>
               <Text size="xs" fw={700}>
@@ -462,7 +465,7 @@ export const CustomerDetailDrawer = ({
               <Group gap="xs">
                 <IconClock size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Last Updated
+                  {t('Last Updated')}
                 </Text>
               </Group>
               <Text size="xs" fw={700}>
@@ -474,7 +477,7 @@ export const CustomerDetailDrawer = ({
               <Group gap="xs">
                 <IconTag size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Client Key
+                  {t('Client Key')}
                 </Text>
               </Group>
               <Text size="xs" fw={600} c="dimmed">
@@ -488,11 +491,11 @@ export const CustomerDetailDrawer = ({
           {/* Actions */}
           <Group justify="space-between" align="center" wrap="nowrap" mt="sm">
             <Button variant="default" size="sm" onClick={onClose}>
-              Close
+              {t('Close')}
             </Button>
 
             <Group gap="xs" wrap="nowrap">
-              <Tooltip label="Delete Customer Profile" withArrow>
+              <Tooltip label={t('Delete Customer Profile')} withArrow>
                 <Button
                   variant="light"
                   color="red"
@@ -500,7 +503,7 @@ export const CustomerDetailDrawer = ({
                   leftSection={<IconTrash size={16} />}
                   onClick={() => onDelete(c)}
                 >
-                  Delete
+                  {t('Delete')}
                 </Button>
               </Tooltip>
               <Button
@@ -510,7 +513,7 @@ export const CustomerDetailDrawer = ({
                 leftSection={<IconEdit size={16} />}
                 onClick={() => onEdit(c)}
               >
-                Edit Details
+                {t('Edit Details')}
               </Button>
             </Group>
           </Group>

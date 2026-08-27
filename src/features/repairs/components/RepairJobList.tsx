@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
@@ -218,13 +219,13 @@ export const RepairJobList = () => {
             </Group>
             {job.employeeEarningsCents ? (
               <Badge size="xs" color="indigo" variant="light">
-                Earned: {formatMoney(job.employeeEarningsCents)}
+                {t('Earned:')} {formatMoney(job.employeeEarningsCents)}
               </Badge>
             ) : null}
           </Stack>
         ) : (
           <Text size="xs" c="dimmed" fs="italic">
-            Unassigned
+            {t('Unassigned')}
           </Text>
         ),
     },
@@ -247,7 +248,7 @@ export const RepairJobList = () => {
           formatMoney(job.estimatedCostCents)
         ) : (
           <Badge color="yellow" variant="light">
-            Pending diagnosis
+            {t('Pending diagnosis')}
           </Badge>
         ),
     },
@@ -263,8 +264,10 @@ export const RepairJobList = () => {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="Repair Jobs & Hardware Service"
-        description="Track device diagnostic, repair, ticket status, assigned technician, and profit split"
+        title={t('Repair Jobs & Hardware Service')}
+        description={t(
+          'Track device diagnostic, repair, ticket status, assigned technician, and profit split'
+        )}
         action={
           <Group gap="sm">
             <Button
@@ -276,10 +279,10 @@ export const RepairJobList = () => {
                 void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all })
               }
             >
-              Refresh List
+              {t('Refresh List')}
             </Button>
             <Button leftSection={<IconPlus size={16} />} color="orange" onClick={handleOpenAdd}>
-              New Repair Ticket
+              {t('New Repair Ticket')}
             </Button>
           </Group>
         }
@@ -331,7 +334,7 @@ export const RepairJobList = () => {
         <Group justify="space-between" wrap="wrap">
           <SearchHistoryInput
             namespace="repairs"
-            placeholder="Search ticket #, customer name, phone, device"
+            placeholder={t('Search ticket #, customer name, phone, device')}
             leftSection={<IconSearch size={16} />}
             value={searchQuery}
             onValueChange={setSearchQuery}
@@ -367,7 +370,7 @@ export const RepairJobList = () => {
         </Group>
         {searchQuery.trim() !== '' && isSearching && (
           <Text size="xs" c="dimmed" mt="xs">
-            Searching…
+            {t('Searching…')}
           </Text>
         )}
       </Paper>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
@@ -459,8 +460,8 @@ export const ProductTable = () => {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="Main Inventory"
-        description="Catalog across every stocked category and subcategory"
+        title={t('Main Inventory')}
+        description={t('Catalog across every stocked category and subcategory')}
         action={
           <Group gap="sm">
             <Button
@@ -472,7 +473,7 @@ export const ProductTable = () => {
                 void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all })
               }
             >
-              Refresh List
+              {t('Refresh List')}
             </Button>
             {isAdmin && (
               <Button
@@ -481,7 +482,7 @@ export const ProductTable = () => {
                 leftSection={<IconCategory size={16} />}
                 onClick={() => setCategoryManagerOpen(true)}
               >
-                Manage Categories
+                {t('Manage Categories')}
               </Button>
             )}
             <Button
@@ -489,7 +490,7 @@ export const ProductTable = () => {
               color="blue"
               onClick={handleOpenAddProduct}
             >
-              Add Product / Material
+              {t('Add Product / Material')}
             </Button>
           </Group>
         }
@@ -535,7 +536,7 @@ export const ProductTable = () => {
         <Stack gap="sm" hiddenFrom="sm">
           <SearchHistoryInput
             namespace="inventory"
-            placeholder="Search by SKU, product name, or subcategory..."
+            placeholder={t('Search by SKU, product name, or subcategory...')}
             leftSection={<IconSearch size={16} />}
             value={search}
             onValueChange={setSearch}
@@ -577,7 +578,7 @@ export const ProductTable = () => {
           <Group gap="sm" style={{ flex: 1 }}>
             <SearchHistoryInput
               namespace="inventory"
-              placeholder="Search by SKU, product name, or subcategory..."
+              placeholder={t('Search by SKU, product name, or subcategory...')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onValueChange={setSearch}
@@ -616,7 +617,7 @@ export const ProductTable = () => {
         </Group>
         {search.trim() !== '' && isSearching && (
           <Text size="xs" c="dimmed" mt="xs">
-            Searching…
+            {t('Searching…')}
           </Text>
         )}
       </Paper>
@@ -627,7 +628,7 @@ export const ProductTable = () => {
           <Group justify="space-between" align="center">
             <Group gap="sm">
               <Badge color="blue" size="md" variant="filled">
-                {selectedProductIds.length} items selected
+                {selectedProductIds.length} {t('items selected')}
               </Badge>
               <Button
                 variant="subtle"
@@ -635,7 +636,7 @@ export const ProductTable = () => {
                 color="gray"
                 onClick={() => setSelectedProductIds([])}
               >
-                Deselect All
+                {t('Deselect All')}
               </Button>
             </Group>
 
@@ -645,7 +646,8 @@ export const ProductTable = () => {
               leftSection={<IconTrash size={14} />}
               onClick={() => setConfirmDeleteOpen(true)}
             >
-              Delete Selected ({selectedProductIds.length})
+              {t('Delete Selected (')}
+              {selectedProductIds.length})
             </Button>
           </Group>
         </Paper>
@@ -664,7 +666,7 @@ export const ProductTable = () => {
             </Stack>
           ) : (
             <Text ta="center" c="dimmed" size="sm">
-              No inventory items match your search or filter criteria.
+              {t('No inventory items match your search or filter criteria.')}
             </Text>
           )}
         </Paper>
@@ -688,13 +690,13 @@ export const ProductTable = () => {
         opened={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
         onConfirm={handleConfirmBatchDelete}
-        title="Delete Selected Products"
+        title={t('Delete Selected Products')}
         confirmLabel={`Delete ${selectedProductIds.length} Products`}
         confirmColor="red"
         loading={deleteBatchMutation.isPending}
       >
-        Are you sure you want to delete <strong>{selectedProductIds.length}</strong> selected
-        product(s)? This action cannot be undone.
+        {t('Are you sure you want to delete')} <strong>{selectedProductIds.length}</strong>{' '}
+        {t('selected\n                      product(s)? This action cannot be undone.')}
       </ConfirmDialog>
 
       {/* Right-Side Item Details Drawer */}
@@ -718,10 +720,10 @@ export const ProductTable = () => {
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Item Specifications
+                {t('Item Specifications')}
               </Text>
               <Text size="xs" c="dimmed">
-                JANA2U Main Inventory Detail
+                {t('JANA2U Main Inventory Detail')}
               </Text>
             </div>
           </Group>
@@ -770,7 +772,7 @@ export const ProductTable = () => {
 
             {/* Financial Snapshot */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              Financial Snapshot
+              {t('Financial Snapshot')}
             </Text>
 
             <Paper p="md">
@@ -782,7 +784,7 @@ export const ProductTable = () => {
                 >
                   <Stack gap={2}>
                     <Text size="xs" c="dimmed" tt="uppercase">
-                      Selling
+                      {t('Selling')}
                     </Text>
                     <Text fw={800} size="md" c="blue">
                       {formatMoney(selectedProduct.sellingPriceCents)}
@@ -797,7 +799,7 @@ export const ProductTable = () => {
                 >
                   <Stack gap={2}>
                     <Text size="xs" c="dimmed" tt="uppercase">
-                      Cost
+                      {t('Cost')}
                     </Text>
                     <Text fw={700} size="md">
                       {formatMoney(selectedProduct.costPriceCents)}
@@ -813,7 +815,7 @@ export const ProductTable = () => {
                         style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
                       />
                       <Text size="xs" c="dimmed" tt="uppercase">
-                        Profit / Unit
+                        {t('Profit / Unit')}
                       </Text>
                     </Group>
                     {selectedProduct.sellingPriceCents > 0 ? (
@@ -834,7 +836,8 @@ export const ProductTable = () => {
                               selectedProduct.sellingPriceCents) *
                               100
                           )}
-                          % margin
+
+                          {t('% margin')}
                         </Badge>
                       </>
                     ) : (
@@ -851,7 +854,7 @@ export const ProductTable = () => {
 
             {/* Stock Level & Adjustments */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
-              Stock Level & Adjustment
+              {t('Stock Level & Adjustment')}
             </Text>
 
             <Paper p="md" withBorder>
@@ -859,14 +862,14 @@ export const ProductTable = () => {
                 <Group justify="space-between" align="center">
                   <Box>
                     <Text size="xs" c="dimmed" fw={500}>
-                      Current Stock Level
+                      {t('Current Stock Level')}
                     </Text>
                     <Group gap={6} align="baseline">
                       <Text size="xl" fw={800} c="blue">
                         {selectedProduct.stockQuantity}
                       </Text>
                       <Text size="xs" c="dimmed" fw={500}>
-                        units
+                        {t('units')}
                       </Text>
                     </Group>
                   </Box>
@@ -880,7 +883,7 @@ export const ProductTable = () => {
                     }
                     size="sm"
                   >
-                    Min Threshold: {selectedProduct.minStockThreshold} units
+                    {t('Min Threshold:')} {selectedProduct.minStockThreshold} {t('units')}
                   </Badge>
                 </Group>
 
@@ -888,7 +891,7 @@ export const ProductTable = () => {
 
                 <Box>
                   <Text size="xs" fw={600} mb={6} c="dimmed">
-                    Quick Stock Adjustment (+/-)
+                    {t('Quick Stock Adjustment (+/-)')}
                   </Text>
                   <Stack gap="xs">
                     <Group gap="sm" align="center">
@@ -905,11 +908,13 @@ export const ProductTable = () => {
                         disabled={stockAdjustment === 0 || !adjustmentReason.trim()}
                         loading={adjustStockMutation.isPending}
                       >
-                        Apply Adjustment
+                        {t('Apply Adjustment')}
                       </Button>
                     </Group>
                     <TextInput
-                      placeholder="Reason (required, e.g. Damaged stock, Stock count correction)"
+                      placeholder={t(
+                        'Reason (required, e.g. Damaged stock, Stock count correction)'
+                      )}
                       size={isMobile ? 'md' : 'sm'}
                       value={adjustmentReason}
                       onChange={(e) => setAdjustmentReason(e.currentTarget.value)}
@@ -939,7 +944,7 @@ export const ProductTable = () => {
                     </Badge>
                   }
                 >
-                  Movements
+                  {t('Movements')}
                 </Tabs.Tab>
                 {isAdmin && (
                   <Tabs.Tab
@@ -950,7 +955,7 @@ export const ProductTable = () => {
                       </Badge>
                     }
                   >
-                    Suppliers
+                    {t('Suppliers')}
                   </Tabs.Tab>
                 )}
                 {isAdmin && (
@@ -962,7 +967,7 @@ export const ProductTable = () => {
                       </Badge>
                     }
                   >
-                    Intake
+                    {t('Intake')}
                   </Tabs.Tab>
                 )}
               </Tabs.List>
@@ -980,10 +985,10 @@ export const ProductTable = () => {
                     <Stack gap={4} align="center">
                       <IconHistory size={20} style={{ opacity: 0.4 }} />
                       <Text size="xs" c="dimmed" ta="center">
-                        No stock movements recorded yet.
+                        {t('No stock movements recorded yet.')}
                       </Text>
                       <Text size="xs" c="dimmed" ta="center" style={{ opacity: 0.7 }}>
-                        Movements appear here after you apply a stock adjustment above.
+                        {t('Movements appear here after you apply a stock adjustment above.')}
                       </Text>
                     </Stack>
                   </Center>
@@ -1013,7 +1018,7 @@ export const ProductTable = () => {
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      Linked Suppliers
+                      {t('Linked Suppliers')}
                     </Text>
                     <Tooltip label={supplierFormOpen ? 'Cancel' : 'Link a supplier'} withArrow>
                       <ActionIcon
@@ -1045,7 +1050,7 @@ export const ProductTable = () => {
                       <Stack gap={4} align="center">
                         <IconLink size={20} style={{ opacity: 0.4 }} />
                         <Text size="xs" c="dimmed" ta="center">
-                          No suppliers linked yet.{' '}
+                          {t('No suppliers linked yet.')}{' '}
                           <Text
                             component="span"
                             c="amber.6"
@@ -1053,7 +1058,7 @@ export const ProductTable = () => {
                             style={{ cursor: 'pointer' }}
                             onClick={() => setSupplierFormOpen(true)}
                           >
-                            + Link a supplier
+                            {t('+ Link a supplier')}
                           </Text>
                         </Text>
                       </Stack>
@@ -1079,12 +1084,12 @@ export const ProductTable = () => {
                                 <Group gap={4} mt={2}>
                                   {ls.costPriceCents && (
                                     <Badge size="xs" variant="light" color="teal">
-                                      Supplier Cost: {formatMoney(ls.costPriceCents)}
+                                      {t('Supplier Cost:')} {formatMoney(ls.costPriceCents)}
                                     </Badge>
                                   )}
                                   {ls.supplierSku && (
                                     <Badge size="xs" variant="outline" color="gray">
-                                      SKU: {ls.supplierSku}
+                                      {t('SKU:')} {ls.supplierSku}
                                     </Badge>
                                   )}
                                 </Group>
@@ -1094,7 +1099,7 @@ export const ProductTable = () => {
                                   </Text>
                                 )}
                               </div>
-                              <Tooltip label="Unlink supplier" withArrow>
+                              <Tooltip label={t('Unlink supplier')} withArrow>
                                 <ActionIcon
                                   variant="subtle"
                                   color="red"
@@ -1117,10 +1122,10 @@ export const ProductTable = () => {
                       <Stack gap="sm">
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Supplier
+                            {t('Supplier')}
                           </Text>
                           <Select
-                            placeholder="Select supplier"
+                            placeholder={t('Select supplier')}
                             data={supplierSelectOptions}
                             value={newSupplierKey}
                             onChange={setNewSupplierKey}
@@ -1130,10 +1135,10 @@ export const ProductTable = () => {
                         </div>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Supplier SKU / Ref (optional)
+                            {t('Supplier SKU / Ref (optional)')}
                           </Text>
                           <TextInput
-                            placeholder="e.g. TPL-SCR-9981"
+                            placeholder={t('e.g. TPL-SCR-9981')}
                             value={newSupplierSku}
                             onChange={(e) => setNewSupplierSku(e.currentTarget.value)}
                             size={isMobile ? 'md' : 'sm'}
@@ -1141,7 +1146,7 @@ export const ProductTable = () => {
                         </div>
                         <Group justify="flex-end" gap="sm">
                           <Button variant="default" size="sm" onClick={resetSupplierForm}>
-                            Cancel
+                            {t('Cancel')}
                           </Button>
                           <Button
                             size="sm"
@@ -1150,7 +1155,7 @@ export const ProductTable = () => {
                             disabled={!newSupplierKey}
                             loading={linkMutation.isPending}
                           >
-                            Link Supplier
+                            {t('Link Supplier')}
                           </Button>
                         </Group>
                       </Stack>
@@ -1163,7 +1168,7 @@ export const ProductTable = () => {
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      Stock Intake History
+                      {t('Stock Intake History')}
                     </Text>
                     <Tooltip label={intakeFormOpen ? 'Cancel' : 'Receive stock'} withArrow>
                       <ActionIcon
@@ -1195,7 +1200,7 @@ export const ProductTable = () => {
                       <Stack gap={4} align="center">
                         <IconReceipt size={20} style={{ opacity: 0.4 }} />
                         <Text size="xs" c="dimmed" ta="center">
-                          No stock intakes recorded.{' '}
+                          {t('No stock intakes recorded.')}{' '}
                           <Text
                             component="span"
                             c="amber.6"
@@ -1203,7 +1208,7 @@ export const ProductTable = () => {
                             style={{ cursor: 'pointer' }}
                             onClick={() => setIntakeFormOpen(true)}
                           >
-                            + Receive stock
+                            {t('+ Receive stock')}
                           </Text>
                         </Text>
                       </Stack>
@@ -1225,7 +1230,7 @@ export const ProductTable = () => {
                                 </Text>
                                 <Group gap={6} mt={2}>
                                   <Badge size="xs" variant="filled" color="blue">
-                                    Qty: {purchase.quantity}
+                                    {t('Qty:')} {purchase.quantity}
                                   </Badge>
                                   <Badge size="xs" variant="light" color="teal">
                                     {formatMoney(purchase.totalCostCents)}
@@ -1248,10 +1253,10 @@ export const ProductTable = () => {
                       <Stack gap="sm">
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Quantity Received
+                            {t('Quantity Received')}
                           </Text>
                           <NumberInput
-                            placeholder="e.g. 100"
+                            placeholder={t('e.g. 100')}
                             value={intakeQuantity}
                             onChange={(val) => setIntakeQuantity(val === '' ? '' : Number(val))}
                             min={1}
@@ -1260,10 +1265,10 @@ export const ProductTable = () => {
                         </div>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Supplier
+                            {t('Supplier')}
                           </Text>
                           <Select
-                            placeholder="Select supplier"
+                            placeholder={t('Select supplier')}
                             data={supplierSelectOptions}
                             value={intakeSupplierKey}
                             onChange={setIntakeSupplierKey}
@@ -1273,10 +1278,10 @@ export const ProductTable = () => {
                         </div>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Invoice / Reference No. (optional)
+                            {t('Invoice / Reference No. (optional)')}
                           </Text>
                           <TextInput
-                            placeholder="e.g. INV-8834"
+                            placeholder={t('e.g. INV-8834')}
                             value={intakeReferenceNo}
                             onChange={(e) => setIntakeReferenceNo(e.currentTarget.value)}
                             size={isMobile ? 'md' : 'sm'}
@@ -1284,7 +1289,7 @@ export const ProductTable = () => {
                         </div>
                         <Group justify="flex-end" gap="sm">
                           <Button variant="default" size="sm" onClick={resetIntakeForm}>
-                            Cancel
+                            {t('Cancel')}
                           </Button>
                           <Button
                             size="sm"
@@ -1293,7 +1298,7 @@ export const ProductTable = () => {
                             disabled={!intakeSupplierKey || !intakeQuantity}
                             loading={createPurchaseMutation.isPending}
                           >
-                            Record Intake
+                            {t('Record Intake')}
                           </Button>
                         </Group>
                       </Stack>
@@ -1307,7 +1312,7 @@ export const ProductTable = () => {
 
             {/* System Metadata */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              Metadata
+              {t('Metadata')}
             </Text>
 
             <Stack gap="xs">
@@ -1315,7 +1320,7 @@ export const ProductTable = () => {
                 <Group gap="xs">
                   <IconBarcode size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Barcode
+                    {t('Barcode')}
                   </Text>
                 </Group>
                 <Group gap={6}>
@@ -1338,7 +1343,7 @@ export const ProductTable = () => {
                 <Group gap="xs">
                   <IconClock size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Last Updated
+                    {t('Last Updated')}
                   </Text>
                 </Group>
                 <Text size="xs" fw={700}>
@@ -1350,7 +1355,7 @@ export const ProductTable = () => {
                 <Group gap="xs">
                   <IconTag size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Item Key
+                    {t('Item Key')}
                   </Text>
                 </Group>
                 <Text size="xs" fw={600} c="dimmed">
@@ -1375,7 +1380,7 @@ export const ProductTable = () => {
                   resetIntakeForm();
                 }}
               >
-                Close
+                {t('Close')}
               </Button>
 
               <Button
@@ -1385,7 +1390,7 @@ export const ProductTable = () => {
                 leftSection={<IconEdit size={16} />}
                 onClick={() => handleOpenEditProduct(selectedProduct)}
               >
-                Edit Item
+                {t('Edit Item')}
               </Button>
             </Group>
           </Stack>

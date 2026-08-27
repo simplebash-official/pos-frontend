@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -36,8 +37,8 @@ export const BrandingSection = ({ onDirtyChange }: SectionProps) => {
 
   return (
     <SectionShell
-      title="Branding & Logo"
-      description="The logo shown at the top of your printed invoices and receipts."
+      title={t('Branding & Logo')}
+      description={t('The logo shown at the top of your printed invoices and receipts.')}
       isDirty={isDirty}
       onSave={handleSave}
       onCancel={() => form.reset()}

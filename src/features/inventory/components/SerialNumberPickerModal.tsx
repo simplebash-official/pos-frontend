@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Modal, Stack, Text, Radio, Button, Group, Loader, Center } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -44,7 +45,7 @@ export const SerialNumberPickerModal = ({
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          Which {productName} unit?
+          {t('Which')} {productName} {t('unit?')}
         </Text>
       }
       size="sm"
@@ -53,7 +54,7 @@ export const SerialNumberPickerModal = ({
     >
       <Stack gap="md">
         <Text size="sm" c="dimmed">
-          This item is tracked by serial number. Pick which one is being sold.
+          {t('This item is tracked by serial number. Pick which one is being sold.')}
         </Text>
 
         {isLoading ? (
@@ -62,7 +63,7 @@ export const SerialNumberPickerModal = ({
           </Center>
         ) : available.length === 0 ? (
           <Text size="sm" c="dimmed">
-            No in-stock units are available to sell right now.
+            {t('No in-stock units are available to sell right now.')}
           </Text>
         ) : (
           <Radio.Group value={chosen} onChange={setChosen}>
@@ -84,10 +85,10 @@ export const SerialNumberPickerModal = ({
 
         <Group justify="flex-end" mt="md" gap="sm">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button color="blue" disabled={!chosen} onClick={handleConfirm}>
-            Add to Sale
+            {t('Add to Sale')}
           </Button>
         </Group>
       </Stack>

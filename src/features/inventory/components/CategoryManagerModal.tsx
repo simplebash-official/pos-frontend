@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { createElement, useState } from 'react';
 import {
   Modal,
@@ -101,7 +102,7 @@ const AddSubcategoryRow = ({ categoryKey }: { categoryKey: string }) => {
   return (
     <Group gap="xs">
       <TextInput
-        placeholder="New subcategory name"
+        placeholder={t('New subcategory name')}
         size="xs"
         style={{ flex: 1 }}
         value={name}
@@ -114,7 +115,7 @@ const AddSubcategoryRow = ({ categoryKey }: { categoryKey: string }) => {
         }}
       />
       <Button size="xs" variant="light" onClick={handleAdd} loading={createSubcategory.isPending}>
-        Add
+        {t('Add')}
       </Button>
     </Group>
   );
@@ -226,10 +227,10 @@ const CategoryItem = ({
           <Paper p="sm" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Stack gap="xs">
               <Text size="xs" fw={600} c="dimmed">
-                Edit Category Details
+                {t('Edit Category Details')}
               </Text>
               <TextInput
-                label="Category name"
+                label={t('Category name')}
                 size="xs"
                 value={editName}
                 onChange={(e) => {
@@ -254,7 +255,7 @@ const CategoryItem = ({
                   leftSection={<IconX size={14} />}
                   onClick={() => setIsEditing(false)}
                 >
-                  Cancel
+                  {t('Cancel')}
                 </Button>
                 <Button
                   size="xs"
@@ -263,7 +264,7 @@ const CategoryItem = ({
                   loading={updateCategory.isPending}
                   disabled={!editName.trim() || !editIcon || !editColor}
                 >
-                  Save Changes
+                  {t('Save Changes')}
                 </Button>
               </Group>
             </Stack>
@@ -272,7 +273,7 @@ const CategoryItem = ({
 
         <Stack gap={6}>
           <Text size="xs" fw={600} c="dimmed">
-            Subcategories
+            {t('Subcategories')}
           </Text>
           {category.subcategories.map((sub) => (
             <Paper
@@ -290,7 +291,7 @@ const CategoryItem = ({
               <Text size="xs" fw={500}>
                 {sub.name}
               </Text>
-              <Tooltip label="Delete subcategory" withArrow>
+              <Tooltip label={t('Delete subcategory')} withArrow>
                 <ActionIcon
                   variant="subtle"
                   color="red"
@@ -394,7 +395,7 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          Manage Categories
+          {t('Manage Categories')}
         </Text>
       }
       size="lg"
@@ -404,11 +405,11 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
       <Stack gap="md">
         <Paper p="sm" withBorder>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs">
-            Add New Category
+            {t('Add New Category')}
           </Text>
           <Stack gap="xs">
             <TextInput
-              placeholder="Category name"
+              placeholder={t('Category name')}
               value={newName}
               onChange={(e) => {
                 setNewName(e.currentTarget.value);
@@ -426,7 +427,7 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
               <CategoryColorPicker value={newColor} onChange={setNewColor} />
             </Group>
             <TagsInput
-              placeholder="Initial subcategories (press Enter after each)"
+              placeholder={t('Initial subcategories (press Enter after each)')}
               value={newSubcategories}
               onChange={setNewSubcategories}
             />
@@ -438,13 +439,13 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
                 loading={createCategory.isPending}
                 disabled={!newName.trim()}
               >
-                Add Category
+                {t('Add Category')}
               </Button>
             </Group>
           </Stack>
         </Paper>
 
-        <Divider label="Existing Categories" labelPosition="center" />
+        <Divider label={t('Existing Categories')} labelPosition="center" />
 
         {isLoading ? (
           <Stack gap="xs">
@@ -466,7 +467,8 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
             {categories.length === 0 && (
               <Text size="sm" c="dimmed" ta="center" py="md">
                 <IconCategory size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-                No categories yet — add one above.
+
+                {t('No categories yet — add one above.')}
               </Text>
             )}
           </ExpandableCardGroup>
@@ -474,7 +476,7 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
 
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose}>
-            Close
+            {t('Close')}
           </Button>
         </Group>
       </Stack>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -42,8 +43,8 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
 
   return (
     <SectionShell
-      title="Document Templates"
-      description="Standard text printed on invoices and receipts."
+      title={t('Document Templates')}
+      description={t('Standard text printed on invoices and receipts.')}
       isDirty={isDirty}
       onSave={handleSave}
       onCancel={() => form.reset()}
@@ -51,25 +52,25 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
       <Stack gap="md">
         <div>
           <Textarea
-            label="Default Warranty & Terms Policy (A4 Invoice)"
+            label={t('Default Warranty & Terms Policy (A4 Invoice)')}
             rows={4}
             {...form.getInputProps('defaultWarrantyText')}
           />
           {!form.values.defaultWarrantyText.trim() && (
             <Text size="xs" c="orange" mt={4}>
-              Your invoices won't show any warranty terms while this is empty.
+              {t("Your invoices won't show any warranty terms while this is empty.")}
             </Text>
           )}
         </div>
 
         <Textarea
-          label="A4 Invoice Footer Text"
+          label={t('A4 Invoice Footer Text')}
           rows={2}
           {...form.getInputProps('defaultFooterText')}
         />
 
         <TextInput
-          label="Thermal Receipt Footer Text"
+          label={t('Thermal Receipt Footer Text')}
           {...form.getInputProps('receiptFooterText')}
         />
       </Stack>

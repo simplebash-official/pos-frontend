@@ -1,5 +1,6 @@
 import { Paper, Group, Text, ThemeIcon, SimpleGrid, Stack, Badge, Skeleton } from '@mantine/core';
 import { IconCash, IconHammer, IconDeviceMobileCheck, IconCoin } from '@tabler/icons-react';
+import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import { DashboardPulseKpis } from '../types';
 
@@ -75,10 +76,10 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
                   tt="uppercase"
                   style={{ letterSpacing: '0.05em' }}
                 >
-                  {card.label}
+                  {t(card.label)}
                 </Text>
                 <Badge size="xs" variant="light" color={card.badgeColor}>
-                  {card.badge}
+                  {t(card.badge)}
                 </Badge>
               </Group>
 
@@ -99,7 +100,7 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
                         {card.value}
                       </Text>
                       <Text size="xs" c="dimmed" mt={2}>
-                        {card.subtext}
+                        {t(card.subtext)}
                       </Text>
                     </>
                   )}

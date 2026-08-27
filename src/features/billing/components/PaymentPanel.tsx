@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useEffect, useRef, useMemo, forwardRef, useImperativeHandle, memo } from 'react';
 import {
   Paper,
@@ -484,7 +485,7 @@ export const PaymentPanel = memo(
                 </Text>
                 {isCreditCompleted && invoice.dueDate && (
                   <Text size="xs" fw={600} c="amber" mt={2}>
-                    Payment Due by {invoice.dueDate}
+                    {t('Payment Due by')} {invoice.dueDate}
                   </Text>
                 )}
               </Stack>
@@ -506,7 +507,7 @@ export const PaymentPanel = memo(
                     tt="uppercase"
                     style={{ letterSpacing: '0.05em' }}
                   >
-                    Method
+                    {t('Method')}
                   </Text>
                   <Text size="sm" fw={600} c="var(--text-primary)" mt={2}>
                     {methodLabel}
@@ -520,7 +521,7 @@ export const PaymentPanel = memo(
                     tt="uppercase"
                     style={{ letterSpacing: '0.05em' }}
                   >
-                    Cashier
+                    {t('Cashier')}
                   </Text>
                   <Text size="sm" fw={600} c="var(--text-primary)" mt={2}>
                     {invoice.cashierName}
@@ -531,7 +532,7 @@ export const PaymentPanel = memo(
               {invoice.customerName && (
                 <Group justify="space-between" align="center">
                   <Text size="xs" c="dimmed">
-                    Customer
+                    {t('Customer')}
                   </Text>
                   <Text size="xs" fw={600} c="var(--text-primary)">
                     {invoice.customerName}
@@ -542,7 +543,7 @@ export const PaymentPanel = memo(
               {invoice.splitPayments && invoice.splitPayments.length > 0 && (
                 <Stack gap={2}>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                    Split Breakdown
+                    {t('Split Breakdown')}
                   </Text>
                   {invoice.splitPayments.map((sp) => (
                     <Group key={sp.id} justify="space-between" align="center">
@@ -585,17 +586,17 @@ export const PaymentPanel = memo(
                   leftSection={<IconPlus size={18} />}
                   onClick={() => startNextSale()}
                 >
-                  New Sale
+                  {t('New Sale')}
                 </Button>
 
                 {showReprintAction && (
-                  <Tooltip label="View receipt" disabled={isMobile}>
+                  <Tooltip label={t('View receipt')} disabled={isMobile}>
                     <ActionIcon
                       variant="outline"
                       color="gray"
                       size={isMobile ? 44 : 48}
                       radius="var(--mantine-radius-default)"
-                      aria-label="View receipt"
+                      aria-label={t('View receipt')}
                       onClick={() => onOpenDocumentPreview(invoice, 'receipt')}
                     >
                       <IconPrinter size={18} />
@@ -604,13 +605,13 @@ export const PaymentPanel = memo(
                 )}
 
                 {showInvoiceAction && (
-                  <Tooltip label="View invoice" disabled={isMobile}>
+                  <Tooltip label={t('View invoice')} disabled={isMobile}>
                     <ActionIcon
                       variant="outline"
                       color="gray"
                       size={isMobile ? 44 : 48}
                       radius="var(--mantine-radius-default)"
-                      aria-label="View invoice"
+                      aria-label={t('View invoice')}
                       onClick={() => onOpenDocumentPreview(invoice, 'invoice')}
                     >
                       <IconFileText size={18} />
@@ -620,11 +621,12 @@ export const PaymentPanel = memo(
               </Group>
 
               <Text size="xs" c="dimmed" ta="center" style={{ fontSize: 11 }} visibleFrom="sm">
-                Press <strong>N</strong> or <strong>↵</strong> for next sale
+                {t('Press')} <strong>{t('N')}</strong> {t('or')} <strong>↵</strong>{' '}
+                {t('for next sale')}
                 {showInvoiceAction && (
                   <>
                     {' '}
-                    · <strong>P</strong> to print invoice
+                    · <strong>{t('P')}</strong> {t('to print invoice')}
                   </>
                 )}
               </Text>
@@ -661,7 +663,7 @@ export const PaymentPanel = memo(
             {/* 1. Subtotal Line */}
             <Group justify="space-between" align="center">
               <Text size="sm" c="dimmed">
-                Subtotal
+                {t('Subtotal')}
               </Text>
               <Text size="sm" fw={700} style={{ fontFamily: 'monospace' }}>
                 {formatMoney(subtotalCents)}
@@ -672,7 +674,7 @@ export const PaymentPanel = memo(
             {!showDiscountInput && discountCents === 0 ? (
               <Group justify="space-between" align="center" py={2}>
                 <Text size="xs" c="dimmed">
-                  Order Discount
+                  {t('Order Discount')}
                 </Text>
                 <Button
                   size="sm"
@@ -689,7 +691,7 @@ export const PaymentPanel = memo(
                     paddingRight: 10,
                   }}
                 >
-                  + Add discount
+                  {t('+ Add discount')}
                 </Button>
               </Group>
             ) : (
@@ -714,7 +716,7 @@ export const PaymentPanel = memo(
                         tt="uppercase"
                         style={{ letterSpacing: '0.04em', fontSize: 11 }}
                       >
-                        ORDER DISCOUNT
+                        {t('ORDER DISCOUNT')}
                       </Text>
                     </Group>
 
@@ -843,11 +845,13 @@ export const PaymentPanel = memo(
                 <Group gap="xs">
                   <IconCash size={16} color="var(--mantine-color-orange-7)" />
                   <Text size="xs" fw={700} c="orange.8" tt="uppercase">
-                    CUSTOMER CASHBACK / REFUND
+                    {t('CUSTOMER CASHBACK / REFUND')}
                   </Text>
                 </Group>
                 <Text size="xs" c="dimmed" mt={2}>
-                  Return value exceeds replacement purchase. Choose how to payout the customer.
+                  {t(
+                    'Return value exceeds replacement purchase. Choose how to payout the customer.'
+                  )}
                 </Text>
               </Paper>
             ) : isEvenExchange ? (
@@ -860,10 +864,10 @@ export const PaymentPanel = memo(
                 }}
               >
                 <Text size="xs" fw={700} c="blue.6" tt="uppercase">
-                  EVEN EXCHANGE
+                  {t('EVEN EXCHANGE')}
                 </Text>
                 <Text size="xs" c="dimmed" mt={2}>
-                  Replacement items value matches returns. No payment or refund is required.
+                  {t('Replacement items value matches returns. No payment or refund is required.')}
                 </Text>
               </Paper>
             ) : (
@@ -928,22 +932,22 @@ export const PaymentPanel = memo(
                           tt="uppercase"
                           style={{ letterSpacing: '0.04em', fontSize: 11 }}
                         >
-                          CREDIT SALE PREVIEW
+                          {t('CREDIT SALE PREVIEW')}
                         </Text>
                       </Group>
                       {(customerBalanceCents || 0) > 0 && (
                         <Badge size="xs" color="amber" variant="light">
-                          BAL: {formatMoney(customerBalanceCents)}
+                          {t('BAL:')} {formatMoney(customerBalanceCents)}
                         </Badge>
                       )}
                     </Group>
 
                     <Text size="xs" c="var(--text-primary)" lh={1.4}>
-                      This sale will be added to{' '}
+                      {t('This sale will be added to')}{' '}
                       <Text span fw={700}>
                         {customerName || 'Customer'}
                       </Text>
-                      's credit balance.
+                      {t("'s credit balance.")}
                     </Text>
 
                     <Group
@@ -963,7 +967,7 @@ export const PaymentPanel = memo(
                         tt="uppercase"
                         style={{ letterSpacing: '0.04em', fontSize: 10 }}
                       >
-                        RESULTING NEW BALANCE
+                        {t('RESULTING NEW BALANCE')}
                       </Text>
                       <Text fw={800} c="amber.8" style={{ fontFamily: 'monospace', fontSize: 14 }}>
                         {formatMoney(newCreditBalanceCents)}
@@ -981,7 +985,7 @@ export const PaymentPanel = memo(
                       tt="uppercase"
                       style={{ fontSize: 11, letterSpacing: '0.05em' }}
                     >
-                      PAYMENT DUE DATE
+                      {t('PAYMENT DUE DATE')}
                     </Text>
                     <Button
                       size="xs"
@@ -1004,7 +1008,7 @@ export const PaymentPanel = memo(
                   </Group>
 
                   <DateInput
-                    placeholder="Open-ended (No due date)"
+                    placeholder={t('Open-ended (No due date)')}
                     size="sm"
                     value={dueDate ? new Date(dueDate) : null}
                     onChange={(d: Date | string | null) => {
@@ -1046,7 +1050,7 @@ export const PaymentPanel = memo(
                     tt="uppercase"
                     style={{ fontSize: 11, letterSpacing: '0.05em' }}
                   >
-                    PAYMENT METHOD
+                    {t('PAYMENT METHOD')}
                   </Text>
                   <SimpleGrid cols={2} spacing={isMobile ? 10 : 8}>
                     {paymentTiles.map((tile) => {
@@ -1118,7 +1122,7 @@ export const PaymentPanel = memo(
                         tt="uppercase"
                         style={{ fontSize: 11, letterSpacing: '0.05em' }}
                       >
-                        Cash Received
+                        {t('Cash Received')}
                       </Text>
 
                       <AmountInput
@@ -1144,7 +1148,7 @@ export const PaymentPanel = memo(
                             fontSize: 13,
                           }}
                         >
-                          Exact Cash · {formatMoney(totalCents)}
+                          {t('Exact Cash ·')} {formatMoney(totalCents)}
                         </Button>
 
                         {quickChips.filter((c) => c !== totalCents).length > 0 && (
@@ -1200,7 +1204,7 @@ export const PaymentPanel = memo(
                         tt="uppercase"
                         style={{ fontSize: 11, letterSpacing: '0.05em' }}
                       >
-                        Card Amount Received
+                        {t('Card Amount Received')}
                       </Text>
 
                       <AmountInput
@@ -1224,12 +1228,12 @@ export const PaymentPanel = memo(
                           fontSize: 13,
                         }}
                       >
-                        Exact Total · {formatMoney(totalCents)}
+                        {t('Exact Total ·')} {formatMoney(totalCents)}
                       </Button>
 
                       <TextInput
-                        label="Card Last 4 Digits"
-                        placeholder="e.g. 4321"
+                        label={t('Card Last 4 Digits')}
+                        placeholder={t('e.g. 4321')}
                         size="sm"
                         leftSection={<IconCreditCard size={16} />}
                         maxLength={4}
@@ -1244,13 +1248,15 @@ export const PaymentPanel = memo(
                           const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
                           changeCardRef(val);
                         }}
-                        description="Enter the last 4 digits on the customer's card to complete payment."
+                        description={t(
+                          "Enter the last 4 digits on the customer's card to complete payment."
+                        )}
                       />
 
                       {isCardShort && (
                         <Group justify="space-between" align="center" py={2}>
                           <Text size="sm" fw={600} c="dimmed">
-                            Short by
+                            {t('Short by')}
                           </Text>
                           <Text size="sm" fw={800} c="amber.7" style={{ fontFamily: 'monospace' }}>
                             {formatMoney(shortByCents)}
@@ -1263,15 +1269,15 @@ export const PaymentPanel = memo(
                   {paymentMethod === PAYMENT_METHODS.ONLINE && (
                     <Stack gap="xs">
                       <TextInput
-                        label="Transaction Ref / Slip #"
-                        placeholder="e.g. TRX-987654"
+                        label={t('Transaction Ref / Slip #')}
+                        placeholder={t('e.g. TRX-987654')}
                         size="sm"
                         value={onlineRef}
                         onChange={(e) => changeOnlineRef(e.currentTarget.value)}
                       />
                       <TextInput
-                        label="Bank / Payment App Note"
-                        placeholder="e.g. Commercial Bank QR"
+                        label={t('Bank / Payment App Note')}
+                        placeholder={t('e.g. Commercial Bank QR')}
                         size="sm"
                         value={onlineNote}
                         onChange={(e) => changeOnlineNote(e.currentTarget.value)}
@@ -1283,7 +1289,7 @@ export const PaymentPanel = memo(
                     <Stack gap="xs">
                       <Group justify="space-between">
                         <Text size="xs" fw={700} c="dimmed">
-                          SPLIT ALLOCATIONS
+                          {t('SPLIT ALLOCATIONS')}
                         </Text>
                         <Button
                           size="xs"
@@ -1291,7 +1297,7 @@ export const PaymentPanel = memo(
                           leftSection={<IconPlus size={12} />}
                           onClick={handleAddSplitRow}
                         >
-                          Add Row
+                          {t('Add Row')}
                         </Button>
                       </Group>
 
@@ -1324,7 +1330,7 @@ export const PaymentPanel = memo(
                               />
                               <AmountInput
                                 size="xs"
-                                placeholder="Amount"
+                                placeholder={t('Amount')}
                                 mode="amount"
                                 value={Math.round(sp.amountCents / 100)}
                                 onChange={(v) =>
@@ -1342,7 +1348,7 @@ export const PaymentPanel = memo(
                                 size="xs"
                                 onClick={() => handleRemoveSplitRow(sp.id)}
                                 style={{ flexShrink: 0 }}
-                                aria-label="Remove split row"
+                                aria-label={t('Remove split row')}
                               >
                                 <IconTrash size={14} />
                               </ActionIcon>
@@ -1351,7 +1357,7 @@ export const PaymentPanel = memo(
                             {sp.method === PAYMENT_METHODS.CARD && (
                               <TextInput
                                 size="xs"
-                                placeholder="Card Last 4 Digits (e.g. 4321)"
+                                placeholder={t('Card Last 4 Digits (e.g. 4321)')}
                                 leftSection={<IconCreditCard size={14} />}
                                 maxLength={4}
                                 inputMode="numeric"
@@ -1375,7 +1381,7 @@ export const PaymentPanel = memo(
 
                       <Group justify="space-between" align="center" py={4}>
                         <Text size="xs" fw={700} c="dimmed">
-                          REMAINING TO ALLOCATE
+                          {t('REMAINING TO ALLOCATE')}
                         </Text>
                         <Text
                           size="sm"
@@ -1403,11 +1409,11 @@ export const PaymentPanel = memo(
                     tt="uppercase"
                     style={{ fontSize: 11, letterSpacing: '0.05em' }}
                   >
-                    Order Note
+                    {t('Order Note')}
                   </Text>
                   {showNotes && (
                     <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
-                      Optional
+                      {t('Optional')}
                     </Text>
                   )}
                 </Group>
@@ -1423,13 +1429,13 @@ export const PaymentPanel = memo(
                       changeNotes('');
                     }
                   }}
-                  aria-label="Toggle Order Note"
+                  aria-label={t('Toggle Order Note')}
                 />
               </Group>
 
               {showNotes && (
                 <Textarea
-                  placeholder="Add order note or customer instructions..."
+                  placeholder={t('Add order note or customer instructions...')}
                   size="sm"
                   minRows={2}
                   maxRows={4}
@@ -1457,7 +1463,7 @@ export const PaymentPanel = memo(
                   tt="uppercase"
                   style={{ fontSize: 11, letterSpacing: '0.05em' }}
                 >
-                  PRINT
+                  {t('PRINT')}
                 </Text>
                 <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
                   {documentSelection === 'none'

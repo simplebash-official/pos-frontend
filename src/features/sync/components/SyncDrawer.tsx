@@ -1,3 +1,5 @@
+import { t } from '@/shared/i18n/t';
+
 // DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
 // this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Drawer, Group, ScrollArea, Text, ThemeIcon } from '@mantine/core';
@@ -31,7 +33,7 @@ export const SyncDrawer = ({ opened, onClose }: SyncDrawerProps) => {
           <ThemeIcon variant="light" color="blue" size="md">
             <IconCloudCog size={18} />
           </ThemeIcon>
-          <Text fw={600}>Sync &amp; offline</Text>
+          <Text fw={600}>{t('Sync &amp; offline')}</Text>
         </Group>
       }
       scrollAreaComponent={ScrollArea.Autosize}

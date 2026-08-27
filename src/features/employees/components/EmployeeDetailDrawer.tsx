@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import {
   Stack,
@@ -110,10 +111,10 @@ export const EmployeeDetailDrawer = ({
           </ThemeIcon>
           <div>
             <Text fw={800} size="md">
-              Employee Profile & Commission
+              {t('Employee Profile & Commission')}
             </Text>
             <Text size="xs" c="dimmed">
-              Staff details, assigned work & profit split earnings
+              {t('Staff details, assigned work & profit split earnings')}
             </Text>
           </div>
         </Group>
@@ -162,7 +163,7 @@ export const EmployeeDetailDrawer = ({
                 <Group gap={6}>
                   <IconId size={14} style={{ opacity: 0.6, flexShrink: 0 }} />
                   <Text size="xs" c="dimmed">
-                    NIC: {emp.nicOrId}
+                    {t('NIC:')} {emp.nicOrId}
                   </Text>
                 </Group>
               )}
@@ -174,7 +175,7 @@ export const EmployeeDetailDrawer = ({
                 <Group gap={6}>
                   <IconPercentage size={14} style={{ color: 'var(--mantine-color-blue-6)' }} />
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                    Default Commission Rule
+                    {t('Default Commission Rule')}
                   </Text>
                 </Group>
                 <Badge
@@ -192,7 +193,7 @@ export const EmployeeDetailDrawer = ({
 
           {/* Performance & Earnings Snapshot */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Performance & Earnings Snapshot
+            {t('Performance & Earnings Snapshot')}
           </Text>
 
           <Paper p="md" withBorder radius="var(--mantine-radius-default)">
@@ -209,7 +210,7 @@ export const EmployeeDetailDrawer = ({
                       style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
                     />
                     <Text size="xs" c="dimmed" tt="uppercase">
-                      Commission
+                      {t('Commission')}
                     </Text>
                   </Group>
                   {isEarningsLoading ? (
@@ -234,7 +235,7 @@ export const EmployeeDetailDrawer = ({
                       style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
                     />
                     <Text size="xs" c="dimmed" tt="uppercase">
-                      Work Done
+                      {t('Work Done')}
                     </Text>
                   </Group>
                   {isEarningsLoading ? (
@@ -245,7 +246,7 @@ export const EmployeeDetailDrawer = ({
                         {totalJobsCompleted}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        jobs
+                        {t('jobs')}
                       </Text>
                     </Group>
                   )}
@@ -260,7 +261,7 @@ export const EmployeeDetailDrawer = ({
                       style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
                     />
                     <Text size="xs" c="dimmed" tt="uppercase">
-                      Revenue
+                      {t('Revenue')}
                     </Text>
                   </Group>
                   {isEarningsLoading ? (
@@ -293,11 +294,11 @@ export const EmployeeDetailDrawer = ({
                   </Badge>
                 }
               >
-                History
+                {t('History')}
               </Tabs.Tab>
-              <Tabs.Tab value="rules">Split Rules</Tabs.Tab>
-              <Tabs.Tab value="login">Login</Tabs.Tab>
-              <Tabs.Tab value="details">Details</Tabs.Tab>
+              <Tabs.Tab value="rules">{t('Split Rules')}</Tabs.Tab>
+              <Tabs.Tab value="login">{t('Login')}</Tabs.Tab>
+              <Tabs.Tab value="details">{t('Details')}</Tabs.Tab>
             </Tabs.List>
           </Tabs>
 
@@ -307,10 +308,11 @@ export const EmployeeDetailDrawer = ({
               <Stack gap="sm">
                 <Group justify="space-between" align="center" wrap="wrap">
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                    Assigned Work & Earned Split
+                    {t('Assigned Work & Earned Split')}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Showing {filteredEarnings.length} of {safeEarnings.length} records
+                    {t('Showing')} {filteredEarnings.length} {t('of')} {safeEarnings.length}{' '}
+                    {t('records')}
                   </Text>
                 </Group>
 
@@ -350,7 +352,7 @@ export const EmployeeDetailDrawer = ({
                       <Stack gap={4} align="center">
                         <IconReceipt size={24} style={{ opacity: 0.4 }} />
                         <Text size="xs" c="dimmed" ta="center">
-                          No work or commission records found for this filter.
+                          {t('No work or commission records found for this filter.')}
                         </Text>
                       </Stack>
                     </Center>
@@ -399,16 +401,16 @@ export const EmployeeDetailDrawer = ({
                                     {rec.description}
                                   </Text>
                                   <Text size="xs" c="dimmed" lineClamp={1}>
-                                    Customer: {rec.customerName}
+                                    {t('Customer:')} {rec.customerName}
                                   </Text>
 
                                   <Group gap={6} mt={6} wrap="wrap">
                                     <Badge size="xs" variant="outline" color="gray">
-                                      Total: {formatMoney(rec.totalAmountCents)}
+                                      {t('Total:')} {formatMoney(rec.totalAmountCents)}
                                     </Badge>
                                     {rec.profitCents !== undefined && rec.profitCents > 0 && (
                                       <Badge size="xs" variant="light" color="teal">
-                                        Profit: {formatMoney(rec.profitCents)}
+                                        {t('Profit:')} {formatMoney(rec.profitCents)}
                                       </Badge>
                                     )}
                                     <Badge
@@ -416,7 +418,7 @@ export const EmployeeDetailDrawer = ({
                                       variant="light"
                                       color={rec.splitType === 'percentage' ? 'blue' : 'teal'}
                                     >
-                                      Split:{' '}
+                                      {t('Split:')}{' '}
                                       {rec.splitType === 'percentage'
                                         ? `${rec.splitValue}%`
                                         : formatMoney(rec.splitValue)}
@@ -427,7 +429,7 @@ export const EmployeeDetailDrawer = ({
 
                               <Stack gap={2} align="flex-end" style={{ flexShrink: 0 }}>
                                 <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                                  Commission
+                                  {t('Commission')}
                                 </Text>
                                 <Text size="md" fw={800} c="blue">
                                   {formatMoney(rec.earnedAmountCents)}
@@ -457,7 +459,7 @@ export const EmployeeDetailDrawer = ({
               <Stack gap="md">
                 <div>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                    Profit Split Configuration
+                    {t('Profit Split Configuration')}
                   </Text>
                   <Paper
                     p="md"
@@ -499,7 +501,7 @@ export const EmployeeDetailDrawer = ({
                 {/* Practical Example */}
                 <div>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                    Calculation Example
+                    {t('Calculation Example')}
                   </Text>
                   <Paper
                     p="sm"
@@ -518,7 +520,7 @@ export const EmployeeDetailDrawer = ({
                       />
                       <div>
                         <Text size="xs" fw={600}>
-                          Sample Job Scenario:
+                          {t('Sample Job Scenario:')}
                         </Text>
                         <Text size="xs" c="dimmed" mt={2}>
                           {emp.defaultSplitType === 'percentage'
@@ -539,7 +541,7 @@ export const EmployeeDetailDrawer = ({
                 {/* Role Overview */}
                 <div>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                    Role & Assigned Department
+                    {t('Role & Assigned Department')}
                   </Text>
                   <Paper
                     p="sm"
@@ -574,7 +576,7 @@ export const EmployeeDetailDrawer = ({
                 {emp.login ? (
                   <div>
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                      Login Account
+                      {t('Login Account')}
                     </Text>
                     <Paper
                       p="md"
@@ -615,8 +617,9 @@ export const EmployeeDetailDrawer = ({
                       <Stack gap={8} align="center">
                         <IconLock size={24} style={{ opacity: 0.4 }} />
                         <Text size="xs" c="dimmed" ta="center">
-                          This employee does not have a login yet. Create one so they can sign in to
-                          the app.
+                          {t(
+                            'This employee does not have a login yet. Create one so they can sign in to\n                                                                                the app.'
+                          )}
                         </Text>
                         <PermissionGuard
                           permissions={[PERMISSIONS.USERS_MANAGE, PERMISSIONS.USERS_MANAGE_STAFF]}
@@ -629,7 +632,7 @@ export const EmployeeDetailDrawer = ({
                             leftSection={<IconKey size={14} />}
                             onClick={() => setCreateLoginOpen(true)}
                           >
-                            Create Login
+                            {t('Create Login')}
                           </Button>
                         </PermissionGuard>
                       </Stack>
@@ -646,7 +649,7 @@ export const EmployeeDetailDrawer = ({
               <Stack gap="md">
                 <div>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                    Contact Phone Number
+                    {t('Contact Phone Number')}
                   </Text>
                   <PhoneDisplay primaryPhone={emp.phone} layout="stack" />
                 </div>
@@ -656,7 +659,7 @@ export const EmployeeDetailDrawer = ({
                     <Divider color="var(--mantine-color-default-border)" />
                     <div>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                        National Identity Card (NIC) / Staff ID
+                        {t('National Identity Card (NIC) / Staff ID')}
                       </Text>
                       <Group gap="xs" align="center">
                         <IconId
@@ -679,7 +682,7 @@ export const EmployeeDetailDrawer = ({
                     <Divider color="var(--mantine-color-default-border)" />
                     <div>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                        Notes & Special Qualifications
+                        {t('Notes & Special Qualifications')}
                       </Text>
                       <Paper
                         p="sm"
@@ -702,7 +705,7 @@ export const EmployeeDetailDrawer = ({
 
           {/* System Metadata */}
           <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            Metadata
+            {t('Metadata')}
           </Text>
 
           <Stack gap="xs">
@@ -710,7 +713,7 @@ export const EmployeeDetailDrawer = ({
               <Group gap="xs">
                 <IconCalendar size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Registered On
+                  {t('Registered On')}
                 </Text>
               </Group>
               <Text size="xs" fw={700}>
@@ -722,7 +725,7 @@ export const EmployeeDetailDrawer = ({
               <Group gap="xs">
                 <IconClock size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Last Updated
+                  {t('Last Updated')}
                 </Text>
               </Group>
               <Text size="xs" fw={700}>
@@ -734,7 +737,7 @@ export const EmployeeDetailDrawer = ({
               <Group gap="xs">
                 <IconTag size={16} style={{ opacity: 0.6 }} />
                 <Text size="xs" c="dimmed">
-                  Staff ID
+                  {t('Staff ID')}
                 </Text>
               </Group>
               <Text size="xs" fw={600} c="dimmed">
@@ -754,12 +757,12 @@ export const EmployeeDetailDrawer = ({
               leftSection={<IconTrash size={16} />}
               onClick={() => onDelete(emp)}
             >
-              Delete
+              {t('Delete')}
             </Button>
 
             <Group gap="sm">
               <Button variant="default" size="sm" onClick={handleClose}>
-                Close
+                {t('Close')}
               </Button>
               <Button
                 variant="filled"
@@ -768,7 +771,7 @@ export const EmployeeDetailDrawer = ({
                 leftSection={<IconEdit size={16} />}
                 onClick={() => onEdit(emp)}
               >
-                Edit Details
+                {t('Edit Details')}
               </Button>
             </Group>
           </Group>

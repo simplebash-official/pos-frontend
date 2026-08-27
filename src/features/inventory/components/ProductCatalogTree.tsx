@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { memo, useMemo } from 'react';
 import {
   Accordion,
@@ -108,7 +109,7 @@ export const ProductCatalogTree = memo(
                         {categoryName}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {subcategoriesMap.size} Subcategories • {catTotalItems} Items
+                        {subcategoriesMap.size} {t('Subcategories •')} {catTotalItems} {t('Items')}
                       </Text>
                     </div>
                   </Group>
@@ -116,11 +117,11 @@ export const ProductCatalogTree = memo(
                   <Group gap="xs">
                     {catLowStockCount > 0 && (
                       <Badge color="red" variant="light" size="sm">
-                        {catLowStockCount} Low Stock
+                        {catLowStockCount} {t('Low Stock')}
                       </Badge>
                     )}
                     <Badge color={catColor} variant="outline" size="sm">
-                      {catTotalItems} units total
+                      {catTotalItems} {t('units total')}
                     </Badge>
                   </Group>
                 </Group>
@@ -168,7 +169,7 @@ export const ProductCatalogTree = memo(
                               variant="subtle"
                               color="gray"
                               size="sm"
-                              aria-label="Toggle subcategory items"
+                              aria-label={t('Toggle subcategory items')}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onToggleSubcategory(subKey);
@@ -192,7 +193,7 @@ export const ProductCatalogTree = memo(
 
                           {subLowStock > 0 && (
                             <Badge color="red" variant="filled" size="xs">
-                              {subLowStock} Low Stock Alert
+                              {subLowStock} {t('Low Stock Alert')}
                             </Badge>
                           )}
                         </Group>
@@ -211,22 +212,22 @@ export const ProductCatalogTree = memo(
                                   <Table.Th style={{ width: 40, textAlign: 'center' }}>
                                     <Checkbox
                                       size="xs"
-                                      aria-label="Select all subcategory items"
+                                      aria-label={t('Select all subcategory items')}
                                       checked={isAllSubSelected}
                                       indeterminate={isSomeSubSelected}
                                       onChange={toggleSubAll}
                                     />
                                   </Table.Th>
-                                  <Table.Th style={{ width: 160 }}>SKU</Table.Th>
-                                  <Table.Th>Product / Material Name</Table.Th>
-                                  <Table.Th style={{ width: 130 }}>Selling Price</Table.Th>
+                                  <Table.Th style={{ width: 160 }}>{t('SKU')}</Table.Th>
+                                  <Table.Th>{t('Product / Material Name')}</Table.Th>
+                                  <Table.Th style={{ width: 130 }}>{t('Selling Price')}</Table.Th>
                                   <Table.Th style={{ textAlign: 'center', width: 150 }}>
-                                    Stock Level
+                                    {t('Stock Level')}
                                   </Table.Th>
-                                  <Table.Th style={{ width: 170 }}>Updated At</Table.Th>
+                                  <Table.Th style={{ width: 170 }}>{t('Updated At')}</Table.Th>
                                   <Table.Th
                                     style={{ width: 40, textAlign: 'right' }}
-                                    aria-label="View Details"
+                                    aria-label={t('View Details')}
                                   />
                                 </Table.Tr>
                               </Table.Thead>
@@ -272,9 +273,13 @@ export const ProductCatalogTree = memo(
                                         ) : (
                                           // Created on this device; the server
                                           // assigns the SKU when it syncs.
-                                          <Tooltip label="Waiting to sync — the SKU is assigned by the server">
+                                          <Tooltip
+                                            label={t(
+                                              'Waiting to sync — the SKU is assigned by the server'
+                                            )}
+                                          >
                                             <Badge size="xs" color="orange" variant="light">
-                                              Pending
+                                              {t('Pending')}
                                             </Badge>
                                           </Tooltip>
                                         )}
@@ -295,7 +300,7 @@ export const ProductCatalogTree = memo(
                                           variant="light"
                                           size="sm"
                                         >
-                                          {prod.stockQuantity} units {isLow ? '(Low)' : ''}
+                                          {prod.stockQuantity} {t('units')} {isLow ? '(Low)' : ''}
                                         </Badge>
                                       </Table.Td>
                                       <Table.Td>
@@ -314,7 +319,7 @@ export const ProductCatalogTree = memo(
                                           variant="subtle"
                                           color="gray"
                                           size="sm"
-                                          aria-label="View product details"
+                                          aria-label={t('View product details')}
                                           className="data-table-row-chevron"
                                           tabIndex={-1}
                                           style={{

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   Button,
@@ -235,7 +236,7 @@ export const CustomerList = () => {
             </Text>
             {c.contactPerson ? (
               <Text size="xs" c="dimmed">
-                Contact: {c.contactPerson}
+                {t('Contact:')} {c.contactPerson}
               </Text>
             ) : null}
           </div>
@@ -286,8 +287,8 @@ export const CustomerList = () => {
     <>
       <Stack gap="lg">
         <PageHeader
-          title="Customer Directory"
-          description="Client database, purchase histories, and credit balances"
+          title={t('Customer Directory')}
+          description={t('Client database, purchase histories, and credit balances')}
           action={
             <Group gap="sm">
               <Button
@@ -299,10 +300,10 @@ export const CustomerList = () => {
                   void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all })
                 }
               >
-                Refresh List
+                {t('Refresh List')}
               </Button>
               <Button leftSection={<IconUserPlus size={16} />} onClick={handleOpenAddModal}>
-                Add New Customer
+                {t('Add New Customer')}
               </Button>
             </Group>
           }
@@ -345,7 +346,7 @@ export const CustomerList = () => {
           <Group justify="space-between" wrap="wrap">
             <SearchHistoryInput
               namespace="customers"
-              placeholder="Search customers by name, phone, address..."
+              placeholder={t('Search customers by name, phone, address...')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onValueChange={setSearch}
@@ -373,7 +374,7 @@ export const CustomerList = () => {
                     label: (
                       <Center style={{ gap: 6 }}>
                         <IconList size={16} />
-                        <span>Table</span>
+                        <span>{t('Table')}</span>
                       </Center>
                     ),
                     value: 'table',
@@ -382,7 +383,7 @@ export const CustomerList = () => {
                     label: (
                       <Center style={{ gap: 6 }}>
                         <IconLayoutGrid size={16} />
-                        <span>Grid</span>
+                        <span>{t('Grid')}</span>
                       </Center>
                     ),
                     value: 'grid',
@@ -393,7 +394,7 @@ export const CustomerList = () => {
           </Group>
           {search.trim() !== '' && isSearching && (
             <Text size="xs" c="dimmed" mt="xs">
-              Searching…
+              {t('Searching…')}
             </Text>
           )}
         </Paper>
@@ -477,7 +478,8 @@ export const CustomerList = () => {
                               {cust.name || 'Unnamed Customer'}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              Lifetime Purchases: {formatMoney(cust.totalPurchasesCents || 0)}
+                              {t('Lifetime Purchases:')}{' '}
+                              {formatMoney(cust.totalPurchasesCents || 0)}
                             </Text>
                           </div>
                         </Group>
@@ -485,11 +487,11 @@ export const CustomerList = () => {
                         {/* Balance Due / Clear Badge */}
                         {cust.outstandingBalanceCents > 0 ? (
                           <Badge color="red" variant="filled" size="sm" style={{ flexShrink: 0 }}>
-                            Due: {formatMoney(cust.outstandingBalanceCents)}
+                            {t('Due:')} {formatMoney(cust.outstandingBalanceCents)}
                           </Badge>
                         ) : (
                           <Badge color="teal" variant="light" size="sm" style={{ flexShrink: 0 }}>
-                            Clear Balance
+                            {t('Clear Balance')}
                           </Badge>
                         )}
                       </Group>
@@ -518,25 +520,25 @@ export const CustomerList = () => {
                         style={{ cursor: 'pointer' }}
                         onClick={() => setSelectedCustomerForDrawer(cust)}
                       >
-                        View Customer →
+                        {t('View Customer →')}
                       </Text>
 
                       <Group gap="xs">
-                        <Tooltip label="Edit Customer">
+                        <Tooltip label={t('Edit Customer')}>
                           <ActionIcon
                             variant="subtle"
                             onClick={() => handleOpenEditModal(cust)}
-                            aria-label="Edit Customer"
+                            aria-label={t('Edit Customer')}
                           >
                             <IconEdit size={16} />
                           </ActionIcon>
                         </Tooltip>
-                        <Tooltip label="Delete Customer">
+                        <Tooltip label={t('Delete Customer')}>
                           <ActionIcon
                             variant="subtle"
                             color="red"
                             onClick={() => setCustomerToDelete(cust)}
-                            aria-label="Delete Customer"
+                            aria-label={t('Delete Customer')}
                           >
                             <IconTrash size={16} />
                           </ActionIcon>
@@ -580,11 +582,11 @@ export const CustomerList = () => {
         opened={Boolean(customerToDelete)}
         onClose={() => setCustomerToDelete(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete Customer"
-        confirmLabel="Delete Customer"
+        title={t('Delete Customer')}
+        confirmLabel={t('Delete Customer')}
         confirmColor="red"
       >
-        Are you sure you want to delete <strong>{customerToDelete?.name}</strong>?
+        {t('Are you sure you want to delete')} <strong>{customerToDelete?.name}</strong>?
       </ConfirmDialog>
     </>
   );

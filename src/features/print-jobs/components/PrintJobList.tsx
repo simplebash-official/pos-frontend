@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
@@ -199,7 +200,7 @@ export const PrintJobList = () => {
             {job.jobType.toUpperCase()}
           </Badge>
           <Text size="xs" fw={700}>
-            {job.quantity} units
+            {job.quantity} {t('units')}
           </Text>
         </Group>
       ),
@@ -220,13 +221,13 @@ export const PrintJobList = () => {
             </Group>
             {job.employeeEarningsCents ? (
               <Badge size="xs" color="indigo" variant="light">
-                Earned: {formatMoney(job.employeeEarningsCents)}
+                {t('Earned:')} {formatMoney(job.employeeEarningsCents)}
               </Badge>
             ) : null}
           </Stack>
         ) : (
           <Text size="xs" c="dimmed" fs="italic">
-            Unassigned
+            {t('Unassigned')}
           </Text>
         ),
     },
@@ -258,8 +259,10 @@ export const PrintJobList = () => {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="Print Jobs & Sublimation Orders"
-        description="Custom mug, t-shirt, handbill, banner printing order tracking & operator profit split"
+        title={t('Print Jobs & Sublimation Orders')}
+        description={t(
+          'Custom mug, t-shirt, handbill, banner printing order tracking & operator profit split'
+        )}
         action={
           <Group gap="sm">
             <Button
@@ -271,10 +274,10 @@ export const PrintJobList = () => {
                 void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all })
               }
             >
-              Refresh List
+              {t('Refresh List')}
             </Button>
             <Button leftSection={<IconPlus size={16} />} color="teal" onClick={handleOpenAdd}>
-              New Print Order
+              {t('New Print Order')}
             </Button>
           </Group>
         }
@@ -326,7 +329,7 @@ export const PrintJobList = () => {
         <Group justify="space-between" wrap="wrap">
           <SearchHistoryInput
             namespace="printJobs"
-            placeholder="Search ticket #, customer name, phone, job type"
+            placeholder={t('Search ticket #, customer name, phone, job type')}
             leftSection={<IconSearch size={16} />}
             value={searchQuery}
             onValueChange={setSearchQuery}
@@ -362,7 +365,7 @@ export const PrintJobList = () => {
         </Group>
         {searchQuery.trim() !== '' && isSearching && (
           <Text size="xs" c="dimmed" mt="xs">
-            Searching…
+            {t('Searching…')}
           </Text>
         )}
       </Paper>

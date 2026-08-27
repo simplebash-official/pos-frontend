@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import {
   Modal,
@@ -139,7 +140,7 @@ export const CustomerPickerModal = ({
       onClose={handleClose}
       title={
         <Text fw={700} size="lg">
-          Select / Attach Customer
+          {t('Select / Attach Customer')}
         </Text>
       }
       size="lg"
@@ -152,7 +153,7 @@ export const CustomerPickerModal = ({
         <Group gap="sm" wrap={isMobile ? 'wrap' : 'nowrap'}>
           <SearchHistoryInput
             namespace="customers_picker"
-            placeholder="Search by name, phone number, or email…"
+            placeholder={t('Search by name, phone number, or email…')}
             leftSection={<IconSearch size={16} />}
             rightSection={
               search ? (
@@ -181,7 +182,7 @@ export const CustomerPickerModal = ({
                   handleClose();
                 }}
               >
-                Detach
+                {t('Detach')}
               </Button>
             )}
             <Button
@@ -200,7 +201,7 @@ export const CustomerPickerModal = ({
                 setIsCreatingInline(true);
               }}
             >
-              New Customer
+              {t('New Customer')}
             </Button>
           </Group>
         </Group>
@@ -222,7 +223,7 @@ export const CustomerPickerModal = ({
                   tt="uppercase"
                   style={{ letterSpacing: '0.05em' }}
                 >
-                  New Customer Details
+                  {t('New Customer Details')}
                 </Text>
                 <ActionIcon
                   size="sm"
@@ -236,8 +237,8 @@ export const CustomerPickerModal = ({
 
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
                 <TextInput
-                  label="Customer Name"
-                  placeholder="e.g. Nimal Perera"
+                  label={t('Customer Name')}
+                  placeholder={t('e.g. Nimal Perera')}
                   size="sm"
                   required
                   value={newName}
@@ -245,8 +246,8 @@ export const CustomerPickerModal = ({
                   autoFocus={!isMobile}
                 />
                 <TextInput
-                  label="Phone Number"
-                  placeholder="e.g. 0771234567"
+                  label={t('Phone Number')}
+                  placeholder={t('e.g. 0771234567')}
                   size="sm"
                   required
                   value={newPhone}
@@ -256,7 +257,7 @@ export const CustomerPickerModal = ({
 
               <Group justify="flex-end" mt="xs" gap="sm">
                 <Button size="xs" variant="default" onClick={() => setIsCreatingInline(false)}>
-                  Cancel
+                  {t('Cancel')}
                 </Button>
                 <Button
                   size="xs"
@@ -264,7 +265,7 @@ export const CustomerPickerModal = ({
                   loading={createCustomerMutation.isPending}
                   onClick={handleCreateQuickCustomer}
                 >
-                  Save & Attach Customer
+                  {t('Save & Attach Customer')}
                 </Button>
               </Group>
             </Stack>
@@ -309,7 +310,8 @@ export const CustomerPickerModal = ({
                   <Stack gap="xs" align="center">
                     <IconUser size={32} style={{ opacity: 0.3 }} />
                     <Text c="dimmed" size="sm" ta="center">
-                      No customer found matching "{search}".
+                      {t('No customer found matching "')}
+                      {search}".
                     </Text>
                     <Button
                       size="xs"
@@ -409,7 +411,7 @@ export const CustomerPickerModal = ({
                                 color="red"
                                 radius="var(--mantine-radius-default)"
                               >
-                                Balance: {formatMoney(cust.outstandingBalanceCents)}
+                                {t('Balance:')} {formatMoney(cust.outstandingBalanceCents)}
                               </Badge>
                             )}
                             {cust.tags?.slice(0, 3).map((tag) => (
@@ -447,7 +449,7 @@ export const CustomerPickerModal = ({
                             leftSection={<IconCheck size={12} />}
                             radius="var(--mantine-radius-default)"
                           >
-                            Attached
+                            {t('Attached')}
                           </Badge>
                         ) : (
                           <Button
@@ -462,7 +464,7 @@ export const CustomerPickerModal = ({
                               handleClose();
                             }}
                           >
-                            Select
+                            {t('Select')}
                           </Button>
                         )}
                       </Box>

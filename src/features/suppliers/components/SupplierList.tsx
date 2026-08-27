@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   Button,
@@ -267,8 +268,8 @@ export const SupplierList = () => {
     <>
       <Stack gap="lg">
         <PageHeader
-          title="Suppliers & Distributors"
-          description="Vendor directory, contact persons, and supply product mappings"
+          title={t('Suppliers & Distributors')}
+          description={t('Vendor directory, contact persons, and supply product mappings')}
           action={
             <Group gap="sm">
               <Button
@@ -280,14 +281,14 @@ export const SupplierList = () => {
                   void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all })
                 }
               >
-                Refresh List
+                {t('Refresh List')}
               </Button>
               <Button
                 leftSection={<IconPlus size={16} />}
                 color="blue"
                 onClick={handleOpenAddModal}
               >
-                Register New Supplier
+                {t('Register New Supplier')}
               </Button>
             </Group>
           }
@@ -330,7 +331,7 @@ export const SupplierList = () => {
           <Group justify="space-between" wrap="wrap">
             <SearchHistoryInput
               namespace="suppliers"
-              placeholder="Search suppliers by business name, contact person, or phone..."
+              placeholder={t('Search suppliers by business name, contact person, or phone...')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onValueChange={setSearch}
@@ -358,7 +359,7 @@ export const SupplierList = () => {
                     label: (
                       <Center style={{ gap: 6 }}>
                         <IconList size={16} />
-                        <span>Table</span>
+                        <span>{t('Table')}</span>
                       </Center>
                     ),
                     value: 'table',
@@ -367,7 +368,7 @@ export const SupplierList = () => {
                     label: (
                       <Center style={{ gap: 6 }}>
                         <IconLayoutGrid size={16} />
-                        <span>Grid</span>
+                        <span>{t('Grid')}</span>
                       </Center>
                     ),
                     value: 'grid',
@@ -378,7 +379,7 @@ export const SupplierList = () => {
           </Group>
           {search.trim() !== '' && isSearching && (
             <Text size="xs" c="dimmed" mt="xs">
-              Searching…
+              {t('Searching…')}
             </Text>
           )}
         </Paper>
@@ -523,26 +524,26 @@ export const SupplierList = () => {
                         style={{ cursor: 'pointer' }}
                         onClick={() => setSelectedSupplierForDrawer(s)}
                       >
-                        View Details →
+                        {t('View Details →')}
                       </Text>
 
                       <Group gap="xs">
-                        <Tooltip label="Edit Supplier" withArrow>
+                        <Tooltip label={t('Edit Supplier')} withArrow>
                           <ActionIcon
                             variant="subtle"
                             color="blue"
                             onClick={() => handleOpenEditModal(s)}
-                            aria-label="Edit Supplier"
+                            aria-label={t('Edit Supplier')}
                           >
                             <IconEdit size={16} />
                           </ActionIcon>
                         </Tooltip>
-                        <Tooltip label="Delete Supplier" withArrow>
+                        <Tooltip label={t('Delete Supplier')} withArrow>
                           <ActionIcon
                             variant="subtle"
                             color="red"
                             onClick={() => setSupplierToDelete(s)}
-                            aria-label="Delete Supplier"
+                            aria-label={t('Delete Supplier')}
                           >
                             <IconTrash size={16} />
                           </ActionIcon>
@@ -585,11 +586,11 @@ export const SupplierList = () => {
         opened={Boolean(supplierToDelete)}
         onClose={() => setSupplierToDelete(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete Supplier"
-        confirmLabel="Delete Supplier"
+        title={t('Delete Supplier')}
+        confirmLabel={t('Delete Supplier')}
         confirmColor="red"
       >
-        Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>?
+        {t('Are you sure you want to delete')} <strong>{supplierToDelete?.name}</strong>?
       </ConfirmDialog>
     </>
   );

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import {
   Modal,
@@ -96,7 +97,7 @@ export const ProductPickerModal = ({
         {/* Search Bar */}
         <SearchHistoryInput
           namespace="inventory_picker"
-          placeholder="Search by product name, SKU, or category…"
+          placeholder={t('Search by product name, SKU, or category…')}
           leftSection={<IconSearch size={16} />}
           rightSection={
             search ? (
@@ -227,7 +228,7 @@ export const ProductPickerModal = ({
                               color={isLowStock ? 'red' : 'gray'}
                               radius="var(--mantine-radius-default)"
                             >
-                              {p.stockQuantity} in stock
+                              {p.stockQuantity} {t('in stock')}
                             </Badge>
                           </Group>
                         </div>
@@ -237,7 +238,7 @@ export const ProductPickerModal = ({
                       <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
                         <Box style={{ textAlign: 'left' }}>
                           <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
-                            Default Cost
+                            {t('Default Cost')}
                           </Text>
                           <Text size="sm" fw={800} c="blue">
                             {formatMoney(p.costPriceCents)}
@@ -255,7 +256,7 @@ export const ProductPickerModal = ({
                             handleSelect(p.key);
                           }}
                         >
-                          Link
+                          {t('Link')}
                         </Button>
                       </Group>
                     </Group>
@@ -288,7 +289,7 @@ export const ProductPickerModal = ({
             }}
             radius="var(--mantine-radius-default)"
           >
-            Cancel
+            {t('Cancel')}
           </Button>
         </Group>
       </Stack>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, lazy, Suspense } from 'react';
 import {
   Stack,
@@ -239,10 +240,11 @@ export const InvoiceDetailDrawer = ({
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Invoice #{invoice?.invoiceNumber}
+                {t('Invoice #')}
+                {invoice?.invoiceNumber}
               </Text>
               <Text size="xs" c="dimmed">
-                Sale Details, Payments & Returns
+                {t('Sale Details, Payments & Returns')}
               </Text>
             </div>
           </Group>
@@ -305,7 +307,8 @@ export const InvoiceDetailDrawer = ({
                   <Group gap={6}>
                     {inv.hasCreditNotes && (
                       <Badge color="indigo" variant="light" size="sm">
-                        {inv.creditNoteCount} Credit Note{inv.creditNoteCount === 1 ? '' : 's'}
+                        {inv.creditNoteCount} {t('Credit Note')}
+                        {inv.creditNoteCount === 1 ? '' : 's'}
                       </Badge>
                     )}
                     {(isFullyReturned || isPartiallyReturned) && (
@@ -341,10 +344,10 @@ export const InvoiceDetailDrawer = ({
 
                 <Group justify="space-between">
                   <Text size="xs" c="dimmed">
-                    Issued {formatDateTime(inv.createdAt)}
+                    {t('Issued')} {formatDateTime(inv.createdAt)}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Cashier: {inv.cashierName || 'Cashier'}
+                    {t('Cashier:')} {inv.cashierName || 'Cashier'}
                   </Text>
                 </Group>
               </Paper>
@@ -364,7 +367,7 @@ export const InvoiceDetailDrawer = ({
                           style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
                         />
                         <Text size="xs" c="dimmed" tt="uppercase">
-                          Grand Total
+                          {t('Grand Total')}
                         </Text>
                       </Group>
                       <Text
@@ -390,7 +393,7 @@ export const InvoiceDetailDrawer = ({
                           style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
                         />
                         <Text size="xs" c="dimmed" tt="uppercase">
-                          Items
+                          {t('Items')}
                         </Text>
                       </Group>
                       <Group gap={4} align="baseline">
@@ -399,7 +402,7 @@ export const InvoiceDetailDrawer = ({
                         </Text>
                         {totalReturnedUnits > 0 && (
                           <Text size="xs" c="dimmed">
-                            ({totalReturnedUnits} returned)
+                            ({totalReturnedUnits} {t('returned)')}
                           </Text>
                         )}
                       </Group>
@@ -461,19 +464,21 @@ export const InvoiceDetailDrawer = ({
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={sectionLabelStyle}>
-                      Credit Notes
+                      {t('Credit Notes')}
                     </Text>
                     {invoiceCreditNotes.length > 0 && (
                       <Badge size="xs" color="orange" variant="light">
-                        {invoiceCreditNotes.reduce((sum, cn) => sum + cn.items.length, 0)} items
-                        returned
+                        {invoiceCreditNotes.reduce((sum, cn) => sum + cn.items.length, 0)}{' '}
+                        {t(
+                          'items\n                                                              returned'
+                        )}
                       </Badge>
                     )}
                   </Group>
 
                   {invoiceCreditNotes.length === 0 ? (
                     <Text size="xs" c="dimmed">
-                      No credit notes have been issued against this invoice yet.
+                      {t('No credit notes have been issued against this invoice yet.')}
                     </Text>
                   ) : (
                     <Stack gap="xs">
@@ -495,12 +500,12 @@ export const InvoiceDetailDrawer = ({
                               <Group gap={4}>
                                 {cn.exchangeReference && (
                                   <Badge size="xs" color="indigo" variant="light">
-                                    Exchange
+                                    {t('Exchange')}
                                   </Badge>
                                 )}
                                 {cn.noReceipt && (
                                   <Badge size="xs" color="red" variant="light">
-                                    No Receipt
+                                    {t('No Receipt')}
                                   </Badge>
                                 )}
                                 <Badge size="xs" color={statusMeta.color} variant="light">
@@ -511,19 +516,21 @@ export const InvoiceDetailDrawer = ({
                             <Group justify="space-between" align="center">
                               <Text size="2xs" c="dimmed">
                                 {formatDateTime(cn.createdAt)} · {cn.creditNoteNumber} ·{' '}
-                                {cn.items.length} line(s)
+                                {cn.items.length} {t('line(s)')}
                               </Text>
                               <Button
                                 size="compact-xs"
                                 variant="subtle"
                                 onClick={() => setPreviewCreditNote(cn)}
                               >
-                                View / Print
+                                {t('View / Print')}
                               </Button>
                             </Group>
                             {cn.notes && (
                               <Text size="xs" c="dimmed" mt={2} fs="italic">
-                                &ldquo;{cn.notes}&rdquo;
+                                {t('&ldquo;')}
+                                {cn.notes}
+                                {t('&rdquo;')}
                               </Text>
                             )}
                           </Paper>
@@ -534,7 +541,7 @@ export const InvoiceDetailDrawer = ({
 
                   {isFullyReturned ? (
                     <Text size="xs" c="dimmed" ta="center">
-                      All items on this invoice have already been returned.
+                      {t('All items on this invoice have already been returned.')}
                     </Text>
                   ) : (
                     <Button
@@ -543,7 +550,7 @@ export const InvoiceDetailDrawer = ({
                       leftSection={<IconArrowBackUp size={16} />}
                       onClick={() => setCreditNoteModalOpen(true)}
                     >
-                      Process Return / Exchange
+                      {t('Process Return / Exchange')}
                     </Button>
                   )}
                 </Stack>
@@ -557,8 +564,11 @@ export const InvoiceDetailDrawer = ({
                 mt="xs"
               >
                 <Tabs.List grow>
-                  <Tabs.Tab value="items">Items ({inv.items.length})</Tabs.Tab>
-                  <Tabs.Tab value="activity">Activity</Tabs.Tab>
+                  <Tabs.Tab value="items">
+                    {t('Items (')}
+                    {inv.items.length})
+                  </Tabs.Tab>
+                  <Tabs.Tab value="activity">{t('Activity')}</Tabs.Tab>
                 </Tabs.List>
               </Tabs>
 
@@ -574,10 +584,10 @@ export const InvoiceDetailDrawer = ({
                       <Table striped highlightOnHover>
                         <Table.Thead>
                           <Table.Tr>
-                            <Table.Th>Item</Table.Th>
-                            <Table.Th style={{ textAlign: 'center' }}>Qty</Table.Th>
-                            <Table.Th>Price</Table.Th>
-                            <Table.Th>Total</Table.Th>
+                            <Table.Th>{t('Item')}</Table.Th>
+                            <Table.Th style={{ textAlign: 'center' }}>{t('Qty')}</Table.Th>
+                            <Table.Th>{t('Price')}</Table.Th>
+                            <Table.Th>{t('Total')}</Table.Th>
                           </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
@@ -605,7 +615,7 @@ export const InvoiceDetailDrawer = ({
                                   </Group>
                                   {item.sku && (
                                     <Text size="3xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
-                                      SKU: {item.sku}
+                                      {t('SKU:')} {item.sku}
                                     </Text>
                                   )}
                                 </Table.Td>
@@ -638,7 +648,7 @@ export const InvoiceDetailDrawer = ({
                     <Stack gap="xs">
                       <Group justify="space-between">
                         <Text size="xs" c="dimmed">
-                          Subtotal
+                          {t('Subtotal')}
                         </Text>
                         <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
                           {formatMoney(inv.subtotalCents)}
@@ -648,7 +658,7 @@ export const InvoiceDetailDrawer = ({
                       {inv.discountCents > 0 && (
                         <Group justify="space-between">
                           <Text size="xs" c="red">
-                            Discount
+                            {t('Discount')}
                           </Text>
                           <Text
                             size="xs"
@@ -665,7 +675,7 @@ export const InvoiceDetailDrawer = ({
 
                       <Group justify="space-between">
                         <Text size="sm" fw={700}>
-                          Grand Total
+                          {t('Grand Total')}
                         </Text>
                         <Text
                           size="md"
@@ -679,7 +689,7 @@ export const InvoiceDetailDrawer = ({
 
                       <Group justify="space-between">
                         <Text size="xs" c="dimmed">
-                          Payment Method
+                          {t('Payment Method')}
                         </Text>
                         <Text size="xs" fw={700} tt="uppercase">
                           {inv.paymentMethod}
@@ -700,7 +710,7 @@ export const InvoiceDetailDrawer = ({
                               tt="uppercase"
                               style={sectionLabelStyle}
                             >
-                              Split Breakdown
+                              {t('Split Breakdown')}
                             </Text>
                             {inv.splitPayments.map((sp, idx) => (
                               <Group key={sp.id || idx} justify="space-between">
@@ -725,7 +735,7 @@ export const InvoiceDetailDrawer = ({
                       {inv.amountReceivedCents ? (
                         <Group justify="space-between">
                           <Text size="xs" c="dimmed">
-                            Amount Received
+                            {t('Amount Received')}
                           </Text>
                           <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
                             {formatMoney(inv.amountReceivedCents)}
@@ -736,7 +746,7 @@ export const InvoiceDetailDrawer = ({
                       {inv.changeDueCents ? (
                         <Group justify="space-between">
                           <Text size="xs" c="dimmed">
-                            Change Due
+                            {t('Change Due')}
                           </Text>
                           <Text
                             size="xs"
@@ -766,7 +776,8 @@ export const InvoiceDetailDrawer = ({
                         mb="xs"
                         style={sectionLabelStyle}
                       >
-                        Payment History ({payments.length})
+                        {t('Payment History (')}
+                        {payments.length})
                       </Text>
                       <Stack gap="xs">
                         {payments.map((p) => (
@@ -788,7 +799,7 @@ export const InvoiceDetailDrawer = ({
                         <Divider my={2} />
                         <Group justify="space-between">
                           <Text size="xs" fw={700}>
-                            Remaining Balance
+                            {t('Remaining Balance')}
                           </Text>
                           <Text
                             size="xs"
@@ -812,15 +823,16 @@ export const InvoiceDetailDrawer = ({
                       mb={4}
                       style={sectionLabelStyle}
                     >
-                      Print History
+                      {t('Print History')}
                     </Text>
                     {logs.length === 0 ? (
                       <Text size="xs" c="dimmed">
-                        No print logs recorded yet.
+                        {t('No print logs recorded yet.')}
                       </Text>
                     ) : (
                       <Text size="xs" c="dimmed">
-                        Printed {logs.length}× · Last printed{' '}
+                        {t('Printed')} {logs.length}
+                        {t('× · Last printed')}{' '}
                         {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} ({lastLog?.format})
                       </Text>
                     )}
@@ -829,7 +841,7 @@ export const InvoiceDetailDrawer = ({
                   <Divider my="xs" />
 
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={sectionLabelStyle}>
-                    Metadata
+                    {t('Metadata')}
                   </Text>
 
                   <Stack gap="xs">
@@ -837,7 +849,7 @@ export const InvoiceDetailDrawer = ({
                       <Group gap="xs">
                         <IconCalendar size={16} style={{ opacity: 0.6 }} />
                         <Text size="xs" c="dimmed">
-                          Issued On
+                          {t('Issued On')}
                         </Text>
                       </Group>
                       <Text size="xs" fw={700}>
@@ -850,7 +862,7 @@ export const InvoiceDetailDrawer = ({
                         <Group gap="xs">
                           <IconClock size={16} style={{ opacity: 0.6 }} />
                           <Text size="xs" c="dimmed">
-                            Last Printed
+                            {t('Last Printed')}
                           </Text>
                         </Group>
                         <Text size="xs" fw={700}>
@@ -863,7 +875,7 @@ export const InvoiceDetailDrawer = ({
                       <Group gap="xs">
                         <IconKey size={16} style={{ opacity: 0.6 }} />
                         <Text size="xs" c="dimmed">
-                          Invoice Key
+                          {t('Invoice Key')}
                         </Text>
                       </Group>
                       <Text size="xs" fw={600} c="dimmed" style={{ fontFamily: 'monospace' }}>
@@ -884,7 +896,7 @@ export const InvoiceDetailDrawer = ({
                   leftSection={<IconReceipt size={16} />}
                   onClick={() => setPreviewDocumentKind('receipt')}
                 >
-                  Show Receipt
+                  {t('Show Receipt')}
                 </Button>
 
                 <Button
@@ -893,7 +905,7 @@ export const InvoiceDetailDrawer = ({
                   leftSection={<IconFileText size={16} />}
                   onClick={() => setPreviewDocumentKind('invoice')}
                 >
-                  Show Invoice
+                  {t('Show Invoice')}
                 </Button>
               </Group>
 
@@ -908,7 +920,7 @@ export const InvoiceDetailDrawer = ({
                       leftSection={<IconCash size={16} />}
                       onClick={handleOpenPaymentModal}
                     >
-                      Record Payment
+                      {t('Record Payment')}
                     </Button>
                   )}
                   {isAdmin && canClose && (
@@ -920,7 +932,7 @@ export const InvoiceDetailDrawer = ({
                       loading={isClosing}
                       onClick={handleCloseInvoice}
                     >
-                      Close Invoice
+                      {t('Close Invoice')}
                     </Button>
                   )}
                   {isAdmin && canVoid && (
@@ -931,7 +943,7 @@ export const InvoiceDetailDrawer = ({
                       leftSection={<IconBan size={16} />}
                       onClick={() => setVoidModalOpen(true)}
                     >
-                      Void Invoice
+                      {t('Void Invoice')}
                     </Button>
                   )}
                   {isAdmin && voidBlockedReason && (
@@ -949,10 +961,10 @@ export const InvoiceDetailDrawer = ({
                     leftSection={<IconCopy size={16} />}
                     onClick={handleCopyInvoiceNumber}
                   >
-                    Copy Invoice #
+                    {t('Copy Invoice #')}
                   </Button>
                   <Button variant="default" size="sm" onClick={handleClose}>
-                    Close
+                    {t('Close')}
                   </Button>
                 </Group>
               </Group>
@@ -1006,7 +1018,8 @@ export const InvoiceDetailDrawer = ({
         onClose={() => setPaymentModalOpen(false)}
         title={
           <Text fw={700} size="lg">
-            Record Payment — #{invoice?.invoiceNumber}
+            {t('Record Payment — #')}
+            {invoice?.invoiceNumber}
           </Text>
         }
         centered
@@ -1014,7 +1027,7 @@ export const InvoiceDetailDrawer = ({
       >
         <Stack gap="md">
           <NumberInput
-            label="Payment Amount (Rs.)"
+            label={t('Payment Amount (Rs.)')}
             prefix="Rs. "
             min={1}
             value={payAmountRupees}
@@ -1022,7 +1035,7 @@ export const InvoiceDetailDrawer = ({
           />
 
           <Select
-            label="Payment Method"
+            label={t('Payment Method')}
             value={payMethod}
             onChange={(v) => setPayMethod(v || 'cash')}
             data={[
@@ -1033,8 +1046,8 @@ export const InvoiceDetailDrawer = ({
           />
 
           <TextInput
-            label="Note / Transaction Ref (Optional)"
-            placeholder="e.g. Slip TRX-12345"
+            label={t('Note / Transaction Ref (Optional)')}
+            placeholder={t('e.g. Slip TRX-12345')}
             value={payNotes}
             onChange={(e) => setPayNotes(e.currentTarget.value)}
           />
@@ -1045,7 +1058,7 @@ export const InvoiceDetailDrawer = ({
               onClick={() => setPaymentModalOpen(false)}
               disabled={isSubmittingPay}
             >
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button
               color="blue"
@@ -1053,7 +1066,7 @@ export const InvoiceDetailDrawer = ({
               onClick={handleRecordPayment}
               leftSection={<IconCheck size={16} />}
             >
-              Confirm & Update Balance
+              {t('Confirm & Update Balance')}
             </Button>
           </Group>
         </Stack>
@@ -1069,7 +1082,8 @@ export const InvoiceDetailDrawer = ({
         onClose={() => setVoidModalOpen(false)}
         title={
           <Text fw={700} size="lg">
-            Void Invoice — #{invoice?.invoiceNumber}
+            {t('Void Invoice — #')}
+            {invoice?.invoiceNumber}
           </Text>
         }
         centered
@@ -1077,12 +1091,13 @@ export const InvoiceDetailDrawer = ({
       >
         <Stack gap="md">
           <Text size="sm">
-            This reverses the sale — any stock and payments already recorded against this invoice
-            are undone. This cannot be undone from here, so please explain why.
+            {t(
+              'This reverses the sale — any stock and payments already recorded against this invoice\n                                  are undone. This cannot be undone from here, so please explain why.'
+            )}
           </Text>
           <Textarea
-            label="Reason for voiding"
-            placeholder="e.g. Entered by mistake, duplicate sale"
+            label={t('Reason for voiding')}
+            placeholder={t('e.g. Entered by mistake, duplicate sale')}
             required
             minRows={2}
             value={voidReason}
@@ -1090,7 +1105,7 @@ export const InvoiceDetailDrawer = ({
           />
           <Group justify="flex-end" gap="sm">
             <Button variant="default" onClick={() => setVoidModalOpen(false)} disabled={isVoiding}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button
               color="red"
@@ -1098,7 +1113,7 @@ export const InvoiceDetailDrawer = ({
               loading={isVoiding}
               disabled={!voidReason.trim()}
             >
-              Void Invoice
+              {t('Void Invoice')}
             </Button>
           </Group>
         </Stack>

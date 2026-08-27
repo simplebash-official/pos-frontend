@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Group, SimpleGrid, Switch, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -69,8 +70,8 @@ export const BankDetailsSection = ({ onDirtyChange }: SectionProps) => {
 
   return (
     <SectionShell
-      title="Bank Details"
-      description="These details print on invoices so customers know where to pay."
+      title={t('Bank Details')}
+      description={t('These details print on invoices so customers know where to pay.')}
       isDirty={isDirty}
       onSave={handleSave}
       onCancel={() => form.reset()}
@@ -78,10 +79,10 @@ export const BankDetailsSection = ({ onDirtyChange }: SectionProps) => {
       <Group justify="space-between" align="center">
         <div>
           <Text fw={600} size="sm">
-            Show Bank Details on Invoices
+            {t('Show Bank Details on Invoices')}
           </Text>
           <Text size="xs" c="dimmed">
-            Turn off if you don't want your bank details printed on invoices.
+            {t("Turn off if you don't want your bank details printed on invoices.")}
           </Text>
         </div>
         <Switch
@@ -92,15 +93,15 @@ export const BankDetailsSection = ({ onDirtyChange }: SectionProps) => {
 
       {form.values.showBankDetails && !form.values.bankName.trim() && (
         <Text size="xs" c="orange">
-          Add your bank name so it appears on printed invoices.
+          {t('Add your bank name so it appears on printed invoices.')}
         </Text>
       )}
 
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-        <TextInput label="Bank Name" {...form.getInputProps('bankName')} />
-        <TextInput label="Branch" {...form.getInputProps('bankBranch')} />
-        <TextInput label="Account Name" {...form.getInputProps('accountName')} />
-        <TextInput label="Account Number" {...form.getInputProps('accountNumber')} />
+        <TextInput label={t('Bank Name')} {...form.getInputProps('bankName')} />
+        <TextInput label={t('Branch')} {...form.getInputProps('bankBranch')} />
+        <TextInput label={t('Account Name')} {...form.getInputProps('accountName')} />
+        <TextInput label={t('Account Number')} {...form.getInputProps('accountNumber')} />
       </SimpleGrid>
     </SectionShell>
   );

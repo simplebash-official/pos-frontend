@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom';
 import { Container, Title, Text, Button, Stack, Paper } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
@@ -23,13 +24,13 @@ export const ErrorBoundary = () => {
         <Stack align="center" gap="md" ta="center">
           <IconAlertTriangle size={48} color="var(--mantine-color-red-filled)" />
           <Title order={2} c="var(--text-primary)">
-            Something went wrong
+            {t('Something went wrong')}
           </Title>
           <Text size="sm" c="dimmed">
             {errorMessage}
           </Text>
           <Button size="md" mt="md" onClick={() => (window.location.href = ROUTES.DASHBOARD)}>
-            Return to Dashboard
+            {t('Return to Dashboard')}
           </Button>
         </Stack>
       </Paper>
