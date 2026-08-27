@@ -4,7 +4,6 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
-import { SyncSettingsSection } from '@/features/sync/components/SyncSettingsSection';
 import { SettingsNavDrillDownList, SettingsNavList, SettingsNavTabs } from './SettingsNav';
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
 import { ShopProfileSection } from './sections/ShopProfileSection';
@@ -28,8 +27,6 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
       return <PrintingSection onDirtyChange={onDirtyChange} />;
     case 'templates':
       return <DocumentTemplatesSection onDirtyChange={onDirtyChange} />;
-    case 'sync':
-      return <SyncSettingsSection />;
   }
 };
 

@@ -31,7 +31,7 @@ import {
   IconList,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { syncEngine } from '@/offline/engine/SyncEngine';
+import { useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -70,6 +70,7 @@ const applyLocalCustomerFilters = (items: Customer[], f: CustomerFilters) =>
   items.filter((c) => f.tag === 'all' || (c.tags && c.tags.includes(f.tag)));
 
 export const CustomerList = () => {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [tagFilter, setTagFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -91,13 +92,10 @@ export const CustomerList = () => {
 
   const filters: CustomerFilters = { search, tag: tagFilter };
 
-  // All filters hit the backend while online, fall back to a local pass
-  // over the Dexie mirror while offline — see `useBackendFilteredList`.
-  const {
-    results: filteredCustomers,
-    isSearching,
-    isOffline: searchIsOffline,
-  } = useBackendFilteredList(
+  // Filters hit the backend; an instant local pass over the already-loaded
+  // list covers the gap while that request is in flight — see
+  // `useBackendFilteredList`.
+  const { results: filteredCustomers, isSearching } = useBackendFilteredList(
     customers,
     CUSTOMER_SEARCH_FIELDS,
     filters,
@@ -297,7 +295,9 @@ export const CustomerList = () => {
                 variant="light"
                 leftSection={<IconRefresh size={14} />}
                 loading={isFetching}
-                onClick={() => void syncEngine.syncNow()}
+                onClick={() =>
+                  void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all })
+                }
               >
                 Refresh List
               </Button>
@@ -391,9 +391,9 @@ export const CustomerList = () => {
               />
             </Group>
           </Group>
-          {search.trim() !== '' && (searchIsOffline || isSearching) && (
+          {search.trim() !== '' && isSearching && (
             <Text size="xs" c="dimmed" mt="xs">
-              {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+              Searching…
             </Text>
           )}
         </Paper>

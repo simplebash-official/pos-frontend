@@ -28,11 +28,6 @@ const KeyboardShortcutsModal = lazy(() =>
     default: m.KeyboardShortcutsModal,
   }))
 );
-const SyncDrawer = lazy(() =>
-  import('@/features/sync/components/SyncDrawer').then((m) => ({
-    default: m.SyncDrawer,
-  }))
-);
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.DASHBOARD]: 'Shop Cockpit · JANA2U POS',
@@ -53,7 +48,6 @@ export const AppShell = () => {
   const [focusMode, setFocusMode] = useState(false);
   const [heldDrawerOpen, setHeldDrawerOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [syncDrawerOpen, setSyncDrawerOpen] = useState(false);
 
   const location = useLocation();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -80,15 +74,6 @@ export const AppShell = () => {
     [{ key: 'F11', ignoreInput: true, handler: () => setFocusMode((prev) => !prev) }],
     isBillingPage
   );
-
-  // Sync panel is reachable from every screen, not just billing.
-  useAppShortcuts([
-    {
-      key: 'Ctrl+Shift+S',
-      ignoreInput: true,
-      handler: () => setSyncDrawerOpen((prev) => !prev),
-    },
-  ]);
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
@@ -123,7 +108,6 @@ export const AppShell = () => {
           onToggleFocusMode={() => setFocusMode((prev) => !prev)}
           onOpenHeldDrawer={() => setHeldDrawerOpen(true)}
           onOpenShortcuts={() => setShortcutsOpen(true)}
-          onOpenSyncPanel={() => setSyncDrawerOpen(true)}
         />
       </MantineAppShell.Header>
 
@@ -156,9 +140,6 @@ export const AppShell = () => {
         )}
         {shortcutsOpen && (
           <KeyboardShortcutsModal opened={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-        )}
-        {syncDrawerOpen && (
-          <SyncDrawer opened={syncDrawerOpen} onClose={() => setSyncDrawerOpen(false)} />
         )}
       </Suspense>
     </MantineAppShell>

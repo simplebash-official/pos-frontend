@@ -1,91 +1,125 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { applyLedgerToProducts } from '@/offline/engine/stockLedger';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  AdjustStockPayload,
-  DeleteProductsPayload,
-  UpdateProductPayload,
-} from '@/offline/resources/products.resource';
-import { CreateProductInput, Product, StockMovement } from '../types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  adjustStock,
+  createProduct,
+  deleteProducts,
+  fetchLowStockProducts,
+  fetchProductById,
+  fetchProductMovements,
+  fetchProducts,
+  updateProduct,
+} from '../api/productsApi';
+import { CreateProductInput, Product, StockMovement, UpdateProductInput } from '../types';
 
-/**
- * Local-first product reads and writes.
- *
- * Everything here reads the Dexie mirror rather than the network, so the
- * catalog behaves identically during an outage, and re-renders automatically
- * when a sync pull or a local write changes the data — in this tab or another.
- */
-
-const NO_PRODUCTS: MirroredRow<Product>[] = [];
+const ALL_PRODUCTS_PAGE_SIZE = 500;
+const NO_PRODUCTS: Product[] = [];
 const NO_MOVEMENTS: StockMovement[] = [];
+
+export interface UpdateProductPayload {
+  productKey: string;
+  updates: UpdateProductInput;
+}
+export interface AdjustStockPayload {
+  productKey: string;
+  delta: number;
+  reason: string;
+}
+export interface DeleteProductsPayload {
+  productKeys: string[];
+}
+
+/** Fetches every page — the catalog is small enough that screens want the whole list at once. */
+const fetchAllProducts = async (): Promise<Product[]> => {
+  const firstPage = await fetchProducts({ page: 1, limit: ALL_PRODUCTS_PAGE_SIZE });
+  const totalPages = firstPage.totalPages || 1;
+
+  if (firstPage.items.length < ALL_PRODUCTS_PAGE_SIZE || totalPages <= 1) {
+    return firstPage.items;
+  }
+
+  const remainingPageNumbers = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+  const remainingPages = await Promise.all(
+    remainingPageNumbers.map((page) => fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE }))
+  );
+
+  return [...firstPage.items, ...remainingPages.flatMap((res) => res.items)];
+};
 
 export const useAllProducts = (options?: { enabled?: boolean }) => {
   const enabled = options?.enabled ?? true;
-
-  return useSyncedQuery(
-    'products',
-    async () => {
-      if (!enabled) {
-        return NO_PRODUCTS;
-      }
-      const rows = await db.products.where('_isDeleted').equals(0).toArray();
-      // Fold in stock movements that haven't reached the server yet, so the
-      // quantity on screen is the one the user believes they have.
-      return applyLedgerToProducts(rows);
-    },
-    NO_PRODUCTS,
-    [enabled]
-  );
+  const query = useQuery({
+    queryKey: queryKeys.inventory.products(),
+    queryFn: fetchAllProducts,
+    enabled,
+  });
+  return { ...query, data: query.data ?? NO_PRODUCTS };
 };
 
 export const useLowStockProducts = () => {
-  return useSyncedQuery(
-    'products',
-    async () => {
-      const rows = await db.products.where('_isDeleted').equals(0).toArray();
-      const withPendingStock = await applyLedgerToProducts(rows);
-      return withPendingStock.filter(
-        (product) => product.stockQuantity <= product.minStockThreshold
-      );
-    },
-    NO_PRODUCTS,
-    []
-  );
+  const query = useQuery({
+    queryKey: queryKeys.inventory.lowStock(),
+    queryFn: fetchLowStockProducts,
+  });
+  return { ...query, data: query.data ?? NO_PRODUCTS };
 };
 
 export const useProductMovements = (productId: string | undefined) => {
-  return useSyncedQuery(
-    'stockMovements',
-    async () => {
-      if (!productId) {
-        return NO_MOVEMENTS;
-      }
-      return db.stockMovements
-        .where('productId')
-        .equals(productId)
-        .filter((movement) => movement._isDeleted === 0)
-        .reverse()
-        .sortBy('createdAt');
-    },
-    NO_MOVEMENTS,
-    [productId]
-  );
+  const query = useQuery({
+    queryKey: queryKeys.inventory.movements(productId),
+    queryFn: () => fetchProductMovements(productId as string),
+    enabled: Boolean(productId),
+  });
+  return { ...query, data: query.data ?? NO_MOVEMENTS };
 };
 
 export const useCreateProduct = () => {
-  return useSyncedMutation<CreateProductInput, Product>('products', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateProductInput) => createProduct(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      // A create can carry initial `suppliers[]`, which the backend turns
+      // into supplier-product links and purchase records server-side in the
+      // same compound write — refresh those caches too.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.supplierProducts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
+    },
+  });
 };
 
 export const useUpdateProduct = () => {
-  return useSyncedMutation<UpdateProductPayload, Product>('products', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productKey, updates }: UpdateProductPayload) =>
+      updateProduct(productKey, updates),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };
 
 export const useDeleteProducts = () => {
-  return useSyncedMutation<DeleteProductsPayload, void>('products', 'deleteMany');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productKeys }: DeleteProductsPayload) => deleteProducts(productKeys),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };
 
 export const useAdjustStock = () => {
-  return useSyncedMutation<AdjustStockPayload, Product>('products', 'adjustStock');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ productKey, delta, reason }: AdjustStockPayload): Promise<Product> => {
+      await adjustStock(productKey, delta, reason);
+      // The endpoint returns only the post-adjustment stock figures; re-fetch
+      // the full row so callers get back a complete, current `Product`.
+      return fetchProductById(productKey);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };

@@ -1,7 +1,6 @@
 import {
   IconBuildingBank,
   IconBuildingStore,
-  IconCloudCog,
   IconFileText,
   IconPhoto,
   IconPrinter,
@@ -9,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
-  'shop-profile' | 'branding' | 'tax-vat' | 'bank-details' | 'printing' | 'templates' | 'sync';
+  'shop-profile' | 'branding' | 'tax-vat' | 'bank-details' | 'printing' | 'templates';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
@@ -61,12 +60,5 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Templates',
     description: 'Warranty terms and receipt footer text',
     icon: IconFileText,
-  },
-  {
-    id: 'sync',
-    label: 'Sync & Offline',
-    shortLabel: 'Sync',
-    description: 'What is stored on this device',
-    icon: IconCloudCog,
   },
 ];

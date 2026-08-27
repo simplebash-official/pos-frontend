@@ -1,34 +1,47 @@
 import { useMemo } from 'react';
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  AddSubcategoryPayload,
-  DeleteCategoryPayload,
-  RemoveSubcategoryPayload,
-  UpdateCategoryPayload,
-} from '@/offline/resources/categories.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  createCategory,
+  createSubcategory,
+  deleteCategory,
+  deleteSubcategory,
+  fetchCategories,
+  updateCategory,
+} from '../api/categoriesApi';
 import { TablerIconMap, useTablerIcons } from '@/shared/lib/tablerIcons';
 import { Category, CategoryInput, ValidCategoryOption } from '../types';
 
-const NO_CATEGORIES: MirroredRow<Category>[] = [];
+export interface UpdateCategoryPayload {
+  categoryKey: string;
+  updates: Partial<Omit<CategoryInput, 'subcategories'>>;
+}
+export interface DeleteCategoryPayload {
+  categoryKey: string;
+}
+export interface AddSubcategoryPayload {
+  categoryKey: string;
+  name: string;
+}
+export interface RemoveSubcategoryPayload {
+  categoryKey: string;
+  subcategoryKey: string;
+}
+
+const NO_CATEGORIES: Category[] = [];
 
 export const useCategories = () => {
-  return useSyncedQuery(
-    'categories',
-    () => db.categories.where('_isDeleted').equals(0).sortBy('name'),
-    NO_CATEGORIES,
-    []
-  );
+  const query = useQuery({
+    queryKey: queryKeys.categories.all,
+    queryFn: fetchCategories,
+  });
+  return { ...query, data: query.data ?? NO_CATEGORIES };
 };
 
 /**
  * Categories that can actually be assigned to a product — those with at least
- * one subcategory.
- *
- * Previously a separate `/inventory/categories/valid` request; it is a
- * derivation of data we already mirror, so it is computed locally instead.
+ * one subcategory. Derived client-side from the already-fetched category list
+ * rather than a separate request.
  */
 export const useValidCategories = () => {
   const { data: categories, isLoading, isPending, isFetching, error } = useCategories();
@@ -74,21 +87,59 @@ export const useCategoryIcons = (): TablerIconMap | null => {
 };
 
 export const useCreateCategory = () => {
-  return useSyncedMutation<CategoryInput, Category>('categories', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CategoryInput) => createCategory(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };
 
 export const useUpdateCategory = () => {
-  return useSyncedMutation<UpdateCategoryPayload, Category>('categories', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryKey, updates }: UpdateCategoryPayload) =>
+      updateCategory(categoryKey, updates),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };
 
 export const useDeleteCategory = () => {
-  return useSyncedMutation<DeleteCategoryPayload, void>('categories', 'delete');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryKey }: DeleteCategoryPayload) => deleteCategory(categoryKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };
 
 export const useCreateSubcategory = () => {
-  return useSyncedMutation<AddSubcategoryPayload, Category>('categories', 'addSubcategory');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryKey, name }: AddSubcategoryPayload) =>
+      createSubcategory(categoryKey, name),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };
 
 export const useDeleteSubcategory = () => {
-  return useSyncedMutation<RemoveSubcategoryPayload, Category>('categories', 'removeSubcategory');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryKey, subcategoryKey }: RemoveSubcategoryPayload) =>
+      deleteSubcategory(categoryKey, subcategoryKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
 };

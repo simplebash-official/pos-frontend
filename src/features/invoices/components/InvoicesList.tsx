@@ -18,8 +18,8 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { INVOICE_SEARCH_FIELDS } from '@/shared/lib/searchFields';
+import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { syncEngine } from '@/offline/engine/SyncEngine';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { InvoiceDetailDrawer } from './InvoiceDetailDrawer';
@@ -77,6 +77,7 @@ const applyLocalInvoiceFilters = (items: Invoice[], f: InvoiceFilters) =>
   });
 
 export const InvoicesList = () => {
+  const queryClient = useQueryClient();
   // `invoices` is already newest-first (see `useAllInvoices`) — no extra sort needed.
   const { data: invoices, isLoading, isFetching } = useAllInvoices();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useBillingStats();
@@ -120,13 +121,9 @@ export const InvoicesList = () => {
   );
 
   // All 4 filters hit the backend while online (via `fetchInvoices`'s
-  // params) and fall back to a local pass over the Dexie mirror while
-  // offline — see `useBackendFilteredList`.
-  const {
-    results: filteredInvoices,
-    isSearching,
-    isOffline: searchIsOffline,
-  } = useBackendFilteredList(
+  // params); an instant local pass over the already-loaded list covers the
+  // gap while that request is in flight — see `useBackendFilteredList`.
+  const { results: filteredInvoices, isSearching } = useBackendFilteredList(
     invoices,
     INVOICE_SEARCH_FIELDS,
     filters,
@@ -277,7 +274,9 @@ export const InvoicesList = () => {
               variant="light"
               leftSection={<IconRefresh size={14} />}
               loading={isFetching}
-              onClick={() => void syncEngine.syncNow()}
+              onClick={() =>
+                void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all })
+              }
             >
               Refresh List
             </Button>
@@ -374,9 +373,9 @@ export const InvoicesList = () => {
               />
             </Group>
           </Group>
-          {searchQuery.trim() !== '' && (searchIsOffline || isSearching) && (
+          {searchQuery.trim() !== '' && isSearching && (
             <Text size="xs" c="dimmed" mt="xs">
-              {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+              Searching…
             </Text>
           )}
         </Paper>

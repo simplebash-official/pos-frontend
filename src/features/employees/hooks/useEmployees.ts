@@ -1,37 +1,72 @@
-import { db } from '@/offline/db/schema';
-import type { MirroredRow } from '@/offline/db/tables';
-import { useSyncedMutation } from '@/offline/react/useSyncedMutation';
-import { useSyncedQuery } from '@/offline/react/useSyncedQuery';
-import type {
-  DeleteEmployeePayload,
-  DeleteEmployeesPayload,
-  UpdateEmployeePayload,
-} from '@/offline/resources/employees.resource';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import {
+  createEmployee,
+  deleteEmployee,
+  deleteEmployees,
+  fetchEmployees,
+  updateEmployee,
+} from '../api/employeesApi';
 import { Employee, EmployeeInput } from '../types';
 
-const NO_EMPLOYEES: MirroredRow<Employee>[] = [];
+export interface UpdateEmployeePayload {
+  employeeKey: string;
+  input: Partial<EmployeeInput>;
+}
+export interface DeleteEmployeePayload {
+  employeeKey: string;
+}
+export interface DeleteEmployeesPayload {
+  employeeKeys: string[];
+}
+
+const NO_EMPLOYEES: Employee[] = [];
 
 export const useAllEmployees = () => {
-  return useSyncedQuery(
-    'employees',
-    () => db.employees.where('_isDeleted').equals(0).sortBy('name'),
-    NO_EMPLOYEES,
-    []
-  );
+  const query = useQuery({
+    queryKey: queryKeys.employees.all,
+    queryFn: () => fetchEmployees(),
+  });
+  return { ...query, data: query.data ?? NO_EMPLOYEES };
 };
 
 export const useCreateEmployee = () => {
-  return useSyncedMutation<EmployeeInput, Employee>('employees', 'create');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: EmployeeInput) => createEmployee(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
 };
 
 export const useUpdateEmployee = () => {
-  return useSyncedMutation<UpdateEmployeePayload, Employee>('employees', 'update');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ employeeKey, input }: UpdateEmployeePayload) =>
+      updateEmployee(employeeKey, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
 };
 
 export const useDeleteEmployee = () => {
-  return useSyncedMutation<DeleteEmployeePayload, void>('employees', 'delete');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ employeeKey }: DeleteEmployeePayload) => deleteEmployee(employeeKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
 };
 
 export const useDeleteEmployees = () => {
-  return useSyncedMutation<DeleteEmployeesPayload, void>('employees', 'deleteMany');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ employeeKeys }: DeleteEmployeesPayload) => deleteEmployees(employeeKeys),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
 };

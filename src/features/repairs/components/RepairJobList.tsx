@@ -13,7 +13,7 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { syncEngine } from '@/offline/engine/SyncEngine';
+import { useQueryClient } from '@tanstack/react-query';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { RepairJob, RepairJobInput } from '../types';
 import {
@@ -66,6 +66,7 @@ const applyLocalRepairFilters = (items: RepairJob[], f: RepairFilters) =>
   });
 
 export const RepairJobList = () => {
+  const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -79,13 +80,10 @@ export const RepairJobList = () => {
 
   const filters: RepairFilters = { search: searchQuery, status: statusFilter, datePreset };
 
-  // All filters hit the backend while online, fall back to a local pass
-  // over the Dexie mirror while offline — see `useBackendFilteredList`.
-  const {
-    results: filteredRepairJobs,
-    isSearching,
-    isOffline: searchIsOffline,
-  } = useBackendFilteredList(
+  // Filters hit the backend; an instant local pass over the already-loaded
+  // list covers the gap while that request is in flight — see
+  // `useBackendFilteredList`.
+  const { results: filteredRepairJobs, isSearching } = useBackendFilteredList(
     repairJobs,
     REPAIR_JOB_SEARCH_FIELDS,
     filters,
@@ -274,7 +272,9 @@ export const RepairJobList = () => {
               variant="light"
               leftSection={<IconRefresh size={14} />}
               loading={isFetching}
-              onClick={() => void syncEngine.syncNow()}
+              onClick={() =>
+                void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all })
+              }
             >
               Refresh List
             </Button>
@@ -365,9 +365,9 @@ export const RepairJobList = () => {
             />
           </Group>
         </Group>
-        {searchQuery.trim() !== '' && (searchIsOffline || isSearching) && (
+        {searchQuery.trim() !== '' && isSearching && (
           <Text size="xs" c="dimmed" mt="xs">
-            {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+            Searching…
           </Text>
         )}
       </Paper>

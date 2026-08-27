@@ -35,7 +35,7 @@ import {
   IconSquareCheck,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import type { Invoice } from '@/features/billing/types';
+import type { Invoice, CreditNote } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
@@ -47,7 +47,6 @@ import {
 import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
 import { useInvoiceCreditNotes } from '@/features/billing/hooks/useCreditNotes';
 import { useVoidInvoice, useCloseInvoice } from '@/features/billing/hooks/useInvoices';
-import type { CreditNote } from '@/offline/db/tables';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
 

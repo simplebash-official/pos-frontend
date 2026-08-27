@@ -1,4 +1,4 @@
-import { apiClient, type MutationRequestOptions } from '@/api/client';
+import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { PrintJob, PrintJobInput, PrintJobType } from '../types';
 
@@ -82,10 +82,10 @@ export interface FetchPrintJobsParams {
   datePreset?: 'today';
 }
 
-// These params are only passed by `useBackendFilteredList`
-// (`PrintJobList.tsx`) — the sync engine's `pull.full`
-// (`printJobs.resource.ts`) and `CatalogPanel.tsx` always call this with no
-// params, so a filter never scopes what gets mirrored offline.
+// One page (backend's 200 max), used for a filtered/searched request —
+// called by `useBackendFilteredList` (`PrintJobList.tsx`) with `search`/
+// `status`/`datePreset`, where the top-200 matches are what's wanted, not
+// every job.
 export const fetchPrintJobs = async (params?: FetchPrintJobsParams): Promise<PrintJob[]> => {
   const response = await apiClient.get<ApiResponse<PrintJobListResponseData>>('/print-jobs', {
     params: {
@@ -98,54 +98,46 @@ export const fetchPrintJobs = async (params?: FetchPrintJobsParams): Promise<Pri
   return response.data.printJobs.map(toPrintJob);
 };
 
-// REST-only — no `mockEmployees` commission side effect here. Per the
-// offline-sync rule that only `src/offline/resources/` may import a synced
-// resource's `api/` module, `printJobs.resource.ts` is the only caller of
-// these three; it runs the commission bookkeeping itself, inside `push`,
-// after the server call below succeeds.
-export const createPrintJobRaw = async (
-  input: PrintJobInput,
-  options?: MutationRequestOptions
-): Promise<PrintJob> => {
-  const response = await apiClient.post<ApiResponse<BackendPrintJob>>(
-    '/print-jobs',
-    input,
-    options
-  );
+/**
+ * Every print job, looping past the backend's 200-per-page cap — for the
+ * unfiltered `PrintJobList` default view, which must not silently truncate
+ * a shop's job history once it grows past one page.
+ */
+export const fetchAllPrintJobs = async (): Promise<PrintJob[]> => {
+  const fetchPage = async (page: number) => {
+    const response = await apiClient.get<ApiResponse<PrintJobListResponseData>>('/print-jobs', {
+      params: { page, limit: 200 },
+    });
+    return response.data;
+  };
+
+  const firstPage = await fetchPage(1);
+  const printJobs = [...firstPage.printJobs];
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const next = await fetchPage(page);
+    printJobs.push(...next.printJobs);
+  }
+  return printJobs.map(toPrintJob);
+};
+
+export const createPrintJobRaw = async (input: PrintJobInput): Promise<PrintJob> => {
+  const response = await apiClient.post<ApiResponse<BackendPrintJob>>('/print-jobs', input);
   return toPrintJob(response.data);
 };
 
 export const updatePrintJobRaw = async (
   id: string,
-  input: Partial<PrintJobInput>,
-  options?: MutationRequestOptions
+  input: Partial<PrintJobInput>
 ): Promise<PrintJob> => {
-  const response = await apiClient.patch<ApiResponse<BackendPrintJob>>(
-    `/print-jobs/${id}`,
-    input,
-    options
-  );
+  const response = await apiClient.patch<ApiResponse<BackendPrintJob>>(`/print-jobs/${id}`, input);
   return toPrintJob(response.data);
 };
 
 /**
  * There is no `/print-jobs/batch` route, so a bulk delete is N separate
- * requests. The idempotency store's uniqueness is `(key, user_id)` only —
- * not scoped per request — so every request here MUST get its own derived
- * key; reusing `options.idempotencyKey` verbatim across all N calls would
- * make requests 2..N replay request 1's cached response instead of
- * actually deleting anything.
+ * requests — each gets its own auto-generated `Idempotency-Key` from
+ * `apiClient`'s request interceptor, so a retry of one never replays another.
  */
-export const deletePrintJobsRaw = async (
-  ids: string[],
-  options?: MutationRequestOptions
-): Promise<void> => {
-  await Promise.all(
-    ids.map((id) =>
-      apiClient.delete(`/print-jobs/${id}`, {
-        ...options,
-        idempotencyKey: options?.idempotencyKey ? `${options.idempotencyKey}:${id}` : undefined,
-      })
-    )
-  );
+export const deletePrintJobsRaw = async (ids: string[]): Promise<void> => {
+  await Promise.all(ids.map((id) => apiClient.delete(`/print-jobs/${id}`)));
 };

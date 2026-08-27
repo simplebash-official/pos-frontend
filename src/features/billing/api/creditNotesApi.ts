@@ -1,4 +1,4 @@
-import { apiClient, type MutationRequestOptions } from '@/api/client';
+import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import type {
   CreditNote,
@@ -8,7 +8,7 @@ import type {
   CreditNoteItemDisposition,
   CreditNoteStatus,
   RefundBreakdownLeg,
-} from '@/offline/db/tables';
+} from '../types';
 
 // Request/response shapes for `/billing/credit-notes` — mirrors the
 // backend's `domain::billing::CreateCreditNoteRequest`/`CreditNote`. A
@@ -184,14 +184,10 @@ export interface FetchCreditNotesParams {
   search?: string;
 }
 
-export const createCreditNote = async (
-  input: CreateCreditNoteInput,
-  options?: MutationRequestOptions
-): Promise<CreditNote> => {
+export const createCreditNote = async (input: CreateCreditNoteInput): Promise<CreditNote> => {
   const response = await apiClient.post<ApiResponse<BackendCreditNote>>(
     '/billing/credit-notes',
-    input,
-    options
+    input
   );
   return toCreditNote(response.data);
 };
@@ -218,15 +214,10 @@ export const fetchCreditNoteById = async (idOrKey: string): Promise<CreditNote> 
 // balance effect and any resalable-restock stock movement, and blocks a
 // `close_invoice` guard from clearing on the original invoice until this
 // runs — mirrors `voidInvoice` in `invoicesApi.ts`.
-export const voidCreditNote = async (
-  idOrKey: string,
-  reason: string,
-  options?: MutationRequestOptions
-): Promise<CreditNote> => {
+export const voidCreditNote = async (idOrKey: string, reason: string): Promise<CreditNote> => {
   const response = await apiClient.post<ApiResponse<BackendCreditNote>>(
     `/billing/credit-notes/${idOrKey}/void`,
-    { reason },
-    options
+    { reason }
   );
   return toCreditNote(response.data);
 };

@@ -32,7 +32,7 @@ import {
   IconList,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { syncEngine } from '@/offline/engine/SyncEngine';
+import { useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -72,6 +72,7 @@ const applyLocalSupplierFilters = (items: Supplier[], f: SupplierFilters) =>
   items.filter((s) => f.category === 'all' || s.suppliedCategories.includes(f.category));
 
 export const SupplierList = () => {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -94,13 +95,10 @@ export const SupplierList = () => {
 
   const filters: SupplierFilters = { search, category: categoryFilter };
 
-  // All filters hit the backend while online, fall back to a local pass
-  // over the Dexie mirror while offline — see `useBackendFilteredList`.
-  const {
-    results: filteredSuppliers,
-    isSearching,
-    isOffline: searchIsOffline,
-  } = useBackendFilteredList(
+  // Filters hit the backend; an instant local pass over the already-loaded
+  // list covers the gap while that request is in flight — see
+  // `useBackendFilteredList`.
+  const { results: filteredSuppliers, isSearching } = useBackendFilteredList(
     suppliers,
     SUPPLIER_SEARCH_FIELDS,
     filters,
@@ -130,8 +128,6 @@ export const SupplierList = () => {
         supplierKey: supplierToEdit.id,
         input: values,
       });
-      // Queued rather than sent directly, so the links survive being saved
-      // while offline and are pushed after the supplier itself lands.
       await setLinksMutation.mutateAsync({
         supplierKey: supplierToEdit.key,
         productKeys: linkedProductKeys,
@@ -280,7 +276,9 @@ export const SupplierList = () => {
                 variant="light"
                 leftSection={<IconRefresh size={14} />}
                 loading={isFetching}
-                onClick={() => void syncEngine.syncNow()}
+                onClick={() =>
+                  void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all })
+                }
               >
                 Refresh List
               </Button>
@@ -378,9 +376,9 @@ export const SupplierList = () => {
               />
             </Group>
           </Group>
-          {search.trim() !== '' && (searchIsOffline || isSearching) && (
+          {search.trim() !== '' && isSearching && (
             <Text size="xs" c="dimmed" mt="xs">
-              {searchIsOffline ? 'Offline — searching your last synced data.' : 'Searching…'}
+              Searching…
             </Text>
           )}
         </Paper>

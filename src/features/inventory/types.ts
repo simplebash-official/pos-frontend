@@ -122,6 +122,34 @@ export interface StockMovement extends SyncedEntityFields {
   updatedAt: string;
 }
 
+/**
+ * The lifecycle of one serial-tracked unit, independent of the product's
+ * aggregate stock count. Server-owned end to end (minted on stock receipt,
+ * transitioned on sale/return).
+ */
+export type ProductSerialStatus =
+  | 'in_stock'
+  | 'sold'
+  | 'returned_resalable'
+  | 'returned_faulty'
+  | 'under_warranty_claim'
+  | 'written_off';
+
+export interface ProductSerial {
+  id: string;
+  key: string;
+  productKey: string;
+  serialNumber: string;
+  status: ProductSerialStatus;
+  invoiceKey?: string;
+  soldAt?: string;
+  warrantyMonths?: number;
+  warrantyExpiresAt?: string;
+  creditNoteKey?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProductListResponse {
   items: Product[];
   total: number;

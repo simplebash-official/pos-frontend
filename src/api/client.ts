@@ -4,34 +4,19 @@ import { STORAGE_KEYS } from '@/constants';
 import {
   HEADER_DEVICE_ID,
   HEADER_IDEMPOTENCY_KEY,
-  HEADER_IF_MATCH,
   HEADER_SERVER_TIME,
   REQUEST_TIMEOUT_MS,
 } from '@/offline/constants';
 import { reportNetworkObservation } from '@/offline/connectivity/networkSignal';
-import { getDeviceId } from '@/offline/ids/deviceId';
+import { getDeviceId } from '@/api/deviceId';
+import { createIdempotencyKey } from '@/shared/lib/id';
 import { ApiError } from '@/shared/types/common';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {
   params?: Record<string, string | number | boolean | undefined>;
-  /**
-   * Replay guard for outboxed mutations. The same key on a retry makes the
-   * backend return the original response instead of applying the write twice.
-   */
-  idempotencyKey?: string;
-  /**
-   * Server `version` the caller's change was based on, for optimistic
-   * concurrency. A mismatch comes back as a 409 with the current entity.
-   */
-  baseVersion?: number;
 }
 
-/**
- * The subset of request options a synced mutation forwards. Feature `api/`
- * functions accept this so the outbox can attach a replay guard and an
- * optimistic-concurrency token without knowing anything about axios.
- */
-export type MutationRequestOptions = Pick<RequestOptions, 'idempotencyKey' | 'baseVersion'>;
+const MUTATING_METHODS = new Set(['post', 'put', 'patch', 'delete']);
 
 const isApiErrorLike = (data: unknown): data is ApiError => {
   return (
@@ -52,20 +37,6 @@ const readServerTime = (headers: unknown): string | null => {
   }
   const value = (headers as Record<string, unknown>)[HEADER_SERVER_TIME];
   return typeof value === 'string' ? value : null;
-};
-
-const buildSyncHeaders = (
-  idempotencyKey?: string,
-  baseVersion?: number
-): Record<string, string> => {
-  const headers: Record<string, string> = {};
-  if (idempotencyKey !== undefined) {
-    headers[HEADER_IDEMPOTENCY_KEY] = idempotencyKey;
-  }
-  if (baseVersion !== undefined) {
-    headers[HEADER_IF_MATCH] = String(baseVersion);
-  }
-  return headers;
 };
 
 const buildParams = (params?: RequestOptions['params']) => {
@@ -93,6 +64,14 @@ class ApiClient {
         config.headers.set('Authorization', `Bearer ${token}`);
       }
       config.headers.set(HEADER_DEVICE_ID, getDeviceId());
+      // A replay guard on every mutating request: if a response is lost (a
+      // power cut mid-request) and the caller retries with the same config,
+      // the backend returns the original response instead of double-applying
+      // the write. Only set when the caller hasn't already supplied one.
+      const method = config.method?.toLowerCase();
+      if (method && MUTATING_METHODS.has(method) && !config.headers.has(HEADER_IDEMPOTENCY_KEY)) {
+        config.headers.set(HEADER_IDEMPOTENCY_KEY, createIdempotencyKey());
+      }
       return config;
     });
 
@@ -121,10 +100,9 @@ class ApiClient {
           }
         }
         // A cancelled request says nothing about the network — we cancelled
-        // it. The sync engine aborts its own in-flight requests on stop and
-        // logout, and TanStack cancels queries routinely; counting those as
-        // evidence of an outage flips the whole app to "Working offline"
-        // moments after signing out.
+        // it (TanStack cancels queries routinely, e.g. on unmount or a
+        // changed query key); counting those as evidence of an outage would
+        // flip the whole app to "Working offline" on an ordinary navigation.
         if (axios.isCancel(error)) {
           return Promise.reject({
             message: 'Request cancelled.',
@@ -143,11 +121,11 @@ class ApiClient {
   }
 
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    const { params, idempotencyKey, baseVersion, headers, ...restOptions } = options;
+    const { params, headers, ...restOptions } = options;
     const response = await this.axiosInstance.request<T>({
       url: endpoint,
       ...restOptions,
-      headers: { ...headers, ...buildSyncHeaders(idempotencyKey, baseVersion) },
+      headers,
       params: buildParams(params),
     });
     return response.data;

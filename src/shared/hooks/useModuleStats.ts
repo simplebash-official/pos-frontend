@@ -15,10 +15,8 @@ export interface ModuleStatsResult<T> {
 /**
  * Fetches a module's dashboard-KPI numbers from the network and mirrors the
  * result into Dexie's `statsCache` table so `MetricCardRow` still has
- * something to show offline. Not a synced resource — see
- * `features/billing/api/statsApi.ts`'s doc comment for why — so this is a
- * plain TanStack Query fetch with its own narrow offline fallback, not
- * `useSyncedQuery`.
+ * something to show if a fetch fails — a plain TanStack Query fetch with its
+ * own narrow local fallback.
  */
 export function useModuleStats<T>(
   module: 'billing' | 'repairs' | 'printJobs' | 'inventory' | 'suppliers' | 'customers',

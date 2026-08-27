@@ -9,12 +9,6 @@ import {
 } from '../api/usersApi';
 import type { CreateUserInput, UpdateUserInput } from '../types';
 
-/**
- * Plain TanStack Query, not `useSyncedQuery`/`useSyncedMutation` — `users`
- * is not a synced resource (see `usersApi.ts`'s doc comment), so
- * `invalidateQueries` here is the one deliberate exception to the "never
- * reintroduce `invalidateQueries` for synced data" rule.
- */
 export const useUsers = (params?: UserListParams) => {
   return useQuery({
     queryKey: queryKeys.users.list(params),

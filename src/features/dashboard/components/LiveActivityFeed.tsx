@@ -4,7 +4,6 @@ import {
   IconReceipt,
   IconHammer,
   IconPrinter,
-  IconCoin,
   IconAlertTriangle,
   IconArrowUpRight,
 } from '@tabler/icons-react';
@@ -28,8 +27,6 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
         return <IconHammer size={16} />;
       case 'print_new':
         return <IconPrinter size={16} />;
-      case 'credit_payment':
-        return <IconCoin size={16} />;
       case 'stock_alert':
         return <IconAlertTriangle size={16} />;
     }

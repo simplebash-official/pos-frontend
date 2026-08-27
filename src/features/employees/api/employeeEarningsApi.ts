@@ -4,9 +4,8 @@ import { EmployeeEarningRecord } from '../types';
 
 /**
  * Itemized commission history for one employee, computed server-side by
- * `reports::service::employee_earnings` — never persisted client-side. Not
- * a synced resource: an aggregate has no row identity to mirror through the
- * sync engine (see `frontend/CLAUDE.md`'s Dashboard stats endpoints note).
+ * `reports::service::employee_earnings` — never persisted client-side (see
+ * `frontend/CLAUDE.md`'s Dashboard stats endpoints note).
  */
 export const fetchEmployeeEarnings = async (
   employeeKey: string

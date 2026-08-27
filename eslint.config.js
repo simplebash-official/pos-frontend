@@ -16,6 +16,9 @@ export default tseslint.config(
       '.claude/**',
       '.github/**',
       '.obsidian/**',
+      // Disabled pending a future sync backend — see src/features/sync/'s
+      // components, which still reference the removed offline sync engine.
+      'src/features/sync/**',
     ],
   },
   {
