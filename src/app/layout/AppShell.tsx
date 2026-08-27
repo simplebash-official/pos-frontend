@@ -28,6 +28,11 @@ const KeyboardShortcutsModal = lazy(() =>
     default: m.KeyboardShortcutsModal,
   }))
 );
+const CalculatorModal = lazy(() =>
+  import('@/shared/components/calculator/CalculatorModal').then((m) => ({
+    default: m.CalculatorModal,
+  }))
+);
 
 const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.DASHBOARD]: 'Shop Cockpit · JANA2U POS',
@@ -48,6 +53,7 @@ export const AppShell = () => {
   const [focusMode, setFocusMode] = useState(false);
   const [heldDrawerOpen, setHeldDrawerOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   const location = useLocation();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -74,6 +80,11 @@ export const AppShell = () => {
     [{ key: 'F11', ignoreInput: true, handler: () => setFocusMode((prev) => !prev) }],
     isBillingPage
   );
+
+  // Alt+C calculator hotkey
+  useAppShortcuts([
+    { key: 'Alt+C', ignoreInput: true, handler: () => setCalculatorOpen((prev) => !prev) },
+  ]);
 
   const isDashboard = location.pathname === ROUTES.DASHBOARD || location.pathname === '/';
   const [heroClockVisible, setHeroClockVisible] = useState(isDashboard);
@@ -148,6 +159,7 @@ export const AppShell = () => {
           onToggleFocusMode={() => setFocusMode((prev) => !prev)}
           onOpenHeldDrawer={() => setHeldDrawerOpen(true)}
           onOpenShortcuts={() => setShortcutsOpen(true)}
+          onOpenCalculator={() => setCalculatorOpen(true)}
         />
       </MantineAppShell.Header>
 
@@ -169,7 +181,7 @@ export const AppShell = () => {
           overflowY: isBillingPage ? 'hidden' : 'auto',
         }}
       >
-        <Outlet context={{ setHeldDrawerOpen, setShortcutsOpen }} />
+        <Outlet context={{ setHeldDrawerOpen, setShortcutsOpen, setCalculatorOpen }} />
       </MantineAppShell.Main>
 
       <GlobalQuickSearchModal />
@@ -180,6 +192,9 @@ export const AppShell = () => {
         )}
         {shortcutsOpen && (
           <KeyboardShortcutsModal opened={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+        )}
+        {calculatorOpen && (
+          <CalculatorModal opened={calculatorOpen} onClose={() => setCalculatorOpen(false)} />
         )}
       </Suspense>
     </MantineAppShell>
