@@ -22,4 +22,22 @@ describe('ModernClock component', () => {
       period: 'AM',
     });
   });
+
+  it('validates clock time segmentation for both AM and PM boundaries', () => {
+    const morningDate = new Date(2026, 7, 27, 9, 5, 2);
+    expect(parseClockTimeParts(formatClockTime(morningDate))).toEqual({
+      hours: '09',
+      minutes: '05',
+      seconds: '02',
+      period: 'AM',
+    });
+
+    const eveningDate = new Date(2026, 7, 27, 21, 45, 30);
+    expect(parseClockTimeParts(formatClockTime(eveningDate))).toEqual({
+      hours: '09',
+      minutes: '45',
+      seconds: '30',
+      period: 'PM',
+    });
+  });
 });

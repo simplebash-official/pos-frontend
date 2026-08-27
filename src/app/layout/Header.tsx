@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   Group,
   Burger,
@@ -10,6 +9,7 @@ import {
   Text,
   Avatar,
   Indicator,
+  Box,
 } from '@mantine/core';
 import {
   IconShoppingCart,
@@ -31,11 +31,13 @@ import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { ModernClock } from '@/shared/components/ModernClock';
 
 export interface HeaderProps {
   opened: boolean;
   toggle: () => void;
   focusMode?: boolean;
+  heroClockVisible?: boolean;
   onToggleFocusMode?: () => void;
   onOpenHeldDrawer?: () => void;
   onOpenShortcuts?: () => void;
@@ -45,14 +47,17 @@ export const Header = ({
   opened,
   toggle,
   focusMode = false,
+  heroClockVisible = false,
   onToggleFocusMode,
   onOpenHeldDrawer,
   onOpenShortcuts,
 }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isDashboard = location.pathname === ROUTES.DASHBOARD || location.pathname === '/';
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const isMobile = useIsMobile();
+  const showHeaderClock = isDashboard ? !heroClockVisible : true;
 
   const user = useAppSelector(selectAuthUser);
   const userName = user?.name || user?.email?.split('@')[0] || 'Operator';
@@ -65,46 +70,30 @@ export const Header = ({
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
 
-  // Live ticking clock for billing strip
-  const [timeStr, setTimeStr] = useState<string>('');
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeStr(
-        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      );
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   if (isBillingPage) {
     return (
       <Group h="100%" px="sm" justify="space-between" align="center" style={{ userSelect: 'none' }}>
-        {/* Left: Brand & Connection Status */}
-        <Group gap="xs" align="center">
+        {/* Left: Brand & Styled Clock */}
+        <Group gap="xs" align="center" wrap="nowrap">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="xs" />
           <Title
             order={5}
-            style={{ cursor: 'pointer', letterSpacing: '-0.3px' }}
+            style={{ cursor: 'pointer', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}
             onClick={() => navigate(ROUTES.DASHBOARD)}
           >
             JANA2U POS
           </Title>
-          <Text
-            size="xs"
-            c="dimmed"
-            fw={600}
-            visibleFrom="sm"
-            style={{ fontFamily: 'monospace', marginLeft: 8 }}
-          >
-            {timeStr}
-          </Text>
+          <Box visibleFrom="xs" ml={6}>
+            <ModernClock
+              variant="compact"
+              withBorder={false}
+              style={{ backgroundColor: 'transparent', padding: 0 }}
+            />
+          </Box>
         </Group>
 
         {/* Right: Cashier, Held Sales, Sound, Focus Mode, Shortcuts */}
-        <Group gap="xs" align="center">
+        <Group gap="xs" align="center" wrap="nowrap">
           {heldCarts.length > 0 && (
             <Button
               size="xs"
@@ -168,7 +157,7 @@ export const Header = ({
           <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
-            <Group gap={6} style={{ cursor: 'default' }}>
+            <Group gap={6} style={{ cursor: 'default' }} wrap="nowrap">
               <Avatar size={24} radius="xl" color="blue" src={null}>
                 {initial}
               </Avatar>
@@ -184,7 +173,7 @@ export const Header = ({
 
   // Non-billing standard header
   return (
-    <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+    <Group h="100%" px="md" justify="space-between" wrap="nowrap" align="center">
       <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, overflow: 'hidden' }}>
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         <Title
@@ -196,7 +185,21 @@ export const Header = ({
         </Title>
       </Group>
 
-      <Group gap="xs" wrap="nowrap">
+      {/* Dynamic Header Clock: smoothly shown on scroll or on other screens */}
+      <Box
+        style={{
+          opacity: showHeaderClock ? 1 : 0,
+          transform: showHeaderClock ? 'translateY(0) scale(1)' : 'translateY(-6px) scale(0.96)',
+          pointerEvents: showHeaderClock ? 'auto' : 'none',
+          transition: 'opacity 220ms ease, transform 220ms ease, visibility 220ms ease',
+          visibility: showHeaderClock ? 'visible' : 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        <ModernClock variant="header" />
+      </Box>
+
+      <Group gap="xs" wrap="nowrap" align="center">
         <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
         {isMobile ? (
