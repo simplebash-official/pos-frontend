@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useEffect } from 'react';
 import { Paper, Group, Text, Badge, ThemeIcon } from '@mantine/core';
 import { IconClock } from '@tabler/icons-react';
@@ -79,7 +80,13 @@ export const ModernClock = ({
                 <span style={{ color: 'var(--text-muted)' }}>:</span>
                 <span style={{ color: 'var(--mantine-color-blue-6)' }}>{seconds}</span>
               </Text>
-              <Badge variant="light" color="blue" size="xs" px={4} style={{ height: 16, fontSize: 9 }}>
+              <Badge
+                variant="light"
+                color="blue"
+                size="xs"
+                px={4}
+                style={{ height: 16, fontSize: 9 }}
+              >
                 {period}
               </Badge>
             </Group>
@@ -91,7 +98,7 @@ export const ModernClock = ({
                 color="blue"
                 style={{ height: 13, fontSize: 8, padding: '0 3px' }}
               >
-                Live
+                {t('Live')}
               </Badge>
               <Text
                 fw={700}
@@ -157,7 +164,7 @@ export const ModernClock = ({
 
           <Group gap={6} align="center" wrap="nowrap">
             <Badge size="xs" variant="light" color="blue">
-              Live
+              {t('Live')}
             </Badge>
             <Text
               fw={700}

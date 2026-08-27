@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Paper, Stack, Group, Text, Badge, ThemeIcon, Box } from '@mantine/core';
 import {
   IconActivity,
@@ -49,10 +50,10 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Live Shop Activity Stream
+                {t('Live Shop Activity Stream')}
               </Text>
               <Text size="xs" c="dimmed">
-                Chronological transaction feed, stage changes, and inventory updates
+                {t('Chronological transaction feed, stage changes, and inventory updates')}
               </Text>
             </div>
           </Group>
@@ -66,11 +67,12 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
                 <IconActivity size={22} />
               </ThemeIcon>
               <Text fw={700} size="sm">
-                No Activity Recorded Yet
+                {t('No Activity Recorded Yet')}
               </Text>
               <Text size="xs" c="dimmed" ta="center">
-                Transactions, ticket movements, print queue updates, and payments will stream live
-                here.
+                {t(
+                  'Transactions, ticket movements, print queue updates, and payments will stream live\n                                              here.'
+                )}
               </Text>
             </Stack>
           </Paper>

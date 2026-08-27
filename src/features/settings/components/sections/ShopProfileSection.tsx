@@ -1,9 +1,15 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
-import { SimpleGrid, TextInput } from '@mantine/core';
+import { SimpleGrid, TextInput, SegmentedControl, Text, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import {
+  selectShopProfile,
+  selectAppLanguage,
+  updateShopProfile,
+  setAppLanguage,
+} from '@/store/slices/settingsSlice';
 import { SectionShell } from '../SectionShell';
 
 interface ShopProfileFormValues {
@@ -24,6 +30,7 @@ export interface SectionProps {
 export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
   const shopProfile = useAppSelector(selectShopProfile);
+  const appLanguage = useAppSelector(selectAppLanguage);
 
   const form = useForm<ShopProfileFormValues>({
     initialValues: {
@@ -77,22 +84,45 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
 
   return (
     <SectionShell
-      title="Shop Profile"
-      description="Your business name, address and how customers can reach you."
+      title={t('Shop Profile')}
+      description={t('Your business name, address and how customers can reach you.')}
       isDirty={isDirty}
       onSave={handleSave}
       onCancel={() => form.reset()}
     >
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-        <TextInput label="Legal Business Name" {...form.getInputProps('legalName')} />
-        <TextInput label="Trading Name / Store Name" {...form.getInputProps('tradingName')} />
-        <TextInput label="Address Line 1" {...form.getInputProps('addressLine1')} />
-        <TextInput label="Address Line 2" {...form.getInputProps('addressLine2')} />
-        <TextInput label="Primary Phone" {...form.getInputProps('primaryPhone')} />
-        <TextInput label="Secondary Phone" {...form.getInputProps('secondaryPhone')} />
-        <TextInput label="Store Email" {...form.getInputProps('email')} />
-        <TextInput label="Website URL" {...form.getInputProps('website')} />
-      </SimpleGrid>
+      <Stack gap="xl">
+        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+          <TextInput label={t('Legal Business Name')} {...form.getInputProps('legalName')} />
+          <TextInput
+            label={t('Trading Name / Store Name')}
+            {...form.getInputProps('tradingName')}
+          />
+          <TextInput label={t('Address Line 1')} {...form.getInputProps('addressLine1')} />
+          <TextInput label={t('Address Line 2')} {...form.getInputProps('addressLine2')} />
+          <TextInput label={t('Primary Phone')} {...form.getInputProps('primaryPhone')} />
+          <TextInput label={t('Secondary Phone')} {...form.getInputProps('secondaryPhone')} />
+          <TextInput label={t('Store Email')} {...form.getInputProps('email')} />
+          <TextInput label={t('Website URL')} {...form.getInputProps('website')} />
+        </SimpleGrid>
+
+        <Stack gap="xs">
+          <Text fw={500} size="sm">
+            {t('System Language')}
+          </Text>
+          <Text c="dimmed" size="sm">
+            {t('Change the language of the application interface.')}
+          </Text>
+          <SegmentedControl
+            value={appLanguage}
+            onChange={(val) => dispatch(setAppLanguage(val as 'en' | 'si'))}
+            data={[
+              { label: 'English', value: 'en' },
+              { label: 'Sinhala', value: 'si' },
+            ]}
+            style={{ maxWidth: 300 }}
+          />
+        </Stack>
+      </Stack>
     </SectionShell>
   );
 };

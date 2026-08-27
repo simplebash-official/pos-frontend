@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Paper, Stack, Group, Text, Badge, ThemeIcon, Button, Box } from '@mantine/core';
 import { IconFlame, IconAlertTriangle, IconArrowRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -31,10 +32,10 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Fast-Moving Products Today
+                {t('Fast-Moving Products Today')}
               </Text>
               <Text size="xs" c="dimmed">
-                Top selling accessories and supplies today with remaining shelf stock
+                {t('Top selling accessories and supplies today with remaining shelf stock')}
               </Text>
             </div>
           </Group>
@@ -46,7 +47,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
             rightSection={<IconArrowRight size={14} />}
             onClick={() => navigate(ROUTES.INVENTORY)}
           >
-            Inventory
+            {t('Inventory')}
           </Button>
         </Group>
 
@@ -58,10 +59,12 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                 <IconFlame size={22} />
               </ThemeIcon>
               <Text fw={700} size="sm">
-                No Retail Products Sold Today
+                {t('No Retail Products Sold Today')}
               </Text>
               <Text size="xs" c="dimmed" ta="center">
-                Fast-moving products and accessories sold at the counter today will appear here.
+                {t(
+                  'Fast-moving products and accessories sold at the counter today will appear here.'
+                )}
               </Text>
             </Stack>
           </Paper>
@@ -111,7 +114,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                     <Group gap="md">
                       <div>
                         <Text size="3xs" c="dimmed" fw={700} tt="uppercase" ta="right">
-                          Sold Today
+                          {t('Sold Today')}
                         </Text>
                         <Text
                           size="sm"
@@ -119,13 +122,13 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                           ta="right"
                           style={{ fontVariantNumeric: 'tabular-nums' }}
                         >
-                          {item.soldTodayUnits} units
+                          {item.soldTodayUnits} {t('units')}
                         </Text>
                       </div>
 
                       <Box style={{ minWidth: 90, textAlign: 'right' }}>
                         <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                          Shelf Stock
+                          {t('Shelf Stock')}
                         </Text>
                         {isLowStock ? (
                           <Badge
@@ -134,11 +137,11 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                             variant="light"
                             leftSection={<IconAlertTriangle size={10} />}
                           >
-                            {item.remainingStock} left
+                            {item.remainingStock} {t('left')}
                           </Badge>
                         ) : (
                           <Badge size="xs" color="gray" variant="outline">
-                            {item.remainingStock} available
+                            {item.remainingStock} {t('available')}
                           </Badge>
                         )}
                       </Box>

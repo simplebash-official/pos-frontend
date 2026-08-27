@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, type ReactNode } from 'react';
 import { ActionIcon, Box, Group, Stack, Text } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
@@ -64,8 +65,8 @@ export const SettingsPage = () => {
 
   const header = (
     <PageHeader
-      title="POS & Document Settings"
-      description="Configure shop profile, VAT settings, bank details, and printing behavior."
+      title={t('POS & Document Settings')}
+      description={t('Configure shop profile, VAT settings, bank details, and printing behavior.')}
     />
   );
 
@@ -97,7 +98,7 @@ export const SettingsPage = () => {
             variant="default"
             size={44}
             onClick={() => requestNavigate('back')}
-            aria-label="Back to settings list"
+            aria-label={t('Back to settings list')}
           >
             <IconChevronLeft size={20} />
           </ActionIcon>
@@ -128,11 +129,11 @@ export const SettingsPage = () => {
           }
           setPendingTarget(undefined);
         }}
-        title="Discard unsaved changes?"
-        confirmLabel="Discard Changes"
-        cancelLabel="Keep Editing"
+        title={t('Discard unsaved changes?')}
+        confirmLabel={t('Discard Changes')}
+        cancelLabel={t('Keep Editing')}
       >
-        You have unsaved changes in this section. Leaving now will discard them.
+        {t('You have unsaved changes in this section. Leaving now will discard them.')}
       </ConfirmDialog>
     </>
   );

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useMemo } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import {
@@ -98,8 +99,10 @@ export const ReportsDashboard = () => {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="Reports & Profit Intelligence"
-        description="Unified financial intelligence across billing, repairs, print jobs, and employee profit split commissions"
+        title={t('Reports & Profit Intelligence')}
+        description={t(
+          'Unified financial intelligence across billing, repairs, print jobs, and employee profit split commissions'
+        )}
       />
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }} spacing="md">
@@ -134,14 +137,14 @@ export const ReportsDashboard = () => {
           <Group justify="space-between" align="center">
             <div>
               <Text fw={800} size="md" c="indigo">
-                Employee Profit Split & Commission Breakdown
+                {t('Employee Profit Split & Commission Breakdown')}
               </Text>
               <Text size="xs" c="dimmed">
-                Track how much each employee earned vs net profit contribution to shop owner
+                {t('Track how much each employee earned vs net profit contribution to shop owner')}
               </Text>
             </div>
             <Badge color="indigo" variant="light" size="sm">
-              No Fixed Salary • Profit Share
+              {t('No Fixed Salary • Profit Share')}
             </Badge>
           </Group>
 
@@ -154,12 +157,12 @@ export const ReportsDashboard = () => {
           >
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Employee Name & Role</Table.Th>
-                <Table.Th ta="center">Default Split Rule</Table.Th>
-                <Table.Th ta="right">Assigned Jobs</Table.Th>
-                <Table.Th>Revenue Generated</Table.Th>
-                <Table.Th>Employee Commission Payout</Table.Th>
-                <Table.Th>Net Shop Owner Profit</Table.Th>
+                <Table.Th>{t('Employee Name & Role')}</Table.Th>
+                <Table.Th ta="center">{t('Default Split Rule')}</Table.Th>
+                <Table.Th ta="right">{t('Assigned Jobs')}</Table.Th>
+                <Table.Th>{t('Revenue Generated')}</Table.Th>
+                <Table.Th>{t('Employee Commission Payout')}</Table.Th>
+                <Table.Th>{t('Net Shop Owner Profit')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -219,12 +222,17 @@ export const ReportsDashboard = () => {
                               {employee.defaultSplitType === 'percentage' ? (
                                 <Group gap={2}>
                                   <IconPercentage size={12} />
-                                  <span>{employee.defaultSplitValue}% Profit</span>
+                                  <span>
+                                    {employee.defaultSplitValue}
+                                    {t('% Profit')}
+                                  </span>
                                 </Group>
                               ) : (
                                 <Group gap={2}>
                                   <IconCoin size={12} />
-                                  <span>{formatMoney(employee.defaultSplitValue)} Fixed</span>
+                                  <span>
+                                    {formatMoney(employee.defaultSplitValue)} {t('Fixed')}
+                                  </span>
                                 </Group>
                               )}
                             </Badge>
@@ -236,7 +244,7 @@ export const ReportsDashboard = () => {
                         </Table.Td>
                         <Table.Td ta="right">
                           <Text size="sm" fw={600}>
-                            {jobsCount} jobs
+                            {jobsCount} {t('jobs')}
                           </Text>
                         </Table.Td>
                         <Table.Td>

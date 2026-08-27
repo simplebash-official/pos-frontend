@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Box, Group, NumberInput, SimpleGrid, Switch, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -57,8 +58,8 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
 
   return (
     <SectionShell
-      title="Printing & Documents"
-      description="Receipt paper size, copies, and what prints by default at checkout."
+      title={t('Printing & Documents')}
+      description={t('Receipt paper size, copies, and what prints by default at checkout.')}
       isDirty={isDirty}
       onSave={handleSave}
       onCancel={() => form.reset()}
@@ -67,7 +68,7 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         <Box>
           <Text size="xs" fw={700} c="dimmed" mb={4}>
-            THERMAL RECEIPT PAPER
+            {t('THERMAL RECEIPT PAPER')}
           </Text>
           <SegmentedToggle
             fullWidth
@@ -82,7 +83,7 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
 
         <Box>
           <Text size="xs" fw={700} c="dimmed" mb={4}>
-            A4 INVOICE COPY MODE
+            {t('A4 INVOICE COPY MODE')}
           </Text>
           <SegmentedToggle
             fullWidth
@@ -99,7 +100,7 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
 
         <Box>
           <Text size="xs" fw={700} c="dimmed" mb={4}>
-            DEFAULT DOCUMENT (WALK-IN GUEST)
+            {t('DEFAULT DOCUMENT (WALK-IN GUEST)')}
           </Text>
           <SegmentedToggle
             fullWidth
@@ -121,7 +122,7 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
 
         <Box>
           <Text size="xs" fw={700} c="dimmed" mb={4}>
-            DEFAULT DOCUMENT (ACCOUNT CUSTOMER)
+            {t('DEFAULT DOCUMENT (ACCOUNT CUSTOMER)')}
           </Text>
           <SegmentedToggle
             fullWidth
@@ -142,8 +143,8 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
         </Box>
 
         <NumberInput
-          label="Receipt Copies"
-          description="How many thermal receipts to print per sale"
+          label={t('Receipt Copies')}
+          description={t('How many thermal receipts to print per sale')}
           min={1}
           max={5}
           {...form.getInputProps('receiptCopies')}
@@ -153,10 +154,10 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
           <Group justify="space-between" align="center" style={{ width: '100%' }}>
             <div>
               <Text fw={600} size="sm">
-                Show Logo on Receipt
+                {t('Show Logo on Receipt')}
               </Text>
               <Text size="xs" c="dimmed">
-                Print your shop logo at the top of thermal receipts.
+                {t('Print your shop logo at the top of thermal receipts.')}
               </Text>
             </div>
             <Switch
@@ -170,10 +171,10 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
           <Group justify="space-between" align="center">
             <div>
               <Text fw={600} size="sm">
-                Show Tax on Invoices
+                {t('Show Tax on Invoices')}
               </Text>
               <Text size="xs" c="dimmed">
-                Show the VAT amount as a separate line on printed A4 invoices.
+                {t('Show the VAT amount as a separate line on printed A4 invoices.')}
               </Text>
             </div>
             <Switch

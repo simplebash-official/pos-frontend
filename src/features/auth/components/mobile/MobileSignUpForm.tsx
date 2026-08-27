@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { TextInput, PasswordInput, Checkbox, Button, Divider, Stack, Anchor } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
@@ -58,10 +59,10 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
           type="button"
           className="mobile-back-btn"
           onClick={onBack}
-          aria-label="Back to Welcome Screen"
+          aria-label={t('Back to Welcome Screen')}
         >
           <IconChevronLeft size={18} stroke={2.5} />
-          <span>Back</span>
+          <span>{t('Back')}</span>
         </button>
       </div>
 
@@ -70,13 +71,13 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
 
       {/* Bottom Sheet Card */}
       <div className="mobile-auth-sheet">
-        <h2 className="mobile-sheet-title">Get Started</h2>
+        <h2 className="mobile-sheet-title">{t('Get Started')}</h2>
 
         <form onSubmit={handleSignUp} noValidate>
           <Stack gap="sm">
             <TextInput
-              label="Full Name"
-              placeholder="Enter Full Name"
+              label={t('Full Name')}
+              placeholder={t('Enter Full Name')}
               value={fullName}
               onChange={(e) => setFullName(e.currentTarget.value)}
               className="mobile-auth-input"
@@ -84,8 +85,8 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
             />
 
             <TextInput
-              label="Email"
-              placeholder="Enter Email"
+              label={t('Email')}
+              placeholder={t('Enter Email')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               className="mobile-auth-input"
@@ -94,8 +95,8 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
             />
 
             <PasswordInput
-              label="Password"
-              placeholder="Enter Password"
+              label={t('Password')}
+              placeholder={t('Enter Password')}
               value={password}
               onChange={(e) => setPassword(e.currentTarget.value)}
               className="mobile-auth-input"
@@ -105,7 +106,7 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
             <Checkbox
               label={
                 <span style={{ fontSize: 13 }}>
-                  I agree to the processing of{' '}
+                  {t('I agree to the processing of')}{' '}
                   <Anchor
                     href="#terms"
                     size="xs"
@@ -121,7 +122,7 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
                       });
                     }}
                   >
-                    Personal data
+                    {t('Personal data')}
                   </Anchor>
                 </span>
               }
@@ -139,15 +140,15 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
               className="mobile-primary-btn"
               mt="xs"
             >
-              Sign up
+              {t('Sign up')}
             </Button>
 
-            <Divider label="Sign up with" labelPosition="center" my="xs" />
+            <Divider label={t('Sign up with')} labelPosition="center" my="xs" />
 
             <MobileSocialButtons mode="signup" />
 
             <div className="mobile-auth-footer">
-              Already have an account?{' '}
+              {t('Already have an account?')}{' '}
               <span
                 role="button"
                 tabIndex={0}
@@ -160,7 +161,7 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
                   }
                 }}
               >
-                Sign in
+                {t('Sign in')}
               </span>
             </div>
           </Stack>

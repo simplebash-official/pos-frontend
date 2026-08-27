@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import React from 'react';
 import { Group, Stack, Badge, Text, ActionIcon, Tooltip } from '@mantine/core';
 import { IconCopy, IconCheck } from '@tabler/icons-react';
@@ -43,12 +44,12 @@ export const PhoneDisplay = ({
         w={badgeWidth}
         style={{ justifyContent: 'center', flexShrink: 0 }}
       >
-        Primary
+        {t('Primary')}
       </Badge>
       <Group gap={4} wrap="nowrap" align="center">
         <Text size="xs">{displayPrimary}</Text>
         {displayPrimary !== 'N/A' && (
-          <Tooltip label="Copy Primary Phone" withArrow position="top">
+          <Tooltip label={t('Copy Primary Phone')} withArrow position="top">
             <ActionIcon
               variant="subtle"
               color="gray"

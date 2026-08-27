@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, memo } from 'react';
 import { Paper, Group, Box, Text, ActionIcon, Tooltip, Badge, ThemeIcon } from '@mantine/core';
 import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
@@ -111,7 +112,7 @@ export const CartLineItem = memo(function CartLineItem({
                   leftSection={<IconTools size={10} />}
                   style={{ flexShrink: 0 }}
                 >
-                  Repair
+                  {t('Repair')}
                 </Badge>
               )}
               {sourceType === 'print' && (
@@ -122,7 +123,7 @@ export const CartLineItem = memo(function CartLineItem({
                   leftSection={<IconPrinter size={10} />}
                   style={{ flexShrink: 0 }}
                 >
-                  Print
+                  {t('Print')}
                 </Badge>
               )}
             </Group>
@@ -139,12 +140,13 @@ export const CartLineItem = memo(function CartLineItem({
               )}
               {isStockNegative && (
                 <Text size="xs" c="red.6" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
-                  {item.sku ? ' · ' : ''}Out of Stock
+                  {item.sku ? ' · ' : ''}
+                  {t('Out of Stock')}
                 </Text>
               )}
               {item.assignedEmployeeName && (
                 <Text size="xs" c="orange.7" fw={600} style={{ fontSize: 10, flexShrink: 0 }}>
-                  · Tech: {item.assignedEmployeeName}
+                  {t('· Tech:')} {item.assignedEmployeeName}
                 </Text>
               )}
             </Group>
@@ -206,7 +208,7 @@ export const CartLineItem = memo(function CartLineItem({
         {/* Left: Quantity Counter */}
         {isServiceJob ? (
           <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
-            1 (Locked)
+            {t('1 (Locked)')}
           </Badge>
         ) : (
           <QuantityInput
@@ -221,7 +223,7 @@ export const CartLineItem = memo(function CartLineItem({
         <Group gap="xs" align="center">
           {!isServiceJob && item.quantity > 1 && (
             <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
-              {formatMoney(item.unitPriceCents)} each
+              {formatMoney(item.unitPriceCents)} {t('each')}
             </Text>
           )}
 

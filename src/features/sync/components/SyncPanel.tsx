@@ -1,3 +1,5 @@
+import { t } from '@/shared/i18n/t';
+
 // DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
 // this file is kept for a future sync backend. See src/features/sync/README.md.
 import { useEffect, useState } from 'react';
@@ -190,7 +192,7 @@ export const SyncPanel = () => {
             </Stack>
           </Group>
           <Tooltip
-            label="Another tab is handling sync for this device. Its changes appear here too."
+            label={t('Another tab is handling sync for this device. Its changes appear here too.')}
             disabled={canSync}
             withArrow
           >
@@ -203,42 +205,50 @@ export const SyncPanel = () => {
               disabled={!canSync}
               style={{ flexShrink: 0 }}
             >
-              Sync now
+              {t('Sync now')}
             </Button>
           </Tooltip>
         </Group>
 
         {totals.pending > 0 && (
           <Text size="xs" c="dimmed" mt="sm">
-            {totals.pending} change{totals.pending === 1 ? '' : 's'} waiting to upload.
+            {totals.pending} {t('change')}
+            {totals.pending === 1 ? '' : 's'} {t('waiting to upload.')}
           </Text>
         )}
       </Paper>
 
       {connectivity.state === 'offline' && (
-        <Alert color="orange" icon={<IconCloudOff size={16} />} title="Working offline">
-          You can keep selling and editing. Everything is saved on this device and uploads
-          automatically once the connection returns.
+        <Alert color="orange" icon={<IconCloudOff size={16} />} title={t('Working offline')}>
+          {t(
+            'You can keep selling and editing. Everything is saved on this device and uploads\n                            automatically once the connection returns.'
+          )}
         </Alert>
       )}
 
       {hasBadClock && (
-        <Alert color="red" icon={<IconAlertTriangle size={16} />} title="Device clock is wrong">
-          This device&apos;s clock is off by about {Math.round(Math.abs(clockSkew) / 60_000)}{' '}
-          minutes. Fix the date and time — records saved offline may be filed under the wrong time.
+        <Alert
+          color="red"
+          icon={<IconAlertTriangle size={16} />}
+          title={t('Device clock is wrong')}
+        >
+          {t('This device&apos;s clock is off by about')} {Math.round(Math.abs(clockSkew) / 60_000)}{' '}
+          {t(
+            'minutes. Fix the date and time — records saved offline may be filed under the wrong time.'
+          )}
         </Alert>
       )}
 
       {!isLeader && (
-        <Alert color="blue" title="Syncing in another tab">
-          Another tab of this app is handling the sync. Everything here stays up to date.
+        <Alert color="blue" title={t('Syncing in another tab')}>
+          {t('Another tab of this app is handling the sync. Everything here stays up to date.')}
         </Alert>
       )}
 
       {/* Modules */}
       <Stack gap="xs">
         <Text fw={600} size="sm">
-          Modules
+          {t('Modules')}
         </Text>
         <ExpandableCardGroup>
           {modules.map((module) => (
@@ -257,11 +267,11 @@ export const SyncPanel = () => {
       <Stack gap="xs">
         <Group justify="space-between">
           <Text fw={600} size="sm">
-            Changes waiting to sync
+            {t('Changes waiting to sync')}
           </Text>
           {totals.dead + totals.conflicts > 0 && (
             <Badge size="xs" color="red" variant="light">
-              {totals.dead + totals.conflicts} need attention
+              {totals.dead + totals.conflicts} {t('need attention')}
             </Badge>
           )}
         </Group>
@@ -273,7 +283,7 @@ export const SyncPanel = () => {
       {/* Maintenance */}
       <Stack gap="xs">
         <Text fw={600} size="sm">
-          This device
+          {t('This device')}
         </Text>
 
         {storage?.usageBytes !== null && storage?.quotaBytes ? (
@@ -284,10 +294,11 @@ export const SyncPanel = () => {
                   size={12}
                   style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}
                 />
-                Storage used
+
+                {t('Storage used')}
               </Text>
               <Text size="xs">
-                {formatBytes(storage.usageBytes)} of {formatBytes(storage.quotaBytes)}
+                {formatBytes(storage.usageBytes)} {t('of')} {formatBytes(storage.quotaBytes)}
               </Text>
             </Group>
             <Progress
@@ -300,7 +311,7 @@ export const SyncPanel = () => {
 
         <Group justify="space-between">
           <Text size="xs" c="dimmed">
-            Device ID
+            {t('Device ID')}
           </Text>
           <Text size="xs" style={{ fontFamily: 'monospace' }}>
             {getDeviceId().slice(0, 8)}
@@ -315,7 +326,7 @@ export const SyncPanel = () => {
             loading={isResyncing}
             onClick={() => void handleForceResync()}
           >
-            Re-download everything
+            {t('Re-download everything')}
           </Button>
           <Button
             size="xs"
@@ -323,7 +334,7 @@ export const SyncPanel = () => {
             leftSection={<IconDownload size={14} />}
             onClick={() => void handleExport()}
           >
-            Export diagnostics
+            {t('Export diagnostics')}
           </Button>
           <Button
             size="xs"
@@ -332,7 +343,7 @@ export const SyncPanel = () => {
             leftSection={<IconTrash size={14} />}
             onClick={() => setConfirmClearOpen(true)}
           >
-            Clear local data
+            {t('Clear local data')}
           </Button>
         </Group>
       </Stack>
@@ -341,19 +352,24 @@ export const SyncPanel = () => {
         opened={confirmClearOpen}
         onClose={() => setConfirmClearOpen(false)}
         onConfirm={() => void handleClearLocalData()}
-        title="Clear all local data?"
-        confirmLabel="Clear everything"
+        title={t('Clear all local data?')}
+        confirmLabel={t('Clear everything')}
         confirmColor="red"
       >
         <Stack gap="xs">
           <Text size="sm">
-            This deletes everything stored on this device and downloads it again from the server.
+            {t(
+              'This deletes everything stored on this device and downloads it again from the server.'
+            )}
           </Text>
           {totals.pending > 0 && (
             <Alert color="red" icon={<IconAlertTriangle size={16} />}>
-              {totals.pending} change{totals.pending === 1 ? '' : 's'} on this device{' '}
-              {totals.pending === 1 ? 'has' : 'have'} not reached the server yet and will be lost
-              permanently.
+              {totals.pending} {t('change')}
+              {totals.pending === 1 ? '' : 's'} {t('on this device')}{' '}
+              {totals.pending === 1 ? 'has' : 'have'}{' '}
+              {t(
+                'not reached the server yet and will be lost\n                                        permanently.'
+              )}
             </Alert>
           )}
         </Stack>

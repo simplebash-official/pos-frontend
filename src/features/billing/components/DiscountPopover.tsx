@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Popover, Stack, Group, Button, Text } from '@mantine/core';
 import { formatMoney, fromCents } from '@/shared/lib/money';
@@ -68,7 +69,7 @@ export const DiscountPopover = ({
       <Popover.Dropdown p="sm" style={{ width: 'min(280px, calc(100vw - 32px))' }}>
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed">
-            Discount For: {targetName}
+            {t('Discount For:')} {targetName}
           </Text>
 
           <SegmentedToggle
@@ -99,15 +100,15 @@ export const DiscountPopover = ({
           />
 
           <Text size="xs" c="dimmed">
-            Original: {formatMoney(originalCents)}
+            {t('Original:')} {formatMoney(originalCents)}
           </Text>
 
           <Group justify="space-between" mt="xs">
             <Button size="xs" variant="subtle" color="red" onClick={handleClear}>
-              Remove
+              {t('Remove')}
             </Button>
             <Button size="xs" color="blue" onClick={handleApply}>
-              Apply Discount
+              {t('Apply Discount')}
             </Button>
           </Group>
         </Stack>

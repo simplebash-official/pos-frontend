@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import {
   Group,
   Burger,
@@ -81,7 +82,7 @@ export const Header = ({
             style={{ cursor: 'pointer', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}
             onClick={() => navigate(ROUTES.DASHBOARD)}
           >
-            JANA2U POS
+            {t('JANA2U POS')}
           </Title>
           <Box visibleFrom="xs" ml={6}>
             <ModernClock
@@ -102,7 +103,8 @@ export const Header = ({
               leftSection={<IconPlayerPause size={14} />}
               onClick={onOpenHeldDrawer}
             >
-              Held ({heldCarts.length})
+              {t('Held (')}
+              {heldCarts.length})
             </Button>
           )}
 
@@ -131,7 +133,7 @@ export const Header = ({
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label="Keyboard Shortcuts (?)">
+          <Tooltip label={t('Keyboard Shortcuts (?)')}>
             <ActionIcon
               variant="subtle"
               color="gray"
@@ -203,7 +205,7 @@ export const Header = ({
         <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
         {isMobile ? (
-          <Tooltip label="Billing Counter">
+          <Tooltip label={t('Billing Counter')}>
             <Indicator
               inline
               label={cartItemsCount}
@@ -229,7 +231,7 @@ export const Header = ({
                 variant="filled"
                 color="blue"
                 size={44}
-                aria-label="Billing Counter"
+                aria-label={t('Billing Counter')}
                 onClick={() => navigate(ROUTES.BILLING)}
               >
                 <IconShoppingCart size={20} />
@@ -244,7 +246,7 @@ export const Header = ({
             size="sm"
             onClick={() => navigate(ROUTES.BILLING)}
           >
-            Billing Counter
+            {t('Billing Counter')}
             {cartItemsCount > 0 && (
               <Badge color="white" c="blue" size="xs" ml="xs">
                 {cartItemsCount}

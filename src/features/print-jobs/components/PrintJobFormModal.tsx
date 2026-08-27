@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import {
   Modal,
@@ -138,16 +139,16 @@ export const PrintJobFormModal = ({
           {/* Customer Details */}
           <Group grow align="flex-start">
             <TextInput
-              label="Customer Name"
-              placeholder="e.g. Dhanushka Fernando"
+              label={t('Customer Name')}
+              placeholder={t('e.g. Dhanushka Fernando')}
               leftSection={<IconUser size={16} />}
               required
               {...form.getInputProps('customerName')}
             />
 
             <TextInput
-              label="Customer Phone"
-              placeholder="e.g. 0712345678"
+              label={t('Customer Phone')}
+              placeholder={t('e.g. 0712345678')}
               leftSection={<IconPhone size={16} />}
               {...form.getInputProps('customerPhone')}
             />
@@ -156,7 +157,7 @@ export const PrintJobFormModal = ({
           {/* Print Specification */}
           <Group grow align="flex-start">
             <Select
-              label="Print Item / Service Type"
+              label={t('Print Item / Service Type')}
               data={[
                 { value: 'mug', label: 'Custom Mug Sublimation' },
                 { value: 't-shirt', label: 'T-Shirt Printing' },
@@ -169,7 +170,7 @@ export const PrintJobFormModal = ({
             />
 
             <NumberInput
-              label="Quantity (Units)"
+              label={t('Quantity (Units)')}
               min={1}
               required
               {...form.getInputProps('quantity')}
@@ -178,7 +179,7 @@ export const PrintJobFormModal = ({
 
           <Group grow align="flex-start">
             <Select
-              label="Job Order Status"
+              label={t('Job Order Status')}
               data={Object.values(JOB_STATUS).map((status: JobStatus) => ({
                 value: status,
                 label: JOB_STATUS_LABELS[status],
@@ -192,12 +193,12 @@ export const PrintJobFormModal = ({
           <Paper p="sm" withBorder>
             <Stack gap="xs">
               <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                Pricing & Material Blank Costs (LKR)
+                {t('Pricing & Material Blank Costs (LKR)')}
               </Text>
               <Group grow align="flex-start">
                 <NumberInput
-                  label="Total Print Order Price (LKR)"
-                  placeholder="e.g. 25000"
+                  label={t('Total Print Order Price (LKR)')}
+                  placeholder={t('e.g. 25000')}
                   min={0}
                   prefix="Rs. "
                   required
@@ -205,8 +206,8 @@ export const PrintJobFormModal = ({
                 />
 
                 <NumberInput
-                  label="Blank Stock / Ink Cost (LKR)"
-                  placeholder="e.g. 13000"
+                  label={t('Blank Stock / Ink Cost (LKR)')}
+                  placeholder={t('e.g. 13000')}
                   min={0}
                   prefix="Rs. "
                   {...form.getInputProps('materialCostRupees')}
@@ -215,7 +216,7 @@ export const PrintJobFormModal = ({
 
               <Group justify="space-between">
                 <Text size="xs" c="dimmed">
-                  Estimated Print Net Profit:
+                  {t('Estimated Print Net Profit:')}
                 </Text>
                 <Text size="sm" fw={800} c="green">
                   {formatMoney(profitCents)}
@@ -229,16 +230,16 @@ export const PrintJobFormModal = ({
             <Stack gap="xs">
               <Group justify="space-between" align="center">
                 <Text size="xs" fw={700} tt="uppercase" c="blue">
-                  Designer / Printer Assignment & Profit Split
+                  {t('Designer / Printer Assignment & Profit Split')}
                 </Text>
                 <Badge color="blue" variant="light" size="xs">
-                  Commission Payout
+                  {t('Commission Payout')}
                 </Badge>
               </Group>
 
               <Select
-                label="Assign Designer / Machine Operator"
-                placeholder="Select an employee for this print job..."
+                label={t('Assign Designer / Machine Operator')}
+                placeholder={t('Select an employee for this print job...')}
                 data={[
                   { value: '', label: 'Unassigned (No Employee)' },
                   ...employees.map((e) => ({
@@ -255,7 +256,7 @@ export const PrintJobFormModal = ({
                   <Group align="flex-end" grow mt="xs">
                     <div>
                       <Text size="xs" fw={600} mb={4}>
-                        Split Type
+                        {t('Split Type')}
                       </Text>
                       <SegmentedToggle
                         value={form.values.splitType}
@@ -265,7 +266,7 @@ export const PrintJobFormModal = ({
                             label: (
                               <Group gap={4} justify="center">
                                 <IconPercentage size={14} />
-                                <span>Percentage (%)</span>
+                                <span>{t('Percentage (%)')}</span>
                               </Group>
                             ),
                             value: 'percentage',
@@ -274,7 +275,7 @@ export const PrintJobFormModal = ({
                             label: (
                               <Group gap={4} justify="center">
                                 <IconCoin size={14} />
-                                <span>Fixed (LKR)</span>
+                                <span>{t('Fixed (LKR)')}</span>
                               </Group>
                             ),
                             value: 'fixed',
@@ -301,19 +302,22 @@ export const PrintJobFormModal = ({
                     <Alert
                       color="orange"
                       icon={<IconAlertTriangle size={16} />}
-                      title="Fixed Commission Capped"
+                      title={t('Fixed Commission Capped')}
                       p="xs"
                     >
-                      Fixed split ({formatMoney(toCents(splitVal))}) exceeds the job net profit ({' '}
-                      {formatMoney(toCents(profitRupees))}). Commission will be capped at the total
-                      profit.
+                      {t('Fixed split (')}
+                      {formatMoney(toCents(splitVal))}
+                      {t(') exceeds the job net profit (')} {formatMoney(toCents(profitRupees))}
+                      {t(
+                        '). Commission will be capped at the total\n                                                                profit.'
+                      )}
                     </Alert>
                   )}
 
                   <Paper p="xs" withBorder mt="xs">
                     <Group justify="space-between">
                       <Text size="xs" fw={600}>
-                        Employee Commission Payout:
+                        {t('Employee Commission Payout:')}
                       </Text>
                       <Text fw={800} size="md" c="blue">
                         {formatMoney(calculatedEarningsCents)}
@@ -327,7 +331,7 @@ export const PrintJobFormModal = ({
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose} disabled={loading}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button type="submit" color="blue" loading={loading}>
               {isEditing ? 'Update Print Job' : 'Create Print Job'}

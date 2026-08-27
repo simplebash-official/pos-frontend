@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import {
   Modal,
@@ -147,16 +148,16 @@ export const RepairFormModal = ({
           {/* Customer Details */}
           <Group grow align="flex-start">
             <TextInput
-              label="Customer Name"
-              placeholder="e.g. Saman Perera"
+              label={t('Customer Name')}
+              placeholder={t('e.g. Saman Perera')}
               leftSection={<IconUser size={16} />}
               required
               {...form.getInputProps('customerName')}
             />
 
             <TextInput
-              label="Customer Phone"
-              placeholder="e.g. 0771234567"
+              label={t('Customer Phone')}
+              placeholder={t('e.g. 0771234567')}
               leftSection={<IconPhone size={16} />}
               required
               {...form.getInputProps('customerPhone')}
@@ -166,14 +167,14 @@ export const RepairFormModal = ({
           {/* Device & Issue */}
           <Group grow align="flex-start">
             <TextInput
-              label="Device Model"
-              placeholder="e.g. iPhone 13 Pro / Asus ROG Laptop"
+              label={t('Device Model')}
+              placeholder={t('e.g. iPhone 13 Pro / Asus ROG Laptop')}
               required
               {...form.getInputProps('deviceModel')}
             />
 
             <Select
-              label="Ticket Status"
+              label={t('Ticket Status')}
               data={Object.values(JOB_STATUS).map((status: JobStatus) => ({
                 value: status,
                 label: JOB_STATUS_LABELS[status],
@@ -184,8 +185,8 @@ export const RepairFormModal = ({
           </Group>
 
           <Textarea
-            label="Issue & Diagnosis Description"
-            placeholder="e.g. Broken OLED panel, battery drain issues..."
+            label={t('Issue & Diagnosis Description')}
+            placeholder={t('e.g. Broken OLED panel, battery drain issues...')}
             rows={2}
             required
             {...form.getInputProps('issueDescription')}
@@ -195,20 +196,20 @@ export const RepairFormModal = ({
           <Paper p="sm" withBorder>
             <Stack gap="xs">
               <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                Pricing & Material Cost (LKR)
+                {t('Pricing & Material Cost (LKR)')}
               </Text>
               <Group grow align="flex-start">
                 <NumberInput
-                  label="Repair Total Price (LKR)"
-                  placeholder="e.g. 45000"
+                  label={t('Repair Total Price (LKR)')}
+                  placeholder={t('e.g. 45000')}
                   min={0}
                   prefix="Rs. "
                   {...form.getInputProps('estimatedPriceRupees')}
                 />
 
                 <NumberInput
-                  label="Material / Spare Parts Cost (LKR)"
-                  placeholder="e.g. 25000"
+                  label={t('Material / Spare Parts Cost (LKR)')}
+                  placeholder={t('e.g. 25000')}
                   min={0}
                   prefix="Rs. "
                   {...form.getInputProps('materialCostRupees')}
@@ -216,12 +217,12 @@ export const RepairFormModal = ({
               </Group>
 
               <Text size="xs" c="dimmed">
-                Leave the price blank until the device is diagnosed. You can add it later.
+                {t('Leave the price blank until the device is diagnosed. You can add it later.')}
               </Text>
 
               <Group justify="space-between">
                 <Text size="sm" c="dimmed">
-                  Estimated Repair Net Profit:
+                  {t('Estimated Repair Net Profit:')}
                 </Text>
                 <Text
                   size="sm"
@@ -241,16 +242,16 @@ export const RepairFormModal = ({
             <Stack gap="xs">
               <Group justify="space-between" align="center">
                 <Text size="xs" fw={700} tt="uppercase" c="blue">
-                  Employee Assignment & Profit Split
+                  {t('Employee Assignment & Profit Split')}
                 </Text>
                 <Badge color="blue" variant="light" size="xs">
-                  Commission Payout
+                  {t('Commission Payout')}
                 </Badge>
               </Group>
 
               <Select
-                label="Assign Technician / Employee"
-                placeholder="Select an employee for this repair..."
+                label={t('Assign Technician / Employee')}
+                placeholder={t('Select an employee for this repair...')}
                 data={[
                   { value: '', label: 'Unassigned (No Employee)' },
                   ...employees.map((e) => ({
@@ -267,7 +268,7 @@ export const RepairFormModal = ({
                   <Group align="flex-end" grow mt="xs">
                     <div>
                       <Text size="xs" fw={600} mb={4}>
-                        Split Type
+                        {t('Split Type')}
                       </Text>
                       <SegmentedToggle
                         value={form.values.splitType}
@@ -277,7 +278,7 @@ export const RepairFormModal = ({
                             label: (
                               <Group gap={4} justify="center" wrap="nowrap">
                                 <IconPercentage size={14} style={{ flexShrink: 0 }} />
-                                <span style={{ whiteSpace: 'nowrap' }}>Percentage (%)</span>
+                                <span style={{ whiteSpace: 'nowrap' }}>{t('Percentage (%)')}</span>
                               </Group>
                             ),
                             value: 'percentage',
@@ -286,7 +287,7 @@ export const RepairFormModal = ({
                             label: (
                               <Group gap={4} justify="center" wrap="nowrap">
                                 <IconCoin size={14} style={{ flexShrink: 0 }} />
-                                <span style={{ whiteSpace: 'nowrap' }}>Fixed (LKR)</span>
+                                <span style={{ whiteSpace: 'nowrap' }}>{t('Fixed (LKR)')}</span>
                               </Group>
                             ),
                             value: 'fixed',
@@ -313,19 +314,23 @@ export const RepairFormModal = ({
                     <Alert
                       color="orange"
                       icon={<IconAlertTriangle size={16} />}
-                      title="Fixed Commission Capped"
+                      title={t('Fixed Commission Capped')}
                       p="xs"
                     >
-                      Fixed split ({formatMoney(toCents(splitVal))}) exceeds the repair net profit (
-                      {formatMoney(toCents(profitRupees))}). Commission will be capped at the total
-                      profit.
+                      {t('Fixed split (')}
+                      {formatMoney(toCents(splitVal))}
+                      {t(') exceeds the repair net profit (')}
+                      {formatMoney(toCents(profitRupees))}
+                      {t(
+                        '). Commission will be capped at the total\n                                                                profit.'
+                      )}
                     </Alert>
                   )}
 
                   <Paper p="xs" withBorder mt="xs">
                     <Group justify="space-between">
                       <Text size="xs" fw={600}>
-                        Employee Commission Payout:
+                        {t('Employee Commission Payout:')}
                       </Text>
                       <Text
                         fw={800}
@@ -345,7 +350,7 @@ export const RepairFormModal = ({
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose} disabled={loading}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button type="submit" color="blue" loading={loading}>
               {isEditing ? 'Update Ticket' : 'Create Repair Ticket'}

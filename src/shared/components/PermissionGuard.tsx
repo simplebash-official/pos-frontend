@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import React from 'react';
 import { Alert } from '@mantine/core';
 import { IconLock } from '@tabler/icons-react';
@@ -17,8 +18,8 @@ export const PermissionGuard = ({ permissions, children, fallback }: PermissionG
   if (!allowed) {
     if (fallback) return <>{fallback}</>;
     return (
-      <Alert color="red" icon={<IconLock size={16} />} title="Access Restricted">
-        You do not have permission to view this section.
+      <Alert color="red" icon={<IconLock size={16} />} title={t('Access Restricted')}>
+        {t('You do not have permission to view this section.')}
       </Alert>
     );
   }

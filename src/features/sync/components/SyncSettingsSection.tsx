@@ -1,3 +1,5 @@
+import { t } from '@/shared/i18n/t';
+
 // DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
 // this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
@@ -20,10 +22,10 @@ export const SyncSettingsSection = () => {
           </ThemeIcon>
           <Stack gap={0}>
             <Text fw={700} size="md">
-              Sync &amp; Offline
+              {t('Sync &amp; Offline')}
             </Text>
             <Text size="xs" c="dimmed">
-              What is stored on this device and what is waiting to reach the server
+              {t('What is stored on this device and what is waiting to reach the server')}
             </Text>
           </Stack>
         </Group>

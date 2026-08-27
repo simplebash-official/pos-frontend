@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo, useCallback } from 'react';
 import { Paper, Stack, Group, Text, Select, Badge, Button } from '@mantine/core';
 import {
@@ -205,7 +206,7 @@ export const InvoicesList = () => {
         align: 'center',
         render: (inv) => (
           <Badge size="xs" variant="light" color="gray">
-            {inv.items.length} items
+            {inv.items.length} {t('items')}
           </Badge>
         ),
       },
@@ -266,8 +267,8 @@ export const InvoicesList = () => {
       <Stack gap="lg">
         {/* Page Header */}
         <PageHeader
-          title="Sales & Invoices History"
-          description="Manage past transactions, inspect invoice details, and issue duplicates"
+          title={t('Sales & Invoices History')}
+          description={t('Manage past transactions, inspect invoice details, and issue duplicates')}
           action={
             <Button
               size="xs"
@@ -278,7 +279,7 @@ export const InvoicesList = () => {
                 void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all })
               }
             >
-              Refresh List
+              {t('Refresh List')}
             </Button>
           }
         />
@@ -331,7 +332,7 @@ export const InvoicesList = () => {
           <Group justify="space-between" wrap="wrap">
             <SearchHistoryInput
               namespace="invoices"
-              placeholder="Search invoice #, customer name, phone, ticket #"
+              placeholder={t('Search invoice #, customer name, phone, ticket #')}
               leftSection={<IconSearch size={16} />}
               value={searchQuery}
               onValueChange={setSearchQuery}
@@ -375,7 +376,7 @@ export const InvoicesList = () => {
           </Group>
           {searchQuery.trim() !== '' && isSearching && (
             <Text size="xs" c="dimmed" mt="xs">
-              Searching…
+              {t('Searching…')}
             </Text>
           )}
         </Paper>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import type { ReactNode } from 'react';
 import { Group, Paper, SimpleGrid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
 import { formatDateTime } from '@/shared/lib/date';
@@ -30,7 +31,7 @@ export const MetricCard = ({
     <Group justify="space-between" align="flex-start">
       <div>
         <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-          {label}
+          {t(label)}
         </Text>
         {loading ? (
           <Skeleton height={28} width={skeletonWidth} mt={4} />
@@ -69,7 +70,7 @@ export const MetricCardRow = ({ cards, staleAsOf }: MetricCardRowProps) => (
     </SimpleGrid>
     {staleAsOf && (
       <Text size="xs" c="dimmed">
-        Showing last known figures — updated {formatDateTime(staleAsOf)}.
+        {t('Showing last known figures — updated')} {formatDateTime(staleAsOf)}.
       </Text>
     )}
   </Stack>

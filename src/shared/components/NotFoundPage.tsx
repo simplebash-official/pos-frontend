@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Container, Title, Text, Button, Stack, Paper } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { IconFileOff } from '@tabler/icons-react';
@@ -16,13 +17,13 @@ export const NotFoundPage = () => {
         <Stack align="center" gap="md" ta="center">
           <IconFileOff size={56} color="var(--text-muted)" />
           <Title order={2} c="var(--text-primary)">
-            404 - Page Not Found
+            {t('404 - Page Not Found')}
           </Title>
           <Text size="sm" c="dimmed">
-            The page you are trying to access does not exist or has been moved.
+            {t('The page you are trying to access does not exist or has been moved.')}
           </Text>
           <Button size="md" mt="md" onClick={() => navigate(ROUTES.DASHBOARD)}>
-            Go to Dashboard
+            {t('Go to Dashboard')}
           </Button>
         </Stack>
       </Paper>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo, useRef } from 'react';
 import {
   Modal,
@@ -192,13 +193,13 @@ const SupplierFormContent = ({
         {/* Section 1: Supplier Profile */}
         <Stack gap={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Supplier Profile
+            {t('Supplier Profile')}
           </Text>
 
           <Stack gap="sm">
             <TextInput
-              label="Business Name"
-              placeholder="e.g. Colombo Mobile Parts"
+              label={t('Business Name')}
+              placeholder={t('e.g. Colombo Mobile Parts')}
               leftSection={<IconBuildingStore size={16} />}
               required
               value={formData.name}
@@ -208,8 +209,8 @@ const SupplierFormContent = ({
 
             <div>
               <TagsInput
-                label="What They Supply (Tags & Categories)"
-                placeholder="Select or type tags (e.g. Phone Parts, Screen Protectors)"
+                label={t('What They Supply (Tags & Categories)')}
+                placeholder={t('Select or type tags (e.g. Phone Parts, Screen Protectors)')}
                 data={DEFAULT_SUGGESTED_TAGS}
                 leftSection={<IconTag size={16} />}
                 required
@@ -219,8 +220,9 @@ const SupplierFormContent = ({
                 error={errors.suppliedCategories}
               />
               <Text size="xs" c="dimmed" mt={4}>
-                Categories or items they provide. Helps you quickly filter suppliers when
-                restocking.
+                {t(
+                  'Categories or items they provide. Helps you quickly filter suppliers when\n                                              restocking.'
+                )}
               </Text>
             </div>
           </Stack>
@@ -229,15 +231,15 @@ const SupplierFormContent = ({
         {/* Section 2: Contact & Location */}
         <Stack gap={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Contact & Location
+            {t('Contact & Location')}
           </Text>
 
           <Stack gap="sm">
             <Grid gap="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <TextInput
-                  label="Contact Person"
-                  placeholder="e.g. Ranjith Kumara"
+                  label={t('Contact Person')}
+                  placeholder={t('e.g. Ranjith Kumara')}
                   leftSection={<IconUser size={16} />}
                   required
                   value={formData.contactPerson}
@@ -248,8 +250,8 @@ const SupplierFormContent = ({
 
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <TextInput
-                  label="Email Address"
-                  placeholder="e.g. contact@supplier.lk"
+                  label={t('Email Address')}
+                  placeholder={t('e.g. contact@supplier.lk')}
                   leftSection={<IconMail size={16} />}
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.currentTarget.value)}
@@ -260,8 +262,8 @@ const SupplierFormContent = ({
             <Grid gap="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <TextInput
-                  label="Primary Phone Number"
-                  placeholder="e.g. 077 123 4567"
+                  label={t('Primary Phone Number')}
+                  placeholder={t('e.g. 077 123 4567')}
                   leftSection={<IconPhone size={16} />}
                   required
                   value={formData.primaryPhone}
@@ -272,8 +274,8 @@ const SupplierFormContent = ({
 
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <TextInput
-                  label="Backup Phone Number"
-                  placeholder="e.g. 011 234 5678"
+                  label={t('Backup Phone Number')}
+                  placeholder={t('e.g. 011 234 5678')}
                   leftSection={<IconPhone size={16} />}
                   value={formData.secondaryPhone}
                   onChange={(e) => handleChange('secondaryPhone', e.currentTarget.value)}
@@ -282,8 +284,8 @@ const SupplierFormContent = ({
             </Grid>
 
             <Textarea
-              label="Address / Location"
-              placeholder="e.g. No. 45, First Cross Street, Pettah, Colombo 11"
+              label={t('Address / Location')}
+              placeholder={t('e.g. No. 45, First Cross Street, Pettah, Colombo 11')}
               leftSection={<IconMapPin size={16} />}
               rows={2}
               required
@@ -305,12 +307,12 @@ const SupplierFormContent = ({
                 tt="uppercase"
                 style={{ letterSpacing: '0.05em' }}
               >
-                Linked Inventory Products
+                {t('Linked Inventory Products')}
               </Text>
               {hasLinkedProducts && (
                 <Badge size="xs" variant="light" color="blue">
                   {linkedProducts.length} {linkedProducts.length === 1 ? 'Product' : 'Products'}{' '}
-                  Linked
+                  {t('Linked')}
                 </Badge>
               )}
             </Group>
@@ -323,15 +325,16 @@ const SupplierFormContent = ({
                 leftSection={<IconPlus size={14} />}
                 onClick={handleStartLinking}
               >
-                Link Another Product
+                {t('Link Another Product')}
               </Button>
             )}
           </Group>
 
           {hasLinkedProducts && (
             <Text size="xs" c="dimmed">
-              Products supplied by this vendor. Link items to quickly select them during stock
-              intakes.
+              {t(
+                'Products supplied by this vendor. Link items to quickly select them during stock\n                                        intakes.'
+              )}
             </Text>
           )}
 
@@ -371,10 +374,12 @@ const SupplierFormContent = ({
                   </ThemeIcon>
                   <div style={{ minWidth: 0 }}>
                     <Text size="sm" fw={600} c="var(--text-primary)" lineClamp={1}>
-                      Which products does this supplier provide?
+                      {t('Which products does this supplier provide?')}
                     </Text>
                     <Text size="xs" c="dimmed" lineClamp={2}>
-                      Connect inventory items you purchase from this supplier. You can skip this.
+                      {t(
+                        'Connect inventory items you purchase from this supplier. You can skip this.'
+                      )}
                     </Text>
                   </div>
                 </Group>
@@ -389,7 +394,7 @@ const SupplierFormContent = ({
                   }}
                   style={{ flexShrink: 0 }}
                 >
-                  Link Products
+                  {t('Link Products')}
                 </Button>
               </Group>
             </Box>
@@ -398,7 +403,7 @@ const SupplierFormContent = ({
               {/* Quick Search and Add Input */}
               <TextInput
                 ref={searchInputRef}
-                placeholder="Search products to link by name, SKU, or category…"
+                placeholder={t('Search products to link by name, SKU, or category…')}
                 leftSection={<IconSearch size={16} />}
                 size="sm"
                 value={productSearch}
@@ -409,7 +414,7 @@ const SupplierFormContent = ({
                       variant="subtle"
                       size="sm"
                       onClick={() => setProductSearch('')}
-                      aria-label="Clear search"
+                      aria-label={t('Clear search')}
                     >
                       <IconX size={14} />
                     </ActionIcon>
@@ -434,7 +439,9 @@ const SupplierFormContent = ({
                       {availableProducts.length === 0 ? (
                         <Center py="sm">
                           <Text size="xs" c="dimmed">
-                            No unlinked products match &quot;{productSearch}&quot;
+                            {t('No unlinked products match &quot;')}
+                            {productSearch}
+                            {t('&quot;')}
                           </Text>
                         </Center>
                       ) : (
@@ -536,7 +543,7 @@ const SupplierFormContent = ({
                                   {p.category} · {p.subcategory}
                                 </Badge>
                                 <Text size="xs" c="dimmed">
-                                  Cost:{' '}
+                                  {t('Cost:')}{' '}
                                   <Text span fw={600} c="var(--text-primary)">
                                     {formatMoney(p.costPriceCents)}
                                   </Text>
@@ -544,7 +551,7 @@ const SupplierFormContent = ({
                               </Group>
                             </div>
                           </Group>
-                          <Tooltip label="Remove product link" position="top" withArrow>
+                          <Tooltip label={t('Remove product link')} position="top" withArrow>
                             <ActionIcon
                               size="sm"
                               color="red"
@@ -580,14 +587,14 @@ const SupplierFormContent = ({
                         <IconPackage size={13} />
                       </ThemeIcon>
                       <Text size="xs" c="var(--text-secondary)">
-                        Total Linked Products:{' '}
+                        {t('Total Linked Products:')}{' '}
                         <Text span fw={700} c="var(--text-primary)">
                           {linkedProducts.length} {linkedProducts.length === 1 ? 'Item' : 'Items'}
                         </Text>
                       </Text>
                     </Group>
                     <Text size="xs" c="dimmed">
-                      Ready for stock intake & purchase orders
+                      {t('Ready for stock intake & purchase orders')}
                     </Text>
                   </Group>
                 </Paper>
@@ -599,12 +606,12 @@ const SupplierFormContent = ({
         {/* Section 4: Terms & Notes */}
         <Stack gap={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Terms & Notes
+            {t('Terms & Notes')}
           </Text>
 
           <Textarea
-            label="Additional Notes / Terms"
-            placeholder="e.g. Free delivery on orders over 50 units. Delivers every Tuesday."
+            label={t('Additional Notes / Terms')}
+            placeholder={t('e.g. Free delivery on orders over 50 units. Delivers every Tuesday.')}
             rows={2}
             value={formData.notes}
             onChange={(e) => handleChange('notes', e.currentTarget.value)}
@@ -614,7 +621,7 @@ const SupplierFormContent = ({
         {/* Footer Actions */}
         <Group justify="flex-end" gap="sm" mt="md">
           <Button variant="default" onClick={onClose} disabled={loading}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="submit" color="blue" loading={loading}>
             {isEditing ? 'Save Changes' : 'Create Supplier'}

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { notifications } from '@mantine/notifications';
 import {
   IconBrandFacebook,
@@ -25,7 +26,7 @@ export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProp
         type="button"
         className="mobile-social-btn"
         onClick={() => handleSocialClick('Facebook')}
-        aria-label="Sign in with Facebook"
+        aria-label={t('Sign in with Facebook')}
       >
         <IconBrandFacebook size={22} color="#1877F2" />
       </button>
@@ -34,7 +35,7 @@ export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProp
         type="button"
         className="mobile-social-btn"
         onClick={() => handleSocialClick('Twitter')}
-        aria-label="Sign in with Twitter"
+        aria-label={t('Sign in with Twitter')}
       >
         <IconBrandTwitter size={22} color="#1DA1F2" />
       </button>
@@ -43,7 +44,7 @@ export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProp
         type="button"
         className="mobile-social-btn"
         onClick={() => handleSocialClick('Google')}
-        aria-label="Sign in with Google"
+        aria-label={t('Sign in with Google')}
       >
         <IconBrandGoogle size={22} color="#EA4335" />
       </button>
@@ -52,7 +53,7 @@ export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProp
         type="button"
         className="mobile-social-btn"
         onClick={() => handleSocialClick('Apple')}
-        aria-label="Sign in with Apple"
+        aria-label={t('Sign in with Apple')}
       >
         <IconBrandApple size={22} color="#000000" />
       </button>

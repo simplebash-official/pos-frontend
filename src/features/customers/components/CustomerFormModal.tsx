@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   Modal,
@@ -158,7 +159,7 @@ const CustomerFormContent = ({
               <Grid.Col span={{ base: 12, sm: 4 }}>
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                    Outstanding Balance
+                    {t('Outstanding Balance')}
                   </Text>
                   <Group gap="xs" align="center">
                     <Text
@@ -182,7 +183,7 @@ const CustomerFormContent = ({
               <Grid.Col span={{ base: 12, sm: 4 }}>
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                    Total Purchases
+                    {t('Total Purchases')}
                   </Text>
                   <Text size="sm" fw={700} c="blue">
                     {formatMoney(customerToEdit.totalPurchasesCents || 0)}
@@ -193,10 +194,11 @@ const CustomerFormContent = ({
               <Grid.Col span={{ base: 12, sm: 4 }}>
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                    Account Details
+                    {t('Account Details')}
                   </Text>
                   <Text size="xs" fw={600} c="dimmed">
-                    Key: {customerToEdit.key} · Joined {formatDate(customerToEdit.createdAt)}
+                    {t('Key:')} {customerToEdit.key} {t('· Joined')}{' '}
+                    {formatDate(customerToEdit.createdAt)}
                   </Text>
                 </Stack>
               </Grid.Col>
@@ -207,13 +209,13 @@ const CustomerFormContent = ({
         {/* Section 1: General Information */}
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            General Information
+            {t('General Information')}
           </Text>
           <Grid gap="sm">
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Customer / Business Name"
-                placeholder="e.g. Saman Perera or ABC Enterprises"
+                label={t('Customer / Business Name')}
+                placeholder={t('e.g. Saman Perera or ABC Enterprises')}
                 leftSection={<IconUser size={16} />}
                 value={name}
                 onChange={(e) => {
@@ -227,8 +229,8 @@ const CustomerFormContent = ({
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Contact Person"
-                placeholder="e.g. Mr. Sunil (Manager)"
+                label={t('Contact Person')}
+                placeholder={t('e.g. Mr. Sunil (Manager)')}
                 leftSection={<IconUserCheck size={16} />}
                 value={contactPerson}
                 onChange={(e) => {
@@ -244,13 +246,13 @@ const CustomerFormContent = ({
         {/* Section 2: Contact & Location */}
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Contact & Location
+            {t('Contact & Location')}
           </Text>
           <Grid gap="sm">
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Primary Phone"
-                placeholder="e.g. 077 123 4567"
+                label={t('Primary Phone')}
+                placeholder={t('e.g. 077 123 4567')}
                 leftSection={<IconPhone size={16} />}
                 value={primaryPhone}
                 onChange={(e) => {
@@ -263,8 +265,8 @@ const CustomerFormContent = ({
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Backup Phone"
-                placeholder="e.g. 011 234 5678"
+                label={t('Backup Phone')}
+                placeholder={t('e.g. 011 234 5678')}
                 leftSection={<IconPhoneCall size={16} />}
                 value={secondaryPhone}
                 onChange={(e) => {
@@ -276,8 +278,8 @@ const CustomerFormContent = ({
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Email Address"
-                placeholder="client@example.com"
+                label={t('Email Address')}
+                placeholder={t('client@example.com')}
                 leftSection={<IconMail size={16} />}
                 value={email}
                 onChange={(e) => {
@@ -289,8 +291,8 @@ const CustomerFormContent = ({
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Physical Address"
-                placeholder="e.g. No. 45, Main Street, Colombo"
+                label={t('Physical Address')}
+                placeholder={t('e.g. No. 45, Main Street, Colombo')}
                 leftSection={<IconMapPin size={16} />}
                 value={address}
                 onChange={(e) => setAddress(e.currentTarget.value)}
@@ -302,11 +304,11 @@ const CustomerFormContent = ({
         {/* Section 3: Account Classification */}
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Account Classification
+            {t('Account Classification')}
           </Text>
           <TagsInput
-            label="Customer Tags"
-            placeholder="Select or type tags (e.g. Retail Client, VIP Customer)"
+            label={t('Customer Tags')}
+            placeholder={t('Select or type tags (e.g. Retail Client, VIP Customer)')}
             leftSection={<IconTag size={16} />}
             data={availableTags}
             value={tags}
@@ -318,11 +320,11 @@ const CustomerFormContent = ({
         {/* Section 4: Notes & Instructions */}
         <Stack gap="xs">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Notes & Instructions
+            {t('Notes & Instructions')}
           </Text>
           <Textarea
-            label="Notes & Special Instructions"
-            placeholder="Preferences, credit terms, repair remarks, or delivery notes..."
+            label={t('Notes & Special Instructions')}
+            placeholder={t('Preferences, credit terms, repair remarks, or delivery notes...')}
             autosize
             minRows={2}
             maxRows={4}
@@ -334,7 +336,7 @@ const CustomerFormContent = ({
         {/* Action Footer */}
         <Group justify="flex-end" mt="md" gap="sm">
           <Button variant="default" onClick={onClose} disabled={loading}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="submit" color="blue" loading={loading}>
             {isEditing ? 'Save Changes' : 'Create Customer'}

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useMemo, useState } from 'react';
 import {
   Paper,
@@ -111,15 +112,16 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
             <div>
               <Group gap="xs" align="center">
                 <Text fw={800} size="md">
-                  Urgent Action Center
+                  {t('Urgent Action Center')}
                 </Text>
                 <Badge color="red" variant="filled" size="sm">
-                  {activeItems.length} Needs Attention
+                  {activeItems.length} {t('Needs Attention')}
                 </Badge>
               </Group>
               <Text size="xs" c="dimmed">
-                High-priority blockers, unapproved estimates, and critical stockouts needing your
-                touch today
+                {t(
+                  'High-priority blockers, unapproved estimates, and critical stockouts needing your\n                                              touch today'
+                )}
               </Text>
             </div>
           </Group>
@@ -146,10 +148,10 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                 <IconCheck size={24} />
               </ThemeIcon>
               <Text fw={700} size="sm">
-                All caught up!
+                {t('All caught up!')}
               </Text>
               <Text size="xs" c="dimmed" ta="center">
-                There are no pending urgent alerts or overdue tasks in this category.
+                {t('There are no pending urgent alerts or overdue tasks in this category.')}
               </Text>
             </Stack>
           </Paper>
@@ -219,7 +221,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                           flexShrink: 0,
                         }}
                       >
-                        Dismiss
+                        {t('Dismiss')}
                       </Button>
                       <Button
                         size="xs"

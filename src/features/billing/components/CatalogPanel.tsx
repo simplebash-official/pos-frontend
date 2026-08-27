@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useRef, useEffect, useMemo, memo } from 'react';
 import {
   Stack,
@@ -710,7 +711,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                         variant="subtle"
                         color="gray"
                         size="sm"
-                        aria-label="Clear scan search"
+                        aria-label={t('Clear scan search')}
                         onClick={() => {
                           setScanQuery('');
                           setSearch('');
@@ -753,7 +754,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 <Group gap={4} mt={4} px="xs" align="center">
                   <IconAlertTriangle size={14} color="var(--status-error)" />
                   <Text size="xs" c="red" fw={600}>
-                    No product found for "{shakeError}".
+                    {t('No product found for "')}
+                    {shakeError}".
                   </Text>
                   <Anchor
                     size="xs"
@@ -764,7 +766,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       setShakeError(null);
                     }}
                   >
-                    Search manually
+                    {t('Search manually')}
                   </Anchor>
                 </Group>
               )}
@@ -802,7 +804,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       radius="var(--mantine-radius-default)"
                       style={{ flexShrink: 0 }}
                     >
-                      All
+                      {t('All')}
                     </Button>
                     {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
                       <Button
@@ -826,7 +828,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       radius="var(--mantine-radius-default)"
                       style={{ flexShrink: 0 }}
                     >
-                      In stock only
+                      {t('In stock only')}
                     </Button>
                   </Group>
                 )}
@@ -1022,15 +1024,15 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                                 {isZeroStock ? (
                                   <Badge size="xs" color="gray" variant="filled">
-                                    Out of stock
+                                    {t('Out of stock')}
                                   </Badge>
                                 ) : isLowStock ? (
                                   <Badge size="xs" color="yellow" variant="filled">
-                                    {remainingStock} Left
+                                    {remainingStock} {t('Left')}
                                   </Badge>
                                 ) : (
                                   <Badge size="xs" color="gray" variant="light">
-                                    {remainingStock} Left
+                                    {remainingStock} {t('Left')}
                                   </Badge>
                                 )}
                               </Group>
@@ -1054,7 +1056,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
               <SearchHistoryInput
                 namespace="service_jobs"
                 ref={jobSearchInputRef}
-                placeholder="Search ticket #, customer name, device…"
+                placeholder={t('Search ticket #, customer name, device…')}
                 leftSection={<IconSearch size={18} color="var(--text-secondary)" />}
                 rightSection={
                   jobSearch ? (
@@ -1062,7 +1064,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       variant="subtle"
                       size={isMobile ? 'lg' : 'sm'}
                       color="gray"
-                      aria-label="Clear job search"
+                      aria-label={t('Clear job search')}
                       onClick={() => {
                         setJobSearch('');
                         jobSearchInputRef.current?.focus();
@@ -1101,7 +1103,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 radius="var(--mantine-radius-default)"
                 style={{ height: isMobile ? 44 : undefined }}
               >
-                All Jobs ({activeJobsCount})
+                {t('All Jobs (')}
+                {activeJobsCount})
               </Button>
               <Button
                 size="xs"
@@ -1112,7 +1115,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 radius="var(--mantine-radius-default)"
                 style={{ height: isMobile ? 44 : undefined }}
               >
-                Repairs ({repairJobsCount})
+                {t('Repairs (')}
+                {repairJobsCount})
               </Button>
               <Button
                 size="xs"
@@ -1123,7 +1127,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 radius="var(--mantine-radius-default)"
                 style={{ height: isMobile ? 44 : undefined }}
               >
-                Print Jobs ({printJobsCount})
+                {t('Print Jobs (')}
+                {printJobsCount})
               </Button>
             </Group>
 
@@ -1161,7 +1166,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       <Stack gap="xs" align="center">
                         <IconTool size={32} style={{ opacity: 0.3 }} />
                         <Text c="dimmed" size="sm" ta="center">
-                          No active service jobs found matching your search.
+                          {t('No active service jobs found matching your search.')}
                         </Text>
                       </Stack>
                     </Center>
@@ -1245,7 +1250,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                               {job.assignedEmployeeName && (
                                 <Text size="xs" c="dimmed" mt={2}>
-                                  Tech: {job.assignedEmployeeName}
+                                  {t('Tech:')} {job.assignedEmployeeName}
                                 </Text>
                               )}
                             </div>
@@ -1255,7 +1260,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                           <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
                             <Box style={{ textAlign: isMobile ? 'left' : 'right' }}>
                               <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
-                                Estimated Total
+                                {t('Estimated Total')}
                               </Text>
                               {job.costCents !== undefined && job.costCents > 0 ? (
                                 <Text
@@ -1268,7 +1273,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                 </Text>
                               ) : (
                                 <Badge size="xs" color="yellow" variant="light">
-                                  Pending diagnosis
+                                  {t('Pending diagnosis')}
                                 </Badge>
                               )}
                             </Box>
@@ -1285,7 +1290,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                 handleBillJob(job);
                               }}
                             >
-                              Bill ticket
+                              {t('Bill ticket')}
                             </Button>
                           </Group>
                         </Group>

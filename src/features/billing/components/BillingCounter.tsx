@@ -252,8 +252,6 @@ export const BillingCounter = () => {
     customerAddress,
     discountType,
     discountValue,
-    subtotalCents,
-    discountCents,
     totalCents,
     paymentMethod,
     cardRef,

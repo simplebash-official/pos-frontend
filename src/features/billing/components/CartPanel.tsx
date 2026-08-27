@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import {
   Paper,
@@ -157,7 +158,7 @@ export const CartPanel = memo(function CartPanel({
       >
         <Group gap={6} align="center" wrap="nowrap" style={{ minWidth: 0 }}>
           <Text fw={700} size="sm" style={{ whiteSpace: 'nowrap' }}>
-            Current Sale
+            {t('Current Sale')}
           </Text>
           {completedSale ? (
             <Badge
@@ -166,12 +167,13 @@ export const CartPanel = memo(function CartPanel({
               variant="filled"
               style={{ fontWeight: 800, letterSpacing: '0.04em' }}
             >
-              COMPLETED
+              {t('COMPLETED')}
             </Badge>
           ) : (
             !isMobile && (
               <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
-                {itemCount} item{itemCount !== 1 ? 's' : ''} · {totalUnitCount} unit
+                {itemCount} {t('item')}
+                {itemCount !== 1 ? 's' : ''} · {totalUnitCount} {t('unit')}
                 {totalUnitCount !== 1 ? 's' : ''}
               </Badge>
             )
@@ -183,7 +185,7 @@ export const CartPanel = memo(function CartPanel({
               variant="filled"
               style={{ fontWeight: 800, whiteSpace: 'nowrap' }}
             >
-              CREDIT
+              {t('CREDIT')}
             </Badge>
           )}
         </Group>
@@ -220,7 +222,7 @@ export const CartPanel = memo(function CartPanel({
               fontWeight: 600,
             }}
           >
-            Clear
+            {t('Clear')}
           </Button>
         </Group>
       </Group>
@@ -248,7 +250,7 @@ export const CartPanel = memo(function CartPanel({
                         fw={600}
                         style={{ flexShrink: 0 }}
                       >
-                        Bal: {formatMoney(customerBalanceCents)}
+                        {t('Bal:')} {formatMoney(customerBalanceCents)}
                       </Badge>
                     )}
                   </Group>
@@ -262,7 +264,7 @@ export const CartPanel = memo(function CartPanel({
 
               <Group gap={6} wrap="nowrap" align="center" style={{ flexShrink: 0 }}>
                 <Button size="xs" variant="light" color="blue" onClick={onOpenCustomerPicker}>
-                  Change
+                  {t('Change')}
                 </Button>
                 <Button
                   size="xs"
@@ -270,7 +272,7 @@ export const CartPanel = memo(function CartPanel({
                   color="red"
                   onClick={() => attachCustomer(null, null)}
                 >
-                  Detach
+                  {t('Detach')}
                 </Button>
               </Group>
             </Group>
@@ -289,7 +291,7 @@ export const CartPanel = memo(function CartPanel({
               <Group gap="xs">
                 <IconUser size={18} color="var(--text-muted)" />
                 <Text size="sm" c="dimmed">
-                  Walk-in customer
+                  {t('Walk-in customer')}
                 </Text>
               </Group>
               <Button
@@ -320,9 +322,12 @@ export const CartPanel = memo(function CartPanel({
           style={{ fontSize: 12 }}
         >
           <Group justify="space-between" align="center">
-            <Text size="xs">Removed "{lastRemovedItem.item.name}"</Text>
+            <Text size="xs">
+              {t('Removed "')}
+              {lastRemovedItem.item.name}"
+            </Text>
             <Button size="xs" variant="white" color="blue" onClick={undoRemove}>
-              Undo (4s)
+              {t('Undo (4s)')}
             </Button>
           </Group>
         </Alert>
@@ -346,7 +351,7 @@ export const CartPanel = memo(function CartPanel({
                 : 'Scan an item or press F4 to bill a repair'}
             </Text>
             <Text size="xs" c="dimmed" ta="center">
-              Items added will appear instantly at the top.
+              {t('Items added will appear instantly at the top.')}
             </Text>
           </Stack>
         ) : (
@@ -394,22 +399,22 @@ export const CartPanel = memo(function CartPanel({
       {hasMixedSources && (
         <Box pt="xs" mt="xs" style={{ borderTop: '1px dashed var(--border-strong)' }}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={2} style={{ fontSize: 10 }}>
-            Mixed Cart Source Breakdown
+            {t('Mixed Cart Source Breakdown')}
           </Text>
           <Group gap="md">
             {sourceBreakdown.retailCents > 0 && (
               <Text size="xs" c="blue.7" fw={600}>
-                Retail: <b>{formatMoney(sourceBreakdown.retailCents)}</b>
+                {t('Retail:')} <b>{formatMoney(sourceBreakdown.retailCents)}</b>
               </Text>
             )}
             {sourceBreakdown.repairsCents > 0 && (
               <Text size="xs" c="orange.7" fw={600}>
-                Repairs: <b>{formatMoney(sourceBreakdown.repairsCents)}</b>
+                {t('Repairs:')} <b>{formatMoney(sourceBreakdown.repairsCents)}</b>
               </Text>
             )}
             {sourceBreakdown.printCents > 0 && (
               <Text size="xs" c="teal.7" fw={600}>
-                Print: <b>{formatMoney(sourceBreakdown.printCents)}</b>
+                {t('Print:')} <b>{formatMoney(sourceBreakdown.printCents)}</b>
               </Text>
             )}
           </Group>
@@ -428,7 +433,7 @@ export const CartPanel = memo(function CartPanel({
           onClick={onRequestPayment}
           style={{ height: 52, flexShrink: 0 }}
         >
-          Charge {formatMoney(totalCents)}
+          {t('Charge')} {formatMoney(totalCents)}
         </Button>
       )}
 
@@ -440,11 +445,12 @@ export const CartPanel = memo(function CartPanel({
           clear();
           setClearDialogOpen(false);
         }}
-        title="Clear Billing Cart?"
-        confirmLabel="Clear Cart"
+        title={t('Clear Billing Cart?')}
+        confirmLabel={t('Clear Cart')}
         confirmColor="red"
       >
-        Are you sure you want to clear {itemCount} items from the current billing cart?
+        {t('Are you sure you want to clear')} {itemCount}{' '}
+        {t('items from the current billing cart?')}
       </ConfirmDialog>
     </Paper>
   );

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { createElement, useMemo, useState } from 'react';
 import {
   Popover,
@@ -138,7 +139,7 @@ export const TablerIconPicker = ({
         <Popover.Dropdown p="sm">
           <Stack gap="xs">
             <TextInput
-              placeholder="Search icons..."
+              placeholder={t('Search icons...')}
               leftSection={<IconSearch size={14} />}
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
@@ -177,7 +178,8 @@ export const TablerIconPicker = ({
                 </div>
                 {visibleNames.length === 0 ? (
                   <Text size="xs" c="dimmed" ta="center" py="sm">
-                    No icons match "{search}".
+                    {t('No icons match "')}
+                    {search}".
                   </Text>
                 ) : (
                   <Text size="xs" c="dimmed" ta="center">

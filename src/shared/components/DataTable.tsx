@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { ReactNode, useState, useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
@@ -268,6 +269,7 @@ export const DataTable = <T,>({
       ),
     [columns, selectable, onRowClick]
   );
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: displayData.length,
     getScrollElement: () => virtualScrollRef.current,
@@ -315,7 +317,7 @@ export const DataTable = <T,>({
           <Table.Th style={{ width: 40, textAlign: 'center' }}>
             <Checkbox
               size="xs"
-              aria-label="Select all rows"
+              aria-label={t('Select all rows')}
               checked={isAllVisibleSelected}
               indeterminate={isSomeVisibleSelected}
               onChange={handleToggleAll}
@@ -373,7 +375,9 @@ export const DataTable = <T,>({
                 align="center"
                 style={{ minWidth: 0, width: '100%' }}
               >
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{col.header}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {typeof col.header === 'string' ? t(col.header) : col.header}
+                </span>
                 {isSortable &&
                   (isCurrentSorted ? (
                     sortDirection === 'asc' ? (
@@ -402,7 +406,7 @@ export const DataTable = <T,>({
           );
         })}
         {onRowClick && (
-          <Table.Th style={{ width: 40, textAlign: 'right' }} aria-label="View Details" />
+          <Table.Th style={{ width: 40, textAlign: 'right' }} aria-label={t('View Details')} />
         )}
       </Table.Tr>
     </Table.Thead>
@@ -485,24 +489,25 @@ export const DataTable = <T,>({
           <Group justify="space-between" align="center">
             <Group gap="sm">
               <Badge color="blue" size="md" variant="filled">
-                {selectedKeys.length} selected
+                {selectedKeys.length} {t('selected')}
               </Badge>
               <Button variant="subtle" size="xs" color="gray" onClick={() => setSelectedKeys([])}>
-                Deselect All
+                {t('Deselect All')}
               </Button>
             </Group>
 
             <Group gap="xs">
               {bulkActions}
               {onDeleteSelected && (
-                <Tooltip label="Delete all selected items">
+                <Tooltip label={t('Delete all selected items')}>
                   <Button
                     color="red"
                     size="xs"
                     leftSection={<IconTrash size={14} />}
                     onClick={() => setConfirmDeleteOpen(true)}
                   >
-                    Delete Selected ({selectedKeys.length})
+                    {t('Delete Selected (')}
+                    {selectedKeys.length})
                   </Button>
                 </Tooltip>
               )}
@@ -545,7 +550,7 @@ export const DataTable = <T,>({
                 >
                   <Checkbox
                     size="xs"
-                    aria-label="Select all rows"
+                    aria-label={t('Select all rows')}
                     checked={isAllVisibleSelected}
                     indeterminate={isSomeVisibleSelected}
                     onChange={handleToggleAll}
@@ -629,7 +634,7 @@ export const DataTable = <T,>({
                 );
               })}
               {onRowClick && (
-                <div role="columnheader" style={{ width: 40 }} aria-label="View Details" />
+                <div role="columnheader" style={{ width: 40 }} aria-label={t('View Details')} />
               )}
             </div>
 
@@ -722,7 +727,7 @@ export const DataTable = <T,>({
                             variant="subtle"
                             color="gray"
                             size="sm"
-                            aria-label="View details"
+                            aria-label={t('View details')}
                             className="data-table-row-chevron"
                             tabIndex={-1}
                             style={{ opacity: 0.45 }}
@@ -803,7 +808,7 @@ export const DataTable = <T,>({
                             variant="subtle"
                             color="gray"
                             size="sm"
-                            aria-label="View details"
+                            aria-label={t('View details')}
                             className="data-table-row-chevron"
                             tabIndex={-1}
                             style={{
@@ -842,7 +847,7 @@ export const DataTable = <T,>({
             {isActuallyPaginated && (
               <Group gap={6} align="center">
                 <Text size="xs" c="dimmed">
-                  Rows per page:
+                  {t('Rows per page:')}
                 </Text>
                 <Select
                   size="xs"
@@ -876,12 +881,12 @@ export const DataTable = <T,>({
           opened={confirmDeleteOpen}
           onClose={() => setConfirmDeleteOpen(false)}
           onConfirm={handleConfirmDeleteBatch}
-          title="Delete Selected Items"
+          title={t('Delete Selected Items')}
           confirmLabel={`Delete ${selectedKeys.length} Items`}
           confirmColor="red"
         >
-          Are you sure you want to delete <strong>{selectedKeys.length}</strong> selected item(s)?
-          This action cannot be undone.
+          {t('Are you sure you want to delete')} <strong>{selectedKeys.length}</strong>{' '}
+          {t('selected item(s)?\n                            This action cannot be undone.')}
         </ConfirmDialog>
       )}
     </Stack>

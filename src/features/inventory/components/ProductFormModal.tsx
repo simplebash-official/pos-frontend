@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useMemo, useState } from 'react';
 import {
   Modal,
@@ -394,8 +395,8 @@ const ProductFormContent = ({
         {/* Category Selection */}
         <Group grow align="flex-start">
           <Select
-            label="Category"
-            placeholder="Select a category"
+            label={t('Category')}
+            placeholder={t('Select a category')}
             data={categoryOptions}
             value={categoryKey}
             onChange={handleCategoryChange}
@@ -405,7 +406,7 @@ const ProductFormContent = ({
             searchable
           />
           <Select
-            label="Subcategory"
+            label={t('Subcategory')}
             placeholder={categoryKey ? 'Select subcategory' : 'Choose category first'}
             data={subcategoryOptions}
             value={subcategoryKey}
@@ -422,8 +423,8 @@ const ProductFormContent = ({
 
         {/* Product Name */}
         <TextInput
-          label="Product Name"
-          placeholder="e.g. iPhone 15 Pro Max Tempered Glass"
+          label={t('Product Name')}
+          placeholder={t('e.g. iPhone 15 Pro Max Tempered Glass')}
           value={name}
           onChange={(e) => {
             setName(e.currentTarget.value);
@@ -446,13 +447,13 @@ const ProductFormContent = ({
                   tt="uppercase"
                   style={{ letterSpacing: '0.05em' }}
                 >
-                  Suppliers & Stock Received
+                  {t('Suppliers & Stock Received')}
                 </Text>
                 {hasSupplierIntakes && (
                   <Badge size="xs" variant="light" color="blue">
                     {supplierIntakes.length}{' '}
                     {supplierIntakes.length === 1 ? 'Supplier' : 'Suppliers'} ·{' '}
-                    {totalIntakeQuantity} Units
+                    {totalIntakeQuantity} {t('Units')}
                   </Badge>
                 )}
               </Group>
@@ -465,15 +466,16 @@ const ProductFormContent = ({
                   leftSection={<IconPlus size={14} />}
                   onClick={handleAddSupplierIntake}
                 >
-                  Add Another Supplier
+                  {t('Add Another Supplier')}
                 </Button>
               )}
             </Group>
 
             {hasSupplierIntakes && (
               <Text size="xs" c="dimmed">
-                Bought this item from more than one place? Add each supplier separately with
-                &quot;Add Another Supplier&quot;.
+                {t(
+                  'Bought this item from more than one place? Add each supplier separately with\n                                              &quot;Add Another Supplier&quot;.'
+                )}
               </Text>
             )}
 
@@ -512,11 +514,12 @@ const ProductFormContent = ({
                     </ThemeIcon>
                     <div style={{ minWidth: 0 }}>
                       <Text size="sm" fw={600} c="var(--text-primary)" lineClamp={1}>
-                        Who did you buy this from?
+                        {t('Who did you buy this from?')}
                       </Text>
                       <Text size="xs" c="dimmed" lineClamp={2}>
-                        Add one supplier, or add several if you bought this item from more than one
-                        place. You can skip this.
+                        {t(
+                          'Add one supplier, or add several if you bought this item from more than one\n                                                                      place. You can skip this.'
+                        )}
                       </Text>
                     </div>
                   </Group>
@@ -531,7 +534,7 @@ const ProductFormContent = ({
                     }}
                     style={{ flexShrink: 0 }}
                   >
-                    Add Supplier
+                    {t('Add Supplier')}
                   </Button>
                 </Group>
               </Box>
@@ -556,10 +559,10 @@ const ProductFormContent = ({
                         <Group justify="space-between" align="center">
                           <Group gap="xs" align="center">
                             <Badge size="sm" variant="light" color="blue">
-                              Supplier {index + 1}
+                              {t('Supplier')} {index + 1}
                             </Badge>
                           </Group>
-                          <Tooltip label="Remove this supplier" position="top">
+                          <Tooltip label={t('Remove this supplier')} position="top">
                             <ActionIcon
                               size="sm"
                               color="red"
@@ -574,8 +577,8 @@ const ProductFormContent = ({
 
                         {/* Vendor Select */}
                         <Select
-                          label="Supplier"
-                          placeholder="Search or pick a supplier"
+                          label={t('Supplier')}
+                          placeholder={t('Search or pick a supplier')}
                           data={availableOptions}
                           value={row.supplierKey || null}
                           onChange={(val) =>
@@ -591,7 +594,7 @@ const ProductFormContent = ({
                         <Grid gap="xs" align="flex-start">
                           <Grid.Col span={{ base: 12, sm: 4 }}>
                             <NumberInput
-                              label="Units Bought"
+                              label={t('Units Bought')}
                               placeholder="0"
                               min={1}
                               allowDecimal={false}
@@ -606,7 +609,7 @@ const ProductFormContent = ({
                           </Grid.Col>
                           <Grid.Col span={{ base: 12, sm: 4 }}>
                             <NumberInput
-                              label="Unit Cost Price"
+                              label={t('Unit Cost Price')}
                               placeholder="0.00"
                               min={0}
                               decimalScale={2}
@@ -625,8 +628,8 @@ const ProductFormContent = ({
                           </Grid.Col>
                           <Grid.Col span={{ base: 12, sm: 4 }}>
                             <TextInput
-                              label="Invoice / Ref No"
-                              placeholder="e.g. INV-1049"
+                              label={t('Invoice / Ref No')}
+                              placeholder={t('e.g. INV-1049')}
                               value={row.referenceNo}
                               onChange={(e) =>
                                 handleUpdateSupplierIntake(
@@ -661,9 +664,9 @@ const ProductFormContent = ({
                         <IconBox size={13} />
                       </ThemeIcon>
                       <Text size="xs" c="var(--text-secondary)">
-                        Total Units Received:{' '}
+                        {t('Total Units Received:')}{' '}
                         <Text span fw={700} c="var(--text-primary)">
-                          {totalIntakeQuantity} Units
+                          {totalIntakeQuantity} {t('Units')}
                         </Text>
                       </Text>
                     </Group>
@@ -672,7 +675,7 @@ const ProductFormContent = ({
                         <IconReceipt size={13} />
                       </ThemeIcon>
                       <Text size="xs" c="var(--text-secondary)">
-                        Total Amount Paid:{' '}
+                        {t('Total Amount Paid:')}{' '}
                         <Text span fw={700} c="var(--text-primary)">
                           {formatMoney(totalIntakeCostCents)}
                         </Text>
@@ -689,7 +692,7 @@ const ProductFormContent = ({
         {!isEditing && (
           <Stack gap={6}>
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-              Barcode
+              {t('Barcode')}
             </Text>
 
             <Box
@@ -715,11 +718,12 @@ const ProductFormContent = ({
 
                   <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                     <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
-                      Create a barcode for me
+                      {t('Create a barcode for me')}
                     </Text>
                     <Text size="xs" c="dimmed" lh={1.3}>
-                      A scannable shop barcode is made when you save. Turn this off to scan or type
-                      the barcode already on the product.
+                      {t(
+                        'A scannable shop barcode is made when you save. Turn this off to scan or type\n                                                                the barcode already on the product.'
+                      )}
                     </Text>
                   </Stack>
                 </Group>
@@ -736,7 +740,7 @@ const ProductFormContent = ({
                   }}
                   color="amber"
                   size="md"
-                  aria-label="Create a barcode for me"
+                  aria-label={t('Create a barcode for me')}
                 />
               </Group>
             </Box>
@@ -744,7 +748,7 @@ const ProductFormContent = ({
             {!autoGenerateBarcode && (
               <TextInput
                 mt={4}
-                placeholder="Scan the product, or type the barcode numbers"
+                placeholder={t('Scan the product, or type the barcode numbers')}
                 leftSection={<IconBarcode size={16} />}
                 value={manualBarcode}
                 onChange={(e) => {
@@ -753,7 +757,9 @@ const ProductFormContent = ({
                 }}
                 error={errors.barcode}
                 autoFocus={!isMobile}
-                description="Point the scanner at the product, or type the numbers printed under the barcode (8–14 digits)"
+                description={t(
+                  'Point the scanner at the product, or type the numbers printed under the barcode (8–14 digits)'
+                )}
               />
             )}
           </Stack>
@@ -770,7 +776,7 @@ const ProductFormContent = ({
             <Group justify="space-between">
               <div>
                 <Text size="xs" c="dimmed">
-                  SKU (cannot be changed)
+                  {t('SKU (cannot be changed)')}
                 </Text>
                 <Text size="sm" fw={700}>
                   {productToEdit?.sku}
@@ -778,7 +784,7 @@ const ProductFormContent = ({
               </div>
               <div>
                 <Text size="xs" c="dimmed">
-                  Barcode (cannot be changed)
+                  {t('Barcode (cannot be changed)')}
                 </Text>
                 <Group gap={6}>
                   <Text size="sm" fw={700}>
@@ -802,7 +808,7 @@ const ProductFormContent = ({
         {/* Serial Numbers & Warranty */}
         <Stack gap={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            Serial Numbers &amp; Warranty
+            {t('Serial Numbers &amp; Warranty')}
           </Text>
 
           <Box
@@ -827,11 +833,12 @@ const ProductFormContent = ({
 
                 <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                   <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
-                    Track serial numbers for this item
+                    {t('Track serial numbers for this item')}
                   </Text>
                   <Text size="xs" c="dimmed" lh={1.3}>
-                    Turn this on for electronics or appliances where each unit needs its own serial
-                    number and warranty, like a phone or a fridge.
+                    {t(
+                      'Turn this on for electronics or appliances where each unit needs its own serial\n                                                          number and warranty, like a phone or a fridge.'
+                    )}
                   </Text>
                 </Stack>
               </Group>
@@ -841,7 +848,7 @@ const ProductFormContent = ({
                 onChange={(e) => setIsSerialized(e.currentTarget.checked)}
                 color="blue"
                 size="md"
-                aria-label="Track serial numbers for this item"
+                aria-label={t('Track serial numbers for this item')}
               />
             </Group>
           </Box>
@@ -849,12 +856,14 @@ const ProductFormContent = ({
           {isSerialized && (
             <NumberInput
               mt={4}
-              label="Warranty period (months)"
-              placeholder="e.g. 12"
+              label={t('Warranty period (months)')}
+              placeholder={t('e.g. 12')}
               min={0}
               value={warrantyMonths}
               onChange={setWarrantyMonths}
-              description="How many months of warranty this item comes with, starting from the sale date. Leave blank if it has no warranty."
+              description={t(
+                'How many months of warranty this item comes with, starting from the sale date. Leave blank if it has no warranty.'
+              )}
             />
           )}
         </Stack>
@@ -863,7 +872,7 @@ const ProductFormContent = ({
         {hasSupplierIntakes ? (
           <Stack gap={6}>
             <NumberInput
-              label="Selling Price (Rs.)"
+              label={t('Selling Price (Rs.)')}
               placeholder="0.00"
               decimalScale={2}
               min={0.01}
@@ -918,7 +927,7 @@ const ProductFormContent = ({
                       fw={600}
                       c={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'var(--text-secondary)'}
                     >
-                      Unit Profit:{' '}
+                      {t('Unit Profit:')}{' '}
                       <Text span fw={700}>
                         {unitProfit >= 0 ? '+' : ''}
                         {formatMoney(toCents(unitProfit))}
@@ -932,11 +941,11 @@ const ProductFormContent = ({
                       variant="light"
                       color={profitMarginPct > 0 ? 'teal' : profitMarginPct < 0 ? 'red' : 'gray'}
                     >
-                      Margin: {profitMarginPct.toFixed(1)}%
+                      {t('Margin:')} {profitMarginPct.toFixed(1)}%
                     </Badge>
                     {markupPct !== 0 && (
                       <Text size="xs" c="dimmed">
-                        Markup: {markupPct.toFixed(1)}%
+                        {t('Markup:')} {markupPct.toFixed(1)}%
                       </Text>
                     )}
                   </Group>
@@ -948,7 +957,7 @@ const ProductFormContent = ({
           <Stack gap={6}>
             <Group grow align="flex-start">
               <NumberInput
-                label="Cost Price (Rs.)"
+                label={t('Cost Price (Rs.)')}
                 placeholder="0.00"
                 decimalScale={2}
                 min={0}
@@ -966,7 +975,7 @@ const ProductFormContent = ({
                 required
               />
               <NumberInput
-                label="Selling Price (Rs.)"
+                label={t('Selling Price (Rs.)')}
                 placeholder="0.00"
                 decimalScale={2}
                 min={0.01}
@@ -1022,7 +1031,7 @@ const ProductFormContent = ({
                       fw={600}
                       c={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'var(--text-secondary)'}
                     >
-                      Unit Profit:{' '}
+                      {t('Unit Profit:')}{' '}
                       <Text span fw={700}>
                         {unitProfit >= 0 ? '+' : ''}
                         {formatMoney(toCents(unitProfit))}
@@ -1036,11 +1045,11 @@ const ProductFormContent = ({
                       variant="light"
                       color={profitMarginPct > 0 ? 'teal' : profitMarginPct < 0 ? 'red' : 'gray'}
                     >
-                      Margin: {profitMarginPct.toFixed(1)}%
+                      {t('Margin:')} {profitMarginPct.toFixed(1)}%
                     </Badge>
                     {markupPct !== 0 && (
                       <Text size="xs" c="dimmed">
-                        Markup: {markupPct.toFixed(1)}%
+                        {t('Markup:')} {markupPct.toFixed(1)}%
                       </Text>
                     )}
                   </Group>
@@ -1053,7 +1062,7 @@ const ProductFormContent = ({
         {/* Stock Metrics */}
         {hasSupplierIntakes ? (
           <NumberInput
-            label="Low-Stock Alert Threshold"
+            label={t('Low-Stock Alert Threshold')}
             placeholder="3"
             min={0}
             allowDecimal={false}
@@ -1066,14 +1075,14 @@ const ProductFormContent = ({
             error={errors.minStockThreshold}
             leftSection={<IconAlertTriangle size={16} />}
             inputWrapperOrder={['label', 'input', 'description', 'error']}
-            description="Alerts appear when available stock falls to or below this amount."
+            description={t('Alerts appear when available stock falls to or below this amount.')}
             required
           />
         ) : (
           <Group grow align="flex-start">
             {!isEditing && (
               <NumberInput
-                label="Starting Stock Units"
+                label={t('Starting Stock Units')}
                 placeholder="0"
                 min={0}
                 allowDecimal={false}
@@ -1088,7 +1097,7 @@ const ProductFormContent = ({
               />
             )}
             <NumberInput
-              label="Low-Stock Alert Threshold"
+              label={t('Low-Stock Alert Threshold')}
               placeholder="3"
               min={0}
               allowDecimal={false}
@@ -1101,7 +1110,7 @@ const ProductFormContent = ({
               error={errors.minStockThreshold}
               leftSection={<IconAlertTriangle size={16} />}
               inputWrapperOrder={['label', 'input', 'description', 'error']}
-              description="Alerts appear when available stock falls to or below this amount."
+              description={t('Alerts appear when available stock falls to or below this amount.')}
               required
             />
           </Group>
@@ -1109,14 +1118,15 @@ const ProductFormContent = ({
 
         {isEditing && (
           <Text size="xs" c="dimmed">
-            Stock quantity is managed via stock adjustments or purchase orders so every change is
-            captured in the audit trail.
+            {t(
+              'Stock quantity is managed via stock adjustments or purchase orders so every change is\n                                  captured in the audit trail.'
+            )}
           </Text>
         )}
 
         <Group justify="flex-end" mt="md" gap="sm">
           <Button variant="default" onClick={onClose} disabled={loading}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="submit" color="blue" loading={loading}>
             {isEditing ? 'Save Changes' : 'Create Product'}

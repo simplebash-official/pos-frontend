@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import {
   Paper,
   Stack,
@@ -55,16 +56,16 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Cash Register & Shift Summary
+                {t('Cash Register & Shift Summary')}
               </Text>
               <Text size="xs" c="dimmed">
-                Live cash in till reconciliation and payment method distribution
+                {t('Live cash in till reconciliation and payment method distribution')}
               </Text>
             </div>
           </Group>
 
           <Badge variant="outline" color="gray" size="sm">
-            Total Inflow: {formatMoney(totalInflow)}
+            {t('Total Inflow:')} {formatMoney(totalInflow)}
           </Badge>
         </Group>
 
@@ -92,14 +93,15 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <IconCoin size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                Cash Sales
+                {t('Cash Sales')}
               </Text>
             </Group>
             <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.cashSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {cashPct.toFixed(0)}% of sales
+              {cashPct.toFixed(0)}
+              {t('% of sales')}
             </Text>
           </Paper>
 
@@ -109,14 +111,15 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <IconCreditCard size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                Card Swipes
+                {t('Card Swipes')}
               </Text>
             </Group>
             <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.cardSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {cardPct.toFixed(0)}% of sales
+              {cardPct.toFixed(0)}
+              {t('% of sales')}
             </Text>
           </Paper>
 
@@ -126,14 +129,15 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <IconBuildingBank size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                Bank Transfer
+                {t('Bank Transfer')}
               </Text>
             </Group>
             <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.onlineSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {onlinePct.toFixed(0)}% of sales
+              {onlinePct.toFixed(0)}
+              {t('% of sales')}
             </Text>
           </Paper>
 
@@ -143,14 +147,15 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
                 <IconReceipt size={14} />
               </ThemeIcon>
               <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                Store Credit
+                {t('Store Credit')}
               </Text>
             </Group>
             <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(shiftSummary.creditSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {creditPct.toFixed(0)}% of sales
+              {creditPct.toFixed(0)}
+              {t('% of sales')}
             </Text>
           </Paper>
         </SimpleGrid>
@@ -163,7 +168,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
             <Group gap="md" wrap="wrap">
               <div>
                 <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                  Opening Float
+                  {t('Opening Float')}
                 </Text>
                 <Text size="xs" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatMoney(shiftSummary.openingFloatCents)}
@@ -176,7 +181,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
 
               <div>
                 <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                  Cash In
+                  {t('Cash In')}
                 </Text>
                 <Text size="xs" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatMoney(shiftSummary.cashSalesCents)}
@@ -189,7 +194,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
 
               <div>
                 <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                  Expected in Drawer
+                  {t('Expected in Drawer')}
                 </Text>
                 <Text size="sm" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatMoney(shiftSummary.expectedDrawerCashCents)}
@@ -198,7 +203,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
             </Group>
 
             <Badge color="teal" variant="light" size="xs" leftSection={<IconChecklist size={12} />}>
-              Till Reconciled
+              {t('Till Reconciled')}
             </Badge>
           </Group>
         </Paper>

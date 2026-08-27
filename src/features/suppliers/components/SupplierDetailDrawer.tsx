@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState, useMemo } from 'react';
 import {
   Stack,
@@ -285,10 +286,10 @@ export const SupplierDetailDrawer = ({
             </ThemeIcon>
             <div>
               <Text fw={800} size="md">
-                Supplier Profile
+                {t('Supplier Profile')}
               </Text>
               <Text size="xs" c="dimmed">
-                Vendor Specifications & Contacts
+                {t('Vendor Specifications & Contacts')}
               </Text>
             </div>
           </Group>
@@ -334,7 +335,7 @@ export const SupplierDetailDrawer = ({
                     {sup.contactPerson}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    (Representative)
+                    {t('(Representative)')}
                   </Text>
                 </Group>
                 {sup.email && (
@@ -360,7 +361,7 @@ export const SupplierDetailDrawer = ({
 
             {/* Financial & Activity Snapshot */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              Activity & Spend Snapshot
+              {t('Activity & Spend Snapshot')}
             </Text>
 
             <Paper p="md" withBorder radius="var(--mantine-radius-default)">
@@ -377,7 +378,7 @@ export const SupplierDetailDrawer = ({
                         style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
                       />
                       <Text size="xs" c="dimmed" tt="uppercase">
-                        Products
+                        {t('Products')}
                       </Text>
                     </Group>
                     <Group gap={4} align="baseline">
@@ -385,7 +386,7 @@ export const SupplierDetailDrawer = ({
                         {loadingProducts ? '—' : linkedProducts.length}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        items
+                        {t('items')}
                       </Text>
                     </Group>
                   </Stack>
@@ -403,7 +404,7 @@ export const SupplierDetailDrawer = ({
                         style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
                       />
                       <Text size="xs" c="dimmed" tt="uppercase">
-                        Intakes
+                        {t('Intakes')}
                       </Text>
                     </Group>
                     <Group gap={4} align="baseline">
@@ -411,7 +412,7 @@ export const SupplierDetailDrawer = ({
                         {loadingPurchases ? '—' : purchases.length}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        orders
+                        {t('orders')}
                       </Text>
                     </Group>
                   </Stack>
@@ -425,7 +426,7 @@ export const SupplierDetailDrawer = ({
                         style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
                       />
                       <Text size="xs" c="dimmed" tt="uppercase">
-                        Total Spend
+                        {t('Total Spend')}
                       </Text>
                     </Group>
                     <Text fw={800} size="md" c="teal">
@@ -458,7 +459,7 @@ export const SupplierDetailDrawer = ({
                     </Badge>
                   }
                 >
-                  Products
+                  {t('Products')}
                 </Tabs.Tab>
                 <Tabs.Tab
                   value="intake"
@@ -468,9 +469,9 @@ export const SupplierDetailDrawer = ({
                     </Badge>
                   }
                 >
-                  Intake
+                  {t('Intake')}
                 </Tabs.Tab>
-                <Tabs.Tab value="details">Details</Tabs.Tab>
+                <Tabs.Tab value="details">{t('Details')}</Tabs.Tab>
               </Tabs.List>
             </Tabs>
 
@@ -480,10 +481,10 @@ export const SupplierDetailDrawer = ({
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      Linked Inventory Products
+                      {t('Linked Inventory Products')}
                     </Text>
                     <Group gap="xs">
-                      <Tooltip label="Browse All Products" withArrow>
+                      <Tooltip label={t('Browse All Products')} withArrow>
                         <ActionIcon
                           variant="subtle"
                           color="blue"
@@ -522,14 +523,14 @@ export const SupplierDetailDrawer = ({
                     >
                       <Stack gap="sm">
                         <Text size="xs" fw={700} c="blue" tt="uppercase">
-                          Link Product to Supplier
+                          {t('Link Product to Supplier')}
                         </Text>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Select Product *
+                            {t('Select Product *')}
                           </Text>
                           <Select
-                            placeholder="Search product name or SKU"
+                            placeholder={t('Search product name or SKU')}
                             data={linkProductSelectOptions}
                             value={linkProductKey}
                             onChange={handleLinkProductChange}
@@ -541,10 +542,10 @@ export const SupplierDetailDrawer = ({
                         <Grid gap="sm">
                           <Grid.Col span={6}>
                             <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              Supplier SKU (Optional)
+                              {t('Supplier SKU (Optional)')}
                             </Text>
                             <TextInput
-                              placeholder="e.g. SUP-1002"
+                              placeholder={t('e.g. SUP-1002')}
                               value={linkSupplierSku}
                               onChange={(e) => setLinkSupplierSku(e.currentTarget.value)}
                               size={isMobile ? 'md' : 'sm'}
@@ -552,7 +553,7 @@ export const SupplierDetailDrawer = ({
                           </Grid.Col>
                           <Grid.Col span={6}>
                             <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              Supplier Cost (Optional)
+                              {t('Supplier Cost (Optional)')}
                             </Text>
                             <MoneyInput
                               valueCents={linkCostCents}
@@ -563,10 +564,10 @@ export const SupplierDetailDrawer = ({
                         </Grid>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Notes (Optional)
+                            {t('Notes (Optional)')}
                           </Text>
                           <TextInput
-                            placeholder="e.g. Minimum order quantity 10 units"
+                            placeholder={t('e.g. Minimum order quantity 10 units')}
                             value={linkNotes}
                             onChange={(e) => setLinkNotes(e.currentTarget.value)}
                             size={isMobile ? 'md' : 'sm'}
@@ -574,7 +575,7 @@ export const SupplierDetailDrawer = ({
                         </div>
                         <Group justify="flex-end" gap="sm">
                           <Button variant="default" size="sm" onClick={resetLinkForm}>
-                            Cancel
+                            {t('Cancel')}
                           </Button>
                           <Button
                             size="sm"
@@ -583,7 +584,7 @@ export const SupplierDetailDrawer = ({
                             disabled={!linkProductKey}
                             loading={linkMutation.isPending}
                           >
-                            Link Product
+                            {t('Link Product')}
                           </Button>
                         </Group>
                       </Stack>
@@ -607,7 +608,7 @@ export const SupplierDetailDrawer = ({
                         <Stack gap={4} align="center">
                           <IconLink size={24} style={{ opacity: 0.4 }} />
                           <Text size="xs" c="dimmed" ta="center">
-                            No products linked to this supplier yet.
+                            {t('No products linked to this supplier yet.')}
                           </Text>
                           <Text
                             size="xs"
@@ -616,7 +617,7 @@ export const SupplierDetailDrawer = ({
                             style={{ cursor: 'pointer' }}
                             onClick={() => setLinkFormOpen(true)}
                           >
-                            + Link an inventory item
+                            {t('+ Link an inventory item')}
                           </Text>
                         </Stack>
                       </Center>
@@ -649,16 +650,16 @@ export const SupplierDetailDrawer = ({
                                   </Badge>
                                   {lp.costPriceCents ? (
                                     <Badge size="xs" variant="light" color="teal">
-                                      Supplier Cost: {formatMoney(lp.costPriceCents)}
+                                      {t('Supplier Cost:')} {formatMoney(lp.costPriceCents)}
                                     </Badge>
                                   ) : (
                                     <Badge size="xs" variant="outline" color="gray">
-                                      Default Cost: {formatMoney(lp.product.costPriceCents)}
+                                      {t('Default Cost:')} {formatMoney(lp.product.costPriceCents)}
                                     </Badge>
                                   )}
                                   {lp.supplierSku && (
                                     <Badge size="xs" variant="outline" color="blue">
-                                      SKU: {lp.supplierSku}
+                                      {t('SKU:')} {lp.supplierSku}
                                     </Badge>
                                   )}
                                 </Group>
@@ -668,7 +669,7 @@ export const SupplierDetailDrawer = ({
                                   </Text>
                                 )}
                               </div>
-                              <Tooltip label="Unlink product" withArrow>
+                              <Tooltip label={t('Unlink product')} withArrow>
                                 <ActionIcon
                                   variant="subtle"
                                   color="red"
@@ -695,10 +696,10 @@ export const SupplierDetailDrawer = ({
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      Stock Intake History
+                      {t('Stock Intake History')}
                     </Text>
                     <Group gap="xs">
-                      <Tooltip label="Advanced Receive Form" withArrow>
+                      <Tooltip label={t('Advanced Receive Form')} withArrow>
                         <ActionIcon
                           variant="subtle"
                           color="teal"
@@ -739,14 +740,14 @@ export const SupplierDetailDrawer = ({
                     >
                       <Stack gap="sm">
                         <Text size="xs" fw={700} c="teal" tt="uppercase">
-                          Quick Stock Intake
+                          {t('Quick Stock Intake')}
                         </Text>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Product *
+                            {t('Product *')}
                           </Text>
                           <Select
-                            placeholder="Select product received"
+                            placeholder={t('Select product received')}
                             data={intakeProductSelectOptions}
                             value={intakeProductKey}
                             onChange={handleIntakeProductChange}
@@ -758,10 +759,10 @@ export const SupplierDetailDrawer = ({
                         <Grid gap="sm">
                           <Grid.Col span={6}>
                             <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              Quantity Received *
+                              {t('Quantity Received *')}
                             </Text>
                             <NumberInput
-                              placeholder="e.g. 20"
+                              placeholder={t('e.g. 20')}
                               value={intakeQuantity}
                               onChange={(val) => setIntakeQuantity(val === '' ? '' : Number(val))}
                               min={1}
@@ -770,7 +771,7 @@ export const SupplierDetailDrawer = ({
                           </Grid.Col>
                           <Grid.Col span={6}>
                             <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              Unit Cost *
+                              {t('Unit Cost *')}
                             </Text>
                             <MoneyInput
                               valueCents={intakeUnitCostCents}
@@ -781,10 +782,10 @@ export const SupplierDetailDrawer = ({
                         </Grid>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            Invoice / Reference No. (Optional)
+                            {t('Invoice / Reference No. (Optional)')}
                           </Text>
                           <TextInput
-                            placeholder="e.g. INV-9021"
+                            placeholder={t('e.g. INV-9021')}
                             value={intakeReferenceNo}
                             onChange={(e) => setIntakeReferenceNo(e.currentTarget.value)}
                             size={isMobile ? 'md' : 'sm'}
@@ -792,7 +793,7 @@ export const SupplierDetailDrawer = ({
                         </div>
                         <Group justify="flex-end" gap="sm">
                           <Button variant="default" size="sm" onClick={resetIntakeForm}>
-                            Cancel
+                            {t('Cancel')}
                           </Button>
                           <Button
                             size="sm"
@@ -803,7 +804,7 @@ export const SupplierDetailDrawer = ({
                             }
                             loading={createPurchaseMutation.isPending}
                           >
-                            Record Intake
+                            {t('Record Intake')}
                           </Button>
                         </Group>
                       </Stack>
@@ -827,7 +828,7 @@ export const SupplierDetailDrawer = ({
                         <Stack gap={4} align="center">
                           <IconReceipt size={24} style={{ opacity: 0.4 }} />
                           <Text size="xs" c="dimmed" ta="center">
-                            No stock intakes recorded for this supplier yet.
+                            {t('No stock intakes recorded for this supplier yet.')}
                           </Text>
                           <Text
                             size="xs"
@@ -836,7 +837,7 @@ export const SupplierDetailDrawer = ({
                             style={{ cursor: 'pointer' }}
                             onClick={() => setIntakeFormOpen(true)}
                           >
-                            + Receive stock
+                            {t('+ Receive stock')}
                           </Text>
                         </Stack>
                       </Center>
@@ -862,14 +863,15 @@ export const SupplierDetailDrawer = ({
                                 </Text>
                                 <Group gap={6} mt={2} wrap="wrap">
                                   <Badge size="xs" variant="filled" color="blue">
-                                    Qty: +{purchase.quantity}
+                                    {t('Qty: +')}
+                                    {purchase.quantity}
                                   </Badge>
                                   <Badge size="xs" variant="light" color="teal">
                                     {formatMoney(purchase.totalCostCents)}
                                   </Badge>
                                   {purchase.unitCostCents && (
                                     <Badge size="xs" variant="outline" color="gray">
-                                      Unit: {formatMoney(purchase.unitCostCents)}
+                                      {t('Unit:')} {formatMoney(purchase.unitCostCents)}
                                     </Badge>
                                   )}
                                 </Group>
@@ -894,7 +896,7 @@ export const SupplierDetailDrawer = ({
                 <Stack gap="md">
                   <div>
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                      Contact Phone Numbers
+                      {t('Contact Phone Numbers')}
                     </Text>
                     <PhoneDisplay
                       primaryPhone={sup.primaryPhone}
@@ -907,7 +909,7 @@ export const SupplierDetailDrawer = ({
 
                   <div>
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                      Physical Location / Address
+                      {t('Physical Location / Address')}
                     </Text>
                     <Group gap="xs" align="flex-start">
                       <IconMapPin
@@ -929,7 +931,7 @@ export const SupplierDetailDrawer = ({
                       <Divider color="var(--mantine-color-default-border)" />
                       <div>
                         <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                          Notes & Special Instructions
+                          {t('Notes & Special Instructions')}
                         </Text>
                         <Paper
                           p="sm"
@@ -952,7 +954,7 @@ export const SupplierDetailDrawer = ({
 
             {/* System Metadata */}
             <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              Metadata
+              {t('Metadata')}
             </Text>
 
             <Stack gap="xs">
@@ -960,7 +962,7 @@ export const SupplierDetailDrawer = ({
                 <Group gap="xs">
                   <IconCalendar size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Registered On
+                    {t('Registered On')}
                   </Text>
                 </Group>
                 <Text size="xs" fw={700}>
@@ -972,7 +974,7 @@ export const SupplierDetailDrawer = ({
                 <Group gap="xs">
                   <IconClock size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Last Updated
+                    {t('Last Updated')}
                   </Text>
                 </Group>
                 <Text size="xs" fw={700}>
@@ -984,7 +986,7 @@ export const SupplierDetailDrawer = ({
                 <Group gap="xs">
                   <IconTag size={16} style={{ opacity: 0.6 }} />
                   <Text size="xs" c="dimmed">
-                    Supplier Key
+                    {t('Supplier Key')}
                   </Text>
                 </Group>
                 <Text size="xs" fw={600} c="dimmed">
@@ -1004,12 +1006,12 @@ export const SupplierDetailDrawer = ({
                 leftSection={<IconTrash size={16} />}
                 onClick={() => onDelete(sup)}
               >
-                Delete
+                {t('Delete')}
               </Button>
 
               <Group gap="sm">
                 <Button variant="default" size="sm" onClick={handleClose}>
-                  Close
+                  {t('Close')}
                 </Button>
                 <Button
                   variant="filled"
@@ -1018,7 +1020,7 @@ export const SupplierDetailDrawer = ({
                   leftSection={<IconEdit size={16} />}
                   onClick={() => onEdit(sup)}
                 >
-                  Edit Details
+                  {t('Edit Details')}
                 </Button>
               </Group>
             </Group>

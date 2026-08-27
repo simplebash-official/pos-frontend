@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { NavLink as RouterNavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Stack,
@@ -87,7 +88,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                 return (
                   <Tooltip
                     key={item.to}
-                    label={`${category.title} · ${item.label}`}
+                    label={`${t(category.title)} · ${t(item.label)}`}
                     position="right"
                     withArrow
                   >
@@ -131,7 +132,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
         </Stack>
 
         <Stack gap="xs" align="center">
-          <Tooltip label="Settings" position="right" withArrow>
+          <Tooltip label={t('Settings')} position="right" withArrow>
             <ActionIcon
               component={RouterNavLink}
               to={ROUTES.SETTINGS}
@@ -144,7 +145,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label="Lock / Logout POS" position="right" withArrow>
+          <Tooltip label={t('Lock / Logout POS')} position="right" withArrow>
             <ActionIcon size="lg" variant="subtle" color="gray" onClick={handleLogout}>
               <IconLock size={20} stroke={1.5} />
             </ActionIcon>
@@ -184,7 +185,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               pt={index === 0 ? 'xs' : 'sm'}
               style={{ letterSpacing: '0.05em' }}
             >
-              {category.title}
+              {t(category.title)}
             </Text>
             {category.items.map((item) => {
               const Icon = item.icon;
@@ -198,7 +199,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                 return (
                   <NavLink
                     key={item.to}
-                    label={item.label}
+                    label={t(item.label)}
                     leftSection={<Icon size={20} stroke={1.5} />}
                     defaultOpened={isActive || isChildActive}
                     color={item.color}
@@ -239,7 +240,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                   key={item.to}
                   component={RouterNavLink}
                   to={item.to}
-                  label={item.label}
+                  label={t(item.label)}
                   leftSection={<Icon size={20} stroke={1.5} />}
                   rightSection={
                     isInventory && lowStockCount > 0 ? (
@@ -275,7 +276,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
             <NavLink
               component={RouterNavLink}
               to={ROUTES.SETTINGS}
-              label="Settings"
+              label={t('Settings')}
               leftSection={<IconSettings size={20} stroke={1.5} />}
               active={location.pathname.startsWith(ROUTES.SETTINGS)}
               color="gray"
@@ -298,7 +299,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
             />
             <Divider />
             <NavLink
-              label="Sign Out"
+              label={t('Sign Out')}
               leftSection={<IconLogout size={20} stroke={1.5} />}
               active={false}
               color="gray"

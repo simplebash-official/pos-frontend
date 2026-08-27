@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   Box,
@@ -87,7 +88,7 @@ export const LoginForm = () => {
               orbState="connecting"
               orbTheme="dark"
               size={64}
-              title="Signing in..."
+              title={t('Signing in...')}
               subtitle="Connecting to POS console..."
               height="auto"
             />
@@ -97,7 +98,7 @@ export const LoginForm = () => {
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
         <Text fz="xl" fw={900} c="blue">
-          Jana2U Service Center
+          {t('Jana2U Service Center')}
         </Text>
 
         <Title
@@ -107,15 +108,15 @@ export const LoginForm = () => {
           fz={{ base: 'xl', md: '2xl' }}
           style={{ color: 'var(--text-primary)' }}
         >
-          Sign in to POS Console
+          {t('Sign in to POS Console')}
         </Title>
 
         {/* Form Fields */}
         <Box component="form" onSubmit={handleLogin} w="100%">
           <Stack gap="md" w="100%">
             <TextInput
-              label="Email Address"
-              placeholder="admin@jana2u.local"
+              label={t('Email Address')}
+              placeholder={t('admin@jana2u.local')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               size="md"
@@ -131,7 +132,7 @@ export const LoginForm = () => {
             />
 
             <PasswordInput
-              label="Password"
+              label={t('Password')}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.currentTarget.value)}
@@ -153,7 +154,7 @@ export const LoginForm = () => {
               loading={isSubmitting}
               style={{ minHeight: isMobile ? '44px' : undefined }}
             >
-              Log in
+              {t('Log in')}
             </Button>
           </Stack>
         </Box>

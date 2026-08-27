@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/store/hooks';
@@ -25,7 +26,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
         variant="orb"
         orbState="connecting"
         size={72}
-        title="Authenticating session..."
+        title={t('Authenticating session...')}
         subtitle="Connecting to Jana2U POS console"
         height="100vh"
       />

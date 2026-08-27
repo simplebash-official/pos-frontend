@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
@@ -409,14 +410,14 @@ export const PdfCanvasViewer = ({
           }}
         >
           <Group gap={4} wrap="nowrap" align="center">
-            <Tooltip label="Zoom out">
+            <Tooltip label={t('Zoom out')}>
               <ActionIcon
                 variant="subtle"
                 color="gray"
                 size={isMobile ? 36 : 28}
                 disabled={scale <= ZOOM_MIN}
                 onClick={zoomOut}
-                aria-label="Zoom out"
+                aria-label={t('Zoom out')}
               >
                 <IconMinus size={14} />
               </ActionIcon>
@@ -441,14 +442,14 @@ export const PdfCanvasViewer = ({
               </Button>
             </Tooltip>
 
-            <Tooltip label="Zoom in">
+            <Tooltip label={t('Zoom in')}>
               <ActionIcon
                 variant="subtle"
                 color="gray"
                 size={isMobile ? 36 : 28}
                 disabled={scale >= ZOOM_MAX}
                 onClick={zoomIn}
-                aria-label="Zoom in"
+                aria-label={t('Zoom in')}
               >
                 <IconPlus size={14} />
               </ActionIcon>
@@ -460,7 +461,7 @@ export const PdfCanvasViewer = ({
                 color={autoFit ? 'blue' : 'gray'}
                 size={isMobile ? 36 : 28}
                 onClick={toggleFit}
-                aria-label="Fit to width"
+                aria-label={t('Fit to width')}
               >
                 <IconArrowsMaximize size={14} />
               </ActionIcon>
@@ -475,7 +476,7 @@ export const PdfCanvasViewer = ({
                   size={isMobile ? 36 : 28}
                   disabled={activePage <= 1}
                   onClick={() => scrollToPage(activePage - 1)}
-                  aria-label="Previous page"
+                  aria-label={t('Previous page')}
                 >
                   <IconChevronLeft size={14} />
                 </ActionIcon>
@@ -492,7 +493,7 @@ export const PdfCanvasViewer = ({
                   size={isMobile ? 36 : 28}
                   disabled={activePage >= pageCount}
                   onClick={() => scrollToPage(activePage + 1)}
-                  aria-label="Next page"
+                  aria-label={t('Next page')}
                 >
                   <IconChevronRight size={14} />
                 </ActionIcon>
@@ -526,7 +527,7 @@ export const PdfCanvasViewer = ({
               <Stack align="center" gap="xs">
                 <IconAlertCircle size={28} color="var(--mantine-color-orange-6)" />
                 <Text size="sm" c="orange" fw={600}>
-                  You&apos;re offline
+                  {t('You&apos;re offline')}
                 </Text>
                 <Text size="xs" c="dimmed" ta="center">
                   {getDocumentUnavailableText({ isPaused: true, isError: false })}
@@ -536,17 +537,17 @@ export const PdfCanvasViewer = ({
               <Stack align="center" gap="xs">
                 <Loader size="sm" />
                 <Text size="xs" c="dimmed">
-                  Preparing {documentLabel || 'document'}…
+                  {t('Preparing')} {documentLabel || 'document'}…
                 </Text>
               </Stack>
             ) : (
               <Stack align="center" gap="xs">
                 <IconAlertCircle size={28} color="var(--mantine-color-red-6)" />
                 <Text size="sm" c="red" fw={600}>
-                  Could not load the document
+                  {t('Could not load the document')}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Check your connection and try again.
+                  {t('Check your connection and try again.')}
                 </Text>
               </Stack>
             )}

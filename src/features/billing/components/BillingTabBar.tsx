@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Badge, Box, Group, Text, UnstyledButton } from '@mantine/core';
 import { IconCash, IconLayoutGrid, IconShoppingCart } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
@@ -46,7 +47,7 @@ export const BillingSummaryStrip = ({ onOpenCart }: { onOpenCart: () => void }) 
     >
       <Group h="100%" justify="space-between" wrap="nowrap" gap="xs">
         <Text size="sm" fw={600} c="var(--text-secondary)">
-          {itemCount} {itemCount === 1 ? 'line' : 'lines'} · {totalUnitCount} qty
+          {itemCount} {itemCount === 1 ? 'line' : 'lines'} · {totalUnitCount} {t('qty')}
         </Text>
         <Text size="lg" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatMoney(totalCents)}

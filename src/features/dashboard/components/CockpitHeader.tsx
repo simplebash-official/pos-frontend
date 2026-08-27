@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Group, Stack, Title, Text, Button, Paper, Box } from '@mantine/core';
 import { IconReceipt, IconHammer, IconPrinter, IconPackage } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -18,12 +19,12 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('Good morning');
+    if (hour < 17) return t('Good afternoon');
+    return t('Good evening');
   };
 
-  const cashierName = user?.name || 'Store Cashier';
+  const cashierName = user?.name || t('Store Cashier');
 
   return (
     <Paper
@@ -47,7 +48,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
               {getGreeting()}, {cashierName.split(' ')[0]}!
             </Title>
             <Text size="xs" c="dimmed" mt={2}>
-              Welcome to your shop command center. Here is your operational pulse for today.
+              {t('Welcome to your shop command center. Here is your operational pulse for today.')}
             </Text>
           </div>
 
@@ -69,7 +70,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
                 flex: isMobile ? '1 1 100%' : undefined,
               }}
             >
-              New Sale {isMobile ? '' : '(F2)'}
+              {t('New Sale')} {isMobile ? '' : '(F2)'}
             </Button>
 
             <Button
@@ -83,7 +84,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
                 flex: isMobile ? '1 1 45%' : undefined,
               }}
             >
-              Check-in Repair
+              {t('Check-in Repair')}
             </Button>
 
             <Button
@@ -97,7 +98,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
                 flex: isMobile ? '1 1 45%' : undefined,
               }}
             >
-              New Print Job
+              {t('New Print Job')}
             </Button>
 
             <Button
@@ -111,7 +112,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
                 flex: isMobile ? '1 1 100%' : undefined,
               }}
             >
-              Receive Stock
+              {t('Receive Stock')}
             </Button>
           </Group>
         </Box>

@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Modal, TextInput, PasswordInput, Select, Button, Group, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -110,8 +111,8 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
         <Stack gap="md">
           {!employee && (
             <Select
-              label="Employee"
-              placeholder="Pick a shop employee to give a login to"
+              label={t('Employee')}
+              placeholder={t('Pick a shop employee to give a login to')}
               data={availableEmployees.map((e) => ({ value: e.id, label: e.name }))}
               required
               {...form.getInputProps('employeeId')}
@@ -120,29 +121,30 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
 
           {selectedEmployee && (
             <Text size="xs" c="dimmed">
-              This login will be linked to {selectedEmployee.name}&apos;s employee profile.
+              {t('This login will be linked to')} {selectedEmployee.name}
+              {t('&apos;s employee profile.')}
             </Text>
           )}
 
           <TextInput
-            label="Login Email"
-            placeholder="e.g. nimal@shop.lk"
+            label={t('Login Email')}
+            placeholder={t('e.g. nimal@shop.lk')}
             leftSection={<IconMail size={16} />}
             required
             {...form.getInputProps('email')}
           />
 
           <PasswordInput
-            label="Password"
-            placeholder="At least 8 characters"
+            label={t('Password')}
+            placeholder={t('At least 8 characters')}
             leftSection={<IconLock size={16} />}
             required
             {...form.getInputProps('password')}
           />
 
           <Select
-            label="Role"
-            placeholder="What can this login do?"
+            label={t('Role')}
+            placeholder={t('What can this login do?')}
             data={roleOptions}
             required
             {...form.getInputProps('role')}
@@ -150,10 +152,10 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
 
           <Group justify="flex-end" mt="md" gap="sm">
             <Button variant="default" onClick={onClose} disabled={createMutation.isPending}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button type="submit" color="blue" loading={createMutation.isPending}>
-              Create Login
+              {t('Create Login')}
             </Button>
           </Group>
         </Stack>

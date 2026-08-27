@@ -81,6 +81,7 @@ export const AppShell = () => {
   // Dynamic observer for hero clock on Dashboard
   useEffect(() => {
     if (!isDashboard) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHeroClockVisible(false);
       return;
     }

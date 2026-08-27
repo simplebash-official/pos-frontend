@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import {
   Modal,
@@ -92,16 +93,16 @@ export const EmployeeFormModal = ({
         <Stack gap="md">
           <Group grow align="flex-start">
             <TextInput
-              label="Employee Name"
-              placeholder="e.g. Nimal Perera"
+              label={t('Employee Name')}
+              placeholder={t('e.g. Nimal Perera')}
               leftSection={<IconUser size={16} />}
               required
               {...form.getInputProps('name')}
             />
 
             <TextInput
-              label="Phone Number"
-              placeholder="e.g. 0771234567"
+              label={t('Phone Number')}
+              placeholder={t('e.g. 0771234567')}
               leftSection={<IconPhone size={16} />}
               required
               {...form.getInputProps('phone')}
@@ -110,14 +111,14 @@ export const EmployeeFormModal = ({
 
           <Group grow align="flex-start">
             <TextInput
-              label="NIC / National ID Number"
-              placeholder="e.g. 199283912011"
+              label={t('NIC / National ID Number')}
+              placeholder={t('e.g. 199283912011')}
               leftSection={<IconId size={16} />}
               {...form.getInputProps('nicOrId')}
             />
 
             <Select
-              label="Job Role / Category"
+              label={t('Job Role / Category')}
               data={[
                 { value: 'technician', label: 'Repair Technician' },
                 { value: 'printer', label: 'Print Designer / Machine Operator' },
@@ -131,7 +132,7 @@ export const EmployeeFormModal = ({
 
           <Stack gap={6}>
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-              Commission & Pay
+              {t('Commission & Pay')}
             </Text>
 
             <Paper
@@ -155,22 +156,22 @@ export const EmployeeFormModal = ({
                     </ThemeIcon>
                     <div style={{ minWidth: 0 }}>
                       <Text size="sm" fw={700} c="var(--text-primary)" lh={1.3}>
-                        How this employee gets paid
+                        {t('How this employee gets paid')}
                       </Text>
                       <Text size="xs" c="dimmed" lh={1.3}>
-                        Earnings come from a share of the profit on every job they complete.
+                        {t('Earnings come from a share of the profit on every job they complete.')}
                       </Text>
                     </div>
                   </Group>
                   <Badge color="blue" variant="light" size="xs" style={{ flexShrink: 0 }}>
-                    No Fixed Salary
+                    {t('No Fixed Salary')}
                   </Badge>
                 </Group>
 
                 <Group align="flex-end" grow>
                   <div>
                     <Text size="xs" fw={600} mb={4}>
-                      Split Calculation Mode
+                      {t('Split Calculation Mode')}
                     </Text>
                     <SegmentedToggle
                       value={form.values.defaultSplitType}
@@ -180,7 +181,7 @@ export const EmployeeFormModal = ({
                           label: (
                             <Group gap={4} justify="center" wrap="nowrap">
                               <IconPercentage size={14} style={{ flexShrink: 0 }} />
-                              <span style={{ whiteSpace: 'nowrap' }}>Percentage (%)</span>
+                              <span style={{ whiteSpace: 'nowrap' }}>{t('Percentage (%)')}</span>
                             </Group>
                           ),
                           value: 'percentage',
@@ -189,7 +190,7 @@ export const EmployeeFormModal = ({
                           label: (
                             <Group gap={4} justify="center" wrap="nowrap">
                               <IconCoin size={14} style={{ flexShrink: 0 }} />
-                              <span style={{ whiteSpace: 'nowrap' }}>Fixed (LKR)</span>
+                              <span style={{ whiteSpace: 'nowrap' }}>{t('Fixed (LKR)')}</span>
                             </Group>
                           ),
                           value: 'fixed',
@@ -216,7 +217,7 @@ export const EmployeeFormModal = ({
                         <IconPercentage size={16} />
                       ) : (
                         <Text size="xs" fw={700}>
-                          Rs.
+                          {t('Rs.')}
                         </Text>
                       )
                     }
@@ -253,7 +254,7 @@ export const EmployeeFormModal = ({
           </Stack>
 
           <Select
-            label="Employment Status"
+            label={t('Employment Status')}
             data={[
               { value: 'active', label: 'Active Staff' },
               { value: 'inactive', label: 'Inactive / Suspended' },
@@ -262,15 +263,15 @@ export const EmployeeFormModal = ({
           />
 
           <Textarea
-            label="Notes / Qualifications"
-            placeholder="e.g. Specialized in Samsung & Apple display glass replacements..."
+            label={t('Notes / Qualifications')}
+            placeholder={t('e.g. Specialized in Samsung & Apple display glass replacements...')}
             rows={2}
             {...form.getInputProps('notes')}
           />
 
           <Group justify="flex-end" mt="md" gap="sm">
             <Button variant="default" onClick={onClose} disabled={loading}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button type="submit" color="blue" loading={loading}>
               {isEditing ? 'Save Changes' : 'Register Employee'}

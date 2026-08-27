@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Group, ActionIcon, NumberInput, NumberInputProps, Box, Text } from '@mantine/core';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 
@@ -94,7 +95,7 @@ export const QuantityInput = ({
           color="gray"
           onClick={handleDecrement}
           disabled={min !== undefined && numericVal <= min}
-          aria-label="Decrease quantity"
+          aria-label={t('Decrease quantity')}
           tabIndex={-1}
           style={{
             borderRadius: 0,
@@ -134,7 +135,7 @@ export const QuantityInput = ({
           color="gray"
           onClick={handleIncrement}
           disabled={max !== undefined && numericVal >= max}
-          aria-label="Increase quantity"
+          aria-label={t('Increase quantity')}
           tabIndex={-1}
           style={{
             borderRadius: 0,

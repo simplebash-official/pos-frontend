@@ -5,8 +5,9 @@ import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from '@/store';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
+import { selectAppLanguage } from '@/store/slices/settingsSlice';
 import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
 import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
@@ -37,6 +38,17 @@ const AuthInitializer = ({ children }: { children: ReactNode }) => {
   return <>{children}</>;
 };
 
+const LanguageRemounter = ({ children }: { children: ReactNode }) => {
+  const language = useAppSelector(selectAppLanguage);
+  // Changing the key forces a full unmount and remount of the app when language changes.
+  // This allows us to use a simple pure function t() without React hooks.
+  return (
+    <div key={language} style={{ display: 'contents' }}>
+      {children}
+    </div>
+  );
+};
+
 export const AppProviders = ({ children }: AppProvidersProps) => {
   const [queryClient] = useState(
     () =>
@@ -53,24 +65,26 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
 
   return (
     <ReduxProvider store={store}>
-      <AuthInitializer>
-        <QueryClientProvider client={queryClient}>
-          <MantineProvider
-            theme={mantineTheme}
-            cssVariablesResolver={mantineCssVariableResolver}
-            colorSchemeManager={reduxColorSchemeManager}
-            defaultColorScheme="light"
-          >
-            <Notifications position="top-right" zIndex={1000} />
-            <LayoutTierProvider>
-              <AppUpdatePrompt />
-              <HeldCartCatchupNotifier />
-              <LowStockNotifier />
-              <ModalsProvider>{children}</ModalsProvider>
-            </LayoutTierProvider>
-          </MantineProvider>
-        </QueryClientProvider>
-      </AuthInitializer>
+      <LanguageRemounter>
+        <AuthInitializer>
+          <QueryClientProvider client={queryClient}>
+            <MantineProvider
+              theme={mantineTheme}
+              cssVariablesResolver={mantineCssVariableResolver}
+              colorSchemeManager={reduxColorSchemeManager}
+              defaultColorScheme="light"
+            >
+              <Notifications position="top-right" zIndex={1000} />
+              <LayoutTierProvider>
+                <AppUpdatePrompt />
+                <HeldCartCatchupNotifier />
+                <LowStockNotifier />
+                <ModalsProvider>{children}</ModalsProvider>
+              </LayoutTierProvider>
+            </MantineProvider>
+          </QueryClientProvider>
+        </AuthInitializer>
+      </LanguageRemounter>
     </ReduxProvider>
   );
 };

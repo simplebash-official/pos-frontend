@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { useRef, useState } from 'react';
 import { Box, Button, Group, Paper, Stack, Text } from '@mantine/core';
 import { IconCloudUpload, IconTrash } from '@tabler/icons-react';
@@ -85,10 +86,10 @@ export const LogoUpload = ({ value, onChange }: LogoUploadProps) => {
           <Stack align="center" gap={6}>
             <IconCloudUpload size={32} color="var(--text-muted)" />
             <Text size="sm" fw={600}>
-              Drag a photo here
+              {t('Drag a photo here')}
             </Text>
             <Text size="xs" c="dimmed">
-              OR
+              {t('OR')}
             </Text>
             <Button
               variant="filled"
@@ -99,7 +100,7 @@ export const LogoUpload = ({ value, onChange }: LogoUploadProps) => {
                 inputRef.current?.click();
               }}
             >
-              Upload Photo
+              {t('Upload Photo')}
             </Button>
           </Stack>
         )}
@@ -108,7 +109,7 @@ export const LogoUpload = ({ value, onChange }: LogoUploadProps) => {
       {value && (
         <Group justify="center" gap="sm">
           <Button variant="default" size="xs" onClick={() => inputRef.current?.click()}>
-            Replace Logo
+            {t('Replace Logo')}
           </Button>
           <Button
             variant="subtle"
@@ -117,7 +118,7 @@ export const LogoUpload = ({ value, onChange }: LogoUploadProps) => {
             leftSection={<IconTrash size={14} />}
             onClick={() => onChange('')}
           >
-            Remove
+            {t('Remove')}
           </Button>
         </Group>
       )}
@@ -141,7 +142,7 @@ export const LogoUpload = ({ value, onChange }: LogoUploadProps) => {
       )}
 
       <Text size="xs" c="dimmed" ta="center">
-        PNG, JPG, or WEBP, under 500KB. Appears at the top of printed invoices and receipts.
+        {t('PNG, JPG, or WEBP, under 500KB. Appears at the top of printed invoices and receipts.')}
       </Text>
     </Stack>
   );

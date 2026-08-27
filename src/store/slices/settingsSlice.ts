@@ -16,6 +16,7 @@ interface SettingsState {
   shopProfileVersions: Record<number, StoredShopProfileVersion>;
   latestLogoVersionRef: number;
   printSettings: PrintSettings;
+  appLanguage: 'en' | 'si';
 }
 
 const loadSettingsFromStorage = (): SettingsState => {
@@ -40,6 +41,7 @@ const loadSettingsFromStorage = (): SettingsState => {
         shopProfileVersions: versions,
         latestLogoVersionRef: profile.version,
         printSettings: { ...DEFAULT_PRINT_SETTINGS, ...(parsed.printSettings || {}) },
+        appLanguage: parsed.appLanguage === 'si' ? 'si' : 'en',
       };
     }
   } catch {
@@ -55,6 +57,7 @@ const loadSettingsFromStorage = (): SettingsState => {
     },
     latestLogoVersionRef: DEFAULT_SHOP_PROFILE.version,
     printSettings: DEFAULT_PRINT_SETTINGS,
+    appLanguage: 'en',
   };
 };
 
@@ -130,14 +133,21 @@ const settingsSlice = createSlice({
       };
       state.latestLogoVersionRef = DEFAULT_SHOP_PROFILE.version;
       state.printSettings = DEFAULT_PRINT_SETTINGS;
+      state.appLanguage = 'en';
+      saveSettingsToStorage(state);
+    },
+    setAppLanguage: (state, action: PayloadAction<'en' | 'si'>) => {
+      state.appLanguage = action.payload;
       saveSettingsToStorage(state);
     },
   },
 });
 
-export const { updateShopProfile, updatePrintSettings, resetSettings } = settingsSlice.actions;
+export const { updateShopProfile, updatePrintSettings, resetSettings, setAppLanguage } =
+  settingsSlice.actions;
 
 export const selectShopProfile = (state: { settings: SettingsState }) => state.settings.shopProfile;
+export const selectAppLanguage = (state: { settings: SettingsState }) => state.settings.appLanguage;
 
 const selectRawShopProfileVersions = (state: { settings: SettingsState }) =>
   state.settings.shopProfileVersions;

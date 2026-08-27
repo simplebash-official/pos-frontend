@@ -1,3 +1,5 @@
+import { t } from '@/shared/i18n/t';
+
 // DISABLED, NOT DEAD — do not delete. This folder's engine was removed;
 // this file is kept for a future sync backend. See src/features/sync/README.md.
 import { Badge, Button, Group, Loader, Text, UnstyledButton } from '@mantine/core';
@@ -81,7 +83,7 @@ export const SyncStatusBadge = ({ onOpenPanel }: SyncStatusBadgeProps) => {
           fullWidth
           onClick={onOpenPanel}
         >
-          Open sync panel
+          {t('Open sync panel')}
         </Button>
       }
     >

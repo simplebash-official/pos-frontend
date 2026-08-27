@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import { Modal, Stack, Group, Text, Kbd, SimpleGrid, Paper } from '@mantine/core';
 
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -37,7 +38,7 @@ export const KeyboardShortcutsModal = ({ opened, onClose }: KeyboardShortcutsMod
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          Cashier Keyboard Shortcuts
+          {t('Cashier Keyboard Shortcuts')}
         </Text>
       }
       size="lg"
@@ -46,7 +47,9 @@ export const KeyboardShortcutsModal = ({ opened, onClose }: KeyboardShortcutsMod
     >
       <Stack gap="sm">
         <Text size="xs" c="dimmed">
-          Billing counter functions are keyboard-first for maximum cashier speed and muscle memory.
+          {t(
+            'Billing counter functions are keyboard-first for maximum cashier speed and muscle memory.'
+          )}
         </Text>
 
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
