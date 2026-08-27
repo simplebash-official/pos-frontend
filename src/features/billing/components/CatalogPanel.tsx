@@ -631,7 +631,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                     c="var(--text-primary)"
                     style={{ whiteSpace: 'nowrap' }}
                   >
-                    {isMobile ? 'Goods' : 'Goods & Inventory'}
+                    {isMobile ? t('Goods') : t('Goods & Inventory')}
                   </Text>
                 </Group>
               ),
@@ -657,7 +657,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                     c="var(--text-primary)"
                     style={{ whiteSpace: 'nowrap' }}
                   >
-                    {isMobile ? 'Jobs' : 'Service Jobs'}
+                    {isMobile ? t('Jobs') : t('Service Jobs')}
                   </Text>
                   {activeJobsCount > 0 && (
                     <Badge
