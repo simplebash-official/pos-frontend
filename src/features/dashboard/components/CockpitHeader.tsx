@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Group, Stack, Title, Text, Button, Paper, Box, ThemeIcon } from '@mantine/core';
-import { IconReceipt, IconHammer, IconPrinter, IconPackage, IconClock } from '@tabler/icons-react';
+import { Group, Stack, Title, Text, Button, Paper, Box } from '@mantine/core';
+import { IconReceipt, IconHammer, IconPrinter, IconPackage } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { ModernClock } from '@/shared/components/ModernClock';
 
 export interface CockpitHeaderProps {
   onRefresh?: () => void;
@@ -15,30 +15,6 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
   const navigate = useNavigate();
   const user = useAppSelector(selectAuthUser);
   const isMobile = useIsMobile();
-
-  const [currentTime, setCurrentTime] = useState<string>('');
-  const [currentDate, setCurrentDate] = useState<string>('');
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentTime(
-        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      );
-      setCurrentDate(
-        now.toLocaleDateString([], {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        })
-      );
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -75,29 +51,8 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
             </Text>
           </div>
 
-          {/* Clock & Date Badge */}
-          <Paper
-            p="xs"
-            px="md"
-            withBorder
-            radius="var(--mantine-radius-default)"
-            bg="var(--mantine-color-body)"
-            style={{ minWidth: isMobile ? '100%' : 'auto' }}
-          >
-            <Group gap="xs" justify={isMobile ? 'space-between' : 'flex-start'}>
-              <ThemeIcon color="blue" variant="light" size="md">
-                <IconClock size={16} />
-              </ThemeIcon>
-              <div>
-                <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {currentTime || '00:00:00'}
-                </Text>
-                <Text size="3xs" c="dimmed" fw={600} tt="uppercase">
-                  {currentDate || 'Today'}
-                </Text>
-              </div>
-            </Group>
-          </Paper>
+          {/* Modern Clock */}
+          <ModernClock style={{ minWidth: isMobile ? '100%' : 'auto' }} />
         </Group>
 
         {/* Bottom Row: Quick Action Stations */}
