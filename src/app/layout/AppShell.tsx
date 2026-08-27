@@ -75,6 +75,44 @@ export const AppShell = () => {
     isBillingPage
   );
 
+  const isDashboard = location.pathname === ROUTES.DASHBOARD || location.pathname === '/';
+  const [heroClockVisible, setHeroClockVisible] = useState(isDashboard);
+
+  // Dynamic observer for hero clock on Dashboard
+  useEffect(() => {
+    if (!isDashboard) {
+      setHeroClockVisible(false);
+      return;
+    }
+
+    let observer: IntersectionObserver | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const setupObserver = () => {
+      const heroClockEl = document.getElementById('cockpit-hero-clock');
+      if (heroClockEl) {
+        observer = new IntersectionObserver(
+          ([entry]) => {
+            setHeroClockVisible(entry.isIntersecting);
+          },
+          {
+            threshold: 0.1,
+          }
+        );
+        observer.observe(heroClockEl);
+      } else {
+        timeoutId = setTimeout(setupObserver, 50);
+      }
+    };
+
+    setupObserver();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (observer) observer.disconnect();
+    };
+  }, [isDashboard, location.pathname]);
+
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
@@ -105,6 +143,7 @@ export const AppShell = () => {
           opened={opened}
           toggle={toggle}
           focusMode={focusMode}
+          heroClockVisible={heroClockVisible}
           onToggleFocusMode={() => setFocusMode((prev) => !prev)}
           onOpenHeldDrawer={() => setHeldDrawerOpen(true)}
           onOpenShortcuts={() => setShortcutsOpen(true)}

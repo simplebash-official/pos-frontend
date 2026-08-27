@@ -52,7 +52,7 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
           </div>
 
           {/* Modern Clock */}
-          <ModernClock style={{ minWidth: isMobile ? '100%' : 'auto' }} />
+          <ModernClock id="cockpit-hero-clock" style={{ minWidth: isMobile ? '100%' : 'auto' }} />
         </Group>
 
         {/* Bottom Row: Quick Action Stations */}
