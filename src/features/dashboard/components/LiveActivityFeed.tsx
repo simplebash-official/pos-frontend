@@ -51,14 +51,9 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
               <IconActivity size={20} />
             </ThemeIcon>
             <div>
-              <Group gap="xs" align="center">
-                <Text fw={800} size="md">
-                  Live Shop Activity Stream
-                </Text>
-                <Badge variant="outline" color="gray" size="sm">
-                  Real-time Feed
-                </Badge>
-              </Group>
+              <Text fw={800} size="md">
+                Live Shop Activity Stream
+              </Text>
               <Text size="xs" c="dimmed">
                 Chronological transaction feed, stage changes, and inventory updates
               </Text>
@@ -75,10 +70,9 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
               withBorder
               radius="md"
               bg="var(--mantine-color-body)"
+              className="dashboard-interactive-card"
               style={{
-                cursor: 'pointer',
                 borderColor: 'var(--border)',
-                transition: 'transform 0.15s ease, border-color 0.15s ease',
               }}
               onClick={() => navigate(act.linkTo)}
             >

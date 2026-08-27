@@ -3,7 +3,6 @@ import {
   Stack,
   Group,
   Text,
-  Badge,
   Progress,
   SimpleGrid,
   ThemeIcon,
@@ -49,14 +48,9 @@ export const ServicePipelineWidget = ({
                 <IconHammer size={20} />
               </ThemeIcon>
               <div>
-                <Group gap="xs" align="center">
-                  <Text fw={800} size="md">
-                    Phone Repairs Workshop
-                  </Text>
-                  <Badge variant="outline" color="gray" size="sm">
-                    {totalRepairs} Active Tickets
-                  </Badge>
-                </Group>
+                <Text fw={800} size="md">
+                  Phone Repairs Workshop
+                </Text>
                 <Text size="xs" c="dimmed">
                   Live workflow pipeline across diagnosis and repair stages
                 </Text>
@@ -92,10 +86,9 @@ export const ServicePipelineWidget = ({
                   p="sm"
                   withBorder
                   bg="var(--mantine-color-body)"
+                  className="dashboard-interactive-card"
                   style={{
-                    cursor: 'pointer',
                     borderColor: 'var(--border)',
-                    transition: 'transform 0.15s ease, border-color 0.15s ease',
                   }}
                   onClick={() => navigate(ROUTES.REPAIRS)}
                 >
@@ -158,14 +151,9 @@ export const ServicePipelineWidget = ({
                 <IconPrinter size={20} />
               </ThemeIcon>
               <div>
-                <Group gap="xs" align="center">
-                  <Text fw={800} size="md">
-                    Print Services Queue
-                  </Text>
-                  <Badge variant="outline" color="gray" size="sm">
-                    {totalPrints} Production Orders
-                  </Badge>
-                </Group>
+                <Text fw={800} size="md">
+                  Print Services Queue
+                </Text>
                 <Text size="xs" c="dimmed">
                   Mugs, t-shirts, documents, and promotional media
                 </Text>
@@ -196,10 +184,9 @@ export const ServicePipelineWidget = ({
                   p="sm"
                   withBorder
                   bg="var(--mantine-color-body)"
+                  className="dashboard-interactive-card"
                   style={{
-                    cursor: 'pointer',
                     borderColor: 'var(--border)',
-                    transition: 'transform 0.15s ease, border-color 0.15s ease',
                   }}
                   onClick={() => navigate(ROUTES.PRINT_JOBS)}
                 >
