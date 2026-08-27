@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { Stack, SimpleGrid } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons-react';
-import { MOCK_DASHBOARD_DATA } from '../mockData';
+import { useDashboardLivePulse } from '../hooks/useDashboardLivePulse';
 import { CockpitHeader } from './CockpitHeader';
 import { DashboardKpiStrip } from './DashboardKpiStrip';
 import { UrgentActionCenter } from './UrgentActionCenter';
@@ -13,16 +12,13 @@ import { FastMoversWidget } from './FastMoversWidget';
 import { LiveActivityFeed } from './LiveActivityFeed';
 
 export const DashboardPage = () => {
-  const [data, setData] = useState(MOCK_DASHBOARD_DATA);
+  const { data, isLoading, refresh } = useDashboardLivePulse();
 
-  const handleRefresh = () => {
-    setData({
-      ...MOCK_DASHBOARD_DATA,
-      lastRefreshed: new Date().toISOString(),
-    });
+  const handleRefresh = async () => {
+    await refresh();
     notifications.show({
-      title: 'Dashboard Refreshed',
-      message: 'Showing latest operational store pulse.',
+      title: 'Store Pulse Synced',
+      message: 'Pulled latest cloud transactions and local store activity.',
       color: 'teal',
       icon: <IconCheck size={16} />,
     });
@@ -34,7 +30,7 @@ export const DashboardPage = () => {
       <CockpitHeader onRefresh={handleRefresh} />
 
       {/* Zone 2: High-Velocity Operational KPI Strip */}
-      <DashboardKpiStrip kpis={data.kpis} />
+      <DashboardKpiStrip kpis={data.kpis} loading={isLoading} />
 
       {/* Zone 3: Urgent Action Center / Needs Attention Now */}
       <UrgentActionCenter items={data.urgentActions} />

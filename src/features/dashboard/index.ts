@@ -1,5 +1,5 @@
 export * from './types';
-export * from './mockData';
+export * from './hooks/useDashboardLivePulse';
 export * from './components/DashboardPage';
 export * from './components/CockpitHeader';
 export * from './components/DashboardKpiStrip';

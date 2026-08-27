@@ -54,99 +54,115 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
         </Group>
 
         {/* Technician Cards */}
-        <Stack gap="xs">
-          {technicians.map((tech) => {
-            const statusColor = getStatusColor(tech.status);
-            const capacityColor = getCapacityColor(tech.capacityPercentage);
+        {technicians.length === 0 ? (
+          <Paper p="lg" withBorder bg="var(--mantine-color-body)" radius="md">
+            <Stack align="center" gap="xs">
+              <ThemeIcon color="gray" variant="light" size={40} radius="xl">
+                <IconUser size={22} />
+              </ThemeIcon>
+              <Text fw={700} size="sm">
+                No Active Technicians On Duty
+              </Text>
+              <Text size="xs" c="dimmed" ta="center">
+                Technicians registered in staff profiles will appear here with live repair capacity.
+              </Text>
+            </Stack>
+          </Paper>
+        ) : (
+          <Stack gap="xs">
+            {technicians.map((tech) => {
+              const statusColor = getStatusColor(tech.status);
+              const capacityColor = getCapacityColor(tech.capacityPercentage);
 
-            return (
-              <Paper
-                key={tech.employeeKey}
-                p="sm"
-                withBorder
-                radius="md"
-                bg="var(--mantine-color-body)"
-                className="dashboard-interactive-card"
-                style={{ borderColor: 'var(--border)' }}
-              >
-                <Stack gap="xs">
-                  <Group justify="space-between" align="center" wrap="wrap">
-                    <Group gap="xs">
-                      <ThemeIcon color="blue" variant="light" radius="md" size={36}>
-                        <IconUser size={20} />
-                      </ThemeIcon>
-
-                      <div>
-                        <Group gap="xs" align="center">
-                          <Text fw={700} size="sm">
-                            {tech.name}
-                          </Text>
-                          <Badge size="xs" color={statusColor} variant="light">
-                            {tech.status.toUpperCase()}
-                          </Badge>
-                        </Group>
-                        <Text size="3xs" c="dimmed">
-                          {tech.role}
-                        </Text>
-                      </div>
-                    </Group>
-
-                    <Group gap="md">
-                      <div>
-                        <Text size="3xs" c="dimmed" fw={700} tt="uppercase" ta="right">
-                          Active Jobs
-                        </Text>
-                        <Text
-                          size="sm"
-                          fw={800}
-                          ta="right"
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                        >
-                          {tech.activeJobsCount} active ({tech.completedTodayCount} done today)
-                        </Text>
-                      </div>
-                    </Group>
-                  </Group>
-
-                  {/* Current Active Task Pill */}
-                  {tech.currentTask && (
-                    <Paper p={6} px="xs" withBorder bg="var(--bg-card)">
-                      <Group gap={6}>
-                        <ThemeIcon color="gray" size="xs" variant="transparent">
-                          <IconTool size={12} />
+              return (
+                <Paper
+                  key={tech.employeeKey}
+                  p="sm"
+                  withBorder
+                  radius="md"
+                  bg="var(--mantine-color-body)"
+                  className="dashboard-interactive-card"
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  <Stack gap="xs">
+                    <Group justify="space-between" align="center" wrap="wrap">
+                      <Group gap="xs">
+                        <ThemeIcon color="blue" variant="light" radius="md" size={36}>
+                          <IconUser size={20} />
                         </ThemeIcon>
-                        <Text size="3xs" fw={600} c="dimmed">
-                          Working on:
+
+                        <div>
+                          <Group gap="xs" align="center">
+                            <Text fw={700} size="sm">
+                              {tech.name}
+                            </Text>
+                            <Badge size="xs" color={statusColor} variant="light">
+                              {tech.status.toUpperCase()}
+                            </Badge>
+                          </Group>
+                          <Text size="3xs" c="dimmed">
+                            {tech.role}
+                          </Text>
+                        </div>
+                      </Group>
+
+                      <Group gap="md">
+                        <div>
+                          <Text size="3xs" c="dimmed" fw={700} tt="uppercase" ta="right">
+                            Active Jobs
+                          </Text>
+                          <Text
+                            size="sm"
+                            fw={800}
+                            ta="right"
+                            style={{ fontVariantNumeric: 'tabular-nums' }}
+                          >
+                            {tech.activeJobsCount} active ({tech.completedTodayCount} done today)
+                          </Text>
+                        </div>
+                      </Group>
+                    </Group>
+
+                    {/* Current Active Task Pill */}
+                    {tech.currentTask && (
+                      <Paper p={6} px="xs" withBorder bg="var(--bg-card)">
+                        <Group gap={6}>
+                          <ThemeIcon color="gray" size="xs" variant="transparent">
+                            <IconTool size={12} />
+                          </ThemeIcon>
+                          <Text size="3xs" fw={600} c="dimmed">
+                            Working on:
+                          </Text>
+                          <Text size="3xs" fw={700}>
+                            {tech.currentTask}
+                          </Text>
+                        </Group>
+                      </Paper>
+                    )}
+
+                    {/* Capacity Bar */}
+                    <Box>
+                      <Group justify="space-between" mb={2}>
+                        <Text size="3xs" c="dimmed" fw={600}>
+                          Bench Capacity
                         </Text>
-                        <Text size="3xs" fw={700}>
-                          {tech.currentTask}
+                        <Text size="3xs" fw={700} c={capacityColor === 'red' ? 'red' : 'dimmed'}>
+                          {tech.capacityPercentage}%
                         </Text>
                       </Group>
-                    </Paper>
-                  )}
-
-                  {/* Capacity Bar */}
-                  <Box>
-                    <Group justify="space-between" mb={2}>
-                      <Text size="3xs" c="dimmed" fw={600}>
-                        Bench Capacity
-                      </Text>
-                      <Text size="3xs" fw={700} c={capacityColor === 'red' ? 'red' : 'dimmed'}>
-                        {tech.capacityPercentage}%
-                      </Text>
-                    </Group>
-                    <Progress
-                      value={tech.capacityPercentage}
-                      color={capacityColor}
-                      size="sm"
-                      radius="xl"
-                    />
-                  </Box>
-                </Stack>
-              </Paper>
-            );
-          })}
-        </Stack>
+                      <Progress
+                        value={tech.capacityPercentage}
+                        color={capacityColor}
+                        size="sm"
+                        radius="xl"
+                      />
+                    </Box>
+                  </Stack>
+                </Paper>
+              );
+            })}
+          </Stack>
+        )}
       </Stack>
     </Paper>
   );

@@ -62,54 +62,71 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
         </Group>
 
         {/* Chronological Event Stream */}
-        <Stack gap="xs">
-          {activities.map((act) => (
-            <Paper
-              key={act.id}
-              p="sm"
-              withBorder
-              radius="md"
-              bg="var(--mantine-color-body)"
-              className="dashboard-interactive-card"
-              style={{
-                borderColor: 'var(--border)',
-              }}
-              onClick={() => navigate(act.linkTo)}
-            >
-              <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-                <Group gap="sm" align="flex-start" style={{ flex: 1, minWidth: 220 }}>
-                  <ThemeIcon
-                    color={act.type === 'stock_alert' ? 'red' : 'gray'}
-                    variant="light"
-                    size="md"
-                    radius="md"
-                    mt={2}
-                  >
-                    {getEventIcon(act.type)}
-                  </ThemeIcon>
+        {activities.length === 0 ? (
+          <Paper p="lg" withBorder bg="var(--mantine-color-body)" radius="md">
+            <Stack align="center" gap="xs">
+              <ThemeIcon color="gray" variant="light" size={40} radius="xl">
+                <IconActivity size={22} />
+              </ThemeIcon>
+              <Text fw={700} size="sm">
+                No Activity Recorded Yet
+              </Text>
+              <Text size="xs" c="dimmed" ta="center">
+                Transactions, ticket movements, print queue updates, and payments will stream live
+                here.
+              </Text>
+            </Stack>
+          </Paper>
+        ) : (
+          <Stack gap="xs">
+            {activities.map((act) => (
+              <Paper
+                key={act.id}
+                p="sm"
+                withBorder
+                radius="md"
+                bg="var(--mantine-color-body)"
+                className="dashboard-interactive-card"
+                style={{
+                  borderColor: 'var(--border)',
+                }}
+                onClick={() => navigate(act.linkTo)}
+              >
+                <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+                  <Group gap="sm" align="flex-start" style={{ flex: 1, minWidth: 220 }}>
+                    <ThemeIcon
+                      color={act.type === 'stock_alert' ? 'red' : 'gray'}
+                      variant="light"
+                      size="md"
+                      radius="md"
+                      mt={2}
+                    >
+                      {getEventIcon(act.type)}
+                    </ThemeIcon>
 
-                  <Box style={{ flex: 1 }}>
-                    <Text fw={700} size="sm">
-                      {act.title}
-                    </Text>
-                    <Text size="xs" c="dimmed" mt={2}>
-                      {act.description}
-                    </Text>
-                  </Box>
-                </Group>
+                    <Box style={{ flex: 1 }}>
+                      <Text fw={700} size="sm">
+                        {act.title}
+                      </Text>
+                      <Text size="xs" c="dimmed" mt={2}>
+                        {act.description}
+                      </Text>
+                    </Box>
+                  </Group>
 
-                <Group gap="xs">
-                  <Badge size="xs" variant="outline" color="gray">
-                    {act.timeAgo}
-                  </Badge>
-                  <ThemeIcon size="xs" color="gray" variant="subtle">
-                    <IconArrowUpRight size={14} />
-                  </ThemeIcon>
+                  <Group gap="xs">
+                    <Badge size="xs" variant="outline" color="gray">
+                      {act.timeAgo}
+                    </Badge>
+                    <ThemeIcon size="xs" color="gray" variant="subtle">
+                      <IconArrowUpRight size={14} />
+                    </ThemeIcon>
+                  </Group>
                 </Group>
-              </Group>
-            </Paper>
-          ))}
-        </Stack>
+              </Paper>
+            ))}
+          </Stack>
+        )}
       </Stack>
     </Paper>
   );
