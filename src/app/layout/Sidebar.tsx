@@ -16,6 +16,7 @@ import {
 import { IconLock, IconMoon, IconSun, IconSettings, IconLogout } from '@tabler/icons-react';
 import { useMemo } from 'react';
 
+import { SIDEBAR_DENSITY_PRESETS, useSidebarDensity } from './sidebarDensity';
 import { NAV_CATEGORIES } from '@/config/navigation';
 import { ROUTES } from '@/constants/routes';
 import { USER_ROLES } from '@/constants/roles';
@@ -67,6 +68,17 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
     [isAdmin, permissions]
   );
 
+  const { ref: densityRef, density } = useSidebarDensity(
+    !isMobile,
+    visibleCategories.length + (lowStockCount > 0 ? 1 : 0)
+  );
+  const preset = SIDEBAR_DENSITY_PRESETS[density];
+  const railTight = density !== 'comfortable';
+  const navLinkStyles = useMemo(
+    () => ({ root: { paddingTop: preset.navlinkPy, paddingBottom: preset.navlinkPy } }),
+    [preset.navlinkPy]
+  );
+
   const handleLogout = () => {
     dispatch(logout());
     if (closeMobile) closeMobile();
@@ -75,10 +87,26 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
 
   if (isRail) {
     return (
-      <Stack h="100%" justify="space-between" align="center" py="xs" px={4}>
-        <Stack gap="md" align="center" style={{ width: '100%' }}>
+      <Stack
+        ref={densityRef}
+        h="100%"
+        align="center"
+        py={railTight ? 0 : 'xs'}
+        px={4}
+        style={{ overflowY: 'auto' }}
+      >
+        <Stack
+          gap={railTight ? 'xs' : 'md'}
+          align="center"
+          style={{ width: '100%', flex: '1 0 auto' }}
+        >
           {visibleCategories.map((category, catIndex) => (
-            <Stack key={category.id} gap="xs" align="center" style={{ width: '100%' }}>
+            <Stack
+              key={category.id}
+              gap={railTight ? 4 : 'xs'}
+              align="center"
+              style={{ width: '100%' }}
+            >
               {catIndex > 0 && <Divider style={{ width: '60%' }} />}
               {category.items.map((item) => {
                 const Icon = item.icon;
@@ -131,7 +159,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           ))}
         </Stack>
 
-        <Stack gap="xs" align="center">
+        <Stack gap="xs" align="center" style={{ flexShrink: 0 }}>
           <Tooltip label={t('Settings')} position="right" withArrow>
             <ActionIcon
               component={RouterNavLink}
@@ -168,25 +196,29 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
 
   return (
     <Stack
+      ref={densityRef}
       h="100%"
-      justify={isMobile ? 'flex-start' : 'space-between'}
-      p={isMobile ? 'md' : 'sm'}
+      p={isMobile ? 'md' : preset.rootPad}
       style={{ overflowY: 'auto' }}
     >
-      <Stack gap="md">
+      <Stack gap={preset.groupGap} style={{ flex: '1 0 auto' }}>
         {visibleCategories.map((category, index) => (
-          <Stack key={category.id} gap={4}>
-            <Text
-              size="xs"
-              fw={700}
-              c="dimmed"
-              tt="uppercase"
-              px="xs"
-              pt={index === 0 ? 'xs' : 'sm'}
-              style={{ letterSpacing: '0.05em' }}
-            >
-              {t(category.title)}
-            </Text>
+          <Stack key={category.id} gap={preset.itemGap}>
+            {preset.showLabels ? (
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                px="xs"
+                pt={index === 0 ? 'xs' : preset.labelPt}
+                style={{ letterSpacing: '0.05em' }}
+              >
+                {t(category.title)}
+              </Text>
+            ) : index > 0 ? (
+              <Divider />
+            ) : null}
             {category.items.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname.startsWith(item.to);
@@ -205,6 +237,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                     color={item.color}
                     variant="light"
                     childrenOffset={28}
+                    styles={navLinkStyles}
                     style={{
                       borderRadius: 'var(--mantine-radius-default)',
                       minHeight: isMobile ? 44 : undefined,
@@ -224,6 +257,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                           color={sub.color}
                           variant="light"
                           onClick={closeMobile}
+                          styles={navLinkStyles}
                           style={{
                             borderRadius: 'var(--mantine-radius-default)',
                             minHeight: isMobile ? 44 : undefined,
@@ -253,6 +287,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                   color={item.color}
                   variant="light"
                   onClick={closeMobile}
+                  styles={navLinkStyles}
                   style={{
                     borderRadius: 'var(--mantine-radius-default)',
                     minHeight: isMobile ? 44 : undefined,
@@ -264,10 +299,10 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
         ))}
       </Stack>
 
-      <Stack gap="xs" mt={isMobile ? 'xl' : 'md'}>
-        <Divider my="xs" />
+      <Stack gap="xs" mt={isMobile ? 'xl' : preset.footerMt} style={{ flexShrink: 0 }}>
+        <Divider my={preset.footerDividerMy} />
         <Paper
-          p="xs"
+          p={isMobile ? 'xs' : preset.footerPad}
           withBorder
           radius="var(--mantine-radius-default)"
           bg="var(--mantine-color-body)"
@@ -282,6 +317,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               color="gray"
               variant="light"
               onClick={closeMobile}
+              styles={navLinkStyles}
               style={{
                 borderRadius: 'var(--mantine-radius-default)',
                 minHeight: isMobile ? 44 : undefined,
@@ -305,6 +341,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               color="gray"
               variant="subtle"
               onClick={handleLogout}
+              styles={navLinkStyles}
               style={{
                 borderRadius: 'var(--mantine-radius-default)',
                 minHeight: isMobile ? 44 : undefined,
