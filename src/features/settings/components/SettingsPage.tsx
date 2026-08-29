@@ -9,7 +9,6 @@ import { SettingsNavDrillDownList, SettingsNavList, SettingsNavTabs } from './Se
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
 import { ShopProfileSection } from './sections/ShopProfileSection';
 import { BrandingSection } from './sections/BrandingSection';
-import { TaxVatSection } from './sections/TaxVatSection';
 import { BankDetailsSection } from './sections/BankDetailsSection';
 import { PrintingSection } from './sections/PrintingSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
@@ -20,8 +19,6 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
       return <ShopProfileSection onDirtyChange={onDirtyChange} />;
     case 'branding':
       return <BrandingSection onDirtyChange={onDirtyChange} />;
-    case 'tax-vat':
-      return <TaxVatSection onDirtyChange={onDirtyChange} />;
     case 'bank-details':
       return <BankDetailsSection onDirtyChange={onDirtyChange} />;
     case 'printing':
@@ -66,7 +63,7 @@ export const SettingsPage = () => {
   const header = (
     <PageHeader
       title={t('POS & Document Settings')}
-      description={t('Configure shop profile, VAT settings, bank details, and printing behavior.')}
+      description={t('Configure shop profile, bank details, and printing behavior.')}
     />
   );
 
@@ -74,25 +71,27 @@ export const SettingsPage = () => {
 
   if (tier === 'desktop') {
     body = (
-      <Group align="flex-start" gap="xl" wrap="nowrap">
-        <Box style={{ width: 240, flexShrink: 0 }}>
+      <Group align="stretch" gap="xl" wrap="nowrap" style={{ flex: 1 }}>
+        <Box style={{ width: 240, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
           <SettingsNavList active={activeSection} onChange={requestNavigate} />
         </Box>
-        <Box style={{ flex: 1, minWidth: 0 }}>
+        <Box style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {renderSection(activeSection, setIsSectionDirty)}
         </Box>
       </Group>
     );
   } else if (tier === 'tablet') {
     body = (
-      <Stack gap="md">
+      <Stack gap="md" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <SettingsNavTabs active={activeSection} onChange={requestNavigate} />
-        {renderSection(activeSection, setIsSectionDirty)}
+        <Box style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {renderSection(activeSection, setIsSectionDirty)}
+        </Box>
       </Stack>
     );
   } else if (mobileSectionOpen) {
     body = (
-      <Stack gap="md">
+      <Stack gap="md" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Group gap="xs">
           <ActionIcon
             variant="default"
@@ -106,7 +105,9 @@ export const SettingsPage = () => {
             {activeSectionMeta?.label}
           </Text>
         </Group>
-        {renderSection(activeSection, setIsSectionDirty)}
+        <Box style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {renderSection(activeSection, setIsSectionDirty)}
+        </Box>
       </Stack>
     );
   } else {
@@ -115,7 +116,7 @@ export const SettingsPage = () => {
 
   return (
     <>
-      <Stack gap="lg" style={{ maxWidth: 1100 }}>
+      <Stack gap="lg" style={{ minHeight: '100%' }}>
         {header}
         {body}
       </Stack>

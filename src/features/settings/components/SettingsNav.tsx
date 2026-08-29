@@ -10,7 +10,7 @@ interface SettingsNavProps {
 /** Desktop: a persistent vertical list of sections, boxed like the content cards. */
 export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
   return (
-    <Paper withBorder p="xs" style={{ backgroundColor: 'var(--bg-card)' }}>
+    <Paper withBorder p="xs" style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
       <Text
         size="xs"
         fw={700}

@@ -29,7 +29,7 @@ export const SectionShell = ({
   children,
 }: SectionShellProps) => {
   return (
-    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
       <Stack gap="md">
         <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
           <Box>

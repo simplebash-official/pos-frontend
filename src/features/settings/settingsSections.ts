@@ -4,11 +4,10 @@ import {
   IconFileText,
   IconPhoto,
   IconPrinter,
-  IconReceiptTax,
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
-  'shop-profile' | 'branding' | 'tax-vat' | 'bank-details' | 'printing' | 'templates';
+  'shop-profile' | 'branding' | 'bank-details' | 'printing' | 'templates';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
@@ -32,13 +31,6 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Branding',
     description: 'The logo shown on your printed documents',
     icon: IconPhoto,
-  },
-  {
-    id: 'tax-vat',
-    label: 'Tax & VAT',
-    shortLabel: 'Tax & VAT',
-    description: 'VAT registration and tax rate',
-    icon: IconReceiptTax,
   },
   {
     id: 'bank-details',

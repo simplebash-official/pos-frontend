@@ -12,10 +12,9 @@ import type { SectionProps } from './ShopProfileSection';
 interface PrintingFormValues {
   receiptPaper: '80mm' | '58mm';
   invoiceCopies: 'customer' | 'customer+office';
-  defaultDocumentForWalkIn: 'receipt' | 'invoice' | 'both' | 'none';
+  defaultDocumentForWalkIn: 'receipt' | 'invoice' | 'none';
   defaultDocumentForAccountCustomer: 'receipt' | 'invoice' | 'both' | 'none';
   showLogoOnReceipt: boolean;
-  showTaxColumn: boolean;
   receiptCopies: number;
 }
 
@@ -30,7 +29,6 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
       defaultDocumentForWalkIn: printSettings.defaultDocumentForWalkIn,
       defaultDocumentForAccountCustomer: printSettings.defaultDocumentForAccountCustomer,
       showLogoOnReceipt: printSettings.showLogoOnReceipt,
-      showTaxColumn: printSettings.showTaxColumn,
       receiptCopies: printSettings.receiptCopies,
     },
     validate: {
@@ -106,15 +104,11 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
             fullWidth
             value={form.values.defaultDocumentForWalkIn}
             onChange={(v) =>
-              form.setFieldValue(
-                'defaultDocumentForWalkIn',
-                v as 'receipt' | 'invoice' | 'both' | 'none'
-              )
+              form.setFieldValue('defaultDocumentForWalkIn', v as 'receipt' | 'invoice' | 'none')
             }
             data={[
               { label: 'Receipt', value: 'receipt' },
               { label: 'Invoice', value: 'invoice' },
-              { label: 'Both', value: 'both' },
               { label: 'None', value: 'none' },
             ]}
           />
@@ -163,23 +157,6 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
             <Switch
               checked={form.values.showLogoOnReceipt}
               onChange={(e) => form.setFieldValue('showLogoOnReceipt', e.currentTarget.checked)}
-            />
-          </Group>
-        </Box>
-
-        <Box style={{ gridColumn: 'span 2' }}>
-          <Group justify="space-between" align="center">
-            <div>
-              <Text fw={600} size="sm">
-                {t('Show Tax on Invoices')}
-              </Text>
-              <Text size="xs" c="dimmed">
-                {t('Show the VAT amount as a separate line on printed A4 invoices.')}
-              </Text>
-            </div>
-            <Switch
-              checked={form.values.showTaxColumn}
-              onChange={(e) => form.setFieldValue('showTaxColumn', e.currentTarget.checked)}
             />
           </Group>
         </Box>
