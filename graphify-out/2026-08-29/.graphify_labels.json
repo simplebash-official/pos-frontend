@@ -7,6 +7,7 @@
   "5": "useCustomers.ts",
   "6": "tablerIconShards/index.ts",
   "7": "sanitizers/index.mjs",
+<<<<<<< Updated upstream
   "8": "t",
   "9": "cartSlice.ts",
   "10": "PrintJobList.tsx",
@@ -14,6 +15,15 @@
   "12": "common.ts",
   "13": "gate-investigations.mjs",
   "14": "useAppSelector",
+=======
+  "8": "SettingsPage.tsx",
+  "9": "cartSlice.ts",
+  "10": "BillingCounter.tsx",
+  "11": "useAppSelector",
+  "12": "useModuleStats",
+  "13": "gate-investigations.mjs",
+  "14": "SaleDocumentPreviewModal.tsx",
+>>>>>>> Stashed changes
   "15": "SupplierList.tsx",
   "16": "calculator/index.ts",
   "17": "dependencies",
@@ -22,12 +32,19 @@
   "20": "authSlice.ts",
   "21": "extract-claims.mjs",
   "22": "verify-claim.mjs",
-  "23": "lineOf",
+  "23": "scanners/index.mjs",
   "24": "devDependencies",
+<<<<<<< Updated upstream
   "25": "providers.tsx",
   "26": "hooks.ts",
   "27": "ai-application.md",
   "28": "money.ts",
+=======
+  "25": "i18n/t.ts",
+  "26": "notificationSlice.ts",
+  "27": "ai-application.md",
+  "28": "useDashboardLivePulse.ts",
+>>>>>>> Stashed changes
   "29": "Vercel CLI with Tokens",
   "30": "CreditNoteModal.tsx",
   "31": "InvoicesList.tsx",
@@ -37,17 +54,27 @@
   "35": "billing/types.ts",
   "36": "lib/reconcile-candidates.mjs",
   "37": "CLAUDE.md",
+<<<<<<< Updated upstream
   "38": "date.ts",
   "39": "searchFields.ts",
   "40": "vercel.mjs",
   "41": "investigation-brief.mjs",
   "42": "display-labels.mjs",
   "43": "constants/index.ts",
+=======
+  "38": "authSlice.ts",
+  "39": "search.ts",
+  "40": "vercel.mjs",
+  "41": "investigation-brief.mjs",
+  "42": "display-labels.mjs",
+  "43": "PrintJobList.tsx",
+>>>>>>> Stashed changes
   "44": "collect-signals.mjs",
   "45": "CLAUDE.md",
   "46": "ThinkingOrb.tsx",
   "47": "citations.mjs",
   "48": "route-normalize.mjs",
+<<<<<<< Updated upstream
   "49": "CustomerList.tsx",
   "50": "inventory/types.ts",
   "51": "formatMoney",
@@ -55,6 +82,15 @@
   "53": "Sidebar.tsx",
   "54": "formatDateTime",
   "55": "CatalogPanel.tsx",
+=======
+  "49": "ts-jest",
+  "50": "RepairJobList.tsx",
+  "51": "posCalculations.ts",
+  "52": "scripts/deep-dive.mjs",
+  "53": "usePermissions.ts",
+  "54": "t",
+  "55": "audio.ts",
+>>>>>>> Stashed changes
   "56": "invoicesApi.ts",
   "57": "scripts/render-report.mjs",
   "58": "useIsMobile",
@@ -62,18 +98,24 @@
   "60": "gates/index.mjs",
   "61": "withRouteShapeWarnings",
   "62": "Step 2: Choose a Deploy Method",
-  "63": "SupplierDetailDrawer.tsx",
+  "63": "usePurchases.ts",
   "64": "CLAUDE.md",
   "65": "collect-sub-agent-outputs.mjs",
   "66": "merge-signals.mjs",
   "67": "prepare-investigation-brief.mjs",
   "68": "scanners/index.mjs",
   "69": "throttle.mjs",
+<<<<<<< Updated upstream
   "70": "sidebarDensity.ts",
   "71": "InvoiceDetailDrawer.tsx",
   "72": "router.tsx",
+=======
+  "70": "client.ts",
+  "71": "Invoice",
+  "72": "LoginForm.tsx",
+>>>>>>> Stashed changes
   "73": "useSearchHistory.ts",
-  "74": "client.ts",
+  "74": "ConnectivityMonitor",
   "75": "Rules",
   "76": "Gates",
   "77": "scripts",
@@ -83,7 +125,11 @@
   "81": "count-correct.mjs",
   "82": "Semaphore",
   "83": "usePayments.ts",
+<<<<<<< Updated upstream
   "84": "SettingsPage.tsx",
+=======
+  "84": "offline/index.ts",
+>>>>>>> Stashed changes
   "85": "scanner-driven.mjs",
   "86": "ProductFormModal.tsx",
   "87": "React View Transitions",
@@ -92,7 +138,7 @@
   "90": "observation-safety.mjs",
   "91": "5. Re-render Optimization",
   "92": "framework-support.mjs",
-  "93": "cache-components-suspense-dedupe.mjs",
+  "93": "util.mjs",
   "94": "edge-heavy-import.mjs",
   "95": "turbo-force-bypass.mjs",
   "96": "use-cache-date-stamp.mjs",
@@ -111,6 +157,7 @@
   "109": "build-minutes-fanout.mjs",
   "110": "isr-overrevalidation.mjs",
   "111": "middleware-heavy.mjs",
+<<<<<<< Updated upstream
   "112": "SerialNumberPickerModal.tsx",
   "113": "auto-i18n.ts",
   "114": "find_waterfall.js",
@@ -119,6 +166,16 @@
   "117": "vercel-optimize",
   "118": "runVercelJson",
   "119": "ReportsDashboard.tsx",
+=======
+  "112": "impact-label.mjs",
+  "113": "auto-i18n.ts",
+  "114": "find_waterfall.js",
+  "115": "numberToWords.ts",
+  "116": "useIsMobile",
+  "117": "vercel-optimize",
+  "118": "runVercelJson",
+  "119": "common.ts",
+>>>>>>> Stashed changes
   "120": "jest",
   "121": "jest-environment-jsdom",
   "122": "Recommendations",
@@ -159,7 +216,11 @@
   "157": "LocalStorageStore",
   "158": "lib/budget-summary.mjs",
   "159": "merge-catalog.mjs",
+<<<<<<< Updated upstream
   "160": "ts-jest",
+=======
+  "160": "hard-gates.mjs",
+>>>>>>> Stashed changes
   "161": "Doctrine",
   "162": "6. Rendering Performance",
   "163": "Patterns and Guidelines",
@@ -174,6 +235,11 @@
   "172": "React Best Practices",
   "173": "Sections",
   "174": "9. User Interface",
+<<<<<<< Updated upstream
+=======
+  "175": "AmountInput.tsx",
+  "176": "CategoryManagerModal.tsx",
+>>>>>>> Stashed changes
   "177": "2. List Performance",
   "178": "Implementation Workflow",
   "179": "Implementation Workflow",
@@ -237,6 +303,10 @@
   "237": "implementation.md",
   "238": "Web Interface Guidelines",
   "239": "Writing Guidelines",
+<<<<<<< Updated upstream
+=======
+  "240": "contract.mjs",
+>>>>>>> Stashed changes
   "241": "Support Topics",
   "242": "async-cheap-condition-before-await.md",
   "243": "Prefer Statically Analyzable Paths",
@@ -367,6 +437,20 @@
   "368": "ui-styling.md",
   "369": "workflows/graphify.md",
   "370": "fake-indexeddb",
+<<<<<<< Updated upstream
   "376": "observability-events-attribution.mjs",
   "378": "eslint"
+=======
+  "371": "rate-limit.mjs",
+  "372": "syncNotifications.ts",
+  "373": "undeclared-dep.mjs",
+  "374": "useBillingStats.ts",
+  "375": "Sidebar.tsx",
+  "376": "observability-events-attribution.mjs",
+  "377": "region-misconfig.mjs",
+  "379": "categoryIcons.ts",
+  "380": "app/App.tsx",
+  "381": "selectUserRole",
+  "382": "ts-jest"
+>>>>>>> Stashed changes
 }
