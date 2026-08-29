@@ -320,6 +320,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
     playScanSuccessSound(soundEnabled);
     setJobSearch('');
+    if (!isMobile) {
+      setTimeout(() => jobSearchInputRef.current?.focus(), 50);
+    }
   };
 
   // Switching into Jobs mode moves the cashier's attention to its own search box — but only on
@@ -395,6 +398,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     });
     playScanSuccessSound(soundEnabled);
     setScanQuery('');
+    setSearch('');
+    setSelectedIndex(null);
     setShakeError(null);
     if (keepScanInputFocused) {
       setTimeout(() => scanInputRef.current?.focus(), 50);
@@ -445,6 +450,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
             color: 'red',
           });
           setScanQuery('');
+          setSearch('');
+          setSelectedIndex(null);
           return;
         }
         add({
@@ -481,6 +488,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         }
         playScanSuccessSound(soundEnabled);
         setScanQuery('');
+        setSearch('');
+        setSelectedIndex(null);
         setShakeError(null);
         return;
       }
@@ -523,6 +532,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         }
         playScanSuccessSound(soundEnabled);
         setScanQuery('');
+        setSearch('');
+        setSelectedIndex(null);
         setShakeError(null);
         return;
       }
