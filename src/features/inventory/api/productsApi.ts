@@ -48,6 +48,19 @@ export const fetchProductById = async (id: string): Promise<Product> => {
   return response.data;
 };
 
+/**
+ * Exact barcode lookup — resolves a scanned/typed barcode to the one product
+ * that carries it, or throws a 404 `ApiError` when nothing matches. Unlike the
+ * `search` param (a substring regex that can return several rows), this is an
+ * anchored equality match, so a scanner gets an unambiguous single result.
+ */
+export const fetchProductByBarcode = async (barcode: string): Promise<Product> => {
+  const response = await apiClient.get<ApiResponse<Product>>(
+    `/inventory/products/by-barcode/${encodeURIComponent(barcode)}`
+  );
+  return response.data;
+};
+
 export const createProduct = async (input: CreateProductInput): Promise<Product> => {
   const response = await apiClient.post<ApiResponse<Product>>('/inventory/products', input);
   return response.data;

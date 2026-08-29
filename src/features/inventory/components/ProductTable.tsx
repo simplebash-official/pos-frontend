@@ -536,7 +536,7 @@ export const ProductTable = () => {
         <Stack gap="sm" hiddenFrom="sm">
           <SearchHistoryInput
             namespace="inventory"
-            placeholder={t('Search by SKU, product name, or subcategory...')}
+            placeholder={t('Search by product name, SKU, or barcode...')}
             leftSection={<IconSearch size={16} />}
             value={search}
             onValueChange={setSearch}
@@ -578,7 +578,7 @@ export const ProductTable = () => {
           <Group gap="sm" style={{ flex: 1 }}>
             <SearchHistoryInput
               namespace="inventory"
-              placeholder={t('Search by SKU, product name, or subcategory...')}
+              placeholder={t('Search by product name, SKU, or barcode...')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onValueChange={setSearch}

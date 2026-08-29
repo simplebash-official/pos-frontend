@@ -32,6 +32,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { Product, CreateProductInput, UpdateProductInput, ProductSupplierIntake } from '../types';
+import { isValidManualBarcode } from '../lib/barcode';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents, formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -267,10 +268,12 @@ const ProductFormContent = ({
       });
     }
 
-    // Barcode validation when manual entry is chosen on creation
-    if (!isEditing && !autoGenerateBarcode) {
+    // Barcode validation: on create when manual entry is chosen, and on edit
+    // whenever the barcode field has been changed from what the product had.
+    const barcodeChanged = isEditing && manualBarcode.trim() !== (productToEdit?.barcode ?? '');
+    if ((!isEditing && !autoGenerateBarcode) || barcodeChanged) {
       const trimmed = manualBarcode.trim();
-      if (trimmed && !/^\d{8,14}$/.test(trimmed)) {
+      if (trimmed && !isValidManualBarcode(trimmed)) {
         newErrors.barcode = 'A barcode should be 8 to 14 numbers, with no letters or spaces';
       }
     }
@@ -294,6 +297,13 @@ const ProductFormContent = ({
         isSerialized,
         warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
       };
+
+      // Only send `barcode` when it actually changed — an unchanged value would
+      // pointlessly flip its source to "manual".
+      const trimmedBarcode = manualBarcode.trim();
+      if (trimmedBarcode && trimmedBarcode !== (productToEdit?.barcode ?? '')) {
+        payload.barcode = trimmedBarcode;
+      }
 
       try {
         await onSubmit(payload);
@@ -765,44 +775,60 @@ const ProductFormContent = ({
           </Stack>
         )}
 
-        {/* Read-Only Barcode & SKU Banner (Edit Mode) */}
+        {/* SKU (read-only) + editable Barcode (Edit Mode) */}
         {isEditing && (
-          <Paper
-            withBorder
-            p="xs"
-            radius="var(--mantine-radius-default)"
-            bg="var(--mantine-color-default-hover)"
-          >
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" c="dimmed">
-                  {t('SKU (cannot be changed)')}
-                </Text>
-                <Text size="sm" fw={700}>
-                  {productToEdit?.sku}
-                </Text>
-              </div>
-              <div>
-                <Text size="xs" c="dimmed">
-                  {t('Barcode (cannot be changed)')}
-                </Text>
-                <Group gap={6}>
-                  <Text size="sm" fw={700}>
-                    {productToEdit?.barcode ?? 'None'}
-                  </Text>
-                  {productToEdit?.barcodeSource && (
-                    <Badge
-                      size="xs"
-                      variant="light"
-                      color={productToEdit.barcodeSource === 'generated' ? 'blue' : 'gray'}
-                    >
-                      {productToEdit.barcodeSource === 'generated' ? 'Generated' : 'Manual'}
-                    </Badge>
-                  )}
-                </Group>
-              </div>
+          <Stack gap={6}>
+            <Group gap={6} align="center">
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ letterSpacing: '0.05em' }}
+              >
+                {t('Barcode')}
+              </Text>
+              {productToEdit?.barcode && productToEdit.barcodeSource && (
+                <Badge
+                  size="xs"
+                  variant="light"
+                  color={productToEdit.barcodeSource === 'generated' ? 'blue' : 'gray'}
+                >
+                  {productToEdit.barcodeSource === 'generated'
+                    ? t('Shop-made')
+                    : t('From the product')}
+                </Badge>
+              )}
             </Group>
-          </Paper>
+
+            <Paper
+              withBorder
+              p="xs"
+              radius="var(--mantine-radius-default)"
+              bg="var(--mantine-color-default-hover)"
+            >
+              <Text size="xs" c="dimmed">
+                {t('SKU (cannot be changed)')}
+              </Text>
+              <Text size="sm" fw={700}>
+                {productToEdit?.sku}
+              </Text>
+            </Paper>
+
+            <TextInput
+              placeholder={t('Scan the product, or type the barcode numbers')}
+              leftSection={<IconBarcode size={16} />}
+              value={manualBarcode}
+              onChange={(e) => {
+                setManualBarcode(e.currentTarget.value);
+                if (errors.barcode) setErrors((prev) => ({ ...prev, barcode: '' }));
+              }}
+              error={errors.barcode}
+              description={t(
+                'Scan the barcode on the product, or type the numbers printed under it (8–14 digits). Leaving this as-is keeps the current barcode.'
+              )}
+            />
+          </Stack>
         )}
 
         {/* Serial Numbers & Warranty */}

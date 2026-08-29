@@ -288,6 +288,14 @@ export const ProductCatalogTree = memo(
                                         <Text size="sm" fw={600}>
                                           <SearchHighlight text={prod.name} terms={searchTerms} />
                                         </Text>
+                                        {prod.barcode && (
+                                          <Text size="10px" c="dimmed" ff="monospace">
+                                            <SearchHighlight
+                                              text={prod.barcode}
+                                              terms={searchTerms}
+                                            />
+                                          </Text>
+                                        )}
                                       </Table.Td>
                                       <Table.Td>
                                         <Text size="sm" fw={700}>

@@ -27,7 +27,10 @@ import type { PrintJob } from '@/features/print-jobs';
 export const PRODUCT_SEARCH_FIELDS: readonly SearchField<Product>[] = [
   { get: (p) => p.name, weight: 3, kind: 'text' },
   { get: (p) => p.sku, weight: 3, kind: 'text' },
-  { get: (p) => p.barcode, weight: 3, kind: 'text' },
+  // `digits` (not `text`) so a barcode typed or pasted with spaces/hyphens —
+  // "890 1234 56789" — still matches the number stored as "890123456789",
+  // the same way phone fields are matched. Barcodes are 8–14 digits.
+  { get: (p) => p.barcode, weight: 3, kind: 'digits' },
   { get: (p) => p.subcategory, weight: 1, kind: 'text' },
   { get: (p) => p.category, weight: 1, kind: 'text' },
 ];

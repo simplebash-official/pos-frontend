@@ -30,6 +30,8 @@ export const queryKeys = {
     all: ['inventory'] as const,
     products: (filters?: Record<string, unknown>) => ['inventory', 'products', filters] as const,
     productDetail: (id: string) => ['inventory', 'products', id] as const,
+    productByBarcode: (barcode: string) =>
+      ['inventory', 'products', 'by-barcode', barcode] as const,
     lowStock: () => ['inventory', 'lowStock'] as const,
     movements: (productId?: string) => ['inventory', 'movements', productId] as const,
     stats: () => ['inventory', 'stats'] as const,

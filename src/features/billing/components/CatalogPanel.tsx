@@ -36,10 +36,12 @@ import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SearchHighlight } from '@/shared/components/SearchHighlight';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
-import type { SearchField } from '@/shared/lib/search';
+import { getMatchRanges, type SearchField } from '@/shared/lib/search';
 
 import { queryKeys } from '@/api/queryKeys';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { fetchProductByBarcode } from '@/features/inventory/api/productsApi';
+import { looksLikeBarcode, resolveProductByBarcode } from '@/features/inventory/lib/barcode';
 import {
   useCategories,
   useCategoryIcons,
@@ -433,7 +435,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     items.filter((i) => i.productKey === productKey).flatMap((i) => i.serialNumbers ?? []);
 
   // Handle direct barcode or SKU scan
-  const handleScanSubmit = (e: React.FormEvent) => {
+  const handleScanSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const term = scanQuery.trim().toLowerCase();
     if (!term) return;
@@ -539,14 +541,21 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       }
     }
 
-    // 2. Check exact barcode or SKU match
-    const matched = products.find(
-      (p) => p.sku.toLowerCase() === term || (p.barcode && p.barcode.toLowerCase() === term)
-    );
-
-    if (matched) {
-      handleAddProduct(matched);
+    // 2a. Exact SKU match (a SKU isn't purely digits, so compare it as typed).
+    const skuMatch = products.find((p) => p.sku.toLowerCase() === term);
+    if (skuMatch) {
+      handleAddProduct(skuMatch);
       return;
+    }
+
+    // 2b. Exact barcode match — digit-normalized (so "890 123" finds "890123"),
+    // with a server lookup for a product that isn't in the loaded catalog.
+    if (looksLikeBarcode(term)) {
+      const byBarcode = await resolveProductByBarcode(term, products, fetchProductByBarcode);
+      if (byBarcode) {
+        handleAddProduct(byBarcode);
+        return;
+      }
     }
 
     // 3. Flow B: If search in grid yields exactly 1 result, Enter key adds it directly!
@@ -706,7 +715,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
               }}
             >
-              <form onSubmit={handleScanSubmit}>
+              <form onSubmit={(e) => void handleScanSubmit(e)}>
                 <SearchHistoryInput
                   namespace="billing"
                   ref={scanInputRef}
@@ -1014,14 +1023,26 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                               {/* Middle Row: Full width Product Name */}
                               <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
-                                <Text
-                                  size="xs"
-                                  fw={700}
-                                  lineClamp={2}
-                                  style={{ lineHeight: 1.3, fontSize: 12 }}
-                                >
-                                  <SearchHighlight text={p.name} terms={searchTerms} />
-                                </Text>
+                                <div style={{ minWidth: 0 }}>
+                                  <Text
+                                    size="xs"
+                                    fw={700}
+                                    lineClamp={2}
+                                    style={{ lineHeight: 1.3, fontSize: 12 }}
+                                  >
+                                    <SearchHighlight text={p.name} terms={searchTerms} />
+                                  </Text>
+                                  {p.barcode &&
+                                    getMatchRanges(p.barcode, searchTerms).length > 0 && (
+                                      <Text
+                                        size="10px"
+                                        c="dimmed"
+                                        style={{ fontFamily: 'monospace' }}
+                                      >
+                                        <SearchHighlight text={p.barcode} terms={searchTerms} />
+                                      </Text>
+                                    )}
+                                </div>
                               </Box>
 
                               {/* Bottom Row: Price & Stock Badge */}

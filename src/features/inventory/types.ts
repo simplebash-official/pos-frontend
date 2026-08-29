@@ -90,6 +90,12 @@ export interface UpdateProductInput {
   sellingPriceCents?: number;
   stockQuantity?: number;
   minStockThreshold?: number;
+  /**
+   * Add or correct the scannable barcode after creation (e.g. to store the
+   * manufacturer barcode printed on the package). 8–14 digits; saved as a
+   * manual barcode. Omit to leave the existing barcode untouched.
+   */
+  barcode?: string;
   isSerialized?: boolean;
   warrantyMonths?: number;
 }
