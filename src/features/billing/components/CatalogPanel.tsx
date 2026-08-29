@@ -710,6 +710,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 <SearchHistoryInput
                   namespace="billing"
                   ref={scanInputRef}
+                  trigger="button"
+                  showHistoryButton
                   placeholder={
                     isMobile
                       ? 'Scan barcode or search product'
@@ -1067,6 +1069,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
               <SearchHistoryInput
                 namespace="service_jobs"
                 ref={jobSearchInputRef}
+                trigger="button"
+                showHistoryButton
                 placeholder={t('Search ticket #, customer name, device…')}
                 leftSection={<IconSearch size={18} color="var(--text-secondary)" />}
                 rightSection={
