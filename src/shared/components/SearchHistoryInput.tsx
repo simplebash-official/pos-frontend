@@ -9,10 +9,12 @@ import {
   Text,
   UnstyledButton,
   ActionIcon,
+  ActionIconProps,
   Button,
   ScrollArea,
   Divider,
   Center,
+  Tooltip,
 } from '@mantine/core';
 import { IconSearch, IconHistory, IconX } from '@tabler/icons-react';
 import { useSearchHistory } from '@/shared/hooks/useSearchHistory';
@@ -35,6 +37,12 @@ export interface SearchHistoryInputProps extends Omit<TextInputProps, 'onChange'
   enableHistory?: boolean;
   /** Input wrapper container style */
   wrapperStyle?: React.CSSProperties;
+  /** Whether to show a dedicated history trigger button to the right of the search text field */
+  showHistoryButton?: boolean;
+  /** Trigger mode for opening the dropdown: 'focus' (on input focus/click), 'button' (only when clicking the history button), or 'both' */
+  trigger?: 'focus' | 'button' | 'both';
+  /** Additional custom props for the history ActionIcon button */
+  historyButtonProps?: Partial<ActionIconProps>;
 }
 
 export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHistoryInputProps>(
@@ -48,6 +56,9 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
       maxHistoryItems = 8,
       enableHistory = true,
       wrapperStyle,
+      showHistoryButton = false,
+      trigger,
+      historyButtonProps,
       placeholder = 'Search...',
       leftSection,
       onFocus,
@@ -64,6 +75,8 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
     const [activeIndex, setActiveIndex] = useState(-1);
     const internalInputRef = useRef<HTMLInputElement | null>(null);
     const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+    const resolvedTrigger = trigger ?? (showHistoryButton ? 'button' : 'focus');
 
     const { history, addSearch, removeSearch, clearHistory } = useSearchHistory(namespace, {
       maxItems: maxHistoryItems,
@@ -97,9 +110,12 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
       return history.filter((item) => item.toLowerCase().includes(q));
     }, [history, currentQuery]);
 
-    // Nothing to pick from means nothing to show — an empty dropdown on every
-    // focus is just noise in front of the results.
-    const canOpen = enableHistory && history.length > 0;
+    // When trigger mode is 'button' or 'both', canOpen is true as long as history is enabled
+    // so clicking the button provides clear feedback (e.g. empty state if no history yet).
+    // In 'focus' mode, opening on empty history is suppressed to avoid visual noise.
+    const canOpen =
+      enableHistory &&
+      (resolvedTrigger === 'button' || resolvedTrigger === 'both' || history.length > 0);
 
     const openDropdown = () => {
       if (!canOpen) return;
@@ -112,13 +128,23 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
       setOpened(false);
     };
 
+    const toggleDropdown = () => {
+      if (!canOpen) return;
+      setActiveIndex(-1);
+      setOpened((prev) => !prev);
+    };
+
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      openDropdown();
+      if (resolvedTrigger === 'focus' || resolvedTrigger === 'both') {
+        openDropdown();
+      }
       onFocus?.(e);
     };
 
     const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
-      openDropdown();
+      if (resolvedTrigger === 'focus' || resolvedTrigger === 'both') {
+        openDropdown();
+      }
       onClick?.(e);
     };
 
@@ -214,6 +240,20 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
       setOpened(false);
     };
 
+    const customInputHeight =
+      typeof styles === 'object' &&
+      styles !== null &&
+      'input' in styles &&
+      typeof styles.input === 'object' &&
+      styles.input !== null &&
+      'height' in styles.input
+        ? (styles.input as React.CSSProperties).height
+        : undefined;
+
+    const buttonHeight = isMobile
+      ? 44
+      : (customInputHeight ?? (textInputProps.size === 'md' ? 42 : 36));
+
     return (
       <Popover
         opened={opened && canOpen}
@@ -226,36 +266,87 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
         offset={4}
       >
         <Popover.Target>
-          <div style={{ width: '100%', ...wrapperStyle }}>
-            <TextInput
-              ref={(node) => {
-                internalInputRef.current = node;
-                if (typeof ref === 'function') {
-                  ref(node);
-                } else if (ref) {
-                  ref.current = node;
-                }
+          <div
+            style={{
+              width: '100%',
+              display: showHistoryButton ? 'flex' : undefined,
+              alignItems: showHistoryButton ? 'center' : undefined,
+              gap: showHistoryButton ? 8 : undefined,
+              ...wrapperStyle,
+            }}
+          >
+            <div
+              style={{
+                flex: showHistoryButton ? 1 : undefined,
+                minWidth: showHistoryButton ? 0 : undefined,
+                width: showHistoryButton ? undefined : '100%',
               }}
-              placeholder={placeholder}
-              leftSection={leftSection ?? <IconSearch size={16} />}
-              value={value}
-              onChange={handleChange}
-              onFocus={handleFocus}
-              onClick={handleClick}
-              onKeyDown={handleKeyDown}
-              size={textInputProps.size ?? 'sm'}
-              styles={{
-                ...styles,
-                input: {
-                  fontSize: isMobile ? 16 : undefined,
-                  ...(typeof styles === 'object' && 'input' in styles
-                    ? (styles.input as React.CSSProperties)
-                    : {}),
-                },
-              }}
-              {...textInputProps}
-              onBlur={handleBlur}
-            />
+            >
+              <TextInput
+                ref={(node) => {
+                  internalInputRef.current = node;
+                  if (typeof ref === 'function') {
+                    ref(node);
+                  } else if (ref) {
+                    ref.current = node;
+                  }
+                }}
+                placeholder={placeholder}
+                leftSection={leftSection ?? <IconSearch size={16} />}
+                value={value}
+                onChange={handleChange}
+                onFocus={handleFocus}
+                onClick={handleClick}
+                onKeyDown={handleKeyDown}
+                size={textInputProps.size ?? 'sm'}
+                styles={{
+                  ...styles,
+                  input: {
+                    fontSize: isMobile ? 16 : undefined,
+                    ...(typeof styles === 'object' && styles !== null && 'input' in styles
+                      ? (styles.input as React.CSSProperties)
+                      : {}),
+                  },
+                }}
+                {...textInputProps}
+                onBlur={handleBlur}
+              />
+            </div>
+
+            {showHistoryButton && (
+              <Tooltip label={t('Recent searches')}>
+                <ActionIcon
+                  type="button"
+                  variant={opened ? 'light' : 'default'}
+                  color="blue"
+                  size={buttonHeight as number | string}
+                  radius="var(--mantine-radius-default)"
+                  aria-label={t('Recent searches')}
+                  aria-expanded={opened}
+                  aria-haspopup="listbox"
+                  onMouseDown={(e) => {
+                    // Prevent input blur when clicking the history button
+                    e.preventDefault();
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown();
+                  }}
+                  style={{
+                    flexShrink: 0,
+                    minWidth: isMobile ? 44 : 36,
+                    height: buttonHeight,
+                    transition:
+                      'background-color 150ms ease, border-color 150ms ease, color 150ms ease',
+                    ...(historyButtonProps?.style as React.CSSProperties),
+                  }}
+                  {...historyButtonProps}
+                >
+                  <IconHistory size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
           </div>
         </Popover.Target>
 
@@ -307,7 +398,13 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
 
             <Divider color="var(--border)" my={2} />
 
-            {displayHistory.length === 0 ? (
+            {history.length === 0 ? (
+              <Center py="sm" px="xs">
+                <Text size="xs" c="dimmed" ta="center">
+                  {t('No recent searches yet.')}
+                </Text>
+              </Center>
+            ) : displayHistory.length === 0 ? (
               <Center py="sm" px="xs">
                 <Text size="xs" c="dimmed" ta="center">
                   {t('No matching past searches for &ldquo;')}
