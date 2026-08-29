@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
+import { fetchAllPages } from '@/shared/lib/fetchAllPages';
 import {
   adjustStock,
   createProduct,
   deleteProducts,
   fetchLowStockProducts,
+  fetchProductByBarcode,
   fetchProductById,
   fetchProductMovements,
   fetchProducts,
@@ -12,7 +14,10 @@ import {
 } from '../api/productsApi';
 import { CreateProductInput, Product, StockMovement, UpdateProductInput } from '../types';
 
-const ALL_PRODUCTS_PAGE_SIZE = 500;
+// The backend clamps the products list `limit` to 200, so this is the page
+// size that actually minimises round trips — asking for more just gets 200
+// back with a `totalPages` computed against 200.
+const ALL_PRODUCTS_PAGE_SIZE = 200;
 const NO_PRODUCTS: Product[] = [];
 const NO_MOVEMENTS: StockMovement[] = [];
 
@@ -29,22 +34,16 @@ export interface DeleteProductsPayload {
   productKeys: string[];
 }
 
-/** Fetches every page — the catalog is small enough that screens want the whole list at once. */
-const fetchAllProducts = async (): Promise<Product[]> => {
-  const firstPage = await fetchProducts({ page: 1, limit: ALL_PRODUCTS_PAGE_SIZE });
-  const totalPages = firstPage.totalPages || 1;
-
-  if (firstPage.items.length < ALL_PRODUCTS_PAGE_SIZE || totalPages <= 1) {
-    return firstPage.items;
-  }
-
-  const remainingPageNumbers = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
-  const remainingPages = await Promise.all(
-    remainingPageNumbers.map((page) => fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE }))
-  );
-
-  return [...firstPage.items, ...remainingPages.flatMap((res) => res.items)];
-};
+/**
+ * Fetches every page — the catalog is small enough that screens want the whole
+ * list at once (billing catalog, product pickers, global search all filter it
+ * client-side). Loops via `fetchAllPages` on `totalPages` rather than guessing
+ * from the returned page length: the backend caps `limit` at 200, so a
+ * "shorter than requested" page is not a reliable end-of-data signal once a
+ * shop's catalog outgrows one page.
+ */
+export const fetchAllProducts = (): Promise<Product[]> =>
+  fetchAllPages((page) => fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE }));
 
 export const useAllProducts = (options?: { enabled?: boolean }) => {
   const enabled = options?.enabled ?? true;
@@ -54,6 +53,21 @@ export const useAllProducts = (options?: { enabled?: boolean }) => {
     enabled,
   });
   return { ...query, data: query.data ?? NO_PRODUCTS };
+};
+
+/**
+ * Exact barcode lookup for a scan. `enabled` is normally gated on the barcode
+ * looking like a real one (8–14 digits) so a half-typed query doesn't fire a
+ * request per keystroke.
+ */
+export const useProductByBarcode = (barcode: string, options?: { enabled?: boolean }) => {
+  const enabled = (options?.enabled ?? true) && barcode.length > 0;
+  return useQuery({
+    queryKey: queryKeys.inventory.productByBarcode(barcode),
+    queryFn: () => fetchProductByBarcode(barcode),
+    enabled,
+    retry: false,
+  });
 };
 
 export const useLowStockProducts = () => {

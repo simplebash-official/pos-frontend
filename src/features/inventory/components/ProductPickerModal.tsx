@@ -15,8 +15,10 @@ import {
   Box,
   Skeleton,
 } from '@mantine/core';
-import { IconSearch, IconPackage, IconPlus, IconX } from '@tabler/icons-react';
+import { IconSearch, IconPackage, IconPlus, IconX, IconBarcode } from '@tabler/icons-react';
 import { useAllProducts } from '../hooks/useProducts';
+import { fetchProductByBarcode } from '../api/productsApi';
+import { looksLikeBarcode, resolveProductByBarcode } from '../lib/barcode';
 import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
@@ -76,6 +78,17 @@ export const ProductPickerModal = ({
     onClose();
   };
 
+  // A scanner types the barcode then sends Enter — resolve it to the one exact
+  // product (checking the server for a product not in the loaded list) and pick
+  // it straight away, rather than making the user click a single fuzzy result.
+  const handleSearchSubmit = async (value: string) => {
+    if (!looksLikeBarcode(value)) return;
+    const exact = await resolveProductByBarcode(value, available, fetchProductByBarcode);
+    if (exact) {
+      handleSelect(exact.key);
+    }
+  };
+
   return (
     <Modal
       opened={opened}
@@ -97,8 +110,9 @@ export const ProductPickerModal = ({
         {/* Search Bar */}
         <SearchHistoryInput
           namespace="inventory_picker"
-          placeholder={t('Search by product name, SKU, or category…')}
+          placeholder={t('Search or scan — product name, SKU, or barcode…')}
           leftSection={<IconSearch size={16} />}
+          onSearchSubmit={(value) => void handleSearchSubmit(value)}
           rightSection={
             search ? (
               <ActionIcon variant="subtle" size="sm" onClick={() => setSearch('')}>
@@ -214,6 +228,17 @@ export const ProductPickerModal = ({
                             >
                               <SearchHighlight text={p.sku} terms={searchTerms} />
                             </Badge>
+                            {p.barcode && (
+                              <Badge
+                                size="xs"
+                                variant="outline"
+                                color="gray"
+                                radius="var(--mantine-radius-default)"
+                                leftSection={<IconBarcode size={11} />}
+                              >
+                                <SearchHighlight text={p.barcode} terms={searchTerms} />
+                              </Badge>
+                            )}
                             <Badge
                               size="xs"
                               variant="light"

@@ -156,7 +156,9 @@ export const GlobalQuickSearchModal = () => {
     const productRows: QuickSearchResult[] = productHits.results.map((p) => ({
       id: p.id,
       title: p.name,
-      subtitle: `${p.sku} · ${formatMoney(p.sellingPriceCents)} · Stock: ${p.stockQuantity}`,
+      subtitle: `${p.sku}${p.barcode ? ` · ${p.barcode}` : ''} · ${formatMoney(
+        p.sellingPriceCents
+      )} · Stock: ${p.stockQuantity}`,
       category: 'Product',
       icon: IconPackage,
       color: 'indigo',
