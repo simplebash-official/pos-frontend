@@ -9,9 +9,6 @@ export interface ShopProfile {
   email: string;
   website: string;
   businessRegNo: string;
-  vatNo: string;
-  isVatRegistered: boolean;
-  vatRate: number; // e.g. 0.08 for 8%
   logoBase64: string;
   bankName: string;
   bankBranch: string;
@@ -25,6 +22,7 @@ export interface ShopProfile {
 export type AutoPrintOption = 'none' | 'receipt' | 'invoice' | 'both';
 export type InvoiceCopyOption = 'customer' | 'customer+office';
 export type DocumentSelection = 'receipt' | 'invoice' | 'both' | 'none';
+export type WalkInDocumentSelection = 'receipt' | 'invoice' | 'none';
 
 export interface PrintSettings {
   receiptPaper: '80mm' | '58mm';
@@ -32,9 +30,8 @@ export interface PrintSettings {
   receiptCopies: number;
   invoiceCopies: InvoiceCopyOption;
   showLogoOnReceipt: boolean;
-  showTaxColumn: boolean;
   showBankDetails: boolean;
-  defaultDocumentForWalkIn: DocumentSelection;
+  defaultDocumentForWalkIn: WalkInDocumentSelection;
   defaultDocumentForAccountCustomer: DocumentSelection;
   printMethod: 'iframe' | 'newWindow';
 }
