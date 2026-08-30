@@ -73,9 +73,19 @@ export const queryKeys = {
     allEarnings: () => ['employees', 'all-earnings'] as const,
   },
   reports: {
-    dailySales: (date: string) => ['reports', 'dailySales', date] as const,
-    outstanding: () => ['reports', 'outstanding'] as const,
-    monthlyProfit: (yearMonth: string) => ['reports', 'monthlyProfit', yearMonth] as const,
+    all: ['reports'] as const,
+    /** `scope` = summary | timeseries | paymentMethods | topCustomers | … */
+    analytics: (scope: string, filters: Record<string, unknown>) =>
+      ['reports', 'analytics', scope, filters] as const,
+    dailySales: (filters: Record<string, unknown>) => ['reports', 'dailySales', filters] as const,
+    topProducts: (filters: Record<string, unknown>) => ['reports', 'topProducts', filters] as const,
+    outstanding: (filters?: Record<string, unknown>) =>
+      ['reports', 'outstanding', filters] as const,
+    inventoryValuation: () => ['reports', 'inventoryValuation'] as const,
+    receivablesAging: (asOf?: string) => ['reports', 'receivablesAging', asOf] as const,
+    employeeCommissions: (filters: Record<string, unknown>) =>
+      ['reports', 'employeeCommissions', filters] as const,
+    reportPdf: (filters: Record<string, unknown>) => ['reports', 'reportPdf', filters] as const,
   },
   users: {
     all: ['users'] as const,

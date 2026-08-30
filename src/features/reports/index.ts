@@ -1,2 +1,2 @@
-export { ReportsDashboard } from './components/ReportsDashboard';
+export { AnalyticsReportsPage } from './components/AnalyticsReportsPage';
 export * from './types';
