@@ -1,9 +1,19 @@
-import type { ReactNode } from 'react';
-import { Button, Group, Paper, ScrollArea, Skeleton, Stack, Table, Text } from '@mantine/core';
-import { IconDownload } from '@tabler/icons-react';
+import { type ReactNode, useState, useMemo } from 'react';
+import {
+  Button,
+  Group,
+  Pagination,
+  Paper,
+  ScrollArea,
+  Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+} from '@mantine/core';
+import { IconDownload, IconTable } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { EmptyState } from '@/shared/components/EmptyState';
-import { IconTable } from '@tabler/icons-react';
 import { downloadCsv, toCsv, type CsvColumn } from '@/shared/lib/csv';
 
 export interface ReportColumn<T> {
@@ -28,6 +38,12 @@ interface ReportTableProps<T> {
   periodLabel: string;
   emptyText?: string;
   footer?: ReactNode;
+  /** Selectable page size options. Defaults to [10, 20, 50, 100]. */
+  pageSizeOptions?: number[];
+  /** Initial page size. Defaults to 10. */
+  defaultPageSize?: number;
+  /** Enable client-side pagination. Defaults to true. */
+  paginated?: boolean;
 }
 
 export function ReportTable<T>({
@@ -41,7 +57,31 @@ export function ReportTable<T>({
   periodLabel,
   emptyText,
   footer,
+  pageSizeOptions = [10, 20, 50, 100],
+  defaultPageSize = 10,
+  paginated = true,
 }: ReportTableProps<T>) {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(defaultPageSize);
+
+  const totalCount = rows.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setPage(1);
+  };
+
+  const displayRows = useMemo(() => {
+    if (!paginated) return rows;
+    const start = (safePage - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  }, [rows, paginated, safePage, pageSize]);
+
+  const showingStart = totalCount === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const showingEnd = Math.min(safePage * pageSize, totalCount);
+
   const onExport = () => {
     const csvColumns: CsvColumn<T>[] = columns.map((c) => ({
       header: c.header,
@@ -106,8 +146,8 @@ export function ReportTable<T>({
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {rows.map((row, index) => (
-                  <Table.Tr key={keyFor(row, index)}>
+                {displayRows.map((row, index) => (
+                  <Table.Tr key={keyFor(row, (safePage - 1) * pageSize + index)}>
                     {columns.map((c) => (
                       <Table.Td key={c.header} ta={c.align ?? 'left'}>
                         {c.cell(row)}
@@ -118,6 +158,51 @@ export function ReportTable<T>({
               </Table.Tbody>
             </Table>
           </ScrollArea>
+        )}
+
+        {paginated && !loading && totalCount > 0 && (
+          <Group
+            justify="space-between"
+            align="center"
+            pt="xs"
+            style={{ borderTop: '1px solid var(--border)' }}
+            wrap="wrap"
+            gap="sm"
+          >
+            <Group gap="sm" wrap="wrap">
+              <Text size="xs" c="dimmed">
+                {`Showing ${showingStart}–${showingEnd} of ${totalCount} entries`}
+              </Text>
+
+              <Group gap={6} align="center">
+                <Text size="xs" c="dimmed">
+                  {t('Rows per page:')}
+                </Text>
+                <Select
+                  size="xs"
+                  style={{ width: 75 }}
+                  value={String(pageSize)}
+                  onChange={(val) => val && handlePageSizeChange(Number(val))}
+                  data={pageSizeOptions.map((opt) => ({
+                    value: String(opt),
+                    label: String(opt),
+                  }))}
+                  aria-label={t('Rows per page')}
+                />
+              </Group>
+            </Group>
+
+            {totalPages > 1 && (
+              <Pagination
+                value={safePage}
+                onChange={setPage}
+                total={totalPages}
+                size="sm"
+                radius="var(--mantine-radius-default)"
+                aria-label={t('Table pagination')}
+              />
+            )}
+          </Group>
         )}
 
         {footer}
