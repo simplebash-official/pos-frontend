@@ -7,6 +7,7 @@ import { csvRupees } from '@/shared/lib/csv';
 import { MetricCardRow, type MetricCardDef } from '@/shared/components/MetricCard';
 import { useInventoryValuation } from '../../hooks/useAnalyticsQueries';
 import {
+  categoryBarChartProps,
   categoryYAxis,
   DONUT_COLORS,
   moneyFormatter,
@@ -95,6 +96,7 @@ export const InventorySection = ({
             valueFormatter={moneyFormatter}
             xAxisProps={moneyXAxis}
             yAxisProps={categoryYAxis}
+            barChartProps={categoryBarChartProps}
             series={[
               { name: 'cost', label: t('Cost'), color: SERIES.cogs },
               { name: 'profit', label: t('Potential profit'), color: SERIES.profit },

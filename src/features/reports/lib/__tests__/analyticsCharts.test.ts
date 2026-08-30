@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { bpsToPct, bpsToNumber, moneyFormatter, toTrendData } from '../analyticsCharts';
+import {
+  bpsToPct,
+  bpsToNumber,
+  categoryBarChartProps,
+  categoryYAxis,
+  moneyFormatter,
+  toTrendData,
+} from '../analyticsCharts';
 import type { TimeSeriesPoint } from '../../types';
 
 describe('bps helpers', () => {
@@ -43,5 +50,18 @@ describe('toTrendData', () => {
       point({ revenueCents: 500_000, grossProfitCents: 200_000, grossMarginBps: 4000 }),
     ]);
     expect(row).toMatchObject({ label: '1 Aug', revenue: 5000, grossProfit: 2000, margin: 40 });
+  });
+});
+
+describe('categoryYAxis', () => {
+  it('truncates labels longer than 16 chars with ellipsis', () => {
+    expect(categoryYAxis.tickFormatter('Smartphones & Accessories')).toBe('Smartphones & A…');
+    expect(categoryYAxis.tickFormatter('General Printing')).toBe('General Printing');
+    expect(categoryYAxis.tickFormatter('Computer & Laptop Parts')).toBe('Computer & Lapt…');
+  });
+
+  it('provides categoryBarChartProps with left margin', () => {
+    expect(categoryBarChartProps.margin.left).toBe(16);
+    expect(categoryBarChartProps.margin.right).toBe(16);
   });
 });

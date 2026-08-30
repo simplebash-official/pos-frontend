@@ -51,14 +51,19 @@ export const moneyYAxis = { width: 68, tickFormatter: compactMoney } as const;
 /** `xAxisProps` for a horizontal bar chart (money on X). */
 export const moneyXAxis = { tickFormatter: compactMoney } as const;
 
-const truncate = (value: string, max = 22): string =>
+const truncate = (value: string, max = 16): string =>
   value.length > max ? `${value.slice(0, max - 1)}…` : value;
 
-/** `yAxisProps` for a horizontal bar chart — room for category names, one line. */
+/** `yAxisProps` for a horizontal bar chart — room for category names, single line. */
 export const categoryYAxis = {
-  width: 150,
+  width: 140,
   interval: 0,
   tickFormatter: (v: string) => truncate(v),
+} as const;
+
+/** `barChartProps` for horizontal/vertical category bar charts to prevent left-edge text cropping. */
+export const categoryBarChartProps = {
+  margin: { left: 16, right: 16, top: 4, bottom: 4 },
 } as const;
 
 /**

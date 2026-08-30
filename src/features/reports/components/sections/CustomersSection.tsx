@@ -9,6 +9,7 @@ import { DataTable, type Column } from '@/shared/components/DataTable';
 import type { AnalyticsRequestParams } from '../../api/analyticsApi';
 import { useAnalyticsFeed, useOutstandingReceivables } from '../../hooks/useAnalyticsQueries';
 import {
+  categoryBarChartProps,
   categoryYAxis,
   moneyFormatter,
   moneyXAxis,
@@ -91,6 +92,7 @@ export const CustomersSection = ({
             valueFormatter={moneyFormatter}
             xAxisProps={moneyXAxis}
             yAxisProps={categoryYAxis}
+            barChartProps={categoryBarChartProps}
             series={[{ name: 'revenue', label: t('Revenue'), color: SERIES.revenue }]}
           />
         </ChartCard>
