@@ -4,12 +4,7 @@ import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import type { AnalyticsRequestParams } from '../../api/analyticsApi';
-import {
-  useAnalyticsDiscounts,
-  useAnalyticsSalesByCategory,
-  useDailySales,
-  useTopProducts,
-} from '../../hooks/useAnalyticsQueries';
+import { useAnalyticsFeed } from '../../hooks/useAnalyticsQueries';
 import {
   bpsToNumber,
   categoryYAxis,
@@ -30,18 +25,21 @@ export const SalesSection = ({
   active: boolean;
   periodLabel: string;
 }) => {
-  const category = useAnalyticsSalesByCategory(params, 'category', active);
-  const products = useTopProducts(params, active);
-  const daily = useDailySales(params, active);
-  const discounts = useAnalyticsDiscounts(params, active);
+  const feed = useAnalyticsFeed('sales', params, undefined, active);
 
-  const catRows = category.data?.rows ?? [];
+  const category = feed.data?.sales?.salesByCategory;
+  const products = feed.data?.sales?.topProducts;
+  const daily = feed.data?.sales?.dailySales;
+  const discounts = feed.data?.sales?.discounts;
+  const isLoading = feed.isLoading;
+
+  const catRows = category?.rows ?? [];
   const catChart = catRows.slice(0, 10).map((r) => ({
     name: r.categoryName,
     revenue: r.revenueCents / 100,
   }));
 
-  const discountTrend = (daily.data?.summaries ?? []).map((s) => ({
+  const discountTrend = (daily?.summaries ?? []).map((s) => ({
     date: formatDate(s.date, 'D MMM'),
     rate: s.grossSalesCents > 0 ? bpsToNumber((s.discountCents / s.grossSalesCents) * 10000) : 0,
   }));
@@ -49,11 +47,7 @@ export const SalesSection = ({
   return (
     <>
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
-        <ChartCard
-          title="Sales by category"
-          loading={category.isLoading}
-          empty={catChart.length === 0}
-        >
+        <ChartCard title="Sales by category" loading={isLoading} empty={catChart.length === 0}>
           <BarChart
             h={280}
             data={catChart}
@@ -69,7 +63,7 @@ export const SalesSection = ({
         <ChartCard
           title="Discount rate over time"
           subtitle="Discount as a share of sales"
-          loading={daily.isLoading}
+          loading={isLoading}
           empty={discountTrend.length === 0}
         >
           <LineChart
@@ -87,7 +81,7 @@ export const SalesSection = ({
           title="Sales by category"
           rows={catRows}
           keyFor={(r, i) => r.categoryKey ?? `cat-${i}`}
-          loading={category.isLoading}
+          loading={isLoading}
           csvName="sales-by-category"
           periodLabel={periodLabel}
           columns={[
@@ -110,9 +104,9 @@ export const SalesSection = ({
 
         <ReportTable
           title="Top products"
-          rows={products.data?.products ?? []}
+          rows={products?.products ?? []}
           keyFor={(r, i) => r.productKey ?? `prod-${i}`}
-          loading={products.isLoading}
+          loading={isLoading}
           csvName="top-products"
           periodLabel={periodLabel}
           columns={[
@@ -130,9 +124,9 @@ export const SalesSection = ({
 
       <ReportTable
         title="Daily sales"
-        rows={daily.data?.summaries ?? []}
+        rows={daily?.summaries ?? []}
         keyFor={(r) => r.date}
-        loading={daily.isLoading}
+        loading={isLoading}
         csvName="daily-sales"
         periodLabel={periodLabel}
         columns={[
@@ -173,9 +167,9 @@ export const SalesSection = ({
 
       <ReportTable
         title="Who gives the most discount"
-        rows={discounts.data?.byCashier ?? []}
+        rows={discounts?.byCashier ?? []}
         keyFor={(r) => r.cashierId}
-        loading={discounts.isLoading}
+        loading={isLoading}
         csvName="discounts-by-cashier"
         periodLabel={periodLabel}
         emptyText="No discounts given in this period"

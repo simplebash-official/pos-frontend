@@ -1,11 +1,10 @@
 import { SimpleGrid, Alert } from '@mantine/core';
 import { CompositeChart, LineChart } from '@mantine/charts';
-import { IconInfoCircle } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import { csvRupees } from '@/shared/lib/csv';
 import type { AnalyticsRequestParams } from '../../api/analyticsApi';
-import { useAnalyticsSummary, useAnalyticsTimeseries } from '../../hooks/useAnalyticsQueries';
+import { useAnalyticsFeed } from '../../hooks/useAnalyticsQueries';
 import { moneyFormatter, moneyYAxis, SERIES, toTrendData } from '../../lib/analyticsCharts';
 import { ChartCard } from '../ChartCard';
 import { ReportTable } from '../ReportTable';
@@ -19,34 +18,17 @@ export const ProfitSection = ({
   active: boolean;
   periodLabel: string;
 }) => {
-  const timeseries = useAnalyticsTimeseries(params, active);
-  const summary = useAnalyticsSummary(params, active);
+  const feed = useAnalyticsFeed('profit', params, undefined, active);
 
-  const trend = toTrendData(timeseries.data?.points ?? []);
-  const k = summary.data?.current;
+  const timeseries = feed.data?.profit?.timeseries;
+  const isLoading = feed.isLoading;
+
+  const trend = toTrendData(timeseries?.points ?? []);
 
   return (
     <>
-      {k && k.cogsCoverageBps < 10000 && (
-        <Alert
-          color="orange"
-          variant="light"
-          icon={<IconInfoCircle size={16} />}
-          title={t('Profit figures are partial for this period')}
-          mb="md"
-        >
-          {t(
-            'Some retail sales in this period were made before item costs were recorded, so profit and margin are shown as a best estimate.'
-          )}
-        </Alert>
-      )}
-
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
-        <ChartCard
-          title="Revenue, cost & profit"
-          loading={timeseries.isLoading}
-          empty={trend.length === 0}
-        >
+        <ChartCard title="Revenue, cost & profit" loading={isLoading} empty={trend.length === 0}>
           <CompositeChart
             h={280}
             data={trend}
@@ -71,7 +53,7 @@ export const ProfitSection = ({
         <ChartCard
           title="Gross margin trend"
           subtitle="Gross profit as a share of revenue"
-          loading={timeseries.isLoading}
+          loading={isLoading}
           empty={trend.length === 0}
         >
           <LineChart
@@ -86,9 +68,9 @@ export const ProfitSection = ({
 
       <ReportTable
         title="Profit by period"
-        rows={timeseries.data?.points ?? []}
+        rows={timeseries?.points ?? []}
         keyFor={(r) => r.periodStart}
-        loading={timeseries.isLoading}
+        loading={isLoading}
         csvName="profit-by-period"
         periodLabel={periodLabel}
         columns={[
@@ -125,12 +107,9 @@ export const ProfitSection = ({
           },
         ]}
         footer={
-          summary.data?.previous && summary.data.deltas ? (
-            <Alert color="blue" variant="light" mt="xs">
-              {t('Net profit change vs the previous period:')}{' '}
-              {summary.data.deltas.netProfitBps === null
-                ? '—'
-                : `${summary.data.deltas.netProfitBps >= 0 ? '+' : ''}${(summary.data.deltas.netProfitBps / 100).toFixed(1)}%`}
+          timeseries?.totals ? (
+            <Alert color="teal" variant="light" mt="xs">
+              {t('Total period net profit:')} {formatMoney(timeseries.totals.netProfitCents)}
             </Alert>
           ) : undefined
         }

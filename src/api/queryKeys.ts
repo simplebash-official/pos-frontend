@@ -74,6 +74,8 @@ export const queryKeys = {
   },
   reports: {
     all: ['reports'] as const,
+    feed: (section: string, filters: Record<string, unknown>, opts?: Record<string, unknown>) =>
+      ['reports', 'engine', 'feed', section, filters, opts] as const,
     /** `scope` = summary | timeseries | paymentMethods | topCustomers | … */
     analytics: (scope: string, filters: Record<string, unknown>) =>
       ['reports', 'analytics', scope, filters] as const,

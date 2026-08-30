@@ -35,7 +35,7 @@ export const useAnalyticsFeed = (
   enabled = true
 ) =>
   useQuery({
-    queryKey: ['reports', 'engine', 'feed', section, key(p), optsQuery],
+    queryKey: queryKeys.reports.feed(section, key(p), optsQuery),
     queryFn: () => fetchAnalyticsFeed(section, p, optsQuery),
     ...opts(enabled),
   });
