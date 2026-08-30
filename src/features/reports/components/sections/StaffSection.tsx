@@ -1,4 +1,4 @@
-import { SimpleGrid, Text } from '@mantine/core';
+import { SimpleGrid, Stack, Text } from '@mantine/core';
 import { BarChart } from '@mantine/charts';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
@@ -47,7 +47,7 @@ export const StaffSection = ({
     }));
 
   return (
-    <>
+    <Stack gap="md">
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ChartCard title="Cashier sales" loading={isLoading} empty={cashierChart.length === 0}>
           <BarChart
@@ -184,6 +184,6 @@ export const StaffSection = ({
           ) : undefined
         }
       />
-    </>
+    </Stack>
   );
 };

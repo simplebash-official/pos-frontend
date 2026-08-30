@@ -52,6 +52,8 @@ export const ChartCard = ({
         <Skeleton height={minHeight} radius="sm" />
       ) : empty ? (
         <EmptyState
+          withBorder={false}
+          py="lg"
           icon={<IconChartBar size={28} />}
           title={t(emptyText ?? 'No data for this period')}
         />
