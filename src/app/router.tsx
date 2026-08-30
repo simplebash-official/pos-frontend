@@ -48,9 +48,9 @@ const EmployeeList = lazy(() =>
 const UsersList = lazy(() =>
   import('@/features/users/components/UsersList').then((m) => ({ default: m.UsersList }))
 );
-const ReportsDashboard = lazy(() =>
-  import('@/features/reports/components/ReportsDashboard').then((m) => ({
-    default: m.ReportsDashboard,
+const AnalyticsReportsPage = lazy(() =>
+  import('@/features/reports/components/AnalyticsReportsPage').then((m) => ({
+    default: m.AnalyticsReportsPage,
   }))
 );
 const SettingsPage = lazy(() =>
@@ -172,9 +172,11 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.REPORTS,
         element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <ReportsDashboard />
-          </Suspense>
+          <RequirePermission permissions={[PERMISSIONS.REPORTS_VIEW]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <AnalyticsReportsPage />
+            </Suspense>
+          </RequirePermission>
         ),
       },
       {

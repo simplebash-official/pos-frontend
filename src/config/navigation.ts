@@ -130,7 +130,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     title: 'Business Analytics',
     items: [
       {
-        label: 'Reports & Profit',
+        label: 'Analytics & Reports',
         icon: IconChartBar,
         to: ROUTES.REPORTS,
         color: 'green',
