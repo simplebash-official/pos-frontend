@@ -29,8 +29,9 @@ export const CustomersSection = ({
   periodLabel: string;
 }) => {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const feed = useAnalyticsFeed('customers', params, undefined, active);
-  const outstanding = useOutstandingReceivables(page, active);
+  const outstanding = useOutstandingReceivables(page, pageSize, active);
 
   const customers = feed.data?.customers?.topCustomers;
   const aging = feed.data?.customers?.receivablesAging;
@@ -187,9 +188,15 @@ export const CustomersSection = ({
           loading={outstanding.isLoading}
           clientPagination={false}
           page={page}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50, 100]}
           total={outstanding.data?.total ?? 0}
           totalPages={outstanding.data?.totalPages ?? 1}
           onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPage(1);
+          }}
           emptyText={t('No unpaid invoices')}
         />
       </Stack>

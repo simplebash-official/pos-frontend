@@ -68,7 +68,7 @@ export const useAnalyticsTopCustomers = (
 ) =>
   useQuery({
     queryKey: queryKeys.reports.analytics('topCustomers', { ...key(p), sortBy }),
-    queryFn: () => fetchAnalyticsTopCustomers(p, { limit: 25, sortBy }),
+    queryFn: () => fetchAnalyticsTopCustomers(p, { limit: 100, sortBy }),
     ...opts(enabled),
   });
 
@@ -128,14 +128,14 @@ export const useDailySales = (p: P, enabled = true) =>
 export const useTopProducts = (p: P, enabled = true) =>
   useQuery({
     queryKey: queryKeys.reports.topProducts(key(p)),
-    queryFn: () => fetchTopProducts(p, { limit: 15, sortBy: 'revenue' }),
+    queryFn: () => fetchTopProducts(p, { limit: 100, sortBy: 'revenue' }),
     ...opts(enabled),
   });
 
-export const useOutstandingReceivables = (page: number, enabled = true) =>
+export const useOutstandingReceivables = (page: number, limit = 10, enabled = true) =>
   useQuery({
-    queryKey: queryKeys.reports.outstanding({ page }),
-    queryFn: () => fetchOutstandingReceivables({ page, limit: 10 }),
+    queryKey: queryKeys.reports.outstanding({ page, limit }),
+    queryFn: () => fetchOutstandingReceivables({ page, limit }),
     ...opts(enabled),
   });
 
