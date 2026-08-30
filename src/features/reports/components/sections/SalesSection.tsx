@@ -7,6 +7,7 @@ import type { AnalyticsRequestParams } from '../../api/analyticsApi';
 import { useAnalyticsFeed } from '../../hooks/useAnalyticsQueries';
 import {
   bpsToNumber,
+  categoryBarChartProps,
   categoryYAxis,
   moneyFormatter,
   moneyXAxis,
@@ -56,6 +57,7 @@ export const SalesSection = ({
             valueFormatter={moneyFormatter}
             xAxisProps={moneyXAxis}
             yAxisProps={categoryYAxis}
+            barChartProps={categoryBarChartProps}
             series={[{ name: 'revenue', label: t('Revenue'), color: SERIES.retail }]}
           />
         </ChartCard>
