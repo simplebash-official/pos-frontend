@@ -13,12 +13,7 @@ import { t } from '@/shared/i18n/t';
 import { MetricCardRow, type MetricCardDef } from '@/shared/components/MetricCard';
 import { formatMoney } from '@/shared/lib/money';
 import type { AnalyticsRequestParams } from '../../api/analyticsApi';
-import {
-  useAnalyticsPaymentMethods,
-  useAnalyticsSalesPatterns,
-  useAnalyticsSummary,
-  useAnalyticsTimeseries,
-} from '../../hooks/useAnalyticsQueries';
+import { useAnalyticsFeed } from '../../hooks/useAnalyticsQueries';
 import {
   bpsToPct,
   moneyFormatter,
@@ -42,13 +37,16 @@ export const OverviewSection = ({
   params: AnalyticsRequestParams;
   active: boolean;
 }) => {
-  const summary = useAnalyticsSummary(params, active);
-  const timeseries = useAnalyticsTimeseries(params, active);
-  const payments = useAnalyticsPaymentMethods(params, active);
-  const patterns = useAnalyticsSalesPatterns(params, active);
+  const feed = useAnalyticsFeed('overview', params, undefined, active);
 
-  const k = summary.data?.current;
-  const d = summary.data?.deltas;
+  const summary = feed.data?.overview?.summary;
+  const timeseries = feed.data?.overview?.timeseries;
+  const payments = feed.data?.overview?.paymentMethods;
+  const patterns = feed.data?.overview?.salesPatterns;
+  const isLoading = feed.isLoading;
+
+  const k = summary?.current;
+  const d = summary?.deltas;
 
   const withDelta = (value: string, bps: number | null | undefined): ReactNode => (
     <span>
@@ -64,7 +62,7 @@ export const OverviewSection = ({
       value: withDelta(formatMoney(k?.totalRevenueCents ?? 0), d?.totalRevenueBps),
       color: 'blue',
       icon: <IconReceipt2 size={18} />,
-      loading: summary.isLoading,
+      loading: isLoading,
     },
     {
       key: 'gross',
@@ -72,7 +70,7 @@ export const OverviewSection = ({
       value: withDelta(formatMoney(k?.grossProfitCents ?? 0), d?.grossProfitBps),
       color: 'green',
       icon: <IconTrendingUp size={18} />,
-      loading: summary.isLoading,
+      loading: isLoading,
     },
     {
       key: 'net',
@@ -80,7 +78,7 @@ export const OverviewSection = ({
       value: withDelta(formatMoney(k?.netProfitCents ?? 0), d?.netProfitBps),
       color: 'teal',
       icon: <IconCoin size={18} />,
-      loading: summary.isLoading,
+      loading: isLoading,
     },
     {
       key: 'basket',
@@ -88,7 +86,7 @@ export const OverviewSection = ({
       value: withDelta(formatMoney(k?.avgBasketCents ?? 0), d?.avgBasketBps),
       color: 'grape',
       icon: <IconShoppingCart size={18} />,
-      loading: summary.isLoading,
+      loading: isLoading,
     },
     {
       key: 'invoices',
@@ -96,7 +94,7 @@ export const OverviewSection = ({
       value: withDelta(String(k?.invoiceCount ?? 0), d?.invoiceCountBps),
       color: 'indigo',
       icon: <IconReceipt2 size={18} />,
-      loading: summary.isLoading,
+      loading: isLoading,
     },
     {
       key: 'refunds',
@@ -104,17 +102,17 @@ export const OverviewSection = ({
       value: formatMoney(k?.refundsCents ?? 0),
       color: 'red',
       icon: <IconArrowBackUp size={18} />,
-      loading: summary.isLoading,
+      loading: isLoading,
     },
   ];
 
-  const trend = toTrendData(timeseries.data?.points ?? []);
-  const pm = payments.data?.breakdown;
-  const weekday = (patterns.data?.byWeekday ?? []).map((b) => ({
+  const trend = toTrendData(timeseries?.points ?? []);
+  const pm = payments?.breakdown;
+  const weekday = (patterns?.byWeekday ?? []).map((b) => ({
     day: b.label,
     revenue: b.revenueCents / 100,
   }));
-  const hour = (patterns.data?.byHour ?? []).map((b) => ({
+  const hour = (patterns?.byHour ?? []).map((b) => ({
     hour: b.label,
     revenue: b.revenueCents / 100,
   }));
@@ -138,11 +136,7 @@ export const OverviewSection = ({
       )}
 
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md" mt="md">
-        <ChartCard
-          title="Revenue & profit trend"
-          loading={timeseries.isLoading}
-          empty={trend.length === 0}
-        >
+        <ChartCard title="Revenue & profit trend" loading={isLoading} empty={trend.length === 0}>
           <AreaChart
             h={260}
             data={trend}
@@ -161,7 +155,7 @@ export const OverviewSection = ({
         <ChartCard
           title="Revenue by stream"
           subtitle="Retail, repairs and print over time"
-          loading={timeseries.isLoading}
+          loading={isLoading}
           empty={trend.length === 0}
         >
           <BarChart
@@ -182,12 +176,12 @@ export const OverviewSection = ({
 
         <ChartCard
           title="Payment mix"
-          loading={payments.isLoading}
+          loading={isLoading}
           empty={!pm || pm.cashCents + pm.cardCents + pm.onlineCents + pm.creditCents === 0}
         >
           <DonutWithLegend
             valueFormatter={(v) => formatMoney(v)}
-            centerLabel={payments.data ? formatMoney(payments.data.totalCents) : undefined}
+            centerLabel={payments ? formatMoney(payments.totalCents) : undefined}
             data={[
               { name: t('Cash'), value: pm?.cashCents ?? 0, color: 'blue.6' },
               { name: t('Card'), value: pm?.cardCents ?? 0, color: 'grape.6' },
@@ -199,7 +193,7 @@ export const OverviewSection = ({
 
         <ChartCard
           title="Busiest days"
-          loading={patterns.isLoading}
+          loading={isLoading}
           empty={weekday.every((w) => w.revenue === 0)}
         >
           <BarChart
@@ -214,7 +208,7 @@ export const OverviewSection = ({
 
         <ChartCard
           title="Busiest hours"
-          loading={patterns.isLoading}
+          loading={isLoading}
           empty={hour.every((h) => h.revenue === 0)}
         >
           <BarChart
