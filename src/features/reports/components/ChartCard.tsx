@@ -19,9 +19,8 @@ interface ChartCardProps {
 
 /**
  * Standard container for a chart on the Analytics page: titled `Paper`, a
- * loading skeleton, an empty state, and — importantly — an `overflow-x`
- * scroll region so a wide chart never widens the page (CLAUDE.md responsive
- * rule).
+ * loading skeleton, an empty state, and a clean, non-scrolling responsive
+ * container so charts scale fluidly without scrollbars.
  */
 export const ChartCard = ({
   title,
@@ -57,7 +56,7 @@ export const ChartCard = ({
           title={t(emptyText ?? 'No data for this period')}
         />
       ) : (
-        <Box style={{ overflowX: 'auto', overflowY: 'hidden', minWidth: 0 }}>{children}</Box>
+        <Box style={{ overflow: 'hidden', minWidth: 0, width: '100%' }}>{children}</Box>
       )}
     </Stack>
   </Paper>

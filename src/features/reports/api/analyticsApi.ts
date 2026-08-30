@@ -16,6 +16,7 @@ import type {
   TimeSeriesResponse,
   TopCustomersResponse,
   TopProductsResponse,
+  EngineFeedResponse,
 } from '../types';
 
 /**
@@ -52,6 +53,23 @@ const get = async <T>(path: string, params: QueryParams): Promise<T> => {
   const res = await apiClient.get<ApiResponse<T>>(path, { params });
   return res.data;
 };
+
+// --- High-speed Engine Feed endpoint ---------------------------------------
+
+export const fetchAnalyticsFeed = (
+  section: string,
+  p: AnalyticsRequestParams,
+  opts?: { limit?: number; sortBy?: string; groupBy?: string }
+) =>
+  get<EngineFeedResponse>('/reports/engine/feed', {
+    ...analyticsParams(p),
+    section,
+    limit: opts?.limit,
+    sortBy: opts?.sortBy,
+    groupBy: opts?.groupBy,
+  });
+
+// --- Individual endpoints (transparently cached by backend engine) ---------
 
 export const fetchAnalyticsSummary = (p: AnalyticsRequestParams) =>
   get<AnalyticsSummaryResponse>('/reports/analytics/summary', analyticsParams(p));

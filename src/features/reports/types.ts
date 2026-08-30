@@ -356,6 +356,33 @@ export interface DailySalesReportResponse {
   paymentMethods: PaymentMethodBreakdown;
 }
 
+/** `GET /reports/monthly-profit` */
+export interface MonthlyProfitDayEntry {
+  date: string;
+  revenueCents: number;
+  cogsCents: number;
+  grossProfitCents: number;
+  commissionsCents: number;
+  netProfitCents: number;
+  invoiceCount: number;
+}
+
+export interface MonthlyProfitReportResponse {
+  yearMonth: string;
+  totalRevenueCents: number;
+  retailRevenueCents: number;
+  repairRevenueCents: number;
+  printRevenueCents: number;
+  totalDiscountsCents: number;
+  cogsCents: number;
+  grossProfitCents: number;
+  commissionPayoutsCents: number;
+  netProfitCents: number;
+  totalRefundsCents: number;
+  totalInvoicesCount: number;
+  dailyBreakdown: MonthlyProfitDayEntry[];
+}
+
 /** `GET /reports/top-products` */
 export interface TopProductEntry {
   productKey?: string;
@@ -422,4 +449,57 @@ export interface InventoryValuationResponse {
   lowStockProductsCount: number;
   outOfStockProductsCount: number;
   categories: CategoryValuationEntry[];
+}
+
+// ---------------------------------------------------------------------------
+// Engine Feed Types (`/reports/engine/feed`)
+// ---------------------------------------------------------------------------
+
+export interface EngineMetadata {
+  executionTimeMs: number;
+  cacheHit: boolean;
+  cachedAt: string;
+  cacheStatus: string;
+}
+
+export interface OverviewFeedData {
+  summary: AnalyticsSummaryResponse;
+  timeseries: TimeSeriesResponse;
+  paymentMethods: AnalyticsPaymentMethodsResponse;
+  salesPatterns: SalesPatternsResponse;
+}
+
+export interface SalesFeedData {
+  dailySales: DailySalesReportResponse;
+  salesByCategory: SalesByCategoryResponse;
+  discounts: DiscountAnalyticsResponse;
+  refunds: RefundAnalyticsResponse;
+  topProducts: TopProductsResponse;
+}
+
+export interface ProfitFeedData {
+  monthlyProfit: MonthlyProfitReportResponse;
+  timeseries: TimeSeriesResponse;
+}
+
+export interface CustomersFeedData {
+  topCustomers: TopCustomersResponse;
+  receivablesAging: ReceivablesAgingResponse;
+}
+
+export interface StaffFeedData {
+  employeeCommissions: EmployeeCommissionsReportResponse;
+  cashierPerformance: CashierPerformanceResponse;
+}
+
+export interface EngineFeedResponse {
+  section: string;
+  periodStart: string;
+  periodEnd: string;
+  meta: EngineMetadata;
+  overview?: OverviewFeedData;
+  sales?: SalesFeedData;
+  profit?: ProfitFeedData;
+  customers?: CustomersFeedData;
+  staff?: StaffFeedData;
 }

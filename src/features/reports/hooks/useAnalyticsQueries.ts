@@ -3,6 +3,7 @@ import { queryKeys } from '@/api/queryKeys';
 import {
   fetchAnalyticsCashierPerformance,
   fetchAnalyticsDiscounts,
+  fetchAnalyticsFeed,
   fetchAnalyticsPaymentMethods,
   fetchAnalyticsRefunds,
   fetchAnalyticsReceivablesAging,
@@ -25,6 +26,19 @@ const key = (p: P): Record<string, unknown> => ({ ...p });
 /** Each hook takes the shared request params and an `enabled` flag so a tab
  * that isn't mounted doesn't fire its queries. */
 const opts = (enabled: boolean) => ({ enabled, staleTime: 5 * 60_000 });
+
+/** High-speed section bundle query from the backend engine. */
+export const useAnalyticsFeed = (
+  section: 'overview' | 'sales' | 'profit' | 'customers' | 'staff' | 'all',
+  p: P,
+  optsQuery?: { limit?: number; sortBy?: string; groupBy?: string },
+  enabled = true
+) =>
+  useQuery({
+    queryKey: ['reports', 'engine', 'feed', section, key(p), optsQuery],
+    queryFn: () => fetchAnalyticsFeed(section, p, optsQuery),
+    ...opts(enabled),
+  });
 
 export const useAnalyticsSummary = (p: P, enabled = true) =>
   useQuery({

@@ -74,7 +74,12 @@ export const DonutWithLegend = ({ data, valueFormatter, centerLabel, minHeight =
   );
 
   return isMobile ? (
-    <Stack align="center" justify="center" gap="md" style={{ width: '100%', minHeight }}>
+    <Stack
+      align="center"
+      justify="center"
+      gap="md"
+      style={{ width: '100%', minHeight, minWidth: 0, overflow: 'hidden' }}
+    >
       {chart}
       {legend}
     </Stack>
@@ -84,7 +89,7 @@ export const DonutWithLegend = ({ data, valueFormatter, centerLabel, minHeight =
       justify="center"
       gap="xl"
       wrap="nowrap"
-      style={{ width: '100%', minHeight }}
+      style={{ width: '100%', minHeight, minWidth: 0, overflow: 'hidden' }}
     >
       {chart}
       {legend}
