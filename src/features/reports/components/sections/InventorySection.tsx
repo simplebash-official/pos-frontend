@@ -1,4 +1,4 @@
-import { SimpleGrid, Text } from '@mantine/core';
+import { SimpleGrid, Stack, Text } from '@mantine/core';
 import { BarChart } from '@mantine/charts';
 import { IconBox, IconCoin, IconTrendingUp, IconAlertTriangle } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
@@ -76,10 +76,10 @@ export const InventorySection = ({
   ).map((s, i) => ({ ...s, color: DONUT_COLORS[i % DONUT_COLORS.length] }));
 
   return (
-    <>
+    <Stack gap="md">
       <MetricCardRow cards={cards} />
 
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md" mt="md">
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ChartCard
           title="Stock value by category"
           subtitle="Cost you paid vs profit locked in stock"
@@ -142,6 +142,6 @@ export const InventorySection = ({
           },
         ]}
       />
-    </>
+    </Stack>
   );
 };

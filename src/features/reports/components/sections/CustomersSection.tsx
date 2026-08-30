@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SimpleGrid, Text } from '@mantine/core';
+import { SimpleGrid, Stack, Text } from '@mantine/core';
 import { BarChart } from '@mantine/charts';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
@@ -74,7 +74,7 @@ export const CustomersSection = ({
   ];
 
   return (
-    <>
+    <Stack gap="md">
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ChartCard
           title="Top customers"
@@ -176,8 +176,8 @@ export const CustomersSection = ({
         ]}
       />
 
-      <div>
-        <Text fw={700} size="sm" mb="xs">
+      <Stack gap="xs">
+        <Text fw={700} size="sm">
           {t('Unpaid invoices')}
         </Text>
         <DataTable
@@ -192,7 +192,7 @@ export const CustomersSection = ({
           onPageChange={setPage}
           emptyText={t('No unpaid invoices')}
         />
-      </div>
-    </>
+      </Stack>
+    </Stack>
   );
 };

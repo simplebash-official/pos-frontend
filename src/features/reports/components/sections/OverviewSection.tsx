@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { SimpleGrid, Alert } from '@mantine/core';
+import { SimpleGrid, Alert, Stack } from '@mantine/core';
 import { AreaChart, BarChart } from '@mantine/charts';
 import {
   IconReceipt2,
@@ -118,7 +118,7 @@ export const OverviewSection = ({
   }));
 
   return (
-    <>
+    <Stack gap="md">
       <MetricCardRow cards={cards} />
 
       {k && k.cogsCoverageBps < 10000 && (
@@ -127,7 +127,6 @@ export const OverviewSection = ({
           variant="light"
           icon={<IconInfoCircle size={16} />}
           title={t('Profit figures are partial for this period')}
-          mt="md"
         >
           {t(
             'Some retail sales in this period were made before item costs were recorded, so profit and margin are shown as a best estimate.'
@@ -135,7 +134,7 @@ export const OverviewSection = ({
         </Alert>
       )}
 
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md" mt="md">
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ChartCard title="Revenue & profit trend" loading={isLoading} empty={trend.length === 0}>
           <AreaChart
             h={260}
@@ -221,7 +220,7 @@ export const OverviewSection = ({
           />
         </ChartCard>
       </SimpleGrid>
-    </>
+    </Stack>
   );
 };
 

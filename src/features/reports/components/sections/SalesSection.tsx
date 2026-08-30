@@ -1,4 +1,4 @@
-import { SimpleGrid, Text } from '@mantine/core';
+import { SimpleGrid, Stack, Text } from '@mantine/core';
 import { BarChart, LineChart } from '@mantine/charts';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
@@ -45,7 +45,7 @@ export const SalesSection = ({
   }));
 
   return (
-    <>
+    <Stack gap="md">
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ChartCard title="Sales by category" loading={isLoading} empty={catChart.length === 0}>
           <BarChart
@@ -76,7 +76,7 @@ export const SalesSection = ({
         </ChartCard>
       </SimpleGrid>
 
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md" mt="md">
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ReportTable
           title="Sales by category"
           rows={catRows}
@@ -189,6 +189,6 @@ export const SalesSection = ({
           },
         ]}
       />
-    </>
+    </Stack>
   );
 };

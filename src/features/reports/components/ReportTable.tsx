@@ -84,6 +84,8 @@ export function ReportTable<T>({
           <Skeleton height={180} radius="sm" />
         ) : rows.length === 0 ? (
           <EmptyState
+            withBorder={false}
+            py="lg"
             icon={<IconTable size={28} />}
             title={t(emptyText ?? 'Nothing to show yet')}
           />

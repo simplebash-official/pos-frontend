@@ -1,4 +1,4 @@
-import { SimpleGrid, Alert } from '@mantine/core';
+import { SimpleGrid, Alert, Stack } from '@mantine/core';
 import { CompositeChart, LineChart } from '@mantine/charts';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
@@ -26,7 +26,7 @@ export const ProfitSection = ({
   const trend = toTrendData(timeseries?.points ?? []);
 
   return (
-    <>
+    <Stack gap="md">
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <ChartCard title="Revenue, cost & profit" loading={isLoading} empty={trend.length === 0}>
           <CompositeChart
@@ -114,6 +114,6 @@ export const ProfitSection = ({
           ) : undefined
         }
       />
-    </>
+    </Stack>
   );
 };

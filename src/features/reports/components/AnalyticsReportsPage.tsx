@@ -45,7 +45,7 @@ export const AnalyticsReportsPage = () => {
   // the page costs one tab's worth of requests, not six.
 
   return (
-    <Stack gap="lg">
+    <Stack gap="md">
       <PageHeader
         title={t('Analytics & Reports')}
         description={t(
