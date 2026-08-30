@@ -23,7 +23,7 @@ describe('moneyFormatter', () => {
 describe('toTrendData', () => {
   const point = (over: Partial<TimeSeriesPoint>): TimeSeriesPoint => ({
     periodStart: '2026-08-01T00:00:00Z',
-    label: 'W31',
+    label: '1 Aug',
     revenueCents: 0,
     retailRevenueCents: 0,
     repairRevenueCents: 0,
@@ -42,6 +42,6 @@ describe('toTrendData', () => {
     const [row] = toTrendData([
       point({ revenueCents: 500_000, grossProfitCents: 200_000, grossMarginBps: 4000 }),
     ]);
-    expect(row).toMatchObject({ label: 'W31', revenue: 5000, grossProfit: 2000, margin: 40 });
+    expect(row).toMatchObject({ label: '1 Aug', revenue: 5000, grossProfit: 2000, margin: 40 });
   });
 });

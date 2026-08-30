@@ -29,6 +29,14 @@ describe('presetToRange', () => {
     expect(to.getMonth()).toBe(8); // September 1
     expect(to.getDate()).toBe(1);
   });
+
+  it('all_time spans from start of previous year to end of today, not 1970', () => {
+    const { from, to } = presetToRange('all_time', at('2026-08-15T12:00:00'));
+    expect(from.getFullYear()).toBe(2025);
+    expect(from.getMonth()).toBe(0); // Jan 1 2025
+    expect(from.getDate()).toBe(1);
+    expect(to.getFullYear()).toBe(2026);
+  });
 });
 
 describe('previousPeriod', () => {

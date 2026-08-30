@@ -112,7 +112,10 @@ export const presetToRange = (preset: RangePreset, now: Date = new Date()): Date
         to: d.startOf('year').add(1, 'year').toDate(),
       };
     case 'all_time':
-      return { from: new Date(0), to: d.startOf('day').add(1, 'day').toDate() };
+      return {
+        from: d.startOf('year').subtract(1, 'year').toDate(),
+        to: d.startOf('day').add(1, 'day').toDate(),
+      };
     case 'custom':
       return { from: d.startOf('day').toDate(), to: d.startOf('day').add(1, 'day').toDate() };
   }
