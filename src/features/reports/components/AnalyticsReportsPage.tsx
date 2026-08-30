@@ -51,7 +51,7 @@ export const AnalyticsReportsPage = () => {
         description={t(
           'Sales, profit, customers, inventory and staff performance across billing, repairs and print jobs.'
         )}
-        action={<ReportExportMenu params={requestParams} />}
+        action={<ReportExportMenu params={requestParams} periodLabel={periodLabel} />}
       />
 
       <AnalyticsFilterBar controller={controller} />
