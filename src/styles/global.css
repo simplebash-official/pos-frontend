@@ -270,6 +270,51 @@ body,
   font-weight: 600;
 }
 
+/* Analytics & Reports segmented pill tabs with white active button */
+.analytics-tabs-list {
+  background-color: var(--bg-active);
+  padding: 4px;
+  border-radius: var(--mantine-radius-default);
+  border: 1px solid var(--border);
+  gap: 4px;
+}
+
+.analytics-tabs-tab {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: var(--mantine-font-size-sm);
+  border-radius: calc(var(--mantine-radius-default) - 2px);
+  border: 1px solid transparent;
+  background-color: transparent;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  min-height: 40px;
+}
+
+.analytics-tabs-tab:hover:not([data-active]) {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.analytics-tabs-tab[data-active] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+@media (max-width: 47.99em) {
+  .analytics-tabs-tab {
+    font-size: var(--mantine-font-size-xs);
+    padding: 6px 8px;
+    min-height: 36px;
+  }
+}
+
 /* NumberInput controls visibility */
 .mantine-NumberInput-controls {
   opacity: 0;
