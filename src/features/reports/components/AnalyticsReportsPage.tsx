@@ -1,13 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
 import { Stack, Tabs } from '@mantine/core';
-import {
-  IconLayoutDashboard,
-  IconShoppingCart,
-  IconCoin,
-  IconUsers,
-  IconPackage,
-  IconUserCheck,
-} from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { formatRangeLabel } from '@/shared/lib/date';
@@ -23,13 +15,13 @@ import { StaffSection } from './sections/StaffSection';
 
 type TabValue = 'overview' | 'sales' | 'profit' | 'customers' | 'inventory' | 'staff';
 
-const TABS: { value: TabValue; label: string; icon: typeof IconLayoutDashboard }[] = [
-  { value: 'overview', label: 'Overview', icon: IconLayoutDashboard },
-  { value: 'sales', label: 'Sales', icon: IconShoppingCart },
-  { value: 'profit', label: 'Profit', icon: IconCoin },
-  { value: 'customers', label: 'Customers', icon: IconUsers },
-  { value: 'inventory', label: 'Inventory', icon: IconPackage },
-  { value: 'staff', label: 'Staff', icon: IconUserCheck },
+const TABS: { value: TabValue; label: string }[] = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'profit', label: 'Profit' },
+  { value: 'customers', label: 'Customers' },
+  { value: 'inventory', label: 'Inventory' },
+  { value: 'staff', label: 'Staff' },
 ];
 
 export const AnalyticsReportsPage = () => {
@@ -56,10 +48,18 @@ export const AnalyticsReportsPage = () => {
 
       <AnalyticsFilterBar controller={controller} />
 
-      <Tabs value={tab} onChange={(v) => setTab((v as TabValue) ?? 'overview')}>
+      <Tabs
+        value={tab}
+        onChange={(v) => setTab((v as TabValue) ?? 'overview')}
+        variant="pills"
+        classNames={{
+          list: 'analytics-tabs-list',
+          tab: 'analytics-tabs-tab',
+        }}
+      >
         <Tabs.List grow>
-          {TABS.map(({ value, label, icon: Icon }) => (
-            <Tabs.Tab key={value} value={value} leftSection={<Icon size={16} />}>
+          {TABS.map(({ value, label }) => (
+            <Tabs.Tab key={value} value={value}>
               {t(label)}
             </Tabs.Tab>
           ))}
