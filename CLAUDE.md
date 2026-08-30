@@ -161,6 +161,14 @@ These numbers must come from the backend, never be calculated client-side from a
 - **Axis & tooltip formatting**: Use `moneyFormatter` for monetary values in tooltips, `compactMoney` (`moneyYAxis` / `moneyXAxis`) for tick marks (e.g. `Rs 24k`, `Rs 1.2M`), and `categoryYAxis` for vertical category bar charts.
 - **Donut proportions & legends**: Use `DonutWithLegend` (`src/features/reports/components/DonutWithLegend.tsx`) with fixed geometry tokens (`DONUT.size = 190`, `DONUT.thickness = 32`) and `topSlicesWithOther` to keep slice counts readable (≤6-7 slices) and stack vertically on mobile (`useIsMobile()`).
 
+## Reports & Analytics Engine (Feed)
+
+The reporting subsystem is accelerated by the backend's unified analytical engine (`/api/reports/engine/`):
+
+- **Engine Feed endpoint (`GET /api/reports/engine/feed`)**: Bundles complete section datasets (`overview`, `sales`, `profit`, `customers`, `staff`, `all`) in a single concurrent backend aggregation request (`tokio::try_join!`), eliminating waterfall queries across tabs and reducing frontend roundtrips from 15 to 1.
+- **Unified Query Hook (`useAnalyticsFeed`)**: `useAnalyticsFeed(section, params, optsQuery, enabled)` (`src/features/reports/hooks/useAnalyticsQueries.ts`) is the primary hook for all report section components (`OverviewSection`, `SalesSection`, `ProfitSection`, `CustomersSection`, `StaffSection`), keyed via `queryKeys.reports.feed(section, filters, opts)` in `src/api/queryKeys.ts`.
+- **Cache Invalidation (`POST /api/reports/engine/invalidate`)**: `invalidateEngineCache()` (`src/features/reports/api/analyticsApi.ts`) triggers explicit analytical cache purging on the backend. Billing mutations (`complete_sale`, `void_invoice`, `record_payment`, `create_credit_note`, `void_credit_note`) trigger backend active-period invalidation automatically.
+
 ## Keyboard shortcuts
 
 `useAppShortcuts` (`src/shared/hooks/useShortcuts.ts`) is the single global keyboard-shortcut engine — bind through it rather than a component-local `window.addEventListener('keydown', ...)`. Pass an array of `{ key, handler, ignoreInput?, preventDefault? }` entries; `key` is a combo string like `"Enter"`, `"F2"`, `"Ctrl+D"`, `"Ctrl+Shift+H"`, or `"?"` (`ctrl` matches both `ctrlKey` and `metaKey`, so one combo covers Windows/Linux Ctrl and Mac Cmd).

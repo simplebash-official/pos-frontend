@@ -7,11 +7,7 @@ import { formatDate } from '@/shared/lib/date';
 import { csvRupees } from '@/shared/lib/csv';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import type { AnalyticsRequestParams } from '../../api/analyticsApi';
-import {
-  useAnalyticsReceivablesAging,
-  useAnalyticsTopCustomers,
-  useOutstandingReceivables,
-} from '../../hooks/useAnalyticsQueries';
+import { useAnalyticsFeed, useOutstandingReceivables } from '../../hooks/useAnalyticsQueries';
 import {
   categoryYAxis,
   moneyFormatter,
@@ -33,16 +29,19 @@ export const CustomersSection = ({
   periodLabel: string;
 }) => {
   const [page, setPage] = useState(1);
-  const customers = useAnalyticsTopCustomers(params, 'revenue', active);
-  const aging = useAnalyticsReceivablesAging(active);
+  const feed = useAnalyticsFeed('customers', params, undefined, active);
   const outstanding = useOutstandingReceivables(page, active);
 
-  const customerChart = (customers.data?.customers ?? []).slice(0, 10).map((c) => ({
+  const customers = feed.data?.customers?.topCustomers;
+  const aging = feed.data?.customers?.receivablesAging;
+  const isLoading = feed.isLoading;
+
+  const customerChart = (customers?.customers ?? []).slice(0, 10).map((c) => ({
     name: c.customerName,
     revenue: c.revenueCents / 100,
   }));
 
-  const agingChart = (aging.data?.buckets ?? []).map((b) => ({
+  const agingChart = (aging?.buckets ?? []).map((b) => ({
     label: b.label,
     amount: b.amountCents / 100,
   }));
@@ -80,7 +79,7 @@ export const CustomersSection = ({
         <ChartCard
           title="Top customers"
           subtitle="By revenue this period"
-          loading={customers.isLoading}
+          loading={isLoading}
           empty={customerChart.length === 0}
         >
           <BarChart
@@ -98,7 +97,7 @@ export const CustomersSection = ({
         <ChartCard
           title="Money owed to you"
           subtitle="Unpaid credit invoices by age"
-          loading={aging.isLoading}
+          loading={isLoading}
           empty={agingChart.every((b) => b.amount === 0)}
         >
           <BarChart
@@ -114,9 +113,9 @@ export const CustomersSection = ({
 
       <ReportTable
         title="Top customers"
-        rows={customers.data?.customers ?? []}
+        rows={customers?.customers ?? []}
         keyFor={(r, i) => r.customerKey ?? `cust-${i}`}
-        loading={customers.isLoading}
+        loading={isLoading}
         csvName="top-customers"
         periodLabel={periodLabel}
         columns={[
@@ -158,9 +157,9 @@ export const CustomersSection = ({
 
       <ReportTable
         title="Customers who owe the most (60+ days)"
-        rows={aging.data?.topDebtors ?? []}
+        rows={aging?.topDebtors ?? []}
         keyFor={(r, i) => r.customerKey ?? `debtor-${i}`}
-        loading={aging.isLoading}
+        loading={isLoading}
         csvName="top-debtors"
         periodLabel={periodLabel}
         emptyText="No long-overdue balances"

@@ -69,6 +69,11 @@ export const fetchAnalyticsFeed = (
     groupBy: opts?.groupBy,
   });
 
+export const invalidateEngineCache = () =>
+  apiClient.post<ApiResponse<{ invalidatedKeysCount: number; message: string }>>(
+    '/reports/engine/invalidate'
+  );
+
 // --- Individual endpoints (transparently cached by backend engine) ---------
 
 export const fetchAnalyticsSummary = (p: AnalyticsRequestParams) =>

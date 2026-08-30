@@ -4,11 +4,7 @@ import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import { csvRupees } from '@/shared/lib/csv';
 import type { AnalyticsRequestParams } from '../../api/analyticsApi';
-import {
-  useAnalyticsCashierPerformance,
-  useAnalyticsRefunds,
-  useEmployeeCommissionsRange,
-} from '../../hooks/useAnalyticsQueries';
+import { useAnalyticsFeed, useAnalyticsRefunds } from '../../hooks/useAnalyticsQueries';
 import { moneyFormatter, moneyYAxis, SERIES } from '../../lib/analyticsCharts';
 import { ChartCard } from '../ChartCard';
 import { ReportTable } from '../ReportTable';
@@ -30,16 +26,19 @@ export const StaffSection = ({
   active: boolean;
   periodLabel: string;
 }) => {
-  const cashiers = useAnalyticsCashierPerformance(params, active);
-  const commissions = useEmployeeCommissionsRange(params, active);
+  const feed = useAnalyticsFeed('staff', params, undefined, active);
   const refunds = useAnalyticsRefunds(params, active);
 
-  const cashierChart = (cashiers.data?.cashiers ?? []).map((c) => ({
+  const cashiers = feed.data?.staff?.cashierPerformance;
+  const commissions = feed.data?.staff?.employeeCommissions;
+  const isLoading = feed.isLoading;
+
+  const cashierChart = (cashiers?.cashiers ?? []).map((c) => ({
     name: c.cashierName,
     revenue: c.revenueCents / 100,
   }));
 
-  const commissionChart = (commissions.data?.employees ?? [])
+  const commissionChart = (commissions?.employees ?? [])
     .filter((e) => e.employeeKey)
     .map((e) => ({
       name: e.employeeName,
@@ -50,11 +49,7 @@ export const StaffSection = ({
   return (
     <>
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
-        <ChartCard
-          title="Cashier sales"
-          loading={cashiers.isLoading}
-          empty={cashierChart.length === 0}
-        >
+        <ChartCard title="Cashier sales" loading={isLoading} empty={cashierChart.length === 0}>
           <BarChart
             h={260}
             data={cashierChart}
@@ -68,7 +63,7 @@ export const StaffSection = ({
         <ChartCard
           title="Commission split"
           subtitle="What each employee earned vs the shop's share"
-          loading={commissions.isLoading}
+          loading={isLoading}
           empty={commissionChart.length === 0}
         >
           <BarChart
@@ -89,9 +84,9 @@ export const StaffSection = ({
 
       <ReportTable
         title="Cashier performance"
-        rows={cashiers.data?.cashiers ?? []}
+        rows={cashiers?.cashiers ?? []}
         keyFor={(r) => r.cashierId}
-        loading={cashiers.isLoading}
+        loading={isLoading}
         csvName="cashier-performance"
         periodLabel={periodLabel}
         columns={[
@@ -127,9 +122,9 @@ export const StaffSection = ({
 
       <ReportTable
         title="Employee commissions"
-        rows={commissions.data?.employees ?? []}
+        rows={commissions?.employees ?? []}
         keyFor={(r, i) => r.employeeKey ?? `emp-${i}`}
-        loading={commissions.isLoading}
+        loading={isLoading}
         csvName="employee-commissions"
         periodLabel={periodLabel}
         columns={[
