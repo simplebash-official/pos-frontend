@@ -16,6 +16,7 @@ import {
   fetchEmployeeCommissionsRange,
   fetchInventoryValuation,
   fetchOutstandingReceivables,
+  fetchReminders,
   fetchTopProducts,
   type AnalyticsRequestParams,
 } from '../api/analyticsApi';
@@ -144,6 +145,16 @@ export const useInventoryValuation = (enabled = true) =>
     queryKey: queryKeys.reports.inventoryValuation(),
     queryFn: () => fetchInventoryValuation(),
     ...opts(enabled),
+  });
+
+/** The dashboard's unified reminders feed — polled on the live-pulse cadence. */
+export const useReminders = (dueWithinDays = 7, enabled = true) =>
+  useQuery({
+    queryKey: queryKeys.reports.reminders({ dueWithinDays }),
+    queryFn: () => fetchReminders({ dueWithinDays }),
+    enabled,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 
 export const useEmployeeCommissionsRange = (p: P, enabled = true) =>

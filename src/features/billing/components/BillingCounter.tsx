@@ -56,6 +56,8 @@ export const BillingCounter = () => {
     splitPayments,
     isCredit,
     tenderedAmountCents,
+    creditDepositCents,
+    creditDepositMethod,
     documentSelection,
     dueDate,
     cardRef,
@@ -174,8 +176,12 @@ export const BillingCounter = () => {
         payment: {
           paymentMethod,
           isCredit,
-          amountReceivedCents:
-            paymentMethod === PAYMENT_METHODS.CASH ? tenderedAmountCents : totalCents,
+          amountReceivedCents: isCredit
+            ? Math.min(Math.max(0, creditDepositCents), Math.max(0, totalCents - 1))
+            : paymentMethod === PAYMENT_METHODS.CASH
+              ? tenderedAmountCents
+              : totalCents,
+          depositMethod: isCredit && creditDepositCents > 0 ? creditDepositMethod : undefined,
           splitPayments:
             paymentMethod === PAYMENT_METHODS.SPLIT
               ? splitPayments.map((sp) => ({
@@ -260,6 +266,8 @@ export const BillingCounter = () => {
     splitPayments,
     isCredit,
     tenderedAmountCents,
+    creditDepositCents,
+    creditDepositMethod,
     dueDate,
     documentSelection,
     notes,

@@ -10,6 +10,8 @@ import {
   setDiscount as setDiscountAction,
   setCustomer,
   setTenderedAmountCents,
+  setCreditDepositCents,
+  setCreditDepositMethod,
   setDocumentSelection,
   setDueDate,
   setPaymentMethod,
@@ -42,6 +44,8 @@ import {
   selectSoundEnabled,
   selectCustomerInfo,
   selectTenderedAmountCents,
+  selectCreditDepositCents,
+  selectCreditDepositMethod,
   selectDocumentSelection,
   selectDueDate,
   selectCompletedSale,
@@ -169,6 +173,8 @@ export const useCartCheckout = () => {
   const splitPayments = useAppSelector(selectSplitPayments);
   const isCredit = useAppSelector(selectIsCredit);
   const tenderedAmountCents = useAppSelector(selectTenderedAmountCents);
+  const creditDepositCents = useAppSelector(selectCreditDepositCents);
+  const creditDepositMethod = useAppSelector(selectCreditDepositMethod);
   const documentSelection = useAppSelector(selectDocumentSelection);
   const dueDate = useAppSelector(selectDueDate);
   const cardRef = useAppSelector(selectCardRef);
@@ -190,6 +196,14 @@ export const useCartCheckout = () => {
   const changeIsCredit = useCallback((val: boolean) => dispatch(setIsCredit(val)), [dispatch]);
   const changeTenderedAmountCents = useCallback(
     (cents: number) => dispatch(setTenderedAmountCents(cents)),
+    [dispatch]
+  );
+  const changeCreditDepositCents = useCallback(
+    (cents: number) => dispatch(setCreditDepositCents(cents)),
+    [dispatch]
+  );
+  const changeCreditDepositMethod = useCallback(
+    (method: 'cash' | 'card') => dispatch(setCreditDepositMethod(method)),
     [dispatch]
   );
   const changeDocumentSelection = useCallback(
@@ -220,6 +234,8 @@ export const useCartCheckout = () => {
     splitPayments,
     isCredit,
     tenderedAmountCents,
+    creditDepositCents,
+    creditDepositMethod,
     documentSelection,
     dueDate,
     cardRef,
@@ -233,6 +249,8 @@ export const useCartCheckout = () => {
     changeSplitPayments,
     changeIsCredit,
     changeTenderedAmountCents,
+    changeCreditDepositCents,
+    changeCreditDepositMethod,
     changeDocumentSelection,
     changeDueDate,
     changeCardRef,

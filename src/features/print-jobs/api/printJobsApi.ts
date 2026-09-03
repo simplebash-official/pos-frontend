@@ -31,6 +31,8 @@ export interface BackendPrintJob {
   customerPhone?: string;
   jobType: PrintJobType;
   quantity: number;
+  promisedReadyAt?: string;
+  isOverdue?: boolean;
   status: PrintJob['status'];
   estimatedCostCents: number;
   materialCostCents?: number;
@@ -57,6 +59,8 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   customerPhone: job.customerPhone,
   jobType: job.jobType,
   quantity: job.quantity,
+  promisedReadyAt: job.promisedReadyAt,
+  isOverdue: job.isOverdue,
   status: job.status,
   estimatedCostCents: job.estimatedCostCents,
   materialCostCents: job.materialCostCents,

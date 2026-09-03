@@ -79,6 +79,10 @@ export const PaymentPanel = memo(
       changeSplitPayments,
       isCredit,
       changeIsCredit,
+      creditDepositCents,
+      changeCreditDepositCents,
+      creditDepositMethod,
+      changeCreditDepositMethod,
       cardRef,
       changeCardRef,
       onlineRef,
@@ -272,10 +276,34 @@ export const PaymentPanel = memo(
         splitPayments,
         customerBalanceCents,
         isCredit,
+        creditDepositCents,
       });
-    }, [tenderedRupees, paymentMethod, totalCents, splitPayments, customerBalanceCents, isCredit]);
+    }, [
+      tenderedRupees,
+      paymentMethod,
+      totalCents,
+      splitPayments,
+      customerBalanceCents,
+      isCredit,
+      creditDepositCents,
+    ]);
 
-    const { changeDueCents, shortByCents, isCashShort, isCardShort } = paymentState;
+    const {
+      changeDueCents,
+      shortByCents,
+      isCashShort,
+      isCardShort,
+      creditPaidNowCents,
+      creditRemainderCents,
+    } = paymentState;
+
+    // A card deposit on a credit sale needs the last 4 digits, same as a
+    // pay-now card sale.
+    const isCreditCardDepositMissingDigits =
+      isCredit &&
+      creditDepositMethod === 'card' &&
+      creditPaidNowCents > 0 &&
+      cardRef.trim().length !== 4;
 
     // Default due date calculation (30 days from now)
     const [defaultDueDate] = useState(() => new Date(Date.now() + 30 * 86400000));
@@ -334,6 +362,7 @@ export const PaymentPanel = memo(
     const isButtonDisabled =
       isCartEmpty ||
       isProcessing ||
+      isCreditCardDepositMissingDigits ||
       (totalCents > 0 && paymentMethod === PAYMENT_METHODS.CASH && isCashShort && !isCredit) ||
       (totalCents > 0 &&
         paymentMethod === PAYMENT_METHODS.CARD &&
@@ -408,13 +437,21 @@ export const PaymentPanel = memo(
       { id: PAYMENT_METHODS.SPLIT, label: 'Split', icon: IconArrowsSplit, disabled: false },
     ];
 
-    const newCreditBalanceCents = (customerBalanceCents || 0) + totalCents;
+    const newCreditBalanceCents = (customerBalanceCents || 0) + creditRemainderCents;
 
     // Render Confirmation Card if sale was completed
     if (completedSale) {
       const { invoice, changeDueCents: saleChangeCents } = completedSale;
-      const { isCreditCompleted, heroColor, heroAmountCents, heroCaption, methodLabel } =
-        getSaleHeroPresentation(invoice, saleChangeCents);
+      const {
+        isCreditCompleted,
+        isPartialCredit,
+        paidNowCents,
+        balanceDueCents,
+        heroColor,
+        heroAmountCents,
+        heroCaption,
+        methodLabel,
+      } = getSaleHeroPresentation(invoice, saleChangeCents);
 
       const showReprintAction =
         invoice.documentSelection === 'receipt' ||
@@ -487,6 +524,28 @@ export const PaymentPanel = memo(
                   <Text size="xs" fw={600} c="amber" mt={2}>
                     {t('Payment Due by')} {invoice.dueDate}
                   </Text>
+                )}
+                {isPartialCredit && (
+                  <Group gap="lg" mt={4} justify="center">
+                    <Text size="xs" c="dimmed">
+                      {t('Paid now')}{' '}
+                      <Text span fw={700} c="var(--text-primary)">
+                        {formatMoney(paidNowCents)}
+                      </Text>
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {t('Still owed')}{' '}
+                      <Text span fw={700} c="amber.8">
+                        {formatMoney(balanceDueCents)}
+                      </Text>
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {t('Pay by')}{' '}
+                      <Text span fw={700} c="var(--text-primary)">
+                        {invoice.dueDate || t('Open-ended')}
+                      </Text>
+                    </Text>
+                  </Group>
                 )}
               </Stack>
 
@@ -975,6 +1034,87 @@ export const PaymentPanel = memo(
                     </Group>
                   </Stack>
                 </Paper>
+
+                {/* Amount paid now (optional deposit on the credit sale) */}
+                <Stack gap={4} mt={2}>
+                  <Group justify="space-between" align="center">
+                    <Text
+                      size="xs"
+                      fw={700}
+                      c="dimmed"
+                      tt="uppercase"
+                      style={{ fontSize: 11, letterSpacing: '0.05em' }}
+                    >
+                      {t('Amount paid now')}
+                    </Text>
+                    <SegmentedToggle
+                      size="sm"
+                      value={creditDepositMethod}
+                      onChange={(val) => changeCreditDepositMethod(val as 'cash' | 'card')}
+                      data={[
+                        { label: t('Cash'), value: 'cash' },
+                        { label: t('Card'), value: 'card' },
+                      ]}
+                      style={{ width: 130 }}
+                    />
+                  </Group>
+                  <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+                    {t('Leave empty if the customer pays nothing today')}
+                  </Text>
+
+                  <AmountInput
+                    size="sm"
+                    mode="amount"
+                    placeholder="0"
+                    value={creditDepositCents > 0 ? fromCents(creditDepositCents) : ''}
+                    onChange={(v) => {
+                      const rupees = typeof v === 'number' ? v : 0;
+                      const maxCents = Math.max(0, totalCents - 1);
+                      changeCreditDepositCents(Math.min(Math.round(rupees * 100), maxCents));
+                    }}
+                    maxAmount={Math.max(0, Math.floor((totalCents - 1) / 100))}
+                  />
+
+                  {creditDepositMethod === 'card' && creditPaidNowCents > 0 && (
+                    <TextInput
+                      placeholder={t('Card Last 4 Digits (e.g. 4321)')}
+                      size="sm"
+                      leftSection={<IconCreditCard size={16} />}
+                      maxLength={4}
+                      inputMode="numeric"
+                      value={cardRef}
+                      error={
+                        cardRef && cardRef.trim().length > 0 && cardRef.trim().length < 4
+                          ? t('Please enter all 4 digits')
+                          : undefined
+                      }
+                      onChange={(e) => {
+                        const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 4);
+                        changeCardRef(val);
+                      }}
+                    />
+                  )}
+
+                  {creditPaidNowCents > 0 && (
+                    <Group
+                      justify="space-between"
+                      align="center"
+                      mt={2}
+                      style={{
+                        borderTop:
+                          '1px dashed light-dark(var(--mantine-color-amber-3), rgba(245, 159, 0, 0.3))',
+                        paddingTop: 6,
+                      }}
+                    >
+                      <Text size="xs" c="dimmed">
+                        {t('Paid now')} {formatMoney(creditPaidNowCents)}
+                      </Text>
+                      <Text size="sm" fw={800} c="amber.8" style={{ fontFamily: 'monospace' }}>
+                        {t('Still owed')} {formatMoney(creditRemainderCents)}
+                      </Text>
+                    </Group>
+                  )}
+                </Stack>
 
                 <Stack gap={4} mt={2}>
                   <Group justify="space-between" align="center">
@@ -1560,7 +1700,9 @@ export const PaymentPanel = memo(
                   : isCredit
                     ? confirmCreditRequired
                       ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
-                      : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
+                      : creditPaidNowCents > 0
+                        ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account${checkoutKeyHint}`
+                        : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
                     : isCashShort || isCardShort
                       ? `Short by ${formatMoney(shortByCents)}`
                       : isCardDigitsMissing || isSplitCardDigitsMissing

@@ -9,6 +9,7 @@ import type {
   EmployeeCommissionsReportResponse,
   InventoryValuationResponse,
   OutstandingReceivablesResponse,
+  RemindersResponse,
   ReceivablesAgingResponse,
   RefundAnalyticsResponse,
   SalesByCategoryResponse,
@@ -142,6 +143,12 @@ export const fetchOutstandingReceivables = (opts?: {
   get<OutstandingReceivablesResponse>('/reports/outstanding', {
     search: opts?.search,
     page: opts?.page,
+    limit: opts?.limit,
+  });
+
+export const fetchReminders = (opts?: { dueWithinDays?: number; limit?: number }) =>
+  get<RemindersResponse>('/reports/reminders', {
+    dueWithinDays: opts?.dueWithinDays,
     limit: opts?.limit,
   });
 

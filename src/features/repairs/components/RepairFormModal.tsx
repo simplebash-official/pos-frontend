@@ -15,6 +15,7 @@ import {
   Alert,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { DateInput } from '@mantine/dates';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import {
   IconUser,
@@ -190,6 +191,23 @@ export const RepairFormModal = ({
             rows={2}
             required
             {...form.getInputProps('issueDescription')}
+          />
+
+          <DateInput
+            label={t('Promised ready by')}
+            placeholder={t('Pick a date (optional)')}
+            clearable
+            popoverProps={{ width: 'target' }}
+            value={form.values.promisedReadyAt ? new Date(form.values.promisedReadyAt) : null}
+            onChange={(d: Date | string | null) => {
+              if (!d) {
+                form.setFieldValue('promisedReadyAt', null);
+              } else if (typeof d === 'string') {
+                form.setFieldValue('promisedReadyAt', d.slice(0, 10));
+              } else {
+                form.setFieldValue('promisedReadyAt', d.toISOString().split('T')[0]);
+              }
+            }}
           />
 
           {/* Pricing & Cost */}

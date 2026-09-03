@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Paper, Stack, Group, Text, Select, Badge, Button } from '@mantine/core';
 import {
   IconSearch,
@@ -92,6 +93,25 @@ export const InvoicesList = () => {
   // Selected invoice drawer
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
+  const [openPaymentOnMount, setOpenPaymentOnMount] = useState(false);
+
+  // Deep link from the dashboard reminders: /invoices?invoiceKey=<key>&action=recordPayment
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const key = searchParams.get('invoiceKey');
+    if (!key) return;
+    const match = invoices.find((inv) => inv.id === key);
+    if (!match) return;
+    // Syncing a URL param into local UI state is a legitimate effect use here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedInvoice(match);
+    setOpenPaymentOnMount(searchParams.get('action') === 'recordPayment');
+    setDrawerOpened(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('invoiceKey');
+    next.delete('action');
+    setSearchParams(next, { replace: true });
+  }, [invoices, searchParams, setSearchParams]);
 
   const liveSelectedInvoice = useMemo(() => {
     if (!selectedInvoice) return null;
@@ -398,8 +418,12 @@ export const InvoicesList = () => {
       {/* Drawer */}
       <InvoiceDetailDrawer
         opened={drawerOpened}
-        onClose={() => setDrawerOpened(false)}
+        onClose={() => {
+          setDrawerOpened(false);
+          setOpenPaymentOnMount(false);
+        }}
         invoice={liveSelectedInvoice}
+        openPaymentModalOnMount={openPaymentOnMount}
       />
     </>
   );

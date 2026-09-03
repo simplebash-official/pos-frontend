@@ -42,6 +42,8 @@ export interface CompleteSalePaymentInput {
   paymentMethod: string;
   isCredit?: boolean;
   amountReceivedCents?: number;
+  /** Credit sale only: how an up-front partial payment was taken ('cash' | 'card'). */
+  depositMethod?: string;
   splitPayments?: CompleteSaleSplitPaymentInput[];
   cardLast4?: string;
   cardRef?: string;

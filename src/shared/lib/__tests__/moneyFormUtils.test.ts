@@ -51,6 +51,7 @@ describe('moneyFormUtils conversions', () => {
         customerPhone: '0771234567',
         deviceModel: 'iPhone 13',
         issueDescription: 'Cracked screen',
+        promisedReadyAt: '2026-09-15',
         status: 'in_repair',
         estimatedPriceRupees: 150.5,
         materialCostRupees: 50.25,
@@ -64,6 +65,7 @@ describe('moneyFormUtils conversions', () => {
       expect(input.estimatedCostCents).toBe(15050);
       expect(input.materialCostCents).toBe(5025);
       expect(input.assignment?.splitValue).toBe(2000); // 20 rupees -> 2000 cents
+      expect(input.promisedReadyAt).toBe('2026-09-15');
     });
   });
 
@@ -82,6 +84,7 @@ describe('moneyFormUtils conversions', () => {
         customerPhone: '0712345678',
         jobType: 't-shirt',
         quantity: 5,
+        promisedReadyAt: null,
         status: 'ready',
         estimatedPriceRupees: 1000,
         materialCostRupees: 400,

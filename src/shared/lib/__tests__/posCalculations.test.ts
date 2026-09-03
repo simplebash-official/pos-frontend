@@ -173,6 +173,53 @@ describe('posCalculations Engine', () => {
       expect(result.isSplitValid).toBe(true);
       expect(result.isFullyPaid).toBe(true);
     });
+
+    it('splits a credit sale into a deposit paid now and a remainder on account', () => {
+      const result = calculatePaymentState({
+        totalCents: 150000,
+        tenderedAmountCents: 0,
+        paymentMethod: 'credit',
+        isCredit: true,
+        creditDepositCents: 50000,
+        customerBalanceCents: 20000,
+      });
+
+      expect(result.creditPaidNowCents).toBe(50000);
+      expect(result.creditRemainderCents).toBe(100000);
+      expect(result.newCustomerBalanceCents).toBe(120000); // prior 20000 + 100000 remainder
+      expect(result.effectiveTenderedCents).toBe(0);
+    });
+
+    it('clamps a credit deposit that meets or exceeds the total', () => {
+      const result = calculatePaymentState({
+        totalCents: 150000,
+        tenderedAmountCents: 0,
+        paymentMethod: 'credit',
+        isCredit: true,
+        creditDepositCents: 200000,
+      });
+
+      expect(result.creditPaidNowCents).toBe(150000);
+      expect(result.creditRemainderCents).toBe(0);
+    });
+
+    it('a zero-deposit credit sale is identical to plain credit (regression guard)', () => {
+      const base = {
+        totalCents: 150000,
+        tenderedAmountCents: 0,
+        paymentMethod: 'credit',
+        isCredit: true,
+        customerBalanceCents: 30000,
+      } as const;
+
+      const withField = calculatePaymentState({ ...base, creditDepositCents: 0 });
+      const withoutField = calculatePaymentState(base);
+
+      expect(withField.newCustomerBalanceCents).toBe(180000);
+      expect(withField.newCustomerBalanceCents).toBe(withoutField.newCustomerBalanceCents);
+      expect(withField.creditPaidNowCents).toBe(0);
+      expect(withField.creditRemainderCents).toBe(150000);
+    });
   });
 
   describe('calculateQuickTenderSuggestions', () => {

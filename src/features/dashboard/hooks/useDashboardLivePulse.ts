@@ -7,6 +7,10 @@ import { useAllRepairs } from '@/features/repairs/hooks/useRepairs';
 import { useAllPrintJobs } from '@/features/print-jobs/hooks/usePrintJobs';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
+import { useReminders } from '@/features/reports/hooks/useAnalyticsQueries';
+import { t } from '@/shared/i18n/t';
+import { formatMoney } from '@/shared/lib/money';
+import type { ReminderEntry } from '@/features/reports/types';
 import { JOB_STATUS } from '@/constants/jobs';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
 import { formatRelativeTime } from '@/shared/lib/date';
@@ -152,10 +156,17 @@ export const computeDashboardData = ({
         else if (split.method === 'card') cardSalesCents += split.amountCents || 0;
         else if (split.method === 'online') onlineSalesCents += split.amountCents || 0;
       }
+    } else if (inv.isCredit) {
+      // A credit sale's up-front deposit is real money in the till. Bucket
+      // it by card vs cash using the last-4 the invoice carries for a card
+      // deposit (nothing recorded ⇒ nothing collected up front).
+      const deposit = inv.amountReceivedCents || 0;
+      if (deposit > 0) {
+        if (inv.cardLast4) cardSalesCents += deposit;
+        else cashSalesCents += deposit;
+      }
     } else {
-      const collected = inv.isCredit
-        ? inv.amountReceivedCents || 0
-        : inv.amountReceivedCents || inv.totalCents || 0;
+      const collected = inv.amountReceivedCents || inv.totalCents || 0;
       if (inv.paymentMethod === 'cash') cashSalesCents += collected;
       else if (inv.paymentMethod === 'card') cardSalesCents += collected;
       else if (inv.paymentMethod === 'online') onlineSalesCents += collected;
@@ -236,33 +247,10 @@ export const computeDashboardData = ({
     });
   }
 
-  // C) Overdue Credit Invoices
-  for (const inv of invoices) {
-    if (
-      inv.isCredit &&
-      inv.status !== 'paid' &&
-      inv.status !== 'voided' &&
-      inv.dueDate &&
-      dayjs(inv.dueDate).isBefore(now, 'day')
-    ) {
-      const daysOverdue = now.diff(dayjs(inv.dueDate), 'day');
-      const balance = (inv.totalCents || 0) - (inv.amountReceivedCents || 0);
-      urgentActions.push({
-        id: `credit-${inv.id}`,
-        type: 'credit_overdue',
-        title: `Credit Overdue: ${inv.customerName || 'Customer'}`,
-        subtitle: `Overdue balance of Rs. ${(balance / 100).toLocaleString()} · Due date was ${dayjs(inv.dueDate).format('DD MMM YYYY')}`,
-        severity: daysOverdue > 7 ? 'critical' : 'warning',
-        timestamp: `${daysOverdue}d overdue`,
-        referenceId: inv.invoiceNumber,
-        customerName: inv.customerName,
-        customerPhone: inv.customerPhone,
-        amountCents: balance,
-        actionLabel: 'Record Payment',
-        linkTo: '/invoices',
-      });
-    }
-  }
+  // Credit-sale and repair/print "due" reminders come from the server-side
+  // `/reports/reminders` feed (installment-aware balances, a "due soon" lead
+  // window, one place for all of it) — merged in by `useDashboardLivePulse`,
+  // not computed here.
 
   // -----------------------------------------------------------------------
   // 5. Service Pipelines
@@ -502,6 +490,48 @@ export const computeDashboardData = ({
 /** Poll interval for a near-real-time feel without a dedicated push channel. */
 const LIVE_PULSE_REFETCH_MS = 30_000;
 
+const REMINDER_TYPE: Record<ReminderEntry['kind'], UrgentActionItem['type']> = {
+  credit_overdue: 'credit_overdue',
+  credit_due_soon: 'credit_due_soon',
+  job_overdue: 'overdue_repair',
+  job_due_soon: 'due_soon_job',
+};
+
+/** Maps the server reminders feed into the dashboard's urgent-action rows. */
+export const toReminderItems = (reminders: ReminderEntry[] | undefined): UrgentActionItem[] => {
+  if (!reminders) return [];
+  return reminders.map((r) => {
+    const isCredit = r.kind === 'credit_overdue' || r.kind === 'credit_due_soon';
+    const isOverdue = r.kind === 'credit_overdue' || r.kind === 'job_overdue';
+    const titlePrefix = isCredit
+      ? isOverdue
+        ? t('Payment overdue')
+        : t('Payment due soon')
+      : isOverdue
+        ? t('Job overdue')
+        : t('Job due soon');
+    const owedLabel = isCredit ? t('Still owed') : t('Estimate');
+    const timing = isOverdue
+      ? `${r.daysFromDue} ${t('days overdue')}`
+      : `${t('due in')} ${Math.abs(r.daysFromDue)} ${t('days')}`;
+    return {
+      id: `${r.kind}-${r.key}`,
+      type: REMINDER_TYPE[r.kind],
+      title: `${titlePrefix}: ${r.title}`,
+      subtitle: `${owedLabel} ${formatMoney(r.amountCents)} · ${timing}`,
+      severity: r.severity,
+      timestamp: timing,
+      referenceId: r.referenceNumber,
+      referenceKey: r.key,
+      customerName: r.customerName,
+      customerPhone: r.customerPhone,
+      amountCents: r.amountCents,
+      actionLabel: isCredit ? t('Record Payment') : t('Open Job'),
+      linkTo: r.linkTo,
+    };
+  });
+};
+
 export const useDashboardLivePulse = () => {
   const queryClient = useQueryClient();
   const invoicesQuery = useAllInvoices();
@@ -509,24 +539,31 @@ export const useDashboardLivePulse = () => {
   const printJobsQuery = useAllPrintJobs();
   const productsQuery = useAllProducts();
   const employeesQuery = useAllEmployees();
+  const remindersQuery = useReminders();
 
-  const data = useMemo(
-    () =>
-      computeDashboardData({
-        invoices: invoicesQuery.data,
-        repairs: repairsQuery.data,
-        printJobs: printJobsQuery.data,
-        products: productsQuery.data,
-        employees: employeesQuery.data,
-      }),
-    [
-      invoicesQuery.data,
-      repairsQuery.data,
-      printJobsQuery.data,
-      productsQuery.data,
-      employeesQuery.data,
-    ]
-  );
+  const data = useMemo(() => {
+    const computed = computeDashboardData({
+      invoices: invoicesQuery.data,
+      repairs: repairsQuery.data,
+      printJobs: printJobsQuery.data,
+      products: productsQuery.data,
+      employees: employeesQuery.data,
+    });
+    return {
+      ...computed,
+      urgentActions: [
+        ...computed.urgentActions,
+        ...toReminderItems(remindersQuery.data?.reminders),
+      ],
+    };
+  }, [
+    invoicesQuery.data,
+    repairsQuery.data,
+    printJobsQuery.data,
+    productsQuery.data,
+    employeesQuery.data,
+    remindersQuery.data,
+  ]);
 
   const isLoading =
     invoicesQuery.isLoading ||
@@ -540,7 +577,8 @@ export const useDashboardLivePulse = () => {
     repairsQuery.error ||
     printJobsQuery.error ||
     productsQuery.error ||
-    employeesQuery.error;
+    employeesQuery.error ||
+    remindersQuery.error;
 
   const refresh = useCallback(async () => {
     await Promise.all([
@@ -549,6 +587,7 @@ export const useDashboardLivePulse = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.reminders() }),
     ]);
   }, [queryClient]);
 

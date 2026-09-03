@@ -34,6 +34,8 @@ export interface BackendRepair {
   deviceModel: string;
   serialNumber?: string;
   issueDescription: string;
+  promisedReadyAt?: string;
+  isOverdue?: boolean;
   status: RepairJob['status'];
   estimatedCostCents?: number;
   materialCostCents?: number;
@@ -65,6 +67,8 @@ export const toRepairJob = (repair: BackendRepair): RepairJob => ({
   deviceModel: repair.deviceModel,
   serialNumber: repair.serialNumber,
   issueDescription: repair.issueDescription,
+  promisedReadyAt: repair.promisedReadyAt,
+  isOverdue: repair.isOverdue,
   status: repair.status,
   estimatedCostCents: repair.estimatedCostCents,
   materialCostCents: repair.materialCostCents,

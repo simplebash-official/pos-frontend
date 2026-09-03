@@ -8,6 +8,7 @@ export interface RepairFormValues {
   customerPhone: string;
   deviceModel: string;
   issueDescription: string;
+  promisedReadyAt: string | null;
   status: RepairJob['status'];
   estimatedPriceRupees: number | string;
   materialCostRupees: number | string;
@@ -24,6 +25,7 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
       customerPhone: '',
       deviceModel: '',
       issueDescription: '',
+      promisedReadyAt: null,
       status: 'received',
       estimatedPriceRupees: '',
       materialCostRupees: '',
@@ -36,6 +38,7 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
     customerPhone: job.customerPhone,
     deviceModel: job.deviceModel,
     issueDescription: job.issueDescription,
+    promisedReadyAt: job.promisedReadyAt ?? null,
     status: job.status,
     estimatedPriceRupees:
       job.estimatedCostCents !== undefined ? fromCents(job.estimatedCostCents) : '',
@@ -70,6 +73,7 @@ export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
       : undefined,
     deviceModel: form.deviceModel,
     issueDescription: form.issueDescription,
+    promisedReadyAt: form.promisedReadyAt || undefined,
     status: form.status,
     estimatedCostCents: rupeesFieldToCents(form.estimatedPriceRupees),
     materialCostCents: rupeesFieldToCents(form.materialCostRupees),
@@ -81,6 +85,7 @@ export interface PrintJobFormValues {
   customerPhone: string;
   jobType: PrintJob['jobType'];
   quantity: number | string;
+  promisedReadyAt: string | null;
   status: PrintJob['status'];
   estimatedPriceRupees: number | string;
   materialCostRupees: number | string;
@@ -97,6 +102,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
       customerPhone: '',
       jobType: 'mug',
       quantity: 1,
+      promisedReadyAt: null,
       status: 'received',
       estimatedPriceRupees: '',
       materialCostRupees: '',
@@ -109,6 +115,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
     customerPhone: job.customerPhone || '',
     jobType: job.jobType,
     quantity: job.quantity,
+    promisedReadyAt: job.promisedReadyAt ?? null,
     status: job.status,
     estimatedPriceRupees: fromCents(job.estimatedCostCents),
     materialCostRupees: job.materialCostCents ? fromCents(job.materialCostCents) : '',
@@ -139,6 +146,7 @@ export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
       : undefined,
     jobType: form.jobType,
     quantity: Number(form.quantity) || 1,
+    promisedReadyAt: form.promisedReadyAt || undefined,
     status: form.status,
     estimatedCostCents: toCents(Number(form.estimatedPriceRupees) || 0),
     materialCostCents: toCents(Number(form.materialCostRupees) || 0),
