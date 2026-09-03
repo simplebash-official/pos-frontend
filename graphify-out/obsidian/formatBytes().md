@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/sync/components/SyncPanel.tsx'
-type: 'code'
-community: 'Settings - SyncDrawer'
-location: 'L50'
+source_file: "src/features/sync/components/SyncPanel.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L54"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_SyncDrawer
+  - community/useCategoriests
 ---
 
 # formatBytes()
 
 ## Connections
-
 - [[SyncPanel()]] - `calls` [EXTRACTED]
 - [[SyncPanel.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

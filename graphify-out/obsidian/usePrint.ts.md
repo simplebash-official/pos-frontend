@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/hooks/usePrint.ts'
-type: 'code'
-community: 'Billing - getInvoiceDocument'
-location: 'L1'
+source_file: "src/features/billing/hooks/usePrint.ts"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_getInvoiceDocument
+  - community/useSupplierProductsts
 ---
 
 # usePrint.ts
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[billingtypes.ts]] - `imports_from` [EXTRACTED]
@@ -28,4 +27,4 @@ tags:
 - [[useAppSelector]] - `imports` [EXTRACTED]
 - [[usePrint()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

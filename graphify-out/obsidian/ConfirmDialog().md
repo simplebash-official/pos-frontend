@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/ConfirmDialog.tsx'
-type: 'code'
-community: 'Suppliers - useSetSupplierLinks'
-location: 'L16'
+source_file: "src/shared/components/ConfirmDialog.tsx"
+type: "code"
+community: "useAnalyticsQueries.ts"
+location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_useSetSupplierLinks
+  - community/useAnalyticsQueriests
 ---
 
 # ConfirmDialog()
 
 ## Connections
-
 - [[CartPanel.tsx]] - `imports` [EXTRACTED]
 - [[ConfirmDialog.tsx]] - `contains` [EXTRACTED]
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
@@ -22,5 +21,6 @@ tags:
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
+- [[UsersList.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks
+#graphify/code #graphify/EXTRACTED #community/useAnalyticsQueriests

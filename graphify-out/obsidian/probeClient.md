@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/connectivity/healthProbe.ts'
-type: 'code'
-community: 'Offline Sync - constructor'
-location: 'L13'
+source_file: "src/offline/connectivity/healthProbe.ts"
+type: "code"
+community: "router.tsx"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_constructor
+  - community/routertsx
 ---
 
 # probeClient
 
 ## Connections
-
 - [[healthProbe.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor
+#graphify/code #graphify/EXTRACTED #community/routertsx

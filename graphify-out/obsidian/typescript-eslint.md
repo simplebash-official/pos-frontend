@@ -1,19 +1,18 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'Dependencies - typescript eslint'
-location: 'L33'
+source_file: "package.json"
+type: "code"
+community: "devDependencies"
+location: "L42"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dependencies_-_typescript_eslint
+  - community/devDependencies
 ---
 
 # typescript-eslint
 
 ## Connections
-
 - [[devDependencies]] - `contains` [EXTRACTED]
 - [[typescript-eslint_1]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dependencies_-_typescript_eslint
+#graphify/code #graphify/EXTRACTED #community/devDependencies

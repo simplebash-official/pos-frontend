@@ -1,21 +1,20 @@
 ---
-source_file: 'src/features/inventory/hooks/useProducts.ts'
-type: 'code'
-community: 'Inventory - ProductTable'
-location: 'L81'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L105"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_ProductTable
+  - community/CatalogPaneltsx
 ---
 
 # useUpdateProduct()
 
 ## Connections
-
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
+- [[updateProduct()]] - `calls` [EXTRACTED]
 - [[useProducts.ts]] - `contains` [EXTRACTED]
-- [[useSyncedMutation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

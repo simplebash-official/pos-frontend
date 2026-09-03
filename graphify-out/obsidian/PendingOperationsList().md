@@ -1,23 +1,21 @@
 ---
-source_file: 'src/features/sync/components/PendingOperationsList.tsx'
-type: 'code'
-community: 'Inventory - StockMovement'
-location: 'L29'
+source_file: "src/features/sync/components/PendingOperationsList.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_StockMovement
+  - community/useCategoriests
 ---
 
 # PendingOperationsList()
 
 ## Connections
-
 - [[PendingOperationsList.tsx]] - `contains` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
-- [[discardOperation()]] - `calls` [EXTRACTED]
 - [[formatDateTime()]] - `calls` [EXTRACTED]
-- [[retryOperation()]] - `calls` [EXTRACTED]
 - [[syncindex.ts]] - `re_exports` [EXTRACTED]
+- [[t()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/BillingRegions.tsx'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L1'
+source_file: "src/features/billing/components/BillingRegions.tsx"
+type: "code"
+community: "ai-application.md"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/ai-applicationmd
 ---
 
 # BillingRegions.tsx
 
 ## Connections
-
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingPane]] - `imports` [EXTRACTED]
 - [[BillingRegions]] - `contains` [EXTRACTED]
@@ -22,9 +21,10 @@ tags:
 - [[BillingTabBar.tsx]] - `imports_from` [EXTRACTED]
 - [[CartPanel]] - `imports` [EXTRACTED]
 - [[CartPanel.tsx]] - `imports_from` [EXTRACTED]
+- [[CatalogMode]] - `imports` [EXTRACTED]
 - [[CatalogPanel]] - `imports` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
-- [[FILL]] - `contains` [EXTRACTED]
+- [[FILL_1]] - `contains` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `imports` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `imports_from` [EXTRACTED]
@@ -35,4 +35,4 @@ tags:
 - [[useLayoutTier()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/ai-applicationmd

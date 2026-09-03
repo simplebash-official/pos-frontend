@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierPickerModal.tsx'
-type: 'code'
-community: 'Suppliers - useSetSupplierLinks'
-location: 'L34'
+source_file: "src/features/suppliers/components/SupplierPickerModal.tsx"
+type: "code"
+community: "calculator/index.ts"
+location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_useSetSupplierLinks
+  - community/calculator/indexts
 ---
 
 # SupplierPickerModalProps
 
 ## Connections
-
 - [[SupplierPickerModal.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks
+#graphify/code #graphify/EXTRACTED #community/calculator/indexts

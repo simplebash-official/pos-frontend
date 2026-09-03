@@ -1,20 +1,19 @@
 ---
-source_file: 'src/shared/hooks/useShortcuts.ts'
-type: 'code'
-community: 'Billing - getInvoiceDocument'
-location: 'L70'
+source_file: "src/shared/hooks/useShortcuts.ts"
+type: "code"
+community: "CLAUDE.md"
+location: "L70"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_getInvoiceDocument
+  - community/CLAUDEmd
 ---
 
 # useAppShortcuts()
 
 ## Connections
-
-- [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
-- [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
+- [[AnalyticsReportPreviewModal()]] - `calls` [EXTRACTED]
+- [[AnalyticsReportPreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[AppShell()]] - `calls` [EXTRACTED]
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[BillingCounter()]] - `calls` [EXTRACTED]
@@ -24,6 +23,7 @@ tags:
 - [[SaleDocumentPreviewModal()]] - `calls` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[handleKeyDown()]] - `indirect_call` [INFERRED]
+- [[useShortcuts.test.ts]] - `imports` [EXTRACTED]
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

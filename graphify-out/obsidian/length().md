@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/__tests__/setup.ts'
-type: 'code'
-community: 'Offline Sync - length'
-location: 'L18'
+source_file: "src/setupTests.ts"
+type: "code"
+community: "ResizeObserverMock"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_length
+  - community/ResizeObserverMock
 ---
 
 # length()
 
 ## Connections
+- [[setupTests.ts]] - `contains` [EXTRACTED]
 
-- [[setup.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_length
+#graphify/code #graphify/EXTRACTED #community/ResizeObserverMock

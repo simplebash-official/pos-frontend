@@ -1,19 +1,18 @@
 ---
-source_file: 'src/app/router.tsx'
-type: 'code'
-community: 'Billing - SettingsPage'
-location: 'L48'
+source_file: "src/app/router.tsx"
+type: "code"
+community: "SaleDocumentPreviewModal.tsx"
+location: "L64"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_SettingsPage
+  - community/SaleDocumentPreviewModaltsx
 ---
 
 # StandalonePrintView
 
 ## Connections
-
 - [[StandalonePrintView.tsx]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage
+#graphify/code #graphify/EXTRACTED #community/SaleDocumentPreviewModaltsx

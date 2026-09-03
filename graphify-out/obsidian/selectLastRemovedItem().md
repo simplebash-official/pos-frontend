@@ -1,20 +1,19 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L511'
+source_file: "src/store/slices/cartSlice.ts"
+type: "code"
+community: "cartSlice.ts"
+location: "L565"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/cartSlicets
 ---
 
 # selectLastRemovedItem()
 
 ## Connections
-
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 - [[useCartItems()]] - `indirect_call` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/cartSlicets

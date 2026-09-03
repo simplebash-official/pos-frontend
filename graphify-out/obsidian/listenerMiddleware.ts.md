@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/listenerMiddleware.ts'
-type: 'code'
-community: 'Notifications - initialState'
-location: 'L1'
+source_file: "src/store/listenerMiddleware.ts"
+type: "code"
+community: "authSlice.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications_-_initialState
+  - community/authSlicets
 ---
 
 # listenerMiddleware.ts
 
 ## Connections
-
 - [[HELD_CART_REMINDER_MS]] - `imports` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
 - [[RootState]] - `imports` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 - [[themeSlice.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState
+#graphify/code #graphify/EXTRACTED #community/authSlicets

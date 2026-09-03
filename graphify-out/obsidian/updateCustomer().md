@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/customers/api/customersApi.ts'
-type: 'code'
-community: 'Customers - createCustomer'
-location: 'L54'
+source_file: "src/features/customers/api/customersApi.ts"
+type: "code"
+community: "CustomerList.tsx"
+location: "L53"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Customers_-_createCustomer
+  - community/CustomerListtsx
 ---
 
 # updateCustomer()
 
 ## Connections
-
-- [[customers.resource.ts]] - `imports` [EXTRACTED]
 - [[customersApi.ts]] - `contains` [EXTRACTED]
-- [[customersResource]] - `calls` [EXTRACTED]
+- [[useCustomers.ts]] - `imports` [EXTRACTED]
+- [[useUpdateCustomer()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Customers_-_createCustomer
+#graphify/code #graphify/EXTRACTED #community/CustomerListtsx

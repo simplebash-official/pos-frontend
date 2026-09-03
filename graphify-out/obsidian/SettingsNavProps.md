@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/settings/components/SettingsNav.tsx'
-type: 'code'
-community: 'Settings - ACCEPTED TYPES'
-location: 'L4'
+source_file: "src/features/settings/components/SettingsNav.tsx"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_ACCEPTED_TYPES
+  - community/useSupplierProductsts
 ---
 
 # SettingsNavProps
 
 ## Connections
-
 - [[SettingsNav.tsx]] - `contains` [EXTRACTED]
 - [[SettingsSectionId]] - `references` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

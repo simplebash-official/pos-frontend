@@ -1,25 +1,19 @@
 ---
-source_file: 'src/features/employees/api/mockEmployees.ts'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L111'
+source_file: "src/features/employees/api/employeesApi.ts"
+type: "code"
+community: "verify-claim.mjs"
+location: "L12"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Employees_-_createEmployee
+  - graphify/EXTRACTED
+  - community/verify-claimmjs
 ---
 
 # fetchEmployees()
 
 ## Connections
+- [[employeesApi.ts]] - `contains` [EXTRACTED]
+- [[useAllEmployees()]] - `calls` [EXTRACTED]
+- [[useEmployees.ts]] - `imports` [EXTRACTED]
 
-- [[dot-getAll()]] - `calls` [INFERRED]
-- [[EmployeeList()]] - `indirect_call` [INFERRED]
-- [[EmployeeList.tsx]] - `imports` [EXTRACTED]
-- [[PrintJobFormModal.tsx]] - `indirect_call` [INFERRED]
-- [[RepairFormModal.tsx]] - `indirect_call` [INFERRED]
-- [[ReportsDashboard()]] - `indirect_call` [INFERRED]
-- [[ReportsDashboard.tsx]] - `imports` [EXTRACTED]
-- [[mockEmployees.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/INFERRED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/verify-claimmjs

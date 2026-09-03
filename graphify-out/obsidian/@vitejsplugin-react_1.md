@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - eslint'
-location: 'L21'
+source_file: "package.json"
+type: "concept"
+community: "verifyNextCacheComponentsRouteChainFile"
+location: "L24"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_eslint
+  - community/verifyNextCacheComponentsRouteChainFile
 ---
 
 # @vitejs/plugin-react
 
 ## Connections
-
 - [[@vitejsplugin-react]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_eslint
+#graphify/concept #graphify/EXTRACTED #community/verifyNextCacheComponentsRouteChainFile

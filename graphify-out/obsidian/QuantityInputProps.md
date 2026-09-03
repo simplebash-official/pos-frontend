@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/QuantityInput.tsx'
-type: 'code'
-community: 'Inventory - ProductTable'
-location: 'L4'
+source_file: "src/shared/components/QuantityInput.tsx"
+type: "code"
+community: "LocalStorageStore"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_ProductTable
+  - community/LocalStorageStore
 ---
 
 # QuantityInputProps
 
 ## Connections
-
 - [[QuantityInput.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable
+#graphify/code #graphify/EXTRACTED #community/LocalStorageStore

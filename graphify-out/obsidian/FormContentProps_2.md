@@ -1,21 +1,19 @@
 ---
-source_file: 'src/features/inventory/components/ProductFormModal.tsx'
-type: 'code'
-community: 'Inventory - adjustStock'
-location: 'L57'
+source_file: "src/features/suppliers/components/SupplierFormModal.tsx"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L52"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_adjustStock
+  - community/CreditNoteModaltsx
 ---
 
 # FormContentProps
 
 ## Connections
+- [[Supplier]] - `references` [EXTRACTED]
+- [[SupplierFormModal.tsx]] - `contains` [EXTRACTED]
+- [[SupplierInput]] - `references` [EXTRACTED]
 
-- [[CreateProductInput]] - `references` [EXTRACTED]
-- [[Product]] - `references` [EXTRACTED]
-- [[ProductFormModal.tsx]] - `contains` [EXTRACTED]
-- [[UpdateProductInput]] - `references` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

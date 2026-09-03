@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/tablerIcons.ts'
-type: 'code'
-community: 'Shared UI - TablerIconPicker'
-location: 'L28'
+source_file: "src/offline/connectivity/networkSignal.ts"
+type: "code"
+community: "router.tsx"
+location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_TablerIconPicker
+  - community/routertsx
 ---
 
 # listeners
 
 ## Connections
+- [[networkSignal.ts]] - `contains` [EXTRACTED]
 
-- [[tablerIcons.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker
+#graphify/code #graphify/EXTRACTED #community/routertsx

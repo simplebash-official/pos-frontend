@@ -1,22 +1,27 @@
 ---
-source_file: 'src/shared/lib/date.ts'
-type: 'code'
-community: 'Billing - fetchInvoices'
-location: 'L11'
+source_file: "src/shared/lib/date.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_fetchInvoices
+  - community/useCategoriests
 ---
 
 # formatDateTime()
 
 ## Connections
-
+- [[AnalyticsReportPreviewModal()]] - `calls` [EXTRACTED]
+- [[AnalyticsReportPreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerDetailDrawer()]] - `calls` [EXTRACTED]
 - [[CustomerDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeDetailDrawer()]] - `calls` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `imports` [EXTRACTED]
+- [[InvoiceDetailDrawer()]] - `calls` [EXTRACTED]
+- [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
+- [[MetricCard.tsx]] - `imports` [EXTRACTED]
+- [[MetricCardRow()]] - `calls` [EXTRACTED]
 - [[PendingOperationsList()]] - `calls` [EXTRACTED]
 - [[PendingOperationsList.tsx]] - `imports` [EXTRACTED]
 - [[ProductCatalogTree]] - `calls` [EXTRACTED]
@@ -33,6 +38,7 @@ tags:
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
 - [[SyncStatusBadge()]] - `calls` [EXTRACTED]
 - [[SyncStatusBadge.tsx]] - `imports` [EXTRACTED]
+- [[date.test.ts]] - `imports` [EXTRACTED]
 - [[date.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

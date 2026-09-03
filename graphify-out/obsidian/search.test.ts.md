@@ -1,20 +1,20 @@
 ---
-source_file: 'src/shared/lib/__tests__/search.test.ts'
-type: 'code'
-community: 'Shared UI - mergeByCategory'
-location: 'L1'
+source_file: "src/shared/lib/__tests__/search.test.ts"
+type: "code"
+community: "searchFields.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_mergeByCategory
+  - community/searchFieldsts
 ---
 
 # search.test.ts
 
 ## Connections
-
 - [[FIELDS]] - `contains` [EXTRACTED]
-- [[Row]] - `contains` [EXTRACTED]
+- [[InvoiceRow]] - `contains` [EXTRACTED]
+- [[Row_1]] - `contains` [EXTRACTED]
 - [[SearchField]] - `imports` [EXTRACTED]
 - [[buildSearchIndex()]] - `imports` [EXTRACTED]
 - [[getMatchRanges()]] - `imports` [EXTRACTED]
@@ -25,4 +25,4 @@ tags:
 - [[searchIndex]] - `imports` [EXTRACTED]
 - [[tokenizeQuery()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory
+#graphify/code #graphify/EXTRACTED #community/searchFieldsts

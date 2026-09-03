@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Settings - ACCEPTED TYPES'
-location: 'L165'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L175"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_ACCEPTED_TYPES
+  - community/useSupplierProductsts
 ---
 
 # selectPrintSettings()
 
 ## Connections
-
 - [[BankDetailsSection()]] - `indirect_call` [INFERRED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `indirect_call` [INFERRED]
@@ -21,8 +20,9 @@ tags:
 - [[PrintingSection.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal()]] - `indirect_call` [INFERRED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports` [EXTRACTED]
+- [[settingsSlice.test.ts]] - `imports` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]
 - [[usePrint()]] - `indirect_call` [INFERRED]
 - [[usePrint.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

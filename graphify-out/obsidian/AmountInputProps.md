@@ -1,19 +1,18 @@
 ---
-source_file: 'src/shared/components/AmountInput.tsx'
-type: 'code'
-community: 'Shared UI - AmountInput'
-location: 'L6'
+source_file: "src/shared/components/AmountInput.tsx"
+type: "code"
+community: "ConnectivityMonitor"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_AmountInput
+  - community/ConnectivityMonitor
 ---
 
 # AmountInputProps
 
 ## Connections
-
 - [[AmountInput.tsx]] - `contains` [EXTRACTED]
 - [[DiscountInput.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_AmountInput
+#graphify/code #graphify/EXTRACTED #community/ConnectivityMonitor

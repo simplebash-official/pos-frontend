@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/hooks/useCart.ts'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L132'
+source_file: "src/features/billing/hooks/useCart.ts"
+type: "code"
+community: "ai-application.md"
+location: "L145"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/ai-applicationmd
 ---
 
 # useCartCustomer()
 
 ## Connections
-
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CartPanel]] - `calls` [EXTRACTED]
@@ -21,10 +20,8 @@ tags:
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `calls` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]
-- [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[useAppDispatch]] - `calls` [EXTRACTED]
 - [[useAppSelector]] - `calls` [EXTRACTED]
 - [[useCart.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/ai-applicationmd

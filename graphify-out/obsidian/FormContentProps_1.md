@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierFormModal.tsx'
-type: 'code'
-community: 'Suppliers - createSupplier'
-location: 'L51'
+source_file: "src/features/customers/components/CustomerFormModal.tsx"
+type: "code"
+community: "CustomerList.tsx"
+location: "L41"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_createSupplier
+  - community/CustomerListtsx
 ---
 
 # FormContentProps
 
 ## Connections
+- [[Customer]] - `references` [EXTRACTED]
+- [[CustomerFormModal.tsx]] - `contains` [EXTRACTED]
+- [[CustomerInput]] - `references` [EXTRACTED]
 
-- [[Supplier]] - `references` [EXTRACTED]
-- [[SupplierFormModal.tsx]] - `contains` [EXTRACTED]
-- [[SupplierInput]] - `references` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier
+#graphify/code #graphify/EXTRACTED #community/CustomerListtsx

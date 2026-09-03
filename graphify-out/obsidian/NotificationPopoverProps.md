@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/notifications/components/NotificationPopover.tsx'
-type: 'code'
-community: 'Notifications - initialState'
-location: 'L39'
+source_file: "src/features/notifications/components/NotificationPopover.tsx"
+type: "code"
+community: "notificationSlice.ts"
+location: "L41"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications_-_initialState
+  - community/notificationSlicets
 ---
 
 # NotificationPopoverProps
 
 ## Connections
-
 - [[NotificationPopover.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState
+#graphify/code #graphify/EXTRACTED #community/notificationSlicets

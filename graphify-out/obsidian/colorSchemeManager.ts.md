@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/colorSchemeManager.ts'
-type: 'code'
-community: 'Notifications - initialState'
-location: 'L1'
+source_file: "src/store/colorSchemeManager.ts"
+type: "code"
+community: "authSlice.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications_-_initialState
+  - community/authSlicets
 ---
 
 # colorSchemeManager.ts
 
 ## Connections
-
 - [[ColorScheme]] - `imports` [EXTRACTED]
 - [[createReduxColorSchemeManager()]] - `contains` [EXTRACTED]
 - [[providers.tsx]] - `imports_from` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[toAppScheme()]] - `contains` [EXTRACTED]
 - [[toMantineScheme()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState
+#graphify/code #graphify/EXTRACTED #community/authSlicets

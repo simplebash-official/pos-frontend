@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/hooks/useSuppliers.ts'
-type: 'code'
-community: 'Suppliers - useSetSupplierLinks'
-location: 'L20'
+source_file: "src/features/suppliers/hooks/useSuppliers.ts"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_useSetSupplierLinks
+  - community/CreditNoteModaltsx
 ---
 
 # NO_SUPPLIERS
 
 ## Connections
-
 - [[useSuppliers.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - axios'
-location: 'L52'
+source_file: "package.json"
+type: "concept"
+community: "dependencies"
+location: "L61"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_axios
+  - community/dependencies
 ---
 
 # dexie
 
 ## Connections
-
 - [[dexie]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_axios
+#graphify/concept #graphify/EXTRACTED #community/dependencies

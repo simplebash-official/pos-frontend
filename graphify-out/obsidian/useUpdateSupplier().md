@@ -1,21 +1,20 @@
 ---
-source_file: 'src/features/suppliers/hooks/useSuppliers.ts'
-type: 'code'
-community: 'Suppliers - useSetSupplierLinks'
-location: 'L48'
+source_file: "src/features/suppliers/hooks/useSuppliers.ts"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L51"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_useSetSupplierLinks
+  - community/CreditNoteModaltsx
 ---
 
 # useUpdateSupplier()
 
 ## Connections
-
 - [[SupplierList()]] - `calls` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
+- [[updateSupplier()]] - `calls` [EXTRACTED]
 - [[useSuppliers.ts]] - `contains` [EXTRACTED]
-- [[useSyncedMutation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

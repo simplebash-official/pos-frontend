@@ -1,19 +1,18 @@
 ---
-source_file: 'src/api/client.ts'
-type: 'code'
-community: 'Offline Sync - constructor'
-location: 'L49'
+source_file: "src/api/client.ts"
+type: "code"
+community: "router.tsx"
+location: "L34"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_constructor
+  - community/routertsx
 ---
 
 # readServerTime()
 
 ## Connections
-
-- [[dot-constructor()_5]] - `calls` [EXTRACTED]
+- [[dot-constructor()]] - `calls` [EXTRACTED]
 - [[client.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor
+#graphify/code #graphify/EXTRACTED #community/routertsx

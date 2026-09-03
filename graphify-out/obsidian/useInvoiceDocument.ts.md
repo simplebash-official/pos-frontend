@@ -1,19 +1,17 @@
 ---
-source_file: 'src/features/billing/hooks/useInvoiceDocument.ts'
-type: 'code'
-community: 'Billing - getInvoiceDocument'
-location: 'L1'
+source_file: "src/features/billing/hooks/useInvoiceDocument.ts"
+type: "code"
+community: "SaleDocumentPreviewModal.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_getInvoiceDocument
+  - community/SaleDocumentPreviewModaltsx
 ---
 
 # useInvoiceDocument.ts
 
 ## Connections
-
-- [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[InvoiceDocumentType]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[StandalonePrintView.tsx]] - `imports_from` [EXTRACTED]
@@ -22,4 +20,4 @@ tags:
 - [[getInvoiceDocument()]] - `imports` [EXTRACTED]
 - [[useInvoiceDocument()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_getInvoiceDocument
+#graphify/code #graphify/EXTRACTED #community/SaleDocumentPreviewModaltsx

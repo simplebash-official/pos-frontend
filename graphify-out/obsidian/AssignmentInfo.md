@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/types/ticketInput.ts'
-type: 'code'
-community: 'Employees - JOB STATUS'
-location: 'L17'
+source_file: "src/shared/types/ticketInput.ts"
+type: "code"
+community: "Step 2: Choose a Deploy Method"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_JOB_STATUS
+  - community/Step_2_Choose_a_Deploy_Method
 ---
 
 # AssignmentInfo
 
 ## Connections
-
 - [[PrintJobInput]] - `references` [EXTRACTED]
 - [[RepairJobInput]] - `references` [EXTRACTED]
 - [[SplitType]] - `references` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[repairstypes.ts]] - `imports` [EXTRACTED]
 - [[ticketInput.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_JOB_STATUS
+#graphify/code #graphify/EXTRACTED #community/Step_2_Choose_a_Deploy_Method

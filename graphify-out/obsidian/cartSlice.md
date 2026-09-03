@@ -1,20 +1,20 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'Billing - PaymentMethod'
-location: 'L178'
+source_file: "src/store/slices/cartSlice.ts"
+type: "code"
+community: "cartSlice.ts"
+location: "L189"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PaymentMethod
+  - community/cartSlicets
 ---
 
 # cartSlice
 
 ## Connections
-
+- [[calculateLineItem()]] - `calls` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 - [[resetCartState()]] - `calls` [EXTRACTED]
 - [[saveHeldCartsToStorage()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PaymentMethod
+#graphify/code #graphify/EXTRACTED #community/cartSlicets

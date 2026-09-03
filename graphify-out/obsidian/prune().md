@@ -1,19 +1,18 @@
 ---
-source_file: 'src/shared/hooks/useSearchHistory.ts'
-type: 'code'
-community: 'Shared UI - getServerSnapshot'
-location: 'L80'
+source_file: "src/shared/hooks/useSearchHistory.ts"
+type: "code"
+community: "Rules"
+location: "L80"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_getServerSnapshot
+  - community/Rules
 ---
 
 # prune()
 
 ## Connections
-
 - [[useSearchHistory.ts]] - `contains` [EXTRACTED]
 - [[writeAllHistory()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_getServerSnapshot
+#graphify/code #graphify/EXTRACTED #community/Rules

@@ -1,20 +1,20 @@
 ---
-source_file: 'src/features/billing/api/paymentsApi.ts'
-type: 'code'
-community: 'Billing - fetchPaymentsForInvoice'
-location: 'L56'
+source_file: "src/features/billing/api/paymentsApi.ts"
+type: "code"
+community: "useIsMobile"
+location: "L52"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_fetchPaymentsForInvoice
+  - community/useIsMobile
 ---
 
 # recordPayment()
 
 ## Connections
-
-- [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[paymentsApi.ts]] - `contains` [EXTRACTED]
 - [[toPaymentRecord()]] - `calls` [EXTRACTED]
+- [[usePayments.ts]] - `imports` [EXTRACTED]
+- [[useRecordPayment()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchPaymentsForInvoice
+#graphify/code #graphify/EXTRACTED #community/useIsMobile

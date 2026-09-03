@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/components/CustomerDetailDrawer.tsx'
-type: 'code'
-community: 'Billing - fetchInvoices'
-location: 'L1'
+source_file: "src/features/customers/components/CustomerDetailDrawer.tsx"
+type: "code"
+community: "CustomerList.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_fetchInvoices
+  - community/CustomerListtsx
 ---
 
 # CustomerDetailDrawer.tsx
 
 ## Connections
-
 - [[Customer]] - `imports` [EXTRACTED]
 - [[CustomerDetailDrawer()]] - `contains` [EXTRACTED]
 - [[CustomerDetailDrawerProps]] - `contains` [EXTRACTED]
@@ -28,10 +27,12 @@ tags:
 - [[fetchRepairs()]] - `imports` [EXTRACTED]
 - [[formatDateTime()]] - `imports` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[invoicesApi.ts]] - `imports_from` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[queryKeys]] - `imports` [EXTRACTED]
 - [[queryKeys.ts]] - `imports_from` [EXTRACTED]
 - [[repairsApi.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices
+#graphify/code #graphify/EXTRACTED #community/CustomerListtsx

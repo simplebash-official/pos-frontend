@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/ExpandableCard.tsx'
-type: 'code'
-community: 'Settings - SyncDrawer'
-location: 'L1'
+source_file: "src/shared/components/ExpandableCard.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_SyncDrawer
+  - community/useCategoriests
 ---
 
 # ExpandableCard.tsx
 
 ## Connections
-
 - [[CategoryManagerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[ExpandableCard()]] - `contains` [EXTRACTED]
 - [[ExpandableCardAction()]] - `contains` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[SyncModuleCard.tsx]] - `imports_from` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

@@ -1,20 +1,20 @@
 ---
-source_file: 'src/features/customers/components/CustomerFormModal.tsx'
-type: 'code'
-community: 'Billing - fetchInvoices'
-location: 'L40'
+source_file: "src/features/inventory/components/ProductFormModal.tsx"
+type: "code"
+community: "Vercel CLI with Tokens"
+location: "L59"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_fetchInvoices
+  - community/Vercel_CLI_with_Tokens
 ---
 
 # FormContentProps
 
 ## Connections
+- [[CreateProductInput]] - `references` [EXTRACTED]
+- [[Product]] - `references` [EXTRACTED]
+- [[ProductFormModal.tsx]] - `contains` [EXTRACTED]
+- [[UpdateProductInput]] - `references` [EXTRACTED]
 
-- [[Customer]] - `references` [EXTRACTED]
-- [[CustomerFormModal.tsx]] - `contains` [EXTRACTED]
-- [[CustomerInput]] - `references` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices
+#graphify/code #graphify/EXTRACTED #community/Vercel_CLI_with_Tokens

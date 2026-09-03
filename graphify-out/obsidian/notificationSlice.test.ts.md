@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/notifications/__tests__/notificationSlice.test.ts'
-type: 'code'
-community: 'Notifications - initialState'
-location: 'L1'
+source_file: "src/features/notifications/__tests__/notificationSlice.test.ts"
+type: "code"
+community: "notificationSlice.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications_-_initialState
+  - community/notificationSlicets
 ---
 
 # notificationSlice.test.ts
 
 ## Connections
-
 - [[RootState]] - `imports` [EXTRACTED]
 - [[notificationSlice.ts]] - `imports_from` [EXTRACTED]
 - [[selectAllNotifications()]] - `imports` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[selectUnreadNotifications]] - `imports` [EXTRACTED]
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState
+#graphify/code #graphify/EXTRACTED #community/notificationSlicets

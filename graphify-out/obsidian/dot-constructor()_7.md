@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/errors.ts'
-type: 'code'
-community: 'Offline Sync - constructor'
-location: 'L37'
+source_file: "src/offline/db/schema.ts"
+type: "code"
+community: "SearchHistoryInput.tsx"
+location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_constructor
+  - community/SearchHistoryInputtsx
 ---
 
 # .constructor()
 
 ## Connections
+- [[OfflineDb]] - `method` [EXTRACTED]
 
-- [[UnresolvedReferenceError]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor
+#graphify/code #graphify/EXTRACTED #community/SearchHistoryInputtsx

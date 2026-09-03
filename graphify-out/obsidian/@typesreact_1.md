@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - eslint'
-location: 'L19'
+source_file: "package.json"
+type: "concept"
+community: "devDependencies"
+location: "L22"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_eslint
+  - community/devDependencies
 ---
 
 # @types/react
 
 ## Connections
-
 - [[@typesreact]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_eslint
+#graphify/concept #graphify/EXTRACTED #community/devDependencies

@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierFormModal.tsx'
-type: 'code'
-community: 'Billing - HeldSalesDrawer'
-location: 'L1'
+source_file: "src/features/suppliers/components/SupplierFormModal.tsx"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_HeldSalesDrawer
+  - community/CreditNoteModaltsx
 ---
 
 # SupplierFormModal.tsx
 
 ## Connections
-
 - [[DEFAULT_SUGGESTED_TAGS]] - `imports` [EXTRACTED]
-- [[FormContentProps_1]] - `contains` [EXTRACTED]
+- [[FormContentProps_2]] - `contains` [EXTRACTED]
 - [[PRODUCT_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[Supplier]] - `imports` [EXTRACTED]
 - [[SupplierFormContent()]] - `contains` [EXTRACTED]
@@ -23,11 +22,13 @@ tags:
 - [[SupplierInput]] - `imports` [EXTRACTED]
 - [[SupplierList.tsx]] - `imports_from` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[searchFields.ts]] - `imports_from` [EXTRACTED]
 - [[supplier-productsindex.ts]] - `imports_from` [EXTRACTED]
 - [[suppliersconstants.ts]] - `imports_from` [EXTRACTED]
 - [[supplierstypes.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 - [[useAllProducts()]] - `imports` [EXTRACTED]
 - [[useEntitySearch()]] - `imports` [EXTRACTED]
 - [[useEntitySearch.ts]] - `imports_from` [EXTRACTED]
@@ -36,4 +37,4 @@ tags:
 - [[useProductsForSupplier()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

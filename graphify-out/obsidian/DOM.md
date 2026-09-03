@@ -1,18 +1,17 @@
 ---
-source_file: 'tsconfig.json'
-type: 'concept'
-community: 'DOM'
-location: 'L5'
+source_file: "tsconfig.json"
+type: "concept"
+community: "compilerOptions"
+location: "L5"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/DOM
+  - community/compilerOptions
 ---
 
 # DOM
 
 ## Connections
-
 - [[lib]] - `extends` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/DOM
+#graphify/concept #graphify/EXTRACTED #community/compilerOptions

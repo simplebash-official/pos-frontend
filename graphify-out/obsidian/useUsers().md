@@ -1,0 +1,20 @@
+---
+source_file: "src/features/users/hooks/useUsers.ts"
+type: "code"
+community: "UsersList.tsx"
+location: "L12"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/UsersListtsx
+---
+
+# useUsers()
+
+## Connections
+- [[UsersList()]] - `calls` [EXTRACTED]
+- [[UsersList.tsx]] - `imports` [EXTRACTED]
+- [[fetchUsers()]] - `calls` [EXTRACTED]
+- [[useUsers.ts]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/UsersListtsx

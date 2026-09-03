@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - vite plugin'
-location: 'L35'
+source_file: "package.json"
+type: "concept"
+community: "devDependencies"
+location: "L44"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_vite_plugin
+  - community/devDependencies
 ---
 
 # vite-plugin-pwa
 
 ## Connections
-
 - [[vite-plugin-pwa]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_vite_plugin
+#graphify/concept #graphify/EXTRACTED #community/devDependencies

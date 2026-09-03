@@ -1,26 +1,29 @@
 ---
-source_file: 'src/shared/lib/money.ts'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L21'
+source_file: "src/shared/lib/money.ts"
+type: "code"
+community: "RepairJobList.tsx"
+location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/RepairJobListtsx
 ---
 
 # formatMoney()
 
 ## Connections
-
 - [[BillingSummaryStrip()]] - `calls` [EXTRACTED]
 - [[BillingTabBar.tsx]] - `imports` [EXTRACTED]
 - [[CartLineItem]] - `calls` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports` [EXTRACTED]
 - [[CartPanel]] - `calls` [EXTRACTED]
 - [[CartPanel.tsx]] - `imports` [EXTRACTED]
+- [[CashShiftSummaryWidget()]] - `calls` [EXTRACTED]
+- [[CashShiftSummaryWidget.tsx]] - `imports` [EXTRACTED]
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
+- [[CreditNoteModal()]] - `calls` [EXTRACTED]
+- [[CreditNoteModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerDetailDrawer()]] - `calls` [EXTRACTED]
 - [[CustomerDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[CustomerFormContent()]] - `calls` [EXTRACTED]
@@ -29,22 +32,37 @@ tags:
 - [[CustomerList.tsx]] - `imports` [EXTRACTED]
 - [[CustomerPickerModal()]] - `calls` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports` [EXTRACTED]
+- [[CustomersSection()]] - `calls` [EXTRACTED]
+- [[CustomersSection.tsx]] - `imports` [EXTRACTED]
+- [[DashboardKpiStrip()]] - `calls` [EXTRACTED]
+- [[DashboardKpiStrip.tsx]] - `imports` [EXTRACTED]
 - [[DiscountPopover()]] - `calls` [EXTRACTED]
 - [[DiscountPopover.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeDetailDrawer()]] - `calls` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `imports` [EXTRACTED]
+- [[EmployeeFormModal()]] - `calls` [EXTRACTED]
+- [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeList()]] - `calls` [EXTRACTED]
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]
+- [[FastMoversWidget()]] - `calls` [EXTRACTED]
+- [[FastMoversWidget.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
 - [[HeldSalesDrawer()]] - `calls` [EXTRACTED]
 - [[HeldSalesDrawer.tsx]] - `imports` [EXTRACTED]
+- [[InventorySection()]] - `calls` [EXTRACTED]
+- [[InventorySection.tsx]] - `imports` [EXTRACTED]
 - [[InvoiceDetailDrawer()]] - `calls` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
+- [[InvoicesList()]] - `calls` [EXTRACTED]
 - [[InvoicesList.tsx]] - `imports` [EXTRACTED]
+- [[OverviewSection()]] - `calls` [EXTRACTED]
+- [[OverviewSection.tsx]] - `imports` [EXTRACTED]
 - [[PaymentPanel]] - `calls` [EXTRACTED]
 - [[PaymentPanel.tsx]] - `imports` [EXTRACTED]
+- [[PrintJobFormModal()]] - `calls` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
+- [[PrintJobList()]] - `calls` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]
 - [[ProductCatalogTree]] - `calls` [EXTRACTED]
 - [[ProductCatalogTree.tsx]] - `imports` [EXTRACTED]
@@ -54,21 +72,32 @@ tags:
 - [[ProductPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductTable()]] - `calls` [EXTRACTED]
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
+- [[ProfitSection()]] - `calls` [EXTRACTED]
+- [[ProfitSection.tsx]] - `imports` [EXTRACTED]
+- [[RepairFormModal()]] - `calls` [EXTRACTED]
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
+- [[RepairJobList()]] - `calls` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
-- [[ReportsDashboard()]] - `calls` [EXTRACTED]
-- [[ReportsDashboard.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal()]] - `calls` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]
-- [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
+- [[SalesSection()]] - `calls` [EXTRACTED]
+- [[SalesSection.tsx]] - `imports` [EXTRACTED]
+- [[StaffSection()]] - `calls` [EXTRACTED]
+- [[StaffSection.tsx]] - `imports` [EXTRACTED]
 - [[SupplierDetailDrawer()]] - `calls` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SupplierFormContent()]] - `calls` [EXTRACTED]
 - [[SupplierFormModal.tsx]] - `imports` [EXTRACTED]
+- [[analyticsCharts.ts]] - `imports` [EXTRACTED]
 - [[fromCents()]] - `calls` [EXTRACTED]
 - [[getSaleHeroPresentation()]] - `calls` [EXTRACTED]
+- [[money()]] - `calls` [EXTRACTED]
+- [[money.test.ts]] - `imports` [EXTRACTED]
 - [[money.ts]] - `contains` [EXTRACTED]
+- [[moneyFormatter()]] - `calls` [EXTRACTED]
+- [[posCalculations.test.ts]] - `imports` [EXTRACTED]
 - [[saleHeroPresentation.ts]] - `imports` [EXTRACTED]
+- [[toReminderItems()]] - `calls` [EXTRACTED]
+- [[useDashboardLivePulse.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/RepairJobListtsx

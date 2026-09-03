@@ -1,20 +1,18 @@
 ---
-source_file: 'src/offline/engine/SyncEngine.ts'
-type: 'code'
-community: 'Offline Sync - start'
-location: 'L113'
+source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
+type: "code"
+community: "constants/index.ts"
+location: "L91"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_start
+  - community/constants/indexts
 ---
 
 # .subscribe()
 
 ## Connections
+- [[ConnectivityListener]] - `references` [EXTRACTED]
+- [[ConnectivityMonitor]] - `method` [EXTRACTED]
 
-- [[dot-publish()]] - `calls` [EXTRACTED]
-- [[dot-start()_1]] - `calls` [EXTRACTED]
-- [[SyncEngine]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start
+#graphify/code #graphify/EXTRACTED #community/constants/indexts

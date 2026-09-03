@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/BillingTabBar.tsx'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L11'
+source_file: "src/features/billing/components/BillingTabBar.tsx"
+type: "code"
+community: "ai-application.md"
+location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/ai-applicationmd
 ---
 
 # BillingTabBarProps
 
 ## Connections
-
 - [[BillingTabBar.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/ai-applicationmd

@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/employees/components/EmployeeFormModal.tsx'
-type: 'code'
-community: 'Employees - CURRENCY'
-location: 'L22'
+source_file: "src/features/employees/components/EmployeeFormModal.tsx"
+type: "code"
+community: "EmployeeList.tsx"
+location: "L25"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_CURRENCY
+  - community/EmployeeListtsx
 ---
 
 # EmployeeFormModalProps
 
 ## Connections
-
 - [[Employee]] - `references` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `contains` [EXTRACTED]
 - [[EmployeeInput]] - `references` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY
+#graphify/code #graphify/EXTRACTED #community/EmployeeListtsx

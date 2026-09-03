@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Settings - ACCEPTED TYPES'
-location: 'L140'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L149"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_ACCEPTED_TYPES
+  - community/useSupplierProductsts
 ---
 
 # selectShopProfile()
 
 ## Connections
-
 - [[BankDetailsSection()]] - `indirect_call` [INFERRED]
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BillingCounter()]] - `indirect_call` [INFERRED]
@@ -23,8 +22,7 @@ tags:
 - [[DocumentTemplatesSection.tsx]] - `imports` [EXTRACTED]
 - [[ShopProfileSection()]] - `indirect_call` [INFERRED]
 - [[ShopProfileSection.tsx]] - `imports` [EXTRACTED]
-- [[TaxVatSection()]] - `indirect_call` [INFERRED]
-- [[TaxVatSection.tsx]] - `imports` [EXTRACTED]
+- [[settingsSlice.test.ts]] - `imports` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

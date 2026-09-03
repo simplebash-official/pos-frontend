@@ -1,18 +1,19 @@
 ---
-source_file: 'src/features/billing/api/paymentsApi.ts'
-type: 'code'
-community: 'Billing - MutationRequestOptions'
-location: 'L50'
+source_file: "src/features/billing/api/paymentsApi.ts"
+type: "code"
+community: "useIsMobile"
+location: "L39"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_MutationRequestOptions
+  - community/useIsMobile
 ---
 
 # RecordPaymentInput
 
 ## Connections
-
+- [[RecordPaymentPayload]] - `references` [EXTRACTED]
 - [[paymentsApi.ts]] - `contains` [EXTRACTED]
+- [[usePayments.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_MutationRequestOptions
+#graphify/code #graphify/EXTRACTED #community/useIsMobile

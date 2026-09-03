@@ -1,23 +1,20 @@
 ---
-source_file: 'src/features/billing/lib/resolveOrCreateCustomer.ts'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L22'
+source_file: "src/features/billing/lib/resolveOrCreateCustomer.ts"
+type: "code"
+community: "ProductTable.tsx"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/ProductTabletsx
 ---
 
 # resolveOrCreateCustomer()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]
-- [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
+- [[fetchCustomers()]] - `calls` [EXTRACTED]
 - [[resolveOrCreateCustomer.ts]] - `contains` [EXTRACTED]
-- [[stripMirrorMeta()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/ProductTabletsx

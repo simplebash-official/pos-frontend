@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierDetailDrawer.tsx'
-type: 'code'
-community: 'Billing - HeldSalesDrawer'
-location: 'L1'
+source_file: "src/features/suppliers/components/SupplierDetailDrawer.tsx"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_HeldSalesDrawer
+  - community/CatalogPaneltsx
 ---
 
 # SupplierDetailDrawer.tsx
 
 ## Connections
-
 - [[DetailDrawer()]] - `imports` [EXTRACTED]
 - [[DetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[EnrichedLinkedProduct]] - `imports` [EXTRACTED]
@@ -31,8 +30,10 @@ tags:
 - [[date.ts]] - `imports_from` [EXTRACTED]
 - [[formatDateTime()]] - `imports` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[supplierstypes.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 - [[useAllProducts()]] - `imports` [EXTRACTED]
 - [[useCreatePurchase()]] - `imports` [EXTRACTED]
 - [[useIsMobile()]] - `imports` [EXTRACTED]
@@ -45,4 +46,4 @@ tags:
 - [[useSupplierProducts.ts]] - `imports_from` [EXTRACTED]
 - [[useUnlinkProduct()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

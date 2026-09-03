@@ -1,20 +1,20 @@
 ---
-source_file: 'src/shared/hooks/useResponsive.tsx'
-type: 'code'
-community: 'Billing - HeldSalesDrawer'
-location: 'L1'
+source_file: "src/shared/hooks/useResponsive.tsx"
+type: "code"
+community: "calculator/index.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_HeldSalesDrawer
+  - community/calculator/indexts
 ---
 
 # useResponsive.tsx
 
 ## Connections
-
-- [[A4InvoicePreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
+- [[AnalyticsFilterBar.tsx]] - `imports_from` [EXTRACTED]
+- [[AnalyticsReportPreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[AuthLayout.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
@@ -22,14 +22,19 @@ tags:
 - [[BillingRegions.tsx]] - `imports_from` [EXTRACTED]
 - [[CartLineItem.tsx]] - `imports_from` [EXTRACTED]
 - [[CartPanel.tsx]] - `imports_from` [EXTRACTED]
+- [[CashShiftSummaryWidget.tsx]] - `imports_from` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports_from` [EXTRACTED]
+- [[CockpitHeader.tsx]] - `imports_from` [EXTRACTED]
+- [[CreateLoginModal.tsx]] - `imports_from` [EXTRACTED]
+- [[CreditNoteModal.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[DetailDrawer.tsx]] - `imports_from` [EXTRACTED]
+- [[DonutWithLegend.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports_from` [EXTRACTED]
-- [[FilterTagChips.tsx]] - `imports_from` [EXTRACTED]
+- [[FastMoversWidget.tsx]] - `imports_from` [EXTRACTED]
 - [[Header.tsx]] - `imports_from` [EXTRACTED]
 - [[HeldSalesDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
@@ -38,6 +43,7 @@ tags:
 - [[LayoutTierContext]] - `contains` [EXTRACTED]
 - [[LayoutTierContextValue]] - `contains` [EXTRACTED]
 - [[LayoutTierProvider()]] - `contains` [EXTRACTED]
+- [[LiveActivityFeed.tsx]] - `imports_from` [EXTRACTED]
 - [[LoginForm.tsx]] - `imports_from` [EXTRACTED]
 - [[MEDIA_QUERY_OPTIONS]] - `contains` [EXTRACTED]
 - [[NotificationPopover.tsx]] - `imports_from` [EXTRACTED]
@@ -51,7 +57,8 @@ tags:
 - [[RepairFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SearchHistoryInput.tsx]] - `imports_from` [EXTRACTED]
-- [[ServiceJobPickerModal.tsx]] - `imports_from` [EXTRACTED]
+- [[SerialNumberPickerModal.tsx]] - `imports_from` [EXTRACTED]
+- [[ServicePipelineWidget.tsx]] - `imports_from` [EXTRACTED]
 - [[SettingsPage.tsx]] - `imports_from` [EXTRACTED]
 - [[Sidebar.tsx]] - `imports_from` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
@@ -59,10 +66,12 @@ tags:
 - [[SupplierPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SyncDrawer.tsx]] - `imports_from` [EXTRACTED]
 - [[SyncStatusBadge.tsx]] - `imports_from` [EXTRACTED]
+- [[TechnicianWorkloadWidget.tsx]] - `imports_from` [EXTRACTED]
+- [[UrgentActionCenter.tsx]] - `imports_from` [EXTRACTED]
 - [[below()]] - `contains` [EXTRACTED]
 - [[providers.tsx]] - `imports_from` [EXTRACTED]
 - [[useIsMobile()]] - `contains` [EXTRACTED]
 - [[useLayoutTier()]] - `contains` [EXTRACTED]
 - [[useLayoutTierContext()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer
+#graphify/code #graphify/EXTRACTED #community/calculator/indexts

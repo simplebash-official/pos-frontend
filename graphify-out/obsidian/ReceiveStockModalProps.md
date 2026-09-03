@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/purchases/components/ReceiveStockModal.tsx'
-type: 'code'
-community: 'Billing - HeldSalesDrawer'
-location: 'L22'
+source_file: "src/features/purchases/components/ReceiveStockModal.tsx"
+type: "code"
+community: "calculator/index.ts"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_HeldSalesDrawer
+  - community/calculator/indexts
 ---
 
 # ReceiveStockModalProps
 
 ## Connections
-
 - [[ReceiveStockModal.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer
+#graphify/code #graphify/EXTRACTED #community/calculator/indexts

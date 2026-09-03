@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/components/RequireAdmin.tsx'
-type: 'code'
-community: 'Auth - RequireAdmin'
-location: 'L8'
+source_file: "src/app/components/RequireAdmin.tsx"
+type: "code"
+community: "UsersList.tsx"
+location: "L8"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Auth_-_RequireAdmin
+  - community/UsersListtsx
 ---
 
 # RequireAdminProps
 
 ## Connections
-
 - [[RequireAdmin.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin
+#graphify/code #graphify/EXTRACTED #community/UsersListtsx

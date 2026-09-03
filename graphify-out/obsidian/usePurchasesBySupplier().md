@@ -1,23 +1,21 @@
 ---
-source_file: 'src/features/purchases/hooks/usePurchases.ts'
-type: 'code'
-community: 'Inventory - ProductTable'
-location: 'L44'
+source_file: "src/features/purchases/hooks/usePurchases.ts"
+type: "code"
+community: "useShortcuts.ts"
+location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_ProductTable
+  - community/useShortcutsts
 ---
 
 # usePurchasesBySupplier()
 
 ## Connections
-
 - [[SupplierDetailDrawer()]] - `calls` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
-- [[enrich()]] - `calls` [EXTRACTED]
+- [[fetchPurchasesBySupplier()]] - `calls` [EXTRACTED]
 - [[purchasesindex.ts]] - `re_exports` [EXTRACTED]
 - [[usePurchases.ts]] - `contains` [EXTRACTED]
-- [[useSyncedQuery()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable
+#graphify/code #graphify/EXTRACTED #community/useShortcutsts

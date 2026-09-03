@@ -1,21 +1,20 @@
 ---
-source_file: 'src/features/inventory/hooks/useCategories.ts'
-type: 'code'
-community: 'Inventory - AddSubcategoryRow'
-location: 'L80'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L100"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AddSubcategoryRow
+  - community/useCategoriests
 ---
 
 # useUpdateCategory()
 
 ## Connections
-
 - [[CategoryItem()]] - `calls` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
+- [[updateCategory()]] - `calls` [EXTRACTED]
 - [[useCategories.ts]] - `contains` [EXTRACTED]
-- [[useSyncedMutation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

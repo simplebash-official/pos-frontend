@@ -1,18 +1,17 @@
 ---
-source_file: 'src/constants/index.ts'
-type: 'code'
-community: 'Employees - CURRENCY'
-location: 'L1'
+source_file: "src/constants/index.ts"
+type: "code"
+community: "Step 2: Choose a Deploy Method"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_CURRENCY
+  - community/Step_2_Choose_a_Deploy_Method
 ---
 
 # constants/index.ts
 
 ## Connections
-
 - [[ConnectivityMonitor.ts]] - `imports_from` [EXTRACTED]
 - [[ErrorBoundary.tsx]] - `imports_from` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]
@@ -31,6 +30,7 @@ tags:
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[navigation.ts]] - `imports_from` [EXTRACTED]
 - [[payment.ts]] - `re_exports` [EXTRACTED]
+- [[permissions.ts]] - `re_exports` [EXTRACTED]
 - [[print-jobstypes.ts]] - `imports_from` [EXTRACTED]
 - [[repairstypes.ts]] - `imports_from` [EXTRACTED]
 - [[roles.ts]] - `re_exports` [EXTRACTED]
@@ -41,4 +41,4 @@ tags:
 - [[ui.ts]] - `re_exports` [EXTRACTED]
 - [[utils.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY
+#graphify/code #graphify/EXTRACTED #community/Step_2_Choose_a_Deploy_Method

@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/repairs/api/repairsApi.ts'
-type: 'code'
-community: 'Employees - addEarningRecord'
-location: 'L32'
+source_file: "src/features/repairs/api/repairsApi.ts"
+type: "code"
+community: "EmployeeList.tsx"
+location: "L27"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_addEarningRecord
+  - community/EmployeeListtsx
 ---
 
 # BackendRepair
 
 ## Connections
-
 - [[RepairJob]] - `references` [EXTRACTED]
 - [[repairsApi.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord
+#graphify/code #graphify/EXTRACTED #community/EmployeeListtsx

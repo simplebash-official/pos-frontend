@@ -1,20 +1,21 @@
 ---
-source_file: 'src/features/inventory/hooks/useProducts.ts'
-type: 'code'
-community: 'Billing - HeldSalesDrawer'
-location: 'L24'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L48"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_HeldSalesDrawer
+  - community/CatalogPaneltsx
 ---
 
 # useAllProducts()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
+- [[CreditNoteModal()]] - `calls` [EXTRACTED]
+- [[CreditNoteModal.tsx]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductPickerModal()]] - `calls` [EXTRACTED]
@@ -27,8 +28,11 @@ tags:
 - [[SupplierDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SupplierFormContent()]] - `calls` [EXTRACTED]
 - [[SupplierFormModal.tsx]] - `imports` [EXTRACTED]
-- [[applyLedgerToProducts()]] - `calls` [EXTRACTED]
+- [[fetchAllProducts()]] - `indirect_call` [INFERRED]
+- [[useDashboardLivePulse()]] - `calls` [EXTRACTED]
+- [[useDashboardLivePulse.ts]] - `imports` [EXTRACTED]
 - [[useProducts.ts]] - `contains` [EXTRACTED]
-- [[useSyncedQuery()]] - `calls` [EXTRACTED]
+- [[useProductsForSupplier()]] - `calls` [EXTRACTED]
+- [[useSupplierProducts.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

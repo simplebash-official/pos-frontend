@@ -1,19 +1,19 @@
 ---
-source_file: 'src/offline/engine/leader.ts'
-type: 'code'
-community: 'Offline Sync - start'
-location: 'L31'
+source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
+type: "code"
+community: "constants/index.ts"
+location: "L55"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_start
+  - community/constants/indexts
 ---
 
 # .start()
 
 ## Connections
+- [[dot-runProbe()]] - `calls` [EXTRACTED]
+- [[ConnectivityMonitor]] - `method` [EXTRACTED]
+- [[observeNetwork()]] - `calls` [EXTRACTED]
 
-- [[LeaderElection]] - `method` [EXTRACTED]
-- [[logInfo()]] - `calls` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start
+#graphify/code #graphify/EXTRACTED #community/constants/indexts

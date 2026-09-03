@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/supplier-products/api/supplierProductsApi.ts'
-type: 'code'
-community: 'Offline Sync - fetchSupplierProducts'
-location: 'L53'
+source_file: "src/features/supplier-products/api/supplierProductsApi.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L68"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_fetchSupplierProducts
+  - community/CatalogPaneltsx
 ---
 
 # setLinksForSupplier()
 
 ## Connections
-
-- [[supplierProducts.resource.ts]] - `imports` [EXTRACTED]
 - [[supplierProductsApi.ts]] - `contains` [EXTRACTED]
-- [[supplierProductsResource]] - `calls` [EXTRACTED]
+- [[useSetSupplierLinks()]] - `calls` [EXTRACTED]
+- [[useSupplierProducts.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

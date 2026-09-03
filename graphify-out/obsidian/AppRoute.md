@@ -1,18 +1,17 @@
 ---
-source_file: 'src/constants/routes.ts'
-type: 'code'
-community: 'Billing - ROUTE TITLES'
-location: 'L16'
+source_file: "src/constants/routes.ts"
+type: "code"
+community: "SupplierDetailDrawer.tsx"
+location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_ROUTE_TITLES
+  - community/SupplierDetailDrawertsx
 ---
 
 # AppRoute
 
 ## Connections
-
 - [[routes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_ROUTE_TITLES
+#graphify/code #graphify/EXTRACTED #community/SupplierDetailDrawertsx

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/moneyFormUtils.ts'
-type: 'code'
-community: 'Employees - CURRENCY'
-location: 'L1'
+source_file: "src/shared/lib/moneyFormUtils.ts"
+type: "code"
+community: "EmployeeList.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_CURRENCY
+  - community/EmployeeListtsx
 ---
 
 # moneyFormUtils.ts
 
 ## Connections
-
 - [[Employee]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports_from` [EXTRACTED]
 - [[EmployeeFormValues]] - `contains` [EXTRACTED]
@@ -31,11 +30,13 @@ tags:
 - [[fromPrintJob()]] - `contains` [EXTRACTED]
 - [[fromRepairJob()]] - `contains` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
+- [[moneyFormUtils.test.ts]] - `imports_from` [EXTRACTED]
 - [[print-jobstypes.ts]] - `imports_from` [EXTRACTED]
 - [[repairstypes.ts]] - `imports_from` [EXTRACTED]
+- [[rupeesFieldToCents()]] - `contains` [EXTRACTED]
 - [[toCents()]] - `imports` [EXTRACTED]
 - [[toEmployeeInput()]] - `contains` [EXTRACTED]
 - [[toPrintJobInput()]] - `contains` [EXTRACTED]
 - [[toRepairInput()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_CURRENCY
+#graphify/code #graphify/EXTRACTED #community/EmployeeListtsx

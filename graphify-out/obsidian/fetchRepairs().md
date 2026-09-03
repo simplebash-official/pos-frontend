@@ -1,28 +1,28 @@
 ---
-source_file: 'src/features/repairs/api/repairsApi.ts'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L92'
+source_file: "src/features/repairs/api/repairsApi.ts"
+type: "code"
+community: "PrintJobList.tsx"
+location: "L101"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/PrintJobListtsx
 ---
 
 # fetchRepairs()
 
 ## Connections
-
-- [[CatalogPanel]] - `indirect_call` [INFERRED]
+- [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
-- [[CustomerDetailDrawer()]] - `indirect_call` [INFERRED]
+- [[CustomerDetailDrawer()]] - `calls` [EXTRACTED]
 - [[CustomerDetailDrawer.tsx]] - `imports` [EXTRACTED]
-- [[GlobalQuickSearchModal()]] - `indirect_call` [INFERRED]
+- [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
+- [[RepairJobList()]] - `calls` [EXTRACTED]
 - [[RepairJobList.tsx]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal()]] - `indirect_call` [INFERRED]
-- [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[repairsApi.ts]] - `contains` [EXTRACTED]
 - [[toRepairJob()]] - `indirect_call` [INFERRED]
+- [[useAllRepairs()]] - `calls` [EXTRACTED]
+- [[useRepairs.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/PrintJobListtsx

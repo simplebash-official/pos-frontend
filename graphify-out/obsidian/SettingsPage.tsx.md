@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/settings/components/SettingsPage.tsx'
-type: 'code'
-community: 'Settings - ACCEPTED TYPES'
-location: 'L1'
+source_file: "src/features/settings/components/SettingsPage.tsx"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_ACCEPTED_TYPES
+  - community/useSupplierProductsts
 ---
 
 # SettingsPage.tsx
 
 ## Connections
-
 - [[BankDetailsSection()]] - `imports` [EXTRACTED]
 - [[BankDetailsSection.tsx]] - `imports_from` [EXTRACTED]
 - [[BrandingSection()]] - `imports` [EXTRACTED]
@@ -30,18 +29,18 @@ tags:
 - [[SettingsNavDrillDownList()]] - `imports` [EXTRACTED]
 - [[SettingsNavList()]] - `imports` [EXTRACTED]
 - [[SettingsNavTabs()]] - `imports` [EXTRACTED]
+- [[SettingsPage]] - `imports_from` [EXTRACTED]
 - [[SettingsPage()]] - `contains` [EXTRACTED]
 - [[SettingsSectionId]] - `imports` [EXTRACTED]
 - [[ShopProfileSection()]] - `imports` [EXTRACTED]
 - [[ShopProfileSection.tsx]] - `imports_from` [EXTRACTED]
-- [[SyncSettingsSection()]] - `imports` [EXTRACTED]
-- [[SyncSettingsSection.tsx]] - `imports_from` [EXTRACTED]
-- [[TaxVatSection()]] - `imports` [EXTRACTED]
-- [[TaxVatSection.tsx]] - `imports_from` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[renderSection()]] - `contains` [EXTRACTED]
+- [[router.tsx]] - `dynamic_import` [EXTRACTED]
 - [[settingsindex.ts]] - `re_exports` [EXTRACTED]
 - [[settingsSections.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 - [[useLayoutTier()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

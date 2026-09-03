@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/layout/AppShell.tsx'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L37'
+source_file: "src/app/layout/AppShell.tsx"
+type: "code"
+community: "CLAUDE.md"
+location: "L51"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/CLAUDEmd
 ---
 
 # AppShell()
 
 ## Connections
-
 - [[AppShell.tsx]] - `contains` [EXTRACTED]
 - [[router.tsx]] - `imports` [EXTRACTED]
 - [[selectIsAuthenticated()]] - `indirect_call` [INFERRED]
@@ -20,4 +19,4 @@ tags:
 - [[useAppShortcuts()]] - `calls` [EXTRACTED]
 - [[useLayoutTier()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

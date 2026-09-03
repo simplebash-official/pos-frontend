@@ -1,14 +1,17 @@
 ---
-source_file: 'vite.config.ts'
-type: 'code'
-community: 'Vite.Config'
-location: 'L1'
+source_file: "vite.config.ts"
+type: "code"
+community: "vite.config.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ViteConfig
+  - community/viteconfigts
 ---
 
 # vite.config.ts
 
-#graphify/code #graphify/EXTRACTED #community/ViteConfig
+## Connections
+- [[manualChunks()]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/viteconfigts

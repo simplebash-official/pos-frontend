@@ -1,19 +1,18 @@
 ---
-source_file: 'src/styles/theme.ts'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L29'
+source_file: "src/styles/theme.ts"
+type: "code"
+community: "authSlice.ts"
+location: "L29"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/authSlicets
 ---
 
 # mantineTheme
 
 ## Connections
-
 - [[providers.tsx]] - `imports` [EXTRACTED]
 - [[theme.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/authSlicets

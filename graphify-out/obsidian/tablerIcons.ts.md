@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/tablerIcons.ts'
-type: 'code'
-community: 'Shared UI - TablerIconPicker'
-location: 'L1'
+source_file: "src/shared/lib/tablerIcons.ts"
+type: "code"
+community: "tablerIconShards/index.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_TablerIconPicker
+  - community/tablerIconShards/indexts
 ---
 
 # tablerIcons.ts
 
 ## Connections
-
 - [[EMPTY_MAP]] - `contains` [EXTRACTED]
 - [[ICON_SHARD_KEYS]] - `imports` [EXTRACTED]
 - [[ICON_SHARD_LOADERS]] - `imports` [EXTRACTED]
@@ -24,7 +23,7 @@ tags:
 - [[getServerSnapshot()]] - `contains` [EXTRACTED]
 - [[getSnapshot()]] - `contains` [EXTRACTED]
 - [[inventoryconstants.ts]] - `imports_from` [EXTRACTED]
-- [[listeners]] - `contains` [EXTRACTED]
+- [[listeners_1]] - `contains` [EXTRACTED]
 - [[loadShard()]] - `contains` [EXTRACTED]
 - [[resolveTablerIcon()]] - `contains` [EXTRACTED]
 - [[resolved]] - `contains` [EXTRACTED]
@@ -38,4 +37,4 @@ tags:
 - [[useShards()]] - `contains` [EXTRACTED]
 - [[useTablerIcons()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker
+#graphify/code #graphify/EXTRACTED #community/tablerIconShards/indexts

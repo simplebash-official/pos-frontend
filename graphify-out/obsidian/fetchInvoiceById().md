@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/billing/api/invoicesApi.ts'
-type: 'code'
-community: 'Billing - BackendInvoice'
-location: 'L232'
+source_file: "src/features/billing/api/invoicesApi.ts"
+type: "code"
+community: "InvoicesList.tsx"
+location: "L310"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_BackendInvoice
+  - community/InvoicesListtsx
 ---
 
 # fetchInvoiceById()
 
 ## Connections
-
 - [[invoicesApi.ts]] - `contains` [EXTRACTED]
 - [[toInvoice()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_BackendInvoice
+#graphify/code #graphify/EXTRACTED #community/InvoicesListtsx

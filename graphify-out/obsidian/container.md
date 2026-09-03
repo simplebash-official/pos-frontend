@@ -1,18 +1,17 @@
 ---
-source_file: 'src/main.tsx'
-type: 'code'
-community: 'Billing - SettingsPage'
-location: 'L5'
+source_file: "src/main.tsx"
+type: "code"
+community: "ROUTES"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_SettingsPage
+  - community/ROUTES
 ---
 
 # container
 
 ## Connections
-
 - [[main.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage
+#graphify/code #graphify/EXTRACTED #community/ROUTES

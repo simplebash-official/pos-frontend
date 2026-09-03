@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/purchases/index.ts'
-type: 'code'
-community: 'Inventory - ProductTable'
-location: 'L1'
+source_file: "src/features/purchases/index.ts"
+type: "code"
+community: "useShortcuts.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_ProductTable
+  - community/useShortcutsts
 ---
 
 # purchases/index.ts
 
 ## Connections
-
 - [[ReceiveStockModal()]] - `re_exports` [EXTRACTED]
 - [[ReceiveStockModal.tsx]] - `re_exports` [EXTRACTED]
 - [[purchasestypes.ts]] - `re_exports` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[usePurchasesByProduct()]] - `re_exports` [EXTRACTED]
 - [[usePurchasesBySupplier()]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_ProductTable
+#graphify/code #graphify/EXTRACTED #community/useShortcutsts

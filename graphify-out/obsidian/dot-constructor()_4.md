@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/errors.ts'
-type: 'code'
-community: 'Offline Sync - start'
-location: 'L101'
+source_file: ".agents/skills/vercel-optimize/lib/throttle.mjs"
+type: "code"
+community: "Semaphore"
+location: "L57"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_start
+  - community/Semaphore
 ---
 
 # .constructor()
 
 ## Connections
+- [[Semaphore]] - `method` [EXTRACTED]
 
-- [[BarcodeConflictError]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_start
+#graphify/code #graphify/EXTRACTED #community/Semaphore

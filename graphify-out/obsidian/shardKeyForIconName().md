@@ -1,20 +1,19 @@
 ---
-source_file: 'src/shared/lib/tablerIconShards/index.ts'
-type: 'code'
-community: 'Shared UI - TablerIconPicker'
-location: 'L36'
+source_file: "src/shared/lib/tablerIconShards/index.ts"
+type: "code"
+community: "tablerIconShards/index.ts"
+location: "L36"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_TablerIconPicker
+  - community/tablerIconShards/indexts
 ---
 
 # shardKeyForIconName()
 
 ## Connections
-
 - [[shardKeyList()]] - `calls` [EXTRACTED]
 - [[tablerIconShardsindex.ts]] - `contains` [EXTRACTED]
 - [[tablerIcons.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker
+#graphify/code #graphify/EXTRACTED #community/tablerIconShards/indexts

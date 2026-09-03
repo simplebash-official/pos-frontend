@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/components/PendingOperationsList.tsx'
-type: 'code'
-community: 'Inventory - StockMovement'
-location: 'L15'
+source_file: "src/features/sync/components/PendingOperationsList.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_StockMovement
+  - community/useCategoriests
 ---
 
 # STATUS_LABEL
 
 ## Connections
-
 - [[PendingOperationsList.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

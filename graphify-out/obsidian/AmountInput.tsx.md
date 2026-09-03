@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/AmountInput.tsx'
-type: 'code'
-community: 'Shared UI - AmountInput'
-location: 'L1'
+source_file: "src/shared/components/AmountInput.tsx"
+type: "code"
+community: "ConnectivityMonitor"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_AmountInput
+  - community/ConnectivityMonitor
 ---
 
 # AmountInput.tsx
 
 ## Connections
-
 - [[AmountInput]] - `contains` [EXTRACTED]
 - [[AmountInputProps]] - `contains` [EXTRACTED]
 - [[BUTTON_WIDTH_MAP]] - `contains` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_AmountInput
+#graphify/code #graphify/EXTRACTED #community/ConnectivityMonitor

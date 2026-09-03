@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - react dom'
-location: 'L55'
+source_file: "package.json"
+type: "concept"
+community: "dependencies"
+location: "L64"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_react_dom
+  - community/dependencies
 ---
 
 # react-dom
 
 ## Connections
-
 - [[react-dom]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_react_dom
+#graphify/concept #graphify/EXTRACTED #community/dependencies

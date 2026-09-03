@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/auth/components/mobile/MobileSocialButtons.tsx'
-type: 'code'
-community: 'Auth - MobileSignUpForm'
-location: 'L9'
+source_file: "src/features/auth/components/mobile/MobileSocialButtons.tsx"
+type: "code"
+community: "Sections"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Auth_-_MobileSignUpForm
+  - community/Sections
 ---
 
 # MobileSocialButtonsProps
 
 ## Connections
-
 - [[MobileSocialButtons.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Auth_-_MobileSignUpForm
+#graphify/code #graphify/EXTRACTED #community/Sections

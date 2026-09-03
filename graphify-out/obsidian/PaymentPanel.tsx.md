@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/PaymentPanel.tsx'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L1'
+source_file: "src/features/billing/components/PaymentPanel.tsx"
+type: "code"
+community: "SupplierList.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/SupplierListtsx
 ---
 
 # PaymentPanel.tsx
 
 ## Connections
-
 - [[AmountInput]] - `imports` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
@@ -27,14 +26,21 @@ tags:
 - [[SegmentedToggle.tsx]] - `imports_from` [EXTRACTED]
 - [[SplitPaymentDetail]] - `imports` [EXTRACTED]
 - [[billingtypes.ts]] - `imports_from` [EXTRACTED]
+- [[calculateOrderDiscount()]] - `imports` [EXTRACTED]
+- [[calculatePaymentState()]] - `imports` [EXTRACTED]
+- [[calculateQuickTenderSuggestions()]] - `imports` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
+- [[fromCents()]] - `imports` [EXTRACTED]
 - [[getSaleHeroPresentation()]] - `imports` [EXTRACTED]
 - [[hooks.ts]] - `imports_from` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[payment.ts]] - `imports_from` [EXTRACTED]
+- [[posCalculations.ts]] - `imports_from` [EXTRACTED]
 - [[saleHeroPresentation.ts]] - `imports_from` [EXTRACTED]
 - [[selectPrintSettings()]] - `imports` [EXTRACTED]
 - [[settingsSlice.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 - [[useAppSelector]] - `imports` [EXTRACTED]
 - [[useCart.ts]] - `imports_from` [EXTRACTED]
 - [[useCartCheckout()]] - `imports` [EXTRACTED]
@@ -44,4 +50,4 @@ tags:
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/SupplierListtsx

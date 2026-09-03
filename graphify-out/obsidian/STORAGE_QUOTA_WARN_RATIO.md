@@ -1,19 +1,18 @@
 ---
-source_file: 'src/offline/constants.ts'
-type: 'code'
-community: 'Offline Sync - STORAGE'
-location: 'L49'
+source_file: "src/offline/constants.ts"
+type: "code"
+community: "SearchHistoryInput.tsx"
+location: "L31"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_STORAGE
+  - community/SearchHistoryInputtsx
 ---
 
 # STORAGE_QUOTA_WARN_RATIO
 
 ## Connections
-
 - [[maintenance.ts]] - `imports` [EXTRACTED]
 - [[offlineconstants.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_STORAGE
+#graphify/code #graphify/EXTRACTED #community/SearchHistoryInputtsx

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/ServiceJobPickerModal.tsx'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L59'
+source_file: "src/features/billing/components/CatalogPanel.tsx"
+type: "code"
+community: "ProductTable.tsx"
+location: "L97"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/ProductTabletsx
 ---
 
 # SERVICE_JOB_SEARCH_FIELDS
 
 ## Connections
+- [[CatalogPanel.tsx]] - `contains` [EXTRACTED]
 
-- [[ServiceJobPickerModal.tsx]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/ProductTabletsx

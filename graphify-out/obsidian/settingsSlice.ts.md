@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Settings - DEFAULT PRINT'
-location: 'L1'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "CLAUDE.md"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_DEFAULT_PRINT
+  - community/CLAUDEmd
 ---
 
 # settingsSlice.ts
 
 ## Connections
-
 - [[BankDetailsSection.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports_from` [EXTRACTED]
@@ -28,10 +27,11 @@ tags:
 - [[ShopProfile]] - `imports` [EXTRACTED]
 - [[ShopProfileSection.tsx]] - `imports_from` [EXTRACTED]
 - [[StoredShopProfileVersion]] - `contains` [EXTRACTED]
-- [[TaxVatSection.tsx]] - `imports_from` [EXTRACTED]
-- [[initialState]] - `contains` [EXTRACTED]
+- [[initialState_3]] - `contains` [EXTRACTED]
 - [[loadSettingsFromStorage()]] - `contains` [EXTRACTED]
+- [[providers.tsx]] - `imports_from` [EXTRACTED]
 - [[saveSettingsToStorage()]] - `contains` [EXTRACTED]
+- [[selectAppLanguage()]] - `contains` [EXTRACTED]
 - [[selectPrintSettings()]] - `contains` [EXTRACTED]
 - [[selectRawShopProfileVersions()]] - `indirect_call` [INFERRED]
 - [[selectShopProfile()]] - `contains` [EXTRACTED]
@@ -40,8 +40,9 @@ tags:
 - [[settingsconstants.ts]] - `imports_from` [EXTRACTED]
 - [[settingstypes.ts]] - `imports_from` [EXTRACTED]
 - [[settingsSlice]] - `contains` [EXTRACTED]
+- [[settingsSlice.test.ts]] - `imports_from` [EXTRACTED]
 - [[storage.ts]] - `imports_from` [EXTRACTED]
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 - [[usePrint.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

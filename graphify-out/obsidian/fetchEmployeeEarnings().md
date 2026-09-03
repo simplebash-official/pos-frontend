@@ -1,21 +1,19 @@
 ---
-source_file: 'src/features/employees/api/mockEmployees.ts'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L170'
+source_file: "src/features/employees/api/employeeEarningsApi.ts"
+type: "code"
+community: "ConnectivityMonitor.ts"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_createEmployee
+  - community/ConnectivityMonitorts
 ---
 
 # fetchEmployeeEarnings()
 
 ## Connections
+- [[employeeEarningsApi.ts]] - `contains` [EXTRACTED]
+- [[useEmployeeEarnings()]] - `calls` [EXTRACTED]
+- [[useEmployeeEarnings.ts]] - `imports` [EXTRACTED]
 
-- [[dot-getAll()]] - `calls` [INFERRED]
-- [[EmployeeDetailDrawer()]] - `calls` [EXTRACTED]
-- [[EmployeeDetailDrawer.tsx]] - `imports` [EXTRACTED]
-- [[mockEmployees.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/ConnectivityMonitorts

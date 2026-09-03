@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/GlobalQuickSearchModal.tsx'
-type: 'code'
-community: 'Shared UI - mergeByCategory'
-location: 'L1'
+source_file: "src/shared/components/GlobalQuickSearchModal.tsx"
+type: "code"
+community: "calculator/index.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_mergeByCategory
+  - community/calculator/indexts
 ---
 
 # GlobalQuickSearchModal.tsx
 
 ## Connections
-
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[CUSTOMER_SEARCH_FIELDS]] - `imports` [EXTRACTED]
 - [[GlobalQuickSearchModal()]] - `contains` [EXTRACTED]
@@ -29,6 +28,7 @@ tags:
 - [[fetchPrintJobs()]] - `imports` [EXTRACTED]
 - [[fetchRepairs()]] - `imports` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[mergeByCategory()]] - `contains` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
 - [[printJobsApi.ts]] - `imports_from` [EXTRACTED]
@@ -38,6 +38,7 @@ tags:
 - [[routes.ts]] - `imports_from` [EXTRACTED]
 - [[search.ts]] - `imports_from` [EXTRACTED]
 - [[searchFields.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 - [[useAllCustomers()]] - `imports` [EXTRACTED]
 - [[useAllProducts()]] - `imports` [EXTRACTED]
 - [[useAppShortcuts()]] - `imports` [EXTRACTED]
@@ -47,4 +48,4 @@ tags:
 - [[useProducts.ts]] - `imports_from` [EXTRACTED]
 - [[useShortcuts.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory
+#graphify/code #graphify/EXTRACTED #community/calculator/indexts

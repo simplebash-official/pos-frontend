@@ -1,22 +1,18 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L71'
+source_file: "src/shared/lib/localStorageStore.ts"
+type: "code"
+community: "AnalyticsReportPreviewModal.tsx"
+location: "L71"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Employees_-_createEmployee
+  - graphify/EXTRACTED
+  - community/AnalyticsReportPreviewModaltsx
 ---
 
 # .remove()
 
 ## Connections
-
 - [[dot-persist()]] - `calls` [EXTRACTED]
 - [[LocalStorageStore]] - `method` [EXTRACTED]
-- [[deleteEarningRecordsForWork()]] - `calls` [INFERRED]
-- [[deleteEmployee()]] - `calls` [INFERRED]
-- [[deleteEmployees()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/AnalyticsReportPreviewModaltsx

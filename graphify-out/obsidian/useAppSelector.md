@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/hooks.ts'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L5'
+source_file: "src/store/hooks.ts"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/useSupplierProductsts
 ---
 
 # useAppSelector
 
 ## Connections
-
 - [[AppShell()]] - `calls` [EXTRACTED]
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[AppUpdatePrompt()]] - `calls` [EXTRACTED]
@@ -23,6 +22,10 @@ tags:
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[BrandingSection()]] - `calls` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports` [EXTRACTED]
+- [[CockpitHeader()]] - `calls` [EXTRACTED]
+- [[CockpitHeader.tsx]] - `imports` [EXTRACTED]
+- [[CreateLoginModal()]] - `calls` [EXTRACTED]
+- [[CreateLoginModal.tsx]] - `imports` [EXTRACTED]
 - [[DocumentTemplatesSection()]] - `calls` [EXTRACTED]
 - [[DocumentTemplatesSection.tsx]] - `imports` [EXTRACTED]
 - [[GuestOnly()]] - `calls` [EXTRACTED]
@@ -31,6 +34,7 @@ tags:
 - [[Header.tsx]] - `imports` [EXTRACTED]
 - [[HeldCartCatchupNotifier()]] - `calls` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports` [EXTRACTED]
+- [[LanguageRemounter()]] - `calls` [EXTRACTED]
 - [[LowStockNotifier()]] - `calls` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports` [EXTRACTED]
 - [[NotificationPopover()]] - `calls` [EXTRACTED]
@@ -39,14 +43,12 @@ tags:
 - [[PaymentPanel.tsx]] - `imports` [EXTRACTED]
 - [[PrintingSection()]] - `calls` [EXTRACTED]
 - [[PrintingSection.tsx]] - `imports` [EXTRACTED]
-- [[ProductTable()]] - `calls` [EXTRACTED]
-- [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[RequireAdmin()]] - `calls` [EXTRACTED]
 - [[RequireAdmin.tsx]] - `imports` [EXTRACTED]
 - [[RequireAuth()]] - `calls` [EXTRACTED]
 - [[RequireAuth.tsx]] - `imports` [EXTRACTED]
-- [[RoleGuard()]] - `calls` [EXTRACTED]
-- [[RoleGuard.tsx]] - `imports` [EXTRACTED]
+- [[RequirePermission()]] - `calls` [EXTRACTED]
+- [[RequirePermission.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal()]] - `calls` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[ShopProfileSection()]] - `calls` [EXTRACTED]
@@ -55,13 +57,12 @@ tags:
 - [[Sidebar.tsx]] - `imports` [EXTRACTED]
 - [[SyncPanel()]] - `calls` [EXTRACTED]
 - [[SyncPanel.tsx]] - `imports` [EXTRACTED]
-- [[SyncProvider()]] - `calls` [EXTRACTED]
-- [[SyncProvider.tsx]] - `imports` [EXTRACTED]
 - [[SyncStatusBadge()]] - `calls` [EXTRACTED]
 - [[SyncStatusBadge.tsx]] - `imports` [EXTRACTED]
-- [[TaxVatSection()]] - `calls` [EXTRACTED]
-- [[TaxVatSection.tsx]] - `imports` [EXTRACTED]
+- [[UsersList()]] - `calls` [EXTRACTED]
+- [[UsersList.tsx]] - `imports` [EXTRACTED]
 - [[hooks.ts]] - `contains` [EXTRACTED]
+- [[providers.tsx]] - `imports` [EXTRACTED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 - [[useCartCheckout()]] - `calls` [EXTRACTED]
 - [[useCartCustomer()]] - `calls` [EXTRACTED]
@@ -69,9 +70,10 @@ tags:
 - [[useCartSound()]] - `calls` [EXTRACTED]
 - [[useCartTotals()]] - `calls` [EXTRACTED]
 - [[useHeldCarts()]] - `calls` [EXTRACTED]
+- [[useIsAdmin()]] - `calls` [EXTRACTED]
+- [[usePermissions()]] - `calls` [EXTRACTED]
+- [[usePermissions.ts]] - `imports` [EXTRACTED]
 - [[usePrint()]] - `calls` [EXTRACTED]
 - [[usePrint.ts]] - `imports` [EXTRACTED]
-- [[useSyncedQuery()]] - `calls` [EXTRACTED]
-- [[useSyncedQuery.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

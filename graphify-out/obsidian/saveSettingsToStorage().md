@@ -1,19 +1,18 @@
 ---
-source_file: 'src/store/slices/settingsSlice.ts'
-type: 'code'
-community: 'Settings - DEFAULT PRINT'
-location: 'L63'
+source_file: "src/store/slices/settingsSlice.ts"
+type: "code"
+community: "CLAUDE.md"
+location: "L66"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_DEFAULT_PRINT
+  - community/CLAUDEmd
 ---
 
 # saveSettingsToStorage()
 
 ## Connections
-
 - [[settingsSlice]] - `calls` [EXTRACTED]
 - [[settingsSlice.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_DEFAULT_PRINT
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

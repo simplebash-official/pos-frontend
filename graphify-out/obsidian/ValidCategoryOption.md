@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/inventory/types.ts'
-type: 'code'
-community: 'Inventory - adjustStock'
-location: 'L33'
+source_file: "src/features/inventory/types.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_adjustStock
+  - community/useCategoriests
 ---
 
 # ValidCategoryOption
 
 ## Connections
-
 - [[categoriesApi.ts]] - `imports` [EXTRACTED]
 - [[inventorytypes.ts]] - `contains` [EXTRACTED]
 - [[useCategories.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

@@ -1,20 +1,18 @@
 ---
-source_file: 'src/offline/resources/products.resource.ts'
-type: 'code'
-community: 'Inventory - adjustStock'
-location: 'L20'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "Vercel CLI with Tokens"
+location: "L24"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_adjustStock
+  - community/Vercel_CLI_with_Tokens
 ---
 
 # UpdateProductPayload
 
 ## Connections
-
 - [[UpdateProductInput]] - `references` [EXTRACTED]
-- [[products.resource.ts]] - `contains` [EXTRACTED]
-- [[useProducts.ts]] - `imports` [EXTRACTED]
+- [[useProducts.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock
+#graphify/code #graphify/EXTRACTED #community/Vercel_CLI_with_Tokens

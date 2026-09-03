@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/BillingTabBar.tsx'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L16'
+source_file: "src/features/reports/components/AnalyticsReportsPage.tsx"
+type: "code"
+community: "Community None"
+location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/Community_None
 ---
 
 # TABS
 
 ## Connections
+- [[AnalyticsReportsPage.tsx]] - `contains` [EXTRACTED]
 
-- [[BillingTabBar.tsx]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/Community_None

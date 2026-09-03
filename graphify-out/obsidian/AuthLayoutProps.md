@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/auth/components/AuthLayout.tsx'
-type: 'code'
-community: 'Auth - EmailLoginScreen'
-location: 'L7'
+source_file: "src/features/auth/components/AuthLayout.tsx"
+type: "code"
+community: "BillingCounter.tsx"
+location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Auth_-_EmailLoginScreen
+  - community/BillingCountertsx
 ---
 
 # AuthLayoutProps
 
 ## Connections
-
 - [[AuthLayout.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Auth_-_EmailLoginScreen
+#graphify/code #graphify/EXTRACTED #community/BillingCountertsx

@@ -1,19 +1,17 @@
 ---
-source_file: 'src/offline/resources/categories.resource.ts'
-type: 'code'
-community: 'Inventory - createCategory'
-location: 'L21'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_createCategory
+  - community/useCategoriests
 ---
 
 # DeleteCategoryPayload
 
 ## Connections
+- [[useCategories.ts]] - `contains` [EXTRACTED]
 
-- [[categories.resource.ts]] - `contains` [EXTRACTED]
-- [[useCategories.ts]] - `imports` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_createCategory
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

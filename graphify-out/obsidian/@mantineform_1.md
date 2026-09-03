@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - @mantine/form'
-location: 'L42'
+source_file: "package.json"
+type: "concept"
+community: "dependencies"
+location: "L51"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_mantine/form
+  - community/dependencies
 ---
 
 # @mantine/form
 
 ## Connections
-
 - [[@mantineform]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_mantine/form
+#graphify/concept #graphify/EXTRACTED #community/dependencies

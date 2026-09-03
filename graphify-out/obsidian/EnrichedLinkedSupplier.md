@@ -1,21 +1,20 @@
 ---
-source_file: 'src/features/supplier-products/hooks/useSupplierProducts.ts'
-type: 'code'
-community: 'Offline Sync - fetchSupplierProducts'
-location: 'L17'
+source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L25"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_fetchSupplierProducts
+  - community/CatalogPaneltsx
 ---
 
 # EnrichedLinkedSupplier
 
 ## Connections
-
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[Supplier]] - `references` [EXTRACTED]
 - [[SupplierProduct]] - `inherits` [EXTRACTED]
 - [[useSupplierProducts.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

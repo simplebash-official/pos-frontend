@@ -1,23 +1,20 @@
 ---
-source_file: 'src/offline/ids/localId.ts'
-type: 'code'
-community: 'Offline Sync - OutboxError'
-location: 'L56'
+source_file: "src/shared/lib/id.ts"
+type: "code"
+community: "router.tsx"
+location: "L31"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_OutboxError
+  - community/routertsx
 ---
 
 # createIdempotencyKey()
 
 ## Connections
-
-- [[enqueueOperation()]] - `calls` [EXTRACTED]
-- [[flush.ts]] - `imports` [EXTRACTED]
-- [[localId.ts]] - `contains` [EXTRACTED]
-- [[outbox.ts]] - `imports` [EXTRACTED]
+- [[dot-constructor()]] - `calls` [EXTRACTED]
+- [[client.ts]] - `imports` [EXTRACTED]
+- [[id.ts]] - `contains` [EXTRACTED]
 - [[randomUuid()]] - `calls` [EXTRACTED]
-- [[recordConflict()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_OutboxError
+#graphify/code #graphify/EXTRACTED #community/routertsx

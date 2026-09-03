@@ -1,19 +1,17 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'Billing - PaymentMethod'
-location: 'L40'
+source_file: "src/shared/lib/posCalculations.ts"
+type: "code"
+community: "SupplierList.tsx"
+location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PaymentMethod
+  - community/SupplierListtsx
 ---
 
 # DiscountType
 
 ## Connections
+- [[posCalculations.ts]] - `contains` [EXTRACTED]
 
-- [[cartSlice.ts]] - `contains` [EXTRACTED]
-- [[useCart.ts]] - `imports` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PaymentMethod
+#graphify/code #graphify/EXTRACTED #community/SupplierListtsx

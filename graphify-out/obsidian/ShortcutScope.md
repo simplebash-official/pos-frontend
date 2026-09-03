@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/hooks/useShortcuts.ts'
-type: 'code'
-community: 'Shared UI - activeScopes'
-location: 'L10'
+source_file: "src/shared/hooks/useShortcuts.ts"
+type: "code"
+community: "CLAUDE.md"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_activeScopes
+  - community/CLAUDEmd
 ---
 
 # ShortcutScope
 
 ## Connections
-
 - [[useShortcuts.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_activeScopes
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/SearchHighlight.tsx'
-type: 'code'
-community: 'Shared UI - mergeByCategory'
-location: 'L1'
+source_file: "src/shared/components/SearchHighlight.tsx"
+type: "code"
+community: "ProductTable.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_mergeByCategory
+  - community/ProductTabletsx
 ---
 
 # SearchHighlight.tsx
 
 ## Connections
-
 - [[CatalogPanel.tsx]] - `imports_from` [EXTRACTED]
 - [[CustomerPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports_from` [EXTRACTED]
@@ -21,9 +20,8 @@ tags:
 - [[SearchHighlight()]] - `contains` [EXTRACTED]
 - [[SearchHighlightProps]] - `contains` [EXTRACTED]
 - [[SearchTerm]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[SupplierPickerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[getMatchRanges()]] - `imports` [EXTRACTED]
 - [[search.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory
+#graphify/code #graphify/EXTRACTED #community/ProductTabletsx

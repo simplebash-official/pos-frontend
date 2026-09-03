@@ -1,19 +1,18 @@
 ---
-source_file: 'tsconfig.json'
-type: 'code'
-community: 'DOM'
-location: 'L6'
+source_file: "tsconfig.json"
+type: "code"
+community: "compilerOptions"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/DOM
+  - community/compilerOptions
 ---
 
 # types
 
 ## Connections
-
 - [[compilerOptions]] - `contains` [EXTRACTED]
 - [[viteclient]] - `extends` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/DOM
+#graphify/code #graphify/EXTRACTED #community/compilerOptions

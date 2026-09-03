@@ -1,21 +1,18 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Shared UI - LocalStorageStore'
-location: 'L62'
+source_file: "src/shared/lib/localStorageStore.ts"
+type: "code"
+community: "AnalyticsReportPreviewModal.tsx"
+location: "L62"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Shared_UI_-_LocalStorageStore
+  - graphify/EXTRACTED
+  - community/AnalyticsReportPreviewModaltsx
 ---
 
 # .update()
 
 ## Connections
-
 - [[dot-persist()]] - `calls` [EXTRACTED]
 - [[LocalStorageStore]] - `method` [EXTRACTED]
-- [[updateEarningRecordForWork()]] - `calls` [INFERRED]
-- [[updateEmployee()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Shared_UI_-_LocalStorageStore
+#graphify/code #graphify/EXTRACTED #community/AnalyticsReportPreviewModaltsx

@@ -1,21 +1,18 @@
 ---
-source_file: 'src/features/sync/lib/syncNotifications.ts'
-type: 'code'
-community: 'Notifications - clearConnectivityNotification'
-location: 'L40'
+source_file: "src/features/sync/lib/syncNotifications.ts"
+type: "code"
+community: "5. Re-render Optimization"
+location: "L42"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications_-_clearConnectivityNotification
+  - community/5_Re-render_Optimization
 ---
 
 # notifyWentOffline()
 
 ## Connections
-
-- [[SyncProvider()]] - `calls` [EXTRACTED]
-- [[SyncProvider.tsx]] - `imports` [EXTRACTED]
 - [[showOrUpdate()]] - `calls` [EXTRACTED]
 - [[syncNotifications.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications_-_clearConnectivityNotification
+#graphify/code #graphify/EXTRACTED #community/5_Re-render_Optimization

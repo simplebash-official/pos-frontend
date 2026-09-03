@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useCategories.ts'
-type: 'code'
-community: 'Inventory - AddSubcategoryRow'
-location: 'L15'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L31"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AddSubcategoryRow
+  - community/useCategoriests
 ---
 
 # NO_CATEGORIES
 
 ## Connections
-
 - [[useCategories.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

@@ -1,24 +1,23 @@
 ---
-source_file: 'src/features/invoices/index.ts'
-type: 'code'
-community: 'Repairs - InvoicesList'
-location: 'L1'
+source_file: "src/features/invoices/index.ts"
+type: "code"
+community: "usePayments.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Repairs_-_InvoicesList
+  - community/usePaymentsts
 ---
 
 # invoices/index.ts
 
 ## Connections
-
+- [[CreditNoteModal()]] - `re_exports` [EXTRACTED]
+- [[CreditNoteModal.tsx]] - `re_exports` [EXTRACTED]
 - [[InvoiceDetailDrawer()]] - `re_exports` [EXTRACTED]
 - [[InvoiceDetailDrawer.tsx]] - `re_exports` [EXTRACTED]
-- [[InvoicesList]] - `imports_from` [EXTRACTED]
 - [[InvoicesList()]] - `re_exports` [EXTRACTED]
 - [[InvoicesList.tsx]] - `re_exports` [EXTRACTED]
 - [[invoicestypes.ts]] - `re_exports` [EXTRACTED]
-- [[router.tsx]] - `dynamic_import` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList
+#graphify/code #graphify/EXTRACTED #community/usePaymentsts

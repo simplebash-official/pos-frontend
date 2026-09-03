@@ -1,19 +1,18 @@
 ---
-source_file: 'src/app/router.tsx'
-type: 'code'
-community: 'Repairs - InvoicesList'
-location: 'L21'
+source_file: "src/app/router.tsx"
+type: "code"
+community: "ROUTES"
+location: "L30"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Repairs_-_InvoicesList
+  - community/ROUTES
 ---
 
 # RepairJobList
 
 ## Connections
-
-- [[repairsindex.ts]] - `imports_from` [EXTRACTED]
+- [[RepairJobList.tsx]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList
+#graphify/code #graphify/EXTRACTED #community/ROUTES

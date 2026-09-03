@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/hooks/useCart.ts'
-type: 'code'
-community: 'Billing - Header'
-location: 'L239'
+source_file: "src/features/billing/hooks/useCart.ts"
+type: "code"
+community: "ai-application.md"
+location: "L266"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_Header
+  - community/ai-applicationmd
 ---
 
 # useHeldCarts()
 
 ## Connections
-
 - [[BillingCounter()]] - `calls` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports` [EXTRACTED]
 - [[CartPanel]] - `calls` [EXTRACTED]
@@ -26,4 +25,4 @@ tags:
 - [[useAppSelector]] - `calls` [EXTRACTED]
 - [[useCart.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_Header
+#graphify/code #graphify/EXTRACTED #community/ai-applicationmd

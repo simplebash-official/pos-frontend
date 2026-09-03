@@ -1,24 +1,22 @@
 ---
-source_file: 'src/features/inventory/hooks/useProducts.ts'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L43'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L73"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/useSupplierProductsts
 ---
 
 # useLowStockProducts()
 
 ## Connections
-
 - [[LowStockNotifier()]] - `calls` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports` [EXTRACTED]
 - [[Sidebar()]] - `calls` [EXTRACTED]
 - [[Sidebar.tsx]] - `imports` [EXTRACTED]
-- [[applyLedgerToProducts()]] - `calls` [EXTRACTED]
+- [[fetchLowStockProducts()]] - `indirect_call` [INFERRED]
 - [[useProducts.ts]] - `contains` [EXTRACTED]
-- [[useSyncedQuery()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

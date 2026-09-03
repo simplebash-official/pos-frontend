@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/search.ts'
-type: 'code'
-community: 'Shared UI - mergeByCategory'
-location: 'L56'
+source_file: "src/shared/lib/search.ts"
+type: "code"
+community: "searchFields.ts"
+location: "L57"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_mergeByCategory
+  - community/searchFieldsts
 ---
 
 # SearchEntry
 
 ## Connections
-
 - [[search.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_mergeByCategory
+#graphify/code #graphify/EXTRACTED #community/searchFieldsts

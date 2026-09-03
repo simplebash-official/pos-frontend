@@ -1,19 +1,17 @@
 ---
-source_file: 'src/offline/resources/products.resource.ts'
-type: 'code'
-community: 'Inventory - adjustStock'
-location: 'L29'
+source_file: "src/features/inventory/hooks/useProducts.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_adjustStock
+  - community/CatalogPaneltsx
 ---
 
 # DeleteProductsPayload
 
 ## Connections
+- [[useProducts.ts]] - `contains` [EXTRACTED]
 
-- [[products.resource.ts]] - `contains` [EXTRACTED]
-- [[useProducts.ts]] - `imports` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

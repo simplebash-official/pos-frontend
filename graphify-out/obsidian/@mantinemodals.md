@@ -1,19 +1,18 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'Dependencies - axios'
-location: 'L44'
+source_file: "package.json"
+type: "code"
+community: "dependencies"
+location: "L53"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dependencies_-_axios
+  - community/dependencies
 ---
 
 # @mantine/modals
 
 ## Connections
-
 - [[@mantinemodals_1]] - `imports` [EXTRACTED]
 - [[dependencies]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dependencies_-_axios
+#graphify/code #graphify/EXTRACTED #community/dependencies

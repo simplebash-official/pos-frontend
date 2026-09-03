@@ -1,19 +1,19 @@
 ---
-source_file: 'src/store/slices/cartSlice.ts'
-type: 'code'
-community: 'Billing - PaymentMethod'
-location: 'L571'
+source_file: "src/store/slices/cartSlice.ts"
+type: "code"
+community: "cartSlice.ts"
+location: "L639"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PaymentMethod
+  - community/cartSlicets
 ---
 
 # selectSplitRemainingCents
 
 ## Connections
-
+- [[cartSlice.test.ts]] - `imports` [EXTRACTED]
 - [[cartSlice.ts]] - `contains` [EXTRACTED]
 - [[useCart.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PaymentMethod
+#graphify/code #graphify/EXTRACTED #community/cartSlicets

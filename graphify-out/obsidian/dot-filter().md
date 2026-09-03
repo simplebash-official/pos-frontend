@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Shared UI - LocalStorageStore'
-location: 'L79'
+source_file: "src/shared/lib/localStorageStore.ts"
+type: "code"
+community: "AnalyticsReportPreviewModal.tsx"
+location: "L79"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_LocalStorageStore
+  - community/AnalyticsReportPreviewModaltsx
 ---
 
 # .filter()
 
 ## Connections
-
 - [[LocalStorageStore]] - `method` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_LocalStorageStore
+#graphify/code #graphify/EXTRACTED #community/AnalyticsReportPreviewModaltsx

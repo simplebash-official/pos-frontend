@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/hooks/useSearchHistory.ts'
-type: 'code'
-community: 'Shared UI - getServerSnapshot'
-location: 'L1'
+source_file: "src/shared/hooks/useSearchHistory.ts"
+type: "code"
+community: "Rules"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_getServerSnapshot
+  - community/Rules
 ---
 
 # useSearchHistory.ts
 
 ## Connections
-
 - [[STORAGE_KEYS]] - `imports` [EXTRACTED]
 - [[SearchHistoryData]] - `contains` [EXTRACTED]
 - [[SearchHistoryInput.tsx]] - `imports_from` [EXTRACTED]
@@ -29,4 +28,4 @@ tags:
 - [[useSearchHistory()]] - `contains` [EXTRACTED]
 - [[writeAllHistory()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_getServerSnapshot
+#graphify/code #graphify/EXTRACTED #community/Rules

@@ -1,26 +1,26 @@
 ---
-source_file: 'src/features/print-jobs/api/printJobsApi.ts'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L81'
+source_file: "src/features/print-jobs/api/printJobsApi.ts"
+type: "code"
+community: "analyticsApi.ts"
+location: "L93"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/analyticsApits
 ---
 
 # fetchPrintJobs()
 
 ## Connections
-
-- [[CatalogPanel]] - `indirect_call` [INFERRED]
+- [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
-- [[GlobalQuickSearchModal()]] - `indirect_call` [INFERRED]
+- [[GlobalQuickSearchModal()]] - `calls` [EXTRACTED]
 - [[GlobalQuickSearchModal.tsx]] - `imports` [EXTRACTED]
+- [[PrintJobList()]] - `calls` [EXTRACTED]
 - [[PrintJobList.tsx]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal()]] - `indirect_call` [INFERRED]
-- [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[printJobsApi.ts]] - `contains` [EXTRACTED]
 - [[toPrintJob()]] - `indirect_call` [INFERRED]
+- [[useAllPrintJobs()]] - `calls` [EXTRACTED]
+- [[usePrintJobs.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/analyticsApits

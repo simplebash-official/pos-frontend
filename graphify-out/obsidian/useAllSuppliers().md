@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/suppliers/hooks/useSuppliers.ts'
-type: 'code'
-community: 'Suppliers - useSetSupplierLinks'
-location: 'L22'
+source_file: "src/features/suppliers/hooks/useSuppliers.ts"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L25"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_useSetSupplierLinks
+  - community/CreditNoteModaltsx
 ---
 
 # useAllSuppliers()
 
 ## Connections
-
 - [[ProductFormContent()]] - `calls` [EXTRACTED]
 - [[ProductFormModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductTable()]] - `calls` [EXTRACTED]
@@ -23,8 +22,10 @@ tags:
 - [[SupplierList.tsx]] - `imports` [EXTRACTED]
 - [[SupplierPickerModal()]] - `calls` [EXTRACTED]
 - [[SupplierPickerModal.tsx]] - `imports` [EXTRACTED]
+- [[fetchSuppliers()]] - `calls` [EXTRACTED]
 - [[useSupplierCategories()]] - `calls` [EXTRACTED]
+- [[useSupplierProducts.ts]] - `imports` [EXTRACTED]
 - [[useSuppliers.ts]] - `contains` [EXTRACTED]
-- [[useSyncedQuery()]] - `calls` [EXTRACTED]
+- [[useSuppliersForProduct()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_useSetSupplierLinks
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

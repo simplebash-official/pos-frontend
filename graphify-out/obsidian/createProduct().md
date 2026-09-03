@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/inventory/api/productsApi.ts'
-type: 'code'
-community: 'Inventory - adjustStock'
-location: 'L49'
+source_file: "src/features/inventory/api/productsApi.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L64"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_adjustStock
+  - community/CatalogPaneltsx
 ---
 
 # createProduct()
 
 ## Connections
-
-- [[products.resource.ts]] - `imports` [EXTRACTED]
 - [[productsApi.ts]] - `contains` [EXTRACTED]
-- [[productsResource]] - `calls` [EXTRACTED]
+- [[useCreateProduct()]] - `calls` [EXTRACTED]
+- [[useProducts.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_adjustStock
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

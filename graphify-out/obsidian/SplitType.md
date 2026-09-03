@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/types.ts'
-type: 'code'
-community: 'Employees - JOB STATUS'
-location: 'L1'
+source_file: "src/features/employees/types.ts"
+type: "code"
+community: "Step 2: Choose a Deploy Method"
+location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_JOB_STATUS
+  - community/Step_2_Choose_a_Deploy_Method
 ---
 
 # SplitType
 
 ## Connections
-
 - [[AssignmentInfo]] - `references` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]
 - [[PrintJob]] - `references` [EXTRACTED]
@@ -24,4 +23,4 @@ tags:
 - [[repairstypes.ts]] - `imports` [EXTRACTED]
 - [[ticketInput.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_JOB_STATUS
+#graphify/code #graphify/EXTRACTED #community/Step_2_Choose_a_Deploy_Method

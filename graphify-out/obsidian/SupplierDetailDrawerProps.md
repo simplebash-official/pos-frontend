@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/suppliers/components/SupplierDetailDrawer.tsx'
-type: 'code'
-community: 'Suppliers - createSupplier'
-location: 'L60'
+source_file: "src/features/suppliers/components/SupplierDetailDrawer.tsx"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L61"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_createSupplier
+  - community/CreditNoteModaltsx
 ---
 
 # SupplierDetailDrawerProps
 
 ## Connections
-
 - [[Supplier]] - `references` [EXTRACTED]
 - [[SupplierDetailDrawer.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

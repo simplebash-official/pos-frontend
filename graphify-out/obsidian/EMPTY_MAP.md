@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/lib/tablerIcons.ts'
-type: 'code'
-community: 'Shared UI - TablerIconPicker'
-location: 'L23'
+source_file: "src/shared/lib/tablerIcons.ts"
+type: "code"
+community: "tablerIconShards/index.ts"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_TablerIconPicker
+  - community/tablerIconShards/indexts
 ---
 
 # EMPTY_MAP
 
 ## Connections
-
 - [[tablerIcons.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_TablerIconPicker
+#graphify/code #graphify/EXTRACTED #community/tablerIconShards/indexts

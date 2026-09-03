@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/billing/components/CartLineItem.tsx'
-type: 'code'
-community: 'Billing - PaymentMethod'
-location: 'L12'
+source_file: "src/features/billing/components/CartLineItem.tsx"
+type: "code"
+community: "RepairJobList.tsx"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PaymentMethod
+  - community/RepairJobListtsx
 ---
 
 # CartLineItemProps
 
 ## Connections
-
 - [[CartItem]] - `references` [EXTRACTED]
 - [[CartLineItem.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PaymentMethod
+#graphify/code #graphify/EXTRACTED #community/RepairJobListtsx

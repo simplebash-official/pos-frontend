@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/auth/components/mobile/MobileLoginForm.tsx'
-type: 'code'
-community: 'Auth - EmailLoginScreen'
-location: 'L12'
+source_file: "src/features/auth/components/mobile/MobileLoginForm.tsx"
+type: "code"
+community: "SupplierDetailDrawer.tsx"
+location: "L24"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Auth_-_EmailLoginScreen
+  - community/SupplierDetailDrawertsx
 ---
 
 # MobileLoginFormProps
 
 ## Connections
-
 - [[MobileLoginForm.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Auth_-_EmailLoginScreen
+#graphify/code #graphify/EXTRACTED #community/SupplierDetailDrawertsx

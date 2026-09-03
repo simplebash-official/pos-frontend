@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - axios'
-location: 'L43'
+source_file: "package.json"
+type: "concept"
+community: "dependencies"
+location: "L52"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_axios
+  - community/dependencies
 ---
 
 # @mantine/hooks
 
 ## Connections
-
 - [[@mantinehooks]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_axios
+#graphify/concept #graphify/EXTRACTED #community/dependencies

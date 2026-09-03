@@ -1,22 +1,17 @@
 ---
-source_file: 'src/api/client.ts'
-type: 'code'
-community: 'Offline Sync - constructor'
-location: 'L83'
+source_file: ".agents/skills/vercel-optimize/lib/throttle.mjs"
+type: "code"
+community: "Semaphore"
+location: "L106"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_constructor
+  - community/Semaphore
 ---
 
 # .constructor()
 
 ## Connections
+- [[SlidingWindowRateLimiter]] - `method` [EXTRACTED]
 
-- [[ApiClient]] - `method` [EXTRACTED]
-- [[getDeviceId()]] - `calls` [EXTRACTED]
-- [[isApiErrorLike()]] - `calls` [EXTRACTED]
-- [[readServerTime()]] - `calls` [EXTRACTED]
-- [[reportNetworkObservation()]] - `calls` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor
+#graphify/code #graphify/EXTRACTED #community/Semaphore

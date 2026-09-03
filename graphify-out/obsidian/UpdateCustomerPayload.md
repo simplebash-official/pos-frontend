@@ -1,20 +1,18 @@
 ---
-source_file: 'src/offline/resources/customers.resource.ts'
-type: 'code'
-community: 'Billing - fetchInvoices'
-location: 'L16'
+source_file: "src/features/customers/hooks/useCustomers.ts"
+type: "code"
+community: "CustomerList.tsx"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_fetchInvoices
+  - community/CustomerListtsx
 ---
 
 # UpdateCustomerPayload
 
 ## Connections
-
 - [[CustomerInput]] - `references` [EXTRACTED]
-- [[customers.resource.ts]] - `contains` [EXTRACTED]
-- [[useCustomers.ts]] - `imports` [EXTRACTED]
+- [[useCustomers.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices
+#graphify/code #graphify/EXTRACTED #community/CustomerListtsx

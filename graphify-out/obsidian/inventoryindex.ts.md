@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/index.ts'
-type: 'code'
-community: 'Inventory - AddSubcategoryRow'
-location: 'L1'
+source_file: "src/features/inventory/index.ts"
+type: "code"
+community: "ProductTable.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AddSubcategoryRow
+  - community/ProductTabletsx
 ---
 
 # inventory/index.ts
 
 ## Connections
-
 - [[CATEGORY_COLOR_OPTIONS]] - `re_exports` [EXTRACTED]
 - [[CategoryManagerModal()]] - `re_exports` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `re_exports` [EXTRACTED]
@@ -21,13 +20,14 @@ tags:
 - [[ProductFormModal.tsx]] - `re_exports` [EXTRACTED]
 - [[ProductPickerModal()]] - `re_exports` [EXTRACTED]
 - [[ProductPickerModal.tsx]] - `re_exports` [EXTRACTED]
-- [[ProductTable]] - `imports_from` [EXTRACTED]
 - [[ProductTable()]] - `re_exports` [EXTRACTED]
 - [[ProductTable.tsx]] - `re_exports` [EXTRACTED]
+- [[barcode.ts]] - `re_exports` [EXTRACTED]
 - [[inventoryconstants.ts]] - `re_exports` [EXTRACTED]
 - [[inventorytypes.ts]] - `re_exports` [EXTRACTED]
+- [[looksLikeBarcode()]] - `re_exports` [EXTRACTED]
 - [[resolveCategoryIcon()]] - `re_exports` [EXTRACTED]
-- [[router.tsx]] - `dynamic_import` [EXTRACTED]
+- [[resolveProductByBarcode()]] - `re_exports` [EXTRACTED]
 - [[searchFields.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow
+#graphify/code #graphify/EXTRACTED #community/ProductTabletsx

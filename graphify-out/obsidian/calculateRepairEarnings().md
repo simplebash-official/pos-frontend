@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/repairs/api/repairsApi.ts'
-type: 'code'
-community: 'Employees - addEarningRecord'
-location: 'L10'
+source_file: "src/features/repairs/api/repairsApi.ts"
+type: "code"
+community: "PrintJobList.tsx"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_addEarningRecord
+  - community/PrintJobListtsx
 ---
 
 # calculateRepairEarnings()
 
 ## Connections
-
 - [[repairsApi.ts]] - `contains` [EXTRACTED]
 - [[toRepairJob()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord
+#graphify/code #graphify/EXTRACTED #community/PrintJobListtsx

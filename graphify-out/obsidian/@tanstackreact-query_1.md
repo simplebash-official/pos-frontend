@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - @tanstack/react query'
-location: 'L48'
+source_file: "package.json"
+type: "concept"
+community: "dependencies"
+location: "L57"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_tanstack/react_query
+  - community/dependencies
 ---
 
 # @tanstack/react-query
 
 ## Connections
-
 - [[@tanstackreact-query]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_tanstack/react_query
+#graphify/concept #graphify/EXTRACTED #community/dependencies

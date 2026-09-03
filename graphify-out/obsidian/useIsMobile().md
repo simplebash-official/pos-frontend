@@ -1,22 +1,23 @@
 ---
-source_file: 'src/shared/hooks/useResponsive.tsx'
-type: 'code'
-community: 'Billing - HeldSalesDrawer'
-location: 'L67'
+source_file: "src/shared/hooks/useResponsive.tsx"
+type: "code"
+community: "calculator/index.ts"
+location: "L67"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_HeldSalesDrawer
+  - community/calculator/indexts
 ---
 
 # useIsMobile()
 
 ## Connections
-
-- [[A4InvoicePreviewModal()]] - `calls` [EXTRACTED]
-- [[A4InvoicePreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[AmountInput]] - `calls` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports` [EXTRACTED]
+- [[AnalyticsFilterBar()]] - `calls` [EXTRACTED]
+- [[AnalyticsFilterBar.tsx]] - `imports` [EXTRACTED]
+- [[AnalyticsReportPreviewModal()]] - `calls` [EXTRACTED]
+- [[AnalyticsReportPreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[AuthLayout()]] - `calls` [EXTRACTED]
 - [[AuthLayout.tsx]] - `imports` [EXTRACTED]
 - [[BillingCounter()]] - `calls` [EXTRACTED]
@@ -25,8 +26,16 @@ tags:
 - [[CartLineItem.tsx]] - `imports` [EXTRACTED]
 - [[CartPanel]] - `calls` [EXTRACTED]
 - [[CartPanel.tsx]] - `imports` [EXTRACTED]
+- [[CashShiftSummaryWidget()]] - `calls` [EXTRACTED]
+- [[CashShiftSummaryWidget.tsx]] - `imports` [EXTRACTED]
 - [[CategoryManagerModal()]] - `calls` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports` [EXTRACTED]
+- [[CockpitHeader()]] - `calls` [EXTRACTED]
+- [[CockpitHeader.tsx]] - `imports` [EXTRACTED]
+- [[CreateLoginModal()]] - `calls` [EXTRACTED]
+- [[CreateLoginModal.tsx]] - `imports` [EXTRACTED]
+- [[CreditNoteModal()]] - `calls` [EXTRACTED]
+- [[CreditNoteModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerFormContent()]] - `calls` [EXTRACTED]
 - [[CustomerFormModal()]] - `calls` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
@@ -34,12 +43,14 @@ tags:
 - [[CustomerPickerModal.tsx]] - `imports` [EXTRACTED]
 - [[DetailDrawer()]] - `calls` [EXTRACTED]
 - [[DetailDrawer.tsx]] - `imports` [EXTRACTED]
+- [[DonutWithLegend()]] - `calls` [EXTRACTED]
+- [[DonutWithLegend.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeDetailDrawer()]] - `calls` [EXTRACTED]
 - [[EmployeeDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[EmployeeFormModal()]] - `calls` [EXTRACTED]
 - [[EmployeeFormModal.tsx]] - `imports` [EXTRACTED]
-- [[FilterTagChips()]] - `calls` [EXTRACTED]
-- [[FilterTagChips.tsx]] - `imports` [EXTRACTED]
+- [[FastMoversWidget()]] - `calls` [EXTRACTED]
+- [[FastMoversWidget.tsx]] - `imports` [EXTRACTED]
 - [[Header()]] - `calls` [EXTRACTED]
 - [[Header.tsx]] - `imports` [EXTRACTED]
 - [[HeldSalesDrawer()]] - `calls` [EXTRACTED]
@@ -48,6 +59,8 @@ tags:
 - [[InvoiceDetailDrawer.tsx]] - `imports` [EXTRACTED]
 - [[KeyboardShortcutsModal()]] - `calls` [EXTRACTED]
 - [[KeyboardShortcutsModal.tsx]] - `imports` [EXTRACTED]
+- [[LiveActivityFeed()]] - `calls` [EXTRACTED]
+- [[LiveActivityFeed.tsx]] - `imports` [EXTRACTED]
 - [[LoginForm()]] - `calls` [EXTRACTED]
 - [[LoginForm.tsx]] - `imports` [EXTRACTED]
 - [[NotificationPopover()]] - `calls` [EXTRACTED]
@@ -56,6 +69,7 @@ tags:
 - [[PaymentPanel.tsx]] - `imports` [EXTRACTED]
 - [[PdfCanvasViewer()]] - `calls` [EXTRACTED]
 - [[PdfCanvasViewer.tsx]] - `imports` [EXTRACTED]
+- [[PrintJobFormModal()]] - `calls` [EXTRACTED]
 - [[PrintJobFormModal.tsx]] - `imports` [EXTRACTED]
 - [[ProductFormContent()]] - `calls` [EXTRACTED]
 - [[ProductFormModal()]] - `calls` [EXTRACTED]
@@ -66,13 +80,16 @@ tags:
 - [[ProductTable.tsx]] - `imports` [EXTRACTED]
 - [[ReceiveStockModal()]] - `calls` [EXTRACTED]
 - [[ReceiveStockModal.tsx]] - `imports` [EXTRACTED]
+- [[RepairFormModal()]] - `calls` [EXTRACTED]
 - [[RepairFormModal.tsx]] - `imports` [EXTRACTED]
 - [[SaleDocumentPreviewModal()]] - `calls` [EXTRACTED]
 - [[SaleDocumentPreviewModal.tsx]] - `imports` [EXTRACTED]
 - [[SearchHistoryInput]] - `calls` [EXTRACTED]
 - [[SearchHistoryInput.tsx]] - `imports` [EXTRACTED]
-- [[ServiceJobPickerModal()]] - `calls` [EXTRACTED]
-- [[ServiceJobPickerModal.tsx]] - `imports` [EXTRACTED]
+- [[SerialNumberPickerModal()]] - `calls` [EXTRACTED]
+- [[SerialNumberPickerModal.tsx]] - `imports` [EXTRACTED]
+- [[ServicePipelineWidget()]] - `calls` [EXTRACTED]
+- [[ServicePipelineWidget.tsx]] - `imports` [EXTRACTED]
 - [[Sidebar()]] - `calls` [EXTRACTED]
 - [[Sidebar.tsx]] - `imports` [EXTRACTED]
 - [[SupplierDetailDrawer()]] - `calls` [EXTRACTED]
@@ -86,7 +103,11 @@ tags:
 - [[SyncDrawer.tsx]] - `imports` [EXTRACTED]
 - [[SyncStatusBadge()]] - `calls` [EXTRACTED]
 - [[SyncStatusBadge.tsx]] - `imports` [EXTRACTED]
+- [[TechnicianWorkloadWidget()]] - `calls` [EXTRACTED]
+- [[TechnicianWorkloadWidget.tsx]] - `imports` [EXTRACTED]
+- [[UrgentActionCenter()]] - `calls` [EXTRACTED]
+- [[UrgentActionCenter.tsx]] - `imports` [EXTRACTED]
 - [[useLayoutTierContext()]] - `calls` [EXTRACTED]
 - [[useResponsive.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_HeldSalesDrawer
+#graphify/code #graphify/EXTRACTED #community/calculator/indexts

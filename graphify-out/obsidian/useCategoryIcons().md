@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useCategories.ts'
-type: 'code'
-community: 'Inventory - AddSubcategoryRow'
-location: 'L71'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L84"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AddSubcategoryRow
+  - community/useCategoriests
 ---
 
 # useCategoryIcons()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[CategoryItem()]] - `calls` [EXTRACTED]
@@ -25,4 +24,4 @@ tags:
 - [[useCategories.ts]] - `contains` [EXTRACTED]
 - [[useTablerIcons()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

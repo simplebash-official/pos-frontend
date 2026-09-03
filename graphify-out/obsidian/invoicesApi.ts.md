@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/api/invoicesApi.ts'
-type: 'code'
-community: 'Billing - BackendInvoice'
-location: 'L1'
+source_file: "src/features/billing/api/invoicesApi.ts"
+type: "code"
+community: "InvoicesList.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_BackendInvoice
+  - community/InvoicesListtsx
 ---
 
 # invoicesApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendInvoice]] - `contains` [EXTRACTED]
@@ -28,19 +27,25 @@ tags:
 - [[CompleteSaleResult]] - `contains` [EXTRACTED]
 - [[CompleteSaleSplitPaymentInput]] - `contains` [EXTRACTED]
 - [[CustomerDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
+- [[FetchInvoicesParams]] - `contains` [EXTRACTED]
 - [[Invoice]] - `imports` [EXTRACTED]
 - [[InvoiceItem]] - `imports` [EXTRACTED]
 - [[InvoiceListResponseData]] - `contains` [EXTRACTED]
+- [[InvoiceStatus]] - `imports` [EXTRACTED]
 - [[InvoicesList.tsx]] - `imports_from` [EXTRACTED]
 - [[SplitPaymentDetail]] - `imports` [EXTRACTED]
 - [[billingtypes.ts]] - `imports_from` [EXTRACTED]
 - [[client.ts]] - `imports_from` [EXTRACTED]
+- [[closeInvoice()]] - `contains` [EXTRACTED]
 - [[common.ts]] - `imports_from` [EXTRACTED]
 - [[completeSale()]] - `contains` [EXTRACTED]
+- [[fetchAllInvoices()]] - `contains` [EXTRACTED]
 - [[fetchInvoiceById()]] - `contains` [EXTRACTED]
 - [[fetchInvoices()]] - `contains` [EXTRACTED]
 - [[toInvoice()]] - `contains` [EXTRACTED]
 - [[toInvoiceItem()]] - `contains` [EXTRACTED]
 - [[toSplitPayment()]] - `contains` [EXTRACTED]
+- [[useInvoices.ts]] - `imports_from` [EXTRACTED]
+- [[voidInvoice()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_BackendInvoice
+#graphify/code #graphify/EXTRACTED #community/InvoicesListtsx

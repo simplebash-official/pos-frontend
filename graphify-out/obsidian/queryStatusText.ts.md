@@ -1,22 +1,20 @@
 ---
-source_file: 'src/shared/lib/queryStatusText.ts'
-type: 'code'
-community: 'Repairs - InvoicesList'
-location: 'L1'
+source_file: "src/shared/lib/queryStatusText.ts"
+type: "code"
+community: "SaleDocumentPreviewModal.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Repairs_-_InvoicesList
+  - community/SaleDocumentPreviewModaltsx
 ---
 
 # queryStatusText.ts
 
 ## Connections
+- [[DocumentConnectivityStatus]] - `contains` [EXTRACTED]
+- [[PdfCanvasViewer.tsx]] - `imports_from` [EXTRACTED]
+- [[StandalonePrintView.tsx]] - `imports_from` [EXTRACTED]
+- [[getDocumentUnavailableText()]] - `contains` [EXTRACTED]
 
-- [[InvoicesList.tsx]] - `imports_from` [EXTRACTED]
-- [[PrintJobList.tsx]] - `imports_from` [EXTRACTED]
-- [[QueryConnectivityStatus]] - `contains` [EXTRACTED]
-- [[RepairJobList.tsx]] - `imports_from` [EXTRACTED]
-- [[getListEmptyText()]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Repairs_-_InvoicesList
+#graphify/code #graphify/EXTRACTED #community/SaleDocumentPreviewModaltsx

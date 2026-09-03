@@ -1,27 +1,27 @@
 ---
-source_file: 'src/features/employees/components/EmployeeList.tsx'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L53'
+source_file: "src/features/employees/components/EmployeeList.tsx"
+type: "code"
+community: "verify-claim.mjs"
+location: "L64"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_createEmployee
+  - community/verify-claimmjs
 ---
 
 # EmployeeList()
 
 ## Connections
-
 - [[EmployeeList.tsx]] - `contains` [EXTRACTED]
-- [[createEmployee()]] - `indirect_call` [INFERRED]
-- [[deleteEmployee()]] - `indirect_call` [INFERRED]
-- [[deleteEmployees()]] - `indirect_call` [INFERRED]
-- [[fetchEmployees()]] - `indirect_call` [INFERRED]
 - [[formatMoney()]] - `calls` [EXTRACTED]
 - [[getAvatarColor()]] - `calls` [EXTRACTED]
 - [[getInitials()]] - `calls` [EXTRACTED]
-- [[updateEmployee()]] - `calls` [EXTRACTED]
+- [[t()]] - `calls` [EXTRACTED]
+- [[useAllEmployees()]] - `calls` [EXTRACTED]
+- [[useCreateEmployee()]] - `calls` [EXTRACTED]
+- [[useDeleteEmployee()]] - `calls` [EXTRACTED]
+- [[useDeleteEmployees()]] - `calls` [EXTRACTED]
 - [[useEntitySearch()]] - `calls` [EXTRACTED]
+- [[useUpdateEmployee()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/verify-claimmjs

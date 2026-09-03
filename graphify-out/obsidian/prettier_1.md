@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - prettier'
-location: 'L31'
+source_file: "package.json"
+type: "concept"
+community: "Recommendations"
+location: "L38"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_prettier
+  - community/Recommendations
 ---
 
 # prettier
 
 ## Connections
-
 - [[prettier]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_prettier
+#graphify/concept #graphify/EXTRACTED #community/Recommendations

@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - eslint'
-location: 'L29'
+source_file: "package.json"
+type: "concept"
+community: "devDependencies"
+location: "L36"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_eslint
+  - community/devDependencies
 ---
 
 # postcss-preset-mantine
 
 ## Connections
-
 - [[postcss-preset-mantine]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_eslint
+#graphify/concept #graphify/EXTRACTED #community/devDependencies

@@ -1,24 +1,23 @@
 ---
-source_file: 'src/features/settings/components/SectionShell.tsx'
-type: 'code'
-community: 'Settings - ACCEPTED TYPES'
-location: 'L20'
+source_file: "src/features/settings/components/SectionShell.tsx"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_ACCEPTED_TYPES
+  - community/useSupplierProductsts
 ---
 
 # SectionShell()
 
 ## Connections
-
 - [[BankDetailsSection.tsx]] - `imports` [EXTRACTED]
 - [[BrandingSection.tsx]] - `imports` [EXTRACTED]
 - [[DocumentTemplatesSection.tsx]] - `imports` [EXTRACTED]
 - [[PrintingSection.tsx]] - `imports` [EXTRACTED]
 - [[SectionShell.tsx]] - `contains` [EXTRACTED]
 - [[ShopProfileSection.tsx]] - `imports` [EXTRACTED]
-- [[TaxVatSection.tsx]] - `imports` [EXTRACTED]
+- [[t()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_ACCEPTED_TYPES
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

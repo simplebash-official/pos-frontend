@@ -1,19 +1,18 @@
 ---
-source_file: 'src/shared/lib/searchFields.ts'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L54'
+source_file: "src/shared/lib/searchFields.ts"
+type: "code"
+community: "useAnalyticsQueries.ts"
+location: "L57"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_createEmployee
+  - community/useAnalyticsQueriests
 ---
 
 # EMPLOYEE_SEARCH_FIELDS
 
 ## Connections
-
 - [[EmployeeList.tsx]] - `imports` [EXTRACTED]
 - [[searchFields.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/useAnalyticsQueriests

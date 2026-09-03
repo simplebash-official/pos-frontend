@@ -1,18 +1,18 @@
 ---
-source_file: 'src/offline/db/maintenance.ts'
-type: 'code'
-community: 'Offline Sync - STORAGE'
-location: 'L48'
+source_file: "src/offline/db/maintenance.ts"
+type: "code"
+community: "SearchHistoryInput.tsx"
+location: "L45"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_STORAGE
+  - community/SearchHistoryInputtsx
 ---
 
 # requestPersistentStorage()
 
 ## Connections
-
 - [[maintenance.ts]] - `contains` [EXTRACTED]
+- [[offlineindex.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_STORAGE
+#graphify/code #graphify/EXTRACTED #community/SearchHistoryInputtsx

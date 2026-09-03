@@ -1,18 +1,17 @@
 ---
-source_file: 'src/offline/connectivity/ConnectivityMonitor.ts'
-type: 'code'
-community: 'Offline Sync - constructor'
-location: 'L335'
+source_file: "src/offline/connectivity/ConnectivityMonitor.ts"
+type: "code"
+community: "constants/index.ts"
+location: "L341"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_constructor
+  - community/constants/indexts
 ---
 
 # .update()
 
 ## Connections
-
 - [[dot-commitPendingSettle()]] - `calls` [EXTRACTED]
 - [[dot-handleLinkDown()]] - `calls` [EXTRACTED]
 - [[dot-handleLinkUp()]] - `calls` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[ConnectivityMonitor]] - `method` [EXTRACTED]
 - [[ConnectivitySnapshot]] - `references` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_constructor
+#graphify/code #graphify/EXTRACTED #community/constants/indexts

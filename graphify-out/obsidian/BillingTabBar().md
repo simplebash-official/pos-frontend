@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/billing/components/BillingTabBar.tsx'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L63'
+source_file: "src/features/billing/components/BillingTabBar.tsx"
+type: "code"
+community: "ai-application.md"
+location: "L64"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/ai-applicationmd
 ---
 
 # BillingTabBar()
 
 ## Connections
-
 - [[BillingRegions.tsx]] - `imports` [EXTRACTED]
 - [[BillingTabBar.tsx]] - `contains` [EXTRACTED]
 - [[useCartItems()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/ai-applicationmd

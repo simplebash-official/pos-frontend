@@ -1,18 +1,17 @@
 ---
-source_file: 'src/api/client.ts'
-type: 'code'
-community: 'ApiClient'
-location: 'L145'
+source_file: "src/api/client.ts"
+type: "code"
+community: "hard-gates.mjs"
+location: "L123"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/ApiClient
+  - community/hard-gatesmjs
 ---
 
 # .request()
 
 ## Connections
-
 - [[dot-delete()]] - `calls` [EXTRACTED]
 - [[dot-get()]] - `calls` [EXTRACTED]
 - [[dot-patch()]] - `calls` [EXTRACTED]
@@ -20,6 +19,5 @@ tags:
 - [[dot-put()]] - `calls` [EXTRACTED]
 - [[ApiClient]] - `method` [EXTRACTED]
 - [[buildParams()]] - `calls` [EXTRACTED]
-- [[buildSyncHeaders()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/ApiClient
+#graphify/code #graphify/EXTRACTED #community/hard-gatesmjs

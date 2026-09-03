@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/billing/components/KeyboardShortcutsModal.tsx'
-type: 'code'
-community: 'Billing - ROUTE TITLES'
-location: 'L30'
+source_file: "src/features/billing/components/KeyboardShortcutsModal.tsx"
+type: "code"
+community: "CLAUDE.md"
+location: "L32"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_ROUTE_TITLES
+  - community/CLAUDEmd
 ---
 
 # KeyboardShortcutsModal()
 
 ## Connections
-
-- [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[KeyboardShortcutsModal.tsx]] - `contains` [EXTRACTED]
+- [[t()]] - `calls` [EXTRACTED]
 - [[useIsMobile()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_ROUTE_TITLES
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

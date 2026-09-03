@@ -1,19 +1,18 @@
 ---
-source_file: 'src/app/router.tsx'
-type: 'code'
-community: 'Billing - SettingsPage'
-location: 'L27'
+source_file: "src/app/router.tsx"
+type: "code"
+community: "ROUTES"
+location: "L36"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_SettingsPage
+  - community/ROUTES
 ---
 
 # ProductTable
 
 ## Connections
-
-- [[inventoryindex.ts]] - `imports_from` [EXTRACTED]
+- [[ProductTable.tsx]] - `imports_from` [EXTRACTED]
 - [[router.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage
+#graphify/code #graphify/EXTRACTED #community/ROUTES

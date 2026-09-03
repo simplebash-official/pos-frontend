@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/CartLineItem.tsx'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L1'
+source_file: "src/features/billing/components/CartLineItem.tsx"
+type: "code"
+community: "RepairJobList.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/RepairJobListtsx
 ---
 
 # CartLineItem.tsx
 
 ## Connections
-
 - [[CartItem]] - `imports` [EXTRACTED]
 - [[CartLineItem]] - `contains` [EXTRACTED]
 - [[CartLineItemProps]] - `contains` [EXTRACTED]
@@ -25,8 +24,10 @@ tags:
 - [[categoryIcons.ts]] - `imports_from` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
 - [[getCategoryIconInfo()]] - `imports` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 - [[useIsMobile()]] - `imports` [EXTRACTED]
 - [[useResponsive.tsx]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/RepairJobListtsx

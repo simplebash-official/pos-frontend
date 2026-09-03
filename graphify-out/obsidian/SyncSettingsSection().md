@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/sync/components/SyncSettingsSection.tsx'
-type: 'code'
-community: 'Settings - SyncDrawer'
-location: 'L11'
+source_file: "src/features/sync/components/SyncSettingsSection.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_SyncDrawer
+  - community/useCategoriests
 ---
 
 # SyncSettingsSection()
 
 ## Connections
-
-- [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[SyncSettingsSection.tsx]] - `contains` [EXTRACTED]
 - [[syncindex.ts]] - `re_exports` [EXTRACTED]
+- [[t()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

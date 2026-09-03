@@ -1,18 +1,17 @@
 ---
-source_file: 'src/shared/components/EmptyState.tsx'
-type: 'code'
-community: 'Inventory - StockMovement'
-location: 'L4'
+source_file: "src/shared/components/EmptyState.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_StockMovement
+  - community/useCategoriests
 ---
 
 # EmptyStateProps
 
 ## Connections
-
 - [[EmptyState.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_StockMovement
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/notificationSlice.ts'
-type: 'code'
-community: 'Notifications - initialState'
-location: 'L1'
+source_file: "src/store/slices/notificationSlice.ts"
+type: "code"
+community: "notificationSlice.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Notifications_-_initialState
+  - community/notificationSlicets
 ---
 
 # notificationSlice.ts
 
 ## Connections
-
 - [[AppNotification]] - `imports` [EXTRACTED]
 - [[HeldCartCatchupNotifier.tsx]] - `imports_from` [EXTRACTED]
 - [[LowStockNotifier.tsx]] - `imports_from` [EXTRACTED]
@@ -23,7 +22,6 @@ tags:
 - [[RepairJobList.tsx]] - `imports_from` [EXTRACTED]
 - [[RootState]] - `imports` [EXTRACTED]
 - [[STORAGE_KEYS]] - `imports` [EXTRACTED]
-- [[SyncProvider.tsx]] - `imports_from` [EXTRACTED]
 - [[initialState_1]] - `contains` [EXTRACTED]
 - [[listenerMiddleware.ts]] - `imports_from` [EXTRACTED]
 - [[loadNotificationsFromStorage()]] - `contains` [EXTRACTED]
@@ -37,4 +35,4 @@ tags:
 - [[storage.ts]] - `imports_from` [EXTRACTED]
 - [[storeindex.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Notifications_-_initialState
+#graphify/code #graphify/EXTRACTED #community/notificationSlicets

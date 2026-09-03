@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/print-jobs/api/printJobsApi.ts'
-type: 'code'
-community: 'Employees - addEarningRecord'
-location: 'L10'
+source_file: "src/features/print-jobs/api/printJobsApi.ts"
+type: "code"
+community: "analyticsApi.ts"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_addEarningRecord
+  - community/analyticsApits
 ---
 
 # calculatePrintEarnings()
 
 ## Connections
-
 - [[printJobsApi.ts]] - `contains` [EXTRACTED]
 - [[toPrintJob()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_addEarningRecord
+#graphify/code #graphify/EXTRACTED #community/analyticsApits

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/employees/types.ts'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L3'
+source_file: "src/features/employees/types.ts"
+type: "code"
+community: "EmployeeList.tsx"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_createEmployee
+  - community/EmployeeListtsx
 ---
 
 # EmployeeRole
 
 ## Connections
-
 - [[employeestypes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/EmployeeListtsx

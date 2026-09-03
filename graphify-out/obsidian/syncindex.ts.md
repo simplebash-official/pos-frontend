@@ -1,20 +1,17 @@
 ---
-source_file: 'src/features/sync/index.ts'
-type: 'code'
-community: 'Settings - SyncDrawer'
-location: 'L1'
+source_file: "src/features/sync/index.ts"
+type: "code"
+community: "useCategories.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_SyncDrawer
+  - community/useCategoriests
 ---
 
 # sync/index.ts
 
 ## Connections
-
-- [[AppShell.tsx]] - `imports_from` [EXTRACTED]
-- [[Header.tsx]] - `imports_from` [EXTRACTED]
 - [[PendingOperationsList()]] - `re_exports` [EXTRACTED]
 - [[PendingOperationsList.tsx]] - `re_exports` [EXTRACTED]
 - [[SyncDrawer()]] - `re_exports` [EXTRACTED]
@@ -29,4 +26,4 @@ tags:
 - [[SyncStatusBadge.tsx]] - `re_exports` [EXTRACTED]
 - [[synctypes.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

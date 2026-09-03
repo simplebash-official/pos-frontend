@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/components/LowStockNotifier.tsx'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L1'
+source_file: "src/features/inventory/components/LowStockNotifier.tsx"
+type: "code"
+community: "useSupplierProducts.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/useSupplierProductsts
 ---
 
 # LowStockNotifier.tsx
 
 ## Connections
-
 - [[LowStockNotifier()]] - `contains` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
 - [[authSlice.ts]] - `imports_from` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[useLowStockProducts()]] - `imports` [EXTRACTED]
 - [[useProducts.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/useSupplierProductsts

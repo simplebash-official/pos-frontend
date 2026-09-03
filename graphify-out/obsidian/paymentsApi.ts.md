@@ -1,29 +1,27 @@
 ---
-source_file: 'src/features/billing/api/paymentsApi.ts'
-type: 'code'
-community: 'Billing - MutationRequestOptions'
-location: 'L1'
+source_file: "src/features/billing/api/paymentsApi.ts"
+type: "code"
+community: "useIsMobile"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_MutationRequestOptions
+  - community/useIsMobile
 ---
 
 # paymentsApi.ts
 
 ## Connections
-
 - [[ApiClient]] - `imports` [EXTRACTED]
 - [[ApiResponse]] - `imports` [EXTRACTED]
 - [[BackendPaymentRecord]] - `contains` [EXTRACTED]
-- [[InvoiceDetailDrawer.tsx]] - `imports_from` [EXTRACTED]
-- [[PaymentListResponseData]] - `contains` [EXTRACTED]
 - [[PaymentRecord]] - `contains` [EXTRACTED]
 - [[RecordPaymentInput]] - `contains` [EXTRACTED]
 - [[client.ts]] - `imports_from` [EXTRACTED]
 - [[common.ts]] - `imports_from` [EXTRACTED]
-- [[fetchPaymentsForInvoice()]] - `contains` [EXTRACTED]
+- [[fetchInvoicePayments()]] - `contains` [EXTRACTED]
 - [[recordPayment()]] - `contains` [EXTRACTED]
 - [[toPaymentRecord()]] - `contains` [EXTRACTED]
+- [[usePayments.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_MutationRequestOptions
+#graphify/code #graphify/EXTRACTED #community/useIsMobile

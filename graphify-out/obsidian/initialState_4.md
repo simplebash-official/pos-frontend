@@ -1,18 +1,17 @@
 ---
-source_file: 'src/store/slices/authSlice.ts'
-type: 'code'
-community: 'Auth - RequireAdmin'
-location: 'L44'
+source_file: "src/store/slices/cartSlice.ts"
+type: "code"
+community: "cartSlice.ts"
+location: "L122"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Auth_-_RequireAdmin
+  - community/cartSlicets
 ---
 
 # initialState
 
 ## Connections
+- [[cartSlice.ts]] - `contains` [EXTRACTED]
 
-- [[authSlice.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Auth_-_RequireAdmin
+#graphify/code #graphify/EXTRACTED #community/cartSlicets

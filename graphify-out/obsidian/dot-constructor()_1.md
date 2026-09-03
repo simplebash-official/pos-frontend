@@ -1,19 +1,17 @@
 ---
-source_file: 'src/shared/lib/localStorageStore.ts'
-type: 'code'
-community: 'Shared UI - LocalStorageStore'
-location: 'L9'
+source_file: ".agents/skills/vercel-optimize/lib/gates/contract.mjs"
+type: "code"
+community: "gate-investigations.mjs"
+location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_UI_-_LocalStorageStore
+  - community/gate-investigationsmjs
 ---
 
 # .constructor()
 
 ## Connections
+- [[CandidateContractError]] - `method` [EXTRACTED]
 
-- [[dot-load()]] - `calls` [EXTRACTED]
-- [[LocalStorageStore]] - `method` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Shared_UI_-_LocalStorageStore
+#graphify/code #graphify/EXTRACTED #community/gate-investigationsmjs

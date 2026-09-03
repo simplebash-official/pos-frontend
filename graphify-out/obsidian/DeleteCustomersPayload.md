@@ -1,19 +1,17 @@
 ---
-source_file: 'src/offline/resources/customers.resource.ts'
-type: 'code'
-community: 'Customers - createCustomer'
-location: 'L25'
+source_file: "src/features/customers/hooks/useCustomers.ts"
+type: "code"
+community: "CustomerList.tsx"
+location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Customers_-_createCustomer
+  - community/CustomerListtsx
 ---
 
 # DeleteCustomersPayload
 
 ## Connections
+- [[useCustomers.ts]] - `contains` [EXTRACTED]
 
-- [[customers.resource.ts]] - `contains` [EXTRACTED]
-- [[useCustomers.ts]] - `imports` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Customers_-_createCustomer
+#graphify/code #graphify/EXTRACTED #community/CustomerListtsx

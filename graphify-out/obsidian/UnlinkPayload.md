@@ -1,19 +1,17 @@
 ---
-source_file: 'src/offline/resources/supplierProducts.resource.ts'
-type: 'code'
-community: 'Offline Sync - fetchSupplierProducts'
-location: 'L14'
+source_file: "src/features/supplier-products/hooks/useSupplierProducts.ts"
+type: "code"
+community: "CatalogPanel.tsx"
+location: "L29"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Offline_Sync_-_fetchSupplierProducts
+  - community/CatalogPaneltsx
 ---
 
 # UnlinkPayload
 
 ## Connections
+- [[useSupplierProducts.ts]] - `contains` [EXTRACTED]
 
-- [[supplierProducts.resource.ts]] - `contains` [EXTRACTED]
-- [[useSupplierProducts.ts]] - `imports` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Offline_Sync_-_fetchSupplierProducts
+#graphify/code #graphify/EXTRACTED #community/CatalogPaneltsx

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/customers/hooks/useCustomers.ts'
-type: 'code'
-community: 'Billing - fetchInvoices'
-location: 'L38'
+source_file: "src/features/customers/hooks/useCustomers.ts"
+type: "code"
+community: "CustomerList.tsx"
+location: "L37"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_fetchInvoices
+  - community/CustomerListtsx
 ---
 
 # useCustomerTags()
 
 ## Connections
-
 - [[CustomerFormContent()]] - `calls` [EXTRACTED]
 - [[CustomerFormModal.tsx]] - `imports` [EXTRACTED]
 - [[CustomerList()]] - `calls` [EXTRACTED]
@@ -20,4 +19,4 @@ tags:
 - [[useAllCustomers()]] - `calls` [EXTRACTED]
 - [[useCustomers.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_fetchInvoices
+#graphify/code #graphify/EXTRACTED #community/CustomerListtsx

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/constants.ts'
-type: 'code'
-community: 'Inventory - AddSubcategoryRow'
-location: 'L1'
+source_file: "src/features/inventory/constants.ts"
+type: "code"
+community: "ProductTable.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AddSubcategoryRow
+  - community/ProductTabletsx
 ---
 
 # inventory/constants.ts
 
 ## Connections
-
 - [[CATEGORY_COLOR_OPTIONS]] - `contains` [EXTRACTED]
 - [[CategoryManagerModal.tsx]] - `imports_from` [EXTRACTED]
 - [[DEFAULT_CATEGORY_ICON]] - `contains` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[resolveTablerIcon()]] - `imports` [EXTRACTED]
 - [[tablerIcons.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow
+#graphify/code #graphify/EXTRACTED #community/ProductTabletsx

@@ -1,19 +1,18 @@
 ---
-source_file: 'src/features/billing/components/CatalogPanel.tsx'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L51'
+source_file: "src/features/billing/components/CatalogPanel.tsx"
+type: "code"
+community: "ai-application.md"
+location: "L69"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/ai-applicationmd
 ---
 
 # chunk()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/ai-applicationmd

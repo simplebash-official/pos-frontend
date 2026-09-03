@@ -1,20 +1,19 @@
 ---
-source_file: 'src/features/suppliers/api/suppliersApi.ts'
-type: 'code'
-community: 'Suppliers - createSupplier'
-location: 'L48'
+source_file: "src/features/suppliers/api/suppliersApi.ts"
+type: "code"
+community: "CreditNoteModal.tsx"
+location: "L38"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_-_createSupplier
+  - community/CreditNoteModaltsx
 ---
 
 # deleteSuppliers()
 
 ## Connections
-
-- [[suppliers.resource.ts]] - `imports` [EXTRACTED]
 - [[suppliersApi.ts]] - `contains` [EXTRACTED]
-- [[suppliersResource]] - `calls` [EXTRACTED]
+- [[useDeleteSuppliers()]] - `calls` [EXTRACTED]
+- [[useSuppliers.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_-_createSupplier
+#graphify/code #graphify/EXTRACTED #community/CreditNoteModaltsx

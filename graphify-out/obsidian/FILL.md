@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/BillingRegions.tsx'
-type: 'code'
-community: 'Billing - PAYMENT METHODS'
-location: 'L26'
+source_file: "src/shared/components/BillingPageSkeleton.tsx"
+type: "code"
+community: "ROUTES"
+location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_PAYMENT_METHODS
+  - community/ROUTES
 ---
 
 # FILL
 
 ## Connections
+- [[BillingPageSkeleton.tsx]] - `contains` [EXTRACTED]
 
-- [[BillingRegions.tsx]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Billing_-_PAYMENT_METHODS
+#graphify/code #graphify/EXTRACTED #community/ROUTES

@@ -1,19 +1,18 @@
 ---
-source_file: 'package.json'
-type: 'code'
-community: 'Dependencies - eslint'
-location: 'L18'
+source_file: "package.json"
+type: "code"
+community: "scripts/render-report.mjs"
+location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dependencies_-_eslint
+  - community/scripts/render-reportmjs
 ---
 
 # @eslint/js
 
 ## Connections
-
 - [[@eslintjs_1]] - `imports` [EXTRACTED]
 - [[devDependencies]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dependencies_-_eslint
+#graphify/code #graphify/EXTRACTED #community/scripts/render-reportmjs

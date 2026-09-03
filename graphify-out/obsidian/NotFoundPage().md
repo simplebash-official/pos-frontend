@@ -1,19 +1,19 @@
 ---
-source_file: 'src/shared/components/NotFoundPage.tsx'
-type: 'code'
-community: 'Billing - SettingsPage'
-location: 'L6'
+source_file: "src/shared/components/NotFoundPage.tsx"
+type: "code"
+community: "ROUTES"
+location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_SettingsPage
+  - community/ROUTES
 ---
 
 # NotFoundPage()
 
 ## Connections
-
 - [[NotFoundPage.tsx]] - `contains` [EXTRACTED]
 - [[router.tsx]] - `imports` [EXTRACTED]
+- [[t()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_SettingsPage
+#graphify/code #graphify/EXTRACTED #community/ROUTES

@@ -1,18 +1,17 @@
 ---
-source_file: 'package.json'
-type: 'concept'
-community: 'Dependencies - postcss'
-location: 'L28'
+source_file: "package.json"
+type: "concept"
+community: "devDependencies"
+location: "L35"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Dependencies_-_postcss
+  - community/devDependencies
 ---
 
 # postcss
 
 ## Connections
-
 - [[postcss]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Dependencies_-_postcss
+#graphify/concept #graphify/EXTRACTED #community/devDependencies

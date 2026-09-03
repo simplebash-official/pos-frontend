@@ -1,21 +1,19 @@
 ---
-source_file: 'src/features/employees/api/mockEmployees.ts'
-type: 'code'
-community: 'Employees - createEmployee'
-location: 'L147'
+source_file: "src/features/employees/api/employeesApi.ts"
+type: "code"
+community: "verify-claim.mjs"
+location: "L38"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Employees_-_createEmployee
+  - community/verify-claimmjs
 ---
 
 # deleteEmployee()
 
 ## Connections
+- [[employeesApi.ts]] - `contains` [EXTRACTED]
+- [[useDeleteEmployee()]] - `calls` [EXTRACTED]
+- [[useEmployees.ts]] - `imports` [EXTRACTED]
 
-- [[dot-remove()]] - `calls` [INFERRED]
-- [[EmployeeList()]] - `indirect_call` [INFERRED]
-- [[EmployeeList.tsx]] - `imports` [EXTRACTED]
-- [[mockEmployees.ts]] - `contains` [EXTRACTED]
-
-#graphify/code #graphify/EXTRACTED #community/Employees_-_createEmployee
+#graphify/code #graphify/EXTRACTED #community/verify-claimmjs

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/sync/components/SyncStatusBadge.tsx'
-type: 'code'
-community: 'Settings - SyncDrawer'
-location: 'L16'
+source_file: "src/features/sync/components/SyncStatusBadge.tsx"
+type: "code"
+community: "useCategories.ts"
+location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Settings_-_SyncDrawer
+  - community/useCategoriests
 ---
 
 # SyncStatusBadgeProps
 
 ## Connections
-
 - [[SyncStatusBadge.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Settings_-_SyncDrawer
+#graphify/code #graphify/EXTRACTED #community/useCategoriests

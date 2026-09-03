@@ -1,19 +1,18 @@
 ---
-source_file: 'src/app/layout/constants.ts'
-type: 'code'
-community: 'Billing - ROUTE TITLES'
-location: 'L10'
+source_file: "src/app/layout/constants.ts"
+type: "code"
+community: "CLAUDE.md"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_ROUTE_TITLES
+  - community/CLAUDEmd
 ---
 
 # SHELL_NAVBAR_WIDTH
 
 ## Connections
-
 - [[AppShell.tsx]] - `imports` [EXTRACTED]
 - [[layoutconstants.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_ROUTE_TITLES
+#graphify/code #graphify/EXTRACTED #community/CLAUDEmd

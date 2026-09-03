@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/inventory/hooks/useCategories.ts'
-type: 'code'
-community: 'Inventory - AddSubcategoryRow'
-location: 'L62'
+source_file: "src/features/inventory/hooks/useCategories.ts"
+type: "code"
+community: "calculator/index.ts"
+location: "L75"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AddSubcategoryRow
+  - community/calculator/indexts
 ---
 
 # useCategoryLookup()
 
 ## Connections
-
 - [[CatalogPanel]] - `calls` [EXTRACTED]
 - [[CatalogPanel.tsx]] - `imports` [EXTRACTED]
 - [[ProductPickerModal()]] - `calls` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[useCategories()]] - `calls` [EXTRACTED]
 - [[useCategories.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AddSubcategoryRow
+#graphify/code #graphify/EXTRACTED #community/calculator/indexts

@@ -1,18 +1,17 @@
 ---
-source_file: 'src/features/billing/components/DiscountPopover.tsx'
-type: 'code'
-community: 'Billing - CartLineItem'
-location: 'L1'
+source_file: "src/features/billing/components/DiscountPopover.tsx"
+type: "code"
+community: "RepairJobList.tsx"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Billing_-_CartLineItem
+  - community/RepairJobListtsx
 ---
 
 # DiscountPopover.tsx
 
 ## Connections
-
 - [[AmountInput]] - `imports` [EXTRACTED]
 - [[AmountInput.tsx]] - `imports_from` [EXTRACTED]
 - [[BillingCounter.tsx]] - `imports_from` [EXTRACTED]
@@ -21,7 +20,12 @@ tags:
 - [[DiscountPopoverProps]] - `contains` [EXTRACTED]
 - [[SegmentedToggle()]] - `imports` [EXTRACTED]
 - [[SegmentedToggle.tsx]] - `imports_from` [EXTRACTED]
+- [[calculateOrderDiscount()]] - `imports` [EXTRACTED]
 - [[formatMoney()]] - `imports` [EXTRACTED]
+- [[fromCents()]] - `imports` [EXTRACTED]
+- [[i18nt.ts]] - `imports_from` [EXTRACTED]
 - [[money.ts]] - `imports_from` [EXTRACTED]
+- [[posCalculations.ts]] - `imports_from` [EXTRACTED]
+- [[t()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Billing_-_CartLineItem
+#graphify/code #graphify/EXTRACTED #community/RepairJobListtsx

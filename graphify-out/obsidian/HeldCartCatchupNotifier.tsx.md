@@ -1,18 +1,17 @@
 ---
-source_file: 'src/app/components/HeldCartCatchupNotifier.tsx'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L1'
+source_file: "src/app/components/HeldCartCatchupNotifier.tsx"
+type: "code"
+community: "authSlice.ts"
+location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/authSlicets
 ---
 
 # HeldCartCatchupNotifier.tsx
 
 ## Connections
-
 - [[HELD_CART_REMINDER_MS]] - `imports` [EXTRACTED]
 - [[HeldCartCatchupNotifier()]] - `contains` [EXTRACTED]
 - [[ROUTES]] - `imports` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[useAppDispatch]] - `imports` [EXTRACTED]
 - [[useAppSelector]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/authSlicets

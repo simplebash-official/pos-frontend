@@ -1,18 +1,18 @@
 ---
-source_file: 'src/shared/components/PageLoader.tsx'
-type: 'code'
-community: 'Inventory - AppUpdatePrompt'
-location: 'L3'
+source_file: "src/shared/components/PageLoader.tsx"
+type: "code"
+community: "SupplierDetailDrawer.tsx"
+location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Inventory_-_AppUpdatePrompt
+  - community/SupplierDetailDrawertsx
 ---
 
 # PageLoaderProps
 
 ## Connections
-
+- [[OrbState]] - `references` [EXTRACTED]
 - [[PageLoader.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Inventory_-_AppUpdatePrompt
+#graphify/code #graphify/EXTRACTED #community/SupplierDetailDrawertsx
