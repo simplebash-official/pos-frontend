@@ -11,6 +11,8 @@ export interface PrintJob {
   customerPhone?: string;
   jobType: PrintJobType;
   quantity: number;
+  promisedReadyAt?: string; // "YYYY-MM-DD" — date promised to the customer
+  isOverdue?: boolean; // server-computed: promised date passed and job still open
   status: JobStatus;
   estimatedCostCents: number; // Customer total cost
   materialCostCents?: number; // Raw materials cost (t-shirts, mug blanks, ink)
@@ -27,6 +29,7 @@ export interface PrintJobInput {
   assignment?: AssignmentInfo;
   jobType: PrintJobType;
   quantity: number;
+  promisedReadyAt?: string;
   status: JobStatus;
   estimatedCostCents: number;
   materialCostCents?: number;

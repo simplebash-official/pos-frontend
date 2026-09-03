@@ -53,10 +53,12 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
           return (
             item.type === 'pending_approval' ||
             item.type === 'overdue_repair' ||
+            item.type === 'due_soon_job' ||
             item.type === 'uncollected'
           );
         if (filter === 'stock') return item.type === 'stockout';
-        if (filter === 'credit') return item.type === 'credit_overdue';
+        if (filter === 'credit')
+          return item.type === 'credit_overdue' || item.type === 'credit_due_soon';
         return true;
       }),
     [activeItems, filter]
@@ -70,9 +72,12 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
         return <IconPhone size={18} />;
       case 'overdue_repair':
         return <IconClockExclamation size={18} />;
+      case 'due_soon_job':
+        return <IconClockExclamation size={18} />;
       case 'uncollected':
         return <IconHammer size={18} />;
       case 'credit_overdue':
+      case 'credit_due_soon':
         return <IconFileDollar size={18} />;
     }
   };
@@ -119,9 +124,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                 </Badge>
               </Group>
               <Text size="xs" c="dimmed">
-                {t(
-                  'High-priority blockers, unapproved estimates, and critical stockouts needing your\n                                              touch today'
-                )}
+                {t('Payments due, jobs to hand back, and low stock that needs you today')}
               </Text>
             </div>
           </Group>

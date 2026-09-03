@@ -428,6 +428,35 @@ export interface OutstandingReceivablesResponse {
   totalPages: number;
 }
 
+/** `GET /reports/reminders` — the dashboard's unified attention feed. */
+export type ReminderKind = 'credit_overdue' | 'credit_due_soon' | 'job_overdue' | 'job_due_soon';
+
+export interface ReminderEntry {
+  kind: ReminderKind;
+  id: string;
+  key: string;
+  referenceNumber: string;
+  title: string;
+  customerName?: string;
+  customerPhone?: string;
+  amountCents: number;
+  dueDate: string;
+  daysFromDue: number;
+  severity: 'critical' | 'warning' | 'info';
+  linkTo: string;
+}
+
+export interface RemindersResponse {
+  reminders: ReminderEntry[];
+  creditOverdueCount: number;
+  creditOverdueAmountCents: number;
+  creditDueSoonCount: number;
+  creditDueSoonAmountCents: number;
+  jobsOverdueCount: number;
+  jobsDueSoonCount: number;
+  dueWithinDays: number;
+}
+
 /** `GET /reports/inventory-valuation` */
 export interface CategoryValuationEntry {
   categoryKey: string;

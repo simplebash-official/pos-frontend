@@ -15,7 +15,13 @@ export interface DashboardPulseKpis {
 }
 
 export type UrgentItemType =
-  'stockout' | 'pending_approval' | 'overdue_repair' | 'uncollected' | 'credit_overdue';
+  | 'stockout'
+  | 'pending_approval'
+  | 'overdue_repair'
+  | 'due_soon_job'
+  | 'uncollected'
+  | 'credit_overdue'
+  | 'credit_due_soon';
 
 export interface UrgentActionItem {
   id: string;

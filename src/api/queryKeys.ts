@@ -83,6 +83,7 @@ export const queryKeys = {
     topProducts: (filters: Record<string, unknown>) => ['reports', 'topProducts', filters] as const,
     outstanding: (filters?: Record<string, unknown>) =>
       ['reports', 'outstanding', filters] as const,
+    reminders: (filters?: Record<string, unknown>) => ['reports', 'reminders', filters] as const,
     inventoryValuation: () => ['reports', 'inventoryValuation'] as const,
     receivablesAging: (asOf?: string) => ['reports', 'receivablesAging', asOf] as const,
     employeeCommissions: (filters: Record<string, unknown>) =>

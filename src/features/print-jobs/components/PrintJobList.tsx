@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
@@ -28,6 +29,7 @@ import { fetchPrintJobs } from '../api/printJobsApi';
 import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
+import { getJobDueMeta } from '@/shared/lib/jobDueDate';
 import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { MetricCardRow } from '@/shared/components/MetricCard';
@@ -112,6 +114,22 @@ export const PrintJobList = () => {
     setJobToEdit(job);
     setModalOpen(true);
   };
+
+  // Deep link from the dashboard reminders: /print-jobs?jobKey=<key>
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const key = searchParams.get('jobKey');
+    if (!key || !printJobs) return;
+    const match = printJobs.find((j) => j.id === key);
+    if (!match) return;
+    // Opening a record from a URL param is a legitimate effect use here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    handleOpenEdit(match);
+    const next = new URLSearchParams(searchParams);
+    next.delete('jobKey');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [printJobs, searchParams]);
 
   const handleFormSubmit = async (values: PrintJobInput) => {
     if (jobToEdit) {
@@ -236,9 +254,19 @@ export const PrintJobList = () => {
       header: 'Status',
       align: 'left',
       sortable: true,
-      render: (job) => (
-        <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
-      ),
+      render: (job) => {
+        const dueMeta = getJobDueMeta(job);
+        return (
+          <Group gap={4} wrap="wrap">
+            <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
+            {dueMeta && (
+              <Badge color={dueMeta.color} variant="light">
+                {dueMeta.label}
+              </Badge>
+            )}
+          </Group>
+        );
+      },
     },
     {
       key: 'estimatedCostCents',
@@ -246,6 +274,13 @@ export const PrintJobList = () => {
       align: 'left',
       sortable: true,
       render: (job) => formatMoney(job.estimatedCostCents),
+    },
+    {
+      key: 'promisedReadyAt',
+      header: 'Promised',
+      align: 'left',
+      sortable: true,
+      render: (job) => (job.promisedReadyAt ? formatDate(job.promisedReadyAt) : '—'),
     },
     {
       key: 'createdAt',

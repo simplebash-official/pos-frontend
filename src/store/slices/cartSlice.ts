@@ -73,6 +73,10 @@ interface CartState {
   splitPayments: SplitPaymentDetail[];
   isCredit: boolean;
   tenderedAmountCents: number;
+  /** For a credit sale: how much the customer pays up front (0 = pay later). */
+  creditDepositCents: number;
+  /** How that up-front payment was taken. */
+  creditDepositMethod: 'cash' | 'card';
   documentSelection: 'receipt' | 'invoice' | 'both' | 'none';
   dueDate: string | null;
   cardRef: string;
@@ -130,6 +134,8 @@ const initialState: CartState = {
   splitPayments: [],
   isCredit: false,
   tenderedAmountCents: 0,
+  creditDepositCents: 0,
+  creditDepositMethod: 'cash',
   documentSelection: loadInitialPrintSelection(),
   dueDate: null,
   cardRef: '',
@@ -157,6 +163,8 @@ const resetCartState = (state: CartState) => {
   state.paymentMethod = PAYMENT_METHODS.CASH;
   state.isCredit = false;
   state.tenderedAmountCents = 0;
+  state.creditDepositCents = 0;
+  state.creditDepositMethod = 'cash';
   state.dueDate = null;
   state.cardRef = '';
   state.onlineRef = '';
@@ -320,11 +328,21 @@ const cartSlice = createSlice({
       state.customerBalanceCents = action.payload.outstandingBalanceCents ?? 0;
       if (!action.payload.id) {
         state.isCredit = false;
+        state.creditDepositCents = 0;
+        state.creditDepositMethod = 'cash';
       }
     },
 
     setTenderedAmountCents: (state, action: PayloadAction<number>) => {
       state.tenderedAmountCents = action.payload;
+    },
+
+    setCreditDepositCents: (state, action: PayloadAction<number>) => {
+      state.creditDepositCents = Math.max(0, Math.round(action.payload));
+    },
+
+    setCreditDepositMethod: (state, action: PayloadAction<'cash' | 'card'>) => {
+      state.creditDepositMethod = action.payload;
     },
 
     setDocumentSelection: (
@@ -369,6 +387,10 @@ const cartSlice = createSlice({
         return;
       }
       state.isCredit = action.payload;
+      if (!action.payload) {
+        state.creditDepositCents = 0;
+        state.creditDepositMethod = 'cash';
+      }
       if (action.payload) {
         state.tenderedAmountCents = 0;
         try {
@@ -512,6 +534,8 @@ export const {
   updateLineDiscount,
   setCustomer,
   setTenderedAmountCents,
+  setCreditDepositCents,
+  setCreditDepositMethod,
   setDocumentSelection,
   setDueDate,
   setDiscount,
@@ -542,6 +566,10 @@ export const selectLastRemovedItem = (state: { cart: CartState }) => state.cart.
 export const selectSoundEnabled = (state: { cart: CartState }) => state.cart.soundEnabled;
 export const selectTenderedAmountCents = (state: { cart: CartState }) =>
   state.cart.tenderedAmountCents;
+export const selectCreditDepositCents = (state: { cart: CartState }) =>
+  state.cart.creditDepositCents;
+export const selectCreditDepositMethod = (state: { cart: CartState }) =>
+  state.cart.creditDepositMethod;
 export const selectDocumentSelection = (state: { cart: CartState }) => state.cart.documentSelection;
 export const selectDueDate = (state: { cart: CartState }) => state.cart.dueDate;
 export const selectCompletedSale = (state: { cart: CartState }) => state.cart.completedSale;

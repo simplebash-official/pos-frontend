@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   Stack,
   Group,
@@ -68,6 +68,8 @@ export interface InvoiceDetailDrawerProps {
   onClose: () => void;
   invoice: Invoice | null;
   onRefresh?: () => void;
+  /** Open the Record Payment modal as soon as the drawer shows (deep link). */
+  openPaymentModalOnMount?: boolean;
 }
 
 const sectionLabelStyle = { letterSpacing: '0.05em' } as const;
@@ -77,6 +79,7 @@ export const InvoiceDetailDrawer = ({
   onClose,
   invoice,
   onRefresh,
+  openPaymentModalOnMount = false,
 }: InvoiceDetailDrawerProps) => {
   const isMobile = useIsMobile();
 
@@ -133,6 +136,18 @@ export const InvoiceDetailDrawer = ({
     setPayAmountRupees(Math.round(remainingCents / 100));
     setPaymentModalOpen(true);
   };
+
+  // Deep link (dashboard "Record Payment"): open the payment modal once the
+  // drawer is showing a payable invoice.
+  useEffect(() => {
+    const payable = invoice?.status === 'pending' || invoice?.status === 'partially_paid';
+    if (opened && openPaymentModalOnMount && payable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPayAmountRupees(Math.round(remainingCents / 100));
+      setPaymentModalOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened, openPaymentModalOnMount, invoice?.id]);
 
   const handleRecordPayment = async () => {
     if (!invoice) return;

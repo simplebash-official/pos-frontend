@@ -10,6 +10,11 @@ import cartReducer, {
   setPaymentMethod,
   setSplitPayments,
   setIsCredit,
+  setCreditDepositCents,
+  setCreditDepositMethod,
+  startNewSale,
+  selectCreditDepositCents,
+  selectCreditDepositMethod,
   setCardRef,
   setOnlineRef,
   setOnlineNote,
@@ -159,6 +164,32 @@ describe('cartSlice reducer & selectors', () => {
 
       state = cartReducer(state, setCustomer({ id: null, name: null }));
       expect(state.isCredit).toBe(false);
+    });
+
+    it('tracks a credit deposit and clears it when leaving credit mode', () => {
+      let state = cartReducer(getInitialState(), setCustomer({ id: 'cust_1', name: 'John Doe' }));
+      state = cartReducer(state, setIsCredit(true));
+      state = cartReducer(state, setCreditDepositCents(50000.6));
+      state = cartReducer(state, setCreditDepositMethod('card'));
+
+      expect(selectCreditDepositCents({ cart: state })).toBe(50001); // rounded, non-negative
+      expect(selectCreditDepositMethod({ cart: state })).toBe('card');
+
+      state = cartReducer(state, setCreditDepositCents(-100));
+      expect(selectCreditDepositCents({ cart: state })).toBe(0);
+
+      state = cartReducer(state, setCreditDepositCents(50000));
+      state = cartReducer(state, setIsCredit(false));
+      expect(selectCreditDepositCents({ cart: state })).toBe(0);
+      expect(selectCreditDepositMethod({ cart: state })).toBe('cash');
+    });
+
+    it('startNewSale resets the credit deposit', () => {
+      let state = cartReducer(getInitialState(), setCustomer({ id: 'cust_1', name: 'John Doe' }));
+      state = cartReducer(state, setIsCredit(true));
+      state = cartReducer(state, setCreditDepositCents(50000));
+      state = cartReducer(state, startNewSale());
+      expect(selectCreditDepositCents({ cart: state })).toBe(0);
     });
 
     it('sets payment method and split payments', () => {

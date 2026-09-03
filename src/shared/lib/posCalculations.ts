@@ -68,6 +68,8 @@ export interface PaymentStateInput {
   splitPayments?: SplitPaymentLeg[];
   customerBalanceCents?: number;
   isCredit?: boolean;
+  /** For a credit sale: amount the customer pays up front now. */
+  creditDepositCents?: number;
 }
 
 export interface PaymentStateResult {
@@ -81,6 +83,10 @@ export interface PaymentStateResult {
   splitRemainingCents: number;
   isSplitValid: boolean;
   newCustomerBalanceCents: number;
+  /** Credit sale: amount paid up front now (clamped to the total). */
+  creditPaidNowCents: number;
+  /** Credit sale: amount left on the customer's account after the deposit. */
+  creditRemainderCents: number;
 }
 
 export interface ReturnExchangeLine {
@@ -218,7 +224,13 @@ export const calculatePaymentState = (input: PaymentStateInput): PaymentStateRes
     splitPayments = [],
     customerBalanceCents = 0,
     isCredit = false,
+    creditDepositCents = 0,
   } = input;
+
+  const creditPaidNowCents = isCredit
+    ? Math.min(Math.max(0, creditDepositCents), Math.max(0, totalCents))
+    : 0;
+  const creditRemainderCents = isCredit ? Math.max(0, totalCents - creditPaidNowCents) : 0;
 
   const splitAllocatedCents = splitPayments.reduce(
     (acc, leg) => acc + (typeof leg.amountCents === 'number' ? leg.amountCents : 0),
@@ -245,7 +257,7 @@ export const calculatePaymentState = (input: PaymentStateInput): PaymentStateRes
   const isCardShort = paymentMethod === 'card' && !isCredit && effectiveTenderedCents < totalCents;
   const isFullyPaid = isCredit || effectiveTenderedCents >= totalCents;
 
-  const newCustomerBalanceCents = customerBalanceCents + (isCredit ? totalCents : 0);
+  const newCustomerBalanceCents = customerBalanceCents + (isCredit ? creditRemainderCents : 0);
 
   return {
     effectiveTenderedCents,
@@ -258,6 +270,8 @@ export const calculatePaymentState = (input: PaymentStateInput): PaymentStateRes
     splitRemainingCents,
     isSplitValid,
     newCustomerBalanceCents,
+    creditPaidNowCents,
+    creditRemainderCents,
   };
 };
 

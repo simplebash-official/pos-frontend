@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import dayjs from 'dayjs';
 import {
   computeDashboardData,
+  toReminderItems,
   INITIAL_DASHBOARD_DATA,
   useDashboardLivePulse,
 } from '../useDashboardLivePulse';
+import type { ReminderEntry } from '@/features/reports/types';
 import type { Invoice } from '@/features/billing/types';
 import type { RepairJob } from '@/features/repairs/types';
 import type { PrintJob } from '@/features/print-jobs/types';
@@ -189,5 +191,83 @@ describe('computeDashboardData', () => {
   it('exports hook and initial state', () => {
     expect(typeof useDashboardLivePulse).toBe('function');
     expect(INITIAL_DASHBOARD_DATA).toBeDefined();
+  });
+
+  it('does not emit any credit reminder itself — that is the server feed now', () => {
+    const overdueCredit: Invoice = {
+      id: 'inv_1',
+      invoiceNumber: 'INV-1',
+      subtotalCents: 5000,
+      discountCents: 0,
+      totalCents: 5000,
+      paymentMethod: 'cash',
+      status: 'pending',
+      isCredit: true,
+      amountReceivedCents: 0,
+      dueDate: '2020-01-01',
+      isOverdue: true,
+      creditNoteCount: 0,
+      hasCreditNotes: false,
+      refundedCents: 0,
+      createdAt: '2026-09-01T10:00:00Z',
+      items: [],
+    } as Invoice;
+
+    const data = computeDashboardData({
+      invoices: [overdueCredit],
+      repairs: [],
+      printJobs: [],
+      products: [],
+      employees: [],
+    });
+
+    expect(
+      data.urgentActions.some((a) => a.type === 'credit_overdue' || a.type === 'credit_due_soon')
+    ).toBe(false);
+  });
+});
+
+describe('toReminderItems', () => {
+  const entry = (over: Partial<ReminderEntry>): ReminderEntry => ({
+    kind: 'credit_overdue',
+    id: 'inv_1',
+    key: 'inv_1',
+    referenceNumber: 'INV-1',
+    title: 'Kamal Perera',
+    amountCents: 100000,
+    dueDate: '2026-09-01',
+    daysFromDue: 5,
+    severity: 'warning',
+    linkTo: '/invoices?invoiceKey=inv_1&action=recordPayment',
+    ...over,
+  });
+
+  it('maps a credit-overdue reminder to a Record Payment urgent action', () => {
+    const [item] = toReminderItems([entry({})]);
+    expect(item.type).toBe('credit_overdue');
+    expect(item.severity).toBe('warning');
+    expect(item.amountCents).toBe(100000);
+    expect(item.actionLabel).toBe('Record Payment');
+    expect(item.linkTo).toContain('action=recordPayment');
+    expect(item.title).toContain('Kamal Perera');
+  });
+
+  it('maps a job-due-soon reminder to an Open Job action with info severity', () => {
+    const [item] = toReminderItems([
+      entry({
+        kind: 'job_due_soon',
+        severity: 'info',
+        daysFromDue: -2,
+        linkTo: '/repairs?jobKey=rep_1',
+      }),
+    ]);
+    expect(item.type).toBe('due_soon_job');
+    expect(item.severity).toBe('info');
+    expect(item.actionLabel).toBe('Open Job');
+    expect(item.linkTo).toBe('/repairs?jobKey=rep_1');
+  });
+
+  it('returns [] when the feed has not loaded', () => {
+    expect(toReminderItems(undefined)).toEqual([]);
   });
 });

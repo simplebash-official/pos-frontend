@@ -10,6 +10,8 @@ export interface RepairJob {
   deviceModel: string;
   serialNumber?: string;
   issueDescription: string;
+  promisedReadyAt?: string; // "YYYY-MM-DD" — date promised to the customer
+  isOverdue?: boolean; // server-computed: promised date passed and job still open
   status: JobStatus;
   estimatedCostCents?: number; // Customer total price — unset until diagnosis/quote
   materialCostCents?: number; // Cost of repair parts/materials
@@ -27,6 +29,7 @@ export interface RepairJobInput {
   deviceModel: string;
   serialNumber?: string;
   issueDescription: string;
+  promisedReadyAt?: string;
   status: JobStatus;
   estimatedCostCents?: number;
   materialCostCents?: number;
