@@ -471,3 +471,209 @@ th.mantine-Table-th {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
+
+/* ==========================================================================
+   Calculator Component Animations & Tactile Styles
+   ========================================================================== */
+
+/* Keypad button tactile press & hover */
+.calc-key {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--mantine-radius-md);
+  font-weight: 600;
+  transition:
+    transform 120ms cubic-bezier(0.2, 0, 0.2, 1),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease;
+  outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .calc-key:hover:not(:active):not(.calc-key-pressed) {
+    transform: translateY(-1.5px);
+  }
+}
+
+.calc-key:active,
+.calc-key-pressed {
+  transform: scale(0.92) !important;
+}
+
+/* Operator pulsing animation when waiting for next operand */
+@keyframes calc-op-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 139, 230, 0.45);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 4px rgba(34, 139, 230, 0.15);
+  }
+}
+
+.calc-key-op-active {
+  animation: calc-op-pulse 1.8s ease-in-out infinite;
+}
+
+/* Equals button vibrant styling */
+.calc-key-equals {
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-6) 0%,
+    var(--mantine-color-blue-7) 100%
+  ) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--mantine-color-blue-7) !important;
+  box-shadow: 0 2px 8px rgba(34, 139, 230, 0.35);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .calc-key-equals:hover:not(:active):not(.calc-key-pressed) {
+    transform: translateY(-1.5px) scale(1.01) !important;
+    box-shadow: 0 4px 14px rgba(34, 139, 230, 0.45) !important;
+  }
+}
+
+.calc-key-equals:active,
+.calc-key-equals.calc-key-pressed {
+  transform: scale(0.93) !important;
+  box-shadow: 0 1px 4px rgba(34, 139, 230, 0.25) !important;
+}
+
+/* Display number pop animation on value update */
+@keyframes calc-display-pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.85;
+  }
+  60% {
+    transform: scale(1.015);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.calc-display-animated {
+  animation: calc-display-pop 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Calculation completed celebratory pulse */
+@keyframes calc-result-pulse {
+  0% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.calc-result-animated {
+  animation: calc-result-pulse 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Error horizontal shake (only transform: translateX) */
+@keyframes calc-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.calc-display-shake {
+  animation: calc-shake 320ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* Expression breadcrumb slide-in */
+@keyframes calc-slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calc-expression-animated {
+  animation: calc-slide-down 180ms ease-out;
+}
+
+/* Copy checkmark bounce */
+@keyframes calc-check-bounce {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.calc-check-animated {
+  animation: calc-check-bounce 250ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* History item entry slide-down */
+@keyframes calc-history-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calc-history-item {
+  cursor: pointer;
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  animation: calc-history-enter 180ms ease-out;
+  transition:
+    transform 120ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+  user-select: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .calc-history-item:hover {
+    transform: translateY(-1px);
+    background-color: var(--bg-hover) !important;
+    border-color: var(--mantine-color-blue-4) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  }
+}
+
+.calc-history-item:active {
+  transform: scale(0.98);
+}

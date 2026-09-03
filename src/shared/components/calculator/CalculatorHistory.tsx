@@ -47,7 +47,11 @@ export const CalculatorHistory = ({ history, onRecall, onClear }: CalculatorHist
 
       <Divider />
 
-      <ScrollArea.Autosize mah={160} type="auto">
+      <ScrollArea.Autosize
+        mah={160}
+        type="auto"
+        classNames={{ viewport: 'scrollarea-fluid-content' }}
+      >
         {history.length === 0 ? (
           <Center py="sm">
             <Text size="xs" c="dimmed">
@@ -61,14 +65,7 @@ export const CalculatorHistory = ({ history, onRecall, onClear }: CalculatorHist
                 key={item.id}
                 onClick={() => onRecall(item)}
                 p="xs"
-                style={{
-                  borderRadius: 'var(--mantine-radius-sm)',
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  transition: 'all 120ms ease',
-                  cursor: 'pointer',
-                }}
-                className="hover-card"
+                className="calc-history-item"
               >
                 <Group justify="space-between" align="center" wrap="nowrap">
                   <Text

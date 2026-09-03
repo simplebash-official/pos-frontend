@@ -1,6 +1,7 @@
 import { useState, useEffect, type CSSProperties } from 'react';
 import { Stack, Group, Button, Collapse, Badge, Box, Paper } from '@mantine/core';
-import { IconHistory, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { IconHistory, IconChevronDown } from '@tabler/icons-react';
+
 import { t } from '@/shared/i18n/t';
 import { useCalculator } from './useCalculator';
 import { CalculatorDisplay } from './CalculatorDisplay';
@@ -64,6 +65,9 @@ export const Calculator = ({
           expression={state.expression}
           display={state.display}
           hasError={state.hasError}
+          isCalculated={state.isCalculated}
+          displayVersion={state.displayVersion}
+          errorVersion={state.errorVersion}
           onCopy={copyResult}
         />
 
@@ -76,7 +80,15 @@ export const Calculator = ({
               size="xs"
               leftSection={<IconHistory size={14} />}
               rightSection={
-                historyOpen ? <IconChevronUp size={12} /> : <IconChevronDown size={12} />
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                >
+                  <IconChevronDown size={13} />
+                </span>
               }
               onClick={() => setHistoryOpen((prev) => !prev)}
               styles={{
@@ -94,10 +106,13 @@ export const Calculator = ({
             {onSelectResult && (
               <Button
                 size="xs"
-                variant="light"
+                variant="filled"
                 color="blue"
                 onClick={handleUseResult}
                 disabled={state.hasError || state.display === 'Error'}
+                style={{
+                  transition: 'transform 120ms ease, box-shadow 150ms ease',
+                }}
               >
                 {t('Use Value')}
               </Button>

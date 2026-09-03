@@ -15,6 +15,9 @@ export interface CalculatorState {
   waitingForNewOperand: boolean;
   hasError: boolean;
   history: CalculatorHistoryItem[];
+  isCalculated?: boolean;
+  displayVersion?: number;
+  errorVersion?: number;
 }
 
 export interface CalculatorProps {
@@ -27,4 +30,17 @@ export interface CalculatorProps {
   /** Custom class name or style */
   className?: string;
   style?: React.CSSProperties;
+}
+
+export interface OpenCalculatorOptions {
+  initialValue?: string | number;
+  onSelectResult?: (value: string) => void;
+  title?: string;
+}
+
+export interface CalculatorContextType {
+  isOpen: boolean;
+  options: OpenCalculatorOptions | null;
+  openCalculator: (options?: OpenCalculatorOptions) => void;
+  closeCalculator: () => void;
 }

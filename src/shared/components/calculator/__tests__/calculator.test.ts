@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { formatNumberSafe } from '../useCalculator';
+import {
+  Calculator,
+  CalculatorModal,
+  CalculatorDisplay,
+  CalculatorKeypad,
+  CalculatorHistory,
+  CalculatorProvider,
+  useGlobalCalculator,
+  useCalculator,
+  formatNumberSafe,
+} from '../index';
 
 describe('Calculator Engine & Utilities', () => {
   describe('formatNumberSafe', () => {
@@ -51,6 +61,22 @@ describe('Calculator Engine & Utilities', () => {
 
       // Standalone percentage: 50% -> 0.5
       expect(formatNumberSafe(50 / 100)).toBe('0.5');
+    });
+  });
+
+  describe('Component & Hook Exports', () => {
+    it('exports all calculator components as functional components', () => {
+      expect(typeof Calculator).toBe('function');
+      expect(typeof CalculatorModal).toBe('function');
+      expect(typeof CalculatorDisplay).toBe('function');
+      expect(typeof CalculatorKeypad).toBe('function');
+      expect(typeof CalculatorHistory).toBe('function');
+      expect(typeof CalculatorProvider).toBe('function');
+    });
+
+    it('exports calculator hooks as functions', () => {
+      expect(typeof useCalculator).toBe('function');
+      expect(typeof useGlobalCalculator).toBe('function');
     });
   });
 });
