@@ -828,6 +828,7 @@ export const PaymentPanel = memo(
                         setDiscountInput(v);
                       }}
                       maxAmount={subtotalCents > 0 ? Math.round(subtotalCents / 100) : 0}
+                      withCalculator
                       style={{ flex: 5, minWidth: 110 }}
                     />
 
@@ -1272,6 +1273,7 @@ export const PaymentPanel = memo(
                         size="lg"
                         value={tenderedRupees}
                         onChange={(val) => setTenderedRupees(val)}
+                        withCalculator
                       />
 
                       {/* Quick Tender Exact & Round Chips */}
@@ -1353,6 +1355,7 @@ export const PaymentPanel = memo(
                         size="lg"
                         value={tenderedRupees === '' ? fromCents(totalCents) : tenderedRupees}
                         onChange={(val) => setTenderedRupees(val)}
+                        withCalculator
                       />
 
                       {/* Exact amount suggestion for Card */}

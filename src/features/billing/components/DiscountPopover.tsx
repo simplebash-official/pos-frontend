@@ -96,6 +96,7 @@ export const DiscountPopover = ({
             value={val}
             onChange={setVal}
             maxAmount={fromCents(originalCents)}
+            withCalculator
             autoFocus
           />
 

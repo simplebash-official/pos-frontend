@@ -28,6 +28,7 @@ import {
   IconTrash,
   IconReceipt,
   IconTrendingUp,
+  IconCalculator,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
@@ -36,6 +37,7 @@ import { isValidManualBarcode } from '../lib/barcode';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents, formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useGlobalCalculator } from '@/shared/components/calculator';
 import { ApiError } from '@/shared/types/common';
 import { CURRENCY } from '@/constants';
 
@@ -196,6 +198,37 @@ const ProductFormContent = ({
     effectiveSellingPrice > 0 ? (unitProfit / effectiveSellingPrice) * 100 : 0;
   const markupPct = effectiveUnitCost > 0 ? (unitProfit / effectiveUnitCost) * 100 : 0;
   const showProfitMargin = effectiveSellingPrice > 0 && effectiveUnitCost > 0;
+  const { openCalculator } = useGlobalCalculator();
+
+  const renderCalcButton = (
+    currentVal: number | string,
+    onApply: (num: number) => void,
+    fieldTitle: string
+  ) => (
+    <Tooltip label={t('Calculator (Alt+C)')} withArrow position="top">
+      <ActionIcon
+        size="sm"
+        variant="subtle"
+        color="gray"
+        tabIndex={-1}
+        onClick={() =>
+          openCalculator({
+            title: fieldTitle,
+            initialValue: currentVal !== '' ? String(currentVal) : undefined,
+            onSelectResult: (val) => {
+              const parsed = parseFloat(val);
+              if (!isNaN(parsed) && parsed >= 0) {
+                onApply(parsed);
+              }
+            },
+          })
+        }
+        aria-label={t('Open Calculator')}
+      >
+        <IconCalculator size={15} />
+      </ActionIcon>
+    </Tooltip>
+  );
 
   const categoryOptions = useMemo(
     () => validCategories.map((c) => ({ value: c.key, label: c.name })),
@@ -913,6 +946,14 @@ const ProductFormContent = ({
                   {CURRENCY.symbol}
                 </Text>
               }
+              rightSection={renderCalcButton(
+                sellingPrice,
+                (n) => {
+                  setSellingPrice(n);
+                  if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
+                },
+                t('Calculate Selling Price')
+              )}
               required
             />
 
@@ -998,6 +1039,14 @@ const ProductFormContent = ({
                     {CURRENCY.symbol}
                   </Text>
                 }
+                rightSection={renderCalcButton(
+                  costPrice,
+                  (n) => {
+                    setCostPrice(n);
+                    if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
+                  },
+                  t('Calculate Cost Price')
+                )}
                 required
               />
               <NumberInput
@@ -1016,6 +1065,14 @@ const ProductFormContent = ({
                     {CURRENCY.symbol}
                   </Text>
                 }
+                rightSection={renderCalcButton(
+                  sellingPrice,
+                  (n) => {
+                    setSellingPrice(n);
+                    if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
+                  },
+                  t('Calculate Selling Price')
+                )}
                 required
               />
             </Group>

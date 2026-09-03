@@ -1,7 +1,17 @@
 import { useState, useRef, useLayoutEffect, forwardRef } from 'react';
-import { Box, TextInput, TextInputProps, Text, UnstyledButton } from '@mantine/core';
+import {
+  Box,
+  TextInput,
+  TextInputProps,
+  Text,
+  UnstyledButton,
+  ActionIcon,
+  Tooltip,
+} from '@mantine/core';
+import { IconCalculator } from '@tabler/icons-react';
 
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useGlobalCalculator } from '@/shared/components/calculator';
 
 export interface AmountInputProps extends Omit<TextInputProps, 'value' | 'onChange' | 'max'> {
   value: number | '';
@@ -14,6 +24,7 @@ export interface AmountInputProps extends Omit<TextInputProps, 'value' | 'onChan
   size?: 'xs' | 'sm' | 'md' | 'lg';
   placeholder?: string;
   autoFocus?: boolean;
+  withCalculator?: boolean;
   style?: React.CSSProperties;
 }
 
@@ -58,6 +69,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
       size = 'sm',
       placeholder = '0',
       autoFocus,
+      withCalculator = false,
       style,
       styles,
       ...props
@@ -67,6 +79,26 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     const [focused, setFocused] = useState(false);
     const isMobile = useIsMobile();
     const isPercent = mode === 'percentage';
+    const { openCalculator } = useGlobalCalculator();
+
+    const handleOpenCalculator = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      openCalculator({
+        initialValue: value !== '' ? String(value) : undefined,
+        onSelectResult: (result) => {
+          const num = parseFloat(result);
+          if (!isNaN(num)) {
+            if (max !== undefined && num > max) {
+              onChange(max);
+            } else if (maxAmount !== undefined && !isPercent && num > maxAmount) {
+              onChange(maxAmount);
+            } else {
+              onChange(num);
+            }
+          }
+        },
+      });
+    };
 
     // `transform: translateX(N%)` resolves against the badge's own box, not the
     // parent, so the parent's rendered width has to be measured to slide the
@@ -255,7 +287,30 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             onBlur={handleBlur}
             placeholder={placeholder}
             autoFocus={autoFocus}
+            rightSection={
+              withCalculator ? (
+                <Tooltip label="Calculator (Alt+C)" withArrow position="top">
+                  <ActionIcon
+                    size={size === 'xs' ? 'xs' : 'sm'}
+                    variant="subtle"
+                    color="gray"
+                    onClick={handleOpenCalculator}
+                    aria-label="Open Calculator"
+                    tabIndex={-1}
+                    style={{
+                      marginRight: 4,
+                      transition: 'color 150ms ease, transform 120ms ease',
+                    }}
+                  >
+                    <IconCalculator size={size === 'xs' ? 13 : 16} />
+                  </ActionIcon>
+                </Tooltip>
+              ) : (
+                props.rightSection
+              )
+            }
             style={{ width: '100%', height: '100%' }}
+
             styles={{
               input: {
                 fontWeight: 600,

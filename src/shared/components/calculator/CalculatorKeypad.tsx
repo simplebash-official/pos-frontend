@@ -37,16 +37,8 @@ export const CalculatorKeypad = ({
   const isOpActive = (op: CalculatorOperator) => currentOperator === op && waitingForNewOperand;
 
   const btnBaseStyle: CSSProperties = {
-    height: 48,
+    height: 50,
     fontSize: '1.05rem',
-    fontWeight: 600,
-    borderRadius: 'var(--mantine-radius-md)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    userSelect: 'none',
-    transition: 'all 120ms ease',
     border: '1px solid var(--border)',
   };
 
@@ -62,6 +54,7 @@ export const CalculatorKeypad = ({
     let bg = 'var(--bg-card)';
     let color = 'var(--text-primary)';
     let border = '1px solid var(--border)';
+    let extraClass = '';
 
     if (variantType === 'number') {
       bg = isPressed ? 'var(--bg-active)' : 'var(--bg-card)';
@@ -77,26 +70,32 @@ export const CalculatorKeypad = ({
         : 'light-dark(var(--mantine-color-blue-0), rgba(34, 139, 230, 0.15))';
       color = isSelected ? '#FFFFFF' : 'var(--mantine-color-blue-6)';
       border = isSelected ? '1px solid var(--mantine-color-blue-6)' : '1px solid var(--border)';
+      if (highlightActive) {
+        extraClass = 'calc-key-op-active';
+      }
     } else if (variantType === 'equals') {
-      bg = isPressed ? 'var(--mantine-color-blue-8)' : 'var(--mantine-color-blue-filled)';
-      color = '#FFFFFF';
-      border = '1px solid var(--mantine-color-blue-7)';
+      extraClass = 'calc-key-equals';
     }
+
+    const classNames = ['calc-key', isPressed ? 'calc-key-pressed' : '', extraClass]
+      .filter(Boolean)
+      .join(' ');
 
     return (
       <UnstyledButton
         key={keyIdentifier}
         onClick={onClick}
+        className={classNames}
+        aria-label={typeof label === 'string' ? label : keyIdentifier}
         style={{
           ...btnBaseStyle,
-          backgroundColor: bg,
-          color,
-          border,
-          transform: isPressed ? 'scale(0.94)' : 'none',
+          ...(variantType !== 'equals' ? { backgroundColor: bg, color, border } : {}),
           boxShadow:
             variantType === 'equals'
-              ? '0 2px 8px rgba(34, 139, 230, 0.3)'
-              : '0 1px 2px rgba(0, 0, 0, 0.04)',
+              ? undefined
+              : isPressed
+                ? 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+                : '0 1px 2px rgba(0, 0, 0, 0.04)',
         }}
       >
         {label}

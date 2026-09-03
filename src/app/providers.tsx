@@ -15,7 +15,9 @@ import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
+import { CalculatorProvider } from '@/shared/components/calculator';
 import '@/offline/connectivity/onlineManagerBridge';
+
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
@@ -80,7 +82,9 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
                 <AppUpdatePrompt />
                 <HeldCartCatchupNotifier />
                 <LowStockNotifier />
-                <ModalsProvider>{children}</ModalsProvider>
+                <ModalsProvider>
+                  <CalculatorProvider>{children}</CalculatorProvider>
+                </ModalsProvider>
               </LayoutTierProvider>
             </MantineProvider>
           </QueryClientProvider>

@@ -7,6 +7,9 @@ export interface CalculatorDisplayProps {
   expression: string;
   display: string;
   hasError: boolean;
+  isCalculated?: boolean;
+  displayVersion?: number;
+  errorVersion?: number;
   onCopy: () => void;
 }
 
@@ -36,6 +39,9 @@ export const CalculatorDisplay = ({
   expression,
   display,
   hasError,
+  isCalculated = false,
+  displayVersion = 0,
+  errorVersion = 0,
   onCopy,
 }: CalculatorDisplayProps) => {
   const [copied, setCopied] = useState(false);
@@ -63,10 +69,15 @@ export const CalculatorDisplay = ({
       p="sm"
       radius="md"
       withBorder
+      key={errorVersion ? `error-${errorVersion}` : 'normal'}
+      className={hasError ? 'calc-display-shake' : undefined}
       style={{
         backgroundColor: 'var(--bg-app)',
         borderColor: hasError ? 'var(--mantine-color-red-5)' : 'var(--border)',
-        transition: 'border-color 150ms ease',
+        boxShadow: hasError
+          ? '0 0 0 1px var(--mantine-color-red-5)'
+          : 'inset 0 1px 2px rgba(0, 0, 0, 0.04)',
+        transition: 'border-color 150ms ease, box-shadow 150ms ease',
         userSelect: 'none',
       }}
     >
@@ -75,6 +86,8 @@ export const CalculatorDisplay = ({
         <Text
           size="xs"
           c="dimmed"
+          key={`expr-${expression}`}
+          className={expression ? 'calc-expression-animated' : undefined}
           style={{
             fontFamily: 'monospace',
             whiteSpace: 'nowrap',
@@ -93,8 +106,17 @@ export const CalculatorDisplay = ({
             onClick={handleCopyClick}
             disabled={hasError || display === 'Error'}
             aria-label={t('Copy Result')}
+            style={{
+              transition: 'color 150ms ease, background-color 150ms ease, transform 150ms ease',
+            }}
           >
-            {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+            {copied ? (
+              <span className="calc-check-animated" style={{ display: 'inline-flex' }}>
+                <IconCheck size={14} />
+              </span>
+            ) : (
+              <IconCopy size={14} />
+            )}
           </ActionIcon>
         </Tooltip>
       </Group>
@@ -104,13 +126,21 @@ export const CalculatorDisplay = ({
         <Text
           fw={700}
           c={hasError ? 'red.6' : 'var(--text-primary)'}
+          key={`disp-${displayVersion}-${display}`}
+          className={
+            isCalculated
+              ? 'calc-result-animated'
+              : displayVersion > 0
+                ? 'calc-display-animated'
+                : undefined
+          }
           style={{
             fontSize: getFontSize(),
             lineHeight: 1.15,
             fontFamily: 'system-ui, -apple-system, sans-serif',
             letterSpacing: '-0.5px',
             wordBreak: 'break-all',
-            transition: 'font-size 100ms ease',
+            transition: 'font-size 100ms ease, color 150ms ease',
           }}
         >
           {formattedDisplay}

@@ -8,15 +8,7 @@ A point-of-sale system for a repair/retail shop (billing, repairs, print jobs, i
 
 ## Commands
 
-- `npm run dev` — start the Vite dev server
-- `npm run test` — run unit tests using Vitest
-- `npm run test:jest` — run unit tests using Jest
-- `npm run test:all` — run unit tests across both Vitest and Jest
-- `npm run format` — format code using Prettier
-- `npm run lint` — lint code using ESLint
-- `npm run type-check` — run TypeScript type checker (`tsc --noEmit`)
-- `npm run build` — type-check (`tsc`) then production build
-- `npm run preview` — preview the production build locally
+Scripts are in `package.json`. Note this project runs **both** test runners — `npm run test:all` = Vitest (`test`) + Jest (`test:jest`).
 
 **After every change or new implementation**, create comprehensive Jest/Vitest unit tests for all modified and new parts, run `npm run test:all && npm run format && npm run lint && npm run type-check && npm run build`, and fix any errors reported before considering the work done.
 
@@ -152,22 +144,9 @@ Every right-side entity detail drawer (e.g. Item Specifications, Supplier Profil
 
 These numbers must come from the backend, never be calculated client-side from a full list fetch — see the matching precedent in the backend CLAUDE.md's "Dashboard stats endpoints" section. Fetch them with `useModuleStats` (`src/shared/hooks/useModuleStats.ts`), a plain TanStack Query hook that also writes the result into Dexie's `statsCache` table (`src/offline/db/tables.ts`'s `StatsCacheRow`) on every successful fetch — a last-known-value cache the hook falls back to reading when a fetch fails, independent of anything else in `src/offline/` (see **Local database** below). `useBillingStats`/`useRepairStats`/`usePrintJobStats` are the thin per-module wrappers; follow that pattern (`useModuleStats(module, queryKeys.<module>.stats(), fetch<Module>Stats)`) for any new KPI-backed screen rather than writing a bespoke hook.
 
-## Charts & analytics containers
+## Charts, analytics containers & the Reports Engine feed
 
-`ChartCard` (`src/features/reports/components/ChartCard.tsx`) is the reference container for charts across analytics and reporting screens — titled `Paper`, loading skeleton, empty state, and a clean non-scrolling responsive wrapper (`overflow: 'hidden'`, `minWidth: 0`, `width: '100%'`).
-
-- **No scrollbars on charts**: Never set `overflowX: 'auto'` or `overflowY: 'auto'` on chart containers. Recharts' `ResponsiveContainer` dynamically observes parent dimensions and renders SVG elements to fit 100% of available width; overflow scrollbars degrade UX and break fluid responsiveness.
-- **Theme-aware colors**: Always use Mantine theme color tokens (e.g. `SERIES.revenue = 'blue.6'`, `SERIES.profit = 'green.6'` from `src/features/reports/lib/analyticsCharts.ts`) rather than hard-coded hex colors so charts automatically switch cleanly between light and dark themes.
-- **Axis & tooltip formatting**: Use `moneyFormatter` for monetary values in tooltips, `compactMoney` (`moneyYAxis` / `moneyXAxis`) for tick marks (e.g. `Rs 24k`, `Rs 1.2M`), and `categoryYAxis` for vertical category bar charts.
-- **Donut proportions & legends**: Use `DonutWithLegend` (`src/features/reports/components/DonutWithLegend.tsx`) with fixed geometry tokens (`DONUT.size = 190`, `DONUT.thickness = 32`) and `topSlicesWithOther` to keep slice counts readable (≤6-7 slices) and stack vertically on mobile (`useIsMobile()`).
-
-## Reports & Analytics Engine (Feed)
-
-The reporting subsystem is accelerated by the backend's unified analytical engine (`/api/reports/engine/`):
-
-- **Engine Feed endpoint (`GET /api/reports/engine/feed`)**: Bundles complete section datasets (`overview`, `sales`, `profit`, `customers`, `staff`, `all`) in a single concurrent backend aggregation request (`tokio::try_join!`), eliminating waterfall queries across tabs and reducing frontend roundtrips from 15 to 1.
-- **Unified Query Hook (`useAnalyticsFeed`)**: `useAnalyticsFeed(section, params, optsQuery, enabled)` (`src/features/reports/hooks/useAnalyticsQueries.ts`) is the primary hook for all report section components (`OverviewSection`, `SalesSection`, `ProfitSection`, `CustomersSection`, `StaffSection`), keyed via `queryKeys.reports.feed(section, filters, opts)` in `src/api/queryKeys.ts`.
-- **Cache Invalidation (`POST /api/reports/engine/invalidate`)**: `invalidateEngineCache()` (`src/features/reports/api/analyticsApi.ts`) triggers explicit analytical cache purging on the backend. Billing mutations (`complete_sale`, `void_invoice`, `record_payment`, `create_credit_note`, `void_credit_note`) trigger backend active-period invalidation automatically.
+See `src/features/reports/CLAUDE.md` — loads automatically when working in that feature.
 
 ## Keyboard shortcuts
 
@@ -253,11 +232,4 @@ Rules:
 
 ## Localization & Language Engine
 
-The application supports real-time language switching (English and Sinhala) through a custom translation engine that relies on full-tree React remounting for performance and simplicity without Hook overhead.
-
-**How to add new frontend strings:**
-
-1. **Always use `t()`**: When adding new user-facing UI text, import the translation function: `import { t } from '@/shared/i18n/t';` and wrap your string: `label={t("New Product")}` or `<Text>{t("Hello")}</Text>`.
-2. **Update the dictionary**: Add your new English string as a key to `src/shared/i18n/dictionaries/si.json` with its corresponding Sinhala translation.
-3. **Preserve technical terms**: When translating, leave shop-specific and technical terms (e.g., SKU, POS, VAT, EAN) in English to ensure it remains understandable for store owners.
-4. **Automated extraction**: If you write many new components, you can use the `npx tsx scripts/auto-i18n.ts` script to automatically parse the AST, wrap your strings in `t()`, and extract missing keys into `scripts/extracted-strings.json` for batch translation.
+Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry added to `src/shared/i18n/dictionaries/si.json`. Full guidance in `src/shared/i18n/CLAUDE.md` — loads automatically when working in that directory.

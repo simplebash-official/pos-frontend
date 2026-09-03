@@ -152,11 +152,11 @@ export const Header = ({
             <ActionIcon
               variant="subtle"
               color="gray"
-              size="sm"
+              size={isMobile ? 44 : 'sm'}
               onClick={onOpenCalculator}
               aria-label={t('Calculator')}
             >
-              <IconCalculator size={16} />
+              <IconCalculator size={isMobile ? 20 : 16} />
             </ActionIcon>
           </Tooltip>
 

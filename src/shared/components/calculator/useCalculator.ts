@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+
 import { notifications } from '@mantine/notifications';
 import type { CalculatorOperator, CalculatorHistoryItem, CalculatorState } from './types';
 
@@ -64,10 +65,30 @@ export const useCalculator = (initialValue?: string) => {
       waitingForNewOperand: false,
       hasError: false,
       history: savedHistory,
+      isCalculated: false,
+      displayVersion: 0,
+      errorVersion: 0,
     };
   });
 
   const [activeKey, setActiveKey] = useState<string | null>(null);
+
+  // Sync initialValue when dynamically provided or changed externally
+  useEffect(() => {
+    if (initialValue !== undefined && initialValue !== '' && !isNaN(Number(initialValue))) {
+      setState((prev) => ({
+        ...prev,
+        display: initialValue,
+        expression: '',
+        previousValue: null,
+        currentOperator: null,
+        waitingForNewOperand: false,
+        hasError: false,
+        isCalculated: false,
+        displayVersion: (prev.displayVersion || 0) + 1,
+      }));
+    }
+  }, [initialValue]);
 
   // Synchronize history to local storage
   const saveHistory = useCallback((item: CalculatorHistoryItem) => {
@@ -105,6 +126,8 @@ export const useCalculator = (initialValue?: string) => {
           previousValue: null,
           currentOperator: null,
           waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -113,6 +136,8 @@ export const useCalculator = (initialValue?: string) => {
           ...prev,
           display: digit === '00' ? '0' : digit,
           waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -123,6 +148,8 @@ export const useCalculator = (initialValue?: string) => {
         return {
           ...prev,
           display: digit,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -134,6 +161,8 @@ export const useCalculator = (initialValue?: string) => {
       return {
         ...prev,
         display: prev.display + digit,
+        isCalculated: false,
+        displayVersion: (prev.displayVersion || 0) + 1,
       };
     });
   }, []);
@@ -149,6 +178,8 @@ export const useCalculator = (initialValue?: string) => {
           previousValue: null,
           currentOperator: null,
           waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -157,6 +188,8 @@ export const useCalculator = (initialValue?: string) => {
           ...prev,
           display: '0.',
           waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -164,6 +197,8 @@ export const useCalculator = (initialValue?: string) => {
         return {
           ...prev,
           display: prev.display + '.',
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -175,10 +210,13 @@ export const useCalculator = (initialValue?: string) => {
     setState((prev) => {
       if (prev.hasError || prev.display === '0') return prev;
 
-      if (prev.display.startsWith('-')) {
-        return { ...prev, display: prev.display.slice(1) };
-      }
-      return { ...prev, display: '-' + prev.display };
+      const nextDisplay = prev.display.startsWith('-') ? prev.display.slice(1) : '-' + prev.display;
+
+      return {
+        ...prev,
+        display: nextDisplay,
+        displayVersion: (prev.displayVersion || 0) + 1,
+      };
     });
   }, []);
 
@@ -208,6 +246,7 @@ export const useCalculator = (initialValue?: string) => {
         ...prev,
         display: formatted,
         waitingForNewOperand: false,
+        displayVersion: (prev.displayVersion || 0) + 1,
       };
     });
   }, []);
@@ -215,16 +254,30 @@ export const useCalculator = (initialValue?: string) => {
   const backspace = useCallback(() => {
     setState((prev) => {
       if (prev.hasError || prev.waitingForNewOperand) {
-        return { ...prev, display: '0', hasError: false, waitingForNewOperand: false };
+        return {
+          ...prev,
+          display: '0',
+          hasError: false,
+          waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
+        };
       }
 
       if (prev.display.length <= 1 || (prev.display.length === 2 && prev.display.startsWith('-'))) {
-        return { ...prev, display: '0' };
+        return {
+          ...prev,
+          display: '0',
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
+        };
       }
 
       return {
         ...prev,
         display: prev.display.slice(0, -1),
+        isCalculated: false,
+        displayVersion: (prev.displayVersion || 0) + 1,
       };
     });
   }, []);
@@ -236,6 +289,8 @@ export const useCalculator = (initialValue?: string) => {
         return {
           ...prev,
           display: '0',
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
         };
       }
 
@@ -248,6 +303,8 @@ export const useCalculator = (initialValue?: string) => {
         currentOperator: null,
         waitingForNewOperand: false,
         hasError: false,
+        isCalculated: false,
+        displayVersion: (prev.displayVersion || 0) + 1,
       };
     });
   }, []);
@@ -265,6 +322,7 @@ export const useCalculator = (initialValue?: string) => {
           currentOperator: operator,
           expression: `${prev.display} ${operator}`,
           waitingForNewOperand: true,
+          isCalculated: false,
         };
       }
 
@@ -293,6 +351,9 @@ export const useCalculator = (initialValue?: string) => {
           previousValue: null,
           currentOperator: null,
           waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
+          errorVersion: (prev.errorVersion || 0) + 1,
         };
       }
 
@@ -304,6 +365,8 @@ export const useCalculator = (initialValue?: string) => {
         currentOperator: operator,
         expression: `${formatted} ${operator}`,
         waitingForNewOperand: true,
+        isCalculated: false,
+        displayVersion: (prev.displayVersion || 0) + 1,
       };
     });
   }, []);
@@ -330,6 +393,9 @@ export const useCalculator = (initialValue?: string) => {
           previousValue: null,
           currentOperator: null,
           waitingForNewOperand: false,
+          isCalculated: false,
+          displayVersion: (prev.displayVersion || 0) + 1,
+          errorVersion: (prev.errorVersion || 0) + 1,
         };
       }
 
@@ -352,6 +418,8 @@ export const useCalculator = (initialValue?: string) => {
         currentOperator: null,
         waitingForNewOperand: true,
         hasError: false,
+        isCalculated: true,
+        displayVersion: (prev.displayVersion || 0) + 1,
       };
     });
   }, [saveHistory]);
@@ -365,6 +433,8 @@ export const useCalculator = (initialValue?: string) => {
       currentOperator: null,
       waitingForNewOperand: true,
       hasError: false,
+      isCalculated: true,
+      displayVersion: (prev.displayVersion || 0) + 1,
     }));
   }, []);
 
