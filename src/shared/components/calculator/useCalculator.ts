@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 import { notifications } from '@mantine/notifications';
 import type { CalculatorOperator, CalculatorHistoryItem, CalculatorState } from './types';
@@ -74,7 +74,9 @@ export const useCalculator = (initialValue?: string) => {
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
   // Sync initialValue when dynamically provided or changed externally
-  useEffect(() => {
+  const [prevInitialValue, setPrevInitialValue] = useState(initialValue);
+  if (initialValue !== prevInitialValue) {
+    setPrevInitialValue(initialValue);
     if (initialValue !== undefined && initialValue !== '' && !isNaN(Number(initialValue))) {
       setState((prev) => ({
         ...prev,
@@ -88,7 +90,7 @@ export const useCalculator = (initialValue?: string) => {
         displayVersion: (prev.displayVersion || 0) + 1,
       }));
     }
-  }, [initialValue]);
+  }
 
   // Synchronize history to local storage
   const saveHistory = useCallback((item: CalculatorHistoryItem) => {
