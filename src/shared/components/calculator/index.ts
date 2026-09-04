@@ -4,11 +4,9 @@ export { CalculatorDisplay } from './CalculatorDisplay';
 export { CalculatorKeypad } from './CalculatorKeypad';
 export { CalculatorHistory } from './CalculatorHistory';
 export { useCalculator, formatNumberSafe } from './useCalculator';
-export {
-  CalculatorProvider,
-  useGlobalCalculator,
-  type ExtendedCalculatorContextType,
-} from './CalculatorContext';
+export { CalculatorProvider } from './CalculatorProvider';
+export { useGlobalCalculator, type ExtendedCalculatorContextType } from './CalculatorContext';
+
 export type {
   CalculatorOperator,
   CalculatorHistoryItem,
