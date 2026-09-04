@@ -53,6 +53,7 @@ import {
   IconEdit,
   IconCategory,
   IconHistory,
+  IconFileSpreadsheet,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -78,8 +79,11 @@ import {
 } from '@/features/supplier-products/hooks/useSupplierProducts';
 import { usePurchasesByProduct, useCreatePurchase } from '@/features/purchases/hooks/usePurchases';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
-import { useIsAdmin } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import type { DataImportModalProps } from '@/features/imports';
+import { inventoryImportConfig } from '../config/inventoryImportConfig';
 import { ProductCatalogTree } from './ProductCatalogTree';
 
 const ProductFormModal = lazy(() =>
@@ -87,6 +91,9 @@ const ProductFormModal = lazy(() =>
 );
 const CategoryManagerModal = lazy(() =>
   import('./CategoryManagerModal').then((m) => ({ default: m.CategoryManagerModal }))
+);
+const DataImportModal = lazy<React.ComponentType<DataImportModalProps>>(() =>
+  import('@/features/imports').then((m) => ({ default: m.DataImportModal }))
 );
 
 /**
@@ -109,6 +116,8 @@ export const ProductTable = () => {
   const queryClient = useQueryClient();
   const isAdmin = useIsAdmin();
   const isMobile = useIsMobile();
+  const canWriteInventory = useHasPermission(PERMISSIONS.INVENTORY_WRITE);
+  const canImport = isAdmin || canWriteInventory;
 
   const { data: initialProducts, isLoading, isFetching } = useAllProducts();
   const { data: stats, isLoading: statsLoading, staleAsOf } = useInventoryStats();
@@ -117,6 +126,7 @@ export const ProductTable = () => {
 
   const [search, setSearch] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   // Multi-selection state & delete modal
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
@@ -483,6 +493,16 @@ export const ProductTable = () => {
                 onClick={() => setCategoryManagerOpen(true)}
               >
                 {t('Manage Categories')}
+              </Button>
+            )}
+            {canImport && (
+              <Button
+                variant="light"
+                color="blue"
+                leftSection={<IconFileSpreadsheet size={16} />}
+                onClick={() => setImportModalOpen(true)}
+              >
+                {t('Import Products')}
               </Button>
             )}
             <Button
@@ -1412,6 +1432,18 @@ export const ProductTable = () => {
           <CategoryManagerModal
             opened={categoryManagerOpen}
             onClose={() => setCategoryManagerOpen(false)}
+          />
+        )}
+
+        {canImport && importModalOpen && (
+          <DataImportModal
+            opened={importModalOpen}
+            onClose={() => setImportModalOpen(false)}
+            config={inventoryImportConfig}
+            onSuccess={() => {
+              void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+              void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.stats() });
+            }}
           />
         )}
       </Suspense>

@@ -219,6 +219,17 @@ Auth is strict online-only (`authSlice.ts`'s `initializeAuth`): any failure to v
 
 `POST /sequences/{name}/reserve` mints sequential human-facing numbers (`INV-2026-0042`, `REP-…`, `PRT-…`) server-side at the moment a sale/repair/print-job is created — never client-side, never a localStorage counter or array-length-derived number.
 
+## Spreadsheet Data Import Engine
+
+`src/features/imports/` provides a reusable, cross-module batch ingestion feature for Excel (`.xlsx`/`.xls`) and `.csv` files:
+
+- **Center Modal Family (`<DataImportModal>`)**: Follows `ProductFormModal.tsx` standards (`centered`, `fullScreen={isMobile}`, default cancel / blue primary buttons, plain text title).
+- **Client-Side Extraction & Validation (`fileParser.ts`)**: Parses uploaded spreadsheets client-side via SheetJS before transmitting to the server. Evaluates required columns, case-insensitive header aliases, custom row validators, and data transformations with instant visual preview.
+- **Preflight Preview & Options**: Paginated preview table (`ROWS_PER_PAGE = 8`) highlighting valid/invalid rows with status badges and error tooltips, alongside feature options (e.g. `autoGenerateBarcodes`, `autoCreateCategories`).
+- **Template Generation (`templateGenerator.ts`)**: Generates downloadable sample `.xlsx` (with auto-column widths) and `.csv` templates with prefilled example rows.
+- **Server Audit & Processing**: Confirms import batch via `POST /api/imports`, invalidating relevant queries (`queryKeys.imports.all`, target-specific queries like `queryKeys.inventory.all`), and displaying server outcomes with expandable row-level error reports.
+- **Config-Driven Extensibility (`ImportConfig`)**: Reusable across any module by providing an `ImportConfig` object (`target`, `columns`, `sampleRows`, `supportedOptions`). The inventory implementation is configured in `src/features/inventory/config/inventoryImportConfig.ts`.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.

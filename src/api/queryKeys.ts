@@ -95,4 +95,9 @@ export const queryKeys = {
     list: (filters?: Record<string, unknown>) => ['users', 'list', filters] as const,
     detail: (id: string) => ['users', 'detail', id] as const,
   },
+  imports: {
+    all: ['imports'] as const,
+    batches: (target?: string) => ['imports', 'batches', target] as const,
+    batchDetail: (key: string) => ['imports', 'batches', key] as const,
+  },
 };
