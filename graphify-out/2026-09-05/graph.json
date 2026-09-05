@@ -3692,7 +3692,7 @@
       "_origin": "ast",
       "id": "src_shared_components_searchhighlight_searchhighlightprops",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchhighlightprops"
     },
     {
@@ -3705,7 +3705,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist_querykeyfactory",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "querykeyfactory"
     },
     {
@@ -3718,7 +3718,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist_usebackendfilteredlistresult",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "usebackendfilteredlistresult"
     },
     {
@@ -3731,7 +3731,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_useentitysearch_entitysearchresult",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "entitysearchresult"
     },
     {
@@ -3744,7 +3744,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_indexedfield",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "indexedfield"
     },
     {
@@ -3757,7 +3757,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_matchrange",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "matchrange"
     },
     {
@@ -3770,7 +3770,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchentry",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchentry"
     },
     {
@@ -3783,7 +3783,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchfield",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchfield"
     },
     {
@@ -3796,7 +3796,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchfieldkind",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchfieldkind"
     },
     {
@@ -3809,7 +3809,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchindex",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchindex"
     },
     {
@@ -3822,7 +3822,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_searchterm",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchterm"
     },
     {
@@ -3835,7 +3835,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_invoicerow",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "invoicerow"
     },
     {
@@ -3848,7 +3848,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_row",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "row"
     },
     {
@@ -4448,19 +4448,6 @@
       "community": 50,
       "community_name": "t",
       "norm_label": "serialnumberpickermodalprops"
-    },
-    {
-      "label": "NotificationPopoverProps",
-      "file_type": "code",
-      "source_file": "src/features/notifications/components/NotificationPopover.tsx",
-      "source_location": "L41",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_features_notifications_components_notificationpopover_notificationpopoverprops",
-      "community": 50,
-      "community_name": "t",
-      "norm_label": "notificationpopoverprops"
     },
     {
       "label": "ReceiveStockModalProps",
@@ -5904,6 +5891,19 @@
       "community": 84,
       "community_name": "ConnectivityMonitor",
       "norm_label": "statscacherow"
+    },
+    {
+      "label": "NotificationPopoverProps",
+      "file_type": "code",
+      "source_file": "src/features/notifications/components/NotificationPopover.tsx",
+      "source_location": "L41",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_features_notifications_components_notificationpopover_notificationpopoverprops",
+      "community": 86,
+      "community_name": "i18n/t.ts",
+      "norm_label": "notificationpopoverprops"
     },
     {
       "label": "LogoUploadProps",
@@ -13757,30 +13757,6 @@
       "norm_label": "extractheadervalues()"
     },
     {
-      "label": "formatPct()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1615",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_formatpct",
-      "community": 382,
-      "community_name": "verify-claim.mjs",
-      "norm_label": "formatpct()"
-    },
-    {
-      "label": "functionStatusForRoute()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1585",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_functionstatusforroute",
-      "community": 382,
-      "community_name": "verify-claim.mjs",
-      "norm_label": "functionstatusforroute()"
-    },
-    {
       "label": "hasConfigDrivenInvalidation()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
@@ -13827,18 +13803,6 @@
       "community": 382,
       "community_name": "verify-claim.mjs",
       "norm_label": "hasliteralinvalidation()"
-    },
-    {
-      "label": "numberValue()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1602",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_numbervalue",
-      "community": 382,
-      "community_name": "verify-claim.mjs",
-      "norm_label": "numbervalue()"
     },
     {
       "label": "parseJsonLike()",
@@ -13901,18 +13865,6 @@
       "norm_label": "routeerrorfixexplicitlyconvertsunexpectederrorstonotfound()"
     },
     {
-      "label": "routeFromCandidateRef()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1577",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_routefromcandidateref",
-      "community": 382,
-      "community_name": "verify-claim.mjs",
-      "norm_label": "routefromcandidateref()"
-    },
-    {
       "label": "siblingPackageJson()",
       "file_type": "code",
       "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
@@ -13959,18 +13911,6 @@
       "community": 382,
       "community_name": "verify-claim.mjs",
       "norm_label": "verifycachecontrolheadersyntax()"
-    },
-    {
-      "label": "verifyCacheRecNotErrorDominatedOrAcknowledged()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L861",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_verifycacherecnoterrordominatedoracknowledged",
-      "community": 382,
-      "community_name": "verify-claim.mjs",
-      "norm_label": "verifycacherecnoterrordominatedoracknowledged()"
     },
     {
       "label": "verifyCacheVaryMatchesDynamicInputs()",
@@ -14365,7 +14305,7 @@
       "_origin": "ast",
       "id": "src_features_billing_tests_catalogbarcodesearch_test_p",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "p()"
     },
     {
@@ -14377,7 +14317,7 @@
       "_origin": "ast",
       "id": "src_features_billing_tests_catalogbarcodesearch_test_search",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "search()"
     },
     {
@@ -14389,7 +14329,7 @@
       "_origin": "ast",
       "id": "src_features_billing_tests_catalogsearchreset_test_searchproducts",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "searchproducts()"
     },
     {
@@ -14401,7 +14341,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist_usebackendfilteredlist",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "usebackendfilteredlist()"
     },
     {
@@ -14413,7 +14353,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_useentitysearch_useentitysearch",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "useentitysearch()"
     },
     {
@@ -14425,7 +14365,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_buildsearchindex",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "buildsearchindex()"
     },
     {
@@ -14437,7 +14377,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_getmatchranges",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "getmatchranges()"
     },
     {
@@ -14449,7 +14389,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_iswordchar",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "iswordchar()"
     },
     {
@@ -14461,7 +14401,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_matchsequencetier",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "matchsequencetier()"
     },
     {
@@ -14473,7 +14413,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_matchtier",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "matchtier()"
     },
     {
@@ -14485,7 +14425,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_normalizedigits",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "normalizedigits()"
     },
     {
@@ -14497,7 +14437,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_normalizetext",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "normalizetext()"
     },
     {
@@ -14509,7 +14449,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_scoreentry",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "scoreentry()"
     },
     {
@@ -14521,7 +14461,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_search_tokenizequery",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "tokenizequery()"
     },
     {
@@ -14533,7 +14473,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_run",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "run()"
     },
     {
@@ -17367,18 +17307,6 @@
       "community": 50,
       "community_name": "t",
       "norm_label": "creditnotemodal()"
-    },
-    {
-      "label": "NotificationPopover()",
-      "file_type": "code",
-      "source_file": "src/features/notifications/components/NotificationPopover.tsx",
-      "source_location": "L47",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_features_notifications_components_notificationpopover_notificationpopover",
-      "community": 50,
-      "community_name": "t",
-      "norm_label": "notificationpopover()"
     },
     {
       "label": "ReceiveStockModal()",
@@ -21881,6 +21809,18 @@
       "norm_label": "uniquestrings()"
     },
     {
+      "label": "NotificationPopover()",
+      "file_type": "code",
+      "source_file": "src/features/notifications/components/NotificationPopover.tsx",
+      "source_location": "L47",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_features_notifications_components_notificationpopover_notificationpopover",
+      "community": 86,
+      "community_name": "i18n/t.ts",
+      "norm_label": "notificationpopover()"
+    },
+    {
       "label": "LogoUpload()",
       "file_type": "code",
       "source_file": "src/features/settings/components/LogoUpload.tsx",
@@ -22465,7 +22405,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_asarray",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "asarray()"
     },
     {
@@ -22477,7 +22417,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_firstaccessiblepath",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "firstaccessiblepath()"
     },
     {
@@ -22489,44 +22429,8 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_firstdynamicroutechainreason",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "firstdynamicroutechainreason()"
-    },
-    {
-      "label": "isCatchAllPlaceholder()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1739",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_iscatchallplaceholder",
-      "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
-      "norm_label": "iscatchallplaceholder()"
-    },
-    {
-      "label": "isDynamicPlaceholder()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1735",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_isdynamicplaceholder",
-      "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
-      "norm_label": "isdynamicplaceholder()"
-    },
-    {
-      "label": "layoutAppliesToCandidateRoute()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1699",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_layoutappliestocandidateroute",
-      "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
-      "norm_label": "layoutappliestocandidateroute()"
     },
     {
       "label": "normalizeProjectRootDirectory()",
@@ -22537,20 +22441,8 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_normalizeprojectrootdirectory",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "normalizeprojectrootdirectory()"
-    },
-    {
-      "label": "normalizeRouteForLayoutMatch()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L1694",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_normalizerouteforlayoutmatch",
-      "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
-      "norm_label": "normalizerouteforlayoutmatch()"
     },
     {
       "label": "pathSuffixMatches()",
@@ -22561,7 +22453,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_pathsuffixmatches",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "pathsuffixmatches()"
     },
     {
@@ -22573,7 +22465,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_readnextroutechainfiles",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "readnextroutechainfiles()"
     },
     {
@@ -22585,7 +22477,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_recommendationfilesfromrec",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "recommendationfilesfromrec()"
     },
     {
@@ -22597,7 +22489,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_repopaths",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "repopaths()"
     },
     {
@@ -22609,20 +22501,8 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_verifyfileexists",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "verifyfileexists()"
-    },
-    {
-      "label": "verifyNextCacheComponentsRouteChainFile()",
-      "file_type": "code",
-      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
-      "source_location": "L572",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_vercel_optimize_lib_verify_claim_verifynextcachecomponentsroutechainfile",
-      "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
-      "norm_label": "verifynextcachecomponentsroutechainfile()"
     },
     {
       "label": "verifyNextRouteRevalidateStaticPrereq()",
@@ -22633,7 +22513,7 @@
       "_origin": "ast",
       "id": "agents_skills_vercel_optimize_lib_verify_claim_verifynextrouterevalidatestaticprereq",
       "community": 90,
-      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "community_name": "normalizeProjectRootDirectory",
       "norm_label": "verifynextrouterevalidatestaticprereq()"
     },
     {
@@ -22671,6 +22551,126 @@
       "community": 92,
       "community_name": "framework-support.mjs",
       "norm_label": "normalizeframework()"
+    },
+    {
+      "label": "formatPct()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1615",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_formatpct",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "formatpct()"
+    },
+    {
+      "label": "functionStatusForRoute()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1585",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_functionstatusforroute",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "functionstatusforroute()"
+    },
+    {
+      "label": "isCatchAllPlaceholder()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1739",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_iscatchallplaceholder",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "iscatchallplaceholder()"
+    },
+    {
+      "label": "isDynamicPlaceholder()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1735",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_isdynamicplaceholder",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "isdynamicplaceholder()"
+    },
+    {
+      "label": "layoutAppliesToCandidateRoute()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1699",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_layoutappliestocandidateroute",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "layoutappliestocandidateroute()"
+    },
+    {
+      "label": "normalizeRouteForLayoutMatch()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1694",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_normalizerouteforlayoutmatch",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "normalizerouteforlayoutmatch()"
+    },
+    {
+      "label": "numberValue()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1602",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_numbervalue",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "numbervalue()"
+    },
+    {
+      "label": "routeFromCandidateRef()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L1577",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_routefromcandidateref",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "routefromcandidateref()"
+    },
+    {
+      "label": "verifyCacheRecNotErrorDominatedOrAcknowledged()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L861",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_verifycacherecnoterrordominatedoracknowledged",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "verifycacherecnoterrordominatedoracknowledged()"
+    },
+    {
+      "label": "verifyNextCacheComponentsRouteChainFile()",
+      "file_type": "code",
+      "source_file": ".agents/skills/vercel-optimize/lib/verify-claim.mjs",
+      "source_location": "L572",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_vercel_optimize_lib_verify_claim_verifynextcachecomponentsroutechainfile",
+      "community": 93,
+      "community_name": "verifyNextCacheComponentsRouteChainFile",
+      "norm_label": "verifynextcachecomponentsroutechainfile()"
     },
     {
       "label": "extractSpecifiers()",
@@ -27117,6 +27117,18 @@
       "norm_label": "when to animate"
     },
     {
+      "label": "Backdrop-Blur Workaround",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
+      "source_location": "L288",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_backdrop_blur_workaround",
+      "community": 155,
+      "community_name": "CSS Animation Recipes",
+      "norm_label": "backdrop-blur workaround"
+    },
+    {
       "label": "CSS Animation Recipes",
       "file_type": "document",
       "node_kind": "heading",
@@ -27153,6 +27165,18 @@
       "norm_label": "fade"
     },
     {
+      "label": "Floating Element Isolation (popovers, menus, tooltips, control clusters)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
+      "source_location": "L301",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_floating_element_isolation_popovers_menus_tooltips_control_clusters",
+      "community": 155,
+      "community_name": "CSS Animation Recipes",
+      "norm_label": "floating element isolation (popovers, menus, tooltips, control clusters)"
+    },
+    {
       "label": "Interactivity During Transitions",
       "file_type": "document",
       "node_kind": "heading",
@@ -27175,6 +27199,18 @@
       "community": 155,
       "community_name": "CSS Animation Recipes",
       "norm_label": "no root cross-fade (live root)"
+    },
+    {
+      "label": "Persistent Element Isolation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
+      "source_location": "L277",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_persistent_element_isolation",
+      "community": 155,
+      "community_name": "CSS Animation Recipes",
+      "norm_label": "persistent element isolation"
     },
     {
       "label": "Reduced Motion",
@@ -27259,6 +27295,18 @@
       "community": 155,
       "community_name": "CSS Animation Recipes",
       "norm_label": "slide (vertical)"
+    },
+    {
+      "label": "Sliding Indicator (tab underline / segmented pill)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
+      "source_location": "L316",
+      "_origin": "ast",
+      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_sliding_indicator_tab_underline_segmented_pill",
+      "community": 155,
+      "community_name": "CSS Animation Recipes",
+      "norm_label": "sliding indicator (tab underline / segmented pill)"
     },
     {
       "label": "Text Morph",
@@ -35856,15 +35904,15 @@
       "norm_label": "devdependencies"
     },
     {
-      "label": "eslint-config-prettier",
+      "label": "eslint",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L26",
+      "source_location": "L25",
       "_origin": "ast",
-      "id": "package_devdependencies_eslint_config_prettier",
+      "id": "package_devdependencies_eslint",
       "community": 24,
       "community_name": "devDependencies",
-      "norm_label": "eslint-config-prettier"
+      "norm_label": "eslint"
     },
     {
       "label": "@eslint/js",
@@ -36032,15 +36080,15 @@
       "norm_label": "@vitejs/plugin-react"
     },
     {
-      "label": "eslint-config-prettier",
+      "label": "eslint",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L26",
+      "source_location": "L25",
       "_origin": "ast",
-      "id": "eslint_config_prettier",
+      "id": "eslint",
       "community": 24,
       "community_name": "devDependencies",
-      "norm_label": "eslint-config-prettier"
+      "norm_label": "eslint"
     },
     {
       "label": "@eslint/js",
@@ -42800,28 +42848,6 @@
       "norm_label": "ts-jest"
     },
     {
-      "label": "eslint",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "package_devdependencies_eslint",
-      "community": 376,
-      "community_name": "eslint",
-      "norm_label": "eslint"
-    },
-    {
-      "label": "eslint",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "eslint",
-      "community": 376,
-      "community_name": "eslint",
-      "norm_label": "eslint"
-    },
-    {
       "label": "analyticsApi.ts",
       "file_type": "code",
       "source_file": "src/features/reports/api/analyticsApi.ts",
@@ -43046,6 +43072,28 @@
       "norm_label": "reports & analytics \u2014 module guidance"
     },
     {
+      "label": "eslint-config-prettier",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "package_devdependencies_eslint_config_prettier",
+      "community": 385,
+      "community_name": "eslint-config-prettier",
+      "norm_label": "eslint-config-prettier"
+    },
+    {
+      "label": "eslint-config-prettier",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "eslint_config_prettier",
+      "community": 385,
+      "community_name": "eslint-config-prettier",
+      "norm_label": "eslint-config-prettier"
+    },
+    {
       "label": "i18n/CLAUDE.md",
       "file_type": "document",
       "node_kind": "page",
@@ -43099,7 +43147,7 @@
       "_origin": "ast",
       "id": "src_features_billing_tests_catalogbarcodesearch_test",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "catalogbarcodesearch.test.ts"
     },
     {
@@ -43110,7 +43158,7 @@
       "_origin": "ast",
       "id": "src_features_billing_tests_catalogsearchreset_test",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "catalogsearchreset.test.ts"
     },
     {
@@ -43121,7 +43169,7 @@
       "_origin": "ast",
       "id": "src_features_billing_tests_catalogsearchreset_test_sampleproducts",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "sampleproducts"
     },
     {
@@ -43132,7 +43180,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_usebackendfilteredlist",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "usebackendfilteredlist.ts"
     },
     {
@@ -43143,7 +43191,7 @@
       "_origin": "ast",
       "id": "src_shared_hooks_useentitysearch",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "useentitysearch.ts"
     },
     {
@@ -43154,8 +43202,41 @@
       "_origin": "ast",
       "id": "src_shared_lib_search",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "search.ts"
+    },
+    {
+      "label": "searchFields.ts",
+      "file_type": "code",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_shared_lib_searchfields",
+      "community": 39,
+      "community_name": "searchFields.ts",
+      "norm_label": "searchfields.ts"
+    },
+    {
+      "label": "PRODUCT_SEARCH_FIELDS",
+      "file_type": "code",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_shared_lib_searchfields_product_search_fields",
+      "community": 39,
+      "community_name": "searchFields.ts",
+      "norm_label": "product_search_fields"
+    },
+    {
+      "label": "SUPPLIER_SEARCH_FIELDS",
+      "file_type": "code",
+      "source_file": "src/shared/lib/searchFields.ts",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "src_shared_lib_searchfields_supplier_search_fields",
+      "community": 39,
+      "community_name": "searchFields.ts",
+      "norm_label": "supplier_search_fields"
     },
     {
       "label": "search.test.ts",
@@ -43165,7 +43246,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "search.test.ts"
     },
     {
@@ -43176,7 +43257,7 @@
       "_origin": "ast",
       "id": "src_shared_lib_tests_search_test_fields",
       "community": 39,
-      "community_name": "search.ts",
+      "community_name": "searchFields.ts",
       "norm_label": "fields"
     },
     {
@@ -44352,17 +44433,6 @@
       "norm_label": "serialnumberpickermodal.tsx"
     },
     {
-      "label": "NotificationPopover.tsx",
-      "file_type": "code",
-      "source_file": "src/features/notifications/components/NotificationPopover.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_features_notifications_components_notificationpopover",
-      "community": 50,
-      "community_name": "t",
-      "norm_label": "notificationpopover.tsx"
-    },
-    {
       "label": "ReceiveStockModal.tsx",
       "file_type": "code",
       "source_file": "src/features/purchases/components/ReceiveStockModal.tsx",
@@ -44625,39 +44695,6 @@
       "community": 51,
       "community_name": "SupplierList.tsx",
       "norm_label": "suppliers/types.ts"
-    },
-    {
-      "label": "searchFields.ts",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields",
-      "community": 51,
-      "community_name": "SupplierList.tsx",
-      "norm_label": "searchfields.ts"
-    },
-    {
-      "label": "PRODUCT_SEARCH_FIELDS",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L27",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields_product_search_fields",
-      "community": 51,
-      "community_name": "SupplierList.tsx",
-      "norm_label": "product_search_fields"
-    },
-    {
-      "label": "SUPPLIER_SEARCH_FIELDS",
-      "file_type": "code",
-      "source_file": "src/shared/lib/searchFields.ts",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "src_shared_lib_searchfields_supplier_search_fields",
-      "community": 51,
-      "community_name": "SupplierList.tsx",
-      "norm_label": "supplier_search_fields"
     },
     {
       "label": "lib/deep-dive.mjs",
@@ -48582,6 +48619,17 @@
       "norm_label": "scanner_gates"
     },
     {
+      "label": "NotificationPopover.tsx",
+      "file_type": "code",
+      "source_file": "src/features/notifications/components/NotificationPopover.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_notifications_components_notificationpopover",
+      "community": 86,
+      "community_name": "i18n/t.ts",
+      "norm_label": "notificationpopover.tsx"
+    },
+    {
       "label": "LogoUpload.tsx",
       "file_type": "code",
       "source_file": "src/features/settings/components/LogoUpload.tsx",
@@ -49603,54 +49651,6 @@
       "community": 92,
       "community_name": "framework-support.mjs",
       "norm_label": "limited_frameworks"
-    },
-    {
-      "label": "Backdrop-Blur Workaround",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
-      "source_location": "L288",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_backdrop_blur_workaround",
-      "community": 93,
-      "community_name": "Persistent Element Isolation",
-      "norm_label": "backdrop-blur workaround"
-    },
-    {
-      "label": "Floating Element Isolation (popovers, menus, tooltips, control clusters)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
-      "source_location": "L301",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_floating_element_isolation_popovers_menus_tooltips_control_clusters",
-      "community": 93,
-      "community_name": "Persistent Element Isolation",
-      "norm_label": "floating element isolation (popovers, menus, tooltips, control clusters)"
-    },
-    {
-      "label": "Persistent Element Isolation",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
-      "source_location": "L277",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_persistent_element_isolation",
-      "community": 93,
-      "community_name": "Persistent Element Isolation",
-      "norm_label": "persistent element isolation"
-    },
-    {
-      "label": "Sliding Indicator (tab underline / segmented pill)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": ".agents/skills/vercel-react-view-transitions/references/css-recipes.md",
-      "source_location": "L316",
-      "_origin": "ast",
-      "id": "agents_skills_vercel_react_view_transitions_references_css_recipes_sliding_indicator_tab_underline_segmented_pill",
-      "community": 93,
-      "community_name": "Persistent Element Isolation",
-      "norm_label": "sliding indicator (tab underline / segmented pill)"
     },
     {
       "label": "edge-heavy-import.mjs",
@@ -63906,7 +63906,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/dashboard/components/UrgentActionCenter.tsx",
-      "source_location": "L215",
+      "source_location": "L208",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_components_urgentactioncenter_urgentactioncenter",
@@ -64049,7 +64049,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/features/dashboard/hooks/useDashboardLivePulse.ts",
-      "source_location": "L563",
+      "source_location": "L564",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_dashboard_hooks_usedashboardlivepulse_usedashboardlivepulse",

@@ -19,6 +19,7 @@ import {
   fetchReminders,
   fetchTopProducts,
   type AnalyticsRequestParams,
+  type FetchRemindersParams,
 } from '../api/analyticsApi';
 
 type P = AnalyticsRequestParams;
@@ -148,14 +149,18 @@ export const useInventoryValuation = (enabled = true) =>
   });
 
 /** The dashboard's unified reminders feed — polled on the live-pulse cadence. */
-export const useReminders = (dueWithinDays = 7, enabled = true) =>
-  useQuery({
-    queryKey: queryKeys.reports.reminders({ dueWithinDays }),
-    queryFn: () => fetchReminders({ dueWithinDays }),
+export const useReminders = (paramsOrDays: number | FetchRemindersParams = 7, enabled = true) => {
+  const params: FetchRemindersParams =
+    typeof paramsOrDays === 'number' ? { dueWithinDays: paramsOrDays } : paramsOrDays;
+
+  return useQuery({
+    queryKey: queryKeys.reports.reminders(params as Record<string, unknown>),
+    queryFn: () => fetchReminders(params),
     enabled,
     staleTime: 30_000,
     refetchInterval: 30_000,
   });
+};
 
 export const useEmployeeCommissionsRange = (p: P, enabled = true) =>
   useQuery({
