@@ -30,6 +30,7 @@ export interface UrgentActionItem {
   subtitle: string;
   severity: 'critical' | 'warning' | 'info';
   timestamp: string;
+  rawDate?: string;
   referenceId: string;
   referenceKey?: string;
   customerName?: string;

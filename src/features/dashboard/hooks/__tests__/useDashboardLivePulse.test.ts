@@ -142,10 +142,14 @@ describe('computeDashboardData', () => {
     const stockoutAlert = data.urgentActions.find((a) => a.type === 'stockout');
     expect(stockoutAlert).toBeDefined();
     expect(stockoutAlert?.title).toContain('USB-C Cable');
+    expect(stockoutAlert?.rawDate).toBe(now.toISOString());
+    expect(stockoutAlert?.daysWaiting).toBe(0);
 
     const uncollectedAlert = data.urgentActions.find((a) => a.type === 'uncollected');
     expect(uncollectedAlert).toBeDefined();
     expect(uncollectedAlert?.title).toContain('iPhone 13 Ready for Pickup');
+    expect(uncollectedAlert?.rawDate).toBe(now.toISOString());
+    expect(uncollectedAlert?.daysWaiting).toBe(0);
 
     // 3. Check Service Pipelines
     const repairStageReady = data.repairPipeline.find((s) => s.stage === 'ready');
@@ -250,6 +254,8 @@ describe('toReminderItems', () => {
     expect(item.actionLabel).toBe('Record Payment');
     expect(item.linkTo).toContain('action=recordPayment');
     expect(item.title).toContain('Kamal Perera');
+    expect(item.rawDate).toBe('2026-09-01');
+    expect(item.daysWaiting).toBe(5);
   });
 
   it('maps a job-due-soon reminder to an Open Job action with info severity', () => {
@@ -265,6 +271,8 @@ describe('toReminderItems', () => {
     expect(item.severity).toBe('info');
     expect(item.actionLabel).toBe('Open Job');
     expect(item.linkTo).toBe('/repairs?jobKey=rep_1');
+    expect(item.rawDate).toBe('2026-09-01');
+    expect(item.daysWaiting).toBe(-2);
   });
 
   it('returns [] when the feed has not loaded', () => {

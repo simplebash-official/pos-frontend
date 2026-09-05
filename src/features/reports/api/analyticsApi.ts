@@ -146,9 +146,16 @@ export const fetchOutstandingReceivables = (opts?: {
     limit: opts?.limit,
   });
 
-export const fetchReminders = (opts?: { dueWithinDays?: number; limit?: number }) =>
+export interface FetchRemindersParams {
+  dueWithinDays?: number;
+  page?: number;
+  limit?: number;
+}
+
+export const fetchReminders = (opts?: FetchRemindersParams) =>
   get<RemindersResponse>('/reports/reminders', {
     dueWithinDays: opts?.dueWithinDays,
+    page: opts?.page,
     limit: opts?.limit,
   });
 

@@ -212,6 +212,9 @@ export const computeDashboardData = ({
     const threshold = prod.minStockThreshold || 5;
     if (prod.stockQuantity <= threshold) {
       const isOut = prod.stockQuantity <= 0;
+      const daysSinceUpdate = prod.updatedAt
+        ? Math.max(0, now.diff(dayjs(prod.updatedAt), 'day'))
+        : 0;
       urgentActions.push({
         id: `stock-${prod.id}`,
         type: 'stockout',
@@ -219,6 +222,8 @@ export const computeDashboardData = ({
         subtitle: `${prod.stockQuantity} units remaining on shelf (Threshold: ${threshold}) · SKU: ${prod.sku || 'N/A'}`,
         severity: isOut ? 'critical' : 'warning',
         timestamp: prod.updatedAt ? formatRelativeTime(prod.updatedAt) : 'Recently updated',
+        rawDate: prod.updatedAt || prod.createdAt,
+        daysWaiting: daysSinceUpdate,
         referenceId: prod.sku || prod.key || prod.id,
         actionLabel: 'Restock Stock',
         linkTo: '/inventory',
@@ -228,7 +233,7 @@ export const computeDashboardData = ({
 
   // B) Uncollected Ready Repairs
   for (const rep of readyRepairs) {
-    const daysReady = dayjs().diff(dayjs(rep.createdAt), 'day');
+    const daysReady = now.diff(dayjs(rep.createdAt), 'day');
     const cost = (rep.estimatedCostCents || 0) + (rep.materialCostCents || 0);
     urgentActions.push({
       id: `ready-${rep.id}`,
@@ -237,6 +242,7 @@ export const computeDashboardData = ({
       subtitle: `Customer: ${rep.customerName} (${rep.customerPhone || 'N/A'}) · Balance: Rs. ${(cost / 100).toLocaleString()}`,
       severity: daysReady >= 3 ? 'critical' : 'warning',
       timestamp: daysReady > 0 ? `${daysReady}d ready` : 'Ready today',
+      rawDate: rep.createdAt,
       referenceId: rep.ticketNumber,
       customerName: rep.customerName,
       customerPhone: rep.customerPhone,
@@ -472,7 +478,7 @@ export const computeDashboardData = ({
     });
   }
 
-  const recentActivities = activities.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 8);
+  const recentActivities = activities.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 25);
 
   return {
     lastRefreshed: new Date().toISOString(),
@@ -521,11 +527,13 @@ export const toReminderItems = (reminders: ReminderEntry[] | undefined): UrgentA
       subtitle: `${owedLabel} ${formatMoney(r.amountCents)} · ${timing}`,
       severity: r.severity,
       timestamp: timing,
+      rawDate: r.dueDate,
       referenceId: r.referenceNumber,
       referenceKey: r.key,
       customerName: r.customerName,
       customerPhone: r.customerPhone,
       amountCents: r.amountCents,
+      daysWaiting: isOverdue ? r.daysFromDue : -Math.abs(r.daysFromDue),
       actionLabel: isCredit ? t('Record Payment') : t('Open Job'),
       linkTo: r.linkTo,
     };
@@ -539,7 +547,7 @@ export const useDashboardLivePulse = () => {
   const printJobsQuery = useAllPrintJobs();
   const productsQuery = useAllProducts();
   const employeesQuery = useAllEmployees();
-  const remindersQuery = useReminders();
+  const remindersQuery = useReminders({ dueWithinDays: 7, limit: 100 });
 
   const data = useMemo(() => {
     const computed = computeDashboardData({
@@ -552,8 +560,8 @@ export const useDashboardLivePulse = () => {
     return {
       ...computed,
       urgentActions: [
-        ...computed.urgentActions,
         ...toReminderItems(remindersQuery.data?.reminders),
+        ...computed.urgentActions,
       ],
     };
   }, [

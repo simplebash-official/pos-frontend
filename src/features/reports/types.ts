@@ -455,6 +455,10 @@ export interface RemindersResponse {
   jobsOverdueCount: number;
   jobsDueSoonCount: number;
   dueWithinDays: number;
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
 }
 
 /** `GET /reports/inventory-valuation` */
