@@ -19,7 +19,7 @@ import { ROUTES } from '@/constants/routes';
 import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../../api/authApi';
-import { ApiError } from '@/shared/types/common';
+import { getErrorMessage } from '@/shared/lib/error';
 
 interface MobileLoginFormProps {
   onBack: () => void;
@@ -65,10 +65,9 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
       navigate(from, { replace: true });
     } catch (err: unknown) {
-      const apiError = err as ApiError;
       notifications.show({
         title: 'Login Failed',
-        message: apiError.message || 'Invalid email or password. Please try again.',
+        message: getErrorMessage(err, 'Invalid email or password. Please try again.'),
         color: 'red',
       });
     } finally {

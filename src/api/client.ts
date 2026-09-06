@@ -11,6 +11,7 @@ import { reportNetworkObservation } from '@/offline/connectivity/networkSignal';
 import { getDeviceId } from '@/api/deviceId';
 import { createIdempotencyKey } from '@/shared/lib/id';
 import { ApiError } from '@/shared/types/common';
+import { sanitizeErrorMessage } from '@/shared/lib/error';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {
   params?: Record<string, string | number | boolean | undefined>;
@@ -91,10 +92,19 @@ class ApiClient {
             reportNetworkObservation('reachable', readServerTime(error.response.headers));
             const data = error.response.data;
             if (isApiErrorLike(data)) {
-              return Promise.reject(data);
+              return Promise.reject({
+                ...data,
+                message: sanitizeErrorMessage(
+                  data.message,
+                  data.statusCode ?? error.response.status
+                ),
+              });
             }
             return Promise.reject({
-              message: error.response.statusText || 'An error occurred during request execution',
+              message: sanitizeErrorMessage(
+                error.response.statusText || 'An error occurred during request execution',
+                error.response.status
+              ),
               statusCode: error.response.status,
             } as ApiError);
           }
