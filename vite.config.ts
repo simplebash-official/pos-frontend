@@ -1,15 +1,18 @@
-import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { defineConfig, type PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// https://vite.dev/config/
-export default defineConfig({
-  resolve: {
-    tsconfigPaths: true,
-  },
-  base: '/',
-  plugins: [
-    react(),
+// The desktop (Tauri) build sets TAURI=true. Under Tauri's custom app
+// protocol a service worker is unreliable and pointless (the app is already
+// installed; updates go through the Tauri updater), so the PWA plugin is
+// dropped and `virtual:pwa-register/react` is aliased to a no-op stub.
+const isTauri = process.env.TAURI === 'true';
+
+const plugins: PluginOption[] = [react()];
+
+if (!isTauri) {
+  plugins.push(
     /**
      * Precaches the app shell so the POS still loads with no network.
      *
@@ -57,8 +60,24 @@ export default defineConfig({
         // hot reload behave unpredictably. Test offline against `npm run preview`.
         enabled: false,
       },
-    }),
-  ],
+    })
+  );
+}
+
+// https://vite.dev/config/
+export default defineConfig({
+  resolve: {
+    tsconfigPaths: true,
+    alias: isTauri
+      ? {
+          'virtual:pwa-register/react': fileURLToPath(
+            new URL('./src/app/components/pwaRegisterStub.ts', import.meta.url)
+          ),
+        }
+      : undefined,
+  },
+  base: '/',
+  plugins,
   build: {
     rollupOptions: {
       output: {
