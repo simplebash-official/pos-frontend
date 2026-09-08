@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
-import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
 import {
   Box,
   Group,
@@ -26,7 +26,7 @@ import {
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getDocumentUnavailableText } from '@/shared/lib/queryStatusText';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+ensurePdfWorker();
 
 export interface PdfCanvasViewerProps {
   blob: Blob | null;
