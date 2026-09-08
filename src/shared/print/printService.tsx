@@ -1,8 +1,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
 
 // Same worker setup as PdfCanvasViewer — both entry points load documents independently.
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+ensurePdfWorker();
 
 // Prints a backend-rendered PDF blob. The PDF is rasterised through pdf.js at
 // print resolution and printed from a plain-HTML hidden iframe. Pointing the
