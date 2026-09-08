@@ -26,8 +26,6 @@ import {
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getDocumentUnavailableText } from '@/shared/lib/queryStatusText';
 
-ensurePdfWorker();
-
 export interface PdfCanvasViewerProps {
   blob: Blob | null;
   loading?: boolean;
@@ -196,7 +194,9 @@ export const PdfCanvasViewer = ({
     let cancelled = false;
     let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
 
-    blob.arrayBuffer().then((data) => {
+    blob.arrayBuffer().then(async (data) => {
+      if (cancelled) return;
+      await ensurePdfWorker();
       if (cancelled) return;
       loadingTask = pdfjsLib.getDocument({ data });
       loadingTask.promise
