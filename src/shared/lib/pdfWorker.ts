@@ -1,18 +1,21 @@
 import { GlobalWorkerOptions } from 'pdfjs-dist';
-// `?worker&inline` makes Vite embed the pdf.js worker and instantiate it from
-// a blob URL. The previous `?url` approach let pdf.js call
-// `new Worker('/assets/….mjs', { type: 'module' })` — and WKWebView (the
-// engine Tauri uses on macOS) refuses to load a Worker script from the
-// app's `tauri://` custom scheme, so pdf.js fell back to running the worker
-// on the main thread, which then trips the app's CSP. A blob-URL worker
-// loads fine under the custom scheme, so the real off-thread worker is used.
-import PdfJsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker&inline';
 
-let configured = false;
+// WKWebView (the engine Tauri uses on macOS) refuses to load a Worker script
+// from the app's `tauri://` custom scheme, so pdf.js's default `?url` worker
+// silently falls back to the main thread and trips the app CSP. A blob-URL
+// worker (Vite `?worker&inline`) loads fine — see pdfWorkerInstance.ts.
+//
+// The worker module is `import()`-ed lazily so its ~1.2 MB payload gets its
+// own chunk instead of inflating the shared print/invoice code.
 
-/** Point pdf.js at a Vite-built module worker. Safe to call repeatedly. */
-export function ensurePdfWorker(): void {
-  if (configured) return;
-  configured = true;
-  GlobalWorkerOptions.workerPort = new PdfJsWorker();
+let ready: Promise<void> | null = null;
+
+/** Point pdf.js at the blob-URL module worker. Cached; safe to call repeatedly. */
+export function ensurePdfWorker(): Promise<void> {
+  if (!ready) {
+    ready = import('./pdfWorkerInstance').then(({ default: PdfJsWorker }) => {
+      GlobalWorkerOptions.workerPort = new PdfJsWorker();
+    });
+  }
+  return ready;
 }

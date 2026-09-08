@@ -1,9 +1,6 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
 
-// Same worker setup as PdfCanvasViewer — both entry points load documents independently.
-ensurePdfWorker();
-
 // Prints a backend-rendered PDF blob. The PDF is rasterised through pdf.js at
 // print resolution and printed from a plain-HTML hidden iframe. Pointing the
 // iframe straight at the blob URL no longer works in Chrome — its built-in PDF
@@ -36,6 +33,7 @@ interface PrintedPageImage {
 }
 
 const renderPagesToImages = async (blob: Blob): Promise<PrintedPageImage[]> => {
+  await ensurePdfWorker();
   const data = await blob.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data });
   const doc = await loadingTask.promise;

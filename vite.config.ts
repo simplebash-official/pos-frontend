@@ -79,6 +79,12 @@ export default defineConfig({
   base: '/',
   plugins,
   build: {
+    // This app ships as a Tauri desktop bundle served from the local disk —
+    // there is no network transfer, so uncompressed chunk size barely matters.
+    // The two chunks over the 500 kB default are both lazy: the pdf.js worker
+    // (~1.2 MB, inlined because WKWebView can't load a Worker from tauri://,
+    // loaded only when previewing/printing) and the Mantine core vendor bundle.
+    chunkSizeWarningLimit: 1300,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -90,6 +96,19 @@ export default defineConfig({
               id.includes('/react-router-dom/')
             ) {
               return 'vendor-react';
+            }
+            // Charting stack (reports/dashboard only) — kept out of vendor-mantine
+            // so `@mantine/charts` doesn't drag Recharts + D3 onto the initial path.
+            if (
+              id.includes('/recharts/') ||
+              id.includes('/@mantine/charts/') ||
+              id.includes('/d3-') ||
+              id.includes('/victory-vendor/') ||
+              id.includes('/internmap/') ||
+              id.includes('/recharts-scale/') ||
+              id.includes('/react-smooth/')
+            ) {
+              return 'vendor-charts';
             }
             if (id.includes('/@mantine/')) {
               return 'vendor-mantine';
