@@ -13,6 +13,9 @@ import cartReducer, {
   setCreditDepositCents,
   setCreditDepositMethod,
   startNewSale,
+  completeSaleSuccess,
+  selectActiveCartItems,
+  selectReservedQuantityByProductId,
   selectCreditDepositCents,
   selectCreditDepositMethod,
   setCardRef,
@@ -43,6 +46,10 @@ import cartReducer, {
   type CartItem,
 } from '../cartSlice';
 import { PAYMENT_METHODS } from '@/constants/payment';
+import type { Invoice } from '@/features/billing/types';
+
+// The reserved-stock selectors only read `completedSale`'s presence, so a stub invoice is enough.
+const completedInvoice = { invoiceNumber: 'INV-000006' } as Invoice;
 
 const sampleItem: Omit<CartItem, 'totalCents'> = {
   id: 'line-1',
@@ -278,6 +285,55 @@ describe('cartSlice reducer & selectors', () => {
       expect(selectTotalUnitCount(rootState)).toBe(3); // 2 + 1
       expect(selectSplitAllocatedCents(rootState)).toBe(1000);
       expect(selectSplitRemainingCents(rootState)).toBe(selectTotalCents(rootState) - 1000);
+    });
+
+    it('counts retail units per product while the sale is still open', () => {
+      let state = cartReducer(getInitialState(), addItem(sampleItem));
+      state = cartReducer(state, addItem({ ...sampleItem, id: 'line-2', quantity: 1 }));
+      state = cartReducer(
+        state,
+        addItem({
+          id: 'line-3',
+          productId: 'prod_2',
+          name: 'Screen Repair',
+          unitPriceCents: 2500,
+          quantity: 1,
+          discountCents: 0,
+          sourceType: 'repair',
+          sourceTicketNumber: 'REP-1001',
+        })
+      );
+
+      const reserved = selectReservedQuantityByProductId({ cart: state });
+      expect(reserved.get('prod_1')).toBe(3); // 2 + 1 merged onto one retail line
+      expect(reserved.has('prod_2')).toBe(false); // a repair ticket holds no stock
+    });
+
+    it('stops reserving stock once the sale is completed, so sold units are not subtracted twice', () => {
+      let state = cartReducer(getInitialState(), addItem(sampleItem));
+      expect(selectReservedQuantityByProductId({ cart: state }).get('prod_1')).toBe(2);
+
+      state = cartReducer(
+        state,
+        completeSaleSuccess({ invoice: completedInvoice, changeDueCents: 0 })
+      );
+
+      // The lines stay on screen for the receipt panel, but they no longer hold stock.
+      expect(state.items).toHaveLength(1);
+      expect(selectActiveCartItems({ cart: state })).toHaveLength(0);
+      expect(selectReservedQuantityByProductId({ cart: state }).size).toBe(0);
+    });
+
+    it('reserves stock again for the next sale', () => {
+      let state = cartReducer(getInitialState(), addItem(sampleItem));
+      state = cartReducer(
+        state,
+        completeSaleSuccess({ invoice: completedInvoice, changeDueCents: 0 })
+      );
+      state = cartReducer(state, startNewSale());
+      state = cartReducer(state, addItem({ ...sampleItem, quantity: 1 }));
+
+      expect(selectReservedQuantityByProductId({ cart: state }).get('prod_1')).toBe(1);
     });
 
     it('exposes named plain selectors for checkout fields (useCart.ts reads these instead of inline lambdas)', () => {

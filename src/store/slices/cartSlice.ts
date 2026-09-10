@@ -630,6 +630,31 @@ export const selectSourceBreakdown = createSelector(
   (totals) => totals.sourceBreakdown
 );
 
+// A completed sale's lines stay in `items` so the finished sale keeps rendering, but by then the
+// backend has already decremented stock and the refetched product list carries that decrement.
+// Anything that treats a cart line as "stock spoken for but not yet sold" must therefore stop at
+// the moment the sale completes, or those units get subtracted twice.
+const NO_ACTIVE_ITEMS: CartItem[] = [];
+
+export const selectActiveCartItems = createSelector(
+  [selectCartItems, selectCompletedSale],
+  (items, completedSale) => (completedSale ? NO_ACTIVE_ITEMS : items)
+);
+
+/** Retail units held by the in-progress sale, per product id — what the catalog subtracts from stock. */
+export const selectReservedQuantityByProductId = createSelector(
+  [selectActiveCartItems],
+  (items) => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      if (item.sourceType === 'retail') {
+        map.set(item.productId, (map.get(item.productId) ?? 0) + item.quantity);
+      }
+    }
+    return map;
+  }
+);
+
 export const selectSplitPayments = (state: { cart: CartState }) => state.cart.splitPayments;
 
 export const selectSplitAllocatedCents = createSelector([selectSplitPayments], (splitPayments) =>

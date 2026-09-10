@@ -30,6 +30,8 @@ import {
   startNewSale,
   clearCart,
   selectCartItems,
+  selectActiveCartItems,
+  selectReservedQuantityByProductId,
   selectCartDiscountCents,
   selectCartDiscountType,
   selectCartDiscountValue,
@@ -74,6 +76,10 @@ import type { DiscountType } from '@/store/slices/cartSlice';
 export const useCartItems = () => {
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectCartItems);
+  // `items` still holds a completed sale's lines so the receipt panel can render them; anything
+  // that reasons about stock still available to sell must use `activeItems` instead.
+  const activeItems = useAppSelector(selectActiveCartItems);
+  const reservedQuantityByProductId = useAppSelector(selectReservedQuantityByProductId);
   const itemCount = useAppSelector(selectCartItemsCount);
   const totalUnitCount = useAppSelector(selectTotalUnitCount);
   const sourceBreakdown = useAppSelector(selectSourceBreakdown);
@@ -100,6 +106,8 @@ export const useCartItems = () => {
 
   return {
     items,
+    activeItems,
+    reservedQuantityByProductId,
     itemCount,
     totalUnitCount,
     sourceBreakdown,
