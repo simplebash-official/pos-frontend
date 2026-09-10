@@ -4,10 +4,11 @@ import {
   IconFileText,
   IconPhoto,
   IconPrinter,
+  IconRefresh,
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
-  'shop-profile' | 'branding' | 'bank-details' | 'printing' | 'templates';
+  'shop-profile' | 'branding' | 'bank-details' | 'printing' | 'templates' | 'updates';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
@@ -52,5 +53,12 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Templates',
     description: 'Warranty terms and receipt footer text',
     icon: IconFileText,
+  },
+  {
+    id: 'updates',
+    label: 'Updates',
+    shortLabel: 'Updates',
+    description: 'App version and software updates',
+    icon: IconRefresh,
   },
 ];

@@ -12,6 +12,7 @@ import { BrandingSection } from './sections/BrandingSection';
 import { BankDetailsSection } from './sections/BankDetailsSection';
 import { PrintingSection } from './sections/PrintingSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
+import { UpdatesSection } from './sections/UpdatesSection';
 
 const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) => void) => {
   switch (id) {
@@ -25,6 +26,8 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
       return <PrintingSection onDirtyChange={onDirtyChange} />;
     case 'templates':
       return <DocumentTemplatesSection onDirtyChange={onDirtyChange} />;
+    case 'updates':
+      return <UpdatesSection onDirtyChange={onDirtyChange} />;
   }
 };
 

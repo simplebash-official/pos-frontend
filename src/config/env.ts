@@ -6,4 +6,8 @@ export const env = {
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
   appName: import.meta.env.VITE_APP_NAME || 'POS System',
+  // Build identity, baked in by `vite.config.ts`. `commit` is '' outside CI.
+  appVersion: __APP_VERSION__,
+  buildTime: __BUILD_TIME__,
+  commit: __GIT_SHA__,
 };
