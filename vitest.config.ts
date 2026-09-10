@@ -13,6 +13,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Mirror the build-time constants `vite.config.ts` injects, so any module
+  // that reads `src/config/env.ts` loads under the test runner too.
+  define: {
+    __APP_VERSION__: JSON.stringify('0.0.0-test'),
+    __BUILD_TIME__: JSON.stringify('1970-01-01T00:00:00.000Z'),
+    __GIT_SHA__: JSON.stringify(''),
+  },
   test: {
     environment: 'node',
     // `fake-indexeddb/auto` installs a real IndexedDB implementation on
