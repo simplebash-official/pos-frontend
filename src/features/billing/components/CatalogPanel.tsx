@@ -120,7 +120,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const [shakeError, setShakeError] = useState<string | null>(null);
   const [serialPickerProduct, setSerialPickerProduct] = useState<Product | null>(null);
 
-  const { add, items } = useCartItems();
+  const { add, activeItems, reservedQuantityByProductId } = useCartItems();
   const { customerId, attachCustomer } = useCartCustomer();
   const { soundEnabled } = useCartSound();
   const { mutateAsync: createCustomerAsync } = useCreateCustomer();
@@ -338,27 +338,15 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   const [showInStockOnly, setShowInStockOnly] = useState(false);
 
-  // Retail quantity already in the cart, per product — subtracted from stock so
-  // the catalog badge reflects what's actually still available to add.
-  const cartQuantityByProductId = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const item of items) {
-      if (item.sourceType === 'retail') {
-        map.set(item.productId, (map.get(item.productId) ?? 0) + item.quantity);
-      }
-    }
-    return map;
-  }, [items]);
-
   // Category and stock filters first; the shared scorer then ranks what is left.
   const visibleProducts = useMemo(() => {
     return products.filter((p) => {
-      const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+      const remainingStock = p.stockQuantity - (reservedQuantityByProductId.get(p.id) ?? 0);
       if (showInStockOnly && remainingStock <= 0) return false;
 
       return selectedCategory === 'all' || p.categoryKey === selectedCategory;
     });
-  }, [products, selectedCategory, showInStockOnly, cartQuantityByProductId]);
+  }, [products, selectedCategory, showInStockOnly, reservedQuantityByProductId]);
 
   const { results: filteredProducts, terms: searchTerms } = useEntitySearch(
     visibleProducts,
@@ -409,7 +397,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   };
 
   const handleAddProduct = (p: Product) => {
-    const remainingStock = p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+    const remainingStock = p.stockQuantity - (reservedQuantityByProductId.get(p.id) ?? 0);
     if (remainingStock <= 0) {
       playErrorSound(soundEnabled);
       notifications.show({
@@ -432,7 +420,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   };
 
   const alreadyPickedSerialsForProduct = (productKey: string): string[] =>
-    items.filter((i) => i.productKey === productKey).flatMap((i) => i.serialNumbers ?? []);
+    activeItems.filter((i) => i.productKey === productKey).flatMap((i) => i.serialNumbers ?? []);
 
   // Handle direct barcode or SKU scan
   const handleScanSubmit = async (e: React.FormEvent) => {
@@ -957,7 +945,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       {rows[virtualRow.index].map((p, colIndex) => {
                         const index = virtualRow.index * columnsPerRow + colIndex;
                         const remainingStock =
-                          p.stockQuantity - (cartQuantityByProductId.get(p.id) ?? 0);
+                          p.stockQuantity - (reservedQuantityByProductId.get(p.id) ?? 0);
                         const isZeroStock = remainingStock <= 0;
                         const isLowStock =
                           remainingStock > 0 && remainingStock <= p.minStockThreshold;
