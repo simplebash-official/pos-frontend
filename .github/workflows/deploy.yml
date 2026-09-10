@@ -34,6 +34,7 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
             VITE_API_BASE_URL=https://jana2u-api.duckdns.org/api
+            VITE_GIT_SHA=${{ github.sha }}
 
   deploy:
     needs: build-and-push

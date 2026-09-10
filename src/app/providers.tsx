@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
 import { selectAppLanguage } from '@/store/slices/settingsSlice';
 import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
+import { PwaUpdateProvider } from '@/app/pwa/PwaUpdateContext';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
 import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
@@ -79,12 +80,14 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
             >
               <Notifications position="top-right" zIndex={1000} />
               <LayoutTierProvider>
-                <AppUpdatePrompt />
-                <HeldCartCatchupNotifier />
-                <LowStockNotifier />
-                <ModalsProvider>
-                  <CalculatorProvider>{children}</CalculatorProvider>
-                </ModalsProvider>
+                <PwaUpdateProvider>
+                  <AppUpdatePrompt />
+                  <HeldCartCatchupNotifier />
+                  <LowStockNotifier />
+                  <ModalsProvider>
+                    <CalculatorProvider>{children}</CalculatorProvider>
+                  </ModalsProvider>
+                </PwaUpdateProvider>
               </LayoutTierProvider>
             </MantineProvider>
           </QueryClientProvider>

@@ -16,9 +16,13 @@ COPY . .
 # Build arguments for Vite environment variables with defaults
 ARG VITE_API_BASE_URL=/api
 ARG VITE_APP_NAME="Jana2U POS"
+# Commit the build was cut from — surfaced in dist/version.json and the
+# Settings → Updates panel. Empty for a local build.
+ARG VITE_GIT_SHA=""
 
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_NAME=$VITE_APP_NAME
+ENV VITE_GIT_SHA=$VITE_GIT_SHA
 
 # Compile TypeScript and build production bundle
 RUN npm run build

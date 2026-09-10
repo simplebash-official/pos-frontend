@@ -1,7 +1,7 @@
 {
   "name": "pos-system",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -58,6 +58,9 @@
     "@tabler/icons-react": "^3.45.0",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-virtual": "^3.14.9",
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-updater": "^2.11.0",
     "axios": "^1.18.1",
     "dayjs": "^1.11.21",
     "dexie": "^4.4.4",

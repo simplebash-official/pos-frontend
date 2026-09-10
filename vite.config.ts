@@ -1,7 +1,33 @@
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { defineConfig, type PluginOption } from 'vite';
+import { defineConfig, type Plugin, type PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+
+// Build identity, baked in at compile time and read back through
+// `src/config/env.ts`. `package.json` `version` is the single source of truth;
+// `VITE_GIT_SHA` is set by CI (see `.github/workflows/deploy.yml`).
+const pkg = JSON.parse(
+  readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')
+) as { version: string };
+const appVersion = pkg.version;
+const buildTime = new Date().toISOString();
+const gitSha = process.env.VITE_GIT_SHA ?? '';
+
+// Emits `dist/version.json` so the running deployment can be identified from
+// the outside (ops, the Settings → Updates panel's "you are running" line).
+// Detection of a *new* version is the service worker's job, not this file's.
+const emitVersionJson = (): Plugin => ({
+  name: 'jana2u-emit-version-json',
+  apply: 'build',
+  generateBundle() {
+    this.emitFile({
+      type: 'asset',
+      fileName: 'version.json',
+      source: JSON.stringify({ version: appVersion, buildTime, commit: gitSha }, null, 2),
+    });
+  },
+});
 
 // The desktop (Tauri) build sets TAURI=true. Under Tauri's custom app
 // protocol a service worker is unreliable and pointless (the app is already
@@ -9,7 +35,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 // dropped and `virtual:pwa-register/react` is aliased to a no-op stub.
 const isTauri = process.env.TAURI === 'true';
 
-const plugins: PluginOption[] = [react()];
+const plugins: PluginOption[] = [react(), emitVersionJson()];
 
 if (!isTauri) {
   plugins.push(
@@ -77,6 +103,11 @@ export default defineConfig({
       : undefined,
   },
   base: '/',
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+    __BUILD_TIME__: JSON.stringify(buildTime),
+    __GIT_SHA__: JSON.stringify(gitSha),
+  },
   plugins,
   build: {
     // This app ships as a Tauri desktop bundle served from the local disk —

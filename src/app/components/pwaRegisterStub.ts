@@ -6,10 +6,21 @@
  * workers are unreliable under Tauri's custom app protocol, and the app is
  * already "installed", so there is no shell to precache and no deploy to
  * prompt about (updates ship through the Tauri updater instead). This stub
- * mirrors the exact shape `AppUpdatePrompt.tsx` consumes so that component
- * needs no `#ifdef`-style branching.
+ * mirrors the exact shape `PwaUpdateContext.tsx` consumes so that code needs
+ * no `#ifdef`-style branching.
  */
 type SetState<T> = (value: T) => void;
+
+interface RegisterSWOptions {
+  immediate?: boolean;
+  onNeedRefresh?: () => void;
+  onOfflineReady?: () => void;
+  onRegisteredSW?: (
+    swScriptUrl: string,
+    registration: ServiceWorkerRegistration | undefined
+  ) => void;
+  onRegisterError?: (error: unknown) => void;
+}
 
 interface RegisterSWResult {
   needRefresh: [boolean, SetState<boolean>];
@@ -19,7 +30,7 @@ interface RegisterSWResult {
 
 const noop: SetState<boolean> = () => {};
 
-export function useRegisterSW(): RegisterSWResult {
+export function useRegisterSW(_options?: RegisterSWOptions): RegisterSWResult {
   return {
     needRefresh: [false, noop],
     offlineReady: [false, noop],
