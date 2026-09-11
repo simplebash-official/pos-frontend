@@ -140,10 +140,28 @@ const settingsSlice = createSlice({
       state.appLanguage = action.payload;
       saveSettingsToStorage(state);
     },
+    restoreSettings: (state, action: PayloadAction<Partial<SettingsState>>) => {
+      if (action.payload.shopProfile) {
+        state.shopProfile = action.payload.shopProfile;
+      }
+      if (action.payload.shopProfileVersions) {
+        state.shopProfileVersions = action.payload.shopProfileVersions;
+      }
+      if (action.payload.latestLogoVersionRef !== undefined) {
+        state.latestLogoVersionRef = action.payload.latestLogoVersionRef;
+      }
+      if (action.payload.printSettings) {
+        state.printSettings = { ...state.printSettings, ...action.payload.printSettings };
+      }
+      if (action.payload.appLanguage) {
+        state.appLanguage = action.payload.appLanguage;
+      }
+      saveSettingsToStorage(state);
+    },
   },
 });
 
-export const { updateShopProfile, updatePrintSettings, resetSettings, setAppLanguage } =
+export const { updateShopProfile, updatePrintSettings, resetSettings, setAppLanguage, restoreSettings } =
   settingsSlice.actions;
 
 export const selectShopProfile = (state: { settings: SettingsState }) => state.settings.shopProfile;

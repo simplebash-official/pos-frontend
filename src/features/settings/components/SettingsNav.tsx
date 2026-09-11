@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { Box, Paper, Stack, Tabs, Text, ThemeIcon } from '@mantine/core';
-import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
+import { isTauri } from '@/shared/lib/runtime';
+import { getVisibleSettingsSections, type SettingsSectionId } from '../settingsSections';
 
 interface SettingsNavProps {
   active: SettingsSectionId;
@@ -9,6 +10,7 @@ interface SettingsNavProps {
 
 /** Desktop: a persistent vertical list of sections, boxed like the content cards. */
 export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
+  const sections = getVisibleSettingsSections(isTauri());
   return (
     <Paper withBorder p="xs" style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
       <Text
@@ -24,7 +26,7 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
         {t('Menu')}
       </Text>
       <Stack gap={2}>
-        {SETTINGS_SECTIONS.map((section) => {
+        {sections.map((section) => {
           const isActive = active === section.id;
           return (
             <Box
@@ -77,6 +79,7 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
 
 /** Tablet: a top tab strip standing in for the sidebar. */
 export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
+  const sections = getVisibleSettingsSections(isTauri());
   return (
     <Tabs
       value={active}
@@ -84,7 +87,7 @@ export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
       variant="outline"
     >
       <Tabs.List style={{ flexWrap: 'wrap' }}>
-        {SETTINGS_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <Tabs.Tab
             key={section.id}
             value={section.id}
@@ -101,12 +104,13 @@ export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
 
 /** Mobile: a full-screen drill-down list — the section list itself, one row per section. */
 export const SettingsNavDrillDownList = ({ active, onChange }: SettingsNavProps) => {
+  const sections = getVisibleSettingsSections(isTauri());
   return (
     <Stack gap="xs">
       <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
         {t('Menu')}
       </Text>
-      {SETTINGS_SECTIONS.map((section) => (
+      {sections.map((section) => (
         <Box
           key={section.id}
           onClick={() => onChange(section.id)}

@@ -1,6 +1,7 @@
 import {
   IconBuildingBank,
   IconBuildingStore,
+  IconDatabase,
   IconFileText,
   IconPhoto,
   IconPrinter,
@@ -8,7 +9,13 @@ import {
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
-  'shop-profile' | 'branding' | 'bank-details' | 'printing' | 'templates' | 'updates';
+  | 'shop-profile'
+  | 'branding'
+  | 'bank-details'
+  | 'printing'
+  | 'templates'
+  | 'updates'
+  | 'backup';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
@@ -16,6 +23,7 @@ export interface SettingsSectionMeta {
   shortLabel: string;
   description: string;
   icon: typeof IconBuildingStore;
+  desktopOnly?: boolean;
 }
 
 export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
@@ -61,4 +69,15 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     description: 'App version and software updates',
     icon: IconRefresh,
   },
+  {
+    id: 'backup',
+    label: 'Data Backup & Restore',
+    shortLabel: 'Data',
+    description: 'Export all shop records or restore from a backup file',
+    icon: IconDatabase,
+    desktopOnly: true,
+  },
 ];
+
+export const getVisibleSettingsSections = (isDesktop: boolean): SettingsSectionMeta[] =>
+  SETTINGS_SECTIONS.filter((section) => !section.desktopOnly || isDesktop);
