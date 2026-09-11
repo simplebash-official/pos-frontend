@@ -156,6 +156,7 @@ const DesktopUpdates = () => {
   const [currentVersion, setCurrentVersion] = useState('');
   const [status, setStatus] = useState<DesktopStatus>({ kind: 'idle' });
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [applying, setApplying] = useState(false);
   const updateRef = useRef<Update | null>(null);
 
   useEffect(() => {
@@ -207,7 +208,7 @@ const DesktopUpdates = () => {
     let total = 0;
     setStatus({ kind: 'downloading', version, percent: null });
     try {
-      await update.downloadAndInstall((event) => {
+      await update.download((event) => {
         if (event.event === 'Started') {
           total = event.data.contentLength ?? 0;
         } else if (event.event === 'Progress') {
@@ -234,12 +235,28 @@ const DesktopUpdates = () => {
   }, []);
 
   const restart = useCallback(async () => {
+    setApplying(true);
     try {
+      // Pre-emptively kill sidecars before the installer runs, so running
+      // processes don't hold file locks on jana2u-backend.exe or document-server.
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('prepare_for_update').catch(() => {});
+
+      const update = updateRef.current;
+      if (update) {
+        await update.install();
+      }
+
+      // On macOS/Linux, install() replaces the app bundle while the app runs,
+      // so relaunch() finishes the update. On Windows, install() launches the
+      // NSIS installer and exits automatically.
       const { relaunch } = await import('@tauri-apps/plugin-process');
       await relaunch();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus({ kind: 'error', message });
+      setApplying(false);
+      setConfirmOpen(false);
     }
   }, []);
 
@@ -358,6 +375,7 @@ const DesktopUpdates = () => {
         confirmLabel={t('Restart now')}
         cancelLabel={t('Not yet')}
         confirmColor="blue"
+        loading={applying}
       >
         {t(
           'This closes and reopens the app to finish updating. Any sale you have started but not completed will be cleared.'
