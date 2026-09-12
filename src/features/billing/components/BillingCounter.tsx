@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext } from 'react-router-dom';
@@ -18,6 +18,7 @@ import type { CatalogMode } from './CatalogPanel';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { DiscountPopover } from './DiscountPopover';
 import type { PaymentPanelHandle } from './PaymentPanel';
+import { focusBarcodeScanner, focusQuickAdjustQuantity } from '../lib/focusScanner';
 
 const SaleDocumentPreviewModal = lazy(() =>
   import('./SaleDocumentPreviewModal').then((m) => ({
@@ -280,13 +281,71 @@ export const BillingCounter = () => {
     isMobile,
   ]);
 
-  // Global Cashier Hotkeys Binding
-  const focusScanBar = () => {
-    const scanBar = document.querySelector(
-      'input[placeholder*="Scan barcode"], input[placeholder*="Scan or search"]'
-    ) as HTMLInputElement;
-    scanBar?.focus();
-  };
+  // Global Cashier Focus & Hotkeys
+  const focusScanBar = useCallback((force = false) => {
+    focusBarcodeScanner(force);
+  }, []);
+
+  const handleQuickAdjustQuantity = useCallback(() => {
+    if (completedSale || items.length === 0) return;
+    const newestItem = items[0];
+    if (
+      newestItem.sourceType === 'repair' ||
+      newestItem.sourceType === 'print' ||
+      (newestItem.serialNumbers && newestItem.serialNumbers.length > 0)
+    ) {
+      return;
+    }
+    focusQuickAdjustQuantity();
+  }, [completedSale, items]);
+
+  // Permanently force focus back to scan input on mount, window focus, modal close
+  useEffect(() => {
+    if (!isMobile) {
+      focusScanBar();
+    }
+  }, [isMobile, focusScanBar]);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const onWindowFocus = () => {
+      focusScanBar();
+    };
+    window.addEventListener('focus', onWindowFocus);
+    return () => window.removeEventListener('focus', onWindowFocus);
+  }, [isMobile, focusScanBar]);
+
+  useEffect(() => {
+    if (!customerModalOpen && !orderDiscountOpen && !preview && !isMobile) {
+      focusScanBar();
+    }
+  }, [customerModalOpen, orderDiscountOpen, preview, isMobile, focusScanBar]);
+
+  const handleBillingPointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (isMobile) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.closest(
+          '.mantine-Modal-root, .mantine-Drawer-root, [role="dialog"], input, textarea, [contenteditable="true"]'
+        )
+      ) {
+        return;
+      }
+
+      setTimeout(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (
+          active &&
+          (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)
+        ) {
+          return;
+        }
+        focusScanBar();
+      }, 50);
+    },
+    [isMobile, focusScanBar]
+  );
 
   const postSaleShortcuts: Shortcut[] = completedSale
     ? (() => {
@@ -324,7 +383,10 @@ export const BillingCounter = () => {
     : [];
 
   useAppShortcuts([
-    { key: 'F1', ignoreInput: true, handler: focusScanBar },
+    { key: 'F1', ignoreInput: true, handler: () => focusScanBar(true) },
+    { key: 'F8', ignoreInput: true, handler: handleQuickAdjustQuantity },
+    { key: 'Alt+Q', ignoreInput: true, handler: handleQuickAdjustQuantity },
+    { key: 'Escape', ignoreInput: true, handler: () => focusScanBar(true) },
     {
       key: 'F2',
       ignoreInput: true,
@@ -402,6 +464,7 @@ export const BillingCounter = () => {
   return (
     <Box
       className="billing-root"
+      onPointerUp={handleBillingPointerUp}
       style={{
         ['--billing-header-h' as string]: `${BILLING_HEADER_HEIGHT}px`,
         width: '100%',
@@ -427,7 +490,10 @@ export const BillingCounter = () => {
       {/* Modals */}
       <CustomerPickerModal
         opened={customerModalOpen}
-        onClose={() => setCustomerModalOpen(false)}
+        onClose={() => {
+          setCustomerModalOpen(false);
+          focusScanBar(true);
+        }}
         selectedCustomerId={customerId}
         onSelectCustomer={(cust) => {
           if (cust) {
@@ -441,16 +507,23 @@ export const BillingCounter = () => {
           } else {
             attachCustomer(null, null);
           }
+          focusScanBar(true);
         }}
       />
 
       <DiscountPopover
         opened={orderDiscountOpen}
-        onClose={() => setOrderDiscountOpen(false)}
+        onClose={() => {
+          setOrderDiscountOpen(false);
+          focusScanBar(true);
+        }}
         targetName="Entire Order"
         originalCents={subtotalCents}
         currentDiscountCents={discountCents}
-        onApplyDiscount={setDiscount}
+        onApplyDiscount={(cents, type, value) => {
+          setDiscount(cents, type, value);
+          focusScanBar(true);
+        }}
       >
         <span />
       </DiscountPopover>
@@ -459,7 +532,10 @@ export const BillingCounter = () => {
         {preview && (
           <SaleDocumentPreviewModal
             opened={!!preview}
-            onClose={closeDocumentPreview}
+            onClose={() => {
+              closeDocumentPreview();
+              focusScanBar(true);
+            }}
             subject={preview?.invoice ? { kind: 'invoice', invoice: preview.invoice } : null}
             documentKind={preview?.kind ?? null}
           />

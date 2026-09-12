@@ -161,8 +161,13 @@ const settingsSlice = createSlice({
   },
 });
 
-export const { updateShopProfile, updatePrintSettings, resetSettings, setAppLanguage, restoreSettings } =
-  settingsSlice.actions;
+export const {
+  updateShopProfile,
+  updatePrintSettings,
+  resetSettings,
+  setAppLanguage,
+  restoreSettings,
+} = settingsSlice.actions;
 
 export const selectShopProfile = (state: { settings: SettingsState }) => state.settings.shopProfile;
 export const selectAppLanguage = (state: { settings: SettingsState }) => state.settings.appLanguage;

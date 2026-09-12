@@ -29,6 +29,7 @@ import { CartLineItem } from './CartLineItem';
 import { formatMoney } from '@/shared/lib/money';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { focusBarcodeScanner } from '../lib/focusScanner';
 
 export interface CartPanelProps {
   onOpenCustomerPicker: () => void;
@@ -270,7 +271,10 @@ export const CartPanel = memo(function CartPanel({
                   size="xs"
                   variant="light"
                   color="red"
-                  onClick={() => attachCustomer(null, null)}
+                  onClick={() => {
+                    attachCustomer(null, null);
+                    focusBarcodeScanner(true);
+                  }}
                 >
                   {t('Detach')}
                 </Button>
@@ -326,7 +330,15 @@ export const CartPanel = memo(function CartPanel({
               {t('Removed "')}
               {lastRemovedItem.item.name}"
             </Text>
-            <Button size="xs" variant="white" color="blue" onClick={undoRemove}>
+            <Button
+              size="xs"
+              variant="white"
+              color="blue"
+              onClick={() => {
+                undoRemove();
+                focusBarcodeScanner(true);
+              }}
+            >
               {t('Undo (4s)')}
             </Button>
           </Group>
@@ -363,7 +375,10 @@ export const CartPanel = memo(function CartPanel({
                 isNewest={index === 0}
                 onUpdateQty={updateQty}
                 onUpdateLineDiscount={updateLineDisc}
-                onRemove={remove}
+                onRemove={(id) => {
+                  remove(id);
+                  focusBarcodeScanner(true);
+                }}
               />
             ))}
           </Stack>
@@ -440,10 +455,14 @@ export const CartPanel = memo(function CartPanel({
       {/* Clear Cart Confirmation Dialog */}
       <ConfirmDialog
         opened={clearDialogOpen}
-        onClose={() => setClearDialogOpen(false)}
+        onClose={() => {
+          setClearDialogOpen(false);
+          focusBarcodeScanner(true);
+        }}
         onConfirm={() => {
           clear();
           setClearDialogOpen(false);
+          focusBarcodeScanner(true);
         }}
         title={t('Clear Billing Cart?')}
         confirmLabel={t('Clear Cart')}

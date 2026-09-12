@@ -6,7 +6,9 @@ describe('error sanitization and extraction', () => {
   it('passes through clean, human-readable error messages', () => {
     expect(sanitizeErrorMessage('Invalid email or password.')).toBe('Invalid email or password.');
     expect(sanitizeErrorMessage('Customer not found.')).toBe('Customer not found.');
-    expect(sanitizeErrorMessage('Category name already exists')).toBe('Category name already exists');
+    expect(sanitizeErrorMessage('Category name already exists')).toBe(
+      'Category name already exists'
+    );
   });
 
   it('sanitizes SQLite constraint failure and driver errors', () => {
@@ -31,7 +33,9 @@ describe('error sanitization and extraction', () => {
 
   it('handles empty or missing messages with status-appropriate fallbacks', () => {
     expect(sanitizeErrorMessage('', 401)).toBe('Your session has expired. Please log in again.');
-    expect(sanitizeErrorMessage('', 403)).toBe('You do not have permission to perform this action.');
+    expect(sanitizeErrorMessage('', 403)).toBe(
+      'You do not have permission to perform this action.'
+    );
     expect(sanitizeErrorMessage('', 404)).toBe('The requested resource was not found.');
     expect(sanitizeErrorMessage('', 500)).toBe(
       'An unexpected server error occurred. Please try again later.'
@@ -40,7 +44,8 @@ describe('error sanitization and extraction', () => {
 
   it('resolves getErrorMessage correctly across different error shapes', () => {
     const apiError: ApiError = {
-      message: 'error returned from database: (code: 1299) NOT NULL constraint failed: login_sessions.user_id',
+      message:
+        'error returned from database: (code: 1299) NOT NULL constraint failed: login_sessions.user_id',
       statusCode: 500,
     };
     expect(getErrorMessage(apiError)).toBe(

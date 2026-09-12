@@ -41,7 +41,10 @@ export async function exportBackup(request: ExportBackupRequest): Promise<Backup
  * Sends a backup package to the backend to be transactionally restored into SQLite.
  */
 export async function restoreBackup(request: RestoreBackupRequest): Promise<RestoreBackupResponse> {
-  const response = await apiClient.post<ApiResponse<RestoreBackupResponse>>('/backup/import', request);
+  const response = await apiClient.post<ApiResponse<RestoreBackupResponse>>(
+    '/backup/import',
+    request
+  );
   return response.data;
 }
 

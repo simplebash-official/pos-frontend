@@ -8,6 +8,7 @@ export interface QuantityInputProps extends Omit<NumberInputProps, 'value' | 'on
   min?: number;
   max?: number;
   placeholder?: string;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 const HEIGHT_MAP: Record<string, number> = {
@@ -29,6 +30,7 @@ export const QuantityInput = ({
   className,
   size = 'sm',
   radius,
+  inputRef,
   ...props
 }: QuantityInputProps & { label?: string; style?: React.CSSProperties; className?: string }) => {
   const numericVal = typeof value === 'number' ? value : 0;
@@ -108,6 +110,7 @@ export const QuantityInput = ({
         </ActionIcon>
 
         <NumberInput
+          ref={inputRef}
           variant="unstyled"
           hideControls
           placeholder={placeholder}

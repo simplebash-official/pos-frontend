@@ -14,6 +14,7 @@ const SHORTCUTS = [
   { key: 'F3', description: 'Attach customer / Walk-in search' },
   { key: 'F4', description: 'Switch catalog to Jobs (repairs & print jobs)' },
   { key: 'F6', description: 'Cycle payment method forward' },
+  { key: 'F8 / Alt+Q', description: 'Quick adjust quantity of last item (type on numpad + Enter)' },
   { key: 'F11', description: 'Toggle Focus Mode (hides navigation rail)' },
   { key: 'Ctrl + G', description: 'Switch catalog to Goods' },
   { key: 'Ctrl + D', description: 'Apply order-level discount' },
@@ -24,7 +25,10 @@ const SHORTCUTS = [
   { key: 'D', description: 'Apply line item discount on selected row' },
   { key: 'Delete', description: 'Remove line item' },
   { key: 'Plus (+) / Minus (-)', description: 'Adjust selected line quantity' },
-  { key: 'Up / Down Arrows', description: 'Navigate line items / catalog grid selection' },
+  {
+    key: 'Up / Down Arrows',
+    description: 'Adjust last item quantity (when search empty) / Navigate grid',
+  },
   { key: 'Enter', description: 'Confirm payment / Add single search result' },
   { key: '?', description: 'Open keyboard shortcuts map' },
 ];

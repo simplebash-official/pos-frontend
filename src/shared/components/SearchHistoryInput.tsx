@@ -198,7 +198,7 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
       if (e.key === 'Escape') {
         closeDropdown();
       } else if (e.key === 'ArrowDown') {
-        if (!opened && canOpen) {
+        if (!opened && canOpen && resolvedTrigger !== 'button') {
           e.preventDefault();
           setOpened(true);
           setActiveIndex(0);

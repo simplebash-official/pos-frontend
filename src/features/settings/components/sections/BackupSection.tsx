@@ -80,11 +80,7 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
             </Text>
           </div>
           <Divider />
-          <Alert
-            color="blue"
-            icon={<IconInfoCircle size={20} />}
-            title={t('Desktop Only Feature')}
-          >
+          <Alert color="blue" icon={<IconInfoCircle size={20} />} title={t('Desktop Only Feature')}>
             {t(
               'Complete data export and database restore is only available in the desktop version of Jana2U POS.'
             )}
@@ -113,9 +109,7 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
             icon={<IconAlertCircle size={20} />}
             title={t('Admin Access Required')}
           >
-            {t(
-              'Only administrators can export all system records or restore from a backup file.'
-            )}
+            {t('Only administrators can export all system records or restore from a backup file.')}
           </Alert>
         </Stack>
       </Paper>
@@ -150,9 +144,7 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
       notifications.show({
         title: t('Export Failed'),
         message:
-          err instanceof Error
-            ? err.message
-            : t('Could not export shop data. Please try again.'),
+          err instanceof Error ? err.message : t('Could not export shop data. Please try again.'),
         color: 'red',
         icon: <IconAlertCircle size={16} />,
       });
@@ -304,7 +296,12 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
           <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Stack gap="sm">
               <Group gap="xs">
-                <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
+                <ThemeIcon
+                  color="blue"
+                  variant="light"
+                  size="lg"
+                  radius="var(--mantine-radius-default)"
+                >
                   <IconDownload size={20} />
                 </ThemeIcon>
                 <div>
@@ -345,7 +342,12 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
           <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Stack gap="sm">
               <Group gap="xs">
-                <ThemeIcon color="orange" variant="light" size="lg" radius="var(--mantine-radius-default)">
+                <ThemeIcon
+                  color="orange"
+                  variant="light"
+                  size="lg"
+                  radius="var(--mantine-radius-default)"
+                >
                   <IconUpload size={20} />
                 </ThemeIcon>
                 <div>
@@ -372,7 +374,11 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
               </Alert>
 
               {parseError && (
-                <Alert color="red" icon={<IconAlertCircle size={18} />} title={t('Invalid Backup File')}>
+                <Alert
+                  color="red"
+                  icon={<IconAlertCircle size={18} />}
+                  title={t('Invalid Backup File')}
+                >
                   {parseError}
                 </Alert>
               )}
@@ -421,7 +427,11 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
         fullScreen={isMobile}
       >
         <Stack gap="md">
-          <Alert color="orange" icon={<IconAlertTriangle size={20} />} title={t('Confirm Data Replacement')}>
+          <Alert
+            color="orange"
+            icon={<IconAlertTriangle size={20} />}
+            title={t('Confirm Data Replacement')}
+          >
             {t(
               'This will completely replace your current database records with the data in this backup file. This action cannot be undone.'
             )}
@@ -465,7 +475,13 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
 
                 <Divider my="xs" />
 
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c="dimmed"
+                  tt="uppercase"
+                  style={{ letterSpacing: '0.05em' }}
+                >
                   {t('Record Breakdown')}
                 </Text>
 

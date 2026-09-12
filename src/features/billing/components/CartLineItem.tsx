@@ -8,6 +8,7 @@ import { QuantityInput } from '@/shared/components/QuantityInput';
 import { CartItem } from '@/store/slices/cartSlice';
 import { DiscountPopover } from './DiscountPopover';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
+import { focusBarcodeScanner } from '../lib/focusScanner';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface CartLineItemProps {
@@ -212,10 +213,20 @@ export const CartLineItem = memo(function CartLineItem({
           </Badge>
         ) : (
           <QuantityInput
+            data-cart-newest-qty={isNewest ? 'true' : undefined}
             value={item.quantity}
             onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
             min={1}
             size={isMobile ? 'sm' : 'xs'}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                focusBarcodeScanner(true);
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                focusBarcodeScanner(true);
+              }
+            }}
           />
         )}
 

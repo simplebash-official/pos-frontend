@@ -264,6 +264,7 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
 ## Recent Features & Evolution (Last 30 Days)
 
 ### Landed Capabilities
+
 - **Modular Settings Framework (`src/features/settings/config/settingsSections.ts`)**: Extensible settings architecture with section registry. Supports `desktopOnly: true` gating backed by `isTauri()` detection (`src/shared/lib/tauri.ts`).
 - **Data Backup & Restore (`src/features/settings/components/BackupSection.tsx`)**: Complete database management UI in Settings for desktop users. Triggers server-side backup export (`POST /api/backup/export`), file download with automatic timestamped naming, drag-and-drop file restore (`POST /api/backup/restore`), destructive overwrite confirmation modals, and automatic session logout upon restore completion.
 - **In-App Desktop Auto-Updater (`src/features/settings/components/UpdatesSection.tsx`)**: Automated update checks and one-click installs using `@tauri-apps/plugin-updater` and `process.relaunch()`.
@@ -272,6 +273,7 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
 - **Sinhala Localization (`si.json`)**: Expanded dictionary coverage for backup/restore, auto-updates, invoice canvas previews, and report exports with strict alphabetical key sorting.
 
 ### Invariants & Rules for Future Implementations
+
 - **Desktop Feature Isolation**: Any desktop-native capability (file system operations, backup/restore, auto-updater, window controls) must be gated using `isTauri()` and declared with `desktopOnly: true` in `settingsSections.ts`. Never assume Tauri APIs exist in standard browser environments.
 - **PDF Rendering Standard**: Never render generated documents using raw browser `<iframe>` or `embed` tags. Always use `PdfCanvasViewer` to ensure consistent rendering across all platforms (desktop WebKit/WebView2 and browsers).
 - **Modal & Layout Consistency**: Modals must adhere to the `ProductFormModal.tsx` design pattern: `centered`, `fullScreen={isMobile}`, plain text titles (no emoji/raw JSX in header titles), and consistent button ordering (Cancel on left, primary action on right). Responsive UI must use `useLayoutTier` or `useIsMobile`.
@@ -279,6 +281,7 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
 - **State & Money Management**: All monetary values must remain integer cents throughout UI components (`unitPriceCents`, `totalCents`), formatted only at the presentation boundary via `formatMoney`. Never compute currency totals with floating-point arithmetic.
 
 ### How AI Agents Can Help & Verification
+
 - **Dual Test Suite Execution**: Run `npm run test:all` (runs both Vitest unit/integration tests and Jest suites). Run `npm test` for the standard test suite.
 - **Static Verification**:
   ```bash
@@ -287,4 +290,3 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
   ```
 - **Platform Guard Audits**: When modifying or adding settings or system-level features, agents must verify that `isTauri()` checks protect against browser crashes when `@tauri-apps/api` or plugin methods are invoked.
 - **Responsive Layout Verification**: Check that modals and tables handle small screen viewports gracefully using `useIsMobile()` and Mantine's responsive style props.
-

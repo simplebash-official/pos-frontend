@@ -120,7 +120,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const [shakeError, setShakeError] = useState<string | null>(null);
   const [serialPickerProduct, setSerialPickerProduct] = useState<Product | null>(null);
 
-  const { add, activeItems, reservedQuantityByProductId } = useCartItems();
+  const { add, activeItems, reservedQuantityByProductId, items, updateQty } = useCartItems();
   const { customerId, attachCustomer } = useCartCustomer();
   const { soundEnabled } = useCartSound();
   const { mutateAsync: createCustomerAsync } = useCreateCustomer();
@@ -557,8 +557,29 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     playErrorSound(soundEnabled);
   };
 
-  // Grid arrow key navigation & selection
+  // Grid arrow key navigation & selection, plus Arrow Up/Down quantity toggles when search is empty
   const handleKeyDownGrid = (e: React.KeyboardEvent) => {
+    const isSearchEmpty = !scanQuery.trim();
+
+    if (isSearchEmpty && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      if (items.length > 0) {
+        e.preventDefault();
+        const newest = items[0];
+        const isService = newest.sourceType === 'repair' || newest.sourceType === 'print';
+        const isSerialized = Boolean(newest.serialNumbers && newest.serialNumbers.length > 0);
+        if (!isService && !isSerialized) {
+          if (e.key === 'ArrowUp') {
+            updateQty(newest.id, newest.quantity + 1);
+          } else if (e.key === 'ArrowDown') {
+            if (newest.quantity > 1) {
+              updateQty(newest.id, newest.quantity - 1);
+            }
+          }
+        }
+      }
+      return;
+    }
+
     if (filteredProducts.length === 0) return;
     if (e.key === 'ArrowRight') {
       e.preventDefault();
@@ -705,6 +726,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
             >
               <form onSubmit={(e) => void handleScanSubmit(e)}>
                 <SearchHistoryInput
+                  data-barcode-scanner="true"
                   namespace="billing"
                   ref={scanInputRef}
                   trigger="button"

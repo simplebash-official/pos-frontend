@@ -9,13 +9,7 @@ import {
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
-  | 'shop-profile'
-  | 'branding'
-  | 'bank-details'
-  | 'printing'
-  | 'templates'
-  | 'updates'
-  | 'backup';
+  'shop-profile' | 'branding' | 'bank-details' | 'printing' | 'templates' | 'updates' | 'backup';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
