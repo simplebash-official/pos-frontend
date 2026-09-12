@@ -12,12 +12,15 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -25,6 +28,22 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute next version from conventional commits
+        id: compute
+        run: bash scripts/ci/next-version.sh
+
+      - name: Bump version, commit and tag on main
+        if: steps.compute.outputs.release == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          node scripts/ci/set-version.mjs "${{ steps.compute.outputs.version }}"
+          git add package.json
+          git commit -m "chore(release): ${{ steps.compute.outputs.tag }} [skip ci]"
+          git tag -a "${{ steps.compute.outputs.tag }}" -m "Jana2U POS web ${{ steps.compute.outputs.tag }}"
+          git push origin HEAD:main
+          git push origin "${{ steps.compute.outputs.tag }}"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -35,6 +54,7 @@ jobs:
           build-args: |
             VITE_API_BASE_URL=https://jana2u-api.duckdns.org/api
             VITE_GIT_SHA=${{ github.sha }}
+            VITE_APP_VERSION=${{ steps.compute.outputs.version }}
 
   deploy:
     needs: build-and-push

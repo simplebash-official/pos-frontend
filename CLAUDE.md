@@ -245,6 +245,22 @@ Rules:
 
 Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry added to `src/shared/i18n/dictionaries/si.json`. Full guidance in `src/shared/i18n/CLAUDE.md` — loads automatically when working in that directory.
 
+## Release & Versioning Management
+
+- **Automated Conventional Commit Versioning**: Pushes to `main` evaluate Conventional Commit prefixes via `scripts/ci/next-version.sh`.
+  - `feat:` -> minor bump (`0.5.0` -> `0.6.0`)
+  - `fix:` / `perf:` -> patch bump (`0.5.0` -> `0.5.1`)
+  - `feat!:` or `BREAKING CHANGE:` -> minor bump (pre-1.0)
+  - `chore:`, `docs:`, `ci:`, `refactor:`, `test:`, `style:` -> no bump
+  - Release-worthy commits automatically trigger `node scripts/ci/set-version.mjs`, committing `chore(release): vX.Y.Z [skip ci]` and tagging `vX.Y.Z` on `main`.
+- **Single Source of Truth**: `frontend/package.json`'s `version` field tracks this automated stream and is aligned with the desktop compose repo's baseline (`0.5.0`). Root `scripts/set-version.py` also updates both manifests when compose releases run.
+- **Build Identity**: `vite.config.ts` bakes `__APP_VERSION__`, `__BUILD_TIME__`, and `__GIT_SHA__` into `src/config/env.ts`, and emits `dist/version.json`.
+- **Environment Override**: `vite.config.ts` supports `VITE_APP_VERSION` environment variable to override `package.json` if explicitly provided during CI or Docker builds (`process.env.VITE_APP_VERSION?.trim() || pkg.version`).
+- **Web CI Deployment (`.github/workflows/deploy.yml`)**: On push to `main`, the workflow executes `next-version.sh`, pushes the release commit/tag if bumped, and passes `VITE_APP_VERSION` and `VITE_GIT_SHA` as build-args to Docker.
+- **Updates Section UI (`UpdatesSection.tsx`)**:
+  - Web displays `env.appVersion`, `env.buildTime`, and the short commit hash (`env.commit.slice(0, 7)`).
+  - Desktop uses `isTauri()` gating and queries `@tauri-apps/api/app`'s `getVersion()` which resolves dynamically to the desktop bundle's version.
+
 ## Recent Features & Evolution (Last 30 Days)
 
 ### Landed Capabilities

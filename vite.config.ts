@@ -10,7 +10,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 const pkg = JSON.parse(
   readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')
 ) as { version: string };
-const appVersion = pkg.version;
+const appVersion = process.env.VITE_APP_VERSION?.trim() || pkg.version;
 const buildTime = new Date().toISOString();
 const gitSha = process.env.VITE_GIT_SHA ?? '';
 

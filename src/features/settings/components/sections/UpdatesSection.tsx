@@ -34,14 +34,29 @@ const UpdatesShell = ({ description, children }: { description: string; children
   </Paper>
 );
 
-const VersionLine = ({ version, builtAt }: { version: string; builtAt: string }) => (
+const VersionLine = ({
+  version,
+  builtAt,
+  commit,
+}: {
+  version: string;
+  builtAt: string;
+  commit?: string;
+}) => (
   <Stack gap={4}>
-    <Text size="sm">
-      {t('You are running')}{' '}
-      <Text span fw={700}>
-        {version || t('an unknown version')}
+    <Group gap={6} align="baseline">
+      <Text size="sm">
+        {t('You are running')}{' '}
+        <Text span fw={700}>
+          {version || t('an unknown version')}
+        </Text>
       </Text>
-    </Text>
+      {commit && (
+        <Text size="xs" c="dimmed" ff="monospace">
+          ({commit.slice(0, 7)})
+        </Text>
+      )}
+    </Group>
     {builtAt && (
       <Text size="xs" c="dimmed">
         {t('Installed')}: {formatDateTime(builtAt)}
@@ -75,7 +90,7 @@ const WebUpdates = () => {
 
   return (
     <UpdatesShell description={t('See which version you are running and move to the latest one.')}>
-      <VersionLine version={env.appVersion} builtAt={env.buildTime} />
+      <VersionLine version={env.appVersion} builtAt={env.buildTime} commit={env.commit} />
       <Divider />
 
       {pwa?.updateAvailable ? (
