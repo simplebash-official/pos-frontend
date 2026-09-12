@@ -39,6 +39,7 @@ import { useCartItems, useCartTotals, useCartCustomer, useCartCheckout } from '.
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney, fromCents } from '@/shared/lib/money';
+import { getActionShortcut } from '@/shared/lib/shortcuts';
 import {
   calculateOrderDiscount,
   calculatePaymentState,
@@ -102,7 +103,10 @@ export const PaymentPanel = memo(
 
     const isMobile = useIsMobile();
     const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
-    const checkoutKeyHint = isMobile ? '' : ' (F2)';
+    const checkoutShortcut = getActionShortcut('completeCheckout');
+    const checkoutKeyHint = isMobile
+      ? ''
+      : ` (${checkoutShortcut.formattedPrimary}${checkoutShortcut.formattedAlias ? ` or ${checkoutShortcut.formattedAlias}` : ''})`;
 
     // Collapsible Order Discount State
     const [showDiscountInput, setShowDiscountInput] = useState(false);
@@ -934,8 +938,8 @@ export const PaymentPanel = memo(
               <Tooltip
                 label={
                   isMobile
-                    ? 'Credit requires attaching a customer first'
-                    : 'Credit requires attaching a customer first (F3)'
+                    ? t('Credit requires attaching a customer first')
+                    : `${t('Credit requires attaching a customer first')} (${getActionShortcut('attachCustomer').formattedPrimary})`
                 }
                 disabled={Boolean(customerId)}
                 position="top"

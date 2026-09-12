@@ -383,12 +383,10 @@ export const BillingCounter = () => {
     : [];
 
   useAppShortcuts([
-    { key: 'F1', ignoreInput: true, handler: () => focusScanBar(true) },
-    { key: 'F8', ignoreInput: true, handler: handleQuickAdjustQuantity },
-    { key: 'Alt+Q', ignoreInput: true, handler: handleQuickAdjustQuantity },
-    { key: 'Escape', ignoreInput: true, handler: () => focusScanBar(true) },
+    { key: ['F1', 'Escape'], ignoreInput: true, handler: () => focusScanBar(true) },
+    { key: ['F8', 'Alt+Q'], ignoreInput: true, handler: handleQuickAdjustQuantity },
     {
-      key: 'F2',
+      key: ['F2', 'Mod+Enter'],
       ignoreInput: true,
       handler: () => {
         if (completedSale) return;
@@ -402,11 +400,15 @@ export const BillingCounter = () => {
         }
       },
     },
-    { key: 'F3', ignoreInput: true, handler: () => setCustomerModalOpen(true) },
-    { key: 'F4', ignoreInput: true, handler: () => setCatalogMode('jobs') },
-    { key: 'Ctrl+G', ignoreInput: true, handler: () => setCatalogMode('goods') },
+    { key: ['F3', 'Alt+A'], ignoreInput: true, handler: () => setCustomerModalOpen(true) },
+    { key: ['F4', 'Alt+J'], ignoreInput: true, handler: () => setCatalogMode('jobs') },
     {
-      key: 'F6',
+      key: ['Mod+G', 'Alt+G', 'Ctrl+G'],
+      ignoreInput: true,
+      handler: () => setCatalogMode('goods'),
+    },
+    {
+      key: ['F6', 'Alt+M'],
       ignoreInput: true,
       handler: () => {
         const methods: PaymentMethod[] = [
@@ -418,15 +420,25 @@ export const BillingCounter = () => {
         changePaymentMethod(methods[nextIdx]);
       },
     },
-    { key: 'Ctrl+D', ignoreInput: true, handler: () => setOrderDiscountOpen(true) },
-    { key: 'Ctrl+H', ignoreInput: true, handler: () => holdCurrentCart() },
     {
-      key: 'Ctrl+Shift+H',
+      key: ['Mod+D', 'Alt+D', 'Ctrl+D'],
+      ignoreInput: true,
+      handler: () => setOrderDiscountOpen(true),
+    },
+    // On macOS, Alt+H and Mod+Shift+H prevent the dangerous OS-level 'Cmd+H' (Hide App).
+    // On Windows/Linux, Alt+H and Ctrl+H work seamlessly.
+    {
+      key: ['Alt+H', 'Mod+Shift+H', 'Ctrl+H'],
+      ignoreInput: true,
+      handler: () => holdCurrentCart(),
+    },
+    {
+      key: ['Ctrl+Shift+H', 'Mod+Shift+H', 'Alt+Shift+H'],
       ignoreInput: true,
       handler: () => outletContext.setHeldDrawerOpen?.(true),
     },
     {
-      key: 'Ctrl+P',
+      key: ['Mod+P', 'Alt+P', 'Ctrl+P'],
       ignoreInput: true,
       handler: () => {
         const targetInv = completedSale?.invoice || lastCompletedInvoice;
@@ -442,7 +454,7 @@ export const BillingCounter = () => {
       },
     },
     {
-      key: 'Ctrl+Shift+P',
+      key: ['Mod+Shift+P', 'Ctrl+Shift+P', 'Alt+Shift+P'],
       ignoreInput: true,
       handler: () => {
         const targetInv = completedSale?.invoice || lastCompletedInvoice;
@@ -457,7 +469,7 @@ export const BillingCounter = () => {
         }
       },
     },
-    { key: '?', handler: () => outletContext.setShortcutsOpen?.(true) },
+    { key: ['?', 'Mod+/'], handler: () => outletContext.setShortcutsOpen?.(true) },
     ...postSaleShortcuts,
   ]);
 

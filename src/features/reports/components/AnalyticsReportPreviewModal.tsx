@@ -57,7 +57,7 @@ export const AnalyticsReportPreviewModal = ({
   useAppShortcuts(
     [
       { key: 'Enter', handler: handlePrint, ignoreInput: true },
-      { key: 'Ctrl+P', handler: handlePrint, ignoreInput: true, preventDefault: true },
+      { key: ['Mod+P', 'Ctrl+P'], handler: handlePrint, ignoreInput: true, preventDefault: true },
     ],
     opened
   );

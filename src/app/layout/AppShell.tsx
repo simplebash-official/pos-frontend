@@ -71,9 +71,15 @@ export const AppShell = () => {
     document.title = title;
   }, [location.pathname]);
 
-  // F11 focus mode hotkey
+  // Focus mode hotkey (F11 on Windows, Mod+Shift+F on Mac)
   useAppShortcuts(
-    [{ key: 'F11', ignoreInput: true, handler: () => setFocusMode((prev) => !prev) }],
+    [
+      {
+        key: ['F11', 'Mod+Shift+F'],
+        ignoreInput: true,
+        handler: () => setFocusMode((prev) => !prev),
+      },
+    ],
     isBillingPage
   );
 

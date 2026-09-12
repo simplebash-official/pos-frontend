@@ -84,11 +84,11 @@ export const SaleDocumentPreviewModal = ({
     window.setTimeout(() => forcePrintLogRefresh((t) => t + 1), 300);
   };
 
-  // Bound via the shared shortcut engine so pressing Enter prints (or Ctrl+P)
+  // Bound via the shared shortcut engine so pressing Enter prints (or Cmd+P / Ctrl+P)
   useAppShortcuts(
     [
       { key: 'Enter', handler: handlePrint, ignoreInput: true },
-      { key: 'Ctrl+P', handler: handlePrint, ignoreInput: true, preventDefault: true },
+      { key: ['Mod+P', 'Ctrl+P'], handler: handlePrint, ignoreInput: true, preventDefault: true },
     ],
     opened
   );

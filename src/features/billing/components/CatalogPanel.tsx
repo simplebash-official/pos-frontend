@@ -733,8 +733,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                   showHistoryButton
                   placeholder={
                     isMobile
-                      ? 'Scan barcode or search product'
-                      : 'Scan barcode or type SKU / product name / REP-1001 (F1)'
+                      ? t('Scan barcode or search product')
+                      : `${t('Scan barcode or type SKU / product name / REP-1001')} (F1 / Esc)`
                   }
                   leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
                   rightSection={

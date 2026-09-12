@@ -1,40 +1,65 @@
+import React, { useState } from 'react';
 import { t } from '@/shared/i18n/t';
-import { Modal, Stack, Group, Text, Kbd, SimpleGrid, Paper } from '@mantine/core';
+import {
+  Modal,
+  Stack,
+  Group,
+  Text,
+  SimpleGrid,
+  Paper,
+  SegmentedControl,
+  Badge,
+  Divider,
+} from '@mantine/core';
 
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { usePlatform, type OperatingSystem } from '@/shared/lib/platform';
+import {
+  SHORTCUT_REGISTRY,
+  SHORTCUT_CATEGORY_TITLES,
+  type ShortcutCategory,
+  type ShortcutDefinition,
+} from '@/shared/lib/shortcuts';
+import { KbdAction } from '@/shared/components/KbdShortcut';
 
 export interface KeyboardShortcutsModalProps {
   opened: boolean;
   onClose: () => void;
 }
 
-const SHORTCUTS = [
-  { key: 'F1 / Esc', description: 'Focus scan bar (returns focus from anywhere)' },
-  { key: 'F2', description: 'Proceed to payment / Complete sale' },
-  { key: 'F3', description: 'Attach customer / Walk-in search' },
-  { key: 'F4', description: 'Switch catalog to Jobs (repairs & print jobs)' },
-  { key: 'F6', description: 'Cycle payment method forward' },
-  { key: 'F8 / Alt+Q', description: 'Quick adjust quantity of last item (type on numpad + Enter)' },
-  { key: 'F11', description: 'Toggle Focus Mode (hides navigation rail)' },
-  { key: 'Ctrl + G', description: 'Switch catalog to Goods' },
-  { key: 'Ctrl + D', description: 'Apply order-level discount' },
-  { key: 'Ctrl + H', description: 'Park / Hold current sale' },
-  { key: 'Ctrl + Shift + H', description: 'Open held sales list' },
-  { key: 'Ctrl + Shift + S', description: 'Open sync & offline panel' },
-  { key: 'Ctrl + P', description: 'Reprint last receipt' },
-  { key: 'D', description: 'Apply line item discount on selected row' },
-  { key: 'Delete', description: 'Remove line item' },
-  { key: 'Plus (+) / Minus (-)', description: 'Adjust selected line quantity' },
-  {
-    key: 'Up / Down Arrows',
-    description: 'Adjust last item quantity (when search empty) / Navigate grid',
-  },
-  { key: 'Enter', description: 'Confirm payment / Add single search result' },
-  { key: '?', description: 'Open keyboard shortcuts map' },
+const CATEGORY_ORDER: ShortcutCategory[] = [
+  'cashier',
+  'cart',
+  'navigation',
+  'documents',
+  'utilities',
 ];
 
 export const KeyboardShortcutsModal = ({ opened, onClose }: KeyboardShortcutsModalProps) => {
   const isMobile = useIsMobile();
+  const platform = usePlatform();
+
+  // Allow user to switch between OS views, defaulting to detected OS
+  const [selectedOS, setSelectedOS] = useState<OperatingSystem>(
+    platform.isApple ? 'macos' : 'windows'
+  );
+
+  // Group registry items by category
+  const categorizedShortcuts = React.useMemo(() => {
+    const map: Record<ShortcutCategory, ShortcutDefinition[]> = {
+      cashier: [],
+      cart: [],
+      navigation: [],
+      documents: [],
+      utilities: [],
+    };
+
+    Object.values(SHORTCUT_REGISTRY).forEach((shortcut) => {
+      map[shortcut.category].push(shortcut);
+    });
+
+    return map;
+  }, []);
 
   return (
     <Modal
@@ -45,35 +70,90 @@ export const KeyboardShortcutsModal = ({ opened, onClose }: KeyboardShortcutsMod
           {t('Cashier Keyboard Shortcuts')}
         </Text>
       }
-      size="lg"
+      size="xl"
       centered
       fullScreen={isMobile}
     >
-      <Stack gap="sm">
-        <Text size="xs" c="dimmed">
-          {t(
-            'Billing counter functions are keyboard-first for maximum cashier speed and muscle memory.'
-          )}
-        </Text>
+      <Stack gap="md">
+        <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+          <Text size="xs" c="dimmed" style={{ flex: 1, minWidth: 200 }}>
+            {t(
+              'Billing counter functions are keyboard-first for maximum cashier speed and muscle memory.'
+            )}
+          </Text>
 
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
-          {SHORTCUTS.map((sc) => (
-            <Paper
-              key={sc.key}
-              p="xs"
-              withBorder
+          <Group gap="xs" align="center">
+            <Text size="xs" fw={600} c="dimmed">
+              {t('Platform')}:
+            </Text>
+            <SegmentedControl
+              size="xs"
+              value={selectedOS}
+              onChange={(val) => setSelectedOS(val as OperatingSystem)}
+              data={[
+                { label: 'macOS (⌘)', value: 'macos' },
+                { label: 'Windows (Ctrl)', value: 'windows' },
+              ]}
               radius="var(--mantine-radius-default)"
-              style={{ backgroundColor: 'var(--bg-hover)' }}
-            >
-              <Group justify="space-between" align="center">
-                <Text size="xs" fw={600} style={{ flex: 1 }}>
-                  {sc.description}
-                </Text>
-                <Kbd size="xs">{sc.key}</Kbd>
-              </Group>
-            </Paper>
-          ))}
-        </SimpleGrid>
+            />
+          </Group>
+        </Group>
+
+        <Stack gap="lg">
+          {CATEGORY_ORDER.map((category) => {
+            const items = categorizedShortcuts[category];
+            if (!items || items.length === 0) return null;
+
+            return (
+              <Stack key={category} gap="xs">
+                <Group gap="xs" align="center">
+                  <Badge size="sm" variant="light" color="blue">
+                    {items.length}
+                  </Badge>
+                  <Text
+                    size="xs"
+                    fw={700}
+                    c="dimmed"
+                    tt="uppercase"
+                    style={{ letterSpacing: '0.05em' }}
+                  >
+                    {t(SHORTCUT_CATEGORY_TITLES[category])}
+                  </Text>
+                  <Divider style={{ flex: 1 }} />
+                </Group>
+
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
+                  {items.map((sc) => (
+                    <Paper
+                      key={sc.id}
+                      p="xs"
+                      withBorder
+                      radius="var(--mantine-radius-default)"
+                      style={{
+                        backgroundColor: 'var(--bg-hover)',
+                        borderColor: 'var(--border)',
+                      }}
+                    >
+                      <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <Text size="xs" fw={600} truncate>
+                            {t(sc.title)}
+                          </Text>
+                          <Text size="3xs" c="dimmed" lineClamp={1}>
+                            {t(sc.description)}
+                          </Text>
+                        </div>
+                        <div style={{ flexShrink: 0 }}>
+                          <KbdAction actionId={sc.id} platform={selectedOS} size="xs" />
+                        </div>
+                      </Group>
+                    </Paper>
+                  ))}
+                </SimpleGrid>
+              </Stack>
+            );
+          })}
+        </Stack>
       </Stack>
     </Modal>
   );

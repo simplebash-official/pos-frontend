@@ -33,6 +33,7 @@ import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
 
 export interface HeaderProps {
@@ -124,7 +125,13 @@ export const Header = ({
 
           {/* Focus mode is an F11 toggle and the shortcuts sheet only lists keys — neither is
               reachable on a touch device, so both drop away with the rest of the keyboard chrome. */}
-          <Tooltip label={focusMode ? 'Exit Focus Mode (F11)' : 'Focus Mode (F11)'}>
+          <Tooltip
+            label={
+              focusMode
+                ? `${t('Exit Focus Mode')} (${getActionShortcut('focusMode').formattedPrimary})`
+                : `${t('Focus Mode')} (${getActionShortcut('focusMode').formattedPrimary})`
+            }
+          >
             <ActionIcon
               variant={focusMode ? 'light' : 'subtle'}
               color={focusMode ? 'blue' : 'gray'}

@@ -1,7 +1,8 @@
 import { useEffect, useRef, type RefObject } from 'react';
+import { isMac } from '../lib/platform';
 
 export interface Shortcut {
-  key: string; // e.g. "Enter", "F2", "Ctrl+D", "Ctrl+Shift+H", "?"
+  key: string | string[]; // e.g. "Enter", "F2", "Mod+Enter", ["F2", "Mod+Enter"], "?"
   handler: (e: KeyboardEvent) => void;
   ignoreInput?: boolean; // fire even while an <input>/<textarea>/contentEditable is focused
   preventDefault?: boolean; // defaults to true
@@ -15,21 +16,99 @@ interface ShortcutScope {
 const activeScopes: ShortcutScope[] = [];
 let isListenerBound = false;
 
-const parseCombo = (combo: string, e: KeyboardEvent): boolean => {
+const MODIFIER_TOKENS = ['mod', 'cmd', 'meta', 'ctrl', 'control', 'alt', 'opt', 'option', 'shift'];
+
+/**
+ * Parses and matches a combo string against a KeyboardEvent.
+ * Supports cross-platform 'Mod' modifier (Cmd on Mac, Ctrl on Win/Linux),
+ * as well as explicit Alt/Option, Shift, and Control keys.
+ */
+export const parseCombo = (
+  combo: string,
+  e: KeyboardEvent,
+  isMacPlatform: boolean = isMac
+): boolean => {
   const tokens = combo
     .toLowerCase()
     .split('+')
     .map((t) => t.trim());
-  const wantsCtrl = tokens.includes('ctrl') || tokens.includes('cmd');
-  const wantsShift = tokens.includes('shift');
-  const wantsAlt = tokens.includes('alt');
-  const mainKey = tokens.find((t) => !['ctrl', 'cmd', 'shift', 'alt'].includes(t));
 
-  if (wantsCtrl !== (e.ctrlKey || e.metaKey)) return false;
-  if (wantsAlt !== e.altKey) return false;
-  if (wantsShift !== e.shiftKey) return false;
+  const hasMod = tokens.includes('mod');
+  const hasCmd = tokens.includes('cmd') || tokens.includes('meta');
+  const hasCtrl = tokens.includes('ctrl') || tokens.includes('control');
+  const hasAlt = tokens.includes('alt') || tokens.includes('opt') || tokens.includes('option');
+  const hasShift = tokens.includes('shift');
 
-  return mainKey !== undefined && e.key.toLowerCase() === mainKey;
+  // Check Mod / Cmd / Ctrl matching:
+  if (hasMod) {
+    if (isMacPlatform) {
+      if (!e.metaKey || e.ctrlKey) return false;
+    } else {
+      if (!e.ctrlKey || e.metaKey) return false;
+    }
+  } else if (hasCmd) {
+    if (!e.metaKey) return false;
+  } else if (hasCtrl) {
+    // Legacy support: 'ctrl' matches ctrlKey OR metaKey for backwards compatibility
+    if (!e.ctrlKey && !e.metaKey) return false;
+  } else {
+    // If no command/ctrl was requested, ensure neither is held
+    if (e.ctrlKey || e.metaKey) return false;
+  }
+
+  if (hasAlt !== e.altKey) return false;
+  if (hasShift !== e.shiftKey) return false;
+
+  const mainKeyToken = tokens.find((t) => !MODIFIER_TOKENS.includes(t));
+  if (!mainKeyToken) return false;
+
+  const eventKey = e.key.toLowerCase();
+  const targetKey = mainKeyToken.toLowerCase();
+
+  // Normalize common key aliases
+  if (targetKey === 'enter' || targetKey === 'return') {
+    return eventKey === 'enter';
+  }
+  if (targetKey === 'esc' || targetKey === 'escape') {
+    return eventKey === 'escape';
+  }
+  if (targetKey === 'up') {
+    return eventKey === 'arrowup' || eventKey === 'up';
+  }
+  if (targetKey === 'down') {
+    return eventKey === 'arrowdown' || eventKey === 'down';
+  }
+  if (targetKey === 'left') {
+    return eventKey === 'arrowleft' || eventKey === 'left';
+  }
+  if (targetKey === 'right') {
+    return eventKey === 'arrowright' || eventKey === 'right';
+  }
+  if (targetKey === 'space' || targetKey === 'spacebar') {
+    return eventKey === ' ' || eventKey === 'spacebar';
+  }
+  if (targetKey === 'delete' || targetKey === 'del') {
+    return eventKey === 'delete';
+  }
+  if (targetKey === 'backspace') {
+    return eventKey === 'backspace';
+  }
+
+  return eventKey === targetKey;
+};
+
+/**
+ * Matches a shortcut definition's key (string or array of alias strings) against a KeyboardEvent.
+ */
+export const matchShortcutKey = (
+  key: string | string[],
+  e: KeyboardEvent,
+  isMacPlatform: boolean = isMac
+): boolean => {
+  if (Array.isArray(key)) {
+    return key.some((k) => parseCombo(k, e, isMacPlatform));
+  }
+  return parseCombo(key, e, isMacPlatform);
 };
 
 const isInputFocused = (): boolean => {
@@ -45,7 +124,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     let handled = false;
 
     for (const shortcut of scope.shortcuts.current) {
-      if (!parseCombo(shortcut.key, e)) continue;
+      if (!matchShortcutKey(shortcut.key, e)) continue;
       if (inputFocused && !shortcut.ignoreInput) continue;
 
       if (shortcut.preventDefault !== false) {

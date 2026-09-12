@@ -6,6 +6,7 @@ import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
 
 export interface CockpitHeaderProps {
@@ -70,7 +71,8 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
                 flex: isMobile ? '1 1 100%' : undefined,
               }}
             >
-              {t('New Sale')} {isMobile ? '' : '(F2)'}
+              {t('New Sale')}{' '}
+              {isMobile ? '' : `(${getActionShortcut('completeCheckout').formattedPrimary})`}
             </Button>
 
             <Button

@@ -27,6 +27,7 @@ import {
 import { useCartItems, useCartTotals, useCartCustomer, useHeldCarts } from '../hooks/useCart';
 import { CartLineItem } from './CartLineItem';
 import { formatMoney } from '@/shared/lib/money';
+import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { focusBarcodeScanner } from '../lib/focusScanner';
@@ -206,7 +207,9 @@ export const CartPanel = memo(function CartPanel({
               fontWeight: 600,
             }}
           >
-            {isMobile ? 'Hold' : 'Hold (Ctrl+H)'}
+            {isMobile
+              ? t('Hold')
+              : `${t('Hold')} (${getActionShortcut('holdSale').formattedPrimary})`}
           </Button>
 
           <Button
@@ -308,7 +311,9 @@ export const CartPanel = memo(function CartPanel({
                   onOpenCustomerPicker();
                 }}
               >
-                {isMobile ? 'Attach' : 'Attach (F3)'}
+                {isMobile
+                  ? t('Attach')
+                  : `${t('Attach')} (${getActionShortcut('attachCustomer').formattedPrimary})`}
               </Button>
             </Group>
           </Paper>
