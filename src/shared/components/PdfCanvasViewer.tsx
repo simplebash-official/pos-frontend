@@ -193,6 +193,7 @@ export const PdfCanvasViewer = ({
     if (!blob) return;
     let cancelled = false;
     let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
+    let loadedDoc: pdfjsLib.PDFDocumentProxy | null = null;
 
     blob.arrayBuffer().then(async (data) => {
       if (cancelled) return;
@@ -201,7 +202,12 @@ export const PdfCanvasViewer = ({
       loadingTask = pdfjsLib.getDocument({ data });
       loadingTask.promise
         .then((doc) => {
-          if (cancelled) return;
+          if (cancelled) {
+            void doc.cleanup();
+            void loadingTask?.destroy();
+            return;
+          }
+          loadedDoc = doc;
           setPdfDoc(doc);
           doc.getPage(1).then((page) => {
             if (cancelled) return;
@@ -216,6 +222,7 @@ export const PdfCanvasViewer = ({
 
     return () => {
       cancelled = true;
+      void loadedDoc?.cleanup();
       void loadingTask?.destroy();
     };
   }, [blob]);

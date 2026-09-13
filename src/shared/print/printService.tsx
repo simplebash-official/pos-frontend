@@ -132,12 +132,20 @@ const buildPrintHtml = (pages: PrintedPageImage[]): string => {
 </html>`;
 };
 
-export const printPdfBlob = async (blob: Blob, title?: string): Promise<void> => {
+export const printPdfBlob = async (
+  blob: Blob,
+  title?: string,
+  sourceUrl?: string
+): Promise<void> => {
   // On macOS desktop under Tauri (WKWebView), `iframe.contentWindow.print()` is silently
   // ignored by WebKit. Delegate to native PDFKit printing via our Tauri bridge.
   if (isTauri() && resolvePlatformInfo().isMac) {
     try {
       const { invoke } = await import('@tauri-apps/api/core');
+      if (sourceUrl) {
+        await invoke('print_pdf_native', { pdfUrl: sourceUrl, title });
+        return;
+      }
       const pdfBase64 = await blobToBase64(blob);
       await invoke('print_pdf_native', { pdfBase64, title });
       return;
