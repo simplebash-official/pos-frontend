@@ -16,4 +16,6 @@ export const STORAGE_KEYS = {
   PRINT_SELECTION_PAY_NOW: 'pos_print_selection_pay_now',
   /** Last used print document selection for credit sales */
   PRINT_SELECTION_CREDIT: 'pos_print_selection_credit',
+  /** Latest hardware and POS system benchmark test result */
+  BENCHMARK_RESULT: 'pos_benchmark_result',
 } as const;

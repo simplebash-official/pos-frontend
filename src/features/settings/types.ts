@@ -35,3 +35,5 @@ export interface PrintSettings {
   defaultDocumentForAccountCustomer: DocumentSelection;
   printMethod: 'iframe' | 'newWindow';
 }
+
+export * from './types/benchmark';

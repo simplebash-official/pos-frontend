@@ -2,6 +2,7 @@ import {
   IconBuildingBank,
   IconBuildingStore,
   IconDatabase,
+  IconDeviceDesktopAnalytics,
   IconFileText,
   IconPhoto,
   IconPrinter,
@@ -9,7 +10,14 @@ import {
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
-  'shop-profile' | 'branding' | 'bank-details' | 'printing' | 'templates' | 'updates' | 'backup';
+  | 'shop-profile'
+  | 'branding'
+  | 'bank-details'
+  | 'printing'
+  | 'templates'
+  | 'updates'
+  | 'backup'
+  | 'benchmark';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
@@ -69,6 +77,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Data',
     description: 'Export all shop records or restore from a backup file',
     icon: IconDatabase,
+    desktopOnly: true,
+  },
+  {
+    id: 'benchmark',
+    label: 'System Benchmark',
+    shortLabel: 'Benchmark',
+    description: 'Test computer performance, POS speed & document rendering',
+    icon: IconDeviceDesktopAnalytics,
     desktopOnly: true,
   },
 ];

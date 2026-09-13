@@ -14,6 +14,7 @@ import { PrintingSection } from './sections/PrintingSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
 import { UpdatesSection } from './sections/UpdatesSection';
 import { BackupSection } from './sections/BackupSection';
+import { BenchmarkSection } from './sections/BenchmarkSection';
 
 const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) => void) => {
   switch (id) {
@@ -31,6 +32,8 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
       return <UpdatesSection onDirtyChange={onDirtyChange} />;
     case 'backup':
       return <BackupSection onDirtyChange={onDirtyChange} />;
+    case 'benchmark':
+      return <BenchmarkSection onDirtyChange={onDirtyChange} />;
   }
 };
 
