@@ -474,22 +474,28 @@ export const getShortcutKeyParts = (
  */
 export const getActionShortcut = (
   actionId: ShortcutActionId,
-  customOS?: OperatingSystem
+  customOS?: OperatingSystem,
+  options?: { style?: 'symbol' | 'text' }
 ): {
   primary: string;
   alias?: string;
   formattedPrimary: string;
   formattedAlias?: string;
+  readablePrimary: string;
+  readableAlias?: string;
 } => {
   const def = SHORTCUT_REGISTRY[actionId];
   const os = customOS ?? platformInfo.os;
   const isApple = os === 'macos' || os === 'ios';
   const target = isApple ? def.mac : def.windows;
+  const style = options?.style ?? (isApple ? 'symbol' : 'text');
 
   return {
     primary: target.primary,
     alias: target.alias,
-    formattedPrimary: formatShortcutCombo(target.primary, { platform: os }),
-    formattedAlias: target.alias ? formatShortcutCombo(target.alias, { platform: os }) : undefined,
+    formattedPrimary: formatShortcutCombo(target.primary, { platform: os, style }),
+    formattedAlias: target.alias ? formatShortcutCombo(target.alias, { platform: os, style }) : undefined,
+    readablePrimary: formatShortcutCombo(target.primary, { platform: os, style: 'text' }),
+    readableAlias: target.alias ? formatShortcutCombo(target.alias, { platform: os, style: 'text' }) : undefined,
   };
 };

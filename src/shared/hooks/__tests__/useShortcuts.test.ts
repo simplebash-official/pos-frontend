@@ -43,23 +43,144 @@ describe('useAppShortcuts utility', () => {
       expect(parseCombo('Mod+Enter', winEvent, true)).toBe(false);
     });
 
-    it('matches Alt/Option shortcuts without command key', () => {
-      const altQEvent = {
-        key: 'q',
+    it('matches Alt/Option shortcuts on macOS despite diacritic character substitution', () => {
+      // On macOS, Option+Q produces 'œ' with code 'KeyQ'
+      const optionQ = {
+        key: 'œ',
+        code: 'KeyQ',
         metaKey: false,
         ctrlKey: false,
         altKey: true,
         shiftKey: false,
       } as KeyboardEvent;
 
-      expect(parseCombo('Alt+Q', altQEvent, true)).toBe(true);
-      expect(parseCombo('Option+Q', altQEvent, true)).toBe(true);
-      expect(parseCombo('Alt+Q', altQEvent, false)).toBe(true);
+      expect(parseCombo('Alt+Q', optionQ, true)).toBe(true);
+      expect(parseCombo('Option+Q', optionQ, true)).toBe(true);
+
+      // On macOS, Option+H produces '˙' with code 'KeyH'
+      const optionH = {
+        key: '˙',
+        code: 'KeyH',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: true,
+        shiftKey: false,
+      } as KeyboardEvent;
+
+      expect(parseCombo('Alt+H', optionH, true)).toBe(true);
+
+      // On macOS, Option+A produces 'å' with code 'KeyA'
+      const optionA = {
+        key: 'å',
+        code: 'KeyA',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: true,
+        shiftKey: false,
+      } as KeyboardEvent;
+
+      expect(parseCombo('Alt+A', optionA, true)).toBe(true);
+
+      // On macOS, Option+M produces 'µ' with code 'KeyM'
+      const optionM = {
+        key: 'µ',
+        code: 'KeyM',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: true,
+        shiftKey: false,
+      } as KeyboardEvent;
+
+      expect(parseCombo('Alt+M', optionM, true)).toBe(true);
+
+      // On macOS, Option+C produces 'ç' with code 'KeyC'
+      const optionC = {
+        key: 'ç',
+        code: 'KeyC',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: true,
+        shiftKey: false,
+      } as KeyboardEvent;
+
+      expect(parseCombo('Alt+C', optionC, true)).toBe(true);
+    });
+
+    it('matches shifted punctuation symbols such as question mark', () => {
+      // Typing '?' requires physical Shift on standard keyboards
+      const questionEvent = {
+        key: '?',
+        code: 'Slash',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: true,
+      } as KeyboardEvent;
+
+      expect(parseCombo('?', questionEvent)).toBe(true);
+    });
+
+    it('matches plus and minus keys correctly', () => {
+      const plusEvent = {
+        key: '+',
+        code: 'Equal',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: true,
+      } as KeyboardEvent;
+      expect(parseCombo('+', plusEvent)).toBe(true);
+
+      const numpadPlusEvent = {
+        key: '+',
+        code: 'NumpadAdd',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+      } as KeyboardEvent;
+      expect(parseCombo('+', numpadPlusEvent)).toBe(true);
+
+      const minusEvent = {
+        key: '-',
+        code: 'Minus',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+      } as KeyboardEvent;
+      expect(parseCombo('-', minusEvent)).toBe(true);
+    });
+
+    it('matches NumpadEnter as enter', () => {
+      const numpadEnterEvent = {
+        key: 'Enter',
+        code: 'NumpadEnter',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+      } as KeyboardEvent;
+      expect(parseCombo('Enter', numpadEnterEvent)).toBe(true);
+    });
+
+    it('matches Ctrl+Enter on Mac when explicit Ctrl is configured', () => {
+      const macCtrlEnter = {
+        key: 'Enter',
+        code: 'Enter',
+        metaKey: false,
+        ctrlKey: true,
+        altKey: false,
+        shiftKey: false,
+      } as KeyboardEvent;
+
+      expect(parseCombo('Ctrl+Enter', macCtrlEnter, true)).toBe(true);
     });
 
     it('matches Shift modifiers and multi-key chords', () => {
       const shiftChord = {
         key: 'f',
+        code: 'KeyF',
         metaKey: true,
         ctrlKey: false,
         altKey: false,
@@ -72,6 +193,7 @@ describe('useAppShortcuts utility', () => {
     it('matches Function keys without modifiers', () => {
       const f2Event = {
         key: 'F2',
+        code: 'F2',
         metaKey: false,
         ctrlKey: false,
         altKey: false,
@@ -216,6 +338,53 @@ describe('useAppShortcuts utility', () => {
 
       window.dispatchEvent(escEvent);
       expect(bgHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('respects ignoreInput flag when an input is focused', () => {
+      const ignoredHandler = vi.fn();
+      const allowedHandler = vi.fn();
+
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+
+      const shortcuts: Shortcut[] = [
+        { key: '?', handler: allowedHandler, ignoreInput: true },
+        { key: 'N', handler: ignoredHandler, ignoreInput: false },
+      ];
+
+      const InputTestComp = () => {
+        useAppShortcuts(shortcuts, true);
+        return null;
+      };
+
+      act(() => {
+        root.render(React.createElement(InputTestComp));
+      });
+
+      input.focus();
+      expect(document.activeElement).toBe(input);
+
+      // Press '?' (ignoreInput: true) -> should trigger
+      const questionEvent = new KeyboardEvent('keydown', {
+        key: '?',
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      window.dispatchEvent(questionEvent);
+      expect(allowedHandler).toHaveBeenCalledTimes(1);
+
+      // Press 'N' (ignoreInput: false) -> should be blocked
+      const nEvent = new KeyboardEvent('keydown', {
+        key: 'n',
+        code: 'KeyN',
+        bubbles: true,
+        cancelable: true,
+      });
+      window.dispatchEvent(nEvent);
+      expect(ignoredHandler).toHaveBeenCalledTimes(0);
+
+      input.remove();
     });
   });
 });

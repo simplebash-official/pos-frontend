@@ -93,7 +93,7 @@ export const GlobalQuickSearchModal = () => {
 
   // Ctrl+K (Cmd+K on Mac, handled by the engine treating 'ctrl' as ctrlKey||metaKey)
   useAppShortcuts([
-    { key: 'Ctrl+K', ignoreInput: true, handler: () => setOpened((prev) => !prev) },
+    { key: ['Mod+K', 'Ctrl+K'], ignoreInput: true, handler: () => setOpened((prev) => !prev) },
   ]);
 
   // Products and customers come from the Dexie mirror, so the palette works

@@ -104,9 +104,11 @@ export const PaymentPanel = memo(
     const isMobile = useIsMobile();
     const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
     const checkoutShortcut = getActionShortcut('completeCheckout');
+    const primaryHint = checkoutShortcut.readablePrimary || checkoutShortcut.formattedPrimary;
+    const aliasHint = checkoutShortcut.readableAlias || checkoutShortcut.formattedAlias;
     const checkoutKeyHint = isMobile
       ? ''
-      : ` (${checkoutShortcut.formattedPrimary}${checkoutShortcut.formattedAlias ? ` or ${checkoutShortcut.formattedAlias}` : ''})`;
+      : ` (${primaryHint}${aliasHint ? ` or ${aliasHint}` : ''})`;
 
     // Collapsible Order Discount State
     const [showDiscountInput, setShowDiscountInput] = useState(false);

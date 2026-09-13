@@ -23,21 +23,69 @@ const MODIFIER_TOKENS = ['mod', 'cmd', 'meta', 'ctrl', 'control', 'alt', 'opt', 
  * Supports cross-platform 'Mod' modifier (Cmd on Mac, Ctrl on Win/Linux),
  * as well as explicit Alt/Option, Shift, and Control keys.
  */
+const SHIFTED_PUNCTUATION = new Set([
+  '?', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', ':', '"', '<', '>', '~'
+]);
+
+/**
+ * Tokenizes a shortcut combo string into modifier tokens and the main action key.
+ * Correctly handles combinations targeting '+' or shifted characters.
+ */
+export const tokenizeCombo = (combo: string): { modifiers: string[]; mainKey: string } => {
+  const normalized = combo.trim();
+  if (!normalized) return { modifiers: [], mainKey: '' };
+  if (normalized === '+') {
+    return { modifiers: [], mainKey: '+' };
+  }
+
+  let mainKey = '';
+  let modPart = normalized;
+
+  if (normalized.endsWith('++')) {
+    mainKey = '+';
+    modPart = normalized.slice(0, -2);
+  } else if (normalized.endsWith('+') && normalized.length > 1) {
+    mainKey = '+';
+    modPart = normalized.slice(0, -1);
+  }
+
+  const rawTokens = modPart
+    .toLowerCase()
+    .split('+')
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  if (!mainKey) {
+    const nonModIndex = rawTokens.findLastIndex((t) => !MODIFIER_TOKENS.includes(t));
+    if (nonModIndex !== -1) {
+      mainKey = rawTokens[nonModIndex];
+      rawTokens.splice(nonModIndex, 1);
+    }
+  }
+
+  return { modifiers: rawTokens, mainKey };
+};
+
+/**
+ * Parses and matches a combo string against a KeyboardEvent.
+ * Supports cross-platform 'Mod' modifier (Cmd on Mac, Ctrl on Win/Linux),
+ * as well as explicit Alt/Option, Shift, and Control keys.
+ * Accurately falls back to e.code so macOS Option/Alt diacritic characters
+ * (e.g. Option+Q => 'œ', Option+H => '˙') match reliably.
+ */
 export const parseCombo = (
   combo: string,
   e: KeyboardEvent,
   isMacPlatform: boolean = isMac
 ): boolean => {
-  const tokens = combo
-    .toLowerCase()
-    .split('+')
-    .map((t) => t.trim());
+  const { modifiers, mainKey } = tokenizeCombo(combo);
+  if (!mainKey) return false;
 
-  const hasMod = tokens.includes('mod');
-  const hasCmd = tokens.includes('cmd') || tokens.includes('meta');
-  const hasCtrl = tokens.includes('ctrl') || tokens.includes('control');
-  const hasAlt = tokens.includes('alt') || tokens.includes('opt') || tokens.includes('option');
-  const hasShift = tokens.includes('shift');
+  const hasMod = modifiers.includes('mod');
+  const hasCmd = modifiers.includes('cmd') || modifiers.includes('meta');
+  const hasCtrl = modifiers.includes('ctrl') || modifiers.includes('control');
+  const hasAlt = modifiers.includes('alt') || modifiers.includes('opt') || modifiers.includes('option');
+  const hasShift = modifiers.includes('shift');
 
   // Check Mod / Cmd / Ctrl matching:
   if (hasMod) {
@@ -49,52 +97,80 @@ export const parseCombo = (
   } else if (hasCmd) {
     if (!e.metaKey) return false;
   } else if (hasCtrl) {
-    // Legacy support: 'ctrl' matches ctrlKey OR metaKey for backwards compatibility
+    // Legacy / dual support: 'ctrl' matches ctrlKey OR metaKey for backwards compatibility
     if (!e.ctrlKey && !e.metaKey) return false;
   } else {
-    // If no command/ctrl was requested, ensure neither is held
+    // If neither command, ctrl, nor mod was requested, ensure neither is held
     if (e.ctrlKey || e.metaKey) return false;
   }
 
   if (hasAlt !== e.altKey) return false;
-  if (hasShift !== e.shiftKey) return false;
 
-  const mainKeyToken = tokens.find((t) => !MODIFIER_TOKENS.includes(t));
-  if (!mainKeyToken) return false;
+  // Shift matching: shifted punctuation characters (like '?' which requires Shift+/)
+  // must not be rejected when the user physically presses Shift to produce the symbol.
+  const isShiftedChar = SHIFTED_PUNCTUATION.has(mainKey);
+  if (!isShiftedChar && hasShift !== e.shiftKey) {
+    return false;
+  }
 
-  const eventKey = e.key.toLowerCase();
-  const targetKey = mainKeyToken.toLowerCase();
+  const eventKey = (e.key || '').toLowerCase();
+  const targetKey = mainKey.toLowerCase();
+  const eventCode = (e.code || '').toLowerCase();
 
-  // Normalize common key aliases
+  // Normalize common key aliases & physical code checks:
   if (targetKey === 'enter' || targetKey === 'return') {
-    return eventKey === 'enter';
+    return eventKey === 'enter' || eventCode === 'enter' || eventCode === 'numpadenter';
   }
   if (targetKey === 'esc' || targetKey === 'escape') {
-    return eventKey === 'escape';
+    return eventKey === 'escape' || eventCode === 'escape';
   }
   if (targetKey === 'up') {
-    return eventKey === 'arrowup' || eventKey === 'up';
+    return eventKey === 'arrowup' || eventKey === 'up' || eventCode === 'arrowup';
   }
   if (targetKey === 'down') {
-    return eventKey === 'arrowdown' || eventKey === 'down';
+    return eventKey === 'arrowdown' || eventKey === 'down' || eventCode === 'arrowdown';
   }
   if (targetKey === 'left') {
-    return eventKey === 'arrowleft' || eventKey === 'left';
+    return eventKey === 'arrowleft' || eventKey === 'left' || eventCode === 'arrowleft';
   }
   if (targetKey === 'right') {
-    return eventKey === 'arrowright' || eventKey === 'right';
+    return eventKey === 'arrowright' || eventKey === 'right' || eventCode === 'arrowright';
   }
   if (targetKey === 'space' || targetKey === 'spacebar') {
-    return eventKey === ' ' || eventKey === 'spacebar';
+    return eventKey === ' ' || eventKey === 'spacebar' || eventCode === 'space';
   }
   if (targetKey === 'delete' || targetKey === 'del') {
-    return eventKey === 'delete';
+    return eventKey === 'delete' || eventCode === 'delete';
   }
   if (targetKey === 'backspace') {
-    return eventKey === 'backspace';
+    return eventKey === 'backspace' || eventCode === 'backspace';
+  }
+  if (targetKey === '+') {
+    return eventKey === '+' || eventCode === 'equal' || eventCode === 'numpadadd';
+  }
+  if (targetKey === '-') {
+    return eventKey === '-' || eventCode === 'minus' || eventCode === 'numpadsubtract';
+  }
+  if (targetKey === '?') {
+    return eventKey === '?' || (eventCode === 'slash' && e.shiftKey);
   }
 
-  return eventKey === targetKey;
+  // Letters a-z: check eventKey first, then fall back to eventCode ('KeyA'...'KeyZ')
+  // This is the critical fix for macOS Option/Alt chords where Option+Q produces 'œ', etc.
+  if (targetKey.length === 1 && targetKey >= 'a' && targetKey <= 'z') {
+    return eventKey === targetKey || eventCode === `key${targetKey}`;
+  }
+
+  // Numbers 0-9:
+  if (targetKey.length === 1 && targetKey >= '0' && targetKey <= '9') {
+    return (
+      eventKey === targetKey ||
+      eventCode === `digit${targetKey}` ||
+      eventCode === `numpad${targetKey}`
+    );
+  }
+
+  return eventKey === targetKey || eventCode === targetKey;
 };
 
 /**

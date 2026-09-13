@@ -47,7 +47,7 @@ export const BillingCounter = () => {
     setShortcutsOpen?: (open: boolean) => void;
   }>();
 
-  const { items } = useCartItems();
+  const { items, updateQty, remove } = useCartItems();
   const { customerId, customerName, customerPhone, customerAddress, attachCustomer } =
     useCartCustomer();
   const { discountCents, discountType, discountValue, subtotalCents, totalCents, setDiscount } =
@@ -299,6 +299,22 @@ export const BillingCounter = () => {
     focusQuickAdjustQuantity();
   }, [completedSale, items]);
 
+  const handleToggleLastItemQty = useCallback(
+    (delta: number) => {
+      if (completedSale || items.length === 0) return;
+      const newest = items[0];
+      const isService = newest.sourceType === 'repair' || newest.sourceType === 'print';
+      const isSerialized = Boolean(newest.serialNumbers && newest.serialNumbers.length > 0);
+      if (isService || isSerialized) return;
+
+      const newQty = newest.quantity + delta;
+      if (newQty >= 1) {
+        updateQty(newest.id, newQty);
+      }
+    },
+    [completedSale, items, updateQty]
+  );
+
   // Permanently force focus back to scan input on mount, window focus, modal close
   useEffect(() => {
     if (!isMobile) {
@@ -355,6 +371,7 @@ export const BillingCounter = () => {
         const shortcuts: Shortcut[] = [
           {
             key: 'Enter',
+            ignoreInput: true,
             handler: () => {
               startNextSale();
               setActivePane('catalog');
@@ -362,18 +379,28 @@ export const BillingCounter = () => {
           },
           {
             key: 'N',
+            ignoreInput: true,
             handler: () => {
               startNextSale();
               setActivePane('catalog');
             },
           },
-          { key: 'R', handler: () => openDocumentPreview(completedSale.invoice, 'receipt') },
-          { key: 'I', handler: () => openDocumentPreview(completedSale.invoice, 'invoice') },
+          {
+            key: 'R',
+            ignoreInput: true,
+            handler: () => openDocumentPreview(completedSale.invoice, 'receipt'),
+          },
+          {
+            key: 'I',
+            ignoreInput: true,
+            handler: () => openDocumentPreview(completedSale.invoice, 'invoice'),
+          },
         ];
 
         if (isInvoiceMode) {
           shortcuts.push({
             key: 'P',
+            ignoreInput: true,
             handler: () => openDocumentPreview(completedSale.invoice, 'invoice'),
           });
         }
@@ -386,7 +413,7 @@ export const BillingCounter = () => {
     { key: ['F1', 'Escape'], ignoreInput: true, handler: () => focusScanBar(true) },
     { key: ['F8', 'Alt+Q'], ignoreInput: true, handler: handleQuickAdjustQuantity },
     {
-      key: ['F2', 'Mod+Enter'],
+      key: ['F2', 'Mod+Enter', 'Ctrl+Enter'],
       ignoreInput: true,
       handler: () => {
         if (completedSale) return;
@@ -469,7 +496,20 @@ export const BillingCounter = () => {
         }
       },
     },
-    { key: ['?', 'Mod+/'], handler: () => outletContext.setShortcutsOpen?.(true) },
+    {
+      key: ['?', 'Mod+/', 'Ctrl+/'],
+      ignoreInput: true,
+      handler: () => outletContext.setShortcutsOpen?.(true),
+    },
+    { key: ['ArrowUp', '+'], handler: () => handleToggleLastItemQty(1) },
+    { key: ['ArrowDown', '-'], handler: () => handleToggleLastItemQty(-1) },
+    {
+      key: ['Delete', 'Backspace'],
+      handler: () => {
+        if (completedSale || items.length === 0) return;
+        remove(items[0].id);
+      },
+    },
     ...postSaleShortcuts,
   ]);
 
