@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { Box, Paper, Stack, Tabs, Text, ThemeIcon } from '@mantine/core';
+import { Badge, Box, NavLink, Paper, Stack, Tabs, Text, ThemeIcon } from '@mantine/core';
 import { isTauri } from '@/shared/lib/runtime';
 import { getVisibleSettingsSections, type SettingsSectionId } from '../settingsSections';
 
@@ -8,7 +8,7 @@ interface SettingsNavProps {
   onChange: (section: SettingsSectionId) => void;
 }
 
-/** Desktop: a persistent vertical list of sections, boxed like the content cards. */
+/** Desktop: a persistent vertical list of sections, styled identically to the left sidebar NavLink. */
 export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
   const sections = getVisibleSettingsSections(isTauri());
   return (
@@ -28,48 +28,69 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
       <Stack gap={2}>
         {sections.map((section) => {
           const isActive = active === section.id;
+          const isDisabled = section.disabled || section.comingSoon;
+          const Icon = section.icon;
+
           return (
-            <Box
+            <NavLink
               key={section.id}
-              onClick={() => onChange(section.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                minHeight: 40,
-                padding: '6px 10px',
-                borderRadius: 'var(--mantine-radius-default)',
-                backgroundColor: isActive ? 'var(--bg-active)' : 'transparent',
-                cursor: 'pointer',
+              className="settings-nav-item"
+              active={isActive}
+              data-disabled={isDisabled ? true : undefined}
+              color="blue"
+              variant="light"
+              label={t(section.label)}
+              leftSection={<Icon size={18} stroke={1.5} />}
+              rightSection={
+                section.comingSoon ? (
+                  <Badge
+                    size="xs"
+                    variant="light"
+                    color="gray"
+                    tt="none"
+                    style={{
+                      flexShrink: 0,
+                      fontSize: 10,
+                      height: 18,
+                      paddingLeft: 6,
+                      paddingRight: 6,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    {t('Coming Soon')}
+                  </Badge>
+                ) : undefined
+              }
+              onClick={() => {
+                if (!isDisabled) {
+                  onChange(section.id);
+                }
               }}
-            >
-              {isActive ? (
-                <ThemeIcon
-                  color="blue"
-                  variant="light"
-                  size="sm"
-                  radius="var(--mantine-radius-default)"
-                >
-                  <section.icon size={14} />
-                </ThemeIcon>
-              ) : (
-                <Box
-                  style={{
-                    width: 22,
-                    height: 22,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  <section.icon size={16} />
-                </Box>
-              )}
-              <Text size="sm" fw={isActive ? 600 : 500} c={isActive ? undefined : 'dimmed'}>
-                {section.label}
-              </Text>
-            </Box>
+              styles={{
+                root: {
+                  height: 40,
+                  minHeight: 40,
+                  maxHeight: 40,
+                  boxSizing: 'border-box',
+                  borderRadius: 'var(--mantine-radius-default)',
+                  paddingLeft: 10,
+                  paddingRight: 8,
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  opacity: isDisabled ? 0.6 : 1,
+                },
+                body: {
+                  overflow: 'hidden',
+                  minWidth: 0,
+                },
+                label: {
+                  fontWeight: isActive ? 600 : 500,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  lineHeight: 1.2,
+                },
+              }}
+            />
           );
         })}
       </Stack>
@@ -87,16 +108,27 @@ export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
       variant="outline"
     >
       <Tabs.List style={{ flexWrap: 'wrap' }}>
-        {sections.map((section) => (
-          <Tabs.Tab
-            key={section.id}
-            value={section.id}
-            leftSection={<section.icon size={16} />}
-            style={{ minHeight: 44 }}
-          >
-            {section.shortLabel}
-          </Tabs.Tab>
-        ))}
+        {sections.map((section) => {
+          const isDisabled = section.disabled || section.comingSoon;
+          return (
+            <Tabs.Tab
+              key={section.id}
+              value={section.id}
+              disabled={isDisabled}
+              leftSection={<section.icon size={16} />}
+              rightSection={
+                section.comingSoon ? (
+                  <Badge size="xs" variant="light" color="gray" tt="none" style={{ marginLeft: 4 }}>
+                    {t('Coming Soon')}
+                  </Badge>
+                ) : undefined
+              }
+              style={{ minHeight: 44, opacity: isDisabled ? 0.6 : 1 }}
+            >
+              {t(section.shortLabel)}
+            </Tabs.Tab>
+          );
+        })}
       </Tabs.List>
     </Tabs>
   );
@@ -110,35 +142,64 @@ export const SettingsNavDrillDownList = ({ active, onChange }: SettingsNavProps)
       <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
         {t('Menu')}
       </Text>
-      {sections.map((section) => (
-        <Box
-          key={section.id}
-          onClick={() => onChange(section.id)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            minHeight: 56,
-            padding: '10px 14px',
-            borderRadius: 'var(--mantine-radius-default)',
-            border: '1px solid var(--border)',
-            backgroundColor: active === section.id ? 'var(--bg-active)' : 'var(--bg-card)',
-            cursor: 'pointer',
-          }}
-        >
-          <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
-            <section.icon size={20} />
-          </ThemeIcon>
-          <Box style={{ flex: 1, minWidth: 0 }}>
-            <Text fw={600} size="sm">
-              {section.label}
-            </Text>
-            <Text size="xs" c="dimmed" truncate>
-              {section.description}
-            </Text>
+      {sections.map((section) => {
+        const isActive = active === section.id;
+        const isDisabled = section.disabled || section.comingSoon;
+        return (
+          <Box
+            key={section.id}
+            onClick={() => {
+              if (!isDisabled) {
+                onChange(section.id);
+              }
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              minHeight: 56,
+              padding: '10px 14px',
+              borderRadius: 'var(--mantine-radius-default)',
+              border: `1px solid ${isActive ? 'var(--mantine-color-blue-light-hover)' : 'var(--border)'}`,
+              backgroundColor: isActive ? 'var(--mantine-color-blue-light)' : 'var(--bg-card)',
+              cursor: isDisabled ? 'not-allowed' : 'pointer',
+              opacity: isDisabled ? 0.6 : 1,
+              transition: 'background-color 150ms ease, border-color 150ms ease',
+            }}
+          >
+            <ThemeIcon
+              color={isActive ? 'blue' : isDisabled ? 'gray' : 'blue'}
+              variant={isActive ? 'filled' : 'light'}
+              size="lg"
+              radius="var(--mantine-radius-default)"
+            >
+              <section.icon size={20} />
+            </ThemeIcon>
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Box
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                }}
+              >
+                <Text fw={isActive ? 700 : 600} size="sm" c={isActive ? 'blue' : undefined}>
+                  {t(section.label)}
+                </Text>
+                {section.comingSoon && (
+                  <Badge size="xs" variant="light" color="gray" tt="none" style={{ flexShrink: 0 }}>
+                    {t('Coming Soon')}
+                  </Badge>
+                )}
+              </Box>
+              <Text size="xs" c="dimmed" truncate>
+                {t(section.description)}
+              </Text>
+            </Box>
           </Box>
-        </Box>
-      ))}
+        );
+      })}
     </Stack>
   );
 };

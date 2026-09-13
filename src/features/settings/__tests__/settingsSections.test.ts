@@ -23,4 +23,24 @@ describe('settingsSections desktop filtering', () => {
     expect(visibleOnDesktop.some((s) => s.id === 'backup')).toBe(true);
     expect(visibleOnDesktop.some((s) => s.id === 'benchmark')).toBe(true);
   });
+
+  it('marks branding, bank-details, printing, and templates as comingSoon and disabled', () => {
+    const comingSoonSectionIds = ['branding', 'bank-details', 'printing', 'templates'];
+
+    comingSoonSectionIds.forEach((id) => {
+      const section = SETTINGS_SECTIONS.find((s) => s.id === id);
+      expect(section).toBeDefined();
+      expect(section?.comingSoon).toBe(true);
+      expect(section?.disabled).toBe(true);
+    });
+
+    const activeSectionIds = ['shop-profile', 'updates', 'backup', 'benchmark'];
+    activeSectionIds.forEach((id) => {
+      const section = SETTINGS_SECTIONS.find((s) => s.id === id);
+      expect(section).toBeDefined();
+      expect(section?.comingSoon).toBeFalsy();
+      expect(section?.disabled).toBeFalsy();
+    });
+  });
 });
+

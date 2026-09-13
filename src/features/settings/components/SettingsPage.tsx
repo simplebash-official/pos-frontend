@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState, type ReactNode } from 'react';
-import { ActionIcon, Box, Group, Stack, Text } from '@mantine/core';
+import { ActionIcon, Badge, Box, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PageHeader } from '@/shared/components/PageHeader';
@@ -17,6 +17,31 @@ import { BackupSection } from './sections/BackupSection';
 import { BenchmarkSection } from './sections/BenchmarkSection';
 
 const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) => void) => {
+  const meta = SETTINGS_SECTIONS.find((s) => s.id === id);
+  if (meta?.comingSoon) {
+    const Icon = meta.icon;
+    return (
+      <Paper p="xl" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
+        <Stack align="center" justify="center" gap="md" py="xl" style={{ minHeight: 340 }}>
+          <ThemeIcon size={64} radius="xl" variant="light" color="gray">
+            <Icon size={32} />
+          </ThemeIcon>
+          <Text fw={700} size="lg">
+            {t(meta.label)}
+          </Text>
+          <Badge size="md" variant="light" color="gray" tt="none">
+            {t('Coming Soon')}
+          </Badge>
+          <Text size="sm" c="dimmed" ta="center" maw={420}>
+            {t(
+              'This feature is currently under active development and will be available in an upcoming update.'
+            )}
+          </Text>
+        </Stack>
+      </Paper>
+    );
+  }
+
   switch (id) {
     case 'shop-profile':
       return <ShopProfileSection onDirtyChange={onDirtyChange} />;
@@ -53,6 +78,10 @@ export const SettingsPage = () => {
     if (target === 'back') {
       setMobileSectionOpen(false);
     } else {
+      const targetMeta = SETTINGS_SECTIONS.find((s) => s.id === target);
+      if (targetMeta?.disabled || targetMeta?.comingSoon) {
+        return;
+      }
       setActiveSection(target);
       setMobileSectionOpen(true);
     }
@@ -81,7 +110,7 @@ export const SettingsPage = () => {
   if (tier === 'desktop') {
     body = (
       <Group align="stretch" gap="xl" wrap="nowrap" style={{ flex: 1 }}>
-        <Box style={{ width: 240, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+        <Box style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
           <SettingsNavList active={activeSection} onChange={requestNavigate} />
         </Box>
         <Box style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>

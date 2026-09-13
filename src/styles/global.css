@@ -677,3 +677,54 @@ th.mantine-Table-th {
 .calc-history-item:active {
   transform: scale(0.98);
 }
+
+/* Settings Navigation Menu Items */
+.settings-nav-item {
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  box-sizing: border-box !important;
+  border-radius: var(--mantine-radius-default) !important;
+  transition: background-color 150ms ease, color 150ms ease !important;
+}
+
+.settings-nav-item .mantine-NavLink-body {
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+
+.settings-nav-item .mantine-NavLink-label {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Inactive button hover: visible across both light and dark backgrounds */
+.settings-nav-item:not([data-active]):not([data-disabled]):hover {
+  background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5)) !important;
+  color: var(--text-primary) !important;
+}
+
+.settings-nav-item:not([data-active]):not([data-disabled]):hover .mantine-NavLink-section {
+  color: var(--text-primary) !important;
+}
+
+/* Active button default and hover */
+.settings-nav-item[data-active] {
+  background-color: var(--mantine-color-blue-light) !important;
+  color: var(--mantine-color-blue-light-color) !important;
+}
+
+.settings-nav-item[data-active]:hover {
+  background-color: var(--mantine-color-blue-light-hover) !important;
+}
+
+/* Coming Soon / Disabled item hover */
+.settings-nav-item[data-disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.settings-nav-item[data-disabled]:hover {
+  background-color: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.04)) !important;
+}

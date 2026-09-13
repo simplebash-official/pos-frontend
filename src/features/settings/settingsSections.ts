@@ -26,6 +26,8 @@ export interface SettingsSectionMeta {
   description: string;
   icon: typeof IconBuildingStore;
   desktopOnly?: boolean;
+  comingSoon?: boolean;
+  disabled?: boolean;
 }
 
 export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
@@ -42,6 +44,8 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Branding',
     description: 'The logo shown on your printed documents',
     icon: IconPhoto,
+    comingSoon: true,
+    disabled: true,
   },
   {
     id: 'bank-details',
@@ -49,6 +53,8 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Bank',
     description: 'Account details shown on invoices',
     icon: IconBuildingBank,
+    comingSoon: true,
+    disabled: true,
   },
   {
     id: 'printing',
@@ -56,6 +62,8 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Printing',
     description: 'Receipt paper size and what prints by default',
     icon: IconPrinter,
+    comingSoon: true,
+    disabled: true,
   },
   {
     id: 'templates',
@@ -63,6 +71,8 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Templates',
     description: 'Warranty terms and receipt footer text',
     icon: IconFileText,
+    comingSoon: true,
+    disabled: true,
   },
   {
     id: 'updates',
