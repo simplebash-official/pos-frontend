@@ -41,7 +41,7 @@ export const AnalyticsReportPreviewModal = ({
 
   const handlePrint = () => {
     if (!blob) return;
-    void printPdfBlob(blob);
+    void printPdfBlob(blob, title);
     setHasPrinted(true);
   };
 

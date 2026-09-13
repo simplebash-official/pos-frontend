@@ -28,7 +28,10 @@ export const StandalonePrintView = () => {
         format: 'a4',
         copy: 'ORIGINAL — CUSTOMER COPY',
       });
-      const timer = setTimeout(() => void printPdfBlob(blob), 400);
+      const timer = setTimeout(
+        () => void printPdfBlob(blob, id ? `Invoice — ${id}` : undefined),
+        400
+      );
       return () => clearTimeout(timer);
     }
   }, [blob, id]);
@@ -113,7 +116,7 @@ export const StandalonePrintView = () => {
               size="xs"
               color="blue"
               leftSection={<IconPrinter size={14} />}
-              onClick={() => void printPdfBlob(blob)}
+              onClick={() => void printPdfBlob(blob, id ? `Invoice — ${id}` : undefined)}
             >
               {t('Print Document')}
             </Button>

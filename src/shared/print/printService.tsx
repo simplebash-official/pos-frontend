@@ -1,5 +1,37 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
+import { isTauri, resolvePlatformInfo } from '@/shared/lib/platform';
+
+// Converts a Blob to a raw base64 string.
+const blobToBase64 = async (blob: Blob): Promise<string> => {
+  let buffer: ArrayBuffer;
+  if (typeof blob.arrayBuffer === 'function') {
+    buffer = await blob.arrayBuffer();
+  } else if (typeof Response !== 'undefined') {
+    buffer = await new Response(blob).arrayBuffer();
+  } else {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const commaIdx = result.indexOf(',');
+        resolve(commaIdx >= 0 ? result.slice(commaIdx + 1) : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(
+      null,
+      bytes.subarray(i, i + chunkSize) as unknown as number[]
+    );
+  }
+  return btoa(binary);
+};
 
 // Prints a backend-rendered PDF blob. The PDF is rasterised through pdf.js at
 // print resolution and printed from a plain-HTML hidden iframe. Pointing the
@@ -100,7 +132,20 @@ const buildPrintHtml = (pages: PrintedPageImage[]): string => {
 </html>`;
 };
 
-export const printPdfBlob = async (blob: Blob): Promise<void> => {
+export const printPdfBlob = async (blob: Blob, title?: string): Promise<void> => {
+  // On macOS desktop under Tauri (WKWebView), `iframe.contentWindow.print()` is silently
+  // ignored by WebKit. Delegate to native PDFKit printing via our Tauri bridge.
+  if (isTauri() && resolvePlatformInfo().isMac) {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      const pdfBase64 = await blobToBase64(blob);
+      await invoke('print_pdf_native', { pdfBase64, title });
+      return;
+    } catch (e) {
+      console.error('Native macOS desktop printing failed, falling back to browser print:', e);
+    }
+  }
+
   // Drop any stale print frame from a prior invocation before building a new one.
   document.getElementById(PRINT_IFRAME_ID)?.remove();
 

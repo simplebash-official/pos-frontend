@@ -20,7 +20,7 @@ export const usePrint = () => {
 
       const copies = Math.max(1, printSettings.receiptCopies);
       for (let i = 0; i < copies; i++) {
-        await printPdfBlob(blob);
+        await printPdfBlob(blob, `Receipt — ${invoice.invoiceNumber}`);
         // Let the previous print job's iframe finish and clean up before starting the next one.
         if (i < copies - 1) {
           await new Promise((resolve) => setTimeout(resolve, 1200));

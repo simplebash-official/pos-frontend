@@ -66,9 +66,17 @@ export const SaleDocumentPreviewModal = ({
   const creditNoteDoc = useCreditNoteDocument(opened && creditNote ? creditNote.id : undefined);
   const { blob, loading, error, isPaused } = creditNote ? creditNoteDoc : invoiceDoc;
 
+  const printDocLabel =
+    documentKind === 'receipt'
+      ? 'Receipt'
+      : documentKind === 'credit-note'
+        ? 'Credit Note'
+        : 'Invoice';
+  const printTitle = `${printDocLabel} — ${printLogNumber || 'Pending'}`;
+
   const handlePrint = () => {
     if (!blob) return;
-    void printPdfBlob(blob);
+    void printPdfBlob(blob, printTitle);
     recordPrintEvent({
       invoiceId: invoice?.id ?? creditNote?.id ?? '',
       invoiceNumber: printLogKey,
