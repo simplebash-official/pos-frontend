@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: '/',
+  WELCOME: '/welcome',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   BILLING: '/billing',
@@ -19,6 +20,7 @@ export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 
 // Relative route paths (without leading slashes) for nested React Router path definitions
 export const ROUTE_PATHS = {
+  WELCOME: 'welcome',
   DASHBOARD: 'dashboard',
   BILLING: 'billing',
   INVOICES: 'invoices',

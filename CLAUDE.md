@@ -270,7 +270,15 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
 - **In-App Desktop Auto-Updater (`src/features/settings/components/UpdatesSection.tsx`)**: Automated update checks and one-click installs using `@tauri-apps/plugin-updater` and `process.relaunch()`.
 - **Canvas-based PDF Previewer (`PdfCanvasViewer`)**: High-performance canvas rendering via `pdfjs-dist` replacing `<iframe src="blob:...">` in invoice/receipt/report modals, eliminating WebView2/WebKit iframe blank-page bugs on Windows and macOS.
 - **Split Payment & Tender Engine**: Split payment capabilities (Cash + Card simultaneous allocation), dynamic change calculation, credit balance handling, and credit note refund processing in the billing cart and invoice settlement workflows.
-- **Sinhala Localization (`si.json`)**: Expanded dictionary coverage for backup/restore, auto-updates, invoice canvas previews, and report exports with strict alphabetical key sorting.
+- **First-Run Welcome & Onboarding Wizard (`src/features/onboarding/`)**:
+  - Implements the initial installation onboarding experience on `/welcome` (`WelcomeWizard.tsx`).
+  - Gated route protection: `RequireAuth` and `GuestOnly` evaluate `useSetupStatus()` and redirect unconfigured systems (`setup_completed === false`) to `/welcome`.
+  - **Full-Screen Desktop Studio Layout (`100vw` × `100vh`)**: Fixed 340px Left Navigation Rail with branding, workstation ID badge, theme/language switchers, and vertical Stepper, paired with an expansive, centered right-hand main stage (`maxWidth: 1120px`) ensuring full-length and full-height coverage without dark void margins. Follows `theme.ts` tokens (`primaryColor: 'blue'`, `var(--mantine-radius-default)`, `var(--bg-app)`, `var(--bg-sidebar)`, `var(--bg-card)`).
+  - Step 1 (`SplashStep`): Workstation verification (SQLite engine on :8080, Typst document server on :8090, Offline Vault, installation ID, installed timestamp) and interactive language selection (English / Sinhala).
+  - Step 2 (`FeatureGuideStep`): Expansive 2x2 capability tour covering Smart Billing & Split Tender, Repair Jobs & Workshop, Inventory & Serial Tracking, and Offline-First Privacy.
+  - Step 3 (`DataChoiceStep`): Interactive elevated cards offering 'Load Sample / Demo Data' (for exploration) vs. 'Clean Database (Empty Tables)' (for production) along with primary Administrator credentials configuration.
+  - Step 4 (`ProgressStep`): Live initialization indicator, Tauri desktop metadata persistence (`completeInstallationSetupNative`), and launch card with instant auto-login into the POS Dashboard.
+- **Sinhala Localization (`si.json`)**: Expanded dictionary coverage for backup/restore, auto-updates, invoice canvas previews, onboarding wizard, and report exports with strict alphabetical key sorting.
 
 ### Invariants & Rules for Future Implementations
 

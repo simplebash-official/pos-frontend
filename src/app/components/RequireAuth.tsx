@@ -7,6 +7,7 @@ import {
   selectIsAuthInitialized,
   selectIsAuthLoading,
 } from '@/store/slices/authSlice';
+import { useSetupStatus } from '@/features/onboarding/hooks/useSetupStatus';
 import { PageLoader } from '@/shared/components/PageLoader';
 import { ROUTES } from '@/constants/routes';
 
@@ -18,7 +19,12 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitialized = useAppSelector(selectIsAuthInitialized);
   const isLoading = useAppSelector(selectIsAuthLoading);
+  const { data: status, isLoading: isStatusLoading } = useSetupStatus();
   const location = useLocation();
+
+  if (!isStatusLoading && status && !status.setup_completed) {
+    return <Navigate to={ROUTES.WELCOME} replace />;
+  }
 
   if (!isInitialized || isLoading) {
     return (

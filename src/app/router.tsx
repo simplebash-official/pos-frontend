@@ -61,6 +61,11 @@ const EmailLoginScreen = lazy(() =>
     default: m.EmailLoginScreen,
   }))
 );
+const WelcomeWizard = lazy(() =>
+  import('@/features/onboarding/components/WelcomeWizard').then((m) => ({
+    default: m.WelcomeWizard,
+  }))
+);
 const StandalonePrintView = lazy(() =>
   import('@/features/billing/components/StandalonePrintView').then((m) => ({
     default: m.StandalonePrintView,
@@ -192,6 +197,15 @@ export const router = createBrowserRouter([
         element: <NotFoundPage />,
       },
     ],
+  },
+  {
+    path: ROUTES.WELCOME,
+    element: (
+      <Suspense fallback={<PageSkeleton />}>
+        <WelcomeWizard />
+      </Suspense>
+    ),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: ROUTES.LOGIN,

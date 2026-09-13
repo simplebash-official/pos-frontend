@@ -100,4 +100,9 @@ export const queryKeys = {
     batches: (target?: string) => ['imports', 'batches', target] as const,
     batchDetail: (key: string) => ['imports', 'batches', key] as const,
   },
+  system: {
+    all: ['system'] as const,
+    setupStatus: () => ['system', 'setup-status'] as const,
+    installation: () => ['system', 'installation'] as const,
+  },
 };

@@ -9,6 +9,7 @@ import { formatDateTime } from '@/shared/lib/date';
 import { isTauri } from '@/shared/lib/runtime';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { usePwaUpdate } from '@/app/pwa/PwaUpdateContext';
+import { useSetupStatus } from '@/features/onboarding';
 import { downloadPercent } from '../../lib/updateView';
 import type { SectionProps } from './ShopProfileSection';
 
@@ -173,6 +174,7 @@ const DesktopUpdates = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [applying, setApplying] = useState(false);
   const updateRef = useRef<Update | null>(null);
+  const { data: setupStatus } = useSetupStatus();
 
   useEffect(() => {
     let cancelled = false;
@@ -282,6 +284,27 @@ const DesktopUpdates = () => {
       )}
     >
       <VersionLine version={currentVersion} builtAt="" />
+      {setupStatus && (
+        <Group gap="xs" wrap="wrap" mt="xs">
+          <Badge variant="outline" color="gray" size="sm">
+            {t('Workstation ID')}: {setupStatus.installation_id.slice(0, 8).toUpperCase()}
+          </Badge>
+          {setupStatus.installed_at && (
+            <Badge variant="outline" color="gray" size="sm">
+              {t('Installed')}: {new Date(setupStatus.installed_at).toLocaleDateString()}
+            </Badge>
+          )}
+          <Badge
+            variant="light"
+            color={setupStatus.sample_data_loaded ? 'indigo' : 'teal'}
+            size="sm"
+          >
+            {setupStatus.sample_data_loaded
+              ? t('Demo Data Mode')
+              : t('Clean Production Mode')}
+          </Badge>
+        </Group>
+      )}
       <Divider />
 
       {(status.kind === 'idle' || status.kind === 'checking') && (
