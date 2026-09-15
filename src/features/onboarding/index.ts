@@ -3,6 +3,10 @@ export { SplashStep } from './components/SplashStep';
 export { FeatureGuideStep } from './components/FeatureGuideStep';
 export { DataChoiceStep } from './components/DataChoiceStep';
 export { ProgressStep } from './components/ProgressStep';
+export { ProvisioningConsole } from './components/ProvisioningConsole';
+export { ProvisioningMilestones } from './components/ProvisioningMilestones';
 export { useSetupStatus, useInitializeSetup } from './hooks/useSetupStatus';
+export { useProvisioningOrchestrator } from './hooks/useProvisioningOrchestrator';
 export * from './types';
 export * from './api/onboardingApi';
+

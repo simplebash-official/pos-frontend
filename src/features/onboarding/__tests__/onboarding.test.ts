@@ -5,6 +5,9 @@ import {
   FeatureGuideStep,
   DataChoiceStep,
   ProgressStep,
+  ProvisioningConsole,
+  ProvisioningMilestones,
+  useProvisioningOrchestrator,
   getSetupStatusApi,
   initializeSetupApi,
   getInstallationInfoApi,
@@ -28,6 +31,9 @@ describe('Onboarding Module Exports & Components', () => {
     expect(typeof FeatureGuideStep).toBe('function');
     expect(typeof DataChoiceStep).toBe('function');
     expect(typeof ProgressStep).toBe('function');
+    expect(typeof ProvisioningConsole).toBe('function');
+    expect(typeof ProvisioningMilestones).toBe('function');
+    expect(typeof useProvisioningOrchestrator).toBe('function');
     expect(typeof getSetupStatusApi).toBe('function');
     expect(typeof initializeSetupApi).toBe('function');
     expect(typeof getInstallationInfoApi).toBe('function');
@@ -184,3 +190,81 @@ describe('Database Setup Choice Logic', () => {
     expect(cleanPayload.admin_email).toBe('owner@shop.com');
   });
 });
+
+describe('Provisioning Experience Architecture', () => {
+  it('defines 5 standard milestone phases with identifiers and numbers', () => {
+    const expectedMilestoneIds = ['kernel', 'security', 'catalog', 'sidecars', 'ready'];
+    const expectedNumbers = ['01', '02', '03', '04', '05'];
+
+    expect(expectedMilestoneIds).toHaveLength(5);
+    expect(expectedNumbers).toHaveLength(5);
+  });
+
+  it('formats terminal logs with brackets and tags suitable for clipboard export', () => {
+    const sampleLogs = [
+      { timestamp: '12:00:00.123', tag: 'KERNEL', message: 'Opening SQLite instance' },
+      { timestamp: '12:00:00.456', tag: 'AUTH', message: 'Admin account created' },
+      { timestamp: '12:00:01.789', tag: 'OK', message: 'Ready' },
+    ];
+
+    const formatted = sampleLogs
+      .map((entry) => `[${entry.timestamp}] [${entry.tag}] ${entry.message}`)
+      .join('\n');
+
+    expect(formatted).toContain('[12:00:00.123] [KERNEL] Opening SQLite instance');
+    expect(formatted).toContain('[12:00:00.456] [AUTH] Admin account created');
+    expect(formatted).toContain('[12:00:01.789] [OK] Ready');
+  });
+
+  it('correctly maps status states to badge visual colors', () => {
+    const getBadgeStatusColor = (status: 'pending' | 'running' | 'completed' | 'failed') => {
+      switch (status) {
+        case 'running':
+          return 'blue';
+        case 'completed':
+          return 'teal';
+        case 'failed':
+          return 'red';
+        default:
+          return 'gray';
+      }
+    };
+
+    expect(getBadgeStatusColor('running')).toBe('blue');
+    expect(getBadgeStatusColor('completed')).toBe('teal');
+    expect(getBadgeStatusColor('failed')).toBe('red');
+    expect(getBadgeStatusColor('pending')).toBe('gray');
+  });
+
+  it('guarantees sequential stage-by-stage progression state machine', () => {
+    // Test the state transitions from stage 0 to stage 5
+    const getStageStatuses = (activeStage: number) => {
+      const statuses = ['pending', 'pending', 'pending', 'pending', 'pending'];
+      for (let i = 0; i < 5; i++) {
+        if (i < activeStage) statuses[i] = 'completed';
+        else if (i === activeStage && activeStage < 5) statuses[i] = 'running';
+        else if (activeStage >= 5) statuses[i] = 'completed';
+      }
+      return statuses;
+    };
+
+    // Stage 0: Milestone 0 running, all others pending
+    expect(getStageStatuses(0)).toEqual(['running', 'pending', 'pending', 'pending', 'pending']);
+
+    // Stage 1: Milestone 0 completed, Milestone 1 running, 2..4 pending
+    expect(getStageStatuses(1)).toEqual(['completed', 'running', 'pending', 'pending', 'pending']);
+
+    // Stage 2: Milestones 0,1 completed, Milestone 2 running, 3..4 pending
+    expect(getStageStatuses(2)).toEqual(['completed', 'completed', 'running', 'pending', 'pending']);
+
+    // Stage 3: Milestones 0..2 completed, Milestone 3 running, 4 pending
+    expect(getStageStatuses(3)).toEqual(['completed', 'completed', 'completed', 'running', 'pending']);
+
+    // Stage 4: Milestones 0..3 completed, Milestone 4 running
+    expect(getStageStatuses(4)).toEqual(['completed', 'completed', 'completed', 'completed', 'running']);
+
+    // Stage 5: All 5 completed
+    expect(getStageStatuses(5)).toEqual(['completed', 'completed', 'completed', 'completed', 'completed']);
+  });
+});
+

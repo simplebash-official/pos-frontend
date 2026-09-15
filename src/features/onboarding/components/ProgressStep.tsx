@@ -7,253 +7,311 @@ import {
   Paper,
   ThemeIcon,
   Badge,
-  Loader,
   SimpleGrid,
   Box,
+  Progress,
+  Divider,
 } from '@mantine/core';
 import {
-  IconCheck,
   IconArrowRight,
   IconAlertCircle,
   IconSparkles,
   IconUserCheck,
   IconDatabase,
   IconRefresh,
+  IconCheck,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
-import type { SetupSystemResult } from '../types';
+import type { SetupSystemPayload, SetupSystemResult } from '../types';
+import { useProvisioningOrchestrator } from '../hooks/useProvisioningOrchestrator';
+import { ProvisioningMilestones } from './ProvisioningMilestones';
+import { ProvisioningConsole } from './ProvisioningConsole';
 
 export interface ProgressStepProps {
+  payload?: SetupSystemPayload | null;
   loading: boolean;
   result: SetupSystemResult | null;
   error: string | null;
   onRetry: () => void;
   onComplete: () => void;
+  onGoToLogin?: () => void;
 }
 
 export const ProgressStep = ({
+  payload = null,
   loading,
   result,
   error,
   onRetry,
   onComplete,
+  onGoToLogin,
 }: ProgressStepProps) => {
+  const {
+    progress,
+    currentStageText,
+    milestones,
+    logs,
+    isFinished,
+    fastForward,
+  } = useProvisioningOrchestrator({
+    payload,
+    isPending: loading,
+    result,
+    error,
+  });
+
+  const showFinishedView = isFinished && Boolean(result) && !error;
+
   return (
     <Stack gap="xl">
-      {/* Loading state */}
-      {loading && (
-        <Paper
-          withBorder
-          p="2.5rem"
-          radius="md"
-          style={{
-            textAlign: 'center',
-            backgroundColor: 'var(--bg-card)',
-          }}
-        >
-          <Stack align="center" gap="lg" py="xl">
-            <Badge
-              size="md"
-              variant="gradient"
-              gradient={{ from: 'blue', to: 'cyan' }}
-              leftSection={<IconSparkles size={14} />}
-            >
-              {t('Initial First-Run')}
-            </Badge>
-
-            <Loader size="xl" color="blue" type="dots" />
-
-            <div>
-              <Title
-                order={2}
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {t('Initializing Your POS System...')}
-              </Title>
-              <Text c="dimmed" size="md" mt="xs" maw={580} mx="auto" style={{ lineHeight: 1.6 }}>
-                {t(
-                  'Creating database tables, generating cryptographic keys, and configuring workstation signatures.'
-                )}
-              </Text>
-            </div>
-
-            <Paper
-              withBorder
-              p="lg"
-              radius="md"
-              maw={520}
-              w="100%"
-              mt="md"
-              style={{
-                textAlign: 'left',
-                backgroundColor: 'var(--bg-app)',
-              }}
-            >
-              <Stack gap="sm">
-                <Group gap="sm">
-                  <ThemeIcon color="teal" size={22} radius="xl" variant="light">
-                    <IconCheck size={14} />
-                  </ThemeIcon>
-                  <Text size="sm" fw={500}>
-                    {t('Generating 25 relational SQLite tables')}
-                  </Text>
-                </Group>
-                <Group gap="sm">
-                  <ThemeIcon color="teal" size={22} radius="xl" variant="light">
-                    <IconCheck size={14} />
-                  </ThemeIcon>
-                  <Text size="sm" fw={500}>
-                    {t('Creating cryptographic API authentication tokens')}
-                  </Text>
-                </Group>
-                <Group gap="sm">
-                  <Loader size={16} color="blue" />
-                  <Text size="sm" fw={600} c="blue">
-                    {t('Finalizing setup & administrator permissions...')}
-                  </Text>
-                </Group>
-              </Stack>
-            </Paper>
-          </Stack>
-        </Paper>
-      )}
-
-      {/* Error state */}
+      {/* ========================================================================= */}
+      {/* 1. Error State View                                                       */}
+      {/* ========================================================================= */}
       {!loading && error && (
-        <Paper
-          withBorder
-          p="2.5rem"
-          radius="md"
-          style={{
-            backgroundColor: 'var(--bg-card)',
-          }}
-        >
-          <Stack align="center" gap="lg" py="xl" style={{ textAlign: 'center' }}>
-            <ThemeIcon color="red" size={64} radius="xl" variant="light">
-              <IconAlertCircle size={36} />
-            </ThemeIcon>
-            <div>
-              <Title order={2} c="red.7" style={{ fontWeight: 800 }}>
-                {t('Setup Failed')}
-              </Title>
-              <Text c="dimmed" size="sm" mt="xs" maw={520} mx="auto">
-                {error}
-              </Text>
-            </div>
+        <Stack gap="lg">
+          <Paper
+            withBorder
+            p="2.5rem"
+            radius="md"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              textAlign: 'center',
+            }}
+          >
+            <Stack align="center" gap="lg" py="md">
+              <ThemeIcon color="red" size={64} radius="xl" variant="light">
+                <IconAlertCircle size={36} />
+              </ThemeIcon>
+              <div>
+                <Title order={2} c="red.7" style={{ fontWeight: 800 }}>
+                  {t('Setup Failed')}
+                </Title>
+                <Text c="dimmed" size="sm" mt="xs" maw={560} mx="auto">
+                  {error}
+                </Text>
+              </div>
 
-            <Button
-              color="blue"
-              size="lg"
-              radius="md"
-              leftSection={<IconRefresh size={20} />}
-              onClick={onRetry}
-            >
-              {t('Try again')}
-            </Button>
-          </Stack>
-        </Paper>
+              <Group gap="md">
+                <Button
+                  color="blue"
+                  size="lg"
+                  radius="md"
+                  leftSection={<IconRefresh size={20} />}
+                  onClick={onRetry}
+                >
+                  {t('Try again')}
+                </Button>
+                {onGoToLogin && (
+                  <Button
+                    variant="default"
+                    size="lg"
+                    radius="md"
+                    onClick={onGoToLogin}
+                  >
+                    {t('Go to Login')}
+                  </Button>
+                )}
+              </Group>
+            </Stack>
+          </Paper>
+
+          {/* Show console logs on error for debugging */}
+          <Box>
+            <Text size="xs" fw={700} tt="uppercase" c="red.6" mb="xs">
+              {t('Terminal Error Log')}
+            </Text>
+            <ProvisioningConsole logs={logs} isFinished={false} />
+          </Box>
+        </Stack>
       )}
 
-      {/* Success state */}
-      {!loading && result && (
-        <Stack gap="xl">
-          <Box style={{ textAlign: 'center' }}>
-            <Group justify="center" gap="xs" mb="sm">
-              <Badge
-                size="lg"
-                color="teal"
-                variant="filled"
-                leftSection={<IconSparkles size={14} />}
-              >
-                {t('Setup Complete')}
-              </Badge>
-            </Group>
-            <Title
-              order={1}
-              style={{
-                fontSize: '2.4rem',
-                fontWeight: 900,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {t('Your POS System Is Ready!')}
-            </Title>
-            <Text c="dimmed" size="md" mt="sm" maw={620} mx="auto" style={{ lineHeight: 1.6 }}>
-              {t(
-                'Workstation installation record recorded. Database initialization was executed successfully.'
-              )}
+      {/* ========================================================================= */}
+      {/* 2. Provisioning Pipeline & Workspace View (Always Visible)                */}
+      {/* ========================================================================= */}
+      {!error && (
+        <Stack gap="lg">
+          {/* Top Header Card with Dynamic Progress Bar */}
+          <Paper
+            withBorder
+            p="xl"
+            radius="md"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+            }}
+          >
+            <Stack gap="md">
+              <Group justify="space-between" align="center">
+                <Group gap="xs">
+                  <Badge
+                    size="md"
+                    variant={showFinishedView ? 'filled' : 'gradient'}
+                    color={showFinishedView ? 'teal' : undefined}
+                    gradient={showFinishedView ? undefined : { from: 'blue', to: 'cyan' }}
+                    leftSection={showFinishedView ? <IconCheck size={14} /> : <IconSparkles size={14} />}
+                  >
+                    {showFinishedView ? t('SETUP VERIFIED & READY') : t('WORKSTATION PROVISIONING')}
+                  </Badge>
+                  <Badge color={showFinishedView ? 'teal' : 'blue'} variant="light" size="md">
+                    v0.7.0
+                  </Badge>
+                </Group>
+
+                <Group gap="xs" align="baseline">
+                  <Text size="xl" fw={900} ff="monospace" c={showFinishedView ? 'teal.6' : 'blue.6'}>
+                    {progress}%
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    {t('completed')}
+                  </Text>
+                </Group>
+              </Group>
+
+              <Progress
+                value={progress}
+                size="md"
+                radius="xl"
+                color={showFinishedView ? 'teal' : 'blue'}
+                animated={progress < 100}
+                striped={progress < 100}
+              />
+
+              <Group justify="space-between" align="center" wrap="wrap">
+                <Text size="sm" fw={600} c={showFinishedView ? 'teal.6' : 'blue.6'}>
+                  {currentStageText}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {payload?.load_sample_data
+                    ? t('Mode: Quick-Start Demo Data')
+                    : t('Mode: Clean Production Slate')}
+                </Text>
+              </Group>
+            </Stack>
+          </Paper>
+
+          {/* 5-Stage Live Milestones Pipeline - Kept Visible Throughout */}
+          <Box>
+            <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs" style={{ letterSpacing: '0.05em' }}>
+              {t('Provisioning Pipeline')}
             </Text>
+            <ProvisioningMilestones milestones={milestones} />
           </Box>
 
-          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
-            {/* Database Configuration Card */}
-            <Paper p="xl" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-              <Group justify="space-between" mb="md">
-                <ThemeIcon color="teal" variant="light" size={44} radius="md">
-                  <IconDatabase size={24} />
-                </ThemeIcon>
-                <Badge color={result.sample_data_loaded ? 'blue' : 'teal'} variant="light" size="sm">
-                  {result.sample_data_loaded
-                    ? t('Demo Data Loaded (Ready for Testing)')
-                    : t('Clean Production Database (0 Dummy Records)')}
-                </Badge>
-              </Group>
-              <Text fw={700} size="md" mb={4}>
-                {t('Database Configuration')}
-              </Text>
-              <Text size="xs" c="dimmed" mb="sm">
-                {t('Database Mode')}
-              </Text>
-              <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
-                {result.sample_data_loaded
-                  ? t('Products, categories, repair parts, and customer accounts populated.')
-                  : t('All tables ready with clean slate for genuine store entries.')}
-              </Text>
-            </Paper>
+          {/* Celebration & Launch Action Card (Smoothly expands below when finished) */}
+          {showFinishedView && result && (
+            <Stack gap="lg" className="celebration-banner">
+              <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+                {/* Database Configuration Card */}
+                <Paper p="xl" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+                  <Group justify="space-between" mb="md">
+                    <ThemeIcon color="teal" variant="light" size={44} radius="md">
+                      <IconDatabase size={24} />
+                    </ThemeIcon>
+                    <Badge color={result.sample_data_loaded ? 'blue' : 'teal'} variant="light" size="sm">
+                      {result.sample_data_loaded
+                        ? t('Demo Data Loaded (Ready for Testing)')
+                        : t('Clean Production Database (0 Dummy Records)')}
+                    </Badge>
+                  </Group>
+                  <Text fw={700} size="md" mb={4}>
+                    {t('Database Configuration')}
+                  </Text>
+                  <Text size="xs" c="dimmed" mb="sm">
+                    {t('Database Engine: SQLite (Embedded)')}
+                  </Text>
+                  <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
+                    {result.sample_data_loaded
+                      ? t('Products, categories, repair parts, and customer accounts populated.')
+                      : t('All tables ready with clean slate for genuine store entries.')}
+                  </Text>
+                </Paper>
 
-            {/* Administrator Account Card */}
-            <Paper p="xl" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
-              <Group justify="space-between" mb="md">
-                <ThemeIcon color="blue" variant="light" size={44} radius="md">
-                  <IconUserCheck size={24} />
-                </ThemeIcon>
-                <Badge color="blue" variant="filled" size="sm">
-                  {t('Initial Administrator Account')}
-                </Badge>
-              </Group>
-              <Text fw={700} size="md" mb={4}>
-                {t('Administrator Credentials')}
-              </Text>
-              <Text size="xs" c="dimmed" mb={2}>
-                {t('Admin Email')}:
-              </Text>
-              <Text fw={700} size="sm" c="blue">
-                {result.admin_email}
-              </Text>
-              <Text size="xs" c="dimmed" mt="xs" style={{ lineHeight: 1.5 }}>
-                {t(
-                  'Your session will be authenticated automatically. You can also log in later using these credentials.'
-                )}
-              </Text>
-            </Paper>
-          </SimpleGrid>
+                {/* Administrator Account Card */}
+                <Paper p="xl" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+                  <Group justify="space-between" mb="md">
+                    <ThemeIcon color="blue" variant="light" size={44} radius="md">
+                      <IconUserCheck size={24} />
+                    </ThemeIcon>
+                    <Badge color="blue" variant="filled" size="sm">
+                      {t('Initial Administrator Account')}
+                    </Badge>
+                  </Group>
+                  <Text fw={700} size="md" mb={4}>
+                    {t('Administrator Credentials')}
+                  </Text>
+                  <Text size="xs" c="dimmed" mb={2}>
+                    {t('Admin Email')}:
+                  </Text>
+                  <Text fw={700} size="sm" c="blue">
+                    {result.admin_email}
+                  </Text>
+                  <Text size="xs" c="dimmed" mt="xs" style={{ lineHeight: 1.5 }}>
+                    {t(
+                      'Your session will be authenticated automatically. You can also log in later using these credentials.'
+                    )}
+                  </Text>
+                </Paper>
+              </SimpleGrid>
 
-          <Group justify="center" mt="xl">
-            <Button
-              size="xl"
-              radius="md"
-              color="blue"
-              rightSection={<IconArrowRight size={22} />}
-              onClick={onComplete}
-              style={{ minWidth: 260 }}
-            >
-              {t('Launch Jana2U POS')}
-            </Button>
-          </Group>
+              {/* Verified Checkpoints List */}
+              <Paper p="md" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
+                <Group justify="space-around" wrap="wrap" gap="md">
+                  <Group gap="xs">
+                    <ThemeIcon color="teal" size={24} radius="xl" variant="light">
+                      <IconCheck size={14} />
+                    </ThemeIcon>
+                    <Text size="xs" fw={600}>
+                      {t('25 SQLite Tables Verified')}
+                    </Text>
+                  </Group>
+                  <Divider orientation="vertical" />
+                  <Group gap="xs">
+                    <ThemeIcon color="teal" size={24} radius="xl" variant="light">
+                      <IconCheck size={14} />
+                    </ThemeIcon>
+                    <Text size="xs" fw={600}>
+                      {t('Argon2id Security Active')}
+                    </Text>
+                  </Group>
+                  <Divider orientation="vertical" />
+                  <Group gap="xs">
+                    <ThemeIcon color="teal" size={24} radius="xl" variant="light">
+                      <IconCheck size={14} />
+                    </ThemeIcon>
+                    <Text size="xs" fw={600}>
+                      {t('Typst Document Bridge Ready')}
+                    </Text>
+                  </Group>
+                </Group>
+              </Paper>
+
+              {/* Launch Action Button */}
+              <Group justify="center" mt="sm">
+                <Button
+                  size="xl"
+                  radius="md"
+                  color="blue"
+                  rightSection={<IconArrowRight size={22} />}
+                  onClick={onComplete}
+                  style={{ minWidth: 280 }}
+                >
+                  {t('Launch Jana2U POS')}
+                </Button>
+              </Group>
+            </Stack>
+          )}
+
+          {/* Real-time System Terminal Logs - Always Visible */}
+          <Box>
+            <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs" style={{ letterSpacing: '0.05em' }}>
+              {t('System Diagnostics & Setup Logs')}
+            </Text>
+            <ProvisioningConsole
+              logs={logs}
+              isFinished={progress === 100}
+              onFastForward={progress < 100 ? fastForward : undefined}
+            />
+          </Box>
         </Stack>
       )}
     </Stack>

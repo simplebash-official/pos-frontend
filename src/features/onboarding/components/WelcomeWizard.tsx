@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -49,17 +49,25 @@ export const WelcomeWizard = () => {
   const initializeMutation = useInitializeSetup();
 
   const [activeStep, setActiveStep] = useState<number>(0);
+  const [setupPayload, setSetupPayload] = useState<SetupSystemPayload | null>(null);
   const [setupResult, setSetupResult] = useState<SetupSystemResult | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);
 
-  // If setup has already been completed, redirect immediately to Dashboard or Login
+  // If setup was ALREADY completed prior to opening the wizard, redirect immediately to Dashboard.
+  // Never auto-redirect while the user is on the active provisioning screen (activeStep === 3).
+  const initialCheckDoneRef = useRef(false);
   useEffect(() => {
-    if (!statusLoading && status && status.setup_completed) {
-      navigate(ROUTES.DASHBOARD, { replace: true });
+    if (initialCheckDoneRef.current) return;
+    if (!statusLoading && status) {
+      initialCheckDoneRef.current = true;
+      if (status.setup_completed && activeStep === 0) {
+        navigate(ROUTES.DASHBOARD, { replace: true });
+      }
     }
-  }, [status, statusLoading, navigate]);
+  }, [status, statusLoading, navigate, activeStep]);
 
   const handleStartSetup = async (payload: SetupSystemPayload) => {
+    setSetupPayload(payload);
     setActiveStep(3); // Advance to ProgressStep
     setSetupError(null);
 
@@ -76,7 +84,11 @@ export const WelcomeWizard = () => {
           apiErr?.code === 'SETUP_ALREADY_COMPLETED' ||
           apiErr?.message?.includes('already been completed')
         ) {
-          navigate(ROUTES.LOGIN, { replace: true });
+          setSetupError(
+            t(
+              'Database setup was already completed on this workstation. You can log in directly using your administrator credentials.'
+            )
+          );
           return;
         }
         setSetupError(err.message || t('Failed to initialize database. Please check backend logs.'));
@@ -297,11 +309,13 @@ export const WelcomeWizard = () => {
 
           {activeStep === 3 && (
             <ProgressStep
+              payload={setupPayload}
               loading={initializeMutation.isPending}
               result={setupResult}
               error={setupError}
               onRetry={() => setActiveStep(2)}
               onComplete={handleCompleteAndLaunch}
+              onGoToLogin={() => navigate(ROUTES.LOGIN)}
             />
           )}
         </Box>
