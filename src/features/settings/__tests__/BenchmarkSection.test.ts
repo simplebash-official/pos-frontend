@@ -80,4 +80,3 @@ describe('BenchmarkSection Component & Presentation Contracts', () => {
     expect(xAxisProps.minTickGap).toBe(0);
   });
 });
-

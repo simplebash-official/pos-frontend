@@ -4,6 +4,7 @@ import {
   IconDatabase,
   IconDeviceDesktopAnalytics,
   IconFileText,
+  IconListDetails,
   IconPhoto,
   IconPrinter,
   IconRefresh,
@@ -17,7 +18,8 @@ export type SettingsSectionId =
   | 'templates'
   | 'updates'
   | 'backup'
-  | 'benchmark';
+  | 'benchmark'
+  | 'logs';
 
 export interface SettingsSectionMeta {
   id: SettingsSectionId;
@@ -95,6 +97,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Benchmark',
     description: 'Test computer performance, POS speed & document rendering',
     icon: IconDeviceDesktopAnalytics,
+    desktopOnly: true,
+  },
+  {
+    id: 'logs',
+    label: 'Activity Log',
+    shortLabel: 'Log',
+    description: 'Everything recorded on this computer, with date and time',
+    icon: IconListDetails,
     desktopOnly: true,
   },
 ];

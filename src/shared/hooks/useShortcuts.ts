@@ -1,5 +1,6 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import { isMac } from '../lib/platform';
+import { logger } from '@/shared/logging/logger';
 
 export interface Shortcut {
   key: string | string[]; // e.g. "Enter", "F2", "Mod+Enter", ["F2", "Mod+Enter"], "?"
@@ -24,7 +25,26 @@ const MODIFIER_TOKENS = ['mod', 'cmd', 'meta', 'ctrl', 'control', 'alt', 'opt', 
  * as well as explicit Alt/Option, Shift, and Control keys.
  */
 const SHIFTED_PUNCTUATION = new Set([
-  '?', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '{', '}', ':', '"', '<', '>', '~'
+  '?',
+  '!',
+  '@',
+  '#',
+  '$',
+  '%',
+  '^',
+  '&',
+  '*',
+  '(',
+  ')',
+  '_',
+  '+',
+  '{',
+  '}',
+  ':',
+  '"',
+  '<',
+  '>',
+  '~',
 ]);
 
 /**
@@ -84,7 +104,8 @@ export const parseCombo = (
   const hasMod = modifiers.includes('mod');
   const hasCmd = modifiers.includes('cmd') || modifiers.includes('meta');
   const hasCtrl = modifiers.includes('ctrl') || modifiers.includes('control');
-  const hasAlt = modifiers.includes('alt') || modifiers.includes('opt') || modifiers.includes('option');
+  const hasAlt =
+    modifiers.includes('alt') || modifiers.includes('opt') || modifiers.includes('option');
   const hasShift = modifiers.includes('shift');
 
   // Check Mod / Cmd / Ctrl matching:
@@ -206,6 +227,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
       if (shortcut.preventDefault !== false) {
         e.preventDefault();
       }
+      logger.info(
+        'shortcut',
+        'fired',
+        { key: shortcut.key, inputFocused },
+        `Shortcut ${shortcut.key}`
+      );
       shortcut.handler(e);
       handled = true;
     }

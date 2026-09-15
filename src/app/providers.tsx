@@ -4,6 +4,10 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  createLoggingMutationCache,
+  createLoggingQueryCache,
+} from '@/shared/logging/capture/query';
 import { store } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
@@ -57,6 +61,8 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
+        queryCache: createLoggingQueryCache(),
+        mutationCache: createLoggingMutationCache(),
         defaultOptions: {
           queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes

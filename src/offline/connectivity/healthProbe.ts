@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { env } from '@/config/env';
+import { installHttpCapture } from '@/shared/logging/capture/http';
 import { HEADER_SERVER_TIME, HEALTH_PROBE_TIMEOUT_MS } from '../constants';
 
 /**
@@ -15,6 +16,8 @@ const probeClient = axios.create({
   timeout: HEALTH_PROBE_TIMEOUT_MS,
   headers: { 'Cache-Control': 'no-store' },
 });
+// Background polling: recorded at trace level so it doesn't bury user activity.
+installHttpCapture(probeClient, { client: 'health-probe', successLevel: 'trace' });
 
 export interface ProbeResult {
   reachable: boolean;

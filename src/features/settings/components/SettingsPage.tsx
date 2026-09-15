@@ -15,6 +15,7 @@ import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
 import { UpdatesSection } from './sections/UpdatesSection';
 import { BackupSection } from './sections/BackupSection';
 import { BenchmarkSection } from './sections/BenchmarkSection';
+import { LogsSection } from './sections/LogsSection';
 
 const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) => void) => {
   const meta = SETTINGS_SECTIONS.find((s) => s.id === id);
@@ -59,6 +60,8 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
       return <BackupSection onDirtyChange={onDirtyChange} />;
     case 'benchmark':
       return <BenchmarkSection onDirtyChange={onDirtyChange} />;
+    case 'logs':
+      return <LogsSection onDirtyChange={onDirtyChange} />;
   }
 };
 

@@ -1,6 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
 import { isTauri, resolvePlatformInfo } from '@/shared/lib/platform';
+import { logger } from '@/shared/logging/logger';
 
 // Converts a Blob to a raw base64 string.
 const blobToBase64 = async (blob: Blob): Promise<string> => {
@@ -137,6 +138,12 @@ export const printPdfBlob = async (
   title?: string,
   sourceUrl?: string
 ): Promise<void> => {
+  logger.info(
+    'print',
+    'start',
+    { title, sourceUrl, bytes: blob.size, type: blob.type },
+    `Printing ${title ?? 'document'}`
+  );
   // On macOS desktop under Tauri (WKWebView), `iframe.contentWindow.print()` is silently
   // ignored by WebKit. Delegate to native PDFKit printing via our Tauri bridge.
   if (isTauri() && resolvePlatformInfo().isMac) {
@@ -144,12 +151,15 @@ export const printPdfBlob = async (
       const { invoke } = await import('@tauri-apps/api/core');
       if (sourceUrl) {
         await invoke('print_pdf_native', { pdfUrl: sourceUrl, title });
+        logger.info('print', 'native.done', { title, via: 'url' });
         return;
       }
       const pdfBase64 = await blobToBase64(blob);
       await invoke('print_pdf_native', { pdfBase64, title });
+      logger.info('print', 'native.done', { title, via: 'bytes' });
       return;
     } catch (e) {
+      logger.error('print', 'native.error', e, { title });
       console.error('Native macOS desktop printing failed, falling back to browser print:', e);
     }
   }
@@ -161,6 +171,7 @@ export const printPdfBlob = async (
   try {
     html = buildPrintHtml(await renderPagesToImages(blob));
   } catch (e) {
+    logger.error('print', 'prepare.error', e, { title });
     console.error('Failed to prepare the PDF for printing:', e);
     return;
   }
@@ -193,7 +204,9 @@ export const printPdfBlob = async (
       try {
         win?.focus();
         win?.print();
+        logger.info('print', 'dialog.opened', { title, via: 'iframe' });
       } catch (e) {
+        logger.error('print', 'iframe.error', e, { title });
         console.error('Failed to print PDF:', e);
       } finally {
         resolve();

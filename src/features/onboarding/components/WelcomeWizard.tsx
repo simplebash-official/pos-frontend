@@ -29,6 +29,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { selectAppLanguage, setAppLanguage } from '@/store/slices/settingsSlice';
 import { ROUTES } from '@/constants/routes';
+import { logger } from '@/shared/logging';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useSetupStatus, useInitializeSetup } from '../hooks/useSetupStatus';
 import { completeInstallationSetupNative } from '../api/onboardingApi';
@@ -48,7 +49,16 @@ export const WelcomeWizard = () => {
   const { data: status, isLoading: statusLoading } = useSetupStatus();
   const initializeMutation = useInitializeSetup();
 
-  const [activeStep, setActiveStep] = useState<number>(0);
+  const [activeStep, setActiveStepState] = useState<number>(0);
+  const setActiveStep = (step: number) => {
+    logger.info(
+      'onboarding',
+      'step',
+      { from: activeStep, to: step },
+      `Welcome wizard step ${step + 1}`
+    );
+    setActiveStepState(step);
+  };
   const [setupPayload, setSetupPayload] = useState<SetupSystemPayload | null>(null);
   const [setupResult, setSetupResult] = useState<SetupSystemResult | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);
@@ -70,14 +80,23 @@ export const WelcomeWizard = () => {
     setSetupPayload(payload);
     setActiveStep(3); // Advance to ProgressStep
     setSetupError(null);
+    // The password is masked by the logger's redaction; the choice is what matters.
+    logger.info('onboarding', 'setup.start', { ...payload }, 'Starting first-time setup');
 
     initializeMutation.mutate(payload, {
       onSuccess: async (data) => {
+        logger.info(
+          'onboarding',
+          'setup.done',
+          { sampleDataLoaded: data.sample_data_loaded, adminEmail: data.admin_email },
+          'First-time setup completed'
+        );
         setSetupResult(data);
         // Inform desktop shell (Tauri) that setup completed
         await completeInstallationSetupNative(data.sample_data_loaded);
       },
       onError: (err) => {
+        logger.error('onboarding', 'setup.error', err);
         const apiErr = err as Error & { statusCode?: number; code?: string };
         if (
           apiErr?.statusCode === 409 ||
@@ -91,12 +110,15 @@ export const WelcomeWizard = () => {
           );
           return;
         }
-        setSetupError(err.message || t('Failed to initialize database. Please check backend logs.'));
+        setSetupError(
+          err.message || t('Failed to initialize database. Please check backend logs.')
+        );
       },
     });
   };
 
   const handleCompleteAndLaunch = () => {
+    logger.info('onboarding', 'launch', { autoLogin: Boolean(setupResult?.token) });
     if (setupResult?.token && setupResult?.user) {
       // Auto-authenticate with issued JWT token & Admin user
       dispatch(
@@ -288,15 +310,10 @@ export const WelcomeWizard = () => {
           }}
         >
           {/* Active Step Content */}
-          {activeStep === 0 && (
-            <SplashStep status={status} onNext={() => setActiveStep(1)} />
-          )}
+          {activeStep === 0 && <SplashStep status={status} onNext={() => setActiveStep(1)} />}
 
           {activeStep === 1 && (
-            <FeatureGuideStep
-              onNext={() => setActiveStep(2)}
-              onPrev={() => setActiveStep(0)}
-            />
+            <FeatureGuideStep onNext={() => setActiveStep(2)} onPrev={() => setActiveStep(0)} />
           )}
 
           {activeStep === 2 && (

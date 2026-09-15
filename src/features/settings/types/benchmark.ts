@@ -1,11 +1,5 @@
 export type BenchmarkPhase =
-  | 'idle'
-  | 'hardware'
-  | 'disk'
-  | 'database'
-  | 'documents'
-  | 'complete'
-  | 'error';
+  'idle' | 'hardware' | 'disk' | 'database' | 'documents' | 'complete' | 'error';
 
 export interface SystemSpecs {
   os: string;

@@ -188,7 +188,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
         <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
           <div>
             <Group gap="xs">
-              <ThemeIcon color="blue" variant="light" size="lg" radius="var(--mantine-radius-default)">
+              <ThemeIcon
+                color="blue"
+                variant="light"
+                size="lg"
+                radius="var(--mantine-radius-default)"
+              >
                 <IconDeviceDesktopAnalytics size={20} />
               </ThemeIcon>
               <div>
@@ -226,7 +231,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
         </Group>
 
         {/* Specs Pill Strip */}
-        <Paper p="xs" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+        <Paper
+          p="xs"
+          withBorder
+          radius="var(--mantine-radius-default)"
+          bg="var(--mantine-color-body)"
+        >
           <Group gap="sm" wrap="wrap" justify="space-between">
             <Group gap="xs">
               <Badge variant="dot" color="blue">
@@ -252,7 +262,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
 
         {/* In-Progress Stepper Bar */}
         {isRunning && (
-          <Paper p="md" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+          <Paper
+            p="md"
+            withBorder
+            radius="var(--mantine-radius-default)"
+            bg="var(--mantine-color-body)"
+          >
             <Stack gap="xs">
               <Group justify="space-between">
                 <Text fw={600} size="sm">
@@ -262,7 +277,14 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                   {progressPercent}%
                 </Text>
               </Group>
-              <Progress value={progressPercent} animated striped color="blue" size="md" radius="xl" />
+              <Progress
+                value={progressPercent}
+                animated
+                striped
+                color="blue"
+                size="md"
+                radius="xl"
+              />
               <Text size="xs" c="dimmed">
                 {phaseDetail}
               </Text>
@@ -272,7 +294,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
 
         {/* Idle prompt if no report yet */}
         {!report && !isRunning && (
-          <Card p="xl" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+          <Card
+            p="xl"
+            withBorder
+            radius="var(--mantine-radius-default)"
+            bg="var(--mantine-color-body)"
+          >
             <Stack align="center" gap="md" py="lg">
               <ThemeIcon color="blue" variant="light" size={56} radius="xl">
                 <IconGauge size={32} />
@@ -346,43 +373,66 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
 
             {/* Quick Metrics KPI Strip */}
             <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
-              <Paper p="md" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="md"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   {t('Storage Write Rate')}
                 </Text>
                 <Text fw={800} size="xl" mt={4} c="blue">
-                  {report.disk.writeSpeedMbS.toFixed(1)} <span style={{ fontSize: '0.85rem' }}>MB/s</span>
+                  {report.disk.writeSpeedMbS.toFixed(1)}{' '}
+                  <span style={{ fontSize: '0.85rem' }}>MB/s</span>
                 </Text>
                 <Text size="xs" c="dimmed" mt={2}>
                   {t('Solid-state disk speed')}
                 </Text>
               </Paper>
 
-              <Paper p="md" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="md"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   {t('SQLite DB Latency')}
                 </Text>
                 <Text fw={800} size="xl" mt={4} c="teal">
-                  {report.database.latency.p50.toFixed(1)} <span style={{ fontSize: '0.85rem' }}>ms</span>
+                  {report.database.latency.p50.toFixed(1)}{' '}
+                  <span style={{ fontSize: '0.85rem' }}>ms</span>
                 </Text>
                 <Text size="xs" c="dimmed" mt={2}>
                   {report.database.qps.toFixed(0)} {t('queries / sec')}
                 </Text>
               </Paper>
 
-              <Paper p="md" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="md"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   {t('PDF Vector Compile')}
                 </Text>
                 <Text fw={800} size="xl" mt={4} c="indigo">
-                  {report.documents.latency.p50.toFixed(1)} <span style={{ fontSize: '0.85rem' }}>ms</span>
+                  {report.documents.latency.p50.toFixed(1)}{' '}
+                  <span style={{ fontSize: '0.85rem' }}>ms</span>
                 </Text>
                 <Text size="xs" c="dimmed" mt={2}>
                   {report.documents.rendersPerSec.toFixed(0)} {t('renders / sec')}
                 </Text>
               </Paper>
 
-              <Paper p="md" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+              <Paper
+                p="md"
+                withBorder
+                radius="var(--mantine-radius-default)"
+                bg="var(--mantine-color-body)"
+              >
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   {t('Loopback IPC Ping')}
                 </Text>
@@ -405,7 +455,9 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                         {t('Latency Distribution')}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {t('Response latency across system layers in milliseconds (lower is faster)')}
+                        {t(
+                          'Response latency across system layers in milliseconds (lower is faster)'
+                        )}
                       </Text>
                     </div>
                     <Box style={{ overflow: 'hidden', minWidth: 0, width: '100%', height: 240 }}>
@@ -466,7 +518,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
 
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
                   {/* Node 1 */}
-                  <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+                  <Paper
+                    p="sm"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
                     <Group gap="xs" mb="xs">
                       <ThemeIcon color="blue" size="md" variant="light" radius="sm">
                         <IconDeviceDesktopAnalytics size={16} />
@@ -484,7 +541,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                   </Paper>
 
                   {/* Node 2 */}
-                  <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+                  <Paper
+                    p="sm"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
                     <Group gap="xs" mb="xs">
                       <ThemeIcon color="teal" size="md" variant="light" radius="sm">
                         <IconServer size={16} />
@@ -507,7 +569,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                   </Paper>
 
                   {/* Node 3 */}
-                  <Paper p="sm" withBorder radius="var(--mantine-radius-default)" bg="var(--mantine-color-body)">
+                  <Paper
+                    p="sm"
+                    withBorder
+                    radius="var(--mantine-radius-default)"
+                    bg="var(--mantine-color-body)"
+                  >
                     <Group gap="xs" mb="xs">
                       <ThemeIcon color="indigo" size="md" variant="light" radius="sm">
                         <IconFileText size={16} />
@@ -543,19 +610,31 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                   <Table verticalSpacing="sm">
                     <Table.Thead>
                       <Table.Tr>
-                        <Table.Th style={{ width: '22%', minWidth: 150 }}>{t('Component')}</Table.Th>
-                        <Table.Th style={{ width: '22%', minWidth: 150 }}>{t('Measured Result')}</Table.Th>
-                        <Table.Th style={{ width: '18%', minWidth: 120 }}>{t('Baseline Target')}</Table.Th>
+                        <Table.Th style={{ width: '22%', minWidth: 150 }}>
+                          {t('Component')}
+                        </Table.Th>
+                        <Table.Th style={{ width: '22%', minWidth: 150 }}>
+                          {t('Measured Result')}
+                        </Table.Th>
+                        <Table.Th style={{ width: '18%', minWidth: 120 }}>
+                          {t('Baseline Target')}
+                        </Table.Th>
                         <Table.Th style={{ width: 120, minWidth: 110, whiteSpace: 'nowrap' }}>
                           {t('Status')}
                         </Table.Th>
-                        <Table.Th style={{ minWidth: 200 }}>{t('Store Operational Impact')}</Table.Th>
+                        <Table.Th style={{ minWidth: 200 }}>
+                          {t('Store Operational Impact')}
+                        </Table.Th>
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
                       {report.diagnostics.map((diag) => {
                         const statusColor =
-                          diag.status === 'optimal' ? 'teal' : diag.status === 'good' ? 'blue' : 'orange';
+                          diag.status === 'optimal'
+                            ? 'teal'
+                            : diag.status === 'good'
+                              ? 'blue'
+                              : 'orange';
                         const statusLabel =
                           diag.status === 'optimal'
                             ? t('Optimal')
@@ -581,7 +660,12 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                               </Text>
                             </Table.Td>
                             <Table.Td style={{ width: 120, minWidth: 110, whiteSpace: 'nowrap' }}>
-                              <Badge color={statusColor} size="sm" variant="light" style={{ flexShrink: 0 }}>
+                              <Badge
+                                color={statusColor}
+                                size="sm"
+                                variant="light"
+                                style={{ flexShrink: 0 }}
+                              >
                                 {statusLabel}
                               </Badge>
                             </Table.Td>

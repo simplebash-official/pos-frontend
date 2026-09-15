@@ -105,4 +105,11 @@ export const queryKeys = {
     setupStatus: () => ['system', 'setup-status'] as const,
     installation: () => ['system', 'installation'] as const,
   },
+  logs: {
+    all: ['logs'] as const,
+    stats: () => ['logs', 'stats'] as const,
+    days: () => ['logs', 'days'] as const,
+    config: () => ['logs', 'config'] as const,
+    query: (filters: Record<string, unknown>) => ['logs', 'query', filters] as const,
+  },
 };

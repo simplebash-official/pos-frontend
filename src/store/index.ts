@@ -5,6 +5,7 @@ import authReducer from '@/store/slices/authSlice';
 import settingsReducer from '@/store/slices/settingsSlice';
 import notificationReducer from '@/store/slices/notificationSlice';
 import { listenerMiddleware } from '@/store/listenerMiddleware';
+import { loggingMiddleware } from '@/shared/logging/capture/state';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,7 @@ export const store = configureStore({
     notifications: notificationReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().prepend(listenerMiddleware.middleware),
+    getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(loggingMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

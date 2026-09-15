@@ -12,6 +12,7 @@ import { getDeviceId } from '@/api/deviceId';
 import { createIdempotencyKey } from '@/shared/lib/id';
 import { ApiError } from '@/shared/types/common';
 import { sanitizeErrorMessage } from '@/shared/lib/error';
+import { installHttpCapture } from '@/shared/logging/capture/http';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {
   params?: Record<string, string | number | boolean | undefined>;
@@ -58,6 +59,10 @@ class ApiClient {
       headers: { 'Content-Type': 'application/json' },
       timeout: REQUEST_TIMEOUT_MS,
     });
+
+    // First, so its response interceptor sees the raw AxiosError before the
+    // one below reshapes it (desktop activity log; no-op on the web).
+    installHttpCapture(this.axiosInstance, { client: 'api', successLevel: 'info' });
 
     this.axiosInstance.interceptors.request.use((config) => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);

@@ -12,6 +12,15 @@ describe('settingsSections desktop filtering', () => {
     expect(benchmarkSection?.desktopOnly).toBe(true);
   });
 
+  it('registers the activity log as a desktop-only section', () => {
+    const logsSection = SETTINGS_SECTIONS.find((s) => s.id === 'logs');
+    expect(logsSection).toBeDefined();
+    expect(logsSection?.desktopOnly).toBe(true);
+    expect(logsSection?.comingSoon).toBeFalsy();
+    expect(getVisibleSettingsSections(false).some((s) => s.id === 'logs')).toBe(false);
+    expect(getVisibleSettingsSections(true).some((s) => s.id === 'logs')).toBe(true);
+  });
+
   it('filters out desktopOnly sections when isDesktop is false (Web environment)', () => {
     const visibleOnWeb = getVisibleSettingsSections(false);
     expect(visibleOnWeb.some((s) => s.id === 'backup')).toBe(false);
@@ -43,4 +52,3 @@ describe('settingsSections desktop filtering', () => {
     });
   });
 });
-

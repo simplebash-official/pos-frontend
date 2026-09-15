@@ -7,6 +7,7 @@ import type { Update } from '@tauri-apps/plugin-updater';
 import { env } from '@/config/env';
 import { formatDateTime } from '@/shared/lib/date';
 import { isTauri } from '@/shared/lib/runtime';
+import { logger } from '@/shared/logging';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { usePwaUpdate } from '@/app/pwa/PwaUpdateContext';
 import { useSetupStatus } from '@/features/onboarding';
@@ -193,13 +194,21 @@ const DesktopUpdates = () => {
 
   const check = useCallback(async () => {
     setStatus({ kind: 'checking' });
+    logger.info('updater', 'check.start');
     try {
       const { check: runCheck } = await import('@tauri-apps/plugin-updater');
       const update = await runCheck();
       if (!update) {
+        logger.info('updater', 'check.up_to_date', undefined, 'No update available');
         setStatus({ kind: 'uptodate' });
         return;
       }
+      logger.info(
+        'updater',
+        'check.available',
+        { version: update.version, currentVersion: update.currentVersion, notes: update.body },
+        `Update ${update.version} available`
+      );
       updateRef.current = update;
       setStatus({
         kind: 'available',
@@ -207,6 +216,7 @@ const DesktopUpdates = () => {
         notes: update.body ?? '',
       });
     } catch (err) {
+      logger.error('updater', 'check.error', err);
       const message = err instanceof Error ? err.message : String(err);
       setStatus({ kind: 'error', message });
       notifications.show({
@@ -223,13 +233,23 @@ const DesktopUpdates = () => {
     const version = update.version;
     let downloaded = 0;
     let total = 0;
+    let lastLoggedDecile = -1;
     setStatus({ kind: 'downloading', version, percent: null });
+    logger.info('updater', 'download.start', { version });
     try {
       await update.download((event) => {
         if (event.event === 'Started') {
           total = event.data.contentLength ?? 0;
+          logger.info('updater', 'download.started', { version, contentLength: total });
         } else if (event.event === 'Progress') {
           downloaded += event.data.chunkLength;
+          const percent = downloadPercent(downloaded, total);
+          // One entry per 10% step, not one per network chunk.
+          const decile = percent === null ? -1 : Math.floor(percent / 10);
+          if (decile > lastLoggedDecile) {
+            lastLoggedDecile = decile;
+            logger.info('updater', 'download.progress', { version, percent, downloaded, total });
+          }
           setStatus({
             kind: 'downloading',
             version,
@@ -239,8 +259,15 @@ const DesktopUpdates = () => {
           setStatus({ kind: 'ready', version });
         }
       });
+      logger.info(
+        'updater',
+        'download.finished',
+        { version, downloaded },
+        `Update ${version} downloaded`
+      );
       setStatus({ kind: 'ready', version });
     } catch (err) {
+      logger.error('updater', 'download.error', err, { version, downloaded, total });
       const message = err instanceof Error ? err.message : String(err);
       setStatus({ kind: 'error', message });
       notifications.show({
@@ -253,16 +280,27 @@ const DesktopUpdates = () => {
 
   const restart = useCallback(async () => {
     setApplying(true);
+    const version = updateRef.current?.version;
+    logger.info('updater', 'install.start', { version }, `Installing update ${version}`);
     try {
       // Pre-emptively kill sidecars before the installer runs, so running
       // processes don't hold file locks on jana2u-backend.exe or document-server.
       const { invoke } = await import('@tauri-apps/api/core');
-      await invoke('prepare_for_update').catch(() => {});
+      await invoke('prepare_for_update').catch((err: unknown) => {
+        // Not fatal: the installer's own hooks stop the services too.
+        logger.error('updater', 'prepare_for_update.error', err, { version });
+      });
+      // The installer may end this process; get everything on disk first.
+      await logger.flush();
 
       const update = updateRef.current;
       if (update) {
         await update.install();
+        logger.info('updater', 'install.done', { version });
       }
+
+      logger.info('updater', 'relaunch', { version }, 'Restarting to finish the update');
+      await logger.flush();
 
       // On macOS/Linux, install() replaces the app bundle while the app runs,
       // so relaunch() finishes the update. On Windows, install() launches the
@@ -270,6 +308,7 @@ const DesktopUpdates = () => {
       const { relaunch } = await import('@tauri-apps/plugin-process');
       await relaunch();
     } catch (err) {
+      logger.error('updater', 'install.error', err, { version });
       const message = err instanceof Error ? err.message : String(err);
       setStatus({ kind: 'error', message });
       setApplying(false);
@@ -299,9 +338,7 @@ const DesktopUpdates = () => {
             color={setupStatus.sample_data_loaded ? 'indigo' : 'teal'}
             size="sm"
           >
-            {setupStatus.sample_data_loaded
-              ? t('Demo Data Mode')
-              : t('Clean Production Mode')}
+            {setupStatus.sample_data_loaded ? t('Demo Data Mode') : t('Clean Production Mode')}
           </Badge>
         </Group>
       )}

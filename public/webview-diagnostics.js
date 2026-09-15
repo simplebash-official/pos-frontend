@@ -1,7 +1,8 @@
 // Forwards webview console warnings/errors and uncaught exceptions into the
-// Tauri app log (~/Library/Logs/<id>/… on macOS, %LOCALAPPDATA% on Windows),
-// so a problem that only shows up in the packaged desktop app is diagnosable
-// without attaching a web inspector. No-ops in a plain browser.
+// desktop activity log (<app data>/logs/<day>/frontend.jsonl) during boot —
+// before the bundled logger in src/shared/logging has started (e.g. a module
+// that throws while loading). Stops forwarding once that logger is ready.
+// No-ops in a plain browser.
 (function () {
   var internals = window.__TAURI_INTERNALS__;
   if (!internals || typeof internals.invoke !== 'function') return;
@@ -15,6 +16,9 @@
   }
 
   function send(level, message) {
+    // Once the bundled logger (src/shared/logging) is running it captures the
+    // console and errors itself; this script only covers the boot window.
+    if (window.__JANA2U_LOGGER_READY__) return;
     try {
       internals.invoke('log_webview', { level: level, message: String(message).slice(0, 4000) });
     } catch (_) {

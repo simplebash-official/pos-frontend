@@ -22,7 +22,7 @@ export const calculatePercentiles = (latencies: number[]): LatencyMetric => {
   }
   const sorted = [...latencies].sort((a, b) => a - b);
   const sum = sorted.reduce((a, b) => a + b, 0);
-  const avg = (sum / sorted.length * 10) / 10;
+  const avg = ((sum / sorted.length) * 10) / 10;
 
   const getP = (p: number) => {
     const idx = Math.min(Math.floor((p / 100) * sorted.length), sorted.length - 1);
@@ -70,15 +70,18 @@ export const computeBenchmarkScore = (
   // 1. Storage Score (0 - 25 pts)
   let storagePts = 6;
   let diskStatus: DiagnosticItem['status'] = 'warning';
-  let diskMsg = 'Storage transfer speed is modest. Consider an SSD for faster startup and export operations.';
+  let diskMsg =
+    'Storage transfer speed is modest. Consider an SSD for faster startup and export operations.';
   if (disk.writeSpeedMbS >= 400) {
     storagePts = 25;
     diskStatus = 'optimal';
-    diskMsg = 'High-speed solid-state storage detected (NVMe SSD). Instant SQLite WAL commits & fast backups.';
+    diskMsg =
+      'High-speed solid-state storage detected (NVMe SSD). Instant SQLite WAL commits & fast backups.';
   } else if (disk.writeSpeedMbS >= 150) {
     storagePts = 22;
     diskStatus = 'optimal';
-    diskMsg = 'Fast solid-state drive (SATA SSD). Database writes and document caching will run smoothly.';
+    diskMsg =
+      'Fast solid-state drive (SATA SSD). Database writes and document caching will run smoothly.';
   } else if (disk.writeSpeedMbS >= 60) {
     storagePts = 18;
     diskStatus = 'good';
@@ -86,17 +89,20 @@ export const computeBenchmarkScore = (
   } else if (disk.writeSpeedMbS >= 25) {
     storagePts = 12;
     diskStatus = 'good';
-    diskMsg = 'Standard hard disk detected. Adequate for daily sales, though high-volume exports may take longer.';
+    diskMsg =
+      'Standard hard disk detected. Adequate for daily sales, though high-volume exports may take longer.';
   }
 
   // 2. Database Latency Score (0 - 25 pts)
   let dbPts = 6;
   let dbStatus: DiagnosticItem['status'] = 'warning';
-  let dbMsg = 'Database query response time is elevated. High concurrent sales may experience slight pauses.';
+  let dbMsg =
+    'Database query response time is elevated. High concurrent sales may experience slight pauses.';
   if (dbLatencyP50 <= 3.0) {
     dbPts = 25;
     dbStatus = 'optimal';
-    dbMsg = 'Ultra-low query latency (<3ms). Local SQLite engine is operating at maximum performance.';
+    dbMsg =
+      'Ultra-low query latency (<3ms). Local SQLite engine is operating at maximum performance.';
   } else if (dbLatencyP50 <= 8.0) {
     dbPts = 22;
     dbStatus = 'optimal';
@@ -114,15 +120,18 @@ export const computeBenchmarkScore = (
   // 3. Typst Vector PDF Document Score (0 - 25 pts)
   let docPts = 6;
   let docStatus: DiagnosticItem['status'] = 'warning';
-  let docMsg = 'Document compilation takes longer than expected. Thermal receipts will print after a brief pause.';
+  let docMsg =
+    'Document compilation takes longer than expected. Thermal receipts will print after a brief pause.';
   if (docLatencyP50 <= 40.0) {
     docPts = 25;
     docStatus = 'optimal';
-    docMsg = 'Rapid PDF compilation (<40ms). Thermal receipts and invoices will print instantaneously upon sale completion.';
+    docMsg =
+      'Rapid PDF compilation (<40ms). Thermal receipts and invoices will print instantaneously upon sale completion.';
   } else if (docLatencyP50 <= 80.0) {
     docPts = 22;
     docStatus = 'optimal';
-    docMsg = 'Very good document generation speed. Receipts render with zero noticeable cashier delay.';
+    docMsg =
+      'Very good document generation speed. Receipts render with zero noticeable cashier delay.';
   } else if (docLatencyP50 <= 150.0) {
     docPts = 18;
     docStatus = 'good';
@@ -155,24 +164,29 @@ export const computeBenchmarkScore = (
 
   let grade: BenchmarkGrade = 'D';
   let tierLabel = 'Hardware Constrained';
-  let tierSummary = 'Your computer operates below optimal performance levels. It will function for basic billing, but hardware upgrades are recommended.';
+  let tierSummary =
+    'Your computer operates below optimal performance levels. It will function for basic billing, but hardware upgrades are recommended.';
 
   if (overallScore >= 90) {
     grade = 'A+';
     tierLabel = 'Enterprise High-Speed POS Ready';
-    tierSummary = 'Outstanding hardware performance! Your machine easily handles heavy checkout rushes (>1,000 sales/hour), instant vector receipt printing, and rapid analytics.';
+    tierSummary =
+      'Outstanding hardware performance! Your machine easily handles heavy checkout rushes (>1,000 sales/hour), instant vector receipt printing, and rapid analytics.';
   } else if (overallScore >= 80) {
     grade = 'A';
     tierLabel = 'Optimal Retail Shop Register';
-    tierSummary = 'Excellent performance. Smooth cashier experience with fast database transactions and prompt receipt rendering.';
+    tierSummary =
+      'Excellent performance. Smooth cashier experience with fast database transactions and prompt receipt rendering.';
   } else if (overallScore >= 70) {
     grade = 'B';
     tierLabel = 'Standard POS Ready';
-    tierSummary = 'Good overall stability. Your computer satisfies all operational requirements for everyday shop management.';
+    tierSummary =
+      'Good overall stability. Your computer satisfies all operational requirements for everyday shop management.';
   } else if (overallScore >= 60) {
     grade = 'C';
     tierLabel = 'Entry-Level POS Terminal';
-    tierSummary = 'Adequate for light store traffic. You may occasionally notice minor delays during complex financial reports or large data exports.';
+    tierSummary =
+      'Adequate for light store traffic. You may occasionally notice minor delays during complex financial reports or large data exports.';
   }
 
   const diagnostics: DiagnosticItem[] = [
@@ -223,7 +237,9 @@ export const computeBenchmarkScore = (
 
 export type ProgressCallback = (phase: BenchmarkPhase, percent: number, detail?: string) => void;
 
-export const runSystemBenchmark = async (onProgress?: ProgressCallback): Promise<BenchmarkReportData> => {
+export const runSystemBenchmark = async (
+  onProgress?: ProgressCallback
+): Promise<BenchmarkReportData> => {
   const notify = (phase: BenchmarkPhase, percent: number, detail?: string) => {
     if (onProgress) onProgress(phase, percent, detail);
   };
@@ -266,7 +282,9 @@ export const runSystemBenchmark = async (onProgress?: ProgressCallback): Promise
       }
 
       notify('hardware', 25, 'Benchmarking native CPU multi-threading capability...');
-      const rawCompute = await invoke<NativeComputeResult>('benchmark_native_compute').catch(() => null);
+      const rawCompute = await invoke<NativeComputeResult>('benchmark_native_compute').catch(
+        () => null
+      );
       if (rawCompute) {
         computeResult = {
           singleThreadOpsSec: rawCompute.singleThreadOpsSec,
@@ -327,7 +345,7 @@ export const runSystemBenchmark = async (onProgress?: ProgressCallback): Promise
     }
   }
   const dbTotalDurSec = Math.max((performance.now() - tDbStart) / 1000, 0.001);
-  const dbQps = Math.round(successDbQueries / dbTotalDurSec * 10) / 10;
+  const dbQps = Math.round((successDbQueries / dbTotalDurSec) * 10) / 10;
   const dbMetrics = calculatePercentiles(dbLatencies);
 
   // Step 4: Typst Vector Document Compilation
@@ -352,7 +370,7 @@ export const runSystemBenchmark = async (onProgress?: ProgressCallback): Promise
     }
   }
   const docTotalDurSec = Math.max((performance.now() - tDocStart) / 1000, 0.001);
-  const docRps = Math.round(successDocRenders / docTotalDurSec * 10) / 10;
+  const docRps = Math.round((successDocRenders / docTotalDurSec) * 10) / 10;
   const docMetrics = calculatePercentiles(docLatencies);
 
   // Step 5: Scoring & Diagnostics

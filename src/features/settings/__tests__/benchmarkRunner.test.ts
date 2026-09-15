@@ -7,7 +7,12 @@ import {
   loadLastBenchmarkResult,
   saveBenchmarkResult,
 } from '../lib/benchmarkRunner';
-import type { BenchmarkReportData, DiskIoResult, NativeComputeResult, SystemSpecs } from '../types/benchmark';
+import type {
+  BenchmarkReportData,
+  DiskIoResult,
+  NativeComputeResult,
+  SystemSpecs,
+} from '../types/benchmark';
 
 describe('benchmarkRunner logic & calculations', () => {
   describe('calculatePercentiles', () => {
