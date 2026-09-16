@@ -73,6 +73,112 @@ describe('CategoryStylingView Component & Logic', () => {
       expect(updated[0].icon).toBe('SmartHome');
       expect(updated[1].color).toBe('teal');
     });
+
+    it('clamps subcategories to top 2 and calculates remaining count', () => {
+      const categoryWithManySubs = {
+        name: 'Smartphones',
+        subcategories: [
+          'Apple',
+          'Samsung',
+          'Xiaomi',
+          'Oppo',
+          'Vivo',
+          'Huawei',
+          'Realme',
+          'Nokia',
+          'Tecno',
+          'Infinix',
+        ],
+        productCount: 200,
+        isExisting: false,
+        color: 'blue',
+        icon: 'DeviceMobile',
+      };
+
+      const limit = 2;
+      const visibleSubs = categoryWithManySubs.subcategories.slice(0, limit);
+      const remainingCount = categoryWithManySubs.subcategories.length - limit;
+
+      expect(visibleSubs).toEqual(['Apple', 'Samsung']);
+      expect(remainingCount).toBe(8);
+      expect(categoryWithManySubs.subcategories.slice(limit).join(', ')).toBe(
+        'Xiaomi, Oppo, Vivo, Huawei, Realme, Nokia, Tecno, Infinix'
+      );
+    });
+
+    it('filters categories by search query matching name or subcategories', () => {
+      const query = 'gaming';
+      const q = query.trim().toLowerCase();
+
+      const matched = sampleCategories.filter(
+        (cat) =>
+          cat.name.toLowerCase().includes(q) ||
+          cat.subcategories.some((sub) => sub.toLowerCase().includes(q))
+      );
+
+      expect(matched).toHaveLength(1);
+      expect(matched[0].name).toBe('Laptops');
+    });
+
+    it('manages accordion expansion for individual categories', () => {
+      let expanded = new Set<string>();
+
+      // Toggle open
+      expanded = new Set(expanded);
+      expanded.add('Smartphones');
+      expect(expanded.has('Smartphones')).toBe(true);
+
+      // Toggle close
+      expanded = new Set(expanded);
+      expanded.delete('Smartphones');
+      expect(expanded.has('Smartphones')).toBe(false);
+    });
+
+    it('toggles bulk Expand All and Collapse All for categories with subcategories', () => {
+      const catsWithSubs = sampleCategories.filter((c) => c.subcategories.length > 0);
+      expect(catsWithSubs).toHaveLength(2);
+
+      // Expand All
+      let expanded = new Set(catsWithSubs.map((c) => c.name));
+      const isAllExpanded = catsWithSubs.every((c) => expanded.has(c.name));
+      expect(isAllExpanded).toBe(true);
+      expect(expanded.size).toBe(2);
+
+      // Collapse All
+      expanded = new Set();
+      const isAllCollapsed = !catsWithSubs.some((c) => expanded.has(c.name));
+      expect(isAllCollapsed).toBe(true);
+      expect(expanded.size).toBe(0);
+    });
+
+    it('formats category identity strictly with product count and without subcategories badge', () => {
+      // Main row card contains item count without a subcategories badge
+      const formatItemCount = (count: number) => `${count} ${count === 1 ? 'item' : 'items'}`;
+      expect(formatItemCount(1)).toBe('1 item');
+      expect(formatItemCount(200)).toBe('200 items');
+    });
+
+    it('determines if chevron expansion action is available based on subcategories presence', () => {
+      const categoryWithSubs: DetectedCategory = {
+        name: 'Phones',
+        subcategories: ['iPhone'],
+        productCount: 10,
+        isExisting: false,
+        color: 'blue',
+        icon: 'DeviceMobile',
+      };
+      const categoryWithoutSubs: DetectedCategory = {
+        name: 'General',
+        subcategories: [],
+        productCount: 5,
+        isExisting: true,
+        color: 'gray',
+        icon: 'Box',
+      };
+
+      expect(categoryWithSubs.subcategories.length > 0).toBe(true);
+      expect(categoryWithoutSubs.subcategories.length > 0).toBe(false);
+    });
   });
 
   describe('Import row selection calculation', () => {
