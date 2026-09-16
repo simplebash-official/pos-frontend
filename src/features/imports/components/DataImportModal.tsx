@@ -2,6 +2,7 @@ import { useId, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Badge,
+  Box,
   Button,
   Checkbox,
   Collapse,
@@ -786,20 +787,31 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
               </Paper>
 
               {/* Data Table */}
-              <Paper withBorder>
-                <ScrollArea type="auto" mah={isMobile ? '45vh' : 380}>
+              <Paper withBorder style={{ overflow: 'hidden' }}>
+                <Box
+                  style={{
+                    overflowX: 'auto',
+                    overflowY: 'auto',
+                    maxHeight: isMobile ? '50vh' : 520,
+                  }}
+                >
                   <Table
                     striped
                     highlightOnHover
                     withTableBorder={false}
-                    style={{ fontSize: 13, minWidth: tableMinWidth }}
+                    style={{
+                      fontSize: 13,
+                      minWidth: tableMinWidth,
+                      borderCollapse: 'separate',
+                      borderSpacing: 0,
+                    }}
                   >
                     <Table.Thead
                       style={{
                         position: 'sticky',
                         top: 0,
-                        zIndex: 3,
-                        backgroundColor: 'var(--mantine-color-body)',
+                        zIndex: 4,
+                        backgroundColor: 'var(--bg-card)',
                       }}
                     >
                       <Table.Tr>
@@ -811,8 +823,9 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                             textAlign: 'center',
                             position: 'sticky',
                             left: 0,
-                            zIndex: 4,
-                            backgroundColor: 'var(--mantine-color-body)',
+                            zIndex: 5,
+                            backgroundColor: 'var(--bg-card)',
+                            borderBottom: '1px solid var(--border)',
                           }}
                         >
                           <Checkbox
@@ -831,8 +844,9 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                             minWidth: 50,
                             position: 'sticky',
                             left: 44,
-                            zIndex: 4,
-                            backgroundColor: 'var(--mantine-color-body)',
+                            zIndex: 5,
+                            backgroundColor: 'var(--bg-card)',
+                            borderBottom: '1px solid var(--border)',
                           }}
                         >
                           {t('#')}
@@ -845,8 +859,11 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                             minWidth: 90,
                             position: 'sticky',
                             left: 94,
-                            zIndex: 4,
-                            backgroundColor: 'var(--mantine-color-body)',
+                            zIndex: 5,
+                            backgroundColor: 'var(--bg-card)',
+                            borderRight: '1px solid var(--border)',
+                            borderBottom: '1px solid var(--border)',
+                            boxShadow: '3px 0 6px -2px rgba(0,0,0,0.12)',
                           }}
                         >
                           {t('Status')}
@@ -862,6 +879,8 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                                 minWidth: getColumnMinWidth(col.key),
                                 textAlign: isNumeric ? 'right' : 'left',
                                 whiteSpace: 'nowrap',
+                                backgroundColor: 'var(--bg-card)',
+                                borderBottom: '1px solid var(--border)',
                               }}
                             >
                               {col.label}
@@ -884,18 +903,34 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                           </Table.Td>
                         </Table.Tr>
                       ) : (
-                        paginatedRows.map((row: ParsedRow) => {
+                        paginatedRows.map((row: ParsedRow, index: number) => {
                           const isChecked = selectedRowKeys.has(row._rowNumber);
+                          const isInvalid = !row._isValid;
+
+                          // Solid opaque backgrounds for alternating stripes and selection states
+                          const rowBg = isInvalid
+                            ? 'var(--status-error-bg)'
+                            : isChecked
+                              ? index % 2 === 1
+                                ? 'light-dark(#edf5fc, var(--mantine-color-dark-5))'
+                                : 'light-dark(#f7faff, var(--mantine-color-dark-6))'
+                              : index % 2 === 1
+                                ? 'var(--bg-hover)'
+                                : 'var(--bg-card)';
+
+                          const borderLeft = isInvalid
+                            ? '3px solid var(--mantine-color-red-filled)'
+                            : isChecked
+                              ? '3px solid var(--mantine-color-blue-filled)'
+                              : '3px solid transparent';
+
                           return (
                             <Table.Tr
                               key={row._rowNumber}
-                              bg={
-                                !row._isValid
-                                  ? 'var(--mantine-color-red-light)'
-                                  : isChecked
-                                    ? 'var(--mantine-color-blue-light)'
-                                    : undefined
-                              }
+                              style={{
+                                backgroundColor: rowBg,
+                                borderLeft,
+                              }}
                             >
                               {/* Row Checkbox */}
                               <Table.Td
@@ -904,7 +939,8 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                                   position: 'sticky',
                                   left: 0,
                                   zIndex: 2,
-                                  backgroundColor: 'inherit',
+                                  backgroundColor: rowBg,
+                                  borderBottom: '1px solid var(--border)',
                                 }}
                               >
                                 <Checkbox
@@ -921,7 +957,8 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                                   position: 'sticky',
                                   left: 44,
                                   zIndex: 2,
-                                  backgroundColor: 'inherit',
+                                  backgroundColor: rowBg,
+                                  borderBottom: '1px solid var(--border)',
                                 }}
                               >
                                 <Text size="xs" c="dimmed">
@@ -935,7 +972,10 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                                   position: 'sticky',
                                   left: 94,
                                   zIndex: 2,
-                                  backgroundColor: 'inherit',
+                                  backgroundColor: rowBg,
+                                  borderRight: '1px solid var(--border)',
+                                  borderBottom: '1px solid var(--border)',
+                                  boxShadow: '3px 0 6px -2px rgba(0,0,0,0.12)',
                                 }}
                               >
                                 {row._isValid ? (
@@ -973,6 +1013,8 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                                     style={{
                                       textAlign: isNumeric ? 'right' : 'left',
                                       whiteSpace: 'nowrap',
+                                      backgroundColor: rowBg,
+                                      borderBottom: '1px solid var(--border)',
                                     }}
                                   >
                                     {renderCellValue(col.key, val, hasError)}
@@ -985,25 +1027,27 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
                       )}
                     </Table.Tbody>
                   </Table>
-                </ScrollArea>
+                </Box>
 
-                {totalDisplayPages > 1 && (
+                {displayRows.length > 0 && (
                   <Group
                     justify="space-between"
                     p="xs"
-                    style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+                    style={{ borderTop: '1px solid var(--border)' }}
                   >
                     <Text size="xs" c="dimmed">
                       {t('Showing')} {(previewPage - 1) * pageSize + 1}–
                       {Math.min(previewPage * pageSize, displayRows.length)} {t('of')}{' '}
                       {displayRows.length} {t('items')} ({selectedValidCount} {t('selected')})
                     </Text>
-                    <Pagination
-                      size="xs"
-                      total={totalDisplayPages}
-                      value={previewPage}
-                      onChange={setPreviewPage}
-                    />
+                    {totalDisplayPages > 1 && (
+                      <Pagination
+                        size="xs"
+                        total={totalDisplayPages}
+                        value={previewPage}
+                        onChange={setPreviewPage}
+                      />
+                    )}
                   </Group>
                 )}
               </Paper>
