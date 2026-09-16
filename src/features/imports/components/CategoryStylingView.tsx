@@ -108,37 +108,57 @@ export function CategoryStylingView({ categories, onChangeCategories }: Category
 
   return (
     <Stack gap="sm">
-      {/* Summary and Filter Bar */}
+      {/* Summary and Action Toolbar */}
       <Paper p="sm" withBorder bg="var(--mantine-color-body)">
         <Stack gap="xs">
-          <Group justify="space-between" wrap="wrap" gap="sm">
-            <div>
-              <Group gap="xs">
-                <Text fw={700} size="sm">
-                  {t('Detected Categories & Visual Styling')}
-                </Text>
-                <Badge color="blue" size="sm" variant="light">
-                  {categories.length} {t('Total')}
-                </Badge>
-                {newCount > 0 && (
-                  <Badge color="green" size="sm" variant="filled">
-                    {newCount} {t('New Categories')}
-                  </Badge>
-                )}
-                {existingCount > 0 && (
-                  <Badge color="gray" size="sm" variant="light">
-                    {existingCount} {t('Existing')}
-                  </Badge>
-                )}
-              </Group>
-              <Text size="xs" c="dimmed" mt={4}>
-                {t(
-                  'Customize icons and colors for imported categories. These will appear in the POS billing catalog and inventory manager.'
-                )}
+          {/* Header Row: Title, Badges & Subtitle */}
+          <div>
+            <Group gap="xs" align="center" wrap="wrap">
+              <Text fw={700} size="sm">
+                {t('Detected Categories & Visual Styling')}
               </Text>
-            </div>
+              <Badge color="blue" size="sm" variant="light">
+                {categories.length} {t('Total')}
+              </Badge>
+              {newCount > 0 && (
+                <Badge color="green" size="sm" variant="filled">
+                  {newCount} {t('New')}
+                </Badge>
+              )}
+              {existingCount > 0 && (
+                <Badge color="gray" size="sm" variant="light">
+                  {existingCount} {t('Existing')}
+                </Badge>
+              )}
+            </Group>
+            <Text size="xs" c="dimmed" mt={2}>
+              {t(
+                'Customize icons and colors for imported categories. These will appear in the POS billing catalog and inventory manager.'
+              )}
+            </Text>
+          </div>
 
-            <Group gap="xs">
+          {/* Action & Filter Toolbar: Search on Left, Buttons on Right */}
+          <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+            <TextInput
+              placeholder={t('Search categories...')}
+              leftSection={<IconSearch size={14} />}
+              rightSection={
+                searchQuery ? (
+                  <IconX
+                    size={14}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSearchQuery('')}
+                  />
+                ) : undefined
+              }
+              size="xs"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.currentTarget.value)}
+              style={{ flex: '1 1 200px', maxWidth: 280 }}
+            />
+
+            <Group gap="xs" wrap="nowrap">
               {categoriesWithSubcategories.length > 0 && (
                 <Button
                   size="xs"
@@ -162,26 +182,6 @@ export function CategoryStylingView({ categories, onChangeCategories }: Category
               </Button>
             </Group>
           </Group>
-
-          {categories.length > 4 && (
-            <TextInput
-              placeholder={t('Search categories...')}
-              leftSection={<IconSearch size={14} />}
-              rightSection={
-                searchQuery ? (
-                  <IconX
-                    size={14}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setSearchQuery('')}
-                  />
-                ) : undefined
-              }
-              size="xs"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              style={{ maxWidth: 300 }}
-            />
-          )}
         </Stack>
       </Paper>
 
