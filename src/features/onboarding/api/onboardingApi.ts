@@ -90,9 +90,9 @@ export const normalizeInstallationRecord = (raw: RawInstallationRecord): Install
     platform: raw.platform ?? '',
     setup_completed: Boolean(
       raw.setup_completed ??
-        raw.setupCompleted ??
-        raw.initial_setup_completed ??
-        raw.initialSetupCompleted
+      raw.setupCompleted ??
+      raw.initial_setup_completed ??
+      raw.initialSetupCompleted
     ),
     setup_completed_at: raw.setup_completed_at ?? raw.setupCompletedAt ?? null,
     sample_data_loaded: Boolean(raw.sample_data_loaded ?? raw.sampleDataLoaded),
@@ -100,7 +100,9 @@ export const normalizeInstallationRecord = (raw: RawInstallationRecord): Install
 };
 
 export const getSetupStatusApi = async (): Promise<SetupStatus> => {
-  const response = await apiClient.get<SetupStatusResponse | RawSetupStatus>('/system/setup-status');
+  const response = await apiClient.get<SetupStatusResponse | RawSetupStatus>(
+    '/system/setup-status'
+  );
   const raw = ('data' in response && response.data ? response.data : response) as RawSetupStatus;
   return normalizeSetupStatus(raw);
 };
@@ -118,7 +120,9 @@ export const initializeSetupApi = async (
     '/system/setup',
     body
   );
-  const raw = ('data' in response && response.data ? response.data : response) as RawSetupSystemResult;
+  const raw = (
+    'data' in response && response.data ? response.data : response
+  ) as RawSetupSystemResult;
   return normalizeSetupSystemResult(raw);
 };
 
@@ -126,7 +130,9 @@ export const getInstallationInfoApi = async (): Promise<InstallationRecord> => {
   const response = await apiClient.get<InstallationRecordResponse | RawInstallationRecord>(
     '/system/installation'
   );
-  const raw = ('data' in response && response.data ? response.data : response) as RawInstallationRecord;
+  const raw = (
+    'data' in response && response.data ? response.data : response
+  ) as RawInstallationRecord;
   return normalizeInstallationRecord(raw);
 };
 

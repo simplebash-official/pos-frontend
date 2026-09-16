@@ -1,13 +1,4 @@
-import {
-  Stack,
-  Paper,
-  Group,
-  ThemeIcon,
-  Text,
-  Badge,
-  Loader,
-  Box,
-} from '@mantine/core';
+import { Stack, Paper, Group, ThemeIcon, Text, Badge, Loader, Box } from '@mantine/core';
 import {
   IconCheck,
   IconDatabase,
@@ -41,9 +32,7 @@ const getMilestoneIcon = (id: string, size = 18) => {
   }
 };
 
-export const ProvisioningMilestones = ({
-  milestones,
-}: ProvisioningMilestonesProps) => {
+export const ProvisioningMilestones = ({ milestones }: ProvisioningMilestonesProps) => {
   return (
     <Stack gap="xs">
       {milestones.map((milestone) => {
@@ -134,11 +123,7 @@ export const ProvisioningMilestones = ({
                 {isRunning && (
                   <Group gap={6} align="center">
                     <Loader size={14} color="blue" />
-                    <Badge
-                      variant="gradient"
-                      gradient={{ from: 'blue', to: 'cyan' }}
-                      size="sm"
-                    >
+                    <Badge variant="gradient" gradient={{ from: 'blue', to: 'cyan' }} size="sm">
                       {t('In Progress')}
                     </Badge>
                   </Group>

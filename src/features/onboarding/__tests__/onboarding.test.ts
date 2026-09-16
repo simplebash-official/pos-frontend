@@ -255,16 +255,39 @@ describe('Provisioning Experience Architecture', () => {
     expect(getStageStatuses(1)).toEqual(['completed', 'running', 'pending', 'pending', 'pending']);
 
     // Stage 2: Milestones 0,1 completed, Milestone 2 running, 3..4 pending
-    expect(getStageStatuses(2)).toEqual(['completed', 'completed', 'running', 'pending', 'pending']);
+    expect(getStageStatuses(2)).toEqual([
+      'completed',
+      'completed',
+      'running',
+      'pending',
+      'pending',
+    ]);
 
     // Stage 3: Milestones 0..2 completed, Milestone 3 running, 4 pending
-    expect(getStageStatuses(3)).toEqual(['completed', 'completed', 'completed', 'running', 'pending']);
+    expect(getStageStatuses(3)).toEqual([
+      'completed',
+      'completed',
+      'completed',
+      'running',
+      'pending',
+    ]);
 
     // Stage 4: Milestones 0..3 completed, Milestone 4 running
-    expect(getStageStatuses(4)).toEqual(['completed', 'completed', 'completed', 'completed', 'running']);
+    expect(getStageStatuses(4)).toEqual([
+      'completed',
+      'completed',
+      'completed',
+      'completed',
+      'running',
+    ]);
 
     // Stage 5: All 5 completed
-    expect(getStageStatuses(5)).toEqual(['completed', 'completed', 'completed', 'completed', 'completed']);
+    expect(getStageStatuses(5)).toEqual([
+      'completed',
+      'completed',
+      'completed',
+      'completed',
+      'completed',
+    ]);
   });
 });
-

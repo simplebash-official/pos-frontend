@@ -1,13 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import {
-  Box,
-  Group,
-  Text,
-  Badge,
-  ActionIcon,
-  Tooltip,
-  Collapse,
-} from '@mantine/core';
+import { Box, Group, Text, Badge, ActionIcon, Tooltip, Collapse } from '@mantine/core';
 import {
   IconCopy,
   IconCheck,
@@ -264,7 +256,10 @@ export const ProvisioningConsole = ({
             <Text component="span" size="xs" fw={700} ff="monospace" c="cyan.4">
               jana2u@pos:~$
             </Text>
-            <span className="terminal-blinking-cursor" style={{ color: '#38bdf8', fontWeight: 900 }}>
+            <span
+              className="terminal-blinking-cursor"
+              style={{ color: '#38bdf8', fontWeight: 900 }}
+            >
               ▋
             </span>
           </Box>

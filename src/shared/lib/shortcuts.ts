@@ -494,8 +494,12 @@ export const getActionShortcut = (
     primary: target.primary,
     alias: target.alias,
     formattedPrimary: formatShortcutCombo(target.primary, { platform: os, style }),
-    formattedAlias: target.alias ? formatShortcutCombo(target.alias, { platform: os, style }) : undefined,
+    formattedAlias: target.alias
+      ? formatShortcutCombo(target.alias, { platform: os, style })
+      : undefined,
     readablePrimary: formatShortcutCombo(target.primary, { platform: os, style: 'text' }),
-    readableAlias: target.alias ? formatShortcutCombo(target.alias, { platform: os, style: 'text' }) : undefined,
+    readableAlias: target.alias
+      ? formatShortcutCombo(target.alias, { platform: os, style: 'text' })
+      : undefined,
   };
 };

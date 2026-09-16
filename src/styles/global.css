@@ -685,7 +685,9 @@ th.mantine-Table-th {
   max-height: 40px !important;
   box-sizing: border-box !important;
   border-radius: var(--mantine-radius-default) !important;
-  transition: background-color 150ms ease, color 150ms ease !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease !important;
 }
 
 .settings-nav-item .mantine-NavLink-body {
@@ -734,7 +736,8 @@ th.mantine-Table-th {
 /* ========================================================================= */
 
 @keyframes terminal-cursor-blink {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -748,11 +751,16 @@ th.mantine-Table-th {
 }
 
 @keyframes milestone-active-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 1px rgba(34, 139, 230, 0.4), 0 0 12px rgba(34, 139, 230, 0.15);
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(34, 139, 230, 0.4),
+      0 0 12px rgba(34, 139, 230, 0.15);
   }
   50% {
-    box-shadow: 0 0 0 1.5px rgba(34, 139, 230, 0.7), 0 0 20px rgba(34, 139, 230, 0.3);
+    box-shadow:
+      0 0 0 1.5px rgba(34, 139, 230, 0.7),
+      0 0 20px rgba(34, 139, 230, 0.3);
   }
 }
 
@@ -803,4 +811,3 @@ th.mantine-Table-th {
     transform: none !important;
   }
 }
-

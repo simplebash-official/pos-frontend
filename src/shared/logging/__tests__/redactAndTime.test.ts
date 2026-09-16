@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { REDACTED, capForLog, isSensitiveKey, redactText, redactValue } from '../redact';
+import {
+  REDACTED,
+  TRUNCATED_KEY,
+  isSensitiveKey,
+  redactAndCap,
+  redactText,
+  redactValue,
+} from '../redact';
 import { isoWithOffset, timezoneName } from '../time';
 
 describe('redactValue', () => {
@@ -39,12 +46,42 @@ describe('redactValue', () => {
     expect(redactText('plain text')).toBe('plain text');
   });
 
-  it('caps oversized payloads with a preview', () => {
-    const big = { note: 'x'.repeat(500) };
-    const capped = capForLog(big, 100) as { truncated: boolean; bytes: number; preview: string };
-    expect(capped.truncated).toBe(true);
-    expect(capped.preview).toHaveLength(100);
-    expect(capForLog({ a: 1 }, 100)).toEqual({ a: 1 });
+  it('caps oversized payloads, keeping a redacted prefix and a truncation marker', () => {
+    const items = Array.from({ length: 1000 }, (_, i) => ({ key: `prod_${i}`, token: 't' }));
+    const capped = redactAndCap({ items }, 500) as { items: Record<string, unknown>[] };
+    expect(capped.items.length).toBeLessThan(100);
+    expect(capped.items[0]).toEqual({ key: 'prod_0', token: REDACTED });
+    const marker = capped.items[capped.items.length - 1];
+    expect(String(marker[TRUNCATED_KEY])).toMatch(/more items$/);
+    expect(JSON.stringify(capped).length).toBeLessThan(2000);
+    expect(redactAndCap({ a: 1, password: 'x' }, 1000)).toEqual({ a: 1, password: REDACTED });
+  });
+
+  it('cuts long strings and stops walking huge objects early', () => {
+    const cut = redactAndCap('x'.repeat(10_000), 100) as string;
+    expect(cut.length).toBeLessThan(130);
+    expect(cut).toMatch(/…\[10000 chars\]$/);
+    const wide = Object.fromEntries(Array.from({ length: 5000 }, (_, i) => [`k${i}`, i]));
+    const capped = redactAndCap(wide, 200) as Record<string, unknown>;
+    expect(Object.keys(capped).length).toBeLessThan(40);
+    expect(String(capped[TRUNCATED_KEY])).toMatch(/more fields$/);
+  });
+
+  it('costs O(cap), not O(payload): a ~6 MB response is capped quickly', () => {
+    const items = Array.from({ length: 25_000 }, (_, i) => ({
+      key: `prod_${i}`,
+      name: `Product number ${i} with a longer display name`,
+      sku: `PHO-SCR-${i}`,
+      sellingPriceCents: 150_000 + i,
+      supplier: { key: `sup_${i % 50}`, name: 'Supplier' },
+    }));
+    const payload = { success: true, data: { items } };
+    const t0 = performance.now();
+    for (let i = 0; i < 10; i += 1) {
+      redactAndCap(payload, 64 * 1024);
+    }
+    const perCallMs = (performance.now() - t0) / 10;
+    expect(perCallMs).toBeLessThan(15);
   });
 });
 

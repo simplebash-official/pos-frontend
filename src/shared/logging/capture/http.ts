@@ -23,9 +23,6 @@ import type { LogLevel } from '@/shared/logging/types';
 
 export const REQUEST_ID_HEADER = 'X-Request-Id';
 
-/** Responses larger than this are logged by size only (never serialized). */
-const MAX_LOGGED_RESPONSE_BYTES = 1024 * 1024;
-
 interface RequestMeta {
   requestId: string;
   startedAt: number;
@@ -58,13 +55,30 @@ const isBinary = (data: unknown): boolean =>
   ArrayBuffer.isView(data) ||
   (typeof FormData !== 'undefined' && data instanceof FormData);
 
+/**
+ * Size of a response as sent, without serializing it: the `content-length`
+ * header, else the raw text axios parsed from.
+ */
+export const responseBytes = (response: AxiosResponse): number | undefined => {
+  const header = Number(response.headers['content-length']);
+  if (Number.isFinite(header) && header > 0) {
+    return header;
+  }
+  const request = response.request as { responseText?: unknown } | undefined;
+  if (request !== undefined && typeof request.responseText === 'string') {
+    return request.responseText.length;
+  }
+  return undefined;
+};
+
+/**
+ * The body to put in the log entry. It is passed through as a reference; the
+ * logger's `redactAndCap` walks only the first `bodyCapBytes` of it, so a
+ * multi-MB list costs the same as a small one.
+ */
 const responseBody = (response: AxiosResponse): unknown => {
   if (!logger.config.httpBodies) {
     return undefined;
-  }
-  const length = Number(response.headers['content-length']);
-  if (Number.isFinite(length) && length > MAX_LOGGED_RESPONSE_BYTES) {
-    return { omitted: true, bytes: length };
   }
   if (isBinary(response.data)) {
     return { binary: true };
@@ -128,6 +142,7 @@ export const installHttpCapture = (instance: AxiosInstance, options: HttpCapture
           url,
           status: response.status,
           durationMs,
+          bytes: responseBytes(response),
           body: responseBody(response),
         },
         {
@@ -180,6 +195,7 @@ const logFailure = (
       url,
       status,
       durationMs,
+      bytes: error.response ? responseBytes(error.response) : undefined,
       code: error.code,
       error: error.message,
       body: error.response ? responseBody(error.response) : undefined,

@@ -46,19 +46,13 @@ export const ProgressStep = ({
   onComplete,
   onGoToLogin,
 }: ProgressStepProps) => {
-  const {
-    progress,
-    currentStageText,
-    milestones,
-    logs,
-    isFinished,
-    fastForward,
-  } = useProvisioningOrchestrator({
-    payload,
-    isPending: loading,
-    result,
-    error,
-  });
+  const { progress, currentStageText, milestones, logs, isFinished, fastForward } =
+    useProvisioningOrchestrator({
+      payload,
+      isPending: loading,
+      result,
+      error,
+    });
 
   const showFinishedView = isFinished && Boolean(result) && !error;
 
@@ -102,12 +96,7 @@ export const ProgressStep = ({
                   {t('Try again')}
                 </Button>
                 {onGoToLogin && (
-                  <Button
-                    variant="default"
-                    size="lg"
-                    radius="md"
-                    onClick={onGoToLogin}
-                  >
+                  <Button variant="default" size="lg" radius="md" onClick={onGoToLogin}>
                     {t('Go to Login')}
                   </Button>
                 )}
@@ -148,7 +137,9 @@ export const ProgressStep = ({
                     variant={showFinishedView ? 'filled' : 'gradient'}
                     color={showFinishedView ? 'teal' : undefined}
                     gradient={showFinishedView ? undefined : { from: 'blue', to: 'cyan' }}
-                    leftSection={showFinishedView ? <IconCheck size={14} /> : <IconSparkles size={14} />}
+                    leftSection={
+                      showFinishedView ? <IconCheck size={14} /> : <IconSparkles size={14} />
+                    }
                   >
                     {showFinishedView ? t('SETUP VERIFIED & READY') : t('WORKSTATION PROVISIONING')}
                   </Badge>
@@ -158,7 +149,12 @@ export const ProgressStep = ({
                 </Group>
 
                 <Group gap="xs" align="baseline">
-                  <Text size="xl" fw={900} ff="monospace" c={showFinishedView ? 'teal.6' : 'blue.6'}>
+                  <Text
+                    size="xl"
+                    fw={900}
+                    ff="monospace"
+                    c={showFinishedView ? 'teal.6' : 'blue.6'}
+                  >
                     {progress}%
                   </Text>
                   <Text size="xs" c="dimmed">
@@ -191,7 +187,14 @@ export const ProgressStep = ({
 
           {/* 5-Stage Live Milestones Pipeline - Kept Visible Throughout */}
           <Box>
-            <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs" style={{ letterSpacing: '0.05em' }}>
+            <Text
+              size="xs"
+              fw={700}
+              tt="uppercase"
+              c="dimmed"
+              mb="xs"
+              style={{ letterSpacing: '0.05em' }}
+            >
               {t('Provisioning Pipeline')}
             </Text>
             <ProvisioningMilestones milestones={milestones} />
@@ -207,7 +210,11 @@ export const ProgressStep = ({
                     <ThemeIcon color="teal" variant="light" size={44} radius="md">
                       <IconDatabase size={24} />
                     </ThemeIcon>
-                    <Badge color={result.sample_data_loaded ? 'blue' : 'teal'} variant="light" size="sm">
+                    <Badge
+                      color={result.sample_data_loaded ? 'blue' : 'teal'}
+                      variant="light"
+                      size="sm"
+                    >
                       {result.sample_data_loaded
                         ? t('Demo Data Loaded (Ready for Testing)')
                         : t('Clean Production Database (0 Dummy Records)')}
@@ -303,7 +310,14 @@ export const ProgressStep = ({
 
           {/* Real-time System Terminal Logs - Always Visible */}
           <Box>
-            <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs" style={{ letterSpacing: '0.05em' }}>
+            <Text
+              size="xs"
+              fw={700}
+              tt="uppercase"
+              c="dimmed"
+              mb="xs"
+              style={{ letterSpacing: '0.05em' }}
+            >
               {t('System Diagnostics & Setup Logs')}
             </Text>
             <ProvisioningConsole

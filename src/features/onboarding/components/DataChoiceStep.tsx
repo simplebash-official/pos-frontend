@@ -92,12 +92,8 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
           style={{
             cursor: 'pointer',
             borderWidth: 2,
-            borderColor: loadSampleData
-              ? 'var(--mantine-color-blue-6)'
-              : 'var(--border)',
-            backgroundColor: loadSampleData
-              ? 'var(--mantine-color-blue-light)'
-              : 'var(--bg-card)',
+            borderColor: loadSampleData ? 'var(--mantine-color-blue-6)' : 'var(--border)',
+            backgroundColor: loadSampleData ? 'var(--mantine-color-blue-light)' : 'var(--bg-card)',
             transition: 'all 0.2s ease',
             position: 'relative',
           }}
@@ -157,12 +153,8 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
           style={{
             cursor: 'pointer',
             borderWidth: 2,
-            borderColor: !loadSampleData
-              ? 'var(--mantine-color-teal-6)'
-              : 'var(--border)',
-            backgroundColor: !loadSampleData
-              ? 'var(--mantine-color-teal-light)'
-              : 'var(--bg-card)',
+            borderColor: !loadSampleData ? 'var(--mantine-color-teal-6)' : 'var(--border)',
+            backgroundColor: !loadSampleData ? 'var(--mantine-color-teal-light)' : 'var(--bg-card)',
             transition: 'all 0.2s ease',
             position: 'relative',
           }}

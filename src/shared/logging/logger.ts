@@ -9,7 +9,7 @@
  */
 
 import { isTauri } from '@/shared/lib/platform';
-import { capForLog, redactText } from '@/shared/logging/redact';
+import { redactAndCap, redactText } from '@/shared/logging/redact';
 import { isoWithOffset } from '@/shared/logging/time';
 import { LogTransport } from '@/shared/logging/transport';
 import type {
@@ -45,6 +45,15 @@ export interface EventOptions {
   level?: LogLevel;
   msg?: string;
   requestId?: string;
+  /** Record even while paused (benchmark phase markers). */
+  force?: boolean;
+}
+
+/** Frontend-side cost of logging, for the System Benchmark. */
+export interface LoggerStats {
+  events: number;
+  /** Main-thread time spent building entries and handing batches to IPC. */
+  selfTimeMs: number;
 }
 
 class Logger {
@@ -53,6 +62,9 @@ class Logger {
   private sessionUser: string | undefined;
   private currentConfig: LogConfig = DEFAULT_LOG_CONFIG;
   private context: LogContext | undefined;
+  private paused = false;
+  private statEvents = 0;
+  private statSelfTimeMs = 0;
 
   /** True once wired to the shell; false in the browser. */
   get enabled(): boolean {
@@ -82,7 +94,12 @@ class Logger {
       send ??
       (async (events: LogEntry[]) => {
         const invoke = await loadInvoke();
-        return invoke<number>('log_ingest', { events });
+        // Only the synchronous part (serializing the batch for IPC) is ours;
+        // waiting for the shell is not main-thread work.
+        const t0 = performance.now();
+        const pending = invoke<number>('log_ingest', { events });
+        this.statSelfTimeMs += performance.now() - t0;
+        return pending;
       });
     this.transport = new LogTransport({
       send: sender,
@@ -105,6 +122,30 @@ class Logger {
     this.sessionUser = undefined;
     this.currentConfig = DEFAULT_LOG_CONFIG;
     this.context = undefined;
+    this.paused = false;
+    this.resetStats();
+  }
+
+  /** Stop recording (the benchmark's "logging off" mode). Capture hooks stay installed. */
+  pause(): void {
+    this.paused = true;
+  }
+
+  resume(): void {
+    this.paused = false;
+  }
+
+  get isPaused(): boolean {
+    return this.paused;
+  }
+
+  stats(): LoggerStats {
+    return { events: this.statEvents, selfTimeMs: this.statSelfTimeMs };
+  }
+
+  resetStats(): void {
+    this.statEvents = 0;
+    this.statSelfTimeMs = 0;
   }
 
   private async loadContext(): Promise<void> {
@@ -136,15 +177,16 @@ class Logger {
   }
 
   event(category: LogCategory, event: string, data?: LogData, options: EventOptions = {}): void {
-    if (!this.transport) {
+    if (!this.transport || (this.paused && options.force !== true)) {
       return;
     }
+    const started = performance.now();
     const msg =
       options.msg === undefined ? undefined : redactText(options.msg.slice(0, MAX_MSG_CHARS));
     const payload =
       data === undefined
         ? undefined
-        : (capForLog(data, this.currentConfig.bodyCapBytes * 2) as LogData);
+        : (redactAndCap(data, this.currentConfig.bodyCapBytes * 2) as LogData);
     this.transport.push({
       ts: isoWithOffset(new Date()),
       level: options.level ?? 'info',
@@ -156,6 +198,8 @@ class Logger {
       session_user: this.sessionUser,
       data: payload,
     });
+    this.statEvents += 1;
+    this.statSelfTimeMs += performance.now() - started;
   }
 
   trace(category: LogCategory, event: string, data?: LogData, msg?: string): void {

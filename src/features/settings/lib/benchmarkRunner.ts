@@ -1,10 +1,12 @@
 import { isTauri } from '@/shared/lib/runtime';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { apiClient } from '@/api/client';
+import { LOGGING_BENCH_PRESETS, runLoggingOverheadBenchmark } from './loggingBenchmark';
 import type {
   BenchmarkGrade,
   BenchmarkPhase,
   BenchmarkReportData,
+  LoggingOverheadResult,
   DiagnosticItem,
   DiskIoResult,
   LatencyMetric,
@@ -238,7 +240,9 @@ export const computeBenchmarkScore = (
 export type ProgressCallback = (phase: BenchmarkPhase, percent: number, detail?: string) => void;
 
 export const runSystemBenchmark = async (
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
+  /** Flows for the activity-log phase; `0` skips it (web, or a quick run). */
+  loggingFlows: number = LOGGING_BENCH_PRESETS.quick
 ): Promise<BenchmarkReportData> => {
   const notify = (phase: BenchmarkPhase, percent: number, detail?: string) => {
     if (onProgress) onProgress(phase, percent, detail);
@@ -373,7 +377,21 @@ export const runSystemBenchmark = async (
   const docRps = Math.round((successDocRenders / docTotalDurSec) * 10) / 10;
   const docMetrics = calculatePercentiles(docLatencies);
 
-  // Step 5: Scoring & Diagnostics
+  // Step 5: Activity-log overhead (desktop only — it needs the shell's
+  // resource sampling and runtime logging switch).
+  let logging: LoggingOverheadResult | undefined;
+  if (isTauri() && loggingFlows > 0) {
+    notify('logging', 90, 'Measuring what the activity log costs...');
+    try {
+      logging = await runLoggingOverheadBenchmark(loggingFlows, (percent, detail) =>
+        notify('logging', 88 + percent * 0.1, detail)
+      );
+    } catch (err) {
+      console.warn('Logging overhead benchmark failed:', err);
+    }
+  }
+
+  // Step 6: Scoring & Diagnostics
   notify('complete', 100, 'Finalizing score and recommendations...');
   const breakdown = computeBenchmarkScore(
     specs,
@@ -412,6 +430,7 @@ export const runSystemBenchmark = async (
       samples: pingLatencies.length,
     },
     diagnostics: breakdown.diagnostics,
+    logging,
   };
 
   // Persist result
@@ -460,7 +479,22 @@ export const formatMarkdownReport = (data: BenchmarkReportData): string => {
   md += `| **PDF Throughput** | Compilation Speed | ${data.documents.rendersPerSec.toFixed(1)} docs/s | ≥ 20 docs/s |\n`;
   md += `| **Loopback IPC** | Average Ping | ${data.ipc.pingMs.toFixed(1)} ms | ≤ 3 ms |\n\n`;
 
-  md += `## 2. Diagnostics & Merchant Advice\n\n`;
+  if (data.logging) {
+    const { modes, overhead, flows } = data.logging;
+    md += `## 2. Activity Log Overhead (${flows} simulated sales per mode)\n\n`;
+    md += `| Logging mode | CPU ms / 1,000 sales | Peak memory | Log disk / 1,000 sales | Events per sale | Flow p95 |\n`;
+    md += `| :--- | :---: | :---: | :---: | :---: | :---: |\n`;
+    for (const mode of ['off', 'standard', 'full'] as const) {
+      const m = modes[mode];
+      const memory = m.processes.reduce((sum, p) => sum + p.peakRssMb, 0).toFixed(1);
+      md += `| **${mode}** | ${m.cpuMsPerThousandFlows} | ${memory} MB | ${m.diskKbPerThousandFlows} KB | ${m.eventsPerFlow} | ${m.flowLatency.p95.toFixed(1)} ms |\n`;
+    }
+    md += `\n- Standard logging adds **${overhead.standard.cpuMsPerThousandFlows} ms CPU** (${overhead.standard.cpuPercentOverBaseline}%), ${overhead.standard.memoryMb} MB and ${overhead.standard.diskKbPerThousandFlows} KB of log per 1,000 sales.\n`;
+    md += `- Full logging adds **${overhead.full.cpuMsPerThousandFlows} ms CPU** (${overhead.full.cpuPercentOverBaseline}%), ${overhead.full.memoryMb} MB and ${overhead.full.diskKbPerThousandFlows} KB of log per 1,000 sales.\n\n`;
+    md += `## 3. Diagnostics & Merchant Advice\n\n`;
+  } else {
+    md += `## 2. Diagnostics & Merchant Advice\n\n`;
+  }
   for (const item of data.diagnostics) {
     const icon = item.status === 'optimal' ? '✅' : item.status === 'good' ? 'ℹ️' : '⚠️';
     md += `- ${icon} **${item.title}**: ${item.message} *(Measured: ${item.measured})*\n`;

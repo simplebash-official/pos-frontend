@@ -11,6 +11,7 @@ import {
   Group,
   Paper,
   Progress,
+  SegmentedControl,
   SimpleGrid,
   Stack,
   Table,
@@ -38,7 +39,10 @@ import {
   formatMarkdownReport,
   loadLastBenchmarkResult,
   runSystemBenchmark,
+  saveBenchmarkResult,
 } from '../../lib/benchmarkRunner';
+import { LOGGING_BENCH_PRESETS, runLoggingOverheadBenchmark } from '../../lib/loggingBenchmark';
+import { LoggingOverheadCard } from '../LoggingOverheadCard';
 import type { BenchmarkPhase, BenchmarkReportData } from '../../types/benchmark';
 import type { SectionProps } from './ShopProfileSection';
 
@@ -47,6 +51,8 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [phaseDetail, setPhaseDetail] = useState<string>('');
   const [report, setReport] = useState<BenchmarkReportData | null>(() => loadLastBenchmarkResult());
+  // How many simulated sales the activity-log phase replays per mode.
+  const [logFlows, setLogFlows] = useState<number>(LOGGING_BENCH_PRESETS.quick);
 
   // Desktop check
   if (!isTauri()) {
@@ -84,7 +90,7 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
         setPhase(currentPhase);
         setProgressPercent(percent);
         if (detail) setPhaseDetail(detail);
-      });
+      }, logFlows);
 
       setReport(result);
       setPhase('complete');
@@ -101,6 +107,45 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
       notifications.show({
         title: t('Benchmark Failed'),
         message: errorMessage,
+        color: 'red',
+        icon: <IconAlertCircle size={18} />,
+      });
+    }
+  };
+
+  /**
+   * Measures only the activity-log overhead, keeping any existing hardware
+   * scores — the common case when tuning what gets logged.
+   */
+  const handleMeasureLogging = async () => {
+    setPhase('logging');
+    setProgressPercent(2);
+    setPhaseDetail(t('Measuring what the activity log costs...'));
+    try {
+      const logging = await runLoggingOverheadBenchmark(logFlows, (percent, detail) => {
+        setProgressPercent(Math.round(percent));
+        setPhaseDetail(detail);
+      });
+      setReport((current) => {
+        if (!current) {
+          return current;
+        }
+        const updated = { ...current, logging };
+        saveBenchmarkResult(updated);
+        return updated;
+      });
+      setPhase(report ? 'complete' : 'idle');
+      notifications.show({
+        title: t('Activity log measured'),
+        message: `${t('Full logging CPU overhead')}: ${logging.overhead.full.cpuPercentOverBaseline}%`,
+        color: 'teal',
+        icon: <IconCheck size={18} />,
+      });
+    } catch (err: unknown) {
+      setPhase('error');
+      notifications.show({
+        title: t('Could not measure the activity log'),
+        message: err instanceof Error ? err.message : t('Please try again.'),
         color: 'red',
         icon: <IconAlertCircle size={18} />,
       });
@@ -207,7 +252,27 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
             </Group>
           </div>
 
-          <Group gap="xs">
+          <Group gap="xs" wrap="wrap">
+            <SegmentedControl
+              size="xs"
+              disabled={isRunning}
+              value={String(logFlows)}
+              onChange={(value) => setLogFlows(Number(value))}
+              data={[
+                { value: String(LOGGING_BENCH_PRESETS.quick), label: t('Quick log test') },
+                { value: String(LOGGING_BENCH_PRESETS.full), label: t('Full log test') },
+              ]}
+            />
+            {!isRunning && (
+              <Button
+                variant="default"
+                size="sm"
+                leftSection={<IconGauge size={16} />}
+                onClick={() => void handleMeasureLogging()}
+              >
+                {t('Measure logging only')}
+              </Button>
+            )}
             {report && !isRunning && (
               <Button
                 variant="default"
@@ -593,6 +658,9 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
                 </SimpleGrid>
               </Stack>
             </Paper>
+
+            {/* What the activity log costs (desktop measurement) */}
+            {report.logging && <LoggingOverheadCard data={report.logging} />}
 
             {/* Diagnostics & Recommendations Table */}
             <Paper p="md" withBorder radius="var(--mantine-radius-default)" bg="var(--bg-card)">

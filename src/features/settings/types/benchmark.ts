@@ -1,5 +1,5 @@
 export type BenchmarkPhase =
-  'idle' | 'hardware' | 'disk' | 'database' | 'documents' | 'complete' | 'error';
+  'idle' | 'hardware' | 'disk' | 'database' | 'documents' | 'logging' | 'complete' | 'error';
 
 export interface SystemSpecs {
   os: string;
@@ -64,6 +64,50 @@ export interface DiagnosticItem {
   message: string;
 }
 
+// -----------------------------------------------------------------------------
+// Activity-log overhead (see lib/loggingBenchmark.ts)
+// -----------------------------------------------------------------------------
+
+export type LogBenchMode = 'off' | 'standard' | 'full';
+
+export interface ProcessCost {
+  /** `shell`, `backend`, `document-server`, `webview`. */
+  name: string;
+  cpuMsPerThousandFlows: number;
+  peakRssMb: number;
+}
+
+export interface LoggingModeMetrics {
+  mode: LogBenchMode;
+  flows: number;
+  wallMs: number;
+  processes: ProcessCost[];
+  /** Sum across processes. */
+  cpuMsPerThousandFlows: number;
+  /** Main-thread time the webview spent building log entries. */
+  frontendSelfMsPerThousandFlows: number;
+  diskKbPerThousandFlows: number;
+  eventsPerFlow: number;
+  droppedEvents: number;
+  flowLatency: LatencyMetric;
+}
+
+export interface LoggingOverheadDelta {
+  mode: LogBenchMode;
+  cpuMsPerThousandFlows: number;
+  cpuPercentOverBaseline: number;
+  memoryMb: number;
+  diskKbPerThousandFlows: number;
+  latencyP95Ms: number;
+}
+
+export interface LoggingOverheadResult {
+  flows: number;
+  measuredAt: string;
+  modes: Record<LogBenchMode, LoggingModeMetrics>;
+  overhead: { standard: LoggingOverheadDelta; full: LoggingOverheadDelta };
+}
+
 export type BenchmarkGrade = 'A+' | 'A' | 'B' | 'C' | 'D';
 
 export interface BenchmarkReportData {
@@ -80,4 +124,6 @@ export interface BenchmarkReportData {
   documents: DocumentBenchmarkResult;
   ipc: IpcBenchmarkResult;
   diagnostics: DiagnosticItem[];
+  /** Optional: older saved reports predate the logging phase. */
+  logging?: LoggingOverheadResult;
 }
