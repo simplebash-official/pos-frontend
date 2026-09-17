@@ -99,7 +99,7 @@ export const ProvisioningConsole = ({
               fw={600}
               style={{ color: '#cbd5e1', letterSpacing: '0.02em' }}
             >
-              myrologic-provisioning.log
+              simplebash-provisioning.log
             </Text>
           </Group>
         </Group>
@@ -254,7 +254,7 @@ export const ProvisioningConsole = ({
             }}
           >
             <Text component="span" size="xs" fw={700} ff="monospace" c="cyan.4">
-              myrologic@pos:~$
+              simplebash@pos:~$
             </Text>
             <span
               className="terminal-blinking-cursor"

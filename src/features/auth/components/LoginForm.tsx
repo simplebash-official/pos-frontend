@@ -116,7 +116,7 @@ export const LoginForm = () => {
           <Stack gap="md" w="100%">
             <TextInput
               label={t('Email Address')}
-              placeholder={t('admin@myrologic.local')}
+              placeholder={t('admin@simplebash.local')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               size="md"

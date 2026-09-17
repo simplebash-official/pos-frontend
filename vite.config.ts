@@ -19,7 +19,7 @@ const gitSha = process.env.VITE_GIT_SHA ?? '';
 // the outside (ops, the Settings → Updates panel's "you are running" line).
 // Detection of a *new* version is the service worker's job, not this file's.
 const emitVersionJson = (): Plugin => ({
-  name: 'myrologic-emit-version-json',
+  name: 'simplebash-emit-version-json',
   apply: 'build',
   generateBundle() {
     this.emitFile({

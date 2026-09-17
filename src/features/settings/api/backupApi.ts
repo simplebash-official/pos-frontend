@@ -65,7 +65,7 @@ export function downloadBackupFile(data: BackupExportData): void {
   const dateStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `myrologic-pos-backup-${dateStr}.posbackup`;
+  a.download = `simplebash-pos-backup-${dateStr}.posbackup`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

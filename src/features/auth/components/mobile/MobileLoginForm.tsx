@@ -138,7 +138,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
           <Stack gap="md">
             <TextInput
               label={t('Email')}
-              placeholder={t('you@myrologic.local')}
+              placeholder={t('you@simplebash.local')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               className="mobile-auth-input"

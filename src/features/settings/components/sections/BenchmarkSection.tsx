@@ -172,7 +172,7 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `myrologic_benchmark_${report.id}.json`;
+    a.download = `simplebash_benchmark_${report.id}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

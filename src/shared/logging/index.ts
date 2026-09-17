@@ -20,7 +20,7 @@ import { timezoneName } from '@/shared/logging/time';
 declare global {
   interface Window {
     /** Read by `public/webview-diagnostics.js` to stop its boot-time bridge. */
-    __MYROLOGIC_LOGGER_READY__?: boolean;
+    __SIMPLEBASH_LOGGER_READY__?: boolean;
   }
 }
 
@@ -34,7 +34,7 @@ export const initLogging = (): boolean => {
   if (!logger.start()) {
     return false;
   }
-  window.__MYROLOGIC_LOGGER_READY__ = true;
+  window.__SIMPLEBASH_LOGGER_READY__ = true;
   logger.info('app', 'logging.started', {
     timezone: timezoneName(),
     href: window.location.href,

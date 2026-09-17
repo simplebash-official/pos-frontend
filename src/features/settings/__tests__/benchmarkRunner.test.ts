@@ -175,7 +175,7 @@ describe('benchmarkRunner logic & calculations', () => {
 
     it('generates a formatted markdown summary with tables and diagnostics', () => {
       const md = formatMarkdownReport(sampleReport);
-      expect(md).toContain('# MyroLogic POS Desktop Benchmark Report');
+      expect(md).toContain('# SimpleBash POS Desktop Benchmark Report');
       expect(md).toContain('**Overall Score**: 95 / 100');
       expect(md).toContain('Enterprise High-Speed POS Ready');
       expect(md).toContain('| **Storage I/O** |');

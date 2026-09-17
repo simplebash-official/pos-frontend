@@ -15,7 +15,7 @@ COPY . .
 
 # Build arguments for Vite environment variables with defaults
 ARG VITE_API_BASE_URL=/api
-ARG VITE_APP_NAME="MyroLogic POS"
+ARG VITE_APP_NAME="SimpleBash POS"
 # Commit the build was cut from — surfaced in dist/version.json and the
 # Settings → Updates panel. Empty for a local build.
 ARG VITE_GIT_SHA=""
