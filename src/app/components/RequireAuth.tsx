@@ -10,6 +10,7 @@ import {
 import { useSetupStatus } from '@/features/onboarding/hooks/useSetupStatus';
 import { PageLoader } from '@/shared/components/PageLoader';
 import { ROUTES } from '@/constants/routes';
+import { PRODUCT_NAME } from '@/config/branding';
 
 export interface RequireAuthProps {
   children: ReactNode;
@@ -33,7 +34,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
         orbState="connecting"
         size={72}
         title={t('Authenticating session...')}
-        subtitle="Connecting to Jana2U POS console"
+        subtitle={`Connecting to ${PRODUCT_NAME} console`}
         height="100vh"
       />
     );

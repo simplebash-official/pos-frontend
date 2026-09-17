@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { notifications } from '@mantine/notifications';
+import { BRAND_NAME } from '@/config/branding';
 import {
   IconBrandFacebook,
   IconBrandTwitter,
@@ -15,7 +16,7 @@ export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProp
   const handleSocialClick = (provider: string) => {
     notifications.show({
       title: `${provider} Authentication`,
-      message: `${provider} SSO sign-${mode === 'signin' ? 'in' : 'up'} is configured for Jana2U organization credentials. Please sign in with your employee email.`,
+      message: `${provider} SSO sign-${mode === 'signin' ? 'in' : 'up'} is configured for ${BRAND_NAME} organization credentials. Please sign in with your employee email.`,
       color: 'blue',
     });
   };

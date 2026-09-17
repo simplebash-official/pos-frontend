@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME } from '@/config/branding';
 import type { ReactNode } from 'react';
 import {
   Alert,
@@ -220,7 +221,7 @@ export const LogsSection = (_props: SectionProps) => {
     return (
       <LogsShell>
         <Alert color="blue" icon={<IconInfoCircle size={20} />} title={t('Desktop Only Feature')}>
-          {t('The activity log is only available in the desktop version of Jana2U POS.')}
+          {t(`The activity log is only available in the desktop version of ${PRODUCT_NAME}.`)}
         </Alert>
       </LogsShell>
     );

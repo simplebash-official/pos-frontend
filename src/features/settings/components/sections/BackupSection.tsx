@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME } from '@/config/branding';
 import { useRef, useState } from 'react';
 import {
   Alert,
@@ -82,7 +83,7 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
           <Divider />
           <Alert color="blue" icon={<IconInfoCircle size={20} />} title={t('Desktop Only Feature')}>
             {t(
-              'Complete data export and database restore is only available in the desktop version of Jana2U POS.'
+              `Complete data export and database restore is only available in the desktop version of ${PRODUCT_NAME}.`
             )}
           </Alert>
         </Stack>
@@ -173,7 +174,7 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
 
       if (parsed.version !== 1) {
         throw new Error(
-          t('Unsupported backup version. Please ensure this file was created by Jana2U POS.')
+          t(`Unsupported backup version. Please ensure this file was created by ${PRODUCT_NAME}.`)
         );
       }
 

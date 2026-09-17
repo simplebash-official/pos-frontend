@@ -284,7 +284,7 @@ const DesktopUpdates = () => {
     logger.info('updater', 'install.start', { version }, `Installing update ${version}`);
     try {
       // Pre-emptively kill sidecars before the installer runs, so running
-      // processes don't hold file locks on jana2u-backend.exe or document-server.
+      // processes don't hold file locks on myrologic-backend.exe or document-server.
       const { invoke } = await import('@tauri-apps/api/core');
       await invoke('prepare_for_update').catch((err: unknown) => {
         // Not fatal: the installer's own hooks stop the services too.

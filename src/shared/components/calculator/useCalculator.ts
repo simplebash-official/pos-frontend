@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { notifications } from '@mantine/notifications';
 import type { CalculatorOperator, CalculatorHistoryItem, CalculatorState } from './types';
 
-const STORAGE_KEY = 'jana2u_calculator_history';
+const STORAGE_KEY = 'myrologic_calculator_history';
 const MAX_HISTORY_ITEMS = 25;
 
 /**

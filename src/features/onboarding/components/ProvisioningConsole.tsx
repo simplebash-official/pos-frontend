@@ -99,7 +99,7 @@ export const ProvisioningConsole = ({
               fw={600}
               style={{ color: '#cbd5e1', letterSpacing: '0.02em' }}
             >
-              jana2u-provisioning.log
+              myrologic-provisioning.log
             </Text>
           </Group>
         </Group>
@@ -254,7 +254,7 @@ export const ProvisioningConsole = ({
             }}
           >
             <Text component="span" size="xs" fw={700} ff="monospace" c="cyan.4">
-              jana2u@pos:~$
+              myrologic@pos:~$
             </Text>
             <span
               className="terminal-blinking-cursor"

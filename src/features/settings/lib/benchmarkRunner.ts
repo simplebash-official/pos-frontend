@@ -1,4 +1,5 @@
 import { isTauri } from '@/shared/lib/runtime';
+import { PRODUCT_NAME } from '@/config/branding';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { apiClient } from '@/api/client';
 import { LOGGING_BENCH_PRESETS, runLoggingOverheadBenchmark } from './loggingBenchmark';
@@ -463,7 +464,7 @@ export const loadLastBenchmarkResult = (): BenchmarkReportData | null => {
 };
 
 export const formatMarkdownReport = (data: BenchmarkReportData): string => {
-  let md = `# Jana2U POS Desktop Benchmark Report\n\n`;
+  let md = `# ${PRODUCT_NAME} Desktop Benchmark Report\n\n`;
   md += `> **Overall Score**: ${data.overallScore} / 100 (Grade ${data.grade})\n`;
   md += `> **Readiness Tier**: ${data.tierLabel}\n`;
   md += `> **Tested At**: ${data.testedAt}\n`;

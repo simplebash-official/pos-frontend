@@ -17,6 +17,7 @@ import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+import { PRODUCT_NAME } from '@/config/branding';
 
 const HeldSalesDrawer = lazy(() =>
   import('@/features/billing/components/HeldSalesDrawer').then((m) => ({
@@ -31,17 +32,17 @@ const KeyboardShortcutsModal = lazy(() =>
 import { useGlobalCalculator } from '@/shared/components/calculator';
 
 const ROUTE_TITLES: Record<string, string> = {
-  [ROUTES.DASHBOARD]: 'Shop Cockpit · JANA2U POS',
-  [ROUTES.BILLING]: 'Billing Counter · JANA2U POS',
-  [ROUTES.INVOICES]: 'Invoices · JANA2U POS',
-  [ROUTES.REPAIRS]: 'Phone Repairs · JANA2U POS',
-  [ROUTES.PRINT_JOBS]: 'Print Jobs · JANA2U POS',
-  [ROUTES.INVENTORY]: 'Inventory & Stock · JANA2U POS',
-  [ROUTES.CUSTOMERS]: 'Customer Directory · JANA2U POS',
-  [ROUTES.SUPPLIERS]: 'Suppliers Directory · JANA2U POS',
-  [ROUTES.EMPLOYEES]: 'Employees & Earnings · JANA2U POS',
-  [ROUTES.REPORTS]: 'Reports & Analytics · JANA2U POS',
-  [ROUTES.SETTINGS]: 'Settings · JANA2U POS',
+  [ROUTES.DASHBOARD]: `Shop Cockpit · ${PRODUCT_NAME}`,
+  [ROUTES.BILLING]: `Billing Counter · ${PRODUCT_NAME}`,
+  [ROUTES.INVOICES]: `Invoices · ${PRODUCT_NAME}`,
+  [ROUTES.REPAIRS]: `Phone Repairs · ${PRODUCT_NAME}`,
+  [ROUTES.PRINT_JOBS]: `Print Jobs · ${PRODUCT_NAME}`,
+  [ROUTES.INVENTORY]: `Inventory & Stock · ${PRODUCT_NAME}`,
+  [ROUTES.CUSTOMERS]: `Customer Directory · ${PRODUCT_NAME}`,
+  [ROUTES.SUPPLIERS]: `Suppliers Directory · ${PRODUCT_NAME}`,
+  [ROUTES.EMPLOYEES]: `Employees & Earnings · ${PRODUCT_NAME}`,
+  [ROUTES.REPORTS]: `Reports & Analytics · ${PRODUCT_NAME}`,
+  [ROUTES.SETTINGS]: `Settings · ${PRODUCT_NAME}`,
 };
 
 export const AppShell = () => {
@@ -67,7 +68,7 @@ export const AppShell = () => {
   }
 
   useEffect(() => {
-    const title = ROUTE_TITLES[location.pathname] || 'JANA2U POS System';
+    const title = ROUTE_TITLES[location.pathname] || `${PRODUCT_NAME} System`;
     document.title = title;
   }, [location.pathname]);
 

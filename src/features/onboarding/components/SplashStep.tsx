@@ -21,6 +21,7 @@ import {
   IconServer,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME } from '@/config/branding';
 import type { SetupStatus } from '../types';
 
 export interface SplashStepProps {
@@ -66,7 +67,7 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
             lineHeight: 1.15,
           }}
         >
-          {t('Welcome to Jana2U POS')}
+          {t(`Welcome to ${PRODUCT_NAME}`)}
         </Title>
         <Text c="dimmed" size="md" mt="sm" maw={780} style={{ lineHeight: 1.6 }}>
           {t(

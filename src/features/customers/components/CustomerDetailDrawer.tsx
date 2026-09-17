@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { BRAND_NAME } from '@/config/branding';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -111,7 +112,7 @@ export const CustomerDetailDrawer = ({
               {t('Customer Specifications')}
             </Text>
             <Text size="xs" c="dimmed">
-              {t('JANA2U Client & Account Detail')}
+              {t(`${BRAND_NAME} Client & Account Detail`)}
             </Text>
           </div>
         </Group>

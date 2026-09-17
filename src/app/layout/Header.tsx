@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME, SERVICE_CENTER_NAME } from '@/config/branding';
 import {
   Group,
   Burger,
@@ -86,7 +87,7 @@ export const Header = ({
             style={{ cursor: 'pointer', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}
             onClick={() => navigate(ROUTES.DASHBOARD)}
           >
-            {t('JANA2U POS')}
+            {t(PRODUCT_NAME)}
           </Title>
           <Box visibleFrom="xs" ml={6}>
             <ModernClock
@@ -205,7 +206,7 @@ export const Header = ({
           style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
           onClick={() => navigate(ROUTES.DASHBOARD)}
         >
-          {isMobile ? 'Jana2U POS' : 'Jana2U Service Center'}
+          {isMobile ? PRODUCT_NAME : SERVICE_CENTER_NAME}
         </Title>
       </Group>
 

@@ -21,6 +21,7 @@ import {
   IconCheck,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME } from '@/config/branding';
 
 export interface FeatureGuideStepProps {
   onNext: () => void;
@@ -98,7 +99,7 @@ export const FeatureGuideStep = ({ onNext, onPrev }: FeatureGuideStepProps) => {
             letterSpacing: '-0.02em',
           }}
         >
-          {t('Explore Jana2U POS Capabilities')}
+          {t(`Explore ${PRODUCT_NAME} Capabilities`)}
         </Title>
         <Text c="dimmed" size="md" mt="xs" maw={780} style={{ lineHeight: 1.6 }}>
           {t(

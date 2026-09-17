@@ -20,6 +20,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../../api/authApi';
 import { getErrorMessage } from '@/shared/lib/error';
+import { BRAND_NAME, SERVICE_CENTER_NAME } from '@/config/branding';
 
 interface MobileLoginFormProps {
   onBack: () => void;
@@ -79,8 +80,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
     e.preventDefault();
     notifications.show({
       title: 'Password Reset',
-      message:
-        'Please contact your Jana2U System Administrator to reset your POS terminal access credentials.',
+      message: `Please contact your ${BRAND_NAME} System Administrator to reset your POS terminal access credentials.`,
       color: 'blue',
     });
   };
@@ -138,7 +138,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
           <Stack gap="md">
             <TextInput
               label={t('Email')}
-              placeholder={t('you@jana2u.local')}
+              placeholder={t('you@myrologic.local')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               className="mobile-auth-input"
@@ -189,7 +189,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
             <div className="mobile-auth-security-badge">
               <IconLock size={14} stroke={2} />
-              <span>{t('JANA2U Service Center - Internal Use Only')}</span>
+              <span>{t(`${SERVICE_CENTER_NAME} - Internal Use Only`)}</span>
             </div>
           </Stack>
         </form>

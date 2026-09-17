@@ -38,6 +38,7 @@ import { FeatureGuideStep } from './FeatureGuideStep';
 import { DataChoiceStep } from './DataChoiceStep';
 import { ProgressStep } from './ProgressStep';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
+import { PRODUCT_NAME } from '@/config/branding';
 
 export const WelcomeWizard = () => {
   const navigate = useNavigate();
@@ -189,7 +190,7 @@ export const WelcomeWizard = () => {
               </ThemeIcon>
               <div>
                 <Text fw={800} size="md" style={{ letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                  Jana2U POS
+                  {PRODUCT_NAME}
                 </Text>
                 <Text size="xs" c="dimmed">
                   Workstation Setup Studio

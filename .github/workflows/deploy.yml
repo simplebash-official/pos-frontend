@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: jana2u-pos-system/jana2u-frontend
+  IMAGE_NAME: myrologic/frontend
 
 jobs:
   build-and-push:
@@ -41,7 +41,7 @@ jobs:
           node scripts/ci/set-version.mjs "${{ steps.compute.outputs.version }}"
           git add package.json
           git commit -m "chore(release): ${{ steps.compute.outputs.tag }} [skip ci]"
-          git tag -a "${{ steps.compute.outputs.tag }}" -m "Jana2U POS web ${{ steps.compute.outputs.tag }}"
+          git tag -a "${{ steps.compute.outputs.tag }}" -m "MyroLogic POS web ${{ steps.compute.outputs.tag }}"
           git push origin HEAD:main
           git push origin "${{ steps.compute.outputs.tag }}"
 
@@ -52,7 +52,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
-            VITE_API_BASE_URL=https://jana2u-api.duckdns.org/api
+            VITE_API_BASE_URL=https://api.myrologic.com/api
             VITE_GIT_SHA=${{ github.sha }}
             VITE_APP_VERSION=${{ steps.compute.outputs.version }}
 
@@ -67,7 +67,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd /opt/jana2u
+            cd /opt/myrologic
             
             # Pull the latest frontend image
             docker compose pull frontend

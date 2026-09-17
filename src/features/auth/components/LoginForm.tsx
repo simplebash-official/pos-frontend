@@ -18,6 +18,7 @@ import { ROUTES } from '@/constants/routes';
 import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../api/authApi';
+import { SERVICE_CENTER_NAME } from '@/config/branding';
 import { getErrorMessage } from '@/shared/lib/error';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -97,7 +98,7 @@ export const LoginForm = () => {
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
         <Text fz="xl" fw={900} c="blue">
-          {t('Jana2U Service Center')}
+          {t(SERVICE_CENTER_NAME)}
         </Text>
 
         <Title
@@ -115,7 +116,7 @@ export const LoginForm = () => {
           <Stack gap="md" w="100%">
             <TextInput
               label={t('Email Address')}
-              placeholder={t('admin@jana2u.local')}
+              placeholder={t('admin@myrologic.local')}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
               size="md"

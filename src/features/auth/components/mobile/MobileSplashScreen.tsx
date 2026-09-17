@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { IconArrowRight } from '@tabler/icons-react';
+import { SERVICE_CENTER_NAME } from '@/config/branding';
 
 interface MobileSplashScreenProps {
   onStart: () => void;
@@ -11,7 +12,7 @@ export const MobileSplashScreen = ({ onStart }: MobileSplashScreenProps) => {
       {/* Top Brand Badge */}
       <div className="mobile-splash-brand-badge">
         <span className="mobile-splash-brand-dot" />
-        <span>{t('JANA2U Service Center')}</span>
+        <span>{t(SERVICE_CENTER_NAME)}</span>
       </div>
 
       {/* Middle Hero Welcome Notes */}

@@ -4,6 +4,7 @@ import { TextInput, PasswordInput, Checkbox, Button, Divider, Stack, Anchor } fr
 import { IconChevronLeft } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { MobileSocialButtons } from './MobileSocialButtons';
+import { BRAND_NAME } from '@/config/branding';
 
 interface MobileSignUpFormProps {
   onBack: () => void;
@@ -116,8 +117,7 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
                       e.preventDefault();
                       notifications.show({
                         title: 'Privacy Policy',
-                        message:
-                          'Personal employee information is protected under Jana2U Data Privacy Standards.',
+                        message: `Personal employee information is protected under ${BRAND_NAME} Data Privacy Standards.`,
                         color: 'blue',
                       });
                     }}

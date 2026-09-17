@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { BRAND_NAME } from '@/config/branding';
 import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { QuantityInput } from '@/shared/components/QuantityInput';
@@ -743,7 +744,7 @@ export const ProductTable = () => {
                 {t('Item Specifications')}
               </Text>
               <Text size="xs" c="dimmed">
-                {t('JANA2U Main Inventory Detail')}
+                {t(`${BRAND_NAME} Main Inventory Detail`)}
               </Text>
             </div>
           </Group>

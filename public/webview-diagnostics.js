@@ -18,7 +18,7 @@
   function send(level, message) {
     // Once the bundled logger (src/shared/logging) is running it captures the
     // console and errors itself; this script only covers the boot window.
-    if (window.__JANA2U_LOGGER_READY__) return;
+    if (window.__MYROLOGIC_LOGGER_READY__) return;
     try {
       internals.invoke('log_webview', { level: level, message: String(message).slice(0, 4000) });
     } catch (_) {

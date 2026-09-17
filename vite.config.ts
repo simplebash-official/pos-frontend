@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { BRAND_NAME, PRODUCT_NAME, SERVICE_CENTER_NAME } from './src/config/branding';
 
 // Build identity, baked in at compile time and read back through
 // `src/config/env.ts`. `package.json` `version` is the single source of truth;
@@ -18,7 +19,7 @@ const gitSha = process.env.VITE_GIT_SHA ?? '';
 // the outside (ops, the Settings → Updates panel's "you are running" line).
 // Detection of a *new* version is the service worker's job, not this file's.
 const emitVersionJson = (): Plugin => ({
-  name: 'jana2u-emit-version-json',
+  name: 'myrologic-emit-version-json',
   apply: 'build',
   generateBundle() {
     this.emitFile({
@@ -67,9 +68,9 @@ if (!isTauri) {
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       manifest: {
-        name: 'JANA2U POS',
-        short_name: 'JANA2U',
-        description: 'Point of sale for Jana2U Service Center',
+        name: PRODUCT_NAME,
+        short_name: BRAND_NAME,
+        description: `Point of sale for ${SERVICE_CENTER_NAME}`,
         display: 'standalone',
         orientation: 'any',
         start_url: '/billing',

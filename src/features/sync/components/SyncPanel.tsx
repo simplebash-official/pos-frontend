@@ -140,7 +140,7 @@ export const SyncPanel = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `jana2u-sync-diagnostics-${Date.now()}.json`;
+    link.download = `myrologic-sync-diagnostics-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };

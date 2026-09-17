@@ -22,6 +22,7 @@ import {
   IconCheck,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME } from '@/config/branding';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
 import { useProvisioningOrchestrator } from '../hooks/useProvisioningOrchestrator';
 import { ProvisioningMilestones } from './ProvisioningMilestones';
@@ -302,7 +303,7 @@ export const ProgressStep = ({
                   onClick={onComplete}
                   style={{ minWidth: 280 }}
                 >
-                  {t('Launch Jana2U POS')}
+                  {t(`Launch ${PRODUCT_NAME}`)}
                 </Button>
               </Group>
             </Stack>

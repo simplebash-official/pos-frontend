@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { PRODUCT_NAME } from '@/config/branding';
 import { useState } from 'react';
 import {
   Alert,
@@ -70,7 +71,7 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
           <Divider />
           <Alert color="blue" icon={<IconInfoCircle size={20} />} title={t('Desktop Only Feature')}>
             {t(
-              'Hardware diagnostics and POS system benchmark testing are exclusively available in the desktop version of Jana2U POS.'
+              `Hardware diagnostics and POS system benchmark testing are exclusively available in the desktop version of ${PRODUCT_NAME}.`
             )}
           </Alert>
         </Stack>
@@ -171,7 +172,7 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `jana2u_benchmark_${report.id}.json`;
+    a.download = `myrologic_benchmark_${report.id}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

@@ -1,7 +1,7 @@
 /** Tuning parameters for the local Dexie database and backend connectivity. */
 
 /** Name of the IndexedDB database. Changing this orphans every existing local store. */
-export const OFFLINE_DB_NAME = 'jana2u-pos';
+export const OFFLINE_DB_NAME = 'myrologic-pos';
 
 /** Header names agreed with the backend. */
 export const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
