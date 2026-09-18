@@ -306,7 +306,11 @@ export function CategoryStylingView({ categories, onChangeCategories }: Category
                             }
                             onClick={() => toggleExpand(cat.name)}
                           >
-                            {isExpanded ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
+                            {isExpanded ? (
+                              <IconChevronUp size={16} />
+                            ) : (
+                              <IconChevronDown size={16} />
+                            )}
                           </ActionIcon>
                         </Tooltip>
                       ) : (

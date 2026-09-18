@@ -31,6 +31,7 @@ import { selectAppLanguage, setAppLanguage } from '@/store/slices/settingsSlice'
 import { ROUTES } from '@/constants/routes';
 import { logger } from '@/shared/logging';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { isTauri } from '@/shared/lib/runtime';
 import { useSetupStatus, useInitializeSetup } from '../hooks/useSetupStatus';
 import { completeInstallationSetupNative } from '../api/onboardingApi';
 import { SplashStep } from './SplashStep';
@@ -76,6 +77,14 @@ export const WelcomeWizard = () => {
       }
     }
   }, [status, statusLoading, navigate, activeStep]);
+
+  // This wizard is desktop-only (SQLite/offline vault copy). A web (MongoDB) session
+  // that somehow lands on /welcome gets bounced to Login instead of seeing it.
+  useEffect(() => {
+    if (!isTauri()) {
+      navigate(ROUTES.LOGIN, { replace: true });
+    }
+  }, [navigate]);
 
   const handleStartSetup = async (payload: SetupSystemPayload) => {
     setSetupPayload(payload);
@@ -142,6 +151,10 @@ export const WelcomeWizard = () => {
   const shortId = status?.installation_id
     ? status.installation_id.slice(0, 8).toUpperCase()
     : 'POS-STATION';
+
+  if (!isTauri()) {
+    return null;
+  }
 
   return (
     <Box

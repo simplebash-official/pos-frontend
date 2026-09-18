@@ -4,6 +4,7 @@ import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated, selectIsAuthInitialized } from '@/store/slices/authSlice';
 import { useSetupStatus } from '@/features/onboarding/hooks/useSetupStatus';
 import { ROUTES } from '@/constants/routes';
+import { isTauri } from '@/shared/lib/runtime';
 
 export interface GuestOnlyProps {
   children: ReactNode;
@@ -14,7 +15,7 @@ export const GuestOnly = ({ children }: GuestOnlyProps) => {
   const isInitialized = useAppSelector(selectIsAuthInitialized);
   const { data: status, isLoading: isStatusLoading } = useSetupStatus();
 
-  if (!isStatusLoading && status && !status.setup_completed) {
+  if (!isStatusLoading && status && !status.setup_completed && isTauri()) {
     return <Navigate to={ROUTES.WELCOME} replace />;
   }
 

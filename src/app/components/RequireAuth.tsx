@@ -11,6 +11,7 @@ import { useSetupStatus } from '@/features/onboarding/hooks/useSetupStatus';
 import { PageLoader } from '@/shared/components/PageLoader';
 import { ROUTES } from '@/constants/routes';
 import { PRODUCT_NAME } from '@/config/branding';
+import { isTauri } from '@/shared/lib/runtime';
 
 export interface RequireAuthProps {
   children: ReactNode;
@@ -23,7 +24,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   const { data: status, isLoading: isStatusLoading } = useSetupStatus();
   const location = useLocation();
 
-  if (!isStatusLoading && status && !status.setup_completed) {
+  if (!isStatusLoading && status && !status.setup_completed && isTauri()) {
     return <Navigate to={ROUTES.WELCOME} replace />;
   }
 
