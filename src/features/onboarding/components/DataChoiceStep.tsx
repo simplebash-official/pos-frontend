@@ -38,8 +38,8 @@ export interface DataChoiceStepProps {
 export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProps) => {
   const [loadSampleData, setLoadSampleData] = useState<boolean>(true);
   const [adminName, setAdminName] = useState<string>('System Administrator');
-  const [adminEmail, setAdminEmail] = useState<string>('admin@pos.com');
-  const [adminPassword, setAdminPassword] = useState<string>('admin@1234');
+  const [adminEmail, setAdminEmail] = useState<string>('');
+  const [adminPassword, setAdminPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
@@ -48,8 +48,8 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
       setError(t('Please enter a valid administrator email address.'));
       return;
     }
-    if (!adminPassword || adminPassword.length < 6) {
-      setError(t('Administrator password must be at least 6 characters long.'));
+    if (!adminPassword || adminPassword.length < 8) {
+      setError(t('Administrator password must be at least 8 characters long.'));
       return;
     }
 
@@ -252,7 +252,7 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
             leftSection={<IconMail size={16} />}
             value={adminEmail}
             onChange={(e) => setAdminEmail(e.currentTarget.value)}
-            placeholder="admin@pos.com"
+            placeholder="owner@yourshop.com"
             required
           />
           <PasswordInput
@@ -260,14 +260,14 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
             leftSection={<IconLock size={16} />}
             value={adminPassword}
             onChange={(e) => setAdminPassword(e.currentTarget.value)}
-            placeholder="admin@1234"
+            placeholder="At least 8 characters"
             required
           />
         </SimpleGrid>
 
         <Text size="xs" c="dimmed" mt="md">
           {t(
-            'Default credentials: admin@pos.com / admin@1234 (You can customize these now or change them later in Settings).'
+            'Choose the email and password you will use to sign in. You can change them later in Settings.'
           )}
         </Text>
       </Paper>

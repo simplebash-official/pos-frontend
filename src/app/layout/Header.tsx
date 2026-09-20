@@ -36,6 +36,7 @@ import { selectAuthUser } from '@/store/slices/authSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
+import { SyncBadge } from '@/features/sync-status';
 
 export interface HeaderProps {
   opened: boolean;
@@ -179,7 +180,8 @@ export const Header = ({
             </ActionIcon>
           </Tooltip>
 
-          <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
+          <SyncBadge />
+        <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
             <Group gap={6} style={{ cursor: 'default' }} wrap="nowrap">
@@ -237,6 +239,7 @@ export const Header = ({
           </ActionIcon>
         </Tooltip>
 
+        <SyncBadge />
         <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
         {isMobile ? (

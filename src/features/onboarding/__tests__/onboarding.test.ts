@@ -162,7 +162,7 @@ describe('Database Setup Choice Logic', () => {
       if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
         return 'INVALID_EMAIL';
       }
-      if (!password || password.length < 6) {
+      if (!password || password.length < 8) {
         return 'PASSWORD_TOO_SHORT';
       }
       return 'VALID';
@@ -171,7 +171,8 @@ describe('Database Setup Choice Logic', () => {
     expect(validateCredentials('', '123456')).toBe('INVALID_EMAIL');
     expect(validateCredentials('not-an-email', '123456')).toBe('INVALID_EMAIL');
     expect(validateCredentials('admin@pos.com', '123')).toBe('PASSWORD_TOO_SHORT');
-    expect(validateCredentials('admin@pos.com', '123456')).toBe('VALID');
+    expect(validateCredentials('admin@pos.com', '123456')).toBe('PASSWORD_TOO_SHORT');
+    expect(validateCredentials('admin@pos.com', '12345678')).toBe('VALID');
     expect(validateCredentials('admin@pos.com', 'admin@1234')).toBe('VALID');
   });
 

@@ -11,6 +11,7 @@ import { logger } from '@/shared/logging';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { usePwaUpdate } from '@/app/pwa/PwaUpdateContext';
 import { useSetupStatus } from '@/features/onboarding';
+import { cloudPing } from '@/features/account';
 import { downloadPercent } from '../../lib/updateView';
 import type { SectionProps } from './ShopProfileSection';
 
@@ -198,6 +199,7 @@ const DesktopUpdates = () => {
     try {
       const { check: runCheck } = await import('@tauri-apps/plugin-updater');
       const update = await runCheck();
+      void cloudPing(); // opt-out usage ping; silent on any failure
       if (!update) {
         logger.info('updater', 'check.up_to_date', undefined, 'No update available');
         setStatus({ kind: 'uptodate' });

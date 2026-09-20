@@ -1,6 +1,9 @@
 import {
   IconBuildingBank,
   IconBuildingStore,
+  IconAlertTriangle,
+  IconCloud,
+  IconCloudUpload,
   IconDatabase,
   IconDeviceDesktopAnalytics,
   IconFileText,
@@ -17,6 +20,9 @@ export type SettingsSectionId =
   | 'printing'
   | 'templates'
   | 'updates'
+  | 'account'
+  | 'sync'
+  | 'conflicts'
   | 'backup'
   | 'benchmark'
   | 'logs';
@@ -28,6 +34,8 @@ export interface SettingsSectionMeta {
   description: string;
   icon: typeof IconBuildingStore;
   desktopOnly?: boolean;
+  /** Hidden unless the desktop shell reports a configured cloud. */
+  requiresCloud?: boolean;
   comingSoon?: boolean;
   disabled?: boolean;
 }
@@ -84,6 +92,33 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     icon: IconRefresh,
   },
   {
+    id: 'account',
+    label: 'Cloud Account',
+    shortLabel: 'Account',
+    description: 'Optional free account for cloud backup and web access',
+    icon: IconCloud,
+    desktopOnly: true,
+    requiresCloud: true,
+  },
+  {
+    id: 'sync',
+    label: 'Cloud Sync',
+    shortLabel: 'Sync',
+    description: 'Keep this computer and your other devices up to date',
+    icon: IconCloudUpload,
+    desktopOnly: true,
+    requiresCloud: true,
+  },
+  {
+    id: 'conflicts',
+    label: 'Sync Conflicts',
+    shortLabel: 'Conflicts',
+    description: 'Changes from other devices that are worth a second look',
+    icon: IconAlertTriangle,
+    desktopOnly: true,
+    requiresCloud: true,
+  },
+  {
     id: 'backup',
     label: 'Data Backup & Restore',
     shortLabel: 'Data',
@@ -109,5 +144,10 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
   },
 ];
 
-export const getVisibleSettingsSections = (isDesktop: boolean): SettingsSectionMeta[] =>
-  SETTINGS_SECTIONS.filter((section) => !section.desktopOnly || isDesktop);
+export const getVisibleSettingsSections = (
+  isDesktop: boolean,
+  cloudEnabled = false
+): SettingsSectionMeta[] =>
+  SETTINGS_SECTIONS.filter(
+    (section) => (!section.desktopOnly || isDesktop) && (!section.requiresCloud || cloudEnabled)
+  );

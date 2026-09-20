@@ -105,6 +105,14 @@ export const queryKeys = {
     setupStatus: () => ['system', 'setup-status'] as const,
     installation: () => ['system', 'installation'] as const,
   },
+  cloud: {
+    all: ['cloud'] as const,
+    state: () => ['cloud', 'state'] as const,
+  },
+  syncStatus: {
+    all: ['sync-status'] as const,
+    conflicts: () => ['sync-status', 'conflicts'] as const,
+  },
   logs: {
     all: ['logs'] as const,
     stats: () => ['logs', 'stats'] as const,

@@ -23,6 +23,7 @@ import {
   IconDeviceDesktop,
   IconInfoCircle,
   IconCpu,
+  IconCloud,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -40,6 +41,7 @@ import { DataChoiceStep } from './DataChoiceStep';
 import { ProgressStep } from './ProgressStep';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
 import { PRODUCT_NAME } from '@/config/branding';
+import { RegisterStep, useCloudState } from '@/features/account';
 
 export const WelcomeWizard = () => {
   const navigate = useNavigate();
@@ -50,6 +52,12 @@ export const WelcomeWizard = () => {
 
   const { data: status, isLoading: statusLoading } = useSetupStatus();
   const initializeMutation = useInitializeSetup();
+  // The optional "register free account" step exists only when the shell reports a
+  // configured cloud; without one the wizard is exactly the original four steps.
+  const { state: cloud } = useCloudState();
+  const cloudStep = cloud.enabled;
+  const dbStepIndex = cloudStep ? 3 : 2;
+  const launchStepIndex = dbStepIndex + 1;
 
   const [activeStep, setActiveStepState] = useState<number>(0);
   const setActiveStep = (step: number) => {
@@ -66,7 +74,7 @@ export const WelcomeWizard = () => {
   const [setupError, setSetupError] = useState<string | null>(null);
 
   // If setup was ALREADY completed prior to opening the wizard, redirect immediately to Dashboard.
-  // Never auto-redirect while the user is on the active provisioning screen (activeStep === 3).
+  // Never auto-redirect while the user is on the active provisioning screen (the launch step).
   const initialCheckDoneRef = useRef(false);
   useEffect(() => {
     if (initialCheckDoneRef.current) return;
@@ -88,7 +96,7 @@ export const WelcomeWizard = () => {
 
   const handleStartSetup = async (payload: SetupSystemPayload) => {
     setSetupPayload(payload);
-    setActiveStep(3); // Advance to ProgressStep
+    setActiveStep(launchStepIndex); // Advance to ProgressStep
     setSetupError(null);
     // The password is masked by the logger's redaction; the choice is what matters.
     logger.info('onboarding', 'setup.start', { ...payload }, 'Starting first-time setup');
@@ -237,7 +245,7 @@ export const WelcomeWizard = () => {
           {/* Stepper Navigation */}
           <Stepper
             active={activeStep}
-            onStepClick={activeStep < 3 ? setActiveStep : undefined}
+            onStepClick={activeStep < launchStepIndex ? setActiveStep : undefined}
             orientation={isMobile ? 'horizontal' : 'vertical'}
             size={isMobile ? 'xs' : 'sm'}
             color="blue"
@@ -252,6 +260,13 @@ export const WelcomeWizard = () => {
               description={!isMobile ? t('Capabilities') : undefined}
               icon={<IconInfoCircle size={16} />}
             />
+            {cloudStep && (
+              <Stepper.Step
+                label={t('Account')}
+                description={!isMobile ? t('Optional') : undefined}
+                icon={<IconCloud size={16} />}
+              />
+            )}
             <Stepper.Step
               label={t('Database')}
               description={!isMobile ? t('Demo or Clean') : undefined}
@@ -330,21 +345,25 @@ export const WelcomeWizard = () => {
             <FeatureGuideStep onNext={() => setActiveStep(2)} onPrev={() => setActiveStep(0)} />
           )}
 
-          {activeStep === 2 && (
+          {cloudStep && activeStep === 2 && (
+            <RegisterStep onNext={() => setActiveStep(3)} onPrev={() => setActiveStep(1)} />
+          )}
+
+          {activeStep === dbStepIndex && (
             <DataChoiceStep
               loading={initializeMutation.isPending}
               onSubmit={handleStartSetup}
-              onPrev={() => setActiveStep(1)}
+              onPrev={() => setActiveStep(dbStepIndex - 1)}
             />
           )}
 
-          {activeStep === 3 && (
+          {activeStep === launchStepIndex && (
             <ProgressStep
               payload={setupPayload}
               loading={initializeMutation.isPending}
               result={setupResult}
               error={setupError}
-              onRetry={() => setActiveStep(2)}
+              onRetry={() => setActiveStep(dbStepIndex)}
               onComplete={handleCompleteAndLaunch}
               onGoToLogin={() => navigate(ROUTES.LOGIN)}
             />

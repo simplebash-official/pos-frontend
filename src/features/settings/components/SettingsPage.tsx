@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ActionIcon, Badge, Box, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -16,6 +17,8 @@ import { UpdatesSection } from './sections/UpdatesSection';
 import { BackupSection } from './sections/BackupSection';
 import { BenchmarkSection } from './sections/BenchmarkSection';
 import { LogsSection } from './sections/LogsSection';
+import { AccountSection } from '@/features/account';
+import { ConflictsSection, SyncSection } from '@/features/sync-status';
 
 const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) => void) => {
   const meta = SETTINGS_SECTIONS.find((s) => s.id === id);
@@ -56,6 +59,12 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
       return <DocumentTemplatesSection onDirtyChange={onDirtyChange} />;
     case 'updates':
       return <UpdatesSection onDirtyChange={onDirtyChange} />;
+    case 'account':
+      return <AccountSection onDirtyChange={onDirtyChange} />;
+    case 'sync':
+      return <SyncSection onDirtyChange={onDirtyChange} />;
+    case 'conflicts':
+      return <ConflictsSection onDirtyChange={onDirtyChange} />;
     case 'backup':
       return <BackupSection onDirtyChange={onDirtyChange} />;
     case 'benchmark':
@@ -68,9 +77,14 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
 export const SettingsPage = () => {
   const tier = useLayoutTier();
 
-  const [activeSection, setActiveSection] = useState<SettingsSectionId>('shop-profile');
+  // The sync badge deep-links here with `state: { section }`.
+  const requestedSection = (useLocation().state as { section?: SettingsSectionId } | null)?.section;
+  const initialSection: SettingsSectionId = SETTINGS_SECTIONS.some((s) => s.id === requestedSection)
+    ? (requestedSection as SettingsSectionId)
+    : 'shop-profile';
+  const [activeSection, setActiveSection] = useState<SettingsSectionId>(initialSection);
   // Mobile only: whether the user has drilled into a section, or is still looking at the list.
-  const [mobileSectionOpen, setMobileSectionOpen] = useState(false);
+  const [mobileSectionOpen, setMobileSectionOpen] = useState(initialSection !== 'shop-profile');
   const [isSectionDirty, setIsSectionDirty] = useState(false);
   // undefined = no pending navigation attempt; otherwise the target the user tried to switch to.
   const [pendingTarget, setPendingTarget] = useState<SettingsSectionId | 'back' | undefined>(

@@ -10,6 +10,7 @@ env:
 
 jobs:
   build-and-push:
+    if: github.repository == 'simplebash-official/pos-frontend'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -58,6 +59,7 @@ jobs:
 
   deploy:
     needs: build-and-push
+    if: github.repository == 'simplebash-official/pos-frontend'
     runs-on: ubuntu-latest
     steps:
       - name: Execute deployment via SSH
