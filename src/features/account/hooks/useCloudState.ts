@@ -2,14 +2,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import {
   cloudLinkStart,
+  cloudListDevices,
   cloudLoginAndLink,
   cloudRegister,
+  cloudRevokeDevice,
   cloudSetTelemetry,
   cloudUnlink,
   getCloudState,
   type CloudCommandError,
 } from '../api/accountApi';
-import type { CloudState, LoginPayload, PendingLink, RegisterPayload, RegisterResult } from '../types';
+import type {
+  CloudState,
+  DeviceInfo,
+  LoginPayload,
+  PendingLink,
+  RegisterPayload,
+  RegisterResult,
+} from '../types';
 import { DISABLED_CLOUD_STATE } from '../types';
 
 /** Cloud link state from the desktop shell. Disabled (and inert) on web. */
@@ -51,6 +60,23 @@ export const useCloudUnlink = () => {
   return useMutation<CloudState, CloudCommandError, void>({
     mutationFn: cloudUnlink,
     onSuccess: write,
+  });
+};
+
+/** Devices linked to this tenant, including this one. Enabled only while linked. */
+export const useCloudDevices = (enabled: boolean) =>
+  useQuery<DeviceInfo[], CloudCommandError>({
+    queryKey: queryKeys.cloud.devices(),
+    queryFn: cloudListDevices,
+    enabled,
+    staleTime: 5_000,
+  });
+
+export const useCloudRevokeDevice = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, CloudCommandError, string>({
+    mutationFn: cloudRevokeDevice,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cloud.devices() }),
   });
 };
 

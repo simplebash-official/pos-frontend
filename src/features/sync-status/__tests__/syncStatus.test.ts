@@ -195,11 +195,22 @@ describe('sync status store', () => {
 });
 
 describe('settings sections', () => {
-  it('shows Sync and Conflicts only on desktop with a configured cloud', () => {
-    const ids = (desktop: boolean, cloud: boolean) =>
-      getVisibleSettingsSections(desktop, cloud).map((s) => s.id);
-    expect(ids(true, true)).toEqual(expect.arrayContaining(['sync', 'conflicts']));
-    expect(ids(true, false)).not.toContain('sync');
-    expect(ids(false, true)).not.toContain('conflicts');
+  const ids = (desktop: boolean, cloud: boolean, linked: boolean) =>
+    getVisibleSettingsSections(desktop, cloud, linked).map((s) => s.id);
+
+  it('shows Sync and Conflicts only on a linked desktop with a configured cloud', () => {
+    expect(ids(true, true, true)).toEqual(expect.arrayContaining(['sync', 'conflicts']));
+    expect(ids(true, false, true)).not.toContain('sync');
+    expect(ids(false, true, true)).not.toContain('conflicts');
+  });
+
+  it('hides Sync and Conflicts while the cloud is enabled but this device is not linked yet', () => {
+    expect(ids(true, true, false)).not.toContain('sync');
+    expect(ids(true, true, false)).not.toContain('conflicts');
+  });
+
+  it('keeps Cloud Account visible whenever the cloud is enabled, linked or not', () => {
+    expect(ids(true, true, false)).toContain('account');
+    expect(ids(true, true, true)).toContain('account');
   });
 });

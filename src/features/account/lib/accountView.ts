@@ -1,4 +1,4 @@
-import type { CloudErrorInfo, CloudState } from '../types';
+import type { CloudErrorInfo, CloudState, DeviceInfo } from '../types';
 
 export type AccountMode = 'disabled' | 'signed-out' | 'pending' | 'linked';
 
@@ -45,3 +45,11 @@ export const validateAccountForm = (
   }
   return null;
 };
+
+/** Devices shown in "Linked devices": revoked ones never appear (they're gone). */
+export const visibleDevices = (devices: DeviceInfo[]): DeviceInfo[] =>
+  devices.filter((d) => !d.revoked);
+
+/** Whether the only device shown is this one (i.e. no *other* device is linked). */
+export const onlyThisDeviceLinked = (devices: DeviceInfo[], thisDeviceId: string | null): boolean =>
+  devices.length > 0 && devices.every((d) => d.deviceId === thisDeviceId);

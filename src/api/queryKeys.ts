@@ -108,6 +108,7 @@ export const queryKeys = {
   cloud: {
     all: ['cloud'] as const,
     state: () => ['cloud', 'state'] as const,
+    devices: () => ['cloud', 'devices'] as const,
   },
   syncStatus: {
     all: ['sync-status'] as const,

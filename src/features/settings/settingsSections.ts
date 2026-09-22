@@ -36,6 +36,8 @@ export interface SettingsSectionMeta {
   desktopOnly?: boolean;
   /** Hidden unless the desktop shell reports a configured cloud. */
   requiresCloud?: boolean;
+  /** Hidden until this device is linked to a cloud account (implies requiresCloud). */
+  requiresLink?: boolean;
   comingSoon?: boolean;
   disabled?: boolean;
 }
@@ -108,6 +110,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     icon: IconCloudUpload,
     desktopOnly: true,
     requiresCloud: true,
+    requiresLink: true,
   },
   {
     id: 'conflicts',
@@ -117,6 +120,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     icon: IconAlertTriangle,
     desktopOnly: true,
     requiresCloud: true,
+    requiresLink: true,
   },
   {
     id: 'backup',
@@ -146,8 +150,12 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
 
 export const getVisibleSettingsSections = (
   isDesktop: boolean,
-  cloudEnabled = false
+  cloudEnabled = false,
+  cloudLinked = false
 ): SettingsSectionMeta[] =>
   SETTINGS_SECTIONS.filter(
-    (section) => (!section.desktopOnly || isDesktop) && (!section.requiresCloud || cloudEnabled)
+    (section) =>
+      (!section.desktopOnly || isDesktop) &&
+      (!section.requiresCloud || cloudEnabled) &&
+      (!section.requiresLink || cloudLinked)
   );

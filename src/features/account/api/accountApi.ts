@@ -3,6 +3,7 @@ import { toCloudError } from '../lib/accountView';
 import {
   DISABLED_CLOUD_STATE,
   type CloudState,
+  type DeviceInfo,
   type LinkPoll,
   type LoginPayload,
   type PendingLink,
@@ -64,6 +65,11 @@ export const cloudLinkStart = () => call<PendingLink>('cloud_link_start');
 export const cloudLinkPoll = () => call<LinkPoll>('cloud_link_poll');
 
 export const cloudUnlink = () => call<CloudState>('cloud_unlink');
+
+export const cloudListDevices = () => call<DeviceInfo[]>('cloud_list_devices');
+
+export const cloudRevokeDevice = (deviceId: string) =>
+  call<void>('cloud_revoke_device', { deviceId });
 
 export const cloudSetTelemetry = (enabled: boolean) =>
   call<CloudState>('cloud_set_telemetry', { enabled });

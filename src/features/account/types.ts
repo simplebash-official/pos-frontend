@@ -20,6 +20,18 @@ export interface CloudState {
 
 export type LinkPoll = { status: 'pending' } | { status: 'linked'; state: CloudState };
 
+/** Mirrors `api::DeviceView` from the desktop shell's `cloud` module. */
+export interface DeviceInfo {
+  deviceId: string;
+  tenantId: string;
+  deviceName: string;
+  os: string;
+  appVersion: string;
+  createdAt: string;
+  lastSeenAt: string | null;
+  revoked: boolean;
+}
+
 export interface RegisterResult {
   email: string;
   verificationRequired: boolean;

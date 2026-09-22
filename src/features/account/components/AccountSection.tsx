@@ -23,6 +23,7 @@ import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
 import { cloudLinkPoll, cloudRegister } from '../api/accountApi';
+import { LinkedDevicesList } from './LinkedDevicesList';
 import {
   useCloudLinkStart,
   useCloudLogin,
@@ -263,6 +264,8 @@ export const AccountSection = (_props: SectionProps) => {
                 {t('Unlink this device')}
               </Button>
             </Group>
+            <Divider mt="xs" />
+            <LinkedDevicesList thisDeviceId={state.deviceId} />
           </Stack>
         )}
 

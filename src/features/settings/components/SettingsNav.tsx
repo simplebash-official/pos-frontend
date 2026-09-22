@@ -12,7 +12,7 @@ interface SettingsNavProps {
 /** Desktop: a persistent vertical list of sections, styled identically to the left sidebar NavLink. */
 export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
   const { state: cloud } = useCloudState();
-  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled);
+  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
   return (
     <Paper withBorder p="xs" style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
       <Text
@@ -103,7 +103,7 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
 /** Tablet: a top tab strip standing in for the sidebar. */
 export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
   const { state: cloud } = useCloudState();
-  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled);
+  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
   return (
     <Tabs
       value={active}
@@ -140,7 +140,7 @@ export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
 /** Mobile: a full-screen drill-down list — the section list itself, one row per section. */
 export const SettingsNavDrillDownList = ({ active, onChange }: SettingsNavProps) => {
   const { state: cloud } = useCloudState();
-  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled);
+  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
   return (
     <Stack gap="xs">
       <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
