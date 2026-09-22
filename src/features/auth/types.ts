@@ -11,6 +11,8 @@ export interface AuthUser {
 export interface LoginPayload {
   email: string;
   password: string;
+  /** Multi-tenant web login only; dropped by `loginApi` everywhere else. */
+  shopCode?: string;
 }
 
 export interface LoginResponseData {

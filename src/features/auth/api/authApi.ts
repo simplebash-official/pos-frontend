@@ -1,4 +1,5 @@
 import { apiClient } from '@/api/client';
+import { isShopCodeRequired } from '../lib/shopCode';
 import type {
   LoginPayload,
   LoginResponse,
@@ -8,7 +9,11 @@ import type {
 } from '../types';
 
 export const loginApi = async (payload: LoginPayload): Promise<LoginResponseData> => {
-  const response = await apiClient.post<LoginResponse | LoginResponseData>('/auth/login', payload);
+  // The shop code only travels on the multi-tenant web login; single-shop
+  // servers and the desktop app never see it.
+  const { shopCode, ...credentials } = payload;
+  const body = isShopCodeRequired() && shopCode ? { ...credentials, shopCode } : credentials;
+  const response = await apiClient.post<LoginResponse | LoginResponseData>('/auth/login', body);
   if ('data' in response && response.data) {
     return response.data;
   }

@@ -1687,5 +1687,10 @@
   "Duplicate number renamed": "අනුපිටපත් අංකය නැවත නම් කරන ලදී",
   "Sync Conflicts": "සමමුහුර්ත ගැටුම්",
   "Keep this computer and your other devices up to date": "මෙම පරිගණකය සහ ඔබේ අනෙක් උපාංග යාවත්කාලීනව තබන්න",
-  "Changes from other devices that are worth a second look": "අනෙක් උපාංගවලින් ආ, නැවත බැලිය යුතු වෙනස්කම්"
+  "Changes from other devices that are worth a second look": "අනෙක් උපාංගවලින් ආ, නැවත බැලිය යුතු වෙනස්කම්",
+  "Shop code": "ව්‍යාපාර කේතය",
+  "The short code for your business, e.g. test-shop": "ඔබේ ව්‍යාපාරයේ කෙටි කේතය, උදා: test-shop",
+  "Enter your shop code, e.g. test-shop.": "ඔබේ ව්‍යාපාර කේතය ඇතුළත් කරන්න, උදා: test-shop.",
+  "Please enter your shop code.": "කරුණාකර ඔබේ ව්‍යාපාර කේතය ඇතුළත් කරන්න.",
+  "Invalid shop code, email or password. Please try again.": "ව්‍යාපාර කේතය, ඊමේල් හෝ මුරපදය වැරදියි. නැවත උත්සාහ කරන්න."
 }

@@ -19,12 +19,23 @@ import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../api/authApi';
 import { SERVICE_CENTER_NAME } from '@/config/branding';
-import { getErrorMessage } from '@/shared/lib/error';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { logger } from '@/shared/logging';
+import { ShopCodeField } from './ShopCodeField';
+import {
+  getRememberedShopCode,
+  isShopCodeRequired,
+  isValidShopCode,
+  loginErrorMessage,
+  normalizeShopCode,
+  rememberShopCode,
+} from '../lib/shopCode';
 
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [shopCode, setShopCode] = useState(getRememberedShopCode);
+  const [shopCodeError, setShopCodeError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -48,10 +59,25 @@ export const LoginForm = () => {
       return;
     }
 
+    const needsShopCode = isShopCodeRequired();
+    if (needsShopCode && !isValidShopCode(shopCode)) {
+      setShopCodeError('Enter your shop code, e.g. test-shop.');
+      return;
+    }
+    setShopCodeError(null);
+
     setIsSubmitting(true);
 
     try {
-      const data = await loginApi({ email: trimmedEmail, password });
+      const data = await loginApi({
+        email: trimmedEmail,
+        password,
+        shopCode: needsShopCode ? normalizeShopCode(shopCode) : undefined,
+      });
+      if (needsShopCode) {
+        rememberShopCode(shopCode);
+        logger.event('app', 'auth/login.shop_code', { shopCode: normalizeShopCode(shopCode) });
+      }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
       notifications.show({
@@ -64,7 +90,7 @@ export const LoginForm = () => {
     } catch (err: unknown) {
       notifications.show({
         title: 'Login Failed',
-        message: getErrorMessage(err, 'Invalid email or password. Please try again.'),
+        message: loginErrorMessage(err, 'Invalid email or password. Please try again.'),
         color: 'red',
       });
     } finally {
@@ -114,6 +140,16 @@ export const LoginForm = () => {
         {/* Form Fields */}
         <Box component="form" onSubmit={handleLogin} w="100%">
           <Stack gap="md" w="100%">
+            <ShopCodeField
+              value={shopCode}
+              onChange={(v) => {
+                setShopCode(v);
+                setShopCodeError(null);
+              }}
+              error={shopCodeError}
+              size="md"
+            />
+
             <TextInput
               label={t('Email Address')}
               placeholder={t('admin@simplebash.local')}
