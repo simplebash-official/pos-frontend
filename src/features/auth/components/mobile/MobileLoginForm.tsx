@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
+  Box,
   TextInput,
   PasswordInput,
   Checkbox,
@@ -20,9 +21,10 @@ import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../../api/authApi';
 import { logger } from '@/shared/logging';
+import { CreateShopLink } from '../CreateShopLink';
 import { ShopCodeField } from '../ShopCodeField';
 import {
-  getRememberedShopCode,
+  getInitialShopCode,
   isShopCodeRequired,
   isValidShopCode,
   loginErrorMessage,
@@ -36,16 +38,17 @@ interface MobileLoginFormProps {
 }
 
 export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
+  // Read before the state below: a `?shop=` link from the SimpleBash app prefills the shop code.
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [shopCode, setShopCode] = useState(getRememberedShopCode);
+  const [shopCode, setShopCode] = useState(() => getInitialShopCode(location.search));
   const [shopCodeError, setShopCodeError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
@@ -229,6 +232,10 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
             </div>
           </Stack>
         </form>
+
+        <Box mt="md">
+          <CreateShopLink />
+        </Box>
       </div>
     </>
   );

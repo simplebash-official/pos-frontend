@@ -21,9 +21,10 @@ import { loginApi } from '../api/authApi';
 import { SERVICE_CENTER_NAME } from '@/config/branding';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { logger } from '@/shared/logging';
+import { CreateShopLink } from './CreateShopLink';
 import { ShopCodeField } from './ShopCodeField';
 import {
-  getRememberedShopCode,
+  getInitialShopCode,
   isShopCodeRequired,
   isValidShopCode,
   loginErrorMessage,
@@ -32,15 +33,16 @@ import {
 } from '../lib/shopCode';
 
 export const LoginForm = () => {
+  // Read before the state below: a `?shop=` link from the SimpleBash app prefills the shop code.
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [shopCode, setShopCode] = useState(getRememberedShopCode);
+  const [shopCode, setShopCode] = useState(() => getInitialShopCode(location.search));
   const [shopCodeError, setShopCodeError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const isMobile = useIsMobile();
 
   const from =
@@ -194,6 +196,8 @@ export const LoginForm = () => {
             </Button>
           </Stack>
         </Box>
+
+        <CreateShopLink />
       </Stack>
     </>
   );

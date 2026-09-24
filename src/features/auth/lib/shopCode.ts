@@ -30,6 +30,18 @@ export const getRememberedShopCode = (storage?: ShopCodeStorage): string => {
   }
 };
 
+/** The `?shop=` value of a link from the SimpleBash app ("Open POS"), or '' if absent or not a valid code. */
+export const getShopCodeFromLink = (search: string): string => {
+  const code = new URLSearchParams(search).get('shop');
+  return code !== null && isValidShopCode(code) ? normalizeShopCode(code) : '';
+};
+
+/** Where the login's shop code starts: a code from the link wins over the one remembered in this browser. */
+export const getInitialShopCode = (search: string, storage?: ShopCodeStorage): string => {
+  const fromLink = getShopCodeFromLink(search);
+  return fromLink !== '' ? fromLink : getRememberedShopCode(storage);
+};
+
 export const rememberShopCode = (value: string, storage?: ShopCodeStorage): void => {
   try {
     (storage ?? localStorage).setItem(STORAGE_KEYS.SHOP_CODE, normalizeShopCode(value));

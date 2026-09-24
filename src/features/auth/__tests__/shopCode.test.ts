@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { apiClient } from '@/api/client';
 import { loginApi } from '../api/authApi';
 import {
+  getInitialShopCode,
   getRememberedShopCode,
+  getShopCodeFromLink,
   isShopCodeRequired,
   isValidShopCode,
   loginErrorMessage,
@@ -14,7 +16,9 @@ vi.mock('@/api/client', () => ({
   apiClient: { post: vi.fn(), get: vi.fn() },
 }));
 
-const loginResponse = { data: { token: 't', user: { id: 'u', name: 'N', email: 'e', role: 'admin' } } };
+const loginResponse = {
+  data: { token: 't', user: { id: 'u', name: 'N', email: 'e', role: 'admin' } },
+};
 
 beforeEach(() => {
   vi.mocked(apiClient.post).mockReset();
@@ -50,7 +54,16 @@ describe('shop code validation', () => {
 
   it('accepts slugs and rejects everything else', () => {
     for (const ok of ['test-shop', 'ab', 'shop1', 'a-b-c']) expect(isValidShopCode(ok)).toBe(true);
-    for (const bad of ['', 'a', '-shop', 'shop-', 'my--shop', 'my shop', 'shop_1', 'a'.repeat(64)]) {
+    for (const bad of [
+      '',
+      'a',
+      '-shop',
+      'shop-',
+      'my--shop',
+      'my shop',
+      'shop_1',
+      'a'.repeat(64),
+    ]) {
       expect(isValidShopCode(bad)).toBe(false);
     }
     expect(isValidShopCode('  TEST-SHOP ')).toBe(true);
@@ -117,9 +130,9 @@ describe('loginErrorMessage', () => {
     expect(loginErrorMessage({ statusCode: 400, message: 'Shop code is required' }, 'x')).toBe(
       'Please enter your shop code.'
     );
-    expect(loginErrorMessage({ statusCode: 401, message: 'Invalid shop code, email or password' }, 'x')).toBe(
-      'Invalid shop code, email or password. Please try again.'
-    );
+    expect(
+      loginErrorMessage({ statusCode: 401, message: 'Invalid shop code, email or password' }, 'x')
+    ).toBe('Invalid shop code, email or password. Please try again.');
   });
 
   it('keeps the existing behaviour on single-shop builds', () => {
@@ -127,5 +140,35 @@ describe('loginErrorMessage', () => {
       'Invalid credentials'
     );
     expect(loginErrorMessage(undefined, 'fallback')).toBe('fallback');
+  });
+});
+
+describe('shop code from an "Open POS" link', () => {
+  const storage = (value: string | null) => ({
+    getItem: vi.fn().mockReturnValue(value),
+    setItem: vi.fn(),
+  });
+
+  it('reads and normalizes ?shop=', () => {
+    expect(getShopCodeFromLink('?shop=Ann-S-Phones')).toBe('ann-s-phones');
+    expect(getShopCodeFromLink('?foo=1&shop=test-shop')).toBe('test-shop');
+  });
+
+  it('ignores a missing or invalid code', () => {
+    expect(getShopCodeFromLink('')).toBe('');
+    expect(getShopCodeFromLink('?other=1')).toBe('');
+    expect(getShopCodeFromLink('?shop=')).toBe('');
+    expect(getShopCodeFromLink('?shop=bad code!')).toBe('');
+    expect(getShopCodeFromLink('?shop=-leading')).toBe('');
+  });
+
+  it('prefers the link over the remembered code', () => {
+    expect(getInitialShopCode('?shop=from-link', storage('remembered'))).toBe('from-link');
+  });
+
+  it('falls back to the remembered code, then to empty', () => {
+    expect(getInitialShopCode('', storage('remembered'))).toBe('remembered');
+    expect(getInitialShopCode('?shop=bad code!', storage('remembered'))).toBe('remembered');
+    expect(getInitialShopCode('', storage(null))).toBe('');
   });
 });

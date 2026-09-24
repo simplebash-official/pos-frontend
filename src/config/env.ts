@@ -13,6 +13,14 @@ export const env = {
   get multiTenant(): boolean {
     return import.meta.env.VITE_MULTI_TENANT === 'true';
   },
+  /**
+   * Where a person without a shop goes to create one (the SimpleBash main app).
+   * A getter so it is read at use time (tests stub it). Only shown on the
+   * multi-tenant web login.
+   */
+  get accountsUrl(): string {
+    return (import.meta.env.VITE_ACCOUNTS_URL || 'https://app.simplebash.com').replace(/\/+$/, '');
+  },
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
   appName: import.meta.env.VITE_APP_NAME || PRODUCT_NAME,
