@@ -23,9 +23,10 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { logger } from '@/shared/logging';
 import { CreateShopLink } from './CreateShopLink';
 import { ShopCodeField } from './ShopCodeField';
+import { useLoginShopCode } from '../lib/useLoginShopCode';
 import {
-  getInitialShopCode,
   isShopCodeRequired,
+  isShopCodeRejection,
   isValidShopCode,
   loginErrorMessage,
   normalizeShopCode,
@@ -33,12 +34,20 @@ import {
 } from '../lib/shopCode';
 
 export const LoginForm = () => {
-  // Read before the state below: a `?shop=` link from the SimpleBash app prefills the shop code.
+  // Read before the state below: a `?shop=` link from the SimpleBash app sets (and hides) the shop code.
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [shopCode, setShopCode] = useState(() => getInitialShopCode(location.search));
-  const [shopCodeError, setShopCodeError] = useState<string | null>(null);
+  const {
+    shopCode,
+    setShopCode,
+    locked: shopCodeLocked,
+    focusField: focusShopCode,
+    error: shopCodeError,
+    setError: setShopCodeError,
+    changeShop,
+    revealField,
+  } = useLoginShopCode(location.search);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -90,6 +99,8 @@ export const LoginForm = () => {
 
       navigate(from, { replace: true });
     } catch (err: unknown) {
+      // A wrong code from a link is hidden; show the field so it can be fixed.
+      if (shopCodeLocked && isShopCodeRejection(err)) revealField();
       notifications.show({
         title: 'Login Failed',
         message: loginErrorMessage(err, 'Invalid email or password. Please try again.'),
@@ -150,6 +161,9 @@ export const LoginForm = () => {
               }}
               error={shopCodeError}
               size="md"
+              locked={shopCodeLocked}
+              onChangeShop={changeShop}
+              autoFocus={focusShopCode}
             />
 
             <TextInput

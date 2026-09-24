@@ -42,12 +42,30 @@ export const getInitialShopCode = (search: string, storage?: ShopCodeStorage): s
   return fromLink !== '' ? fromLink : getRememberedShopCode(storage);
 };
 
+/**
+ * The login's starting shop code state. A valid `?shop=` link locks it (the field is hidden and the
+ * code is used as is); a code remembered in this browser only prefills the visible field.
+ */
+export const getInitialShopCodeState = (
+  search: string,
+  storage?: ShopCodeStorage
+): { shopCode: string; locked: boolean } => ({
+  shopCode: getInitialShopCode(search, storage),
+  locked: getShopCodeFromLink(search) !== '',
+});
+
 export const rememberShopCode = (value: string, storage?: ShopCodeStorage): void => {
   try {
     (storage ?? localStorage).setItem(STORAGE_KEYS.SHOP_CODE, normalizeShopCode(value));
   } catch {
     // Private mode / blocked storage: the field just is not prefilled next time.
   }
+};
+
+/** True when a failed login could be caused by the shop code (the server answers 400/401 for it). */
+export const isShopCodeRejection = (err: unknown): boolean => {
+  const status = ((err ?? {}) as Partial<ApiError>).statusCode;
+  return status === 400 || status === 401;
 };
 
 /** Friendly text for a failed login, including the multi-tenant cases. */

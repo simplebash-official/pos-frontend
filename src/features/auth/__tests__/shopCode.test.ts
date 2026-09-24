@@ -3,8 +3,10 @@ import { apiClient } from '@/api/client';
 import { loginApi } from '../api/authApi';
 import {
   getInitialShopCode,
+  getInitialShopCodeState,
   getRememberedShopCode,
   getShopCodeFromLink,
+  isShopCodeRejection,
   isShopCodeRequired,
   isValidShopCode,
   loginErrorMessage,
@@ -170,5 +172,47 @@ describe('shop code from an "Open POS" link', () => {
     expect(getInitialShopCode('', storage('remembered'))).toBe('remembered');
     expect(getInitialShopCode('?shop=bad code!', storage('remembered'))).toBe('remembered');
     expect(getInitialShopCode('', storage(null))).toBe('');
+  });
+});
+
+describe('initial shop code state', () => {
+  const store = (value: string | null) => ({
+    getItem: () => value,
+    setItem: () => {},
+  });
+
+  it('locks a valid link code, even when another code is remembered', () => {
+    expect(getInitialShopCodeState('?shop=Test-Shop', store('old-shop'))).toEqual({
+      shopCode: 'test-shop',
+      locked: true,
+    });
+  });
+
+  it('keeps the field open for a remembered code', () => {
+    expect(getInitialShopCodeState('', store('old-shop'))).toEqual({
+      shopCode: 'old-shop',
+      locked: false,
+    });
+  });
+
+  it('starts empty and open on a first visit', () => {
+    expect(getInitialShopCodeState('', store(null))).toEqual({ shopCode: '', locked: false });
+  });
+
+  it('ignores an invalid link code', () => {
+    expect(getInitialShopCodeState('?shop=a', store('old-shop'))).toEqual({
+      shopCode: 'old-shop',
+      locked: false,
+    });
+  });
+});
+
+describe('isShopCodeRejection', () => {
+  it('is true for 400 and 401 only', () => {
+    expect(isShopCodeRejection({ statusCode: 401 })).toBe(true);
+    expect(isShopCodeRejection({ statusCode: 400 })).toBe(true);
+    expect(isShopCodeRejection({ statusCode: 500 })).toBe(false);
+    expect(isShopCodeRejection(new Error('offline'))).toBe(false);
+    expect(isShopCodeRejection(undefined)).toBe(false);
   });
 });

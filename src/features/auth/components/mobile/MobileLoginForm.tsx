@@ -23,9 +23,10 @@ import { loginApi } from '../../api/authApi';
 import { logger } from '@/shared/logging';
 import { CreateShopLink } from '../CreateShopLink';
 import { ShopCodeField } from '../ShopCodeField';
+import { useLoginShopCode } from '../../lib/useLoginShopCode';
 import {
-  getInitialShopCode,
   isShopCodeRequired,
+  isShopCodeRejection,
   isValidShopCode,
   loginErrorMessage,
   normalizeShopCode,
@@ -38,12 +39,20 @@ interface MobileLoginFormProps {
 }
 
 export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
-  // Read before the state below: a `?shop=` link from the SimpleBash app prefills the shop code.
+  // Read before the state below: a `?shop=` link from the SimpleBash app sets (and hides) the shop code.
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [shopCode, setShopCode] = useState(() => getInitialShopCode(location.search));
-  const [shopCodeError, setShopCodeError] = useState<string | null>(null);
+  const {
+    shopCode,
+    setShopCode,
+    locked: shopCodeLocked,
+    focusField: focusShopCode,
+    error: shopCodeError,
+    setError: setShopCodeError,
+    changeShop,
+    revealField,
+  } = useLoginShopCode(location.search);
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -95,6 +104,8 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
       navigate(from, { replace: true });
     } catch (err: unknown) {
+      // A wrong code from a link is hidden; show the field so it can be fixed.
+      if (shopCodeLocked && isShopCodeRejection(err)) revealField();
       notifications.show({
         title: 'Login Failed',
         message: loginErrorMessage(err, 'Invalid email or password. Please try again.'),
@@ -173,6 +184,9 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
               }}
               error={shopCodeError}
               className="mobile-auth-input"
+              locked={shopCodeLocked}
+              onChangeShop={changeShop}
+              autoFocus={focusShopCode}
             />
 
             <TextInput
