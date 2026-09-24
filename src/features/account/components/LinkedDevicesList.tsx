@@ -6,7 +6,12 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import { useCloudDevices, useCloudRevokeDevice } from '../hooks/useCloudState';
-import { onlyThisDeviceLinked, toCloudError, visibleDevices } from '../lib/accountView';
+import {
+  isAccountSessionRequired,
+  onlyThisDeviceLinked,
+  toCloudError,
+  visibleDevices,
+} from '../lib/accountView';
 import type { DeviceInfo } from '../types';
 
 const DeviceRow = ({
@@ -33,9 +38,7 @@ const DeviceRow = ({
         </Group>
         <Text size="xs" c="dimmed">
           {device.os} · {device.appVersion}
-          {device.lastSeenAt
-            ? ` · ${t('Last active')} ${formatDateTime(device.lastSeenAt)}`
-            : ''}
+          {device.lastSeenAt ? ` · ${t('Last active')} ${formatDateTime(device.lastSeenAt)}` : ''}
         </Text>
       </Stack>
       {!isThisDevice && (
@@ -93,6 +96,10 @@ export const LinkedDevicesList = ({ thisDeviceId }: { thisDeviceId: string | nul
             {t('Loading devices…')}
           </Text>
         </Group>
+      ) : error && isAccountSessionRequired(error) ? (
+        <Text size="xs" c="dimmed">
+          {t('The list of linked devices cannot be shown from this computer.')}
+        </Text>
       ) : error ? (
         <Text size="xs" c="red">
           {toCloudError(error).message}
@@ -129,7 +136,9 @@ export const LinkedDevicesList = ({ thisDeviceId }: { thisDeviceId: string | nul
         confirmLabel={t('Revoke')}
         loading={revoke.isPending}
       >
-        {t('That device will be signed out and stop syncing. It can be linked again from that computer at any time.')}
+        {t(
+          'That device will be signed out and stop syncing. It can be linked again from that computer at any time.'
+        )}
       </ConfirmDialog>
     </Stack>
   );

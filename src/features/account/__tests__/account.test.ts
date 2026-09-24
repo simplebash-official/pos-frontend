@@ -10,6 +10,7 @@ import {
 } from '../api/accountApi';
 import {
   accountMode,
+  isAccountSessionRequired,
   onlyThisDeviceLinked,
   toCloudError,
   validateAccountForm,
@@ -37,8 +38,9 @@ describe('account api', () => {
   it('reports a disabled state on web without calling the shell', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(false);
     expect(await getCloudState()).toEqual(DISABLED_CLOUD_STATE);
-    await expect(cloudRegister({ email: 'a@b.c', password: 'x', ownerName: 'o', storeName: 's' }))
-      .rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
+    await expect(
+      cloudRegister({ email: 'a@b.c', password: 'x', ownerName: 'o', storeName: 's' })
+    ).rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
     expect(invoke).not.toHaveBeenCalled();
   });
 
@@ -54,8 +56,12 @@ describe('account api', () => {
   it('maps shell errors to CloudCommandError', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
     invoke.mockRejectedValueOnce({ code: 'EMAIL_TAKEN', message: 'taken', status: 409 });
-    const err = await cloudRegister({ email: 'a@b.c', password: 'x', ownerName: 'o', storeName: 's' })
-      .catch((e) => e);
+    const err = await cloudRegister({
+      email: 'a@b.c',
+      password: 'x',
+      ownerName: 'o',
+      storeName: 's',
+    }).catch((e) => e);
     expect(err).toBeInstanceOf(CloudCommandError);
     expect(err).toMatchObject({ code: 'EMAIL_TAKEN', status: 409 });
   });
@@ -119,11 +125,21 @@ describe('account view logic', () => {
     expect(toCloudError(new Error('bad')).code).toBe('UNKNOWN');
   });
 
+  it('recognises the "account session required" refusal (403) only', () => {
+    expect(isAccountSessionRequired({ code: 'FORBIDDEN', message: 'nope', status: 403 })).toBe(
+      true
+    );
+    expect(isAccountSessionRequired({ code: 'X', message: 'm', status: 500 })).toBe(false);
+    expect(isAccountSessionRequired(new Error('bad'))).toBe(false);
+  });
+
   it('validates forms', () => {
     expect(validateAccountForm({ email: 'no', password: '12345678' }, 'signin')).toMatch(/email/);
     expect(validateAccountForm({ email: 'a@b.c', password: 'short' }, 'signin')).toMatch(/8/);
     expect(validateAccountForm({ email: 'a@b.c', password: '12345678' }, 'signin')).toBeNull();
-    expect(validateAccountForm({ email: 'a@b.c', password: '12345678' }, 'register')).toMatch(/owner/);
+    expect(validateAccountForm({ email: 'a@b.c', password: '12345678' }, 'register')).toMatch(
+      /owner/
+    );
   });
 
   const device = (id: string, revoked = false): DeviceInfo => ({

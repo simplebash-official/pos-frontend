@@ -27,6 +27,12 @@ export const toCloudError = (err: unknown): CloudErrorInfo => {
   };
 };
 
+/**
+ * The device list needs an interactive account login, which a linked computer
+ * does not have — the cloud answers 403. That is expected, not a failure.
+ */
+export const isAccountSessionRequired = (err: unknown): boolean => toCloudError(err).status === 403;
+
 export const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
 export const MIN_PASSWORD_LENGTH = 8;
 
