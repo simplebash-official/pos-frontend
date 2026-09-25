@@ -24,10 +24,6 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   const { data: status, isLoading: isStatusLoading } = useSetupStatus();
   const location = useLocation();
 
-  if (!isStatusLoading && status && !status.setup_completed && isTauri()) {
-    return <Navigate to={ROUTES.WELCOME} replace />;
-  }
-
   if (!isInitialized || isLoading) {
     return (
       <PageLoader
@@ -42,7 +38,14 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   }
 
   if (!isAuthenticated) {
+    if (!isStatusLoading && status && !status.setup_completed && isTauri()) {
+      return <Navigate to={ROUTES.WELCOME} replace />;
+    }
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
+  }
+
+  if (!isStatusLoading && status && !status.setup_completed) {
+    return <Navigate to={ROUTES.WELCOME} replace />;
   }
 
   return <>{children}</>;

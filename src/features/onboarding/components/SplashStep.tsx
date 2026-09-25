@@ -19,9 +19,12 @@ import {
   IconSparkles,
   IconCheck,
   IconServer,
+  IconCloud,
+  IconDeviceDesktopAnalytics,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { PRODUCT_NAME } from '@/config/branding';
+import { isTauri } from '@/shared/lib/runtime';
 import type { SetupStatus } from '../types';
 
 export interface SplashStepProps {
@@ -51,7 +54,7 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
             gradient={{ from: 'blue', to: 'cyan' }}
             leftSection={<IconSparkles size={14} />}
           >
-            {t('First-Time Installation')}
+            {isTauri() ? t('First-Time Installation') : t('Shop Onboarding')}
           </Badge>
           <Badge variant="outline" color="gray" size="md">
             v{status?.app_version || '0.7.0'}
@@ -70,9 +73,13 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
           {t(`Welcome to ${PRODUCT_NAME}`)}
         </Title>
         <Text c="dimmed" size="md" mt="sm" maw={780} style={{ lineHeight: 1.6 }}>
-          {t(
-            'The complete, offline-first point of sale, split-tender billing, repair tracking, and inventory management powerhouse.'
-          )}
+          {isTauri()
+            ? t(
+                'The complete, offline-first point of sale, split-tender billing, repair tracking, and inventory management powerhouse.'
+              )
+            : t(
+                'The complete cloud point of sale, split-tender billing, repair tracking, and inventory management powerhouse.'
+              )}
         </Text>
       </Box>
 
@@ -84,7 +91,7 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
               <IconServer size={18} />
             </ThemeIcon>
             <Text fw={700} size="sm">
-              {t('Storage Engine')} & {t('Document Server')}
+              {isTauri() ? `${t('Storage Engine')} & ${t('Document Server')}` : `${t('Cloud Engine')} & ${t('Multi-Tenant Store')}`}
             </Text>
           </Group>
           <Badge color="green" variant="light" size="sm">
@@ -93,7 +100,7 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
         </Group>
 
         <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
-          {/* Engine 1: SQLite */}
+          {/* Engine 1: SQLite / MongoDB */}
           <Paper p="lg" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" mb="xs">
               <ThemeIcon color="blue" variant="light" size={44} radius="md">
@@ -105,10 +112,10 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
             </Group>
 
             <Text fw={700} size="md" mt="xs">
-              SQLite (Embedded)
+              {isTauri() ? 'SQLite (Embedded)' : 'MongoDB (Cloud)'}
             </Text>
             <Text size="xs" c="dimmed" mb="md">
-              Port :8080 · 127.0.0.1
+              {isTauri() ? 'Port :8080 · 127.0.0.1' : 'Isolated Tenant Document Store'}
             </Text>
 
             <List
@@ -120,12 +127,21 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
                 </ThemeIcon>
               }
             >
-              <List.Item>{t('Generating 25 relational SQLite tables')}</List.Item>
-              <List.Item>{t('Zero cloud lock-in: total data sovereignty')}</List.Item>
+              {isTauri() ? (
+                <>
+                  <List.Item>{t('Generating 25 relational SQLite tables')}</List.Item>
+                  <List.Item>{t('Zero cloud lock-in: total data sovereignty')}</List.Item>
+                </>
+              ) : (
+                <>
+                  <List.Item>{t('Strict tenant isolation & partitioned namespaces')}</List.Item>
+                  <List.Item>{t('High-availability cloud replica set storage')}</List.Item>
+                </>
+              )}
             </List>
           </Paper>
 
-          {/* Engine 2: Typst Document Server */}
+          {/* Engine 2: Typst Document Server / Cloud Document Bridge */}
           <Paper p="lg" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" mb="xs">
               <ThemeIcon color="cyan" variant="light" size={44} radius="md">
@@ -137,10 +153,10 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
             </Group>
 
             <Text fw={700} size="md" mt="xs">
-              Typst Document Server
+              {isTauri() ? 'Typst Document Server' : 'Cloud Document Bridge'}
             </Text>
             <Text size="xs" c="dimmed" mb="md">
-              Port :8090 · 127.0.0.1
+              {isTauri() ? 'Port :8090 · 127.0.0.1' : 'Serverless PDF & Receipt Generation'}
             </Text>
 
             <List
@@ -153,26 +169,26 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
               }
             >
               <List.Item>{t('Direct thermal 80mm & A4 invoice generation')}</List.Item>
-              <List.Item>Client-side high-DPI canvas previewer</List.Item>
+              <List.Item>{t('Client-side high-DPI canvas previewer')}</List.Item>
             </List>
           </Paper>
 
-          {/* Engine 3: Offline Vault */}
+          {/* Engine 3: Offline Vault / Multi-Device Cloud Sync */}
           <Paper p="lg" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
             <Group justify="space-between" mb="xs">
               <ThemeIcon color="teal" variant="light" size={44} radius="md">
-                <IconShieldLock size={24} />
+                {isTauri() ? <IconShieldLock size={24} /> : <IconCloud size={24} />}
               </ThemeIcon>
               <Badge color="teal" variant="light" size="xs">
-                {t('Security & Privacy')}
+                {isTauri() ? t('Security & Privacy') : t('Multi-Device')}
               </Badge>
             </Group>
 
             <Text fw={700} size="md" mt="xs">
-              100% Offline Vault
+              {isTauri() ? '100% Offline Vault' : 'Multi-Device Cloud Sync'}
             </Text>
             <Text size="xs" c="dimmed" mb="md">
-              Local Machine Storage
+              {isTauri() ? 'Local Machine Storage' : 'Real-time Synchronized Web Mesh'}
             </Text>
 
             <List
@@ -184,32 +200,41 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
                 </ThemeIcon>
               }
             >
-              <List.Item>{t('Instant one-click database backups & export')}</List.Item>
-              <List.Item>{t('Role-based permissions (Admin, Cashier, Tech)')}</List.Item>
+              {isTauri() ? (
+                <>
+                  <List.Item>{t('Instant one-click database backups & export')}</List.Item>
+                  <List.Item>{t('Role-based permissions (Admin, Cashier, Tech)')}</List.Item>
+                </>
+              ) : (
+                <>
+                  <List.Item>{t('Real-time sync across cashiers & technicians')}</List.Item>
+                  <List.Item>{t('Role-based permissions (Admin, Cashier, Tech)')}</List.Item>
+                </>
+              )}
             </List>
           </Paper>
         </SimpleGrid>
       </Box>
 
-      {/* Workstation Registration Information Bar */}
+      {/* Workstation / Cloud Registration Information Bar */}
       <Paper p="md" radius="md" withBorder style={{ backgroundColor: 'var(--bg-card)' }}>
         <Group justify="space-between" wrap="wrap" gap="sm">
           <Group gap="xs">
             <ThemeIcon color="blue" variant="light" size="md" radius="md">
-              <IconSparkles size={18} />
+              {isTauri() ? <IconSparkles size={18} /> : <IconDeviceDesktopAnalytics size={18} />}
             </ThemeIcon>
             <div>
               <Text fw={700} size="sm">
-                {t('Workstation Record')}
+                {isTauri() ? t('Workstation Record') : t('Cloud Shop Instance')}
               </Text>
               <Text size="xs" c="dimmed">
-                ID: {shortId} · {t('Installed')}: {installedDate} · {status?.platform || 'Desktop'}
+                ID: {shortId} · {isTauri() ? `${t('Installed')}: ${installedDate} · ${status?.platform || 'Desktop'}` : `${t('Initialized')}: ${installedDate} · Cloud Production`}
               </Text>
             </div>
           </Group>
 
           <Badge color="teal" variant="dot" size="md">
-            System Online & Healthy
+            {t('System Online & Healthy')}
           </Badge>
         </Group>
       </Paper>

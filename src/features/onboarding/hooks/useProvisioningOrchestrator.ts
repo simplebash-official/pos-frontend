@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { isTauri } from '@/shared/lib/runtime';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
 
 export type MilestoneStatus = 'pending' | 'running' | 'completed' | 'failed';
@@ -61,7 +62,7 @@ export const useProvisioningOrchestrator = ({
 }: UseProvisioningOrchestratorProps): UseProvisioningOrchestratorReturn => {
   const [progress, setProgress] = useState<number>(0);
   const [currentStageText, setCurrentStageText] = useState<string>(
-    'Starting workstation provisioning...'
+    isTauri() ? 'Starting workstation provisioning...' : 'Starting shop provisioning...'
   );
   const [logs, setLogs] = useState<ProvisioningLogEntry[]>([]);
   const [milestoneStatuses, setMilestoneStatuses] = useState<MilestoneStatus[]>([
@@ -134,7 +135,11 @@ export const useProvisioningOrchestrator = ({
     timeoutsRef.current = [];
 
     setProgress(100);
-    setCurrentStageText('Workstation initialized and ready for launch!');
+    setCurrentStageText(
+      isTauri()
+        ? 'Workstation initialized and ready for launch!'
+        : 'Shop initialized and ready for launch!'
+    );
     setMilestoneStatuses(['completed', 'completed', 'completed', 'completed', 'completed']);
     animationFinishedRef.current = true;
 
@@ -147,7 +152,9 @@ export const useProvisioningOrchestrator = ({
           timestamp: formatTimestamp(),
           tag: 'OK',
           tagColor: 'teal',
-          message: 'All 25 SQLite tables, security credentials, and configuration records ready.',
+          message: isTauri()
+            ? 'All 25 SQLite tables, security credentials, and configuration records ready.'
+            : 'All shop collections, security credentials, and configuration records ready.',
         },
       ];
     });
@@ -181,7 +188,7 @@ export const useProvisioningOrchestrator = ({
     // Stage 3 (3600ms - 4800ms): Milestone 4 alone is running, emits 2 sidecar logs, then turns completed
     // Stage 4 (4800ms - 6000ms): Milestone 5 alone is running, emits 2 verify logs, then turns completed
     // Stage 5 (6000ms+): All 5 are completed, progress is 100%, OK log emitted, celebration reveals
-    const steps: TimedStageStep[] = [
+    const desktopSteps: TimedStageStep[] = [
       // --- STAGE 0: Workstation Core & SQLite Engine (0ms - 1200ms) ---
       {
         delayMs: 0,
@@ -386,6 +393,214 @@ export const useProvisioningOrchestrator = ({
       },
     ];
 
+    const cloudSteps: TimedStageStep[] = [
+      // --- STAGE 0: Tenant Document Store & Cloud Engine (0ms - 1200ms) ---
+      {
+        delayMs: 0,
+        progress: 4,
+        stageText: 'Initializing cloud shop document store...',
+        milestoneStatuses: ['running', 'pending', 'pending', 'pending', 'pending'],
+      },
+      {
+        delayMs: 150,
+        progress: 9,
+        stageText: 'Initializing cloud shop document store...',
+        milestoneStatuses: ['running', 'pending', 'pending', 'pending', 'pending'],
+        log: {
+          tag: 'STORE',
+          tagColor: 'cyan',
+          messageTemplate: () =>
+            `Connected to isolated tenant store (partition: ${activePayload.admin_email || 'tenant'})`,
+        },
+      },
+      {
+        delayMs: 500,
+        progress: 14,
+        stageText: 'Applying tenant schema validations & partition indexes...',
+        milestoneStatuses: ['running', 'pending', 'pending', 'pending', 'pending'],
+        log: {
+          tag: 'STORE',
+          tagColor: 'cyan',
+          messageTemplate: () =>
+            'Enforcing tenant_id isolation pragma & compound query indices',
+        },
+      },
+      {
+        delayMs: 900,
+        progress: 18,
+        stageText: 'Verifying relational schema and table indices...',
+        milestoneStatuses: ['running', 'pending', 'pending', 'pending', 'pending'],
+        log: {
+          tag: 'MIGRATE',
+          tagColor: 'blue',
+          messageTemplate: () =>
+            'Verified core collections: invoices, products, stock_movements, repairs, users',
+        },
+      },
+
+      // --- STAGE 1: Security Vault & Administrator Profile (1200ms - 2400ms) ---
+      {
+        delayMs: 1200,
+        progress: 20,
+        stageText: 'Provisioning Administrator identity & access tokens...',
+        milestoneStatuses: ['completed', 'running', 'pending', 'pending', 'pending'],
+      },
+      {
+        delayMs: 1350,
+        progress: 26,
+        stageText: 'Provisioning Administrator identity & access tokens...',
+        milestoneStatuses: ['completed', 'running', 'pending', 'pending', 'pending'],
+        log: {
+          tag: 'AUTH',
+          tagColor: 'indigo',
+          messageTemplate: () => `Assigning Super-Admin role to account ${adminEmail}`,
+        },
+      },
+      {
+        delayMs: 1700,
+        progress: 32,
+        stageText: 'Assigning tenant cryptographic permissions...',
+        milestoneStatuses: ['completed', 'running', 'pending', 'pending', 'pending'],
+        log: {
+          tag: 'SECURITY',
+          tagColor: 'grape',
+          messageTemplate: () =>
+            'Access control matrix minted: billing:*, inventory:*, repairs:*, users:*',
+        },
+      },
+      {
+        delayMs: 2050,
+        progress: 38,
+        stageText: 'Authorizing tenant API tokens and workstation sessions...',
+        milestoneStatuses: ['completed', 'running', 'pending', 'pending', 'pending'],
+        log: {
+          tag: 'SECURITY',
+          tagColor: 'grape',
+          messageTemplate: () =>
+            'Tenant API credentials verified and active for multi-device sync',
+        },
+      },
+
+      // --- STAGE 2: Catalog, Sequence Registers & Rules (2400ms - 3600ms) ---
+      {
+        delayMs: 2400,
+        progress: 40,
+        stageText: isDemo
+          ? 'Populating category hierarchy and demo inventory SKUs...'
+          : 'Initializing pristine production catalog registers...',
+        milestoneStatuses: ['completed', 'completed', 'running', 'pending', 'pending'],
+      },
+      {
+        delayMs: 2550,
+        progress: 48,
+        stageText: isDemo
+          ? 'Populating category hierarchy and demo inventory SKUs...'
+          : 'Initializing pristine production catalog registers...',
+        milestoneStatuses: ['completed', 'completed', 'running', 'pending', 'pending'],
+        log: {
+          tag: 'CATALOG',
+          tagColor: 'teal',
+          messageTemplate: () =>
+            isDemo
+              ? 'Ingested retail category tree: Phones, Laptops, Accessories, Repair Components'
+              : 'Initialized clean category register with automatic barcode and SKU sequencer',
+        },
+      },
+      {
+        delayMs: 3050,
+        progress: 56,
+        stageText: isDemo
+          ? 'Configuring sample suppliers, customer loyalty and tax rules...'
+          : 'Configuring default payment channels and invoice tax rules...',
+        milestoneStatuses: ['completed', 'completed', 'running', 'pending', 'pending'],
+        log: {
+          tag: 'CATALOG',
+          tagColor: 'teal',
+          messageTemplate: () =>
+            isDemo
+              ? 'Loaded 3 supplier vendors, 5 loyalty customer accounts, and demo stock'
+              : 'Configured standard payment channels: Cash, Card, Bank Transfer, Credit',
+        },
+      },
+
+      // --- STAGE 3: Cloud Document Bridge & Rendering Pipelines (3600ms - 4800ms) ---
+      {
+        delayMs: 3600,
+        progress: 60,
+        stageText: 'Connecting cloud document rendering pipeline...',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'running', 'pending'],
+      },
+      {
+        delayMs: 3750,
+        progress: 68,
+        stageText: 'Connecting cloud document rendering pipeline...',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'running', 'pending'],
+        log: {
+          tag: 'BRIDGE',
+          tagColor: 'orange',
+          messageTemplate: () => 'Cloud document bridge connected to generation service',
+        },
+      },
+      {
+        delayMs: 4200,
+        progress: 76,
+        stageText: 'Configuring thermal and A4 document layouts...',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'running', 'pending'],
+        log: {
+          tag: 'BRIDGE',
+          tagColor: 'orange',
+          messageTemplate: () =>
+            'Document service ready (thermal 80mm & A4 invoice templates)',
+        },
+      },
+
+      // --- STAGE 4: Store Sync & Verification (4800ms - 6000ms) ---
+      {
+        delayMs: 4800,
+        progress: 80,
+        stageText: 'Verifying store synchronization & security posture...',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'completed', 'running'],
+      },
+      {
+        delayMs: 4950,
+        progress: 88,
+        stageText: 'Verifying store synchronization & security posture...',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'completed', 'running'],
+        log: {
+          tag: 'AUTH',
+          tagColor: 'indigo',
+          messageTemplate: () => 'Tenant JWT claims verified with role: [ADMINISTRATOR]',
+        },
+      },
+      {
+        delayMs: 5450,
+        progress: 96,
+        stageText: 'Validating cloud shop instance receipt...',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'completed', 'running'],
+        log: {
+          tag: 'VERIFY',
+          tagColor: 'teal',
+          messageTemplate: () => 'Cloud shop instance receipt signed and verified',
+        },
+      },
+
+      // --- STAGE 5: All Complete (6000ms+) ---
+      {
+        delayMs: 6000,
+        progress: 100,
+        stageText: 'Shop initialized and ready for launch!',
+        milestoneStatuses: ['completed', 'completed', 'completed', 'completed', 'completed'],
+        log: {
+          tag: 'OK',
+          tagColor: 'teal',
+          messageTemplate: () =>
+            'All database collections, security credentials, and configuration records ready.',
+        },
+      },
+    ];
+
+    const steps = isTauri() ? desktopSteps : cloudSteps;
+
     // Schedule all steps
     steps.forEach((step, idx) => {
       const timer = window.setTimeout(() => {
@@ -433,7 +648,7 @@ export const useProvisioningOrchestrator = ({
   }, [error, currentStageText]);
 
   const displayedMilestones = useMemo(() => {
-    const rawMilestones: ProvisioningMilestone[] = [
+    const desktopMilestones: ProvisioningMilestone[] = [
       {
         id: 'kernel',
         number: '01',
@@ -472,6 +687,48 @@ export const useProvisioningOrchestrator = ({
         status: milestoneStatuses[4],
       },
     ];
+
+    const cloudMilestones: ProvisioningMilestone[] = [
+      {
+        id: 'kernel',
+        number: '01',
+        title: 'Shop Document Store & Cloud Engine',
+        description: 'Multi-tenant isolated storage & transactional integrity',
+        status: milestoneStatuses[0],
+      },
+      {
+        id: 'security',
+        number: '02',
+        title: 'Security Vault & Administrator Profile',
+        description: 'Super-Admin role, tenant credentials & access control',
+        status: milestoneStatuses[1],
+      },
+      {
+        id: 'catalog',
+        number: '03',
+        title: 'Catalog, Sequence Registers & Rules',
+        description: payload?.load_sample_data
+          ? 'Retail inventory, repair parts, categories & customer loyalty'
+          : 'Pristine production catalog registers, payment modes & SKU generators',
+        status: milestoneStatuses[2],
+      },
+      {
+        id: 'sidecars',
+        number: '04',
+        title: 'Cloud Document Bridge & Rendering Pipelines',
+        description: 'Cloud document generator & thermal/A4 invoice templates',
+        status: milestoneStatuses[3],
+      },
+      {
+        id: 'ready',
+        number: '05',
+        title: 'Multi-Device Sync & Store Verification',
+        description: 'Cross-device synchronization channels & store verification',
+        status: milestoneStatuses[4],
+      },
+    ];
+
+    const rawMilestones = isTauri() ? desktopMilestones : cloudMilestones;
 
     if (!error) return rawMilestones;
 

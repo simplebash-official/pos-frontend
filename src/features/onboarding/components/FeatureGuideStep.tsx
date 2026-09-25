@@ -19,9 +19,11 @@ import {
   IconBarcode,
   IconShieldLock,
   IconCheck,
+  IconCloud,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { PRODUCT_NAME } from '@/config/branding';
+import { isTauri } from '@/shared/lib/runtime';
 
 export interface FeatureGuideStepProps {
   onNext: () => void;
@@ -73,18 +75,28 @@ export const FeatureGuideStep = ({ onNext, onPrev }: FeatureGuideStepProps) => {
       ],
     },
     {
-      icon: IconShieldLock,
+      icon: isTauri() ? IconShieldLock : IconCloud,
       color: 'blue',
-      badge: t('Security & Privacy'),
-      title: t('100% Offline-First Architecture'),
-      description: t(
-        'Your business data lives exclusively on your local computer. No cloud dependency, zero downtime, and complete cryptographic security.'
-      ),
-      highlights: [
-        t('Zero cloud lock-in: total data sovereignty'),
-        t('Instant one-click database backups & export'),
-        t('Role-based permissions (Admin, Cashier, Tech)'),
-      ],
+      badge: isTauri() ? t('Security & Privacy') : t('Cloud Collaboration'),
+      title: isTauri() ? t('100% Offline-First Architecture') : t('Multi-Device Cloud Architecture'),
+      description: isTauri()
+        ? t(
+            'Your business data lives exclusively on your local computer. No cloud dependency, zero downtime, and complete cryptographic security.'
+          )
+        : t(
+            'Your shop operates seamlessly in the cloud. Connect multiple cashier stations, tablets, and technician workstations in real time with enterprise security.'
+          ),
+      highlights: isTauri()
+        ? [
+            t('Zero cloud lock-in: total data sovereignty'),
+            t('Instant one-click database backups & export'),
+            t('Role-based permissions (Admin, Cashier, Tech)'),
+          ]
+        : [
+            t('Real-time synchronization across all your devices'),
+            t('Isolated multi-tenant database protection'),
+            t('Role-based permissions (Admin, Cashier, Tech)'),
+          ],
     },
   ];
 

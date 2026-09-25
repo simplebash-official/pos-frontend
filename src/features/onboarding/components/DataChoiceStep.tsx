@@ -25,39 +25,52 @@ import {
   IconLock,
   IconMail,
   IconInfoCircle,
+  IconUserCheck,
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
+import { isTauri } from '@/shared/lib/runtime';
 import type { SetupSystemPayload } from '../types';
 
 export interface DataChoiceStepProps {
   onSubmit: (payload: SetupSystemPayload) => void;
   onPrev: () => void;
   loading: boolean;
+  currentUser?: { name?: string; email: string } | null;
 }
 
-export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProps) => {
+export const DataChoiceStep = ({
+  onSubmit,
+  onPrev,
+  loading,
+  currentUser,
+}: DataChoiceStepProps) => {
   const [loadSampleData, setLoadSampleData] = useState<boolean>(true);
-  const [adminName, setAdminName] = useState<string>('System Administrator');
-  const [adminEmail, setAdminEmail] = useState<string>('');
+  const [adminName, setAdminName] = useState<string>(currentUser?.name || 'System Administrator');
+  const [adminEmail, setAdminEmail] = useState<string>(currentUser?.email || '');
   const [adminPassword, setAdminPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
+  const effectiveEmail = currentUser?.email || adminEmail;
+  const effectiveName = currentUser?.name || adminName;
+
   const handleSubmit = () => {
     setError(null);
-    if (!adminEmail || !/^\S+@\S+\.\S+$/.test(adminEmail)) {
-      setError(t('Please enter a valid administrator email address.'));
-      return;
-    }
-    if (!adminPassword || adminPassword.length < 8) {
-      setError(t('Administrator password must be at least 8 characters long.'));
-      return;
+    if (isTauri()) {
+      if (!adminEmail || !/^\S+@\S+\.\S+$/.test(adminEmail)) {
+        setError(t('Please enter a valid administrator email address.'));
+        return;
+      }
+      if (!adminPassword || adminPassword.length < 8) {
+        setError(t('Administrator password must be at least 8 characters long.'));
+        return;
+      }
     }
 
     onSubmit({
       load_sample_data: loadSampleData,
-      admin_name: adminName.trim() || undefined,
-      admin_email: adminEmail.trim(),
-      admin_password: adminPassword,
+      admin_name: (effectiveName || '').trim() || undefined,
+      admin_email: (effectiveEmail || '').trim(),
+      admin_password: adminPassword || '••••••••',
     });
   };
 
@@ -211,19 +224,28 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
         <Group justify="space-between" mb="md">
           <div>
             <Group gap="xs">
-              <ThemeIcon color="blue" variant="light" size="md" radius="md">
-                <IconUser size={18} />
+              <ThemeIcon color={isTauri() ? 'blue' : 'teal'} variant="light" size="md" radius="md">
+                {isTauri() ? <IconUser size={18} /> : <IconUserCheck size={18} />}
               </ThemeIcon>
               <Text fw={700} size="md">
-                {t('Initial Administrator Account')}
+                {isTauri() ? t('Initial Administrator Account') : t('Shop Administrator Account')}
               </Text>
             </Group>
             <Text size="xs" c="dimmed" mt={4}>
-              {t(
-                'Every POS requires an administrator account to log in, configure store settings, and manage staff.'
-              )}
+              {isTauri()
+                ? t(
+                    'Every POS requires an administrator account to log in, configure store settings, and manage staff.'
+                  )
+                : t(
+                    'Your active shop credentials will serve as the primary administrator for this POS instance.'
+                  )}
             </Text>
           </div>
+          {!isTauri() && (
+            <Badge color="teal" variant="light" size="sm">
+              {t('Active Cloud Session')}
+            </Badge>
+          )}
         </Group>
 
         {error && (
@@ -239,37 +261,60 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading }: DataChoiceStepProp
           </Alert>
         )}
 
-        <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
-          <TextInput
-            label={t('Admin Full Name')}
-            leftSection={<IconUser size={16} />}
-            value={adminName}
-            onChange={(e) => setAdminName(e.currentTarget.value)}
-            placeholder="Store Owner / Manager"
-          />
-          <TextInput
-            label={t('Admin Email')}
-            leftSection={<IconMail size={16} />}
-            value={adminEmail}
-            onChange={(e) => setAdminEmail(e.currentTarget.value)}
-            placeholder="owner@yourshop.com"
-            required
-          />
-          <PasswordInput
-            label={t('Admin Password')}
-            leftSection={<IconLock size={16} />}
-            value={adminPassword}
-            onChange={(e) => setAdminPassword(e.currentTarget.value)}
-            placeholder="At least 8 characters"
-            required
-          />
-        </SimpleGrid>
+        {isTauri() ? (
+          <>
+            <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
+              <TextInput
+                label={t('Admin Full Name')}
+                leftSection={<IconUser size={16} />}
+                value={adminName}
+                onChange={(e) => setAdminName(e.currentTarget.value)}
+                placeholder="Store Owner / Manager"
+              />
+              <TextInput
+                label={t('Admin Email')}
+                leftSection={<IconMail size={16} />}
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.currentTarget.value)}
+                placeholder="owner@yourshop.com"
+                required
+              />
+              <PasswordInput
+                label={t('Admin Password')}
+                leftSection={<IconLock size={16} />}
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.currentTarget.value)}
+                placeholder="At least 8 characters"
+                required
+              />
+            </SimpleGrid>
 
-        <Text size="xs" c="dimmed" mt="md">
-          {t(
-            'Choose the email and password you will use to sign in. You can change them later in Settings.'
-          )}
-        </Text>
+            <Text size="xs" c="dimmed" mt="md">
+              {t(
+                'Choose the email and password you will use to sign in. You can change them later in Settings.'
+              )}
+            </Text>
+          </>
+        ) : (
+          <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+            <Group gap="sm">
+              <ThemeIcon color="teal" variant="light" size={40} radius="md">
+                <IconUserCheck size={22} />
+              </ThemeIcon>
+              <div>
+                <Text fw={700} size="sm">
+                  {effectiveName || t('Store Owner')} ({effectiveEmail || t('Authenticated Owner')})
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {t('Authenticated Cloud Session — Full Administrator Privileges Active')}
+                </Text>
+              </div>
+            </Group>
+            <Badge color="teal" variant="light" size="sm">
+              {t('Ready')}
+            </Badge>
+          </Group>
+        )}
       </Paper>
 
       {/* Navigation Footer */}
