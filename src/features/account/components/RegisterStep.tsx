@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { logger } from '@/shared/logging';
 import { cloudLoginAndLink, cloudRegister } from '../api/accountApi';
+import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 import { toCloudError, validateAccountForm } from '../lib/accountView';
 
 interface RegisterStepProps {
@@ -63,9 +64,13 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
         window.setTimeout(onNext, 2500);
         return;
       }
-      await cloudLoginAndLink({ email: email.trim(), password }).catch((err) => {
-        logger.warn('onboarding', 'register.link_failed', { code: toCloudError(err).code });
-      });
+      await cloudLoginAndLink({ email: email.trim(), password })
+        .then(() => {
+          void syncNow().catch(() => {});
+        })
+        .catch((err) => {
+          logger.warn('onboarding', 'register.link_failed', { code: toCloudError(err).code });
+        });
       onNext();
     } catch (err) {
       setError(toCloudError(err).message);

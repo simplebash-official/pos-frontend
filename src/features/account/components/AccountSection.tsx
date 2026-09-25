@@ -23,6 +23,7 @@ import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
 import { cloudLinkPoll, cloudRegister } from '../api/accountApi';
+import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 import { LinkedDevicesList } from './LinkedDevicesList';
 import {
   useCloudLinkStart,
@@ -69,6 +70,7 @@ export const AccountSection = (_props: SectionProps) => {
             if (result.status === 'linked') {
               queryClient.setQueryData(queryKeys.cloud.state(), result.state);
               logger.info('app', 'account.linked', { via: 'code' }, 'Device linked');
+              void syncNow().catch(() => {});
             }
           })
           .catch(() => undefined);
@@ -109,6 +111,7 @@ export const AccountSection = (_props: SectionProps) => {
       }
       await login.mutateAsync({ email: email.trim(), password });
       logger.info('app', 'account.linked', { via: 'password' }, 'Device linked');
+      void syncNow().catch(() => {});
       setPassword('');
     } catch (err) {
       setError(toCloudError(err).message);

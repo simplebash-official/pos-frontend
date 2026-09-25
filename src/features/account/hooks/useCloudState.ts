@@ -20,6 +20,7 @@ import type {
   RegisterResult,
 } from '../types';
 import { DISABLED_CLOUD_STATE } from '../types';
+import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 
 /** Cloud link state from the desktop shell. Disabled (and inert) on web. */
 export const useCloudState = () => {
@@ -43,7 +44,10 @@ export const useCloudLogin = () => {
   const write = useCloudStateWriter();
   return useMutation<CloudState, CloudCommandError, LoginPayload>({
     mutationFn: cloudLoginAndLink,
-    onSuccess: write,
+    onSuccess: (data) => {
+      write(data);
+      void syncNow().catch(() => {});
+    },
   });
 };
 

@@ -8,7 +8,7 @@ export interface BadgeView {
 }
 
 const PHASE_VIEW: Record<SyncPhase, Omit<BadgeView, 'hint'>> = {
-  idle: { color: 'teal', label: 'Synced' },
+  idle: { color: 'teal', label: 'Internet Connected' },
   syncing: { color: 'blue', label: 'Syncing' },
   offline: { color: 'gray', label: 'Offline' },
   error: { color: 'red', label: 'Sync error' },
@@ -24,6 +24,7 @@ export const badgeView = (status: SyncStatus): BadgeView | null => {
   else if (status.state === 'error' && status.lastError) hint = status.lastError;
   else if (status.state === 'offline') hint = 'Working offline; changes sync when the internet is back';
   else if (status.pendingOut > 0) hint = `${status.pendingOut} change(s) waiting to upload`;
+  else if (status.state === 'idle') hint = 'Internet connected and data is in sync';
   return { ...base, hint };
 };
 
