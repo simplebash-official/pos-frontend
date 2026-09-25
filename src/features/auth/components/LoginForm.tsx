@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Title,
@@ -36,8 +36,17 @@ import {
 export const LoginForm = () => {
   // Read before the state below: a `?shop=` link from the SimpleBash app sets (and hides) the shop code.
   const location = useLocation();
-  const [email, setEmail] = useState('');
+  const searchParams = new URLSearchParams(location.search);
+  const initialEmail = searchParams.get('email') || '';
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    const queryEmail = new URLSearchParams(location.search).get('email');
+    if (queryEmail) {
+      setEmail(queryEmail);
+    }
+  }, [location.search]);
   const {
     shopCode,
     setShopCode,

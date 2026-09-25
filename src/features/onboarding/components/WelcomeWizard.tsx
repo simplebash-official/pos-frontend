@@ -27,7 +27,12 @@ import {
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginSuccess } from '@/store/slices/authSlice';
+import {
+  loginSuccess,
+  selectIsAuthenticated,
+  selectIsAuthInitialized,
+  selectAuthUser,
+} from '@/store/slices/authSlice';
 import { selectAppLanguage, setAppLanguage } from '@/store/slices/settingsSlice';
 import { ROUTES } from '@/constants/routes';
 import { logger } from '@/shared/logging';
@@ -49,13 +54,15 @@ export const WelcomeWizard = () => {
   const isMobile = useIsMobile();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const appLanguage = useAppSelector(selectAppLanguage);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isInitialized = useAppSelector(selectIsAuthInitialized);
+  const currentUser = useAppSelector(selectAuthUser);
 
   const { data: status, isLoading: statusLoading } = useSetupStatus();
   const initializeMutation = useInitializeSetup();
-  // The optional "register free account" step exists only when the shell reports a
-  // configured cloud; without one the wizard is exactly the original four steps.
+  // The optional "register free account" step exists only in desktop when configured
   const { state: cloud } = useCloudState();
-  const cloudStep = cloud.enabled;
+  const cloudStep = isTauri() && cloud.enabled;
   const dbStepIndex = cloudStep ? 3 : 2;
   const launchStepIndex = dbStepIndex + 1;
 
@@ -86,13 +93,12 @@ export const WelcomeWizard = () => {
     }
   }, [status, statusLoading, navigate, activeStep]);
 
-  // This wizard is desktop-only (SQLite/offline vault copy). A web (MongoDB) session
-  // that somehow lands on /welcome gets bounced to Login instead of seeing it.
+  // On web, unauthenticated visitors must sign in first to obtain tenant credentials
   useEffect(() => {
-    if (!isTauri()) {
+    if (!isTauri() && isInitialized && !isAuthenticated) {
       navigate(ROUTES.LOGIN, { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, isInitialized, isAuthenticated]);
 
   const handleStartSetup = async (payload: SetupSystemPayload) => {
     setSetupPayload(payload);
@@ -138,13 +144,16 @@ export const WelcomeWizard = () => {
   const handleCompleteAndLaunch = () => {
     logger.info('onboarding', 'launch', { autoLogin: Boolean(setupResult?.token) });
     if (setupResult?.token && setupResult?.user) {
-      // Auto-authenticate with issued JWT token & Admin user
+      // Auto-authenticate with issued JWT token & Admin user (Desktop setup)
       dispatch(
         loginSuccess({
           user: setupResult.user,
           token: setupResult.token,
         })
       );
+      navigate(ROUTES.DASHBOARD, { replace: true });
+    } else if (isAuthenticated) {
+      // Already authenticated (Web/Cloud session)
       navigate(ROUTES.DASHBOARD, { replace: true });
     } else {
       // Fallback: navigate to Login page
@@ -159,10 +168,6 @@ export const WelcomeWizard = () => {
   const shortId = status?.installation_id
     ? status.installation_id.slice(0, 8).toUpperCase()
     : 'POS-STATION';
-
-  if (!isTauri()) {
-    return null;
-  }
 
   return (
     <Box
@@ -214,7 +219,7 @@ export const WelcomeWizard = () => {
                   {PRODUCT_NAME}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Workstation Setup Studio
+                  {isTauri() ? t('Workstation Setup Studio') : t('Shop Onboarding Studio')}
                 </Text>
               </div>
             </Group>
@@ -290,11 +295,11 @@ export const WelcomeWizard = () => {
                   <IconCpu size={12} />
                 </ThemeIcon>
                 <Text size="xs" fw={700}>
-                  {t('Workstation Record')}
+                  {isTauri() ? t('Workstation Record') : t('Cloud Shop Instance')}
                 </Text>
               </Group>
               <Text size="xs" c="dimmed" ff="monospace">
-                ID: {shortId} · {status?.platform || 'Desktop'}
+                ID: {shortId} · {isTauri() ? (status?.platform || 'Desktop') : 'Web Cloud'}
               </Text>
             </Paper>
 
@@ -354,6 +359,7 @@ export const WelcomeWizard = () => {
               loading={initializeMutation.isPending}
               onSubmit={handleStartSetup}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
+              currentUser={currentUser}
             />
           )}
 

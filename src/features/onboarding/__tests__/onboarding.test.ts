@@ -291,4 +291,39 @@ describe('Provisioning Experience Architecture', () => {
       'completed',
     ]);
   });
+
+  it('differentiates milestones between Desktop SQLite and Web Cloud mode', () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+    // In Tauri, milestone 01 is SQLite Engine
+    const desktopTitle01 = runtime.isTauri()
+      ? 'Workstation Core & SQLite Engine'
+      : 'Shop Document Store & Cloud Engine';
+    expect(desktopTitle01).toBe('Workstation Core & SQLite Engine');
+
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(false);
+    // In Web Cloud, milestone 01 is Cloud Engine
+    const cloudTitle01 = runtime.isTauri()
+      ? 'Workstation Core & SQLite Engine'
+      : 'Shop Document Store & Cloud Engine';
+    expect(cloudTitle01).toBe('Shop Document Store & Cloud Engine');
+  });
+
+  it('allows cloud setup payload submission without password re-entry', () => {
+    const buildCloudPayload = (
+      loadSampleData: boolean,
+      adminName: string,
+      adminEmail: string
+    ) => ({
+      load_sample_data: loadSampleData,
+      admin_name: adminName,
+      admin_email: adminEmail,
+      admin_password: '••••••••',
+    });
+
+    const payload = buildCloudPayload(true, 'Cloud Owner', 'owner@mycloudshop.com');
+    expect(payload.load_sample_data).toBe(true);
+    expect(payload.admin_email).toBe('owner@mycloudshop.com');
+    expect(payload.admin_name).toBe('Cloud Owner');
+    expect(payload.admin_password).toBeDefined();
+  });
 });

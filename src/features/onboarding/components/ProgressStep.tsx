@@ -23,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { PRODUCT_NAME } from '@/config/branding';
+import { isTauri } from '@/shared/lib/runtime';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
 import { useProvisioningOrchestrator } from '../hooks/useProvisioningOrchestrator';
 import { ProvisioningMilestones } from './ProvisioningMilestones';
@@ -142,7 +143,13 @@ export const ProgressStep = ({
                       showFinishedView ? <IconCheck size={14} /> : <IconSparkles size={14} />
                     }
                   >
-                    {showFinishedView ? t('SETUP VERIFIED & READY') : t('WORKSTATION PROVISIONING')}
+                    {showFinishedView
+                      ? isTauri()
+                        ? t('SETUP VERIFIED & READY')
+                        : t('SHOP VERIFIED & READY')
+                      : isTauri()
+                        ? t('WORKSTATION PROVISIONING')
+                        : t('SHOP PROVISIONING')}
                   </Badge>
                   <Badge color={showFinishedView ? 'teal' : 'blue'} variant="light" size="md">
                     v0.7.0
@@ -225,12 +232,16 @@ export const ProgressStep = ({
                     {t('Database Configuration')}
                   </Text>
                   <Text size="xs" c="dimmed" mb="sm">
-                    {t('Database Engine: SQLite (Embedded)')}
+                    {isTauri()
+                      ? t('Database Engine: SQLite (Embedded)')
+                      : t('Database Engine: MongoDB Cloud Store')}
                   </Text>
                   <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
                     {result.sample_data_loaded
                       ? t('Products, categories, repair parts, and customer accounts populated.')
-                      : t('All tables ready with clean slate for genuine store entries.')}
+                      : isTauri()
+                        ? t('All tables ready with clean slate for genuine store entries.')
+                        : t('All collections ready with clean slate for genuine store entries.')}
                   </Text>
                 </Paper>
 
@@ -241,7 +252,7 @@ export const ProgressStep = ({
                       <IconUserCheck size={24} />
                     </ThemeIcon>
                     <Badge color="blue" variant="filled" size="sm">
-                      {t('Initial Administrator Account')}
+                      {isTauri() ? t('Initial Administrator Account') : t('Shop Administrator Account')}
                     </Badge>
                   </Group>
                   <Text fw={700} size="md" mb={4}>
@@ -269,7 +280,9 @@ export const ProgressStep = ({
                       <IconCheck size={14} />
                     </ThemeIcon>
                     <Text size="xs" fw={600}>
-                      {t('25 SQLite Tables Verified')}
+                      {isTauri()
+                        ? t('25 SQLite Tables Verified')
+                        : t('Multi-Tenant Store Isolated')}
                     </Text>
                   </Group>
                   <Divider orientation="vertical" />
@@ -287,7 +300,9 @@ export const ProgressStep = ({
                       <IconCheck size={14} />
                     </ThemeIcon>
                     <Text size="xs" fw={600}>
-                      {t('Typst Document Bridge Ready')}
+                      {isTauri()
+                        ? t('Typst Document Bridge Ready')
+                        : t('Cloud Document Bridge Ready')}
                     </Text>
                   </Group>
                 </Group>
