@@ -118,7 +118,8 @@ export const initializeSetupApi = async (
   };
   const response = await apiClient.post<SetupSystemResponse | RawSetupSystemResult>(
     '/system/setup',
-    body
+    body,
+    { timeout: 120_000 }
   );
   const raw = (
     'data' in response && response.data ? response.data : response

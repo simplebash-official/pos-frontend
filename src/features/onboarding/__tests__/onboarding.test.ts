@@ -104,12 +104,16 @@ describe('Onboarding API Services', () => {
     });
 
     const result = await initializeSetupApi(payload);
-    expect(spy).toHaveBeenCalledWith('/system/setup', {
-      loadSampleData: true,
-      adminName: 'Store Owner',
-      adminEmail: 'admin@pos.com',
-      adminPassword: 'admin@password123',
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/system/setup',
+      {
+        loadSampleData: true,
+        adminName: 'Store Owner',
+        adminEmail: 'admin@pos.com',
+        adminPassword: 'admin@password123',
+      },
+      { timeout: 120_000 }
+    );
     expect(result.setup_completed).toBe(true);
     expect(result.sample_data_loaded).toBe(true);
     expect(result.admin_email).toBe('admin@pos.com');

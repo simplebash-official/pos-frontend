@@ -89,6 +89,11 @@ export const useProvisioningOrchestrator = ({
   useEffect(() => {
     resultRef.current = result;
     if (result && animationFinishedRef.current) {
+      setCurrentStageText(
+        isTauri()
+          ? 'Workstation initialized and ready for launch!'
+          : 'Shop initialized and ready for launch!'
+      );
       setIsFinished(true);
     }
   }, [result]);
@@ -605,7 +610,13 @@ export const useProvisioningOrchestrator = ({
     steps.forEach((step, idx) => {
       const timer = window.setTimeout(() => {
         setProgress(step.progress);
-        setCurrentStageText(step.stageText);
+        const stageText =
+          step.progress === 100 && !resultRef.current
+            ? isTauri()
+              ? 'Finalizing database registers & workstation records...'
+              : 'Finalizing database registers & catalog data...'
+            : step.stageText;
+        setCurrentStageText(stageText);
         setMilestoneStatuses(step.milestoneStatuses);
 
         if (step.log) {
@@ -623,6 +634,11 @@ export const useProvisioningOrchestrator = ({
         if (step.progress === 100) {
           animationFinishedRef.current = true;
           if (resultRef.current) {
+            setCurrentStageText(
+              isTauri()
+                ? 'Workstation initialized and ready for launch!'
+                : 'Shop initialized and ready for launch!'
+            );
             const finishTimer = window.setTimeout(() => {
               setIsFinished(true);
             }, 500);
