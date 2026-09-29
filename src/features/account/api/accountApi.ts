@@ -6,6 +6,8 @@ import {
   type DeviceInfo,
   type LinkPoll,
   type LoginPayload,
+  type OtpSendResult,
+  type OtpVerifyResult,
   type PendingLink,
   type RegisterPayload,
   type RegisterResult,
@@ -56,6 +58,13 @@ export const getCloudState = async (): Promise<CloudState> => {
 
 export const cloudRegister = (payload: RegisterPayload) =>
   call<RegisterResult>('cloud_register', { ...payload });
+
+/** Texts a 6-digit code to `phone` (`94XXXXXXXXX`). */
+export const cloudOtpSend = (phone: string) => call<OtpSendResult>('cloud_otp_send', { phone });
+
+/** Trades the right code for the one-time proof of the phone number. */
+export const cloudOtpVerify = (otpId: string, code: string) =>
+  call<OtpVerifyResult>('cloud_otp_verify', { otpId, code });
 
 export const cloudLoginAndLink = (payload: LoginPayload) =>
   call<CloudState>('cloud_login_and_link', { ...payload });

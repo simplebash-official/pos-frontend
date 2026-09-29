@@ -15,7 +15,14 @@ import {
 import { logger } from '@/shared/logging';
 import { cloudLoginAndLink, cloudRegister } from '../api/accountApi';
 import { syncNow } from '@/features/sync-status/api/syncStatusApi';
-import { toCloudError, validateAccountForm } from '../lib/accountView';
+import {
+  isPhoneRejected,
+  otpErrorMessage,
+  toCloudError,
+  validateAccountForm,
+} from '../lib/accountView';
+import type { VerifiedPhone } from '../types';
+import { PhoneVerification } from './PhoneVerification';
 
 interface RegisterStepProps {
   onNext: () => void;
@@ -31,6 +38,7 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
   const [storeName, setStoreName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [verified, setVerified] = useState<VerifiedPhone | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -47,6 +55,10 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
       setError(t(invalid));
       return;
     }
+    if (!verified) {
+      setError(t('Please verify your phone number first.'));
+      return;
+    }
     setBusy(true);
     try {
       const result = await cloudRegister({
@@ -54,6 +66,8 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
         password,
         ownerName: ownerName.trim(),
         storeName: storeName.trim(),
+        phone: verified.phone,
+        phoneProof: verified.proof,
       });
       logger.info('onboarding', 'register.done', { verification: result.verificationRequired });
       if (result.verificationRequired) {
@@ -73,7 +87,13 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
         });
       onNext();
     } catch (err) {
-      setError(toCloudError(err).message);
+      if (isPhoneRejected(err)) {
+        // The number was refused (used elsewhere, proof expired): it must be verified again.
+        setVerified(null);
+        setError(otpErrorMessage(err, toCloudError(err).message));
+      } else {
+        setError(toCloudError(err).message);
+      }
     } finally {
       setBusy(false);
     }
@@ -111,6 +131,12 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
             value={storeName}
             onChange={(e) => setStoreName(e.currentTarget.value)}
             required
+          />
+          <PhoneVerification
+            verified={verified}
+            onVerified={setVerified}
+            onClear={() => setVerified(null)}
+            disabled={busy}
           />
           <TextInput
             label={t('Email')}
@@ -157,6 +183,7 @@ export const RegisterStep = ({ onNext, onPrev }: RegisterStepProps) => {
             size="md"
             onClick={() => void register()}
             loading={busy}
+            disabled={!verified}
             data-log-id="onboarding.register.submit"
           >
             {t('Register free account')}
