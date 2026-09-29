@@ -360,6 +360,8 @@ export const WelcomeWizard = () => {
               onSubmit={handleStartSetup}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
               currentUser={currentUser}
+              accountEmail={cloud.accountEmail}
+              accountName={cloud.accountName}
             />
           )}
 

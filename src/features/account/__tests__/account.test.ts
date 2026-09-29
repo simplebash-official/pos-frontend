@@ -26,6 +26,7 @@ const linked: CloudState = {
   enabled: true,
   linked: true,
   accountEmail: 'o@shop.lk',
+  accountName: 'Owner',
 };
 
 describe('account api', () => {

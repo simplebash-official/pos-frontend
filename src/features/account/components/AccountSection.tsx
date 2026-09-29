@@ -247,7 +247,12 @@ export const AccountSection = (_props: SectionProps) => {
               {state.shopCode && <Badge variant="light">{state.shopCode}</Badge>}
             </Group>
             <Text size="sm">
-              {t('Account')}: <b>{state.accountEmail ?? '—'}</b>
+              {t('Account')}:{' '}
+              <b>
+                {state.accountName
+                  ? `${state.accountName} (${state.accountEmail ?? '—'})`
+                  : (state.accountEmail ?? '—')}
+              </b>
             </Text>
             {state.linkedAt && (
               <Text size="xs" c="dimmed">

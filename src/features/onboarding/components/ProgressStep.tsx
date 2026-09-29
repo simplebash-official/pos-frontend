@@ -262,7 +262,7 @@ export const ProgressStep = ({
                     {t('Admin Email')}:
                   </Text>
                   <Text fw={700} size="sm" c="blue">
-                    {result.admin_email}
+                    {result.admin_email || result.user?.email || payload?.admin_email || '—'}
                   </Text>
                   <Text size="xs" c="dimmed" mt="xs" style={{ lineHeight: 1.5 }}>
                     {t(

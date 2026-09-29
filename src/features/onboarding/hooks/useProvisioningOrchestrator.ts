@@ -178,13 +178,13 @@ export const useProvisioningOrchestrator = ({
 
     const activePayload: SetupSystemPayload = payloadRef.current || {
       load_sample_data: true,
-      admin_name: 'System Admin',
-      admin_email: 'admin@pos.com',
-      admin_password: '••••••••',
+      admin_name: '',
+      admin_email: '',
+      admin_password: '',
     };
 
     const isDemo = activePayload.load_sample_data;
-    const adminEmail = activePayload.admin_email || 'admin@pos.com';
+    const adminEmail = activePayload.admin_email || 'the shop owner';
 
     // Step-by-step sequenced timeline where each milestone has an exclusive 1.2s execution window:
     // Stage 0 (0ms - 1200ms): Milestone 1 alone is running, emits 3 kernel logs, then turns completed
