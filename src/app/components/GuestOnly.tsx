@@ -39,9 +39,9 @@ export const GuestOnly = ({ children }: GuestOnlyProps) => {
     }
   }, [staleSession, dispatch]);
 
-  const { data: status, isLoading: isStatusLoading } = useSetupStatus();
+  const { data: status } = useSetupStatus();
 
-  if (!isStatusLoading && status && !status.setup_completed && isTauri()) {
+  if (status && !status.setup_completed && isTauri()) {
     return <Navigate to={ROUTES.WELCOME} replace />;
   }
 
