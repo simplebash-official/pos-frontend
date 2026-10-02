@@ -36,6 +36,16 @@ export const getShopCodeFromLink = (search: string): string => {
   return code !== null && isValidShopCode(code) ? normalizeShopCode(code) : '';
 };
 
+/** The `?name=` value of a link from the SimpleBash app ("Open POS"), or '' if absent. */
+export const getShopNameFromLink = (search: string): string => {
+  try {
+    const name = new URLSearchParams(search).get('name');
+    return name ? name.trim() : '';
+  } catch {
+    return '';
+  }
+};
+
 /** Where the login's shop code starts: a code from the link wins over the one remembered in this browser. */
 export const getInitialShopCode = (search: string, storage?: ShopCodeStorage): string => {
   const fromLink = getShopCodeFromLink(search);

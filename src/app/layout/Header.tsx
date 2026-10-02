@@ -33,6 +33,7 @@ import { NotificationPopover } from '@/features/notifications/components/Notific
 import { ROUTES } from '@/constants/routes';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
+import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
@@ -70,6 +71,10 @@ export const Header = ({
   const userName = user?.name || user?.email?.split('@')[0] || 'Operator';
   const initial = userName.charAt(0).toUpperCase();
   const userLabel = `${userName} (${user?.role || 'user'})`;
+
+  const shopProfile = useAppSelector(selectShopProfile);
+  const shopName = shopProfile?.tradingName?.trim() || shopProfile?.legalName?.trim();
+  const headerTitle = shopName || SERVICE_CENTER_NAME;
 
   const { itemCount: cartItemsCount } = useCartItems();
   const { heldCarts } = useHeldCarts();
@@ -205,10 +210,17 @@ export const Header = ({
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         <Title
           order={isMobile ? 5 : 3}
-          style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+          style={{
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: isMobile ? 180 : 360,
+          }}
           onClick={() => navigate(ROUTES.DASHBOARD)}
+          title={headerTitle}
         >
-          {isMobile ? PRODUCT_NAME : SERVICE_CENTER_NAME}
+          {headerTitle}
         </Title>
       </Group>
 
