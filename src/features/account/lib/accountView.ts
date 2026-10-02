@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n/t';
 import type { CloudErrorInfo, CloudState, DeviceInfo } from '../types';
 
 export type AccountMode = 'disabled' | 'signed-out' | 'pending' | 'linked';
@@ -25,6 +26,48 @@ export const toCloudError = (err: unknown): CloudErrorInfo => {
     message: err instanceof Error ? err.message : String(err),
     status: 0,
   };
+};
+
+/**
+ * The device list needs an interactive account login, which a linked computer
+ * does not have — the cloud answers 403. That is expected, not a failure.
+ */
+export const isAccountSessionRequired = (err: unknown): boolean => toCloudError(err).status === 403;
+
+/** Identity error codes that mean the verified phone was refused: verify a number again. */
+export const isPhoneRejected = (err: unknown): boolean =>
+  ['PHONE_NOT_VERIFIED', 'PHONE_ALREADY_EXISTS'].includes(toCloudError(err).code);
+
+/**
+ * A plain-language message for a phone-verification failure. Identity's own text is English-only
+ * and written for developers, so known codes are mapped; anything else falls back to `fallback`.
+ */
+export const otpErrorMessage = (err: unknown, fallback: string): string => {
+  const { code, status } = toCloudError(err);
+  if (status === 0 && code === 'NETWORK_ERROR') {
+    return t("We couldn't reach SimpleBash. Check your internet connection and try again.");
+  }
+  switch (code) {
+    case 'PHONE_INVALID':
+      return t('Enter a mobile number like 077 123 4567.');
+    case 'PHONE_COUNTRY_UNSUPPORTED':
+      return t('Only Sri Lankan mobile numbers are supported right now.');
+    case 'PHONE_ALREADY_EXISTS':
+      return t('This phone number is already used by another account.');
+    case 'PHONE_NOT_VERIFIED':
+      return t('Please verify your phone number to continue.');
+    case 'OTP_INVALID':
+      return t('That code is not right. Check it and try again.');
+    case 'OTP_LOCKED':
+      return t('Too many wrong tries. Please ask for a new code.');
+    case 'OTP_RATE_LIMITED':
+      return t('Too many codes were sent to this number. Please try again later.');
+    case 'SMS_REJECTED':
+    case 'SMS_UNAVAILABLE':
+      return t('We could not send the text message. Please try again in a moment.');
+    default:
+      return fallback;
+  }
 };
 
 export const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;

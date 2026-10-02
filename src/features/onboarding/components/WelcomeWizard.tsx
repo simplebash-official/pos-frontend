@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import {
   Box,
   Stack,
@@ -35,6 +37,7 @@ import {
 } from '@/store/slices/authSlice';
 import { selectAppLanguage, setAppLanguage } from '@/store/slices/settingsSlice';
 import { ROUTES } from '@/constants/routes';
+import { queryKeys } from '@/api/queryKeys';
 import { logger } from '@/shared/logging';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { isTauri } from '@/shared/lib/runtime';
@@ -58,7 +61,8 @@ export const WelcomeWizard = () => {
   const isInitialized = useAppSelector(selectIsAuthInitialized);
   const currentUser = useAppSelector(selectAuthUser);
 
-  const { data: status, isLoading: statusLoading } = useSetupStatus();
+  const { data: status } = useSetupStatus();
+  const queryClient = useQueryClient();
   const initializeMutation = useInitializeSetup();
   // The optional "register free account" step exists only in desktop when configured
   const { state: cloud } = useCloudState();
@@ -80,18 +84,15 @@ export const WelcomeWizard = () => {
   const [setupResult, setSetupResult] = useState<SetupSystemResult | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);
 
-  // If setup was ALREADY completed prior to opening the wizard, redirect immediately to Dashboard.
-  // Never auto-redirect while the user is on the active provisioning screen (the launch step).
-  const initialCheckDoneRef = useRef(false);
+  // A shop that is already set up has nothing to do here: go to the dashboard.
+  // Re-evaluated whenever the status changes (the answer for a just-restored
+  // session can arrive after the first render), but never while the owner is
+  // past the first step — the launch screen shows its own result.
   useEffect(() => {
-    if (initialCheckDoneRef.current) return;
-    if (!statusLoading && status) {
-      initialCheckDoneRef.current = true;
-      if (status.setup_completed && activeStep === 0) {
-        navigate(ROUTES.DASHBOARD, { replace: true });
-      }
+    if (status?.setup_completed && activeStep === 0) {
+      navigate(ROUTES.DASHBOARD, { replace: true });
     }
-  }, [status, statusLoading, navigate, activeStep]);
+  }, [status, navigate, activeStep]);
 
   // On web, unauthenticated visitors must sign in first to obtain tenant credentials
   useEffect(() => {
@@ -127,11 +128,10 @@ export const WelcomeWizard = () => {
           apiErr?.code === 'SETUP_ALREADY_COMPLETED' ||
           apiErr?.message?.includes('already been completed')
         ) {
-          setSetupError(
-            t(
-              'Database setup was already completed on this workstation. You can log in directly using your administrator credentials.'
-            )
-          );
+          // Nothing failed: this shop was set up earlier. Carry on to it.
+          queryClient.invalidateQueries({ queryKey: queryKeys.system.all });
+          notifications.show({ color: 'teal', message: t('Your shop is already set up.') });
+          navigate(isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN, { replace: true });
           return;
         }
         setSetupError(
@@ -299,7 +299,7 @@ export const WelcomeWizard = () => {
                 </Text>
               </Group>
               <Text size="xs" c="dimmed" ff="monospace">
-                ID: {shortId} · {isTauri() ? (status?.platform || 'Desktop') : 'Web Cloud'}
+                ID: {shortId} · {isTauri() ? status?.platform || 'Desktop' : 'Web Cloud'}
               </Text>
             </Paper>
 
@@ -360,8 +360,6 @@ export const WelcomeWizard = () => {
               onSubmit={handleStartSetup}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
               currentUser={currentUser}
-              accountEmail={cloud.accountEmail}
-              accountName={cloud.accountName}
             />
           )}
 

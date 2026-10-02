@@ -4,6 +4,6 @@
 export const COMPANY_NAME = 'SimpleBash';
 export const BRAND_NAME = 'SimpleBash';
 export const PRODUCT_NAME = 'SimpleBash POS';
-export const SERVICE_CENTER_NAME = 'SimpleBash Service Center';
+export const SERVICE_CENTER_NAME = 'SimpleBash POS';
 export const BRAND_SLUG = 'simplebash';
 export const BRAND_DOMAIN = 'simplebash.com';

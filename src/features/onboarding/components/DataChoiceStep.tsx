@@ -36,9 +36,6 @@ export interface DataChoiceStepProps {
   onPrev: () => void;
   loading: boolean;
   currentUser?: { name?: string; email: string } | null;
-  /** Email of the linked cloud account; prefills the admin email on desktop. */
-  accountEmail?: string | null;
-  accountName?: string | null;
 }
 
 export const DataChoiceStep = ({
@@ -46,12 +43,10 @@ export const DataChoiceStep = ({
   onPrev,
   loading,
   currentUser,
-  accountEmail,
-  accountName,
 }: DataChoiceStepProps) => {
   const [loadSampleData, setLoadSampleData] = useState<boolean>(true);
-  const [adminName, setAdminName] = useState<string>(currentUser?.name || accountName || accountEmail?.split('@')[0] || 'System Administrator');
-  const [adminEmail, setAdminEmail] = useState<string>(currentUser?.email || accountEmail || '');
+  const [adminName, setAdminName] = useState<string>(currentUser?.name || 'System Administrator');
+  const [adminEmail, setAdminEmail] = useState<string>(currentUser?.email || '');
   const [adminPassword, setAdminPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 

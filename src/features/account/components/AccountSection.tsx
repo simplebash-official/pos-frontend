@@ -23,6 +23,9 @@ import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
 import { cloudLinkPoll, cloudRegister } from '../api/accountApi';
+import type { VerifiedPhone } from '../types';
+import { PhoneVerification } from './PhoneVerification';
+import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 import { LinkedDevicesList } from './LinkedDevicesList';
 import {
   useCloudLinkStart,
@@ -31,7 +34,13 @@ import {
   useCloudTelemetry,
   useCloudUnlink,
 } from '../hooks/useCloudState';
-import { accountMode, toCloudError, validateAccountForm } from '../lib/accountView';
+import {
+  accountMode,
+  isPhoneRejected,
+  otpErrorMessage,
+  toCloudError,
+  validateAccountForm,
+} from '../lib/accountView';
 
 type FormMode = 'signin' | 'register';
 
@@ -52,6 +61,7 @@ export const AccountSection = (_props: SectionProps) => {
   const [password, setPassword] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [storeName, setStoreName] = useState('');
+  const [verified, setVerified] = useState<VerifiedPhone | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
@@ -69,6 +79,7 @@ export const AccountSection = (_props: SectionProps) => {
             if (result.status === 'linked') {
               queryClient.setQueryData(queryKeys.cloud.state(), result.state);
               logger.info('app', 'account.linked', { via: 'code' }, 'Device linked');
+              void syncNow().catch(() => {});
             }
           })
           .catch(() => undefined);
@@ -88,14 +99,20 @@ export const AccountSection = (_props: SectionProps) => {
       setError(t(invalid));
       return;
     }
+    if (formMode === 'register' && !verified) {
+      setError(t('Please verify your phone number first.'));
+      return;
+    }
     setBusy(true);
     try {
-      if (formMode === 'register') {
+      if (formMode === 'register' && verified) {
         const result = await cloudRegister({
           email: email.trim(),
           password,
           ownerName: ownerName.trim(),
           storeName: storeName.trim(),
+          phone: verified.phone,
+          phoneProof: verified.proof,
         });
         logger.info('app', 'account.registered', { verification: result.verificationRequired });
         if (result.verificationRequired) {
@@ -109,9 +126,16 @@ export const AccountSection = (_props: SectionProps) => {
       }
       await login.mutateAsync({ email: email.trim(), password });
       logger.info('app', 'account.linked', { via: 'password' }, 'Device linked');
+      void syncNow().catch(() => {});
       setPassword('');
     } catch (err) {
-      setError(toCloudError(err).message);
+      if (isPhoneRejected(err)) {
+        // The number was refused (used elsewhere, proof expired): it must be verified again.
+        setVerified(null);
+        setError(otpErrorMessage(err, toCloudError(err).message));
+      } else {
+        setError(toCloudError(err).message);
+      }
     } finally {
       setBusy(false);
     }
@@ -174,6 +198,12 @@ export const AccountSection = (_props: SectionProps) => {
                   value={storeName}
                   onChange={(e) => setStoreName(e.currentTarget.value)}
                 />
+                <PhoneVerification
+                  verified={verified}
+                  onVerified={setVerified}
+                  onClear={() => setVerified(null)}
+                  disabled={busy}
+                />
               </>
             )}
             <TextInput
@@ -195,6 +225,7 @@ export const AccountSection = (_props: SectionProps) => {
             <Button
               onClick={() => void submit()}
               loading={busy}
+              disabled={formMode === 'register' && !verified}
               data-log-id="account.submit"
             >
               {formMode === 'register'
@@ -215,9 +246,7 @@ export const AccountSection = (_props: SectionProps) => {
 
         {mode === 'pending' && pending && (
           <Stack gap="sm" maw={460}>
-            <Text size="sm">
-              {t('Open this page on any device, sign in, and enter the code:')}
-            </Text>
+            <Text size="sm">{t('Open this page on any device, sign in, and enter the code:')}</Text>
             <Code block>{pending.verificationUrl}</Code>
             <Text fw={800} size="xl" ff="monospace" style={{ letterSpacing: '0.15em' }}>
               {pending.userCode}
@@ -247,12 +276,7 @@ export const AccountSection = (_props: SectionProps) => {
               {state.shopCode && <Badge variant="light">{state.shopCode}</Badge>}
             </Group>
             <Text size="sm">
-              {t('Account')}:{' '}
-              <b>
-                {state.accountName
-                  ? `${state.accountName} (${state.accountEmail ?? '—'})`
-                  : (state.accountEmail ?? '—')}
-              </b>
+              {t('Account')}: <b>{state.accountEmail ?? '—'}</b>
             </Text>
             {state.linkedAt && (
               <Text size="xs" c="dimmed">

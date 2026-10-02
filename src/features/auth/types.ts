@@ -18,6 +18,7 @@ export interface LoginPayload {
 export interface LoginResponseData {
   token: string;
   user: AuthUser;
+  shopName?: string;
 }
 
 export interface LoginResponse {

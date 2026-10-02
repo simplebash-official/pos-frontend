@@ -13,12 +13,24 @@ import { createIdempotencyKey } from '@/shared/lib/id';
 import { ApiError } from '@/shared/types/common';
 import { sanitizeErrorMessage } from '@/shared/lib/error';
 import { installHttpCapture } from '@/shared/logging/capture/http';
+import { isTauri } from '@/shared/lib/runtime';
+import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {
   params?: Record<string, string | number | boolean | undefined>;
 }
 
 const MUTATING_METHODS = new Set(['post', 'put', 'patch', 'delete']);
+
+let autoSyncTimer: ReturnType<typeof setTimeout> | null = null;
+const triggerAutoSync = () => {
+  if (!isTauri()) return;
+  if (autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(() => {
+    autoSyncTimer = null;
+    syncNow().catch(() => {});
+  }, 500);
+};
 
 const isApiErrorLike = (data: unknown): data is ApiError => {
   return (
@@ -88,6 +100,10 @@ class ApiClient {
         }
         // A completed round trip is the strongest possible proof of reachability.
         reportNetworkObservation('reachable', readServerTime(response.headers));
+        const method = response.config.method?.toLowerCase();
+        if (method && MUTATING_METHODS.has(method)) {
+          triggerAutoSync();
+        }
         return response;
       },
       (error: unknown) => {

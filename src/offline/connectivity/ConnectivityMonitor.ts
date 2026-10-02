@@ -10,6 +10,8 @@ import {
 import { probeHealth } from './healthProbe';
 import { observeNetwork } from './networkSignal';
 import type { ConnectivityListener, ConnectivitySnapshot, ConnectivityState } from './types';
+import { isTauri } from '@/shared/lib/runtime';
+import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 
 /**
  * Decides whether the backend is reachable.
@@ -127,6 +129,9 @@ export class ConnectivityMonitor {
   private handleLinkUp = (): void => {
     this.update({ linkUp: true });
     this.checkNow();
+    if (isTauri()) {
+      syncNow().catch(() => {});
+    }
   };
 
   private handleLinkDown = (): void => {
@@ -143,6 +148,9 @@ export class ConnectivityMonitor {
     if (!document.hidden) {
       // The user just came back; their first question is "am I online?".
       this.checkNow();
+      if (isTauri()) {
+        syncNow().catch(() => {});
+      }
     }
   };
 

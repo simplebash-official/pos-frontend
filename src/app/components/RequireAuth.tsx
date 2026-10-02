@@ -21,10 +21,12 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitialized = useAppSelector(selectIsAuthInitialized);
   const isLoading = useAppSelector(selectIsAuthLoading);
-  const { data: status, isLoading: isStatusLoading } = useSetupStatus();
+  const { data: status, isPending: isStatusPending } = useSetupStatus();
   const location = useLocation();
 
-  if (!isInitialized || isLoading) {
+  // Also wait for this session's setup status, so a set-up shop is never
+  // bounced to /welcome (or a new one flashed the dashboard) on a guess.
+  if (!isInitialized || isLoading || (isAuthenticated && isStatusPending)) {
     return (
       <PageLoader
         variant="orb"
@@ -38,13 +40,13 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
   }
 
   if (!isAuthenticated) {
-    if (!isStatusLoading && status && !status.setup_completed && isTauri()) {
+    if (status && !status.setup_completed && isTauri()) {
       return <Navigate to={ROUTES.WELCOME} replace />;
     }
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
-  if (!isStatusLoading && status && !status.setup_completed) {
+  if (status && !status.setup_completed) {
     return <Navigate to={ROUTES.WELCOME} replace />;
   }
 

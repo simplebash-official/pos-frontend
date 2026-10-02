@@ -10,7 +10,6 @@ export interface CloudState {
   enabled: boolean;
   linked: boolean;
   accountEmail: string | null;
-  accountName: string | null;
   tenantId: string | null;
   shopCode: string | null;
   deviceId: string | null;
@@ -43,6 +42,33 @@ export interface RegisterPayload {
   password: string;
   ownerName: string;
   storeName: string;
+  /** The verified mobile number (`94XXXXXXXXX`) and its one-time proof from `cloudOtpVerify`. */
+  phone: string;
+  phoneProof: string;
+}
+
+/** Mirrors `api::OtpSendResult` from the desktop shell (camelCase). */
+export interface OtpSendResult {
+  otpId: string;
+  /** Seconds the code stays valid. */
+  expiresIn: number;
+  /** Seconds before another code may be requested for this number. */
+  resendAfter: number;
+  /** True when the text provider gave no clear answer: the code may still arrive. */
+  deliveryUncertain: boolean;
+}
+
+/** Mirrors `api::OtpVerifyResult` from the desktop shell. */
+export interface OtpVerifyResult {
+  phoneProof: string;
+  expiresIn: number;
+}
+
+/** A number the owner proved with a code. The proof is spent by `cloudRegister`. */
+export interface VerifiedPhone {
+  /** Normalised `94XXXXXXXXX`. */
+  phone: string;
+  proof: string;
 }
 
 export interface LoginPayload {
@@ -63,7 +89,6 @@ export const DISABLED_CLOUD_STATE: CloudState = {
   enabled: false,
   linked: false,
   accountEmail: null,
-  accountName: null,
   tenantId: null,
   shopCode: null,
   deviceId: null,

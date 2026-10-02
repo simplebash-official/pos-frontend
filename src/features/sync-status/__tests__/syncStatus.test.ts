@@ -41,7 +41,7 @@ describe('badgeView', () => {
   });
 
   it.each([
-    ['idle', 'teal', 'Synced'],
+    ['idle', 'teal', 'Internet Connected'],
     ['syncing', 'blue', 'Syncing'],
     ['offline', 'gray', 'Offline'],
     ['error', 'red', 'Sync error'],
@@ -55,7 +55,7 @@ describe('badgeView', () => {
     expect(badgeView(linked({ state: 'offline' }))?.hint).toMatch(/offline/i);
     expect(badgeView(linked({ pendingOut: 4 }))?.hint).toContain('4');
     expect(badgeView(linked({ bootstrapRequired: true }))?.hint).toMatch(/confirmation/i);
-    expect(badgeView(linked())?.hint).toBe('');
+    expect(badgeView(linked())?.hint).toMatch(/Internet connected/i);
   });
 });
 

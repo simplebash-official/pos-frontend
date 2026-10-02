@@ -3,6 +3,8 @@ import * as runtime from '@/shared/lib/runtime';
 import {
   getCloudState,
   cloudRegister,
+  cloudOtpSend,
+  cloudOtpVerify,
   cloudPing,
   cloudListDevices,
   cloudRevokeDevice,
@@ -10,6 +12,9 @@ import {
 } from '../api/accountApi';
 import {
   accountMode,
+  isAccountSessionRequired,
+  isPhoneRejected,
+  otpErrorMessage,
   onlyThisDeviceLinked,
   toCloudError,
   validateAccountForm,
@@ -26,7 +31,6 @@ const linked: CloudState = {
   enabled: true,
   linked: true,
   accountEmail: 'o@shop.lk',
-  accountName: 'Owner',
 };
 
 describe('account api', () => {
@@ -38,8 +42,16 @@ describe('account api', () => {
   it('reports a disabled state on web without calling the shell', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(false);
     expect(await getCloudState()).toEqual(DISABLED_CLOUD_STATE);
-    await expect(cloudRegister({ email: 'a@b.c', password: 'x', ownerName: 'o', storeName: 's' }))
-      .rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
+    await expect(
+      cloudRegister({
+        email: 'a@b.c',
+        password: 'x',
+        ownerName: 'o',
+        storeName: 's',
+        phone: '94771234567',
+        phoneProof: 'ovp_x',
+      })
+    ).rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
     expect(invoke).not.toHaveBeenCalled();
   });
 
@@ -55,8 +67,14 @@ describe('account api', () => {
   it('maps shell errors to CloudCommandError', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
     invoke.mockRejectedValueOnce({ code: 'EMAIL_TAKEN', message: 'taken', status: 409 });
-    const err = await cloudRegister({ email: 'a@b.c', password: 'x', ownerName: 'o', storeName: 's' })
-      .catch((e) => e);
+    const err = await cloudRegister({
+      email: 'a@b.c',
+      password: 'x',
+      ownerName: 'o',
+      storeName: 's',
+      phone: '94771234567',
+      phoneProof: 'ovp_x',
+    }).catch((e) => e);
     expect(err).toBeInstanceOf(CloudCommandError);
     expect(err).toMatchObject({ code: 'EMAIL_TAKEN', status: 409 });
   });
@@ -120,11 +138,21 @@ describe('account view logic', () => {
     expect(toCloudError(new Error('bad')).code).toBe('UNKNOWN');
   });
 
+  it('recognises the "account session required" refusal (403) only', () => {
+    expect(isAccountSessionRequired({ code: 'FORBIDDEN', message: 'nope', status: 403 })).toBe(
+      true
+    );
+    expect(isAccountSessionRequired({ code: 'X', message: 'm', status: 500 })).toBe(false);
+    expect(isAccountSessionRequired(new Error('bad'))).toBe(false);
+  });
+
   it('validates forms', () => {
     expect(validateAccountForm({ email: 'no', password: '12345678' }, 'signin')).toMatch(/email/);
     expect(validateAccountForm({ email: 'a@b.c', password: 'short' }, 'signin')).toMatch(/8/);
     expect(validateAccountForm({ email: 'a@b.c', password: '12345678' }, 'signin')).toBeNull();
-    expect(validateAccountForm({ email: 'a@b.c', password: '12345678' }, 'register')).toMatch(/owner/);
+    expect(validateAccountForm({ email: 'a@b.c', password: '12345678' }, 'register')).toMatch(
+      /owner/
+    );
   });
 
   const device = (id: string, revoked = false): DeviceInfo => ({
@@ -161,5 +189,94 @@ describe('account settings section visibility', () => {
     expect(has(true, false)).toBe(false);
     expect(has(false, true)).toBe(false);
     expect(has(true, true)).toBe(true);
+  });
+});
+
+describe('phone verification commands', () => {
+  beforeEach(() => {
+    invoke.mockReset();
+    vi.restoreAllMocks();
+  });
+
+  it('sends the phone and the code to the shell under the names it expects', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+    invoke.mockResolvedValueOnce({ otpId: 'otp_1', expiresIn: 300, resendAfter: 60 });
+    await cloudOtpSend('94771234567');
+    expect(invoke).toHaveBeenLastCalledWith('cloud_otp_send', { phone: '94771234567' });
+    invoke.mockResolvedValueOnce({ phoneProof: 'ovp_1', expiresIn: 600 });
+    await cloudOtpVerify('otp_1', '042817');
+    expect(invoke).toHaveBeenLastCalledWith('cloud_otp_verify', {
+      otpId: 'otp_1',
+      code: '042817',
+    });
+  });
+
+  it('spends the proof by sending it with the registration', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+    invoke.mockResolvedValueOnce({ email: 'a@b.c', verificationRequired: false });
+    await cloudRegister({
+      email: 'a@b.c',
+      password: 'pw-123456',
+      ownerName: 'Owner',
+      storeName: 'Shop',
+      phone: '94771234567',
+      phoneProof: 'ovp_1',
+    });
+    expect(invoke).toHaveBeenLastCalledWith(
+      'cloud_register',
+      expect.objectContaining({ phone: '94771234567', phoneProof: 'ovp_1' })
+    );
+  });
+
+  it('is unavailable on the web, like every cloud command', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(false);
+    await expect(cloudOtpSend('94771234567')).rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
+    await expect(cloudOtpVerify('otp_1', '123456')).rejects.toMatchObject({
+      code: 'CLOUD_DISABLED',
+    });
+    expect(invoke).not.toHaveBeenCalled();
+  });
+});
+
+describe('otpErrorMessage', () => {
+  const fallback = 'fallback';
+  const err = (code: string, status = 400) => ({ code, message: 'raw server text', status });
+
+  it.each([
+    ['OTP_INVALID', /code is not right/],
+    ['OTP_LOCKED', /ask for a new code/],
+    ['OTP_RATE_LIMITED', /try again later/],
+    ['PHONE_INVALID', /like 077 123 4567/],
+    ['PHONE_COUNTRY_UNSUPPORTED', /Only Sri Lankan mobile numbers/],
+    ['PHONE_ALREADY_EXISTS', /already used by another account/],
+    ['PHONE_NOT_VERIFIED', /verify your phone number/i],
+    ['SMS_REJECTED', /could not send the text message/],
+    ['SMS_UNAVAILABLE', /could not send the text message/],
+  ])('explains %s in plain words, never the server text or code', (code, pattern) => {
+    const message = otpErrorMessage(err(code), fallback);
+    expect(message).toMatch(pattern);
+    expect(message).not.toContain('raw server text');
+    expect(message).not.toContain(code);
+  });
+
+  it('reports a network failure as a connection problem', () => {
+    expect(otpErrorMessage(err('NETWORK_ERROR', 0), fallback)).toMatch(/internet connection/);
+  });
+
+  it('falls back for anything else', () => {
+    expect(otpErrorMessage(err('SOMETHING_NEW'), fallback)).toBe(fallback);
+    expect(otpErrorMessage('oops', fallback)).toBe(fallback);
+  });
+});
+
+describe('isPhoneRejected', () => {
+  it('is true only when the phone (not the email or password) was refused', () => {
+    expect(isPhoneRejected({ code: 'PHONE_ALREADY_EXISTS', message: 'x', status: 409 })).toBe(true);
+    expect(isPhoneRejected({ code: 'PHONE_NOT_VERIFIED', message: 'x', status: 400 })).toBe(true);
+    expect(isPhoneRejected({ code: 'EMAIL_ALREADY_EXISTS', message: 'x', status: 409 })).toBe(
+      false
+    );
+    expect(isPhoneRejected({ code: 'OTP_INVALID', message: 'x', status: 400 })).toBe(false);
+    expect(isPhoneRejected(new Error('boom'))).toBe(false);
   });
 });

@@ -15,16 +15,18 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { PageLoader } from '@/shared/components/PageLoader';
 import { ROUTES } from '@/constants/routes';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
-import { loginApi } from '../api/authApi';
+import { loginApi, lookupShopApi } from '../api/authApi';
 import { SERVICE_CENTER_NAME } from '@/config/branding';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { logger } from '@/shared/logging';
 import { CreateShopLink } from './CreateShopLink';
 import { ShopCodeField } from './ShopCodeField';
 import { useLoginShopCode } from '../lib/useLoginShopCode';
+import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
 import {
+  getShopNameFromLink,
   isShopCodeRequired,
   isShopCodeRejection,
   isValidShopCode,
@@ -40,6 +42,7 @@ export const LoginForm = () => {
   const initialEmail = searchParams.get('email') || '';
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
+  const [apiShopName, setApiShopName] = useState<string | null>(null);
 
   useEffect(() => {
     const queryEmail = new URLSearchParams(location.search).get('email');
@@ -62,6 +65,42 @@ export const LoginForm = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const shopProfile = useAppSelector(selectShopProfile);
+
+  const linkName = getShopNameFromLink(location.search);
+
+  // If linkName is in URL, keep Redux shopProfile updated
+  useEffect(() => {
+    if (linkName) {
+      dispatch(updateShopProfile({ tradingName: linkName }));
+    }
+  }, [linkName, dispatch]);
+
+  // If shopCode is present and valid, but linkName was not passed in URL, query the shop name for branding
+  useEffect(() => {
+    if (!linkName && shopCode && isValidShopCode(shopCode)) {
+      let active = true;
+      lookupShopApi(shopCode)
+        .then((data) => {
+          if (active && data.name) {
+            setApiShopName(data.name);
+            dispatch(updateShopProfile({ tradingName: data.name }));
+          }
+        })
+        .catch(() => {});
+      return () => {
+        active = false;
+      };
+    }
+  }, [shopCode, linkName, dispatch]);
+
+  const displayShopName =
+    linkName ||
+    apiShopName ||
+    (shopProfile?.tradingName?.trim() !== 'SimpleBash POS' && shopProfile?.tradingName?.trim()) ||
+    shopProfile?.tradingName?.trim() ||
+    shopProfile?.legalName?.trim() ||
+    SERVICE_CENTER_NAME;
 
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
@@ -97,6 +136,11 @@ export const LoginForm = () => {
       if (needsShopCode) {
         rememberShopCode(shopCode);
         logger.event('app', 'auth/login.shop_code', { shopCode: normalizeShopCode(shopCode) });
+      }
+      const linkName = getShopNameFromLink(location.search);
+      const incomingShopName = data.shopName || linkName || apiShopName;
+      if (incomingShopName) {
+        dispatch(updateShopProfile({ tradingName: incomingShopName }));
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
@@ -146,7 +190,7 @@ export const LoginForm = () => {
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
         <Text fz="xl" fw={900} c="blue">
-          {t(SERVICE_CENTER_NAME)}
+          {displayShopName === SERVICE_CENTER_NAME ? t(SERVICE_CENTER_NAME) : displayShopName}
         </Text>
 
         <Title
@@ -176,6 +220,8 @@ export const LoginForm = () => {
             />
 
             <TextInput
+              name="username"
+              autoComplete="username"
               label={t('Email Address')}
               placeholder={t('admin@simplebash.local')}
               value={email}
@@ -193,6 +239,8 @@ export const LoginForm = () => {
             />
 
             <PasswordInput
+              name="password"
+              autoComplete="current-password"
               label={t('Password')}
               placeholder="••••••••"
               value={password}

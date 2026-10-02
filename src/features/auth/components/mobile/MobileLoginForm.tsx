@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   TextInput,
@@ -17,14 +17,16 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { PageLoader } from '@/shared/components/PageLoader';
 import { ROUTES } from '@/constants/routes';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../../api/authApi';
 import { logger } from '@/shared/logging';
 import { CreateShopLink } from '../CreateShopLink';
 import { ShopCodeField } from '../ShopCodeField';
 import { useLoginShopCode } from '../../lib/useLoginShopCode';
+import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
 import {
+  getShopNameFromLink,
   isShopCodeRequired,
   isShopCodeRejection,
   isValidShopCode,
@@ -58,6 +60,21 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const shopProfile = useAppSelector(selectShopProfile);
+  const linkName = getShopNameFromLink(location.search);
+
+  useEffect(() => {
+    if (linkName) {
+      dispatch(updateShopProfile({ tradingName: linkName }));
+    }
+  }, [linkName, dispatch]);
+
+  const shopName =
+    linkName ||
+    (shopProfile?.tradingName?.trim() !== 'SimpleBash POS' && shopProfile?.tradingName?.trim()) ||
+    shopProfile?.tradingName?.trim() ||
+    shopProfile?.legalName?.trim() ||
+    SERVICE_CENTER_NAME;
 
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
@@ -93,6 +110,10 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       if (needsShopCode) {
         rememberShopCode(shopCode);
         logger.event('app', 'auth/login.shop_code', { shopCode: normalizeShopCode(shopCode) });
+      }
+      const incomingShopName = data.shopName || linkName;
+      if (incomingShopName) {
+        dispatch(updateShopProfile({ tradingName: incomingShopName }));
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
@@ -190,6 +211,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
             />
 
             <TextInput
+              name="username"
               label={t('Email')}
               placeholder={t('you@simplebash.local')}
               value={email}
@@ -197,10 +219,11 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
               className="mobile-auth-input"
               type="email"
               required
-              autoComplete="email"
+              autoComplete="username"
             />
 
             <PasswordInput
+              name="password"
               label={t('Password')}
               placeholder="••••••••••••"
               value={password}
@@ -242,7 +265,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
             <div className="mobile-auth-security-badge">
               <IconLock size={14} stroke={2} />
-              <span>{t(`${SERVICE_CENTER_NAME} - Internal Use Only`)}</span>
+              <span>{shopName} - {t('Internal Use Only')}</span>
             </div>
           </Stack>
         </form>

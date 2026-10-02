@@ -6,6 +6,7 @@ import {
   getInitialShopCodeState,
   getRememberedShopCode,
   getShopCodeFromLink,
+  getShopNameFromLink,
   isShopCodeRejection,
   isShopCodeRequired,
   isValidShopCode,
@@ -214,5 +215,22 @@ describe('isShopCodeRejection', () => {
     expect(isShopCodeRejection({ statusCode: 500 })).toBe(false);
     expect(isShopCodeRejection(new Error('offline'))).toBe(false);
     expect(isShopCodeRejection(undefined)).toBe(false);
+  });
+});
+
+describe('getShopNameFromLink', () => {
+  it('extracts and trims name when present', () => {
+    expect(getShopNameFromLink('?name=Auto%20Care%20Pro')).toBe('Auto Care Pro');
+    expect(getShopNameFromLink('?shop=code&name=%20Speedy%20Lube%20')).toBe('Speedy Lube');
+  });
+
+  it('returns empty string when name is absent', () => {
+    expect(getShopNameFromLink('?shop=code')).toBe('');
+    expect(getShopNameFromLink('')).toBe('');
+  });
+
+  it('strictly checks name and ignores alternative params', () => {
+    expect(getShopNameFromLink('?shopName=Other%20Name')).toBe('');
+    expect(getShopNameFromLink('?store=Other%20Name')).toBe('');
   });
 });

@@ -102,7 +102,8 @@ export const queryKeys = {
   },
   system: {
     all: ['system'] as const,
-    setupStatus: () => ['system', 'setup-status'] as const,
+    /** Scoped to who is asking: a guest's answer must never stand in for a signed-in shop's. */
+    setupStatus: (scope: string) => ['system', 'setup-status', scope] as const,
     installation: () => ['system', 'installation'] as const,
   },
   cloud: {

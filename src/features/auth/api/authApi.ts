@@ -27,3 +27,21 @@ export const getMeApi = async (): Promise<AuthUser> => {
   }
   return response as unknown as AuthUser;
 };
+
+export interface ShopLookupData {
+  shopCode: string;
+  name: string;
+}
+
+export interface ShopLookupResponse {
+  success: boolean;
+  data: ShopLookupData;
+}
+
+export const lookupShopApi = async (code: string): Promise<ShopLookupData> => {
+  const response = await apiClient.get<ShopLookupResponse | ShopLookupData>(`/auth/shop/${encodeURIComponent(code)}`);
+  if ('data' in response && response.data) {
+    return response.data;
+  }
+  return response as unknown as ShopLookupData;
+};
