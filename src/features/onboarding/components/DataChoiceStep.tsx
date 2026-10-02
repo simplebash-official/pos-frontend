@@ -38,12 +38,7 @@ export interface DataChoiceStepProps {
   currentUser?: { name?: string; email: string } | null;
 }
 
-export const DataChoiceStep = ({
-  onSubmit,
-  onPrev,
-  loading,
-  currentUser,
-}: DataChoiceStepProps) => {
+export const DataChoiceStep = ({ onSubmit, onPrev, loading, currentUser }: DataChoiceStepProps) => {
   const [loadSampleData, setLoadSampleData] = useState<boolean>(true);
   const [adminName, setAdminName] = useState<string>(currentUser?.name || 'System Administrator');
   const [adminEmail, setAdminEmail] = useState<string>(currentUser?.email || '');

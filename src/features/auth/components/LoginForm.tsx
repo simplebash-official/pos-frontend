@@ -44,12 +44,17 @@ export const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [apiShopName, setApiShopName] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Follow a later `?email=` change (e.g. a new sign-in link opened in the
+  // same tab). Adjusting state during render, keyed on the search string,
+  // instead of in an effect avoids an extra render pass.
+  const [seenSearch, setSeenSearch] = useState(location.search);
+  if (seenSearch !== location.search) {
+    setSeenSearch(location.search);
     const queryEmail = new URLSearchParams(location.search).get('email');
     if (queryEmail) {
       setEmail(queryEmail);
     }
-  }, [location.search]);
+  }
   const {
     shopCode,
     setShopCode,
