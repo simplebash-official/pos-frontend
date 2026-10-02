@@ -321,13 +321,14 @@ describe('Provisioning Experience Architecture', () => {
       load_sample_data: loadSampleData,
       admin_name: adminName,
       admin_email: adminEmail,
-      admin_password: '••••••••',
+      admin_password: undefined,
     });
 
     const payload = buildCloudPayload(true, 'Cloud Owner', 'owner@mycloudshop.com');
     expect(payload.load_sample_data).toBe(true);
     expect(payload.admin_email).toBe('owner@mycloudshop.com');
     expect(payload.admin_name).toBe('Cloud Owner');
-    expect(payload.admin_password).toBeDefined();
+    // No placeholder password: the cloud setup uses the signed-in session.
+    expect(payload.admin_password).toBeUndefined();
   });
 });

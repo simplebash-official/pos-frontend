@@ -70,7 +70,11 @@ export const DataChoiceStep = ({
       load_sample_data: loadSampleData,
       admin_name: (effectiveName || '').trim() || undefined,
       admin_email: (effectiveEmail || '').trim(),
-      admin_password: adminPassword || '••••••••',
+      // The cloud (multi-tenant) setup authenticates with the signed-in
+      // session and ignores this field, so the web flow sends none. Never
+      // substitute a placeholder: on a single-shop backend it would become
+      // the admin's real password.
+      admin_password: adminPassword || undefined,
     });
   };
 

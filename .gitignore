@@ -14,7 +14,6 @@ dist-ssr
 .env*
 !.env.example
 !.env*.example
-!.env.tauri
 
 # Editor directories and files
 .vscode/*
@@ -26,3 +25,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch and translation extraction outputs
+scripts/*.json
+scripts/keys*
+
+# Local AI-tooling / knowledge-graph output (kept on disk, never committed)
+graphify-out/
+.claude/
+.agents/
+.obsidian/
+skills-lock.json
+
+# Local notes and one-off scripts (not part of the published source)
+GEMINI.md
+backend-sync-requirements.html
+find_waterfall.js

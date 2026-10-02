@@ -20,5 +20,7 @@ backend-sync-requirements.html
 graphify-out
 coverage
 *.log
-.env.local
-.env.*.local
+.env
+.env.*
+!.env.example
+!.env.*.example
