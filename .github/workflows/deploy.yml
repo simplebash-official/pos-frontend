@@ -52,8 +52,12 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # Must match pos/deployment/scripts/deploy.sh: production serves the
+          # API on the same origin (/api, proxied by nginx) and is multi-tenant.
           build-args: |
-            VITE_API_BASE_URL=https://api.simplebash.com/api
+            VITE_API_BASE_URL=/api
+            VITE_MULTI_TENANT=true
+            VITE_ACCOUNTS_URL=https://app.simplebash.com
             VITE_GIT_SHA=${{ github.sha }}
             VITE_APP_VERSION=${{ steps.compute.outputs.version }}
 
