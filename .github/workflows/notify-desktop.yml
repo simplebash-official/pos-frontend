@@ -1,0 +1,30 @@
+name: notify-desktop
+
+# Tells pos-desktop that this repo's `main` moved, so its bump-submodule workflow
+# can open a PR moving the pin. Nothing ships until that PR is merged.
+#
+# Secret (this repo): DESKTOP_DISPATCH_TOKEN — fine-grained PAT (or GitHub App
+# token) with Contents: write on simplebash-official/pos-desktop (that is the
+# permission repository_dispatch requires). See pos-desktop/.github/RELEASING.md.
+
+on:
+  push:
+    branches: ["main"]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    # Forks have no token and must not poke the official desktop repo.
+    if: github.repository == 'simplebash-official/pos-frontend'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch submodule-updated to pos-desktop
+        env:
+          GH_TOKEN: ${{ secrets.DESKTOP_DISPATCH_TOKEN }}
+        run: |
+          [ -n "$GH_TOKEN" ] || { echo "::error::secret DESKTOP_DISPATCH_TOKEN is not set"; exit 1; }
+          gh api repos/simplebash-official/pos-desktop/dispatches \
+            -f event_type=submodule-updated \
+            -f 'client_payload[submodule]=frontend' \
+            -f "client_payload[sha]=$GITHUB_SHA"

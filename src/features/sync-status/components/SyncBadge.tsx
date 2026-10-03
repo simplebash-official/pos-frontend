@@ -1,6 +1,12 @@
 import { t } from '@/shared/i18n/t';
 import { Badge, Tooltip } from '@mantine/core';
-import { IconAlertTriangle, IconCloudCheck, IconCloudOff, IconCloudUpload, IconPlayerPause } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconCloudCheck,
+  IconCloudOff,
+  IconCloudUpload,
+  IconPlayerPause,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { isTauri } from '@/shared/lib/runtime';
@@ -46,7 +52,9 @@ export const SyncBadge = () => {
         style={{ cursor: 'pointer', flexShrink: 0 }}
         onClick={() =>
           navigate(ROUTES.SETTINGS, {
-            state: { section: status.conflictsOpen > 0 && !status.bootstrapRequired ? 'conflicts' : 'sync' },
+            state: {
+              section: status.conflictsOpen > 0 && !status.bootstrapRequired ? 'conflicts' : 'sync',
+            },
           })
         }
         data-log-id="sync.badge"

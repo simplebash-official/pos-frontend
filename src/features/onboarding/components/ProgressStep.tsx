@@ -252,7 +252,9 @@ export const ProgressStep = ({
                       <IconUserCheck size={24} />
                     </ThemeIcon>
                     <Badge color="blue" variant="filled" size="sm">
-                      {isTauri() ? t('Initial Administrator Account') : t('Shop Administrator Account')}
+                      {isTauri()
+                        ? t('Initial Administrator Account')
+                        : t('Shop Administrator Account')}
                     </Badge>
                   </Group>
                   <Text fw={700} size="md" mb={4}>

@@ -186,7 +186,7 @@ export const Header = ({
           </Tooltip>
 
           <SyncBadge />
-        <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
+          <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
             <Group gap={6} style={{ cursor: 'default' }} wrap="nowrap">

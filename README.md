@@ -17,12 +17,12 @@ One codebase, two targets:
 
 ## The SimpleBash POS family
 
-| Repository | What it is |
-|---|---|
-| [pos-backend](https://github.com/simplebash-official/pos-backend) | REST API — Rust / Axum, SQLite or MongoDB |
-| **pos-frontend** (this repo) | The cashier & back-office UI — React / Vite / Mantine |
+| Repository                                                                | What it is                                                           |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [pos-backend](https://github.com/simplebash-official/pos-backend)         | REST API — Rust / Axum, SQLite or MongoDB                            |
+| **pos-frontend** (this repo)                                              | The cashier & back-office UI — React / Vite / Mantine                |
 | [document-server](https://github.com/simplebash-official/document-server) | Renders invoices, receipts, reports and labels to PDF — Rust / Typst |
-| [pos-desktop](https://github.com/simplebash-official/pos-desktop) | Windows / macOS / Linux app (Tauri) that bundles all three |
+| [pos-desktop](https://github.com/simplebash-official/pos-desktop)         | Windows / macOS / Linux app (Tauri) that bundles all three           |
 
 ## Features
 
@@ -73,27 +73,27 @@ is needed for local development.
 
 Settings are read at **build time** (Vite only exposes `VITE_*` variables to the app).
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `VITE_API_BASE_URL` | `/api` | Where the backend API lives. Use `/api` when nginx serves both on one domain |
-| `VITE_APP_NAME` | `SimpleBash POS` | Name shown in the browser tab and header |
-| `VITE_MULTI_TENANT` | off | `true` = the login asks for a shop code (many shops on one server) |
-| `VITE_ACCOUNTS_URL` | `https://app.simplebash.com` | Where "Create your shop" links, on multi-shop builds |
-| `VITE_GIT_SHA`, `VITE_APP_VERSION` | from git / `package.json` | Build identity, shown in Settings → Updates and `/version.json` |
+| Variable                           | Default                      | Purpose                                                                      |
+| ---------------------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`                | `/api`                       | Where the backend API lives. Use `/api` when nginx serves both on one domain |
+| `VITE_APP_NAME`                    | `SimpleBash POS`             | Name shown in the browser tab and header                                     |
+| `VITE_MULTI_TENANT`                | off                          | `true` = the login asks for a shop code (many shops on one server)           |
+| `VITE_ACCOUNTS_URL`                | `https://app.simplebash.com` | Where "Create your shop" links, on multi-shop builds                         |
+| `VITE_GIT_SHA`, `VITE_APP_VERSION` | from git / `package.json`    | Build identity, shown in Settings → Updates and `/version.json`              |
 
 Templates: [`.env.example`](.env.example) (local), [`.env.web.example`](.env.web.example)
 (web build), [`.env.tauri.example`](.env.tauri.example) (desktop build).
 
 ## Scripts
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Dev server with hot reload |
-| `npm run build` | Production web build into `dist/` |
-| `npm run build:tauri` | Build for the desktop app |
-| `npm test` | Vitest suite |
-| `npm run test:all` | Vitest + Jest |
-| `npm run lint` / `npm run type-check` / `npm run format` | ESLint, TypeScript, Prettier |
+| Command                                                  | What it does                      |
+| -------------------------------------------------------- | --------------------------------- |
+| `npm run dev`                                            | Dev server with hot reload        |
+| `npm run build`                                          | Production web build into `dist/` |
+| `npm run build:tauri`                                    | Build for the desktop app         |
+| `npm test`                                               | Vitest suite                      |
+| `npm run test:all`                                       | Vitest + Jest                     |
+| `npm run lint` / `npm run type-check` / `npm run format` | ESLint, TypeScript, Prettier      |
 
 ## Project layout
 

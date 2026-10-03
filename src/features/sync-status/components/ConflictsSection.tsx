@@ -7,7 +7,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
-import { listConflicts, resolveConflict } from '../api/syncStatusApi';
+import { listConflicts, resolveAllConflicts, resolveConflict } from '../api/syncStatusApi';
 import { conflictLabel, openConflicts, toSyncError } from '../lib/statusView';
 import { useSyncStatus } from '../hooks/useSyncStatus';
 import type { SyncConflict } from '../types';
@@ -16,10 +16,12 @@ const ConflictRow = ({
   conflict,
   onResolve,
   resolving,
+  disabled,
 }: {
   conflict: SyncConflict;
   onResolve: (key: string) => void;
   resolving: boolean;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -51,6 +53,7 @@ const ConflictRow = ({
             size="xs"
             variant="light"
             loading={resolving}
+            disabled={disabled}
             onClick={() => onResolve(conflict.key)}
             data-log-id="sync.conflict-resolve"
           >
@@ -89,26 +92,54 @@ export const ConflictsSection = (_props: SectionProps) => {
     },
     onError: (err) => notifications.show({ color: 'red', message: toSyncError(err).message }),
   });
+  const resolveAll = useMutation({
+    mutationFn: (keys: string[]) => resolveAllConflicts(keys, 'reviewed'),
+    onSuccess: () => {
+      logger.info('app', 'sync.conflicts_all_reviewed');
+      notifications.show({
+        color: 'teal',
+        message: t('All conflicts marked as reviewed'),
+      });
+      return queryClient.invalidateQueries({ queryKey: queryKeys.syncStatus.conflicts() });
+    },
+    onError: (err) => notifications.show({ color: 'red', message: toSyncError(err).message }),
+  });
 
   const open = openConflicts(data ?? []);
 
   return (
     <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
       <Stack gap="md">
-        <div>
-          <Text fw={700} size="lg">
-            {t('Sync conflicts')}
-          </Text>
-          <Text size="sm" c="dimmed" mt={2}>
-            {t(
-              'Things worth a second look after devices synced. Nothing here stops you from selling.'
-            )}
-          </Text>
-        </div>
+        <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
+          <Stack gap={2} style={{ minWidth: 0 }}>
+            <Text fw={700} size="lg">
+              {t('Sync conflicts')}
+            </Text>
+            <Text size="sm" c="dimmed">
+              {t(
+                'Things worth a second look after devices synced. Nothing here stops you from selling.'
+              )}
+            </Text>
+          </Stack>
+          {open.length > 0 && (
+            <Button
+              size="xs"
+              variant="light"
+              loading={resolveAll.isPending}
+              disabled={resolve.isPending}
+              onClick={() => resolveAll.mutate(open.map((c) => c.key))}
+              data-log-id="sync.conflicts-resolve-all"
+            >
+              {t('Mark all as reviewed')}
+            </Button>
+          )}
+        </Group>
 
         {!status.linked ? (
           <Alert color="gray" variant="light">
-            {t('This device is not linked to a cloud account yet. Link it under Cloud Account first.')}
+            {t(
+              'This device is not linked to a cloud account yet. Link it under Cloud Account first.'
+            )}
           </Alert>
         ) : error ? (
           <Alert color="red" variant="light">
@@ -126,6 +157,9 @@ export const ConflictsSection = (_props: SectionProps) => {
                 conflict={conflict}
                 onResolve={(key) => resolve.mutate(key)}
                 resolving={resolve.isPending && resolve.variables === conflict.key}
+                disabled={
+                  resolveAll.isPending || (resolve.isPending && resolve.variables !== conflict.key)
+                }
               />
             ))}
           </Stack>

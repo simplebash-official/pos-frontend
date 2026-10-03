@@ -78,7 +78,9 @@ export const FeatureGuideStep = ({ onNext, onPrev }: FeatureGuideStepProps) => {
       icon: isTauri() ? IconShieldLock : IconCloud,
       color: 'blue',
       badge: isTauri() ? t('Security & Privacy') : t('Cloud Collaboration'),
-      title: isTauri() ? t('100% Offline-First Architecture') : t('Multi-Device Cloud Architecture'),
+      title: isTauri()
+        ? t('100% Offline-First Architecture')
+        : t('Multi-Device Cloud Architecture'),
       description: isTauri()
         ? t(
             'Your business data lives exclusively on your local computer. No cloud dependency, zero downtime, and complete cryptographic security.'

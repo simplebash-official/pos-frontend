@@ -27,7 +27,9 @@ const record = (overrides: Partial<LogRecord>): LogRecord => ({
 
 describe('log formatting', () => {
   it('shows local time with milliseconds and the offset', () => {
-    expect(formatLogTime('2026-09-15T10:22:01.123456+05:30')).toBe('2026-09-15 10:22:01.123 +05:30');
+    expect(formatLogTime('2026-09-15T10:22:01.123456+05:30')).toBe(
+      '2026-09-15 10:22:01.123 +05:30'
+    );
     expect(formatLogTime('2026-09-15T04:52:01Z')).toBe('2026-09-15 04:52:01 UTC');
     expect(formatLogTime('not a time')).toBe('not a time');
   });
@@ -52,7 +54,13 @@ describe('log formatting', () => {
 
 describe('matchesFilters (live tail)', () => {
   it('applies every filter the server applies', () => {
-    const r = record({ source: 'backend', level: 'warn', category: 'http', request_id: 'req_1', msg: 'POST /api/billing/sales' });
+    const r = record({
+      source: 'backend',
+      level: 'warn',
+      category: 'http',
+      request_id: 'req_1',
+      msg: 'POST /api/billing/sales',
+    });
     expect(matchesFilters(r, EMPTY_FILTERS)).toBe(true);
     expect(matchesFilters(r, { ...EMPTY_FILTERS, sources: ['frontend'] })).toBe(false);
     expect(matchesFilters(r, { ...EMPTY_FILTERS, minLevel: 'error' })).toBe(false);

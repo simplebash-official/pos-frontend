@@ -94,7 +94,9 @@ describe('Header component shop name rendering', () => {
   });
 
   it('applies truncation and responsive constraints to title', () => {
-    const store = createMockStore({ tradingName: 'A Very Long Workshop Name That Needs Ellipsis Truncation' });
+    const store = createMockStore({
+      tradingName: 'A Very Long Workshop Name That Needs Ellipsis Truncation',
+    });
     const desktopHtml = renderHeader(store);
 
     expect(desktopHtml).toContain('text-overflow:ellipsis');

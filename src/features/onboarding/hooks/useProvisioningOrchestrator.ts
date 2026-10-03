@@ -426,8 +426,7 @@ export const useProvisioningOrchestrator = ({
         log: {
           tag: 'STORE',
           tagColor: 'cyan',
-          messageTemplate: () =>
-            'Enforcing tenant_id isolation pragma & compound query indices',
+          messageTemplate: () => 'Enforcing tenant_id isolation pragma & compound query indices',
         },
       },
       {
@@ -481,8 +480,7 @@ export const useProvisioningOrchestrator = ({
         log: {
           tag: 'SECURITY',
           tagColor: 'grape',
-          messageTemplate: () =>
-            'Tenant API credentials verified and active for multi-device sync',
+          messageTemplate: () => 'Tenant API credentials verified and active for multi-device sync',
         },
       },
 
@@ -554,8 +552,7 @@ export const useProvisioningOrchestrator = ({
         log: {
           tag: 'BRIDGE',
           tagColor: 'orange',
-          messageTemplate: () =>
-            'Document service ready (thermal 80mm & A4 invoice templates)',
+          messageTemplate: () => 'Document service ready (thermal 80mm & A4 invoice templates)',
         },
       },
 

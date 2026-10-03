@@ -3,6 +3,8 @@ import * as runtime from '@/shared/lib/runtime';
 import {
   getSyncStatus,
   listConflicts,
+  resolveAllConflicts,
+  resolveConflict,
   syncBootstrap,
   syncNow,
   SyncCommandError,
@@ -22,6 +24,7 @@ import {
   subscribeSyncStatus,
 } from '../hooks/useSyncStatus';
 import { getVisibleSettingsSections } from '@/features/settings/settingsSections';
+import { ConflictsSection } from '../components/ConflictsSection';
 import { DISABLED_SYNC_STATUS, type SyncStatus } from '../types';
 
 const invoke = vi.fn();
@@ -133,6 +136,37 @@ describe('sync api', () => {
     expect(invoke).toHaveBeenCalledWith('sync_list_conflicts', undefined);
   });
 
+  it('invokes sync_resolve_conflict for a single conflict', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+    invoke.mockResolvedValue({ success: true });
+    await resolveConflict('scf_1', 'reviewed');
+    expect(invoke).toHaveBeenCalledWith('sync_resolve_conflict', {
+      key: 'scf_1',
+      resolution: 'reviewed',
+    });
+  });
+
+  it('resolves all conflicts concurrently via sync_resolve_conflict', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+    invoke.mockResolvedValue({ success: true });
+    await resolveAllConflicts(['scf_1', 'scf_2']);
+    expect(invoke).toHaveBeenCalledTimes(2);
+    expect(invoke).toHaveBeenCalledWith('sync_resolve_conflict', {
+      key: 'scf_1',
+      resolution: 'reviewed',
+    });
+    expect(invoke).toHaveBeenCalledWith('sync_resolve_conflict', {
+      key: 'scf_2',
+      resolution: 'reviewed',
+    });
+  });
+
+  it('handles empty keys array without invoking backend', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+    await resolveAllConflicts([]);
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
   it('getSyncStatus swallows failures', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
     invoke.mockRejectedValue(new Error('down'));
@@ -212,5 +246,11 @@ describe('settings sections', () => {
   it('keeps Cloud Account visible whenever the cloud is enabled, linked or not', () => {
     expect(ids(true, true, false)).toContain('account');
     expect(ids(true, true, true)).toContain('account');
+  });
+});
+
+describe('ConflictsSection export', () => {
+  it('exports ConflictsSection component', () => {
+    expect(typeof ConflictsSection).toBe('function');
   });
 });

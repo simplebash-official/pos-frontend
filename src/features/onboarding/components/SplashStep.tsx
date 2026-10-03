@@ -91,7 +91,9 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
               <IconServer size={18} />
             </ThemeIcon>
             <Text fw={700} size="sm">
-              {isTauri() ? `${t('Storage Engine')} & ${t('Document Server')}` : `${t('Cloud Engine')} & ${t('Multi-Tenant Store')}`}
+              {isTauri()
+                ? `${t('Storage Engine')} & ${t('Document Server')}`
+                : `${t('Cloud Engine')} & ${t('Multi-Tenant Store')}`}
             </Text>
           </Group>
           <Badge color="green" variant="light" size="sm">
@@ -228,7 +230,10 @@ export const SplashStep = ({ status, onNext }: SplashStepProps) => {
                 {isTauri() ? t('Workstation Record') : t('Cloud Shop Instance')}
               </Text>
               <Text size="xs" c="dimmed">
-                ID: {shortId} · {isTauri() ? `${t('Installed')}: ${installedDate} · ${status?.platform || 'Desktop'}` : `${t('Initialized')}: ${installedDate} · Cloud Production`}
+                ID: {shortId} ·{' '}
+                {isTauri()
+                  ? `${t('Installed')}: ${installedDate} · ${status?.platform || 'Desktop'}`
+                  : `${t('Initialized')}: ${installedDate} · Cloud Production`}
               </Text>
             </div>
           </Group>

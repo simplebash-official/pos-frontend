@@ -97,7 +97,13 @@ export const LogTable = ({
                     >
                       {record.level}
                     </Badge>
-                    <Badge size="xs" variant="outline" color="gray" tt="none" style={{ flexShrink: 0 }}>
+                    <Badge
+                      size="xs"
+                      variant="outline"
+                      color="gray"
+                      tt="none"
+                      style={{ flexShrink: 0 }}
+                    >
                       {record.source}
                     </Badge>
                     <Text size="xs" c="dimmed" ff="monospace" style={{ flexShrink: 0 }}>

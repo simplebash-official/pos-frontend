@@ -265,7 +265,9 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
             <div className="mobile-auth-security-badge">
               <IconLock size={14} stroke={2} />
-              <span>{shopName} - {t('Internal Use Only')}</span>
+              <span>
+                {shopName} - {t('Internal Use Only')}
+              </span>
             </div>
           </Stack>
         </form>

@@ -31,7 +31,9 @@ export const levelAtLeast = (level: LogLevel, min: LogLevel | undefined): boolea
 
 /** `2026-09-15T10:22:01.123456+05:30` → `2026-09-15 10:22:01.123 +05:30`. */
 export const formatLogTime = (ts: string): string => {
-  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(\.\d{1,3})?\d*(Z|[+-]\d{2}:\d{2})$/.exec(ts);
+  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(\.\d{1,3})?\d*(Z|[+-]\d{2}:\d{2})$/.exec(
+    ts
+  );
   if (!match) {
     return ts;
   }
@@ -52,7 +54,9 @@ export const recordKey = (record: LogRecord): string =>
 
 /** Short text shown in the table when an entry has no message. */
 export const recordSummary = (record: LogRecord): string =>
-  record.msg === undefined || record.msg === '' ? `${record.category} / ${record.event}` : record.msg;
+  record.msg === undefined || record.msg === ''
+    ? `${record.category} / ${record.event}`
+    : record.msg;
 
 /** Does a live-tail entry belong in the current (server-side) filter? */
 export const matchesFilters = (record: LogRecord, filters: LogFilters): boolean => {

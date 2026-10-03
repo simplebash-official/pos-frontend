@@ -313,11 +313,7 @@ describe('Provisioning Experience Architecture', () => {
   });
 
   it('allows cloud setup payload submission without password re-entry', () => {
-    const buildCloudPayload = (
-      loadSampleData: boolean,
-      adminName: string,
-      adminEmail: string
-    ) => ({
+    const buildCloudPayload = (loadSampleData: boolean, adminName: string, adminEmail: string) => ({
       load_sample_data: loadSampleData,
       admin_name: adminName,
       admin_email: adminEmail,

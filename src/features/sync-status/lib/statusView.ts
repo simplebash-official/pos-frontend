@@ -22,7 +22,8 @@ export const badgeView = (status: SyncStatus): BadgeView | null => {
   let hint = '';
   if (status.bootstrapRequired) hint = 'Waiting for your confirmation to download the cloud data';
   else if (status.state === 'error' && status.lastError) hint = status.lastError;
-  else if (status.state === 'offline') hint = 'Working offline; changes sync when the internet is back';
+  else if (status.state === 'offline')
+    hint = 'Working offline; changes sync when the internet is back';
   else if (status.pendingOut > 0) hint = `${status.pendingOut} change(s) waiting to upload`;
   else if (status.state === 'idle') hint = 'Internet connected and data is in sync';
   return { ...base, hint };

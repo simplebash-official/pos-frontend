@@ -39,7 +39,9 @@ export interface ShopLookupResponse {
 }
 
 export const lookupShopApi = async (code: string): Promise<ShopLookupData> => {
-  const response = await apiClient.get<ShopLookupResponse | ShopLookupData>(`/auth/shop/${encodeURIComponent(code)}`);
+  const response = await apiClient.get<ShopLookupResponse | ShopLookupData>(
+    `/auth/shop/${encodeURIComponent(code)}`
+  );
   if ('data' in response && response.data) {
     return response.data;
   }

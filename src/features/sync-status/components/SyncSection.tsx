@@ -51,7 +51,9 @@ export const SyncSection = (_props: SectionProps) => {
 
         {!status.linked || !view ? (
           <Alert color="gray" variant="light">
-            {t('This device is not linked to a cloud account yet. Link it under Cloud Account first.')}
+            {t(
+              'This device is not linked to a cloud account yet. Link it under Cloud Account first.'
+            )}
           </Alert>
         ) : (
           <Stack gap="xs">
@@ -110,7 +112,9 @@ export const SyncSection = (_props: SectionProps) => {
               <Button
                 variant="default"
                 loading={busy}
-                onClick={() => void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)}
+                onClick={() =>
+                  void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)
+                }
                 data-log-id={paused ? 'sync.resume' : 'sync.pause'}
               >
                 {paused ? t('Resume sync') : t('Pause sync')}

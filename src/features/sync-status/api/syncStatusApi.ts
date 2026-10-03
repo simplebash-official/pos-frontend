@@ -15,6 +15,14 @@ export class SyncCommandError extends Error {
 }
 
 /** Thin `invoke` wrappers: sync runs in the desktop shell, never in the webview. */
+let invokePromise: Promise<typeof import('@tauri-apps/api/core').invoke> | null = null;
+const getInvoke = () => {
+  if (!invokePromise) {
+    invokePromise = import('@tauri-apps/api/core').then((m) => m.invoke);
+  }
+  return invokePromise;
+};
+
 const call = async <T>(command: string, args?: Record<string, unknown>): Promise<T> => {
   if (!isTauri()) {
     throw new SyncCommandError({
@@ -24,7 +32,7 @@ const call = async <T>(command: string, args?: Record<string, unknown>): Promise
     });
   }
   try {
-    const { invoke } = await import('@tauri-apps/api/core');
+    const invoke = await getInvoke();
     return await invoke<T>(command, args);
   } catch (err) {
     throw new SyncCommandError(toSyncError(err));
@@ -50,6 +58,13 @@ export const listConflicts = async (): Promise<SyncConflict[]> =>
 
 export const resolveConflict = (key: string, resolution: string) =>
   call<unknown>('sync_resolve_conflict', { key, resolution });
+
+export const resolveAllConflicts = async (
+  keys: string[],
+  resolution = 'reviewed'
+): Promise<void> => {
+  await Promise.all(keys.map((key) => resolveConflict(key, resolution)));
+};
 
 /** Subscribes to `sync://status`; returns the unsubscribe function. */
 export const listenSyncStatus = async (onStatus: (s: SyncStatus) => void): Promise<() => void> => {

@@ -1,5 +1,15 @@
 import { t } from '@/shared/i18n/t';
-import { Badge, Button, Code, Group, Paper, ScrollArea, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+  Badge,
+  Button,
+  Code,
+  Group,
+  Paper,
+  ScrollArea,
+  Stack,
+  Text,
+  ThemeIcon,
+} from '@mantine/core';
 import { IconCopy, IconFileText, IconRoute } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { DetailDrawer } from '@/shared/components/DetailDrawer';
@@ -98,7 +108,13 @@ export const LogDetailDrawer = ({ record, onClose, onTraceRequest }: LogDetailDr
 
           {entry.data !== undefined && (
             <Stack gap={4}>
-              <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ letterSpacing: '0.05em' }}
+              >
                 {t('Details')}
               </Text>
               <ScrollArea.Autosize mah="45dvh" type="auto">
@@ -110,7 +126,11 @@ export const LogDetailDrawer = ({ record, onClose, onTraceRequest }: LogDetailDr
           )}
 
           <Group justify="flex-end" gap="sm">
-            <Button variant="default" leftSection={<IconCopy size={16} />} onClick={() => void copy(entry)}>
+            <Button
+              variant="default"
+              leftSection={<IconCopy size={16} />}
+              onClick={() => void copy(entry)}
+            >
               {t('Copy')}
             </Button>
             {entry.request_id !== undefined && (
