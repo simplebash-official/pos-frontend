@@ -19,6 +19,8 @@ export interface JoinCloudShopStepProps {
   shopName?: string | null;
   /** The shop could not be downloaded: show the "set up here" form instead. */
   onUseForm: () => void;
+  /** The shop came down with its admin but still needs the demo-vs-clean choice. */
+  onCloudAdmin: () => void;
   onPrev: () => void;
 }
 
@@ -31,6 +33,7 @@ export const JoinCloudShopStep = ({
   accountEmail,
   shopName,
   onUseForm,
+  onCloudAdmin,
   onPrev,
 }: JoinCloudShopStepProps) => {
   const navigate = useNavigate();
@@ -62,6 +65,7 @@ export const JoinCloudShopStep = ({
 
   const outcome = joinOutcome({
     setupCompleted: Boolean(setup?.setup_completed),
+    isFirstRun: setup?.is_first_run ?? true,
     sync,
     setupCheckedAfterSync: checkedAfterSync,
     timedOut,
@@ -73,6 +77,10 @@ export const JoinCloudShopStep = ({
       finished.current = true;
       logger.info('onboarding', 'join.fallback', { timedOut, syncState: sync.state });
       onUseForm();
+    } else if (outcome === 'cloud-admin') {
+      finished.current = true;
+      logger.info('onboarding', 'join.cloud_admin');
+      onCloudAdmin();
     } else if (outcome === 'joined') {
       finished.current = true;
       logger.info('onboarding', 'join.done');
@@ -87,7 +95,7 @@ export const JoinCloudShopStep = ({
         navigate(`${ROUTES.LOGIN}${email}`, { replace: true });
       })();
     }
-  }, [outcome, onUseForm, accountEmail, navigate, queryClient, timedOut, sync.state]);
+  }, [outcome, onUseForm, onCloudAdmin, accountEmail, navigate, queryClient, timedOut, sync.state]);
 
   return (
     <Stack gap="lg" align="center" ta="center" role="status" data-testid="join-cloud-shop">

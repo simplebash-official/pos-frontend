@@ -11,6 +11,7 @@ const DONE = linked({ lastSyncAt: '2026-10-04T06:00:00Z' });
 
 const input = (over: Partial<Parameters<typeof joinOutcome>[0]> = {}) => ({
   setupCompleted: false,
+  isFirstRun: true,
   sync: linked({ state: 'syncing' }),
   setupCheckedAfterSync: false,
   timedOut: false,
@@ -45,6 +46,28 @@ describe('joinOutcome', () => {
 
   it('falls back to the admin form when the first sync finished and setup is still not done', () => {
     expect(joinOutcome(input({ sync: DONE, setupCheckedAfterSync: true }))).toBe('form');
+  });
+
+  it('asks for the demo/clean choice when the cloud admin came down but setup is still open', () => {
+    // Users exist locally (not a blank install), yet the shop has not been set up.
+    expect(joinOutcome(input({ sync: DONE, setupCheckedAfterSync: true, isFirstRun: false }))).toBe(
+      'cloud-admin'
+    );
+  });
+
+  it('does not decide on the cloud admin before the first sync has finished and been re-read', () => {
+    expect(joinOutcome(input({ isFirstRun: false }))).toBe('waiting');
+    expect(
+      joinOutcome(input({ sync: DONE, setupCheckedAfterSync: false, isFirstRun: false }))
+    ).toBe('waiting');
+  });
+
+  it('a shop that is already set up goes to sign-in, never to the choice', () => {
+    expect(
+      joinOutcome(
+        input({ setupCompleted: true, sync: DONE, setupCheckedAfterSync: true, isFirstRun: false })
+      )
+    ).toBe('joined');
   });
 
   it('falls back when the shop cannot be reached or needs a decision', () => {

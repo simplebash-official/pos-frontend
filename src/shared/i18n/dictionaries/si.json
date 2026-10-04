@@ -1756,5 +1756,12 @@
   "We are downloading your shop to this computer. This usually takes a few seconds.": "අපි ඔබේ වෙළඳසැල මෙම පරිගණකයට බාගත කරමින් සිටිමු. මෙයට සාමාන්‍යයෙන් තත්පර කිහිපයක් ගතවේ.",
   "Set up a new shop here instead": "ඒ වෙනුවට මෙහි නව වෙළඳසැලක් සකසන්න",
   "Your shop is ready. Sign in with your POS email and password.": "ඔබේ වෙළඳසැල සූදානම්. ඔබේ POS විද්‍යුත් තැපෑල සහ මුරපදයෙන් ඇතුළු වන්න.",
-  "We couldn't find a ready shop in the cloud, so let's set one up on this computer.": "cloud එකේ සූදානම් වෙළඳසැලක් අපට හමු නොවීය, එබැවින් මෙම පරිගණකයේ එකක් සකසමු."
+  "We couldn't find a ready shop in the cloud, so let's set one up on this computer.": "cloud එකේ සූදානම් වෙළඳසැලක් අපට හමු නොවීය, එබැවින් මෙම පරිගණකයේ එකක් සකසමු.",
+  "Please enter your POS password.": "කරුණාකර ඔබේ POS මුරපදය ඇතුළත් කරන්න.",
+  "POS password": "POS මුරපදය",
+  "Shop Administrator Account": "වෙළඳසැල පරිපාලක ගිණුම",
+  "The password you set on the SimpleBash website": "ඔබ SimpleBash වෙබ් අඩවියේ සැකසූ මුරපදය",
+  "Your shop already has an administrator. Enter its POS password to continue; nothing new is created.": "ඔබේ වෙළඳසැලට දැනටමත් පරිපාලකයෙකු සිටී. ඉදිරියට යාමට එහි POS මුරපදය ඇතුළත් කරන්න; අලුතින් කිසිවක් සාදනු නොලැබේ.",
+  "Sign in as your shop's administrator to finish setting up this computer.": "මෙම පරිගණකය සකසා අවසන් කිරීමට ඔබේ වෙළඳසැලේ පරිපාලකයා ලෙස ඇතුළු වන්න.",
+  "That POS password doesn't match. Use the password you set on the SimpleBash website.": "ඒ POS මුරපදය නොගැළපේ. ඔබ SimpleBash වෙබ් අඩවියේ සැකසූ මුරපදය භාවිතා කරන්න."
 }

@@ -72,8 +72,12 @@ export const WelcomeWizard = () => {
   const dbStepIndex = cloudStep ? 3 : 2;
   // Linked to a cloud shop: its data (and admin) comes down by itself, so the
   // admin form is only offered if that turns out not to be possible.
-  const [joinFallback, setJoinFallback] = useState(false);
-  const joiningCloudShop = cloudStep && cloud.linked && !joinFallback;
+  // 'joining' = downloading it; 'cloud-admin' = it came down with its admin but still needs
+  // the demo-vs-clean choice; 'form' = nothing to download, set up a new admin here.
+  const [joinMode, setJoinMode] = useState<'joining' | 'cloud-admin' | 'form'>('joining');
+  const cloudLinked = cloudStep && cloud.linked;
+  const joiningCloudShop = cloudLinked && joinMode === 'joining';
+  const usingCloudAdmin = cloudLinked && joinMode === 'cloud-admin';
   const launchStepIndex = dbStepIndex + 1;
 
   const [activeStep, setActiveStepState] = useState<number>(0);
@@ -141,7 +145,11 @@ export const WelcomeWizard = () => {
           return;
         }
         setSetupError(
-          err.message || t('Failed to initialize database. Please check backend logs.')
+          usingCloudAdmin && apiErr?.statusCode === 401
+            ? t(
+                "That POS password doesn't match. Use the password you set on the SimpleBash website."
+              )
+            : err.message || t('Failed to initialize database. Please check backend logs.')
         );
       },
     });
@@ -279,10 +287,10 @@ export const WelcomeWizard = () => {
               />
             )}
             <Stepper.Step
-              label={joiningCloudShop ? t('Your shop') : t('Database')}
+              label={cloudLinked && joinMode !== 'form' ? t('Your shop') : t('Database')}
               description={
                 !isMobile
-                  ? joiningCloudShop
+                  ? cloudLinked && joinMode !== 'form'
                     ? t('From the cloud')
                     : t('Demo or Clean')
                   : undefined
@@ -369,12 +377,13 @@ export const WelcomeWizard = () => {
           {activeStep === dbStepIndex && joiningCloudShop && (
             <JoinCloudShopStep
               accountEmail={cloud.accountEmail}
-              onUseForm={() => setJoinFallback(true)}
+              onUseForm={() => setJoinMode('form')}
+              onCloudAdmin={() => setJoinMode('cloud-admin')}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
             />
           )}
 
-          {activeStep === dbStepIndex && !joiningCloudShop && cloudStep && cloud.linked && (
+          {activeStep === dbStepIndex && joinMode === 'form' && cloudLinked && (
             <Alert color="blue" variant="light" mb="md" role="status">
               {t(
                 "We couldn't find a ready shop in the cloud, so let's set one up on this computer."
@@ -388,6 +397,9 @@ export const WelcomeWizard = () => {
               onSubmit={handleStartSetup}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
               currentUser={currentUser}
+              existingAdmin={
+                usingCloudAdmin && cloud.accountEmail ? { email: cloud.accountEmail } : null
+              }
               suggested={
                 cloudStep && cloud.linked
                   ? { name: cloud.accountName, email: cloud.accountEmail }
