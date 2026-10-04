@@ -1,150 +1,29 @@
 import { t } from '@/shared/i18n/t';
-import { useEffect, useState } from 'react';
-import {
-  Alert,
-  Badge,
-  Button,
-  Code,
-  Divider,
-  Group,
-  Paper,
-  PasswordInput,
-  SegmentedControl,
-  Stack,
-  Switch,
-  Text,
-  TextInput,
-} from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
+import { useState } from 'react';
+import { Alert, Badge, Button, Divider, Group, Paper, Stack, Switch, Text } from '@mantine/core';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
-import { cloudLinkPoll, cloudRegister } from '../api/accountApi';
-import type { VerifiedPhone } from '../types';
-import { PhoneVerification } from './PhoneVerification';
-import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 import { LinkedDevicesList } from './LinkedDevicesList';
-import {
-  useCloudLinkStart,
-  useCloudLogin,
-  useCloudState,
-  useCloudTelemetry,
-  useCloudUnlink,
-} from '../hooks/useCloudState';
-import {
-  accountMode,
-  isPhoneRejected,
-  otpErrorMessage,
-  toCloudError,
-  validateAccountForm,
-} from '../lib/accountView';
-
-type FormMode = 'signin' | 'register';
+import { SignInPanel } from './SignInPanel';
+import { useCloudState, useCloudTelemetry, useCloudUnlink } from '../hooks/useCloudState';
+import { accountMode, toCloudError } from '../lib/accountView';
 
 /**
  * Settings → Account. Optional: the POS works fully offline without it. Shown
  * only when the desktop shell reports a configured cloud (see settingsSections).
+ * Signing in happens in the browser (see SignInPanel); this screen shows the result.
  */
 export const AccountSection = (_props: SectionProps) => {
-  const queryClient = useQueryClient();
   const { state } = useCloudState();
-  const login = useCloudLogin();
-  const linkStart = useCloudLinkStart();
   const unlink = useCloudUnlink();
   const telemetry = useCloudTelemetry();
 
-  const [formMode, setFormMode] = useState<FormMode>('signin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [ownerName, setOwnerName] = useState('');
-  const [storeName, setStoreName] = useState('');
-  const [verified, setVerified] = useState<VerifiedPhone | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
 
   const mode = accountMode(state);
-  const pending = state.pendingLink;
-
-  // Browser-approval path: poll until the owner approves the code on the website.
-  useEffect(() => {
-    if (mode !== 'pending' || !pending) return;
-    const timer = window.setInterval(
-      () => {
-        void cloudLinkPoll()
-          .then((result) => {
-            if (result.status === 'linked') {
-              queryClient.setQueryData(queryKeys.cloud.state(), result.state);
-              logger.info('app', 'account.linked', { via: 'code' }, 'Device linked');
-              void syncNow().catch(() => {});
-            }
-          })
-          .catch(() => undefined);
-      },
-      Math.max(2, pending.interval) * 1000
-    );
-    return () => window.clearInterval(timer);
-  }, [mode, pending, queryClient]);
-
-  const submit = async () => {
-    setError(null);
-    const invalid = validateAccountForm(
-      { email, password, ownerName, storeName },
-      formMode === 'register' ? 'register' : 'signin'
-    );
-    if (invalid) {
-      setError(t(invalid));
-      return;
-    }
-    if (formMode === 'register' && !verified) {
-      setError(t('Please verify your phone number first.'));
-      return;
-    }
-    setBusy(true);
-    try {
-      if (formMode === 'register' && verified) {
-        const result = await cloudRegister({
-          email: email.trim(),
-          password,
-          ownerName: ownerName.trim(),
-          storeName: storeName.trim(),
-          phone: verified.phone,
-          phoneProof: verified.proof,
-        });
-        logger.info('app', 'account.registered', { verification: result.verificationRequired });
-        if (result.verificationRequired) {
-          notifications.show({
-            color: 'blue',
-            message: t('Account created. Check your email to verify it, then sign in here.'),
-          });
-          setFormMode('signin');
-          return;
-        }
-      }
-      await login.mutateAsync({ email: email.trim(), password });
-      logger.info('app', 'account.linked', { via: 'password' }, 'Device linked');
-      void syncNow().catch(() => {});
-      setPassword('');
-    } catch (err) {
-      if (isPhoneRejected(err)) {
-        // The number was refused (used elsewhere, proof expired): it must be verified again.
-        setVerified(null);
-        setError(otpErrorMessage(err, toCloudError(err).message));
-      } else {
-        setError(toCloudError(err).message);
-      }
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const startCodeLink = () => {
-    setError(null);
-    linkStart.mutate(undefined, { onError: (err) => setError(toCloudError(err).message) });
-  };
 
   const doUnlink = () => {
     unlink.mutate(undefined, {
@@ -176,99 +55,15 @@ export const AccountSection = (_props: SectionProps) => {
           </Alert>
         )}
 
-        {mode === 'signed-out' && (
-          <Stack gap="sm" maw={420}>
-            <SegmentedControl
-              value={formMode}
-              onChange={(v) => setFormMode(v as FormMode)}
-              data={[
-                { label: t('Sign in'), value: 'signin' },
-                { label: t('Register'), value: 'register' },
-              ]}
-            />
-            {formMode === 'register' && (
-              <>
-                <TextInput
-                  label={t('Owner name')}
-                  value={ownerName}
-                  onChange={(e) => setOwnerName(e.currentTarget.value)}
-                />
-                <TextInput
-                  label={t('Store name')}
-                  value={storeName}
-                  onChange={(e) => setStoreName(e.currentTarget.value)}
-                />
-                <PhoneVerification
-                  verified={verified}
-                  onVerified={setVerified}
-                  onClear={() => setVerified(null)}
-                  disabled={busy}
-                />
-              </>
-            )}
-            <TextInput
-              label={t('Email')}
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
-            />
-            <PasswordInput
-              label={t('Password')}
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
-              data-log-redact
-            />
+        {(mode === 'signed-out' || mode === 'pending') && <SignInPanel />}
+
+        {mode === 'linked' && (
+          <Stack gap="xs">
             {error && (
               <Alert color="red" variant="light">
                 {error}
               </Alert>
             )}
-            <Button
-              onClick={() => void submit()}
-              loading={busy}
-              disabled={formMode === 'register' && !verified}
-              data-log-id="account.submit"
-            >
-              {formMode === 'register'
-                ? t('Register and link this device')
-                : t('Sign in and link this device')}
-            </Button>
-            <Divider label={t('or')} labelPosition="center" />
-            <Button
-              variant="default"
-              onClick={startCodeLink}
-              loading={linkStart.isPending}
-              data-log-id="account.link-with-code"
-            >
-              {t('Link using a code from the website')}
-            </Button>
-          </Stack>
-        )}
-
-        {mode === 'pending' && pending && (
-          <Stack gap="sm" maw={460}>
-            <Text size="sm">{t('Open this page on any device, sign in, and enter the code:')}</Text>
-            <Code block>{pending.verificationUrl}</Code>
-            <Text fw={800} size="xl" ff="monospace" style={{ letterSpacing: '0.15em' }}>
-              {pending.userCode}
-            </Text>
-            <Text size="xs" c="dimmed">
-              {t('Waiting for approval…')}
-            </Text>
-            <Group>
-              <Button
-                variant="default"
-                onClick={doUnlink}
-                loading={unlink.isPending}
-                data-log-id="account.cancel-link"
-              >
-                {t('Cancel')}
-              </Button>
-            </Group>
-          </Stack>
-        )}
-
-        {mode === 'linked' && (
-          <Stack gap="xs">
             <Group gap="xs">
               <Badge color="teal" variant="light">
                 {t('Linked')}

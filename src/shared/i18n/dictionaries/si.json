@@ -1694,7 +1694,6 @@
   "Skip for now": "දැනට මඟ හරින්න",
   "Store name": "වෙළඳසැලේ නම",
   "That device will be signed out and stop syncing. It can be linked again from that computer at any time.": "එම උපාංගය පිටවනු ඇති අතර සමමුහුර්තකරණය නවත්වනු ඇත. ඕනෑම වේලාවක එම පරිගණකයෙන් නැවත සම්බන්ධ කළ හැක.",
-  "This device": "මෙම උපාංගය",
   "This is your cloud account password, separate from the POS login.": "මෙය ඔබගේ cloud ගිණුමේ මුරපදයයි; POS පිවිසුමෙන් වෙනස්ය.",
   "Unlink": "සම්බන්ධතාව ඉවත් කරන්න",
   "Unlink this device": "මෙම උපාංගයේ සම්බන්ධතාව ඉවත් කරන්න",
@@ -1736,5 +1735,18 @@
   "The short code for your business, e.g. test-shop": "ඔබේ ව්‍යාපාරයේ කෙටි කේතය, උදා: test-shop",
   "Enter your shop code, e.g. test-shop.": "ඔබේ ව්‍යාපාර කේතය ඇතුළත් කරන්න, උදා: test-shop.",
   "Please enter your shop code.": "කරුණාකර ඔබේ ව්‍යාපාර කේතය ඇතුළත් කරන්න.",
-  "Invalid shop code, email or password. Please try again.": "ව්‍යාපාර කේතය, ඊමේල් හෝ මුරපදය වැරදියි. නැවත උත්සාහ කරන්න."
+  "Invalid shop code, email or password. Please try again.": "ව්‍යාපාර කේතය, ඊමේල් හෝ මුරපදය වැරදියි. නැවත උත්සාහ කරන්න.",
+  "Continue with Google": "Google සමඟ ඉදිරියට",
+  "Continue with email": "විද්‍යුත් තැපෑලෙන් ඉදිරියට",
+  "Enter your email": "ඔබේ විද්‍යුත් තැපැල් ලිපිනය ඇතුළත් කරන්න",
+  "Email address": "විද්‍යුත් තැපැල් ලිපිනය",
+  "Enter your email address.": "ඔබේ විද්‍යුත් තැපැල් ලිපිනය ඇතුළත් කරන්න.",
+  "You finish signing in on the SimpleBash website, in your browser.": "ඔබ SimpleBash වෙබ් අඩවියේ, ඔබේ බ්‍රවුසරයේ ඇතුළු වීම අවසන් කරයි.",
+  "Finish signing in in your browser": "ඔබේ බ්‍රවුසරයේ ඇතුළු වීම අවසන් කරන්න",
+  "Sign in there and choose “Link this computer”. This window continues by itself.": "එහි ඇතුළු වී “මෙම පරිගණකය සම්බන්ධ කරන්න” තෝරන්න. මෙම කවුළුව තනිවම ඉදිරියට යයි.",
+  "Code": "කේතය",
+  "Open the browser again": "බ්‍රවුසරය නැවත විවෘත කරන්න",
+  "That sign-in ran out of time. Please try again.": "ඇතුළු වීමේ කාලය අවසන් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "We could not open your browser. Use the address below instead.": "ඔබේ බ්‍රවුසරය විවෘත කිරීමට නොහැකි විය. ඒ වෙනුවට පහත ලිපිනය භාවිතා කරන්න.",
+  "We could not start signing in. Please try again.": "ඇතුළු වීම ආරම්භ කිරීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න."
 }
