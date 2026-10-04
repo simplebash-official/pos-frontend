@@ -53,6 +53,35 @@ describe('SyncHero', () => {
     expect(out).toContain('role="progressbar"');
   });
 
+  it('keeps the bar moving and says why while the first batch is with the cloud', () => {
+    const out = hero(
+      linked({ state: 'syncing', step: 'uploading', progress: { done: 0, total: 183 } })
+    );
+    expect(out).toContain('Sending 183 changes to the cloud…');
+    expect(out).toContain('Waiting for the cloud to confirm the first batch…');
+    expect(out).toContain('data-animated="true"');
+    expect(out).not.toContain('0 / 183');
+  });
+
+  it('switches to a real bar once a batch is confirmed', () => {
+    const out = hero(
+      linked({ state: 'syncing', step: 'uploading', progress: { done: 50, total: 183 } })
+    );
+    expect(out).toContain('50 / 183');
+    expect(out).not.toContain('data-animated="true"');
+  });
+
+  it('keeps the button label visible while syncing instead of showing only a spinner', () => {
+    const out = hero(
+      linked({ state: 'syncing', step: 'uploading', progress: { done: 0, total: 5 } })
+    );
+    expect(out).toMatch(/data-log-id="sync.now"[^>]*>.*Syncing…/s);
+    expect(out).toMatch(
+      /<button[^>]*disabled[^>]*data-log-id="sync.now"|data-log-id="sync.now"[^>]*disabled/
+    );
+    expect(hero(linked())).toContain('Sync now');
+  });
+
   it('shows only a count while receiving an unknown amount', () => {
     const out = hero(
       linked({ state: 'syncing', step: 'downloading', progress: { done: 30, total: 0 } })

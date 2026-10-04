@@ -49,6 +49,17 @@ describe('heroView', () => {
     expect(view.detail.join(' ')).toMatch(/Sending/);
   });
 
+  it('names how many changes are on their way while uploading', () => {
+    const view = heroView(
+      linked({ state: 'syncing', step: 'uploading', progress: { done: 0, total: 183 } })
+    );
+    expect(phraseText(view.detail, (x) => x)).toBe('Sending 183 changes to the cloud…');
+    const one = heroView(
+      linked({ state: 'syncing', step: 'uploading', progress: { done: 0, total: 1 } })
+    );
+    expect(phraseText(one.detail, (x) => x)).toBe('Sending 1 change to the cloud…');
+  });
+
   it('tells an offline shop that selling is fine and what is waiting', () => {
     const view = heroView(linked({ state: 'offline', pendingOut: 5 }));
     expect(view).toMatchObject({ tone: 'gray', icon: 'offline' });

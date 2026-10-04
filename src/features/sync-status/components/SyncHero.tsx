@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Group, Paper, Progress, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Group,
+  Loader,
+  Paper,
+  Progress,
+  Stack,
+  Text,
+  ThemeIcon,
+} from '@mantine/core';
 import {
   IconAlertTriangle,
   IconCloudCheck,
@@ -57,6 +67,9 @@ export const SyncHero = ({ status, busy, onSyncNow, onTogglePause, onReview }: S
   const working = status.state === 'syncing';
   const progress = view.progress;
   const known = progress !== null && progress.total > 0;
+  // Nothing confirmed yet: the first batch is still with the cloud. Keep the bar moving.
+  const waitingForFirst = known && progress.done === 0;
+  const inProgress = busy || working;
   const buttonSize = isMobile ? 'md' : 'sm';
 
   return (
@@ -89,15 +102,22 @@ export const SyncHero = ({ status, busy, onSyncNow, onTogglePause, onReview }: S
         {working && progress && (
           <Stack gap={4}>
             <Progress
-              value={known ? (Math.min(progress.done, progress.total) / progress.total) * 100 : 100}
-              animated={!known}
+              value={
+                known && !waitingForFirst
+                  ? (Math.min(progress.done, progress.total) / progress.total) * 100
+                  : 100
+              }
+              striped={!known || waitingForFirst}
+              animated={!known || waitingForFirst}
               color={view.tone}
               aria-label={t('Sync progress')}
             />
             <Text size="xs" c="dimmed">
-              {known
-                ? `${Math.min(progress.done, progress.total)} / ${progress.total}`
-                : `${progress.done} ${t('received')}`}
+              {waitingForFirst
+                ? t('Waiting for the cloud to confirm the first batch…')
+                : known
+                  ? `${Math.min(progress.done, progress.total)} / ${progress.total}`
+                  : `${progress.done} ${t('received')}`}
             </Text>
           </Stack>
         )}
@@ -123,14 +143,13 @@ export const SyncHero = ({ status, busy, onSyncNow, onTogglePause, onReview }: S
           <Button
             size={buttonSize}
             variant="light"
-            leftSection={<IconRefresh size={16} />}
-            loading={busy || working}
-            disabled={paused}
+            leftSection={inProgress ? <Loader size={16} /> : <IconRefresh size={16} />}
+            disabled={paused || inProgress}
             onClick={onSyncNow}
             data-log-id="sync.now"
             style={{ minHeight: isMobile ? 44 : undefined }}
           >
-            {view.action === 'retry' ? t('Try again') : t('Sync now')}
+            {inProgress ? t('Syncing…') : view.action === 'retry' ? t('Try again') : t('Sync now')}
           </Button>
           <Button
             size={buttonSize}

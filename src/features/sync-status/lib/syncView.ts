@@ -79,12 +79,18 @@ export const heroView = (status: SyncStatus): HeroView => {
   }
   if (status.state === 'syncing') {
     const uploading = status.step === 'uploading';
+    const total = status.progress?.total ?? 0;
+    // Name how many are on their way, so a slow first batch still reads as "working".
+    const detail: Phrase =
+      uploading && total > 0
+        ? ['Sending', total, total === 1 ? 'change to the cloud…' : 'changes to the cloud…']
+        : [STEP_TEXT[status.step] || 'Syncing…'];
     return {
       ...base,
       tone: 'blue',
       icon: 'working',
       title: uploading ? 'Sending your changes' : 'Syncing',
-      detail: [STEP_TEXT[status.step] || 'Syncing…'],
+      detail,
       progress: status.progress,
     };
   }
