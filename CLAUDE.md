@@ -237,6 +237,7 @@ Auth is strict online-only (`authSlice.ts`'s `initializeAuth`): any failure to v
 
 - All wording and state-to-view mapping is pure and tested in `lib/syncView.ts` (`heroView`, `moduleRows`, `activityView`) and `lib/statusView.ts` (`badgeView`). Sentences are arrays of static phrases plus numbers (`Phrase`) so each static phrase goes through `t()`; render them with `phraseText`. Add new phrases to `si.json`.
 - `MODULES` in `syncView.ts` maps backend record types to shop words (Sales & Invoices, Repair Jobs…). A new syncable resource in the backend's `SYNC_RESOURCES` needs a line there or it shows under "Other records".
+- **Per-module chips follow the data.** Each row in "What's syncing" is decided by `moduleRows()` from that row's own numbers, which the shell fills as the cycle runs (`pending`, `sent`, `received`, `lastChange`; see `ModuleStatus` in `src-tauri/src/sync/state.rs`): Sending x / y, Receiving N, Waiting N, Needs review N, a green "Sent N · Received M" for 30 s after a row finishes, then Up to date with "Updated hh:mm". Rules are in order in `moduleRows()` and tested in `syncView.test.ts`; the new fields are optional so an older shell still renders.
 - The header badge reports the state of the data (Synced / Syncing 8/12 / 14 waiting / Offline), never just "Internet Connected".
 
 ## Desktop activity log

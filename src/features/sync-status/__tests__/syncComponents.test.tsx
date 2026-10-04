@@ -133,6 +133,35 @@ describe('SyncModulesList', () => {
     expect(out).toContain('Waiting 8');
   });
 
+  it('shows a spinner row with how far it has got while sending', () => {
+    const out = html(
+      <SyncModulesList
+        status={linked({
+          state: 'syncing',
+          step: 'uploading',
+          pendingOut: 5,
+          modules: [{ resource: 'invoices', pending: 5, conflicts: 0, sent: 3, received: 0 }],
+        })}
+      />
+    );
+    expect(out).toContain('data-module-chip="sending"');
+    expect(out).toContain('Sending 3 / 8');
+    expect(out).toContain('mantine-Loader-root');
+  });
+
+  it('shows a tick and what moved once a row is done, others stay up to date', () => {
+    const out = html(
+      <SyncModulesList
+        status={linked({
+          modules: [{ resource: 'customers', pending: 0, conflicts: 0, sent: 0, received: 12 }],
+        })}
+      />
+    );
+    expect(out).toContain('data-module-chip="done"');
+    expect(out).toContain('Received 12');
+    expect(out).toContain('data-module-chip="upToDate"');
+  });
+
   it('flags modules that need review', () => {
     const out = html(
       <SyncModulesList

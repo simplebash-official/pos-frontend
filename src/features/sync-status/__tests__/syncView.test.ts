@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   activityView,
+  chipText,
   groupPending,
   heroView,
   moduleOf,
@@ -152,6 +153,96 @@ describe('modules', () => {
   it('names a record by its label, else by what kind of record it is', () => {
     expect(pendingLabel(record())).toBe('INV-2026-0042');
     expect(pendingLabel(record({ resource: 'payments', label: null }))).toBe('Payment');
+  });
+});
+
+describe('module chips follow what is happening to each row', () => {
+  const NOW = Date.parse('2026-10-04T12:00:00Z');
+  const row = (status: SyncStatus, id: string, now = NOW) =>
+    moduleRows(status, now).find((r) => r.id === id)!;
+  const uploading = (modules: SyncStatus['modules']) =>
+    linked({ state: 'syncing', step: 'uploading', modules });
+  const text = (r: ReturnType<typeof row>) => chipText(r, (x) => x);
+
+  it('shows Sending x / y for a row with data on its way, and others stay quiet', () => {
+    const s = uploading([{ resource: 'invoices', pending: 5, conflicts: 0, sent: 3, received: 0 }]);
+    expect(row(s, 'sales')).toMatchObject({ chip: 'sending', total: 8 });
+    expect(text(row(s, 'sales'))).toBe('Sending 3 / 8');
+    expect(row(s, 'repairs').chip).toBe('upToDate');
+  });
+
+  it('lets a row settle to Sent N while another row is still sending', () => {
+    const s = uploading([
+      { resource: 'invoices', pending: 0, conflicts: 0, sent: 8, received: 0 },
+      { resource: 'products', pending: 4, conflicts: 0, sent: 6, received: 0 },
+    ]);
+    expect(row(s, 'sales').chip).toBe('done');
+    expect(text(row(s, 'sales'))).toBe('Sent 8');
+    expect(row(s, 'inventory').chip).toBe('sending');
+  });
+
+  it('shows Receiving N for a row whose data is coming down', () => {
+    const s = linked({
+      state: 'syncing',
+      step: 'downloading',
+      modules: [{ resource: 'customers', pending: 0, conflicts: 0, sent: 0, received: 40 }],
+    });
+    expect(row(s, 'customers').chip).toBe('receiving');
+    expect(text(row(s, 'customers'))).toBe('Receiving 40');
+  });
+
+  it('reports both directions once the row is done', () => {
+    const s = linked({
+      modules: [{ resource: 'invoices', pending: 0, conflicts: 0, sent: 8, received: 3 }],
+    });
+    expect(text(row(s, 'sales'))).toBe('Sent 8 · Received 3');
+  });
+
+  it('keeps a finished row green for 30 s after a quiet cycle reset its counters, then settles', () => {
+    const at = '2026-10-04T11:59:50Z';
+    const s = linked({
+      modules: [
+        {
+          resource: 'invoices',
+          pending: 0,
+          conflicts: 0,
+          sent: 0,
+          received: 0,
+          lastChange: { at, sent: 8, received: 0 },
+        },
+      ],
+    });
+    expect(row(s, 'sales', NOW).chip).toBe('done');
+    expect(text(row(s, 'sales', NOW))).toBe('Sent 8');
+    const later = row(s, 'sales', NOW + 30_000);
+    expect(later.chip).toBe('upToDate');
+    expect(later.lastChangeAt).toBe(at);
+  });
+
+  it('prefers waiting over done, and review over everything', () => {
+    const waiting = linked({
+      state: 'offline',
+      modules: [{ resource: 'invoices', pending: 2, conflicts: 0, sent: 5, received: 0 }],
+    });
+    expect(row(waiting, 'sales').chip).toBe('waiting');
+    const review = uploading([
+      { resource: 'invoices', pending: 2, conflicts: 1, sent: 5, received: 0 },
+    ]);
+    expect(row(review, 'sales').chip).toBe('review');
+  });
+
+  it('reads an older shell that sends only pending and conflicts', () => {
+    const s = uploading([{ resource: 'invoices', pending: 4, conflicts: 0 }]);
+    expect(row(s, 'sales')).toMatchObject({ chip: 'sending', sent: 0, total: 4 });
+    expect(row(linked({ modules: [] }), 'sales').chip).toBe('upToDate');
+  });
+
+  it('adds up record types that share one row', () => {
+    const s = uploading([
+      { resource: 'stockMovements', pending: 3, conflicts: 0, sent: 1, received: 0 },
+      { resource: 'products', pending: 2, conflicts: 0, sent: 4, received: 0 },
+    ]);
+    expect(row(s, 'inventory')).toMatchObject({ pending: 5, sent: 5, total: 10 });
   });
 });
 

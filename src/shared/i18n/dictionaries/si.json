@@ -1829,5 +1829,7 @@
   "That POS password doesn't match. Use the password you set on the SimpleBash website.": "ඒ POS මුරපදය නොගැළපේ. ඔබ SimpleBash වෙබ් අඩවියේ සැකසූ මුරපදය භාවිතා කරන්න.",
   "change to the cloud…": "වෙනස්කමක් cloud එකට…",
   "changes to the cloud…": "වෙනස්කම් cloud එකට…",
-  "Waiting for the cloud to confirm the first batch…": "පළමු කොටස cloud එක තහවුරු කරන තෙක් බලා සිටී…"
+  "Waiting for the cloud to confirm the first batch…": "පළමු කොටස cloud එක තහවුරු කරන තෙක් බලා සිටී…",
+  "Receiving": "ලබාගනිමින්",
+  "Updated": "යාවත්කාලීන කළේ"
 }

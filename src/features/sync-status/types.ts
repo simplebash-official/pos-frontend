@@ -11,11 +11,25 @@ export interface SyncProgress {
 }
 
 /** Changes waiting / needing review for one kind of record. */
+/** The last sync cycle that moved data for one record type. */
+export interface ModuleChange {
+  at: string;
+  sent: number;
+  received: number;
+}
+
 export interface ModuleStatus {
   /** Wire name of the record type, e.g. `invoices`. */
   resource: string;
+  /** Still waiting to upload. */
   pending: number;
   conflicts: number;
+  /** Uploaded in the current cycle. Absent when the desktop shell is older than this screen. */
+  sent?: number;
+  /** Downloaded in the current cycle. Absent on an older shell. */
+  received?: number;
+  /** Absent on an older shell. */
+  lastChange?: ModuleChange | null;
 }
 
 export interface CycleSummary {

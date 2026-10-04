@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Badge, Collapse, Group, Loader, Paper, Stack, Text, UnstyledButton } from '@mantine/core';
-import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import { IconCheck, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { formatDateTime } from '@/shared/lib/date';
 import {
+  chipText,
   groupPending,
   moduleRows,
   pendingLabel,
   type ModuleChip,
   type ModuleRow,
 } from '../lib/syncView';
+import { useNow } from '../hooks/useNow';
 import { usePendingRecords } from '../hooks/useSyncStatus';
 import type { SyncStatus } from '../types';
 
@@ -17,6 +19,8 @@ const CHIPS: Record<ModuleChip, { color: string; label: string }> = {
   upToDate: { color: 'teal', label: 'Up to date' },
   waiting: { color: 'yellow', label: 'Waiting' },
   sending: { color: 'blue', label: 'Sending' },
+  receiving: { color: 'blue', label: 'Receiving' },
+  done: { color: 'teal', label: 'Synced' },
   review: { color: 'orange', label: 'Needs review' },
 };
 
@@ -24,17 +28,33 @@ const OP_LABEL = { upsert: 'Saved', delete: 'Removed' } as const;
 
 const Chip = ({ row }: { row: ModuleRow }) => {
   const chip = CHIPS[row.chip];
-  const count = row.chip === 'review' ? row.conflicts : row.pending;
+  const active = row.chip === 'sending' || row.chip === 'receiving';
   return (
-    <Badge color={chip.color} variant="light" data-module-chip={row.chip}>
-      {row.chip === 'upToDate' ? t(chip.label) : `${t(chip.label)} ${count}`}
+    <Badge
+      color={chip.color}
+      variant="light"
+      data-module-chip={row.chip}
+      leftSection={
+        active ? (
+          <Loader size={10} color={chip.color} />
+        ) : row.chip === 'done' ? (
+          <IconCheck size={12} />
+        ) : undefined
+      }
+    >
+      {chipText(row, t)}
     </Badge>
   );
 };
 
 /** Every kind of shop record and whether it is safe in the cloud. */
 export const SyncModulesList = ({ status }: { status: SyncStatus }) => {
-  const rows = moduleRows(status);
+  // A finished row says what it just moved for a short while, then settles to "Up to date".
+  const [tick, setTick] = useState(false);
+  const now = useNow(tick);
+  const rows = moduleRows(status, now);
+  const fading = rows.some((r) => r.chip === 'done');
+  if (fading !== tick) setTick(fading);
   const [open, setOpen] = useState<string | null>(null);
   const { records, failed } = usePendingRecords(open !== null, status.pendingOut);
   const grouped = records ? groupPending(records.items) : null;
@@ -74,9 +94,16 @@ export const SyncModulesList = ({ status }: { status: SyncStatus }) => {
                     ) : (
                       <span style={{ width: 16, flexShrink: 0 }} />
                     )}
-                    <Text size="sm" fw={500} truncate>
-                      {t(row.label)}
-                    </Text>
+                    <div style={{ minWidth: 0 }}>
+                      <Text size="sm" fw={500} truncate>
+                        {t(row.label)}
+                      </Text>
+                      {row.chip === 'upToDate' && row.lastChangeAt && (
+                        <Text size="xs" c="dimmed" truncate>
+                          {t('Updated')} {formatDateTime(row.lastChangeAt)}
+                        </Text>
+                      )}
+                    </div>
                   </Group>
                   <Chip row={row} />
                 </Group>

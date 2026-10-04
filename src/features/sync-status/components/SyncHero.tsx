@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   Alert,
   Button,
@@ -22,6 +21,7 @@ import {
 import { t } from '@/shared/i18n/t';
 import { formatDateTime } from '@/shared/lib/date';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useNow } from '../hooks/useNow';
 import { heroView, secondsUntil, type HeroIcon } from '../lib/syncView';
 import { phraseText } from '../lib/phrase';
 import type { SyncStatus } from '../types';
@@ -43,17 +43,6 @@ export interface SyncHeroProps {
   onTogglePause: () => void;
   onReview: () => void;
 }
-
-/** Ticks once a second only while a countdown is on screen. */
-const useNow = (active: boolean): number => {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!active) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [active]);
-  return now;
-};
 
 /** The one-sentence answer to "is my data safe, and what is sync doing?" */
 export const SyncHero = ({ status, busy, onSyncNow, onTogglePause, onReview }: SyncHeroProps) => {

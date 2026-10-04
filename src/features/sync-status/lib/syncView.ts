@@ -1,4 +1,4 @@
-import type { HistoryEntry, ModuleStatus, PendingRecord, SyncStatus, SyncStep } from '../types';
+import type { HistoryEntry, ModuleChange, PendingRecord, SyncStatus, SyncStep } from '../types';
 
 /** A sentence made of static phrases (translated by the caller) and numbers (shown as is). */
 export type Phrase = ReadonlyArray<string | number>;
@@ -179,35 +179,133 @@ const RECORD_NAMES: Record<string, string> = {
 
 export const recordName = (resource: string): string => RECORD_NAMES[resource] ?? 'Record';
 
-export type ModuleChip = 'upToDate' | 'waiting' | 'sending' | 'review';
+export type ModuleChip = 'upToDate' | 'waiting' | 'sending' | 'receiving' | 'done' | 'review';
+
+/** How long a finished row keeps saying what it just sent or received. */
+export const DONE_VISIBLE_MS = 30_000;
 
 export interface ModuleRow {
   id: string;
   label: string;
   pending: number;
   conflicts: number;
+  /** Uploaded in this cycle. */
+  sent: number;
+  /** Downloaded in this cycle. */
+  received: number;
+  /** Waiting plus already sent: the "of" in "Sending 3 / 8". */
+  total: number;
   chip: ModuleChip;
+  /** What a `done` chip reports: this cycle's numbers, else the last cycle that moved data. */
+  doneSent: number;
+  doneReceived: number;
+  /** When this row last moved data, for the "Updated …" note. */
+  lastChangeAt: string | null;
   resources: readonly string[];
 }
 
-/** Rolls the per-record-type counts up into the shop-language module rows. */
-export const moduleRows = (status: SyncStatus): ModuleRow[] => {
-  const sending = status.state === 'syncing' && status.step === 'uploading';
+interface Totals {
+  pending: number;
+  conflicts: number;
+  sent: number;
+  received: number;
+  changes: ModuleChange[];
+}
+
+const emptyTotals = (): Totals => ({ pending: 0, conflicts: 0, sent: 0, received: 0, changes: [] });
+
+/**
+ * Rolls the per-record-type numbers up into the shop-language rows and picks each
+ * row's chip from what is happening to *that* row. Pure: pass `now` in tests.
+ */
+export const moduleRows = (status: SyncStatus, now: number = Date.now()): ModuleRow[] => {
+  const syncing = status.state === 'syncing';
+  const uploading = syncing && status.step === 'uploading';
+  const downloading = syncing && status.step === 'downloading';
   const defs = [...MODULES];
-  const totals = new Map<string, { pending: number; conflicts: number }>();
-  const add = (m: ModuleStatus) => {
+  const totals = new Map<string, Totals>();
+  for (const m of status.modules) {
     const id = moduleOf(m.resource).id;
-    const cur = totals.get(id) ?? { pending: 0, conflicts: 0 };
-    totals.set(id, { pending: cur.pending + m.pending, conflicts: cur.conflicts + m.conflicts });
-  };
-  status.modules.forEach(add);
+    const cur = totals.get(id) ?? emptyTotals();
+    cur.pending += m.pending;
+    cur.conflicts += m.conflicts;
+    cur.sent += m.sent ?? 0;
+    cur.received += m.received ?? 0;
+    if (m.lastChange) cur.changes.push(m.lastChange);
+    totals.set(id, cur);
+  }
   if (totals.has(OTHER_MODULE.id)) defs.push(OTHER_MODULE);
+
   return defs.map((def) => {
-    const { pending, conflicts } = totals.get(def.id) ?? { pending: 0, conflicts: 0 };
-    const chip: ModuleChip =
-      conflicts > 0 ? 'review' : pending > 0 ? (sending ? 'sending' : 'waiting') : 'upToDate';
-    return { id: def.id, label: def.label, pending, conflicts, chip, resources: def.resources };
+    const t = totals.get(def.id) ?? emptyTotals();
+    // Several record types in one row share the same cycle time; sum those that do.
+    const latest = t.changes.reduce<string | null>(
+      (a, c) => (a === null || c.at > a ? c.at : a),
+      null
+    );
+    const lastCycle = t.changes.filter((c) => c.at === latest);
+    const lastSent = lastCycle.reduce((n, c) => n + c.sent, 0);
+    const lastReceived = lastCycle.reduce((n, c) => n + c.received, 0);
+    const recent = latest !== null && now - Date.parse(latest) < DONE_VISIBLE_MS;
+    const movedNow = t.sent > 0 || t.received > 0;
+
+    let chip: ModuleChip;
+    if (t.conflicts > 0) chip = 'review';
+    else if (uploading && t.pending > 0) chip = 'sending';
+    else if (downloading && t.received > 0) chip = 'receiving';
+    else if (t.pending > 0) chip = 'waiting';
+    else if (movedNow || recent) chip = 'done';
+    else chip = 'upToDate';
+
+    return {
+      id: def.id,
+      label: def.label,
+      pending: t.pending,
+      conflicts: t.conflicts,
+      sent: t.sent,
+      received: t.received,
+      total: t.pending + t.sent,
+      chip,
+      doneSent: movedNow ? t.sent : lastSent,
+      doneReceived: movedNow ? t.received : lastReceived,
+      lastChangeAt: latest,
+      resources: def.resources,
+    };
   });
+};
+
+/** Fixed wording per chip (static phrases, translated by the caller). */
+export const CHIP_LABELS: Record<ModuleChip, string> = {
+  upToDate: 'Up to date',
+  waiting: 'Waiting',
+  sending: 'Sending',
+  receiving: 'Receiving',
+  done: 'Synced',
+  review: 'Needs review',
+};
+
+/** The chip text as one string (numbers included) so it renders as a single text node. */
+export const chipText = (row: ModuleRow, translate: (text: string) => string): string => {
+  const label = translate(CHIP_LABELS[row.chip]);
+  switch (row.chip) {
+    case 'upToDate':
+      return label;
+    case 'review':
+      return `${label} ${row.conflicts}`;
+    case 'waiting':
+      return `${label} ${row.pending}`;
+    case 'sending':
+      return `${label} ${row.sent} / ${row.total}`;
+    case 'receiving':
+      return `${label} ${row.received}`;
+    case 'done': {
+      const parts = [
+        row.doneSent > 0 ? `${translate('Sent')} ${row.doneSent}` : '',
+        row.doneReceived > 0 ? `${translate('Received')} ${row.doneReceived}` : '',
+      ].filter(Boolean);
+      return parts.length > 0 ? parts.join(' · ') : label;
+    }
+  }
 };
 
 /** Groups a flat pending list by module, keeping each module's newest-first order. */
