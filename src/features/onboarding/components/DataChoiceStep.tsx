@@ -36,12 +36,30 @@ export interface DataChoiceStepProps {
   onPrev: () => void;
   loading: boolean;
   currentUser?: { name?: string; email: string } | null;
+  /** The linked cloud account, offered as the admin's details (still editable). */
+  suggested?: { name?: string | null; email?: string | null } | null;
+  /**
+   * The shop's admin already exists (downloaded from the cloud). Only the demo vs
+   * clean choice and that admin's POS password are needed: no new admin is made.
+   */
+  existingAdmin?: { email: string } | null;
 }
 
-export const DataChoiceStep = ({ onSubmit, onPrev, loading, currentUser }: DataChoiceStepProps) => {
+export const DataChoiceStep = ({
+  onSubmit,
+  onPrev,
+  loading,
+  currentUser,
+  suggested,
+  existingAdmin,
+}: DataChoiceStepProps) => {
   const [loadSampleData, setLoadSampleData] = useState<boolean>(true);
-  const [adminName, setAdminName] = useState<string>(currentUser?.name || 'System Administrator');
-  const [adminEmail, setAdminEmail] = useState<string>(currentUser?.email || '');
+  const [adminName, setAdminName] = useState<string>(
+    currentUser?.name || suggested?.name || 'System Administrator'
+  );
+  const [adminEmail, setAdminEmail] = useState<string>(
+    currentUser?.email || suggested?.email || ''
+  );
   const [adminPassword, setAdminPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +68,18 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading, currentUser }: DataC
 
   const handleSubmit = () => {
     setError(null);
+    if (existingAdmin) {
+      if (!adminPassword) {
+        setError(t('Please enter your POS password.'));
+        return;
+      }
+      onSubmit({
+        load_sample_data: loadSampleData,
+        admin_email: existingAdmin.email.trim(),
+        admin_password: adminPassword,
+      });
+      return;
+    }
     if (isTauri()) {
       if (!adminEmail || !/^\S+@\S+\.\S+$/.test(adminEmail)) {
         setError(t('Please enter a valid administrator email address.'));
@@ -227,17 +257,21 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading, currentUser }: DataC
                 {isTauri() ? <IconUser size={18} /> : <IconUserCheck size={18} />}
               </ThemeIcon>
               <Text fw={700} size="md">
-                {isTauri() ? t('Initial Administrator Account') : t('Shop Administrator Account')}
+                {isTauri() && !existingAdmin
+                  ? t('Initial Administrator Account')
+                  : t('Shop Administrator Account')}
               </Text>
             </Group>
             <Text size="xs" c="dimmed" mt={4}>
-              {isTauri()
-                ? t(
-                    'Every POS requires an administrator account to log in, configure store settings, and manage staff.'
-                  )
-                : t(
-                    'Your active shop credentials will serve as the primary administrator for this POS instance.'
-                  )}
+              {existingAdmin
+                ? t("Sign in as your shop's administrator to finish setting up this computer.")
+                : isTauri()
+                  ? t(
+                      'Every POS requires an administrator account to log in, configure store settings, and manage staff.'
+                    )
+                  : t(
+                      'Your active shop credentials will serve as the primary administrator for this POS instance.'
+                    )}
             </Text>
           </div>
           {!isTauri() && (
@@ -260,7 +294,32 @@ export const DataChoiceStep = ({ onSubmit, onPrev, loading, currentUser }: DataC
           </Alert>
         )}
 
-        {isTauri() ? (
+        {isTauri() && existingAdmin ? (
+          <>
+            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+              <TextInput
+                label={t('Admin Email')}
+                leftSection={<IconMail size={16} />}
+                value={existingAdmin.email}
+                readOnly
+                data-testid="existing-admin-email"
+              />
+              <PasswordInput
+                label={t('POS password')}
+                leftSection={<IconLock size={16} />}
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.currentTarget.value)}
+                placeholder={t('The password you set on the SimpleBash website')}
+                required
+              />
+            </SimpleGrid>
+            <Text size="xs" c="dimmed" mt="md">
+              {t(
+                'Your shop already has an administrator. Enter its POS password to continue; nothing new is created.'
+              )}
+            </Text>
+          </>
+        ) : isTauri() ? (
           <>
             <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
               <TextInput

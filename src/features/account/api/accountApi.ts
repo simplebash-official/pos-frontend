@@ -71,6 +71,16 @@ export const cloudLoginAndLink = (payload: LoginPayload) =>
 
 export const cloudLinkStart = () => call<PendingLink>('cloud_link_start');
 
+/** Sign-in hints for the web page: which button to start on and an email to prefill. */
+export interface LinkHints {
+  provider?: 'google';
+  email?: string;
+}
+
+/** Opens the web approval page for the link in progress in the system browser. */
+export const cloudLinkOpenBrowser = (hints?: LinkHints) =>
+  call<void>('cloud_link_open_browser', { hints: hints ?? null });
+
 export const cloudLinkPoll = () => call<LinkPoll>('cloud_link_poll');
 
 export const cloudUnlink = () => call<CloudState>('cloud_unlink');

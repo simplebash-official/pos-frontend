@@ -10,6 +10,7 @@ export interface CloudState {
   enabled: boolean;
   linked: boolean;
   accountEmail: string | null;
+  accountName: string | null;
   tenantId: string | null;
   shopCode: string | null;
   deviceId: string | null;
@@ -89,6 +90,7 @@ export const DISABLED_CLOUD_STATE: CloudState = {
   enabled: false,
   linked: false,
   accountEmail: null,
+  accountName: null,
   tenantId: null,
   shopCode: null,
   deviceId: null,
