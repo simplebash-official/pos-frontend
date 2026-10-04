@@ -493,8 +493,12 @@ export const computeDashboardData = ({
   };
 };
 
-/** Poll interval for a near-real-time feel without a dedicated push channel. */
-const LIVE_PULSE_REFETCH_MS = 30_000;
+/**
+ * Safety-net refresh. Changes made on other computers or the website reach the
+ * dashboard as they happen (`LiveRefresh` marks these queries stale); this
+ * only covers a lost realtime connection and the time-based reminders.
+ */
+const LIVE_PULSE_REFETCH_MS = 5 * 60_000;
 
 const REMINDER_TYPE: Record<ReminderEntry['kind'], UrgentActionItem['type']> = {
   credit_overdue: 'credit_overdue',
@@ -599,9 +603,8 @@ export const useDashboardLivePulse = () => {
     ]);
   }, [queryClient]);
 
-  // Polled rather than instantly reactive — there is no push channel from
-  // the backend, so this is a near-real-time approximation. Scoped to this
-  // hook's own lifetime so it only polls while the dashboard is mounted.
+  // A slow fallback poll; live updates arrive through `LiveRefresh`. Scoped to
+  // this hook's own lifetime so it only polls while the dashboard is mounted.
   useEffect(() => {
     const interval = setInterval(() => {
       void refresh();

@@ -92,3 +92,18 @@ export const listenBootstrapRequired = async (
     onNotice(event.payload?.reason ?? '')
   );
 };
+
+/**
+ * Subscribes to `sync://applied`: changes from another device or the website
+ * were just written here, for these record types (`"*"` = everything).
+ * Returns the unsubscribe function.
+ */
+export const listenSyncApplied = async (
+  onApplied: (resources: string[]) => void
+): Promise<() => void> => {
+  if (!isTauri()) return () => undefined;
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<{ resources: string[] }>('sync://applied', (event) =>
+    onApplied(event.payload.resources)
+  );
+};

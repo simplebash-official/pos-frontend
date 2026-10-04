@@ -29,7 +29,9 @@ const triggerAutoSync = () => {
   autoSyncTimer = setTimeout(() => {
     autoSyncTimer = null;
     syncNow().catch(() => {});
-  }, 500);
+    // Only a backup now: the shell hears about every local write straight
+    // from the backend and uploads at once.
+  }, 100);
 };
 
 const isApiErrorLike = (data: unknown): data is ApiError => {

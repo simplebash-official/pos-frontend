@@ -16,6 +16,7 @@ import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
 import { PwaUpdateProvider } from '@/app/pwa/PwaUpdateContext';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
 import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
+import { LiveRefresh } from '@/features/sync-status';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
 import { mantineCssVariableResolver } from '@/styles/cssVariablesResolver';
@@ -66,7 +67,10 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
         defaultOptions: {
           queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes
-            refetchOnWindowFocus: false,
+            // Changes made elsewhere mark screens stale as they happen
+            // (`LiveRefresh`); coming back to the window reloads anything
+            // that went stale meanwhile, as a safety net.
+            refetchOnWindowFocus: true,
             retry: 1,
           },
         },
@@ -89,6 +93,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
                 <PwaUpdateProvider>
                   <AppUpdatePrompt />
                   <HeldCartCatchupNotifier />
+                  <LiveRefresh />
                   <LowStockNotifier />
                   <ModalsProvider>
                     <CalculatorProvider>{children}</CalculatorProvider>
