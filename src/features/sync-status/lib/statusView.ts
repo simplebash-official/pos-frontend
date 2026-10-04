@@ -1,32 +1,90 @@
-import type { SyncConflict, SyncErrorInfo, SyncPhase, SyncStatus } from '../types';
+import type {
+  PendingRecord,
+  PendingRecords,
+  SyncConflict,
+  SyncErrorInfo,
+  SyncStatus,
+} from '../types';
+import { STEP_TEXT, type Phrase } from './syncView';
 
 export interface BadgeView {
   color: string;
+  /** English text of `parts`, for tests and logs. */
   label: string;
-  /** Short explanation for the tooltip. */
-  hint: string;
+  /** Static phrases (translate each) and numbers (show as is). */
+  parts: Phrase;
+  /** Short explanation for the tooltip, same format as `parts`. */
+  hint: Phrase;
+  /** The user has something to do. */
+  attention: boolean;
 }
 
-const PHASE_VIEW: Record<SyncPhase, Omit<BadgeView, 'hint'>> = {
-  idle: { color: 'teal', label: 'Internet Connected' },
-  syncing: { color: 'blue', label: 'Syncing' },
-  offline: { color: 'gray', label: 'Offline' },
-  error: { color: 'red', label: 'Sync error' },
-  paused: { color: 'yellow', label: 'Paused' },
-};
+const words = (parts: Phrase): string => parts.join(' ');
+const changeWord = (n: number): string => (n === 1 ? 'change' : 'changes');
 
 /** What the header badge shows for a status; `null` when nothing should render. */
 export const badgeView = (status: SyncStatus): BadgeView | null => {
   if (!status.linked) return null;
-  const base = PHASE_VIEW[status.state];
-  let hint = '';
-  if (status.bootstrapRequired) hint = 'Waiting for your confirmation to download the cloud data';
-  else if (status.state === 'error' && status.lastError) hint = status.lastError;
-  else if (status.state === 'offline')
-    hint = 'Working offline; changes sync when the internet is back';
-  else if (status.pendingOut > 0) hint = `${status.pendingOut} change(s) waiting to upload`;
-  else if (status.state === 'idle') hint = 'Internet connected and data is in sync';
-  return { ...base, hint };
+  const waiting = status.pendingOut;
+  const make = (color: string, parts: Phrase, hint: Phrase, attention = false): BadgeView => ({
+    color,
+    label: words(parts),
+    parts,
+    hint,
+    attention,
+  });
+
+  if (status.bootstrapRequired) {
+    return make(
+      'orange',
+      ['Action needed'],
+      ['Waiting for your confirmation to download the cloud data'],
+      true
+    );
+  }
+  if (status.state === 'error') {
+    return make(
+      'red',
+      ['Sync error'],
+      [status.lastError ?? 'Sync stopped. We will try again soon.']
+    );
+  }
+  if (status.state === 'paused') {
+    return make(
+      'yellow',
+      ['Paused'],
+      waiting > 0 ? [waiting, changeWord(waiting), 'waiting to upload'] : ['Sync is paused']
+    );
+  }
+  if (status.state === 'offline') {
+    return make('gray', waiting > 0 ? ['Offline', '·', waiting, 'waiting'] : ['Offline'], [
+      'Working offline; changes sync when the internet is back',
+    ]);
+  }
+  if (status.state === 'syncing') {
+    const p = status.progress;
+    return make(
+      'blue',
+      p && p.total > 0 ? ['Syncing', `${Math.min(p.done, p.total)}/${p.total}`] : ['Syncing'],
+      [STEP_TEXT[status.step] || 'Syncing…']
+    );
+  }
+  if (status.conflictsOpen > 0) {
+    return make(
+      'orange',
+      ['Needs attention', '·', status.conflictsOpen],
+      [status.conflictsOpen, changeWord(status.conflictsOpen), 'from other devices need review'],
+      true
+    );
+  }
+  if (waiting > 0) {
+    return make(
+      'yellow',
+      [waiting, 'waiting'],
+      [waiting, changeWord(waiting), 'will upload in a moment']
+    );
+  }
+  return make('teal', ['Synced'], ['Everything is saved to the cloud']);
 };
 
 /** The backend answers with a bare array or `{ items }`; both read as a list. */
@@ -37,6 +95,18 @@ export const normalizeConflicts = (value: unknown): SyncConflict[] => {
       ? (value as { items: unknown[] }).items
       : [];
   return list.filter((c): c is SyncConflict => !!c && typeof c === 'object' && 'key' in c);
+};
+
+/** Accepts the shell's answer (or garbage) and returns a safe list. */
+export const normalizePending = (value: unknown): PendingRecords => {
+  const obj = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+  const items = Array.isArray(obj.items)
+    ? obj.items.filter(
+        (i): i is PendingRecord =>
+          !!i && typeof i === 'object' && 'resource' in i && 'key' in i && 'op' in i
+      )
+    : [];
+  return { items, total: typeof obj.total === 'number' ? obj.total : items.length };
 };
 
 export const openConflicts = (conflicts: SyncConflict[]): SyncConflict[] =>

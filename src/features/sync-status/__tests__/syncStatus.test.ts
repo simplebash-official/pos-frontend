@@ -44,21 +44,35 @@ describe('badgeView', () => {
   });
 
   it.each([
-    ['idle', 'teal', 'Internet Connected'],
-    ['syncing', 'blue', 'Syncing'],
-    ['offline', 'gray', 'Offline'],
-    ['error', 'red', 'Sync error'],
-    ['paused', 'yellow', 'Paused'],
-  ] as const)('maps %s to %s / %s', (state, color, label) => {
-    expect(badgeView(linked({ state }))).toMatchObject({ color, label });
+    [{ state: 'idle' }, 'teal', 'Synced'],
+    [{ state: 'syncing' }, 'blue', 'Syncing'],
+    [{ state: 'syncing', progress: { done: 8, total: 12 } }, 'blue', 'Syncing 8/12'],
+    [{ state: 'offline' }, 'gray', 'Offline'],
+    [{ state: 'offline', pendingOut: 14 }, 'gray', 'Offline · 14 waiting'],
+    [{ state: 'error' }, 'red', 'Sync error'],
+    [{ state: 'paused' }, 'yellow', 'Paused'],
+    [{ state: 'idle', pendingOut: 14 }, 'yellow', '14 waiting'],
+    [{ state: 'idle', conflictsOpen: 2 }, 'orange', 'Needs attention · 2'],
+    [{ state: 'paused', bootstrapRequired: true }, 'orange', 'Action needed'],
+  ] as const)('maps %j to %s / %s', (over, color, label) => {
+    expect(badgeView(linked(over as Partial<SyncStatus>))).toMatchObject({ color, label });
+  });
+
+  it('never calls an idle device "Internet Connected"', () => {
+    expect(badgeView(linked({ state: 'idle' }))?.label).not.toMatch(/internet/i);
+  });
+
+  it('flags only the states where the user has something to do', () => {
+    expect(badgeView(linked({ conflictsOpen: 1 }))?.attention).toBe(true);
+    expect(badgeView(linked({ bootstrapRequired: true }))?.attention).toBe(true);
+    expect(badgeView(linked({ pendingOut: 3 }))?.attention).toBe(false);
   });
 
   it('explains the situation in the hint', () => {
-    expect(badgeView(linked({ state: 'error', lastError: 'boom' }))?.hint).toBe('boom');
-    expect(badgeView(linked({ state: 'offline' }))?.hint).toMatch(/offline/i);
-    expect(badgeView(linked({ pendingOut: 4 }))?.hint).toContain('4');
-    expect(badgeView(linked({ bootstrapRequired: true }))?.hint).toMatch(/confirmation/i);
-    expect(badgeView(linked())?.hint).toMatch(/Internet connected/i);
+    expect(badgeView(linked({ state: 'error', lastError: 'boom' }))?.hint).toEqual(['boom']);
+    expect(badgeView(linked({ state: 'offline' }))?.hint.join(' ')).toMatch(/offline/i);
+    expect(badgeView(linked({ pendingOut: 4 }))?.hint).toContain(4);
+    expect(badgeView(linked({ bootstrapRequired: true }))?.hint.join(' ')).toMatch(/confirmation/i);
   });
 });
 
@@ -186,8 +200,8 @@ describe('sync status store', () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
     invoke.mockResolvedValue(linked({ state: 'idle' }));
     let emit: (e: { payload: SyncStatus }) => void = () => undefined;
-    listen.mockImplementation(async (_name: string, cb: typeof emit) => {
-      emit = cb;
+    listen.mockImplementation(async (name: string, cb: typeof emit) => {
+      if (name === 'sync://status') emit = cb;
       return () => undefined;
     });
 
@@ -209,8 +223,12 @@ describe('sync status store', () => {
     startSyncStatusStore();
     startSyncStatusStore();
     startSyncStatusStore();
-    await vi.waitFor(() => expect(listen).toHaveBeenCalled());
-    expect(listen).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(listen).toHaveBeenCalledTimes(2));
+    // One listener for status, one for the "confirmation needed" notice; never more.
+    expect(listen.mock.calls.map((c) => c[0]).sort()).toEqual([
+      'sync://bootstrap-required',
+      'sync://status',
+    ]);
     expect(invoke).toHaveBeenCalledTimes(1);
   });
 

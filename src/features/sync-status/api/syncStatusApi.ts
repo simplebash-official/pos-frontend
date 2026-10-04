@@ -1,6 +1,11 @@
 import { isTauri } from '@/shared/lib/runtime';
-import { toSyncError, normalizeConflicts } from '../lib/statusView';
-import { DISABLED_SYNC_STATUS, type SyncConflict, type SyncStatus } from '../types';
+import { toSyncError, normalizeConflicts, normalizePending } from '../lib/statusView';
+import {
+  DISABLED_SYNC_STATUS,
+  type PendingRecords,
+  type SyncConflict,
+  type SyncStatus,
+} from '../types';
 
 export class SyncCommandError extends Error {
   code: string;
@@ -55,6 +60,10 @@ export const syncBootstrap = (confirm: boolean) => call<SyncStatus>('sync_bootst
 
 export const listConflicts = async (): Promise<SyncConflict[]> =>
   normalizeConflicts(await call<unknown>('sync_list_conflicts'));
+
+/** The individual changes still waiting to upload (names and times only). */
+export const listPending = async (limit = 200): Promise<PendingRecords> =>
+  normalizePending(await call<unknown>('sync_list_pending', { limit }));
 
 export const resolveConflict = (key: string, resolution: string) =>
   call<unknown>('sync_resolve_conflict', { key, resolution });

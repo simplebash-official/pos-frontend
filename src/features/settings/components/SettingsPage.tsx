@@ -20,7 +20,11 @@ import { LogsSection } from './sections/LogsSection';
 import { AccountSection } from '@/features/account';
 import { ConflictsSection, SyncSection } from '@/features/sync-status';
 
-const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) => void) => {
+const renderSection = (
+  id: SettingsSectionId,
+  onDirtyChange: (dirty: boolean) => void,
+  onOpenSection: (target: SettingsSectionId) => void
+) => {
   const meta = SETTINGS_SECTIONS.find((s) => s.id === id);
   if (meta?.comingSoon) {
     const Icon = meta.icon;
@@ -62,7 +66,7 @@ const renderSection = (id: SettingsSectionId, onDirtyChange: (dirty: boolean) =>
     case 'account':
       return <AccountSection onDirtyChange={onDirtyChange} />;
     case 'sync':
-      return <SyncSection onDirtyChange={onDirtyChange} />;
+      return <SyncSection onDirtyChange={onDirtyChange} onOpenSection={onOpenSection} />;
     case 'conflicts':
       return <ConflictsSection onDirtyChange={onDirtyChange} />;
     case 'backup':
@@ -131,7 +135,7 @@ export const SettingsPage = () => {
           <SettingsNavList active={activeSection} onChange={requestNavigate} />
         </Box>
         <Box style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-          {renderSection(activeSection, setIsSectionDirty)}
+          {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Group>
     );
@@ -140,7 +144,7 @@ export const SettingsPage = () => {
       <Stack gap="md" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <SettingsNavTabs active={activeSection} onChange={requestNavigate} />
         <Box style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {renderSection(activeSection, setIsSectionDirty)}
+          {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Stack>
     );
@@ -161,7 +165,7 @@ export const SettingsPage = () => {
           </Text>
         </Group>
         <Box style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {renderSection(activeSection, setIsSectionDirty)}
+          {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Stack>
     );

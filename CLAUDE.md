@@ -213,6 +213,14 @@ Auth is strict online-only (`authSlice.ts`'s `initializeAuth`): any failure to v
 
 `src/features/sync/` (status badge, drawer, settings section) is dead code kept on disk, not deleted, so it can be repaired once the future sync backend exists — it still imports the removed engine modules and does not type-check, so it's excluded from the compiled project (`tsconfig.json`'s `exclude`) and from lint (`eslint.config.js`'s `ignores`). It has no mount points anywhere in the live app (`Header.tsx`, `AppShell.tsx`, `SettingsPage.tsx` don't reference it). Don't add new imports into or out of this folder from live code; when the sync backend is built, its design will very likely not match this folder's shape closely enough to just re-enable it as-is.
 
+## Sync screen (desktop, live)
+
+`src/features/sync-status/` is the live sync UI (not `features/sync/`, which is the parked dead code above). The shell's `sync://status` payload carries `step`, `progress`, per-record-type `modules`, `lastCycle`, `nextRetryAt` and a 20-line `history`; `sync_list_pending` lists the individual waiting changes with readable names (backend `GET /api/sync/outbox/pending`).
+
+- All wording and state-to-view mapping is pure and tested in `lib/syncView.ts` (`heroView`, `moduleRows`, `activityView`) and `lib/statusView.ts` (`badgeView`). Sentences are arrays of static phrases plus numbers (`Phrase`) so each static phrase goes through `t()`; render them with `phraseText`. Add new phrases to `si.json`.
+- `MODULES` in `syncView.ts` maps backend record types to shop words (Sales & Invoices, Repair Jobs…). A new syncable resource in the backend's `SYNC_RESOURCES` needs a line there or it shows under "Other records".
+- The header badge reports the state of the data (Synced / Syncing 8/12 / 14 waiting / Offline), never just "Internet Connected".
+
 ## Desktop activity log
 
 The desktop app records everything that happens into a unified, append-only log written by the Tauri shell (`<app data>/logs/<day>/<source>.jsonl`, schema in the pos-compose repo's `docs/logging.md`). The frontend side lives in `src/shared/logging/` and is a no-op in the browser.

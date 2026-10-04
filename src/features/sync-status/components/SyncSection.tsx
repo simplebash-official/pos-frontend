@@ -1,13 +1,16 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Alert, Badge, Button, Group, Paper, Stack, Text } from '@mantine/core';
+import { Alert, Button, Group, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
-import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
+import type { SettingsSectionId } from '@/features/settings/settingsSections';
+import { SyncActivityList } from './SyncActivityList';
+import { SyncHero } from './SyncHero';
+import { SyncModulesList } from './SyncModulesList';
 import { syncBootstrap, syncNow, syncPause, syncResume } from '../api/syncStatusApi';
-import { badgeView, toSyncError } from '../lib/statusView';
+import { toSyncError } from '../lib/statusView';
 import { setSyncStatus, useSyncStatus } from '../hooks/useSyncStatus';
 
 /**
@@ -15,7 +18,12 @@ import { setSyncStatus, useSyncStatus } from '../hooks/useSyncStatus';
  * it, run it now, or confirm a full re-download of the cloud data. Only reachable
  * when the shell reports a configured cloud (see settingsSections).
  */
-export const SyncSection = (_props: SectionProps) => {
+export interface SyncSectionProps extends SectionProps {
+  /** Lets the screen jump to another settings section (e.g. Sync Conflicts). */
+  onOpenSection?: (target: SettingsSectionId) => void;
+}
+
+export const SyncSection = ({ onOpenSection }: SyncSectionProps) => {
   const status = useSyncStatus();
   const [busy, setBusy] = useState(false);
   const [confirmBootstrap, setConfirmBootstrap] = useState(false);
@@ -32,12 +40,11 @@ export const SyncSection = (_props: SectionProps) => {
     }
   };
 
-  const view = badgeView(status);
   const paused = status.state === 'paused';
 
   return (
     <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-      <Stack gap="md">
+      <Stack gap="lg">
         <div>
           <Text fw={700} size="lg">
             {t('Cloud Sync')}
@@ -49,36 +56,25 @@ export const SyncSection = (_props: SectionProps) => {
           </Text>
         </div>
 
-        {!status.linked || !view ? (
+        {!status.linked ? (
           <Alert color="gray" variant="light">
             {t(
               'This device is not linked to a cloud account yet. Link it under Cloud Account first.'
             )}
           </Alert>
         ) : (
-          <Stack gap="xs">
-            <Group gap="xs">
-              <Badge color={view.color} variant="light" data-sync-state={status.state}>
-                {t(view.label)}
-              </Badge>
-              {status.conflictsOpen > 0 && (
-                <Badge color="orange" variant="light">
-                  {status.conflictsOpen} {t('conflicts to review')}
-                </Badge>
-              )}
-            </Group>
-            <Text size="sm">
-              {t('Last synced')}:{' '}
-              <b>{status.lastSyncAt ? formatDateTime(status.lastSyncAt) : t('Not yet')}</b>
-            </Text>
-            <Text size="sm">
-              {t('Waiting to upload')}: <b>{status.pendingOut}</b>
-            </Text>
-            {status.lastError && (
-              <Alert color="red" variant="light">
-                {status.lastError}
-              </Alert>
-            )}
+          <>
+            <SyncHero
+              status={status}
+              busy={busy}
+              onSyncNow={() => void run('now', syncNow)}
+              onTogglePause={() =>
+                void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)
+              }
+              onReview={() =>
+                status.bootstrapRequired ? setConfirmBootstrap(true) : onOpenSection?.('conflicts')
+              }
+            />
             {status.bootstrapRequired && (
               <Alert color="orange" variant="light" title={t('Your confirmation is needed')}>
                 <Stack gap="xs">
@@ -100,27 +96,9 @@ export const SyncSection = (_props: SectionProps) => {
                 </Stack>
               </Alert>
             )}
-            <Group mt="xs">
-              <Button
-                variant="light"
-                loading={busy}
-                onClick={() => void run('now', syncNow)}
-                data-log-id="sync.now"
-              >
-                {t('Sync now')}
-              </Button>
-              <Button
-                variant="default"
-                loading={busy}
-                onClick={() =>
-                  void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)
-                }
-                data-log-id={paused ? 'sync.resume' : 'sync.pause'}
-              >
-                {paused ? t('Resume sync') : t('Pause sync')}
-              </Button>
-            </Group>
-          </Stack>
+            <SyncModulesList status={status} />
+            <SyncActivityList history={status.history} />
+          </>
         )}
       </Stack>
 

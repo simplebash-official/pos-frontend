@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { isTauri } from '@/shared/lib/runtime';
 import { badgeView } from '../lib/statusView';
+import { phraseText } from '../lib/phrase';
 import { useSyncStatus } from '../hooks/useSyncStatus';
 import type { SyncPhase } from '../types';
 
@@ -23,9 +24,9 @@ const ICONS: Record<SyncPhase, typeof IconCloudCheck> = {
 };
 
 /**
- * Header badge for the desktop sync agent. Renders nothing on web and on a
- * desktop that is not linked to a cloud account, so it never adds noise for
- * users who stay offline.
+ * Header badge for the desktop sync agent. Says what the data is doing (synced,
+ * syncing, waiting, offline), not just whether the internet is up. Renders
+ * nothing on web and on a desktop that is not linked to a cloud account.
  */
 export const SyncBadge = () => {
   const status = useSyncStatus();
@@ -34,20 +35,16 @@ export const SyncBadge = () => {
   const view = badgeView(status);
   if (!view) return null;
 
-  const Icon = ICONS[status.state];
-  const attention = status.conflictsOpen > 0 || status.bootstrapRequired;
-  const label = attention
-    ? `${t(view.label)} · ${status.bootstrapRequired ? t('Action needed') : status.conflictsOpen}`
-    : t(view.label);
+  const Icon = view.attention ? IconAlertTriangle : ICONS[status.state];
 
   return (
-    <Tooltip label={view.hint ? t(view.hint) : t(view.label)} withArrow disabled={!view.hint}>
+    <Tooltip label={phraseText(view.hint, t)} withArrow>
       <Badge
         component="button"
         type="button"
         size="sm"
         variant="light"
-        color={attention ? 'orange' : view.color}
+        color={view.color}
         leftSection={<Icon size={12} />}
         style={{ cursor: 'pointer', flexShrink: 0 }}
         onClick={() =>
@@ -60,7 +57,7 @@ export const SyncBadge = () => {
         data-log-id="sync.badge"
         data-sync-state={status.state}
       >
-        {label}
+        {phraseText(view.parts, t)}
       </Badge>
     </Tooltip>
   );
