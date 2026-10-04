@@ -1,35 +1,61 @@
-name: Build and Deploy Frontend
+name: Test, build and deploy
+
+# Pull requests: tests only (ci.yml).
+# Push to main (or "Run workflow"): test -> build the image on the runner ->
+# deploy. Docs-only and graphify-only commits are skipped so they don't spend
+# Actions minutes. The server never builds; it only pulls the image from GHCR.
+#
+# The deploy step SSHes in with a key that can only run the server's
+# /opt/simplebash/bin/ci-deploy script (see pos-compose: scripts/ci-deploy.sh):
+# pull, restart, wait for the healthcheck, and roll back to the previous image
+# if the new one is unhealthy.
+#
+# Repo secrets: DEPLOY_HOST, DEPLOY_SSH_KEY (restricted key),
+# DEPLOY_KNOWN_HOSTS (the server's pinned host keys).
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths-ignore:
+      - "**.md"
+      - "graphify-out/**"
+      - "docs/**"
+      - ".claude/**"
+      - ".agents/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: simplebash-official/pos-frontend
+  IMAGE: ghcr.io/simplebash-official/pos-frontend
+  SERVICE: frontend
 
 jobs:
-  build-and-push:
-    if: github.repository == 'simplebash-official/pos-frontend'
+  test:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
       packages: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: true
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Compute next version from conventional commits
         id: compute
         run: bash scripts/ci/next-version.sh
@@ -46,12 +72,15 @@ jobs:
           git push origin HEAD:main
           git push origin "${{ steps.compute.outputs.tag }}"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64
+          provenance: false
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           # Must match pos/deployment/scripts/deploy.sh: production serves the
           # API on the same origin (/api, proxied by nginx) and is multi-tenant.
           build-args: |
@@ -62,24 +91,23 @@ jobs:
             VITE_APP_VERSION=${{ steps.compute.outputs.version }}
 
   deploy:
-    needs: build-and-push
-    if: github.repository == 'simplebash-official/pos-frontend'
+    needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Execute deployment via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            cd /opt/simplebash
-            
-            # Pull the latest frontend image
-            docker compose pull frontend
-            
-            # Recreate the frontend container
-            docker compose up -d frontend
-            
-            # Clean up old images
-            docker image prune -f
+      - name: Deploy to the server (rolls back automatically if unhealthy)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=20 \
+            "ubuntu@${DEPLOY_HOST}" "$SERVICE"
+      - name: Remove the key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
