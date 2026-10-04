@@ -36,12 +36,24 @@ export interface DataChoiceStepProps {
   onPrev: () => void;
   loading: boolean;
   currentUser?: { name?: string; email: string } | null;
+  /** The linked cloud account, offered as the admin's details (still editable). */
+  suggested?: { name?: string | null; email?: string | null } | null;
 }
 
-export const DataChoiceStep = ({ onSubmit, onPrev, loading, currentUser }: DataChoiceStepProps) => {
+export const DataChoiceStep = ({
+  onSubmit,
+  onPrev,
+  loading,
+  currentUser,
+  suggested,
+}: DataChoiceStepProps) => {
   const [loadSampleData, setLoadSampleData] = useState<boolean>(true);
-  const [adminName, setAdminName] = useState<string>(currentUser?.name || 'System Administrator');
-  const [adminEmail, setAdminEmail] = useState<string>(currentUser?.email || '');
+  const [adminName, setAdminName] = useState<string>(
+    currentUser?.name || suggested?.name || 'System Administrator'
+  );
+  const [adminEmail, setAdminEmail] = useState<string>(
+    currentUser?.email || suggested?.email || ''
+  );
   const [adminPassword, setAdminPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 

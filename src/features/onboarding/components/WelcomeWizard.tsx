@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import {
+  Alert,
   Box,
   Stack,
   Stepper,
@@ -46,6 +47,7 @@ import { completeInstallationSetupNative } from '../api/onboardingApi';
 import { SplashStep } from './SplashStep';
 import { FeatureGuideStep } from './FeatureGuideStep';
 import { DataChoiceStep } from './DataChoiceStep';
+import { JoinCloudShopStep } from './JoinCloudShopStep';
 import { ProgressStep } from './ProgressStep';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
 import { PRODUCT_NAME } from '@/config/branding';
@@ -68,6 +70,10 @@ export const WelcomeWizard = () => {
   const { state: cloud } = useCloudState();
   const cloudStep = isTauri() && cloud.enabled;
   const dbStepIndex = cloudStep ? 3 : 2;
+  // Linked to a cloud shop: its data (and admin) comes down by itself, so the
+  // admin form is only offered if that turns out not to be possible.
+  const [joinFallback, setJoinFallback] = useState(false);
+  const joiningCloudShop = cloudStep && cloud.linked && !joinFallback;
   const launchStepIndex = dbStepIndex + 1;
 
   const [activeStep, setActiveStepState] = useState<number>(0);
@@ -273,8 +279,14 @@ export const WelcomeWizard = () => {
               />
             )}
             <Stepper.Step
-              label={t('Database')}
-              description={!isMobile ? t('Demo or Clean') : undefined}
+              label={joiningCloudShop ? t('Your shop') : t('Database')}
+              description={
+                !isMobile
+                  ? joiningCloudShop
+                    ? t('From the cloud')
+                    : t('Demo or Clean')
+                  : undefined
+              }
               icon={<IconDatabase size={16} />}
             />
             <Stepper.Step
@@ -354,12 +366,33 @@ export const WelcomeWizard = () => {
             <RegisterStep onNext={() => setActiveStep(3)} onPrev={() => setActiveStep(1)} />
           )}
 
-          {activeStep === dbStepIndex && (
+          {activeStep === dbStepIndex && joiningCloudShop && (
+            <JoinCloudShopStep
+              accountEmail={cloud.accountEmail}
+              onUseForm={() => setJoinFallback(true)}
+              onPrev={() => setActiveStep(dbStepIndex - 1)}
+            />
+          )}
+
+          {activeStep === dbStepIndex && !joiningCloudShop && cloudStep && cloud.linked && (
+            <Alert color="blue" variant="light" mb="md" role="status">
+              {t(
+                "We couldn't find a ready shop in the cloud, so let's set one up on this computer."
+              )}
+            </Alert>
+          )}
+
+          {activeStep === dbStepIndex && !joiningCloudShop && (
             <DataChoiceStep
               loading={initializeMutation.isPending}
               onSubmit={handleStartSetup}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
               currentUser={currentUser}
+              suggested={
+                cloudStep && cloud.linked
+                  ? { name: cloud.accountName, email: cloud.accountEmail }
+                  : null
+              }
             />
           )}
 

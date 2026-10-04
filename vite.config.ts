@@ -174,7 +174,9 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        // Explicit IPv4: the desktop sidecar binds 127.0.0.1 only, and `localhost` can
+        // resolve to ::1 first and reach another service on port 8080 (e.g. a Docker stack).
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true,
       },
     },

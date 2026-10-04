@@ -1748,5 +1748,13 @@
   "Open the browser again": "බ්‍රවුසරය නැවත විවෘත කරන්න",
   "That sign-in ran out of time. Please try again.": "ඇතුළු වීමේ කාලය අවසන් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
   "We could not open your browser. Use the address below instead.": "ඔබේ බ්‍රවුසරය විවෘත කිරීමට නොහැකි විය. ඒ වෙනුවට පහත ලිපිනය භාවිතා කරන්න.",
-  "We could not start signing in. Please try again.": "ඇතුළු වීම ආරම්භ කිරීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න."
+  "We could not start signing in. Please try again.": "ඇතුළු වීම ආරම්භ කිරීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "Your shop": "ඔබේ වෙළඳසැල",
+  "From the cloud": "cloud එකෙන්",
+  "Getting your shop from the cloud…": "ඔබේ වෙළඳසැල cloud එකෙන් ලබා ගනිමින්…",
+  "We are downloading {shop} to this computer. This usually takes a few seconds.": "අපි {shop} මෙම පරිගණකයට බාගත කරමින් සිටිමු. මෙයට සාමාන්‍යයෙන් තත්පර කිහිපයක් ගතවේ.",
+  "We are downloading your shop to this computer. This usually takes a few seconds.": "අපි ඔබේ වෙළඳසැල මෙම පරිගණකයට බාගත කරමින් සිටිමු. මෙයට සාමාන්‍යයෙන් තත්පර කිහිපයක් ගතවේ.",
+  "Set up a new shop here instead": "ඒ වෙනුවට මෙහි නව වෙළඳසැලක් සකසන්න",
+  "Your shop is ready. Sign in with your POS email and password.": "ඔබේ වෙළඳසැල සූදානම්. ඔබේ POS විද්‍යුත් තැපෑල සහ මුරපදයෙන් ඇතුළු වන්න.",
+  "We couldn't find a ready shop in the cloud, so let's set one up on this computer.": "cloud එකේ සූදානම් වෙළඳසැලක් අපට හමු නොවීය, එබැවින් මෙම පරිගණකයේ එකක් සකසමු."
 }
