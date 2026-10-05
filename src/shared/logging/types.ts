@@ -26,7 +26,9 @@ export type LogCategory =
   | 'notification'
   | 'modal'
   | 'shortcut'
-  | 'domain';
+  | 'domain'
+  /** Changes arriving from other computers or the website (live screen reloads). */
+  | 'sync';
 
 export type LogData = Record<string, unknown>;
 

@@ -5,6 +5,7 @@ import { env } from '@/config/env';
 import { STORAGE_KEYS } from '@/constants';
 import { HEADER_DEVICE_ID } from '@/offline/constants';
 import { isTauri } from '@/shared/lib/runtime';
+import { logger } from '@/shared/logging';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { listenSyncApplied } from '../api/syncStatusApi';
@@ -30,8 +31,16 @@ export const createRefresher = (queryClient: QueryClient, batchMs = BATCH_MS) =>
   let timer: ReturnType<typeof setTimeout> | null = null;
   const flush = () => {
     timer = null;
-    const roots = queryRootsFor([...pending]);
+    const resources = [...pending];
+    const roots = queryRootsFor(resources);
     pending.clear();
+    // One line per reload, so the activity log shows the shell's download
+    // (`sync/cycle.done pulled N`) followed by the screens it refreshed.
+    logger.event('sync', 'live-refresh', {
+      resources,
+      all: roots === null,
+      queries: roots === null ? null : roots.length,
+    });
     if (roots === null) {
       void queryClient.invalidateQueries();
       return;

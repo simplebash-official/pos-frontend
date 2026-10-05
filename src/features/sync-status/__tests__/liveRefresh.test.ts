@@ -5,6 +5,7 @@ import { EventStreamParser, readEventStream, type StreamEvent } from '../lib/eve
 import { queryRootsFor, RESOURCE_QUERY_ROOTS } from '../lib/resourceQueryKeys';
 import { MODULES } from '../lib/syncView';
 import { createRefresher } from '../hooks/useLiveRefresh';
+import { logger } from '@/shared/logging';
 
 /** Every record type the backend syncs (`SYNC_RESOURCES`). */
 const SYNCED = MODULES.flatMap((m) => m.resources);
@@ -62,6 +63,24 @@ describe('createRefresher', () => {
     expect(new Set(keys).size).toBe(keys.length);
     expect(keys).toContain(JSON.stringify(queryKeys.billing.all));
     expect(keys).toContain(JSON.stringify(queryKeys.inventory.all));
+    refresher.stop();
+  });
+
+  it('writes one activity-log line per reload naming what changed', async () => {
+    const client = new QueryClient();
+    vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+    const log = vi.spyOn(logger, 'event').mockImplementation(() => undefined);
+    const refresher = createRefresher(client, 10);
+
+    refresher.add(['invoices']);
+    refresher.add(['payments']);
+    await sleep(40);
+
+    const calls = log.mock.calls.filter(([, event]) => event === 'live-refresh');
+    expect(calls).toHaveLength(1);
+    expect(calls[0][0]).toBe('sync');
+    expect(calls[0][2]).toMatchObject({ resources: ['invoices', 'payments'], all: false });
+    log.mockRestore();
     refresher.stop();
   });
 
