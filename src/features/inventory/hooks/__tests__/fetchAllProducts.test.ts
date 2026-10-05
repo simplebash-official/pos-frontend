@@ -79,4 +79,20 @@ describe('paging the whole product catalog', () => {
 
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ limit: 200 }));
   });
+
+  it('forwards the requested sort on every page and sends none by default', async () => {
+    const spy = vi
+      .spyOn(productsApi, 'fetchProducts')
+      .mockImplementation((params) => cappedBackend(450)({ page: params?.page ?? 1, limit: 200 }));
+
+    await fetchAllProducts({ sortBy: 'sellingPriceCents', sortOrder: 'asc' });
+    expect(spy).toHaveBeenCalledTimes(3);
+    for (const call of spy.mock.calls) {
+      expect(call[0]).toMatchObject({ sortBy: 'sellingPriceCents', sortOrder: 'asc' });
+    }
+
+    spy.mockClear();
+    await fetchAllProducts();
+    expect(spy.mock.calls[0][0]).not.toHaveProperty('sortBy');
+  });
 });

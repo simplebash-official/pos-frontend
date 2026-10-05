@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { USER_ROLES, UserRole } from '@/constants/roles';
 import { getMeApi } from '@/features/auth/api/authApi';
-import type { AuthUser } from '@/features/auth/types';
+import type { AuthUser, UserPreferences } from '@/features/auth/types';
 
 export type { AuthUser };
 
@@ -110,6 +110,11 @@ const authSlice = createSlice({
     unlockPOS: (state) => {
       state.isLocked = false;
     },
+    setUserPreferences: (state, action: PayloadAction<UserPreferences>) => {
+      if (state.user) {
+        state.user.preferences = { ...state.user.preferences, ...action.payload };
+      }
+    },
     switchRole: (state, action: PayloadAction<UserRole>) => {
       if (state.user) {
         state.user.role = action.payload;
@@ -127,6 +132,7 @@ export const {
   setLoading,
   lockPOS,
   unlockPOS,
+  setUserPreferences,
   switchRole,
 } = authSlice.actions;
 

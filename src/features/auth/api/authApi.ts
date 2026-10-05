@@ -6,6 +6,7 @@ import type {
   LoginResponseData,
   AuthUser,
   MeResponse,
+  UserPreferences,
 } from '../types';
 
 export const loginApi = async (payload: LoginPayload): Promise<LoginResponseData> => {
@@ -22,6 +23,14 @@ export const loginApi = async (payload: LoginPayload): Promise<LoginResponseData
 
 export const getMeApi = async (): Promise<AuthUser> => {
   const response = await apiClient.get<MeResponse | AuthUser>('/auth/me');
+  if ('data' in response && response.data) {
+    return response.data;
+  }
+  return response as unknown as AuthUser;
+};
+
+export const updateMyPreferencesApi = async (changes: UserPreferences): Promise<AuthUser> => {
+  const response = await apiClient.patch<MeResponse | AuthUser>('/auth/me/preferences', changes);
   if ('data' in response && response.data) {
     return response.data;
   }

@@ -15,6 +15,7 @@ import {
   Skeleton,
   ThemeIcon,
   Center,
+  Menu,
 } from '@mantine/core';
 import {
   IconBarcode,
@@ -27,6 +28,8 @@ import {
   IconSearch,
   IconPlus,
   IconX,
+  IconArrowsSort,
+  IconCheck,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -53,6 +56,8 @@ import { useCreateCustomer } from '@/features/customers';
 import { formatMoney } from '@/shared/lib/money';
 import { Product } from '@/features/inventory/types';
 import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
+import { useCatalogSort } from '../hooks/useCatalogSort';
+import { CATALOG_SORTS, catalogSortParams } from '../lib/catalogSort';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
@@ -138,7 +143,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const columnsPerRow = isMobile ? 2 : 3;
 
   // Inventory Products Query
-  const { data: products, isLoading: loadingProducts } = useAllProducts();
+  const [catalogSort, setCatalogSort] = useCatalogSort();
+  const sortParams = useMemo(() => catalogSortParams(catalogSort), [catalogSort]);
+  const { data: products, isLoading: loadingProducts } = useAllProducts({ sort: sortParams });
   const { data: categories, isLoading: loadingCategories } = useCategories();
   const { getCategory } = useCategoryLookup();
   const iconMap = useCategoryIcons();
@@ -805,98 +812,127 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
             </Paper>
 
             {/* 3. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
-            <Box style={{ position: 'relative' }}>
-              <ScrollArea
-                viewportRef={chipsViewportRef}
-                scrollbars="x"
-                type="never"
-                offsetScrollbars={false}
-                styles={{
-                  viewport: {
-                    paddingTop: 2,
-                    paddingBottom: 2,
-                  },
-                }}
-              >
-                {loadingCategories ? (
-                  <Group gap={6} wrap="nowrap" py={2}>
-                    <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
-                    <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
-                    <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
-                    <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
-                  </Group>
-                ) : (
-                  <Group gap={6} wrap="nowrap" py={2}>
-                    <Button
-                      size="xs"
-                      variant={selectedCategory === 'all' ? 'filled' : 'light'}
-                      color="blue"
-                      leftSection={<IconLayoutGrid size={15} />}
-                      onClick={() => setSelectedCategory('all')}
-                      radius="var(--mantine-radius-default)"
-                      style={{ flexShrink: 0 }}
-                    >
-                      {t('All')}
-                    </Button>
-                    {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+            <Group gap={6} wrap="nowrap" align="center">
+              <Box style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                <ScrollArea
+                  viewportRef={chipsViewportRef}
+                  scrollbars="x"
+                  type="never"
+                  offsetScrollbars={false}
+                  styles={{
+                    viewport: {
+                      paddingTop: 2,
+                      paddingBottom: 2,
+                    },
+                  }}
+                >
+                  {loadingCategories ? (
+                    <Group gap={6} wrap="nowrap" py={2}>
+                      <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
+                      <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
+                      <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
+                      <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
+                    </Group>
+                  ) : (
+                    <Group gap={6} wrap="nowrap" py={2}>
                       <Button
-                        key={key}
                         size="xs"
-                        variant={selectedCategory === key ? 'filled' : 'light'}
-                        color={color}
-                        leftSection={<Icon size={15} />}
-                        onClick={() => setSelectedCategory(key)}
+                        variant={selectedCategory === 'all' ? 'filled' : 'light'}
+                        color="blue"
+                        leftSection={<IconLayoutGrid size={15} />}
+                        onClick={() => setSelectedCategory('all')}
                         radius="var(--mantine-radius-default)"
                         style={{ flexShrink: 0 }}
                       >
-                        {label}
+                        {t('All')}
                       </Button>
-                    ))}
-                    <Button
-                      size="xs"
-                      variant={showInStockOnly ? 'filled' : 'outline'}
-                      color={showInStockOnly ? 'teal' : 'gray'}
-                      onClick={() => setShowInStockOnly(!showInStockOnly)}
-                      radius="var(--mantine-radius-default)"
-                      style={{ flexShrink: 0 }}
-                    >
-                      {t('In stock only')}
-                    </Button>
-                  </Group>
-                )}
-              </ScrollArea>
+                      {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+                        <Button
+                          key={key}
+                          size="xs"
+                          variant={selectedCategory === key ? 'filled' : 'light'}
+                          color={color}
+                          leftSection={<Icon size={15} />}
+                          onClick={() => setSelectedCategory(key)}
+                          radius="var(--mantine-radius-default)"
+                          style={{ flexShrink: 0 }}
+                        >
+                          {label}
+                        </Button>
+                      ))}
+                      <Button
+                        size="xs"
+                        variant={showInStockOnly ? 'filled' : 'outline'}
+                        color={showInStockOnly ? 'teal' : 'gray'}
+                        onClick={() => setShowInStockOnly(!showInStockOnly)}
+                        radius="var(--mantine-radius-default)"
+                        style={{ flexShrink: 0 }}
+                      >
+                        {t('In stock only')}
+                      </Button>
+                    </Group>
+                  )}
+                </ScrollArea>
 
-              {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
+                {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
             never bleed into the scan bar above or the product grid below. */}
-              <Box
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  right: 0,
-                  width: 24,
-                  background: 'linear-gradient(to right, transparent, var(--bg-app))',
-                  pointerEvents: 'none',
-                  opacity: chipScrollState.canScrollRight ? 1 : 0,
-                  transition: 'opacity 0.15s ease',
-                }}
-              />
-              <Box
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  width: 24,
-                  background: 'linear-gradient(to left, transparent, var(--bg-app))',
-                  pointerEvents: 'none',
-                  opacity: chipScrollState.canScrollLeft ? 1 : 0,
-                  transition: 'opacity 0.15s ease',
-                }}
-              />
-            </Box>
+                <Box
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    width: 24,
+                    background: 'linear-gradient(to right, transparent, var(--bg-app))',
+                    pointerEvents: 'none',
+                    opacity: chipScrollState.canScrollRight ? 1 : 0,
+                    transition: 'opacity 0.15s ease',
+                  }}
+                />
+                <Box
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    width: 24,
+                    background: 'linear-gradient(to left, transparent, var(--bg-app))',
+                    pointerEvents: 'none',
+                    opacity: chipScrollState.canScrollLeft ? 1 : 0,
+                    transition: 'opacity 0.15s ease',
+                  }}
+                />
+              </Box>
+              <Menu position="bottom-end" withinPortal shadow="md">
+                <Menu.Target>
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="gray"
+                    leftSection={<IconArrowsSort size={15} />}
+                    radius="var(--mantine-radius-default)"
+                    style={{ flexShrink: 0 }}
+                    aria-label={t('Sort products')}
+                  >
+                    {t(CATALOG_SORTS.find((s) => s.id === catalogSort)?.label ?? 'Sort')}
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>{t('Sort products')}</Menu.Label>
+                  {CATALOG_SORTS.map((option) => (
+                    <Menu.Item
+                      key={option.id}
+                      onClick={() => setCatalogSort(option.id)}
+                      rightSection={option.id === catalogSort ? <IconCheck size={14} /> : undefined}
+                    >
+                      {t(option.label)}
+                    </Menu.Item>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
 
             {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
           cards in the DOM, regardless of how many products match the current filter/search. */}

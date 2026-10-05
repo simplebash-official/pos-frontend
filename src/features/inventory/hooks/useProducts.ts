@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchAllPages } from '@/shared/lib/fetchAllPages';
 import {
@@ -11,6 +11,7 @@ import {
   fetchProductMovements,
   fetchProducts,
   updateProduct,
+  type ProductListParams,
 } from '../api/productsApi';
 import { CreateProductInput, Product, StockMovement, UpdateProductInput } from '../types';
 
@@ -20,6 +21,8 @@ import { CreateProductInput, Product, StockMovement, UpdateProductInput } from '
 const ALL_PRODUCTS_PAGE_SIZE = 200;
 const NO_PRODUCTS: Product[] = [];
 const NO_MOVEMENTS: StockMovement[] = [];
+
+export type ProductSort = Pick<ProductListParams, 'sortBy' | 'sortOrder'>;
 
 export interface UpdateProductPayload {
   productKey: string;
@@ -42,15 +45,23 @@ export interface DeleteProductsPayload {
  * "shorter than requested" page is not a reliable end-of-data signal once a
  * shop's catalog outgrows one page.
  */
-export const fetchAllProducts = (): Promise<Product[]> =>
-  fetchAllPages((page) => fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE }));
+export const fetchAllProducts = (sort?: ProductSort): Promise<Product[]> =>
+  fetchAllPages((page) => fetchProducts({ page, limit: ALL_PRODUCTS_PAGE_SIZE, ...sort }));
 
-export const useAllProducts = (options?: { enabled?: boolean }) => {
+/**
+ * `sort` is the backend's `sortBy`/`sortOrder`. Omit it for the server default
+ * (name A-Z), which shares one cache entry across every plain caller.
+ */
+export const useAllProducts = (options?: { enabled?: boolean; sort?: ProductSort }) => {
   const enabled = options?.enabled ?? true;
+  const sort = options?.sort;
+  const hasSort = Boolean(sort?.sortBy);
   const query = useQuery({
-    queryKey: queryKeys.inventory.products(),
-    queryFn: fetchAllProducts,
+    queryKey: queryKeys.inventory.products(hasSort ? { ...sort } : undefined),
+    queryFn: () => fetchAllProducts(sort),
     enabled,
+    // Keep the old order on screen while a new sort loads instead of flashing a skeleton.
+    placeholderData: keepPreviousData,
   });
   return { ...query, data: query.data ?? NO_PRODUCTS };
 };

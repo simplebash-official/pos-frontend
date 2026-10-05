@@ -18,6 +18,8 @@ export const STORAGE_KEYS = {
   PRINT_SELECTION_PAY_NOW: 'pos_print_selection_pay_now',
   /** Last used print document selection for credit sales */
   PRINT_SELECTION_CREDIT: 'pos_print_selection_credit',
+  /** Billing catalog sort, per login: `${prefix}:${userId}`. Mirrors the server preference for first paint/offline. */
+  CATALOG_SORT_PREFIX: 'pos_catalog_sort',
   /** Latest hardware and POS system benchmark test result */
   BENCHMARK_RESULT: 'pos_benchmark_result',
 } as const;

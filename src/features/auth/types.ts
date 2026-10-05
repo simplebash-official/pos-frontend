@@ -6,6 +6,13 @@ export interface AuthUser {
   email: string;
   role: UserRole | string;
   permissions?: string[];
+  /** This login's own UI preferences (stored server-side, one set per account). */
+  preferences?: UserPreferences;
+}
+
+export interface UserPreferences {
+  /** Last sort picked on the billing catalog — see `features/billing/lib/catalogSort.ts`. */
+  billingCatalogSort?: string;
 }
 
 export interface LoginPayload {
