@@ -16,6 +16,7 @@ import {
   ThemeIcon,
   Center,
   Menu,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconBarcode,
@@ -144,6 +145,11 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   // Inventory Products Query
   const [catalogSort, setCatalogSort] = useCatalogSort();
+  const [sortMenuOpened, setSortMenuOpened] = useState(false);
+  const activeSort = useMemo(
+    () => CATALOG_SORTS.find((s) => s.id === catalogSort) ?? CATALOG_SORTS[0],
+    [catalogSort]
+  );
   const sortParams = useMemo(() => catalogSortParams(catalogSort), [catalogSort]);
   const { data: products, isLoading: loadingProducts } = useAllProducts({ sort: sortParams });
   const { data: categories, isLoading: loadingCategories } = useCategories();
@@ -732,61 +738,123 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
               }}
             >
               <form onSubmit={(e) => void handleScanSubmit(e)}>
-                <SearchHistoryInput
-                  data-barcode-scanner="true"
-                  namespace="billing"
-                  ref={scanInputRef}
-                  trigger="button"
-                  showHistoryButton
-                  placeholder={
-                    isMobile
-                      ? t('Scan barcode or search product')
-                      : `${t('Scan barcode or type SKU / product name / REP-1001')} (F1 / Esc)`
-                  }
-                  leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
-                  rightSection={
-                    scanQuery ? (
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        size="sm"
-                        aria-label={t('Clear scan search')}
-                        onClick={() => {
-                          setScanQuery('');
-                          setSearch('');
-                          setShakeError(null);
-                          scanInputRef.current?.focus();
-                        }}
-                      >
-                        <IconX size={14} />
-                      </ActionIcon>
-                    ) : undefined
-                  }
-                  value={scanQuery}
-                  onChange={(e) => {
-                    setScanQuery(e.currentTarget.value);
-                    setSearch(e.currentTarget.value);
-                    setShakeError(null);
-                  }}
-                  onSearchSubmit={(val) => {
-                    setScanQuery(val);
-                    setSearch(val);
-                    setShakeError(null);
-                  }}
-                  onKeyDown={handleKeyDownGrid}
-                  size="md"
-                  styles={{
-                    input: {
-                      height: 44,
-                      // iOS Safari zooms the whole page when a focused input is under 16px.
-                      fontSize: isMobile ? 16 : 15,
-                      fontWeight: 600,
-                      border: 'none',
-                      paddingRight: scanQuery ? 36 : undefined,
-                      textOverflow: 'ellipsis',
-                    },
-                  }}
-                />
+                <Group gap={8} wrap="nowrap" align="center">
+                  <Box style={{ flex: 1, minWidth: 0 }}>
+                    <SearchHistoryInput
+                      data-barcode-scanner="true"
+                      namespace="billing"
+                      ref={scanInputRef}
+                      trigger="button"
+                      showHistoryButton
+                      placeholder={
+                        isMobile
+                          ? t('Scan barcode or search product')
+                          : `${t('Scan barcode or type SKU / product name / REP-1001')} (F1 / Esc)`
+                      }
+                      leftSection={<IconBarcode size={22} color="var(--text-secondary)" />}
+                      rightSection={
+                        scanQuery ? (
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="sm"
+                            aria-label={t('Clear scan search')}
+                            onClick={() => {
+                              setScanQuery('');
+                              setSearch('');
+                              setShakeError(null);
+                              scanInputRef.current?.focus();
+                            }}
+                          >
+                            <IconX size={14} />
+                          </ActionIcon>
+                        ) : undefined
+                      }
+                      value={scanQuery}
+                      onChange={(e) => {
+                        setScanQuery(e.currentTarget.value);
+                        setSearch(e.currentTarget.value);
+                        setShakeError(null);
+                      }}
+                      onSearchSubmit={(val) => {
+                        setScanQuery(val);
+                        setSearch(val);
+                        setShakeError(null);
+                      }}
+                      onKeyDown={handleKeyDownGrid}
+                      size="md"
+                      styles={{
+                        input: {
+                          height: 44,
+                          // iOS Safari zooms the whole page when a focused input is under 16px.
+                          fontSize: isMobile ? 16 : 15,
+                          fontWeight: 600,
+                          border: 'none',
+                          paddingRight: scanQuery ? 36 : undefined,
+                          textOverflow: 'ellipsis',
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  <Menu
+                    position="bottom-end"
+                    withinPortal
+                    shadow="md"
+                    opened={sortMenuOpened}
+                    onChange={(opened) => {
+                      setSortMenuOpened(opened);
+                      if (!opened && keepScanInputFocused) {
+                        setTimeout(() => scanInputRef.current?.focus(), 50);
+                      }
+                    }}
+                  >
+                    <Menu.Target>
+                      <Tooltip label={`${t('Sort products')}: ${t(activeSort.label)}`}>
+                        <ActionIcon
+                          type="button"
+                          variant={sortMenuOpened ? 'light' : 'default'}
+                          color="blue"
+                          size={44}
+                          radius="var(--mantine-radius-default)"
+                          aria-label={`${t('Sort products')}: ${t(activeSort.label)}`}
+                          aria-expanded={sortMenuOpened}
+                          aria-haspopup="menu"
+                          onMouseDown={(e) => {
+                            // Prevent barcode scanner input blur on desktop
+                            e.preventDefault();
+                          }}
+                          style={{
+                            flexShrink: 0,
+                            minWidth: isMobile ? 44 : 36,
+                            height: 44,
+                            transition:
+                              'background-color 150ms ease, border-color 150ms ease, color 150ms ease',
+                          }}
+                        >
+                          <IconArrowsSort size={18} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>{t('Sort products')}</Menu.Label>
+                      {CATALOG_SORTS.map((option) => (
+                        <Menu.Item
+                          key={option.id}
+                          onClick={() => {
+                            setCatalogSort(option.id);
+                            if (keepScanInputFocused) {
+                              setTimeout(() => scanInputRef.current?.focus(), 50);
+                            }
+                          }}
+                          rightSection={option.id === catalogSort ? <IconCheck size={14} /> : undefined}
+                        >
+                          {t(option.label)}
+                        </Menu.Item>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+                </Group>
               </form>
 
               {shakeError && (
@@ -812,127 +880,98 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
             </Paper>
 
             {/* 3. Category Chips / Filter Pills Row (single horizontal scroll ribbon across all tiers) */}
-            <Group gap={6} wrap="nowrap" align="center">
-              <Box style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-                <ScrollArea
-                  viewportRef={chipsViewportRef}
-                  scrollbars="x"
-                  type="never"
-                  offsetScrollbars={false}
-                  styles={{
-                    viewport: {
-                      paddingTop: 2,
-                      paddingBottom: 2,
-                    },
-                  }}
-                >
-                  {loadingCategories ? (
-                    <Group gap={6} wrap="nowrap" py={2}>
-                      <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
-                    </Group>
-                  ) : (
-                    <Group gap={6} wrap="nowrap" py={2}>
-                      <Button
-                        size="xs"
-                        variant={selectedCategory === 'all' ? 'filled' : 'light'}
-                        color="blue"
-                        leftSection={<IconLayoutGrid size={15} />}
-                        onClick={() => setSelectedCategory('all')}
-                        radius="var(--mantine-radius-default)"
-                        style={{ flexShrink: 0 }}
-                      >
-                        {t('All')}
-                      </Button>
-                      {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
-                        <Button
-                          key={key}
-                          size="xs"
-                          variant={selectedCategory === key ? 'filled' : 'light'}
-                          color={color}
-                          leftSection={<Icon size={15} />}
-                          onClick={() => setSelectedCategory(key)}
-                          radius="var(--mantine-radius-default)"
-                          style={{ flexShrink: 0 }}
-                        >
-                          {label}
-                        </Button>
-                      ))}
-                      <Button
-                        size="xs"
-                        variant={showInStockOnly ? 'filled' : 'outline'}
-                        color={showInStockOnly ? 'teal' : 'gray'}
-                        onClick={() => setShowInStockOnly(!showInStockOnly)}
-                        radius="var(--mantine-radius-default)"
-                        style={{ flexShrink: 0 }}
-                      >
-                        {t('In stock only')}
-                      </Button>
-                    </Group>
-                  )}
-                </ScrollArea>
-
-                {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
-            never bleed into the scan bar above or the product grid below. */}
-                <Box
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    width: 24,
-                    background: 'linear-gradient(to right, transparent, var(--bg-app))',
-                    pointerEvents: 'none',
-                    opacity: chipScrollState.canScrollRight ? 1 : 0,
-                    transition: 'opacity 0.15s ease',
-                  }}
-                />
-                <Box
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    width: 24,
-                    background: 'linear-gradient(to left, transparent, var(--bg-app))',
-                    pointerEvents: 'none',
-                    opacity: chipScrollState.canScrollLeft ? 1 : 0,
-                    transition: 'opacity 0.15s ease',
-                  }}
-                />
-              </Box>
-              <Menu position="bottom-end" withinPortal shadow="md">
-                <Menu.Target>
-                  <Button
-                    size="xs"
-                    variant="light"
-                    color="gray"
-                    leftSection={<IconArrowsSort size={15} />}
-                    radius="var(--mantine-radius-default)"
-                    style={{ flexShrink: 0 }}
-                    aria-label={t('Sort products')}
-                  >
-                    {t(CATALOG_SORTS.find((s) => s.id === catalogSort)?.label ?? 'Sort')}
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Label>{t('Sort products')}</Menu.Label>
-                  {CATALOG_SORTS.map((option) => (
-                    <Menu.Item
-                      key={option.id}
-                      onClick={() => setCatalogSort(option.id)}
-                      rightSection={option.id === catalogSort ? <IconCheck size={14} /> : undefined}
+            <Box style={{ position: 'relative', width: '100%' }}>
+              <ScrollArea
+                viewportRef={chipsViewportRef}
+                scrollbars="x"
+                type="never"
+                offsetScrollbars={false}
+                styles={{
+                  viewport: {
+                    paddingTop: 2,
+                    paddingBottom: 2,
+                  },
+                }}
+              >
+                {loadingCategories ? (
+                  <Group gap={6} wrap="nowrap" py={2}>
+                    <Skeleton height={28} width={60} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={28} width={90} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={28} width={80} radius="var(--mantine-radius-default)" />
+                    <Skeleton height={28} width={100} radius="var(--mantine-radius-default)" />
+                  </Group>
+                ) : (
+                  <Group gap={6} wrap="nowrap" py={2}>
+                    <Button
+                      size="xs"
+                      variant={selectedCategory === 'all' ? 'filled' : 'light'}
+                      color="blue"
+                      leftSection={<IconLayoutGrid size={15} />}
+                      onClick={() => setSelectedCategory('all')}
+                      radius="var(--mantine-radius-default)"
+                      style={{ flexShrink: 0 }}
                     >
-                      {t(option.label)}
-                    </Menu.Item>
-                  ))}
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
+                      {t('All')}
+                    </Button>
+                    {catalogCategoryFilters.map(({ key, label, Icon, color }) => (
+                      <Button
+                        key={key}
+                        size="xs"
+                        variant={selectedCategory === key ? 'filled' : 'light'}
+                        color={color}
+                        leftSection={<Icon size={15} />}
+                        onClick={() => setSelectedCategory(key)}
+                        radius="var(--mantine-radius-default)"
+                        style={{ flexShrink: 0 }}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                    <Button
+                      size="xs"
+                      variant={showInStockOnly ? 'filled' : 'outline'}
+                      color={showInStockOnly ? 'teal' : 'gray'}
+                      onClick={() => setShowInStockOnly(!showInStockOnly)}
+                      radius="var(--mantine-radius-default)"
+                      style={{ flexShrink: 0 }}
+                    >
+                      {t('In stock only')}
+                    </Button>
+                  </Group>
+                )}
+              </ScrollArea>
+
+              {/* Edge fades hint there's more to scroll to — contained to this row's own box so they
+          never bleed into the scan bar above or the product grid below. */}
+              <Box
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  right: 0,
+                  width: 24,
+                  background: 'linear-gradient(to right, transparent, var(--bg-app))',
+                  pointerEvents: 'none',
+                  opacity: chipScrollState.canScrollRight ? 1 : 0,
+                  transition: 'opacity 0.15s ease',
+                }}
+              />
+              <Box
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: 24,
+                  background: 'linear-gradient(to left, transparent, var(--bg-app))',
+                  pointerEvents: 'none',
+                  opacity: chipScrollState.canScrollLeft ? 1 : 0,
+                  transition: 'opacity 0.15s ease',
+                }}
+              />
+            </Box>
 
             {/* 3. Product Grid — virtualized by row so a large catalog only ever holds a bounded number of
           cards in the DOM, regardless of how many products match the current filter/search. */}
