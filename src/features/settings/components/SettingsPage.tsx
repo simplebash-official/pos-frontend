@@ -1,11 +1,15 @@
 import { t } from '@/shared/i18n/t';
 import { useState, type ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { ActionIcon, Badge, Box, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+import { useAppSelector } from '@/store/hooks';
+import { selectUserRole } from '@/store/slices/authSlice';
+import { USER_ROLES } from '@/constants/roles';
+import { ROUTES } from '@/constants/routes';
 import { SettingsNavDrillDownList, SettingsNavList, SettingsNavTabs } from './SettingsNav';
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
 import { ShopProfileSection } from './sections/ShopProfileSection';
@@ -79,6 +83,7 @@ const renderSection = (
 };
 
 export const SettingsPage = () => {
+  const userRole = useAppSelector(selectUserRole);
   const tier = useLayoutTier();
 
   // The sync badge deep-links here with `state: { section }`.
@@ -94,6 +99,10 @@ export const SettingsPage = () => {
   const [pendingTarget, setPendingTarget] = useState<SettingsSectionId | 'back' | undefined>(
     undefined
   );
+
+  if (userRole !== USER_ROLES.ADMIN) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  }
 
   const commitNavigate = (target: SettingsSectionId | 'back') => {
     if (target === 'back') {

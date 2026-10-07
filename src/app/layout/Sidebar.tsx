@@ -160,18 +160,20 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
         </Stack>
 
         <Stack gap="xs" align="center" style={{ flexShrink: 0 }}>
-          <Tooltip label={t('Settings')} position="right" withArrow>
-            <ActionIcon
-              component={RouterNavLink}
-              to={ROUTES.SETTINGS}
-              size="lg"
-              variant={location.pathname.startsWith(ROUTES.SETTINGS) ? 'filled' : 'subtle'}
-              color="gray"
-              onClick={closeMobile}
-            >
-              <IconSettings size={20} stroke={1.5} />
-            </ActionIcon>
-          </Tooltip>
+          {isAdmin && (
+            <Tooltip label={t('Settings')} position="right" withArrow>
+              <ActionIcon
+                component={RouterNavLink}
+                to={ROUTES.SETTINGS}
+                size="lg"
+                variant={location.pathname.startsWith(ROUTES.SETTINGS) ? 'filled' : 'subtle'}
+                color="gray"
+                onClick={closeMobile}
+              >
+                <IconSettings size={20} stroke={1.5} />
+              </ActionIcon>
+            </Tooltip>
+          )}
 
           <Tooltip label={t('Lock / Logout POS')} position="right" withArrow>
             <ActionIcon size="lg" variant="subtle" color="gray" onClick={handleLogout}>
@@ -308,21 +310,23 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           bg="var(--mantine-color-body)"
         >
           <Stack gap="xs">
-            <NavLink
-              component={RouterNavLink}
-              to={ROUTES.SETTINGS}
-              label={t('Settings')}
-              leftSection={<IconSettings size={20} stroke={1.5} />}
-              active={location.pathname.startsWith(ROUTES.SETTINGS)}
-              color="gray"
-              variant="light"
-              onClick={closeMobile}
-              styles={navLinkStyles}
-              style={{
-                borderRadius: 'var(--mantine-radius-default)',
-                minHeight: isMobile ? 44 : undefined,
-              }}
-            />
+            {isAdmin && (
+              <NavLink
+                component={RouterNavLink}
+                to={ROUTES.SETTINGS}
+                label={t('Settings')}
+                leftSection={<IconSettings size={20} stroke={1.5} />}
+                active={location.pathname.startsWith(ROUTES.SETTINGS)}
+                color="gray"
+                variant="light"
+                onClick={closeMobile}
+                styles={navLinkStyles}
+                style={{
+                  borderRadius: 'var(--mantine-radius-default)',
+                  minHeight: isMobile ? 44 : undefined,
+                }}
+              />
+            )}
             <SegmentedToggle
               fullWidth
               value={colorScheme}

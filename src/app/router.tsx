@@ -187,9 +187,11 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.SETTINGS,
         element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <SettingsPage />
-          </Suspense>
+          <RequireAdmin>
+            <Suspense fallback={<PageSkeleton />}>
+              <SettingsPage />
+            </Suspense>
+          </RequireAdmin>
         ),
       },
       {

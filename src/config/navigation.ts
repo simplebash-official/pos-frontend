@@ -147,5 +147,6 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconSettings,
     to: ROUTES.SETTINGS,
     color: 'gray',
+    adminOnly: true,
   },
 ];

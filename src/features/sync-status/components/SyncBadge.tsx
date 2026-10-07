@@ -13,6 +13,7 @@ import { isTauri } from '@/shared/lib/runtime';
 import { badgeView } from '../lib/statusView';
 import { phraseText } from '../lib/phrase';
 import { useSyncStatus } from '../hooks/useSyncStatus';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import type { SyncPhase } from '../types';
 
 const ICONS: Record<SyncPhase, typeof IconCloudCheck> = {
@@ -31,6 +32,7 @@ const ICONS: Record<SyncPhase, typeof IconCloudCheck> = {
 export const SyncBadge = () => {
   const status = useSyncStatus();
   const navigate = useNavigate();
+  const isAdmin = useIsAdmin();
   if (!isTauri()) return null;
   const view = badgeView(status);
   if (!view) return null;
@@ -40,19 +42,23 @@ export const SyncBadge = () => {
   return (
     <Tooltip label={phraseText(view.hint, t)} withArrow>
       <Badge
-        component="button"
-        type="button"
+        component={isAdmin ? 'button' : 'div'}
+        type={isAdmin ? 'button' : undefined}
         size="sm"
         variant="light"
         color={view.color}
         leftSection={<Icon size={12} />}
-        style={{ cursor: 'pointer', flexShrink: 0 }}
-        onClick={() =>
-          navigate(ROUTES.SETTINGS, {
-            state: {
-              section: status.conflictsOpen > 0 && !status.bootstrapRequired ? 'conflicts' : 'sync',
-            },
-          })
+        style={{ cursor: isAdmin ? 'pointer' : 'default', flexShrink: 0 }}
+        onClick={
+          isAdmin
+            ? () =>
+                navigate(ROUTES.SETTINGS, {
+                  state: {
+                    section:
+                      status.conflictsOpen > 0 && !status.bootstrapRequired ? 'conflicts' : 'sync',
+                  },
+                })
+            : undefined
         }
         data-log-id="sync.badge"
         data-sync-state={status.state}
