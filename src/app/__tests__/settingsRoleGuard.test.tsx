@@ -15,7 +15,13 @@ const EMPTY_PERMISSIONS: string[] = [];
 
 const createMockStore = (role: UserRole) => {
   const authState = {
-    user: { id: 'u1', name: 'Test User', email: 'test@example.com', role, permissions: EMPTY_PERMISSIONS },
+    user: {
+      id: 'u1',
+      name: 'Test User',
+      email: 'test@example.com',
+      role,
+      permissions: EMPTY_PERMISSIONS,
+    },
     permissions: EMPTY_PERMISSIONS,
   };
   return configureStore({

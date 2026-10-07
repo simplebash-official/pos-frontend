@@ -847,7 +847,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                               setTimeout(() => scanInputRef.current?.focus(), 50);
                             }
                           }}
-                          rightSection={option.id === catalogSort ? <IconCheck size={14} /> : undefined}
+                          rightSection={
+                            option.id === catalogSort ? <IconCheck size={14} /> : undefined
+                          }
                         >
                           {t(option.label)}
                         </Menu.Item>

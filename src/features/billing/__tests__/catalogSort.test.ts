@@ -129,4 +129,3 @@ describe('catalog sort labels and tooltip formatting', () => {
     expect(CatalogPanel).not.toBeNull();
   });
 });
-
