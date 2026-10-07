@@ -54,7 +54,7 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
   ];
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
+    <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
@@ -65,26 +65,30 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border)',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-            <Stack gap="xs">
-              <Group justify="space-between" align="flex-start">
+            <Stack justify="space-between" gap="xs" style={{ flex: 1 }}>
+              <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
                 <Text
                   size="xs"
                   fw={700}
                   c="dimmed"
                   tt="uppercase"
-                  style={{ letterSpacing: '0.05em' }}
+                  lineClamp={1}
+                  title={t(card.label)}
+                  style={{ letterSpacing: '0.05em', flex: 1, minWidth: 0 }}
                 >
                   {t(card.label)}
                 </Text>
-                <Badge size="xs" variant="light" color={card.badgeColor}>
+                <Badge size="xs" variant="light" color={card.badgeColor} style={{ flexShrink: 0 }}>
                   {t(card.badge)}
                 </Badge>
               </Group>
 
-              <Group justify="space-between" align="center" mt={2}>
-                <div style={{ flex: 1 }}>
+              <Group justify="space-between" align="center" wrap="nowrap" gap="sm" mt={2}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   {loading ? (
                     <>
                       <Skeleton height={28} width="70%" mb={6} />
@@ -95,18 +99,25 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
                       <Text
                         size="xl"
                         fw={800}
+                        lineClamp={1}
                         style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
                       >
                         {card.value}
                       </Text>
-                      <Text size="xs" c="dimmed" mt={2}>
+                      <Text size="xs" c="dimmed" mt={2} lineClamp={2} title={t(card.subtext)}>
                         {t(card.subtext)}
                       </Text>
                     </>
                   )}
                 </div>
 
-                <ThemeIcon color={card.iconColor} variant="light" size={42} radius="md">
+                <ThemeIcon
+                  color={card.iconColor}
+                  variant="light"
+                  size={42}
+                  radius="md"
+                  style={{ flexShrink: 0 }}
+                >
                   <Icon size={22} stroke={1.5} />
                 </ThemeIcon>
               </Group>
