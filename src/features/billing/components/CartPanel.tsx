@@ -9,7 +9,6 @@ import {
   Badge,
   ActionIcon,
   ScrollArea,
-  Alert,
   Box,
   ThemeIcon,
 } from '@mantine/core';
@@ -26,6 +25,7 @@ import {
 
 import { useCartItems, useCartTotals, useCartCustomer, useHeldCarts } from '../hooks/useCart';
 import { CartLineItem } from './CartLineItem';
+import { UndoRemoveBanner } from './UndoRemoveBanner';
 import { formatMoney } from '@/shared/lib/money';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -322,32 +322,17 @@ export const CartPanel = memo(function CartPanel({
 
       {/* 3. 4-Second Line Removal Undo Banner */}
       {lastRemovedItem && (
-        <Alert
-          color="blue"
-          p="xs"
-          mb="xs"
-          withCloseButton
-          onClose={clearUndo}
-          style={{ fontSize: 12 }}
-        >
-          <Group justify="space-between" align="center">
-            <Text size="xs">
-              {t('Removed "')}
-              {lastRemovedItem.item.name}"
-            </Text>
-            <Button
-              size="xs"
-              variant="white"
-              color="blue"
-              onClick={() => {
-                undoRemove();
-                focusBarcodeScanner(true);
-              }}
-            >
-              {t('Undo (4s)')}
-            </Button>
-          </Group>
-        </Alert>
+        <Box mb="xs">
+          <UndoRemoveBanner
+            itemName={lastRemovedItem.item.name}
+            onUndo={() => {
+              undoRemove();
+              focusBarcodeScanner(true);
+            }}
+            onDismiss={clearUndo}
+            durationMs={4000}
+          />
+        </Box>
       )}
 
       {/* 4. Line Items Scrollable Region */}
