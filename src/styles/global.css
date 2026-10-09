@@ -311,7 +311,7 @@ body,
   .analytics-tabs-tab {
     font-size: var(--mantine-font-size-xs);
     padding: 6px 8px;
-    min-height: 36px;
+    min-height: 44px;
   }
 }
 

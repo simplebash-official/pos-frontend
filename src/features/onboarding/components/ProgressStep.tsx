@@ -345,7 +345,7 @@ export const ProgressStep = ({
                   color="blue"
                   rightSection={<IconArrowRight size={22} />}
                   onClick={onComplete}
-                  style={{ minWidth: 280 }}
+                  style={{ minWidth: 'min(280px, 100%)' }}
                 >
                   {t(`Launch ${PRODUCT_NAME}`)}
                 </Button>

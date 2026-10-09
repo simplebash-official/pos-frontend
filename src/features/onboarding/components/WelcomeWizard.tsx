@@ -201,8 +201,8 @@ export const WelcomeWizard = () => {
   return (
     <Box
       style={{
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100dvh',
         overflow: 'hidden',
         backgroundColor: 'var(--bg-app)',
         display: 'flex',
@@ -359,7 +359,9 @@ export const WelcomeWizard = () => {
       <Box
         style={{
           flex: 1,
-          height: isMobile ? 'auto' : '100vh',
+          // minHeight 0 lets the stage scroll inside the fixed-height column on phones.
+          minHeight: 0,
+          height: isMobile ? undefined : '100dvh',
           overflowY: 'auto',
           padding: isMobile ? '20px 16px' : '48px 64px',
           display: 'flex',

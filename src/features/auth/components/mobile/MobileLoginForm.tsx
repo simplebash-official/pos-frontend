@@ -240,15 +240,17 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
                 label={t('Remember me')}
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.currentTarget.checked)}
-                size="sm"
+                size="md"
                 color="blue"
               />
               <Anchor
                 href="#forgot-password"
                 onClick={handleForgotPassword}
-                size="xs"
+                size="sm"
                 fw={600}
                 c="blue"
+                // 44px touch target.
+                style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}
               >
                 {t('Forgot password?')}
               </Anchor>

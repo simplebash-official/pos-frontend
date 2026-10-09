@@ -105,10 +105,16 @@ export const JoinCloudShopStep = ({
           : t('We are downloading your shop to this computer. This usually takes a few seconds.')}
       </Text>
       <Group>
-        <Button variant="default" onClick={onPrev}>
+        <Button variant="default" onClick={onPrev} style={{ minHeight: 44 }}>
           {t('Back')}
         </Button>
-        <Button variant="subtle" color="gray" onClick={onUseForm} data-log-id="join.use-form">
+        <Button
+          variant="subtle"
+          color="gray"
+          onClick={onUseForm}
+          data-log-id="join.use-form"
+          style={{ minHeight: 44 }}
+        >
           {t('Set up a new shop here instead')}
         </Button>
       </Group>
