@@ -1601,68 +1601,6 @@ export const PaymentPanel = memo(
                 />
               )}
             </Box>
-
-            {/* 9. PRINT / Document Selection Control */}
-            <Box mt={4}>
-              <Group justify="space-between" align="center" mb={6}>
-                <Text
-                  size="xs"
-                  fw={700}
-                  c="dimmed"
-                  tt="uppercase"
-                  style={{ fontSize: 11, letterSpacing: '0.05em' }}
-                >
-                  {t('PRINT')}
-                </Text>
-                <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
-                  {documentSelection === 'none'
-                    ? 'No physical printout'
-                    : documentSelection === 'receipt'
-                      ? '80mm thermal receipt'
-                      : isCredit
-                        ? 'A4 unpaid invoice'
-                        : 'A4 paid invoice'}
-                </Text>
-              </Group>
-
-              <SimpleGrid cols={isCredit ? 2 : 3} spacing={8}>
-                {printOptions.map((doc) => {
-                  const isSelected = documentSelection === doc.value;
-                  return (
-                    <UnstyledButton
-                      key={doc.value}
-                      onClick={() => changeDocumentSelection(doc.value)}
-                      style={{
-                        height: isMobile ? 48 : 44,
-                        borderRadius: 'var(--mantine-radius-default)',
-                        border: isSelected
-                          ? '1.5px solid var(--mantine-color-blue-5)'
-                          : '1px solid var(--border)',
-                        backgroundColor: isSelected
-                          ? 'var(--mantine-color-blue-light)'
-                          : 'var(--bg-card)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '4px 8px',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <Text
-                        size="sm"
-                        fw={isSelected ? 700 : 600}
-                        c={isSelected ? 'blue.7' : undefined}
-                        style={{ fontSize: 13, lineHeight: 1.2 }}
-                      >
-                        {doc.label}
-                      </Text>
-                    </UnstyledButton>
-                  );
-                })}
-              </SimpleGrid>
-            </Box>
           </Stack>
         </Box>
 
@@ -1674,6 +1612,68 @@ export const PaymentPanel = memo(
             backgroundColor: 'var(--bg-card)',
           }}
         >
+          {/* PRINT choice lives with the action button so it is never hidden below the scroll. */}
+          {/* 9. PRINT / Document Selection Control */}
+          <Box mb="sm">
+            <Group justify="space-between" align="center" mb={6}>
+              <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{ fontSize: 11, letterSpacing: '0.05em' }}
+              >
+                {t('PRINT')}
+              </Text>
+              <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+                {documentSelection === 'none'
+                  ? 'No physical printout'
+                  : documentSelection === 'receipt'
+                    ? '80mm thermal receipt'
+                    : isCredit
+                      ? 'A4 unpaid invoice'
+                      : 'A4 paid invoice'}
+              </Text>
+            </Group>
+
+            <SimpleGrid cols={isCredit ? 2 : 3} spacing={8}>
+              {printOptions.map((doc) => {
+                const isSelected = documentSelection === doc.value;
+                return (
+                  <UnstyledButton
+                    key={doc.value}
+                    onClick={() => changeDocumentSelection(doc.value)}
+                    style={{
+                      height: isMobile ? 48 : 44,
+                      borderRadius: 'var(--mantine-radius-default)',
+                      border: isSelected
+                        ? '1.5px solid var(--mantine-color-blue-5)'
+                        : '1px solid var(--border)',
+                      backgroundColor: isSelected
+                        ? 'var(--mantine-color-blue-light)'
+                        : 'var(--bg-card)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '4px 8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <Text
+                      size="sm"
+                      fw={isSelected ? 700 : 600}
+                      c={isSelected ? 'blue.7' : undefined}
+                      style={{ fontSize: 13, lineHeight: 1.2 }}
+                    >
+                      {doc.label}
+                    </Text>
+                  </UnstyledButton>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
           <Button
             fullWidth
             size="lg"
