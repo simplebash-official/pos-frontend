@@ -33,8 +33,8 @@ interface RawSetupSystemResult {
   setupCompleted?: boolean;
   sample_data_loaded?: boolean;
   sampleDataLoaded?: boolean;
-  admin_email?: string;
-  adminEmail?: string;
+  admin_username?: string;
+  adminUsername?: string;
   token?: string | null;
   user?: SetupSystemResult['user'];
   message?: string;
@@ -75,7 +75,7 @@ export const normalizeSetupSystemResult = (raw: RawSetupSystemResult): SetupSyst
   return {
     setup_completed: Boolean(raw.setup_completed ?? raw.setupCompleted),
     sample_data_loaded: Boolean(raw.sample_data_loaded ?? raw.sampleDataLoaded),
-    admin_email: raw.admin_email ?? raw.adminEmail ?? '',
+    admin_username: raw.admin_username ?? raw.adminUsername ?? '',
     token: raw.token ?? null,
     user: raw.user ?? null,
     message: raw.message ?? '',
@@ -107,19 +107,49 @@ export const getSetupStatusApi = async (): Promise<SetupStatus> => {
   return normalizeSetupStatus(raw);
 };
 
+/**
+ * How long the browser waits for first-time setup. Loading the demo catalog on the web writes
+ * ~100 records to a remote database; the server now does that in seconds, but a slow connection
+ * must not turn a working setup into a "timed out" screen.
+ */
+export const SETUP_TIMEOUT_MS = 300_000;
+
+/**
+ * After a setup request that got no answer (timed out, connection dropped), asks the server
+ * whether the setup actually finished. If so, returns the result the wizard would have shown,
+ * so the person gets the Launch button instead of an error for a shop that is ready.
+ */
+export const recoverCompletedSetup = async (
+  payload: SetupSystemPayload
+): Promise<SetupSystemResult | null> => {
+  try {
+    const status = await getSetupStatusApi();
+    if (!status.setup_completed) return null;
+    return {
+      setup_completed: true,
+      sample_data_loaded: payload.load_sample_data,
+      admin_username: 'admin',
+      token: null,
+      user: null,
+      message: '',
+    };
+  } catch {
+    return null;
+  }
+};
+
 export const initializeSetupApi = async (
   payload: SetupSystemPayload
 ): Promise<SetupSystemResult> => {
   const body = {
     loadSampleData: payload.load_sample_data,
     adminName: payload.admin_name,
-    adminEmail: payload.admin_email,
     adminPassword: payload.admin_password,
   };
   const response = await apiClient.post<SetupSystemResponse | RawSetupSystemResult>(
     '/system/setup',
     body,
-    { timeout: 120_000 }
+    { timeout: SETUP_TIMEOUT_MS }
   );
   const raw = (
     'data' in response && response.data ? response.data : response

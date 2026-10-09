@@ -48,7 +48,7 @@ const createMockStore = (shopProfile?: Partial<ShopProfile>) =>
         },
       }),
       auth: () => ({
-        user: { name: 'Cashier John', email: 'cashier@example.com', role: 'admin' },
+        user: { name: 'Cashier John', username: 'cashier', role: 'admin' },
       }),
     },
   });

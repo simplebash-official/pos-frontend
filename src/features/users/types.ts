@@ -4,7 +4,7 @@ export interface UserAccount {
   id: string;
   key: string;
   name: string;
-  email: string;
+  username: string;
   role: UserRole;
   isActive: boolean;
   /** Key of the linked Employee HR/commission profile, if any. */
@@ -15,7 +15,7 @@ export interface UserAccount {
 
 export interface CreateUserInput {
   name: string;
-  email: string;
+  username: string;
   password: string;
   role: UserRole;
   employeeKey?: string;
@@ -23,7 +23,7 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
   name?: string;
-  email?: string;
+  username?: string;
   password?: string;
   role?: UserRole;
   isActive?: boolean;

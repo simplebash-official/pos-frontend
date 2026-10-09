@@ -14,8 +14,6 @@ import { completeInstallationSetupNative } from '../api/onboardingApi';
 import { isFirstSyncDone, joinOutcome, JOIN_TIMEOUT_MS } from '../lib/joinCloudShop';
 
 export interface JoinCloudShopStepProps {
-  /** The cloud account's email, offered as the sign-in email. */
-  accountEmail: string | null;
   shopName?: string | null;
   /** The shop could not be downloaded: show the "set up here" form instead. */
   onUseForm: () => void;
@@ -30,7 +28,6 @@ export interface JoinCloudShopStepProps {
  * backend reports setup complete the person just signs in.
  */
 export const JoinCloudShopStep = ({
-  accountEmail,
   shopName,
   onUseForm,
   onCloudAdmin,
@@ -89,13 +86,12 @@ export const JoinCloudShopStep = ({
         await queryClient.invalidateQueries({ queryKey: queryKeys.system.all });
         notifications.show({
           color: 'teal',
-          message: t('Your shop is ready. Sign in with your POS email and password.'),
+          message: t('Your shop is ready. Sign in as "admin" with the password you chose.'),
         });
-        const email = accountEmail ? `?email=${encodeURIComponent(accountEmail)}` : '';
-        navigate(`${ROUTES.LOGIN}${email}`, { replace: true });
+        navigate(`${ROUTES.LOGIN}?username=admin`, { replace: true });
       })();
     }
-  }, [outcome, onUseForm, onCloudAdmin, accountEmail, navigate, queryClient, timedOut, sync.state]);
+  }, [outcome, onUseForm, onCloudAdmin, navigate, queryClient, timedOut, sync.state]);
 
   return (
     <Stack gap="lg" align="center" ta="center" role="status" data-testid="join-cloud-shop">

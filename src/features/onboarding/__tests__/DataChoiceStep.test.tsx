@@ -15,36 +15,36 @@ const html = (props: Partial<Parameters<typeof DataChoiceStep>[0]> = {}) =>
   ).replace(/<!-- -->/g, '');
 
 describe('DataChoiceStep admin details', () => {
-  it('starts empty when no cloud account is linked', () => {
+  it('shows the fixed admin username and a default owner name', () => {
     const out = html();
-    expect(out).toContain('placeholder="owner@yourshop.com"');
+    expect(out).toContain('value="admin"');
+    expect(out).toMatch(/readonly/i);
     expect(out).toContain('value="System Administrator"');
+    expect(out).not.toContain('owner@yourshop.com');
   });
 
-  it('offers the linked cloud account as the admin email and name', () => {
-    const out = html({ suggested: { email: 'owner@shop.lk', name: 'Ann Perera' } });
-    expect(out).toContain('value="owner@shop.lk"');
+  it('offers the linked cloud account name as the admin name', () => {
+    const out = html({ suggested: { name: 'Ann Perera' } });
     expect(out).toContain('value="Ann Perera"');
+    expect(out).toContain('value="admin"');
   });
 
   it('keeps the default name when the cloud account has none', () => {
-    const out = html({ suggested: { email: 'owner@shop.lk', name: null } });
-    expect(out).toContain('value="owner@shop.lk"');
+    const out = html({ suggested: { name: null } });
     expect(out).toContain('value="System Administrator"');
   });
 
   describe("with the shop's existing admin (downloaded from the cloud)", () => {
-    const existing = html({ existingAdmin: { email: 'owner@shop.lk' } });
+    const existing = html({ existingAdmin: { username: 'admin' } });
 
-    it('shows the cloud email read-only and asks for the POS password', () => {
-      expect(existing).toContain('value="owner@shop.lk"');
+    it('shows the admin username read-only and asks for the POS password', () => {
+      expect(existing).toContain('value="admin"');
       expect(existing).toMatch(/readonly/i);
       expect(existing).toContain('POS password');
     });
 
     it('does not ask for a name or a new admin', () => {
       expect(existing).not.toContain('Admin Full Name');
-      expect(existing).not.toContain('owner@yourshop.com');
       expect(existing).not.toContain('Initial Administrator Account');
     });
 

@@ -3,7 +3,7 @@ import type { UserRole } from '@/constants/roles';
 export interface AuthUser {
   id: string;
   name: string;
-  email: string;
+  username: string;
   role: UserRole | string;
   permissions?: string[];
   /** This login's own UI preferences (stored server-side, one set per account). */
@@ -16,7 +16,7 @@ export interface UserPreferences {
 }
 
 export interface LoginPayload {
-  email: string;
+  username: string;
   password: string;
   /** Multi-tenant web login only; dropped by `loginApi` everywhere else. */
   shopCode?: string;

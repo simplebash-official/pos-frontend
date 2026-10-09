@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Stack,
   Title,
@@ -48,15 +49,35 @@ export const ProgressStep = ({
   onComplete,
   onGoToLogin,
 }: ProgressStepProps) => {
-  const { progress, currentStageText, milestones, logs, isFinished, fastForward } =
-    useProvisioningOrchestrator({
-      payload,
-      isPending: loading,
-      result,
-      error,
-    });
+  const {
+    progress: animatedProgress,
+    currentStageText,
+    milestones,
+    logs,
+    isFinished,
+    fastForward,
+  } = useProvisioningOrchestrator({
+    payload,
+    isPending: loading,
+    result,
+    error,
+  });
 
   const showFinishedView = isFinished && Boolean(result) && !error;
+
+  // The bar only reaches 100% once the server has really finished; until then it holds at 99%
+  // so it never claims "done" while the shop is still being saved.
+  const progress = result ? animatedProgress : Math.min(animatedProgress, 99);
+
+  // The steps below finish on their own in seconds; the server may still be saving the shop. Say
+  // so, with a running count, instead of sitting at 100% looking frozen.
+  const waitingForServer = animatedProgress === 100 && !result && !error;
+  const [waitedSeconds, setWaitedSeconds] = useState(0);
+  useEffect(() => {
+    if (!waitingForServer) return;
+    const timer = window.setInterval(() => setWaitedSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [waitingForServer]);
 
   return (
     <Stack gap="xl">
@@ -190,6 +211,12 @@ export const ProgressStep = ({
                     : t('Mode: Clean Production Slate')}
                 </Text>
               </Group>
+              {waitingForServer && (
+                <Text size="xs" c="dimmed" role="status" data-testid="waiting-for-server">
+                  {t('Still saving your shop. This can take a little while on the web.')} (
+                  {waitedSeconds}s)
+                </Text>
+              )}
             </Stack>
           </Paper>
 
@@ -261,10 +288,10 @@ export const ProgressStep = ({
                     {t('Administrator Credentials')}
                   </Text>
                   <Text size="xs" c="dimmed" mb={2}>
-                    {t('Admin Email')}:
+                    {t('Admin Username')}:
                   </Text>
                   <Text fw={700} size="sm" c="blue">
-                    {result.admin_email || result.user?.email || payload?.admin_email || '—'}
+                    {result.admin_username || result.user?.username || '—'}
                   </Text>
                   <Text size="xs" c="dimmed" mt="xs" style={{ lineHeight: 1.5 }}>
                     {t(

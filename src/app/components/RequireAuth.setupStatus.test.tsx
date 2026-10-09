@@ -90,7 +90,7 @@ describe('RequireAuth setup-status gate', () => {
     store.dispatch(setInitialized(true));
     store.dispatch(
       loginSuccess({
-        user: { id: 'u1', name: 'Ann', email: 'ann@shop.com', role: 'admin' },
+        user: { id: 'u1', name: 'Ann', username: 'ann', role: 'admin' },
         token: 't',
       })
     );
@@ -110,7 +110,7 @@ describe('RequireAuth setup-status gate', () => {
     store.dispatch(setInitialized(true));
     store.dispatch(
       loginSuccess({
-        user: { id: 'u2', name: 'Bob', email: 'bob@shop.com', role: 'admin' },
+        user: { id: 'u2', name: 'Bob', username: 'bob', role: 'admin' },
         token: 't',
       })
     );

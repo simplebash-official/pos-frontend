@@ -43,7 +43,7 @@ import { logger } from '@/shared/logging';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { isTauri } from '@/shared/lib/runtime';
 import { useSetupStatus, useInitializeSetup } from '../hooks/useSetupStatus';
-import { completeInstallationSetupNative } from '../api/onboardingApi';
+import { completeInstallationSetupNative, recoverCompletedSetup } from '../api/onboardingApi';
 import { SplashStep } from './SplashStep';
 import { FeatureGuideStep } from './FeatureGuideStep';
 import { DataChoiceStep } from './DataChoiceStep';
@@ -123,7 +123,7 @@ export const WelcomeWizard = () => {
         logger.info(
           'onboarding',
           'setup.done',
-          { sampleDataLoaded: data.sample_data_loaded, adminEmail: data.admin_email },
+          { sampleDataLoaded: data.sample_data_loaded, adminUsername: data.admin_username },
           'First-time setup completed'
         );
         setSetupResult(data);
@@ -133,6 +133,21 @@ export const WelcomeWizard = () => {
       onError: (err) => {
         logger.error('onboarding', 'setup.error', err);
         const apiErr = err as Error & { statusCode?: number; code?: string };
+        // No answer at all (timed out, connection dropped): the server may have finished anyway.
+        if (!apiErr?.statusCode) {
+          void recoverCompletedSetup(payload).then(async (recovered) => {
+            if (recovered) {
+              logger.info('onboarding', 'setup.recovered', {}, 'Setup finished without a reply');
+              setSetupResult(recovered);
+              await completeInstallationSetupNative(recovered.sample_data_loaded);
+            } else {
+              setSetupError(
+                err.message || t('Failed to initialize database. Please check backend logs.')
+              );
+            }
+          });
+          return;
+        }
         if (
           apiErr?.statusCode === 409 ||
           apiErr?.code === 'SETUP_ALREADY_COMPLETED' ||
@@ -147,7 +162,7 @@ export const WelcomeWizard = () => {
         setSetupError(
           usingCloudAdmin && apiErr?.statusCode === 401
             ? t(
-                "That POS password doesn't match. Use the password you set on the SimpleBash website."
+                "That POS password doesn't match. Use the password you chose when you created this shop."
               )
             : err.message || t('Failed to initialize database. Please check backend logs.')
         );
@@ -376,7 +391,6 @@ export const WelcomeWizard = () => {
 
           {activeStep === dbStepIndex && joiningCloudShop && (
             <JoinCloudShopStep
-              accountEmail={cloud.accountEmail}
               onUseForm={() => setJoinMode('form')}
               onCloudAdmin={() => setJoinMode('cloud-admin')}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
@@ -397,14 +411,8 @@ export const WelcomeWizard = () => {
               onSubmit={handleStartSetup}
               onPrev={() => setActiveStep(dbStepIndex - 1)}
               currentUser={currentUser}
-              existingAdmin={
-                usingCloudAdmin && cloud.accountEmail ? { email: cloud.accountEmail } : null
-              }
-              suggested={
-                cloudStep && cloud.linked
-                  ? { name: cloud.accountName, email: cloud.accountEmail }
-                  : null
-              }
+              existingAdmin={usingCloudAdmin ? { username: 'admin' } : null}
+              suggested={cloudStep && cloud.linked ? { name: cloud.accountName } : null}
             />
           )}
 

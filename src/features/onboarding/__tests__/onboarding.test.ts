@@ -10,6 +10,8 @@ import {
   useProvisioningOrchestrator,
   getSetupStatusApi,
   initializeSetupApi,
+  recoverCompletedSetup,
+  SETUP_TIMEOUT_MS,
   getInstallationInfoApi,
   completeInstallationSetupNative,
   getInstallationInfoNative,
@@ -79,19 +81,18 @@ describe('Onboarding API Services', () => {
     const payload = {
       load_sample_data: true,
       admin_name: 'Store Owner',
-      admin_email: 'admin@pos.com',
       admin_password: 'admin@password123',
     };
 
     const mockResultCamelCase = {
       setupCompleted: true,
       sampleDataLoaded: true,
-      adminEmail: 'admin@pos.com',
+      adminUsername: 'admin',
       token: 'jwt-token-xyz',
       user: {
         id: 'user-admin',
         name: 'Store Owner',
-        email: 'admin@pos.com',
+        username: 'admin',
         role: 'admin',
       },
       message: 'System setup completed successfully',
@@ -109,14 +110,13 @@ describe('Onboarding API Services', () => {
       {
         loadSampleData: true,
         adminName: 'Store Owner',
-        adminEmail: 'admin@pos.com',
         adminPassword: 'admin@password123',
       },
-      { timeout: 120_000 }
+      { timeout: SETUP_TIMEOUT_MS }
     );
     expect(result.setup_completed).toBe(true);
     expect(result.sample_data_loaded).toBe(true);
-    expect(result.admin_email).toBe('admin@pos.com');
+    expect(result.admin_username).toBe('admin');
     expect(result.token).toBe('jwt-token-xyz');
     expect(result.user?.role).toBe('admin');
   });
@@ -161,38 +161,28 @@ describe('Tauri Native Interop Graceful Web Degradation', () => {
 });
 
 describe('Database Setup Choice Logic', () => {
-  it('validates email format and minimum password length correctly', () => {
-    const validateCredentials = (email: string, password: string) => {
-      if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-        return 'INVALID_EMAIL';
-      }
-      if (!password || password.length < 8) {
-        return 'PASSWORD_TOO_SHORT';
-      }
-      return 'VALID';
-    };
+  it('requires a password of at least 8 characters', () => {
+    const validatePassword = (password: string) =>
+      !password || password.length < 8 ? 'PASSWORD_TOO_SHORT' : 'VALID';
 
-    expect(validateCredentials('', '123456')).toBe('INVALID_EMAIL');
-    expect(validateCredentials('not-an-email', '123456')).toBe('INVALID_EMAIL');
-    expect(validateCredentials('admin@pos.com', '123')).toBe('PASSWORD_TOO_SHORT');
-    expect(validateCredentials('admin@pos.com', '123456')).toBe('PASSWORD_TOO_SHORT');
-    expect(validateCredentials('admin@pos.com', '12345678')).toBe('VALID');
-    expect(validateCredentials('admin@pos.com', 'admin@1234')).toBe('VALID');
+    expect(validatePassword('')).toBe('PASSWORD_TOO_SHORT');
+    expect(validatePassword('123456')).toBe('PASSWORD_TOO_SHORT');
+    expect(validatePassword('12345678')).toBe('VALID');
+    expect(validatePassword('admin@1234')).toBe('VALID');
   });
 
   it('differentiates demo data mode from clean database mode', () => {
-    const buildSetupPayload = (mode: 'demo' | 'clean', adminEmail: string, password: string) => ({
+    const buildSetupPayload = (mode: 'demo' | 'clean', password: string) => ({
       load_sample_data: mode === 'demo',
-      admin_email: adminEmail,
       admin_password: password,
     });
 
-    const demoPayload = buildSetupPayload('demo', 'admin@pos.com', 'admin@1234');
+    const demoPayload = buildSetupPayload('demo', 'admin@1234');
     expect(demoPayload.load_sample_data).toBe(true);
 
-    const cleanPayload = buildSetupPayload('clean', 'owner@shop.com', 'secure_pass');
+    const cleanPayload = buildSetupPayload('clean', 'secure_pass');
     expect(cleanPayload.load_sample_data).toBe(false);
-    expect(cleanPayload.admin_email).toBe('owner@shop.com');
+    expect(cleanPayload).not.toHaveProperty('admin_email');
   });
 });
 
@@ -313,18 +303,50 @@ describe('Provisioning Experience Architecture', () => {
   });
 
   it('allows cloud setup payload submission without password re-entry', () => {
-    const buildCloudPayload = (loadSampleData: boolean, adminName: string, adminEmail: string) => ({
+    const buildCloudPayload = (loadSampleData: boolean, adminName: string) => ({
       load_sample_data: loadSampleData,
       admin_name: adminName,
-      admin_email: adminEmail,
       admin_password: undefined,
     });
 
-    const payload = buildCloudPayload(true, 'Cloud Owner', 'owner@mycloudshop.com');
+    const payload = buildCloudPayload(true, 'Cloud Owner');
     expect(payload.load_sample_data).toBe(true);
-    expect(payload.admin_email).toBe('owner@mycloudshop.com');
     expect(payload.admin_name).toBe('Cloud Owner');
     // No placeholder password: the cloud setup uses the signed-in session.
     expect(payload.admin_password).toBeUndefined();
+  });
+});
+
+describe('recoverCompletedSetup', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('builds the finished result when the server says the shop is set up', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
+      success: true,
+      data: { setupCompleted: true },
+    });
+    const recovered = await recoverCompletedSetup({
+      load_sample_data: true,
+      admin_password: undefined,
+    });
+    expect(recovered).toMatchObject({
+      setup_completed: true,
+      sample_data_loaded: true,
+      admin_username: 'admin',
+    });
+  });
+
+  it('returns null when setup has not finished, or the server cannot be asked', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
+      success: true,
+      data: { setupCompleted: false },
+    });
+    expect(
+      await recoverCompletedSetup({ load_sample_data: false, admin_password: undefined })
+    ).toBeNull();
+    vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('offline'));
+    expect(
+      await recoverCompletedSetup({ load_sample_data: false, admin_password: undefined })
+    ).toBeNull();
   });
 });

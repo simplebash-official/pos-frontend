@@ -179,12 +179,11 @@ export const useProvisioningOrchestrator = ({
     const activePayload: SetupSystemPayload = payloadRef.current || {
       load_sample_data: true,
       admin_name: '',
-      admin_email: '',
       admin_password: '',
     };
 
     const isDemo = activePayload.load_sample_data;
-    const adminEmail = activePayload.admin_email || 'the shop owner';
+    const adminUsername = 'admin';
 
     // Step-by-step sequenced timeline where each milestone has an exclusive 1.2s execution window:
     // Stage 0 (0ms - 1200ms): Milestone 1 alone is running, emits 3 kernel logs, then turns completed
@@ -252,7 +251,7 @@ export const useProvisioningOrchestrator = ({
         log: {
           tag: 'AUTH',
           tagColor: 'indigo',
-          messageTemplate: () => `Provisioning initial Super-Admin account for ${adminEmail}`,
+          messageTemplate: () => `Provisioning initial Super-Admin account for ${adminUsername}`,
         },
       },
       {
@@ -415,7 +414,7 @@ export const useProvisioningOrchestrator = ({
           tag: 'STORE',
           tagColor: 'cyan',
           messageTemplate: () =>
-            `Connected to isolated tenant store (partition: ${activePayload.admin_email || 'tenant'})`,
+            `Connected to isolated tenant store (partition: ${activePayload.admin_name || 'tenant'})`,
         },
       },
       {
@@ -457,7 +456,7 @@ export const useProvisioningOrchestrator = ({
         log: {
           tag: 'AUTH',
           tagColor: 'indigo',
-          messageTemplate: () => `Assigning Super-Admin role to account ${adminEmail}`,
+          messageTemplate: () => `Assigning Super-Admin role to account ${adminUsername}`,
         },
       },
       {
@@ -741,14 +740,29 @@ export const useProvisioningOrchestrator = ({
       },
     ];
 
-    const rawMilestones = isTauri() ? desktopMilestones : cloudMilestones;
+    // The last step is real, not scheduled: it runs once the five timed steps are done and only
+    // completes when the server has answered, so the pipeline never shows "ready" while the shop is
+    // still being saved.
+    const stepsDone = milestoneStatuses.every((status) => status === 'completed');
+    const launchStatus: MilestoneStatus = !stepsDone ? 'pending' : result ? 'completed' : 'running';
+    const launchMilestone: ProvisioningMilestone = {
+      id: 'launch',
+      number: '06',
+      title: 'Launch Readiness & Final Checks',
+      description: isTauri()
+        ? 'Saving your workstation and getting it ready to open'
+        : 'Saving your shop and getting it ready to open',
+      status: launchStatus,
+    };
+
+    const rawMilestones = [...(isTauri() ? desktopMilestones : cloudMilestones), launchMilestone];
 
     if (!error) return rawMilestones;
 
     return rawMilestones.map((m) =>
       m.status === 'running' ? { ...m, status: 'failed' as MilestoneStatus } : m
     );
-  }, [milestoneStatuses, payload?.load_sample_data, error]);
+  }, [milestoneStatuses, payload?.load_sample_data, error, result]);
 
   return {
     progress,

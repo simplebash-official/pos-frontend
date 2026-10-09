@@ -23,7 +23,6 @@ import {
   IconCheck,
   IconUser,
   IconLock,
-  IconMail,
   IconInfoCircle,
   IconUserCheck,
 } from '@tabler/icons-react';
@@ -31,18 +30,21 @@ import { t } from '@/shared/i18n/t';
 import { isTauri } from '@/shared/lib/runtime';
 import type { SetupSystemPayload } from '../types';
 
+/** Every shop's owner signs in to the POS with this username; they only choose the password. */
+const ADMIN_USERNAME = 'admin';
+
 export interface DataChoiceStepProps {
   onSubmit: (payload: SetupSystemPayload) => void;
   onPrev: () => void;
   loading: boolean;
-  currentUser?: { name?: string; email: string } | null;
+  currentUser?: { name?: string; username: string } | null;
   /** The linked cloud account, offered as the admin's details (still editable). */
-  suggested?: { name?: string | null; email?: string | null } | null;
+  suggested?: { name?: string | null } | null;
   /**
    * The shop's admin already exists (downloaded from the cloud). Only the demo vs
    * clean choice and that admin's POS password are needed: no new admin is made.
    */
-  existingAdmin?: { email: string } | null;
+  existingAdmin?: { username: string } | null;
 }
 
 export const DataChoiceStep = ({
@@ -57,13 +59,10 @@ export const DataChoiceStep = ({
   const [adminName, setAdminName] = useState<string>(
     currentUser?.name || suggested?.name || 'System Administrator'
   );
-  const [adminEmail, setAdminEmail] = useState<string>(
-    currentUser?.email || suggested?.email || ''
-  );
   const [adminPassword, setAdminPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
-  const effectiveEmail = currentUser?.email || adminEmail;
+  const effectiveUsername = currentUser?.username || ADMIN_USERNAME;
   const effectiveName = currentUser?.name || adminName;
 
   const handleSubmit = () => {
@@ -75,16 +74,11 @@ export const DataChoiceStep = ({
       }
       onSubmit({
         load_sample_data: loadSampleData,
-        admin_email: existingAdmin.email.trim(),
         admin_password: adminPassword,
       });
       return;
     }
     if (isTauri()) {
-      if (!adminEmail || !/^\S+@\S+\.\S+$/.test(adminEmail)) {
-        setError(t('Please enter a valid administrator email address.'));
-        return;
-      }
       if (!adminPassword || adminPassword.length < 8) {
         setError(t('Administrator password must be at least 8 characters long.'));
         return;
@@ -94,7 +88,6 @@ export const DataChoiceStep = ({
     onSubmit({
       load_sample_data: loadSampleData,
       admin_name: (effectiveName || '').trim() || undefined,
-      admin_email: (effectiveEmail || '').trim(),
       // The cloud (multi-tenant) setup authenticates with the signed-in
       // session and ignores this field, so the web flow sends none. Never
       // substitute a placeholder: on a single-shop backend it would become
@@ -298,18 +291,18 @@ export const DataChoiceStep = ({
           <>
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
               <TextInput
-                label={t('Admin Email')}
-                leftSection={<IconMail size={16} />}
-                value={existingAdmin.email}
+                label={t('Admin Username')}
+                leftSection={<IconUser size={16} />}
+                value={existingAdmin.username}
                 readOnly
-                data-testid="existing-admin-email"
+                data-testid="existing-admin-username"
               />
               <PasswordInput
                 label={t('POS password')}
                 leftSection={<IconLock size={16} />}
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.currentTarget.value)}
-                placeholder={t('The password you set on the SimpleBash website')}
+                placeholder={t('The password you chose when you created this shop')}
                 required
               />
             </SimpleGrid>
@@ -330,12 +323,11 @@ export const DataChoiceStep = ({
                 placeholder="Store Owner / Manager"
               />
               <TextInput
-                label={t('Admin Email')}
-                leftSection={<IconMail size={16} />}
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.currentTarget.value)}
-                placeholder="owner@yourshop.com"
-                required
+                label={t('Admin Username')}
+                leftSection={<IconUser size={16} />}
+                value={ADMIN_USERNAME}
+                readOnly
+                data-testid="admin-username"
               />
               <PasswordInput
                 label={t('Admin Password')}
@@ -349,7 +341,7 @@ export const DataChoiceStep = ({
 
             <Text size="xs" c="dimmed" mt="md">
               {t(
-                'Choose the email and password you will use to sign in. You can change them later in Settings.'
+                'You will sign in as "admin" with the password you choose here. You can change the password later in Settings.'
               )}
             </Text>
           </>
@@ -361,7 +353,7 @@ export const DataChoiceStep = ({
               </ThemeIcon>
               <div>
                 <Text fw={700} size="sm">
-                  {effectiveName || t('Store Owner')} ({effectiveEmail || t('Authenticated Owner')})
+                  {effectiveName || t('Store Owner')} ({effectiveUsername})
                 </Text>
                 <Text size="xs" c="dimmed">
                   {t('Authenticated Cloud Session — Full Administrator Privileges Active')}

@@ -43,7 +43,9 @@ interface MobileLoginFormProps {
 export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   // Read before the state below: a `?shop=` link from the SimpleBash app sets (and hides) the shop code.
   const location = useLocation();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState(
+    () => new URLSearchParams(location.search).get('username') ?? ''
+  );
   const [password, setPassword] = useState('');
   const {
     shopCode,
@@ -82,11 +84,11 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername || !password) {
       notifications.show({
         title: 'Authentication Required',
-        message: 'Please enter both your email address and password to continue.',
+        message: 'Please enter both your username and password to continue.',
         color: 'red',
       });
       return;
@@ -103,7 +105,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
     try {
       const data = await loginApi({
-        email: trimmedEmail,
+        username: trimmedUsername,
         password,
         shopCode: needsShopCode ? normalizeShopCode(shopCode) : undefined,
       });
@@ -119,7 +121,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
       notifications.show({
         title: 'Logged In Successfully',
-        message: `Welcome back, ${data.user.name || data.user.email}! Redirecting to POS console...`,
+        message: `Welcome back, ${data.user.name || data.user.username}! Redirecting to POS console...`,
         color: 'green',
       });
 
@@ -129,7 +131,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       if (shopCodeLocked && isShopCodeRejection(err)) revealField();
       notifications.show({
         title: 'Login Failed',
-        message: loginErrorMessage(err, 'Invalid email or password. Please try again.'),
+        message: loginErrorMessage(err, 'Invalid username or password. Please try again.'),
         color: 'red',
       });
     } finally {
@@ -212,12 +214,12 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
             <TextInput
               name="username"
-              label={t('Email')}
-              placeholder={t('you@simplebash.local')}
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
+              label={t('Username')}
+              placeholder={t('admin')}
+              value={username}
+              onChange={(e) => setUsername(e.currentTarget.value)}
               className="mobile-auth-input"
-              type="email"
+              type="text"
               required
               autoComplete="username"
             />

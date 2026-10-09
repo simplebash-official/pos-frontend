@@ -20,7 +20,7 @@ vi.mock('@/api/client', () => ({
 }));
 
 const loginResponse = {
-  data: { token: 't', user: { id: 'u', name: 'N', email: 'e', role: 'admin' } },
+  data: { token: 't', user: { id: 'u', name: 'N', username: 'e', role: 'admin' } },
 };
 
 beforeEach(() => {
@@ -74,7 +74,7 @@ describe('shop code validation', () => {
 });
 
 describe('loginApi', () => {
-  const payload = { email: 'a@b.co', password: 'secret123', shopCode: 'test-shop' };
+  const payload = { username: 'admin', password: 'secret123', shopCode: 'test-shop' };
 
   it('sends shopCode only on a multi-tenant web build', async () => {
     vi.stubEnv('VITE_MULTI_TENANT', 'true');
@@ -85,7 +85,7 @@ describe('loginApi', () => {
   it('drops shopCode when the flag is off', async () => {
     await loginApi(payload);
     expect(apiClient.post).toHaveBeenCalledWith('/auth/login', {
-      email: 'a@b.co',
+      username: 'admin',
       password: 'secret123',
     });
   });
@@ -95,7 +95,7 @@ describe('loginApi', () => {
     vi.stubGlobal('window', { __TAURI_INTERNALS__: {} });
     await loginApi(payload);
     expect(apiClient.post).toHaveBeenCalledWith('/auth/login', {
-      email: 'a@b.co',
+      username: 'admin',
       password: 'secret123',
     });
   });
@@ -134,8 +134,11 @@ describe('loginErrorMessage', () => {
       'Please enter your shop code.'
     );
     expect(
-      loginErrorMessage({ statusCode: 401, message: 'Invalid shop code, email or password' }, 'x')
-    ).toBe('Invalid shop code, email or password. Please try again.');
+      loginErrorMessage(
+        { statusCode: 401, message: 'Invalid shop code, username or password' },
+        'x'
+      )
+    ).toBe('Invalid shop code, username or password. Please try again.');
   });
 
   it('keeps the existing behaviour on single-shop builds', () => {

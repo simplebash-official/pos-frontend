@@ -52,12 +52,12 @@ export const UsersList = () => {
       ),
     },
     {
-      key: 'email',
-      header: 'Login Email',
+      key: 'username',
+      header: 'Username',
       align: 'left',
       render: (u) => (
         <Text size="sm" c="dimmed">
-          {u.email}
+          {u.username}
         </Text>
       ),
     },

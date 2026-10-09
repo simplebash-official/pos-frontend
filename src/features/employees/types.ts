@@ -14,7 +14,7 @@ export const EMPLOYEE_ROLE_LABELS: Record<EmployeeRole, string> = {
 /** Summary of this employee's linked login account, resolved live by the backend. Absent when no login exists. */
 export interface EmployeeLogin {
   userId: string;
-  email: string;
+  username: string;
   role: string;
   isActive: boolean;
 }

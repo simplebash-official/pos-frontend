@@ -1,15 +1,15 @@
 import { ReactNode, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  logout,
-  selectAuthUser,
-  selectIsAuthenticated,
-  selectIsAuthInitialized,
-} from '@/store/slices/authSlice';
+import { logout, selectIsAuthenticated, selectIsAuthInitialized } from '@/store/slices/authSlice';
 import { useSetupStatus } from '@/features/onboarding/hooks/useSetupStatus';
 import { ROUTES } from '@/constants/routes';
 import { isTauri } from '@/shared/lib/runtime';
+import {
+  getRememberedShopCode,
+  getShopCodeFromLink,
+  isShopCodeRequired,
+} from '@/features/auth/lib/shopCode';
 
 export interface GuestOnlyProps {
   children: ReactNode;
@@ -18,20 +18,19 @@ export interface GuestOnlyProps {
 export const GuestOnly = ({ children }: GuestOnlyProps) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitialized = useAppSelector(selectIsAuthInitialized);
-  const user = useAppSelector(selectAuthUser);
   const dispatch = useAppDispatch();
   const location = useLocation();
 
-  // An "Open POS" link from the SimpleBash app names the account that just
-  // signed in (`?email=`). A saved session for a different account must not
-  // swallow that hand-off and show the previous user's shop.
-  const linkedEmail = new URLSearchParams(location.search).get('email')?.trim().toLowerCase();
+  // An "Open POS" link from the SimpleBash app names the shop (`?shop=`). A
+  // saved session from a different shop must not swallow that hand-off and
+  // show the previous shop's data.
+  const linkedShop = getShopCodeFromLink(location.search);
   const staleSession =
     isInitialized &&
     isAuthenticated &&
-    Boolean(linkedEmail) &&
-    Boolean(user?.email) &&
-    user?.email.trim().toLowerCase() !== linkedEmail;
+    isShopCodeRequired() &&
+    linkedShop !== '' &&
+    getRememberedShopCode() !== linkedShop;
 
   useEffect(() => {
     if (staleSession) {

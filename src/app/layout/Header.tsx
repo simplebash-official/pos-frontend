@@ -68,7 +68,7 @@ export const Header = ({
   const showHeaderClock = isDashboard ? !heroClockVisible : true;
 
   const user = useAppSelector(selectAuthUser);
-  const userName = user?.name || user?.email?.split('@')[0] || 'Operator';
+  const userName = user?.name || user?.username || 'Operator';
   const initial = userName.charAt(0).toUpperCase();
   const userLabel = `${userName} (${user?.role || 'user'})`;
 

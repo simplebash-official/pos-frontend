@@ -89,7 +89,7 @@ export const loginErrorMessage = (err: unknown, fallback: string): string => {
     return 'Please enter your shop code.';
   }
   if (isShopCodeRequired() && api.statusCode === 401) {
-    return 'Invalid shop code, email or password. Please try again.';
+    return 'Invalid shop code, username or password. Please try again.';
   }
   return getErrorMessage(err, fallback);
 };

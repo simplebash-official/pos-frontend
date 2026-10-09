@@ -26,7 +26,7 @@ import { STORAGE_KEYS } from '@/constants/storage';
 
 const mockUser: AuthUser = {
   id: 'user_1',
-  email: 'test@example.com',
+  username: 'testuser',
   name: 'Test Manager',
   role: USER_ROLES.MANAGER,
 };

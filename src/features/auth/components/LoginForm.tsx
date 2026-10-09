@@ -39,20 +39,20 @@ export const LoginForm = () => {
   // Read before the state below: a `?shop=` link from the SimpleBash app sets (and hides) the shop code.
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const initialEmail = searchParams.get('email') || '';
-  const [email, setEmail] = useState(initialEmail);
+  const initialUsername = searchParams.get('username') ?? '';
+  const [username, setUsername] = useState(initialUsername);
   const [password, setPassword] = useState('');
   const [apiShopName, setApiShopName] = useState<string | null>(null);
 
-  // Follow a later `?email=` change (e.g. a new sign-in link opened in the
+  // Follow a later `?username=` change (e.g. a new sign-in link opened in the
   // same tab). Adjusting state during render, keyed on the search string,
   // instead of in an effect avoids an extra render pass.
   const [seenSearch, setSeenSearch] = useState(location.search);
   if (seenSearch !== location.search) {
     setSeenSearch(location.search);
-    const queryEmail = new URLSearchParams(location.search).get('email');
-    if (queryEmail) {
-      setEmail(queryEmail);
+    const queryUsername = new URLSearchParams(location.search).get('username');
+    if (queryUsername) {
+      setUsername(queryUsername);
     }
   }
   const {
@@ -113,11 +113,11 @@ export const LoginForm = () => {
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername || !password) {
       notifications.show({
         title: 'Authentication Required',
-        message: 'Please enter both your email address and password to continue.',
+        message: 'Please enter both your username and password to continue.',
         color: 'red',
       });
       return;
@@ -134,7 +134,7 @@ export const LoginForm = () => {
 
     try {
       const data = await loginApi({
-        email: trimmedEmail,
+        username: trimmedUsername,
         password,
         shopCode: needsShopCode ? normalizeShopCode(shopCode) : undefined,
       });
@@ -151,7 +151,7 @@ export const LoginForm = () => {
 
       notifications.show({
         title: 'Logged In Successfully',
-        message: `Welcome back, ${data.user.name || data.user.email}! Redirecting to POS console...`,
+        message: `Welcome back, ${data.user.name || data.user.username}! Redirecting to POS console...`,
         color: 'green',
       });
 
@@ -161,7 +161,7 @@ export const LoginForm = () => {
       if (shopCodeLocked && isShopCodeRejection(err)) revealField();
       notifications.show({
         title: 'Login Failed',
-        message: loginErrorMessage(err, 'Invalid email or password. Please try again.'),
+        message: loginErrorMessage(err, 'Invalid username or password. Please try again.'),
         color: 'red',
       });
     } finally {
@@ -227,12 +227,12 @@ export const LoginForm = () => {
             <TextInput
               name="username"
               autoComplete="username"
-              label={t('Email Address')}
-              placeholder={t('admin@simplebash.local')}
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
+              label={t('Username')}
+              placeholder={t('admin')}
+              value={username}
+              onChange={(e) => setUsername(e.currentTarget.value)}
               size="md"
-              type="email"
+              type="text"
               required
               autoFocus={!isMobile}
               styles={{

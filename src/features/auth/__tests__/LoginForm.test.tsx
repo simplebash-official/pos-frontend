@@ -45,6 +45,18 @@ describe('LoginForm', () => {
     expect(out).toContain('autoComplete="current-password"');
   });
 
+  it('asks for a username, not an email address', () => {
+    const out = renderLoginForm();
+    expect(out).toContain('Username');
+    expect(out).not.toContain('type="email"');
+    expect(out).not.toContain('Email Address');
+  });
+
+  it('prefills the username from an Open POS link', () => {
+    const out = renderLoginForm('/login?shop=my-shop&username=admin');
+    expect(out).toContain('value="admin"');
+  });
+
   it('renders dynamic shop name from ?name= query parameter and never legacy service center string', () => {
     const out = renderLoginForm('/login?shop=my-shop&name=Lanka%20Electronics');
     expect(out).toContain('Lanka Electronics');

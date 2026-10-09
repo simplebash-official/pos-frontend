@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Modal, TextInput, PasswordInput, Select, Button, Group, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconMail, IconLock, IconUserCheck } from '@tabler/icons-react';
+import { IconUser, IconLock, IconUserCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAppSelector } from '@/store/hooks';
 import { selectUserRole } from '@/store/slices/authSlice';
@@ -17,7 +17,7 @@ export interface CreateLoginModalProps {
   onClose: () => void;
   /**
    * When provided (opened from the Employee drawer's Login tab), the
-   * employee is fixed and only email/password/role are editable. When
+   * employee is fixed and only username/password/role are editable. When
    * absent (opened standalone from the Accounts list), an employee picker
    * is shown first — see `UsersList.tsx`.
    */
@@ -26,7 +26,7 @@ export interface CreateLoginModalProps {
 
 interface CreateLoginFormValues {
   employeeId: string;
-  email: string;
+  username: string;
   password: string;
   role: UserRole | '';
 }
@@ -53,10 +53,13 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
   const availableEmployees = allEmployees.filter((e) => !e.login);
 
   const form = useForm<CreateLoginFormValues>({
-    initialValues: { employeeId: employee?.id ?? '', email: '', password: '', role: '' },
+    initialValues: { employeeId: employee?.id ?? '', username: '', password: '', role: '' },
     validate: {
       employeeId: (val) => (val ? null : 'Select an employee'),
-      email: (val) => (/^\S+@\S+\.\S+$/.test(val.trim()) ? null : 'Enter a valid email address'),
+      username: (val) =>
+        /^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$/.test(val.trim().toLowerCase())
+          ? null
+          : 'Use 3 to 32 letters, numbers, dots, dashes or underscores',
       password: (val) => (val.length >= 8 ? null : 'Password must be at least 8 characters'),
       role: (val) => (val ? null : 'Select a role'),
     },
@@ -64,7 +67,7 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
 
   useEffect(() => {
     if (opened) {
-      form.setValues({ employeeId: employee?.id ?? '', email: '', password: '', role: '' });
+      form.setValues({ employeeId: employee?.id ?? '', username: '', password: '', role: '' });
     } else {
       form.reset();
     }
@@ -79,14 +82,14 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
 
     await createMutation.mutateAsync({
       name: target.name,
-      email: values.email.trim(),
+      username: values.username.trim().toLowerCase(),
       password: values.password,
       role: values.role,
       employeeKey: target.key,
     });
     notifications.show({
       title: 'Login Created',
-      message: `${target.name} can now sign in with ${values.email.trim()}`,
+      message: `${target.name} can now sign in with the username ${values.username.trim().toLowerCase()}`,
       color: 'green',
       icon: <IconUserCheck size={16} />,
     });
@@ -127,11 +130,12 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
           )}
 
           <TextInput
-            label={t('Login Email')}
-            placeholder={t('e.g. nimal@shop.lk')}
-            leftSection={<IconMail size={16} />}
+            label={t('Username')}
+            description={t('They type this, with their password, to sign in to this shop.')}
+            placeholder={t('e.g. nimal')}
+            leftSection={<IconUser size={16} />}
             required
-            {...form.getInputProps('email')}
+            {...form.getInputProps('username')}
           />
 
           <PasswordInput

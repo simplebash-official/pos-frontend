@@ -14,14 +14,13 @@ export interface SetupStatus {
 export interface SetupSystemPayload {
   load_sample_data: boolean;
   admin_name?: string;
-  admin_email?: string;
   admin_password?: string;
 }
 
 export interface SetupSystemResult {
   setup_completed: boolean;
   sample_data_loaded: boolean;
-  admin_email: string;
+  admin_username: string;
   token?: string | null;
   user?: AuthUser | null;
   message: string;

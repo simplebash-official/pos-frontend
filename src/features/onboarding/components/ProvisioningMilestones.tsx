@@ -26,6 +26,8 @@ const getMilestoneIcon = (id: string, size = 18) => {
     case 'sidecars':
       return <IconCpu size={size} />;
     case 'ready':
+      return <IconCheck size={size} />;
+    case 'launch':
       return <IconRocket size={size} />;
     default:
       return <IconDatabase size={size} />;

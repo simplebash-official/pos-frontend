@@ -588,7 +588,7 @@ export const EmployeeDetailDrawer = ({
                         <Group gap="xs">
                           <IconMail size={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
                           <Text size="sm" fw={600}>
-                            {emp.login.email}
+                            {emp.login.username}
                           </Text>
                         </Group>
                         <Group gap="xs" wrap="wrap">

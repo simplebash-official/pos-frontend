@@ -29,7 +29,7 @@ const createMockStore = (role: UserRole) => {
     user: {
       id: 'u1',
       name: 'Test User',
-      email: 'test@example.com',
+      username: 'testuser',
       role,
       permissions: EMPTY_PERMISSIONS,
     },

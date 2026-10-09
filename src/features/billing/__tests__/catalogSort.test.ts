@@ -48,7 +48,7 @@ describe('catalog sort presets', () => {
 });
 
 describe('auth preferences', () => {
-  const user = { id: 'u1', name: 'A', email: 'a@x.test', role: 'staff' };
+  const user = { id: 'u1', name: 'A', username: 'ax', role: 'staff' };
 
   it('merges a preference into the signed-in user', () => {
     let state = authReducer(undefined, setUser(user));
