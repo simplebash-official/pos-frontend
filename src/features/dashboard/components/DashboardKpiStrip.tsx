@@ -1,4 +1,4 @@
-import { Paper, Group, Text, ThemeIcon, SimpleGrid, Stack, Badge, Skeleton } from '@mantine/core';
+import { Paper, Group, Text, ThemeIcon, SimpleGrid, Stack, Skeleton } from '@mantine/core';
 import { IconCash, IconHammer, IconDeviceMobileCheck, IconCoin } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
@@ -18,28 +18,22 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
       subtext: `${kpis.todayInvoicesCount} invoices · Avg ${formatMoney(kpis.avgBasketCents)}`,
       icon: IconCash,
       iconColor: 'blue',
-      badge: 'Live',
-      badgeColor: 'blue',
     },
     {
       key: 'repairs',
       label: 'Active Phone Repairs',
-      value: `${kpis.activeRepairsCount} in shop`,
+      value: kpis.activeRepairsCount,
       subtext: 'Repair workshop currently processing',
       icon: IconHammer,
       iconColor: 'orange',
-      badge: `${kpis.activeRepairsCount} Jobs`,
-      badgeColor: 'orange',
     },
     {
       key: 'ready',
       label: 'Ready for Pickup',
-      value: `${kpis.readyRepairsCount} devices ready`,
+      value: kpis.readyRepairsCount,
       subtext: `${formatMoney(kpis.uncollectedReadyValueCents)} uncollected value`,
       icon: IconDeviceMobileCheck,
       iconColor: 'teal',
-      badge: 'Ready',
-      badgeColor: 'teal',
     },
     {
       key: 'cash',
@@ -48,8 +42,6 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
       subtext: `Float: ${formatMoney(kpis.openingFloatCents)} + Cash: ${formatMoney(kpis.cashSalesCents)}`,
       icon: IconCoin,
       iconColor: 'green',
-      badge: 'Balanced',
-      badgeColor: 'green',
     },
   ];
 
@@ -82,9 +74,6 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
                 >
                   {t(card.label)}
                 </Text>
-                <Badge size="xs" variant="light" color={card.badgeColor} style={{ flexShrink: 0 }}>
-                  {t(card.badge)}
-                </Badge>
               </Group>
 
               <Group justify="space-between" align="center" wrap="nowrap" gap="sm" mt={2}>
@@ -114,11 +103,11 @@ export const DashboardKpiStrip = ({ kpis, loading }: DashboardKpiStripProps) => 
                 <ThemeIcon
                   color={card.iconColor}
                   variant="light"
-                  size={42}
+                  size={36}
                   radius="md"
                   style={{ flexShrink: 0 }}
                 >
-                  <Icon size={22} stroke={1.5} />
+                  <Icon size={20} stroke={1.5} />
                 </ThemeIcon>
               </Group>
             </Stack>

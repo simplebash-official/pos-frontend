@@ -31,7 +31,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
               <IconFlame size={20} />
             </ThemeIcon>
             <div>
-              <Text fw={800} size="md">
+              <Text fw={700} size="md">
                 {t('Fast-Moving Products Today')}
               </Text>
               <Text size="xs" c="dimmed">

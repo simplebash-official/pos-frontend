@@ -39,7 +39,7 @@ export const ServicePipelineWidget = ({
   );
 
   return (
-    <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+    <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
       {/* Workshop Phone Repairs Pipeline */}
       <Paper
         p={isMobile ? 'md' : 'lg'}
@@ -56,7 +56,7 @@ export const ServicePipelineWidget = ({
                 <IconHammer size={20} />
               </ThemeIcon>
               <div>
-                <Text fw={800} size="md">
+                <Text fw={700} size="md">
                   {t('Phone Repairs Workshop')}
                 </Text>
                 <Text size="xs" c="dimmed">
@@ -77,8 +77,8 @@ export const ServicePipelineWidget = ({
           </Group>
 
           {/* Modern Connected Workflow Cards */}
-          <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="xs">
-            {repairPipeline.map((stage, idx) => {
+          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
+            {repairPipeline.map((stage) => {
               const stageColor =
                 stage.stage === 'ready'
                   ? 'teal'
@@ -101,21 +101,6 @@ export const ServicePipelineWidget = ({
                   onClick={() => navigate(ROUTES.REPAIRS)}
                 >
                   <Stack gap="xs" justify="space-between" h="100%">
-                    {/* Consistent Header Row */}
-                    <Group justify="space-between" align="center" wrap="nowrap">
-                      <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                        {t('Step')} {idx + 1}
-                      </Text>
-                      <Text
-                        size="3xs"
-                        c="dimmed"
-                        fw={600}
-                        style={{ fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {pct}%
-                      </Text>
-                    </Group>
-
                     {/* Fixed Height Title Area */}
                     <Box style={{ minHeight: 34, display: 'flex', alignItems: 'center' }}>
                       <Text size="xs" fw={700} lineClamp={2} style={{ lineHeight: 1.25 }}>
@@ -125,7 +110,12 @@ export const ServicePipelineWidget = ({
 
                     {/* Unified Metric */}
                     <div>
-                      <Text size="xl" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Text
+                        size="xl"
+                        fw={800}
+                        c={totalRepairs > 0 ? undefined : 'dimmed'}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
                         {stage.count}
                         <Text component="span" size="xs" c="dimmed" fw={500} ml={4}>
                           {t('tickets')}
@@ -159,7 +149,7 @@ export const ServicePipelineWidget = ({
                 <IconPrinter size={20} />
               </ThemeIcon>
               <div>
-                <Text fw={800} size="md">
+                <Text fw={700} size="md">
                   {t('Print Services Queue')}
                 </Text>
                 <Text size="xs" c="dimmed">
@@ -181,7 +171,7 @@ export const ServicePipelineWidget = ({
 
           {/* Modern Connected Workflow Cards */}
           <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
-            {printPipeline.map((stage, idx) => {
+            {printPipeline.map((stage) => {
               const isDelivered = stage.stage === 'delivered';
               const stageColor = isDelivered ? 'teal' : 'blue';
               const pct = totalPrints > 0 ? Math.round((stage.count / totalPrints) * 100) : 0;
@@ -199,21 +189,6 @@ export const ServicePipelineWidget = ({
                   onClick={() => navigate(ROUTES.PRINT_JOBS)}
                 >
                   <Stack gap="xs" justify="space-between" h="100%">
-                    {/* Consistent Header Row */}
-                    <Group justify="space-between" align="center" wrap="nowrap">
-                      <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
-                        {t('Step')} {idx + 1}
-                      </Text>
-                      <Text
-                        size="3xs"
-                        c="dimmed"
-                        fw={600}
-                        style={{ fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {pct}%
-                      </Text>
-                    </Group>
-
                     {/* Fixed Height Title Area */}
                     <Box style={{ minHeight: 34, display: 'flex', alignItems: 'center' }}>
                       <Text size="xs" fw={700} lineClamp={2} style={{ lineHeight: 1.25 }}>
@@ -223,7 +198,12 @@ export const ServicePipelineWidget = ({
 
                     {/* Unified Metric */}
                     <div>
-                      <Text size="xl" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Text
+                        size="xl"
+                        fw={800}
+                        c={totalPrints > 0 ? undefined : 'dimmed'}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
                         {stage.count}
                         <Text component="span" size="xs" c="dimmed" fw={500} ml={4}>
                           {t('orders')}

@@ -28,20 +28,18 @@ const renderStrip = (kpis = mockKpis, loading = false) =>
   );
 
 describe('DashboardKpiStrip Responsive Layout & Metrics', () => {
-  it('renders all 4 operational metric cards with their titles and badges', () => {
+  it('renders all 4 operational metric cards without decorative badges', () => {
     const html = renderStrip();
 
     expect(html).toContain('Today&#x27;s Gross Sales');
-    expect(html).toContain('Live');
-
     expect(html).toContain('Active Phone Repairs');
-    expect(html).toContain('5 Jobs');
-
     expect(html).toContain('Ready for Pickup');
-    expect(html).toContain('Ready');
-
     expect(html).toContain('Cash in Register Till');
-    expect(html).toContain('Balanced');
+
+    // Badges were removed: "Balanced" was shown even when nothing was reconciled.
+    expect(html).not.toContain('mantine-Badge-root');
+    expect(html).not.toContain('Balanced');
+    expect(html).not.toContain('5 Jobs');
   });
 
   it('renders formatted values and descriptive operational subtext', () => {
@@ -52,11 +50,11 @@ describe('DashboardKpiStrip Responsive Layout & Metrics', () => {
     expect(html).toContain('12 invoices');
 
     // Phone Repairs
-    expect(html).toContain('5 in shop');
+    expect(html).toMatch(/>5<\/p>/);
     expect(html).toContain('Repair workshop currently processing');
 
     // Ready for Pickup
-    expect(html).toContain('2 devices ready');
+    expect(html).toMatch(/>2<\/p>/);
     expect(html).toContain('Rs. 8,500.00 uncollected value');
 
     // Cash Register Till
@@ -68,14 +66,14 @@ describe('DashboardKpiStrip Responsive Layout & Metrics', () => {
     const html = renderStrip(mockKpis, true);
 
     expect(html).toContain('mantine-Skeleton-root');
-    expect(html).not.toContain('5 in shop');
-    expect(html).not.toContain('2 devices ready');
+    expect(html).not.toContain('Rs. 15,450.00');
+    expect(html).not.toMatch(/>5<\/p>/);
   });
 
   it('enforces responsive flex constraints and styling rules', () => {
     const html = renderStrip();
 
-    // Verify badges and icons are protected with flex-shrink: 0
+    // Verify icons are protected with flex-shrink: 0
     expect(html).toContain('flex-shrink:0');
 
     // Verify text containers have min-width: 0 to allow clean truncation

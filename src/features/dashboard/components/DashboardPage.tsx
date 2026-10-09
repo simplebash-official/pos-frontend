@@ -25,7 +25,7 @@ export const DashboardPage = () => {
   };
 
   return (
-    <Stack gap="lg" pb="xl">
+    <Stack gap="xl" pb="xl">
       {/* Zone 1: Cockpit Header & Operating Pulse */}
       <CockpitHeader onRefresh={handleRefresh} />
 
@@ -42,13 +42,13 @@ export const DashboardPage = () => {
       />
 
       {/* Zone 5: Cash Register Shift & Technician Capacity Matrix (2-Column Grid) */}
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
         <CashShiftSummaryWidget shiftSummary={data.shiftSummary} />
         <TechnicianWorkloadWidget technicians={data.technicians} />
       </SimpleGrid>
 
       {/* Zone 6: Counter Fast Movers & Real-time Shop Activity Feed (2-Column Grid) */}
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
         <FastMoversWidget items={data.fastMovingItems} />
         <LiveActivityFeed activities={data.recentActivities} />
       </SimpleGrid>

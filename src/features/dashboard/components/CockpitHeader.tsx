@@ -76,37 +76,34 @@ export const CockpitHeader = ({ onRefresh: _onRefresh }: CockpitHeaderProps) => 
             </Button>
 
             <Button
-              leftSection={<IconHammer size={16} />}
-              variant="light"
-              color="orange"
+              leftSection={<IconHammer size={16} color="var(--mantine-color-orange-filled)" />}
+              variant="default"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.REPAIRS)}
               style={{
                 minHeight: isMobile ? 44 : undefined,
-                flex: isMobile ? '1 1 45%' : undefined,
+                flex: isMobile ? '1 1 100%' : undefined,
               }}
             >
               {t('Check-in Repair')}
             </Button>
 
             <Button
-              leftSection={<IconPrinter size={16} />}
-              variant="light"
-              color="teal"
+              leftSection={<IconPrinter size={16} color="var(--mantine-color-teal-filled)" />}
+              variant="default"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.PRINT_JOBS)}
               style={{
                 minHeight: isMobile ? 44 : undefined,
-                flex: isMobile ? '1 1 45%' : undefined,
+                flex: isMobile ? '1 1 100%' : undefined,
               }}
             >
               {t('New Print Job')}
             </Button>
 
             <Button
-              leftSection={<IconPackage size={16} />}
-              variant="light"
-              color="indigo"
+              leftSection={<IconPackage size={16} color="var(--mantine-color-indigo-filled)" />}
+              variant="default"
               size={isMobile ? 'md' : 'sm'}
               onClick={() => navigate(ROUTES.INVENTORY)}
               style={{

@@ -44,7 +44,7 @@ export const TechnicianWorkloadWidget = ({ technicians }: TechnicianWorkloadWidg
               <IconUserCheck size={20} />
             </ThemeIcon>
             <div>
-              <Text fw={800} size="md">
+              <Text fw={700} size="md">
                 {t('Technician Workload & Floor Capacity')}
               </Text>
               <Text size="xs" c="dimmed">

@@ -55,7 +55,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
               <IconCoin size={20} />
             </ThemeIcon>
             <div>
-              <Text fw={800} size="md">
+              <Text fw={700} size="md">
                 {t('Cash Register & Shift Summary')}
               </Text>
               <Text size="xs" c="dimmed">

@@ -159,6 +159,29 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
     return sortedItems.slice(start, start + PAGE_SIZE);
   }, [sortedItems, currentPage]);
 
+  // Nothing to act on: one quiet row instead of an empty card with filters.
+  if (activeItems.length === 0) {
+    return (
+      <Paper
+        p="md"
+        withBorder
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
+      >
+        <Group gap="sm" wrap="nowrap">
+          <ThemeIcon color="green" variant="light" size="md" radius="xl">
+            <IconCheck size={16} />
+          </ThemeIcon>
+          <Text size="sm" fw={600}>
+            {t('All caught up!')}
+          </Text>
+          <Text size="sm" c="dimmed" lineClamp={1}>
+            {t('Nothing needs your attention right now.')}
+          </Text>
+        </Group>
+      </Paper>
+    );
+  }
+
   const getItemIcon = (type: UrgentItemType) => {
     switch (type) {
       case 'stockout':
@@ -211,7 +234,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
             </ThemeIcon>
             <div>
               <Group gap="xs" align="center">
-                <Text fw={800} size="md">
+                <Text fw={700} size="md">
                   {t('Urgent Action Center')}
                 </Text>
                 <Badge color="red" variant="filled" size="sm">

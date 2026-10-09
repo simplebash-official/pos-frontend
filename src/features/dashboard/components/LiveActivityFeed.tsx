@@ -62,7 +62,7 @@ export const LiveActivityFeed = ({ activities }: LiveActivityFeedProps) => {
             </ThemeIcon>
             <div>
               <Group gap="xs" align="center">
-                <Text fw={800} size="md">
+                <Text fw={700} size="md">
                   {t('Live Shop Activity Stream')}
                 </Text>
                 {activities.length > 0 && (
