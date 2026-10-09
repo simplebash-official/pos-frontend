@@ -1614,7 +1614,7 @@ export const PaymentPanel = memo(
         >
           {/* PRINT choice lives with the action button so it is never hidden below the scroll. */}
           {/* 9. PRINT / Document Selection Control */}
-          <Box mb="sm">
+          <Box mb="xs">
             <Group justify="space-between" align="center" mb={6}>
               <Text
                 size="xs"
@@ -1644,7 +1644,7 @@ export const PaymentPanel = memo(
                     key={doc.value}
                     onClick={() => changeDocumentSelection(doc.value)}
                     style={{
-                      height: isMobile ? 48 : 44,
+                      height: isMobile ? 48 : 36,
                       borderRadius: 'var(--mantine-radius-default)',
                       border: isSelected
                         ? '1.5px solid var(--mantine-color-blue-5)'
@@ -1692,7 +1692,7 @@ export const PaymentPanel = memo(
             loading={isProcessing}
             onClick={handlePrimaryAction}
             style={{
-              height: 56,
+              height: isMobile ? 56 : 48,
               fontSize: 16,
               fontWeight: 700,
               borderRadius: 'var(--mantine-radius-default)',
