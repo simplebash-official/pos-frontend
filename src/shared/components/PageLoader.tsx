@@ -12,17 +12,21 @@ export interface PageLoaderProps {
   speed?: number;
 }
 
+/**
+ * The one page loader for every SimpleBash app: the animated orb the POS login uses. Pass
+ * `variant="dots"` only where a tiny inline spinner is wanted.
+ */
 export const PageLoader = ({
   title,
   subtitle,
   size = 45,
   height = '70vh',
-  variant = 'dots',
+  variant = 'orb',
   orbState = 'connecting',
   orbTheme = 'auto',
   speed = 1,
 }: PageLoaderProps) => {
-  const isOrb = variant === 'orb' || Boolean(orbState && variant !== 'dots');
+  const isOrb = variant === 'orb';
 
   const titleColor =
     orbTheme === 'dark' ? '#FFFFFF' : orbTheme === 'light' ? '#18181B' : 'var(--text-primary)';

@@ -169,14 +169,30 @@ function clampNormalizeData(rawDots: Dot[], rawLines: Line[], rMin = 0.3): OrbRe
 /* Canvas Drawing Functions                                                   */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Colour of one shape. On a dark page it is a grey that gets brighter the closer the shape is. On
+ * a light page grey nearly disappears (thin pale lines on white), so the orb is drawn in a deep
+ * blue instead, darker for the shapes in front, and a little more opaque.
+ */
+function shade(whiteRatio: number, alpha: number, isDark: boolean): string {
+  const w = Math.min(1, Math.max(0, whiteRatio));
+  if (isDark) {
+    const channel = Math.round((1 - w) * 255);
+    return `rgba(${channel}, ${channel}, ${channel}, ${alpha})`;
+  }
+  const mix = Math.min(1, w / 0.65);
+  const r = Math.round(23 + (59 - 23) * mix);
+  const g = Math.round(37 + (130 - 37) * mix);
+  const b = Math.round(84 + (246 - 84) * mix);
+  return `rgba(${r}, ${g}, ${b}, ${Math.min(1, alpha * 1.35)})`;
+}
+
 function drawDots(ctx: CanvasRenderingContext2D, dots: Dot[], isDark: boolean): void {
   for (const dot of dots) {
     const alpha = dot.a ?? 1;
-    const whiteRatio = Math.min(1, Math.max(0, dot.white));
-    const channel = Math.round((isDark ? 1 - whiteRatio : whiteRatio) * 255);
-    ctx.fillStyle = `rgba(${channel}, ${channel}, ${channel}, ${alpha})`;
+    ctx.fillStyle = shade(dot.white, alpha, isDark);
     ctx.beginPath();
-    ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+    ctx.arc(dot.x, dot.y, isDark ? dot.r : dot.r * 1.25, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -184,10 +200,9 @@ function drawDots(ctx: CanvasRenderingContext2D, dots: Dot[], isDark: boolean): 
 function drawLines(ctx: CanvasRenderingContext2D, lines: Line[], isDark: boolean): void {
   for (const line of lines) {
     const alpha = line.a ?? 1;
-    const whiteRatio = Math.min(1, Math.max(0, line.white));
-    const channel = Math.round((isDark ? 1 - whiteRatio : whiteRatio) * 255);
-    ctx.strokeStyle = `rgba(${channel}, ${channel}, ${channel}, ${alpha})`;
-    ctx.lineWidth = line.w;
+    ctx.strokeStyle = shade(line.white, alpha, isDark);
+    // Thin pale lines vanish on a white page, so they are drawn heavier there.
+    ctx.lineWidth = isDark ? line.w : line.w * 1.7;
     ctx.beginPath();
     ctx.moveTo(line.x1, line.y1);
     ctx.lineTo(line.x2, line.y2);
@@ -390,6 +405,36 @@ const DEFAULT_LABELS: Record<OrbState, string> = {
 /* ThinkingOrb Component                                                      */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Whether the page is dark right now, read from the attribute Mantine writes on <html>. Some
+ * screens (login, sign-up) pin the page to light without changing the saved choice, so the saved
+ * Mantine scheme can disagree with what is on screen; the attribute is what the person sees.
+ */
+function usePageIsDark(fallback: boolean): boolean {
+  const read = () =>
+    typeof document === 'undefined'
+      ? fallback
+      : (document.documentElement.getAttribute('data-mantine-color-scheme') ?? '') === 'dark'
+        ? true
+        : (document.documentElement.getAttribute('data-mantine-color-scheme') ?? '') === 'light'
+          ? false
+          : fallback;
+  const [isDark, setIsDark] = useState(read);
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const update = () => setIsDark(read());
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-mantine-color-scheme'],
+    });
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallback]);
+  return isDark;
+}
+
 export const ThinkingOrb = ({
   state = 'connecting',
   size = 64,
@@ -409,8 +454,8 @@ export const ThinkingOrb = ({
   const defaultLabel = DEFAULT_LABELS[state] || 'Connecting...';
 
   // Determine effective theme (dark vs light)
-  const isDark =
-    theme === 'dark' ? true : theme === 'light' ? false : mantineColorScheme === 'dark';
+  const pageIsDark = usePageIsDark(mantineColorScheme === 'dark');
+  const isDark = theme === 'dark' ? true : theme === 'light' ? false : pageIsDark;
 
   // Listen to prefers-reduced-motion changes
   useEffect(() => {
