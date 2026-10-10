@@ -19,12 +19,56 @@ interface SettingsState {
   appLanguage: 'en' | 'si';
 }
 
+const sanitizeLegacyProfile = (profile: ShopProfile): ShopProfile => {
+  const isLegacyAddress =
+    Array.isArray(profile.addressLines) &&
+    profile.addressLines.length === 2 &&
+    profile.addressLines[0] === 'No. 12, Main Street' &&
+    profile.addressLines[1] === 'Colombo 04, Sri Lanka';
+
+  const isLegacyTradingName = profile.tradingName === 'SimpleBash POS';
+
+  return {
+    ...DEFAULT_SHOP_PROFILE,
+    ...profile,
+    legalName:
+      profile.legalName === 'SimpleBash POS' ||
+      profile.legalName === 'SimpleBash POS Service Center'
+        ? ''
+        : (profile.legalName || ''),
+    tradingName: isLegacyTradingName ? '' : (profile.tradingName || ''),
+    addressLines: isLegacyAddress ? [] : (profile.addressLines || []),
+    primaryPhone:
+      profile.primaryPhone === '077 123 4567' ||
+      profile.primaryPhone === '077 123 45673'
+        ? ''
+        : (profile.primaryPhone || ''),
+    secondaryPhone:
+      profile.secondaryPhone === '011 234 5678' ? '' : (profile.secondaryPhone || ''),
+    email: profile.email === 'info@simplebash.com' ? '' : (profile.email || ''),
+    website: profile.website === 'www.simplebash.com' ? '' : (profile.website || ''),
+    businessRegNo:
+      profile.businessRegNo === 'PV-123456' ? '' : (profile.businessRegNo || ''),
+    bankName:
+      profile.bankName === 'Commercial Bank of Ceylon' ? '' : (profile.bankName || ''),
+    bankBranch: profile.bankBranch === 'Bambalapitiya' ? '' : (profile.bankBranch || ''),
+    accountName:
+      profile.accountName === 'SimpleBash POS (Pvt) Ltd'
+        ? ''
+        : (profile.accountName || ''),
+    accountNumber:
+      profile.accountNumber === '8001234567' ? '' : (profile.accountNumber || ''),
+  };
+};
+
 const loadSettingsFromStorage = (): SettingsState => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const profile: ShopProfile = parsed.shopProfile || DEFAULT_SHOP_PROFILE;
+      const profile: ShopProfile = sanitizeLegacyProfile(
+        parsed.shopProfile || DEFAULT_SHOP_PROFILE
+      );
       const rawVersions: Record<number, ShopProfile & { logoVersionRef?: number }> =
         parsed.shopProfileVersions || {
           [profile.version || 1]: profile,
@@ -158,10 +202,22 @@ const settingsSlice = createSlice({
       }
       saveSettingsToStorage(state);
     },
+    setShopProfile: (state, action: PayloadAction<ShopProfile>) => {
+      const profile = action.payload;
+      state.shopProfile = profile;
+      const v = profile.version || 1;
+      state.shopProfileVersions[v] = {
+        ...profile,
+        logoVersionRef: v,
+      };
+      state.latestLogoVersionRef = v;
+      saveSettingsToStorage(state);
+    },
   },
 });
 
 export const {
+  setShopProfile,
   updateShopProfile,
   updatePrintSettings,
   resetSettings,

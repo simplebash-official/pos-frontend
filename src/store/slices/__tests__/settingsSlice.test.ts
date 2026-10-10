@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import settingsReducer, {
+  setShopProfile,
   updateShopProfile,
   updatePrintSettings,
   resetSettings,
@@ -55,6 +56,20 @@ describe('settingsSlice reducer & selectors', () => {
 
     expect(state.printSettings.receiptPaper).toBe('58mm');
     expect(state.printSettings.showLogoOnReceipt).toBe(false);
+  });
+
+  it('replaces shop profile with setShopProfile', () => {
+    const customProfile = {
+      ...DEFAULT_SHOP_PROFILE,
+      tradingName: 'My Awesome Shop',
+      primaryPhone: '0711112233',
+      version: 5,
+    };
+    const state = settingsReducer(getInitialState(), setShopProfile(customProfile));
+    expect(state.shopProfile.tradingName).toBe('My Awesome Shop');
+    expect(state.shopProfile.primaryPhone).toBe('0711112233');
+    expect(state.shopProfile.version).toBe(5);
+    expect(state.latestLogoVersionRef).toBe(5);
   });
 
   it('resets settings to default on resetSettings', () => {

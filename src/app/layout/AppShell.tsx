@@ -12,8 +12,10 @@ import {
   SHELL_NAVBAR_WIDTH,
 } from './constants';
 import { ROUTES } from '@/constants/routes';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import { setShopProfile } from '@/store/slices/settingsSlice';
+import { getShopProfileApi } from '@/features/settings/api/settingsApi';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
@@ -53,9 +55,21 @@ export const AppShell = () => {
   const { openCalculator, closeCalculator, toggleCalculator } = useGlobalCalculator();
 
   const location = useLocation();
+  const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const tier = useLayoutTier();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    getShopProfileApi()
+      .then((profile) => {
+        dispatch(setShopProfile(profile));
+      })
+      .catch((err) => {
+        console.warn('Failed to load shop profile from backend:', err);
+      });
+  }, [isAuthenticated, dispatch]);
 
   // Entering/leaving billing is a navigation, not a resize: the header/navbar
   // dimension change should snap instantly instead of racing billing's heavy

@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SimpleGrid, TextInput, SegmentedControl, Text, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -8,9 +8,11 @@ import {
   selectShopProfile,
   selectAppLanguage,
   updateShopProfile,
+  setShopProfile,
   setAppLanguage,
 } from '@/store/slices/settingsSlice';
 import { SectionShell } from '../SectionShell';
+import { getShopProfileApi, updateShopProfileApi } from '../../api/settingsApi';
 
 interface ShopProfileFormValues {
   legalName: string;
@@ -31,55 +33,114 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
   const shopProfile = useAppSelector(selectShopProfile);
   const appLanguage = useAppSelector(selectAppLanguage);
+  const [saving, setSaving] = useState(false);
 
   const form = useForm<ShopProfileFormValues>({
     initialValues: {
-      legalName: shopProfile.legalName,
-      tradingName: shopProfile.tradingName,
-      addressLine1: shopProfile.addressLines[0] || '',
-      addressLine2: shopProfile.addressLines[1] || '',
-      primaryPhone: shopProfile.primaryPhone,
-      secondaryPhone: shopProfile.secondaryPhone,
-      email: shopProfile.email,
-      website: shopProfile.website,
+      legalName: shopProfile.legalName || '',
+      tradingName: shopProfile.tradingName || '',
+      addressLine1: shopProfile.addressLines?.[0] || '',
+      addressLine2: shopProfile.addressLines?.[1] || '',
+      primaryPhone: shopProfile.primaryPhone || '',
+      secondaryPhone: shopProfile.secondaryPhone || '',
+      email: shopProfile.email || '',
+      website: shopProfile.website || '',
     },
     validate: {
-      legalName: (val) => (val.trim() ? null : "Enter your business's legal name."),
-      primaryPhone: (val) =>
-        val.trim() ? null : 'Enter a phone number customers can reach you on.',
+      tradingName: (val) => (val.trim() ? null : t('Enter your store or trading name.')),
       email: (val) =>
         !val.trim() || /^\S+@\S+\.\S+$/.test(val.trim())
           ? null
-          : 'Enter a valid email address, like name@example.com.',
+          : t('Enter a valid email address, like name@example.com.'),
     },
   });
+
+  useEffect(() => {
+    let isMounted = true;
+    getShopProfileApi()
+      .then((profile) => {
+        if (!isMounted) return;
+        dispatch(setShopProfile(profile));
+        if (!form.isDirty()) {
+          const freshValues: ShopProfileFormValues = {
+            legalName: profile.legalName || '',
+            tradingName: profile.tradingName || '',
+            addressLine1: profile.addressLines?.[0] || '',
+            addressLine2: profile.addressLines?.[1] || '',
+            primaryPhone: profile.primaryPhone || '',
+            secondaryPhone: profile.secondaryPhone || '',
+            email: profile.email || '',
+            website: profile.website || '',
+          };
+          form.setInitialValues(freshValues);
+          form.setValues(freshValues);
+          form.resetDirty();
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to load shop profile from server:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   const isDirty = form.isDirty();
   useEffect(() => {
     onDirtyChange(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const validation = form.validate();
     if (validation.hasErrors) return;
 
-    dispatch(
-      updateShopProfile({
-        legalName: form.values.legalName,
-        tradingName: form.values.tradingName,
-        addressLines: [form.values.addressLine1, form.values.addressLine2].filter(Boolean),
-        primaryPhone: form.values.primaryPhone,
-        secondaryPhone: form.values.secondaryPhone,
-        email: form.values.email,
-        website: form.values.website,
-      })
-    );
-    form.resetDirty();
-    notifications.show({
-      title: 'Settings Saved',
-      message: 'Shop profile updated successfully.',
-      color: 'green',
-    });
+    setSaving(true);
+    const updatedPayload = {
+      legalName: form.values.legalName.trim(),
+      tradingName: form.values.tradingName.trim(),
+      addressLines: [form.values.addressLine1.trim(), form.values.addressLine2.trim()].filter(
+        Boolean
+      ),
+      primaryPhone: form.values.primaryPhone.trim(),
+      secondaryPhone: form.values.secondaryPhone.trim(),
+      email: form.values.email.trim(),
+      website: form.values.website.trim(),
+    };
+
+    try {
+      const persisted = await updateShopProfileApi(updatedPayload);
+      dispatch(updateShopProfile(persisted));
+      const freshValues: ShopProfileFormValues = {
+        legalName: persisted.legalName || '',
+        tradingName: persisted.tradingName || '',
+        addressLine1: persisted.addressLines?.[0] || '',
+        addressLine2: persisted.addressLines?.[1] || '',
+        primaryPhone: persisted.primaryPhone || '',
+        secondaryPhone: persisted.secondaryPhone || '',
+        email: persisted.email || '',
+        website: persisted.website || '',
+      };
+      form.setInitialValues(freshValues);
+      form.setValues(freshValues);
+      form.resetDirty();
+      notifications.show({
+        title: t('Settings Saved'),
+        message: t('Shop profile updated successfully.'),
+        color: 'green',
+      });
+    } catch (error: unknown) {
+      const errMessage =
+        (error as { message?: string })?.message || t('Failed to save shop profile.');
+      notifications.show({
+        title: t('Save Failed'),
+        message: errMessage,
+        color: 'red',
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -87,6 +148,7 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
       title={t('Shop Profile')}
       description={t('Your business name, address and how customers can reach you.')}
       isDirty={isDirty}
+      saving={saving}
       onSave={handleSave}
       onCancel={() => form.reset()}
     >
