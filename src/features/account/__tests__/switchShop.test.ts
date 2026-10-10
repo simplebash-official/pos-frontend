@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { clearShopScopedStorage } from '../lib/switchShop';
-import { shopLabel } from '../lib/shopLabel';
+import { shopInitial, shopLabel } from '../lib/shopLabel';
 
 describe('clearShopScopedStorage', () => {
   beforeEach(() => localStorage.clear());
@@ -62,5 +62,18 @@ describe('shopLabel', () => {
     expect(shopLabel({ shopName: 'Gee Mobile', shopCode: 'gee-mobile' })).toBe('Gee Mobile');
     expect(shopLabel({ shopName: null, shopCode: 'gee-mobile' })).toBe('gee-mobile');
     expect(shopLabel({ shopName: null, shopCode: null })).toBeNull();
+  });
+});
+
+describe('shopInitial', () => {
+  it('is the first letter of the name, else of the code, upper-cased', () => {
+    expect(shopInitial({ shopName: 'gee mobile', shopCode: 'x' })).toBe('G');
+    expect(shopInitial({ shopName: null, shopCode: 'mayura-shop' })).toBe('M');
+  });
+
+  it('keeps a whole character for non-Latin names and is null when nothing is known', () => {
+    expect(shopInitial({ shopName: '😀 Shop', shopCode: null })).toBe('😀');
+    expect(shopInitial({ shopName: '  ', shopCode: null })).toBeNull();
+    expect(shopInitial({ shopName: null, shopCode: null })).toBeNull();
   });
 });

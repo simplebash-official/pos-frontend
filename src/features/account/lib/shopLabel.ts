@@ -3,3 +3,12 @@ export const shopLabel = (shop: {
   shopName: string | null;
   shopCode: string | null;
 }): string | null => shop.shopName ?? shop.shopCode;
+
+/** One letter that stands for the shop (its name, else its code), or `null` when neither is known yet. */
+export const shopInitial = (shop: {
+  shopName: string | null;
+  shopCode: string | null;
+}): string | null => {
+  const label = shopLabel(shop)?.trim();
+  return label ? ([...label][0]?.toUpperCase() ?? null) : null;
+};

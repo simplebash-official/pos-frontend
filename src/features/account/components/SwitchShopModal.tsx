@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Alert, Badge, Button, Divider, Group, Modal, Paper, Stack, Text } from '@mantine/core';
+import { IconBuildingStore, IconCheck } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { logger } from '@/shared/logging';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { ShopAvatar } from './ShopAvatar';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { SignInPanel } from './SignInPanel';
 import { SwitchingNotice } from './SwitchingNotice';
@@ -23,6 +26,7 @@ export interface SwitchShopModalProps {
  */
 export const SwitchShopModal = ({ opened, onClose }: SwitchShopModalProps) => {
   const { state } = useCloudState();
+  const isMobile = useIsMobile();
   const profiles = useProfiles(opened && state.enabled);
   const activate = useProfileActivate();
   const [target, setTarget] = useState<ShopProfile | null>(null);
@@ -46,7 +50,7 @@ export const SwitchShopModal = ({ opened, onClose }: SwitchShopModalProps) => {
     });
   };
 
-  const others = (profiles.data ?? []).filter((p) => !p.active);
+  const shops = profiles.data ?? [];
 
   return (
     <>
@@ -54,12 +58,16 @@ export const SwitchShopModal = ({ opened, onClose }: SwitchShopModalProps) => {
         opened={opened}
         onClose={onClose}
         title={
-          <Text fw={700} size="lg">
-            {t('Shop and account')}
-          </Text>
+          <Group gap="xs" wrap="nowrap">
+            <IconBuildingStore size={20} stroke={1.75} aria-hidden />
+            <Text fw={700} size="lg">
+              {t('Shop and account')}
+            </Text>
+          </Group>
         }
         centered
         size="md"
+        fullScreen={isMobile}
         closeOnClickOutside={switchedTo === null}
         closeOnEscape={switchedTo === null}
         withCloseButton={switchedTo === null}
@@ -67,54 +75,61 @@ export const SwitchShopModal = ({ opened, onClose }: SwitchShopModalProps) => {
         {switchedTo !== null ? (
           <SwitchingNotice shop={switchedTo || null} />
         ) : (
-          <Stack gap="md">
+          <Stack gap="lg">
             {error && (
               <Alert color="red" variant="light" role="alert">
                 {error}
               </Alert>
             )}
-            {others.length > 0 && (
+            {shops.length > 0 && (
               <Stack gap="xs">
-                <Text fw={600} size="sm">
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                   {t('Shops on this computer')}
                 </Text>
-                {others.map((shop) => (
-                  <Paper key={shop.id} withBorder p="sm" radius="md">
-                    <Group justify="space-between" wrap="wrap" gap="xs">
-                      <Stack gap={2} miw={0}>
-                        <Text fw={600} truncate>
+                {shops.map((shop) => (
+                  <Paper key={shop.id} p="sm">
+                    <Group wrap="nowrap" gap="sm">
+                      <ShopAvatar shop={shop} linked={shop.linked} />
+                      <Stack gap={2} miw={0} style={{ flex: 1 }}>
+                        <Text fw={600} lh={1.25} lineClamp={2}>
                           {shopLabel(shop) ?? t('Offline shop')}
                         </Text>
-                        <Group gap="xs">
-                          {shop.shopCode && shop.shopName && (
-                            <Badge variant="light">{shop.shopCode}</Badge>
-                          )}
-                          <Text size="xs" c="dimmed">
-                            {shop.accountEmail ?? t('Not connected to SimpleBash')}
-                          </Text>
-                        </Group>
+                        <Text size="xs" c="dimmed" truncate>
+                          {[
+                            shop.shopName ? shop.shopCode : null,
+                            shop.accountEmail ?? t('Not connected to SimpleBash'),
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </Text>
                       </Stack>
-                      <Button
-                        variant="default"
-                        size="xs"
-                        style={{ minHeight: 44 }}
-                        onClick={() => setTarget(shop)}
-                        data-log-id="switch-shop.open"
-                      >
-                        {t('Open')}
-                      </Button>
+                      {shop.active ? (
+                        <Badge
+                          color="teal"
+                          variant="light"
+                          leftSection={<IconCheck size={12} stroke={2.5} />}
+                          style={{ flexShrink: 0 }}
+                        >
+                          {t('Current')}
+                        </Badge>
+                      ) : (
+                        <Button
+                          variant="default"
+                          size="xs"
+                          style={{ minHeight: 44, flexShrink: 0 }}
+                          onClick={() => setTarget(shop)}
+                          data-log-id="switch-shop.open"
+                        >
+                          {t('Open')}
+                        </Button>
+                      )}
                     </Group>
                   </Paper>
                 ))}
-                <Divider mt="xs" />
               </Stack>
             )}
-            <Stack gap="xs">
-              <Text fw={600} size="sm">
-                {t('Add or switch to another shop')}
-              </Text>
-              <SignInPanel hideTitle onLinked={onClose} />
-            </Stack>
+            <Divider label={t('Add another shop')} labelPosition="center" />
+            <SignInPanel embedded onLinked={onClose} />
           </Stack>
         )}
       </Modal>

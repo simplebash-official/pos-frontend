@@ -26,10 +26,30 @@ describe('SignInPanel', () => {
     expect(out).toContain('in your browser');
   });
 
-  it('can leave out its heading when a dialog already has a title', () => {
+  it('drops its heading and its own card when shown inside a dialog', () => {
     expect(html()).toContain('Sign In');
-    expect(html({ hideTitle: true })).not.toContain('Sign In');
-    expect(html({ hideTitle: true })).toContain('Continue with Google');
+    expect(html()).toContain('mantine-Paper-root');
+    const embedded = html({ embedded: true });
+    expect(embedded).not.toContain('Sign In');
+    expect(embedded).not.toContain('mantine-Paper-root');
+    expect(embedded).toContain('Continue with Google');
+    expect(embedded).toContain('Continue with email');
+  });
+
+  it('takes every radius from the theme, never a hard-coded one', () => {
+    for (const out of [html(), html({ embedded: true })]) {
+      expect(out).not.toMatch(/border-radius:\s*\d+px/);
+    }
+  });
+
+  it('gives both ways to sign in the same width and touch height', () => {
+    const out = html({ embedded: true });
+    const google = out.match(/<button[^>]*data-log-id="signin\.google"[^>]*>/)?.[0] ?? '';
+    const email = out.match(/<button[^>]*data-log-id="signin\.email"[^>]*>/)?.[0] ?? '';
+    for (const button of [google, email]) {
+      expect(button).toContain('data-block="true"');
+      expect(button).toContain('min-height:44px');
+    }
   });
 
   it('never asks for a password inside the POS', () => {

@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { t } from '@/shared/i18n/t';
 import {
   Alert,
-  Box,
   Button,
   Divider,
   Group,
   Loader,
+  Paper,
   Stack,
   Text,
   TextInput,
@@ -58,15 +58,15 @@ export interface SignInPanelProps {
   onLinked?: () => void;
   /** When given, shows a "Skip" link (the POS works fully offline). */
   onSkip?: () => void;
-  /** Leave out the "Sign In" heading (when a dialog already has a title). */
-  hideTitle?: boolean;
+  /** Inside a dialog that already has a title and a frame: no heading and no card of its own. */
+  embedded?: boolean;
 }
 
 /**
  * Sign in to the cloud account from this computer: Google or email, both
  * finished in the browser (the real SimpleBash web app), never typed into the POS.
  */
-export const SignInPanel = ({ onLinked, onSkip, hideTitle }: SignInPanelProps) => {
+export const SignInPanel = ({ onLinked, onSkip, embedded }: SignInPanelProps) => {
   const flow = useBrowserSignIn({ onLinked });
   const { state } = useCloudState();
   const [email, setEmail] = useState('');
@@ -94,12 +94,14 @@ export const SignInPanel = ({ onLinked, onSkip, hideTitle }: SignInPanelProps) =
         <Text size="sm" c="dimmed">
           {t('Sign in there and choose “Link this computer”. This window continues by itself.')}
         </Text>
-        <Text size="xs" c="dimmed">
-          {t('Code')}
-        </Text>
-        <Text fw={800} size="xl" ff="monospace" style={{ letterSpacing: '0.15em' }}>
-          {flow.pending.userCode}
-        </Text>
+        <Paper px="xl" py="sm" bg="var(--bg-hover)">
+          <Text size="xs" c="dimmed">
+            {t('Code')}
+          </Text>
+          <Text fw={800} size="xl" ff="monospace" style={{ letterSpacing: '0.15em' }}>
+            {flow.pending.userCode}
+          </Text>
+        </Paper>
         {flow.error && (
           <Alert color="red" variant="light" w="100%">
             {errorText(flow.error)}
@@ -128,72 +130,74 @@ export const SignInPanel = ({ onLinked, onSkip, hideTitle }: SignInPanelProps) =
     );
   }
 
-  return (
-    <Stack gap="lg" maw={420} mx="auto" w="100%">
-      {!hideTitle && (
-        <Title order={1} ta="center" fw={500} style={{ fontFamily: 'Georgia, serif' }}>
-          {t('Sign In')}
-        </Title>
-      )}
-      <Box
-        p="lg"
-        style={{
-          borderRadius: 24,
-          border: '1px solid var(--border-strong)',
-          backgroundColor: 'var(--bg-card)',
+  const methods = (
+    <Stack gap="md">
+      <Button
+        variant="default"
+        size="md"
+        fullWidth
+        leftSection={<GoogleMark />}
+        loading={flow.starting}
+        style={{ minHeight: 44 }}
+        onClick={() => void flow.start({ provider: 'google' })}
+        data-log-id="signin.google"
+      >
+        {t('Continue with Google')}
+      </Button>
+      <Divider label={t('OR')} labelPosition="center" />
+      <form
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitEmail();
         }}
       >
         <Stack gap="md">
-          <Button
-            variant="default"
+          <TextInput
+            aria-label={t('Email address')}
+            placeholder={t('Enter your email')}
+            type="email"
             size="md"
-            leftSection={<GoogleMark />}
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            error={emailError}
+          />
+          <Button
+            type="submit"
+            size="md"
+            fullWidth
             loading={flow.starting}
-            onClick={() => void flow.start({ provider: 'google' })}
-            data-log-id="signin.google"
+            style={{ minHeight: 44 }}
+            data-log-id="signin.email"
           >
-            {t('Continue with Google')}
+            {t('Continue with email')}
           </Button>
-          <Divider label={t('OR')} labelPosition="center" />
-          <form
-            noValidate
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitEmail();
-            }}
-          >
-            <Stack gap="md">
-              <TextInput
-                aria-label={t('Email address')}
-                placeholder={t('Enter your email')}
-                type="email"
-                size="md"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.currentTarget.value)}
-                error={emailError}
-              />
-              <Button
-                type="submit"
-                size="md"
-                loading={flow.starting}
-                style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-card)' }}
-                data-log-id="signin.email"
-              >
-                {t('Continue with email')}
-              </Button>
-            </Stack>
-          </form>
-          {flow.error && (
-            <Alert color="red" variant="light" role="alert">
-              {errorText(flow.error)}
-            </Alert>
-          )}
-          <Text size="xs" c="dimmed">
-            {t('You finish signing in on the SimpleBash website, in your browser.')}
-          </Text>
         </Stack>
-      </Box>
+      </form>
+      {flow.error && (
+        <Alert color="red" variant="light" role="alert">
+          {errorText(flow.error)}
+        </Alert>
+      )}
+      <Text size="xs" c="dimmed" ta="center">
+        {t('You finish signing in on the SimpleBash website, in your browser.')}
+      </Text>
+    </Stack>
+  );
+
+  return (
+    <Stack gap="lg" maw={420} mx="auto" w="100%">
+      {embedded ? (
+        methods
+      ) : (
+        <>
+          <Title order={1} ta="center" fw={500} style={{ fontFamily: 'Georgia, serif' }}>
+            {t('Sign In')}
+          </Title>
+          <Paper p="lg">{methods}</Paper>
+        </>
+      )}
       {onSkip && (
         <Button variant="subtle" color="gray" onClick={onSkip} data-log-id="signin.skip">
           {t('Skip for now')}

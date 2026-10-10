@@ -60,6 +60,8 @@ describe('ShopAccountCard', () => {
     expect(out).toContain('owner@gee.lk');
     expect(out).toContain('Switch shop or account');
     expect(out).toContain('data-log-id="login.switch-shop"');
+    // The shop's letter stands in the avatar.
+    expect(out).toContain('>G<');
   });
 
   it('offers to connect when nothing is linked', () => {

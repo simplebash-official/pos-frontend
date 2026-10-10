@@ -1864,5 +1864,7 @@
   "Connect to SimpleBash": "SimpleBash වෙත සම්බන්ධ වන්න",
   "Switching to {shop}…": "{shop} වෙත මාරු වෙමින්…",
   "Switching shop…": "වෙළඳසැල මාරු වෙමින්…",
-  "The app restarts by itself. This takes a few seconds.": "යෙදුම ස්වයංක්‍රීයව නැවත ආරම්භ වේ. තත්පර කිහිපයක් ගතවේ."
+  "The app restarts by itself. This takes a few seconds.": "යෙදුම ස්වයංක්‍රීයව නැවත ආරම්භ වේ. තත්පර කිහිපයක් ගතවේ.",
+  "Current": "දැනට",
+  "Add another shop": "වෙනත් වෙළඳසැලක් එක් කරන්න"
 }
