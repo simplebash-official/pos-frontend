@@ -26,6 +26,12 @@ describe('SignInPanel', () => {
     expect(out).toContain('in your browser');
   });
 
+  it('can leave out its heading when a dialog already has a title', () => {
+    expect(html()).toContain('Sign In');
+    expect(html({ hideTitle: true })).not.toContain('Sign In');
+    expect(html({ hideTitle: true })).toContain('Continue with Google');
+  });
+
   it('never asks for a password inside the POS', () => {
     expect(html()).not.toContain('type="password"');
   });

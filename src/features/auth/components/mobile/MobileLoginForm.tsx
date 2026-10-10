@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi } from '../../api/authApi';
 import { logger } from '@/shared/logging';
+import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from '../CreateShopLink';
 import { ShopCodeField } from '../ShopCodeField';
 import { useLoginShopCode } from '../../lib/useLoginShopCode';
@@ -199,6 +200,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
 
         <form onSubmit={handleLogin} noValidate>
           <Stack gap="md">
+            <ShopAccountCard />
             <ShopCodeField
               value={shopCode}
               onChange={(v) => {

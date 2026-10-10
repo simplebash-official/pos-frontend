@@ -1848,5 +1848,21 @@
   "changes to the cloud…": "වෙනස්කම් cloud එකට…",
   "Waiting for the cloud to confirm the first batch…": "පළමු කොටස cloud එක තහවුරු කරන තෙක් බලා සිටී…",
   "Receiving": "ලබාගනිමින්",
-  "Updated": "යාවත්කාලීන කළේ"
+  "Updated": "යාවත්කාලීන කළේ",
+  "Shop and account": "වෙළඳසැල සහ ගිණුම",
+  "Shops on this computer": "මෙම පරිගණකයේ ඇති වෙළඳසැල්",
+  "Offline shop": "මාර්ගගත නොවන වෙළඳසැල",
+  "Not connected to SimpleBash": "SimpleBash වෙත සම්බන්ධ වී නැත",
+  "Connected to SimpleBash": "SimpleBash වෙත සම්බන්ධයි",
+  "Open": "විවෘත කරන්න",
+  "Add or switch to another shop": "වෙනත් වෙළඳසැලක් එක් කරන්න හෝ මාරු වන්න",
+  "Open this shop?": "මෙම වෙළඳසැල විවෘත කරන්නද?",
+  "The app restarts and opens {shop}. Your other shops stay on this computer.": "යෙදුම නැවත ආරම්භ වී {shop} විවෘත වේ. ඔබේ අනෙක් වෙළඳසැල් මෙම පරිගණකයේම පවතී.",
+  "this shop": "මෙම වෙළඳසැල",
+  "This computer": "මෙම පරිගණකය",
+  "Switch shop or account": "වෙළඳසැල හෝ ගිණුම මාරු කරන්න",
+  "Connect to SimpleBash": "SimpleBash වෙත සම්බන්ධ වන්න",
+  "Switching to {shop}…": "{shop} වෙත මාරු වෙමින්…",
+  "Switching shop…": "වෙළඳසැල මාරු වෙමින්…",
+  "The app restarts by itself. This takes a few seconds.": "යෙදුම ස්වයංක්‍රීයව නැවත ආරම්භ වේ. තත්පර කිහිපයක් ගතවේ."
 }

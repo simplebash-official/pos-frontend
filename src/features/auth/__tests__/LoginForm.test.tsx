@@ -4,6 +4,7 @@ import { MantineProvider } from '@mantine/core';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LoginForm } from '../components/LoginForm';
 
 vi.mock('@/shared/hooks/useResponsive', () => ({
@@ -22,11 +23,13 @@ const renderLoginForm = (initialEntry = '/login') => {
   const store = createTestStore();
   return renderToString(
     <Provider store={store}>
-      <MantineProvider>
-        <MemoryRouter initialEntries={[initialEntry]}>
-          <LoginForm />
-        </MemoryRouter>
-      </MantineProvider>
+      <QueryClientProvider client={new QueryClient()}>
+        <MantineProvider>
+          <MemoryRouter initialEntries={[initialEntry]}>
+            <LoginForm />
+          </MemoryRouter>
+        </MantineProvider>
+      </QueryClientProvider>
     </Provider>
   );
 };
@@ -50,6 +53,10 @@ describe('LoginForm', () => {
     expect(out).toContain('Username');
     expect(out).not.toContain('type="email"');
     expect(out).not.toContain('Email Address');
+  });
+
+  it('shows no shop and account card outside the desktop app', () => {
+    expect(renderLoginForm()).not.toContain('shop-account-card');
   });
 
   it('prefills the username from an Open POS link', () => {

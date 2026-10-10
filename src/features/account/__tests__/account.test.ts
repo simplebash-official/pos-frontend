@@ -6,8 +6,11 @@ import {
   cloudOtpSend,
   cloudOtpVerify,
   cloudPing,
+  cloudLinkCancel,
   cloudListDevices,
   cloudRevokeDevice,
+  profileActivate,
+  profilesList,
   CloudCommandError,
 } from '../api/accountApi';
 import {
@@ -278,5 +281,50 @@ describe('isPhoneRejected', () => {
     );
     expect(isPhoneRejected({ code: 'OTP_INVALID', message: 'x', status: 400 })).toBe(false);
     expect(isPhoneRejected(new Error('boom'))).toBe(false);
+  });
+});
+
+describe('shop switching api', () => {
+  beforeEach(() => {
+    invoke.mockReset();
+    vi.restoreAllMocks();
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
+  });
+
+  it('lists the shops on this computer', async () => {
+    const shops = [
+      {
+        id: 'shop_1',
+        shopName: 'A',
+        shopCode: 'a',
+        accountEmail: null,
+        active: true,
+        linked: true,
+        lastUsedAt: null,
+      },
+    ];
+    invoke.mockResolvedValueOnce(shops);
+    expect(await profilesList()).toEqual(shops);
+    expect(invoke).toHaveBeenCalledWith('profiles_list', undefined);
+  });
+
+  it('opens another shop by id', async () => {
+    invoke.mockResolvedValueOnce(undefined);
+    await profileActivate('shop_2');
+    expect(invoke).toHaveBeenCalledWith('profile_activate', { id: 'shop_2' });
+  });
+
+  it('cancels a waiting link without unlinking', async () => {
+    invoke.mockResolvedValueOnce(linked);
+    await cloudLinkCancel();
+    expect(invoke).toHaveBeenCalledWith('cloud_link_cancel', undefined);
+    expect(invoke).not.toHaveBeenCalledWith('cloud_unlink', undefined);
+  });
+
+  it('refuses on the web without calling the shell', async () => {
+    vi.spyOn(runtime, 'isTauri').mockReturnValue(false);
+    await expect(profilesList()).rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
+    await expect(profileActivate('shop_2')).rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
+    expect(invoke).not.toHaveBeenCalled();
   });
 });

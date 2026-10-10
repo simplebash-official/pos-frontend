@@ -13,6 +13,9 @@ import {
   Title,
 } from '@mantine/core';
 import { useBrowserSignIn } from '../hooks/useBrowserSignIn';
+import { useCloudState } from '../hooks/useCloudState';
+import { shopLabel } from '../lib/shopLabel';
+import { SwitchingNotice } from './SwitchingNotice';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -55,14 +58,17 @@ export interface SignInPanelProps {
   onLinked?: () => void;
   /** When given, shows a "Skip" link (the POS works fully offline). */
   onSkip?: () => void;
+  /** Leave out the "Sign In" heading (when a dialog already has a title). */
+  hideTitle?: boolean;
 }
 
 /**
  * Sign in to the cloud account from this computer: Google or email, both
  * finished in the browser (the real SimpleBash web app), never typed into the POS.
  */
-export const SignInPanel = ({ onLinked, onSkip }: SignInPanelProps) => {
+export const SignInPanel = ({ onLinked, onSkip, hideTitle }: SignInPanelProps) => {
   const flow = useBrowserSignIn({ onLinked });
+  const { state } = useCloudState();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
 
@@ -75,6 +81,10 @@ export const SignInPanel = ({ onLinked, onSkip }: SignInPanelProps) => {
     setEmailError(null);
     void flow.start({ email: value });
   };
+
+  if (flow.switching) {
+    return <SwitchingNotice shop={shopLabel(state)} />;
+  }
 
   if (flow.pending) {
     return (
@@ -120,9 +130,11 @@ export const SignInPanel = ({ onLinked, onSkip }: SignInPanelProps) => {
 
   return (
     <Stack gap="lg" maw={420} mx="auto" w="100%">
-      <Title order={1} ta="center" fw={500} style={{ fontFamily: 'Georgia, serif' }}>
-        {t('Sign In')}
-      </Title>
+      {!hideTitle && (
+        <Title order={1} ta="center" fw={500} style={{ fontFamily: 'Georgia, serif' }}>
+          {t('Sign In')}
+        </Title>
+      )}
       <Box
         p="lg"
         style={{

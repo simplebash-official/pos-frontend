@@ -11,6 +11,7 @@ import {
   type PendingLink,
   type RegisterPayload,
   type RegisterResult,
+  type ShopProfile,
 } from '../types';
 
 /** Thrown by every account command: carries the shell's `{code,message,status}`. */
@@ -84,6 +85,15 @@ export const cloudLinkOpenBrowser = (hints?: LinkHints) =>
 export const cloudLinkPoll = () => call<LinkPoll>('cloud_link_poll');
 
 export const cloudUnlink = () => call<CloudState>('cloud_unlink');
+
+/** Drops a link request still waiting for approval. Unlike unlink, it never touches a linked shop. */
+export const cloudLinkCancel = () => call<CloudState>('cloud_link_cancel');
+
+/** The shops stored on this computer, the open one first. */
+export const profilesList = () => call<ShopProfile[]>('profiles_list');
+
+/** Opens another shop stored on this computer. The app restarts by itself; this never returns data. */
+export const profileActivate = (id: string) => call<void>('profile_activate', { id });
 
 export const cloudListDevices = () => call<DeviceInfo[]>('cloud_list_devices');
 

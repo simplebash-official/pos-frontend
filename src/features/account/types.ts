@@ -17,9 +17,29 @@ export interface CloudState {
   linkedAt: string | null;
   telemetryEnabled: boolean;
   pendingLink: PendingLink | null;
+  /** The shop on this computer that is open now (each shop has its own data). */
+  profileId: string | null;
+  shopName: string | null;
 }
 
-export type LinkPoll = { status: 'pending' } | { status: 'linked'; state: CloudState };
+/**
+ * `switched`: the approval was for another shop, so this computer moved to that shop's own data
+ * and the app restarts by itself in a moment. Nothing may be shown from the old shop after that.
+ */
+export type LinkPoll =
+  { status: 'pending' } | { status: 'linked'; state: CloudState; switched: boolean };
+
+/** A shop stored on this computer. Mirrors `profiles::ProfileView` from the desktop shell. */
+export interface ShopProfile {
+  id: string;
+  shopName: string | null;
+  shopCode: string | null;
+  accountEmail: string | null;
+  active: boolean;
+  /** Has a cloud link (a parked one for shops that are not open). */
+  linked: boolean;
+  lastUsedAt: string | null;
+}
 
 /** Mirrors `api::DeviceView` from the desktop shell's `cloud` module. */
 export interface DeviceInfo {
@@ -97,4 +117,6 @@ export const DISABLED_CLOUD_STATE: CloudState = {
   linkedAt: null,
   telemetryEnabled: false,
   pendingLink: null,
+  profileId: null,
+  shopName: null,
 };

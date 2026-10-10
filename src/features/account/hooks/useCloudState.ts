@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import {
+  cloudLinkCancel,
   cloudLinkStart,
   cloudListDevices,
   cloudLoginAndLink,
@@ -9,6 +10,8 @@ import {
   cloudSetTelemetry,
   cloudUnlink,
   getCloudState,
+  profileActivate,
+  profilesList,
   type CloudCommandError,
 } from '../api/accountApi';
 import type {
@@ -18,6 +21,7 @@ import type {
   PendingLink,
   RegisterPayload,
   RegisterResult,
+  ShopProfile,
 } from '../types';
 import { DISABLED_CLOUD_STATE } from '../types';
 import { syncNow } from '@/features/sync-status/api/syncStatusApi';
@@ -58,6 +62,28 @@ export const useCloudLinkStart = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cloud.state() }),
   });
 };
+
+/** Cancels a link request that is waiting for approval; a linked shop stays linked. */
+export const useCloudLinkCancel = () => {
+  const write = useCloudStateWriter();
+  return useMutation<CloudState, CloudCommandError, void>({
+    mutationFn: cloudLinkCancel,
+    onSuccess: write,
+  });
+};
+
+/** The shops stored on this computer. Enabled only when the cloud is (desktop shell). */
+export const useProfiles = (enabled: boolean) =>
+  useQuery<ShopProfile[], CloudCommandError>({
+    queryKey: queryKeys.cloud.profiles(),
+    queryFn: profilesList,
+    enabled,
+    staleTime: 5_000,
+  });
+
+/** Opens another stored shop. The app restarts by itself once this succeeds. */
+export const useProfileActivate = () =>
+  useMutation<void, CloudCommandError, string>({ mutationFn: profileActivate });
 
 export const useCloudUnlink = () => {
   const write = useCloudStateWriter();

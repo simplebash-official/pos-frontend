@@ -21,6 +21,7 @@ import { loginApi, lookupShopApi } from '../api/authApi';
 import { SERVICE_CENTER_NAME } from '@/config/branding';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { logger } from '@/shared/logging';
+import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from './CreateShopLink';
 import { ShopCodeField } from './ShopCodeField';
 import { useLoginShopCode } from '../lib/useLoginShopCode';
@@ -207,6 +208,8 @@ export const LoginForm = () => {
         >
           {t('Sign in to POS Console')}
         </Title>
+
+        <ShopAccountCard />
 
         {/* Form Fields */}
         <Box component="form" onSubmit={handleLogin} w="100%">
