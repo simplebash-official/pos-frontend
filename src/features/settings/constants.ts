@@ -23,7 +23,6 @@ export const DEFAULT_SHOP_PROFILE: ShopProfile = {
 
 export const DEFAULT_PRINT_SETTINGS: PrintSettings = {
   receiptPaper: '80mm',
-  invoiceDesign: 'classic',
   autoPrintOnCheckout: 'receipt',
   receiptCopies: 1,
   invoiceCopies: 'customer',

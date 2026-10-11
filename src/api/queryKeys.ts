@@ -1,4 +1,9 @@
 export const queryKeys = {
+  settings: {
+    documentTemplates: () => ['settings', 'documentTemplates'] as const,
+    documentTemplatePreview: (name: string) =>
+      ['settings', 'documentTemplatePreview', name] as const,
+  },
   billing: {
     all: ['billing'] as const,
     invoices: (filters?: Record<string, unknown>) => ['billing', 'invoices', filters] as const,

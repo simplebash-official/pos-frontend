@@ -16,7 +16,8 @@ interface UseInvoiceDocumentResult {
 export const useInvoiceDocument = (
   invoiceId: string | undefined,
   documentType: InvoiceDocumentType | null,
-  paperWidthMm?: 58 | 80
+  paperWidthMm?: 58 | 80,
+  templateName?: string
 ): UseInvoiceDocumentResult => {
   const enabled = Boolean(invoiceId && documentType);
 
@@ -26,9 +27,14 @@ export const useInvoiceDocument = (
     isError,
     fetchStatus,
   } = useQuery({
-    queryKey: ['billing', 'invoiceDocument', invoiceId, documentType, paperWidthMm],
+    queryKey: ['billing', 'invoiceDocument', invoiceId, documentType, paperWidthMm, templateName],
     queryFn: () =>
-      getInvoiceDocument(invoiceId as string, documentType as InvoiceDocumentType, paperWidthMm),
+      getInvoiceDocument(
+        invoiceId as string,
+        documentType as InvoiceDocumentType,
+        paperWidthMm,
+        templateName
+      ),
     enabled,
   });
 

@@ -12,7 +12,8 @@ interface UseCreditNoteDocumentResult {
 // not a synced resource, a plain TanStack Query fetch of a rendered Blob.
 export const useCreditNoteDocument = (
   creditNoteId: string | undefined,
-  documentType: CreditNoteDocumentType | null = 'credit-note'
+  documentType: CreditNoteDocumentType | null = 'credit-note',
+  templateName?: string
 ): UseCreditNoteDocumentResult => {
   const enabled = Boolean(creditNoteId && documentType);
 
@@ -22,9 +23,13 @@ export const useCreditNoteDocument = (
     isError,
     fetchStatus,
   } = useQuery({
-    queryKey: ['billing', 'creditNoteDocument', creditNoteId, documentType],
+    queryKey: ['billing', 'creditNoteDocument', creditNoteId, documentType, templateName],
     queryFn: () =>
-      getCreditNoteDocument(creditNoteId as string, documentType as CreditNoteDocumentType),
+      getCreditNoteDocument(
+        creditNoteId as string,
+        documentType as CreditNoteDocumentType,
+        templateName
+      ),
     enabled,
   });
 

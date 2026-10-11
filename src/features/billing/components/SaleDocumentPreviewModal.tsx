@@ -5,8 +5,10 @@ import { IconX, IconPrinter } from '@tabler/icons-react';
 import type { Invoice, CreditNote } from '../types';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
-import { a4InvoiceDocumentType } from '../api/documentsApi';
 import { useCreditNoteDocument } from '../hooks/useCreditNoteDocument';
+import { designKindFor, hasDesignChoice, nextDesignPick } from '../lib/documentDesign';
+import { DocumentDesignPicker } from './DocumentDesignPicker';
+import { useDocumentTemplateSettings } from '@/features/settings/hooks/useDocumentTemplates';
 import { getCreditNoteStatusMeta } from '@/features/invoices/lib/invoiceStatus';
 import { getPrintLogsForInvoice, recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { useAppSelector } from '@/store/hooks';
@@ -55,7 +57,7 @@ export const SaleDocumentPreviewModal = ({
   const invoiceDocType =
     opened && invoice && documentKind
       ? documentKind === 'invoice'
-        ? a4InvoiceDocumentType(printSettings.invoiceDesign)
+        ? 'a4-invoice'
         : documentKind === 'receipt'
           ? 'thermal-receipt'
           : null
@@ -63,8 +65,24 @@ export const SaleDocumentPreviewModal = ({
 
   // Both hooks are always called (Rules of Hooks) — each is a no-op query
   // (`enabled: false`) when its subject isn't the active one.
-  const invoiceDoc = useInvoiceDocument(invoice?.id, invoiceDocType, paperWidthMm);
-  const creditNoteDoc = useCreditNoteDocument(opened && creditNote ? creditNote.id : undefined);
+  // The shop's design for this kind of document is applied by the backend; the dropdown below only
+  // overrides it for this one print. A pick belongs to one document and is dropped on close.
+  const designKind = documentKind ? designKindFor(documentKind) : null;
+  const designSettings = useDocumentTemplateSettings(opened && designKind !== null);
+  const kindSettings = designSettings.data?.kinds.find((kind) => kind.kind === designKind);
+  const pickKey = `${invoice?.id ?? creditNote?.id ?? ''}:${documentKind}`;
+  const [designPick, setDesignPick] = useState<{ key: string; name: string } | null>(null);
+  if (!opened && designPick !== null) {
+    setDesignPick(null);
+  }
+  const designOverride = designPick?.key === pickKey ? designPick.name : undefined;
+
+  const invoiceDoc = useInvoiceDocument(invoice?.id, invoiceDocType, paperWidthMm, designOverride);
+  const creditNoteDoc = useCreditNoteDocument(
+    opened && creditNote ? creditNote.id : undefined,
+    'credit-note',
+    designOverride
+  );
   const { blob, loading, error, isPaused } = creditNote ? creditNoteDoc : invoiceDoc;
 
   const printDocLabel =
@@ -210,6 +228,17 @@ export const SaleDocumentPreviewModal = ({
           </ActionIcon>
         </Group>
       </Box>
+
+      {hasDesignChoice(kindSettings) && (
+        <DocumentDesignPicker
+          kind={kindSettings}
+          value={designOverride ?? kindSettings.effective}
+          onChange={(name) => {
+            const next = nextDesignPick(kindSettings, name);
+            setDesignPick(next === null ? null : { key: pickKey, name: next });
+          }}
+        />
+      )}
 
       {isReceipt && invoice && hero ? (
         <Box

@@ -8,6 +8,7 @@ import {
   IconDeviceDesktopAnalytics,
   IconFileText,
   IconListDetails,
+  IconPalette,
   IconPhoto,
   IconPrinter,
   IconRefresh,
@@ -18,6 +19,7 @@ export type SettingsSectionId =
   | 'branding'
   | 'bank-details'
   | 'printing'
+  | 'document-designs'
   | 'templates'
   | 'updates'
   | 'account'
@@ -74,6 +76,13 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Printing',
     description: 'Receipt paper size and what prints by default',
     icon: IconPrinter,
+  },
+  {
+    id: 'document-designs',
+    label: 'Document Designs',
+    shortLabel: 'Designs',
+    description: 'Choose how invoices, receipts and credit notes look',
+    icon: IconPalette,
   },
   {
     id: 'templates',

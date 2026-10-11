@@ -44,7 +44,14 @@ describe('settingsSections desktop filtering', () => {
     });
 
     // Printing is open: it holds the A4 invoice design (Classic / Modern) switch.
-    const activeSectionIds = ['shop-profile', 'printing', 'updates', 'backup', 'benchmark'];
+    const activeSectionIds = [
+      'shop-profile',
+      'printing',
+      'document-designs',
+      'updates',
+      'backup',
+      'benchmark',
+    ];
     activeSectionIds.forEach((id) => {
       const section = SETTINGS_SECTIONS.find((s) => s.id === id);
       expect(section).toBeDefined();
