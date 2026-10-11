@@ -1,11 +1,16 @@
 import { apiClient } from '@/api/client';
+import type { InvoiceDesign } from '@/features/settings/types';
 
 // The backend always stamps a rendered PDF as "ORIGINAL — CUSTOMER COPY" —
 // see `billing::routes::get_invoice_document`. There is no server-side
 // concept of a duplicate/office copy yet, so callers can no longer request
 // one; the local print log (`printLogStore.ts`) still tracks *that* a
 // document was printed, just not which copy designation it carries.
-export type InvoiceDocumentType = 'a4-invoice' | 'thermal-receipt';
+export type InvoiceDocumentType = 'a4-invoice' | 'a4-invoice-modern' | 'thermal-receipt';
+
+// The two A4 designs share one payload; the terminal's Printing setting picks which one renders.
+export const a4InvoiceDocumentType = (design: InvoiceDesign): InvoiceDocumentType =>
+  design === 'modern' ? 'a4-invoice-modern' : 'a4-invoice';
 
 export const getInvoiceDocument = (
   invoiceId: string,

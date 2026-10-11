@@ -4,6 +4,9 @@ import { useParams } from 'react-router-dom';
 import { Box, Button, Group, Text, Paper, Container, Loader, Stack } from '@mantine/core';
 import { IconPrinter, IconX, IconAlertCircle } from '@tabler/icons-react';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { a4InvoiceDocumentType } from '../api/documentsApi';
+import { useAppSelector } from '@/store/hooks';
+import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
@@ -17,7 +20,11 @@ export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
   const printedRef = useRef(false);
 
-  const { blob, loading, error, isPaused } = useInvoiceDocument(id, 'a4-invoice');
+  const { invoiceDesign } = useAppSelector(selectPrintSettings);
+  const { blob, loading, error, isPaused } = useInvoiceDocument(
+    id,
+    a4InvoiceDocumentType(invoiceDesign)
+  );
 
   useEffect(() => {
     if (blob && !printedRef.current) {

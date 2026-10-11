@@ -8,9 +8,11 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectPrintSettings, updatePrintSettings } from '@/store/slices/settingsSlice';
 import { SectionShell } from '../SectionShell';
 import type { SectionProps } from './ShopProfileSection';
+import type { InvoiceDesign } from '../../types';
 
 interface PrintingFormValues {
   receiptPaper: '80mm' | '58mm';
+  invoiceDesign: InvoiceDesign;
   invoiceCopies: 'customer' | 'customer+office';
   defaultDocumentForWalkIn: 'receipt' | 'invoice' | 'none';
   defaultDocumentForAccountCustomer: 'receipt' | 'invoice' | 'both' | 'none';
@@ -25,6 +27,7 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
   const form = useForm<PrintingFormValues>({
     initialValues: {
       receiptPaper: printSettings.receiptPaper,
+      invoiceDesign: printSettings.invoiceDesign,
       invoiceCopies: printSettings.invoiceCopies,
       defaultDocumentForWalkIn: printSettings.defaultDocumentForWalkIn,
       defaultDocumentForAccountCustomer: printSettings.defaultDocumentForAccountCustomer,
@@ -75,6 +78,21 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
             data={[
               { label: '80mm Standard', value: '80mm' },
               { label: '58mm Compact', value: '58mm' },
+            ]}
+          />
+        </Box>
+
+        <Box>
+          <Text size="xs" fw={700} c="dimmed" mb={4}>
+            {t('A4 INVOICE DESIGN')}
+          </Text>
+          <SegmentedToggle
+            fullWidth
+            value={form.values.invoiceDesign}
+            onChange={(v) => form.setFieldValue('invoiceDesign', v as InvoiceDesign)}
+            data={[
+              { label: 'Classic', value: 'classic' },
+              { label: 'Modern', value: 'modern' },
             ]}
           />
         </Box>

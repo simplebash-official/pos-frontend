@@ -5,6 +5,7 @@ import { IconX, IconPrinter } from '@tabler/icons-react';
 import type { Invoice, CreditNote } from '../types';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { a4InvoiceDocumentType } from '../api/documentsApi';
 import { useCreditNoteDocument } from '../hooks/useCreditNoteDocument';
 import { getCreditNoteStatusMeta } from '@/features/invoices/lib/invoiceStatus';
 import { getPrintLogsForInvoice, recordPrintEvent } from '@/features/invoices/api/printLogStore';
@@ -54,7 +55,7 @@ export const SaleDocumentPreviewModal = ({
   const invoiceDocType =
     opened && invoice && documentKind
       ? documentKind === 'invoice'
-        ? 'a4-invoice'
+        ? a4InvoiceDocumentType(printSettings.invoiceDesign)
         : documentKind === 'receipt'
           ? 'thermal-receipt'
           : null

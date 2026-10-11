@@ -24,8 +24,11 @@ export type InvoiceCopyOption = 'customer' | 'customer+office';
 export type DocumentSelection = 'receipt' | 'invoice' | 'both' | 'none';
 export type WalkInDocumentSelection = 'receipt' | 'invoice' | 'none';
 
+export type InvoiceDesign = 'classic' | 'modern';
+
 export interface PrintSettings {
   receiptPaper: '80mm' | '58mm';
+  invoiceDesign: InvoiceDesign;
   autoPrintOnCheckout: AutoPrintOption;
   receiptCopies: number;
   invoiceCopies: InvoiceCopyOption;

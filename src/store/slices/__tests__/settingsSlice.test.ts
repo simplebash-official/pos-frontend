@@ -4,6 +4,7 @@ import settingsReducer, {
   updateShopProfile,
   updatePrintSettings,
   resetSettings,
+  restoreSettings,
   selectShopProfile,
   selectPrintSettings,
   selectShopProfileVersions,
@@ -56,6 +57,30 @@ describe('settingsSlice reducer & selectors', () => {
 
     expect(state.printSettings.receiptPaper).toBe('58mm');
     expect(state.printSettings.showLogoOnReceipt).toBe(false);
+  });
+
+  it('defaults the A4 invoice design to classic and lets a terminal switch to modern', () => {
+    expect(getInitialState().printSettings.invoiceDesign).toBe('classic');
+    const state = settingsReducer(
+      getInitialState(),
+      updatePrintSettings({ invoiceDesign: 'modern' })
+    );
+    expect(state.printSettings.invoiceDesign).toBe('modern');
+  });
+
+  it('keeps the classic design when restoring settings saved before invoiceDesign existed', () => {
+    const { invoiceDesign: _omitted, ...legacyPrintSettings } = DEFAULT_PRINT_SETTINGS;
+    const state = settingsReducer(
+      getInitialState(),
+      restoreSettings({
+        printSettings: {
+          ...legacyPrintSettings,
+          receiptPaper: '58mm',
+        } as typeof DEFAULT_PRINT_SETTINGS,
+      })
+    );
+    expect(state.printSettings.invoiceDesign).toBe('classic');
+    expect(state.printSettings.receiptPaper).toBe('58mm');
   });
 
   it('replaces shop profile with setShopProfile', () => {
