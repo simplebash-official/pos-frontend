@@ -16,6 +16,7 @@ import { ShopProfileSection } from './sections/ShopProfileSection';
 import { BrandingSection } from './sections/BrandingSection';
 import { BankDetailsSection } from './sections/BankDetailsSection';
 import { PrintingSection } from './sections/PrintingSection';
+import { DocumentDesignsSection } from './sections/DocumentDesignsSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
 import { UpdatesSection } from './sections/UpdatesSection';
 import { BackupSection } from './sections/BackupSection';
@@ -63,6 +64,8 @@ const renderSection = (
       return <BankDetailsSection onDirtyChange={onDirtyChange} />;
     case 'printing':
       return <PrintingSection onDirtyChange={onDirtyChange} />;
+    case 'document-designs':
+      return <DocumentDesignsSection onDirtyChange={onDirtyChange} />;
     case 'templates':
       return <DocumentTemplatesSection onDirtyChange={onDirtyChange} />;
     case 'updates':
