@@ -74,8 +74,6 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Printing',
     description: 'Receipt paper size and what prints by default',
     icon: IconPrinter,
-    comingSoon: true,
-    disabled: true,
   },
   {
     id: 'templates',

@@ -33,8 +33,8 @@ describe('settingsSections desktop filtering', () => {
     expect(visibleOnDesktop.some((s) => s.id === 'benchmark')).toBe(true);
   });
 
-  it('marks branding, bank-details, printing, and templates as comingSoon and disabled', () => {
-    const comingSoonSectionIds = ['branding', 'bank-details', 'printing', 'templates'];
+  it('marks branding, bank-details, and templates as comingSoon and disabled', () => {
+    const comingSoonSectionIds = ['branding', 'bank-details', 'templates'];
 
     comingSoonSectionIds.forEach((id) => {
       const section = SETTINGS_SECTIONS.find((s) => s.id === id);
@@ -43,7 +43,8 @@ describe('settingsSections desktop filtering', () => {
       expect(section?.disabled).toBe(true);
     });
 
-    const activeSectionIds = ['shop-profile', 'updates', 'backup', 'benchmark'];
+    // Printing is open: it holds the A4 invoice design (Classic / Modern) switch.
+    const activeSectionIds = ['shop-profile', 'printing', 'updates', 'backup', 'benchmark'];
     activeSectionIds.forEach((id) => {
       const section = SETTINGS_SECTIONS.find((s) => s.id === id);
       expect(section).toBeDefined();
