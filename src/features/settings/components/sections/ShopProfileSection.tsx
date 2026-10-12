@@ -13,6 +13,7 @@ import {
 } from '@/store/slices/settingsSlice';
 import { SectionShell } from '../SectionShell';
 import { getShopProfileApi, updateShopProfileApi } from '../../api/settingsApi';
+import { useCloudState } from '@/features/account';
 
 interface ShopProfileFormValues {
   legalName: string;
@@ -33,12 +34,18 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
   const shopProfile = useAppSelector(selectShopProfile);
   const appLanguage = useAppSelector(selectAppLanguage);
+  const { state: cloudState } = useCloudState();
   const [saving, setSaving] = useState(false);
+
+  const initialTradingName =
+    shopProfile.tradingName ||
+    (cloudState.linked ? cloudState.shopName?.trim() || '' : '') ||
+    '';
 
   const form = useForm<ShopProfileFormValues>({
     initialValues: {
       legalName: shopProfile.legalName || '',
-      tradingName: shopProfile.tradingName || '',
+      tradingName: initialTradingName,
       addressLine1: shopProfile.addressLines?.[0] || '',
       addressLine2: shopProfile.addressLines?.[1] || '',
       primaryPhone: shopProfile.primaryPhone || '',
@@ -60,11 +67,16 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
     getShopProfileApi()
       .then((profile) => {
         if (!isMounted) return;
-        dispatch(setShopProfile(profile));
+        const effectiveTradingName =
+          profile.tradingName?.trim() ||
+          (cloudState.linked ? cloudState.shopName?.trim() || '' : '') ||
+          '';
+        const populatedProfile = { ...profile, tradingName: effectiveTradingName };
+        dispatch(setShopProfile(populatedProfile));
         if (!form.isDirty()) {
           const freshValues: ShopProfileFormValues = {
             legalName: profile.legalName || '',
-            tradingName: profile.tradingName || '',
+            tradingName: effectiveTradingName,
             addressLine1: profile.addressLines?.[0] || '',
             addressLine2: profile.addressLines?.[1] || '',
             primaryPhone: profile.primaryPhone || '',
@@ -85,7 +97,7 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
       isMounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  }, [dispatch, cloudState.linked, cloudState.shopName]);
 
   const isDirty = form.isDirty();
   useEffect(() => {

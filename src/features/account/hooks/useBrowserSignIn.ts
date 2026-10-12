@@ -7,6 +7,9 @@ import { cloudLinkOpenBrowser, cloudLinkPoll, type LinkHints } from '../api/acco
 import { toCloudError } from '../lib/accountView';
 import { clearShopScopedStorage } from '../lib/switchShop';
 import { useCloudLinkCancel, useCloudLinkStart, useCloudState } from './useCloudState';
+import { store } from '@/store';
+import { updateShopProfile } from '@/store/slices/settingsSlice';
+import { updateShopProfileApi } from '@/features/settings/api/settingsApi';
 
 const EXPIRED_CODES = ['LINK_EXPIRED', 'LINK_NOT_FOUND'];
 
@@ -44,6 +47,11 @@ export const useBrowserSignIn = (options: { onLinked?: () => void } = {}) => {
           .then((result) => {
             if (result.status !== 'linked') return;
             queryClient.setQueryData(queryKeys.cloud.state(), result.state);
+            if (result.state.shopName) {
+              const name = result.state.shopName.trim();
+              store.dispatch(updateShopProfile({ tradingName: name }));
+              void updateShopProfileApi({ tradingName: name }).catch(() => {});
+            }
             if (result.switched) {
               // The shell restarts the app in a moment. Drop the old shop's browser data now so
               // nothing of it shows under the new one; no sync (the old database is still open).

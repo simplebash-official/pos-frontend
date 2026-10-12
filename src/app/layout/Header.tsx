@@ -38,6 +38,7 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
 import { SyncBadge } from '@/features/sync-status';
+import { useCloudState } from '@/features/account';
 
 export interface HeaderProps {
   opened: boolean;
@@ -73,7 +74,11 @@ export const Header = ({
   const userLabel = `${userName} (${user?.role || 'user'})`;
 
   const shopProfile = useAppSelector(selectShopProfile);
-  const shopName = shopProfile?.tradingName?.trim() || shopProfile?.legalName?.trim();
+  const { state: cloudState } = useCloudState();
+  const shopName =
+    shopProfile?.tradingName?.trim() ||
+    shopProfile?.legalName?.trim() ||
+    (cloudState.linked ? cloudState.shopName?.trim() : null);
   const headerTitle = shopName || SERVICE_CENTER_NAME;
 
   const { itemCount: cartItemsCount } = useCartItems();

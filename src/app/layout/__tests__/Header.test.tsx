@@ -10,6 +10,11 @@ import type { ShopProfile } from '@/features/settings/types';
 
 let mockPathname = '/dashboard';
 let mockIsMobile = false;
+let mockCloudState = { linked: false, shopName: null as string | null };
+
+vi.mock('@/features/account', () => ({
+  useCloudState: () => ({ state: mockCloudState }),
+}));
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
@@ -66,9 +71,10 @@ describe('Header component shop name rendering', () => {
   beforeEach(() => {
     mockPathname = '/dashboard';
     mockIsMobile = false;
+    mockCloudState = { linked: false, shopName: null };
   });
 
-  it('renders SERVICE_CENTER_NAME when shop profile tradingName and legalName are empty', () => {
+  it('renders SERVICE_CENTER_NAME when shop profile tradingName and legalName are empty and cloud not linked', () => {
     const store = createMockStore({ tradingName: '', legalName: '' });
     const html = renderHeader(store);
 
@@ -91,6 +97,34 @@ describe('Header component shop name rendering', () => {
 
     expect(html).toContain('Lanka Motors Pvt Ltd');
     expect(html).toContain('title="Lanka Motors Pvt Ltd"');
+  });
+
+  it('falls back to cloudState.shopName when tradingName and legalName are empty and cloud is linked', () => {
+    mockCloudState = { linked: true, shopName: 'Jana 2U Shop' };
+    const store = createMockStore({ tradingName: '', legalName: '' });
+    const html = renderHeader(store);
+
+    expect(html).toContain('Jana 2U Shop');
+    expect(html).toContain('title="Jana 2U Shop"');
+    expect(html).not.toContain(SERVICE_CENTER_NAME);
+  });
+
+  it('prefers custom tradingName over cloudState.shopName', () => {
+    mockCloudState = { linked: true, shopName: 'Cloud Shop Name' };
+    const store = createMockStore({ tradingName: 'Colombo Auto Hub' });
+    const html = renderHeader(store);
+
+    expect(html).toContain('Colombo Auto Hub');
+    expect(html).toContain('title="Colombo Auto Hub"');
+    expect(html).not.toContain('Cloud Shop Name');
+  });
+
+  it('renders SERVICE_CENTER_NAME when linked but cloudState.shopName is empty or whitespace', () => {
+    mockCloudState = { linked: true, shopName: '   ' };
+    const store = createMockStore({ tradingName: '', legalName: '' });
+    const html = renderHeader(store);
+
+    expect(html).toContain(SERVICE_CENTER_NAME);
   });
 
   it('applies truncation and responsive constraints to title', () => {
@@ -118,3 +152,4 @@ describe('Header component shop name rendering', () => {
     expect(html).not.toContain('title="Custom Garage"');
   });
 });
+

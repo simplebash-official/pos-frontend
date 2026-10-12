@@ -14,8 +14,9 @@ import {
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
-import { setShopProfile } from '@/store/slices/settingsSlice';
-import { getShopProfileApi } from '@/features/settings/api/settingsApi';
+import { selectShopProfile, setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import { getShopProfileApi, updateShopProfileApi } from '@/features/settings/api/settingsApi';
+import { useCloudState } from '@/features/account';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
@@ -57,6 +58,8 @@ export const AppShell = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const shopProfile = useAppSelector(selectShopProfile);
+  const { state: cloudState } = useCloudState();
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const tier = useLayoutTier();
 
@@ -64,12 +67,37 @@ export const AppShell = () => {
     if (!isAuthenticated) return;
     getShopProfileApi()
       .then((profile) => {
-        dispatch(setShopProfile(profile));
+        const hasNoName = !profile.tradingName?.trim() || profile.tradingName === 'SimpleBash POS';
+        if (hasNoName && cloudState.linked && cloudState.shopName?.trim()) {
+          const linkedName = cloudState.shopName.trim();
+          const seededProfile = { ...profile, tradingName: linkedName };
+          dispatch(setShopProfile(seededProfile));
+          void updateShopProfileApi({ tradingName: linkedName }).catch((err) => {
+            console.warn('Failed to seed linked shop name to local backend:', err);
+          });
+        } else {
+          dispatch(setShopProfile(profile));
+        }
       })
       .catch((err) => {
         console.warn('Failed to load shop profile from backend:', err);
       });
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, dispatch, cloudState.linked, cloudState.shopName]);
+
+  // When device is linked to a cloud account, seed trading name if current profile is still unset
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (cloudState.linked && cloudState.shopName?.trim()) {
+      const linkedName = cloudState.shopName.trim();
+      const currentName = shopProfile.tradingName?.trim();
+      if (!currentName || currentName === 'SimpleBash POS') {
+        dispatch(updateShopProfile({ tradingName: linkedName }));
+        void updateShopProfileApi({ tradingName: linkedName }).catch((err) => {
+          console.warn('Failed to seed linked shop name to local backend on cloud link:', err);
+        });
+      }
+    }
+  }, [isAuthenticated, cloudState.linked, cloudState.shopName, shopProfile.tradingName, dispatch]);
 
   // Entering/leaving billing is a navigation, not a resize: the header/navbar
   // dimension change should snap instantly instead of racing billing's heavy

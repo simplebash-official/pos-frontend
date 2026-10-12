@@ -25,6 +25,9 @@ import type {
 } from '../types';
 import { DISABLED_CLOUD_STATE } from '../types';
 import { syncNow } from '@/features/sync-status/api/syncStatusApi';
+import { store } from '@/store';
+import { updateShopProfile } from '@/store/slices/settingsSlice';
+import { updateShopProfileApi } from '@/features/settings/api/settingsApi';
 
 /** Cloud link state from the desktop shell. Disabled (and inert) on web. */
 export const useCloudState = () => {
@@ -50,6 +53,11 @@ export const useCloudLogin = () => {
     mutationFn: cloudLoginAndLink,
     onSuccess: (data) => {
       write(data);
+      if (data.shopName) {
+        const name = data.shopName.trim();
+        store.dispatch(updateShopProfile({ tradingName: name }));
+        void updateShopProfileApi({ tradingName: name }).catch(() => {});
+      }
       void syncNow().catch(() => {});
     },
   });
