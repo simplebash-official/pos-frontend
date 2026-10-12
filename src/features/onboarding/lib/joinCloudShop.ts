@@ -11,6 +11,14 @@ export const JOIN_TIMEOUT_MS = 60_000;
 export const isFirstSyncDone = (sync: SyncStatus): boolean =>
   sync.linked && sync.state === 'idle' && sync.lastSyncAt !== null && !sync.bootstrapRequired;
 
+/**
+ * A computer already linked to a cloud shop has no first-install tour to do: it goes straight to
+ * the step that downloads the shop. Only while still on the first screen and untouched, so
+ * "Back" from the join step keeps working.
+ */
+export const shouldJoinFromStart = (cloudLinked: boolean, activeStep: number, touched: boolean) =>
+  cloudLinked && activeStep === 0 && !touched;
+
 export type JoinOutcome =
   /** Still downloading (or not sure yet): keep the spinner. */
   | 'waiting'
@@ -44,7 +52,10 @@ export const joinOutcome = ({
   timedOut,
 }: JoinInput): JoinOutcome => {
   if (setupCompleted) return 'joined';
-  if (timedOut || sync.bootstrapRequired) return 'form';
+  // A big shop on a slow link can take longer than the timeout; while pages are still
+  // arriving, offering a second admin form would be wrong.
+  const downloading = sync.state === 'syncing' && sync.step === 'downloading';
+  if (sync.bootstrapRequired || (timedOut && !downloading)) return 'form';
   if (sync.state === 'offline' || sync.state === 'error' || sync.state === 'paused') return 'form';
   if (isFirstSyncDone(sync) && setupCheckedAfterSync) {
     // Users exist but setup is open: the cloud admin arrived. No users: nothing came down.

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Alert, Button, Group, Loader, Progress, Stack, Text, Title } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { t } from '@/shared/i18n/t';
 import { ROUTES } from '@/constants/routes';
@@ -68,6 +69,11 @@ export const JoinCloudShopStep = ({
     timedOut,
   });
 
+  const total = sync.progress?.total ?? 0;
+  // The total is unknown (0) until the first page is counted: show a moving bar, not a fake 0%.
+  const percent =
+    total > 0 ? Math.min(100, Math.round(((sync.progress?.done ?? 0) / total) * 100)) : null;
+
   useEffect(() => {
     if (finished.current) return;
     if (outcome === 'form') {
@@ -104,6 +110,25 @@ export const JoinCloudShopStep = ({
             ).replace('{shop}', shopName)
           : t('We are downloading your shop to this computer. This usually takes a few seconds.')}
       </Text>
+      <Stack gap="xs" w="100%" maw={480} data-testid="join-cloud-shop-progress">
+        <Progress
+          value={percent ?? 100}
+          animated
+          striped={percent === null}
+          aria-label={t('Download progress')}
+        />
+        <Text size="sm" fw={600}>
+          {sync.step === 'downloading'
+            ? t('Downloading your products, customers and sales…')
+            : t('Connecting to your shop in the cloud…')}
+          {percent !== null && ` ${percent}%`}
+        </Text>
+      </Stack>
+      <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />} maw={480} ta="left">
+        {t(
+          'Please wait. You can start using the POS as soon as your shop has finished downloading.'
+        )}
+      </Alert>
       <Group>
         <Button variant="default" onClick={onPrev} style={{ minHeight: 44 }}>
           {t('Back')}
