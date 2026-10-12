@@ -11,7 +11,7 @@ import {
   IconPalette,
   IconPhoto,
   IconPrinter,
-  IconRefresh,
+  IconInfoCircle,
 } from '@tabler/icons-react';
 
 export type SettingsSectionId =
@@ -21,6 +21,7 @@ export type SettingsSectionId =
   | 'printing'
   | 'document-designs'
   | 'templates'
+  | 'about'
   | 'updates'
   | 'account'
   | 'sync'
@@ -94,11 +95,11 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     disabled: true,
   },
   {
-    id: 'updates',
-    label: 'Updates',
-    shortLabel: 'Updates',
-    description: 'App version and software updates',
-    icon: IconRefresh,
+    id: 'about',
+    label: 'About',
+    shortLabel: 'About',
+    description: 'Version, build details and system information',
+    icon: IconInfoCircle,
   },
   {
     id: 'account',

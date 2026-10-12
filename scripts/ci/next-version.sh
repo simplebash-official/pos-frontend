@@ -30,42 +30,44 @@ BASELINE="$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)"
 if [[ -n "$BASELINE" ]]; then
   RANGE="${BASELINE}..HEAD"
 else
-  # If no tag exists yet, baseline is current version without prior un-tagged history
-  RANGE=""
+  RANGE="HEAD" # no tag yet — consider all history
 fi
+
+# %s = subject, %b = body; records split by \x1e, subject/body by \x1f
+LOG="$(git log --no-merges --format='%s%x1f%b%x1e' "$RANGE" || true)"
 
 bump="none"
 rank() { case "$1" in breaking) echo 3;; minor) echo 2;; patch) echo 1;; *) echo 0;; esac; }
 consider() { [[ "$(rank "$1")" -gt "$(rank "$bump")" ]] && bump="$1" || true; }
 
-if [[ -n "$RANGE" ]]; then
-  LOG="$(git log --no-merges --format='%s%x1f%b%x1e' "$RANGE" || true)"
-  type_re='^([a-zA-Z]+)(\([^)]*\))?(!)?:'
+# type prefix at the very start of the subject: "type:" / "type(scope):" / "type!:" / "type(scope)!:"
+type_re='^([a-zA-Z]+)(\([^)]*\))?(!)?:'
 
-  while IFS= read -r -d $'\x1e' record; do
-    record="${record#"${record%%[![:space:]]*}"}"
-    [[ -z "$record" ]] && continue
-    subject="${record%%$'\x1f'*}"
-    body="${record#*$'\x1f'}"
+while IFS= read -r -d $'\x1e' record; do
+  # git writes a newline between records; strip any leading whitespace/newlines
+  # so the subject regex can anchor at ^.
+  record="${record#"${record%%[![:space:]]*}"}"
+  [[ -z "$record" ]] && continue
+  subject="${record%%$'\x1f'*}"
+  body="${record#*$'\x1f'}"
 
-    if [[ "$body" == *"BREAKING CHANGE:"* || "$body" == *"BREAKING-CHANGE:"* ]]; then
+  if [[ "$body" == *"BREAKING CHANGE:"* || "$body" == *"BREAKING-CHANGE:"* ]]; then
+    consider breaking
+  fi
+  if [[ "$subject" =~ $type_re ]]; then
+    type="$(echo "${BASH_REMATCH[1]}" | tr '[:upper:]' '[:lower:]')"
+    bang="${BASH_REMATCH[3]}"
+    if [[ -n "$bang" ]]; then
       consider breaking
+    else
+      case "$type" in
+        feat) consider minor ;;
+        fix|perf) consider patch ;;
+        *) : ;; # docs/chore/ci/refactor/test/build/style/revert/unknown -> ignore
+      esac
     fi
-    if [[ "$subject" =~ $type_re ]]; then
-      type="$(echo "${BASH_REMATCH[1]}" | tr '[:upper:]' '[:lower:]')"
-      bang="${BASH_REMATCH[3]}"
-      if [[ -n "$bang" ]]; then
-        consider breaking
-      else
-        case "$type" in
-          feat) consider minor ;;
-          fix|perf) consider patch ;;
-          *) : ;;
-        esac
-      fi
-    fi
-  done <<< "$LOG"
-fi
+  fi
+done <<< "$LOG"
 
 IFS=. read -r MA MI PA <<< "$CURRENT"
 next="$CURRENT"

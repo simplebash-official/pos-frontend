@@ -11,6 +11,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'virtual:pwa-register/react': path.resolve(
+        __dirname,
+        './src/app/components/pwaRegisterStub.ts'
+      ),
     },
   },
   // Mirror the build-time constants `vite.config.ts` injects, so any module

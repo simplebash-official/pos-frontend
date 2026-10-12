@@ -18,7 +18,7 @@ import { BankDetailsSection } from './sections/BankDetailsSection';
 import { PrintingSection } from './sections/PrintingSection';
 import { DocumentDesignsSection } from './sections/DocumentDesignsSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
-import { UpdatesSection } from './sections/UpdatesSection';
+import { AboutSection } from './sections/AboutSection';
 import { BackupSection } from './sections/BackupSection';
 import { BenchmarkSection } from './sections/BenchmarkSection';
 import { LogsSection } from './sections/LogsSection';
@@ -68,8 +68,9 @@ const renderSection = (
       return <DocumentDesignsSection onDirtyChange={onDirtyChange} />;
     case 'templates':
       return <DocumentTemplatesSection onDirtyChange={onDirtyChange} />;
+    case 'about':
     case 'updates':
-      return <UpdatesSection onDirtyChange={onDirtyChange} />;
+      return <AboutSection onDirtyChange={onDirtyChange} />;
     case 'account':
       return <AccountSection onDirtyChange={onDirtyChange} />;
     case 'sync':
@@ -90,9 +91,10 @@ export const SettingsPage = () => {
   const tier = useLayoutTier();
 
   // The sync badge deep-links here with `state: { section }`.
-  const requestedSection = (useLocation().state as { section?: SettingsSectionId } | null)?.section;
-  const initialSection: SettingsSectionId = SETTINGS_SECTIONS.some((s) => s.id === requestedSection)
-    ? (requestedSection as SettingsSectionId)
+  const requestedSection = (useLocation().state as { section?: SettingsSectionId | 'updates' } | null)?.section;
+  const targetSection = requestedSection === 'updates' ? 'about' : requestedSection;
+  const initialSection: SettingsSectionId = SETTINGS_SECTIONS.some((s) => s.id === targetSection)
+    ? (targetSection as SettingsSectionId)
     : 'shop-profile';
   const [activeSection, setActiveSection] = useState<SettingsSectionId>(initialSection);
   // Mobile only: whether the user has drilled into a section, or is still looking at the list.

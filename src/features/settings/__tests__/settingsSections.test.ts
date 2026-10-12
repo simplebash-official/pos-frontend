@@ -48,7 +48,7 @@ describe('settingsSections desktop filtering', () => {
       'shop-profile',
       'printing',
       'document-designs',
-      'updates',
+      'about',
       'backup',
       'benchmark',
     ];
@@ -58,5 +58,15 @@ describe('settingsSections desktop filtering', () => {
       expect(section?.comingSoon).toBeFalsy();
       expect(section?.disabled).toBeFalsy();
     });
+  });
+
+  it('configures the about section with correct labels and visibility on both web and desktop', () => {
+    const aboutSection = SETTINGS_SECTIONS.find((s) => s.id === 'about');
+    expect(aboutSection).toBeDefined();
+    expect(aboutSection?.label).toBe('About');
+    expect(aboutSection?.shortLabel).toBe('About');
+    expect(aboutSection?.desktopOnly).toBeFalsy();
+    expect(getVisibleSettingsSections(false).some((s) => s.id === 'about')).toBe(true);
+    expect(getVisibleSettingsSections(true).some((s) => s.id === 'about')).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 {
   "name": "simplebash-pos",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
+    "test:run": "vitest run",
     "test:jest": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:all": "vitest run && NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "vitest",
