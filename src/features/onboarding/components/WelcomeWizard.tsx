@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -48,6 +48,7 @@ import { SplashStep } from './SplashStep';
 import { FeatureGuideStep } from './FeatureGuideStep';
 import { DataChoiceStep } from './DataChoiceStep';
 import { JoinCloudShopStep } from './JoinCloudShopStep';
+import { shouldJoinFromStart } from '../lib/joinCloudShop';
 import { ProgressStep } from './ProgressStep';
 import type { SetupSystemPayload, SetupSystemResult } from '../types';
 import { PRODUCT_NAME } from '@/config/branding';
@@ -90,6 +91,15 @@ export const WelcomeWizard = () => {
     );
     setActiveStepState(step);
   };
+  // Already linked to a cloud shop (e.g. a freshly switched shop): skip the first-install tour and
+  // go straight to downloading it. Once only, so "Back" from there still works.
+  const jumpedToJoin = useRef(false);
+  useEffect(() => {
+    if (!shouldJoinFromStart(cloudLinked, activeStep, jumpedToJoin.current)) return;
+    jumpedToJoin.current = true;
+    setActiveStepState(dbStepIndex);
+  }, [cloudLinked, activeStep, dbStepIndex]);
+
   const [setupPayload, setSetupPayload] = useState<SetupSystemPayload | null>(null);
   const [setupResult, setSetupResult] = useState<SetupSystemResult | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);

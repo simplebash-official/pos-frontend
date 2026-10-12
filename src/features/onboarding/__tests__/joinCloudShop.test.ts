@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DISABLED_SYNC_STATUS, type SyncStatus } from '@/features/sync-status/types';
-import { isFirstSyncDone, joinOutcome } from '../lib/joinCloudShop';
+import { isFirstSyncDone, joinOutcome, shouldJoinFromStart } from '../lib/joinCloudShop';
 
 const linked = (over: Partial<SyncStatus> = {}): SyncStatus => ({
   ...DISABLED_SYNC_STATUS,
@@ -80,5 +80,27 @@ describe('joinOutcome', () => {
 
   it('a finished download beats a timeout', () => {
     expect(joinOutcome(input({ setupCompleted: true, timedOut: true }))).toBe('joined');
+  });
+
+  it('does not give up on the shop while pages are still downloading', () => {
+    const downloading = linked({ state: 'syncing', step: 'downloading' });
+    expect(joinOutcome(input({ timedOut: true, sync: downloading }))).toBe('waiting');
+    // ...but a stalled sync still falls back, and "needs confirmation" never waits.
+    expect(joinOutcome(input({ timedOut: true, sync: linked({ state: 'syncing' }) }))).toBe('form');
+    expect(
+      joinOutcome(input({ timedOut: true, sync: { ...downloading, bootstrapRequired: true } }))
+    ).toBe('form');
+  });
+});
+
+describe('shouldJoinFromStart', () => {
+  it('sends a linked computer straight to the shop download, once', () => {
+    expect(shouldJoinFromStart(true, 0, false)).toBe(true);
+    expect(shouldJoinFromStart(true, 0, true)).toBe(false);
+  });
+
+  it('leaves an unlinked computer, or one already past the first screen, alone', () => {
+    expect(shouldJoinFromStart(false, 0, false)).toBe(false);
+    expect(shouldJoinFromStart(true, 2, false)).toBe(false);
   });
 });
