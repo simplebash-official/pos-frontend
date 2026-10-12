@@ -13,12 +13,7 @@ export async function getShopProfileApi(): Promise<ShopProfile> {
 /**
  * Persists updated shop profile fields to the backend database.
  */
-export async function updateShopProfileApi(
-  payload: Partial<ShopProfile>
-): Promise<ShopProfile> {
-  const response = await apiClient.put<ApiResponse<ShopProfile>>(
-    '/settings/shop-profile',
-    payload
-  );
+export async function updateShopProfileApi(payload: Partial<ShopProfile>): Promise<ShopProfile> {
+  const response = await apiClient.put<ApiResponse<ShopProfile>>('/settings/shop-profile', payload);
   return response.data;
 }

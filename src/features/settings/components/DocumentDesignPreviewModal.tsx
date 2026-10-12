@@ -1,7 +1,9 @@
 import { t } from '@/shared/i18n/t';
 import { Box, Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { IconDownload } from '@tabler/icons-react';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { downloadPdfBlob, pdfFileName } from '@/shared/print/pdfFileName';
 import { useDocumentTemplatePreview } from '../hooks/useDocumentTemplates';
 
 interface DocumentDesignPreviewModalProps {
@@ -55,6 +57,15 @@ export const DocumentDesignPreviewModal = ({
           />
         </Box>
         <Group justify="flex-end" mt="md" gap="sm">
+          <Button
+            variant="default"
+            disabled={loading || !!error || !blob}
+            leftSection={<IconDownload size={16} />}
+            onClick={() => blob && downloadPdfBlob(blob, pdfFileName(`${name}-sample`))}
+            data-log-id="settings.download-design-sample-pdf"
+          >
+            {t('Download PDF')}
+          </Button>
           <Button variant="default" onClick={onClose}>
             {t('Close')}
           </Button>

@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
-import { IconX, IconPrinter } from '@tabler/icons-react';
+import { IconX, IconPrinter, IconDownload } from '@tabler/icons-react';
 import type { Invoice, CreditNote } from '../types';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
@@ -19,6 +19,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime, formatTime } from '@/shared/lib/date';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
+import { downloadPdfBlob, pdfFileName } from '@/shared/print/pdfFileName';
 
 export type DocumentPreviewSubject =
   { kind: 'invoice'; invoice: Invoice } | { kind: 'creditNote'; creditNote: CreditNote };
@@ -93,9 +94,17 @@ export const SaleDocumentPreviewModal = ({
         : 'Invoice';
   const printTitle = `${printDocLabel} — ${printLogNumber || 'Pending'}`;
 
+  // The number is the file name; the id covers the rare invoice that has no number yet.
+  const fileNameFor = () => pdfFileName(printLogKey);
+
+  const handleDownload = () => {
+    if (!blob) return;
+    downloadPdfBlob(blob, fileNameFor());
+  };
+
   const handlePrint = () => {
     if (!blob) return;
-    void printPdfBlob(blob, printTitle);
+    void printPdfBlob(blob, printTitle, undefined, fileNameFor());
     recordPrintEvent({
       invoiceId: invoice?.id ?? creditNote?.id ?? '',
       invoiceNumber: printLogKey,
@@ -213,6 +222,16 @@ export const SaleDocumentPreviewModal = ({
             onClick={handlePrint}
           >
             {hasPrinted ? 'Print Again' : 'Print'}
+          </Button>
+          <Button
+            size={isMobile ? 'sm' : 'md'}
+            variant="default"
+            disabled={loading || !!error || !blob}
+            leftSection={<IconDownload size={16} />}
+            onClick={handleDownload}
+            data-log-id="billing.download-pdf"
+          >
+            {t('Download PDF')}
           </Button>
           <Button size={isMobile ? 'sm' : 'md'} variant="default" onClick={onClose}>
             {hasPrinted ? 'Done' : 'Close'}

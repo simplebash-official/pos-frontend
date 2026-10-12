@@ -105,15 +105,20 @@ const renderPagesToImages = async (blob: Blob): Promise<PrintedPageImage[]> => {
   return pages;
 };
 
+const escapeHtml = (text: string): string =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 // Pages within one document share their physical size in practice (A4 invoices,
 // single-width receipts), so the @page rule is taken from the first page.
-const buildPrintHtml = (pages: PrintedPageImage[]): string => {
+const buildPrintHtml = (pages: PrintedPageImage[], fileName?: string): string => {
   const { widthMm, heightMm } = pages[0];
   const round = (mm: number) => Number(mm.toFixed(3));
+  // The document title is what "Save as PDF" proposes as the file name.
+  const titleTag = fileName ? `\n<title>${escapeHtml(fileName)}</title>` : '';
   return `<!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8">${titleTag}
 <style>
   @page { size: ${round(widthMm)}mm ${round(heightMm)}mm; margin: 0; }
   html, body { margin: 0; padding: 0; }
@@ -136,7 +141,9 @@ const buildPrintHtml = (pages: PrintedPageImage[]): string => {
 export const printPdfBlob = async (
   blob: Blob,
   title?: string,
-  sourceUrl?: string
+  sourceUrl?: string,
+  // The proposed "Save as PDF" file name (no extension); see `pdfFileName`.
+  fileName?: string
 ): Promise<void> => {
   logger.info(
     'print',
@@ -150,12 +157,12 @@ export const printPdfBlob = async (
     try {
       const { invoke } = await import('@tauri-apps/api/core');
       if (sourceUrl) {
-        await invoke('print_pdf_native', { pdfUrl: sourceUrl, title });
+        await invoke('print_pdf_native', { pdfUrl: sourceUrl, title: fileName ?? title });
         logger.info('print', 'native.done', { title, via: 'url' });
         return;
       }
       const pdfBase64 = await blobToBase64(blob);
-      await invoke('print_pdf_native', { pdfBase64, title });
+      await invoke('print_pdf_native', { pdfBase64, title: fileName ?? title });
       logger.info('print', 'native.done', { title, via: 'bytes' });
       return;
     } catch (e) {
@@ -169,7 +176,7 @@ export const printPdfBlob = async (
 
   let html: string;
   try {
-    html = buildPrintHtml(await renderPagesToImages(blob));
+    html = buildPrintHtml(await renderPagesToImages(blob), fileName);
   } catch (e) {
     logger.error('print', 'prepare.error', e, { title });
     console.error('Failed to prepare the PDF for printing:', e);
@@ -195,6 +202,13 @@ export const printPdfBlob = async (
 
     let triggered = false;
 
+    // Chrome and WebView2 may take the proposed file name from the top document's title rather
+    // than the iframe's, so the app title is swapped for the print and always put back.
+    const appTitle = document.title;
+    const restoreTitle = () => {
+      if (fileName) document.title = appTitle;
+    };
+
     const triggerPrint = () => {
       if (triggered) return;
       triggered = true;
@@ -202,19 +216,31 @@ export const printPdfBlob = async (
 
       const win = iframe.contentWindow;
       try {
+        if (fileName) document.title = fileName;
         win?.focus();
         win?.print();
         logger.info('print', 'dialog.opened', { title, via: 'iframe' });
       } catch (e) {
         logger.error('print', 'iframe.error', e, { title });
         console.error('Failed to print PDF:', e);
+        restoreTitle();
       } finally {
         resolve();
         // Removing the frame mid-job can cancel the print — wait for the
         // dialog to close, with a generous fallback for engines that never
         // fire 'afterprint'.
-        win?.addEventListener('afterprint', () => iframe.remove(), { once: true });
-        window.setTimeout(() => iframe.remove(), 60_000);
+        win?.addEventListener(
+          'afterprint',
+          () => {
+            iframe.remove();
+            restoreTitle();
+          },
+          { once: true }
+        );
+        window.setTimeout(() => {
+          iframe.remove();
+          restoreTitle();
+        }, 60_000);
       }
     };
 

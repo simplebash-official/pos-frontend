@@ -91,7 +91,9 @@ export const SettingsPage = () => {
   const tier = useLayoutTier();
 
   // The sync badge deep-links here with `state: { section }`.
-  const requestedSection = (useLocation().state as { section?: SettingsSectionId | 'updates' } | null)?.section;
+  const requestedSection = (
+    useLocation().state as { section?: SettingsSectionId | 'updates' } | null
+  )?.section;
   const targetSection = requestedSection === 'updates' ? 'about' : requestedSection;
   const initialSection: SettingsSectionId = SETTINGS_SECTIONS.some((s) => s.id === targetSection)
     ? (targetSection as SettingsSectionId)
