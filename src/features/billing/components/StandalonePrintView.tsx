@@ -2,11 +2,12 @@ import { t } from '@/shared/i18n/t';
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Button, Group, Text, Paper, Container, Loader, Stack } from '@mantine/core';
-import { IconPrinter, IconX, IconAlertCircle } from '@tabler/icons-react';
+import { IconPrinter, IconX, IconAlertCircle, IconDownload } from '@tabler/icons-react';
 import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
+import { downloadPdfBlob, pdfFileName } from '@/shared/print/pdfFileName';
 import { getDocumentUnavailableText } from '@/shared/lib/queryStatusText';
 
 // Standalone full-page viewer for a backend-rendered A4 invoice PDF, opened
@@ -19,6 +20,9 @@ export const StandalonePrintView = () => {
 
   const { blob, loading, error, isPaused } = useInvoiceDocument(id, 'a4-invoice');
 
+  // This route only knows the invoice id (not its number), so the id names the file.
+  const idLabel = id ?? 'invoice';
+
   useEffect(() => {
     if (blob && !printedRef.current) {
       printedRef.current = true;
@@ -29,12 +33,18 @@ export const StandalonePrintView = () => {
         copy: 'ORIGINAL — CUSTOMER COPY',
       });
       const timer = setTimeout(
-        () => void printPdfBlob(blob, id ? `Invoice — ${id}` : undefined),
+        () =>
+          void printPdfBlob(
+            blob,
+            id ? `Invoice — ${id}` : undefined,
+            undefined,
+            pdfFileName(idLabel)
+          ),
         400
       );
       return () => clearTimeout(timer);
     }
-  }, [blob, id]);
+  }, [blob, id, idLabel]);
 
   if (loading) {
     return (
@@ -116,9 +126,25 @@ export const StandalonePrintView = () => {
               size="xs"
               color="blue"
               leftSection={<IconPrinter size={14} />}
-              onClick={() => void printPdfBlob(blob, id ? `Invoice — ${id}` : undefined)}
+              onClick={() =>
+                void printPdfBlob(
+                  blob,
+                  id ? `Invoice — ${id}` : undefined,
+                  undefined,
+                  pdfFileName(idLabel)
+                )
+              }
             >
               {t('Print Document')}
+            </Button>
+            <Button
+              size="xs"
+              variant="default"
+              leftSection={<IconDownload size={14} />}
+              onClick={() => downloadPdfBlob(blob, pdfFileName(idLabel))}
+              data-log-id="billing.download-pdf"
+            >
+              {t('Download PDF')}
             </Button>
             <Button
               size="xs"

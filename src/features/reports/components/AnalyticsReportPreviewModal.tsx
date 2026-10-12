@@ -7,6 +7,7 @@ import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { formatDateTime } from '@/shared/lib/date';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
+import { downloadPdfBlob, pdfFileName } from '@/shared/print/pdfFileName';
 import type { AnalyticsRequestParams } from '../api/analyticsApi';
 import { useAnalyticsReportDocument } from '../hooks/useAnalyticsReportDocument';
 
@@ -16,17 +17,6 @@ export interface AnalyticsReportPreviewModalProps {
   params: AnalyticsRequestParams | null;
   periodLabel?: string;
 }
-
-const saveBlob = (blob: Blob, filename: string) => {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
-};
 
 export const AnalyticsReportPreviewModal = ({
   opened,
@@ -39,18 +29,19 @@ export const AnalyticsReportPreviewModal = ({
 
   const { blob, loading, error, isPaused } = useAnalyticsReportDocument(params, opened);
 
+  // A report has no invoice number, so its period names the file.
+  const fileNameFor = () =>
+    pdfFileName(`analytics-report-${periodLabel ? periodLabel.toLowerCase() : 'summary'}`);
+
   const handlePrint = () => {
     if (!blob) return;
-    void printPdfBlob(blob, title);
+    void printPdfBlob(blob, title, undefined, fileNameFor());
     setHasPrinted(true);
   };
 
   const handleSavePdf = () => {
     if (!blob) return;
-    const sanitizedPeriod = periodLabel
-      ? periodLabel.toLowerCase().replace(/\s+/g, '-')
-      : 'summary';
-    saveBlob(blob, `analytics-report-${sanitizedPeriod}.pdf`);
+    downloadPdfBlob(blob, fileNameFor());
   };
 
   // Keyboard shortcuts matching invoice & receipt previews
@@ -130,7 +121,7 @@ export const AnalyticsReportPreviewModal = ({
             leftSection={<IconDownload size={16} />}
             onClick={handleSavePdf}
           >
-            {t('Save PDF')}
+            {t('Download PDF')}
           </Button>
           <Button size={isMobile ? 'sm' : 'md'} variant="default" onClick={onClose}>
             {hasPrinted ? t('Done') : t('Close')}

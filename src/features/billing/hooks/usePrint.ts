@@ -4,6 +4,7 @@ import type { Invoice } from '../types';
 import { getInvoiceDocument } from '../api/documentsApi';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { printPdfBlob } from '@/shared/print/printService';
+import { pdfFileName } from '@/shared/print/pdfFileName';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 
 export const usePrint = () => {
@@ -18,9 +19,10 @@ export const usePrint = () => {
       const paperWidthMm = printSettings.receiptPaper === '58mm' ? 58 : 80;
       const blob = await getInvoiceDocument(invoice.id, 'thermal-receipt', paperWidthMm);
 
+      const fileName = pdfFileName(invoice.invoiceNumber || invoice.id);
       const copies = Math.max(1, printSettings.receiptCopies);
       for (let i = 0; i < copies; i++) {
-        await printPdfBlob(blob, `Receipt — ${invoice.invoiceNumber}`);
+        await printPdfBlob(blob, `Receipt — ${invoice.invoiceNumber}`, undefined, fileName);
         // Let the previous print job's iframe finish and clean up before starting the next one.
         if (i < copies - 1) {
           await new Promise((resolve) => setTimeout(resolve, 1200));
