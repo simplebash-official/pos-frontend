@@ -35,29 +35,22 @@ const sanitizeLegacyProfile = (profile: ShopProfile): ShopProfile => {
       profile.legalName === 'SimpleBash POS' ||
       profile.legalName === 'SimpleBash POS Service Center'
         ? ''
-        : (profile.legalName || ''),
-    tradingName: isLegacyTradingName ? '' : (profile.tradingName || ''),
-    addressLines: isLegacyAddress ? [] : (profile.addressLines || []),
+        : profile.legalName || '',
+    tradingName: isLegacyTradingName ? '' : profile.tradingName || '',
+    addressLines: isLegacyAddress ? [] : profile.addressLines || [],
     primaryPhone:
-      profile.primaryPhone === '077 123 4567' ||
-      profile.primaryPhone === '077 123 45673'
+      profile.primaryPhone === '077 123 4567' || profile.primaryPhone === '077 123 45673'
         ? ''
-        : (profile.primaryPhone || ''),
-    secondaryPhone:
-      profile.secondaryPhone === '011 234 5678' ? '' : (profile.secondaryPhone || ''),
-    email: profile.email === 'info@simplebash.com' ? '' : (profile.email || ''),
-    website: profile.website === 'www.simplebash.com' ? '' : (profile.website || ''),
-    businessRegNo:
-      profile.businessRegNo === 'PV-123456' ? '' : (profile.businessRegNo || ''),
-    bankName:
-      profile.bankName === 'Commercial Bank of Ceylon' ? '' : (profile.bankName || ''),
-    bankBranch: profile.bankBranch === 'Bambalapitiya' ? '' : (profile.bankBranch || ''),
+        : profile.primaryPhone || '',
+    secondaryPhone: profile.secondaryPhone === '011 234 5678' ? '' : profile.secondaryPhone || '',
+    email: profile.email === 'info@simplebash.com' ? '' : profile.email || '',
+    website: profile.website === 'www.simplebash.com' ? '' : profile.website || '',
+    businessRegNo: profile.businessRegNo === 'PV-123456' ? '' : profile.businessRegNo || '',
+    bankName: profile.bankName === 'Commercial Bank of Ceylon' ? '' : profile.bankName || '',
+    bankBranch: profile.bankBranch === 'Bambalapitiya' ? '' : profile.bankBranch || '',
     accountName:
-      profile.accountName === 'SimpleBash POS (Pvt) Ltd'
-        ? ''
-        : (profile.accountName || ''),
-    accountNumber:
-      profile.accountNumber === '8001234567' ? '' : (profile.accountNumber || ''),
+      profile.accountName === 'SimpleBash POS (Pvt) Ltd' ? '' : profile.accountName || '',
+    accountNumber: profile.accountNumber === '8001234567' ? '' : profile.accountNumber || '',
   };
 };
 

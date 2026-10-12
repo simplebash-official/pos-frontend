@@ -65,13 +65,7 @@ export const UndoRemoveBanner = memo(function UndoRemoveBanner({
     >
       <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
         <Group gap="xs" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-          <ThemeIcon
-            size={28}
-            radius="xl"
-            variant="light"
-            color="blue"
-            style={{ flexShrink: 0 }}
-          >
+          <ThemeIcon size={28} radius="xl" variant="light" color="blue" style={{ flexShrink: 0 }}>
             <IconArrowBackUp size={16} />
           </ThemeIcon>
           <Box style={{ minWidth: 0, flex: 1 }}>
