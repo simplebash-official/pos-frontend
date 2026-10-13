@@ -48,7 +48,7 @@ export interface DocumentTemplateOption {
 
 /** A kind of printed document (A4 invoice, receipt, credit note) and the designs for it. */
 export interface DocumentKindSettings {
-  /** `a4-invoice`, `thermal-receipt` or `credit-note`. */
+  /** `a4-invoice`, `thermal-receipt`, `credit-note` or `quotation`. */
   kind: string;
   label: string;
   /** The shop's choice; `null` means the standard design. */

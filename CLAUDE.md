@@ -344,6 +344,7 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
 ### How AI Agents Can Help & Verification
 
 - **Dual Test Suite Execution**: Run `npm run test:all` (runs both Vitest unit/integration tests and Jest suites). Run `npm test` for the standard test suite.
+- **Writing tests that pass under both runners**: tests are written against Vitest, and Jest runs them through shims in `src/__mocks__/`. `viTransformer.cjs` rewrites `vi.mock`/`vi.unmock` to `jest.mock`/`jest.unmock` (so they are hoisted above the imports, with paths resolved from the test file) and `import.meta.env` to `process.env`; `vitestMock.cjs` is the `vi` shim (`fn`, `spyOn`, `mock`, `mocked`, `stubEnv`/`unstubAllEnvs`, `stubGlobal`/`unstubAllGlobals`, `restoreAllMocks`/`clearAllMocks`/`resetAllMocks`, `resetModules`, `waitFor`); `envMock.cjs` stands in for `@/config/env` (add a getter there when a test needs a new `env` field); `?raw` imports and `virtual:pwa-register/react` are mapped in `jest.config.js`. Not supported under Jest: `vi.hoisted`, `vi.importActual`, `vi.doMock`, and the fake-timer APIs. A jsdom test needs both docblocks (`@vitest-environment jsdom` and `@jest-environment jsdom`). Jest only matches files under a `__tests__` directory. If you change the transformer, run `npx jest --no-cache` once.
 - **Static Verification**:
   ```bash
   npm run type-check   # Verifies TypeScript compiler without emitting JS

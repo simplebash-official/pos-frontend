@@ -17,6 +17,7 @@ export const PERMISSIONS = {
   BILLING_WRITE: 'billing:write',
   REPAIRS_WRITE: 'repairs:write',
   PRINT_JOBS_WRITE: 'print_jobs:write',
+  QUOTATIONS_MANAGE: 'quotations:manage',
   REPORTS_VIEW: 'reports:view',
   EMPLOYEES_READ: 'employees:read',
   EMPLOYEES_WRITE: 'employees:write',

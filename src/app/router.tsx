@@ -33,6 +33,11 @@ const RepairJobList = lazy(() =>
 const PrintJobList = lazy(() =>
   import('@/features/print-jobs/components/PrintJobList').then((m) => ({ default: m.PrintJobList }))
 );
+const QuotationsPage = lazy(() =>
+  import('@/features/quotations/components/QuotationsPage').then((m) => ({
+    default: m.QuotationsPage,
+  }))
+);
 const ProductTable = lazy(() =>
   import('@/features/inventory/components/ProductTable').then((m) => ({ default: m.ProductTable }))
 );
@@ -124,6 +129,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<PageSkeleton />}>
             <PrintJobList />
           </Suspense>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.QUOTATIONS,
+        element: (
+          <RequirePermission permissions={[PERMISSIONS.QUOTATIONS_MANAGE]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <QuotationsPage />
+            </Suspense>
+          </RequirePermission>
         ),
       },
       {

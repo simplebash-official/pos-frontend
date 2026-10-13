@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useState, useRef, useEffect, useCallback, memo, lazy, Suspense } from 'react';
 import {
   Paper,
   Group,
@@ -21,6 +21,7 @@ import {
   IconChevronUp,
   IconChevronDown,
   IconArrowRight,
+  IconFileText,
 } from '@tabler/icons-react';
 
 import { useCartItems, useCartTotals, useCartCustomer, useHeldCarts } from '../hooks/useCart';
@@ -31,6 +32,22 @@ import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { focusBarcodeScanner } from '../lib/focusScanner';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { draftFromCart, type QuotationDraft } from '@/features/quotations/lib/quotationForm';
+import type { Quotation } from '@/features/quotations/types';
+
+// Loaded only when someone with the quotations permission actually opens one.
+const QuotationFormModal = lazy(() =>
+  import('@/features/quotations/components/QuotationFormModal').then((m) => ({
+    default: m.QuotationFormModal,
+  }))
+);
+const QuotationPreviewModal = lazy(() =>
+  import('@/features/quotations/components/QuotationPreviewModal').then((m) => ({
+    default: m.QuotationPreviewModal,
+  }))
+);
 
 export interface CartPanelProps {
   onOpenCustomerPicker: () => void;
@@ -57,12 +74,25 @@ export const CartPanel = memo(function CartPanel({
     isCredit,
     completedSale,
   } = useCartItems();
-  const { totalCents } = useCartTotals();
-  const { customerName, customerPhone, customerBalanceCents, attachCustomer } = useCartCustomer();
+  const { totalCents, discountType, discountValue } = useCartTotals();
+  const {
+    customerId,
+    customerName,
+    customerPhone,
+    customerAddress,
+    customerBalanceCents,
+    attachCustomer,
+  } = useCartCustomer();
   const { holdCurrentCart } = useHeldCarts();
 
   const isMobile = useIsMobile();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+
+  // "Quotation" turns what is in the cart into a price offer; the cart itself is left untouched.
+  // Admin and Manager only (the backend refuses anyone else).
+  const canQuote = useHasPermission(PERMISSIONS.QUOTATIONS_MANAGE);
+  const [quotationDraft, setQuotationDraft] = useState<QuotationDraft | null>(null);
+  const [createdQuotation, setCreatedQuotation] = useState<Quotation | null>(null);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const [scrollState, setScrollState] = useState({
@@ -193,6 +223,38 @@ export const CartPanel = memo(function CartPanel({
         </Group>
 
         <Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
+          {canQuote && (
+            <Button
+              size="xs"
+              variant="light"
+              color="blue"
+              leftSection={<IconFileText size={14} />}
+              disabled={items.length === 0 || Boolean(completedSale)}
+              onClick={() =>
+                setQuotationDraft(
+                  draftFromCart({
+                    items,
+                    customerId,
+                    customerName,
+                    customerPhone,
+                    customerAddress,
+                    discountType,
+                    discountValue,
+                  })
+                )
+              }
+              style={{
+                height: 30,
+                paddingLeft: 10,
+                paddingRight: 10,
+                fontWeight: 600,
+              }}
+              data-log-id="billing.start-quotation"
+            >
+              {t('Quotation')}
+            </Button>
+          )}
+
           <Button
             size="xs"
             variant="light"
@@ -461,6 +523,35 @@ export const CartPanel = memo(function CartPanel({
         {t('Are you sure you want to clear')} {itemCount}{' '}
         {t('items from the current billing cart?')}
       </ConfirmDialog>
+
+      {canQuote && quotationDraft !== null && (
+        <Suspense fallback={null}>
+          <QuotationFormModal
+            opened
+            onClose={() => {
+              setQuotationDraft(null);
+              focusBarcodeScanner(true);
+            }}
+            initialDraft={quotationDraft}
+            onCreated={(created) => {
+              setQuotationDraft(null);
+              setCreatedQuotation(created);
+            }}
+          />
+        </Suspense>
+      )}
+      {canQuote && createdQuotation !== null && (
+        <Suspense fallback={null}>
+          <QuotationPreviewModal
+            opened
+            onClose={() => {
+              setCreatedQuotation(null);
+              focusBarcodeScanner(true);
+            }}
+            quotation={createdQuotation}
+          />
+        </Suspense>
+      )}
     </Paper>
   );
 });

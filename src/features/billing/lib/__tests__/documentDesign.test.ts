@@ -19,6 +19,7 @@ describe('designKindFor', () => {
     expect(designKindFor('invoice')).toBe('a4-invoice');
     expect(designKindFor('receipt')).toBe('thermal-receipt');
     expect(designKindFor('credit-note')).toBe('credit-note');
+    expect(designKindFor('quotation')).toBe('quotation');
   });
 });
 

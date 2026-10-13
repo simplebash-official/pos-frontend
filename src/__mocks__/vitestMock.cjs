@@ -9,6 +9,7 @@ const vi = {
   clearAllMocks: () => jest.clearAllMocks(),
   resetAllMocks: () => jest.resetAllMocks(),
   restoreAllMocks: () => jest.restoreAllMocks(),
+  resetModules: () => jest.resetModules(),
   stubEnv: (key, value) => {
     process.env[key] = value;
   },

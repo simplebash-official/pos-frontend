@@ -36,6 +36,7 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.inventory.all,
     queryKeys.reports.all,
   ],
+  quotations: [queryKeys.quotations.all],
   users: [queryKeys.users.all],
 };
 

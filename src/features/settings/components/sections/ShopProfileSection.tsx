@@ -38,9 +38,7 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
   const [saving, setSaving] = useState(false);
 
   const initialTradingName =
-    shopProfile.tradingName ||
-    (cloudState.linked ? cloudState.shopName?.trim() || '' : '') ||
-    '';
+    shopProfile.tradingName || (cloudState.linked ? cloudState.shopName?.trim() || '' : '') || '';
 
   const form = useForm<ShopProfileFormValues>({
     initialValues: {

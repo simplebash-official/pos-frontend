@@ -139,6 +139,7 @@ export interface ModuleDef {
 /** Display order; every module is always listed so "up to date" is visible too. */
 export const MODULES: readonly ModuleDef[] = [
   { id: 'sales', label: 'Sales & Invoices', resources: ['invoices', 'payments', 'creditNotes'] },
+  { id: 'quotations', label: 'Quotations', resources: ['quotations'] },
   { id: 'repairs', label: 'Repair Jobs', resources: ['repairs'] },
   { id: 'printJobs', label: 'Print Jobs', resources: ['printJobs'] },
   {
@@ -163,6 +164,7 @@ const RECORD_NAMES: Record<string, string> = {
   invoices: 'Invoice',
   payments: 'Payment',
   creditNotes: 'Credit note',
+  quotations: 'Quotation',
   repairs: 'Repair job',
   printJobs: 'Print job',
   products: 'Product',

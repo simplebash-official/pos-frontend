@@ -31,6 +31,11 @@ export const queryKeys = {
     detail: (id: string) => ['printJobs', 'detail', id] as const,
     stats: () => ['printJobs', 'stats'] as const,
   },
+  quotations: {
+    all: ['quotations'] as const,
+    list: (filters?: Record<string, unknown>) => ['quotations', 'list', filters] as const,
+    document: (id: string, template?: string) => ['quotations', 'document', id, template] as const,
+  },
   inventory: {
     all: ['inventory'] as const,
     products: (filters?: Record<string, unknown>) => ['inventory', 'products', filters] as const,

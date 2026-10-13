@@ -152,4 +152,3 @@ describe('Header component shop name rendering', () => {
     expect(html).not.toContain('title="Custom Garage"');
   });
 });
-

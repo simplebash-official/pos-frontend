@@ -1,6 +1,6 @@
 import type { DocumentKindSettings } from '@/features/settings/types';
 
-export type PreviewDocumentKind = 'invoice' | 'receipt' | 'credit-note';
+export type PreviewDocumentKind = 'invoice' | 'receipt' | 'credit-note' | 'quotation';
 
 // The document kind (as the Settings → Document Designs screen and the backend know it) behind
 // each document the print preview can show.
@@ -8,6 +8,7 @@ const DESIGN_KIND: Record<PreviewDocumentKind, string> = {
   invoice: 'a4-invoice',
   receipt: 'thermal-receipt',
   'credit-note': 'credit-note',
+  quotation: 'quotation',
 };
 
 export const designKindFor = (documentKind: PreviewDocumentKind): string =>
