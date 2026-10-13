@@ -308,8 +308,8 @@ export const useProvisioningOrchestrator = ({
         delayMs: 3050,
         progress: 56,
         stageText: isDemo
-          ? 'Configuring sample suppliers, customer loyalty and tax rules...'
-          : 'Configuring default payment channels and invoice tax rules...',
+          ? 'Configuring sample suppliers and customer loyalty...'
+          : 'Configuring default payment channels...',
         milestoneStatuses: ['completed', 'completed', 'running', 'pending', 'pending'],
         log: {
           tag: 'CATALOG',
@@ -512,8 +512,8 @@ export const useProvisioningOrchestrator = ({
         delayMs: 3050,
         progress: 56,
         stageText: isDemo
-          ? 'Configuring sample suppliers, customer loyalty and tax rules...'
-          : 'Configuring default payment channels and invoice tax rules...',
+          ? 'Configuring sample suppliers and customer loyalty...'
+          : 'Configuring default payment channels...',
         milestoneStatuses: ['completed', 'completed', 'running', 'pending', 'pending'],
         log: {
           tag: 'CATALOG',
