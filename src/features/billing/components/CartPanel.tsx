@@ -188,7 +188,7 @@ export const CartPanel = memo(function CartPanel({
         wrap={isMobile ? 'wrap' : 'nowrap'}
         style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <Group gap={6} align="center" wrap="nowrap" style={{ minWidth: 0 }}>
+        <Group gap={6} align="center" wrap="nowrap" style={{ minWidth: 0, flexShrink: 1 }}>
           <Text fw={700} size="sm" style={{ whiteSpace: 'nowrap' }}>
             {t('Current Sale')}
           </Text>
@@ -203,10 +203,16 @@ export const CartPanel = memo(function CartPanel({
             </Badge>
           ) : (
             !isMobile && (
-              <Badge size="xs" color="blue" variant="light" style={{ whiteSpace: 'nowrap' }}>
-                {itemCount} {t('item')}
-                {itemCount !== 1 ? 's' : ''} · {totalUnitCount} {t('unit')}
-                {totalUnitCount !== 1 ? 's' : ''}
+              <Badge
+                size="xs"
+                color="blue"
+                variant="light"
+                tt="none"
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+              >
+                {itemCount} {itemCount !== 1 ? t('items') : t('item')}
+                {totalUnitCount !== itemCount &&
+                  ` · ${totalUnitCount} ${totalUnitCount !== 1 ? t('units') : t('unit')}`}
               </Badge>
             )
           )}
@@ -222,7 +228,7 @@ export const CartPanel = memo(function CartPanel({
           )}
         </Group>
 
-        <Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
+        <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
           {canQuote && (
             <Button
               size="xs"

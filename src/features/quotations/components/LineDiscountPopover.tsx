@@ -176,12 +176,12 @@ export const LineDiscountPopover = ({
               <NumberInput
                 id={percentInputId}
                 aria-label={t('Discount percentage')}
-                placeholder="0"
+                placeholder="0%"
                 size="sm"
                 min={0}
                 max={100}
                 suffix="%"
-                value={pct}
+                value={pct === 0 ? '' : pct}
                 onChange={(val) => setPct(typeof val === 'number' ? val : '')}
                 autoFocus
               />
@@ -209,6 +209,8 @@ export const LineDiscountPopover = ({
                     : t('Total line discount')
                 }
                 size="sm"
+                allowEmpty
+                placeholder="Rs. 0.00"
                 valueCents={fixedCents}
                 onChangeCents={setFixedCents}
                 max={
