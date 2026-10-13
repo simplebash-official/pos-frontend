@@ -1947,5 +1947,13 @@
   "Switching shop…": "වෙළඳසැල මාරු වෙමින්…",
   "The app restarts by itself. This takes a few seconds.": "යෙදුම ස්වයංක්‍රීයව නැවත ආරම්භ වේ. තත්පර කිහිපයක් ගතවේ.",
   "Current": "දැනට",
-  "Add another shop": "වෙනත් වෙළඳසැලක් එක් කරන්න"
+  "Add another shop": "වෙනත් වෙළඳසැලක් එක් කරන්න",
+  "Cloud paused": "Cloud විරාමයේ",
+  "Cloud sync is paused for this shop. This computer keeps working and nothing is lost.": "මෙම වෙළඳසැල සඳහා Cloud සමමුහුර්තය විරාම කර ඇත. මෙම පරිගණකය දිගටම ක්‍රියා කරන අතර කිසිවක් අහිමි නොවේ.",
+  "Cloud sync is paused for this shop": "මෙම වෙළඳසැල සඳහා Cloud සමමුහුර්තය විරාම කර ඇත",
+  "are saved on this computer and will upload once cloud access is restored.": "මෙම පරිගණකයේ සුරැකී ඇති අතර Cloud ප්‍රවේශය නැවත ලැබුණු පසු උඩුගත වේ.",
+  "Everything you do is saved on this computer.": "ඔබ කරන සියල්ල මෙම පරිගණකයේ සුරැකේ.",
+  "Contact SimpleBash to restore cloud access.": "Cloud ප්‍රවේශය නැවත ලබා ගැනීමට SimpleBash අමතන්න.",
+  "Cloud sync paused": "Cloud සමමුහුර්තය විරාමයේ",
+  "Your shop keeps working on this computer.": "ඔබේ වෙළඳසැල මෙම පරිගණකයේ දිගටම ක්‍රියා කරයි."
 }

@@ -49,6 +49,14 @@ export const badgeView = (status: SyncStatus): BadgeView | null => {
       [status.lastError ?? 'Sync stopped. We will try again soon.']
     );
   }
+  if (status.state === 'suspended') {
+    // Not an error and nothing for the cashier to do: the shop keeps working, only the cloud is off.
+    return make(
+      'yellow',
+      ['Cloud paused'],
+      ['Cloud sync is paused for this shop. This computer keeps working and nothing is lost.']
+    );
+  }
   if (status.state === 'paused') {
     return make(
       'yellow',

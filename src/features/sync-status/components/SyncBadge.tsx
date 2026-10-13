@@ -22,6 +22,7 @@ const ICONS: Record<SyncPhase, typeof IconCloudCheck> = {
   offline: IconCloudOff,
   error: IconAlertTriangle,
   paused: IconPlayerPause,
+  suspended: IconCloudOff,
 };
 
 /**

@@ -1,5 +1,5 @@
 /** Mirrors `SyncStatus` in the desktop shell (`src-tauri/src/sync/state.rs`). */
-export type SyncPhase = 'idle' | 'syncing' | 'offline' | 'error' | 'paused';
+export type SyncPhase = 'idle' | 'syncing' | 'offline' | 'error' | 'paused' | 'suspended';
 
 /** What the agent is doing right now while `state` is `syncing`. */
 export type SyncStep = 'idle' | 'preparing' | 'uploading' | 'downloading' | 'finishing';
@@ -38,7 +38,8 @@ export interface CycleSummary {
   received: number;
 }
 
-export type HistoryKind = 'synced' | 'offline' | 'online' | 'error' | 'paused' | 'resumed';
+export type HistoryKind =
+  'synced' | 'offline' | 'online' | 'error' | 'paused' | 'resumed' | 'suspended';
 
 export interface HistoryEntry {
   at: string;
