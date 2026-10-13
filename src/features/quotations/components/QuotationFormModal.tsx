@@ -1,8 +1,13 @@
 import { t } from '@/shared/i18n/t';
 import { useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import {
+  Accordion,
   ActionIcon,
+  Badge,
+  Box,
   Button,
+  Divider,
   Group,
   Modal,
   NumberInput,
@@ -13,13 +18,25 @@ import {
   Text,
   TextInput,
   Textarea,
+  ThemeIcon,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconTrash, IconUserSearch } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconFileText,
+  IconNotes,
+  IconPlus,
+  IconTag,
+  IconTrash,
+  IconUserCheck,
+  IconUserSearch,
+} from '@tabler/icons-react';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import type { Customer } from '@/features/customers/types';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { MoneyInput } from '@/shared/components/MoneyInput';
+import { QuantityInput } from '@/shared/components/QuantityInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getErrorMessage } from '@/shared/lib/error';
 import { formatMoney } from '@/shared/lib/money';
@@ -28,15 +45,21 @@ import { selectAuthUser } from '@/store/slices/authSlice';
 import { useCreateQuotation } from '../hooks/useQuotations';
 import {
   buildCreateInput,
+  calculateLineDiscountCents,
+  defaultValidUntil,
   draftTotals,
   emptyLine,
+  formatLineDiscountBadge,
   lineFromProduct,
   todayString,
   validateDraft,
+  type LineDiscountScope,
+  type LineDiscountType,
   type QuotationDraft,
   type QuotationLineDraft,
 } from '../lib/quotationForm';
 import type { Quotation } from '../types';
+import { LineDiscountPopover } from './LineDiscountPopover';
 
 export interface QuotationFormModalProps {
   opened: boolean;
@@ -54,9 +77,8 @@ const SectionLabel = ({ children }: { children: string }) => (
   </Text>
 );
 
-// Make a price offer for a customer. Nothing here is a sale: stock, payments and invoices are
-// never touched. The backend works out every total itself; the figures shown are a live preview.
-// Mount it fresh each time it opens (it reads `initialDraft` once).
+const ORDER_PERCENT_PRESETS = [5, 10, 15];
+
 export const QuotationFormModal = ({
   opened,
   onClose,
@@ -65,35 +87,98 @@ export const QuotationFormModal = ({
 }: QuotationFormModalProps) => {
   const isMobile = useIsMobile();
   const fieldSize = isMobile ? 'md' : 'sm';
-  // Touch targets must be at least 44px on a phone (see the frontend CLAUDE.md).
   const touchHeight = isMobile ? 44 : undefined;
-  // `md` inputs are 42px; raise them to 44px for fingers. Spread onto every field.
-  const touchField = isMobile ? { styles: { input: { minHeight: 44 } } } : {};
   const authUser = useAppSelector(selectAuthUser);
   const create = useCreateQuotation();
 
   const [draft, setDraft] = useState<QuotationDraft>(initialDraft);
   const [problem, setProblem] = useState<string | null>(null);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
-  // The product search box is cleared after a pick, so the next search starts fresh.
   const [productSearch, setProductSearch] = useState('');
+  const [activeDiscountLineUid, setActiveDiscountLineUid] = useState<string | null>(null);
 
-  const { data: products } = useAllProducts({ enabled: opened });
+  const { data: products = [] } = useAllProducts({ enabled: opened });
   const productOptions = useMemo(
-    () => products.map((p) => ({ value: p.key, label: `${p.name} · ${p.sku}` })),
+    () =>
+      products.map((p) => ({
+        value: p.key,
+        label: `${p.name} · ${p.sku} (${formatMoney(p.sellingPriceCents)})`,
+      })),
     [products]
   );
 
   const totals = draftTotals(draft);
+  const grossSubtotalCents = draft.lines.reduce(
+    (sum, l) => sum + l.unitPriceCents * l.quantity,
+    0
+  );
+  const totalLineDiscountsCents = draft.lines.reduce((sum, l) => sum + l.discountCents, 0);
 
   const patch = (changes: Partial<QuotationDraft>) => setDraft((d) => ({ ...d, ...changes }));
+
   const patchLine = (uid: string, changes: Partial<QuotationLineDraft>) =>
     setDraft((d) => ({
       ...d,
       lines: d.lines.map((line) => (line.uid === uid ? { ...line, ...changes } : line)),
     }));
+
   const removeLine = (uid: string) =>
     setDraft((d) => ({ ...d, lines: d.lines.filter((line) => line.uid !== uid) }));
+
+  const handleUpdateQuantity = (uid: string, quantity: number) => {
+    setDraft((d) => ({
+      ...d,
+      lines: d.lines.map((line) => {
+        if (line.uid !== uid) return line;
+        const discountCents = calculateLineDiscountCents(
+          line.unitPriceCents,
+          quantity,
+          line.discountType,
+          line.discountScope,
+          line.discountValue
+        );
+        return { ...line, quantity, discountCents };
+      }),
+    }));
+  };
+
+  const handleApplyLineDiscount = (
+    uid: string,
+    discountCents: number,
+    discountType: LineDiscountType,
+    discountScope: LineDiscountScope,
+    discountValue: number
+  ) => {
+    setDraft((d) => ({
+      ...d,
+      lines: d.lines.map((line) => {
+        if (line.uid !== uid) return line;
+        return {
+          ...line,
+          discountType,
+          discountScope,
+          discountValue,
+          discountCents,
+        };
+      }),
+    }));
+  };
+
+  const handleRemoveLineDiscount = (uid: string) => {
+    setDraft((d) => ({
+      ...d,
+      lines: d.lines.map((line) => {
+        if (line.uid !== uid) return line;
+        return {
+          ...line,
+          discountType: undefined,
+          discountScope: undefined,
+          discountValue: undefined,
+          discountCents: 0,
+        };
+      }),
+    }));
+  };
 
   const handlePickCustomer = (customer: Customer | null) => {
     if (customer === null) {
@@ -146,9 +231,19 @@ export const QuotationFormModal = ({
         opened={opened}
         onClose={onClose}
         title={
-          <Text fw={700} size="lg">
-            {t('New Quotation')}
-          </Text>
+          <Group gap="sm" align="center">
+            <ThemeIcon size={34} radius="md" color="blue" variant="light">
+              <IconFileText size={18} />
+            </ThemeIcon>
+            <Box>
+              <Text fw={700} size="md">
+                {t('New Quotation')}
+              </Text>
+              <Text size="xs" c="dimmed">
+                {t('Official price offer · Valid for 30 days')}
+              </Text>
+            </Box>
+          </Group>
         }
         size="xl"
         centered
@@ -156,27 +251,62 @@ export const QuotationFormModal = ({
         closeButtonProps={{ size: isMobile ? 44 : 28 }}
       >
         <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t(
-              'A quotation is a price offer. It is not a bill, and it does not change your stock.'
-            )}
-          </Text>
-
-          <Stack gap="xs">
-            <Group justify="space-between" align="center">
-              <SectionLabel>{t('Who is it for?')}</SectionLabel>
-              <Group gap="xs">
-                {customerLinked && (
+          {/* 1. CUSTOMER SECTION */}
+          {customerLinked ? (
+            <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-hover)' }}>
+              <Group justify="space-between" align="center" wrap="nowrap">
+                <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+                  <ThemeIcon size={36} radius="xl" color="blue" variant="light">
+                    <IconUserCheck size={18} />
+                  </ThemeIcon>
+                  <Box style={{ minWidth: 0 }}>
+                    <Text fw={700} size="sm" lineClamp={1}>
+                      {draft.customerName}
+                    </Text>
+                    <Group gap="xs" wrap="nowrap">
+                      {draft.customerPhone && (
+                        <Text size="xs" c="dimmed">
+                          {draft.customerPhone}
+                        </Text>
+                      )}
+                      {draft.customerAddress && (
+                        <Text size="xs" c="dimmed" lineClamp={1}>
+                          · {draft.customerAddress}
+                        </Text>
+                      )}
+                    </Group>
+                  </Box>
+                </Group>
+                <Group gap="xs" wrap="nowrap">
                   <Button
                     size="xs"
-                    h={touchHeight}
+                    variant="light"
+                    onClick={() => setCustomerPickerOpen(true)}
+                  >
+                    {t('Change')}
+                  </Button>
+                  <Button
+                    size="xs"
                     variant="subtle"
                     color="gray"
-                    onClick={() => patch({ customerKey: null })}
+                    onClick={() =>
+                      patch({
+                        customerKey: null,
+                        customerName: '',
+                        customerPhone: '',
+                        customerAddress: '',
+                      })
+                    }
                   >
-                    {t('Type a name instead')}
+                    {t('Clear')}
                   </Button>
-                )}
+                </Group>
+              </Group>
+            </Paper>
+          ) : (
+            <Stack gap="xs">
+              <Group justify="space-between" align="center">
+                <SectionLabel>{t('Who is it for?')}</SectionLabel>
                 <Button
                   size="xs"
                   h={touchHeight}
@@ -188,44 +318,46 @@ export const QuotationFormModal = ({
                   {t('Choose a saved customer')}
                 </Button>
               </Group>
-            </Group>
-            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+                <TextInput
+                  label={t('Customer name')}
+                  placeholder={t('e.g. Nimal Perera')}
+                  size={fieldSize}
+                  value={draft.customerName}
+                  onChange={(e) => patch({ customerName: e.currentTarget.value })}
+                  required
+                />
+                <TextInput
+                  label={t('Phone number')}
+                  placeholder={t('e.g. 077 123 4567')}
+                  size={fieldSize}
+                  value={draft.customerPhone}
+                  onChange={(e) => patch({ customerPhone: e.currentTarget.value })}
+                />
+              </SimpleGrid>
               <TextInput
-                label={t('Customer name')}
+                label={t('Address')}
+                placeholder={t('Delivery or billing address (optional)')}
                 size={fieldSize}
-                {...touchField}
-                value={draft.customerName}
-                disabled={customerLinked}
-                onChange={(e) => patch({ customerName: e.currentTarget.value })}
+                value={draft.customerAddress}
+                onChange={(e) => patch({ customerAddress: e.currentTarget.value })}
               />
-              <TextInput
-                label={t('Phone number')}
-                size={fieldSize}
-                {...touchField}
-                value={draft.customerPhone}
-                disabled={customerLinked}
-                onChange={(e) => patch({ customerPhone: e.currentTarget.value })}
-              />
-            </SimpleGrid>
-            <TextInput
-              label={t('Address')}
-              description={t('You can leave this empty.')}
-              size={fieldSize}
-              {...touchField}
-              value={draft.customerAddress}
-              disabled={customerLinked}
-              onChange={(e) => patch({ customerAddress: e.currentTarget.value })}
-            />
-          </Stack>
+            </Stack>
+          )}
 
+          {/* 2. ITEMS SECTION */}
           <Stack gap="xs">
-            <SectionLabel>{t('What are you offering?')}</SectionLabel>
+            <Group justify="space-between" align="center">
+              <SectionLabel>{t('What are you offering?')}</SectionLabel>
+              <Badge variant="light" color="blue" size="sm">
+                {draft.lines.length} {draft.lines.length === 1 ? t('item') : t('items')}
+              </Badge>
+            </Group>
+
             <Group gap="sm" align="flex-end" wrap={isMobile ? 'wrap' : 'nowrap'}>
               <Select
-                label={t('Add a product from your stock')}
-                placeholder={t('Search by name or code')}
+                placeholder={t('Search product by name, SKU or barcode...')}
                 size={fieldSize}
-                {...touchField}
                 searchable
                 searchValue={productSearch}
                 onSearchChange={setProductSearch}
@@ -235,7 +367,6 @@ export const QuotationFormModal = ({
                 data={productOptions}
                 value={null}
                 onChange={handleAddProduct}
-                // Full row on a phone, so the button wraps below instead of squeezing the search.
                 style={{ flex: isMobile ? '1 1 100%' : 1, minWidth: 0 }}
               />
               <Button
@@ -252,80 +383,212 @@ export const QuotationFormModal = ({
             </Group>
 
             {draft.lines.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                {t('No items yet. Add a product from your stock, or add your own item.')}
-              </Text>
+              <Paper p="xl" withBorder style={{ textAlign: 'center', borderStyle: 'dashed' }}>
+                <Text size="sm" c="dimmed">
+                  {t('No items yet. Search stock above or click "Add your own item".')}
+                </Text>
+              </Paper>
             ) : (
               <Stack gap="xs">
                 {draft.lines.map((line, index) => {
                   const fromStock = line.productKey !== undefined;
+                  const lineTotal = totals.lineTotals[index];
+                  const grossLine = line.unitPriceCents * line.quantity;
+                  const discountBadgeText = formatLineDiscountBadge(line);
+
                   return (
-                    <Paper key={line.uid} p="sm" withBorder>
+                    <Paper
+                      key={line.uid}
+                      p="sm"
+                      withBorder
+                      style={{
+                        backgroundColor: 'var(--bg-surface)',
+                        borderColor:
+                          line.discountCents > 0
+                            ? 'var(--mantine-color-blue-4)'
+                            : undefined,
+                      }}
+                    >
                       <Stack gap="xs">
-                        <Group gap="xs" wrap="nowrap" align="flex-end">
-                          <TextInput
-                            label={`${t('Item')} ${index + 1}`}
-                            description={fromStock ? line.sku : undefined}
-                            size={fieldSize}
-                            {...touchField}
-                            value={line.name}
-                            disabled={fromStock}
-                            onChange={(e) => patchLine(line.uid, { name: e.currentTarget.value })}
-                            style={{ flex: 1, minWidth: 0 }}
-                          />
+                        {/* Top: Item Title & Delete */}
+                        <Group justify="space-between" align="center" wrap="nowrap">
+                          <Group gap="xs" style={{ flex: 1, minWidth: 0 }} wrap="nowrap">
+                            <Badge size="sm" variant="light" color="blue" circle>
+                              {index + 1}
+                            </Badge>
+                            {fromStock ? (
+                              <Box style={{ flex: 1, minWidth: 0 }}>
+                                <Text fw={600} size="sm" lineClamp={1}>
+                                  {line.name}
+                                </Text>
+                                {line.sku && (
+                                  <Text
+                                    size="xs"
+                                    c="dimmed"
+                                    style={{ fontFamily: 'monospace' }}
+                                  >
+                                    {line.sku}
+                                  </Text>
+                                )}
+                              </Box>
+                            ) : (
+                              <TextInput
+                                label={`${t('Item')} ${index + 1}`}
+                                placeholder={t('Item name or service')}
+                                size="sm"
+                                value={line.name}
+                                onChange={(e) =>
+                                  patchLine(line.uid, { name: e.currentTarget.value })
+                                }
+                                style={{ flex: 1, minWidth: 0 }}
+                              />
+                            )}
+                          </Group>
                           <ActionIcon
-                            variant="light"
+                            variant="subtle"
                             color="red"
-                            size={isMobile ? 44 : 36}
+                            size={isMobile ? 44 : 32}
                             aria-label={`${t('Remove item')} ${index + 1}`}
                             onClick={() => removeLine(line.uid)}
                           >
                             <IconTrash size={16} />
                           </ActionIcon>
                         </Group>
-                        <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
-                          <NumberInput
-                            label={t('Quantity')}
-                            size={fieldSize}
-                            {...touchField}
-                            min={1}
-                            allowDecimal={false}
-                            hideControls={isMobile}
-                            value={line.quantity}
-                            onChange={(value) =>
-                              patchLine(line.uid, {
-                                quantity: typeof value === 'number' ? value : 0,
-                              })
-                            }
-                          />
-                          <MoneyInput
-                            label={t('Price each')}
-                            size={fieldSize}
-                            {...touchField}
-                            hideControls={isMobile}
-                            valueCents={line.unitPriceCents}
-                            disabled={fromStock}
-                            onChangeCents={(cents) =>
-                              patchLine(line.uid, { unitPriceCents: cents })
-                            }
-                          />
-                          <MoneyInput
-                            label={t('Discount')}
-                            size={fieldSize}
-                            {...touchField}
-                            hideControls={isMobile}
-                            valueCents={line.discountCents}
-                            onChangeCents={(cents) => patchLine(line.uid, { discountCents: cents })}
-                          />
-                          <Stack gap={2} justify="flex-end">
-                            <Text size="xs" c="dimmed">
-                              {t('Item total')}
-                            </Text>
-                            <Text fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                              {formatMoney(totals.lineTotals[index])}
-                            </Text>
-                          </Stack>
-                        </SimpleGrid>
+
+                        <Divider />
+
+                        {/* Bottom: Quantity, Unit Price, Discount Pill, Line Total */}
+                        <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+                          <Group gap="md" align="center" wrap="nowrap">
+                            <Box>
+                              <QuantityInput
+                                label={t('Quantity')}
+                                value={line.quantity}
+                                onChange={(val) => {
+                                  const qty =
+                                    typeof val === 'number' && val >= 1
+                                      ? Math.floor(val)
+                                      : 1;
+                                  handleUpdateQuantity(line.uid, qty);
+                                }}
+                                min={1}
+                                size="sm"
+                              />
+                            </Box>
+
+                            <Box>
+                              {fromStock ? (
+                                <>
+                                  <Text size="xs" c="dimmed" mb={2}>
+                                    {t('Price each')}
+                                  </Text>
+                                  <Text
+                                    size="sm"
+                                    fw={600}
+                                    style={{
+                                      fontVariantNumeric: 'tabular-nums',
+                                      height: 36,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                    }}
+                                  >
+                                    {formatMoney(line.unitPriceCents)}
+                                  </Text>
+                                </>
+                              ) : (
+                                <MoneyInput
+                                  label={t('Price each')}
+                                  size="sm"
+                                  valueCents={line.unitPriceCents}
+                                  onChangeCents={(cents) => {
+                                    const discountCents = calculateLineDiscountCents(
+                                      cents,
+                                      line.quantity,
+                                      line.discountType,
+                                      line.discountScope,
+                                      line.discountValue
+                                    );
+                                    patchLine(line.uid, {
+                                      unitPriceCents: cents,
+                                      discountCents,
+                                    });
+                                  }}
+                                  style={{ width: 120 }}
+                                />
+                              )}
+                            </Box>
+                          </Group>
+
+                          <Group gap="md" align="center" wrap="nowrap">
+                            {/* Line Discount Popover */}
+                            <Box>
+                              <Text size="xs" c="dimmed" mb={2}>
+                                {t('Discount')}
+                              </Text>
+                              <LineDiscountPopover
+                                opened={activeDiscountLineUid === line.uid}
+                                onClose={() => setActiveDiscountLineUid(null)}
+                                targetName={line.name || `${t('Item')} ${index + 1}`}
+                                unitPriceCents={line.unitPriceCents}
+                                quantity={line.quantity}
+                                currentDiscountType={line.discountType}
+                                currentDiscountScope={line.discountScope}
+                                currentDiscountValue={line.discountValue}
+                                currentDiscountCents={line.discountCents}
+                                onApplyDiscount={(dCents, dType, dScope, dVal) =>
+                                  handleApplyLineDiscount(
+                                    line.uid,
+                                    dCents,
+                                    dType,
+                                    dScope,
+                                    dVal
+                                  )
+                                }
+                                onRemoveDiscount={() =>
+                                  handleRemoveLineDiscount(line.uid)
+                                }
+                              >
+                                <Button
+                                  size="xs"
+                                  variant={line.discountCents > 0 ? 'light' : 'subtle'}
+                                  color={line.discountCents > 0 ? 'green' : 'gray'}
+                                  leftSection={<IconTag size={13} />}
+                                  onClick={() =>
+                                    setActiveDiscountLineUid(
+                                      activeDiscountLineUid === line.uid ? null : line.uid
+                                    )
+                                  }
+                                >
+                                  {discountBadgeText ?? t('+ Discount')}
+                                </Button>
+                              </LineDiscountPopover>
+                            </Box>
+
+                            {/* Item Total */}
+                            <Stack gap={0} align="flex-end" justify="center">
+                              <Text size="xs" c="dimmed">
+                                {t('Item total')}
+                              </Text>
+                              {line.discountCents > 0 && (
+                                <Text
+                                  size="xs"
+                                  c="dimmed"
+                                  td="line-through"
+                                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                                >
+                                  {formatMoney(grossLine)}
+                                </Text>
+                              )}
+                              <Text
+                                fw={800}
+                                size="sm"
+                                style={{ fontVariantNumeric: 'tabular-nums' }}
+                              >
+                                {formatMoney(lineTotal)}
+                              </Text>
+                            </Stack>
+                          </Group>
+                        </Group>
                       </Stack>
                     </Paper>
                   );
@@ -334,133 +597,235 @@ export const QuotationFormModal = ({
             )}
           </Stack>
 
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-            <Stack gap="xs">
-              <SectionLabel>{t('Discount on the whole quotation')}</SectionLabel>
-              <Group gap="xs" wrap="nowrap" align="flex-end">
-                <Select
-                  aria-label={t('Discount type')}
-                  size={fieldSize}
-                  {...touchField}
-                  allowDeselect={false}
-                  data={[
-                    { value: 'percentage', label: t('Percent (%)') },
-                    { value: 'fixed', label: t('Amount') },
-                  ]}
-                  value={draft.discountType}
-                  onChange={(value) =>
-                    patch({
-                      discountType: value === 'fixed' ? 'fixed' : 'percentage',
-                      discountValue: 0,
-                    })
-                  }
-                  style={{ width: 140, flexShrink: 0 }}
-                />
-                {draft.discountType === 'percentage' ? (
-                  <NumberInput
-                    aria-label={t('Discount percent')}
-                    size={fieldSize}
-                    {...touchField}
-                    hideControls={isMobile}
-                    min={0}
-                    max={100}
-                    suffix="%"
-                    value={draft.discountValue}
-                    onChange={(value) =>
-                      patch({ discountValue: typeof value === 'number' ? value : 0 })
-                    }
-                    style={{ flex: 1, minWidth: 0 }}
+          {/* 3. SETTINGS & TOTALS SUMMARY */}
+          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+            {/* Left: Validity Date & Collapsible Notes/Terms */}
+            <Stack gap="sm">
+              <Paper p="sm" withBorder>
+                <Stack gap="xs">
+                  <SectionLabel>{t('Offer Validity')}</SectionLabel>
+                  <Group gap={4}>
+                    <Button
+                      size="compact-xs"
+                      variant="light"
+                      onClick={() =>
+                        patch({ validUntil: dayjs().add(7, 'day').format('YYYY-MM-DD') })
+                      }
+                    >
+                      {t('7 Days')}
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      variant="light"
+                      onClick={() =>
+                        patch({ validUntil: dayjs().add(14, 'day').format('YYYY-MM-DD') })
+                      }
+                    >
+                      {t('14 Days')}
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      variant="filled"
+                      color="blue"
+                      onClick={() => patch({ validUntil: defaultValidUntil() })}
+                    >
+                      {t('30 Days (Std)')}
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      variant="light"
+                      onClick={() =>
+                        patch({ validUntil: dayjs().add(60, 'day').format('YYYY-MM-DD') })
+                      }
+                    >
+                      {t('60 Days')}
+                    </Button>
+                  </Group>
+                  <TextInput
+                    type="date"
+                    size="sm"
+                    leftSection={<IconCalendar size={14} />}
+                    min={todayString()}
+                    value={draft.validUntil}
+                    onChange={(e) => patch({ validUntil: e.currentTarget.value })}
                   />
-                ) : (
-                  <MoneyInput
-                    aria-label={t('Discount amount')}
-                    size={fieldSize}
-                    {...touchField}
-                    hideControls={isMobile}
-                    valueCents={draft.discountValue}
-                    onChangeCents={(cents) => patch({ discountValue: cents })}
-                    style={{ flex: 1, minWidth: 0 }}
-                  />
-                )}
-              </Group>
+                </Stack>
+              </Paper>
+
+              <Accordion variant="contained" radius="sm">
+                <Accordion.Item value="notes-terms">
+                  <Accordion.Control icon={<IconNotes size={16} />}>
+                    <Text size="xs" fw={600}>
+                      {t('Notes & Terms (Optional)')}
+                    </Text>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <Stack gap="xs">
+                      <Textarea
+                        label={t('Notes')}
+                        placeholder={t('Printed on quotation, e.g. warranty coverage...')}
+                        size="xs"
+                        autosize
+                        minRows={2}
+                        maxRows={4}
+                        maxLength={2000}
+                        value={draft.notes}
+                        onChange={(e) => patch({ notes: e.currentTarget.value })}
+                      />
+                      <Textarea
+                        label={t('Terms and conditions')}
+                        placeholder={t('e.g. 50% deposit required, 7-day turnaround...')}
+                        size="xs"
+                        autosize
+                        minRows={2}
+                        maxRows={4}
+                        maxLength={2000}
+                        value={draft.terms}
+                        onChange={(e) => patch({ terms: e.currentTarget.value })}
+                      />
+                    </Stack>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
             </Stack>
 
-            <Stack gap="xs">
-              <SectionLabel>{t('Offer is valid until')}</SectionLabel>
-              <TextInput
-                aria-label={t('Valid until')}
-                type="date"
-                size={fieldSize}
-                {...touchField}
-                min={todayString()}
-                value={draft.validUntil}
-                onChange={(e) => patch({ validUntil: e.currentTarget.value })}
-              />
-            </Stack>
-          </SimpleGrid>
+            {/* Right: Financial Summary Card */}
+            <Paper p="sm" withBorder style={{ backgroundColor: 'var(--bg-surface)' }}>
+              <Stack gap="xs">
+                <SectionLabel>{t('Summary')}</SectionLabel>
 
-          <Paper p="sm" withBorder>
-            <Stack gap={4}>
-              <Group justify="space-between">
-                <Text size="sm" c="dimmed">
-                  {t('Subtotal')}
-                </Text>
-                <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {formatMoney(totals.subtotalCents)}
-                </Text>
-              </Group>
-              {totals.discountCents > 0 && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    {t('Discount')}
+                    {t('Gross subtotal')}
                   </Text>
-                  <Text size="sm" c="red" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    -{formatMoney(totals.discountCents)}
+                  <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {formatMoney(grossSubtotalCents)}
                   </Text>
                 </Group>
-              )}
-              <Group justify="space-between">
-                <Text fw={700}>{t('Quoted total')}</Text>
-                <Text fw={800} size="lg" c="blue" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {formatMoney(totals.totalCents)}
-                </Text>
-              </Group>
-            </Stack>
-          </Paper>
 
-          <Textarea
-            label={t('Notes')}
-            description={t('Printed on the quotation. You can leave this empty.')}
-            size={fieldSize}
-            {...touchField}
-            autosize
-            minRows={2}
-            maxRows={5}
-            maxLength={2000}
-            value={draft.notes}
-            onChange={(e) => patch({ notes: e.currentTarget.value })}
-          />
-          <Textarea
-            label={t('Terms and conditions')}
-            description={t('For example: how much to pay first, or how long the work takes.')}
-            size={fieldSize}
-            {...touchField}
-            autosize
-            minRows={2}
-            maxRows={5}
-            maxLength={2000}
-            value={draft.terms}
-            onChange={(e) => patch({ terms: e.currentTarget.value })}
-          />
+                {totalLineDiscountsCents > 0 && (
+                  <Group justify="space-between">
+                    <Text size="sm" c="green">
+                      {t('Line discounts saved')}
+                    </Text>
+                    <Text size="sm" c="green" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      -{formatMoney(totalLineDiscountsCents)}
+                    </Text>
+                  </Group>
+                )}
+
+                {/* Quotation-Level Discount */}
+                <Divider my={2} />
+                <Stack gap={4}>
+                  <Group justify="space-between" align="center">
+                    <Text size="sm" fw={600}>
+                      {t('Quotation Discount')}
+                    </Text>
+                    <Group gap="xs" wrap="nowrap">
+                      <SegmentedToggle
+                        size="xs"
+                        value={draft.discountType}
+                        onChange={(val) =>
+                          patch({
+                            discountType: val as 'percentage' | 'fixed',
+                            discountValue: 0,
+                          })
+                        }
+                        data={[
+                          { label: '%', value: 'percentage' },
+                          { label: 'Rs.', value: 'fixed' },
+                        ]}
+                      />
+                      {draft.discountType === 'percentage' ? (
+                        <NumberInput
+                          aria-label={t('Discount percent')}
+                          size="xs"
+                          min={0}
+                          max={100}
+                          suffix="%"
+                          value={draft.discountValue}
+                          onChange={(val) =>
+                            patch({
+                              discountValue: typeof val === 'number' ? val : 0,
+                            })
+                          }
+                          style={{ width: 85 }}
+                        />
+                      ) : (
+                        <MoneyInput
+                          aria-label={t('Discount amount')}
+                          size="xs"
+                          valueCents={draft.discountValue}
+                          onChangeCents={(cents) => patch({ discountValue: cents })}
+                          style={{ width: 110 }}
+                        />
+                      )}
+                    </Group>
+                  </Group>
+
+                  {draft.discountType === 'percentage' && (
+                    <Group gap={4} justify="flex-end">
+                      {ORDER_PERCENT_PRESETS.map((p) => (
+                        <Button
+                          key={p}
+                          size="compact-xs"
+                          variant={draft.discountValue === p ? 'filled' : 'subtle'}
+                          color="blue"
+                          onClick={() => patch({ discountValue: p })}
+                        >
+                          {p}%
+                        </Button>
+                      ))}
+                    </Group>
+                  )}
+
+                  {totals.discountCents > 0 && (
+                    <Group justify="space-between">
+                      <Text size="xs" c="dimmed">
+                        {t('Order discount deducted')}:
+                      </Text>
+                      <Text size="xs" c="red" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        -{formatMoney(totals.discountCents)}
+                      </Text>
+                    </Group>
+                  )}
+                </Stack>
+
+                <Divider my={2} />
+
+                {/* Hero Quoted Total */}
+                <Group justify="space-between" align="baseline">
+                  <Text fw={700} size="md">
+                    {t('Quoted Total')}
+                  </Text>
+                  <Text
+                    fw={900}
+                    size="xl"
+                    c="blue"
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
+                  >
+                    {formatMoney(totals.totalCents)}
+                  </Text>
+                </Group>
+              </Stack>
+            </Paper>
+          </SimpleGrid>
 
           {problem !== null && (
-            <Text size="sm" c="red" role="alert">
-              {problem}
-            </Text>
+            <Paper p="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-red-0)', borderColor: 'var(--mantine-color-red-3)' }}>
+              <Text size="sm" c="red" role="alert" fw={600}>
+                {problem}
+              </Text>
+            </Paper>
           )}
 
-          <Group justify="flex-end" mt="md" gap="sm">
-            <Button variant="default" h={touchHeight} onClick={onClose} disabled={create.isPending}>
+          <Group justify="flex-end" mt="sm" gap="sm">
+            <Button
+              variant="default"
+              h={touchHeight}
+              onClick={onClose}
+              disabled={create.isPending}
+            >
               {t('Cancel')}
             </Button>
             <Button
@@ -470,7 +835,7 @@ export const QuotationFormModal = ({
               onClick={() => void handleSubmit()}
               data-log-id="quotations.create"
             >
-              {t('Create Quotation')}
+              {t('Create Quotation')} · {formatMoney(totals.totalCents)}
             </Button>
           </Group>
         </Stack>

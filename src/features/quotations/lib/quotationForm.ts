@@ -5,9 +5,14 @@ import type { CartItem } from '@/store/slices/cartSlice';
 import type { Product } from '@/features/inventory/types';
 import type { CreateQuotationInput } from '../types';
 
+import { formatMoney } from '@/shared/lib/money';
+
 // The form's working state and every rule about it, kept out of the components so it can be
 // tested without rendering. The backend recomputes all totals and re-checks every rule; this is
 // only so the shop sees a live total and a plain message *before* sending.
+
+export type LineDiscountType = 'percentage' | 'fixed';
+export type LineDiscountScope = 'per_unit' | 'total';
 
 export interface QuotationLineDraft {
   /** Local key for React lists; never sent. */
@@ -18,8 +23,64 @@ export interface QuotationLineDraft {
   sku?: string;
   unitPriceCents: number;
   quantity: number;
+  /** 'percentage' or 'fixed'. */
+  discountType?: LineDiscountType;
+  /** 'per_unit' (each) or 'total' (bulk whole line). Relevant when discountType is 'fixed' and quantity > 1. */
+  discountScope?: LineDiscountScope;
+  /** Percentage (0-100) when discountType === 'percentage', or cents when discountType === 'fixed'. */
+  discountValue?: number;
+  /** Total discount in cents on this line. */
   discountCents: number;
 }
+
+/**
+ * Calculates a line item's discount in integer cents based on the chosen mode and scope.
+ */
+export const calculateLineDiscountCents = (
+  unitPriceCents: number,
+  quantity: number,
+  discountType?: LineDiscountType,
+  discountScope?: LineDiscountScope,
+  discountValue?: number
+): number => {
+  const gross = Math.max(0, Math.round(unitPriceCents) * Math.max(0, Math.floor(quantity)));
+  if (gross === 0 || !discountType || typeof discountValue !== 'number' || discountValue <= 0) {
+    return 0;
+  }
+  if (discountType === 'percentage') {
+    const pct = Math.min(100, Math.max(0, discountValue));
+    return Math.min(gross, Math.round((gross * pct) / 100));
+  }
+  if (discountScope === 'per_unit' && quantity > 1) {
+    const perUnitCents = Math.round(discountValue);
+    const total = perUnitCents * quantity;
+    return Math.min(gross, Math.max(0, total));
+  }
+  return Math.min(gross, Math.max(0, Math.round(discountValue)));
+};
+
+/**
+ * Human-readable badge text describing a line item's discount.
+ */
+export const formatLineDiscountBadge = (line: QuotationLineDraft): string | null => {
+  if (line.discountCents <= 0) return null;
+  if (
+    line.discountType === 'percentage' &&
+    typeof line.discountValue === 'number' &&
+    line.discountValue > 0
+  ) {
+    return `${line.discountValue}% (-${formatMoney(line.discountCents)})`;
+  }
+  if (
+    line.discountType === 'fixed' &&
+    line.discountScope === 'per_unit' &&
+    line.quantity > 1 &&
+    typeof line.discountValue === 'number'
+  ) {
+    return `-${formatMoney(line.discountValue)}/ea (-${formatMoney(line.discountCents)})`;
+  }
+  return `-${formatMoney(line.discountCents)}`;
+};
 
 export interface QuotationDraft {
   customerKey: string | null;
@@ -111,6 +172,7 @@ export const draftFromCart = (cart: CartQuotationSeed, now: Date = new Date()): 
       (item.sourceType === undefined || item.sourceType === 'retail') &&
       (item.originalUnitPriceCents === undefined ||
         item.originalUnitPriceCents === item.unitPriceCents);
+    const hasDiscount = item.discountCents > 0;
     return {
       uid: newLineUid(),
       productKey: keepsCatalogPrice ? item.productKey : undefined,
@@ -118,6 +180,9 @@ export const draftFromCart = (cart: CartQuotationSeed, now: Date = new Date()): 
       sku: item.sku,
       unitPriceCents: item.unitPriceCents,
       quantity: item.quantity,
+      discountType: hasDiscount ? 'fixed' : undefined,
+      discountScope: hasDiscount ? 'total' : undefined,
+      discountValue: hasDiscount ? item.discountCents : undefined,
       discountCents: item.discountCents,
     };
   }),

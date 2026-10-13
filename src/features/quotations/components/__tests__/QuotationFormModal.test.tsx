@@ -203,4 +203,56 @@ describe('QuotationFormModal', () => {
     expect(post).toHaveBeenCalledTimes(1);
     expect(onCreated).not.toHaveBeenCalled();
   });
+
+  it('renders line discount badge and updates quoted total correctly', async () => {
+    await open({
+      ...emptyDraft(),
+      customerName: 'Rita',
+      lines: [
+        {
+          uid: 'l1',
+          name: 'Bulk Cable',
+          unitPriceCents: 1000,
+          quantity: 10,
+          discountType: 'fixed',
+          discountScope: 'per_unit',
+          discountValue: 200,
+          discountCents: 2000,
+        },
+      ],
+    });
+    // Gross: Rs. 100.00, Discount: Rs. 20.00 (2.00/ea), Net total: Rs. 80.00
+    expect(body().textContent).toContain('-Rs. 2.00/ea (-Rs. 20.00)');
+    expect(body().textContent).toContain('Rs. 80.00');
+  });
+
+  it('sends quotation-level order discount in the create request', async () => {
+    await open({
+      ...emptyDraft(),
+      customerName: 'Rita',
+      discountType: 'percentage',
+      discountValue: 10,
+      lines: [
+        {
+          uid: 'l1',
+          name: 'Labour',
+          unitPriceCents: 10000,
+          quantity: 1,
+          discountCents: 0,
+        },
+      ],
+    });
+    // Gross: Rs. 100.00, 10% order discount = Rs. 10.00, Total = Rs. 90.00
+    expect(body().textContent).toContain('Rs. 90.00');
+
+    await click(byText('button', 'Create Quotation'));
+    await flush();
+
+    expect(post).toHaveBeenCalledTimes(1);
+    const sent = post.mock.calls[0][1] as CreateQuotationInput;
+    expect(sent.pricingAdjustments).toEqual({
+      discountType: 'percentage',
+      discountValue: 10,
+    });
+  });
 });

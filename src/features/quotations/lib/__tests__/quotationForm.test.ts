@@ -3,11 +3,13 @@ import type { CartItem } from '@/store/slices/cartSlice';
 import type { Product } from '@/features/inventory/types';
 import {
   buildCreateInput,
+  calculateLineDiscountCents,
   defaultValidUntil,
   draftFromCart,
   draftTotals,
   emptyDraft,
   emptyLine,
+  formatLineDiscountBadge,
   lineFromProduct,
   todayString,
   validateDraft,
@@ -289,5 +291,87 @@ describe('draftFromCart', () => {
     expect(draft.discountValue).toBe(0);
     expect(draft.customerKey).toBeNull();
     expect(draft.customerName).toBe('');
+  });
+});
+
+describe('calculateLineDiscountCents', () => {
+  it('calculates percentage discounts on line gross', () => {
+    // 10 units at Rs. 9.99 (999 cents) = 9990 gross. 10% = 999 cents.
+    expect(calculateLineDiscountCents(999, 10, 'percentage', 'total', 10)).toBe(999);
+    // 1 unit at Rs. 50.00 (5000 cents). 25% = 1250 cents.
+    expect(calculateLineDiscountCents(5000, 1, 'percentage', 'total', 25)).toBe(1250);
+  });
+
+  it('clamps percentage to 100% and gross', () => {
+    expect(calculateLineDiscountCents(1000, 2, 'percentage', 'total', 150)).toBe(2000);
+  });
+
+  it('calculates fixed per-unit discount for bulk quantities', () => {
+    // 10 units at Rs. 10.00 (1000 cents). Rs. 2.00 (200 cents) off each = 2000 cents discount.
+    expect(calculateLineDiscountCents(1000, 10, 'fixed', 'per_unit', 200)).toBe(2000);
+  });
+
+  it('clamps fixed per-unit discount to the gross total', () => {
+    // 5 units at Rs. 2.00 (200 cents) = 1000 gross. Trying to discount Rs. 3.00 (300 cents) each = 1500 -> clamped to 1000.
+    expect(calculateLineDiscountCents(200, 5, 'fixed', 'per_unit', 300)).toBe(1000);
+  });
+
+  it('calculates fixed whole-line discount for bulk quantities', () => {
+    // 10 units at Rs. 10.00 (1000 cents) = 10000 gross. Flat Rs. 15.00 (1500 cents) discount.
+    expect(calculateLineDiscountCents(1000, 10, 'fixed', 'total', 1500)).toBe(1500);
+  });
+
+  it('calculates fixed discount for single item (quantity 1)', () => {
+    // 1 unit at Rs. 48.00 (4800 cents). Rs. 5.00 (500 cents) discount.
+    expect(calculateLineDiscountCents(4800, 1, 'fixed', 'total', 500)).toBe(500);
+    expect(calculateLineDiscountCents(4800, 1, 'fixed', 'per_unit', 500)).toBe(500);
+  });
+
+  it('returns 0 for zero or negative values or missing mode', () => {
+    expect(calculateLineDiscountCents(1000, 5, undefined, undefined, 0)).toBe(0);
+    expect(calculateLineDiscountCents(1000, 5, 'percentage', 'total', 0)).toBe(0);
+    expect(calculateLineDiscountCents(1000, 5, 'fixed', 'per_unit', -50)).toBe(0);
+  });
+});
+
+describe('formatLineDiscountBadge', () => {
+  it('formats percentage discounts', () => {
+    const l = line({
+      unitPriceCents: 1000,
+      quantity: 5,
+      discountType: 'percentage',
+      discountValue: 10,
+      discountCents: 500,
+    });
+    expect(formatLineDiscountBadge(l)).toBe('10% (-Rs. 5.00)');
+  });
+
+  it('formats per-unit bulk discounts', () => {
+    const l = line({
+      unitPriceCents: 1000,
+      quantity: 5,
+      discountType: 'fixed',
+      discountScope: 'per_unit',
+      discountValue: 200,
+      discountCents: 1000,
+    });
+    expect(formatLineDiscountBadge(l)).toBe('-Rs. 2.00/ea (-Rs. 10.00)');
+  });
+
+  it('formats whole-line fixed discounts', () => {
+    const l = line({
+      unitPriceCents: 1000,
+      quantity: 5,
+      discountType: 'fixed',
+      discountScope: 'total',
+      discountValue: 800,
+      discountCents: 800,
+    });
+    expect(formatLineDiscountBadge(l)).toBe('-Rs. 8.00');
+  });
+
+  it('returns null when discount is zero', () => {
+    const l = line({ discountCents: 0 });
+    expect(formatLineDiscountBadge(l)).toBeNull();
   });
 });
