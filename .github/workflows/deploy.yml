@@ -70,7 +70,16 @@ jobs:
           git commit -m "chore(release): ${{ steps.compute.outputs.tag }} [skip ci]"
           git tag -a "${{ steps.compute.outputs.tag }}" -m "SimpleBash POS web ${{ steps.compute.outputs.tag }}"
           git push origin HEAD:main
-          git push origin "${{ steps.compute.outputs.tag }}"
+          # GitHub sometimes rejects a tag push ("missing necessary objects" / "failed")
+          # even though the commit just landed (seen on v0.12.0, which left the release
+          # without a tag and the image unbuilt). Retry, and accept it if the tag landed.
+          TAG="${{ steps.compute.outputs.tag }}"
+          for i in 1 2 3; do
+            git push origin "${TAG}" && break
+            [ "$(git ls-remote origin "refs/tags/${TAG}^{}" | cut -f1)" = "$(git rev-parse HEAD)" ] && break
+            [ "$i" = 3 ] && exit 1
+            sleep 5
+          done
 
       - uses: docker/build-push-action@v6
         with:
