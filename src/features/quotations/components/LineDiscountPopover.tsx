@@ -1,15 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useId } from 'react';
-import {
-  Popover,
-  Stack,
-  Group,
-  Button,
-  Text,
-  NumberInput,
-  Box,
-  Divider,
-} from '@mantine/core';
+import { Popover, Stack, Group, Button, Text, NumberInput, Box, Divider } from '@mantine/core';
 import { IconCheck, IconTrash } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
 import { MoneyInput } from '@/shared/components/MoneyInput';
@@ -213,11 +204,7 @@ export const LineDiscountPopover = ({
                 placeholder="Rs. 0.00"
                 valueCents={fixedCents}
                 onChangeCents={setFixedCents}
-                max={
-                  scope === 'per_unit' && quantity > 1
-                    ? unitPriceCents / 100
-                    : grossCents / 100
-                }
+                max={scope === 'per_unit' && quantity > 1 ? unitPriceCents / 100 : grossCents / 100}
                 autoFocus
               />
 

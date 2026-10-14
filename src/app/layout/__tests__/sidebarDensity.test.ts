@@ -40,10 +40,10 @@ describe('stepDensity', () => {
 });
 
 describe('SIDEBAR_DENSITY_PRESETS', () => {
-  it('only hides the group labels at the dense tier', () => {
+  it('keeps group labels visible across all tiers', () => {
     expect(SIDEBAR_DENSITY_PRESETS.comfortable.showLabels).toBe(true);
     expect(SIDEBAR_DENSITY_PRESETS.compact.showLabels).toBe(true);
-    expect(SIDEBAR_DENSITY_PRESETS.dense.showLabels).toBe(false);
+    expect(SIDEBAR_DENSITY_PRESETS.dense.showLabels).toBe(true);
   });
 
   it('never grows a numeric spacing knob as it compresses', () => {
