@@ -32,7 +32,14 @@ export const toCloudError = (err: unknown): CloudErrorInfo => {
  * The device list needs an interactive account login, which a linked computer
  * does not have — the cloud answers 403. That is expected, not a failure.
  */
-export const isAccountSessionRequired = (err: unknown): boolean => toCloudError(err).status === 403;
+export const isAccountSessionRequired = (err: unknown): boolean => {
+  const { status, code } = toCloudError(err);
+  return status === 403 && code !== 'ACCOUNT_SUSPENDED';
+};
+
+/** The shop owner's cloud access was switched off: sign-in and sync are refused, local use is not. */
+export const isAccountSuspended = (err: unknown): boolean =>
+  toCloudError(err).code === 'ACCOUNT_SUSPENDED';
 
 /** Identity error codes that mean the verified phone was refused: verify a number again. */
 export const isPhoneRejected = (err: unknown): boolean =>

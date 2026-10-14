@@ -53,6 +53,25 @@ export const heroView = (status: SyncStatus): HeroView => {
       action: 'retry',
     };
   }
+  if (status.state === 'suspended') {
+    return {
+      ...base,
+      tone: 'yellow',
+      icon: 'paused',
+      title: 'Cloud sync is paused for this shop',
+      detail:
+        waiting > 0
+          ? [
+              waiting,
+              changes(waiting),
+              'are saved on this computer and will upload once cloud access is restored.',
+            ]
+          : [
+              'Everything you do is saved on this computer.',
+              'Contact SimpleBash to restore cloud access.',
+            ],
+    };
+  }
   if (status.state === 'paused') {
     return {
       ...base,
@@ -361,6 +380,12 @@ export const activityView = (entry: HistoryEntry): ActivityView => {
       return { tone: 'yellow', title: 'Sync paused', detail: [] };
     case 'resumed':
       return { tone: 'blue', title: 'Sync resumed', detail: [] };
+    case 'suspended':
+      return {
+        tone: 'yellow',
+        title: 'Cloud sync paused',
+        detail: ['Your shop keeps working on this computer.'],
+      };
   }
 };
 

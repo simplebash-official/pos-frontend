@@ -48,6 +48,7 @@ describe('badgeView', () => {
     [{ state: 'syncing' }, 'blue', 'Syncing'],
     [{ state: 'syncing', progress: { done: 8, total: 12 } }, 'blue', 'Syncing 8/12'],
     [{ state: 'offline' }, 'gray', 'Offline'],
+    [{ state: 'suspended' }, 'yellow', 'Cloud paused'],
     [{ state: 'offline', pendingOut: 14 }, 'gray', 'Offline · 14 waiting'],
     [{ state: 'error' }, 'red', 'Sync error'],
     [{ state: 'paused' }, 'yellow', 'Paused'],

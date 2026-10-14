@@ -74,6 +74,25 @@ describe('heroView', () => {
     expect(view.detail).toEqual(['Cloud said no']);
   });
 
+  it('reassures a suspended shop instead of showing an error', () => {
+    const quiet = heroView(linked({ state: 'suspended' }));
+    expect(quiet.tone).toBe('yellow');
+    expect(quiet.action).toBeNull();
+    expect(quiet.title).toBe('Cloud sync is paused for this shop');
+    const text = phraseText(quiet.detail, (s) => s);
+    expect(text).toMatch(/saved on this computer/);
+    expect(text).toMatch(/Contact SimpleBash/);
+    expect(`${quiet.title} ${text}`).not.toMatch(/error|expired|sign in/i);
+
+    const waiting = phraseText(
+      heroView(linked({ state: 'suspended', pendingOut: 3 })).detail,
+      (s) => s
+    );
+    expect(waiting).toBe(
+      '3 changes are saved on this computer and will upload once cloud access is restored.'
+    );
+  });
+
   it('mentions the waiting changes while paused', () => {
     expect(heroView(linked({ state: 'paused', pendingOut: 3 })).detail.join(' ')).toContain('3');
   });
@@ -88,6 +107,20 @@ describe('heroView', () => {
       action: 'review',
       title: 'Your confirmation is needed',
     });
+  });
+});
+
+describe('activityView', () => {
+  it('words a suspension as a pause, not a problem', () => {
+    const view = activityView({
+      at: '2026-10-14T08:00:00Z',
+      kind: 'suspended',
+      sent: 0,
+      received: 0,
+      message: null,
+    });
+    expect(view.tone).toBe('yellow');
+    expect(view.title).toBe('Cloud sync paused');
   });
 });
 

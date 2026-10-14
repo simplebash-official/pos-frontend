@@ -16,6 +16,7 @@ import {
 import {
   accountMode,
   isAccountSessionRequired,
+  isAccountSuspended,
   isPhoneRejected,
   otpErrorMessage,
   onlyThisDeviceLinked,
@@ -146,6 +147,14 @@ describe('account view logic', () => {
       true
     );
     expect(isAccountSessionRequired({ code: 'X', message: 'm', status: 500 })).toBe(false);
+    // A suspended account is also a 403, but it is not "sign in with your account".
+    expect(
+      isAccountSessionRequired({ code: 'ACCOUNT_SUSPENDED', message: 'off', status: 403 })
+    ).toBe(false);
+    expect(isAccountSuspended({ code: 'ACCOUNT_SUSPENDED', message: 'off', status: 403 })).toBe(
+      true
+    );
+    expect(isAccountSuspended({ code: 'FORBIDDEN', message: 'no', status: 403 })).toBe(false);
     expect(isAccountSessionRequired(new Error('bad'))).toBe(false);
   });
 
