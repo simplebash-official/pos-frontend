@@ -11,6 +11,14 @@ module.exports = {
     get multiTenant() {
       return process.env.VITE_MULTI_TENANT === 'true';
     },
+    get supportEmail() {
+      if (!process.env.VITE_SUPPORT_EMAIL) throw new Error('VITE_SUPPORT_EMAIL is not set');
+      return process.env.VITE_SUPPORT_EMAIL;
+    },
+    get supportWhatsapp() {
+      if (!process.env.VITE_SUPPORT_WHATSAPP) throw new Error('VITE_SUPPORT_WHATSAPP is not set');
+      return process.env.VITE_SUPPORT_WHATSAPP;
+    },
     get accountsUrl() {
       return (process.env.VITE_ACCOUNTS_URL || 'https://app.simplebash.com').replace(/\/+$/, '');
     },

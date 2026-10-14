@@ -66,6 +66,11 @@ const EmailLoginScreen = lazy(() =>
     default: m.EmailLoginScreen,
   }))
 );
+const AccountSuspendedPage = lazy(() =>
+  import('@/features/account/components/AccountSuspendedPage').then((m) => ({
+    default: m.AccountSuspendedPage,
+  }))
+);
 const WelcomeWizard = lazy(() =>
   import('@/features/onboarding/components/WelcomeWizard').then((m) => ({
     default: m.WelcomeWizard,
@@ -232,6 +237,16 @@ export const router = createBrowserRouter([
           <EmailLoginScreen />
         </Suspense>
       </GuestOnly>
+    ),
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    // Outside RequireAuth/GuestOnly: the shop's token is refused, so there is no session to gate on.
+    path: ROUTES.SUSPENDED,
+    element: (
+      <Suspense fallback={<PageSkeleton />}>
+        <AccountSuspendedPage />
+      </Suspense>
     ),
     errorElement: <ErrorBoundary />,
   },

@@ -22,6 +22,10 @@ ARG VITE_MULTI_TENANT=""
 # Where the multi-tenant login sends people without a shop (the SimpleBash app).
 # Empty uses the default in src/config/env.ts (https://app.simplebash.com).
 ARG VITE_ACCOUNTS_URL=""
+# How a suspended shop's staff reach SimpleBash (shown on the suspended page). No default: empty
+# makes that page refuse to render rather than show a made-up contact. Set both on a cloud build.
+ARG VITE_SUPPORT_EMAIL=""
+ARG VITE_SUPPORT_WHATSAPP=""
 # Commit the build was cut from — surfaced in dist/version.json and the
 # Settings → Updates panel. Empty for a local build.
 ARG VITE_GIT_SHA=""
@@ -32,6 +36,8 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_NAME=$VITE_APP_NAME
 ENV VITE_MULTI_TENANT=$VITE_MULTI_TENANT
 ENV VITE_ACCOUNTS_URL=$VITE_ACCOUNTS_URL
+ENV VITE_SUPPORT_EMAIL=$VITE_SUPPORT_EMAIL
+ENV VITE_SUPPORT_WHATSAPP=$VITE_SUPPORT_WHATSAPP
 ENV VITE_GIT_SHA=$VITE_GIT_SHA
 ENV VITE_APP_VERSION=$VITE_APP_VERSION
 

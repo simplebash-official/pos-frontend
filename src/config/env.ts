@@ -13,6 +13,11 @@ import { PRODUCT_NAME } from './branding';
  */
 export const DESKTOP_API_BASE_URL = 'http://127.0.0.1:8080/api';
 
+const requiredEnv = (name: string, value: string | undefined): string => {
+  if (!value) throw new Error(`${name} is not set`);
+  return value;
+};
+
 export const env = {
   apiBaseUrl:
     import.meta.env.VITE_API_BASE_URL ||
@@ -32,6 +37,16 @@ export const env = {
    */
   get accountsUrl(): string {
     return (import.meta.env.VITE_ACCOUNTS_URL || 'https://app.simplebash.com').replace(/\/+$/, '');
+  },
+  /**
+   * Where a suspended shop's staff are told to reach SimpleBash. Required (no default): the
+   * suspended page throws without them, so a build that forgot them cannot show a made-up contact.
+   */
+  get supportEmail(): string {
+    return requiredEnv('VITE_SUPPORT_EMAIL', import.meta.env.VITE_SUPPORT_EMAIL);
+  },
+  get supportWhatsapp(): string {
+    return requiredEnv('VITE_SUPPORT_WHATSAPP', import.meta.env.VITE_SUPPORT_WHATSAPP);
   },
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
