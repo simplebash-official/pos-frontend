@@ -1,5 +1,7 @@
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'auth_token',
+  /** What the suspended page shows (sessionStorage, so a reload keeps it). See features/account/lib/suspension.ts */
+  SUSPENSION: 'pos_suspension',
   /** Last shop code typed on the multi-tenant web login (never the password). */
   SHOP_CODE: 'pos_shop_code',
   // keep in sync with the inline color-scheme script in index.html

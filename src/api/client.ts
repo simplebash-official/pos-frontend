@@ -15,6 +15,7 @@ import { sanitizeErrorMessage } from '@/shared/lib/error';
 import { installHttpCapture } from '@/shared/logging/capture/http';
 import { isTauri } from '@/shared/lib/runtime';
 import { syncNow } from '@/features/sync-status/api/syncStatusApi';
+import { notifyIfSuspended } from '@/features/account/lib/suspension';
 
 export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url'> {
   params?: Record<string, string | number | boolean | undefined>;
@@ -115,6 +116,8 @@ class ApiClient {
             reportNetworkObservation('reachable', readServerTime(error.response.headers));
             const data = error.response.data;
             if (isApiErrorLike(data)) {
+              // The desktop shell handles a suspended cloud itself (it pauses sync and keeps working).
+              if (!isTauri()) notifyIfSuspended(data);
               return Promise.reject({
                 ...data,
                 message: sanitizeErrorMessage(
