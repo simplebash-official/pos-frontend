@@ -10,6 +10,7 @@ import { DiscountPopover } from './DiscountPopover';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 import { focusBarcodeScanner } from '../lib/focusScanner';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -31,6 +32,7 @@ export const CartLineItem = memo(function CartLineItem({
   // The discount and delete rails sit right next to each other, so on touch they need to clear the
   // 44px target floor in both axes — at 40x46 a mis-tap deletes a line instead of discounting it.
   const isMobile = useIsMobile();
+  const isAdmin = useIsAdmin();
   const rowMinHeight = isMobile ? 56 : 46;
   const railWidth = isMobile ? 48 : 40;
 
@@ -137,6 +139,12 @@ export const CartLineItem = memo(function CartLineItem({
                   style={{ fontFamily: 'monospace', fontSize: 11, flexShrink: 0 }}
                 >
                   {item.sku}
+                </Text>
+              )}
+              {isAdmin && item.costPriceCents !== undefined && (
+                <Text size="xs" c="dimmed" style={{ fontSize: 11, flexShrink: 0 }}>
+                  {item.sku ? '· ' : ''}
+                  {t('Cost')} {formatMoney(item.costPriceCents)}
                 </Text>
               )}
               {isStockNegative && (

@@ -30,6 +30,8 @@ export interface CartItem {
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   originalUnitPriceCents?: number;
+  /** What the shop paid for one unit of a retail line; the server sends it to an Admin only. */
+  costPriceCents?: number;
   stockQuantity?: number;
   /** Only present for a serial-tracked product; one entry per unit, kept in sync with `quantity`. */
   serialNumbers?: string[];

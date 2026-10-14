@@ -81,6 +81,7 @@ import {
 import { usePurchasesByProduct, useCreatePurchase } from '@/features/purchases/hooks/usePurchases';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { PERMISSIONS } from '@/constants/permissions';
+import { adminProductCostCents } from '../lib/productCost';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { DataImportModalProps } from '@/features/imports';
@@ -279,7 +280,7 @@ export const ProductTable = () => {
         productKey: selectedProduct.key,
         supplierKey: intakeSupplierKey,
         quantity: Number(intakeQuantity),
-        unitCostCents: selectedProduct.costPriceCents,
+        unitCostCents: adminProductCostCents(selectedProduct),
         date: new Date().toISOString(),
         referenceNo: intakeReferenceNo.trim() || undefined,
       },
@@ -799,9 +800,13 @@ export const ProductTable = () => {
             <Paper p="md">
               <Grid gap={0} align="flex-start">
                 <Grid.Col
-                  span={4}
+                  span={isAdmin ? 4 : 12}
                   pr="sm"
-                  style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
+                  style={
+                    isAdmin
+                      ? { borderRight: '1px solid var(--mantine-color-default-border)' }
+                      : undefined
+                  }
                 >
                   <Stack gap={2}>
                     <Text size="xs" c="dimmed" tt="uppercase">
@@ -813,61 +818,67 @@ export const ProductTable = () => {
                   </Stack>
                 </Grid.Col>
 
-                <Grid.Col
-                  span={4}
-                  px="sm"
-                  style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-                >
-                  <Stack gap={2}>
-                    <Text size="xs" c="dimmed" tt="uppercase">
-                      {t('Cost')}
-                    </Text>
-                    <Text fw={700} size="md">
-                      {formatMoney(selectedProduct.costPriceCents)}
-                    </Text>
-                  </Stack>
-                </Grid.Col>
-
-                <Grid.Col span={4} pl="sm">
-                  <Stack gap={2}>
-                    <Group gap={4} wrap="nowrap">
-                      <IconTrendingUp
-                        size={12}
-                        style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
-                      />
-                      <Text size="xs" c="dimmed" tt="uppercase">
-                        {t('Profit / Unit')}
-                      </Text>
-                    </Group>
-                    {selectedProduct.sellingPriceCents > 0 ? (
-                      <>
-                        <Text fw={800} size="md" c="teal">
-                          {formatMoney(
-                            selectedProduct.sellingPriceCents - selectedProduct.costPriceCents
-                          )}
+                {isAdmin && (
+                  <>
+                    <Grid.Col
+                      span={4}
+                      px="sm"
+                      style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
+                    >
+                      <Stack gap={2}>
+                        <Text size="xs" c="dimmed" tt="uppercase">
+                          {t('Cost')}
                         </Text>
-                        <Badge
-                          color="teal"
-                          size="xs"
-                          variant="light"
-                          style={{ width: 'fit-content' }}
-                        >
-                          {Math.round(
-                            ((selectedProduct.sellingPriceCents - selectedProduct.costPriceCents) /
-                              selectedProduct.sellingPriceCents) *
-                              100
-                          )}
+                        <Text fw={700} size="md">
+                          {formatMoney(adminProductCostCents(selectedProduct))}
+                        </Text>
+                      </Stack>
+                    </Grid.Col>
 
-                          {t('% margin')}
-                        </Badge>
-                      </>
-                    ) : (
-                      <Text fw={700} size="md" c="dimmed">
-                        —
-                      </Text>
-                    )}
-                  </Stack>
-                </Grid.Col>
+                    <Grid.Col span={4} pl="sm">
+                      <Stack gap={2}>
+                        <Group gap={4} wrap="nowrap">
+                          <IconTrendingUp
+                            size={12}
+                            style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
+                          />
+                          <Text size="xs" c="dimmed" tt="uppercase">
+                            {t('Profit / Unit')}
+                          </Text>
+                        </Group>
+                        {selectedProduct.sellingPriceCents > 0 ? (
+                          <>
+                            <Text fw={800} size="md" c="teal">
+                              {formatMoney(
+                                selectedProduct.sellingPriceCents -
+                                  adminProductCostCents(selectedProduct)
+                              )}
+                            </Text>
+                            <Badge
+                              color="teal"
+                              size="xs"
+                              variant="light"
+                              style={{ width: 'fit-content' }}
+                            >
+                              {Math.round(
+                                ((selectedProduct.sellingPriceCents -
+                                  adminProductCostCents(selectedProduct)) /
+                                  selectedProduct.sellingPriceCents) *
+                                  100
+                              )}
+
+                              {t('% margin')}
+                            </Badge>
+                          </>
+                        ) : (
+                          <Text fw={700} size="md" c="dimmed">
+                            —
+                          </Text>
+                        )}
+                      </Stack>
+                    </Grid.Col>
+                  </>
+                )}
               </Grid>
             </Paper>
 

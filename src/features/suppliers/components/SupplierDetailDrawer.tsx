@@ -57,6 +57,7 @@ import { MoneyInput } from '@/shared/components/MoneyInput';
 import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
 import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { adminProductCostCents } from '@/features/inventory/lib/productCost';
 
 export interface SupplierDetailDrawerProps {
   supplier: Supplier | null;
@@ -654,7 +655,8 @@ export const SupplierDetailDrawer = ({
                                     </Badge>
                                   ) : (
                                     <Badge size="xs" variant="outline" color="gray">
-                                      {t('Default Cost:')} {formatMoney(lp.product.costPriceCents)}
+                                      {t('Default Cost:')}{' '}
+                                      {formatMoney(adminProductCostCents(lp.product))}
                                     </Badge>
                                   )}
                                   {lp.supplierSku && (

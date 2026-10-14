@@ -37,6 +37,7 @@ import { isValidManualBarcode } from '../lib/barcode';
 import { useValidCategories } from '../hooks/useCategories';
 import { fromCents, toCents, formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useGlobalCalculator } from '@/shared/components/calculator';
 import { ApiError } from '@/shared/types/common';
 import { CURRENCY } from '@/constants';
@@ -73,6 +74,10 @@ const ProductFormContent = ({
 }: FormContentProps) => {
   const isEditing = Boolean(productToEdit);
   const isMobile = useIsMobile();
+  // The server never sends what the shop paid to anyone but an Admin, so when
+  // someone else edits a product there is no cost to show and none to send back.
+  const isAdmin = useIsAdmin();
+  const costHidden = isEditing && !isAdmin;
 
   const { data: validCategories } = useValidCategories();
   const { data: suppliers } = useAllSuppliers({ enabled: !isEditing });
@@ -167,7 +172,7 @@ const ProductFormContent = ({
     productToEdit?.subcategoryKey ?? null
   );
   const [costPrice, setCostPrice] = useState<number | string>(
-    productToEdit ? fromCents(productToEdit.costPriceCents) : ''
+    productToEdit?.costPriceCents !== undefined ? fromCents(productToEdit.costPriceCents) : ''
   );
   const [sellingPrice, setSellingPrice] = useState<number | string>(
     productToEdit ? fromCents(productToEdit.sellingPriceCents) : ''
@@ -254,6 +259,7 @@ const ProductFormContent = ({
 
     if (
       !hasSupplierIntakes &&
+      !costHidden &&
       (costPrice === '' || Number(costPrice) < 0 || isNaN(Number(costPrice)))
     ) {
       newErrors.costPrice = 'Enter a valid cost price';
@@ -324,12 +330,14 @@ const ProductFormContent = ({
         name: name.trim(),
         categoryKey,
         subcategoryKey,
-        costPriceCents: toCents(Number(costPrice)),
         sellingPriceCents: toCents(Number(sellingPrice)),
         minStockThreshold: Number(minStockThreshold || 0),
         isSerialized,
         warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
       };
+      if (!costHidden) {
+        payload.costPriceCents = toCents(Number(costPrice));
+      }
 
       // Only send `barcode` when it actually changed — an unchanged value would
       // pointlessly flip its source to "manual".
@@ -1023,32 +1031,34 @@ const ProductFormContent = ({
         ) : (
           <Stack gap={6}>
             <Group grow align="flex-start">
-              <NumberInput
-                label={t('Cost Price (Rs.)')}
-                placeholder="0.00"
-                decimalScale={2}
-                min={0}
-                value={costPrice}
-                onChange={(val) => {
-                  setCostPrice(val);
-                  if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
-                }}
-                error={errors.costPrice}
-                leftSection={
-                  <Text size="xs" fw={700} c="dimmed">
-                    {CURRENCY.symbol}
-                  </Text>
-                }
-                rightSection={renderCalcButton(
-                  costPrice,
-                  (n) => {
-                    setCostPrice(n);
+              {!costHidden && (
+                <NumberInput
+                  label={t('Cost Price (Rs.)')}
+                  placeholder="0.00"
+                  decimalScale={2}
+                  min={0}
+                  value={costPrice}
+                  onChange={(val) => {
+                    setCostPrice(val);
                     if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
-                  },
-                  t('Calculate Cost Price')
-                )}
-                required
-              />
+                  }}
+                  error={errors.costPrice}
+                  leftSection={
+                    <Text size="xs" fw={700} c="dimmed">
+                      {CURRENCY.symbol}
+                    </Text>
+                  }
+                  rightSection={renderCalcButton(
+                    costPrice,
+                    (n) => {
+                      setCostPrice(n);
+                      if (errors.costPrice) setErrors((prev) => ({ ...prev, costPrice: '' }));
+                    },
+                    t('Calculate Cost Price')
+                  )}
+                  required
+                />
+              )}
               <NumberInput
                 label={t('Selling Price (Rs.)')}
                 placeholder="0.00"

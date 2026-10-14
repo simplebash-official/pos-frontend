@@ -19,6 +19,7 @@ import { IconSearch, IconPackage, IconPlus, IconX, IconBarcode } from '@tabler/i
 import { useAllProducts } from '../hooks/useProducts';
 import { fetchProductByBarcode } from '../api/productsApi';
 import { looksLikeBarcode, resolveProductByBarcode } from '../lib/barcode';
+import { adminProductCostCents } from '../lib/productCost';
 import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
 import { formatMoney } from '@/shared/lib/money';
@@ -266,7 +267,7 @@ export const ProductPickerModal = ({
                             {t('Default Cost')}
                           </Text>
                           <Text size="sm" fw={800} c="blue">
-                            {formatMoney(p.costPriceCents)}
+                            {formatMoney(adminProductCostCents(p))}
                           </Text>
                         </Box>
 

@@ -49,7 +49,8 @@ export interface Product extends SyncedEntityFields {
   category: string;
   subcategoryKey: string;
   subcategory: string;
-  costPriceCents: number;
+  /** What the shop paid; the server sends it to an Admin only. */
+  costPriceCents?: number;
   sellingPriceCents: number;
   stockQuantity: number;
   minStockThreshold: number;

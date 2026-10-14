@@ -63,6 +63,7 @@ import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { SerialNumberPickerModal } from '@/features/inventory/components/SerialNumberPickerModal';
 
 // Top frequent items section removed per request
@@ -132,6 +133,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const { mutateAsync: createCustomerAsync } = useCreateCustomer();
 
   const tier = useLayoutTier();
+  const isAdmin = useIsAdmin();
   const isMobile = tier === 'mobile';
 
   // On a phone the scan bar is a soft-keyboard trigger, not a barcode target — stealing focus would
@@ -393,6 +395,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       subcategory: p.subcategory,
       unitPriceCents: p.sellingPriceCents,
       originalUnitPriceCents: p.sellingPriceCents,
+      costPriceCents: p.costPriceCents,
       quantity: 1,
       discountCents: 0,
       sourceType: 'retail',
@@ -1134,14 +1137,25 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                               {/* Bottom Row: Price & Stock Badge */}
                               <Group justify="space-between" align="flex-end">
-                                <Text
-                                  size="sm"
-                                  fw={800}
-                                  c="blue.7"
-                                  style={{ fontSize: 14, fontFamily: 'monospace' }}
-                                >
-                                  {formatMoney(p.sellingPriceCents)}
-                                </Text>
+                                <Stack gap={0}>
+                                  <Text
+                                    size="sm"
+                                    fw={800}
+                                    c="blue.7"
+                                    style={{ fontSize: 14, fontFamily: 'monospace' }}
+                                  >
+                                    {formatMoney(p.sellingPriceCents)}
+                                  </Text>
+                                  {isAdmin && p.costPriceCents !== undefined && (
+                                    <Text
+                                      size="10px"
+                                      c="dimmed"
+                                      style={{ fontFamily: 'monospace' }}
+                                    >
+                                      {t('Cost')} {formatMoney(p.costPriceCents)}
+                                    </Text>
+                                  )}
+                                </Stack>
 
                                 {isZeroStock ? (
                                   <Badge size="xs" color="gray" variant="filled">
