@@ -213,7 +213,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
                 c="dimmed"
                 tt="uppercase"
                 px="xs"
-                pt={index === 0 ? 'xs' : preset.labelPt}
+                pt={preset.labelPt}
                 style={{ letterSpacing: '0.05em' }}
               >
                 {t(category.title)}
@@ -309,7 +309,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           radius="var(--mantine-radius-default)"
           bg="var(--mantine-color-body)"
         >
-          <Stack gap="xs">
+          <Stack gap={isMobile ? 'xs' : preset.itemGap}>
             {isAdmin && (
               <NavLink
                 component={RouterNavLink}

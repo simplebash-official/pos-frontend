@@ -108,10 +108,7 @@ export const QuotationFormModal = ({
   );
 
   const totals = draftTotals(draft);
-  const grossSubtotalCents = draft.lines.reduce(
-    (sum, l) => sum + l.unitPriceCents * l.quantity,
-    0
-  );
+  const grossSubtotalCents = draft.lines.reduce((sum, l) => sum + l.unitPriceCents * l.quantity, 0);
   const totalLineDiscountsCents = draft.lines.reduce((sum, l) => sum + l.discountCents, 0);
 
   const daysFromToday = draft.validUntil
@@ -292,11 +289,7 @@ export const QuotationFormModal = ({
                   </Box>
                 </Group>
                 <Group gap="xs" wrap="nowrap">
-                  <Button
-                    size="xs"
-                    variant="light"
-                    onClick={() => setCustomerPickerOpen(true)}
-                  >
+                  <Button size="xs" variant="light" onClick={() => setCustomerPickerOpen(true)}>
                     {t('Change')}
                   </Button>
                   <Button
@@ -418,9 +411,7 @@ export const QuotationFormModal = ({
                       style={{
                         backgroundColor: 'var(--bg-surface)',
                         borderColor:
-                          line.discountCents > 0
-                            ? 'var(--mantine-color-blue-4)'
-                            : undefined,
+                          line.discountCents > 0 ? 'var(--mantine-color-blue-4)' : undefined,
                       }}
                     >
                       <Stack gap="xs">
@@ -448,11 +439,7 @@ export const QuotationFormModal = ({
                                   {line.name}
                                 </Text>
                                 {line.sku && (
-                                  <Text
-                                    size="xs"
-                                    c="dimmed"
-                                    style={{ fontFamily: 'monospace' }}
-                                  >
+                                  <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
                                     {line.sku}
                                   </Text>
                                 )}
@@ -493,9 +480,7 @@ export const QuotationFormModal = ({
                                 value={line.quantity}
                                 onChange={(val) => {
                                   const qty =
-                                    typeof val === 'number' && val >= 1
-                                      ? Math.floor(val)
-                                      : 1;
+                                    typeof val === 'number' && val >= 1 ? Math.floor(val) : 1;
                                   handleUpdateQuantity(line.uid, qty);
                                 }}
                                 min={1}
@@ -563,17 +548,9 @@ export const QuotationFormModal = ({
                                 currentDiscountValue={line.discountValue}
                                 currentDiscountCents={line.discountCents}
                                 onApplyDiscount={(dCents, dType, dScope, dVal) =>
-                                  handleApplyLineDiscount(
-                                    line.uid,
-                                    dCents,
-                                    dType,
-                                    dScope,
-                                    dVal
-                                  )
+                                  handleApplyLineDiscount(line.uid, dCents, dType, dScope, dVal)
                                 }
-                                onRemoveDiscount={() =>
-                                  handleRemoveLineDiscount(line.uid)
-                                }
+                                onRemoveDiscount={() => handleRemoveLineDiscount(line.uid)}
                               >
                                 <Button
                                   size="xs"
@@ -593,7 +570,12 @@ export const QuotationFormModal = ({
                             </Box>
 
                             {/* Item Total */}
-                            <Stack gap={0} align="flex-end" justify="center" style={{ width: 110, flexShrink: 0 }}>
+                            <Stack
+                              gap={0}
+                              align="flex-end"
+                              justify="center"
+                              style={{ width: 110, flexShrink: 0 }}
+                            >
                               <Text size="xs" c="dimmed" mb={2}>
                                 {t('Item total')}
                               </Text>
@@ -678,8 +660,8 @@ export const QuotationFormModal = ({
                       {daysFromToday > 0
                         ? `${t('Offer holds until')} ${dayjs(draft.validUntil).format('dddd, MMMM D, YYYY')}`
                         : daysFromToday === 0
-                        ? t('Expires at the end of today')
-                        : t('Selected date is in the past')}
+                          ? t('Expires at the end of today')
+                          : t('Selected date is in the past')}
                     </Text>
                   )}
                 </Stack>
@@ -765,7 +747,12 @@ export const QuotationFormModal = ({
                       <Text size="sm" c="green" fw={500}>
                         {t('Line discounts saved')}
                       </Text>
-                      <Text size="sm" c="green" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Text
+                        size="sm"
+                        c="green"
+                        fw={600}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
                         -{formatMoney(totalLineDiscountsCents)}
                       </Text>
                     </Group>
@@ -871,7 +858,12 @@ export const QuotationFormModal = ({
                           <Text size="xs" c="dimmed">
                             {t('Order discount deducted')}:
                           </Text>
-                          <Text size="xs" c="red" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          <Text
+                            size="xs"
+                            c="red"
+                            fw={700}
+                            style={{ fontVariantNumeric: 'tabular-nums' }}
+                          >
                             -{formatMoney(totals.discountCents)}
                           </Text>
                         </Group>
@@ -907,7 +899,14 @@ export const QuotationFormModal = ({
           </SimpleGrid>
 
           {problem !== null && (
-            <Paper p="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-red-0)', borderColor: 'var(--mantine-color-red-3)' }}>
+            <Paper
+              p="xs"
+              withBorder
+              style={{
+                backgroundColor: 'var(--mantine-color-red-0)',
+                borderColor: 'var(--mantine-color-red-3)',
+              }}
+            >
               <Text size="sm" c="red" role="alert" fw={600}>
                 {problem}
               </Text>
@@ -915,12 +914,7 @@ export const QuotationFormModal = ({
           )}
 
           <Group justify="flex-end" mt="sm" gap="sm">
-            <Button
-              variant="default"
-              h={touchHeight}
-              onClick={onClose}
-              disabled={create.isPending}
-            >
+            <Button variant="default" h={touchHeight} onClick={onClose} disabled={create.isPending}>
               {t('Cancel')}
             </Button>
             <Button
