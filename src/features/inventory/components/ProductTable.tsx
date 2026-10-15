@@ -2,7 +2,6 @@ import { t } from '@/shared/i18n/t';
 import { BRAND_NAME } from '@/config/branding';
 import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { QuantityInput } from '@/shared/components/QuantityInput';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { MetricCardRow } from '@/shared/components/MetricCard';
@@ -61,7 +60,6 @@ import { notifications } from '@mantine/notifications';
 import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import {
   useAllProducts,
-  useAdjustStock,
   useCreateProduct,
   useUpdateProduct,
   useDeleteProducts,
@@ -81,7 +79,9 @@ import {
 import { usePurchasesByProduct, useCreatePurchase } from '@/features/purchases/hooks/usePurchases';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { PERMISSIONS } from '@/constants/permissions';
-import { adminProductCostCents } from '../lib/productCost';
+import { adminCostRange, formatCentsRange, priceText, profitRange } from '../lib/priceTiers';
+import { StockBatchesPanel } from './StockBatchesPanel';
+import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { DataImportModalProps } from '@/features/imports';
@@ -157,8 +157,6 @@ export const ProductTable = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Quick stock adjustment in drawer
-  const [stockAdjustment, setStockAdjustment] = useState<number>(0);
-  const [adjustmentReason, setAdjustmentReason] = useState('');
 
   // Drawer history switcher (Movements / Suppliers / Intake)
   const [historyTab, setHistoryTab] = useState<'movements' | 'suppliers' | 'intake'>('movements');
@@ -216,6 +214,8 @@ export const ProductTable = () => {
   const [intakeQuantity, setIntakeQuantity] = useState<number | ''>('');
   const [intakeSupplierKey, setIntakeSupplierKey] = useState<string | null>(null);
   const [intakeReferenceNo, setIntakeReferenceNo] = useState('');
+  const [intakeUnitCostCents, setIntakeUnitCostCents] = useState(0);
+  const [intakeSellingPriceCents, setIntakeSellingPriceCents] = useState(0);
 
   // Supplier-product linking
   const { data: linkedSuppliers, isLoading: loadingSuppliers } = useSuppliersForProduct(
@@ -250,6 +250,8 @@ export const ProductTable = () => {
     setIntakeQuantity('');
     setIntakeSupplierKey(null);
     setIntakeReferenceNo('');
+    setIntakeUnitCostCents(0);
+    setIntakeSellingPriceCents(0);
   };
 
   const handleLinkSupplierInline = () => {
@@ -274,13 +276,15 @@ export const ProductTable = () => {
   };
 
   const handleRecordIntakeInline = () => {
-    if (!selectedProduct || !intakeSupplierKey || !intakeQuantity) return;
+    if (!selectedProduct || !intakeSupplierKey || !intakeQuantity || intakeSellingPriceCents <= 0)
+      return;
     createPurchaseMutation.mutate(
       {
         productKey: selectedProduct.key,
         supplierKey: intakeSupplierKey,
         quantity: Number(intakeQuantity),
-        unitCostCents: adminProductCostCents(selectedProduct),
+        unitCostCents: intakeUnitCostCents,
+        sellingPriceCents: intakeSellingPriceCents,
         date: new Date().toISOString(),
         referenceNo: intakeReferenceNo.trim() || undefined,
       },
@@ -414,8 +418,6 @@ export const ProductTable = () => {
     }
   }
 
-  const adjustStockMutation = useAdjustStock();
-
   const allCategoriesCount = categoryKeys.length;
   const isAllCategoriesExpanded =
     allCategoriesCount > 0 && expandedCategories.length === allCategoriesCount;
@@ -434,39 +436,6 @@ export const ProductTable = () => {
       });
       setExpandedSubcategories(allSubKeys);
     }
-  };
-
-  const handleUpdateStockInDrawer = () => {
-    if (!selectedProduct || stockAdjustment === 0 || !adjustmentReason.trim()) return;
-    const newQty = selectedProduct.stockQuantity + stockAdjustment;
-    if (newQty < 0) {
-      notifications.show({
-        title: 'Invalid Stock',
-        message: 'Stock quantity cannot be negative',
-        color: 'red',
-      });
-      return;
-    }
-
-    adjustStockMutation.mutate(
-      { productKey: selectedProduct.id, delta: stockAdjustment, reason: adjustmentReason.trim() },
-      {
-        // The adjustment applies locally first, so `result` is the optimistic
-        // product rather than a server response — it is available whether or
-        // not there is a connection.
-        onSuccess: (result) => {
-          setSelectedProduct(result);
-          notifications.show({
-            title: 'Stock Updated',
-            message: `Updated stock level for ${result.name} to ${result.stockQuantity} units`,
-            color: 'green',
-            icon: <IconCheck size={16} />,
-          });
-          setStockAdjustment(0);
-          setAdjustmentReason('');
-        },
-      }
-    );
   };
 
   return (
@@ -726,8 +695,6 @@ export const ProductTable = () => {
         opened={selectedProduct !== null}
         onClose={() => {
           setSelectedProduct(null);
-          setStockAdjustment(0);
-          setAdjustmentReason('');
           setHistoryTab('movements');
           resetSupplierForm();
           resetIntakeForm();
@@ -813,7 +780,7 @@ export const ProductTable = () => {
                       {t('Selling')}
                     </Text>
                     <Text fw={800} size="md" c="blue">
-                      {formatMoney(selectedProduct.sellingPriceCents)}
+                      {priceText(selectedProduct)}
                     </Text>
                   </Stack>
                 </Grid.Col>
@@ -830,7 +797,9 @@ export const ProductTable = () => {
                           {t('Cost')}
                         </Text>
                         <Text fw={700} size="md">
-                          {formatMoney(adminProductCostCents(selectedProduct))}
+                          {adminCostRange(selectedProduct) === null
+                            ? t('No stock')
+                            : formatCentsRange(adminCostRange(selectedProduct)!)}
                         </Text>
                       </Stack>
                     </Grid.Col>
@@ -846,33 +815,13 @@ export const ProductTable = () => {
                             {t('Profit / Unit')}
                           </Text>
                         </Group>
-                        {selectedProduct.sellingPriceCents > 0 ? (
-                          <>
-                            <Text fw={800} size="md" c="teal">
-                              {formatMoney(
-                                selectedProduct.sellingPriceCents -
-                                  adminProductCostCents(selectedProduct)
-                              )}
-                            </Text>
-                            <Badge
-                              color="teal"
-                              size="xs"
-                              variant="light"
-                              style={{ width: 'fit-content' }}
-                            >
-                              {Math.round(
-                                ((selectedProduct.sellingPriceCents -
-                                  adminProductCostCents(selectedProduct)) /
-                                  selectedProduct.sellingPriceCents) *
-                                  100
-                              )}
-
-                              {t('% margin')}
-                            </Badge>
-                          </>
-                        ) : (
+                        {profitRange(selectedProduct) === null ? (
                           <Text fw={700} size="md" c="dimmed">
                             —
+                          </Text>
+                        ) : (
+                          <Text fw={800} size="md" c="teal">
+                            {formatCentsRange(profitRange(selectedProduct)!)}
                           </Text>
                         )}
                       </Stack>
@@ -921,38 +870,7 @@ export const ProductTable = () => {
 
                 <Divider color="var(--mantine-color-default-border)" />
 
-                <Box>
-                  <Text size="xs" fw={600} mb={6} c="dimmed">
-                    {t('Quick Stock Adjustment (+/-)')}
-                  </Text>
-                  <Stack gap="xs">
-                    <Group gap="sm" align="center">
-                      <QuantityInput
-                        value={stockAdjustment}
-                        onChange={(val) => setStockAdjustment(Number(val) || 0)}
-                        size={isMobile ? 'lg' : 'sm'}
-                      />
-                      <Button
-                        size="sm"
-                        color="blue"
-                        onClick={handleUpdateStockInDrawer}
-                        style={{ height: isMobile ? 50 : 36 }}
-                        disabled={stockAdjustment === 0 || !adjustmentReason.trim()}
-                        loading={adjustStockMutation.isPending}
-                      >
-                        {t('Apply Adjustment')}
-                      </Button>
-                    </Group>
-                    <TextInput
-                      placeholder={t(
-                        'Reason (required, e.g. Damaged stock, Stock count correction)'
-                      )}
-                      size={isMobile ? 'md' : 'sm'}
-                      value={adjustmentReason}
-                      onChange={(e) => setAdjustmentReason(e.currentTarget.value)}
-                    />
-                  </Stack>
-                </Box>
+                <StockBatchesPanel product={selectedProduct} onProductChange={setSelectedProduct} />
               </Stack>
             </Paper>
 
@@ -1267,6 +1185,9 @@ export const ProductTable = () => {
                                   <Badge size="xs" variant="light" color="teal">
                                     {formatMoney(purchase.totalCostCents)}
                                   </Badge>
+                                  <Badge size="xs" variant="light" color="blue">
+                                    {t('Sells at')} {formatMoney(purchase.sellingPriceCents)}
+                                  </Badge>
                                 </Group>
                                 <Text size="xs" c="dimmed" mt={4}>
                                   {formatDateTime(purchase.date)}{' '}
@@ -1308,6 +1229,28 @@ export const ProductTable = () => {
                             size={isMobile ? 'md' : 'sm'}
                           />
                         </div>
+                        <Group grow align="flex-start">
+                          <div>
+                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                              {t('Unit Cost')}
+                            </Text>
+                            <MoneyInput
+                              valueCents={intakeUnitCostCents}
+                              onChangeCents={setIntakeUnitCostCents}
+                              size={isMobile ? 'md' : 'sm'}
+                            />
+                          </div>
+                          <div>
+                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                              {t('Selling Price each')}
+                            </Text>
+                            <MoneyInput
+                              valueCents={intakeSellingPriceCents}
+                              onChangeCents={setIntakeSellingPriceCents}
+                              size={isMobile ? 'md' : 'sm'}
+                            />
+                          </div>
+                        </Group>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
                             {t('Invoice / Reference No. (optional)')}
@@ -1327,7 +1270,9 @@ export const ProductTable = () => {
                             size="sm"
                             color="green"
                             onClick={handleRecordIntakeInline}
-                            disabled={!intakeSupplierKey || !intakeQuantity}
+                            disabled={
+                              !intakeSupplierKey || !intakeQuantity || intakeSellingPriceCents <= 0
+                            }
                             loading={createPurchaseMutation.isPending}
                           >
                             {t('Record Intake')}
@@ -1405,8 +1350,6 @@ export const ProductTable = () => {
                 size="sm"
                 onClick={() => {
                   setSelectedProduct(null);
-                  setStockAdjustment(0);
-                  setAdjustmentReason('');
                   setHistoryTab('movements');
                   resetSupplierForm();
                   resetIntakeForm();

@@ -142,7 +142,7 @@ describe('buildCreateInput', () => {
       'Kamal'
     );
     expect(input.items).toEqual([
-      { productKey: 'prod_1', quantity: 3, discountCents: 0 },
+      { productKey: 'prod_1', sellingPriceCents: 65000, quantity: 3, discountCents: 0 },
       { name: 'Labour', unitPriceCents: 1500, quantity: 1, discountCents: 100 },
     ]);
     expect(input.preparedBy).toBe('Kamal');
@@ -186,14 +186,18 @@ describe('buildCreateInput', () => {
 });
 
 describe('lineFromProduct', () => {
-  it('copies the stock item and starts at quantity 1 with no discount', () => {
+  it('copies the stock item at the picked price and starts at quantity 1 with no discount', () => {
     const product = {
       key: 'prod_9',
       name: 'Tempered glass',
       sku: 'ACC-0009',
-      sellingPriceCents: 2500,
     } as Product;
-    expect(lineFromProduct(product)).toMatchObject({
+    const tier = {
+      sellingPriceCents: 2500,
+      quantity: 3,
+      oldestReceivedAt: '2026-01-01T00:00:00Z',
+    };
+    expect(lineFromProduct(product, tier)).toMatchObject({
       productKey: 'prod_9',
       name: 'Tempered glass',
       sku: 'ACC-0009',

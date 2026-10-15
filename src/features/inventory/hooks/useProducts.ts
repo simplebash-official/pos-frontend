@@ -9,11 +9,20 @@ import {
   fetchProductByBarcode,
   fetchProductById,
   fetchProductMovements,
+  fetchProductBatches,
   fetchProducts,
   updateProduct,
+  updateStockBatch,
   type ProductListParams,
 } from '../api/productsApi';
-import { CreateProductInput, Product, StockMovement, UpdateProductInput } from '../types';
+import {
+  CreateProductInput,
+  Product,
+  StockAdjustmentInput,
+  StockMovement,
+  UpdateProductInput,
+  UpdateStockBatchInput,
+} from '../types';
 
 // The backend clamps the products list `limit` to 200, so this is the page
 // size that actually minimises round trips — asking for more just gets 200
@@ -30,8 +39,7 @@ export interface UpdateProductPayload {
 }
 export interface AdjustStockPayload {
   productKey: string;
-  delta: number;
-  reason: string;
+  adjustment: StockAdjustmentInput;
 }
 export interface DeleteProductsPayload {
   productKeys: string[];
@@ -137,12 +145,37 @@ export const useDeleteProducts = () => {
 export const useAdjustStock = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ productKey, delta, reason }: AdjustStockPayload): Promise<Product> => {
-      await adjustStock(productKey, delta, reason);
+    mutationFn: async ({ productKey, adjustment }: AdjustStockPayload): Promise<Product> => {
+      await adjustStock(productKey, adjustment);
       // The endpoint returns only the post-adjustment stock figures; re-fetch
       // the full row so callers get back a complete, current `Product`.
       return fetchProductById(productKey);
     },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
+};
+
+/**
+ * Every delivery (stock batch) of a product, newest first — a live server read,
+ * like the serial picker's, so a price picked from it is current.
+ */
+export const useProductBatches = (
+  productKey: string | undefined,
+  options?: { enabled?: boolean }
+) =>
+  useQuery({
+    queryKey: queryKeys.inventory.batches(productKey ?? ''),
+    queryFn: () => fetchProductBatches(productKey as string),
+    enabled: Boolean(productKey) && (options?.enabled ?? true),
+  });
+
+export const useUpdateStockBatch = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ batchKey, input }: { batchKey: string; input: UpdateStockBatchInput }) =>
+      updateStockBatch(batchKey, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },

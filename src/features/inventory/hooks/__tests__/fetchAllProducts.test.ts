@@ -15,8 +15,15 @@ const makeProduct = (id: number): Product => ({
   categoryKey: 'cat_1',
   subcategory: 'Sub',
   subcategoryKey: 'sub_1',
-  costPriceCents: 100,
-  sellingPriceCents: 200,
+  priceTiers: [
+    {
+      sellingPriceCents: 200,
+      quantity: 5,
+      minUnitCostCents: 100,
+      maxUnitCostCents: 100,
+      oldestReceivedAt: '2026-01-01T00:00:00Z',
+    },
+  ],
   stockQuantity: 5,
   minStockThreshold: 1,
   isSerialized: false,

@@ -35,9 +35,8 @@ import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { Product, CreateProductInput, UpdateProductInput, ProductSupplierIntake } from '../types';
 import { isValidManualBarcode } from '../lib/barcode';
 import { useValidCategories } from '../hooks/useCategories';
-import { fromCents, toCents, formatMoney } from '@/shared/lib/money';
+import { toCents, formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useGlobalCalculator } from '@/shared/components/calculator';
 import { ApiError } from '@/shared/types/common';
 import { CURRENCY } from '@/constants';
@@ -47,6 +46,8 @@ export interface SupplierIntakeRow {
   supplierKey: string;
   quantity: number | string;
   costPrice: number | string;
+  /** What this supplier's units sell for — each delivery keeps its own price. */
+  sellingPrice: number | string;
   referenceNo: string;
   notes: string;
 }
@@ -74,10 +75,6 @@ const ProductFormContent = ({
 }: FormContentProps) => {
   const isEditing = Boolean(productToEdit);
   const isMobile = useIsMobile();
-  // The server never sends what the shop paid to anyone but an Admin, so when
-  // someone else edits a product there is no cost to show and none to send back.
-  const isAdmin = useIsAdmin();
-  const costHidden = isEditing && !isAdmin;
 
   const { data: validCategories } = useValidCategories();
   const { data: suppliers } = useAllSuppliers({ enabled: !isEditing });
@@ -92,7 +89,8 @@ const ProductFormContent = ({
         id: `intake-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         supplierKey: '',
         quantity: '',
-        costPrice: costPrice !== '' ? costPrice : '',
+        costPrice: '',
+        sellingPrice: '',
         referenceNo: '',
         notes: '',
       },
@@ -106,6 +104,7 @@ const ProductFormContent = ({
       delete updated[`supplier_${id}_key`];
       delete updated[`supplier_${id}_qty`];
       delete updated[`supplier_${id}_cost`];
+      delete updated[`supplier_${id}_price`];
       return updated;
     });
   };
@@ -127,6 +126,8 @@ const ProductFormContent = ({
       setErrors((prev) => ({ ...prev, [`supplier_${id}_qty`]: '' }));
     } else if (field === 'costPrice') {
       setErrors((prev) => ({ ...prev, [`supplier_${id}_cost`]: '' }));
+    } else if (field === 'sellingPrice') {
+      setErrors((prev) => ({ ...prev, [`supplier_${id}_price`]: '' }));
     }
   };
 
@@ -171,12 +172,10 @@ const ProductFormContent = ({
   const [subcategoryKey, setSubcategoryKey] = useState<string | null>(
     productToEdit?.subcategoryKey ?? null
   );
-  const [costPrice, setCostPrice] = useState<number | string>(
-    productToEdit?.costPriceCents !== undefined ? fromCents(productToEdit.costPriceCents) : ''
-  );
-  const [sellingPrice, setSellingPrice] = useState<number | string>(
-    productToEdit ? fromCents(productToEdit.sellingPriceCents) : ''
-  );
+  // Prices belong to the stock a product is created with (its opening
+  // delivery); after that each delivery is priced on its own.
+  const [costPrice, setCostPrice] = useState<number | string>('');
+  const [sellingPrice, setSellingPrice] = useState<number | string>('');
   const [minStockThreshold, setMinStockThreshold] = useState<number | string>(
     productToEdit ? productToEdit.minStockThreshold : ''
   );
@@ -190,12 +189,8 @@ const ProductFormContent = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Computed Profit & Margin Analytics
-  const effectiveUnitCost = hasSupplierIntakes
-    ? totalIntakeQuantity > 0
-      ? totalIntakeCostCents / (totalIntakeQuantity * 100)
-      : Number(supplierIntakes[0]?.costPrice || 0)
-    : Number(costPrice || 0);
+  // Computed Profit & Margin Analytics for the opening stock
+  const effectiveUnitCost = Number(costPrice || 0);
 
   const effectiveSellingPrice = Number(sellingPrice || 0);
   const unitProfit = effectiveSellingPrice - effectiveUnitCost;
@@ -257,16 +252,18 @@ const ProductFormContent = ({
     if (!categoryKey) newErrors.categoryKey = 'Select a category';
     if (!subcategoryKey) newErrors.subcategoryKey = 'Select a subcategory';
 
-    if (
-      !hasSupplierIntakes &&
-      !costHidden &&
-      (costPrice === '' || Number(costPrice) < 0 || isNaN(Number(costPrice)))
-    ) {
-      newErrors.costPrice = 'Enter a valid cost price';
-    }
-
-    if (sellingPrice === '' || Number(sellingPrice) <= 0 || isNaN(Number(sellingPrice))) {
-      newErrors.sellingPrice = 'Selling price must be greater than 0';
+    const hasOpeningStock = !isEditing && !hasSupplierIntakes && Number(stockQuantity) > 0;
+    if (hasOpeningStock) {
+      if (costPrice === '' || Number(costPrice) < 0 || isNaN(Number(costPrice))) {
+        newErrors.costPrice = 'Enter a valid cost price';
+      }
+      if (sellingPrice === '' || Number(sellingPrice) <= 0 || isNaN(Number(sellingPrice))) {
+        newErrors.sellingPrice = 'Selling price must be greater than 0';
+      }
+    } else if (!isEditing && !hasSupplierIntakes && (costPrice !== '' || sellingPrice !== '')) {
+      // A price is saved with the stock it belongs to; with no stock it would be lost.
+      newErrors.sellingPrice =
+        'Add the starting stock to keep this price, or clear the prices and set them when stock arrives';
     }
 
     if (
@@ -304,6 +301,14 @@ const ProductFormContent = ({
         if (row.costPrice === '' || Number(row.costPrice) < 0 || isNaN(Number(row.costPrice))) {
           newErrors[`supplier_${row.id}_cost`] = 'Enter a valid unit cost';
         }
+
+        if (
+          row.sellingPrice === '' ||
+          Number(row.sellingPrice) <= 0 ||
+          isNaN(Number(row.sellingPrice))
+        ) {
+          newErrors[`supplier_${row.id}_price`] = 'Enter the price these units sell for';
+        }
       });
     }
 
@@ -330,14 +335,10 @@ const ProductFormContent = ({
         name: name.trim(),
         categoryKey,
         subcategoryKey,
-        sellingPriceCents: toCents(Number(sellingPrice)),
         minStockThreshold: Number(minStockThreshold || 0),
         isSerialized,
         warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
       };
-      if (!costHidden) {
-        payload.costPriceCents = toCents(Number(costPrice));
-      }
 
       // Only send `barcode` when it actually changed — an unchanged value would
       // pointlessly flip its source to "manual".
@@ -358,26 +359,26 @@ const ProductFormContent = ({
             supplierKey: row.supplierKey,
             quantity: Number(row.quantity),
             costPriceCents: toCents(Number(row.costPrice)),
+            sellingPriceCents: toCents(Number(row.sellingPrice)),
             referenceNo: row.referenceNo.trim() || undefined,
             notes: row.notes.trim() || undefined,
           }))
         : [];
 
-      const finalCostPriceCents = hasSupplierIntakes
-        ? toCents(effectiveUnitCost)
-        : toCents(Number(costPrice || 0));
-
-      const finalStockQuantity = hasSupplierIntakes
-        ? totalIntakeQuantity
-        : Number(stockQuantity || 0);
+      const openingQuantity = hasSupplierIntakes ? 0 : Number(stockQuantity || 0);
 
       const payload: CreateProductInput = {
         name: name.trim(),
         categoryKey,
         subcategoryKey,
-        costPriceCents: finalCostPriceCents,
-        sellingPriceCents: toCents(Number(sellingPrice)),
-        stockQuantity: finalStockQuantity,
+        openingStock:
+          openingQuantity > 0
+            ? {
+                quantity: openingQuantity,
+                unitCostCents: toCents(Number(costPrice)),
+                sellingPriceCents: toCents(Number(sellingPrice)),
+              }
+            : undefined,
         minStockThreshold: Number(minStockThreshold || 0),
         suppliers: suppliersPayload.length > 0 ? suppliersPayload : undefined,
         isSerialized,
@@ -678,6 +679,25 @@ const ProductFormContent = ({
                             />
                           </Grid.Col>
                           <Grid.Col span={{ base: 12, sm: 4 }}>
+                            <NumberInput
+                              label={t('Selling Price each')}
+                              placeholder="0.00"
+                              min={0.01}
+                              decimalScale={2}
+                              value={row.sellingPrice}
+                              onChange={(val) =>
+                                handleUpdateSupplierIntake(row.id, 'sellingPrice', val)
+                              }
+                              error={errors[`supplier_${row.id}_price`]}
+                              leftSection={
+                                <Text size="xs" fw={700} c="dimmed">
+                                  {CURRENCY.symbol}
+                                </Text>
+                              }
+                              required
+                            />
+                          </Grid.Col>
+                          <Grid.Col span={{ base: 12, sm: 12 }}>
                             <TextInput
                               label={t('Invoice / Ref No')}
                               placeholder={t('e.g. INV-1049')}
@@ -935,103 +955,16 @@ const ProductFormContent = ({
           )}
         </Stack>
 
-        {/* Pricing */}
-        {hasSupplierIntakes ? (
+        {/* Pricing of the stock on hand now (its opening delivery) */}
+        {!isEditing && !hasSupplierIntakes && (
           <Stack gap={6}>
-            <NumberInput
-              label={t('Selling Price (Rs.)')}
-              placeholder="0.00"
-              decimalScale={2}
-              min={0.01}
-              value={sellingPrice}
-              onChange={(val) => {
-                setSellingPrice(val);
-                if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
-              }}
-              error={errors.sellingPrice}
-              leftSection={
-                <Text size="xs" fw={700} c="dimmed">
-                  {CURRENCY.symbol}
-                </Text>
-              }
-              rightSection={renderCalcButton(
-                sellingPrice,
-                (n) => {
-                  setSellingPrice(n);
-                  if (errors.sellingPrice) setErrors((prev) => ({ ...prev, sellingPrice: '' }));
-                },
-                t('Calculate Selling Price')
+            <Text size="xs" c="dimmed">
+              {t(
+                'These prices are for the starting stock below. Stock you receive later keeps its own price.'
               )}
-              required
-            />
-
-            {showProfitMargin && (
-              <Paper
-                withBorder
-                px="sm"
-                py={7}
-                radius="var(--mantine-radius-default)"
-                bg={
-                  unitProfit > 0
-                    ? 'light-dark(rgba(18, 184, 134, 0.06), rgba(18, 184, 134, 0.12))'
-                    : unitProfit < 0
-                      ? 'light-dark(rgba(250, 82, 82, 0.06), rgba(250, 82, 82, 0.12))'
-                      : 'light-dark(var(--bg-hover), var(--mantine-color-dark-6))'
-                }
-                style={{
-                  borderColor:
-                    unitProfit > 0
-                      ? 'light-dark(rgba(18, 184, 134, 0.3), rgba(18, 184, 134, 0.4))'
-                      : unitProfit < 0
-                        ? 'light-dark(rgba(250, 82, 82, 0.3), rgba(250, 82, 82, 0.4))'
-                        : 'var(--border)',
-                }}
-              >
-                <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-                  <Group gap="xs" align="center">
-                    <ThemeIcon
-                      size={22}
-                      radius="xl"
-                      variant="light"
-                      color={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'gray'}
-                    >
-                      <IconTrendingUp size={13} />
-                    </ThemeIcon>
-                    <Text
-                      size="xs"
-                      fw={600}
-                      c={unitProfit > 0 ? 'teal' : unitProfit < 0 ? 'red' : 'var(--text-secondary)'}
-                    >
-                      {t('Unit Profit:')}{' '}
-                      <Text span fw={700}>
-                        {unitProfit >= 0 ? '+' : ''}
-                        {formatMoney(toCents(unitProfit))}
-                      </Text>
-                    </Text>
-                  </Group>
-
-                  <Group gap="xs" align="center">
-                    <Badge
-                      size="sm"
-                      variant="light"
-                      color={profitMarginPct > 0 ? 'teal' : profitMarginPct < 0 ? 'red' : 'gray'}
-                    >
-                      {t('Margin:')} {profitMarginPct.toFixed(1)}%
-                    </Badge>
-                    {markupPct !== 0 && (
-                      <Text size="xs" c="dimmed">
-                        {t('Markup:')} {markupPct.toFixed(1)}%
-                      </Text>
-                    )}
-                  </Group>
-                </Group>
-              </Paper>
-            )}
-          </Stack>
-        ) : (
-          <Stack gap={6}>
+            </Text>
             <Group grow align="flex-start">
-              {!costHidden && (
+              {
                 <NumberInput
                   label={t('Cost Price (Rs.)')}
                   placeholder="0.00"
@@ -1058,7 +991,7 @@ const ProductFormContent = ({
                   )}
                   required
                 />
-              )}
+              }
               <NumberInput
                 label={t('Selling Price (Rs.)')}
                 placeholder="0.00"
@@ -1212,7 +1145,7 @@ const ProductFormContent = ({
         {isEditing && (
           <Text size="xs" c="dimmed">
             {t(
-              'Stock quantity is managed via stock adjustments or purchase orders so every change is\n                                  captured in the audit trail.'
+              "Prices and stock are kept per delivery. Change them in this item's Batches section, or receive new stock from a supplier."
             )}
           </Text>
         )}

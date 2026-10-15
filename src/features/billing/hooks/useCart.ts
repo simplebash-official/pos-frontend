@@ -32,6 +32,7 @@ import {
   selectCartItems,
   selectActiveCartItems,
   selectReservedQuantityByProductId,
+  selectReservedQuantityByProductPrice,
   selectCartDiscountCents,
   selectCartDiscountType,
   selectCartDiscountValue,
@@ -80,6 +81,7 @@ export const useCartItems = () => {
   // that reasons about stock still available to sell must use `activeItems` instead.
   const activeItems = useAppSelector(selectActiveCartItems);
   const reservedQuantityByProductId = useAppSelector(selectReservedQuantityByProductId);
+  const reservedQuantityByProductPrice = useAppSelector(selectReservedQuantityByProductPrice);
   const itemCount = useAppSelector(selectCartItemsCount);
   const totalUnitCount = useAppSelector(selectTotalUnitCount);
   const sourceBreakdown = useAppSelector(selectSourceBreakdown);
@@ -108,6 +110,7 @@ export const useCartItems = () => {
     items,
     activeItems,
     reservedQuantityByProductId,
+    reservedQuantityByProductPrice,
     itemCount,
     totalUnitCount,
     sourceBreakdown,

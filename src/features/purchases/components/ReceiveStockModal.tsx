@@ -18,6 +18,7 @@ import { ProductPickerModal } from '@/features/inventory/components/ProductPicke
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { toCents } from '@/shared/lib/money';
+import { priceText } from '@/features/inventory/lib/priceTiers';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 interface ReceiveStockModalProps {
@@ -37,6 +38,7 @@ export const ReceiveStockModal = ({
   const [supplierKey, setSupplierKey] = useState<string | undefined>(initialSupplierKey);
   const [quantity, setQuantity] = useState<number | string>(1);
   const [unitCost, setUnitCost] = useState<number | string>(''); // in rupees
+  const [sellingPrice, setSellingPrice] = useState<number | string>(''); // in rupees
   const [date, setDate] = useState<Date | null>(new Date());
   const [referenceNo, setReferenceNo] = useState('');
   const [serialNumbers, setSerialNumbers] = useState<string[]>([]);
@@ -57,6 +59,7 @@ export const ReceiveStockModal = ({
       setSupplierKey(initialSupplierKey);
       setQuantity(1);
       setUnitCost('');
+      setSellingPrice('');
       setDate(new Date());
       setReferenceNo('');
       setSerialNumbers([]);
@@ -88,7 +91,7 @@ export const ReceiveStockModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!productKey || !supplierKey || !quantity || !unitCost || !date) return;
+    if (!productKey || !supplierKey || !quantity || !unitCost || !sellingPrice || !date) return;
     if (hasBlankSerial) return;
 
     createPurchase(
@@ -97,6 +100,7 @@ export const ReceiveStockModal = ({
         supplierKey,
         quantity: Number(quantity),
         unitCostCents: toCents(Number(unitCost)),
+        sellingPriceCents: toCents(Number(sellingPrice)),
         date: date.toISOString(),
         referenceNo,
         serialNumbers: needsSerials ? serialNumbers.map((s) => s.trim()) : undefined,
@@ -222,6 +226,21 @@ export const ReceiveStockModal = ({
                 required
               />
             </Group>
+
+            <NumberInput
+              label={t('Selling Price each (Rs.)')}
+              description={
+                selectedProduct && selectedProduct.priceTiers.length > 0
+                  ? `${t('Now selling at')} ${priceText(selectedProduct)}. ${t('These units keep their own price.')}`
+                  : t('What you will sell these units for.')
+              }
+              placeholder="0.00"
+              decimalScale={2}
+              min={0.01}
+              value={sellingPrice}
+              onChange={setSellingPrice}
+              required
+            />
 
             {needsSerials && serialUnitCount > 0 && (
               <Stack gap={4}>

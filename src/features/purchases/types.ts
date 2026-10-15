@@ -7,6 +7,8 @@ export interface StockPurchase extends SyncedEntityFields {
   productKey: string;
   quantity: number;
   unitCostCents: number;
+  /** Price the received units were set to sell at. */
+  sellingPriceCents: number;
   totalCostCents: number;
   date: string;
   referenceNo?: string;
@@ -18,6 +20,7 @@ export type StockPurchaseInput = {
   productKey: string;
   quantity: number;
   unitCostCents: number;
+  sellingPriceCents: number;
   date: string;
   referenceNo?: string;
   notes?: string;

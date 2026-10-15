@@ -26,6 +26,12 @@ export interface CreateCreditNoteItemInput {
   disposition?: CreditNoteItemDisposition;
   serialNumber?: string;
   unitPriceCents?: number;
+  /**
+   * For a product line: the price it was sold at. Picks the right invoice line
+   * when the product sold at two prices; for a no-receipt return it values the
+   * return and decides which delivery the unit goes back into.
+   */
+  sellingPriceCents?: number;
   sourceTicketKey?: string;
 }
 
@@ -37,6 +43,8 @@ export interface CreateCreditNoteExchangeItemInput {
   sourceType: 'retail' | 'repair' | 'print';
   name?: string;
   unitPriceCents?: number;
+  /** The price tier a replacement product is taken at, like a sale line. */
+  sellingPriceCents?: number;
 }
 
 export interface CreateCreditNoteRefundBreakdownInput {

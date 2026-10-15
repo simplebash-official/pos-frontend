@@ -14,7 +14,7 @@ const item: CartItem = {
   name: 'Galaxy A15',
   sku: 'PHO-SCR-0001',
   unitPriceCents: 65000,
-  costPriceCents: 48000,
+  costRangeCents: { min: 48000, max: 48000 },
   quantity: 1,
   discountCents: 0,
   totalCents: 65000,
@@ -55,7 +55,13 @@ describe('CartLineItem cost', () => {
   });
 
   it('shows nothing when the line carries no cost, even to an admin', () => {
-    const { costPriceCents: _omitted, ...withoutCost } = item;
+    const { costRangeCents: _omitted, ...withoutCost } = item;
     expect(render('admin', withoutCost)).not.toContain('Cost');
+  });
+
+  it('shows the cost range when a price spans deliveries bought at different costs', () => {
+    const html = render('admin', { ...item, costRangeCents: { min: 48000, max: 50000 } });
+    expect(html).toContain('480.00');
+    expect(html).toContain('500.00');
   });
 });

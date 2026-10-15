@@ -4,6 +4,7 @@ import { Paper, Group, Box, Text, ActionIcon, Tooltip, Badge, ThemeIcon } from '
 import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
+import { formatCentsRange } from '@/features/inventory/lib/priceTiers';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { CartItem } from '@/store/slices/cartSlice';
 import { DiscountPopover } from './DiscountPopover';
@@ -141,10 +142,10 @@ export const CartLineItem = memo(function CartLineItem({
                   {item.sku}
                 </Text>
               )}
-              {isAdmin && item.costPriceCents !== undefined && (
+              {isAdmin && item.costRangeCents !== undefined && (
                 <Text size="xs" c="dimmed" style={{ fontSize: 11, flexShrink: 0 }}>
                   {item.sku ? '· ' : ''}
-                  {t('Cost')} {formatMoney(item.costPriceCents)}
+                  {t('Cost')} {formatCentsRange(item.costRangeCents)}
                 </Text>
               )}
               {isStockNegative && (

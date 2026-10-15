@@ -155,6 +155,8 @@ export const BillingCounter = () => {
 
           return {
             productKey,
+            // A product line's unit price is the price tier it was added at.
+            sellingPriceCents: productKey ? i.unitPriceCents : undefined,
             sourceTicketKey,
             quantity: i.quantity,
             discountCents: i.discountCents,

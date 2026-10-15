@@ -29,7 +29,14 @@ import { formatMoney } from '@/shared/lib/money';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
-import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { useAllProducts, useProductBatches } from '@/features/inventory/hooks/useProducts';
+import { PriceTierPickerModal } from '@/features/inventory/components/PriceTierPickerModal';
+import {
+  formatCentsRange,
+  sellingPriceRange,
+  tiersWithRoom,
+} from '@/features/inventory/lib/priceTiers';
+import type { PriceTier, Product } from '@/features/inventory/types';
 import { useCreateCreditNote } from '@/features/billing/hooks/useCreditNotes';
 import type {
   CreateCreditNoteExchangeItemInput,
@@ -104,6 +111,8 @@ export const CreditNoteModal = ({
   const [noReceipt, setNoReceipt] = useState(false);
   const [noReceiptProductKey, setNoReceiptProductKey] = useState<string | null>(null);
   const [noReceiptQty, setNoReceiptQty] = useState<number | ''>(1);
+  const [noReceiptPriceCents, setNoReceiptPriceCents] = useState<string | null>(null);
+  const [exchangePickerProduct, setExchangePickerProduct] = useState<Product | null>(null);
   const [overrideReason, setOverrideReason] = useState('');
   const [refundBreakdown, setRefundBreakdown] = useState<Record<string, number>>({});
   const [exchangeLines, setExchangeLines] = useState<ExchangeLine[]>([]);
@@ -118,6 +127,7 @@ export const CreditNoteModal = ({
     setNoReceipt(false);
     setNoReceiptProductKey(null);
     setNoReceiptQty(1);
+    setNoReceiptPriceCents(null);
     setOverrideReason('');
     setRefundBreakdown({});
     setExchangeLines([]);
@@ -133,6 +143,7 @@ export const CreditNoteModal = ({
     setNoReceipt(false);
     setNoReceiptProductKey(null);
     setNoReceiptQty(1);
+    setNoReceiptPriceCents(null);
     setOverrideReason('');
     setRefundBreakdown({});
     setExchangeLines([]);
@@ -269,9 +280,22 @@ export const CreditNoteModal = ({
   }, [invoice, items, lineStates, productMap, getLineState, nowMs]);
 
   const noReceiptProduct = noReceiptProductKey ? productMap.get(noReceiptProductKey) : undefined;
+  // Every price the product has ever been received at — a no-receipt return
+  // goes back into the newest delivery at the price it was sold at.
+  const { data: noReceiptBatches } = useProductBatches(noReceiptProductKey ?? undefined, {
+    enabled: noReceipt && noReceiptProductKey !== null,
+  });
+  const noReceiptPriceOptions = useMemo(
+    () =>
+      [...new Set((noReceiptBatches ?? []).map((b) => b.sellingPriceCents))]
+        .sort((a, b) => a - b)
+        .map((cents) => ({ value: String(cents), label: formatMoney(cents) })),
+    [noReceiptBatches]
+  );
+  const noReceiptPrice = noReceiptPriceCents === null ? null : Number(noReceiptPriceCents);
   const noReceiptRefundCents =
-    noReceipt && noReceiptProduct && typeof noReceiptQty === 'number'
-      ? noReceiptProduct.sellingPriceCents * noReceiptQty
+    noReceipt && noReceiptProduct && noReceiptPrice !== null && typeof noReceiptQty === 'number'
+      ? noReceiptPrice * noReceiptQty
       : 0;
 
   const returnSubtotalCents = noReceipt
@@ -326,7 +350,7 @@ export const CreditNoteModal = ({
               quantity: typeof noReceiptQty === 'number' ? noReceiptQty : 1,
               reason: 'other',
               condition: 'pending_inspection',
-              unitPriceCents: noReceiptProduct!.sellingPriceCents,
+              sellingPriceCents: noReceiptPrice!,
             },
           ]
         : [
@@ -345,6 +369,8 @@ export const CreditNoteModal = ({
               condition: state.condition,
               disposition: state.condition === 'damaged' ? state.disposition! : undefined,
               unitPriceCents: item.unitPriceCents,
+              sellingPriceCents:
+                item.sourceType === 'retail' || !item.sourceType ? item.unitPriceCents : undefined,
             })),
             ...serializedLines.map(({ item, serial, unit }) => ({
               productKey: item.productId || undefined,
@@ -354,6 +380,7 @@ export const CreditNoteModal = ({
               condition: unit.condition,
               disposition: unit.condition === 'damaged' ? unit.disposition! : undefined,
               unitPriceCents: item.unitPriceCents,
+              sellingPriceCents: item.unitPriceCents,
               serialNumber: serial,
             })),
           ];
@@ -364,7 +391,7 @@ export const CreditNoteModal = ({
         quantity: l.quantity,
         discountCents: 0,
         sourceType: 'retail',
-        unitPriceCents: l.unitPriceCents,
+        sellingPriceCents: l.unitPriceCents,
       }));
 
       let refundBreakdownInput: CreateCreditNoteRefundBreakdownInput[] | undefined;
@@ -414,10 +441,73 @@ export const CreditNoteModal = ({
     }
   };
 
+  const priceLabel = (p: Product): string => {
+    const range = sellingPriceRange(p);
+    return range === null ? t('Out of stock') : formatCentsRange(range);
+  };
   const productOptions = products.map((p) => ({
     value: p.key,
-    label: `${p.name} (${p.sku}) — ${formatMoney(p.sellingPriceCents)}`,
+    label: `${p.name} (${p.sku}) — ${priceLabel(p)}`,
   }));
+  // A replacement is sold like a sale line (one line per product and price);
+  // a serial-tracked unit can't be chosen here, so those are left out.
+  const exchangeProductOptions = products
+    .filter((p) => !p.isSerialized && p.priceTiers.length > 0)
+    .map((p) => ({ value: p.key, label: `${p.name} (${p.sku}) — ${priceLabel(p)}` }));
+
+  /** Units of each product already taken as replacements, per price. */
+  const exchangeReservedByPrice = (productKey: string): Map<number, number> => {
+    const byPrice = new Map<number, number>();
+    for (const line of exchangeLines) {
+      if (line.productKey !== productKey) continue;
+      byPrice.set(line.unitPriceCents, (byPrice.get(line.unitPriceCents) ?? 0) + line.quantity);
+    }
+    return byPrice;
+  };
+
+  const addExchangeAt = (product: Product, tier: PriceTier) => {
+    setExchangeLines((prev) => {
+      const existing = prev.find(
+        (l) => l.productKey === product.key && l.unitPriceCents === tier.sellingPriceCents
+      );
+      if (existing) {
+        return prev.map((l) => (l === existing ? { ...l, quantity: l.quantity + 1 } : l));
+      }
+      return [
+        ...prev,
+        {
+          key: `${product.key}-${tier.sellingPriceCents}`,
+          productKey: product.key,
+          name: product.name,
+          sku: product.sku,
+          unitPriceCents: tier.sellingPriceCents,
+          quantity: 1,
+        },
+      ];
+    });
+    setExchangeProductKey(null);
+  };
+
+  const handleAddExchange = () => {
+    const product = products.find((p) => p.key === exchangeProductKey);
+    if (!product) return;
+    const withRoom = tiersWithRoom(product.priceTiers, exchangeReservedByPrice(product.key)).filter(
+      (tier) => tier.left > 0
+    );
+    if (withRoom.length === 0) {
+      notifications.show({
+        title: t('Out of stock'),
+        message: `${product.name}: ${t('no more units left to give.')}`,
+        color: 'red',
+      });
+      return;
+    }
+    if (withRoom.length === 1) {
+      addExchangeAt(product, withRoom[0]);
+      return;
+    }
+    setExchangePickerProduct(product);
+  };
 
   return (
     <Modal
@@ -473,14 +563,25 @@ export const CreditNoteModal = ({
                 searchable
                 data={productOptions}
                 value={noReceiptProductKey}
-                onChange={setNoReceiptProductKey}
+                onChange={(key) => {
+                  setNoReceiptProductKey(key);
+                  setNoReceiptPriceCents(null);
+                }}
               />
-              <QuantityInput value={noReceiptQty} min={1} onChange={setNoReceiptQty} />
               {noReceiptProduct && (
+                <Select
+                  label={t('Price it was sold at')}
+                  placeholder={t('Pick the price')}
+                  data={noReceiptPriceOptions}
+                  value={noReceiptPriceCents}
+                  onChange={setNoReceiptPriceCents}
+                />
+              )}
+              <QuantityInput value={noReceiptQty} min={1} onChange={setNoReceiptQty} />
+              {noReceiptProduct && noReceiptPrice !== null && (
                 <Text size="xs" c="dimmed">
-                  {t('Valued at today&apos;s selling price:')}{' '}
-                  {formatMoney(noReceiptProduct.sellingPriceCents)} {t('each —')}{' '}
-                  {formatMoney(noReceiptRefundCents)} {t('total.')}
+                  {formatMoney(noReceiptPrice)} {t('each —')} {formatMoney(noReceiptRefundCents)}{' '}
+                  {t('total.')}
                 </Text>
               )}
             </Stack>
@@ -781,30 +882,11 @@ export const CreditNoteModal = ({
               placeholder={t('Search for a replacement item')}
               searchable
               style={{ flex: 1 }}
-              data={productOptions}
+              data={exchangeProductOptions}
               value={exchangeProductKey}
               onChange={setExchangeProductKey}
             />
-            <Button
-              variant="light"
-              disabled={!exchangeProductKey}
-              onClick={() => {
-                const product = products.find((p) => p.key === exchangeProductKey);
-                if (!product) return;
-                setExchangeLines((prev) => [
-                  ...prev,
-                  {
-                    key: `${product.key}-${Date.now()}`,
-                    productKey: product.key,
-                    name: product.name,
-                    sku: product.sku,
-                    unitPriceCents: product.sellingPriceCents,
-                    quantity: 1,
-                  },
-                ]);
-                setExchangeProductKey(null);
-              }}
-            >
+            <Button variant="light" disabled={!exchangeProductKey} onClick={handleAddExchange}>
               {t('Add')}
             </Button>
           </Group>
@@ -813,7 +895,7 @@ export const CreditNoteModal = ({
               {exchangeLines.map((line) => (
                 <Group key={line.key} justify="space-between">
                   <Text size="xs">
-                    {line.name} × {line.quantity}
+                    {line.name} ({formatMoney(line.unitPriceCents)}) × {line.quantity}
                   </Text>
                   <Group gap="xs">
                     <Text size="xs" fw={600}>
@@ -900,6 +982,16 @@ export const CreditNoteModal = ({
           </Button>
         </Group>
       </Stack>
+      {exchangePickerProduct !== null && (
+        <PriceTierPickerModal
+          key={exchangePickerProduct.key}
+          opened
+          onClose={() => setExchangePickerProduct(null)}
+          product={exchangePickerProduct}
+          reservedByPrice={exchangeReservedByPrice(exchangePickerProduct.key)}
+          onSelect={(tier) => addExchangeAt(exchangePickerProduct, tier)}
+        />
+      )}
     </Modal>
   );
 };

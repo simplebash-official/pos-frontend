@@ -8,6 +8,9 @@ import {
   StockMovement,
   ProductSerial,
   ProductSerialStatus,
+  StockAdjustmentInput,
+  StockBatch,
+  UpdateStockBatchInput,
 } from '../types';
 
 export interface ProductListParams {
@@ -85,12 +88,40 @@ export const deleteProducts = async (productIds: string[]): Promise<number> => {
 
 export const adjustStock = async (
   id: string,
-  delta: number,
-  reason: string
+  input: StockAdjustmentInput
 ): Promise<StockAdjustmentResult> => {
+  const body =
+    input.direction === 'out'
+      ? { delta: -Math.abs(input.delta), reason: input.reason, batchKey: input.batchKey }
+      : {
+          delta: Math.abs(input.delta),
+          reason: input.reason,
+          unitCostCents: input.unitCostCents,
+          sellingPriceCents: input.sellingPriceCents,
+        };
   const response = await apiClient.patch<ApiResponse<StockAdjustmentResult>>(
     `/inventory/products/${id}/stock`,
-    { delta, reason }
+    body
+  );
+  return response.data;
+};
+
+/** Every delivery (stock batch) of a product, newest first; cost is sent to an Admin only. */
+export const fetchProductBatches = async (productKey: string): Promise<StockBatch[]> => {
+  const response = await apiClient.get<ApiResponse<{ items: StockBatch[] }>>(
+    `/inventory/products/${productKey}/batches`
+  );
+  return response.data.items;
+};
+
+/** Re-prices a batch's remaining units (and, for an Admin, corrects its cost). */
+export const updateStockBatch = async (
+  batchKey: string,
+  input: UpdateStockBatchInput
+): Promise<StockBatch> => {
+  const response = await apiClient.patch<ApiResponse<StockBatch>>(
+    `/inventory/batches/${batchKey}`,
+    input
   );
   return response.data;
 };

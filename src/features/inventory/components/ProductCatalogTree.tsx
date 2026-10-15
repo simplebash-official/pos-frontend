@@ -17,11 +17,11 @@ import {
 import { IconChevronDown, IconChevronRight, IconPackage } from '@tabler/icons-react';
 import { SearchHighlight } from '@/shared/components/SearchHighlight';
 import type { SearchTerm } from '@/shared/lib/search';
-import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import type { TablerIconMap } from '@/shared/lib/tablerIcons';
 import { resolveCategoryIcon } from '../constants';
 import type { Category, Product } from '../types';
+import { priceText } from '../lib/priceTiers';
 
 /** categoryKey -> subcategoryKey -> the products in it. */
 export type ProductHierarchy = Map<string, Map<string, Product[]>>;
@@ -299,7 +299,7 @@ export const ProductCatalogTree = memo(
                                       </Table.Td>
                                       <Table.Td>
                                         <Text size="sm" fw={700}>
-                                          {formatMoney(prod.sellingPriceCents)}
+                                          {priceText(prod)}
                                         </Text>
                                       </Table.Td>
                                       <Table.Td style={{ textAlign: 'center' }}>

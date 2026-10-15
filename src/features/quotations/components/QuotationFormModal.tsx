@@ -35,6 +35,9 @@ import {
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import type { Customer } from '@/features/customers/types';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { PriceTierPickerModal } from '@/features/inventory/components/PriceTierPickerModal';
+import { formatCentsRange, sellingPriceRange } from '@/features/inventory/lib/priceTiers';
+import type { PriceTier, Product } from '@/features/inventory/types';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
@@ -77,6 +80,9 @@ const SectionLabel = ({ children }: { children: string }) => (
   </Text>
 );
 
+/** A quotation holds no stock, so every unit of every price is on offer. */
+const NOTHING_RESERVED: ReadonlyMap<number, number> = new Map();
+
 const ORDER_PERCENT_PRESETS = [5, 10, 15, 20];
 
 export const QuotationFormModal = ({
@@ -96,14 +102,18 @@ export const QuotationFormModal = ({
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [productSearch, setProductSearch] = useState('');
   const [activeDiscountLineUid, setActiveDiscountLineUid] = useState<string | null>(null);
+  const [tierPickerProduct, setTierPickerProduct] = useState<Product | null>(null);
 
   const { data: products = [] } = useAllProducts({ enabled: opened });
   const productOptions = useMemo(
     () =>
-      products.map((p) => ({
-        value: p.key,
-        label: `${p.name} · ${p.sku} (${formatMoney(p.sellingPriceCents)})`,
-      })),
+      // A quotation can only offer a price the product is in stock at today.
+      products.flatMap((p) => {
+        const range = sellingPriceRange(p);
+        return range === null
+          ? []
+          : [{ value: p.key, label: `${p.name} · ${p.sku} (${formatCentsRange(range)})` }];
+      }),
     [products]
   );
 
@@ -205,10 +215,16 @@ export const QuotationFormModal = ({
     setCustomerPickerOpen(false);
   };
 
+  const addProductAt = (product: Product, tier: PriceTier) =>
+    setDraft((d) => ({ ...d, lines: [...d.lines, lineFromProduct(product, tier)] }));
+
   const handleAddProduct = (key: string | null) => {
     const product = products.find((p) => p.key === key);
-    if (product) {
-      setDraft((d) => ({ ...d, lines: [...d.lines, lineFromProduct(product)] }));
+    if (product && product.priceTiers.length === 1) {
+      addProductAt(product, product.priceTiers[0]);
+    } else if (product) {
+      // In stock at several prices: ask which one this offer is at.
+      setTierPickerProduct(product);
     }
     setProductSearch('');
   };
@@ -928,6 +944,16 @@ export const QuotationFormModal = ({
             </Button>
           </Group>
         </Stack>
+        {tierPickerProduct !== null && (
+          <PriceTierPickerModal
+            key={tierPickerProduct.key}
+            opened
+            onClose={() => setTierPickerProduct(null)}
+            product={tierPickerProduct}
+            reservedByPrice={NOTHING_RESERVED}
+            onSelect={(tier) => addProductAt(tierPickerProduct, tier)}
+          />
+        )}
       </Modal>
 
       <CustomerPickerModal

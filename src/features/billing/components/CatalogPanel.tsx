@@ -65,6 +65,14 @@ import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { SerialNumberPickerModal } from '@/features/inventory/components/SerialNumberPickerModal';
+import { PriceTierPickerModal } from '@/features/inventory/components/PriceTierPickerModal';
+import {
+  adminCostRange,
+  formatCentsRange,
+  sellingPriceRange,
+  tiersWithRoom,
+} from '@/features/inventory/lib/priceTiers';
+import type { PriceTier } from '@/features/inventory/types';
 
 // Top frequent items section removed per request
 
@@ -126,8 +134,16 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [shakeError, setShakeError] = useState<string | null>(null);
   const [serialPickerProduct, setSerialPickerProduct] = useState<Product | null>(null);
+  const [pricePickerProduct, setPricePickerProduct] = useState<Product | null>(null);
 
-  const { add, activeItems, reservedQuantityByProductId, items, updateQty } = useCartItems();
+  const {
+    add,
+    activeItems,
+    reservedQuantityByProductId,
+    reservedQuantityByProductPrice,
+    items,
+    updateQty,
+  } = useCartItems();
   const { customerId, attachCustomer } = useCartCustomer();
   const { soundEnabled } = useCartSound();
   const { mutateAsync: createCustomerAsync } = useCreateCustomer();
@@ -384,7 +400,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     overscan: 4,
   });
 
-  const addProductToCart = (p: Product, serialNumber?: string) => {
+  /** Adds one unit of `p` at the price tier `tier` (its own line per price). */
+  const addProductToCart = (p: Product, tier: PriceTier, serialNumber?: string) => {
     add({
       id: `item-${Date.now()}-${Math.random()}`,
       productId: p.id,
@@ -393,13 +410,16 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       sku: p.sku,
       category: p.category,
       subcategory: p.subcategory,
-      unitPriceCents: p.sellingPriceCents,
-      originalUnitPriceCents: p.sellingPriceCents,
-      costPriceCents: p.costPriceCents,
+      unitPriceCents: tier.sellingPriceCents,
+      originalUnitPriceCents: tier.sellingPriceCents,
+      costRangeCents:
+        tier.minUnitCostCents !== undefined && tier.maxUnitCostCents !== undefined
+          ? { min: tier.minUnitCostCents, max: tier.maxUnitCostCents }
+          : undefined,
       quantity: 1,
       discountCents: 0,
       sourceType: 'retail',
-      stockQuantity: p.stockQuantity,
+      stockQuantity: tier.quantity,
       serialNumbers: serialNumber ? [serialNumber] : undefined,
     });
     playScanSuccessSound(soundEnabled);
@@ -427,12 +447,23 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     if (p.isSerialized) {
       // Every unit of a serial-tracked product needs an explicit pick, so
       // this opens the picker instead of adding straight away — the picker's
-      // own onSelect callback is what actually adds the line.
+      // own onSelect callback is what actually adds the line (at that unit's
+      // own price).
       setSerialPickerProduct(p);
       return;
     }
 
-    addProductToCart(p);
+    // A product in stock at one price goes straight in; at several, the
+    // cashier picks which price this sale is at.
+    const withRoom = tiersWithRoom(
+      p.priceTiers,
+      reservedQuantityByProductPrice.get(p.id) ?? new Map()
+    ).filter((tier) => tier.left > 0);
+    if (withRoom.length === 1) {
+      addProductToCart(p, withRoom[0]);
+      return;
+    }
+    setPricePickerProduct(p);
   };
 
   const alreadyPickedSerialsForProduct = (productKey: string): string[] =>
@@ -1052,6 +1083,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                         const isLowStock =
                           remainingStock > 0 && remainingStock <= p.minStockThreshold;
                         const isSelected = selectedIndex !== null && index === selectedIndex;
+                        const priceRange = sellingPriceRange(p);
+                        const costRange = isAdmin ? adminCostRange(p) : null;
                         const {
                           Icon: CatIcon,
                           color: catColor,
@@ -1144,15 +1177,17 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                     c="blue.7"
                                     style={{ fontSize: 14, fontFamily: 'monospace' }}
                                   >
-                                    {formatMoney(p.sellingPriceCents)}
+                                    {priceRange === null
+                                      ? t('No price yet')
+                                      : formatCentsRange(priceRange)}
                                   </Text>
-                                  {isAdmin && p.costPriceCents !== undefined && (
+                                  {isAdmin && costRange !== null && (
                                     <Text
                                       size="10px"
                                       c="dimmed"
                                       style={{ fontFamily: 'monospace' }}
                                     >
-                                      {t('Cost')} {formatMoney(p.costPriceCents)}
+                                      {t('Cost')} {formatCentsRange(costRange)}
                                     </Text>
                                   )}
                                 </Stack>
@@ -1449,10 +1484,25 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         excludeSerialNumbers={
           serialPickerProduct ? alreadyPickedSerialsForProduct(serialPickerProduct.key) : []
         }
-        onSelect={(serialNumber) => {
-          if (serialPickerProduct) addProductToCart(serialPickerProduct, serialNumber);
+        onSelect={(serialNumber, sellingPriceCents) => {
+          if (!serialPickerProduct) return;
+          const tier = serialPickerProduct.priceTiers.find(
+            (candidate) => candidate.sellingPriceCents === sellingPriceCents
+          );
+          if (tier) addProductToCart(serialPickerProduct, tier, serialNumber);
         }}
       />
+
+      {pricePickerProduct !== null && (
+        <PriceTierPickerModal
+          key={pricePickerProduct.id}
+          opened
+          onClose={() => setPricePickerProduct(null)}
+          product={pricePickerProduct}
+          reservedByPrice={reservedQuantityByProductPrice.get(pricePickerProduct.id) ?? new Map()}
+          onSelect={(tier) => addProductToCart(pricePickerProduct, tier)}
+        />
+      )}
     </>
   );
 });

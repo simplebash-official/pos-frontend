@@ -10,7 +10,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { MantineProvider } from '@mantine/core';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { ProductFormModal } from '../ProductFormModal';
-import type { Product, UpdateProductInput } from '../../types';
+import type { Product } from '../../types';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -65,7 +65,15 @@ const product = {
   category: 'Phones',
   subcategoryKey: 'sub_1',
   subcategory: 'Screens',
-  sellingPriceCents: 200000,
+  priceTiers: [
+    {
+      sellingPriceCents: 200000,
+      quantity: 4,
+      minUnitCostCents: 123400,
+      maxUnitCostCents: 123400,
+      oldestReceivedAt: '2026-01-01T00:00:00Z',
+    },
+  ],
   stockQuantity: 4,
   minStockThreshold: 1,
   isSerialized: false,
@@ -117,19 +125,15 @@ describe('ProductFormModal cost', () => {
     });
   };
 
-  it('does not offer the cost, or send one back, when a manager edits a product', async () => {
-    await edit('manager', product);
+  // Prices and costs belong to each delivery (stock batch), changed in the
+  // product drawer — editing the product itself never touches them.
+  it.each(['manager', 'admin'])('edits a product without any price for a %s', async (role) => {
+    await edit(role, product);
     expect(document.body.textContent).not.toContain('Cost Price');
+    expect(document.body.textContent).not.toContain('Selling Price');
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    const sent = onSubmit.mock.calls[0][0] as UpdateProductInput;
+    const sent = onSubmit.mock.calls[0][0] as Record<string, unknown>;
     expect('costPriceCents' in sent).toBe(false);
-    expect(sent.sellingPriceCents).toBe(200000);
-  });
-
-  it('shows the cost and sends it when an admin edits a product', async () => {
-    await edit('admin', { ...product, costPriceCents: 123400 });
-    expect(document.body.textContent).toContain('Cost Price');
-    const sent = onSubmit.mock.calls[0][0] as UpdateProductInput;
-    expect(sent.costPriceCents).toBe(123400);
+    expect('sellingPriceCents' in sent).toBe(false);
   });
 });
