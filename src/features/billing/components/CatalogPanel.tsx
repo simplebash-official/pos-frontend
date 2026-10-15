@@ -352,7 +352,6 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     }
 
     playScanSuccessSound(soundEnabled);
-    setJobSearch('');
     if (!isMobile) {
       setTimeout(() => jobSearchInputRef.current?.focus(), 50);
     }
@@ -428,9 +427,6 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       serialNumbers: serialNumber ? [serialNumber] : undefined,
     });
     playScanSuccessSound(soundEnabled);
-    setScanQuery('');
-    setSearch('');
-    setSelectedIndex(null);
     setShakeError(null);
     if (keepScanInputFocused) {
       setTimeout(() => scanInputRef.current?.focus(), 50);
@@ -473,6 +469,14 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   const alreadyPickedSerialsForProduct = (productKey: string): string[] =>
     activeItems.filter((i) => i.productKey === productKey).flatMap((i) => i.serialNumbers ?? []);
+
+  // An exact scan empties the box so the next scan isn't appended to this one; a plain search
+  // keeps its text and list after an add.
+  const clearScan = () => {
+    setScanQuery('');
+    setSearch('');
+    setSelectedIndex(null);
+  };
 
   // Handle direct barcode or SKU scan
   const handleScanSubmit = async (e: React.FormEvent) => {
@@ -585,6 +589,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     const skuMatch = products.find((p) => p.sku.toLowerCase() === term);
     if (skuMatch) {
       handleAddProduct(skuMatch);
+      clearScan();
       return;
     }
 
@@ -594,6 +599,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       const byBarcode = await resolveProductByBarcode(term, products, fetchProductByBarcode);
       if (byBarcode) {
         handleAddProduct(byBarcode);
+        clearScan();
         return;
       }
     }

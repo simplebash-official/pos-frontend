@@ -127,7 +127,6 @@ const SupplierFormContent = ({
 
   const addProduct = (key: string) => {
     setLinkedProductKeys((prev) => [...prev, key]);
-    setProductSearch('');
   };
 
   const removeProduct = (key: string) => {
