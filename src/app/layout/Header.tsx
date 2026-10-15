@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { PRODUCT_NAME, SERVICE_CENTER_NAME } from '@/config/branding';
+import { SERVICE_CENTER_NAME } from '@/config/branding';
 import {
   Group,
   Burger,
@@ -95,10 +95,18 @@ export const Header = ({
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="xs" />
           <Title
             order={5}
-            style={{ cursor: 'pointer', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}
+            style={{
+              cursor: 'pointer',
+              letterSpacing: '-0.3px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: isMobile ? 140 : 280,
+            }}
             onClick={() => navigate(ROUTES.DASHBOARD)}
+            title={headerTitle}
           >
-            {t(PRODUCT_NAME)}
+            {headerTitle}
           </Title>
           <Box visibleFrom="xs" ml={6}>
             <ModernClock

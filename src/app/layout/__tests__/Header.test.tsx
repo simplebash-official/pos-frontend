@@ -143,12 +143,12 @@ describe('Header component shop name rendering', () => {
     expect(mobileHtml).toContain('max-width:180px');
   });
 
-  it('renders PRODUCT_NAME on billing page instead of shop name', () => {
+  it('renders the shop name on the billing page, like every other screen', () => {
     mockPathname = '/billing';
     const store = createMockStore({ tradingName: 'Custom Garage' });
     const html = renderHeader(store);
 
-    expect(html).toContain(PRODUCT_NAME);
-    expect(html).not.toContain('title="Custom Garage"');
+    expect(html).toContain('title="Custom Garage"');
+    expect(html).not.toContain(PRODUCT_NAME);
   });
 });

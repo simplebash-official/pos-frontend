@@ -61,6 +61,7 @@ import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
 import { useCatalogSort } from '../hooks/useCatalogSort';
 import { CATALOG_SORTS, catalogSortParams } from '../lib/catalogSort';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
+import { useCatalogColumns } from '../hooks/useCatalogColumns';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
@@ -156,11 +157,6 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   // On a phone the scan bar is a soft-keyboard trigger, not a barcode target — stealing focus would
   // bury half the catalog behind the keyboard on every load and every tap.
   const keepScanInputFocused = !isMobile;
-
-  // Product cards per row. The catalog's share of the viewport changes per tier, so the column
-  // count has to be picked from the tier rather than from viewport-relative breakpoints. Tablet and
-  // desktop both land on 3 columns given this panel's share of each tier's layout.
-  const columnsPerRow = isMobile ? 2 : 3;
 
   // Inventory Products Query
   const [catalogSort, setCatalogSort] = useCatalogSort();
@@ -389,6 +385,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   // Virtualize by row rather than by card — @tanstack/react-virtual only needs to know row count
   // and estimated row height, so the existing card markup/grid layout stays untouched per row.
   const catalogViewportRef = useRef<HTMLDivElement>(null);
+  // Product cards per row, from the catalog's measured width (its share of the screen varies a lot
+  // inside one tier); the tier only seeds the first render.
+  const columnsPerRow = useCatalogColumns(catalogViewportRef, mode, isMobile ? 2 : 3);
   const rows = useMemo(
     () => chunk(filteredProducts, columnsPerRow),
     [filteredProducts, columnsPerRow]
