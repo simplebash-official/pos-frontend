@@ -78,7 +78,7 @@ import type { PriceTier } from '@/features/inventory/types';
 
 // Matches the product card's own fixed height so the virtualizer's size estimate is exact rather
 // than approximate.
-const CARD_HEIGHT = 128;
+const CARD_HEIGHT = 144;
 const ROW_GAP = 10; // theme spacing "xs"
 
 const chunk = <T,>(items: T[], size: number): T[][] => {
@@ -1049,10 +1049,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       style={{ height: CARD_HEIGHT }}
                     >
                       <Stack justify="space-between" h="100%" gap={4}>
-                        <Group justify="space-between" align="center">
-                          <Skeleton height={18} width={70} />
-                          <Skeleton height={12} width={40} />
-                        </Group>
+                        <Skeleton height={18} width={110} />
                         <Skeleton height={32} width="90%" />
                         <Group justify="space-between" align="flex-end">
                           <Skeleton height={20} width={60} />
@@ -1126,34 +1123,38 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             onClick={() => handleAddProduct(p)}
                           >
                             <Stack justify="space-between" h="100%" gap={4}>
-                              {/* Top Header Row: Category Badge with Icon + SKU */}
-                              <Group justify="space-between" align="center" wrap="nowrap" gap={4}>
+                              {/* Top Row: Category Badge with Icon. It gets the whole line (SKU sits under the
+                                  name) and wraps instead of clipping, so the full name stays readable. */}
+                              <Box>
                                 <Badge
                                   size="xs"
                                   color={catColor}
                                   variant="light"
                                   leftSection={<CatIcon size={13} />}
+                                  title={catLabel}
                                   style={{
                                     textTransform: 'none',
                                     fontWeight: 700,
                                     fontSize: 10,
                                     paddingLeft: 6,
                                     paddingRight: 8,
-                                    flexShrink: 1,
-                                    minWidth: 0,
+                                    maxWidth: '100%',
+                                    height: 'auto',
+                                    minHeight: 16,
+                                  }}
+                                  styles={{
+                                    label: {
+                                      whiteSpace: 'normal',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
+                                      lineHeight: 1.3,
+                                    },
                                   }}
                                 >
                                   {catLabel}
                                 </Badge>
-
-                                <Text
-                                  size="xs"
-                                  c="dimmed"
-                                  style={{ fontFamily: 'monospace', fontSize: 10, flexShrink: 0 }}
-                                >
-                                  <SearchHighlight text={p.sku} terms={searchTerms} />
-                                </Text>
-                              </Group>
+                              </Box>
 
                               {/* Middle Row: Full width Product Name */}
                               <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
@@ -1166,16 +1167,21 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                   >
                                     <SearchHighlight text={p.name} terms={searchTerms} />
                                   </Text>
-                                  {p.barcode &&
-                                    getMatchRanges(p.barcode, searchTerms).length > 0 && (
-                                      <Text
-                                        size="10px"
-                                        c="dimmed"
-                                        style={{ fontFamily: 'monospace' }}
-                                      >
-                                        <SearchHighlight text={p.barcode} terms={searchTerms} />
-                                      </Text>
-                                    )}
+                                  <Text
+                                    size="10px"
+                                    c="dimmed"
+                                    lineClamp={1}
+                                    style={{ fontFamily: 'monospace' }}
+                                  >
+                                    <SearchHighlight text={p.sku} terms={searchTerms} />
+                                    {p.barcode &&
+                                      getMatchRanges(p.barcode, searchTerms).length > 0 && (
+                                        <>
+                                          {' · '}
+                                          <SearchHighlight text={p.barcode} terms={searchTerms} />
+                                        </>
+                                      )}
+                                  </Text>
                                 </div>
                               </Box>
 
