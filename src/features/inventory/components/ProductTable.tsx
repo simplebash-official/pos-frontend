@@ -17,7 +17,6 @@ import {
   Paper,
   TextInput,
   Stack,
-  Grid,
   ThemeIcon,
   Tooltip,
   ActionIcon,
@@ -31,6 +30,7 @@ import {
   Tabs,
   Select,
   NumberInput,
+  CopyButton,
 } from '@mantine/core';
 import {
   IconPlus,
@@ -46,13 +46,13 @@ import {
   IconTag,
   IconTrendingUp,
   IconCheck,
+  IconCopy,
   IconLink,
   IconUnlink,
   IconReceipt,
   IconTrash,
   IconEdit,
   IconCategory,
-  IconHistory,
   IconFileSpreadsheet,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -80,13 +80,16 @@ import { usePurchasesByProduct, useCreatePurchase } from '@/features/purchases/h
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { PERMISSIONS } from '@/constants/permissions';
 import { adminCostRange, formatCentsRange, priceText, profitRange } from '../lib/priceTiers';
-import { StockBatchesPanel } from './StockBatchesPanel';
+import { ItemStockCard } from './ItemStockCard';
+import { StockMovementList } from './StockMovementList';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import type { DataImportModalProps } from '@/features/imports';
 import { inventoryImportConfig } from '../config/inventoryImportConfig';
 import { ProductCatalogTree } from './ProductCatalogTree';
+
+const SECTION_LABEL_STYLE = { letterSpacing: '0.05em' } as const;
 
 const ProductFormModal = lazy(() =>
   import('./ProductFormModal').then((m) => ({ default: m.ProductFormModal }))
@@ -721,7 +724,7 @@ export const ProductTable = () => {
         {selectedProduct && (
           <Stack gap="md" pt="xs">
             {/* Title Banner */}
-            <Paper bg="var(--mantine-color-body)">
+            <Paper p="md" withBorder bg="var(--bg-card)">
               <Group justify="space-between" align="flex-start" mb="xs">
                 <Badge
                   color={selectedProduct.sku ? 'blue' : 'orange'}
@@ -732,16 +735,20 @@ export const ProductTable = () => {
                 </Badge>
                 <Badge
                   color={
-                    selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
+                    selectedProduct.stockQuantity <= 0
                       ? 'red'
-                      : 'green'
+                      : selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
+                        ? 'orange'
+                        : 'green'
                   }
                   variant="light"
                   size="sm"
                 >
-                  {selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
-                    ? 'Low Stock Alert'
-                    : 'In Stock'}
+                  {selectedProduct.stockQuantity <= 0
+                    ? t('Out of stock')
+                    : selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
+                      ? t('Low stock')
+                      : t('In Stock')}
                 </Badge>
               </Group>
 
@@ -759,120 +766,67 @@ export const ProductTable = () => {
               </Group>
             </Paper>
 
-            {/* Financial Snapshot */}
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+            {/* Financial Snapshot: one row per figure so a price range never wraps */}
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={SECTION_LABEL_STYLE}>
               {t('Financial Snapshot')}
             </Text>
 
-            <Paper p="md">
-              <Grid gap={0} align="flex-start">
-                <Grid.Col
-                  span={isAdmin ? 4 : 12}
-                  pr="sm"
-                  style={
-                    isAdmin
-                      ? { borderRight: '1px solid var(--mantine-color-default-border)' }
-                      : undefined
-                  }
-                >
-                  <Stack gap={2}>
-                    <Text size="xs" c="dimmed" tt="uppercase">
-                      {t('Selling')}
-                    </Text>
-                    <Text fw={800} size="md" c="blue">
-                      {priceText(selectedProduct)}
-                    </Text>
-                  </Stack>
-                </Grid.Col>
+            <Paper p="md" withBorder bg="var(--bg-card)">
+              <Stack gap="xs">
+                <Group justify="space-between" wrap="nowrap">
+                  <Text size="sm" c="dimmed">
+                    {t('Selling')}
+                  </Text>
+                  <Text fw={800} size="md" c="blue" style={{ whiteSpace: 'nowrap' }}>
+                    {priceText(selectedProduct)}
+                  </Text>
+                </Group>
 
                 {isAdmin && (
                   <>
-                    <Grid.Col
-                      span={4}
-                      px="sm"
-                      style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-                    >
-                      <Stack gap={2}>
-                        <Text size="xs" c="dimmed" tt="uppercase">
-                          {t('Cost')}
+                    <Divider />
+                    <Group justify="space-between" wrap="nowrap">
+                      <Text size="sm" c="dimmed">
+                        {t('Cost')}
+                      </Text>
+                      <Text fw={700} size="md" style={{ whiteSpace: 'nowrap' }}>
+                        {adminCostRange(selectedProduct) === null
+                          ? t('No stock')
+                          : formatCentsRange(adminCostRange(selectedProduct)!)}
+                      </Text>
+                    </Group>
+                    <Divider />
+                    <Group justify="space-between" wrap="nowrap">
+                      <Group gap={4} wrap="nowrap">
+                        <IconTrendingUp
+                          size={14}
+                          style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
+                        />
+                        <Text size="sm" c="dimmed">
+                          {t('Profit per unit')}
                         </Text>
-                        <Text fw={700} size="md">
-                          {adminCostRange(selectedProduct) === null
-                            ? t('No stock')
-                            : formatCentsRange(adminCostRange(selectedProduct)!)}
+                      </Group>
+                      {profitRange(selectedProduct) === null ? (
+                        <Text fw={700} size="md" c="dimmed">
+                          —
                         </Text>
-                      </Stack>
-                    </Grid.Col>
-
-                    <Grid.Col span={4} pl="sm">
-                      <Stack gap={2}>
-                        <Group gap={4} wrap="nowrap">
-                          <IconTrendingUp
-                            size={12}
-                            style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
-                          />
-                          <Text size="xs" c="dimmed" tt="uppercase">
-                            {t('Profit / Unit')}
-                          </Text>
-                        </Group>
-                        {profitRange(selectedProduct) === null ? (
-                          <Text fw={700} size="md" c="dimmed">
-                            —
-                          </Text>
-                        ) : (
-                          <Text fw={800} size="md" c="teal">
-                            {formatCentsRange(profitRange(selectedProduct)!)}
-                          </Text>
-                        )}
-                      </Stack>
-                    </Grid.Col>
+                      ) : (
+                        <Text fw={800} size="md" c="teal" style={{ whiteSpace: 'nowrap' }}>
+                          {formatCentsRange(profitRange(selectedProduct)!)}
+                        </Text>
+                      )}
+                    </Group>
                   </>
                 )}
-              </Grid>
+              </Stack>
             </Paper>
 
-            <Divider my="xs" />
-
             {/* Stock Level & Adjustments */}
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={SECTION_LABEL_STYLE}>
               {t('Stock Level & Adjustment')}
             </Text>
 
-            <Paper p="md" withBorder>
-              <Stack gap="sm">
-                <Group justify="space-between" align="center">
-                  <Box>
-                    <Text size="xs" c="dimmed" fw={500}>
-                      {t('Current Stock Level')}
-                    </Text>
-                    <Group gap={6} align="baseline">
-                      <Text size="xl" fw={800} c="blue">
-                        {selectedProduct.stockQuantity}
-                      </Text>
-                      <Text size="xs" c="dimmed" fw={500}>
-                        {t('units')}
-                      </Text>
-                    </Group>
-                  </Box>
-
-                  <Badge
-                    variant="light"
-                    color={
-                      selectedProduct.stockQuantity <= selectedProduct.minStockThreshold
-                        ? 'red'
-                        : 'gray'
-                    }
-                    size="sm"
-                  >
-                    {t('Min Threshold:')} {selectedProduct.minStockThreshold} {t('units')}
-                  </Badge>
-                </Group>
-
-                <Divider color="var(--mantine-color-default-border)" />
-
-                <StockBatchesPanel product={selectedProduct} onProductChange={setSelectedProduct} />
-              </Stack>
-            </Paper>
+            <ItemStockCard product={selectedProduct} onProductChange={setSelectedProduct} />
 
             {/* History: Movements / Suppliers / Intake */}
             <Tabs
@@ -882,12 +836,14 @@ export const ProductTable = () => {
                 resetSupplierForm();
                 resetIntakeForm();
               }}
-              color="amber"
+              color="blue"
+              variant="outline"
               mt="xs"
             >
-              <Tabs.List grow>
+              <Tabs.List grow style={{ flexWrap: 'nowrap' }}>
                 <Tabs.Tab
                   value="movements"
+                  px={isMobile ? 4 : undefined}
                   rightSection={
                     <Badge size="xs" variant="light" color="gray" circle>
                       {movements.length}
@@ -899,6 +855,7 @@ export const ProductTable = () => {
                 {isAdmin && (
                   <Tabs.Tab
                     value="suppliers"
+                    px={isMobile ? 4 : undefined}
                     rightSection={
                       <Badge size="xs" variant="light" color="gray" circle>
                         {linkedSuppliers.length}
@@ -911,6 +868,7 @@ export const ProductTable = () => {
                 {isAdmin && (
                   <Tabs.Tab
                     value="intake"
+                    px={isMobile ? 4 : undefined}
                     rightSection={
                       <Badge size="xs" variant="light" color="gray" circle>
                         {purchases.length}
@@ -921,369 +879,340 @@ export const ProductTable = () => {
                   </Tabs.Tab>
                 )}
               </Tabs.List>
-            </Tabs>
 
-            <Paper p="sm" withBorder>
-              {historyTab === 'movements' &&
-                (loadingMovements ? (
-                  <Stack gap={4} py="xs">
-                    <Skeleton height={14} />
-                    <Skeleton height={14} />
-                  </Stack>
-                ) : movements.length === 0 ? (
-                  <Center py="md">
-                    <Stack gap={4} align="center">
-                      <IconHistory size={20} style={{ opacity: 0.4 }} />
-                      <Text size="xs" c="dimmed" ta="center">
-                        {t('No stock movements recorded yet.')}
+              <Paper
+                p="sm"
+                withBorder
+                bg="var(--bg-card)"
+                style={{ borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}
+              >
+                {historyTab === 'movements' && (
+                  <StockMovementList movements={movements} loading={loadingMovements} />
+                )}
+
+                {isAdmin && historyTab === 'suppliers' && (
+                  <Stack gap="sm">
+                    <Group justify="space-between" align="center">
+                      <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                        {t('Linked Suppliers')}
                       </Text>
-                      <Text size="xs" c="dimmed" ta="center" style={{ opacity: 0.7 }}>
-                        {t('Movements appear here after you apply a stock adjustment above.')}
-                      </Text>
-                    </Stack>
-                  </Center>
-                ) : (
-                  <ScrollArea.Autosize mah="30dvh" offsetScrollbars>
-                    <Stack gap={4}>
-                      {movements.slice(0, 20).map((m) => (
-                        <Group key={m.id} justify="space-between" wrap="nowrap">
-                          <Text size="xs" c="dimmed" lineClamp={1} style={{ flex: 1 }}>
-                            {m.note || m.type}
-                          </Text>
-                          <Badge
-                            size="xs"
-                            variant="light"
-                            color={m.quantityDelta >= 0 ? 'green' : 'red'}
-                          >
-                            {m.quantityDelta >= 0 ? '+' : ''}
-                            {m.quantityDelta}
-                          </Badge>
-                        </Group>
-                      ))}
-                    </Stack>
-                  </ScrollArea.Autosize>
-                ))}
+                      <Tooltip label={supplierFormOpen ? 'Cancel' : 'Link a supplier'} withArrow>
+                        <ActionIcon
+                          variant="light"
+                          color={supplierFormOpen ? 'gray' : 'blue'}
+                          size="sm"
+                          onClick={() =>
+                            supplierFormOpen ? resetSupplierForm() : setSupplierFormOpen(true)
+                          }
+                        >
+                          <IconPlus
+                            size={14}
+                            style={{
+                              transform: supplierFormOpen ? 'rotate(45deg)' : 'none',
+                              transition: 'transform 150ms ease',
+                            }}
+                          />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
 
-              {isAdmin && historyTab === 'suppliers' && (
-                <Stack gap="sm">
-                  <Group justify="space-between" align="center">
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      {t('Linked Suppliers')}
-                    </Text>
-                    <Tooltip label={supplierFormOpen ? 'Cancel' : 'Link a supplier'} withArrow>
-                      <ActionIcon
-                        variant="light"
-                        color={supplierFormOpen ? 'gray' : 'blue'}
-                        size="sm"
-                        onClick={() =>
-                          supplierFormOpen ? resetSupplierForm() : setSupplierFormOpen(true)
-                        }
-                      >
-                        <IconPlus
-                          size={14}
-                          style={{
-                            transform: supplierFormOpen ? 'rotate(45deg)' : 'none',
-                            transition: 'transform 150ms ease',
-                          }}
-                        />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-
-                  {loadingSuppliers ? (
-                    <Stack gap={6} py="xs">
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                    </Stack>
-                  ) : linkedSuppliers.length === 0 ? (
-                    <Center py="xs">
-                      <Stack gap={4} align="center">
-                        <IconLink size={20} style={{ opacity: 0.4 }} />
-                        <Text size="xs" c="dimmed" ta="center">
-                          {t('No suppliers linked yet.')}{' '}
-                          <Text
-                            component="span"
-                            c="amber.6"
-                            fw={700}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => setSupplierFormOpen(true)}
-                          >
-                            {t('+ Link a supplier')}
-                          </Text>
-                        </Text>
+                    {loadingSuppliers ? (
+                      <Stack gap={6} py="xs">
+                        <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                        <Skeleton height={48} radius="var(--mantine-radius-default)" />
                       </Stack>
-                    </Center>
-                  ) : (
-                    <ScrollArea.Autosize mah="40dvh" offsetScrollbars>
-                      <Stack gap={6} pt={4} pb={4} px={2}>
-                        {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
-                          <Paper
-                            key={ls.supplierKey}
-                            p="xs"
-                            withBorder
-                            radius="var(--mantine-radius-default)"
-                          >
-                            <Group justify="space-between" align="center" wrap="nowrap">
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <Text size="sm" fw={700} lineClamp={1}>
-                                  {ls.supplier.name}
-                                </Text>
-                                <Text size="xs" c="dimmed">
-                                  {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
-                                </Text>
-                                <Group gap={4} mt={2}>
-                                  {ls.costPriceCents && (
-                                    <Badge size="xs" variant="light" color="teal">
-                                      {t('Supplier Cost:')} {formatMoney(ls.costPriceCents)}
-                                    </Badge>
-                                  )}
-                                  {ls.supplierSku && (
-                                    <Badge size="xs" variant="outline" color="gray">
-                                      {t('SKU:')} {ls.supplierSku}
-                                    </Badge>
-                                  )}
-                                </Group>
-                                {ls.notes && (
-                                  <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                                    {ls.notes}
+                    ) : linkedSuppliers.length === 0 ? (
+                      <Center py="xs">
+                        <Stack gap={4} align="center">
+                          <IconLink size={20} style={{ opacity: 0.4 }} />
+                          <Text size="xs" c="dimmed" ta="center">
+                            {t('No suppliers linked yet.')}{' '}
+                            <Text
+                              component="span"
+                              c="amber.6"
+                              fw={700}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => setSupplierFormOpen(true)}
+                            >
+                              {t('+ Link a supplier')}
+                            </Text>
+                          </Text>
+                        </Stack>
+                      </Center>
+                    ) : (
+                      <ScrollArea.Autosize mah="40dvh" offsetScrollbars>
+                        <Stack gap={6} pt={4} pb={4} px={2}>
+                          {linkedSuppliers.map((ls: EnrichedLinkedSupplier) => (
+                            <Paper
+                              key={ls.supplierKey}
+                              p="xs"
+                              withBorder
+                              radius="var(--mantine-radius-default)"
+                            >
+                              <Group justify="space-between" align="center" wrap="nowrap">
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <Text size="sm" fw={700} lineClamp={1}>
+                                    {ls.supplier.name}
                                   </Text>
-                                )}
-                              </div>
-                              <Tooltip label={t('Unlink supplier')} withArrow>
-                                <ActionIcon
-                                  variant="subtle"
-                                  color="red"
-                                  size="sm"
-                                  onClick={() => handleUnlinkSupplier(ls.supplierKey)}
-                                  loading={unlinkMutation.isPending}
-                                >
-                                  <IconUnlink size={14} />
-                                </ActionIcon>
-                              </Tooltip>
-                            </Group>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    </ScrollArea.Autosize>
-                  )}
+                                  <Text size="xs" c="dimmed">
+                                    {ls.supplier.contactPerson} · {ls.supplier.primaryPhone}
+                                  </Text>
+                                  <Group gap={4} mt={2}>
+                                    {ls.costPriceCents && (
+                                      <Badge size="xs" variant="light" color="teal">
+                                        {t('Supplier Cost:')} {formatMoney(ls.costPriceCents)}
+                                      </Badge>
+                                    )}
+                                    {ls.supplierSku && (
+                                      <Badge size="xs" variant="outline" color="gray">
+                                        {t('SKU:')} {ls.supplierSku}
+                                      </Badge>
+                                    )}
+                                  </Group>
+                                  {ls.notes && (
+                                    <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
+                                      {ls.notes}
+                                    </Text>
+                                  )}
+                                </div>
+                                <Tooltip label={t('Unlink supplier')} withArrow>
+                                  <ActionIcon
+                                    variant="subtle"
+                                    color="red"
+                                    size="sm"
+                                    onClick={() => handleUnlinkSupplier(ls.supplierKey)}
+                                    loading={unlinkMutation.isPending}
+                                  >
+                                    <IconUnlink size={14} />
+                                  </ActionIcon>
+                                </Tooltip>
+                              </Group>
+                            </Paper>
+                          ))}
+                        </Stack>
+                      </ScrollArea.Autosize>
+                    )}
 
-                  <Collapse expanded={supplierFormOpen}>
-                    <Paper p="sm" withBorder mt="xs">
-                      <Stack gap="sm">
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Supplier')}
-                          </Text>
-                          <Select
-                            placeholder={t('Select supplier')}
-                            data={supplierSelectOptions}
-                            value={newSupplierKey}
-                            onChange={setNewSupplierKey}
-                            searchable
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Supplier SKU / Ref (optional)')}
-                          </Text>
-                          <TextInput
-                            placeholder={t('e.g. TPL-SCR-9981')}
-                            value={newSupplierSku}
-                            onChange={(e) => setNewSupplierSku(e.currentTarget.value)}
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <Group justify="flex-end" gap="sm">
-                          <Button variant="default" size="sm" onClick={resetSupplierForm}>
-                            {t('Cancel')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            color="green"
-                            onClick={handleLinkSupplierInline}
-                            disabled={!newSupplierKey}
-                            loading={linkMutation.isPending}
-                          >
-                            {t('Link Supplier')}
-                          </Button>
-                        </Group>
-                      </Stack>
-                    </Paper>
-                  </Collapse>
-                </Stack>
-              )}
-
-              {isAdmin && historyTab === 'intake' && (
-                <Stack gap="sm">
-                  <Group justify="space-between" align="center">
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      {t('Stock Intake History')}
-                    </Text>
-                    <Tooltip label={intakeFormOpen ? 'Cancel' : 'Receive stock'} withArrow>
-                      <ActionIcon
-                        variant="light"
-                        color={intakeFormOpen ? 'gray' : 'teal'}
-                        size="sm"
-                        onClick={() =>
-                          intakeFormOpen ? resetIntakeForm() : setIntakeFormOpen(true)
-                        }
-                      >
-                        <IconPlus
-                          size={14}
-                          style={{
-                            transform: intakeFormOpen ? 'rotate(45deg)' : 'none',
-                            transition: 'transform 150ms ease',
-                          }}
-                        />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-
-                  {loadingPurchases ? (
-                    <Stack gap={6} py="xs">
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                    </Stack>
-                  ) : purchases.length === 0 ? (
-                    <Center py="xs">
-                      <Stack gap={4} align="center">
-                        <IconReceipt size={20} style={{ opacity: 0.4 }} />
-                        <Text size="xs" c="dimmed" ta="center">
-                          {t('No stock intakes recorded.')}{' '}
-                          <Text
-                            component="span"
-                            c="amber.6"
-                            fw={700}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => setIntakeFormOpen(true)}
-                          >
-                            {t('+ Receive stock')}
-                          </Text>
-                        </Text>
-                      </Stack>
-                    </Center>
-                  ) : (
-                    <ScrollArea.Autosize mah="40dvh" offsetScrollbars>
-                      <Stack gap={6} pt={4} pb={4} px={2}>
-                        {purchases.map((purchase) => (
-                          <Paper
-                            key={purchase.id}
-                            p="xs"
-                            withBorder
-                            radius="var(--mantine-radius-default)"
-                          >
-                            <Group justify="space-between" align="center" wrap="nowrap">
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <Text size="sm" fw={700} lineClamp={1}>
-                                  {purchase.supplier.name}
-                                </Text>
-                                <Group gap={6} mt={2}>
-                                  <Badge size="xs" variant="filled" color="blue">
-                                    {t('Qty:')} {purchase.quantity}
-                                  </Badge>
-                                  <Badge size="xs" variant="light" color="teal">
-                                    {formatMoney(purchase.totalCostCents)}
-                                  </Badge>
-                                  <Badge size="xs" variant="light" color="blue">
-                                    {t('Sells at')} {formatMoney(purchase.sellingPriceCents)}
-                                  </Badge>
-                                </Group>
-                                <Text size="xs" c="dimmed" mt={4}>
-                                  {formatDateTime(purchase.date)}{' '}
-                                  {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
-                                </Text>
-                              </div>
-                            </Group>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    </ScrollArea.Autosize>
-                  )}
-
-                  <Collapse expanded={intakeFormOpen}>
-                    <Paper p="sm" withBorder mt="xs">
-                      <Stack gap="sm">
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Quantity Received')}
-                          </Text>
-                          <NumberInput
-                            placeholder={t('e.g. 100')}
-                            value={intakeQuantity}
-                            onChange={(val) => setIntakeQuantity(val === '' ? '' : Number(val))}
-                            min={1}
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Supplier')}
-                          </Text>
-                          <Select
-                            placeholder={t('Select supplier')}
-                            data={supplierSelectOptions}
-                            value={intakeSupplierKey}
-                            onChange={setIntakeSupplierKey}
-                            searchable
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <Group grow align="flex-start">
+                    <Collapse expanded={supplierFormOpen}>
+                      <Paper p="sm" withBorder mt="xs">
+                        <Stack gap="sm">
                           <div>
                             <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Unit Cost')}
+                              {t('Supplier')}
                             </Text>
-                            <MoneyInput
-                              valueCents={intakeUnitCostCents}
-                              onChangeCents={setIntakeUnitCostCents}
+                            <Select
+                              placeholder={t('Select supplier')}
+                              data={supplierSelectOptions}
+                              value={newSupplierKey}
+                              onChange={setNewSupplierKey}
+                              searchable
                               size={isMobile ? 'md' : 'sm'}
                             />
                           </div>
                           <div>
                             <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Selling Price each')}
+                              {t('Supplier SKU / Ref (optional)')}
                             </Text>
-                            <MoneyInput
-                              valueCents={intakeSellingPriceCents}
-                              onChangeCents={setIntakeSellingPriceCents}
+                            <TextInput
+                              placeholder={t('e.g. TPL-SCR-9981')}
+                              value={newSupplierSku}
+                              onChange={(e) => setNewSupplierSku(e.currentTarget.value)}
                               size={isMobile ? 'md' : 'sm'}
                             />
                           </div>
-                        </Group>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Invoice / Reference No. (optional)')}
-                          </Text>
-                          <TextInput
-                            placeholder={t('e.g. INV-8834')}
-                            value={intakeReferenceNo}
-                            onChange={(e) => setIntakeReferenceNo(e.currentTarget.value)}
-                            size={isMobile ? 'md' : 'sm'}
+                          <Group justify="flex-end" gap="sm">
+                            <Button variant="default" size="sm" onClick={resetSupplierForm}>
+                              {t('Cancel')}
+                            </Button>
+                            <Button
+                              size="sm"
+                              color="green"
+                              onClick={handleLinkSupplierInline}
+                              disabled={!newSupplierKey}
+                              loading={linkMutation.isPending}
+                            >
+                              {t('Link Supplier')}
+                            </Button>
+                          </Group>
+                        </Stack>
+                      </Paper>
+                    </Collapse>
+                  </Stack>
+                )}
+
+                {isAdmin && historyTab === 'intake' && (
+                  <Stack gap="sm">
+                    <Group justify="space-between" align="center">
+                      <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                        {t('Stock Intake History')}
+                      </Text>
+                      <Tooltip label={intakeFormOpen ? 'Cancel' : 'Receive stock'} withArrow>
+                        <ActionIcon
+                          variant="light"
+                          color={intakeFormOpen ? 'gray' : 'teal'}
+                          size="sm"
+                          onClick={() =>
+                            intakeFormOpen ? resetIntakeForm() : setIntakeFormOpen(true)
+                          }
+                        >
+                          <IconPlus
+                            size={14}
+                            style={{
+                              transform: intakeFormOpen ? 'rotate(45deg)' : 'none',
+                              transition: 'transform 150ms ease',
+                            }}
                           />
-                        </div>
-                        <Group justify="flex-end" gap="sm">
-                          <Button variant="default" size="sm" onClick={resetIntakeForm}>
-                            {t('Cancel')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            color="green"
-                            onClick={handleRecordIntakeInline}
-                            disabled={
-                              !intakeSupplierKey || !intakeQuantity || intakeSellingPriceCents <= 0
-                            }
-                            loading={createPurchaseMutation.isPending}
-                          >
-                            {t('Record Intake')}
-                          </Button>
-                        </Group>
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+
+                    {loadingPurchases ? (
+                      <Stack gap={6} py="xs">
+                        <Skeleton height={48} radius="var(--mantine-radius-default)" />
+                        <Skeleton height={48} radius="var(--mantine-radius-default)" />
                       </Stack>
-                    </Paper>
-                  </Collapse>
-                </Stack>
-              )}
-            </Paper>
+                    ) : purchases.length === 0 ? (
+                      <Center py="xs">
+                        <Stack gap={4} align="center">
+                          <IconReceipt size={20} style={{ opacity: 0.4 }} />
+                          <Text size="xs" c="dimmed" ta="center">
+                            {t('No stock intakes recorded.')}{' '}
+                            <Text
+                              component="span"
+                              c="amber.6"
+                              fw={700}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => setIntakeFormOpen(true)}
+                            >
+                              {t('+ Receive stock')}
+                            </Text>
+                          </Text>
+                        </Stack>
+                      </Center>
+                    ) : (
+                      <ScrollArea.Autosize mah="40dvh" offsetScrollbars>
+                        <Stack gap={6} pt={4} pb={4} px={2}>
+                          {purchases.map((purchase) => (
+                            <Paper
+                              key={purchase.id}
+                              p="xs"
+                              withBorder
+                              radius="var(--mantine-radius-default)"
+                            >
+                              <Group justify="space-between" align="center" wrap="nowrap">
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <Text size="sm" fw={700} lineClamp={1}>
+                                    {purchase.supplier.name}
+                                  </Text>
+                                  <Group gap={6} mt={2}>
+                                    <Badge size="xs" variant="filled" color="blue">
+                                      {t('Qty:')} {purchase.quantity}
+                                    </Badge>
+                                    <Badge size="xs" variant="light" color="teal">
+                                      {formatMoney(purchase.totalCostCents)}
+                                    </Badge>
+                                    <Badge size="xs" variant="light" color="blue">
+                                      {t('Sells at')} {formatMoney(purchase.sellingPriceCents)}
+                                    </Badge>
+                                  </Group>
+                                  <Text size="xs" c="dimmed" mt={4}>
+                                    {formatDateTime(purchase.date)}{' '}
+                                    {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
+                                  </Text>
+                                </div>
+                              </Group>
+                            </Paper>
+                          ))}
+                        </Stack>
+                      </ScrollArea.Autosize>
+                    )}
+
+                    <Collapse expanded={intakeFormOpen}>
+                      <Paper p="sm" withBorder mt="xs">
+                        <Stack gap="sm">
+                          <div>
+                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                              {t('Quantity Received')}
+                            </Text>
+                            <NumberInput
+                              placeholder={t('e.g. 100')}
+                              value={intakeQuantity}
+                              onChange={(val) => setIntakeQuantity(val === '' ? '' : Number(val))}
+                              min={1}
+                              size={isMobile ? 'md' : 'sm'}
+                            />
+                          </div>
+                          <div>
+                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                              {t('Supplier')}
+                            </Text>
+                            <Select
+                              placeholder={t('Select supplier')}
+                              data={supplierSelectOptions}
+                              value={intakeSupplierKey}
+                              onChange={setIntakeSupplierKey}
+                              searchable
+                              size={isMobile ? 'md' : 'sm'}
+                            />
+                          </div>
+                          <Group grow align="flex-start">
+                            <div>
+                              <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                                {t('Unit Cost')}
+                              </Text>
+                              <MoneyInput
+                                valueCents={intakeUnitCostCents}
+                                onChangeCents={setIntakeUnitCostCents}
+                                size={isMobile ? 'md' : 'sm'}
+                              />
+                            </div>
+                            <div>
+                              <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                                {t('Selling Price each')}
+                              </Text>
+                              <MoneyInput
+                                valueCents={intakeSellingPriceCents}
+                                onChangeCents={setIntakeSellingPriceCents}
+                                size={isMobile ? 'md' : 'sm'}
+                              />
+                            </div>
+                          </Group>
+                          <div>
+                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                              {t('Invoice / Reference No. (optional)')}
+                            </Text>
+                            <TextInput
+                              placeholder={t('e.g. INV-8834')}
+                              value={intakeReferenceNo}
+                              onChange={(e) => setIntakeReferenceNo(e.currentTarget.value)}
+                              size={isMobile ? 'md' : 'sm'}
+                            />
+                          </div>
+                          <Group justify="flex-end" gap="sm">
+                            <Button variant="default" size="sm" onClick={resetIntakeForm}>
+                              {t('Cancel')}
+                            </Button>
+                            <Button
+                              size="sm"
+                              color="green"
+                              onClick={handleRecordIntakeInline}
+                              disabled={
+                                !intakeSupplierKey ||
+                                !intakeQuantity ||
+                                intakeSellingPriceCents <= 0
+                              }
+                              loading={createPurchaseMutation.isPending}
+                            >
+                              {t('Record Intake')}
+                            </Button>
+                          </Group>
+                        </Stack>
+                      </Paper>
+                    </Collapse>
+                  </Stack>
+                )}
+              </Paper>
+            </Tabs>
 
             <Divider my="xs" />
 
@@ -1335,39 +1264,68 @@ export const ProductTable = () => {
                     {t('Item Key')}
                   </Text>
                 </Group>
-                <Text size="xs" fw={600} c="dimmed">
-                  {selectedProduct.key}
-                </Text>
+                <Group gap={2} wrap="nowrap" style={{ minWidth: 0 }}>
+                  <Text size="xs" fw={600} c="dimmed" truncate="end">
+                    {selectedProduct.key}
+                  </Text>
+                  <CopyButton value={selectedProduct.key}>
+                    {({ copied, copy }) => (
+                      <Tooltip label={copied ? t('Copied') : t('Copy')} withArrow>
+                        <ActionIcon
+                          variant="subtle"
+                          color={copied ? 'teal' : 'gray'}
+                          size={isMobile ? 44 : 'sm'}
+                          onClick={copy}
+                          aria-label={t('Copy')}
+                        >
+                          {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </CopyButton>
+                </Group>
               </Group>
             </Stack>
 
-            <Divider my="xs" />
+            {/* Action Buttons: pinned so they stay in reach on long content */}
+            <Box
+              style={{
+                position: 'sticky',
+                // the body pads its scroll area, so pin past the padding to sit flush with the edge
+                bottom: 'calc(-1 * var(--mantine-spacing-lg))',
+                marginInline: 'calc(-1 * var(--mantine-spacing-lg))',
+                marginBottom: 'calc(-1 * var(--mantine-spacing-lg))',
+                padding: 'var(--mantine-spacing-md) var(--mantine-spacing-lg)',
+                background: 'var(--mantine-color-body)',
+                borderTop: '1px solid var(--border)',
+                zIndex: 1,
+              }}
+            >
+              <Group justify="flex-end" gap="sm">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setHistoryTab('movements');
+                    resetSupplierForm();
+                    resetIntakeForm();
+                  }}
+                >
+                  {t('Close')}
+                </Button>
 
-            {/* Action Buttons */}
-            <Group justify="flex-end" gap="sm" mt="md">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => {
-                  setSelectedProduct(null);
-                  setHistoryTab('movements');
-                  resetSupplierForm();
-                  resetIntakeForm();
-                }}
-              >
-                {t('Close')}
-              </Button>
-
-              <Button
-                variant="filled"
-                color="blue"
-                size="sm"
-                leftSection={<IconEdit size={16} />}
-                onClick={() => handleOpenEditProduct(selectedProduct)}
-              >
-                {t('Edit Item')}
-              </Button>
-            </Group>
+                <Button
+                  variant="filled"
+                  color="blue"
+                  size="sm"
+                  leftSection={<IconEdit size={16} />}
+                  onClick={() => handleOpenEditProduct(selectedProduct)}
+                >
+                  {t('Edit Item')}
+                </Button>
+              </Group>
+            </Box>
           </Stack>
         )}
       </Drawer>

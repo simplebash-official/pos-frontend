@@ -129,6 +129,7 @@ describe('PriceTierPickerModal', () => {
     await act(async () => addButton().click());
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect.mock.calls[0][0]).toMatchObject({ sellingPriceCents: 120_000, left: 5 });
+    expect(onSelect.mock.calls[0][1]).toBe(1);
   });
 
   it('skips a price whose units are all in the sale already', async () => {
@@ -136,10 +137,69 @@ describe('PriceTierPickerModal', () => {
     expect(document.body.textContent).toContain('All of these are already in this sale');
     await act(async () => addButton().click());
     expect(onSelect.mock.calls[0][0]).toMatchObject({ sellingPriceCents: 150_000, left: 12 });
+    expect(onSelect.mock.calls[0][1]).toBe(1);
   });
 
   it('shows each price’s cost to an admin', async () => {
     await open('admin', new Map());
     expect(document.body.textContent).toContain('Cost Rs. 1,000.00');
+  });
+  const button = (label: string) =>
+    document.body.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement;
+  const quantityField = () =>
+    document.body.querySelector('input[aria-label="Quantity"]') as HTMLInputElement;
+  const priceCard = (price: string) =>
+    Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes(price)
+    ) as HTMLButtonElement;
+
+  it('adds the chosen number of units and shows the total', async () => {
+    await open('staff', new Map());
+    expect(document.body.textContent).toContain('Up to 5 at this price');
+    await act(async () => button('Increase quantity').click());
+    await act(async () => button('Increase quantity').click());
+    expect(quantityField().value).toBe('3');
+    expect(document.body.textContent).toContain('Rs. 3,600.00');
+
+    await act(async () => addButton().click());
+    expect(onSelect.mock.calls[0][0]).toMatchObject({ sellingPriceCents: 120_000 });
+    expect(onSelect.mock.calls[0][1]).toBe(3);
+  });
+
+  it('stops the quantity at what is left at that price', async () => {
+    await open('staff', new Map([[120_000, 2]]));
+    // 3 left at Rs. 1,200 after 2 are already in the sale.
+    for (let i = 0; i < 6; i++) await act(async () => button('Increase quantity').click());
+    expect(quantityField().value).toBe('3');
+    expect(button('Increase quantity').disabled).toBe(true);
+  });
+
+  it('lowers the quantity when a price with fewer units left is picked', async () => {
+    await open('staff', new Map());
+    await act(async () => priceCard('Rs. 1,500.00').click());
+    for (let i = 0; i < 9; i++) await act(async () => button('Increase quantity').click());
+    expect(quantityField().value).toBe('10');
+    await act(async () => priceCard('Rs. 1,200.00').click());
+    expect(quantityField().value).toBe('5');
+  });
+
+  it('cannot add while the quantity is empty', async () => {
+    await open('staff', new Map());
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(quantityField(), '');
+      quantityField().dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(addButton().disabled).toBe(true);
+  });
+
+  it('adds with Enter', async () => {
+    await open('staff', new Map());
+    await act(async () => button('Increase quantity').click());
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect.mock.calls[0][1]).toBe(2);
   });
 });

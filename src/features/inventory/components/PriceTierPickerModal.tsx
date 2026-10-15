@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Modal, Stack, Text, Radio, Button, Group } from '@mantine/core';
+import { Badge, Button, Group, Modal, Paper, Radio, Stack, Text } from '@mantine/core';
+import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
@@ -15,7 +16,7 @@ export interface PriceTierPickerModalProps {
   product: Product;
   /** Units of this product the current sale already holds, per selling price. */
   reservedByPrice: ReadonlyMap<number, number>;
-  onSelect: (tier: TierWithRoom) => void;
+  onSelect: (tier: TierWithRoom, quantity: number) => void;
 }
 
 /**
@@ -31,10 +32,13 @@ const oldestWithRoom = (tiers: TierWithRoom[]): TierWithRoom | undefined =>
       undefined
     );
 
+const SECTION_LABEL_STYLE = { letterSpacing: '0.05em' } as const;
+
 /**
  * Asks which price a product is being sold at when it is in stock at more than
- * one (each delivery keeps its own price). Shows how many are left at each
- * price, with the oldest stock picked so Enter adds it straight away.
+ * one (each delivery keeps its own price), and how many to sell at that price.
+ * Shows how many are left at each price, with the oldest stock picked so Enter
+ * adds it straight away.
  */
 export const PriceTierPickerModal = ({
   opened,
@@ -46,15 +50,33 @@ export const PriceTierPickerModal = ({
   const isMobile = useIsMobile();
   const isAdmin = useIsAdmin();
   const tiers = tiersWithRoom(product.priceTiers, reservedByPrice);
-  const [chosen, setChosen] = useState<string | null>(() => {
-    const oldest = oldestWithRoom(tiers);
-    return oldest === undefined ? null : String(oldest.sellingPriceCents);
-  });
+  const oldest = oldestWithRoom(tiers);
+  const [chosen, setChosen] = useState<string | null>(() =>
+    oldest === undefined ? null : String(oldest.sellingPriceCents)
+  );
+  const [quantity, setQuantity] = useState<number | ''>(1);
   const chosenTier = tiers.find((tier) => String(tier.sellingPriceCents) === chosen);
+  const maxQuantity = chosenTier === undefined ? 0 : chosenTier.left;
+
+  const canAdd =
+    chosenTier !== undefined &&
+    chosenTier.left > 0 &&
+    typeof quantity === 'number' &&
+    quantity >= 1 &&
+    quantity <= chosenTier.left;
+
+  const handleChoose = (value: string) => {
+    setChosen(value);
+    const next = tiers.find((tier) => String(tier.sellingPriceCents) === value);
+    // A smaller delivery cannot supply more than it has left.
+    if (next !== undefined && typeof quantity === 'number' && quantity > next.left) {
+      setQuantity(next.left);
+    }
+  };
 
   const handleConfirm = () => {
-    if (chosenTier === undefined || chosenTier.left <= 0) return;
-    onSelect(chosenTier);
+    if (!canAdd) return;
+    onSelect(chosenTier, quantity);
     onClose();
   };
 
@@ -72,7 +94,7 @@ export const PriceTierPickerModal = ({
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          {t('Which price for')} {product.name}?
+          {t('Choose a price')}
         </Text>
       }
       size="sm"
@@ -80,57 +102,114 @@ export const PriceTierPickerModal = ({
       fullScreen={isMobile}
     >
       <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('This item came in at different prices. Pick the one you are selling.')}
-        </Text>
+        <Paper p="sm" withBorder bg="var(--bg-card)">
+          <Text fw={700} lineClamp={2}>
+            {product.name}
+          </Text>
+          <Text size="xs" c="dimmed">
+            {t('This item came in at different prices. Pick the one you are selling.')}
+          </Text>
+        </Paper>
 
-        <Radio.Group value={chosen} onChange={setChosen}>
+        <Radio.Group value={chosen} onChange={handleChoose}>
           <Stack gap="xs">
-            {tiers.map((tier) => (
-              <Radio
-                key={tier.sellingPriceCents}
-                value={String(tier.sellingPriceCents)}
-                disabled={tier.left <= 0}
-                size="md"
-                data-log-id="billing.pick-price"
-                label={
-                  <Stack gap={2}>
-                    <Text fw={700} size="md">
-                      {formatMoney(tier.sellingPriceCents)}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {tier.left > 0
-                        ? `${tier.left} ${t('left')}`
-                        : t('All of these are already in this sale')}
-                      {' · '}
-                      {t('Received')} {formatDate(tier.oldestReceivedAt)}
-                      {isAdmin &&
-                        tier.minUnitCostCents !== undefined &&
-                        tier.maxUnitCostCents !== undefined &&
-                        ` · ${t('Cost')} ${formatCentsRange({
-                          min: tier.minUnitCostCents,
-                          max: tier.maxUnitCostCents,
-                        })}`}
-                    </Text>
-                  </Stack>
-                }
-                styles={{
-                  label: { paddingLeft: 8, minHeight: 44, display: 'flex', alignItems: 'center' },
-                }}
-              />
-            ))}
+            {tiers.map((tier) => {
+              const isChosen = String(tier.sellingPriceCents) === chosen;
+              const soldOut = tier.left <= 0;
+              return (
+                <Radio.Card
+                  key={tier.sellingPriceCents}
+                  value={String(tier.sellingPriceCents)}
+                  disabled={soldOut}
+                  radius="md"
+                  p="sm"
+                  data-log-id="billing.pick-price"
+                  style={{
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    borderColor: isChosen
+                      ? 'var(--mantine-color-blue-filled)'
+                      : 'var(--mantine-color-default-border)',
+                    backgroundColor: isChosen
+                      ? 'var(--mantine-color-blue-light)'
+                      : 'var(--bg-card)',
+                    opacity: soldOut ? 0.55 : 1,
+                    minHeight: isMobile ? 44 : undefined,
+                  }}
+                >
+                  <Group wrap="nowrap" align="flex-start" gap="sm">
+                    <Radio.Indicator disabled={soldOut} mt={4} />
+                    <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                      <Group justify="space-between" wrap="nowrap" gap="xs">
+                        <Text fw={800} size="lg">
+                          {formatMoney(tier.sellingPriceCents)}
+                        </Text>
+                        {tier === oldest && (
+                          <Badge size="xs" variant="light" color="blue">
+                            {t('Oldest stock')}
+                          </Badge>
+                        )}
+                      </Group>
+                      <Text size="xs" c="dimmed">
+                        {soldOut
+                          ? t('All of these are already in this sale')
+                          : `${tier.left} ${t('left')}`}
+                        {' · '}
+                        {t('Received')} {formatDate(tier.oldestReceivedAt)}
+                        {isAdmin &&
+                          tier.minUnitCostCents !== undefined &&
+                          tier.maxUnitCostCents !== undefined &&
+                          ` · ${t('Cost')} ${formatCentsRange({
+                            min: tier.minUnitCostCents,
+                            max: tier.maxUnitCostCents,
+                          })}`}
+                      </Text>
+                    </Stack>
+                  </Group>
+                </Radio.Card>
+              );
+            })}
           </Stack>
         </Radio.Group>
+
+        <Stack gap={6}>
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={SECTION_LABEL_STYLE}>
+            {t('How many?')}
+          </Text>
+          <Group justify="space-between" align="center" wrap="nowrap">
+            <QuantityInput
+              value={quantity}
+              onChange={setQuantity}
+              min={1}
+              max={maxQuantity > 0 ? maxQuantity : undefined}
+              allowDecimal={false}
+              size={isMobile ? 'lg' : 'md'}
+              aria-label={t('Quantity')}
+              data-autofocus={isMobile ? undefined : true}
+              onFocus={(event) => event.currentTarget.select()}
+            />
+            {maxQuantity > 0 && (
+              <Text size="xs" c="dimmed" ta="right">
+                {t('Up to')} {maxQuantity} {t('at this price')}
+              </Text>
+            )}
+          </Group>
+        </Stack>
+
+        <Group justify="space-between" align="baseline">
+          <Text size="sm" c="dimmed">
+            {t('Total')}
+          </Text>
+          <Text fw={800} size="xl">
+            {canAdd ? formatMoney(chosenTier.sellingPriceCents * quantity) : '—'}
+          </Text>
+        </Group>
 
         <Group justify="flex-end" mt="md" gap="sm">
           <Button variant="default" onClick={onClose}>
             {t('Cancel')}
           </Button>
-          <Button
-            color="blue"
-            disabled={chosenTier === undefined || chosenTier.left <= 0}
-            onClick={handleConfirm}
-          >
+          <Button color="blue" disabled={!canAdd} onClick={handleConfirm}>
             {t('Add to Sale')}
           </Button>
         </Group>

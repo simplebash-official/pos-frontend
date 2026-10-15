@@ -400,8 +400,13 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     overscan: 4,
   });
 
-  /** Adds one unit of `p` at the price tier `tier` (its own line per price). */
-  const addProductToCart = (p: Product, tier: PriceTier, serialNumber?: string) => {
+  /** Adds `quantity` units of `p` at the price tier `tier` (its own line per price). */
+  const addProductToCart = (
+    p: Product,
+    tier: PriceTier,
+    quantity: number,
+    serialNumber?: string
+  ) => {
     add({
       id: `item-${Date.now()}-${Math.random()}`,
       productId: p.id,
@@ -416,7 +421,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         tier.minUnitCostCents !== undefined && tier.maxUnitCostCents !== undefined
           ? { min: tier.minUnitCostCents, max: tier.maxUnitCostCents }
           : undefined,
-      quantity: 1,
+      quantity,
       discountCents: 0,
       sourceType: 'retail',
       stockQuantity: tier.quantity,
@@ -460,7 +465,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       reservedQuantityByProductPrice.get(p.id) ?? new Map()
     ).filter((tier) => tier.left > 0);
     if (withRoom.length === 1) {
-      addProductToCart(p, withRoom[0]);
+      addProductToCart(p, withRoom[0], 1);
       return;
     }
     setPricePickerProduct(p);
@@ -1489,7 +1494,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           const tier = serialPickerProduct.priceTiers.find(
             (candidate) => candidate.sellingPriceCents === sellingPriceCents
           );
-          if (tier) addProductToCart(serialPickerProduct, tier, serialNumber);
+          if (tier) addProductToCart(serialPickerProduct, tier, 1, serialNumber);
         }}
       />
 
@@ -1500,7 +1505,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           onClose={() => setPricePickerProduct(null)}
           product={pricePickerProduct}
           reservedByPrice={reservedQuantityByProductPrice.get(pricePickerProduct.id) ?? new Map()}
-          onSelect={(tier) => addProductToCart(pricePickerProduct, tier)}
+          onSelect={(tier, quantity) => addProductToCart(pricePickerProduct, tier, quantity)}
         />
       )}
     </>
