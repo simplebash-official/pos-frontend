@@ -204,11 +204,11 @@ export const CartPanel = memo(function CartPanel({
           ) : (
             !isMobile && (
               <Badge
-                size="xs"
+                size="sm"
                 color="blue"
-                variant="light"
+                variant="filled"
                 tt="none"
-                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                style={{ whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700 }}
               >
                 {itemCount} {itemCount !== 1 ? t('items') : t('item')}
                 {totalUnitCount !== itemCount &&
