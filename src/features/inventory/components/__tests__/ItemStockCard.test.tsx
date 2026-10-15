@@ -76,6 +76,15 @@ const product = {
   name: 'Item A',
   stockQuantity: 20,
   minStockThreshold: 25,
+  priceTiers: [
+    {
+      sellingPriceCents: 4_000,
+      quantity: 20,
+      minUnitCostCents: 3_000,
+      maxUnitCostCents: 3_000,
+      oldestReceivedAt: '2026-10-15T00:00:00Z',
+    },
+  ],
 } as Product;
 
 describe('ItemStockCard', () => {
@@ -123,6 +132,9 @@ describe('ItemStockCard', () => {
     expect(text).toContain('Starting stock');
     expect(text).toContain('Rs. 40.00');
     expect(text).toContain('Rs. 48.00');
+    // The stock-by-price legend lists only the prices still in stock.
+    expect(text).toContain('Rs. 40.00 · 20 left');
+    expect(text).not.toContain('Rs. 48.00 · ');
   });
 
   it('shows what each delivery cost to an admin only', async () => {

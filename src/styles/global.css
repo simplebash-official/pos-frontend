@@ -811,3 +811,80 @@ th.mantine-Table-th {
     transform: none !important;
   }
 }
+
+/* Item Specifications drawer: wide, cards on an app-coloured canvas, two columns
+   that fold to one by the drawer's own width (container query, not the viewport). */
+@media (min-width: 48em) {
+  .mantine-Drawer-content.item-drawer {
+    --drawer-size: min(900px, calc(100vw - 2 * var(--mantine-spacing-md)));
+  }
+}
+
+.mantine-Drawer-content.item-drawer .mantine-Drawer-body {
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  background-color: var(--bg-app) !important;
+}
+
+.item-drawer-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--mantine-spacing-lg);
+  container-type: inline-size;
+}
+
+.item-drawer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+.item-drawer-rail {
+  position: sticky;
+  top: 0;
+}
+
+/* The headline numbers run across the top of both columns. */
+.item-drawer-kpis {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md);
+}
+
+/* Narrow: one column, ordered hero, stock and activity, then pricing and details. */
+@container (max-width: 760px) {
+  .item-drawer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .item-drawer-kpis {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    order: 1;
+  }
+
+  .item-drawer-grid > .item-drawer-rail {
+    display: contents;
+  }
+
+  .item-drawer-grid > .item-drawer-main {
+    order: 2;
+  }
+
+  .item-drawer-after {
+    order: 3;
+  }
+}
+
+.item-drawer-footer {
+  flex-shrink: 0;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background-color: var(--bg-card);
+  border-top: 1px solid var(--border);
+}

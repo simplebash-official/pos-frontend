@@ -17,8 +17,16 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconPencil, IconMinus, IconPlus, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconPackageExport,
+  IconPencil,
+  IconPlus,
+  IconTruckDelivery,
+  IconX,
+} from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
+import { tierColor } from '../lib/tierColors';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -37,6 +45,8 @@ export interface StockBatchesPanelProps {
   product: Product;
   /** Called with the refreshed product after stock changes. */
   onProductChange: (product: Product) => void;
+  /** Admin only: jumps to the supplier intake form (a delivery with its own cost, price and supplier). */
+  onReceiveFromSupplier?: () => void;
 }
 
 /**
@@ -46,7 +56,11 @@ export interface StockBatchesPanelProps {
  * be taken out of one delivery, and new stock can be added as its own delivery
  * with its own price. The forms open inline under the row they belong to.
  */
-export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPanelProps) => {
+export const StockBatchesPanel = ({
+  product,
+  onProductChange,
+  onReceiveFromSupplier,
+}: StockBatchesPanelProps) => {
   const isMobile = useIsMobile();
   const isAdmin = useIsAdmin();
   const { data: batches, isLoading } = useProductBatches(product.key);
@@ -150,7 +164,7 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
   };
 
   const fieldSize = isMobile ? 'md' : 'sm';
-  const actionSize = isMobile ? 44 : 'md';
+  const actionSize = isMobile ? 44 : 32;
   const rows = batches ?? [];
 
   return (
@@ -177,8 +191,8 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
               py="sm"
               style={{ borderTop: index === 0 ? undefined : '1px solid var(--border)' }}
             >
-              <Group justify="space-between" wrap="nowrap" align="flex-start" gap="sm">
-                <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+              <Group justify="space-between" wrap="wrap" align="flex-start" gap="xs">
+                <Stack gap={4} style={{ flex: '1 1 200px', minWidth: 0 }}>
                   <Text size="sm" fw={700}>
                     {batch.remainingQuantity} {t('left')}
                     <Text span size="xs" c="dimmed" fw={500}>
@@ -193,26 +207,34 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
                         : 0
                     }
                     size="xs"
-                    color={batch.remainingQuantity > 0 ? 'blue' : 'gray'}
+                    color={tierColor(product.priceTiers, batch.sellingPriceCents)}
                     aria-hidden
                   />
                   <Text size="xs" c="dimmed">
                     {formatDate(batch.receivedAt)} · {t(SOURCE_LABELS[batch.source])}
+                    {isAdmin && batch.unitCostCents !== undefined && (
+                      <span style={{ whiteSpace: 'nowrap' }}>
+                        {' · '}
+                        {t('Cost')} {formatMoney(batch.unitCostCents)}
+                      </span>
+                    )}
                   </Text>
-                  {isAdmin && batch.unitCostCents !== undefined && (
-                    <Text size="xs" c="dimmed">
-                      {t('Cost')} {formatMoney(batch.unitCostCents)}
-                    </Text>
-                  )}
                 </Stack>
 
-                <Group gap={2} wrap="nowrap">
-                  <Text fw={800} size="sm" c="blue" mr={4} style={{ whiteSpace: 'nowrap' }}>
+                <Group gap={6} wrap="nowrap" align="center">
+                  <Text
+                    fw={800}
+                    size="sm"
+                    c={tierColor(product.priceTiers, batch.sellingPriceCents)}
+                    mr={4}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
                     {formatMoney(batch.sellingPriceCents)}
                   </Text>
                   <Tooltip label={t('Change price')}>
                     <ActionIcon
-                      variant="subtle"
+                      variant="light"
+                      color="blue"
                       size={actionSize}
                       onClick={() => {
                         resetTakeOut();
@@ -226,7 +248,7 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
                   {batch.remainingQuantity > 0 && (
                     <Tooltip label={t('Take stock out')}>
                       <ActionIcon
-                        variant="subtle"
+                        variant="light"
                         color="red"
                         size={actionSize}
                         onClick={() => {
@@ -235,7 +257,7 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
                         }}
                         aria-label={t('Take stock out')}
                       >
-                        <IconMinus size={16} />
+                        <IconPackageExport size={16} />
                       </ActionIcon>
                     </Tooltip>
                   )}
@@ -276,24 +298,22 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
 
               <Collapse expanded={takeOutKey === batch.key}>
                 <Stack gap={6} pt="xs">
-                  <Group gap="xs" grow align="flex-start">
-                    <NumberInput
-                      label={t('How many to take out')}
-                      min={1}
-                      max={batch.remainingQuantity}
-                      allowDecimal={false}
-                      value={takeOutQty}
-                      onChange={setTakeOutQty}
-                      size={fieldSize}
-                    />
-                    <TextInput
-                      label={t('Why?')}
-                      placeholder={t('e.g. Damaged, Stock count correction')}
-                      value={takeOutReason}
-                      onChange={(e) => setTakeOutReason(e.currentTarget.value)}
-                      size={fieldSize}
-                    />
-                  </Group>
+                  <NumberInput
+                    label={t('How many to take out')}
+                    min={1}
+                    max={batch.remainingQuantity}
+                    allowDecimal={false}
+                    value={takeOutQty}
+                    onChange={setTakeOutQty}
+                    size={fieldSize}
+                  />
+                  <TextInput
+                    label={t('Reason')}
+                    placeholder={t('e.g. Damaged, Stock count correction')}
+                    value={takeOutReason}
+                    onChange={(e) => setTakeOutReason(e.currentTarget.value)}
+                    size={fieldSize}
+                  />
                   <Group justify="flex-end" gap="sm">
                     <Button variant="default" size="xs" onClick={resetTakeOut}>
                       {t('Cancel')}
@@ -345,7 +365,7 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
               />
             </Group>
             <TextInput
-              label={t('Why?')}
+              label={t('Reason')}
               placeholder={t('e.g. Found in store room')}
               value={stockInReason}
               onChange={(e) => setStockInReason(e.currentTarget.value)}
@@ -370,14 +390,27 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
       </Collapse>
 
       {!stockInOpen && (
-        <Button
-          variant="light"
-          size={fieldSize}
-          leftSection={<IconPlus size={16} />}
-          onClick={() => setStockInOpen(true)}
-        >
-          {t('Add stock by hand')}
-        </Button>
+        <Group grow gap="xs">
+          {onReceiveFromSupplier !== undefined && (
+            <Button
+              variant="filled"
+              color="blue"
+              size={fieldSize}
+              leftSection={<IconTruckDelivery size={16} />}
+              onClick={onReceiveFromSupplier}
+            >
+              {t('Receive from supplier')}
+            </Button>
+          )}
+          <Button
+            variant="light"
+            size={fieldSize}
+            leftSection={<IconPlus size={16} />}
+            onClick={() => setStockInOpen(true)}
+          >
+            {t('Add stock by hand')}
+          </Button>
+        </Group>
       )}
     </Stack>
   );
