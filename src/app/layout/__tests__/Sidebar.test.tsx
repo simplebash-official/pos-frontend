@@ -43,6 +43,13 @@ const renderSidebar = (role: UserRole, isRail = false) => {
   );
 };
 
+describe('Sidebar rail width', () => {
+  it('pins the rail to its own width so a wider bar mid-wipe cannot re-centre the icons', () => {
+    expect(renderSidebar(USER_ROLES.ADMIN, true)).toContain('width:64px');
+    expect(renderSidebar(USER_ROLES.ADMIN, false)).not.toContain('width:64px');
+  });
+});
+
 describe('Sidebar settings visibility by user role', () => {
   describe('Admin role', () => {
     it('renders Settings link in standard full layout for admin', () => {

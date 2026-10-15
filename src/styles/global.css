@@ -934,6 +934,47 @@ th.mantine-Table-th {
   background-color: var(--mantine-color-blue-filled);
 }
 
+/* Sidebar: one pill glides to the active item (framer-motion layoutId); the link's own active
+   background is turned off so the pill is the only highlight. Colour fades are paint-only. */
+.sidebar-item {
+  position: relative;
+  display: block;
+}
+
+.sidebar-item:has(> .sidebar-link[aria-label]) {
+  display: inline-flex;
+}
+
+.sidebar-pill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: var(--mantine-radius-default);
+  transition: background-color 150ms ease;
+}
+
+.sidebar-link {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-link[data-active],
+.sidebar-link[aria-current='page'] {
+  background-color: transparent;
+}
+
+.sidebar-link[data-active]:hover,
+.sidebar-link[aria-current='page']:hover {
+  background-color: transparent;
+}
+
+/* The page reflows once when the navbar width changes (Mantine does not transition the navbar's
+   width), instead of padding-sliding over 200ms against an already-snapped bar. The navbar's own
+   transform slide (focus mode, mobile drawer) is untouched. */
+.mantine-AppShell-main {
+  transition: none;
+}
+
 .rich-tab-label,
 .rich-tabs .mantine-Tabs-tabSection {
   position: relative;

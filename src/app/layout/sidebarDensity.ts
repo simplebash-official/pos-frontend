@@ -87,7 +87,6 @@ export interface SidebarDensityResult {
 interface DensityBox {
   el: HTMLDivElement | null;
   ro: ResizeObserver | null;
-  raf: number;
   timer: number;
   lastAvail: number;
   ceiling: SidebarDensity | null;
@@ -109,8 +108,8 @@ const AVAIL_DEADZONE = 4;
  *
  * **Resize behaviour:** a `ResizeObserver` event only *debounces* a re-evaluation (`SETTLE_DELAY`
  * after the last event) — so while the window is being dragged the tier is frozen and the sidebar
- * does not re-render. Once quiet, `evaluate` runs and self-drives the multi-step settle frame by
- * frame:
+ * does not re-render. Once quiet, `evaluate` runs and self-drives the multi-step settle (each step
+ * re-measures in a layout effect, before paint):
  *
  *  - overflowing → step denser, and remember this tier as a `ceiling` never to loosen back into
  *  - fits        → step looser, unless the looser tier is the known ceiling for this height
@@ -131,7 +130,6 @@ export function useSidebarDensity(
   const box = useRef<DensityBox>({
     el: null,
     ro: null,
-    raf: 0,
     timer: 0,
     lastAvail: -1,
     ceiling: null,
@@ -172,13 +170,17 @@ export function useSidebarDensity(
     }
 
     if (next === b.density) return;
-    // Step, then keep going next frame once this render has committed and re-laid out. This
-    // frame-by-frame settle (≤3 frames) is separate from the resize debounce below.
+    // Step; the layout effect below re-measures once this render has committed, still before paint.
     b.density = next;
     setDensity(next);
-    cancelAnimationFrame(b.raf);
-    b.raf = requestAnimationFrame(evaluate);
   }, []);
+
+  // Keep settling until it fits, inside the same frame: an update made in the layout phase is
+  // flushed before the browser paints, so only the final density is ever seen (an animation-frame
+  // step would paint each intermediate one — the flicker when the rail swaps for the full list).
+  useLayoutEffect(() => {
+    evaluate();
+  }, [density, evaluate]);
 
   // A resize event never changes the tier directly — it only (re)arms a short quiet timer. While
   // the window is being dragged the timer keeps resetting and nothing re-renders; the tier settles
@@ -186,10 +188,7 @@ export function useSidebarDensity(
   const scheduleDebounced = useCallback(() => {
     const b = box.current;
     window.clearTimeout(b.timer);
-    b.timer = window.setTimeout(() => {
-      cancelAnimationFrame(b.raf);
-      b.raf = requestAnimationFrame(evaluate);
-    }, SETTLE_DELAY);
+    b.timer = window.setTimeout(evaluate, SETTLE_DELAY);
   }, [evaluate]);
 
   const ref = useCallback(
@@ -197,7 +196,6 @@ export function useSidebarDensity(
       const b = box.current;
       b.ro?.disconnect();
       b.ro = null;
-      cancelAnimationFrame(b.raf);
       window.clearTimeout(b.timer);
       b.el = el;
       b.lastAvail = -1;
@@ -221,7 +219,6 @@ export function useSidebarDensity(
     const b = box.current;
     return () => {
       b.ro?.disconnect();
-      cancelAnimationFrame(b.raf);
       window.clearTimeout(b.timer);
     };
   }, []);

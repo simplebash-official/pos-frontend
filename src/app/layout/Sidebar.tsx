@@ -8,14 +8,15 @@ import {
   Paper,
   useMantineColorScheme,
   useComputedColorScheme,
-  Badge,
   Tooltip,
   ActionIcon,
-  Indicator,
 } from '@mantine/core';
+import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { IconLock, IconMoon, IconSun, IconSettings, IconLogout } from '@tabler/icons-react';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
+import { SHELL_NAVBAR_RAIL_WIDTH } from './constants';
+import { FullNavItem, RailNavItem } from './SidebarNavItem';
 import { SIDEBAR_DENSITY_PRESETS, useSidebarDensity } from './sidebarDensity';
 import { NAV_CATEGORIES } from '@/config/navigation';
 import { ROUTES } from '@/constants/routes';
@@ -29,9 +30,11 @@ import { logout, selectUserPermissions, selectUserRole } from '@/store/slices/au
 export interface SidebarProps {
   closeMobile?: () => void;
   isRail?: boolean;
+  /** Whether the mobile drawer is open; its items slide in each time it opens. */
+  drawerOpen?: boolean;
 }
 
-export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
+export const Sidebar = ({ closeMobile, isRail = false, drawerOpen = false }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -45,16 +48,19 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   const lowStockCount = lowStockProducts.length;
   const isMobile = useIsMobile();
 
-  const isVisible = (item: { adminOnly?: boolean; requiredPermissions?: string[] }) => {
-    if (item.adminOnly && !isAdmin) return false;
-    if (
-      item.requiredPermissions &&
-      !item.requiredPermissions.some((permission) => permissions.includes(permission))
-    ) {
-      return false;
-    }
-    return true;
-  };
+  const isVisible = useCallback(
+    (item: { adminOnly?: boolean; requiredPermissions?: string[] }) => {
+      if (item.adminOnly && !isAdmin) return false;
+      if (
+        item.requiredPermissions &&
+        !item.requiredPermissions.some((permission) => permissions.includes(permission))
+      ) {
+        return false;
+      }
+      return true;
+    },
+    [isAdmin, permissions]
+  );
 
   const visibleCategories = useMemo(
     () =>
@@ -64,8 +70,7 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
           .filter(isVisible)
           .map((item) => ({ ...item, subItems: item.subItems?.filter(isVisible) })),
       })).filter((category) => category.items.length > 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isAdmin, permissions]
+    [isVisible]
   );
 
   const { ref: densityRef, density } = useSidebarDensity(
@@ -79,6 +84,24 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
     [preset.navlinkPy]
   );
 
+  // Switching between the rail and the full list fades the new one in (reduced motion: at once).
+  // Fade only — an exit would keep two sidebars in the DOM.
+  const reduceMotion = useReducedMotion();
+  const fadeIn = !reduceMotion;
+  const renderLayout = (layout: 'rail' | 'full', content: React.ReactNode) => (
+    <motion.div
+      key={layout}
+      initial={fadeIn ? { opacity: 0 } : false}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.14 }}
+      // The rail keeps its own width: while the bar is held wider for the closing wipe, its icons
+      // must not re-centre and then jump back.
+      style={{ height: '100%', width: layout === 'rail' ? SHELL_NAVBAR_RAIL_WIDTH : undefined }}
+    >
+      <LayoutGroup id="sidebar">{content}</LayoutGroup>
+    </motion.div>
+  );
+
   const handleLogout = () => {
     dispatch(logout());
     if (closeMobile) closeMobile();
@@ -86,7 +109,8 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
   };
 
   if (isRail) {
-    return (
+    return renderLayout(
+      'rail',
       <Stack
         ref={densityRef}
         h="100%"
@@ -109,50 +133,17 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
             >
               {catIndex > 0 && <Divider style={{ width: '60%' }} />}
               {category.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname.startsWith(item.to);
-                const isInventory = item.to === ROUTES.INVENTORY;
-
                 return (
-                  <Tooltip
+                  <RailNavItem
                     key={item.to}
+                    to={item.to}
                     label={`${t(category.title)} · ${t(item.label)}`}
-                    position="right"
-                    withArrow
-                  >
-                    <Indicator
-                      inline
-                      label={lowStockCount}
-                      maxValue={99}
-                      size={16}
-                      color="red"
-                      disabled={!isInventory || lowStockCount <= 0}
-                      withBorder
-                      offset={2}
-                      styles={{
-                        indicator: {
-                          fontSize: 9,
-                          fontWeight: 700,
-                          padding: '0 3px',
-                          minWidth: 14,
-                          height: 14,
-                          lineHeight: '12px',
-                          borderColor: 'var(--mantine-color-body)',
-                        },
-                      }}
-                    >
-                      <ActionIcon
-                        component={RouterNavLink}
-                        to={item.to}
-                        size="lg"
-                        variant={isActive ? 'filled' : 'subtle'}
-                        color={isActive ? item.color || 'blue' : 'gray'}
-                        onClick={closeMobile}
-                      >
-                        <Icon size={20} stroke={1.5} />
-                      </ActionIcon>
-                    </Indicator>
-                  </Tooltip>
+                    Icon={item.icon}
+                    color={item.color}
+                    isActive={location.pathname.startsWith(item.to)}
+                    badgeCount={item.to === ROUTES.INVENTORY ? lowStockCount : 0}
+                    onClick={closeMobile}
+                  />
                 );
               })}
             </Stack>
@@ -196,7 +187,9 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
     );
   }
 
-  return (
+  let enterIndex = 0;
+  return renderLayout(
+    'full',
     <Stack
       ref={densityRef}
       h="100%"
@@ -272,28 +265,18 @@ export const Sidebar = ({ closeMobile, isRail = false }: SidebarProps) => {
               }
 
               return (
-                <NavLink
-                  key={item.to}
-                  component={RouterNavLink}
+                <FullNavItem
+                  key={`${item.to}-${drawerOpen}`}
                   to={item.to}
                   label={t(item.label)}
-                  leftSection={<Icon size={20} stroke={1.5} />}
-                  rightSection={
-                    isInventory && lowStockCount > 0 ? (
-                      <Badge size="xs" color="red" variant="filled">
-                        {lowStockCount}
-                      </Badge>
-                    ) : undefined
-                  }
-                  active={isActive}
+                  Icon={item.icon}
                   color={item.color}
-                  variant="light"
+                  isActive={isActive}
+                  badgeCount={isInventory ? lowStockCount : 0}
                   onClick={closeMobile}
-                  styles={navLinkStyles}
-                  style={{
-                    borderRadius: 'var(--mantine-radius-default)',
-                    minHeight: isMobile ? 44 : undefined,
-                  }}
+                  linkStyles={navLinkStyles}
+                  minHeight={isMobile ? 44 : undefined}
+                  enterIndex={isMobile && drawerOpen ? enterIndex++ : undefined}
                 />
               );
             })}

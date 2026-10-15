@@ -1,10 +1,12 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import { AppShell as MantineAppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { useShellWidthTransition } from './useShellWidthTransition';
 import {
   BILLING_HEADER_HEIGHT,
   SHELL_HEADER_HEIGHT,
@@ -62,6 +64,9 @@ export const AppShell = () => {
   const { state: cloudState } = useCloudState();
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const tier = useLayoutTier();
+  const reduceMotion = useReducedMotion();
+  const navbarRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -168,10 +173,6 @@ export const AppShell = () => {
     };
   }, [isDashboard, location.pathname]);
 
-  if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} replace />;
-  }
-
   const headerHeight = isBillingPage ? BILLING_HEADER_HEIGHT : SHELL_HEADER_HEIGHT;
   const navbarWidth = isBillingPage
     ? focusMode
@@ -180,6 +181,13 @@ export const AppShell = () => {
     : tier === 'tablet'
       ? SHELL_NAVBAR_RAIL_WIDTH
       : SHELL_NAVBAR_WIDTH;
+
+  // On a phone the navbar is a drawer that takes no room, so the page never moves with it.
+  useShellWidthTransition(navbarRef, mainRef, tier === 'mobile' ? 0 : navbarWidth, !reduceMotion);
+
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
+  }
 
   return (
     <MantineAppShell
@@ -190,8 +198,8 @@ export const AppShell = () => {
         collapsed: { mobile: !opened, desktop: isBillingPage && focusMode },
       }}
       padding={isBillingPage ? 0 : { base: 'md', sm: '3xl' }}
-      transitionDuration={isBillingBoundaryChange ? 0 : 200}
-      transitionTimingFunction="ease"
+      transitionDuration={isBillingBoundaryChange ? 0 : 180}
+      transitionTimingFunction="cubic-bezier(0.22, 1, 0.36, 1)"
     >
       <MantineAppShell.Header bg="var(--bg-sidebar)">
         <Header
@@ -207,15 +215,17 @@ export const AppShell = () => {
       </MantineAppShell.Header>
 
       {(!isBillingPage || !focusMode) && (
-        <MantineAppShell.Navbar bg="var(--bg-sidebar)">
+        <MantineAppShell.Navbar ref={navbarRef} bg="var(--bg-sidebar)">
           <Sidebar
             closeMobile={close}
             isRail={tier !== 'mobile' && (isBillingPage ? !focusMode : tier === 'tablet')}
+            drawerOpen={opened}
           />
         </MantineAppShell.Navbar>
       )}
 
       <MantineAppShell.Main
+        ref={mainRef}
         style={{
           backgroundColor: 'var(--bg-app)',
           height: '100dvh',
