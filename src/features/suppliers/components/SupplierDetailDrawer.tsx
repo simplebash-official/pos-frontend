@@ -57,7 +57,7 @@ import { MoneyInput } from '@/shared/components/MoneyInput';
 import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
 import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { adminProductCostCents } from '@/features/inventory/lib/productCost';
+import { adminCostText } from '@/features/inventory/lib/priceTiers';
 
 export interface SupplierDetailDrawerProps {
   supplier: Supplier | null;
@@ -91,6 +91,7 @@ export const SupplierDetailDrawer = ({
   const [intakeProductKey, setIntakeProductKey] = useState<string | null>(null);
   const [intakeQuantity, setIntakeQuantity] = useState<number | ''>(1);
   const [intakeUnitCostCents, setIntakeUnitCostCents] = useState(0);
+  const [intakeSellingPriceCents, setIntakeSellingPriceCents] = useState(0);
   const [intakeReferenceNo, setIntakeReferenceNo] = useState('');
 
   // Data Queries & Mutations
@@ -120,6 +121,7 @@ export const SupplierDetailDrawer = ({
     setIntakeProductKey(null);
     setIntakeQuantity(1);
     setIntakeUnitCostCents(0);
+    setIntakeSellingPriceCents(0);
     setIntakeReferenceNo('');
   };
 
@@ -163,29 +165,16 @@ export const SupplierDetailDrawer = ({
     }));
   }, [linkedProducts, allProducts]);
 
-  // Handle auto-populating cost price on product selection
   const handleLinkProductChange = (key: string | null) => {
     setLinkProductKey(key);
-    if (key) {
-      const prod = allProducts.find((p) => p.key === key);
-      if (prod?.costPriceCents) {
-        setLinkCostCents(prod.costPriceCents);
-      }
-    }
   };
 
+  // The supplier's own agreed cost for this product, when the link has one.
   const handleIntakeProductChange = (key: string | null) => {
     setIntakeProductKey(key);
-    if (key) {
-      const lp = linkedProducts.find((p) => p.productKey === key);
-      if (lp?.costPriceCents) {
-        setIntakeUnitCostCents(lp.costPriceCents);
-      } else {
-        const prod = allProducts.find((p) => p.key === key);
-        if (prod?.costPriceCents) {
-          setIntakeUnitCostCents(prod.costPriceCents);
-        }
-      }
+    const lp = linkedProducts.find((p) => p.productKey === key);
+    if (lp?.costPriceCents) {
+      setIntakeUnitCostCents(lp.costPriceCents);
     }
   };
 
@@ -230,13 +219,21 @@ export const SupplierDetailDrawer = ({
   };
 
   const handleRecordIntakeInline = () => {
-    if (!supplier || !intakeProductKey || !intakeQuantity || Number(intakeQuantity) <= 0) return;
+    if (
+      !supplier ||
+      !intakeProductKey ||
+      !intakeQuantity ||
+      Number(intakeQuantity) <= 0 ||
+      intakeSellingPriceCents <= 0
+    )
+      return;
     createPurchaseMutation.mutate(
       {
         supplierKey: supplier.key,
         productKey: intakeProductKey,
         quantity: Number(intakeQuantity),
         unitCostCents: intakeUnitCostCents,
+        sellingPriceCents: intakeSellingPriceCents,
         date: new Date().toISOString(),
         referenceNo: intakeReferenceNo.trim() || undefined,
       },
@@ -655,8 +652,7 @@ export const SupplierDetailDrawer = ({
                                     </Badge>
                                   ) : (
                                     <Badge size="xs" variant="outline" color="gray">
-                                      {t('Default Cost:')}{' '}
-                                      {formatMoney(adminProductCostCents(lp.product))}
+                                      {t('Default Cost:')} {adminCostText(lp.product)}
                                     </Badge>
                                   )}
                                   {lp.supplierSku && (
@@ -781,6 +777,21 @@ export const SupplierDetailDrawer = ({
                               size={isMobile ? 'md' : 'sm'}
                             />
                           </Grid.Col>
+                          <Grid.Col span={12}>
+                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
+                              {t('Selling Price each *')}
+                            </Text>
+                            <MoneyInput
+                              valueCents={intakeSellingPriceCents}
+                              onChangeCents={setIntakeSellingPriceCents}
+                              size={isMobile ? 'md' : 'sm'}
+                            />
+                            <Text size="xs" c="dimmed" mt={4}>
+                              {t(
+                                'These units keep their own price, even if older stock sells for less.'
+                              )}
+                            </Text>
+                          </Grid.Col>
                         </Grid>
                         <div>
                           <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
@@ -802,7 +813,10 @@ export const SupplierDetailDrawer = ({
                             color="teal"
                             onClick={handleRecordIntakeInline}
                             disabled={
-                              !intakeProductKey || !intakeQuantity || Number(intakeQuantity) <= 0
+                              !intakeProductKey ||
+                              !intakeQuantity ||
+                              Number(intakeQuantity) <= 0 ||
+                              intakeSellingPriceCents <= 0
                             }
                             loading={createPurchaseMutation.isPending}
                           >

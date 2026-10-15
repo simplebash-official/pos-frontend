@@ -164,7 +164,14 @@ export const MODULES: readonly ModuleDef[] = [
   {
     id: 'inventory',
     label: 'Inventory & Stock',
-    resources: ['products', 'categories', 'stockMovements', 'productSerials', 'supplierProducts'],
+    resources: [
+      'products',
+      'categories',
+      'stockBatches',
+      'stockMovements',
+      'productSerials',
+      'supplierProducts',
+    ],
   },
   { id: 'purchases', label: 'Purchases', resources: ['purchases'] },
   { id: 'customers', label: 'Customers', resources: ['customers'] },
@@ -188,6 +195,7 @@ const RECORD_NAMES: Record<string, string> = {
   printJobs: 'Print job',
   products: 'Product',
   categories: 'Category',
+  stockBatches: 'Delivery price',
   stockMovements: 'Stock change',
   productSerials: 'Serial number',
   supplierProducts: 'Supplier price',

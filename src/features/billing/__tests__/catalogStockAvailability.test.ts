@@ -4,6 +4,7 @@ import cartReducer, {
   completeSaleSuccess,
   startNewSale,
   selectReservedQuantityByProductId,
+  selectReservedQuantityByProductPrice,
 } from '@/store/slices/cartSlice';
 import type { Invoice } from '@/features/billing/types';
 import type { Product } from '@/features/inventory/types';
@@ -21,8 +22,15 @@ const tripod: Product = {
   categoryKey: 'cat_gaming',
   subcategory: 'Action',
   subcategoryKey: 'sub_action',
-  sellingPriceCents: 999,
-  costPriceCents: 500,
+  priceTiers: [
+    {
+      sellingPriceCents: 999,
+      quantity: 50,
+      minUnitCostCents: 500,
+      maxUnitCostCents: 500,
+      oldestReceivedAt: '2026-01-01T00:00:00Z',
+    },
+  ],
   stockQuantity: 50,
   minStockThreshold: 5,
   isSerialized: false,
@@ -35,7 +43,7 @@ const cartLine = {
   productId: tripod.id,
   productKey: tripod.key,
   name: tripod.name,
-  unitPriceCents: tripod.sellingPriceCents,
+  unitPriceCents: tripod.priceTiers[0].sellingPriceCents,
   quantity: 3,
   discountCents: 0,
   sourceType: 'retail' as const,
@@ -97,5 +105,23 @@ describe('billing catalog stock availability', () => {
     const reserved = selectReservedQuantityByProductId({ cart: state });
 
     expect(remainingStock(soldTripod, reserved)).toBe(46);
+  });
+
+  it('keeps one line per price, so a product sold at two prices is two lines', () => {
+    let state = cartReducer(getInitialState(), addItem({ ...cartLine, quantity: 2 }));
+    state = cartReducer(state, addItem({ ...cartLine, id: 'line-2', quantity: 1 }));
+    state = cartReducer(
+      state,
+      addItem({ ...cartLine, id: 'line-3', unitPriceCents: 1500, quantity: 4 })
+    );
+
+    expect(state.items.map((i) => [i.unitPriceCents, i.quantity])).toEqual([
+      [1500, 4],
+      [999, 3],
+    ]);
+    const byPrice = selectReservedQuantityByProductPrice({ cart: state }).get(tripod.id);
+    expect(byPrice?.get(999)).toBe(3);
+    expect(byPrice?.get(1500)).toBe(4);
+    expect(selectReservedQuantityByProductId({ cart: state }).get(tripod.id)).toBe(7);
   });
 });

@@ -34,13 +34,12 @@ import {
 } from '@tabler/icons-react';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useProductsForSupplier } from '@/features/supplier-products';
-import { formatMoney } from '@/shared/lib/money';
 import { Supplier, SupplierInput } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
-import { adminProductCostCents } from '@/features/inventory/lib/productCost';
+import { adminCostText } from '@/features/inventory/lib/priceTiers';
 
 export interface SupplierFormModalProps {
   opened: boolean;
@@ -489,7 +488,7 @@ const SupplierFormContent = ({
                                 c="var(--text-secondary)"
                                 style={{ flexShrink: 0 }}
                               >
-                                {formatMoney(adminProductCostCents(p))}
+                                {adminCostText(p)}
                               </Text>
                             </Group>
                           </Paper>
@@ -546,7 +545,7 @@ const SupplierFormContent = ({
                                 <Text size="xs" c="dimmed">
                                   {t('Cost:')}{' '}
                                   <Text span fw={600} c="var(--text-primary)">
-                                    {formatMoney(adminProductCostCents(p))}
+                                    {adminCostText(p)}
                                   </Text>
                                 </Text>
                               </Group>

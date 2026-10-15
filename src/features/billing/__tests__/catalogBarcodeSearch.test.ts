@@ -13,8 +13,15 @@ const p = (over: Partial<Product>): Product => ({
   categoryKey: 'cat_1',
   subcategory: 'Cases',
   subcategoryKey: 'sub_1',
-  costPriceCents: 1000,
-  sellingPriceCents: 1750,
+  priceTiers: [
+    {
+      sellingPriceCents: 1750,
+      quantity: 9,
+      minUnitCostCents: 1000,
+      maxUnitCostCents: 1000,
+      oldestReceivedAt: '2026-01-01T00:00:00Z',
+    },
+  ],
   stockQuantity: 9,
   minStockThreshold: 2,
   isSerialized: false,

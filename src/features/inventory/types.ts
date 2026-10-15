@@ -49,9 +49,12 @@ export interface Product extends SyncedEntityFields {
   category: string;
   subcategoryKey: string;
   subcategory: string;
-  /** What the shop paid; the server sends it to an Admin only. */
-  costPriceCents?: number;
-  sellingPriceCents: number;
+  /**
+   * The prices the product is in stock at right now: one tier per selling
+   * price among its stock batches, cheapest first. Empty when out of stock.
+   */
+  priceTiers: PriceTier[];
+  /** Units in stock — the sum of every batch's remaining quantity. */
   stockQuantity: number;
   minStockThreshold: number;
   isSerialized: boolean;
@@ -60,10 +63,72 @@ export interface Product extends SyncedEntityFields {
   updatedAt?: string;
 }
 
+/**
+ * One sellable price of a product: every in-stock delivery (batch) at this
+ * selling price, merged. A sale from a tier takes its oldest delivery first.
+ */
+export interface PriceTier {
+  sellingPriceCents: number;
+  quantity: number;
+  /** Cheapest/dearest delivery cost in the tier; sent to an Admin only. */
+  minUnitCostCents?: number;
+  maxUnitCostCents?: number;
+  oldestReceivedAt: string;
+}
+
+export type BatchSource = 'purchase' | 'opening' | 'import' | 'adjustment';
+
+/** One delivery of a product, with its own cost, selling price and stock left. */
+export interface StockBatch extends SyncedEntityFields {
+  id: string;
+  key: string;
+  productKey: string;
+  source: BatchSource;
+  purchaseKey?: string;
+  supplierKey?: string;
+  receivedQuantity: number;
+  remainingQuantity: number;
+  /** Sent to an Admin only. */
+  unitCostCents?: number;
+  sellingPriceCents: number;
+  receivedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * A manual stock change. Units always live in a batch: taking stock out names
+ * the batch it comes from; bringing stock in creates a new batch, which needs
+ * its own cost and selling price.
+ */
+export type StockAdjustmentInput =
+  | { direction: 'out'; delta: number; reason: string; batchKey: string }
+  | {
+      direction: 'in';
+      delta: number;
+      reason: string;
+      unitCostCents: number;
+      sellingPriceCents: number;
+    };
+
+export interface UpdateStockBatchInput {
+  sellingPriceCents?: number;
+  /** Admin only. */
+  unitCostCents?: number;
+}
+
+/** Units a product is created with that did not come from a supplier purchase. */
+export interface OpeningStockInput {
+  quantity: number;
+  unitCostCents: number;
+  sellingPriceCents: number;
+}
+
 export interface ProductSupplierIntake {
   supplierKey: string;
   quantity: number;
   costPriceCents: number;
+  sellingPriceCents: number;
   referenceNo?: string;
   notes?: string;
 }
@@ -72,9 +137,7 @@ export interface CreateProductInput {
   name: string;
   categoryKey: string;
   subcategoryKey: string;
-  costPriceCents: number;
-  sellingPriceCents: number;
-  stockQuantity: number;
+  openingStock?: OpeningStockInput;
   minStockThreshold: number;
   barcode?: string;
   autoGenerateBarcode?: boolean;
@@ -87,9 +150,6 @@ export interface UpdateProductInput {
   name?: string;
   categoryKey?: string;
   subcategoryKey?: string;
-  costPriceCents?: number;
-  sellingPriceCents?: number;
-  stockQuantity?: number;
   minStockThreshold?: number;
   /**
    * Add or correct the scannable barcode after creation (e.g. to store the
@@ -121,6 +181,8 @@ export interface StockMovement extends SyncedEntityFields {
   id: string;
   key: string;
   productId: string;
+  /** The batch whose units moved; absent on audit-only return movements. */
+  batchKey?: string;
   quantityDelta: number;
   type: StockMovementType;
   referenceId?: string;
@@ -147,6 +209,8 @@ export interface ProductSerial {
   key: string;
   productKey: string;
   serialNumber: string;
+  /** The delivery this unit came in — it sells at that batch's price. */
+  batchKey: string;
   status: ProductSerialStatus;
   invoiceKey?: string;
   soldAt?: string;

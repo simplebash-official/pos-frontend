@@ -12,6 +12,11 @@ import type { Invoice, InvoiceItem, InvoiceStatus, SplitPaymentDetail } from '..
 // record and ignores anything sent for them.
 export interface CompleteSaleItemInput {
   productKey?: string;
+  /**
+   * The price tier a product line is sold at — required with `productKey`.
+   * The server draws the units from that price's deliveries, oldest first.
+   */
+  sellingPriceCents?: number;
   sourceTicketKey?: string;
   quantity: number;
   discountCents: number;
@@ -168,7 +173,8 @@ interface InvoiceListResponseData {
 }
 
 export const toInvoiceItem = (item: BackendInvoiceItem, index: number): InvoiceItem => ({
-  id: item.sourceTicketKey || item.productKey || `line-${index}`,
+  // Indexed: a product sold at two prices is on two lines with the same key.
+  id: `${item.sourceTicketKey || item.productKey || 'line'}-${index}`,
   productId: item.sourceTicketKey || item.productKey || '',
   name: item.name,
   sku: item.sku,

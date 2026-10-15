@@ -27,8 +27,15 @@ describe('computeDashboardData', () => {
         category: 'Accessories',
         subcategoryKey: 'sub_1',
         subcategory: 'Cables',
-        costPriceCents: 200,
-        sellingPriceCents: 500,
+        priceTiers: [
+          {
+            sellingPriceCents: 500,
+            quantity: 2,
+            minUnitCostCents: 200,
+            maxUnitCostCents: 200,
+            oldestReceivedAt: '2026-01-01T00:00:00Z',
+          },
+        ],
         stockQuantity: 2,
         minStockThreshold: 5,
         isSerialized: false,

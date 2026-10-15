@@ -47,6 +47,7 @@ export const queryKeys = {
     stats: () => ['inventory', 'stats'] as const,
     serials: (productKey: string, status?: string) =>
       ['inventory', 'products', productKey, 'serials', status] as const,
+    batches: (productKey: string) => ['inventory', 'products', productKey, 'batches'] as const,
   },
   categories: {
     all: ['categories'] as const,

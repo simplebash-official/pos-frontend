@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Modal, Stack, Text, Radio, Button, Group, Loader, Center } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useProductSerials } from '../hooks/useProductSerials';
+import { useProductBatches } from '../hooks/useProducts';
+import { formatMoney } from '@/shared/lib/money';
 
 export interface SerialNumberPickerModalProps {
   opened: boolean;
@@ -11,10 +13,15 @@ export interface SerialNumberPickerModalProps {
   productKey: string;
   /** Serials already picked for this product elsewhere in the current sale, hidden from the list. */
   excludeSerialNumbers?: string[];
-  onSelect: (serialNumber: string) => void;
+  /** The chosen unit and the price it sells at (its delivery's selling price). */
+  onSelect: (serialNumber: string, sellingPriceCents: number) => void;
 }
 
-/** Lets the cashier pick which in-stock unit of a serial-tracked product is being sold. */
+/**
+ * Lets the cashier pick which in-stock unit of a serial-tracked product is
+ * being sold. Each unit shows its price — the selling price of the delivery
+ * (stock batch) it came in.
+ */
 export const SerialNumberPickerModal = ({
   opened,
   onClose,
@@ -29,12 +36,20 @@ export const SerialNumberPickerModal = ({
     enabled: opened,
   });
 
+  const { data: batches, isLoading: batchesLoading } = useProductBatches(productKey, {
+    enabled: opened,
+  });
+  const priceByBatch = new Map((batches ?? []).map((b) => [b.key, b.sellingPriceCents]));
+
   const excluded = new Set(excludeSerialNumbers ?? []);
-  const available = (serials ?? []).filter((s) => !excluded.has(s.serialNumber));
+  const available = (serials ?? []).filter(
+    (s) => !excluded.has(s.serialNumber) && priceByBatch.has(s.batchKey)
+  );
 
   const handleConfirm = () => {
-    if (!chosen) return;
-    onSelect(chosen);
+    const serial = available.find((s) => s.serialNumber === chosen);
+    if (!serial) return;
+    onSelect(serial.serialNumber, priceByBatch.get(serial.batchKey) as number);
     setChosen(null);
     onClose();
   };
@@ -57,7 +72,7 @@ export const SerialNumberPickerModal = ({
           {t('This item is tracked by serial number. Pick which one is being sold.')}
         </Text>
 
-        {isLoading ? (
+        {isLoading || batchesLoading ? (
           <Center py="md">
             <Loader size="sm" />
           </Center>
@@ -73,6 +88,7 @@ export const SerialNumberPickerModal = ({
                   key={serial.key}
                   value={serial.serialNumber}
                   label={serial.serialNumber}
+                  description={formatMoney(priceByBatch.get(serial.batchKey) as number)}
                   size="md"
                   styles={{
                     label: { paddingLeft: 8, minHeight: 44, display: 'flex', alignItems: 'center' },

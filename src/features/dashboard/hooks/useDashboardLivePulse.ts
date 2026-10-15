@@ -421,7 +421,7 @@ export const computeDashboardData = ({
         category: matchedProd?.category || item.category || 'Accessories',
         soldTodayUnits: quantity,
         remainingStock: matchedProd?.stockQuantity ?? 0,
-        sellingPriceCents: matchedProd?.sellingPriceCents ?? item.unitPriceCents ?? 0,
+        sellingPriceCents: item.unitPriceCents,
         minThreshold: matchedProd?.minStockThreshold ?? 5,
       };
     })

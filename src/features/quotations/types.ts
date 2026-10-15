@@ -60,9 +60,14 @@ export interface QuotationListParams {
   limit: number;
 }
 
-/** A requested line. With `productKey` the backend takes name, SKU and price from the catalog. */
+/**
+ * A requested line. With `productKey` the backend takes name and SKU from the
+ * catalog and the price from `sellingPriceCents`, one of the product's current
+ * prices.
+ */
 export interface CreateQuotationItemInput {
   productKey?: string;
+  sellingPriceCents?: number;
   name?: string;
   unitPriceCents?: number;
   quantity: number;

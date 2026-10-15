@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { t } from '@/shared/i18n/t';
 import { calculateLineItem, calculateOrderDiscount } from '@/shared/lib/posCalculations';
 import type { CartItem } from '@/store/slices/cartSlice';
-import type { Product } from '@/features/inventory/types';
+import type { PriceTier, Product } from '@/features/inventory/types';
 import type { CreateQuotationInput } from '../types';
 
 import { formatMoney } from '@/shared/lib/money';
@@ -121,12 +121,13 @@ export const emptyLine = (): QuotationLineDraft => ({
   discountCents: 0,
 });
 
-export const lineFromProduct = (product: Product): QuotationLineDraft => ({
+/** A catalog line quoted at one of the product's current prices (`tier`). */
+export const lineFromProduct = (product: Product, tier: PriceTier): QuotationLineDraft => ({
   uid: newLineUid(),
   productKey: product.key,
   name: product.name,
   sku: product.sku,
-  unitPriceCents: product.sellingPriceCents,
+  unitPriceCents: tier.sellingPriceCents,
   quantity: 1,
   discountCents: 0,
 });
@@ -277,7 +278,12 @@ export const buildCreateInput = (
       : { customerKey: draft.customerKey },
   items: draft.lines.map((line) =>
     line.productKey !== undefined
-      ? { productKey: line.productKey, quantity: line.quantity, discountCents: line.discountCents }
+      ? {
+          productKey: line.productKey,
+          sellingPriceCents: line.unitPriceCents,
+          quantity: line.quantity,
+          discountCents: line.discountCents,
+        }
       : {
           name: line.name.trim(),
           unitPriceCents: line.unitPriceCents,

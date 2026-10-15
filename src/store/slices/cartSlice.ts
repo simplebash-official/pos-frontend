@@ -3,6 +3,7 @@ import { PAYMENT_METHODS, type PaymentMethod } from '@/constants/payment';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
 import { calculateLineItem, calculateCartTotals } from '@/shared/lib/posCalculations';
+import type { CentsRange } from '@/features/inventory/lib/priceTiers';
 
 export interface CartItem {
   id: string;
@@ -21,6 +22,12 @@ export interface CartItem {
   sku?: string;
   category?: string;
   subcategory?: string;
+  /**
+   * Price of one unit. For a retail product line this is the price tier the
+   * cashier picked (the selling price of the deliveries the units come from),
+   * sent to the server as the line's `sellingPriceCents`; a product appears on
+   * one line per price.
+   */
   unitPriceCents: number;
   quantity: number;
   discountCents: number;
@@ -30,8 +37,12 @@ export interface CartItem {
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   originalUnitPriceCents?: number;
-  /** What the shop paid for one unit of a retail line; the server sends it to an Admin only. */
-  costPriceCents?: number;
+  /**
+   * What the shop paid for one unit of a retail line, across the deliveries at
+   * this price; the server sends it to an Admin only.
+   */
+  costRangeCents?: CentsRange;
+  /** Units in stock at this line's price (the tier's quantity). */
   stockQuantity?: number;
   /** Only present for a serial-tracked product; one entry per unit, kept in sync with `quantity`. */
   serialNumbers?: string[];
@@ -208,8 +219,13 @@ const cartSlice = createSlice({
           );
         }
       } else {
+        // One line per product *and price*: the same product picked at two
+        // prices is two lines, each drawn from its own deliveries.
         existingIndex = state.items.findIndex(
-          (i) => i.productId === item.productId && (!i.sourceType || i.sourceType === 'retail')
+          (i) =>
+            i.productId === item.productId &&
+            i.unitPriceCents === item.unitPriceCents &&
+            (!i.sourceType || i.sourceType === 'retail')
         );
       }
 
@@ -652,6 +668,24 @@ export const selectReservedQuantityByProductId = createSelector(
       if (item.sourceType === 'retail') {
         map.set(item.productId, (map.get(item.productId) ?? 0) + item.quantity);
       }
+    }
+    return map;
+  }
+);
+
+/**
+ * Retail units held by the in-progress sale per product id, split by price —
+ * what the price picker subtracts from each tier.
+ */
+export const selectReservedQuantityByProductPrice = createSelector(
+  [selectActiveCartItems],
+  (items) => {
+    const map = new Map<string, Map<number, number>>();
+    for (const item of items) {
+      if (item.sourceType !== 'retail') continue;
+      const byPrice = map.get(item.productId) ?? new Map<number, number>();
+      byPrice.set(item.unitPriceCents, (byPrice.get(item.unitPriceCents) ?? 0) + item.quantity);
+      map.set(item.productId, byPrice);
     }
     return map;
   }
