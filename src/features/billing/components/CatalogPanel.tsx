@@ -1110,6 +1110,36 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                           iconMap,
                         });
 
+                        const priceNode = (
+                          <Text
+                            size="sm"
+                            fw={800}
+                            c="blue.7"
+                            style={{ fontSize: 14, fontFamily: 'monospace' }}
+                          >
+                            {priceRange === null ? t('No price yet') : formatCentsRange(priceRange)}
+                          </Text>
+                        );
+                        const costNode =
+                          isAdmin && costRange !== null ? (
+                            <Text size="10px" c="dimmed" style={{ fontFamily: 'monospace' }}>
+                              {t('Cost')} {formatCentsRange(costRange)}
+                            </Text>
+                          ) : null;
+                        const stockBadge = isZeroStock ? (
+                          <Badge size="xs" color="gray" variant="filled">
+                            {t('Out of stock')}
+                          </Badge>
+                        ) : isLowStock ? (
+                          <Badge size="xs" color="yellow" variant="filled">
+                            {remainingStock} {t('Left')}
+                          </Badge>
+                        ) : (
+                          <Badge size="xs" color="gray" variant="light">
+                            {remainingStock} {t('Left')}
+                          </Badge>
+                        );
+
                         return (
                           <Card
                             key={p.id}
@@ -1165,7 +1195,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                               {/* Middle Row: Full width Product Name */}
                               <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
-                                <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ minWidth: 0 }}>
                                   <Text
                                     size="xs"
                                     fw={700}
@@ -1174,88 +1204,65 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                   >
                                     <SearchHighlight text={p.name} terms={searchTerms} />
                                   </Text>
+                                  <Text
+                                    size="10px"
+                                    c="dimmed"
+                                    lineClamp={1}
+                                    style={{ fontFamily: 'monospace' }}
+                                  >
+                                    <SearchHighlight text={p.sku} terms={searchTerms} />
+                                    {p.barcode &&
+                                      getMatchRanges(p.barcode, searchTerms).length > 0 && (
+                                        <>
+                                          {' · '}
+                                          <SearchHighlight text={p.barcode} terms={searchTerms} />
+                                        </>
+                                      )}
+                                  </Text>
+                                </div>
+                              </Box>
+
+                              {/* Bottom Row: Price & Stock Badge. A card with a price choice gives the
+                                  price range its own line so nothing wraps, and puts the "N prices"
+                                  tag and stock count together on a footer line. */}
+                              {hasPriceChoice ? (
+                                <Stack gap={0}>
+                                  {priceNode}
+                                  {costNode}
                                   <Group
                                     justify="space-between"
                                     align="center"
                                     wrap="nowrap"
-                                    gap={4}
+                                    mt={4}
                                   >
-                                    <Text
-                                      size="10px"
-                                      c="dimmed"
-                                      lineClamp={1}
-                                      style={{ fontFamily: 'monospace', minWidth: 0 }}
+                                    <Badge
+                                      size="xs"
+                                      color="orange"
+                                      variant="filled"
+                                      leftSection={<IconStack2 size={11} />}
+                                      title={t(
+                                        'This item came in at different prices. Pick the one you are selling.'
+                                      )}
+                                      style={{
+                                        textTransform: 'none',
+                                        fontWeight: 700,
+                                        fontSize: 10,
+                                      }}
                                     >
-                                      <SearchHighlight text={p.sku} terms={searchTerms} />
-                                      {p.barcode &&
-                                        getMatchRanges(p.barcode, searchTerms).length > 0 && (
-                                          <>
-                                            {' · '}
-                                            <SearchHighlight text={p.barcode} terms={searchTerms} />
-                                          </>
-                                        )}
-                                    </Text>
-                                    {hasPriceChoice && (
-                                      <Badge
-                                        size="xs"
-                                        color="orange"
-                                        variant="filled"
-                                        leftSection={<IconStack2 size={11} />}
-                                        title={t(
-                                          'This item came in at different prices. Pick the one you are selling.'
-                                        )}
-                                        style={{
-                                          textTransform: 'none',
-                                          fontWeight: 700,
-                                          fontSize: 10,
-                                          flexShrink: 0,
-                                        }}
-                                      >
-                                        {priceCount} {t('prices')}
-                                      </Badge>
-                                    )}
+                                      {priceCount} {t('prices')}
+                                    </Badge>
+                                    {stockBadge}
                                   </Group>
-                                </div>
-                              </Box>
-
-                              {/* Bottom Row: Price & Stock Badge */}
-                              <Group justify="space-between" align="flex-end">
-                                <Stack gap={0}>
-                                  <Text
-                                    size="sm"
-                                    fw={800}
-                                    c="blue.7"
-                                    style={{ fontSize: 14, fontFamily: 'monospace' }}
-                                  >
-                                    {priceRange === null
-                                      ? t('No price yet')
-                                      : formatCentsRange(priceRange)}
-                                  </Text>
-                                  {isAdmin && costRange !== null && (
-                                    <Text
-                                      size="10px"
-                                      c="dimmed"
-                                      style={{ fontFamily: 'monospace' }}
-                                    >
-                                      {t('Cost')} {formatCentsRange(costRange)}
-                                    </Text>
-                                  )}
                                 </Stack>
-
-                                {isZeroStock ? (
-                                  <Badge size="xs" color="gray" variant="filled">
-                                    {t('Out of stock')}
-                                  </Badge>
-                                ) : isLowStock ? (
-                                  <Badge size="xs" color="yellow" variant="filled">
-                                    {remainingStock} {t('Left')}
-                                  </Badge>
-                                ) : (
-                                  <Badge size="xs" color="gray" variant="light">
-                                    {remainingStock} {t('Left')}
-                                  </Badge>
-                                )}
-                              </Group>
+                              ) : (
+                                <Group justify="space-between" align="flex-end">
+                                  <Stack gap={0}>
+                                    {priceNode}
+                                    {costNode}
+                                  </Stack>
+                                  {stockBadge}
+                                </Group>
+                              )}
                             </Stack>
                           </Card>
                         );
@@ -1436,7 +1443,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                               <JobIcon size={22} />
                             </ThemeIcon>
 
-                            <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ minWidth: 0 }}>
                               <Group gap={6} align="center" wrap="wrap">
                                 <Badge
                                   size="xs"

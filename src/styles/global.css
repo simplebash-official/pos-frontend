@@ -68,7 +68,7 @@ body,
 }
 
 .product-catalog-card--multi-price {
-  background-color: light-dark(rgba(253, 126, 20, 0.07), rgba(253, 126, 20, 0.12));
+  border-color: light-dark(var(--mantine-color-orange-4), var(--mantine-color-orange-8));
 }
 
 /* A pseudo-element, so the stripe takes no room and the blue selection ring stays visible. */
