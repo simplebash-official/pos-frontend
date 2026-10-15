@@ -103,12 +103,6 @@ export const PaymentPanel = memo(
 
     const isMobile = useIsMobile();
     const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
-    const checkoutShortcut = getActionShortcut('completeCheckout');
-    const primaryHint = checkoutShortcut.readablePrimary || checkoutShortcut.formattedPrimary;
-    const aliasHint = checkoutShortcut.readableAlias || checkoutShortcut.formattedAlias;
-    const checkoutKeyHint = isMobile
-      ? ''
-      : ` (${primaryHint}${aliasHint ? ` or ${aliasHint}` : ''})`;
 
     // Collapsible Order Discount State
     const [showDiscountInput, setShowDiscountInput] = useState(false);
@@ -1703,20 +1697,20 @@ export const PaymentPanel = memo(
             {isCartEmpty
               ? 'Add items to begin'
               : isRefundDue
-                ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}${checkoutKeyHint}`
+                ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
                 : isEvenExchange
-                  ? `Complete Even Exchange${checkoutKeyHint}`
+                  ? `Complete Even Exchange`
                   : isCredit
                     ? confirmCreditRequired
-                      ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}${checkoutKeyHint}`
+                      ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
                       : creditPaidNowCents > 0
-                        ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account${checkoutKeyHint}`
-                        : `Issue on Credit · ${formatMoney(totalCents)}${checkoutKeyHint}`
+                        ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
+                        : `Issue on Credit · ${formatMoney(totalCents)}`
                     : isCashShort || isCardShort
                       ? `Short by ${formatMoney(shortByCents)}`
                       : isCardDigitsMissing || isSplitCardDigitsMissing
                         ? 'Enter Card Last 4 Digits'
-                        : `Complete · ${formatMoney(totalCents)}${checkoutKeyHint}`}
+                        : `Complete · ${formatMoney(totalCents)}`}
           </Button>
           <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
             {isRefundDue
