@@ -131,7 +131,7 @@ export const PriceTierPickerModal = ({
           <Group wrap="nowrap" gap="md" align="center">
             <CategoryIconTile product={product} size={48} />
             <Box style={{ minWidth: 0 }}>
-              <Text fw={800} size="lg" lh={1.2} lineClamp={2}>
+              <Text fw={800} size="sm" lh={1.2} lineClamp={2}>
                 {product.name}
               </Text>
               <Text size="xs" c="dimmed" mt={2}>
@@ -173,12 +173,12 @@ export const PriceTierPickerModal = ({
                     <Radio.Indicator disabled={soldOut} mt={6} />
                     <Stack gap={6} style={{ flex: 1, minWidth: 0 }}>
                       <Group justify="space-between" wrap="nowrap" gap="xs" align="center">
-                        <Text fw={800} size="xl" c={color} lh={1.1}>
+                        <Text fw={800} size="md" c={color} lh={1.1}>
                           {formatMoney(tier.sellingPriceCents)}
                         </Text>
                         {tier === oldest && (
                           <Badge
-                            size="sm"
+                            size="xs"
                             variant="light"
                             color="blue"
                             leftSection={<IconClockHour4 size={12} />}
@@ -191,7 +191,7 @@ export const PriceTierPickerModal = ({
                       <Progress
                         value={(tier.left / largestTier) * 100}
                         color={color}
-                        size="sm"
+                        size="xs"
                         radius="xl"
                         aria-hidden
                       />
@@ -231,7 +231,7 @@ export const PriceTierPickerModal = ({
               min={1}
               max={maxQuantity > 0 ? maxQuantity : undefined}
               allowDecimal={false}
-              size={isMobile ? 'lg' : 'md'}
+              size={isMobile ? 'lg' : 'sm'}
               aria-label={t('Quantity')}
               data-autofocus={isMobile ? undefined : true}
               onFocus={(event) => event.currentTarget.select()}
@@ -242,7 +242,7 @@ export const PriceTierPickerModal = ({
                   key={n}
                   variant={quantity === n ? 'filled' : 'light'}
                   color="blue"
-                  size={isMobile ? 'md' : 'compact-md'}
+                  size={isMobile ? 'md' : 'compact-sm'}
                   onClick={() => setQuantity(n)}
                 >
                   {n}
@@ -252,7 +252,7 @@ export const PriceTierPickerModal = ({
                 <Button
                   variant={quantity === maxQuantity ? 'filled' : 'light'}
                   color="blue"
-                  size={isMobile ? 'md' : 'compact-md'}
+                  size={isMobile ? 'md' : 'compact-sm'}
                   onClick={() => setQuantity(maxQuantity)}
                 >
                   {t('All')} {maxQuantity}
@@ -279,7 +279,7 @@ export const PriceTierPickerModal = ({
                 </Text>
               )}
             </Box>
-            <Text fw={800} size="2xl" c="blue" lh={1.1}>
+            <Text fw={800} size="xl" c="blue" lh={1.1}>
               {canAdd ? formatMoney(chosenTier.sellingPriceCents * quantity) : '—'}
             </Text>
           </Group>
