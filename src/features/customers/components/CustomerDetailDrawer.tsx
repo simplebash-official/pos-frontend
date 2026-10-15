@@ -2,43 +2,49 @@ import { t } from '@/shared/i18n/t';
 import { BRAND_NAME } from '@/config/branding';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Box, Button, Center, Divider, Group, ScrollArea, Stack, Text } from '@mantine/core';
 import {
-  Stack,
-  Group,
-  Text,
-  Badge,
-  Paper,
-  Divider,
-  Button,
-  ThemeIcon,
-  Alert,
-  Grid,
-  Box,
-  Tabs,
-  ScrollArea,
-  Center,
-  Tooltip,
-} from '@mantine/core';
-import {
-  IconUser,
-  IconMapPin,
-  IconTag,
-  IconMail,
-  IconEdit,
-  IconTrash,
-  IconClock,
+  IconAddressBook,
   IconAlertCircle,
+  IconCalendarPlus,
+  IconClock,
+  IconMail,
+  IconMapPin,
+  IconNotes,
   IconReceipt,
+  IconScale,
+  IconShoppingBag,
   IconTools,
+  IconEdit,
+  IconUser,
 } from '@tabler/icons-react';
 import { Customer } from '../types';
-import { formatDateTime } from '@/shared/lib/date';
+import { formatDate, formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
-import { DetailDrawer } from '@/shared/components/DetailDrawer';
+import {
+  AnimatedTabs,
+  CopyIconButton,
+  DrawerAfter,
+  DrawerCard,
+  DrawerFooter,
+  FooterDelete,
+  DrawerGrid,
+  DrawerHero,
+  DrawerMain,
+  DrawerRail,
+  Figure,
+  InfoRow,
+  KpiStrip,
+  KpiTile,
+  ListRow,
+  RichDrawer,
+} from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { fetchInvoices } from '@/features/billing/api/invoicesApi';
 import { fetchRepairs } from '@/features/repairs/api/repairsApi';
 import { queryKeys } from '@/api/queryKeys';
+
+type HistoryTab = 'invoices' | 'repairs' | 'notes';
 
 export interface CustomerDetailDrawerProps {
   customer: Customer | null;
@@ -55,7 +61,7 @@ export const CustomerDetailDrawer = ({
   onEdit,
   onDelete,
 }: CustomerDetailDrawerProps) => {
-  const [historyTab, setHistoryTab] = useState<'invoices' | 'repairs' | 'notes'>('invoices');
+  const [historyTab, setHistoryTab] = useState<HistoryTab>('invoices');
 
   const { data: scopedInvoices = [] } = useQuery({
     queryKey: queryKeys.billing.invoices({ customerKey: customer?.key }),
@@ -98,428 +104,317 @@ export const CustomerDetailDrawer = ({
   }, [customer, scopedRepairs]);
 
   return (
-    <DetailDrawer
+    <RichDrawer
       data={customer}
       opened={opened}
       onClose={onClose}
-      title={
-        <Group gap="xs">
-          <ThemeIcon color="blue" variant="light" size="lg">
-            <IconUser size={20} />
-          </ThemeIcon>
-          <div>
-            <Text fw={800} size="md">
-              {t('Customer Specifications')}
-            </Text>
-            <Text size="xs" c="dimmed">
-              {t(`${BRAND_NAME} Client & Account Detail`)}
-            </Text>
-          </div>
-        </Group>
-      }
-    >
-      {(c) => (
-        <Stack gap="md" pt="xs">
-          {/* Title Banner */}
-          <Paper
-            p="md"
-            withBorder
-            radius="var(--mantine-radius-default)"
-            bg="var(--mantine-color-body)"
+      width="wide"
+      title={{
+        icon: <IconUser size={20} />,
+        text: t('Customer Specifications'),
+        subtitle: t(`${BRAND_NAME} Client & Account Detail`),
+      }}
+      footer={(c) => (
+        <DrawerFooter
+          start={
+            <FooterDelete
+              label={t('Delete')}
+              hint={t('Delete Customer Profile')}
+              onClick={() => onDelete(c)}
+            />
+          }
+        >
+          <Button variant="default" size="sm" onClick={onClose}>
+            {t('Close')}
+          </Button>
+          <Button
+            variant="filled"
+            color="blue"
+            size="sm"
+            leftSection={<IconEdit size={16} />}
+            onClick={() => onEdit(c)}
           >
-            <Group justify="space-between" align="flex-start" wrap="nowrap" mb={4}>
-              <Text fw={800} size="lg" style={{ wordBreak: 'break-word', flex: 1, minWidth: 0 }}>
-                {c.name || 'Unnamed Customer'}
-              </Text>
-
-              <Badge
-                color={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}
-                variant="light"
-                size="sm"
-                style={{ flexShrink: 0 }}
-              >
-                {c.outstandingBalanceCents > 0 ? 'Outstanding Due' : 'In Good Standing'}
-              </Badge>
-            </Group>
-
-            {c.contactPerson ? (
-              <Text size="xs" c="dimmed" mb={c.tags && c.tags.length > 0 ? 'xs' : 0}>
-                {t('Primary Contact:')}{' '}
-                <Text component="span" fw={600} c="var(--text-primary)">
-                  {c.contactPerson}
-                </Text>
-              </Text>
-            ) : null}
-
-            {c.tags && c.tags.length > 0 && (
-              <Group gap={6} wrap="wrap">
-                {c.tags.map((tag) => (
-                  <Badge key={tag} color="blue" variant="light" size="xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </Group>
-            )}
-          </Paper>
-
-          {/* Financial Snapshot */}
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            {t('Financial Snapshot')}
-          </Text>
-
-          <Paper p="md" withBorder>
-            <Grid gap={0} align="center">
-              <Grid.Col
-                span={6}
-                pr="md"
-                style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-              >
-                <Stack gap={2}>
-                  <Text size="xs" c="dimmed" tt="uppercase">
-                    {t('Total Purchases')}
-                  </Text>
-                  <Text fw={800} size="md" c="blue">
-                    {formatMoney(c.totalPurchasesCents || 0)}
-                  </Text>
-                </Stack>
-              </Grid.Col>
-
-              <Grid.Col span={6} pl="md">
-                <Stack gap={2}>
-                  <Text size="xs" c="dimmed" tt="uppercase">
-                    {t('Balance Due')}
-                  </Text>
-                  <Group gap="xs" align="center" wrap="nowrap">
-                    <Text fw={800} size="md" c={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}>
-                      {formatMoney(c.outstandingBalanceCents || 0)}
-                    </Text>
-                    <Badge
-                      color={c.outstandingBalanceCents > 0 ? 'red' : 'teal'}
-                      size="xs"
-                      variant="light"
-                      style={{ flexShrink: 0 }}
-                    >
-                      {c.outstandingBalanceCents > 0 ? 'Due' : 'Clear'}
-                    </Badge>
-                  </Group>
-                </Stack>
-              </Grid.Col>
-            </Grid>
-          </Paper>
-
-          {/* Debt Alert if customer owes balance */}
-          {c.outstandingBalanceCents > 0 && (
-            <Alert
-              icon={<IconAlertCircle size={16} />}
-              title={t('Outstanding Balance Notice')}
-              color="red"
-              radius="var(--mantine-radius-default)"
-            >
-              {t('This client has an outstanding balance of')}{' '}
-              <strong>{formatMoney(c.outstandingBalanceCents)}</strong>
-              {t(
-                '. Outstanding debt must be\n                                        settled before this profile can be deleted.'
-              )}
-            </Alert>
-          )}
-
-          {/* Contact & Location Details */}
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
-            {t('Contact & Address')}
-          </Text>
-
-          <Paper p="md" withBorder>
-            <Stack gap="sm">
-              <Box>
-                <Text size="xs" c="dimmed" fw={500} mb={4}>
-                  {t('Contact Numbers')}
-                </Text>
-                <PhoneDisplay
-                  primaryPhone={c.primaryPhone}
-                  secondaryPhone={c.secondaryPhone}
-                  layout="stack"
-                />
-              </Box>
-
-              {c.address ? (
-                <>
-                  <Divider color="var(--mantine-color-default-border)" />
-                  <Box>
-                    <Text size="xs" c="dimmed" fw={500} mb={4}>
-                      {t('Physical Location / Address')}
-                    </Text>
-                    <Group gap="xs" align="flex-start">
-                      <IconMapPin
-                        size={16}
-                        style={{ color: 'var(--status-error)', marginTop: 2, flexShrink: 0 }}
-                      />
-                      <Text size="sm" fw={500}>
-                        {c.address}
-                      </Text>
-                    </Group>
-                  </Box>
-                </>
-              ) : null}
-
-              {c.email ? (
-                <>
-                  <Divider color="var(--mantine-color-default-border)" />
-                  <Box>
-                    <Text size="xs" c="dimmed" fw={500} mb={4}>
-                      {t('Email Address')}
-                    </Text>
-                    <Group gap="xs" align="center">
-                      <IconMail size={16} style={{ opacity: 0.6, flexShrink: 0 }} />
-                      <Text size="sm">{c.email}</Text>
-                    </Group>
-                  </Box>
-                </>
-              ) : null}
-            </Stack>
-          </Paper>
-
-          {/* History Tabs: Invoices / Repairs / Notes */}
-          <Tabs
-            value={historyTab}
-            onChange={(val) =>
-              setHistoryTab((val ?? 'invoices') as 'invoices' | 'repairs' | 'notes')
-            }
-            color="amber"
-            mt="xs"
-          >
-            <Tabs.List grow>
-              <Tabs.Tab
-                value="invoices"
-                rightSection={
-                  <Badge size="xs" variant="light" color="gray" circle>
-                    {customerInvoices.length}
-                  </Badge>
-                }
-              >
-                {t('Invoices')}
-              </Tabs.Tab>
-              <Tabs.Tab
-                value="repairs"
-                rightSection={
-                  <Badge size="xs" variant="light" color="gray" circle>
-                    {customerRepairs.length}
-                  </Badge>
-                }
-              >
-                {t('Repairs')}
-              </Tabs.Tab>
-              {c.notes ? <Tabs.Tab value="notes">{t('Notes')}</Tabs.Tab> : null}
-            </Tabs.List>
-          </Tabs>
-
-          <Paper p="sm" withBorder>
-            {historyTab === 'invoices' &&
-              (customerInvoices.length === 0 ? (
-                <Center py="md">
-                  <Stack gap={4} align="center">
-                    <IconReceipt size={20} style={{ opacity: 0.4 }} />
-                    <Text size="xs" c="dimmed" ta="center">
-                      {t('No sales or invoices recorded for this customer.')}
-                    </Text>
-                  </Stack>
-                </Center>
-              ) : (
-                <ScrollArea.Autosize
-                  mah="30dvh"
-                  type="hover"
-                  scrollbarSize={6}
-                  classNames={{ viewport: 'scrollarea-fluid-content' }}
-                  w="100%"
-                >
-                  <Stack gap={6} w="100%">
-                    {customerInvoices.map((inv) => (
-                      <Paper
-                        key={inv.id}
-                        p="xs"
-                        withBorder
-                        radius="var(--mantine-radius-default)"
-                        w="100%"
-                      >
-                        <Group justify="space-between" align="center" wrap="nowrap" w="100%">
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <Group gap="xs" align="center">
-                              <Text size="sm" fw={700}>
-                                #{inv.invoiceNumber}
-                              </Text>
-                              <Badge
-                                size="xs"
-                                variant={inv.isCredit ? 'light' : 'filled'}
-                                color={inv.isCredit ? 'amber' : 'teal'}
-                              >
-                                {inv.isCredit ? 'Credit' : 'Paid'}
-                              </Badge>
-                            </Group>
-                            <Text size="xs" c="dimmed" mt={2}>
-                              {formatDateTime(inv.createdAt)} · {inv.items.length} {t('item(s)')}
-                            </Text>
-                          </div>
-                          <Text size="sm" fw={700} ta="right" style={{ flexShrink: 0 }}>
-                            {formatMoney(inv.totalCents)}
-                          </Text>
-                        </Group>
-                      </Paper>
-                    ))}
-                  </Stack>
-                </ScrollArea.Autosize>
-              ))}
-
-            {historyTab === 'repairs' &&
-              (customerRepairs.length === 0 ? (
-                <Center py="md">
-                  <Stack gap={4} align="center">
-                    <IconTools size={20} style={{ opacity: 0.4 }} />
-                    <Text size="xs" c="dimmed" ta="center">
-                      {t('No repair tickets found for this customer.')}
-                    </Text>
-                  </Stack>
-                </Center>
-              ) : (
-                <ScrollArea.Autosize
-                  mah="30dvh"
-                  type="hover"
-                  scrollbarSize={6}
-                  classNames={{ viewport: 'scrollarea-fluid-content' }}
-                  w="100%"
-                >
-                  <Stack gap={6} w="100%">
-                    {customerRepairs.map((rep) => (
-                      <Paper
-                        key={rep.id}
-                        p="xs"
-                        withBorder
-                        radius="var(--mantine-radius-default)"
-                        w="100%"
-                      >
-                        <Group justify="space-between" align="center" wrap="nowrap" w="100%">
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <Group gap="xs" align="center">
-                              <Text size="sm" fw={700}>
-                                #{rep.ticketNumber}
-                              </Text>
-                              <Badge size="xs" variant="light" color="blue">
-                                {rep.deviceModel}
-                              </Badge>
-                            </Group>
-                            <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                              {rep.issueDescription}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              {formatDateTime(rep.createdAt)}
-                            </Text>
-                          </div>
-                          {rep.estimatedCostCents !== undefined && rep.estimatedCostCents > 0 ? (
-                            <Text size="sm" fw={700} ta="right" style={{ flexShrink: 0 }}>
-                              {formatMoney(rep.estimatedCostCents)}
-                            </Text>
-                          ) : (
-                            <Badge
-                              size="xs"
-                              color="yellow"
-                              variant="light"
-                              style={{ flexShrink: 0 }}
-                            >
-                              {t('Pending diagnosis')}
-                            </Badge>
-                          )}
-                        </Group>
-                      </Paper>
-                    ))}
-                  </Stack>
-                </ScrollArea.Autosize>
-              ))}
-
-            {historyTab === 'notes' && (
-              <Box p="xs">
-                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                  {c.notes || 'No notes available.'}
-                </Text>
-              </Box>
-            )}
-          </Paper>
-
-          <Divider my="xs" />
-
-          {/* Metadata */}
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-            {t('Metadata')}
-          </Text>
-
-          <Stack gap="xs">
-            <Group justify="space-between">
-              <Group gap="xs">
-                <IconClock size={16} style={{ opacity: 0.6 }} />
-                <Text size="xs" c="dimmed">
-                  {t('Registered On')}
-                </Text>
-              </Group>
-              <Text size="xs" fw={700}>
-                {formatDateTime(c.createdAt || '')}
-              </Text>
-            </Group>
-
-            <Group justify="space-between">
-              <Group gap="xs">
-                <IconClock size={16} style={{ opacity: 0.6 }} />
-                <Text size="xs" c="dimmed">
-                  {t('Last Updated')}
-                </Text>
-              </Group>
-              <Text size="xs" fw={700}>
-                {formatDateTime(c.updatedAt || '')}
-              </Text>
-            </Group>
-
-            <Group justify="space-between">
-              <Group gap="xs">
-                <IconTag size={16} style={{ opacity: 0.6 }} />
-                <Text size="xs" c="dimmed">
-                  {t('Client Key')}
-                </Text>
-              </Group>
-              <Text size="xs" fw={600} c="dimmed">
-                {c.key}
-              </Text>
-            </Group>
-          </Stack>
-
-          <Divider my="xs" />
-
-          {/* Actions */}
-          <Group justify="space-between" align="center" wrap="nowrap" mt="sm">
-            <Button variant="default" size="sm" onClick={onClose}>
-              {t('Close')}
-            </Button>
-
-            <Group gap="xs" wrap="nowrap">
-              <Tooltip label={t('Delete Customer Profile')} withArrow>
-                <Button
-                  variant="light"
-                  color="red"
-                  size="sm"
-                  leftSection={<IconTrash size={16} />}
-                  onClick={() => onDelete(c)}
-                >
-                  {t('Delete')}
-                </Button>
-              </Tooltip>
-              <Button
-                variant="filled"
-                color="blue"
-                size="sm"
-                leftSection={<IconEdit size={16} />}
-                onClick={() => onEdit(c)}
-              >
-                {t('Edit Details')}
-              </Button>
-            </Group>
-          </Group>
-        </Stack>
+            {t('Edit Details')}
+          </Button>
+        </DrawerFooter>
       )}
-    </DetailDrawer>
+    >
+      {(c) => {
+        const owes = c.outstandingBalanceCents > 0;
+        // A customer with no notes has no Notes tab, so fall back if it was the one selected.
+        const tab: HistoryTab = historyTab === 'notes' && !c.notes ? 'invoices' : historyTab;
+        const lastInvoice = customerInvoices[0];
+        const lastRepair = customerRepairs[0];
+
+        return (
+          <DrawerGrid>
+            <KpiStrip>
+              <KpiTile
+                icon={<IconShoppingBag size={16} />}
+                color="blue"
+                label={t('Total Purchases')}
+              >
+                <Figure
+                  value={formatMoney(c.totalPurchasesCents)}
+                  hint={`${customerInvoices.length} ${t('Invoices')}`}
+                  color="blue"
+                />
+              </KpiTile>
+              <KpiTile
+                icon={<IconScale size={16} />}
+                color={owes ? 'red' : 'teal'}
+                label={t('Balance Due')}
+              >
+                <Figure
+                  value={formatMoney(c.outstandingBalanceCents)}
+                  hint={owes ? t('Outstanding Due') : t('In Good Standing')}
+                  color={owes ? 'red' : 'teal'}
+                />
+              </KpiTile>
+              <KpiTile icon={<IconReceipt size={16} />} color="gray" label={t('Invoices')}>
+                <Figure
+                  value={String(customerInvoices.length)}
+                  hint={lastInvoice ? `${t('Last')} ${formatDate(lastInvoice.createdAt)}` : '—'}
+                  color="gray"
+                />
+              </KpiTile>
+              <KpiTile icon={<IconTools size={16} />} color="gray" label={t('Repairs')}>
+                <Figure
+                  value={String(customerRepairs.length)}
+                  hint={lastRepair ? `${t('Last')} ${formatDate(lastRepair.createdAt)}` : '—'}
+                  color="gray"
+                />
+              </KpiTile>
+            </KpiStrip>
+
+            <DrawerRail>
+              <DrawerHero
+                accent={owes ? 'red' : 'blue'}
+                icon={<IconUser size={32} />}
+                status={{
+                  color: owes ? 'red' : 'teal',
+                  label: owes ? t('Outstanding Due') : t('In Good Standing'),
+                }}
+                title={c.name || t('Unnamed Customer')}
+                subtitle={
+                  <>
+                    {c.contactPerson ? (
+                      <div>
+                        {t('Primary Contact:')}{' '}
+                        <Text component="span" fw={600} c="var(--text-primary)" inherit>
+                          {c.contactPerson}
+                        </Text>
+                      </div>
+                    ) : null}
+                    {c.tags && c.tags.length > 0 ? <div>{c.tags.join(' · ')}</div> : null}
+                  </>
+                }
+              >
+                {owes ? (
+                  <Group gap="xs" wrap="nowrap" align="flex-start">
+                    <IconAlertCircle
+                      size={16}
+                      style={{ color: 'var(--status-error)', flexShrink: 0, marginTop: 2 }}
+                    />
+                    <Text size="xs" c="var(--status-error)">
+                      {t('This client has an outstanding balance of')}{' '}
+                      <strong>{formatMoney(c.outstandingBalanceCents)}</strong>.{' '}
+                      {t('Outstanding debt must be settled before this profile can be deleted.')}
+                    </Text>
+                  </Group>
+                ) : null}
+              </DrawerHero>
+
+              <DrawerAfter>
+                <DrawerCard label={t('Contact & Address')} icon={<IconAddressBook size={14} />}>
+                  <Stack gap="sm">
+                    <Box>
+                      <Text size="xs" c="dimmed" fw={500} mb={4}>
+                        {t('Contact Numbers')}
+                      </Text>
+                      <PhoneDisplay
+                        primaryPhone={c.primaryPhone}
+                        secondaryPhone={c.secondaryPhone}
+                        layout="stack"
+                      />
+                    </Box>
+                    {c.address ? (
+                      <>
+                        <Divider />
+                        <InfoRow icon={<IconMapPin size={16} />} label={t('Address')} stacked>
+                          {c.address}
+                        </InfoRow>
+                      </>
+                    ) : null}
+                    {c.email ? (
+                      <>
+                        <Divider />
+                        <InfoRow icon={<IconMail size={16} />} label={t('Email Address')} stacked>
+                          <Group gap={2} wrap="nowrap" justify="flex-start">
+                            <span style={{ minWidth: 0, wordBreak: 'break-all' }}>{c.email}</span>
+                            <CopyIconButton value={c.email} label={t('Copy email')} />
+                          </Group>
+                        </InfoRow>
+                      </>
+                    ) : null}
+                  </Stack>
+                </DrawerCard>
+              </DrawerAfter>
+
+              <DrawerAfter>
+                <DrawerCard label={t('Details')} icon={<IconClock size={14} />}>
+                  <Stack gap="xs">
+                    <InfoRow icon={<IconCalendarPlus size={16} />} label={t('Registered On')}>
+                      {formatDateTime(c.createdAt)}
+                    </InfoRow>
+                    <InfoRow icon={<IconClock size={16} />} label={t('Last Updated')}>
+                      {formatDateTime(c.updatedAt)}
+                    </InfoRow>
+                  </Stack>
+                </DrawerCard>
+              </DrawerAfter>
+            </DrawerRail>
+
+            <DrawerMain>
+              <AnimatedTabs<HistoryTab>
+                value={tab}
+                onChange={setHistoryTab}
+                tabs={[
+                  {
+                    value: 'invoices',
+                    label: t('Invoices'),
+                    icon: <IconReceipt size={16} />,
+                    count: customerInvoices.length,
+                  },
+                  {
+                    value: 'repairs',
+                    label: t('Repairs'),
+                    icon: <IconTools size={16} />,
+                    count: customerRepairs.length,
+                  },
+                  ...(c.notes
+                    ? [
+                        {
+                          value: 'notes' as const,
+                          label: t('Notes'),
+                          icon: <IconNotes size={16} />,
+                        },
+                      ]
+                    : []),
+                ]}
+              >
+                {(value) => {
+                  if (value === 'invoices') {
+                    return customerInvoices.length === 0 ? (
+                      <Center py="md">
+                        <Stack gap={6} align="center">
+                          <IconReceipt size={22} style={{ opacity: 0.4 }} />
+                          <Text size="sm" c="dimmed" ta="center">
+                            {t('No sales or invoices recorded for this customer.')}
+                          </Text>
+                        </Stack>
+                      </Center>
+                    ) : (
+                      <ScrollArea.Autosize
+                        mah="45dvh"
+                        type="hover"
+                        scrollbarSize={6}
+                        classNames={{ viewport: 'scrollarea-fluid-content' }}
+                      >
+                        {customerInvoices.map((inv, index) => (
+                          <ListRow
+                            key={inv.id}
+                            index={index}
+                            first={index === 0}
+                            icon={
+                              <IconReceipt
+                                size={20}
+                                style={{
+                                  color: `var(--mantine-color-${inv.isCredit ? 'amber' : 'teal'}-6)`,
+                                }}
+                              />
+                            }
+                            title={`#${inv.invoiceNumber}`}
+                            meta={`${formatDateTime(inv.createdAt)} · ${inv.items.length} ${t('item(s)')}`}
+                            trailing={
+                              <>
+                                <Text size="sm" fw={700}>
+                                  {formatMoney(inv.totalCents)}
+                                </Text>
+                                <Text size="xs" fw={700} c={inv.isCredit ? 'amber' : 'teal'}>
+                                  {inv.isCredit ? t('Credit') : t('Paid')}
+                                </Text>
+                              </>
+                            }
+                          />
+                        ))}
+                      </ScrollArea.Autosize>
+                    );
+                  }
+                  if (value === 'repairs') {
+                    return customerRepairs.length === 0 ? (
+                      <Center py="md">
+                        <Stack gap={6} align="center">
+                          <IconTools size={22} style={{ opacity: 0.4 }} />
+                          <Text size="sm" c="dimmed" ta="center">
+                            {t('No repair tickets found for this customer.')}
+                          </Text>
+                        </Stack>
+                      </Center>
+                    ) : (
+                      <ScrollArea.Autosize
+                        mah="45dvh"
+                        type="hover"
+                        scrollbarSize={6}
+                        classNames={{ viewport: 'scrollarea-fluid-content' }}
+                      >
+                        {customerRepairs.map((rep, index) => (
+                          <ListRow
+                            key={rep.id}
+                            index={index}
+                            first={index === 0}
+                            icon={
+                              <IconTools
+                                size={20}
+                                style={{ color: 'var(--mantine-color-blue-6)' }}
+                              />
+                            }
+                            title={`#${rep.ticketNumber} · ${rep.deviceModel}`}
+                            meta={
+                              <>
+                                <Text size="xs" c="dimmed" lineClamp={1}>
+                                  {rep.issueDescription}
+                                </Text>
+                                {formatDateTime(rep.createdAt)}
+                              </>
+                            }
+                            trailing={
+                              rep.estimatedCostCents !== undefined && rep.estimatedCostCents > 0 ? (
+                                <Text size="sm" fw={700}>
+                                  {formatMoney(rep.estimatedCostCents)}
+                                </Text>
+                              ) : (
+                                <Text size="xs" fw={700} c="yellow">
+                                  {t('Pending diagnosis')}
+                                </Text>
+                              )
+                            }
+                          />
+                        ))}
+                      </ScrollArea.Autosize>
+                    );
+                  }
+                  return (
+                    <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+                      {c.notes}
+                    </Text>
+                  );
+                }}
+              </AnimatedTabs>
+            </DrawerMain>
+          </DrawerGrid>
+        );
+      }}
+    </RichDrawer>
   );
 };

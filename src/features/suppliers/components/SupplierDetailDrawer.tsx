@@ -1,63 +1,47 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { Box, Button, Divider, Group, Stack, Text } from '@mantine/core';
 import {
-  Stack,
-  Group,
-  Text,
-  Badge,
-  Paper,
-  Divider,
-  Button,
-  ThemeIcon,
-  ActionIcon,
-  Tooltip,
-  Center,
-  ScrollArea,
-  Skeleton,
-  Tabs,
-  Grid,
-  Collapse,
-  Select,
-  TextInput,
-  NumberInput,
-} from '@mantine/core';
-import {
+  IconAddressBook,
   IconBuildingStore,
-  IconUser,
-  IconMapPin,
-  IconTag,
-  IconMail,
-  IconEdit,
-  IconTrash,
-  IconCalendar,
-  IconPlus,
-  IconLink,
-  IconUnlink,
-  IconReceipt,
-  IconPackage,
-  IconTrendingUp,
-  IconSearch,
+  IconCalendarPlus,
   IconClock,
+  IconCoin,
+  IconEdit,
+  IconMail,
+  IconMapPin,
+  IconPackage,
+  IconReceipt,
+  IconTruckDelivery,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
 import { Supplier } from '../types';
-import { formatDateTime } from '@/shared/lib/date';
+import { formatDate, formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
-import {
-  useProductsForSupplier,
-  useUnlinkProduct,
-  useLinkProduct,
-  EnrichedLinkedProduct,
-} from '@/features/supplier-products/hooks/useSupplierProducts';
-import { usePurchasesBySupplier, useCreatePurchase } from '@/features/purchases/hooks/usePurchases';
+import { useProductsForSupplier } from '@/features/supplier-products/hooks/useSupplierProducts';
+import { usePurchasesBySupplier } from '@/features/purchases/hooks/usePurchases';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { DetailDrawer } from '@/shared/components/DetailDrawer';
+import {
+  AnimatedTabs,
+  CopyIconButton,
+  DrawerAfter,
+  DrawerCard,
+  DrawerFooter,
+  DrawerGrid,
+  DrawerHero,
+  DrawerMain,
+  DrawerRail,
+  Figure,
+  FooterDelete,
+  InfoRow,
+  KpiStrip,
+  KpiTile,
+  RichDrawer,
+} from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
-import { MoneyInput } from '@/shared/components/MoneyInput';
-import { ProductPickerModal } from '@/features/inventory/components/ProductPickerModal';
-import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
-import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { adminCostText } from '@/features/inventory/lib/priceTiers';
+import { SupplierIntakePanel } from './SupplierIntakePanel';
+import { SupplierProductsPanel } from './SupplierProductsPanel';
+
+type SupplierTab = 'products' | 'intake';
 
 export interface SupplierDetailDrawerProps {
   supplier: Supplier | null;
@@ -74,27 +58,8 @@ export const SupplierDetailDrawer = ({
   onEdit,
   onDelete,
 }: SupplierDetailDrawerProps) => {
-  const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<string>('products');
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [receiveStockOpen, setReceiveStockOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<SupplierTab>('products');
 
-  // Inline Link Product Form state
-  const [linkFormOpen, setLinkFormOpen] = useState(false);
-  const [linkProductKey, setLinkProductKey] = useState<string | null>(null);
-  const [linkSupplierSku, setLinkSupplierSku] = useState('');
-  const [linkCostCents, setLinkCostCents] = useState(0);
-  const [linkNotes, setLinkNotes] = useState('');
-
-  // Inline Quick Stock Intake Form state
-  const [intakeFormOpen, setIntakeFormOpen] = useState(false);
-  const [intakeProductKey, setIntakeProductKey] = useState<string | null>(null);
-  const [intakeQuantity, setIntakeQuantity] = useState<number | ''>(1);
-  const [intakeUnitCostCents, setIntakeUnitCostCents] = useState(0);
-  const [intakeSellingPriceCents, setIntakeSellingPriceCents] = useState(0);
-  const [intakeReferenceNo, setIntakeReferenceNo] = useState('');
-
-  // Data Queries & Mutations
   const { data: linkedProducts = [], isLoading: loadingProducts } = useProductsForSupplier(
     supplier?.key
   );
@@ -103,961 +68,206 @@ export const SupplierDetailDrawer = ({
   );
   const { data: allProducts = [] } = useAllProducts({ enabled: opened });
 
-  const unlinkMutation = useUnlinkProduct();
-  const linkMutation = useLinkProduct();
-  const createPurchaseMutation = useCreatePurchase();
-
-  // Reset helpers
-  const resetLinkForm = () => {
-    setLinkFormOpen(false);
-    setLinkProductKey(null);
-    setLinkSupplierSku('');
-    setLinkCostCents(0);
-    setLinkNotes('');
-  };
-
-  const resetIntakeForm = () => {
-    setIntakeFormOpen(false);
-    setIntakeProductKey(null);
-    setIntakeQuantity(1);
-    setIntakeUnitCostCents(0);
-    setIntakeSellingPriceCents(0);
-    setIntakeReferenceNo('');
-  };
+  const totalSpendCents = useMemo(
+    () => purchases.reduce((acc, p) => acc + (p.totalCostCents || 0), 0),
+    [purchases]
+  );
 
   const handleClose = () => {
-    resetLinkForm();
-    resetIntakeForm();
     setActiveTab('products');
     onClose();
   };
 
-  // Summary Metrics
-  const totalSpendCents = useMemo(() => {
-    return purchases.reduce((acc, p) => acc + (p.totalCostCents || 0), 0);
-  }, [purchases]);
-
-  // Product options for Inline Link Form
-  const linkedProductKeySet = useMemo(() => {
-    return new Set(linkedProducts.map((lp) => lp.productKey));
-  }, [linkedProducts]);
-
-  const linkProductSelectOptions = useMemo(() => {
-    return allProducts
-      .filter((p) => !linkedProductKeySet.has(p.key))
-      .map((p) => ({
-        value: p.key,
-        label: `${p.name} (${p.sku})`,
-      }));
-  }, [allProducts, linkedProductKeySet]);
-
-  // Product options for Inline Intake Form
-  const intakeProductSelectOptions = useMemo(() => {
-    if (linkedProducts.length > 0) {
-      return linkedProducts.map((lp) => ({
-        value: lp.productKey,
-        label: `${lp.product.name} (${lp.product.sku})`,
-      }));
-    }
-    return allProducts.map((p) => ({
-      value: p.key,
-      label: `${p.name} (${p.sku})`,
-    }));
-  }, [linkedProducts, allProducts]);
-
-  const handleLinkProductChange = (key: string | null) => {
-    setLinkProductKey(key);
-  };
-
-  // The supplier's own agreed cost for this product, when the link has one.
-  const handleIntakeProductChange = (key: string | null) => {
-    setIntakeProductKey(key);
-    const lp = linkedProducts.find((p) => p.productKey === key);
-    if (lp?.costPriceCents) {
-      setIntakeUnitCostCents(lp.costPriceCents);
-    }
-  };
-
-  // Actions
-  const handleLinkFromPicker = (productKey: string) => {
-    if (!supplier) return;
-    linkMutation.mutate(
-      { supplierKey: supplier.key, productKey },
-      {
-        onSuccess: () => {
-          notifications.show({
-            title: 'Product Linked',
-            message: 'Product has been linked to this supplier.',
-            color: 'teal',
-          });
-        },
-      }
-    );
-  };
-
-  const handleLinkProductInline = () => {
-    if (!supplier || !linkProductKey) return;
-    linkMutation.mutate(
-      {
-        supplierKey: supplier.key,
-        productKey: linkProductKey,
-        supplierSku: linkSupplierSku.trim() || undefined,
-        costPriceCents: linkCostCents > 0 ? linkCostCents : undefined,
-        notes: linkNotes.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          notifications.show({
-            title: 'Product Linked',
-            message: 'Product has been linked to this supplier.',
-            color: 'teal',
-          });
-          resetLinkForm();
-        },
-      }
-    );
-  };
-
-  const handleRecordIntakeInline = () => {
-    if (
-      !supplier ||
-      !intakeProductKey ||
-      !intakeQuantity ||
-      Number(intakeQuantity) <= 0 ||
-      intakeSellingPriceCents <= 0
-    )
-      return;
-    createPurchaseMutation.mutate(
-      {
-        supplierKey: supplier.key,
-        productKey: intakeProductKey,
-        quantity: Number(intakeQuantity),
-        unitCostCents: intakeUnitCostCents,
-        sellingPriceCents: intakeSellingPriceCents,
-        date: new Date().toISOString(),
-        referenceNo: intakeReferenceNo.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          notifications.show({
-            title: 'Stock Received',
-            message: 'Stock intake recorded successfully.',
-            color: 'teal',
-          });
-          resetIntakeForm();
-        },
-      }
-    );
-  };
-
-  const handleUnlink = (productKey: string) => {
-    if (!supplier) return;
-    unlinkMutation.mutate(
-      { supplierKey: supplier.key, productKey },
-      {
-        onSuccess: () => {
-          notifications.show({
-            title: 'Product Unlinked',
-            message: 'Product has been removed from this supplier.',
-            color: 'orange',
-          });
-        },
-      }
-    );
-  };
-
   return (
-    <>
-      <DetailDrawer
-        data={supplier}
-        opened={opened}
-        onClose={handleClose}
-        title={
-          <Group gap="xs">
-            <ThemeIcon
-              color="blue"
-              variant="light"
-              size="lg"
-              radius="var(--mantine-radius-default)"
-            >
-              <IconBuildingStore size={20} />
-            </ThemeIcon>
-            <div>
-              <Text fw={800} size="md">
-                {t('Supplier Profile')}
-              </Text>
-              <Text size="xs" c="dimmed">
-                {t('Vendor Specifications & Contacts')}
-              </Text>
-            </div>
-          </Group>
-        }
-      >
-        {(sup) => (
-          <Stack gap="md" pt="xs">
-            {/* Hero Identity Banner */}
-            <Paper
-              p="md"
-              radius="var(--mantine-radius-default)"
-              withBorder
-              bg="var(--mantine-color-body)"
-            >
-              <Group justify="space-between" align="flex-start" mb="xs">
-                <Badge color="blue" variant="filled" size="sm">
-                  {sup.key}
-                </Badge>
-                <Badge
-                  color={linkedProducts.length > 0 ? 'green' : 'gray'}
-                  variant="light"
-                  size="sm"
-                >
-                  {linkedProducts.length > 0 ? 'Active Supplier' : 'No Products Linked'}
-                </Badge>
-              </Group>
+    <RichDrawer
+      data={supplier}
+      opened={opened}
+      onClose={handleClose}
+      width="wide"
+      title={{
+        icon: <IconBuildingStore size={20} />,
+        text: t('Supplier Profile'),
+        subtitle: t('Supplier Specifications & Contacts'),
+      }}
+      footer={(sup) => (
+        <DrawerFooter
+          start={
+            <FooterDelete
+              label={t('Delete')}
+              hint={t('Delete Supplier')}
+              onClick={() => onDelete(sup)}
+            />
+          }
+        >
+          <Button variant="default" size="sm" onClick={handleClose}>
+            {t('Close')}
+          </Button>
+          <Button
+            variant="filled"
+            color="blue"
+            size="sm"
+            leftSection={<IconEdit size={16} />}
+            onClick={() => onEdit(sup)}
+          >
+            {t('Edit Details')}
+          </Button>
+        </DrawerFooter>
+      )}
+    >
+      {(sup) => {
+        const linkedAny = linkedProducts.length > 0;
+        const lastPurchase = purchases[0];
 
-              <Text fw={800} size="lg" mb={4}>
-                {sup.name}
-              </Text>
+        return (
+          <DrawerGrid>
+            <KpiStrip>
+              <KpiTile icon={<IconPackage size={16} />} color="blue" label={t('Products')}>
+                <Figure value={String(linkedProducts.length)} hint={t('items')} color="blue" />
+              </KpiTile>
+              <KpiTile icon={<IconReceipt size={16} />} color="gray" label={t('Intakes')}>
+                <Figure value={String(purchases.length)} hint={t('orders')} color="gray" />
+              </KpiTile>
+              <KpiTile icon={<IconCoin size={16} />} color="teal" label={t('Total Spend')}>
+                <Figure
+                  value={formatMoney(totalSpendCents)}
+                  hint={t('across all intakes')}
+                  color="teal"
+                />
+              </KpiTile>
+              <KpiTile icon={<IconTruckDelivery size={16} />} color="gray" label={t('Last Intake')}>
+                <Figure
+                  value={lastPurchase ? formatDate(lastPurchase.date) : '—'}
+                  hint={lastPurchase ? `${t('Qty: +')}${lastPurchase.quantity}` : t('None yet')}
+                  color="gray"
+                />
+              </KpiTile>
+            </KpiStrip>
 
-              <Group
-                gap="xs"
-                mb={sup.email || sup.suppliedCategories.length > 0 ? 'xs' : 0}
-                wrap="wrap"
-              >
-                <Group gap={6}>
-                  <IconUser
-                    size={15}
-                    style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
-                  />
-                  <Text size="sm" fw={600} c="blue">
-                    {sup.contactPerson}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {t('(Representative)')}
-                  </Text>
-                </Group>
-                {sup.email && (
-                  <Group gap={6}>
-                    <IconMail size={14} style={{ opacity: 0.6, flexShrink: 0 }} />
-                    <Text size="xs" c="dimmed">
-                      {sup.email}
-                    </Text>
-                  </Group>
-                )}
-              </Group>
+            <DrawerRail>
+              <DrawerHero
+                accent="blue"
+                icon={<IconBuildingStore size={32} />}
+                status={{
+                  color: linkedAny ? 'green' : 'gray',
+                  label: linkedAny ? t('Active Supplier') : t('No Products Linked'),
+                }}
+                title={sup.name}
+                subtitle={
+                  <>
+                    <div>
+                      <Text component="span" fw={700} c="blue" inherit>
+                        {sup.contactPerson}
+                      </Text>{' '}
+                      {t('(Representative)')}
+                    </div>
+                    {sup.suppliedCategories.length > 0 ? (
+                      <div>{sup.suppliedCategories.join(' · ')}</div>
+                    ) : null}
+                  </>
+                }
+              />
 
-              {sup.suppliedCategories.length > 0 && (
-                <Group gap={6} mt="xs">
-                  {sup.suppliedCategories.map((cat) => (
-                    <Badge key={cat} color="gray" variant="outline" size="xs">
-                      {cat}
-                    </Badge>
-                  ))}
-                </Group>
-              )}
-            </Paper>
-
-            {/* Financial & Activity Snapshot */}
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              {t('Activity & Spend Snapshot')}
-            </Text>
-
-            <Paper p="md" withBorder radius="var(--mantine-radius-default)">
-              <Grid gap={0} align="flex-start">
-                <Grid.Col
-                  span={4}
-                  pr="sm"
-                  style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-                >
-                  <Stack gap={2}>
-                    <Group gap={4} wrap="nowrap">
-                      <IconPackage
-                        size={12}
-                        style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
+              <DrawerAfter>
+                <DrawerCard label={t('Contact & Address')} icon={<IconAddressBook size={14} />}>
+                  <Stack gap="sm">
+                    <Box>
+                      <Text size="xs" c="dimmed" fw={500} mb={4}>
+                        {t('Contact Phone Numbers')}
+                      </Text>
+                      <PhoneDisplay
+                        primaryPhone={sup.primaryPhone}
+                        secondaryPhone={sup.secondaryPhone}
+                        layout="stack"
                       />
-                      <Text size="xs" c="dimmed" tt="uppercase">
-                        {t('Products')}
-                      </Text>
-                    </Group>
-                    <Group gap={4} align="baseline">
-                      <Text fw={800} size="md" c="blue">
-                        {loadingProducts ? '—' : linkedProducts.length}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t('items')}
-                      </Text>
-                    </Group>
-                  </Stack>
-                </Grid.Col>
-
-                <Grid.Col
-                  span={4}
-                  px="sm"
-                  style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-                >
-                  <Stack gap={2}>
-                    <Group gap={4} wrap="nowrap">
-                      <IconReceipt
-                        size={12}
-                        style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
-                      />
-                      <Text size="xs" c="dimmed" tt="uppercase">
-                        {t('Intakes')}
-                      </Text>
-                    </Group>
-                    <Group gap={4} align="baseline">
-                      <Text fw={800} size="md" c="teal">
-                        {loadingPurchases ? '—' : purchases.length}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t('orders')}
-                      </Text>
-                    </Group>
-                  </Stack>
-                </Grid.Col>
-
-                <Grid.Col span={4} pl="sm">
-                  <Stack gap={2}>
-                    <Group gap={4} wrap="nowrap">
-                      <IconTrendingUp
-                        size={12}
-                        style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
-                      />
-                      <Text size="xs" c="dimmed" tt="uppercase">
-                        {t('Total Spend')}
-                      </Text>
-                    </Group>
-                    <Text fw={800} size="md" c="teal">
-                      {loadingPurchases ? '—' : formatMoney(totalSpendCents)}
-                    </Text>
-                  </Stack>
-                </Grid.Col>
-              </Grid>
-            </Paper>
-
-            <Divider my="xs" />
-
-            {/* Tabbed Relations & Activity Center */}
-            <Tabs
-              value={activeTab}
-              onChange={(val) => {
-                setActiveTab(val ?? 'products');
-                resetLinkForm();
-                resetIntakeForm();
-              }}
-              color="blue"
-              mt="xs"
-            >
-              <Tabs.List grow>
-                <Tabs.Tab
-                  value="products"
-                  rightSection={
-                    <Badge size="xs" variant="light" color="gray" circle>
-                      {linkedProducts.length}
-                    </Badge>
-                  }
-                >
-                  {t('Products')}
-                </Tabs.Tab>
-                <Tabs.Tab
-                  value="intake"
-                  rightSection={
-                    <Badge size="xs" variant="light" color="gray" circle>
-                      {purchases.length}
-                    </Badge>
-                  }
-                >
-                  {t('Intake')}
-                </Tabs.Tab>
-                <Tabs.Tab value="details">{t('Details')}</Tabs.Tab>
-              </Tabs.List>
-            </Tabs>
-
-            {/* TAB 1: Linked Products */}
-            {activeTab === 'products' && (
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                <Stack gap="sm">
-                  <Group justify="space-between" align="center">
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      {t('Linked Inventory Products')}
-                    </Text>
-                    <Group gap="xs">
-                      <Tooltip label={t('Browse All Products')} withArrow>
-                        <ActionIcon
-                          variant="subtle"
-                          color="blue"
-                          size="sm"
-                          onClick={() => setPickerOpen(true)}
-                        >
-                          <IconSearch size={14} />
-                        </ActionIcon>
-                      </Tooltip>
-                      <Tooltip label={linkFormOpen ? 'Cancel' : 'Link a product'} withArrow>
-                        <ActionIcon
-                          variant="light"
-                          color={linkFormOpen ? 'gray' : 'blue'}
-                          size="sm"
-                          onClick={() => (linkFormOpen ? resetLinkForm() : setLinkFormOpen(true))}
-                        >
-                          <IconPlus
-                            size={14}
-                            style={{
-                              transform: linkFormOpen ? 'rotate(45deg)' : 'none',
-                              transition: 'transform 150ms ease',
-                            }}
-                          />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Group>
-
-                  {/* Inline Link Form Collapse */}
-                  <Collapse expanded={linkFormOpen}>
-                    <Paper
-                      p="sm"
-                      withBorder
-                      bg="var(--mantine-color-body)"
-                      radius="var(--mantine-radius-default)"
-                    >
-                      <Stack gap="sm">
-                        <Text size="xs" fw={700} c="blue" tt="uppercase">
-                          {t('Link Product to Supplier')}
-                        </Text>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Select Product *')}
+                    </Box>
+                    <Divider />
+                    <InfoRow icon={<IconMapPin size={16} />} label={t('Address')} stacked>
+                      {sup.address}
+                    </InfoRow>
+                    {sup.email ? (
+                      <>
+                        <Divider />
+                        <InfoRow icon={<IconMail size={16} />} label={t('Email Address')} stacked>
+                          <Group gap={2} wrap="nowrap" justify="flex-start">
+                            <span style={{ minWidth: 0, wordBreak: 'break-all' }}>{sup.email}</span>
+                            <CopyIconButton value={sup.email} label={t('Copy email')} />
+                          </Group>
+                        </InfoRow>
+                      </>
+                    ) : null}
+                    {sup.notes ? (
+                      <>
+                        <Divider />
+                        <Box>
+                          <Text size="xs" c="dimmed" fw={500} mb={4}>
+                            {t('Notes & Special Instructions')}
                           </Text>
-                          <Select
-                            placeholder={t('Search product name or SKU')}
-                            data={linkProductSelectOptions}
-                            value={linkProductKey}
-                            onChange={handleLinkProductChange}
-                            searchable
-                            clearable
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <Grid gap="sm">
-                          <Grid.Col span={6}>
-                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Supplier SKU (Optional)')}
-                            </Text>
-                            <TextInput
-                              placeholder={t('e.g. SUP-1002')}
-                              value={linkSupplierSku}
-                              onChange={(e) => setLinkSupplierSku(e.currentTarget.value)}
-                              size={isMobile ? 'md' : 'sm'}
-                            />
-                          </Grid.Col>
-                          <Grid.Col span={6}>
-                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Supplier Cost (Optional)')}
-                            </Text>
-                            <MoneyInput
-                              valueCents={linkCostCents}
-                              onChangeCents={setLinkCostCents}
-                              size={isMobile ? 'md' : 'sm'}
-                            />
-                          </Grid.Col>
-                        </Grid>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Notes (Optional)')}
-                          </Text>
-                          <TextInput
-                            placeholder={t('e.g. Minimum order quantity 10 units')}
-                            value={linkNotes}
-                            onChange={(e) => setLinkNotes(e.currentTarget.value)}
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <Group justify="flex-end" gap="sm">
-                          <Button variant="default" size="sm" onClick={resetLinkForm}>
-                            {t('Cancel')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            color="blue"
-                            onClick={handleLinkProductInline}
-                            disabled={!linkProductKey}
-                            loading={linkMutation.isPending}
-                          >
-                            {t('Link Product')}
-                          </Button>
-                        </Group>
-                      </Stack>
-                    </Paper>
-                  </Collapse>
-
-                  {/* Products List / Empty State */}
-                  {loadingProducts ? (
-                    <Stack gap={6} py="xs">
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                    </Stack>
-                  ) : linkedProducts.length === 0 ? (
-                    <Paper
-                      p="md"
-                      withBorder
-                      radius="var(--mantine-radius-default)"
-                      bg="var(--mantine-color-body)"
-                    >
-                      <Center py="sm">
-                        <Stack gap={4} align="center">
-                          <IconLink size={24} style={{ opacity: 0.4 }} />
-                          <Text size="xs" c="dimmed" ta="center">
-                            {t('No products linked to this supplier yet.')}
-                          </Text>
-                          <Text
-                            size="xs"
-                            c="blue.6"
-                            fw={700}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => setLinkFormOpen(true)}
-                          >
-                            {t('+ Link an inventory item')}
-                          </Text>
-                        </Stack>
-                      </Center>
-                    </Paper>
-                  ) : (
-                    <ScrollArea.Autosize
-                      mah="40dvh"
-                      offsetScrollbars
-                      classNames={{ viewport: 'scrollarea-fluid-content' }}
-                    >
-                      <Stack gap={6} pt={2} pb={2} px={1}>
-                        {linkedProducts.map((lp: EnrichedLinkedProduct) => (
-                          <Paper
-                            key={lp.productKey}
-                            p="xs"
-                            withBorder
-                            radius="var(--mantine-radius-default)"
-                          >
-                            <Group justify="space-between" align="center" wrap="nowrap">
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <Text size="sm" fw={700} lineClamp={1}>
-                                  {lp.product.name}
-                                </Text>
-                                <Group gap={6} mt={2} wrap="wrap">
-                                  <Badge size="xs" variant="filled" color="blue">
-                                    {lp.product.sku}
-                                  </Badge>
-                                  <Badge size="xs" variant="light" color="gray">
-                                    {lp.product.subcategory || lp.product.category}
-                                  </Badge>
-                                  {lp.costPriceCents ? (
-                                    <Badge size="xs" variant="light" color="teal">
-                                      {t('Supplier Cost:')} {formatMoney(lp.costPriceCents)}
-                                    </Badge>
-                                  ) : (
-                                    <Badge size="xs" variant="outline" color="gray">
-                                      {t('Default Cost:')} {adminCostText(lp.product)}
-                                    </Badge>
-                                  )}
-                                  {lp.supplierSku && (
-                                    <Badge size="xs" variant="outline" color="blue">
-                                      {t('SKU:')} {lp.supplierSku}
-                                    </Badge>
-                                  )}
-                                </Group>
-                                {lp.notes && (
-                                  <Text size="xs" c="dimmed" mt={2} lineClamp={1}>
-                                    {lp.notes}
-                                  </Text>
-                                )}
-                              </div>
-                              <Tooltip label={t('Unlink product')} withArrow>
-                                <ActionIcon
-                                  variant="subtle"
-                                  color="red"
-                                  size="sm"
-                                  onClick={() => handleUnlink(lp.productKey)}
-                                  loading={unlinkMutation.isPending}
-                                >
-                                  <IconUnlink size={14} />
-                                </ActionIcon>
-                              </Tooltip>
-                            </Group>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    </ScrollArea.Autosize>
-                  )}
-                </Stack>
-              </Paper>
-            )}
-
-            {/* TAB 2: Stock Intake History */}
-            {activeTab === 'intake' && (
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                <Stack gap="sm">
-                  <Group justify="space-between" align="center">
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      {t('Stock Intake History')}
-                    </Text>
-                    <Group gap="xs">
-                      <Tooltip label={t('Advanced Receive Form')} withArrow>
-                        <ActionIcon
-                          variant="subtle"
-                          color="teal"
-                          size="sm"
-                          onClick={() => setReceiveStockOpen(true)}
-                        >
-                          <IconReceipt size={14} />
-                        </ActionIcon>
-                      </Tooltip>
-                      <Tooltip label={intakeFormOpen ? 'Cancel' : 'Receive stock'} withArrow>
-                        <ActionIcon
-                          variant="light"
-                          color={intakeFormOpen ? 'gray' : 'teal'}
-                          size="sm"
-                          onClick={() =>
-                            intakeFormOpen ? resetIntakeForm() : setIntakeFormOpen(true)
-                          }
-                        >
-                          <IconPlus
-                            size={14}
-                            style={{
-                              transform: intakeFormOpen ? 'rotate(45deg)' : 'none',
-                              transition: 'transform 150ms ease',
-                            }}
-                          />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Group>
-
-                  {/* Inline Quick Intake Form Collapse */}
-                  <Collapse expanded={intakeFormOpen}>
-                    <Paper
-                      p="sm"
-                      withBorder
-                      bg="var(--mantine-color-body)"
-                      radius="var(--mantine-radius-default)"
-                    >
-                      <Stack gap="sm">
-                        <Text size="xs" fw={700} c="teal" tt="uppercase">
-                          {t('Quick Stock Intake')}
-                        </Text>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Product *')}
-                          </Text>
-                          <Select
-                            placeholder={t('Select product received')}
-                            data={intakeProductSelectOptions}
-                            value={intakeProductKey}
-                            onChange={handleIntakeProductChange}
-                            searchable
-                            clearable
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <Grid gap="sm">
-                          <Grid.Col span={6}>
-                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Quantity Received *')}
-                            </Text>
-                            <NumberInput
-                              placeholder={t('e.g. 20')}
-                              value={intakeQuantity}
-                              onChange={(val) => setIntakeQuantity(val === '' ? '' : Number(val))}
-                              min={1}
-                              size={isMobile ? 'md' : 'sm'}
-                            />
-                          </Grid.Col>
-                          <Grid.Col span={6}>
-                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Unit Cost *')}
-                            </Text>
-                            <MoneyInput
-                              valueCents={intakeUnitCostCents}
-                              onChangeCents={setIntakeUnitCostCents}
-                              size={isMobile ? 'md' : 'sm'}
-                            />
-                          </Grid.Col>
-                          <Grid.Col span={12}>
-                            <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                              {t('Selling Price each *')}
-                            </Text>
-                            <MoneyInput
-                              valueCents={intakeSellingPriceCents}
-                              onChangeCents={setIntakeSellingPriceCents}
-                              size={isMobile ? 'md' : 'sm'}
-                            />
-                            <Text size="xs" c="dimmed" mt={4}>
-                              {t(
-                                'These units keep their own price, even if older stock sells for less.'
-                              )}
-                            </Text>
-                          </Grid.Col>
-                        </Grid>
-                        <div>
-                          <Text size="xs" c="dimmed" tt="uppercase" mb={4}>
-                            {t('Invoice / Reference No. (Optional)')}
-                          </Text>
-                          <TextInput
-                            placeholder={t('e.g. INV-9021')}
-                            value={intakeReferenceNo}
-                            onChange={(e) => setIntakeReferenceNo(e.currentTarget.value)}
-                            size={isMobile ? 'md' : 'sm'}
-                          />
-                        </div>
-                        <Group justify="flex-end" gap="sm">
-                          <Button variant="default" size="sm" onClick={resetIntakeForm}>
-                            {t('Cancel')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            color="teal"
-                            onClick={handleRecordIntakeInline}
-                            disabled={
-                              !intakeProductKey ||
-                              !intakeQuantity ||
-                              Number(intakeQuantity) <= 0 ||
-                              intakeSellingPriceCents <= 0
-                            }
-                            loading={createPurchaseMutation.isPending}
-                          >
-                            {t('Record Intake')}
-                          </Button>
-                        </Group>
-                      </Stack>
-                    </Paper>
-                  </Collapse>
-
-                  {/* Intake List / Empty State */}
-                  {loadingPurchases ? (
-                    <Stack gap={6} py="xs">
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                      <Skeleton height={48} radius="var(--mantine-radius-default)" />
-                    </Stack>
-                  ) : purchases.length === 0 ? (
-                    <Paper
-                      p="md"
-                      withBorder
-                      radius="var(--mantine-radius-default)"
-                      bg="var(--mantine-color-body)"
-                    >
-                      <Center py="sm">
-                        <Stack gap={4} align="center">
-                          <IconReceipt size={24} style={{ opacity: 0.4 }} />
-                          <Text size="xs" c="dimmed" ta="center">
-                            {t('No stock intakes recorded for this supplier yet.')}
-                          </Text>
-                          <Text
-                            size="xs"
-                            c="teal.6"
-                            fw={700}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => setIntakeFormOpen(true)}
-                          >
-                            {t('+ Receive stock')}
-                          </Text>
-                        </Stack>
-                      </Center>
-                    </Paper>
-                  ) : (
-                    <ScrollArea.Autosize
-                      mah="40dvh"
-                      offsetScrollbars
-                      classNames={{ viewport: 'scrollarea-fluid-content' }}
-                    >
-                      <Stack gap={6} pt={2} pb={2} px={1}>
-                        {purchases.map((purchase) => (
-                          <Paper
-                            key={purchase.id}
-                            p="xs"
-                            withBorder
-                            radius="var(--mantine-radius-default)"
-                          >
-                            <Group justify="space-between" align="center" wrap="nowrap">
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <Text size="sm" fw={700} lineClamp={1}>
-                                  {purchase.product.name}
-                                </Text>
-                                <Group gap={6} mt={2} wrap="wrap">
-                                  <Badge size="xs" variant="filled" color="blue">
-                                    {t('Qty: +')}
-                                    {purchase.quantity}
-                                  </Badge>
-                                  <Badge size="xs" variant="light" color="teal">
-                                    {formatMoney(purchase.totalCostCents)}
-                                  </Badge>
-                                  {purchase.unitCostCents && (
-                                    <Badge size="xs" variant="outline" color="gray">
-                                      {t('Unit:')} {formatMoney(purchase.unitCostCents)}
-                                    </Badge>
-                                  )}
-                                </Group>
-                                <Text size="xs" c="dimmed" mt={4}>
-                                  {formatDateTime(purchase.date)}{' '}
-                                  {purchase.referenceNo && `• Ref: ${purchase.referenceNo}`}
-                                </Text>
-                              </div>
-                            </Group>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    </ScrollArea.Autosize>
-                  )}
-                </Stack>
-              </Paper>
-            )}
-
-            {/* TAB 3: Contact Details & Notes */}
-            {activeTab === 'details' && (
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                <Stack gap="md">
-                  <div>
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                      {t('Contact Phone Numbers')}
-                    </Text>
-                    <PhoneDisplay
-                      primaryPhone={sup.primaryPhone}
-                      secondaryPhone={sup.secondaryPhone}
-                      layout="stack"
-                    />
-                  </div>
-
-                  <Divider color="var(--mantine-color-default-border)" />
-
-                  <div>
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                      {t('Physical Location / Address')}
-                    </Text>
-                    <Group gap="xs" align="flex-start">
-                      <IconMapPin
-                        size={18}
-                        style={{
-                          color: 'var(--mantine-color-red-6)',
-                          marginTop: 2,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <Text size="sm" fw={500}>
-                        {sup.address}
-                      </Text>
-                    </Group>
-                  </div>
-
-                  {sup.notes && (
-                    <>
-                      <Divider color="var(--mantine-color-default-border)" />
-                      <div>
-                        <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-                          {t('Notes & Special Instructions')}
-                        </Text>
-                        <Paper
-                          p="sm"
-                          withBorder
-                          bg="var(--mantine-color-body)"
-                          radius="var(--mantine-radius-default)"
-                        >
-                          <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
+                          <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>
                             {sup.notes}
                           </Text>
-                        </Paper>
-                      </div>
-                    </>
-                  )}
-                </Stack>
-              </Paper>
-            )}
+                        </Box>
+                      </>
+                    ) : null}
+                  </Stack>
+                </DrawerCard>
+              </DrawerAfter>
 
-            <Divider my="xs" />
+              <DrawerAfter>
+                <DrawerCard label={t('Details')} icon={<IconClock size={14} />}>
+                  <Stack gap="xs">
+                    <InfoRow icon={<IconCalendarPlus size={16} />} label={t('Registered On')}>
+                      {formatDateTime(sup.createdAt)}
+                    </InfoRow>
+                    <InfoRow icon={<IconClock size={16} />} label={t('Last Updated')}>
+                      {formatDateTime(sup.updatedAt)}
+                    </InfoRow>
+                  </Stack>
+                </DrawerCard>
+              </DrawerAfter>
+            </DrawerRail>
 
-            {/* System Metadata */}
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-              {t('Metadata')}
-            </Text>
-
-            <Stack gap="xs">
-              <Group justify="space-between">
-                <Group gap="xs">
-                  <IconCalendar size={16} style={{ opacity: 0.6 }} />
-                  <Text size="xs" c="dimmed">
-                    {t('Registered On')}
-                  </Text>
-                </Group>
-                <Text size="xs" fw={700}>
-                  {formatDateTime(sup.createdAt)}
-                </Text>
-              </Group>
-
-              <Group justify="space-between">
-                <Group gap="xs">
-                  <IconClock size={16} style={{ opacity: 0.6 }} />
-                  <Text size="xs" c="dimmed">
-                    {t('Last Updated')}
-                  </Text>
-                </Group>
-                <Text size="xs" fw={700}>
-                  {formatDateTime(sup.updatedAt)}
-                </Text>
-              </Group>
-
-              <Group justify="space-between">
-                <Group gap="xs">
-                  <IconTag size={16} style={{ opacity: 0.6 }} />
-                  <Text size="xs" c="dimmed">
-                    {t('Supplier Key')}
-                  </Text>
-                </Group>
-                <Text size="xs" fw={600} c="dimmed">
-                  {sup.key}
-                </Text>
-              </Group>
-            </Stack>
-
-            <Divider my="xs" />
-
-            {/* Action Buttons */}
-            <Group justify="space-between" mt="md">
-              <Button
-                variant="light"
-                color="red"
-                size="sm"
-                leftSection={<IconTrash size={16} />}
-                onClick={() => onDelete(sup)}
+            <DrawerMain>
+              <AnimatedTabs<SupplierTab>
+                value={activeTab}
+                onChange={setActiveTab}
+                tabs={[
+                  {
+                    value: 'products',
+                    label: t('Products'),
+                    icon: <IconPackage size={16} />,
+                    count: linkedProducts.length,
+                  },
+                  {
+                    value: 'intake',
+                    label: t('Intake'),
+                    icon: <IconReceipt size={16} />,
+                    count: purchases.length,
+                  },
+                ]}
               >
-                {t('Delete')}
-              </Button>
-
-              <Group gap="sm">
-                <Button variant="default" size="sm" onClick={handleClose}>
-                  {t('Close')}
-                </Button>
-                <Button
-                  variant="filled"
-                  color="blue"
-                  size="sm"
-                  leftSection={<IconEdit size={16} />}
-                  onClick={() => onEdit(sup)}
-                >
-                  {t('Edit Details')}
-                </Button>
-              </Group>
-            </Group>
-          </Stack>
-        )}
-      </DetailDrawer>
-
-      <ProductPickerModal
-        opened={pickerOpen}
-        onClose={() => setPickerOpen(false)}
-        onSelect={(productKey) => handleLinkFromPicker(productKey)}
-        excludeKeys={linkedProducts.map((lp: EnrichedLinkedProduct) => lp.productKey)}
-      />
-
-      {supplier && (
-        <ReceiveStockModal
-          opened={receiveStockOpen}
-          onClose={() => setReceiveStockOpen(false)}
-          initialSupplierKey={supplier.key}
-        />
-      )}
-    </>
+                {(value) =>
+                  value === 'products' ? (
+                    <SupplierProductsPanel
+                      supplier={sup}
+                      linked={linkedProducts}
+                      loading={loadingProducts}
+                      allProducts={allProducts}
+                    />
+                  ) : (
+                    <SupplierIntakePanel
+                      supplier={sup}
+                      purchases={purchases}
+                      loading={loadingPurchases}
+                      linked={linkedProducts}
+                      allProducts={allProducts}
+                    />
+                  )
+                }
+              </AnimatedTabs>
+            </DrawerMain>
+          </DrawerGrid>
+        );
+      }}
+    </RichDrawer>
   );
 };

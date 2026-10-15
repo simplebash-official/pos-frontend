@@ -1,7 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
-  ActionIcon,
   Box,
   Button,
   Collapse,
@@ -14,7 +13,6 @@ import {
   Stack,
   Text,
   TextInput,
-  Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -26,6 +24,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
+import { IconAction } from '@/shared/components/drawer';
 import { tierColor } from '../lib/tierColors';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
@@ -164,7 +163,6 @@ export const StockBatchesPanel = ({
   };
 
   const fieldSize = isMobile ? 'md' : 'sm';
-  const actionSize = isMobile ? 44 : 32;
   const rows = batches ?? [];
 
   return (
@@ -231,35 +229,25 @@ export const StockBatchesPanel = ({
                   >
                     {formatMoney(batch.sellingPriceCents)}
                   </Text>
-                  <Tooltip label={t('Change price')}>
-                    <ActionIcon
-                      variant="light"
-                      color="blue"
-                      size={actionSize}
-                      onClick={() => {
-                        resetTakeOut();
-                        startEdit(batch);
-                      }}
-                      aria-label={t('Change price')}
-                    >
-                      <IconPencil size={16} />
-                    </ActionIcon>
-                  </Tooltip>
+                  <IconAction
+                    kind="edit"
+                    label={t('Change price')}
+                    icon={<IconPencil size={16} />}
+                    onClick={() => {
+                      resetTakeOut();
+                      startEdit(batch);
+                    }}
+                  />
                   {batch.remainingQuantity > 0 && (
-                    <Tooltip label={t('Take stock out')}>
-                      <ActionIcon
-                        variant="light"
-                        color="red"
-                        size={actionSize}
-                        onClick={() => {
-                          setEditingKey(null);
-                          setTakeOutKey(batch.key);
-                        }}
-                        aria-label={t('Take stock out')}
-                      >
-                        <IconPackageExport size={16} />
-                      </ActionIcon>
-                    </Tooltip>
+                    <IconAction
+                      kind="danger"
+                      label={t('Take stock out')}
+                      icon={<IconPackageExport size={16} />}
+                      onClick={() => {
+                        setEditingKey(null);
+                        setTakeOutKey(batch.key);
+                      }}
+                    />
                   )}
                 </Group>
               </Group>
@@ -274,26 +262,20 @@ export const StockBatchesPanel = ({
                     style={{ flex: 1 }}
                     aria-label={t('New selling price')}
                   />
-                  <ActionIcon
-                    color="blue"
-                    variant="light"
-                    size={actionSize}
+                  <IconAction
+                    kind="edit"
+                    label={t('Save price')}
+                    icon={<IconCheck size={16} />}
                     onClick={() => savePrice(batch)}
                     loading={updateBatch.isPending}
                     disabled={editPriceCents <= 0}
-                    aria-label={t('Save price')}
-                  >
-                    <IconCheck size={16} />
-                  </ActionIcon>
-                  <ActionIcon
-                    variant="light"
-                    color="gray"
-                    size={actionSize}
+                  />
+                  <IconAction
+                    kind="neutral"
+                    label={t('Cancel')}
+                    icon={<IconX size={16} />}
                     onClick={() => setEditingKey(null)}
-                    aria-label={t('Cancel')}
-                  >
-                    <IconX size={16} />
-                  </ActionIcon>
+                  />
                 </Group>
               </Collapse>
 

@@ -812,15 +812,24 @@ th.mantine-Table-th {
   }
 }
 
-/* Item Specifications drawer: wide, cards on an app-coloured canvas, two columns
-   that fold to one by the drawer's own width (container query, not the viewport). */
+/* Rich drawer family (src/shared/components/drawer): cards on an app-coloured canvas, a wide
+   two-column layout that folds to one by the drawer's own width (container query, not the
+   viewport), a sticky left rail, a pinned footer and animated pill tabs. */
 @media (min-width: 48em) {
-  .mantine-Drawer-content.item-drawer {
+  .mantine-Drawer-content.rich-drawer--wide {
     --drawer-size: min(900px, calc(100vw - 2 * var(--mantine-spacing-md)));
+  }
+
+  .mantine-Drawer-content.rich-drawer--standard {
+    --drawer-size: min(620px, calc(100vw - 2 * var(--mantine-spacing-md)));
+  }
+
+  .mantine-Drawer-content.rich-drawer--narrow {
+    --drawer-size: min(460px, calc(100vw - 2 * var(--mantine-spacing-md)));
   }
 }
 
-.mantine-Drawer-content.item-drawer .mantine-Drawer-body {
+.mantine-Drawer-content.rich-drawer .mantine-Drawer-body {
   padding: 0 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -828,7 +837,7 @@ th.mantine-Table-th {
   background-color: var(--bg-app) !important;
 }
 
-.item-drawer-scroll {
+.rich-drawer-scroll {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -836,20 +845,20 @@ th.mantine-Table-th {
   container-type: inline-size;
 }
 
-.item-drawer-grid {
+.rich-drawer-grid {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: var(--mantine-spacing-md);
   align-items: start;
 }
 
-.item-drawer-rail {
+.rich-drawer-rail {
   position: sticky;
   top: 0;
 }
 
 /* The headline numbers run across the top of both columns. */
-.item-drawer-kpis {
+.rich-drawer-kpis {
   grid-column: 1 / -1;
   display: grid;
   grid-auto-flow: column;
@@ -857,50 +866,54 @@ th.mantine-Table-th {
   gap: var(--mantine-spacing-md);
 }
 
-/* Narrow: one column, ordered hero, stock and activity, then pricing and details. */
+/* Narrow: one column, ordered hero, headline numbers, main content, then the other left cards. */
 @container (max-width: 760px) {
-  .item-drawer-grid {
+  .rich-drawer-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .item-drawer-kpis {
+  .rich-drawer-kpis {
     grid-auto-flow: row;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Only inside the two-column grid: a plain list keeps its totals first. */
+  .rich-drawer-grid > .rich-drawer-kpis {
     order: 1;
   }
 
-  .item-drawer-grid > .item-drawer-rail {
+  .rich-drawer-grid > .rich-drawer-rail {
     display: contents;
   }
 
-  .item-drawer-grid > .item-drawer-main {
+  .rich-drawer-grid > .rich-drawer-main {
     order: 2;
   }
 
-  .item-drawer-after {
+  .rich-drawer-after {
     order: 3;
   }
 }
 
-.item-drawer-footer {
+.rich-drawer-footer {
   flex-shrink: 0;
   padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
   background-color: var(--bg-card);
   border-top: 1px solid var(--border);
 }
 
-/* Activity tabs: the blue highlight is a framer-motion element that glides between tabs, so the
+/* Animated tabs: the blue highlight is a framer-motion element that glides between tabs, so the
    tab's own background is cleared and its icon, label and count sit above the highlight. */
-.activity-tabs .mantine-Tabs-tab {
+.rich-tabs .mantine-Tabs-tab {
   position: relative;
   isolation: isolate;
 }
 
-.activity-tabs .mantine-Tabs-tab[data-active] {
+.rich-tabs .mantine-Tabs-tab[data-active] {
   background-color: transparent;
 }
 
-.activity-tab-pill {
+.rich-tab-pill {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -908,8 +921,8 @@ th.mantine-Table-th {
   background-color: var(--mantine-color-blue-filled);
 }
 
-.activity-tab-label,
-.activity-tabs .mantine-Tabs-tabSection {
+.rich-tab-label,
+.rich-tabs .mantine-Tabs-tabSection {
   position: relative;
   z-index: 1;
 }

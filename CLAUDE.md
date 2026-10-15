@@ -82,7 +82,7 @@ Verify with the real thing: `npm run dev`, then walk the full flow at 375, 414, 
 
 Every animation in the app must play smoothly — no dropped frames, no visible stutter. The rules below come from a real incident: navigating into the Billing screen appeared to make the left navbar "shrink" with a stuck animation. The actual cause wasn't anything billing-specific — it was `AppShell`'s own chrome transition (driven by `isBillingPage`) racing Billing's heavy first mount, worsened by an unrelated `left`-property animation and an app-wide re-render fan-out. Follow these rules so the same class of bug doesn't come back.
 
-- **Use `framer-motion` for any animation that needs more than a CSS transition.** When something needs to move, appear, leave or change place with real motion (tab or panel swaps, a highlight that slides between items, lists that enter or exit, shared-element moves, drawer/modal content), use `framer-motion` (`motion.*`, `AnimatePresence`, `layoutId`) rather than hand-rolled keyframes or `setTimeout` class toggles. Plain hover/focus colour fades stay as CSS transitions. Everything above still applies: animate only `transform` and `opacity` (`layoutId` and `x`/`y`/`scale` are fine), always call `useReducedMotion()` and drop the movement (duration 0, no slide) when it is true, and keep a screen boundary snapping instead of animating. Reference implementation: `ItemActivityTabs.tsx` (a `layoutId` pill that glides between tabs, plus a direction-aware `AnimatePresence mode="wait"` panel; the direction is worked out while rendering). In jsdom tests set `MotionGlobalConfig.skipAnimations = true` (from `framer-motion`) so panels swap at once, as `ItemDetailDrawer.test.tsx` does.
+- **Use `framer-motion` for any animation that needs more than a CSS transition.** When something needs to move, appear, leave or change place with real motion (tab or panel swaps, a highlight that slides between items, lists that enter or exit, shared-element moves, drawer/modal content), use `framer-motion` (`motion.*`, `AnimatePresence`, `layoutId`) rather than hand-rolled keyframes or `setTimeout` class toggles. Plain hover/focus colour fades stay as CSS transitions. Everything above still applies: animate only `transform` and `opacity` (`layoutId` and `x`/`y`/`scale` are fine), always call `useReducedMotion()` and drop the movement (duration 0, no slide) when it is true, and keep a screen boundary snapping instead of animating. Reference implementation: `src/shared/components/drawer/AnimatedTabs.tsx` (a `layoutId` pill that glides between tabs, plus a direction-aware `AnimatePresence mode="wait"` panel; the direction is worked out while rendering) and `ListRow.tsx`. In jsdom tests set `MotionGlobalConfig.skipAnimations = true` (from `framer-motion`) so panels swap at once — `installDrawerTestEnv()` in `drawer/testEnv.ts` does it.
 - **Only animate `transform` and `opacity`.** Those are the only two CSS properties the browser can update on the compositor thread without a `layout`/`paint` pass. Never animate `left`/`top`/`right`/`bottom`/`width`/`height`/`padding`/`margin` — if something needs to slide or resize, animate a `transform: translate()`/`scale()` instead. `transform`'s percentage values resolve against the animated element's **own** box, not its parent, so sliding relative to a fluid parent needs the parent's pixel width measured via `ResizeObserver` first — see `AmountInput.tsx`'s mode-toggle slider and `CartPanel.tsx`'s scroll-affordance observer for the reference pattern.
 - **A route/screen boundary should snap, not animate.** Entering/leaving a screen is a navigation, not a resize — if a screen change (e.g. `AppShell`'s billing-specific header height / navbar width / padding) drives a Mantine transition, suppress that transition for the one render where the boundary is crossed (see `AppShell.tsx`'s `isBillingBoundaryChange` render-time state adjustment), and only let it animate for genuine in-page dimension changes (a tier crossing, a focus-mode toggle). An animated chrome resize landing in the same frame as a heavy screen's first mount is what makes it look "stuck" — the main thread can't keep up with per-frame layout work while it's busy committing a large render tree.
 - **Never call `useMediaQuery` directly in a component.** Always go through `useLayoutTier()`/`useIsMobile()` (see **Responsive & mobile UI** above) — this isn't just about breakpoint consistency, it's what keeps a single breakpoint crossing from re-rendering dozens of components at once and colliding with whatever CSS transition is trying to animate that same dimension change.
@@ -132,44 +132,43 @@ There's no shared `<AppModal>` wrapper — every modal styles Mantine's `Modal` 
 
 ## Right-side detail & profile drawers — one visual family
 
-Every right-side entity detail drawer (e.g. Item Specifications, Supplier Profile, Employee Profile & Commission, Customer Profile) follows the standard established by `ProductTable.tsx` ("Item Specifications"), `SupplierDetailDrawer.tsx` ("Supplier Profile"), and `EmployeeDetailDrawer.tsx` ("Employee Profile & Commission"):
+Every right-side drawer is built from the kit in `src/shared/components/drawer/` (import from its `index.ts`, never from a single file): Item Specifications, Customer, Supplier, Employee, Invoice, Activity-log entry and Held Sales. Do not hand-roll a `Drawer`/`Paper`/`Tabs` stack; start from `RichDrawer` and its parts.
 
 ```tsx
-<DetailDrawer
-  data={entity}
+<RichDrawer
+  data={entity}                     // last item is kept while the drawer slides shut
   opened={opened}
   onClose={handleClose}
-  size={isMobile ? '100%' : 'md'}
-  title={
-    <Group gap="xs">
-      <ThemeIcon
-        color="blue"
-        variant="light"
-        size="lg"
-        radius="var(--mantine-radius-default)"
-      >
-        <IconEntity size={20} />
-      </ThemeIcon>
-      <div>
-        <Text fw={800} size="md">
-          {Entity} Profile & Details
-        </Text>
-        <Text size="xs" c="dimmed">
-          Entity Specifications, Contacts & Records
-        </Text>
-      </div>
-    </Group>
-  }
+  width="wide"                      // 'wide' ≈900px two columns · 'standard' ≈620px · 'narrow' ≈460px; phones are full-screen
+  title={{ icon: <IconX size={20} />, text: t('… Profile'), subtitle: t('…') }}
+  footer={(e) => <DrawerFooter start={<FooterDelete … />}><Button variant="default">Close</Button>…</DrawerFooter>}
 >
+  {(e) => (
+    <DrawerGrid>
+      <KpiStrip>…<KpiTile><Figure|RangeFigure/></KpiTile>…</KpiStrip>
+      <DrawerRail><DrawerHero …/><DrawerAfter><DrawerCard label icon>…</DrawerCard></DrawerAfter></DrawerRail>
+      <DrawerMain><AnimatedTabs tabs value onChange>{(tab) => panel}</AnimatedTabs></DrawerMain>
+    </DrawerGrid>
+  )}
+</RichDrawer>
 ```
 
-- **Header Structure**: `<Group gap="xs"><ThemeIcon color="blue" variant="light" size="lg"><Icon size={20} /></ThemeIcon><div><Text fw={800} size="md">Title</Text><Text size="xs" c="dimmed">Subtitle</Text></div></Group>`.
-- **Hero Identity Card**: `<Paper p="md" radius="var(--mantine-radius-default)" withBorder bg="var(--mantine-color-body)">` displaying top status/key badges, large entity title (`<Text fw={800} size="lg">`), primary contact/tag pills, and rule/highlight sub-cards.
-- **3-Column Metrics Snapshot**: A 3-column `<Grid gap={0}>` `<Paper p="md" withBorder>` with `borderRight` column dividers displaying high-level financial & operational metrics (e.g., _Selling/Cost/Margin_ or _Commission/Jobs/Revenue_ or _Products/Intakes/Spend_).
-- **Exception — Item Specifications**: `ItemDetailDrawer.tsx` is a wide (about 900px) two-column drawer on an `--bg-app` canvas of `--bg-card` cards. A KPI strip (`ItemKpiStrip.tsx`: stock, selling, and for an Admin cost and profit) runs across the top; a price range shows its lowest figure large with `Up to …` beneath, so it never wraps. The left rail holds the tinted hero and details; the right column holds the stock card (stock-by-price bar, one colour per price via `lib/tierColors.ts`) and the Movements / Suppliers / Intake tabs. The grid folds to one column by the drawer's own width (a container query in `global.css`, `.item-drawer-*`), not the viewport. Admin-only parts (cost, profit, supplier tabs, "Receive from supplier") stay hidden from staff.
-- **Tabbed Operations & Activity (`Tabs`)**: High-density interactive views with `<Tabs.List grow>` and concise labels (e.g. `[ Products (12) ] [ Intake (4) ] [ Details ]` or `[ History (8) ] [ Split Rules ] [ Details ]`) to ensure tabs fill the width evenly and never wrap into multi-line rows.
-- **Inline Expandable Actions (`<Collapse expanded={...}>`)**: Provide quick inline forms (linking items, recording stock receipts, quick filters) directly inside the drawer without forcing full-page or modal navigation jumps.
-- **System Metadata & Actions**: Metadata rows (`Registered On`, `Last Updated`, `Key / ID`) followed by a standard footer with `Delete` (red light with `IconTrash`), `Close` (`variant="default"`), and `Edit Details` (`variant="filled" color="blue"` with `IconEdit`).
+The parts: `RichDrawer` (shell, header, canvas, pinned footer), `DrawerGrid`/`DrawerRail`/`DrawerAfter`/`DrawerMain` (two columns that fold to one by the **drawer's own width** with a container query in `global.css`, `.rich-drawer-*`, not by the viewport; the left rail is sticky and its `DrawerAfter` cards drop below the main content when narrow), `KpiStrip`/`KpiTile`/`Figure`/`RangeFigure` (headline numbers across the top), `DrawerHero` + `IconTile` (tinted hero card), `DrawerCard` + `SectionLabel` + `InfoRow` (cards and rows; `InfoRow stacked` for long values such as an address or email), `AnimatedTabs` + `CountChip` (pill tabs with a gliding highlight), `ListRow` (divided list rows that enter with a small stagger), `IconAction` (tinted icon buttons), `CopyIconButton`, `DrawerFooter` + `FooterDelete`. Page canvas is `--bg-app`, cards are `--bg-card`, tokens only, light and dark.
+
+Rules learned while building the family — follow them for any new drawer:
+
+- **Section titles sit inside their card** (`DrawerCard label`), never as a loose label above a card, so both columns start flush.
+- **Ranges are spelled out.** An amount range shows labelled `Lowest` / `Highest` lines (`RangeFigure`), never `Rs. 40 – Rs. 55` on one line; one amount shows once with its hint.
+- **Plain text over badges.** An id is a small monospace line (`eyebrow`), a status is a coloured dot and word (`status`), a path is `A › B`, a list of tags is `a · b`. Do not add badges.
+- **Forms:** real labels above the fields, one long field per full row (supplier or product select, reason, notes), short numeric fields in rows of two or three, a placeholder that cannot be clipped, Cancel `variant="default"`, primary `blue`. Quantities are whole numbers (`allowDecimal={false}`).
+- **Icon actions** are `IconAction`: tinted 32px (44px on phones), 16px icons, 6px gap, blue to edit, red to remove, each with a tooltip and `aria-label`. A destructive footer action is `FooterDelete`, which becomes an icon on phones.
+- **Tabs** are `AnimatedTabs` with a count chip where there is a count; keep them on one row at 390px. Anything that must never be hidden (for example an invoice's credit notes) stays on view in a card above the tabs, not inside a tab.
+- **Do not show internal ids or keys** (item key, client key, invoice key, supplier key); show created / updated dates instead.
+- Wording follows the UI-copy rules above ("Supplier", never "Vendor"); new strings go through `t()` and `si.json`.
+
+Per drawer: Item (`ItemDetailDrawer`, wide) shows stock, selling, cost and profit with stock-by-price colours; Customer (wide) total purchases, balance due, invoices, repairs; Employee (wide) commission, work, revenue, default rule, with History / Split Rules / Login tabs; Supplier (wide) products, intakes, spend, last intake, with Products / Intake tabs; Invoice (wide) total, balance or change, items, with Items / Payments / Activity tabs, the Credit Notes card kept above them and the payment and void dialogs in `InvoicePaymentModal` / `InvoiceVoidModal`; Log entry (standard, single column); Held Sales (narrow list with animated cards). Admin-only parts stay hidden from staff. The parked `features/sync/SyncDrawer` is dead code and not part of the family.
+
+Testing a drawer: call `installDrawerTestEnv()` (`drawer/testEnv.ts`, which also turns animations off) and wrap the render in `TestHarness` (`drawer/TestHarness.tsx`: store with a role, query client, Mantine, layout tier); mock the feature's hooks as `ItemDetailDrawer.test.tsx` does. A tab or modal that opens through a transition needs `await vi.waitFor(...)` inside `act`.
 
 ## Dashboard KPI cards
 

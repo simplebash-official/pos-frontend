@@ -1,11 +1,11 @@
 import { t } from '@/shared/i18n/t';
-import { Box, Group, Paper, Text } from '@mantine/core';
+import { Group, Text } from '@mantine/core';
 import { IconBarcode } from '@tabler/icons-react';
+import { CopyIconButton, DrawerHero } from '@/shared/components/drawer';
+import { useCategoryAccent } from '../hooks/useCategoryAccent';
 import { stockStatus } from '../lib/stockStatus';
 import type { Product } from '../types';
-import { useCategoryAccent } from '../hooks/useCategoryAccent';
-import { CategoryIconTile } from './CategoryIconTile';
-import { CopyIconButton } from './itemDrawerParts';
+import { CategoryGlyph } from './CategoryIconTile';
 
 const STATUS_VIEW = {
   out: { color: 'red', label: 'Out of stock' },
@@ -19,52 +19,15 @@ export const ItemHeroCard = ({ product }: { product: Product }) => {
   const status = STATUS_VIEW[stockStatus(product.stockQuantity, product.minStockThreshold)];
 
   return (
-    <Paper
-      p="md"
-      shadow="xs"
-      style={{
-        background: `linear-gradient(135deg, var(--mantine-color-${accent}-light) 0%, var(--bg-card) 70%)`,
-      }}
+    <DrawerHero
+      accent={accent}
+      icon={<CategoryGlyph product={product} size={32} />}
+      eyebrow={product.sku ? product.sku : t('Pending sync')}
+      status={{ color: status.color, label: t(status.label) }}
+      title={product.name}
+      subtitle={`${product.category} › ${product.subcategory}`}
     >
-      <Group align="flex-start" wrap="nowrap" gap="md">
-        <CategoryIconTile product={product} size={60} />
-
-        <Box style={{ flex: 1, minWidth: 0 }}>
-          <Group justify="space-between" wrap="nowrap" gap="xs" mb={4}>
-            <Text size="xs" fw={600} c="dimmed" ff="monospace" style={{ letterSpacing: '0.04em' }}>
-              {product.sku ? product.sku : t('Pending sync')}
-            </Text>
-            <Group gap={6} wrap="nowrap">
-              <Box
-                w={8}
-                h={8}
-                style={{
-                  borderRadius: '50%',
-                  background: `var(--mantine-color-${status.color}-filled)`,
-                }}
-              />
-              <Text size="xs" fw={700} c={status.color} tt="uppercase">
-                {t(status.label)}
-              </Text>
-            </Group>
-          </Group>
-
-          <Text fw={800} size="xl" lh={1.2}>
-            {product.name}
-          </Text>
-
-          <Text size="sm" c="dimmed" mt={6}>
-            {product.category} › {product.subcategory}
-          </Text>
-        </Box>
-      </Group>
-
-      <Group
-        justify="space-between"
-        mt="md"
-        pt="sm"
-        style={{ borderTop: '1px solid var(--border)' }}
-      >
+      <Group justify="space-between">
         <Group gap="xs" wrap="nowrap">
           <IconBarcode size={16} style={{ opacity: 0.6 }} />
           <Text size="xs" c="dimmed">
@@ -85,6 +48,6 @@ export const ItemHeroCard = ({ product }: { product: Product }) => {
           )}
         </Group>
       </Group>
-    </Paper>
+    </DrawerHero>
   );
 };

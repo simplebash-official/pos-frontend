@@ -1,55 +1,53 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { Button, Group, Stack, Text } from '@mantine/core';
 import {
-  Stack,
-  Group,
-  Text,
-  Badge,
-  Button,
-  Divider,
-  Table,
-  Paper,
-  Modal,
-  NumberInput,
-  Select,
-  TextInput,
-  Textarea,
-  ThemeIcon,
-  Grid,
-  Tabs,
-  ScrollArea,
-} from '@mantine/core';
-import {
-  IconFileInvoice,
-  IconReceipt,
-  IconFileText,
-  IconCopy,
-  IconCheck,
-  IconCash,
-  IconArrowBackUp,
-  IconPackage,
-  IconWallet,
-  IconCalendar,
-  IconClock,
-  IconKey,
+  IconActivity,
   IconBan,
+  IconCalendarPlus,
+  IconCash,
+  IconClock,
+  IconCopy,
+  IconFileInvoice,
+  IconFileText,
+  IconPackage,
+  IconPrinter,
+  IconReceipt,
   IconSquareCheck,
+  IconWallet,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import type { Invoice, CreditNote } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
-import { formatDateTime } from '@/shared/lib/date';
+import { formatDate, formatDateTime } from '@/shared/lib/date';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
-import {
-  getInvoiceStatusMeta,
-  getOverdueMeta,
-  getCreditNoteStatusMeta,
-} from '../lib/invoiceStatus';
+import { getInvoiceStatusMeta, getOverdueMeta } from '../lib/invoiceStatus';
 import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
 import { useInvoiceCreditNotes } from '@/features/billing/hooks/useCreditNotes';
 import { useVoidInvoice, useCloseInvoice } from '@/features/billing/hooks/useInvoices';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { DetailDrawer } from '@/shared/components/DetailDrawer';
+import { useIsAdmin } from '@/shared/hooks/usePermissions';
+import {
+  AnimatedTabs,
+  DrawerAfter,
+  DrawerCard,
+  DrawerFooter,
+  DrawerGrid,
+  DrawerHero,
+  DrawerMain,
+  DrawerRail,
+  Figure,
+  IconAction,
+  InfoRow,
+  KpiStrip,
+  KpiTile,
+  RichDrawer,
+} from '@/shared/components/drawer';
+import { InvoiceCreditNotesCard } from './InvoiceCreditNotesCard';
+import { InvoiceItemsPanel } from './InvoiceItemsPanel';
+import { InvoicePaymentModal } from './InvoicePaymentModal';
+import { InvoicePaymentsPanel } from './InvoicePaymentsPanel';
+import { InvoiceVoidModal } from './InvoiceVoidModal';
 
 const SaleDocumentPreviewModal = lazy(() =>
   import('@/features/billing/components/SaleDocumentPreviewModal').then((m) => ({
@@ -61,7 +59,8 @@ const CreditNoteModal = lazy(() =>
     default: m.CreditNoteModal,
   }))
 );
-import { useIsAdmin } from '@/shared/hooks/usePermissions';
+
+type InvoiceTab = 'items' | 'payments' | 'activity';
 
 export interface InvoiceDetailDrawerProps {
   opened: boolean;
@@ -72,7 +71,41 @@ export interface InvoiceDetailDrawerProps {
   openPaymentModalOnMount?: boolean;
 }
 
-const sectionLabelStyle = { letterSpacing: '0.05em' } as const;
+/** Everything the drawer decides from the invoice itself, computed in one place. */
+const describeInvoice = (inv: Invoice) => {
+  const totalReturnedUnits = inv.items.reduce((acc, item) => acc + (item.returnedQuantity || 0), 0);
+  const totalOriginalUnits = inv.items.reduce((acc, item) => acc + item.quantity, 0);
+  const isFullyReturned = totalOriginalUnits > 0 && totalReturnedUnits >= totalOriginalUnits;
+  const isPartiallyReturned = totalReturnedUnits > 0 && !isFullyReturned;
+  const isCreditPending = inv.status === 'pending' || inv.status === 'partially_paid';
+  const canClose = inv.status === 'paid' && !inv.hasCreditNotes;
+  // Mirrors the backend's own guard (`void_invoice` refuses when the
+  // invoice's payment records no longer match exactly what the
+  // original sale created): any credit note against it means a
+  // refund payment was recorded, and any payment on a credit
+  // invoice beyond "none yet" means an installment was recorded —
+  // either way, voiding can't safely reverse that automatically.
+  const hasExtraPayments = inv.hasCreditNotes || (inv.isCredit && inv.status !== 'pending');
+  const isAlreadyFinal = inv.status === 'voided' || inv.status === 'closed';
+  const canVoid = !isAlreadyFinal && !hasExtraPayments;
+  const voidBlockedReason =
+    !isAlreadyFinal && hasExtraPayments
+      ? inv.hasCreditNotes
+        ? 'This invoice has a return or refund recorded against it, so it can no longer be voided directly.'
+        : 'This invoice has payment installments recorded against it, so it can no longer be voided directly.'
+      : null;
+  return {
+    totalReturnedUnits,
+    isFullyReturned,
+    isPartiallyReturned,
+    isCreditPending,
+    canClose,
+    canVoid,
+    voidBlockedReason,
+    statusMeta: getInvoiceStatusMeta(inv),
+    overdueMeta: getOverdueMeta(inv),
+  };
+};
 
 export const InvoiceDetailDrawer = ({
   opened,
@@ -83,7 +116,7 @@ export const InvoiceDetailDrawer = ({
 }: InvoiceDetailDrawerProps) => {
   const isMobile = useIsMobile();
 
-  const [activeTab, setActiveTab] = useState<string>('items');
+  const [activeTab, setActiveTab] = useState<InvoiceTab>('items');
 
   // Document preview modal state ('receipt' | 'invoice' | null)
   const [previewDocumentKind, setPreviewDocumentKind] = useState<'invoice' | 'receipt' | null>(
@@ -238,755 +271,334 @@ export const InvoiceDetailDrawer = ({
 
   return (
     <>
-      <DetailDrawer
+      <RichDrawer
         data={invoice}
         opened={opened}
         onClose={handleClose}
-        size="lg"
-        title={
-          <Group gap="xs">
-            <ThemeIcon
-              color="blue"
-              variant="light"
-              size="lg"
-              radius="var(--mantine-radius-default)"
+        width="wide"
+        title={{
+          icon: <IconFileInvoice size={20} />,
+          text: `${t('Invoice #')}${invoice?.invoiceNumber ?? ''}`,
+          subtitle: t('Sale Details, Payments & Returns'),
+        }}
+        footer={(inv) => {
+          const d = describeInvoice(inv);
+          return (
+            <DrawerFooter
+              start={
+                isAdmin && d.canVoid ? (
+                  <Button
+                    variant="light"
+                    color="red"
+                    size="sm"
+                    leftSection={<IconBan size={16} />}
+                    onClick={() => setVoidModalOpen(true)}
+                  >
+                    {t('Void Invoice')}
+                  </Button>
+                ) : undefined
+              }
             >
-              <IconFileInvoice size={20} />
-            </ThemeIcon>
-            <div>
-              <Text fw={800} size="md">
-                {t('Invoice #')}
-                {invoice?.invoiceNumber}
-              </Text>
-              <Text size="xs" c="dimmed">
-                {t('Sale Details, Payments & Returns')}
-              </Text>
-            </div>
-          </Group>
-        }
+              {isMobile ? (
+                <IconAction
+                  kind="neutral"
+                  label={t('Copy Invoice #')}
+                  icon={<IconCopy size={16} />}
+                  onClick={handleCopyInvoiceNumber}
+                />
+              ) : (
+                <Button
+                  variant="subtle"
+                  color="blue"
+                  size="sm"
+                  leftSection={<IconCopy size={16} />}
+                  onClick={handleCopyInvoiceNumber}
+                >
+                  {t('Copy Invoice #')}
+                </Button>
+              )}
+              {isAdmin && d.canClose && (
+                <Button
+                  variant="light"
+                  color="violet"
+                  size="sm"
+                  leftSection={<IconSquareCheck size={16} />}
+                  loading={isClosing}
+                  onClick={handleCloseInvoice}
+                >
+                  {t('Close Invoice')}
+                </Button>
+              )}
+              <Button variant="default" size="sm" onClick={handleClose}>
+                {t('Close')}
+              </Button>
+              {d.isCreditPending && (
+                <Button
+                  variant="filled"
+                  color="blue"
+                  size="sm"
+                  leftSection={<IconCash size={16} />}
+                  onClick={handleOpenPaymentModal}
+                >
+                  {t('Record Payment')}
+                </Button>
+              )}
+            </DrawerFooter>
+          );
+        }}
       >
         {(inv) => {
-          const totalReturnedUnits = inv.items.reduce(
-            (acc, item) => acc + (item.returnedQuantity || 0),
-            0
-          );
-          const totalOriginalUnits = inv.items.reduce((acc, item) => acc + item.quantity, 0);
-          const isFullyReturned =
-            totalOriginalUnits > 0 && totalReturnedUnits >= totalOriginalUnits;
-          const isPartiallyReturned = totalReturnedUnits > 0 && !isFullyReturned;
+          const d = describeInvoice(inv);
 
           // Print history — index 0 is newest (LocalStorageStore.add uses unshift)
           const logs = getPrintLogsForInvoice(inv.invoiceNumber);
           const lastLog = logs.length > 0 ? logs[0] : null;
 
-          const statusMeta = getInvoiceStatusMeta(inv);
-          const overdueMeta = getOverdueMeta(inv);
-          const isCreditPending = inv.status === 'pending' || inv.status === 'partially_paid';
-          const canClose = inv.status === 'paid' && !inv.hasCreditNotes;
-          // Mirrors the backend's own guard (`void_invoice` refuses when the
-          // invoice's payment records no longer match exactly what the
-          // original sale created): any credit note against it means a
-          // refund payment was recorded, and any payment on a credit
-          // invoice beyond "none yet" means an installment was recorded —
-          // either way, voiding can't safely reverse that automatically.
-          const hasExtraPayments = inv.hasCreditNotes || (inv.isCredit && inv.status !== 'pending');
-          const isAlreadyFinal = inv.status === 'voided' || inv.status === 'closed';
-          const canVoid = !isAlreadyFinal && !hasExtraPayments;
-          const voidBlockedReason =
-            !isAlreadyFinal && hasExtraPayments
-              ? inv.hasCreditNotes
-                ? 'This invoice has a return or refund recorded against it, so it can no longer be voided directly.'
-                : 'This invoice has payment installments recorded against it, so it can no longer be voided directly.'
-              : null;
+          const heroStatus = d.overdueMeta
+            ? {
+                color: d.overdueMeta.color,
+                label: `${d.statusMeta.label} · ${d.overdueMeta.label}`,
+              }
+            : { color: d.statusMeta.color, label: d.statusMeta.label };
+
+          const tabs: {
+            value: InvoiceTab;
+            label: string;
+            icon: React.ReactNode;
+            count?: number;
+          }[] = [
+            {
+              value: 'items',
+              label: t('Items'),
+              icon: <IconPackage size={16} />,
+              count: inv.items.length,
+            },
+            ...(inv.isCredit && payments.length > 0
+              ? [
+                  {
+                    value: 'payments' as const,
+                    label: t('Payments'),
+                    icon: <IconCash size={16} />,
+                    count: payments.length,
+                  },
+                ]
+              : []),
+            { value: 'activity', label: t('Activity'), icon: <IconActivity size={16} /> },
+          ];
+          // A credit invoice with no payments has no Payments tab, so fall back if it was selected.
+          const tab: InvoiceTab = tabs.some((x) => x.value === activeTab) ? activeTab : 'items';
 
           return (
-            <Stack gap="md" pt="xs">
-              {/* Hero Identity Card */}
-              <Paper
-                p="md"
-                radius="var(--mantine-radius-default)"
-                withBorder
-                bg="var(--mantine-color-body)"
-              >
-                <Group justify="space-between" align="flex-start" mb="xs">
-                  <Group gap={6}>
-                    <Badge color={statusMeta.color} variant="filled" size="sm">
-                      {statusMeta.label}
-                    </Badge>
-                    {overdueMeta && (
-                      <Badge color={overdueMeta.color} variant="filled" size="sm">
-                        {overdueMeta.label}
-                      </Badge>
-                    )}
-                  </Group>
-                  <Group gap={6}>
-                    {inv.hasCreditNotes && (
-                      <Badge color="indigo" variant="light" size="sm">
-                        {inv.creditNoteCount} {t('Credit Note')}
-                        {inv.creditNoteCount === 1 ? '' : 's'}
-                      </Badge>
-                    )}
-                    {(isFullyReturned || isPartiallyReturned) && (
-                      <Badge color={isFullyReturned ? 'gray' : 'orange'} variant="light" size="sm">
-                        {isFullyReturned
-                          ? 'Fully Returned'
-                          : `Partially Returned (${totalReturnedUnits})`}
-                      </Badge>
-                    )}
-                  </Group>
-                </Group>
+            <DrawerGrid>
+              <KpiStrip>
+                <KpiTile icon={<IconCash size={16} />} color="blue" label={t('Grand Total')}>
+                  <Figure
+                    value={formatMoney(inv.totalCents)}
+                    hint={`${inv.items.length} ${t('Items')}`}
+                    color="blue"
+                  />
+                </KpiTile>
+                <KpiTile
+                  icon={<IconWallet size={16} />}
+                  color={d.isCreditPending ? 'red' : inv.changeDueCents ? 'green' : 'gray'}
+                  label={
+                    d.isCreditPending
+                      ? t('Balance Due')
+                      : inv.changeDueCents
+                        ? t('Change Due')
+                        : t('Payment')
+                  }
+                >
+                  <Figure
+                    value={
+                      d.isCreditPending
+                        ? formatMoney(remainingCents)
+                        : inv.changeDueCents
+                          ? formatMoney(inv.changeDueCents)
+                          : inv.paymentMethod.toUpperCase()
+                    }
+                    hint={
+                      d.isCreditPending && inv.dueDate
+                        ? `${t('Due')} ${formatDate(inv.dueDate)}`
+                        : t(d.statusMeta.label)
+                    }
+                    color={d.isCreditPending ? 'red' : inv.changeDueCents ? 'green' : 'gray'}
+                  />
+                </KpiTile>
+                <KpiTile icon={<IconPackage size={16} />} color="teal" label={t('Items')}>
+                  <Figure
+                    value={String(inv.items.length)}
+                    hint={
+                      d.totalReturnedUnits > 0
+                        ? `${d.totalReturnedUnits} ${t('returned')}`
+                        : t('none returned')
+                    }
+                    color="teal"
+                  />
+                </KpiTile>
+              </KpiStrip>
 
-                <Text fw={800} size="lg" mb={4}>
-                  {inv.customerName || 'Walk-in Guest'}
-                </Text>
-
-                {(inv.customerPhone || inv.customerAddress) && (
-                  <Stack gap={2} mb="xs">
-                    {inv.customerPhone && (
-                      <Text size="xs" c="dimmed">
-                        {inv.customerPhone}
-                      </Text>
-                    )}
-                    {inv.customerAddress && (
-                      <Text size="xs" c="dimmed">
-                        {inv.customerAddress}
-                      </Text>
-                    )}
-                  </Stack>
-                )}
-
-                <Divider my="xs" />
-
-                <Group justify="space-between">
-                  <Text size="xs" c="dimmed">
-                    {t('Issued')} {formatDateTime(inv.createdAt)}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {t('Cashier:')} {inv.cashierName || 'Cashier'}
-                  </Text>
-                </Group>
-              </Paper>
-
-              {/* Metrics Snapshot */}
-              <Paper p="md" withBorder radius="var(--mantine-radius-default)">
-                <Grid gap={0} align="flex-start">
-                  <Grid.Col
-                    span={4}
-                    pr="sm"
-                    style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-                  >
-                    <Stack gap={2}>
-                      <Group gap={4} wrap="nowrap">
-                        <IconCash
-                          size={12}
-                          style={{ color: 'var(--mantine-color-blue-6)', flexShrink: 0 }}
-                        />
-                        <Text size="xs" c="dimmed" tt="uppercase">
-                          {t('Grand Total')}
-                        </Text>
-                      </Group>
-                      <Text
-                        fw={800}
-                        size="md"
-                        c="blue"
-                        style={{ fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {formatMoney(inv.totalCents)}
-                      </Text>
-                    </Stack>
-                  </Grid.Col>
-
-                  <Grid.Col
-                    span={4}
-                    px="sm"
-                    style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
-                  >
-                    <Stack gap={2}>
-                      <Group gap={4} wrap="nowrap">
-                        <IconPackage
-                          size={12}
-                          style={{ color: 'var(--mantine-color-teal-6)', flexShrink: 0 }}
-                        />
-                        <Text size="xs" c="dimmed" tt="uppercase">
-                          {t('Items')}
-                        </Text>
-                      </Group>
-                      <Group gap={4} align="baseline">
-                        <Text fw={800} size="md" c="teal">
-                          {inv.items.length}
-                        </Text>
-                        {totalReturnedUnits > 0 && (
-                          <Text size="xs" c="dimmed">
-                            ({totalReturnedUnits} {t('returned)')}
-                          </Text>
-                        )}
-                      </Group>
-                    </Stack>
-                  </Grid.Col>
-
-                  <Grid.Col span={4} pl="sm">
-                    <Stack gap={2}>
-                      <Group gap={4} wrap="nowrap">
-                        <IconWallet
-                          size={12}
-                          style={{
-                            color: isCreditPending
-                              ? 'var(--mantine-color-red-6)'
-                              : inv.changeDueCents
-                                ? 'var(--mantine-color-green-6)'
-                                : 'var(--mantine-color-gray-6)',
-                            flexShrink: 0,
-                          }}
-                        />
-                        <Text size="xs" c="dimmed" tt="uppercase">
-                          {isCreditPending
-                            ? 'Balance Due'
-                            : inv.changeDueCents
-                              ? 'Change Due'
-                              : 'Payment'}
-                        </Text>
-                      </Group>
-                      {isCreditPending ? (
-                        <Text
-                          fw={800}
-                          size="md"
-                          c="red"
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                        >
-                          {formatMoney(remainingCents)}
-                        </Text>
-                      ) : inv.changeDueCents ? (
-                        <Text
-                          fw={800}
-                          size="md"
-                          c="green"
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                        >
-                          {formatMoney(inv.changeDueCents)}
-                        </Text>
-                      ) : (
-                        <Text fw={800} size="md" tt="uppercase">
-                          {inv.paymentMethod}
-                        </Text>
-                      )}
-                    </Stack>
-                  </Grid.Col>
-                </Grid>
-              </Paper>
-
-              {/* Credit Notes — always visible, never tucked behind a tab */}
-              <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                <Stack gap="sm">
-                  <Group justify="space-between" align="center">
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={sectionLabelStyle}>
-                      {t('Credit Notes')}
-                    </Text>
-                    {invoiceCreditNotes.length > 0 && (
-                      <Badge size="xs" color="orange" variant="light">
-                        {invoiceCreditNotes.reduce((sum, cn) => sum + cn.items.length, 0)}{' '}
-                        {t(
-                          'items\n                                                              returned'
-                        )}
-                      </Badge>
-                    )}
-                  </Group>
-
-                  {invoiceCreditNotes.length === 0 ? (
+              <DrawerRail>
+                <DrawerHero
+                  accent={heroStatus.color}
+                  icon={<IconFileInvoice size={32} />}
+                  eyebrow={`#${inv.invoiceNumber}`}
+                  status={heroStatus}
+                  title={inv.customerName || 'Walk-in Guest'}
+                  subtitle={
+                    <>
+                      {inv.customerPhone ? <div>{inv.customerPhone}</div> : null}
+                      {inv.customerAddress ? <div>{inv.customerAddress}</div> : null}
+                      {inv.hasCreditNotes ? (
+                        <div>
+                          {inv.creditNoteCount} {t('Credit Note')}
+                          {inv.creditNoteCount === 1 ? '' : 's'}
+                          {d.isFullyReturned
+                            ? ` · ${t('Fully Returned')}`
+                            : d.isPartiallyReturned
+                              ? ` · ${t('Partially Returned')} (${d.totalReturnedUnits})`
+                              : ''}
+                        </div>
+                      ) : null}
+                    </>
+                  }
+                >
+                  <Group justify="space-between" wrap="wrap" gap="xs">
                     <Text size="xs" c="dimmed">
-                      {t('No credit notes have been issued against this invoice yet.')}
+                      {t('Issued')} {formatDateTime(inv.createdAt)}
                     </Text>
-                  ) : (
-                    <Stack gap="xs">
-                      {invoiceCreditNotes.map((cn) => {
-                        const statusMeta = getCreditNoteStatusMeta(cn.status);
-                        return (
-                          <Paper
-                            key={cn.id}
-                            p="xs"
-                            withBorder
-                            bg="var(--bg-app)"
-                            radius="var(--mantine-radius-default)"
-                          >
-                            <Group justify="space-between" mb={2}>
-                              <Text size="xs" fw={700} c="orange.8">
-                                {cn.netRefundCents >= 0 ? 'Refund' : 'Charged'}:{' '}
-                                {formatMoney(Math.abs(cn.netRefundCents))}
-                              </Text>
-                              <Group gap={4}>
-                                {cn.exchangeReference && (
-                                  <Badge size="xs" color="indigo" variant="light">
-                                    {t('Exchange')}
-                                  </Badge>
-                                )}
-                                {cn.noReceipt && (
-                                  <Badge size="xs" color="red" variant="light">
-                                    {t('No Receipt')}
-                                  </Badge>
-                                )}
-                                <Badge size="xs" color={statusMeta.color} variant="light">
-                                  {statusMeta.label}
-                                </Badge>
-                              </Group>
-                            </Group>
-                            <Group justify="space-between" align="center">
-                              <Text size="2xs" c="dimmed">
-                                {formatDateTime(cn.createdAt)} · {cn.creditNoteNumber} ·{' '}
-                                {cn.items.length} {t('line(s)')}
-                              </Text>
-                              <Button
-                                size="compact-xs"
-                                variant="subtle"
-                                onClick={() => setPreviewCreditNote(cn)}
-                              >
-                                {t('View / Print')}
-                              </Button>
-                            </Group>
-                            {cn.notes && (
-                              <Text size="xs" c="dimmed" mt={2} fs="italic">
-                                {t('&ldquo;')}
-                                {cn.notes}
-                                {t('&rdquo;')}
-                              </Text>
-                            )}
-                          </Paper>
-                        );
-                      })}
-                    </Stack>
-                  )}
-
-                  {isFullyReturned ? (
-                    <Text size="xs" c="dimmed" ta="center">
-                      {t('All items on this invoice have already been returned.')}
+                    <Text size="xs" c="dimmed">
+                      {t('Cashier:')} {inv.cashierName || 'Cashier'}
                     </Text>
-                  ) : (
-                    <Button
-                      variant="light"
-                      color="orange"
-                      leftSection={<IconArrowBackUp size={16} />}
-                      onClick={() => setCreditNoteModalOpen(true)}
-                    >
-                      {t('Process Return / Exchange')}
-                    </Button>
-                  )}
-                </Stack>
-              </Paper>
+                  </Group>
+                </DrawerHero>
 
-              {/* Tabbed Content */}
-              <Tabs
-                value={activeTab}
-                onChange={(val) => setActiveTab(val ?? 'items')}
-                color="blue"
-                mt="xs"
-              >
-                <Tabs.List grow>
-                  <Tabs.Tab value="items">
-                    {t('Items (')}
-                    {inv.items.length})
-                  </Tabs.Tab>
-                  <Tabs.Tab value="activity">{t('Activity')}</Tabs.Tab>
-                </Tabs.List>
-              </Tabs>
-
-              {/* TAB 1: Order Items & Totals */}
-              {activeTab === 'items' && (
-                <Stack gap="md">
-                  <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                    <ScrollArea.Autosize
-                      mah="40dvh"
-                      offsetScrollbars
-                      classNames={{ viewport: 'scrollarea-fluid-content' }}
-                    >
-                      <Table striped highlightOnHover>
-                        <Table.Thead>
-                          <Table.Tr>
-                            <Table.Th>{t('Item')}</Table.Th>
-                            <Table.Th style={{ textAlign: 'center' }}>{t('Qty')}</Table.Th>
-                            <Table.Th>{t('Price')}</Table.Th>
-                            <Table.Th>{t('Total')}</Table.Th>
-                          </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                          {inv.items.map((item) => {
-                            const alreadyReturned = item.returnedQuantity || 0;
-                            const isItemFullyReturned = alreadyReturned >= item.quantity;
-                            return (
-                              <Table.Tr key={item.id}>
-                                <Table.Td>
-                                  <Group gap="xs" align="center">
-                                    <Text size="xs" fw={600}>
-                                      {item.name}
-                                    </Text>
-                                    {alreadyReturned > 0 && (
-                                      <Badge
-                                        size="xs"
-                                        color={isItemFullyReturned ? 'gray' : 'orange'}
-                                        variant="light"
-                                      >
-                                        {isItemFullyReturned
-                                          ? 'Fully Returned'
-                                          : `Returned: ${alreadyReturned}`}
-                                      </Badge>
-                                    )}
-                                  </Group>
-                                  {item.sku && (
-                                    <Text size="3xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
-                                      {t('SKU:')} {item.sku}
-                                    </Text>
-                                  )}
-                                </Table.Td>
-                                <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
-                                <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                  {formatMoney(item.unitPriceCents)}
-                                </Table.Td>
-                                <Table.Td
-                                  style={{
-                                    fontWeight: 700,
-                                    fontVariantNumeric: 'tabular-nums',
-                                  }}
-                                >
-                                  {formatMoney(item.totalCents)}
-                                </Table.Td>
-                              </Table.Tr>
-                            );
-                          })}
-                        </Table.Tbody>
-                      </Table>
-                    </ScrollArea.Autosize>
-                  </Paper>
-
-                  <Paper
-                    p="sm"
-                    withBorder
-                    bg="var(--bg-app)"
-                    radius="var(--mantine-radius-default)"
-                  >
+                <DrawerAfter>
+                  <DrawerCard label={t('Payment')} icon={<IconWallet size={14} />}>
                     <Stack gap="xs">
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">
-                          {t('Subtotal')}
-                        </Text>
-                        <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                          {formatMoney(inv.subtotalCents)}
-                        </Text>
-                      </Group>
-
-                      {inv.discountCents > 0 && (
-                        <Group justify="space-between">
-                          <Text size="xs" c="red">
-                            {t('Discount')}
-                          </Text>
-                          <Text
-                            size="xs"
-                            fw={600}
-                            c="red"
-                            style={{ fontVariantNumeric: 'tabular-nums' }}
-                          >
-                            -{formatMoney(inv.discountCents)}
-                          </Text>
-                        </Group>
-                      )}
-
-                      <Divider my={4} />
-
-                      <Group justify="space-between">
-                        <Text size="sm" fw={700}>
-                          {t('Grand Total')}
-                        </Text>
-                        <Text
-                          size="md"
-                          fw={700}
-                          c="blue"
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                        >
-                          {formatMoney(inv.totalCents)}
-                        </Text>
-                      </Group>
-
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">
-                          {t('Payment Method')}
-                        </Text>
-                        <Text size="xs" fw={700} tt="uppercase">
-                          {inv.paymentMethod}
-                          {inv.paymentMethod === 'card' && (inv.cardLast4 || inv.cardRef)
-                            ? ` (•••• ${inv.cardLast4 || inv.cardRef})`
-                            : ''}
-                        </Text>
-                      </Group>
-
+                      <InfoRow icon={<IconCash size={16} />} label={t('Payment Method')}>
+                        {inv.paymentMethod.toUpperCase()}
+                        {inv.paymentMethod === 'card' && (inv.cardLast4 || inv.cardRef)
+                          ? ` (•••• ${inv.cardLast4 || inv.cardRef})`
+                          : ''}
+                      </InfoRow>
                       {inv.paymentMethod === 'split' &&
                         inv.splitPayments &&
-                        inv.splitPayments.length > 0 && (
-                          <Stack gap={2} mt={2}>
-                            <Text
-                              size="xs"
-                              fw={700}
-                              c="dimmed"
-                              tt="uppercase"
-                              style={sectionLabelStyle}
-                            >
-                              {t('Split Breakdown')}
-                            </Text>
-                            {inv.splitPayments.map((sp, idx) => (
-                              <Group key={sp.id || idx} justify="space-between">
-                                <Text size="xs" c="dimmed">
-                                  {sp.method.toUpperCase()}
-                                  {sp.method === 'card' && (sp.cardLast4 || sp.reference)
-                                    ? ` (•••• ${sp.cardLast4 || sp.reference})`
-                                    : ''}
-                                </Text>
-                                <Text
-                                  size="xs"
-                                  fw={600}
-                                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                                >
-                                  {formatMoney(sp.amountCents)}
-                                </Text>
-                              </Group>
-                            ))}
-                          </Stack>
-                        )}
-
-                      {inv.amountReceivedCents ? (
-                        <Group justify="space-between">
-                          <Text size="xs" c="dimmed">
-                            {t('Amount Received')}
-                          </Text>
-                          <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {formatMoney(inv.amountReceivedCents)}
-                          </Text>
-                        </Group>
-                      ) : null}
-
-                      {inv.changeDueCents ? (
-                        <Group justify="space-between">
-                          <Text size="xs" c="dimmed">
-                            {t('Change Due')}
-                          </Text>
-                          <Text
-                            size="xs"
-                            fw={600}
-                            c="green.6"
-                            style={{ fontVariantNumeric: 'tabular-nums' }}
+                        inv.splitPayments.map((sp, idx) => (
+                          <InfoRow
+                            key={sp.id || idx}
+                            icon={<IconWallet size={16} />}
+                            label={`${sp.method.toUpperCase()}${
+                              sp.method === 'card' && (sp.cardLast4 || sp.reference)
+                                ? ` (•••• ${sp.cardLast4 || sp.reference})`
+                                : ''
+                            }`}
                           >
+                            {formatMoney(sp.amountCents)}
+                          </InfoRow>
+                        ))}
+                      {inv.amountReceivedCents ? (
+                        <InfoRow icon={<IconWallet size={16} />} label={t('Amount Received')}>
+                          {formatMoney(inv.amountReceivedCents)}
+                        </InfoRow>
+                      ) : null}
+                      {inv.changeDueCents ? (
+                        <InfoRow icon={<IconWallet size={16} />} label={t('Change Due')}>
+                          <Text span inherit c="green">
                             {formatMoney(inv.changeDueCents)}
                           </Text>
-                        </Group>
+                        </InfoRow>
+                      ) : null}
+                      {isAdmin && d.voidBlockedReason ? (
+                        <Text size="xs" c="dimmed">
+                          {d.voidBlockedReason}
+                        </Text>
                       ) : null}
                     </Stack>
-                  </Paper>
-                </Stack>
-              )}
+                  </DrawerCard>
+                </DrawerAfter>
 
-              {/* TAB 2: Activity — payments, print history, metadata */}
-              {activeTab === 'activity' && (
-                <Stack gap="md">
-                  {inv.isCredit && payments.length > 0 && (
-                    <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                      <Text
-                        size="xs"
-                        fw={700}
-                        c="dimmed"
-                        tt="uppercase"
-                        mb="xs"
-                        style={sectionLabelStyle}
+                <DrawerAfter>
+                  <DrawerCard label={t('Documents')} icon={<IconFileText size={14} />}>
+                    <Group grow gap="sm">
+                      <Button
+                        variant="light"
+                        color="blue"
+                        leftSection={<IconReceipt size={16} />}
+                        onClick={() => setPreviewDocumentKind('receipt')}
                       >
-                        {t('Payment History (')}
-                        {payments.length})
-                      </Text>
-                      <Stack gap="xs">
-                        {payments.map((p) => (
-                          <Group key={p.id} justify="space-between">
-                            <Text size="xs" c="dimmed">
-                              {formatDateTime(p.recordedAt)} · {p.paymentMethod.toUpperCase()}
-                              {p.notes ? ` · ${p.notes}` : ''}
-                            </Text>
-                            <Text
-                              size="xs"
-                              fw={600}
-                              c="green.7"
-                              style={{ fontVariantNumeric: 'tabular-nums' }}
-                            >
-                              {formatMoney(p.amountCents)}
-                            </Text>
-                          </Group>
-                        ))}
-                        <Divider my={2} />
-                        <Group justify="space-between">
-                          <Text size="xs" fw={700}>
-                            {t('Remaining Balance')}
-                          </Text>
-                          <Text
-                            size="xs"
-                            fw={700}
-                            c={remainingCents > 0 ? 'red' : 'green'}
-                            style={{ fontVariantNumeric: 'tabular-nums' }}
-                          >
-                            {formatMoney(remainingCents)}
-                          </Text>
-                        </Group>
-                      </Stack>
-                    </Paper>
-                  )}
+                        {t('Show Receipt')}
+                      </Button>
+                      <Button
+                        variant="light"
+                        color="blue"
+                        leftSection={<IconFileText size={16} />}
+                        onClick={() => setPreviewDocumentKind('invoice')}
+                      >
+                        {t('Show Invoice')}
+                      </Button>
+                    </Group>
+                  </DrawerCard>
+                </DrawerAfter>
 
-                  <Paper p="sm" withBorder radius="var(--mantine-radius-default)">
-                    <Text
-                      size="xs"
-                      fw={700}
-                      c="dimmed"
-                      tt="uppercase"
-                      mb={4}
-                      style={sectionLabelStyle}
-                    >
-                      {t('Print History')}
-                    </Text>
-                    {logs.length === 0 ? (
-                      <Text size="xs" c="dimmed">
-                        {t('No print logs recorded yet.')}
-                      </Text>
-                    ) : (
-                      <Text size="xs" c="dimmed">
-                        {t('Printed')} {logs.length}
-                        {t('× · Last printed')}{' '}
-                        {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} ({lastLog?.format})
-                      </Text>
-                    )}
-                  </Paper>
-
-                  <Divider my="xs" />
-
-                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={sectionLabelStyle}>
-                    {t('Metadata')}
-                  </Text>
-
-                  <Stack gap="xs">
-                    <Group justify="space-between">
-                      <Group gap="xs">
-                        <IconCalendar size={16} style={{ opacity: 0.6 }} />
-                        <Text size="xs" c="dimmed">
-                          {t('Issued On')}
-                        </Text>
-                      </Group>
-                      <Text size="xs" fw={700}>
+                <DrawerAfter>
+                  <DrawerCard label={t('Details')} icon={<IconClock size={14} />}>
+                    <Stack gap="xs">
+                      <InfoRow icon={<IconCalendarPlus size={16} />} label={t('Issued On')}>
                         {formatDateTime(inv.createdAt)}
-                      </Text>
-                    </Group>
-
-                    {lastLog && (
-                      <Group justify="space-between">
-                        <Group gap="xs">
-                          <IconClock size={16} style={{ opacity: 0.6 }} />
-                          <Text size="xs" c="dimmed">
-                            {t('Last Printed')}
-                          </Text>
-                        </Group>
-                        <Text size="xs" fw={700}>
+                      </InfoRow>
+                      {lastLog && (
+                        <InfoRow icon={<IconPrinter size={16} />} label={t('Last Printed')}>
                           {formatDateTime(lastLog.printedAt)}
+                        </InfoRow>
+                      )}
+                    </Stack>
+                  </DrawerCard>
+                </DrawerAfter>
+              </DrawerRail>
+
+              <DrawerMain>
+                <InvoiceCreditNotesCard
+                  creditNotes={invoiceCreditNotes}
+                  isFullyReturned={d.isFullyReturned}
+                  onPreview={setPreviewCreditNote}
+                  onProcessReturn={() => setCreditNoteModalOpen(true)}
+                />
+
+                <AnimatedTabs<InvoiceTab> value={tab} onChange={setActiveTab} tabs={tabs}>
+                  {(value) => {
+                    if (value === 'items') return <InvoiceItemsPanel invoice={inv} />;
+                    if (value === 'payments') {
+                      return (
+                        <InvoicePaymentsPanel payments={payments} remainingCents={remainingCents} />
+                      );
+                    }
+                    return (
+                      <Stack gap="xs">
+                        <Text size="sm" fw={700}>
+                          {t('Print History')}
                         </Text>
-                      </Group>
-                    )}
-
-                    <Group justify="space-between">
-                      <Group gap="xs">
-                        <IconKey size={16} style={{ opacity: 0.6 }} />
-                        <Text size="xs" c="dimmed">
-                          {t('Invoice Key')}
-                        </Text>
-                      </Group>
-                      <Text size="xs" fw={600} c="dimmed" style={{ fontFamily: 'monospace' }}>
-                        {inv.id}
-                      </Text>
-                    </Group>
-                  </Stack>
-                </Stack>
-              )}
-
-              <Divider my="xs" />
-
-              {/* Document Actions */}
-              <Group grow gap="sm">
-                <Button
-                  variant="outline"
-                  color="blue"
-                  leftSection={<IconReceipt size={16} />}
-                  onClick={() => setPreviewDocumentKind('receipt')}
-                >
-                  {t('Show Receipt')}
-                </Button>
-
-                <Button
-                  variant="outline"
-                  color="blue"
-                  leftSection={<IconFileText size={16} />}
-                  onClick={() => setPreviewDocumentKind('invoice')}
-                >
-                  {t('Show Invoice')}
-                </Button>
-              </Group>
-
-              {/* Footer */}
-              <Group justify="space-between" mt="md" wrap="wrap" gap="sm">
-                <Group gap="sm">
-                  {isCreditPending && (
-                    <Button
-                      variant="filled"
-                      color="blue"
-                      size="sm"
-                      leftSection={<IconCash size={16} />}
-                      onClick={handleOpenPaymentModal}
-                    >
-                      {t('Record Payment')}
-                    </Button>
-                  )}
-                  {isAdmin && canClose && (
-                    <Button
-                      variant="light"
-                      color="violet"
-                      size="sm"
-                      leftSection={<IconSquareCheck size={16} />}
-                      loading={isClosing}
-                      onClick={handleCloseInvoice}
-                    >
-                      {t('Close Invoice')}
-                    </Button>
-                  )}
-                  {isAdmin && canVoid && (
-                    <Button
-                      variant="light"
-                      color="red"
-                      size="sm"
-                      leftSection={<IconBan size={16} />}
-                      onClick={() => setVoidModalOpen(true)}
-                    >
-                      {t('Void Invoice')}
-                    </Button>
-                  )}
-                  {isAdmin && voidBlockedReason && (
-                    <Text size="xs" c="dimmed" maw={280}>
-                      {voidBlockedReason}
-                    </Text>
-                  )}
-                </Group>
-
-                <Group gap="sm">
-                  <Button
-                    variant="subtle"
-                    color="blue"
-                    size="sm"
-                    leftSection={<IconCopy size={16} />}
-                    onClick={handleCopyInvoiceNumber}
-                  >
-                    {t('Copy Invoice #')}
-                  </Button>
-                  <Button variant="default" size="sm" onClick={handleClose}>
-                    {t('Close')}
-                  </Button>
-                </Group>
-              </Group>
-            </Stack>
+                        {logs.length === 0 ? (
+                          <Text size="xs" c="dimmed">
+                            {t('No print logs recorded yet.')}
+                          </Text>
+                        ) : (
+                          <Text size="xs" c="dimmed">
+                            {t('Printed')} {logs.length}
+                            {t('× · Last printed')}{' '}
+                            {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} ({lastLog?.format}
+                            )
+                          </Text>
+                        )}
+                      </Stack>
+                    );
+                  }}
+                </AnimatedTabs>
+              </DrawerMain>
+            </DrawerGrid>
           );
         }}
-      </DetailDrawer>
+      </RichDrawer>
 
       <Suspense fallback={null}>
         {/* Credit Note (Return & Exchange) Modal */}
@@ -1027,112 +639,30 @@ export const InvoiceDetailDrawer = ({
         )}
       </Suspense>
 
-      {/* Record Payment Modal */}
-      <Modal
+      <InvoicePaymentModal
         opened={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
-        title={
-          <Text fw={700} size="lg">
-            {t('Record Payment — #')}
-            {invoice?.invoiceNumber}
-          </Text>
-        }
-        centered
+        invoiceNumber={invoice?.invoiceNumber}
+        amountRupees={payAmountRupees}
+        onAmountChange={setPayAmountRupees}
+        method={payMethod}
+        onMethodChange={setPayMethod}
+        notes={payNotes}
+        onNotesChange={setPayNotes}
+        submitting={isSubmittingPay}
+        onConfirm={handleRecordPayment}
         fullScreen={isMobile}
-      >
-        <Stack gap="md">
-          <NumberInput
-            label={t('Payment Amount (Rs.)')}
-            prefix="Rs. "
-            min={1}
-            value={payAmountRupees}
-            onChange={(val) => setPayAmountRupees(typeof val === 'number' ? val : '')}
-          />
+      />
 
-          <Select
-            label={t('Payment Method')}
-            value={payMethod}
-            onChange={(v) => setPayMethod(v || 'cash')}
-            data={[
-              { label: 'Cash', value: 'cash' },
-              { label: 'Online / Bank Transfer', value: 'online' },
-              { label: 'Card', value: 'card' },
-            ]}
-          />
-
-          <TextInput
-            label={t('Note / Transaction Ref (Optional)')}
-            placeholder={t('e.g. Slip TRX-12345')}
-            value={payNotes}
-            onChange={(e) => setPayNotes(e.currentTarget.value)}
-          />
-
-          <Group justify="flex-end" mt="md" gap="sm">
-            <Button
-              variant="default"
-              onClick={() => setPaymentModalOpen(false)}
-              disabled={isSubmittingPay}
-            >
-              {t('Cancel')}
-            </Button>
-            <Button
-              color="blue"
-              loading={isSubmittingPay}
-              onClick={handleRecordPayment}
-              leftSection={<IconCheck size={16} />}
-            >
-              {t('Confirm & Update Balance')}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
-
-      {/* Void Invoice Confirmation — small centered dialog, not fullScreen, per
-          the "very small confirmation dialogs" exception to the center-modal
-          family (see ConfirmDialog.tsx). Needs its own Modal rather than
-          ConfirmDialog since a void reason is mandatory input, not just a
-          yes/no message. */}
-      <Modal
+      <InvoiceVoidModal
         opened={voidModalOpen}
         onClose={() => setVoidModalOpen(false)}
-        title={
-          <Text fw={700} size="lg">
-            {t('Void Invoice — #')}
-            {invoice?.invoiceNumber}
-          </Text>
-        }
-        centered
-        size="sm"
-      >
-        <Stack gap="md">
-          <Text size="sm">
-            {t(
-              'This reverses the sale — any stock and payments already recorded against this invoice\n                                  are undone. This cannot be undone from here, so please explain why.'
-            )}
-          </Text>
-          <Textarea
-            label={t('Reason for voiding')}
-            placeholder={t('e.g. Entered by mistake, duplicate sale')}
-            required
-            minRows={2}
-            value={voidReason}
-            onChange={(e) => setVoidReason(e.currentTarget.value)}
-          />
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={() => setVoidModalOpen(false)} disabled={isVoiding}>
-              {t('Cancel')}
-            </Button>
-            <Button
-              color="red"
-              onClick={handleVoidInvoice}
-              loading={isVoiding}
-              disabled={!voidReason.trim()}
-            >
-              {t('Void Invoice')}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        invoiceNumber={invoice?.invoiceNumber}
+        reason={voidReason}
+        onReasonChange={setVoidReason}
+        voiding={isVoiding}
+        onConfirm={handleVoidInvoice}
+      />
     </>
   );
 };

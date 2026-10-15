@@ -16,7 +16,7 @@ import { stockStatus } from '../lib/stockStatus';
 import { tierColor } from '../lib/tierColors';
 import type { Product } from '../types';
 import { StockBatchesPanel } from './StockBatchesPanel';
-import { SectionLabel } from './itemDrawerParts';
+import { SectionLabel } from '@/shared/components/drawer';
 
 export interface ItemStockCardProps {
   product: Product;

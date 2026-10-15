@@ -1,34 +1,29 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Box, Button, Center, Divider, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
-  Drawer,
-  Stack,
-  Text,
-  Paper,
-  Group,
-  Button,
-  ActionIcon,
-  Badge,
-  Tooltip,
-  Box,
-  ThemeIcon,
-  Center,
-  Divider,
-} from '@mantine/core';
-import { IconPlayerPlay, IconTrash, IconClock, IconPlayerPause } from '@tabler/icons-react';
-
+  IconCoin,
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconTrash,
+  IconClock,
+} from '@tabler/icons-react';
+import { Figure, IconAction, KpiStrip, KpiTile, RichDrawer } from '@/shared/components/drawer';
 import { useHeldCarts } from '../hooks/useCart';
 import { formatMoney } from '@/shared/lib/money';
-import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface HeldSalesDrawerProps {
   opened: boolean;
   onClose: () => void;
 }
 
+/** A sale held for over this many hours is flagged as stale. */
+const STALE_AFTER_HOURS = 2;
+
 export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
   const { heldCarts, loadHeldCart, removeHeldCart } = useHeldCarts();
-  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
   const [nowMs, setNowMs] = useState(0);
 
   useEffect(() => {
@@ -64,129 +59,132 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
       }),
     [heldCarts]
   );
+  const parkedValueCents = heldWithTotals.reduce((acc, h) => acc + h.total, 0);
 
   return (
-    <Drawer
+    <RichDrawer
+      data={heldCarts}
       opened={opened}
       onClose={onClose}
-      title={
-        <Group gap="sm" align="center">
-          <ThemeIcon size={40} color="orange" variant="light">
-            <IconPlayerPause size={22} />
-          </ThemeIcon>
-          <Box>
-            <Text fw={700} size="md" lh={1.2}>
-              {t('Parked / held sales')}
-            </Text>
-            <Text size="xs" c="dimmed" fw={500}>
-              {heldCarts.length} {t('parked · Ctrl+H to park the active cart')}
-            </Text>
-          </Box>
-        </Group>
-      }
-      position="right"
-      size={isMobile ? '100%' : 'md'}
+      width="narrow"
+      title={{
+        icon: <IconPlayerPause size={20} />,
+        text: t('Parked / held sales'),
+        subtitle: `${heldCarts.length} ${t('parked · Ctrl+H to park the active cart')}`,
+      }}
     >
-      <Stack gap="sm">
-        {heldCarts.length === 0 ? (
-          <Center py="xl">
-            <Text c="dimmed" size="sm" ta="center">
-              {t('No sales currently parked. Press')} <b>{t('Ctrl+H')}</b>{' '}
-              {t('to park the active cart.')}
-            </Text>
-          </Center>
-        ) : (
-          heldWithTotals.map((h) => {
-            const ageHours = getAgeHours(h.heldAt, nowMs);
-            const isStale = ageHours >= 2;
-            const { total } = h;
+      {() => (
+        <Stack gap="md">
+          <KpiStrip>
+            <KpiTile icon={<IconPlayerPause size={16} />} color="orange" label={t('Parked')}>
+              <Figure value={String(heldCarts.length)} hint={t('sales waiting')} color="orange" />
+            </KpiTile>
+            <KpiTile icon={<IconCoin size={16} />} color="blue" label={t('Total')}>
+              <Figure value={formatMoney(parkedValueCents)} hint={t('parked value')} color="blue" />
+            </KpiTile>
+          </KpiStrip>
 
-            return (
-              <Paper
-                key={h.id}
-                withBorder
-                p={0}
-                style={{
-                  backgroundColor: 'var(--bg-hover)',
-                  borderLeft: isStale ? '4px solid var(--mantine-color-yellow-6)' : undefined,
-                  overflow: 'hidden',
-                }}
-              >
-                <Stack gap="xs" p="sm">
-                  <Group justify="space-between" align="flex-start" wrap="nowrap">
-                    <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
-                      <ThemeIcon
-                        size={40}
-                        color={isStale ? 'yellow' : 'blue'}
-                        variant="light"
-                        style={{ flexShrink: 0 }}
-                      >
-                        <IconPlayerPause size={20} />
-                      </ThemeIcon>
-                      <Text size="sm" fw={700} lineClamp={1} style={{ flex: 1, minWidth: 0 }}>
-                        {h.label || h.customerName || 'Unlabeled Sale'}
-                      </Text>
-                    </Group>
-                    <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
-                      {isStale && (
-                        <Tooltip label={t('Held for over 2 hours')}>
-                          <Badge size="xs" radius="xl" variant="light" color="yellow" fw={600}>
-                            {t('Stale (&gt;2h)')}
-                          </Badge>
-                        </Tooltip>
-                      )}
-                      <Text
-                        size="xs"
-                        c="dimmed"
-                        style={{
-                          display: 'flex',
-                          flexWrap: 'nowrap',
-                          alignItems: 'center',
-                          gap: 2,
-                        }}
-                      >
-                        <IconClock size={12} /> {getAgeLabel(h.heldAt, nowMs)}
-                      </Text>
-                    </Group>
-                  </Group>
+          {heldCarts.length === 0 ? (
+            <Center py="xl">
+              <Text c="dimmed" size="sm" ta="center">
+                {t('No sales currently parked. Press')} <b>{t('Ctrl+H')}</b>{' '}
+                {t('to park the active cart.')}
+              </Text>
+            </Center>
+          ) : (
+            <AnimatePresence initial={false}>
+              {heldWithTotals.map((h) => {
+                const ageHours = getAgeHours(h.heldAt, nowMs);
+                const isStale = ageHours >= STALE_AFTER_HOURS;
 
-                  <Text size="xs" c="dimmed">
-                    {h.items.length} {t('item(s) · Total:')}{' '}
-                    <Text span fw={700} c="var(--text-primary)" inherit>
-                      {formatMoney(total)}
-                    </Text>
-                  </Text>
-                </Stack>
-
-                <Divider />
-
-                <Group gap="xs" wrap="nowrap" p="sm">
-                  <Button
-                    variant="default"
-                    leftSection={<IconPlayerPlay size={14} color="var(--mantine-color-blue-6)" />}
-                    style={{ flex: 1, color: 'var(--mantine-color-blue-6)' }}
-                    onClick={() => {
-                      loadHeldCart(h.id);
-                      onClose();
-                    }}
+                return (
+                  <motion.div
+                    key={h.id}
+                    layout={!reduceMotion}
+                    initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 24 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.18 }}
+                    style={{ marginBottom: 'var(--mantine-spacing-md)' }}
                   >
-                    {t('Restore to cart')}
-                  </Button>
-                  <ActionIcon
-                    variant="default"
-                    size={36}
-                    style={{ color: 'var(--mantine-color-red-6)' }}
-                    onClick={() => removeHeldCart(h.id)}
-                    title={t('Discard held sale')}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
-              </Paper>
-            );
-          })
-        )}
-      </Stack>
-    </Drawer>
+                    <Paper
+                      p={0}
+                      bg="var(--bg-card)"
+                      shadow="xs"
+                      style={{
+                        borderLeft: isStale ? '4px solid var(--mantine-color-yellow-6)' : undefined,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Stack gap="xs" p="sm">
+                        <Group justify="space-between" align="flex-start" wrap="nowrap">
+                          <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+                            <ThemeIcon
+                              size={40}
+                              color={isStale ? 'yellow' : 'blue'}
+                              variant="light"
+                              style={{ flexShrink: 0 }}
+                            >
+                              <IconPlayerPause size={20} />
+                            </ThemeIcon>
+                            <Box style={{ minWidth: 0 }}>
+                              <Text size="sm" fw={700} lineClamp={1}>
+                                {h.label || h.customerName || 'Unlabeled Sale'}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                {h.items.length} {t('item(s) · Total:')}{' '}
+                                <Text span fw={700} c="var(--text-primary)" inherit>
+                                  {formatMoney(h.total)}
+                                </Text>
+                              </Text>
+                            </Box>
+                          </Group>
+                          <Box style={{ flexShrink: 0, textAlign: 'right' }}>
+                            <Group gap={2} wrap="nowrap" justify="flex-end" c="dimmed">
+                              <IconClock size={12} />
+                              <Text size="xs" c="dimmed">
+                                {getAgeLabel(h.heldAt, nowMs)}
+                              </Text>
+                            </Group>
+                            {isStale && (
+                              <Text size="xs" fw={700} c="yellow">
+                                {t('Stale (>2h)')}
+                              </Text>
+                            )}
+                          </Box>
+                        </Group>
+                      </Stack>
+
+                      <Divider />
+
+                      <Group gap="xs" wrap="nowrap" p="sm">
+                        <Button
+                          variant="light"
+                          color="blue"
+                          leftSection={<IconPlayerPlay size={14} />}
+                          style={{ flex: 1 }}
+                          onClick={() => {
+                            loadHeldCart(h.id);
+                            onClose();
+                          }}
+                        >
+                          {t('Restore to cart')}
+                        </Button>
+                        <IconAction
+                          kind="danger"
+                          label={t('Discard held sale')}
+                          icon={<IconTrash size={16} />}
+                          onClick={() => removeHeldCart(h.id)}
+                        />
+                      </Group>
+                    </Paper>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          )}
+        </Stack>
+      )}
+    </RichDrawer>
   );
 };
