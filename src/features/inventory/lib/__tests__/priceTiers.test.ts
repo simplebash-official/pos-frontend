@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   adminCostRange,
+  availableTiers,
   formatCentsRange,
   profitRange,
   sellingPriceRange,
@@ -62,5 +63,15 @@ describe('price tiers', () => {
       [120_000, 0],
       [150_000, 12],
     ]);
+  });
+
+  it('availableTiers lists only the prices the sale can still take from', () => {
+    const both = availableTiers(itemA.priceTiers, new Map());
+    expect(both.map((t) => t.sellingPriceCents)).toEqual([120_000, 150_000]);
+
+    const oneLeft = availableTiers(itemA.priceTiers, new Map([[120_000, 5]]));
+    expect(oneLeft.map((t) => t.sellingPriceCents)).toEqual([150_000]);
+
+    expect(availableTiers([], new Map())).toEqual([]);
   });
 });

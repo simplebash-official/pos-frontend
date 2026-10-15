@@ -66,6 +66,15 @@ export const tiersWithRoom = (
     left: tier.quantity - (reservedByPrice.get(tier.sellingPriceCents) ?? 0),
   }));
 
+/**
+ * The tiers this sale can still take from. More than one means the cashier
+ * has to pick a price, so the catalog flags the card and opens the picker.
+ */
+export const availableTiers = (
+  tiers: PriceTier[],
+  reservedByPrice: ReadonlyMap<number, number>
+): TierWithRoom[] => tiersWithRoom(tiers, reservedByPrice).filter((tier) => tier.left > 0);
+
 /** The product's price(s) as shown in lists; it has none while out of stock. */
 export const priceText = (product: Product): string => {
   const range = sellingPriceRange(product);

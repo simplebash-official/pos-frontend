@@ -31,6 +31,7 @@ import {
   IconX,
   IconArrowsSort,
   IconCheck,
+  IconStack2,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -70,7 +71,7 @@ import {
   adminCostRange,
   formatCentsRange,
   sellingPriceRange,
-  tiersWithRoom,
+  availableTiers,
 } from '@/features/inventory/lib/priceTiers';
 import type { PriceTier } from '@/features/inventory/types';
 
@@ -456,10 +457,10 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
     // A product in stock at one price goes straight in; at several, the
     // cashier picks which price this sale is at.
-    const withRoom = tiersWithRoom(
+    const withRoom = availableTiers(
       p.priceTiers,
       reservedQuantityByProductPrice.get(p.id) ?? new Map()
-    ).filter((tier) => tier.left > 0);
+    );
     if (withRoom.length === 1) {
       addProductToCart(p, withRoom[0], 1);
       return;
@@ -1092,6 +1093,12 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                           remainingStock > 0 && remainingStock <= p.minStockThreshold;
                         const isSelected = selectedIndex !== null && index === selectedIndex;
                         const priceRange = sellingPriceRange(p);
+                        // Same test handleAddProduct uses to open the price picker.
+                        const priceCount = availableTiers(
+                          p.priceTiers,
+                          reservedQuantityByProductPrice.get(p.id) ?? new Map()
+                        ).length;
+                        const hasPriceChoice = priceCount > 1;
                         const costRange = isAdmin ? adminCostRange(p) : null;
                         const {
                           Icon: CatIcon,
@@ -1108,7 +1115,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             key={p.id}
                             p="xs"
                             withBorder
-                            className="product-catalog-card"
+                            className={`product-catalog-card${hasPriceChoice ? ' product-catalog-card--multi-price' : ''}`}
                             radius="var(--mantine-radius-default)"
                             style={{
                               height: CARD_HEIGHT,
@@ -1158,7 +1165,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                               {/* Middle Row: Full width Product Name */}
                               <Box style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
-                                <div style={{ minWidth: 0 }}>
+                                <div style={{ minWidth: 0, flex: 1 }}>
                                   <Text
                                     size="xs"
                                     fw={700}
@@ -1167,21 +1174,47 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                   >
                                     <SearchHighlight text={p.name} terms={searchTerms} />
                                   </Text>
-                                  <Text
-                                    size="10px"
-                                    c="dimmed"
-                                    lineClamp={1}
-                                    style={{ fontFamily: 'monospace' }}
+                                  <Group
+                                    justify="space-between"
+                                    align="center"
+                                    wrap="nowrap"
+                                    gap={4}
                                   >
-                                    <SearchHighlight text={p.sku} terms={searchTerms} />
-                                    {p.barcode &&
-                                      getMatchRanges(p.barcode, searchTerms).length > 0 && (
-                                        <>
-                                          {' · '}
-                                          <SearchHighlight text={p.barcode} terms={searchTerms} />
-                                        </>
-                                      )}
-                                  </Text>
+                                    <Text
+                                      size="10px"
+                                      c="dimmed"
+                                      lineClamp={1}
+                                      style={{ fontFamily: 'monospace', minWidth: 0 }}
+                                    >
+                                      <SearchHighlight text={p.sku} terms={searchTerms} />
+                                      {p.barcode &&
+                                        getMatchRanges(p.barcode, searchTerms).length > 0 && (
+                                          <>
+                                            {' · '}
+                                            <SearchHighlight text={p.barcode} terms={searchTerms} />
+                                          </>
+                                        )}
+                                    </Text>
+                                    {hasPriceChoice && (
+                                      <Badge
+                                        size="xs"
+                                        color="orange"
+                                        variant="filled"
+                                        leftSection={<IconStack2 size={11} />}
+                                        title={t(
+                                          'This item came in at different prices. Pick the one you are selling.'
+                                        )}
+                                        style={{
+                                          textTransform: 'none',
+                                          fontWeight: 700,
+                                          fontSize: 10,
+                                          flexShrink: 0,
+                                        }}
+                                      >
+                                        {priceCount} {t('prices')}
+                                      </Badge>
+                                    )}
+                                  </Group>
                                 </div>
                               </Box>
 
