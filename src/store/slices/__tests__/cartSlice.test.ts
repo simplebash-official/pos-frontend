@@ -92,6 +92,25 @@ describe('cartSlice reducer & selectors', () => {
       expect(state.items[0].totalCents).toBe(2500);
     });
 
+    it('keeps a different price of the same product as its own line when adding several', () => {
+      let state = cartReducer(getInitialState(), addItem(sampleItem));
+      state = cartReducer(
+        state,
+        addItem({ ...sampleItem, id: 'line-2', unitPriceCents: 400, quantity: 3 })
+      );
+      state = cartReducer(
+        state,
+        addItem({ ...sampleItem, id: 'line-3', unitPriceCents: 400, quantity: 4 })
+      );
+
+      expect(state.items).toHaveLength(2);
+      const cheaper = state.items.find((line) => line.unitPriceCents === 400);
+      const dearer = state.items.find((line) => line.unitPriceCents === 500);
+      expect(cheaper?.quantity).toBe(7); // 3 + 4 merged
+      expect(cheaper?.totalCents).toBe(2800);
+      expect(dearer?.quantity).toBe(2); // untouched
+    });
+
     it('does not increment quantity for service tickets (locked to quantity 1)', () => {
       const repairItem: Omit<CartItem, 'totalCents'> = {
         id: 'rep-line-1',

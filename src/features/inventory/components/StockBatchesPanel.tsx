@@ -2,20 +2,31 @@ import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import {
   ActionIcon,
+  Box,
   Button,
+  Collapse,
   Group,
   Loader,
   Center,
   NumberInput,
   Paper,
+  Progress,
   Stack,
   Text,
   TextInput,
   Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconPencil, IconMinus, IconPlus, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconPackageExport,
+  IconPencil,
+  IconPlus,
+  IconTruckDelivery,
+  IconX,
+} from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
+import { tierColor } from '../lib/tierColors';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -34,15 +45,22 @@ export interface StockBatchesPanelProps {
   product: Product;
   /** Called with the refreshed product after stock changes. */
   onProductChange: (product: Product) => void;
+  /** Admin only: jumps to the supplier intake form (a delivery with its own cost, price and supplier). */
+  onReceiveFromSupplier?: () => void;
 }
 
 /**
- * A product's deliveries (stock batches), newest first: when each came in,
- * how many are left, what it cost (Admin only) and what it sells for. The
- * price of a delivery can be changed here, units can be taken out of one
- * delivery, and new stock can be added as its own delivery with its own price.
+ * A product's deliveries (stock batches), newest first, as one divided list:
+ * when each came in, how many are left (with a bar), what it cost (Admin only)
+ * and what it sells for. The price of a delivery can be changed here, units can
+ * be taken out of one delivery, and new stock can be added as its own delivery
+ * with its own price. The forms open inline under the row they belong to.
  */
-export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPanelProps) => {
+export const StockBatchesPanel = ({
+  product,
+  onProductChange,
+  onReceiveFromSupplier,
+}: StockBatchesPanelProps) => {
   const isMobile = useIsMobile();
   const isAdmin = useIsAdmin();
   const { data: batches, isLoading } = useProductBatches(product.key);
@@ -146,6 +164,8 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
   };
 
   const fieldSize = isMobile ? 'md' : 'sm';
+  const actionSize = isMobile ? 44 : 32;
+  const rows = batches ?? [];
 
   return (
     <Stack gap="sm">
@@ -159,16 +179,20 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
         <Center py="sm">
           <Loader size="sm" />
         </Center>
-      ) : (batches ?? []).length === 0 ? (
+      ) : rows.length === 0 ? (
         <Text size="sm" c="dimmed">
           {t('No stock has been received for this item yet.')}
         </Text>
       ) : (
-        (batches ?? []).map((batch) => (
-          <Paper key={batch.key} p="sm" withBorder>
-            <Stack gap={6}>
-              <Group justify="space-between" wrap="nowrap" align="flex-start">
-                <Stack gap={2}>
+        <Stack gap={0}>
+          {rows.map((batch, index) => (
+            <Box
+              key={batch.key}
+              py="sm"
+              style={{ borderTop: index === 0 ? undefined : '1px solid var(--border)' }}
+            >
+              <Group justify="space-between" wrap="wrap" align="flex-start" gap="xs">
+                <Stack gap={4} style={{ flex: '1 1 200px', minWidth: 0 }}>
                   <Text size="sm" fw={700}>
                     {batch.remainingQuantity} {t('left')}
                     <Text span size="xs" c="dimmed" fw={500}>
@@ -176,97 +200,121 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
                       {t('of')} {batch.receivedQuantity}
                     </Text>
                   </Text>
+                  <Progress
+                    value={
+                      batch.receivedQuantity > 0
+                        ? (batch.remainingQuantity / batch.receivedQuantity) * 100
+                        : 0
+                    }
+                    size="xs"
+                    color={tierColor(product.priceTiers, batch.sellingPriceCents)}
+                    aria-hidden
+                  />
                   <Text size="xs" c="dimmed">
                     {formatDate(batch.receivedAt)} · {t(SOURCE_LABELS[batch.source])}
+                    {isAdmin && batch.unitCostCents !== undefined && (
+                      <span style={{ whiteSpace: 'nowrap' }}>
+                        {' · '}
+                        {t('Cost')} {formatMoney(batch.unitCostCents)}
+                      </span>
+                    )}
                   </Text>
-                  {isAdmin && batch.unitCostCents !== undefined && (
-                    <Text size="xs" c="dimmed">
-                      {t('Cost')} {formatMoney(batch.unitCostCents)}
-                    </Text>
-                  )}
                 </Stack>
 
-                {editingKey === batch.key ? (
-                  <Group gap={4} wrap="nowrap">
-                    <MoneyInput
-                      valueCents={editPriceCents}
-                      onChangeCents={setEditPriceCents}
-                      size={fieldSize}
-                      w={120}
-                      aria-label={t('New selling price')}
-                    />
+                <Group gap={6} wrap="nowrap" align="center">
+                  <Text
+                    fw={800}
+                    size="sm"
+                    c={tierColor(product.priceTiers, batch.sellingPriceCents)}
+                    mr={4}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {formatMoney(batch.sellingPriceCents)}
+                  </Text>
+                  <Tooltip label={t('Change price')}>
                     <ActionIcon
-                      color="blue"
                       variant="light"
-                      size={isMobile ? 44 : 'lg'}
-                      onClick={() => savePrice(batch)}
-                      loading={updateBatch.isPending}
-                      disabled={editPriceCents <= 0}
-                      aria-label={t('Save price')}
+                      color="blue"
+                      size={actionSize}
+                      onClick={() => {
+                        resetTakeOut();
+                        startEdit(batch);
+                      }}
+                      aria-label={t('Change price')}
                     >
-                      <IconCheck size={16} />
+                      <IconPencil size={16} />
                     </ActionIcon>
-                    <ActionIcon
-                      variant="default"
-                      size={isMobile ? 44 : 'lg'}
-                      onClick={() => setEditingKey(null)}
-                      aria-label={t('Cancel')}
-                    >
-                      <IconX size={16} />
-                    </ActionIcon>
-                  </Group>
-                ) : (
-                  <Group gap={4} wrap="nowrap">
-                    <Text fw={800} size="sm" c="blue" style={{ whiteSpace: 'nowrap' }}>
-                      {formatMoney(batch.sellingPriceCents)}
-                    </Text>
-                    <Tooltip label={t('Change price')}>
+                  </Tooltip>
+                  {batch.remainingQuantity > 0 && (
+                    <Tooltip label={t('Take stock out')}>
                       <ActionIcon
-                        variant="subtle"
-                        size={isMobile ? 44 : 'md'}
-                        onClick={() => startEdit(batch)}
-                        aria-label={t('Change price')}
+                        variant="light"
+                        color="red"
+                        size={actionSize}
+                        onClick={() => {
+                          setEditingKey(null);
+                          setTakeOutKey(batch.key);
+                        }}
+                        aria-label={t('Take stock out')}
                       >
-                        <IconPencil size={16} />
+                        <IconPackageExport size={16} />
                       </ActionIcon>
                     </Tooltip>
-                    {batch.remainingQuantity > 0 && (
-                      <Tooltip label={t('Take stock out')}>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size={isMobile ? 44 : 'md'}
-                          onClick={() => setTakeOutKey(batch.key)}
-                          aria-label={t('Take stock out')}
-                        >
-                          <IconMinus size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                    )}
-                  </Group>
-                )}
+                  )}
+                </Group>
               </Group>
 
-              {takeOutKey === batch.key && (
-                <Stack gap={6}>
-                  <Group gap="xs" grow>
-                    <NumberInput
-                      label={t('How many to take out')}
-                      min={1}
-                      max={batch.remainingQuantity}
-                      allowDecimal={false}
-                      value={takeOutQty}
-                      onChange={setTakeOutQty}
-                      size={fieldSize}
-                    />
-                    <TextInput
-                      label={t('Why?')}
-                      placeholder={t('e.g. Damaged, Stock count correction')}
-                      value={takeOutReason}
-                      onChange={(e) => setTakeOutReason(e.currentTarget.value)}
-                      size={fieldSize}
-                    />
-                  </Group>
+              <Collapse expanded={editingKey === batch.key}>
+                <Group gap={6} wrap="nowrap" align="flex-end" pt="xs">
+                  <MoneyInput
+                    valueCents={editPriceCents}
+                    onChangeCents={setEditPriceCents}
+                    size={fieldSize}
+                    label={t('New selling price')}
+                    style={{ flex: 1 }}
+                    aria-label={t('New selling price')}
+                  />
+                  <ActionIcon
+                    color="blue"
+                    variant="light"
+                    size={actionSize}
+                    onClick={() => savePrice(batch)}
+                    loading={updateBatch.isPending}
+                    disabled={editPriceCents <= 0}
+                    aria-label={t('Save price')}
+                  >
+                    <IconCheck size={16} />
+                  </ActionIcon>
+                  <ActionIcon
+                    variant="light"
+                    color="gray"
+                    size={actionSize}
+                    onClick={() => setEditingKey(null)}
+                    aria-label={t('Cancel')}
+                  >
+                    <IconX size={16} />
+                  </ActionIcon>
+                </Group>
+              </Collapse>
+
+              <Collapse expanded={takeOutKey === batch.key}>
+                <Stack gap={6} pt="xs">
+                  <NumberInput
+                    label={t('How many to take out')}
+                    min={1}
+                    max={batch.remainingQuantity}
+                    allowDecimal={false}
+                    value={takeOutQty}
+                    onChange={setTakeOutQty}
+                    size={fieldSize}
+                  />
+                  <TextInput
+                    label={t('Reason')}
+                    placeholder={t('e.g. Damaged, Stock count correction')}
+                    value={takeOutReason}
+                    onChange={(e) => setTakeOutReason(e.currentTarget.value)}
+                    size={fieldSize}
+                  />
                   <Group justify="flex-end" gap="sm">
                     <Button variant="default" size="xs" onClick={resetTakeOut}>
                       {t('Cancel')}
@@ -286,24 +334,24 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
                     </Button>
                   </Group>
                 </Stack>
-              )}
-            </Stack>
-          </Paper>
-        ))
+              </Collapse>
+            </Box>
+          ))}
+        </Stack>
       )}
 
-      {stockInOpen ? (
+      <Collapse expanded={stockInOpen}>
         <Paper p="sm" withBorder>
           <Stack gap={6}>
-            <Group gap="xs" grow align="flex-start">
-              <NumberInput
-                label={t('Units to add')}
-                min={1}
-                allowDecimal={false}
-                value={stockInQty}
-                onChange={setStockInQty}
-                size={fieldSize}
-              />
+            <NumberInput
+              label={t('Units to add')}
+              min={1}
+              allowDecimal={false}
+              value={stockInQty}
+              onChange={setStockInQty}
+              size={fieldSize}
+            />
+            <Group gap="xs" grow align="flex-start" wrap="nowrap">
               <MoneyInput
                 label={t('Cost each')}
                 valueCents={stockInCostCents}
@@ -318,7 +366,7 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
               />
             </Group>
             <TextInput
-              label={t('Why?')}
+              label={t('Reason')}
               placeholder={t('e.g. Found in store room')}
               value={stockInReason}
               onChange={(e) => setStockInReason(e.currentTarget.value)}
@@ -340,15 +388,30 @@ export const StockBatchesPanel = ({ product, onProductChange }: StockBatchesPane
             </Group>
           </Stack>
         </Paper>
-      ) : (
-        <Button
-          variant="light"
-          size={fieldSize}
-          leftSection={<IconPlus size={16} />}
-          onClick={() => setStockInOpen(true)}
-        >
-          {t('Add stock by hand')}
-        </Button>
+      </Collapse>
+
+      {!stockInOpen && (
+        <Group grow gap="xs">
+          {onReceiveFromSupplier !== undefined && (
+            <Button
+              variant="filled"
+              color="blue"
+              size={fieldSize}
+              leftSection={<IconTruckDelivery size={16} />}
+              onClick={onReceiveFromSupplier}
+            >
+              {t('Receive from supplier')}
+            </Button>
+          )}
+          <Button
+            variant="light"
+            size={fieldSize}
+            leftSection={<IconPlus size={16} />}
+            onClick={() => setStockInOpen(true)}
+          >
+            {t('Add stock by hand')}
+          </Button>
+        </Group>
       )}
     </Stack>
   );
