@@ -1,10 +1,10 @@
 import { t } from '@/shared/i18n/t';
-import { Box, Group, Paper, Text, ThemeIcon } from '@mantine/core';
-import { IconBarcode, IconPackage } from '@tabler/icons-react';
-import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
-import { resolveCategoryIcon } from '../constants';
+import { Box, Group, Paper, Text } from '@mantine/core';
+import { IconBarcode } from '@tabler/icons-react';
 import { stockStatus } from '../lib/stockStatus';
 import type { Product } from '../types';
+import { useCategoryAccent } from '../hooks/useCategoryAccent';
+import { CategoryIconTile } from './CategoryIconTile';
 import { CopyIconButton } from './itemDrawerParts';
 
 const STATUS_VIEW = {
@@ -15,15 +15,7 @@ const STATUS_VIEW = {
 
 /** Who the item is: category icon, SKU, stock status, name, category path and barcode, as plain text rather than badges. */
 export const ItemHeroCard = ({ product }: { product: Product }) => {
-  const iconMap = useCategoryIcons();
-  const { getCategory } = useCategoryLookup();
-  const category = getCategory(product.categoryKey);
-  // Built inside a function so the icon, looked up by name, is not seen as a component made during render.
-  const renderCategoryIcon = () => {
-    const CategoryIcon = category ? resolveCategoryIcon(iconMap, category.icon) : IconPackage;
-    return <CategoryIcon size={32} />;
-  };
-  const accent = category ? category.color : 'blue';
+  const accent = useCategoryAccent(product);
   const status = STATUS_VIEW[stockStatus(product.stockQuantity, product.minStockThreshold)];
 
   return (
@@ -35,15 +27,7 @@ export const ItemHeroCard = ({ product }: { product: Product }) => {
       }}
     >
       <Group align="flex-start" wrap="nowrap" gap="md">
-        <ThemeIcon
-          size={60}
-          variant="filled"
-          color={accent}
-          radius="var(--mantine-radius-default)"
-          style={{ boxShadow: `0 6px 16px -6px var(--mantine-color-${accent}-filled)` }}
-        >
-          {renderCategoryIcon()}
-        </ThemeIcon>
+        <CategoryIconTile product={product} size={60} />
 
         <Box style={{ flex: 1, minWidth: 0 }}>
           <Group justify="space-between" wrap="nowrap" gap="xs" mb={4}>

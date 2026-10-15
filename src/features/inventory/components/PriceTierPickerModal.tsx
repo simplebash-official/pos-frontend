@@ -1,14 +1,29 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Badge, Button, Group, Modal, Paper, Radio, Stack, Text } from '@mantine/core';
+import {
+  Badge,
+  Box,
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Progress,
+  Radio,
+  Stack,
+  Text,
+} from '@mantine/core';
+import { IconClockHour4 } from '@tabler/icons-react';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
+import { useCategoryAccent } from '../hooks/useCategoryAccent';
 import { formatCentsRange, tiersWithRoom, type TierWithRoom } from '../lib/priceTiers';
+import { tierColor } from '../lib/tierColors';
 import type { Product } from '../types';
+import { CategoryIconTile } from './CategoryIconTile';
 
 export interface PriceTierPickerModalProps {
   opened: boolean;
@@ -32,13 +47,16 @@ const oldestWithRoom = (tiers: TierWithRoom[]): TierWithRoom | undefined =>
       undefined
     );
 
+/** Quick quantities offered next to the stepper, when that many are left. */
+const QUICK_QUANTITIES = [1, 5, 10] as const;
+
 const SECTION_LABEL_STYLE = { letterSpacing: '0.05em' } as const;
 
 /**
  * Asks which price a product is being sold at when it is in stock at more than
  * one (each delivery keeps its own price), and how many to sell at that price.
- * Shows how many are left at each price, with the oldest stock picked so Enter
- * adds it straight away.
+ * Each price carries the colour it has in the item's stock bar, with how many
+ * are left; the oldest stock is picked so Enter adds it straight away.
  */
 export const PriceTierPickerModal = ({
   opened,
@@ -49,8 +67,10 @@ export const PriceTierPickerModal = ({
 }: PriceTierPickerModalProps) => {
   const isMobile = useIsMobile();
   const isAdmin = useIsAdmin();
+  const accent = useCategoryAccent(product);
   const tiers = tiersWithRoom(product.priceTiers, reservedByPrice);
   const oldest = oldestWithRoom(tiers);
+  const largestTier = Math.max(...tiers.map((tier) => tier.quantity));
   const [chosen, setChosen] = useState<string | null>(() =>
     oldest === undefined ? null : String(oldest.sellingPriceCents)
   );
@@ -97,18 +117,28 @@ export const PriceTierPickerModal = ({
           {t('Choose a price')}
         </Text>
       }
-      size="sm"
+      size="md"
       centered
       fullScreen={isMobile}
     >
-      <Stack gap="md">
-        <Paper p="sm" withBorder bg="var(--bg-card)">
-          <Text fw={700} lineClamp={2}>
-            {product.name}
-          </Text>
-          <Text size="xs" c="dimmed">
-            {t('This item came in at different prices. Pick the one you are selling.')}
-          </Text>
+      <Stack gap="sm">
+        <Paper
+          p="sm"
+          style={{
+            background: `linear-gradient(135deg, var(--mantine-color-${accent}-light) 0%, var(--bg-card) 75%)`,
+          }}
+        >
+          <Group wrap="nowrap" gap="md" align="center">
+            <CategoryIconTile product={product} size={48} />
+            <Box style={{ minWidth: 0 }}>
+              <Text fw={800} size="lg" lh={1.2} lineClamp={2}>
+                {product.name}
+              </Text>
+              <Text size="xs" c="dimmed" mt={2}>
+                {t('This item came in at different prices. Pick the one you are selling.')}
+              </Text>
+            </Box>
+          </Group>
         </Paper>
 
         <Radio.Group value={chosen} onChange={handleChoose}>
@@ -116,6 +146,7 @@ export const PriceTierPickerModal = ({
             {tiers.map((tier) => {
               const isChosen = String(tier.sellingPriceCents) === chosen;
               const soldOut = tier.left <= 0;
+              const color = tierColor(product.priceTiers, tier.sellingPriceCents);
               return (
                 <Radio.Card
                   key={tier.sellingPriceCents}
@@ -133,27 +164,44 @@ export const PriceTierPickerModal = ({
                     backgroundColor: isChosen
                       ? 'var(--mantine-color-blue-light)'
                       : 'var(--bg-card)',
+                    boxShadow: isChosen ? '0 0 0 3px var(--mantine-color-blue-light)' : undefined,
                     opacity: soldOut ? 0.55 : 1,
                     minHeight: isMobile ? 44 : undefined,
                   }}
                 >
                   <Group wrap="nowrap" align="flex-start" gap="sm">
-                    <Radio.Indicator disabled={soldOut} mt={4} />
-                    <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                      <Group justify="space-between" wrap="nowrap" gap="xs">
-                        <Text fw={800} size="lg">
+                    <Radio.Indicator disabled={soldOut} mt={6} />
+                    <Stack gap={6} style={{ flex: 1, minWidth: 0 }}>
+                      <Group justify="space-between" wrap="nowrap" gap="xs" align="center">
+                        <Text fw={800} size="xl" c={color} lh={1.1}>
                           {formatMoney(tier.sellingPriceCents)}
                         </Text>
                         {tier === oldest && (
-                          <Badge size="xs" variant="light" color="blue">
+                          <Badge
+                            size="sm"
+                            variant="light"
+                            color="blue"
+                            leftSection={<IconClockHour4 size={12} />}
+                          >
                             {t('Oldest stock')}
                           </Badge>
                         )}
                       </Group>
+
+                      <Progress
+                        value={(tier.left / largestTier) * 100}
+                        color={color}
+                        size="sm"
+                        radius="xl"
+                        aria-hidden
+                      />
+
                       <Text size="xs" c="dimmed">
-                        {soldOut
-                          ? t('All of these are already in this sale')
-                          : `${tier.left} ${t('left')}`}
+                        <Text span fw={700} c="var(--text-primary)">
+                          {soldOut
+                            ? t('All of these are already in this sale')
+                            : `${tier.left} ${t('left')}`}
+                        </Text>
                         {' · '}
                         {t('Received')} {formatDate(tier.oldestReceivedAt)}
                         {isAdmin &&
@@ -172,11 +220,11 @@ export const PriceTierPickerModal = ({
           </Stack>
         </Radio.Group>
 
-        <Stack gap={6}>
+        <Stack gap={8}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={SECTION_LABEL_STYLE}>
             {t('How many?')}
           </Text>
-          <Group justify="space-between" align="center" wrap="nowrap">
+          <Group justify="space-between" align="center" wrap="wrap" gap="sm">
             <QuantityInput
               value={quantity}
               onChange={setQuantity}
@@ -188,24 +236,56 @@ export const PriceTierPickerModal = ({
               data-autofocus={isMobile ? undefined : true}
               onFocus={(event) => event.currentTarget.select()}
             />
-            {maxQuantity > 0 && (
-              <Text size="xs" c="dimmed" ta="right">
-                {t('Up to')} {maxQuantity} {t('at this price')}
-              </Text>
-            )}
+            <Group gap={6}>
+              {QUICK_QUANTITIES.filter((n) => n < maxQuantity).map((n) => (
+                <Button
+                  key={n}
+                  variant={quantity === n ? 'filled' : 'light'}
+                  color="blue"
+                  size={isMobile ? 'md' : 'compact-md'}
+                  onClick={() => setQuantity(n)}
+                >
+                  {n}
+                </Button>
+              ))}
+              {maxQuantity > 0 && (
+                <Button
+                  variant={quantity === maxQuantity ? 'filled' : 'light'}
+                  color="blue"
+                  size={isMobile ? 'md' : 'compact-md'}
+                  onClick={() => setQuantity(maxQuantity)}
+                >
+                  {t('All')} {maxQuantity}
+                </Button>
+              )}
+            </Group>
           </Group>
+          {maxQuantity > 0 && (
+            <Text size="xs" c="dimmed">
+              {t('Up to')} {maxQuantity} {t('at this price')}
+            </Text>
+          )}
         </Stack>
 
-        <Group justify="space-between" align="baseline">
-          <Text size="sm" c="dimmed">
-            {t('Total')}
-          </Text>
-          <Text fw={800} size="xl">
-            {canAdd ? formatMoney(chosenTier.sellingPriceCents * quantity) : '—'}
-          </Text>
-        </Group>
+        <Paper p="sm" bg="var(--bg-app)">
+          <Group justify="space-between" align="center" wrap="nowrap">
+            <Box>
+              <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={SECTION_LABEL_STYLE}>
+                {t('Total')}
+              </Text>
+              {canAdd && (
+                <Text size="xs" c="dimmed">
+                  {quantity} × {formatMoney(chosenTier.sellingPriceCents)}
+                </Text>
+              )}
+            </Box>
+            <Text fw={800} size="2xl" c="blue" lh={1.1}>
+              {canAdd ? formatMoney(chosenTier.sellingPriceCents * quantity) : '—'}
+            </Text>
+          </Group>
+        </Paper>
 
-        <Group justify="flex-end" mt="md" gap="sm">
+        <Group justify="flex-end" gap="sm">
           <Button variant="default" onClick={onClose}>
             {t('Cancel')}
           </Button>

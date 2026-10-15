@@ -38,6 +38,11 @@ if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === 'unde
   (globalThis as { ResizeObserver?: unknown }).ResizeObserver = ResizeObserverStub;
 }
 
+vi.mock('../../hooks/useCategories', () => ({
+  useCategoryIcons: () => null,
+  useCategoryLookup: () => ({ getCategory: () => undefined }),
+}));
+
 // Item A: 5 left of the Rs.1000/Rs.1200 delivery (received first), 12 of the
 // Rs.1100/Rs.1500 one.
 const itemA: Product = {
@@ -201,5 +206,26 @@ describe('PriceTierPickerModal', () => {
     });
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect.mock.calls[0][1]).toBe(2);
+  });
+  it('sets the quantity from the quick buttons, capped at what is left', async () => {
+    await open('staff', new Map());
+    const quick = (label: string) =>
+      Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === label) as
+        HTMLButtonElement | undefined;
+
+    // 5 left at the preselected price: 1 and 5 are offered, 10 is not, and "All 5" is the cap.
+    expect(quick('10')).toBeUndefined();
+    await act(async () => quick('All 5')!.click());
+    expect(quantityField().value).toBe('5');
+    expect(document.body.textContent).toContain('5 × Rs. 1,200.00');
+    expect(document.body.textContent).toContain('Rs. 6,000.00');
+
+    await act(async () => quick('1')!.click());
+    expect(quantityField().value).toBe('1');
+
+    await act(async () => priceCard('Rs. 1,500.00').click());
+    expect(quick('10')).toBeDefined();
+    await act(async () => quick('All 12')!.click());
+    expect(quantityField().value).toBe('12');
   });
 });
