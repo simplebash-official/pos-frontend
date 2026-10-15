@@ -22,6 +22,7 @@ import {
   IconTrash,
   IconCategory,
   IconFileSpreadsheet,
+  IconTags,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -50,6 +51,9 @@ const CategoryManagerModal = lazy(() =>
 );
 const DataImportModal = lazy<React.ComponentType<DataImportModalProps>>(() =>
   import('@/features/imports').then((m) => ({ default: m.DataImportModal }))
+);
+const LabelPrintModal = lazy(() =>
+  import('@/features/labels').then((m) => ({ default: m.LabelPrintModal }))
 );
 
 /**
@@ -108,6 +112,13 @@ export const ProductTable = () => {
 
   // Selected item for Right-Side Drawer
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // The products whose labels are being printed (null while the window is closed).
+  const [labelProducts, setLabelProducts] = useState<Product[] | null>(null);
+  const handlePrintSelectedLabels = () => {
+    const selected = new Set(selectedProductIds);
+    setLabelProducts((initialProducts ?? []).filter((product) => selected.has(product.id)));
+  };
 
   // Product create/edit form modal
   const [productFormOpen, setProductFormOpen] = useState(false);
@@ -466,15 +477,26 @@ export const ProductTable = () => {
               </Button>
             </Group>
 
-            <Button
-              color="red"
-              size="xs"
-              leftSection={<IconTrash size={14} />}
-              onClick={() => setConfirmDeleteOpen(true)}
-            >
-              {t('Delete Selected (')}
-              {selectedProductIds.length})
-            </Button>
+            <Group gap="xs">
+              <Button
+                variant="default"
+                size="xs"
+                leftSection={<IconTags size={14} />}
+                onClick={handlePrintSelectedLabels}
+              >
+                {t('Print Labels (')}
+                {selectedProductIds.length})
+              </Button>
+              <Button
+                color="red"
+                size="xs"
+                leftSection={<IconTrash size={14} />}
+                onClick={() => setConfirmDeleteOpen(true)}
+              >
+                {t('Delete Selected (')}
+                {selectedProductIds.length})
+              </Button>
+            </Group>
           </Group>
         </Paper>
       )}
@@ -531,6 +553,7 @@ export const ProductTable = () => {
         onClose={() => setSelectedProduct(null)}
         onProductChange={setSelectedProduct}
         onEdit={handleOpenEditProduct}
+        onPrintLabel={(product) => setLabelProducts([product])}
       />
 
       <Suspense fallback={null}>
@@ -542,6 +565,10 @@ export const ProductTable = () => {
             productToEdit={productToEdit}
             loading={createProductMutation.isPending || updateProductMutation.isPending}
           />
+        )}
+
+        {labelProducts !== null && labelProducts.length > 0 && (
+          <LabelPrintModal opened onClose={() => setLabelProducts(null)} products={labelProducts} />
         )}
 
         {isAdmin && categoryManagerOpen && (

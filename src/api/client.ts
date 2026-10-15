@@ -12,6 +12,7 @@ import { getDeviceId } from '@/api/deviceId';
 import { createIdempotencyKey } from '@/shared/lib/id';
 import { ApiError } from '@/shared/types/common';
 import { sanitizeErrorMessage } from '@/shared/lib/error';
+import { readErrorBody } from '@/shared/lib/errorBody';
 import { installHttpCapture } from '@/shared/logging/capture/http';
 import { isTauri } from '@/shared/lib/runtime';
 import { syncNow } from '@/features/sync-status/api/syncStatusApi';
@@ -109,12 +110,12 @@ class ApiClient {
         }
         return response;
       },
-      (error: unknown) => {
+      async (error: unknown) => {
         if (axios.isAxiosError(error)) {
           if (error.response) {
             // The server answered, so the network is fine — this is a real API error.
             reportNetworkObservation('reachable', readServerTime(error.response.headers));
-            const data = error.response.data;
+            const data = await readErrorBody(error.response.data);
             if (isApiErrorLike(data)) {
               // The desktop shell handles a suspended cloud itself (it pauses sync and keeps working).
               if (!isTauri()) notifyIfSuspended(data);

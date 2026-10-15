@@ -8,6 +8,7 @@ import {
   StockMovement,
   ProductSerial,
   ProductSerialStatus,
+  SerialLookup,
   StockAdjustmentInput,
   StockBatch,
   UpdateStockBatchInput,
@@ -48,6 +49,28 @@ export const fetchProducts = async (
 
 export const fetchProductById = async (id: string): Promise<Product> => {
   const response = await apiClient.get<ApiResponse<Product>>(`/inventory/products/${id}`);
+  return response.data;
+};
+
+/**
+ * Gives a product that has no barcode a generated shop barcode. Refused (409)
+ * when it already has one, so a barcode that may be printed on stickers never changes.
+ */
+export const generateProductBarcode = async (productId: string): Promise<Product> => {
+  const response = await apiClient.post<ApiResponse<Product>>(
+    `/inventory/products/${productId}/barcode`
+  );
+  return response.data;
+};
+
+/**
+ * Resolves a scanned serial number to its in-stock unit, product and price.
+ * Throws a 404 `ApiError` for an unknown number and a 409 when the unit is not in stock.
+ */
+export const fetchSerialByNumber = async (serialNumber: string): Promise<SerialLookup> => {
+  const response = await apiClient.get<ApiResponse<SerialLookup>>(
+    `/inventory/serials/by-number/${encodeURIComponent(serialNumber)}`
+  );
   return response.data;
 };
 

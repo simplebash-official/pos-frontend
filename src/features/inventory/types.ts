@@ -221,6 +221,16 @@ export interface ProductSerial {
   updatedAt: string;
 }
 
+/**
+ * What scanning a serial number resolves to: the unit, its product and the
+ * price it sells at (its own delivery's price).
+ */
+export interface SerialLookup {
+  serial: ProductSerial;
+  product: Product;
+  sellingPriceCents: number;
+}
+
 export interface ProductListResponse {
   items: Product[];
   total: number;

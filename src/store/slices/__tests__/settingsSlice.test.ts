@@ -1,9 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import settingsReducer, {
   setShopProfile,
   updateShopProfile,
   updatePrintSettings,
+  setLabelPrintSettings,
+  restoreSettings,
   resetSettings,
+  selectLabelPrintSettings,
   selectShopProfile,
   selectPrintSettings,
   selectShopProfileVersions,
@@ -82,6 +85,54 @@ describe('settingsSlice reducer & selectors', () => {
     state = settingsReducer(state, resetSettings());
     expect(state.shopProfile).toEqual(DEFAULT_SHOP_PROFILE);
     expect(state.printSettings).toEqual(DEFAULT_PRINT_SETTINGS);
+  });
+
+  describe('label print settings', () => {
+    const direct = {
+      method: 'direct',
+      printerName: 'Zebra ZD220',
+      templateKey: 'starter_price_tag_50x30',
+      dpi: 203,
+    } as const;
+
+    it('starts unset: nothing is chosen for the person', () => {
+      expect(selectLabelPrintSettings({ settings: getInitialState() })).toBeNull();
+    });
+
+    it('stores a choice, persists it and reads it back on the next start', async () => {
+      const state = settingsReducer(getInitialState(), setLabelPrintSettings(direct));
+      expect(selectLabelPrintSettings({ settings: state })).toEqual(direct);
+
+      vi.resetModules();
+      const reloaded = await import('../settingsSlice');
+      const next = reloaded.default(undefined, { type: '@@INIT' });
+      expect(next.labelPrint).toEqual(direct);
+    });
+
+    it('ignores a damaged stored choice instead of repairing it', async () => {
+      localStorage.setItem(
+        'pos_settings_data',
+        JSON.stringify({ labelPrint: { method: 'direct', templateKey: 'k', dpi: 203 } })
+      );
+      vi.resetModules();
+      const reloaded = await import('../settingsSlice');
+      expect(reloaded.default(undefined, { type: '@@INIT' }).labelPrint).toBeNull();
+    });
+
+    it('is cleared by resetSettings and restored (validated) by restoreSettings', () => {
+      const set = settingsReducer(getInitialState(), setLabelPrintSettings(direct));
+      expect(settingsReducer(set, resetSettings()).labelPrint).toBeNull();
+
+      const restored = settingsReducer(getInitialState(), restoreSettings({ labelPrint: direct }));
+      expect(restored.labelPrint).toEqual(direct);
+      const broken = settingsReducer(
+        set,
+        restoreSettings({ labelPrint: { method: 'direct' } as never })
+      );
+      expect(broken.labelPrint).toBeNull();
+      // A backup that never had label settings leaves the current ones alone.
+      expect(settingsReducer(set, restoreSettings({})).labelPrint).toEqual(direct);
+    });
   });
 
   describe('selectors', () => {

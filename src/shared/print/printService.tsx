@@ -2,6 +2,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
 import { isTauri, resolvePlatformInfo } from '@/shared/lib/platform';
 import { logger } from '@/shared/logging/logger';
+import type { LabelDpi, LabelPrintSettings } from '@/features/labels/types';
+import { printLabelPages } from './nativePrinters';
 
 // Converts a Blob to a raw base64 string.
 const blobToBase64 = async (blob: Blob): Promise<string> => {
@@ -52,6 +54,55 @@ const blobToBase64 = async (blob: Blob): Promise<string> => {
 const PRINT_DPI = 200;
 const PRINT_IMAGE_TYPE = 'image/jpeg';
 const PRINT_IMAGE_QUALITY = 0.92;
+
+// How a PDF page becomes the bitmap that is printed. Documents keep the
+// compact JPEG above. Labels need the opposite: the printer's own resolution,
+// lossless, and pure black or white, so a thin bar is never blurred by
+// resampling or by JPEG, and a 1-bit label printer sees exactly what we drew.
+interface RasterOptions {
+  dpi: number;
+  imageType: 'image/jpeg' | 'image/png';
+  /** JPEG quality, 0 to 1; only meaningful for `image/jpeg`. */
+  quality: number | undefined;
+  /** Luminance (0 to 255) below which a pixel prints black; `null` keeps the greys. */
+  blackThreshold: number | null;
+}
+
+const DOCUMENT_RASTER: RasterOptions = {
+  dpi: PRINT_DPI,
+  imageType: PRINT_IMAGE_TYPE,
+  quality: PRINT_IMAGE_QUALITY,
+  blackThreshold: null,
+};
+
+/** Halfway grey: darker prints black. Anti-aliased edges fall to whichever side they lean. */
+const LABEL_BLACK_THRESHOLD = 128;
+
+const labelRaster = (dpi: LabelDpi): RasterOptions => ({
+  dpi,
+  imageType: 'image/png',
+  quality: undefined,
+  blackThreshold: LABEL_BLACK_THRESHOLD,
+});
+
+const toBlackAndWhite = (
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  threshold: number
+) => {
+  const image = context.getImageData(0, 0, width, height);
+  const { data } = image;
+  for (let i = 0; i < data.length; i += 4) {
+    const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    const value = luminance < threshold ? 0 : 255;
+    data[i] = value;
+    data[i + 1] = value;
+    data[i + 2] = value;
+    data[i + 3] = 255;
+  }
+  context.putImageData(image, 0, 0);
+};
 const PT_TO_MM = 25.4 / 72;
 const PRINT_IFRAME_ID = 'pdf-print-iframe';
 // If the iframe never fires `load` (seen on some engines with a very large
@@ -65,7 +116,10 @@ interface PrintedPageImage {
   heightMm: number;
 }
 
-const renderPagesToImages = async (blob: Blob): Promise<PrintedPageImage[]> => {
+const renderPagesToImages = async (
+  blob: Blob,
+  raster: RasterOptions
+): Promise<PrintedPageImage[]> => {
   await ensurePdfWorker();
   const data = await blob.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data });
@@ -76,7 +130,7 @@ const renderPagesToImages = async (blob: Blob): Promise<PrintedPageImage[]> => {
     for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber++) {
       const page = await doc.getPage(pageNumber);
       const pointViewport = page.getViewport({ scale: 1 });
-      const printViewport = page.getViewport({ scale: PRINT_DPI / 72 });
+      const printViewport = page.getViewport({ scale: raster.dpi / 72 });
 
       const canvas = document.createElement('canvas');
       canvas.width = Math.floor(printViewport.width);
@@ -92,9 +146,12 @@ const renderPagesToImages = async (blob: Blob): Promise<PrintedPageImage[]> => {
       context.fillRect(0, 0, canvas.width, canvas.height);
 
       await page.render({ canvas, canvasContext: context, viewport: printViewport }).promise;
+      if (raster.blackThreshold !== null) {
+        toBlackAndWhite(context, canvas.width, canvas.height, raster.blackThreshold);
+      }
 
       pages.push({
-        dataUrl: canvas.toDataURL(PRINT_IMAGE_TYPE, PRINT_IMAGE_QUALITY),
+        dataUrl: canvas.toDataURL(raster.imageType, raster.quality),
         widthMm: pointViewport.width * PT_TO_MM,
         heightMm: pointViewport.height * PT_TO_MM,
       });
@@ -110,7 +167,11 @@ const escapeHtml = (text: string): string =>
 
 // Pages within one document share their physical size in practice (A4 invoices,
 // single-width receipts), so the @page rule is taken from the first page.
-const buildPrintHtml = (pages: PrintedPageImage[], fileName?: string): string => {
+const buildPrintHtml = (
+  pages: PrintedPageImage[],
+  fileName: string | undefined,
+  crisp: boolean
+): string => {
   const { widthMm, heightMm } = pages[0];
   const round = (mm: number) => Number(mm.toFixed(3));
   // The document title is what "Save as PDF" proposes as the file name.
@@ -131,20 +192,32 @@ const buildPrintHtml = (pages: PrintedPageImage[], fileName?: string): string =>
     page-break-after: always;
   }
   .page:last-child { break-after: auto; page-break-after: auto; }
-  .page img { display: block; width: 100%; height: 100%; }
+  .page img { display: block; width: 100%; height: 100%;${crisp ? ' image-rendering: pixelated;' : ''} }
 </style>
 </head>
 <body>${pages.map((p) => `<div class="page"><img src="${p.dataUrl}" alt=""></div>`).join('\n')}</body>
 </html>`;
 };
 
-export const printPdfBlob = async (
-  blob: Blob,
-  title?: string,
-  sourceUrl?: string,
+interface PrintPdfArgs {
+  blob: Blob;
+  title: string | undefined;
+  sourceUrl: string | undefined;
   // The proposed "Save as PDF" file name (no extension); see `pdfFileName`.
-  fileName?: string
-): Promise<void> => {
+  fileName: string | undefined;
+  raster: RasterOptions;
+  /** Labels are drawn pixel for pixel; the browser must not smooth them when it scales. */
+  crisp: boolean;
+}
+
+const printPdf = async ({
+  blob,
+  title,
+  sourceUrl,
+  fileName,
+  raster,
+  crisp,
+}: PrintPdfArgs): Promise<void> => {
   logger.info(
     'print',
     'start',
@@ -176,7 +249,7 @@ export const printPdfBlob = async (
 
   let html: string;
   try {
-    html = buildPrintHtml(await renderPagesToImages(blob), fileName);
+    html = buildPrintHtml(await renderPagesToImages(blob, raster), fileName, crisp);
   } catch (e) {
     logger.error('print', 'prepare.error', e, { title });
     console.error('Failed to prepare the PDF for printing:', e);
@@ -266,5 +339,48 @@ export const printPdfBlob = async (
 
     iframe.srcdoc = html;
     document.body.appendChild(iframe);
+  });
+};
+
+export const printPdfBlob = (
+  blob: Blob,
+  title?: string,
+  sourceUrl?: string,
+  // The proposed "Save as PDF" file name (no extension); see `pdfFileName`.
+  fileName?: string
+): Promise<void> =>
+  printPdf({ blob, title, sourceUrl, fileName, raster: DOCUMENT_RASTER, crisp: false });
+
+/**
+ * Prints a PDF of label stickers (one page per sticker) the way the person set
+ * it up: through the system print window, or straight to a chosen label printer
+ * (desktop only). A direct print that fails throws, so the caller can say so.
+ */
+export const printLabelPdf = async (
+  blob: Blob,
+  settings: LabelPrintSettings,
+  fileName: string
+): Promise<void> => {
+  if (settings.method === 'direct') {
+    const pages = await renderPagesToImages(blob, labelRaster(settings.dpi));
+    const { widthMm, heightMm } = pages[0];
+    await printLabelPages({
+      printer: settings.printerName,
+      pagesBase64: pages.map((page) => page.dataUrl.slice(page.dataUrl.indexOf(',') + 1)),
+      widthMm,
+      heightMm,
+      dpi: settings.dpi,
+      copies: 1,
+    });
+    logger.info('print', 'labels.direct', { printer: settings.printerName, pages: pages.length });
+    return;
+  }
+  await printPdf({
+    blob,
+    title: fileName,
+    sourceUrl: undefined,
+    fileName,
+    raster: labelRaster(settings.dpi),
+    crisp: true,
   });
 };

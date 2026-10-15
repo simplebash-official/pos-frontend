@@ -49,6 +49,12 @@ export const queryKeys = {
       ['inventory', 'products', productKey, 'serials', status] as const,
     batches: (productKey: string) => ['inventory', 'products', productKey, 'batches'] as const,
   },
+  labels: {
+    all: ['labels'] as const,
+    templates: () => ['labels', 'templates'] as const,
+    render: (request: unknown) => ['labels', 'render', request] as const,
+    preview: (request: unknown) => ['labels', 'preview', request] as const,
+  },
   categories: {
     all: ['categories'] as const,
     valid: () => ['categories', 'valid'] as const,

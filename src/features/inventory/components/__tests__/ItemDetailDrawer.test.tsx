@@ -112,10 +112,12 @@ describe('ItemDetailDrawer', () => {
   let root: Root;
   const onClose = vi.fn();
   const onEdit = vi.fn();
+  const onPrintLabel = vi.fn();
 
   beforeEach(() => {
     onClose.mockReset();
     onEdit.mockReset();
+    onPrintLabel.mockReset();
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -142,6 +144,7 @@ describe('ItemDetailDrawer', () => {
                 onClose={onClose}
                 onProductChange={() => undefined}
                 onEdit={onEdit}
+                onPrintLabel={onPrintLabel}
               />
             </LayoutTierProvider>
           </MantineProvider>
@@ -230,5 +233,17 @@ describe('ItemDetailDrawer', () => {
     expect(onEdit).toHaveBeenCalledWith(product);
     await act(async () => button('Close')!.click());
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks to print a label for the item, for every role', async () => {
+    const product = makeProduct(30);
+    for (const role of ['admin', 'staff']) {
+      onPrintLabel.mockReset();
+      await open(role, product);
+      await act(async () => button('Print Label')!.click());
+      expect(onPrintLabel).toHaveBeenCalledWith(product);
+      act(() => root.unmount());
+      root = createRoot(container);
+    }
   });
 });

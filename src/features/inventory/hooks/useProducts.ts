@@ -11,6 +11,7 @@ import {
   fetchProductMovements,
   fetchProductBatches,
   fetchProducts,
+  generateProductBarcode,
   updateProduct,
   updateStockBatch,
   type ProductListParams,
@@ -126,6 +127,17 @@ export const useUpdateProduct = () => {
   return useMutation({
     mutationFn: ({ productKey, updates }: UpdateProductPayload) =>
       updateProduct(productKey, updates),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
+};
+
+/** Creates a barcode for a product that has none; resolves to the updated product. */
+export const useGenerateProductBarcode = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (productId: string) => generateProductBarcode(productId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },

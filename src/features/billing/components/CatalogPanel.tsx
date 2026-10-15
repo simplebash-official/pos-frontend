@@ -45,7 +45,8 @@ import { getMatchRanges, type SearchField } from '@/shared/lib/search';
 
 import { queryKeys } from '@/api/queryKeys';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { fetchProductByBarcode } from '@/features/inventory/api/productsApi';
+import { fetchProductByBarcode, fetchSerialByNumber } from '@/features/inventory/api/productsApi';
+import { resolveSerialScan } from '@/features/inventory/lib/serialScan';
 import { looksLikeBarcode, resolveProductByBarcode } from '@/features/inventory/lib/barcode';
 import {
   useCategories,
@@ -607,6 +608,42 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     // 3. Flow B: If search in grid yields exactly 1 result, Enter key adds it directly!
     if (filteredProducts.length === 1) {
       handleAddProduct(filteredProducts[0]);
+      return;
+    }
+
+    // 3b. A serial number from a serial label: adds that exact unit at its own price.
+    // The scanned text as typed: serial numbers match exactly, and `term` is lowercased.
+    const scanned = scanQuery.trim();
+    const unit = await resolveSerialScan(scanned, fetchSerialByNumber);
+    if (unit.kind === 'found') {
+      const { product, serial, sellingPriceCents } = unit.lookup;
+      if (alreadyPickedSerialsForProduct(product.key).includes(serial.serialNumber)) {
+        playErrorSound(soundEnabled);
+        notifications.show({
+          title: 'Already in this sale',
+          message: `${serial.serialNumber} is already on the bill.`,
+          color: 'orange',
+        });
+        clearScan();
+        return;
+      }
+      const tier = product.priceTiers.find(
+        (candidate) => candidate.sellingPriceCents === sellingPriceCents
+      );
+      if (tier) {
+        addProductToCart(product, tier, 1, serial.serialNumber);
+        clearScan();
+        return;
+      }
+    }
+    if (unit.kind === 'sold') {
+      playErrorSound(soundEnabled);
+      notifications.show({
+        title: 'Already sold',
+        message: `${scanned} is not in stock any more.`,
+        color: 'red',
+      });
+      clearScan();
       return;
     }
 

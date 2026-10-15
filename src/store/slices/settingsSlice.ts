@@ -2,6 +2,8 @@ import { createSlice, createSelector, PayloadAction } from '@reduxjs/toolkit';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { ShopProfile, PrintSettings } from '@/features/settings/types';
 import { DEFAULT_SHOP_PROFILE, DEFAULT_PRINT_SETTINGS } from '@/features/settings/constants';
+import type { LabelPrintSettings } from '@/features/labels/types';
+import { parseLabelPrintSettings } from '@/features/labels/lib/printSettings';
 
 /**
  * A stored version entry with its logo blanked out when the logo itself didn't change from the
@@ -16,6 +18,8 @@ interface SettingsState {
   shopProfileVersions: Record<number, StoredShopProfileVersion>;
   latestLogoVersionRef: number;
   printSettings: PrintSettings;
+  /** How labels print on this computer; `null` until the person sets it up. */
+  labelPrint: LabelPrintSettings | null;
   appLanguage: 'en' | 'si';
 }
 
@@ -78,6 +82,7 @@ const loadSettingsFromStorage = (): SettingsState => {
         shopProfileVersions: versions,
         latestLogoVersionRef: profile.version,
         printSettings: { ...DEFAULT_PRINT_SETTINGS, ...(parsed.printSettings || {}) },
+        labelPrint: parseLabelPrintSettings(parsed.labelPrint),
         appLanguage: parsed.appLanguage === 'si' ? 'si' : 'en',
       };
     }
@@ -94,6 +99,7 @@ const loadSettingsFromStorage = (): SettingsState => {
     },
     latestLogoVersionRef: DEFAULT_SHOP_PROFILE.version,
     printSettings: DEFAULT_PRINT_SETTINGS,
+    labelPrint: null,
     appLanguage: 'en',
   };
 };
@@ -160,6 +166,10 @@ const settingsSlice = createSlice({
       };
       saveSettingsToStorage(state);
     },
+    setLabelPrintSettings: (state, action: PayloadAction<LabelPrintSettings>) => {
+      state.labelPrint = action.payload;
+      saveSettingsToStorage(state);
+    },
     resetSettings: (state) => {
       state.shopProfile = DEFAULT_SHOP_PROFILE;
       state.shopProfileVersions = {
@@ -170,6 +180,7 @@ const settingsSlice = createSlice({
       };
       state.latestLogoVersionRef = DEFAULT_SHOP_PROFILE.version;
       state.printSettings = DEFAULT_PRINT_SETTINGS;
+      state.labelPrint = null;
       state.appLanguage = 'en';
       saveSettingsToStorage(state);
     },
@@ -189,6 +200,9 @@ const settingsSlice = createSlice({
       }
       if (action.payload.printSettings) {
         state.printSettings = { ...state.printSettings, ...action.payload.printSettings };
+      }
+      if (action.payload.labelPrint !== undefined) {
+        state.labelPrint = parseLabelPrintSettings(action.payload.labelPrint);
       }
       if (action.payload.appLanguage) {
         state.appLanguage = action.payload.appLanguage;
@@ -213,6 +227,7 @@ export const {
   setShopProfile,
   updateShopProfile,
   updatePrintSettings,
+  setLabelPrintSettings,
   resetSettings,
   setAppLanguage,
   restoreSettings,
@@ -246,6 +261,9 @@ export const selectShopProfileVersions = createSelector(
 
 export const selectPrintSettings = (state: { settings: SettingsState }) =>
   state.settings.printSettings;
+
+export const selectLabelPrintSettings = (state: { settings: SettingsState }) =>
+  state.settings.labelPrint;
 
 export const selectShopProfileByVersion =
   (version: number) => (state: { settings: SettingsState }) =>

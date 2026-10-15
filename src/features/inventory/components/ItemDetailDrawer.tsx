@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { BRAND_NAME } from '@/config/branding';
 import { useState } from 'react';
 import { Button } from '@mantine/core';
-import { IconEdit, IconPackage } from '@tabler/icons-react';
+import { IconEdit, IconPackage, IconTags } from '@tabler/icons-react';
 import {
   DrawerAfter,
   DrawerFooter,
@@ -26,6 +26,8 @@ export interface ItemDetailDrawerProps {
   /** Called with the refreshed item after its stock changes. */
   onProductChange: (product: Product) => void;
   onEdit: (product: Product) => void;
+  /** Opens the label printing window for this item. */
+  onPrintLabel: (product: Product) => void;
 }
 
 /**
@@ -38,6 +40,7 @@ export const ItemDetailDrawer = ({
   onClose,
   onProductChange,
   onEdit,
+  onPrintLabel,
 }: ItemDetailDrawerProps) => {
   const isAdmin = useIsAdmin();
   const [tab, setTab] = useState<ActivityTab>('movements');
@@ -78,6 +81,14 @@ export const ItemDetailDrawer = ({
         <DrawerFooter>
           <Button variant="default" size="sm" onClick={handleClose}>
             {t('Close')}
+          </Button>
+          <Button
+            variant="default"
+            size="sm"
+            leftSection={<IconTags size={16} />}
+            onClick={() => onPrintLabel(item)}
+          >
+            {t('Print Label')}
           </Button>
           <Button
             variant="filled"

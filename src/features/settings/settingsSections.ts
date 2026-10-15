@@ -9,6 +9,7 @@ import {
   IconFileText,
   IconListDetails,
   IconPalette,
+  IconTags,
   IconPhoto,
   IconPrinter,
   IconInfoCircle,
@@ -20,6 +21,7 @@ export type SettingsSectionId =
   | 'bank-details'
   | 'printing'
   | 'document-designs'
+  | 'labels'
   | 'templates'
   | 'about'
   | 'updates'
@@ -84,6 +86,13 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Designs',
     description: 'Choose how invoices, receipts and credit notes look',
     icon: IconPalette,
+  },
+  {
+    id: 'labels',
+    label: 'Label Printing',
+    shortLabel: 'Labels',
+    description: 'Barcode and QR stickers: how they look and how they print',
+    icon: IconTags,
   },
   {
     id: 'templates',
