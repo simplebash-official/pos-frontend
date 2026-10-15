@@ -8,11 +8,15 @@ import { createRoot, type Root } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MantineProvider } from '@mantine/core';
+import { MotionGlobalConfig } from 'framer-motion';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { ItemDetailDrawer } from '../ItemDetailDrawer';
 import type { Product, StockBatch, StockMovement } from '../../types';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
+// jsdom has no animation frames to speak of; finish animations at once so panels swap straight away.
+MotionGlobalConfig.skipAnimations = true;
 
 if (typeof window.matchMedia !== 'function') {
   Object.defineProperty(window, 'matchMedia', {
@@ -147,6 +151,11 @@ describe('ItemDetailDrawer', () => {
   };
 
   const text = () => document.body.textContent ?? '';
+  /** The tab panel changes after a short exit animation, so wait for what it should show. */
+  const until = (check: () => void) =>
+    act(async () => {
+      await vi.waitFor(check, { timeout: 2000 });
+    });
   const button = (label: string) =>
     Array.from(document.body.querySelectorAll('button')).find((b) =>
       b.textContent?.includes(label)
@@ -190,7 +199,7 @@ describe('ItemDetailDrawer', () => {
     await open('admin');
     expect(text()).not.toContain('Quantity Received');
     await act(async () => button('Receive from supplier')!.click());
-    expect(text()).toContain('Quantity Received');
+    await until(() => expect(text()).toContain('Quantity Received'));
     expect(text()).toContain('Selling Price each');
     expect(button('Record Intake')!.disabled).toBe(true);
     // The toggle button is hidden while the form is open and returns when it closes.
@@ -209,7 +218,7 @@ describe('ItemDetailDrawer', () => {
       el.textContent?.includes('Suppliers')
     ) as HTMLElement;
     await act(async () => tab.click());
-    expect(text()).toContain('No suppliers linked yet.');
+    await until(() => expect(text()).toContain('No suppliers linked yet.'));
     await act(async () => button('Link a supplier')!.click());
     expect(button('Link Supplier')!.disabled).toBe(true);
   });

@@ -66,6 +66,7 @@
     "axios": "^1.18.1",
     "dayjs": "^1.11.21",
     "dexie": "^4.4.4",
+    "framer-motion": "^14.2.0",
     "pdfjs-dist": "^6.2.108",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

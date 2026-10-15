@@ -265,7 +265,7 @@ export const StockBatchesPanel = ({
               </Group>
 
               <Collapse expanded={editingKey === batch.key}>
-                <Group gap="xs" wrap="nowrap" align="flex-end" pt="xs">
+                <Group gap={6} wrap="nowrap" align="flex-end" pt="xs">
                   <MoneyInput
                     valueCents={editPriceCents}
                     onChangeCents={setEditPriceCents}
@@ -277,7 +277,7 @@ export const StockBatchesPanel = ({
                   <ActionIcon
                     color="blue"
                     variant="light"
-                    size={isMobile ? 44 : 'lg'}
+                    size={actionSize}
                     onClick={() => savePrice(batch)}
                     loading={updateBatch.isPending}
                     disabled={editPriceCents <= 0}
@@ -286,8 +286,9 @@ export const StockBatchesPanel = ({
                     <IconCheck size={16} />
                   </ActionIcon>
                   <ActionIcon
-                    variant="default"
-                    size={isMobile ? 44 : 'lg'}
+                    variant="light"
+                    color="gray"
+                    size={actionSize}
                     onClick={() => setEditingKey(null)}
                     aria-label={t('Cancel')}
                   >

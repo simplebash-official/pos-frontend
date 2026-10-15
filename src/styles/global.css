@@ -888,3 +888,28 @@ th.mantine-Table-th {
   background-color: var(--bg-card);
   border-top: 1px solid var(--border);
 }
+
+/* Activity tabs: the blue highlight is a framer-motion element that glides between tabs, so the
+   tab's own background is cleared and its icon, label and count sit above the highlight. */
+.activity-tabs .mantine-Tabs-tab {
+  position: relative;
+  isolation: isolate;
+}
+
+.activity-tabs .mantine-Tabs-tab[data-active] {
+  background-color: transparent;
+}
+
+.activity-tab-pill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: var(--mantine-radius-default);
+  background-color: var(--mantine-color-blue-filled);
+}
+
+.activity-tab-label,
+.activity-tabs .mantine-Tabs-tabSection {
+  position: relative;
+  z-index: 1;
+}

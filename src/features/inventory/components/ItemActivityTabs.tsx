@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
-import { useMemo } from 'react';
-import { Badge, Box, Paper, Tabs, Text } from '@mantine/core';
+import { useMemo, useState, type ReactNode } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Box, Paper, Tabs, Text } from '@mantine/core';
 import { IconBuildingStore, IconHistory, IconReceipt } from '@tabler/icons-react';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -25,11 +26,55 @@ export interface ItemActivityTabsProps {
   onIntakeFormOpenChange: (open: boolean) => void;
 }
 
-/** A count that lights up blue when there is something to see and stays grey when empty. */
-const CountBadge = ({ count }: { count: number }) => (
-  <Badge size="xs" variant="light" color={count > 0 ? 'blue' : 'gray'} circle>
+const TAB_ORDER: ActivityTab[] = ['movements', 'suppliers', 'intake'];
+
+/**
+ * The number beside a tab name: on the active (blue) tab a white-tinted chip,
+ * otherwise blue when there is something to see and grey when empty.
+ */
+const CountChip = ({ count, active }: { count: number; active: boolean }) => (
+  <Box
+    component="span"
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 22,
+      height: 22,
+      padding: '0 6px',
+      borderRadius: 11,
+      fontSize: 12,
+      fontWeight: 700,
+      lineHeight: 1,
+      fontVariantNumeric: 'tabular-nums',
+      background: active
+        ? 'color-mix(in srgb, var(--mantine-color-white) 24%, transparent)'
+        : count > 0
+          ? 'var(--mantine-color-blue-light)'
+          : 'var(--bg-active)',
+      color: active
+        ? 'var(--mantine-color-white)'
+        : count > 0
+          ? 'var(--mantine-color-blue-light-color)'
+          : 'var(--text-secondary)',
+    }}
+  >
     {count}
-  </Badge>
+  </Box>
+);
+
+/** The label of a tab, with the blue highlight that glides to whichever tab is active. */
+const TabLabel = ({ active, children }: { active: boolean; children: ReactNode }) => (
+  <>
+    {active && (
+      <motion.span
+        layoutId="activity-tab-pill"
+        className="activity-tab-pill"
+        transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+      />
+    )}
+    <span className="activity-tab-label">{children}</span>
+  </>
 );
 
 /**
@@ -65,6 +110,16 @@ export const ItemActivityTabs = ({
     [allSuppliers]
   );
 
+  const reduceMotion = useReducedMotion();
+  // Slide the panel the way the tab bar moved; adjusted while rendering so it is right on the first frame.
+  const index0 = TAB_ORDER.indexOf(tab);
+  const [previousIndex, setPreviousIndex] = useState(index0);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  if (index0 !== previousIndex) {
+    setDirection(index0 > previousIndex ? 1 : -1);
+    setPreviousIndex(index0);
+  }
+
   if (!isAdmin) {
     return (
       <Paper p="md" bg="var(--bg-card)" shadow="xs">
@@ -76,6 +131,31 @@ export const ItemActivityTabs = ({
     );
   }
 
+  const panels: Record<ActivityTab, ReactNode> = {
+    movements: <StockMovementList movements={movements} loading={loadingMovements} />,
+    suppliers: (
+      <ItemSuppliersPanel
+        product={product}
+        linked={linked}
+        loading={loadingSuppliers}
+        supplierOptions={supplierOptions}
+        formOpen={supplierFormOpen}
+        onFormOpenChange={onSupplierFormOpenChange}
+      />
+    ),
+    intake: (
+      <ItemIntakePanel
+        product={product}
+        purchases={purchases}
+        loading={loadingPurchases}
+        supplierOptions={supplierOptions}
+        formOpen={intakeFormOpen}
+        onFormOpenChange={onIntakeFormOpenChange}
+      />
+    ),
+  };
+  const slide = reduceMotion ? 0 : 16;
+
   return (
     <Paper p={0} bg="var(--bg-card)" shadow="xs" style={{ overflow: 'hidden' }}>
       <Tabs
@@ -83,7 +163,7 @@ export const ItemActivityTabs = ({
         onChange={(value) => onTabChange((value ?? 'movements') as ActivityTab)}
         variant="pills"
         color="blue"
-        keepMounted={false}
+        classNames={{ root: 'activity-tabs' }}
       >
         <Tabs.List
           grow
@@ -98,52 +178,41 @@ export const ItemActivityTabs = ({
           <Tabs.Tab
             value="movements"
             leftSection={isMobile ? undefined : <IconHistory size={16} />}
-            rightSection={<CountBadge count={movements.length} />}
+            rightSection={<CountChip count={movements.length} active={tab === 'movements'} />}
           >
-            {t('Movements')}
+            <TabLabel active={tab === 'movements'}>{t('Movements')}</TabLabel>
           </Tabs.Tab>
           <Tabs.Tab
             value="suppliers"
             leftSection={isMobile ? undefined : <IconBuildingStore size={16} />}
-            rightSection={<CountBadge count={linked.length} />}
+            rightSection={<CountChip count={linked.length} active={tab === 'suppliers'} />}
           >
-            {t('Suppliers')}
+            <TabLabel active={tab === 'suppliers'}>{t('Suppliers')}</TabLabel>
           </Tabs.Tab>
           <Tabs.Tab
             value="intake"
             leftSection={isMobile ? undefined : <IconReceipt size={16} />}
-            rightSection={<CountBadge count={purchases.length} />}
+            rightSection={<CountChip count={purchases.length} active={tab === 'intake'} />}
           >
-            {t('Intake')}
+            <TabLabel active={tab === 'intake'}>{t('Intake')}</TabLabel>
           </Tabs.Tab>
         </Tabs.List>
-
-        <Box p="md">
-          <Tabs.Panel value="movements">
-            <StockMovementList movements={movements} loading={loadingMovements} />
-          </Tabs.Panel>
-          <Tabs.Panel value="suppliers">
-            <ItemSuppliersPanel
-              product={product}
-              linked={linked}
-              loading={loadingSuppliers}
-              supplierOptions={supplierOptions}
-              formOpen={supplierFormOpen}
-              onFormOpenChange={onSupplierFormOpenChange}
-            />
-          </Tabs.Panel>
-          <Tabs.Panel value="intake">
-            <ItemIntakePanel
-              product={product}
-              purchases={purchases}
-              loading={loadingPurchases}
-              supplierOptions={supplierOptions}
-              formOpen={intakeFormOpen}
-              onFormOpenChange={onIntakeFormOpenChange}
-            />
-          </Tabs.Panel>
-        </Box>
       </Tabs>
+
+      <Box p="md" style={{ overflow: 'hidden' }}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            role="tabpanel"
+            initial={{ opacity: 0, x: direction * slide }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -direction * slide }}
+            transition={{ duration: reduceMotion ? 0 : 0.18, ease: 'easeOut' }}
+          >
+            {panels[tab]}
+          </motion.div>
+        </AnimatePresence>
+      </Box>
     </Paper>
   );
 };
