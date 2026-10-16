@@ -920,10 +920,36 @@ th.mantine-Table-th {
 .rich-tabs .mantine-Tabs-tab {
   position: relative;
   isolation: isolate;
+  min-height: 40px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Icon, name and count read as one centred group instead of spreading to the tab's edges. */
+.rich-tabs .mantine-Tabs-tab {
+  justify-content: center;
+  gap: 8px;
+}
+
+.rich-tabs .mantine-Tabs-tabLabel {
+  flex: 0 1 auto;
+}
+
+.rich-tabs .mantine-Tabs-tabSection {
+  margin: 0;
+}
+
+.rich-tabs .mantine-Tabs-tab:not([data-active]):hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .rich-tabs .mantine-Tabs-tab[data-active] {
   background-color: transparent;
+  color: var(--mantine-color-white);
 }
 
 .rich-tab-pill {
@@ -932,6 +958,9 @@ th.mantine-Table-th {
   z-index: 0;
   border-radius: var(--mantine-radius-default);
   background-color: var(--mantine-color-blue-filled);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 20%),
+    0 2px 8px color-mix(in srgb, var(--mantine-color-blue-filled) 35%, transparent);
 }
 
 /* Sidebar: one pill glides to the active item (framer-motion layoutId); the link's own active
