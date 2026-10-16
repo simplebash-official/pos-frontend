@@ -344,12 +344,13 @@ describe('LabelDesignerModal', () => {
         .click();
     });
     expect(text()).toContain('Give the label design a name.');
-    expect(mockPreview).not.toHaveBeenCalled();
-
+    // A valid design is drawn in the background on open; an unnamed one never is.
+    expect(mockPreview.mock.calls.every(([design]) => design.name !== '')).toBe(true);
     await setValue(nameInput(), 'Shelf label');
     await act(async () => {
       await vi.waitFor(() => expect(text()).toContain('preview ready'));
     });
+    // The same design was already drawn on open, so Preview reuses it instead of asking again.
     expect(mockPreview).toHaveBeenCalledTimes(1);
     const [design, sample] = mockPreview.mock.calls[0];
     expect(design).toMatchObject({ name: 'Shelf label', widthMm: 58, heightMm: 40 });

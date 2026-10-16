@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { useElementSize } from '@mantine/hooks';
-import { useQuery } from '@tanstack/react-query';
+import { useDebouncedValue, useElementSize } from '@mantine/hooks';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   ActionIcon,
   Alert,
@@ -231,7 +231,14 @@ export const LabelDesignerModal = ({
     opened && !isMobile && view === 'layout'
   );
 
-  const previewRequest = view === 'preview' && problem === null ? { input, sample } : null;
+  // Draw the preview in the background once the design settles, so the Preview tab is
+  // usually ready on click; on that tab itself edits apply immediately.
+  const liveKey = problem === null ? JSON.stringify({ input, sample }) : null;
+  const [settledKey] = useDebouncedValue(liveKey, 400);
+  const previewKey = view === 'preview' ? liveKey : liveKey && settledKey;
+  const previewRequest = previewKey
+    ? (JSON.parse(previewKey) as { input: LabelTemplateInput; sample: typeof sample })
+    : null;
   const preview = useQuery({
     queryKey: queryKeys.labels.preview(previewRequest),
     queryFn: () =>
@@ -240,7 +247,8 @@ export const LabelDesignerModal = ({
         (previewRequest as NonNullable<typeof previewRequest>).sample
       ),
     enabled: previewRequest !== null,
-    staleTime: 0,
+    staleTime: 5 * 60_000,
+    placeholderData: keepPreviousData,
     retry: false,
   });
 
