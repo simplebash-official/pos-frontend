@@ -512,6 +512,10 @@ describe('LabelPrintModal', () => {
       expect(text()).toContain('2 labels');
       // No barcode is needed for a serial product, so nothing offers to create one.
       expect(text()).not.toContain('have no barcode yet');
+      // The preview is drawn once the selection has settled.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+      });
       expect(mockRender).toHaveBeenCalledWith({
         templateKey: priceTag.key,
         items: [

@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import {
   ActionIcon,
   Alert,
@@ -331,11 +331,19 @@ export const LabelPrintWorkspace = ({
     .map((item) => ({ ...item, copies: 1 }));
   const previewRequest =
     ready && template !== undefined ? { templateKey: template.key, items: previewItems } : null;
+  // Quick successive edits become one request, and the last picture stays up while the next loads.
+  const [settledKey] = useDebouncedValue(
+    previewRequest === null ? null : JSON.stringify(previewRequest),
+    250
+  );
+  const settledRequest =
+    settledKey === null ? null : (JSON.parse(settledKey) as typeof previewRequest);
   const preview = useQuery({
-    queryKey: queryKeys.labels.render(previewRequest),
-    queryFn: () => renderLabels(previewRequest as NonNullable<typeof previewRequest>),
-    enabled: previewRequest !== null,
-    staleTime: 0,
+    queryKey: queryKeys.labels.render(settledRequest),
+    queryFn: () => renderLabels(settledRequest as NonNullable<typeof settledRequest>),
+    enabled: settledRequest !== null && previewRequest !== null,
+    staleTime: 5 * 60_000,
+    placeholderData: keepPreviousData,
     retry: false,
   });
 

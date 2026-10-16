@@ -23,6 +23,7 @@ import { useLabelCoverage } from '../hooks/useLabelJobs';
 import { coverageLine } from '../lib/jobView';
 import { rowFromCoverage, type LabelRow } from '../lib/printJob';
 import { LABEL_LIMITS, type LabelCoverageRow, type LabelCoverageStatus } from '../types';
+import { LIST_SCROLL } from '../lib/listScroll';
 
 const PAGE_SIZE = 20;
 
@@ -159,7 +160,7 @@ export const LabelCoverageTab = ({ onPrint }: LabelCoverageTabProps) => {
         </Text>
       )}
 
-      <Stack gap={6}>
+      <Stack gap={6} style={isMobile ? undefined : LIST_SCROLL}>
         {rows.map((row) => {
           const checked = chosen.has(row.product.key);
           // Beside the name on a computer, under it on a phone so the name keeps its room.

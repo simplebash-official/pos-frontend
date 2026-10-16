@@ -31,6 +31,7 @@ import { usePrintAgain } from '../hooks/usePrintAgain';
 import { howItPrinted, labelCount, outcomeView } from '../lib/jobView';
 import type { LabelRow } from '../lib/printJob';
 import type { LabelJob, LabelPrintAction } from '../types';
+import { LIST_SCROLL } from '../lib/listScroll';
 
 const PAGE_SIZE = 20;
 
@@ -146,7 +147,7 @@ export const LabelHistoryTab = ({ onPrintAgain }: LabelHistoryTabProps) => {
         </Text>
       )}
 
-      <Stack gap={6}>
+      <Stack gap={6} style={isMobile ? undefined : LIST_SCROLL}>
         {jobs.map((job) => {
           const products = [...new Set(job.items.map((item) => item.productName))];
           return (
