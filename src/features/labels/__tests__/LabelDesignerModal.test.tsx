@@ -221,6 +221,73 @@ describe('LabelDesignerModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('lines up, copies and reorders an item, and undoes and redoes each step', async () => {
+    await open('edit', own);
+    const tool = async (name: string) => {
+      await act(async () => {
+        document.body.querySelector<HTMLElement>(`[aria-label^="${name}"]`)!.click();
+      });
+    };
+    const saved = async () => {
+      await act(async () => {
+        button('Save Changes')!.click();
+      });
+      const { input } = mockSave.mock.calls[mockSave.mock.calls.length - 1][0];
+      return input.elements.map((e: { id: string; xMm: number; yMm: number }) => [
+        e.id,
+        e.xMm,
+        e.yMm,
+      ]);
+    };
+
+    await act(async () => {
+      button('Item name')!.click();
+    });
+    await tool('Centre from side to side');
+    expect(await saved()).toEqual([['item-1', 9, 2]]);
+
+    await tool('Make a copy');
+    expect(await saved()).toEqual([
+      ['item-1', 9, 2],
+      ['item-2', 11, 4],
+    ]);
+    // The copy is chosen; send it behind the original.
+    await tool('Send backward');
+    expect((await saved()).map((e: unknown[]) => e[0])).toEqual(['item-2', 'item-1']);
+
+    await tool('Undo');
+    await tool('Undo');
+    expect(await saved()).toEqual([['item-1', 9, 2]]);
+    await tool('Redo');
+    expect(await saved()).toHaveLength(2);
+
+    // Ctrl+Z works too.
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+      );
+    });
+    expect(await saved()).toEqual([['item-1', 9, 2]]);
+    await tool('Undo');
+    expect(await saved()).toEqual([['item-1', 2, 2]]);
+    expect(document.body.querySelector<HTMLButtonElement>('[aria-label^="Undo"]')!.disabled).toBe(
+      true
+    );
+  });
+
+  it('zooms the label in and out', async () => {
+    await open('edit', own);
+    expect(text()).toContain('100%');
+    await act(async () => {
+      document.body.querySelector<HTMLElement>('[aria-label="Zoom in"]')!.click();
+    });
+    expect(text()).toContain('150%');
+    await act(async () => {
+      button('150%')!.click();
+    });
+    expect(text()).toContain('100%');
+  });
+
   it('edits an existing design in place', async () => {
     await open('edit', own);
     expect(text()).toContain('Edit Label Design');

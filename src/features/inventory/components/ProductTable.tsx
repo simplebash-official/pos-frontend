@@ -42,6 +42,7 @@ import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import type { DataImportModalProps } from '@/features/imports';
 import { inventoryImportConfig } from '../config/inventoryImportConfig';
 import { ProductCatalogTree } from './ProductCatalogTree';
+import { newRow, offerLabelPrint, type LabelRow } from '@/features/labels';
 
 const ProductFormModal = lazy(() =>
   import('./ProductFormModal').then((m) => ({ default: m.ProductFormModal }))
@@ -113,11 +114,13 @@ export const ProductTable = () => {
   // Selected item for Right-Side Drawer
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // The products whose labels are being printed (null while the window is closed).
-  const [labelProducts, setLabelProducts] = useState<Product[] | null>(null);
+  // The items whose labels are being printed (null while the window is closed).
+  const [labelRows, setLabelRows] = useState<LabelRow[] | null>(null);
+  const printLabelsFor = (products: Product[]) =>
+    setLabelRows(products.map((product) => newRow(product, 1)));
   const handlePrintSelectedLabels = () => {
     const selected = new Set(selectedProductIds);
-    setLabelProducts((initialProducts ?? []).filter((product) => selected.has(product.id)));
+    printLabelsFor((initialProducts ?? []).filter((product) => selected.has(product.id)));
   };
 
   // Product create/edit form modal
@@ -160,6 +163,14 @@ export const ProductTable = () => {
         color: 'green',
         icon: <IconCheck size={16} />,
       });
+      if (created.stockQuantity > 0) {
+        offerLabelPrint({
+          productKey: created.key,
+          copies: null,
+          priceCents: null,
+          serialNumbers: null,
+        });
+      }
     }
   };
 
@@ -478,15 +489,17 @@ export const ProductTable = () => {
             </Group>
 
             <Group gap="xs">
-              <Button
-                variant="default"
-                size="xs"
-                leftSection={<IconTags size={14} />}
-                onClick={handlePrintSelectedLabels}
-              >
-                {t('Print Labels (')}
-                {selectedProductIds.length})
-              </Button>
+              {canWriteInventory && (
+                <Button
+                  variant="default"
+                  size="xs"
+                  leftSection={<IconTags size={14} />}
+                  onClick={handlePrintSelectedLabels}
+                >
+                  {t('Print Labels (')}
+                  {selectedProductIds.length})
+                </Button>
+              )}
               <Button
                 color="red"
                 size="xs"
@@ -553,7 +566,7 @@ export const ProductTable = () => {
         onClose={() => setSelectedProduct(null)}
         onProductChange={setSelectedProduct}
         onEdit={handleOpenEditProduct}
-        onPrintLabel={(product) => setLabelProducts([product])}
+        onPrintLabel={canWriteInventory ? (product) => printLabelsFor([product]) : null}
       />
 
       <Suspense fallback={null}>
@@ -567,8 +580,8 @@ export const ProductTable = () => {
           />
         )}
 
-        {labelProducts !== null && labelProducts.length > 0 && (
-          <LabelPrintModal opened onClose={() => setLabelProducts(null)} products={labelProducts} />
+        {labelRows !== null && labelRows.length > 0 && (
+          <LabelPrintModal opened onClose={() => setLabelRows(null)} rows={labelRows} />
         )}
 
         {isAdmin && categoryManagerOpen && (

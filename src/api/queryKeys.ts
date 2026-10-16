@@ -54,6 +54,8 @@ export const queryKeys = {
     templates: () => ['labels', 'templates'] as const,
     render: (request: unknown) => ['labels', 'render', request] as const,
     preview: (request: unknown) => ['labels', 'preview', request] as const,
+    jobs: (params: unknown) => ['labels', 'jobs', params] as const,
+    coverage: (params: unknown) => ['labels', 'coverage', params] as const,
   },
   categories: {
     all: ['categories'] as const,

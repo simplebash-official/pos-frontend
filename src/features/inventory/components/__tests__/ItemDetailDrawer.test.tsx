@@ -128,7 +128,11 @@ describe('ItemDetailDrawer', () => {
     container.remove();
   });
 
-  const open = async (role: string, product: Product | null = makeProduct(30)) => {
+  const open = async (
+    role: string,
+    product: Product | null = makeProduct(30),
+    printLabel: ((product: Product) => void) | null = onPrintLabel
+  ) => {
     const store = configureStore({
       reducer: {
         auth: () => ({ user: { id: 'u1', name: 'T', username: 't', role, permissions: [] } }),
@@ -144,7 +148,7 @@ describe('ItemDetailDrawer', () => {
                 onClose={onClose}
                 onProductChange={() => undefined}
                 onEdit={onEdit}
-                onPrintLabel={onPrintLabel}
+                onPrintLabel={printLabel}
               />
             </LayoutTierProvider>
           </MantineProvider>
@@ -235,15 +239,15 @@ describe('ItemDetailDrawer', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('asks to print a label for the item, for every role', async () => {
+  it('asks to print a label for the item when the person may print labels', async () => {
     const product = makeProduct(30);
-    for (const role of ['admin', 'staff']) {
-      onPrintLabel.mockReset();
-      await open(role, product);
-      await act(async () => button('Print Label')!.click());
-      expect(onPrintLabel).toHaveBeenCalledWith(product);
-      act(() => root.unmount());
-      root = createRoot(container);
-    }
+    await open('manager', product);
+    await act(async () => button('Print Label')!.click());
+    expect(onPrintLabel).toHaveBeenCalledWith(product);
+  });
+
+  it('offers no label printing to someone who may not print labels', async () => {
+    await open('staff', makeProduct(30), null);
+    expect(button('Print Label')).toBeUndefined();
   });
 });

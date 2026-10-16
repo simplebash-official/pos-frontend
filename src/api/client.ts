@@ -168,6 +168,28 @@ class ApiClient {
     return response.data;
   }
 
+  /** `post`, plus the response headers (lower-case names) for the few endpoints that use them. */
+  async postWithHeaders<T>(
+    endpoint: string,
+    data: unknown,
+    options: RequestOptions = {}
+  ): Promise<{ data: T; headers: Record<string, string> }> {
+    const { params, headers, ...restOptions } = options;
+    const response = await this.axiosInstance.request<T>({
+      url: endpoint,
+      ...restOptions,
+      method: 'POST',
+      data,
+      headers,
+      params: buildParams(params),
+    });
+    const responseHeaders: Record<string, string> = {};
+    for (const [name, value] of Object.entries(response.headers)) {
+      if (typeof value === 'string') responseHeaders[name.toLowerCase()] = value;
+    }
+    return { data: response.data, headers: responseHeaders };
+  }
+
   get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: 'GET' });
   }

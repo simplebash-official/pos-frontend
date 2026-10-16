@@ -26,8 +26,8 @@ export interface ItemDetailDrawerProps {
   /** Called with the refreshed item after its stock changes. */
   onProductChange: (product: Product) => void;
   onEdit: (product: Product) => void;
-  /** Opens the label printing window for this item. */
-  onPrintLabel: (product: Product) => void;
+  /** Opens the label printing window for this item; `null` hides it (no permission to print). */
+  onPrintLabel: ((product: Product) => void) | null;
 }
 
 /**
@@ -82,14 +82,16 @@ export const ItemDetailDrawer = ({
           <Button variant="default" size="sm" onClick={handleClose}>
             {t('Close')}
           </Button>
-          <Button
-            variant="default"
-            size="sm"
-            leftSection={<IconTags size={16} />}
-            onClick={() => onPrintLabel(item)}
-          >
-            {t('Print Label')}
-          </Button>
+          {onPrintLabel !== null && (
+            <Button
+              variant="default"
+              size="sm"
+              leftSection={<IconTags size={16} />}
+              onClick={() => onPrintLabel(item)}
+            >
+              {t('Print Label')}
+            </Button>
+          )}
           <Button
             variant="filled"
             color="blue"

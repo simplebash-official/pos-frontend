@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '@mantine/core';
+import { MemoryRouter } from 'react-router-dom';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import settingsReducer, { setLabelPrintSettings } from '@/store/slices/settingsSlice';
 import { LabelsSection } from '../components/LabelsSection';
@@ -55,21 +56,9 @@ const own: LabelTemplate = {
   builtIn: false,
 };
 const mockTemplates = [starter, own];
-const mockDelete = vi.fn();
 
 vi.mock('../hooks/useLabelTemplates', () => ({
   useLabelTemplates: () => ({ data: mockTemplates, isLoading: false, isError: false }),
-  useDeleteLabelTemplate: () => ({
-    isPending: false,
-    mutate: (key: string, options: { onSuccess: () => void }) => {
-      mockDelete(key);
-      options.onSuccess();
-    },
-  }),
-}));
-vi.mock('../components/LabelDesignerModal', () => ({
-  LabelDesignerModal: ({ mode, base }: { mode: string; base: LabelTemplate | null }) =>
-    `designer:${mode}:${base?.key ?? 'none'}`,
 }));
 
 const saved: LabelPrintSettings = { method: 'system', templateKey: starter.key, dpi: 203 };
@@ -103,7 +92,9 @@ describe('LabelsSection', () => {
           <QueryClientProvider client={queryClient}>
             <MantineProvider env="test">
               <LayoutTierProvider>
-                <LabelsSection onDirtyChange={onDirtyChange} />
+                <MemoryRouter>
+                  <LabelsSection onDirtyChange={onDirtyChange} />
+                </MemoryRouter>
               </LayoutTierProvider>
             </MantineProvider>
           </QueryClientProvider>
@@ -137,46 +128,15 @@ describe('LabelsSection', () => {
     });
   };
 
-  it('lists every design; only the shop’s own can be changed or deleted', async () => {
+  it('keeps only this computer’s setup here and links to the Labels page for designs', async () => {
     await open(saved);
-    expect(text()).toContain('Price tag 50 x 30 mm');
-    expect(text()).toContain('My shelf label');
-    expect(text()).toContain('Ready-made');
-    expect(labelled('Make a copy of this design')).toHaveLength(2);
-    expect(labelled('Edit this design')).toHaveLength(1);
-    expect(labelled('Delete this design')).toHaveLength(1);
-  });
-
-  it('opens the designer for a new design, a copy and an edit', async () => {
-    await open(saved);
-    await act(async () => {
-      button('New design')!.click();
-    });
-    await vi.waitFor(() => expect(text()).toContain('designer:new:none'));
-
-    await act(async () => {
-      labelled('Make a copy of this design')[0].click();
-    });
-    await vi.waitFor(() => expect(text()).toContain(`designer:copy:${starter.key}`));
-
-    await act(async () => {
-      labelled('Edit this design')[0].click();
-    });
-    await vi.waitFor(() => expect(text()).toContain('designer:edit:ltpl_own'));
-  });
-
-  it('asks before deleting a design, then deletes it', async () => {
-    await open(saved);
-    await act(async () => {
-      labelled('Delete this design')[0].click();
-    });
-    expect(text()).toContain('Delete Label Design');
-    expect(text()).toContain('Labels already printed are not affected.');
-    expect(mockDelete).not.toHaveBeenCalled();
-    await act(async () => {
-      button('Delete')!.click();
-    });
-    expect(mockDelete).toHaveBeenCalledWith('ltpl_own');
+    expect(text()).toContain('How labels print on this computer');
+    expect(text()).not.toContain('My shelf label · ');
+    expect(labelled('Delete this design')).toHaveLength(0);
+    const link = Array.from(document.body.querySelectorAll('a')).find((a) =>
+      a.textContent?.includes('Open Labels')
+    );
+    expect(link?.getAttribute('href')).toBe('/labels');
   });
 
   it('is not dirty until something is changed, then saves the new choice', async () => {

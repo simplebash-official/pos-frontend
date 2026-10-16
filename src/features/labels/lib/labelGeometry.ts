@@ -217,3 +217,87 @@ export const designProblem = (design: LabelTemplateInput): string | null => {
   }
   return null;
 };
+
+/** Where to line an item up on the label. */
+export type Alignment = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
+
+/** Moves an item to an edge or the centre of the label, along one direction. */
+export const alignElement = <T extends LabelElement>(
+  element: T,
+  label: LabelSize,
+  how: Alignment
+): T => {
+  switch (how) {
+    case 'left':
+      return clampElement({ ...element, xMm: 0 }, label);
+    case 'center':
+      return clampElement({ ...element, xMm: (label.widthMm - element.widthMm) / 2 }, label);
+    case 'right':
+      return clampElement({ ...element, xMm: label.widthMm - element.widthMm }, label);
+    case 'top':
+      return clampElement({ ...element, yMm: 0 }, label);
+    case 'middle':
+      return clampElement({ ...element, yMm: (label.heightMm - element.heightMm) / 2 }, label);
+    case 'bottom':
+      return clampElement({ ...element, yMm: label.heightMm - element.heightMm }, label);
+  }
+};
+
+/** An item is pulled to the label's centre line when it comes this close (mm). */
+export const CENTER_SNAP_MM = 1;
+
+/** Which centre lines an item sits on, to draw as guides while it is dragged. */
+export interface CenterGuides {
+  vertical: boolean;
+  horizontal: boolean;
+}
+
+/**
+ * Pulls an item onto the label's centre lines when its own centre is within
+ * `CENTER_SNAP_MM` of them, and says which lines it now sits on.
+ */
+export const snapToCenter = <T extends LabelElement>(
+  element: T,
+  label: LabelSize
+): { element: T; guides: CenterGuides } => {
+  const centerX = (label.widthMm - element.widthMm) / 2;
+  const centerY = (label.heightMm - element.heightMm) / 2;
+  const vertical = Math.abs(element.xMm - centerX) <= CENTER_SNAP_MM;
+  const horizontal = Math.abs(element.yMm - centerY) <= CENTER_SNAP_MM;
+  return {
+    element: clampElement(
+      {
+        ...element,
+        xMm: vertical ? centerX : element.xMm,
+        yMm: horizontal ? centerY : element.yMm,
+      },
+      label
+    ),
+    guides: { vertical, horizontal },
+  };
+};
+
+/** A copy of an item with a new id, shifted a little so both can be seen. */
+export const duplicateElement = (
+  element: LabelElement,
+  elements: LabelElement[],
+  label: LabelSize
+): LabelElement =>
+  moveElement({ ...element, id: nextElementId(elements) }, NUDGE_BIG_MM, NUDGE_BIG_MM, label);
+
+/**
+ * Moves an item one step in the drawing order: `up` draws it later (on top of
+ * the item it passes), `down` earlier. Unchanged at either end.
+ */
+export const moveLayer = (
+  elements: LabelElement[],
+  id: string,
+  direction: 'up' | 'down'
+): LabelElement[] => {
+  const index = elements.findIndex((element) => element.id === id);
+  const target = direction === 'up' ? index + 1 : index - 1;
+  if (index < 0 || target < 0 || target >= elements.length) return elements;
+  const next = [...elements];
+  [next[index], next[target]] = [next[target], next[index]];
+  return next;
+};

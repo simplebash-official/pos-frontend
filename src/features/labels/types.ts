@@ -2,6 +2,8 @@
 // backend's `domain::labels` exactly (and document-server's label schema);
 // every field is required, nothing is defaulted on the way to the server.
 
+import type { Product } from '@/features/inventory/types';
+
 export type TextSource =
   'productName' | 'price' | 'sku' | 'code' | 'category' | 'shopName' | 'customText';
 
@@ -109,3 +111,101 @@ export const LABEL_LIMITS = {
   maxNameChars: 60,
   maxCustomTextChars: 200,
 } as const;
+
+/** What the person did with the stickers: printed them or saved the PDF. */
+export type LabelPrintAction = 'print' | 'download';
+export type LabelPrintMethod = LabelPrintSettings['method'];
+/** `rendered` until the computer reports back; a download is `sent` at once. */
+export type LabelJobOutcome = 'rendered' | 'sent' | 'failed';
+
+/**
+ * Body of `POST /labels/jobs`: a print names how it leaves the computer
+ * (`method`, `dpi`, and `printerName` for a direct print); a download names none.
+ */
+export interface CreateLabelJobRequest extends RenderLabelsRequest {
+  action: LabelPrintAction;
+  method: LabelPrintMethod | null;
+  printerName: string | null;
+  dpi: LabelDpi | null;
+}
+
+/** One sticker group of a recorded print, as it was printed. */
+export interface LabelJobItem {
+  productKey: string;
+  productName: string;
+  sku: string;
+  serialNumber: string | null;
+  priceCents: number | null;
+  copies: number;
+}
+
+/** A recorded print or download of labels. */
+export interface LabelJob {
+  key: string;
+  templateKey: string;
+  templateName: string;
+  widthMm: number;
+  heightMm: number;
+  action: LabelPrintAction;
+  method: LabelPrintMethod | null;
+  printerName: string | null;
+  dpi: LabelDpi | null;
+  outcome: LabelJobOutcome;
+  error: string | null;
+  printedByUserId: string;
+  printedByName: string;
+  items: LabelJobItem[];
+  totalLabels: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LabelPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface LabelJobList {
+  items: LabelJob[];
+  pagination: LabelPagination;
+}
+
+export interface LabelJobListParams {
+  page: number;
+  limit: number;
+  action?: LabelPrintAction;
+  productKey?: string;
+}
+
+/**
+ * A product's labels: `never` (in stock, never labelled), `needed` (new stock
+ * since the last label) or `labelled`.
+ */
+export type LabelCoverageStatus = 'never' | 'needed' | 'labelled';
+
+export interface LabelCoverageRow {
+  product: Product;
+  /** `null`: never labelled and nothing in stock, so nothing to label. */
+  status: LabelCoverageStatus | null;
+  lastLabelledAt: string | null;
+  lastLabelledCopies: number | null;
+  /** Units entered after the last label that are still in stock. */
+  receivedSinceLabel: number;
+}
+
+export interface LabelCoverage {
+  items: LabelCoverageRow[];
+  pagination: LabelPagination;
+  counts: Record<LabelCoverageStatus, number>;
+}
+
+export interface LabelCoverageParams {
+  page: number;
+  limit: number;
+  status?: LabelCoverageStatus;
+  search?: string;
+  /** Only these products (at most 200); ignores `search`. */
+  productKeys?: string[];
+}

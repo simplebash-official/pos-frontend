@@ -41,6 +41,9 @@ const QuotationsPage = lazy(() =>
 const ProductTable = lazy(() =>
   import('@/features/inventory/components/ProductTable').then((m) => ({ default: m.ProductTable }))
 );
+const LabelsPage = lazy(() =>
+  import('@/features/labels/components/LabelsPage').then((m) => ({ default: m.LabelsPage }))
+);
 const CustomerList = lazy(() =>
   import('@/features/customers/components/CustomerList').then((m) => ({ default: m.CustomerList }))
 );
@@ -152,6 +155,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<PageSkeleton />}>
             <ProductTable />
           </Suspense>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.LABELS,
+        element: (
+          <RequirePermission permissions={[PERMISSIONS.INVENTORY_WRITE]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <LabelsPage />
+            </Suspense>
+          </RequirePermission>
         ),
       },
       {

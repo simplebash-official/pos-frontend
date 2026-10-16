@@ -68,7 +68,9 @@ export const LabelPrintSetupFields = ({
     <Stack gap="md">
       <Select
         label={t('Label design')}
-        description={t('How your labels look. You can make your own in Settings.')}
+        description={t(
+          'How your labels look. You can make your own on the Labels page, under Designs.'
+        )}
         placeholder={t('Choose a design')}
         data={designData}
         value={draft.templateKey}

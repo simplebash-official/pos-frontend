@@ -24,6 +24,12 @@ import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { PRODUCT_NAME } from '@/config/branding';
 
+// Offers to print labels when new stock comes in (see features/labels/lib/labelPrintOffer).
+const LabelPrintOfferHost = lazy(() =>
+  import('@/features/labels/components/LabelPrintOfferHost').then((m) => ({
+    default: m.LabelPrintOfferHost,
+  }))
+);
 const HeldSalesDrawer = lazy(() =>
   import('@/features/billing/components/HeldSalesDrawer').then((m) => ({
     default: m.HeldSalesDrawer,
@@ -43,6 +49,7 @@ const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.REPAIRS]: `Phone Repairs · ${PRODUCT_NAME}`,
   [ROUTES.PRINT_JOBS]: `Print Jobs · ${PRODUCT_NAME}`,
   [ROUTES.INVENTORY]: `Inventory & Stock · ${PRODUCT_NAME}`,
+  [ROUTES.LABELS]: `Labels · ${PRODUCT_NAME}`,
   [ROUTES.CUSTOMERS]: `Customer Directory · ${PRODUCT_NAME}`,
   [ROUTES.SUPPLIERS]: `Suppliers Directory · ${PRODUCT_NAME}`,
   [ROUTES.EMPLOYEES]: `Employees & Earnings · ${PRODUCT_NAME}`,
@@ -254,6 +261,10 @@ export const AppShell = () => {
       </MantineAppShell.Main>
 
       <GlobalQuickSearchModal />
+
+      <Suspense fallback={null}>
+        <LabelPrintOfferHost />
+      </Suspense>
 
       <Suspense fallback={null}>
         {heldDrawerOpen && (

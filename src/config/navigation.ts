@@ -7,6 +7,7 @@ import {
   IconPrinter,
   IconFileText,
   IconPackage,
+  IconTags,
   IconUsers,
   IconTruckDelivery,
   IconUserCheck,
@@ -97,6 +98,13 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         to: ROUTES.INVENTORY,
         color: 'indigo',
         badgeCountKey: 'lowStock',
+      },
+      {
+        label: 'Labels',
+        icon: IconTags,
+        to: ROUTES.LABELS,
+        color: 'blue',
+        requiredPermissions: [PERMISSIONS.INVENTORY_WRITE],
       },
       {
         label: 'Suppliers',

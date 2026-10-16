@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
+import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { Box } from '@mantine/core';
 import {
   NUDGE_BIG_MM,
@@ -8,6 +8,8 @@ import {
   elementTitle,
   moveElement,
   snapMm,
+  snapToCenter,
+  type CenterGuides,
   type LabelSize,
 } from '../lib/labelGeometry';
 import { sampleText } from '../lib/labelSample';
@@ -30,7 +32,8 @@ export interface LabelCanvasProps {
   elements: LabelElement[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
-  onChange: (elements: LabelElement[]) => void;
+  /** `tag` names the change (`move:<id>`, `resize:<id>`, `nudge:<id>`) so one drag is one undo step. */
+  onChange: (elements: LabelElement[], tag: string) => void;
   onRemove: (id: string) => void;
   sample: LabelSample;
   shopName: string;
@@ -115,11 +118,15 @@ const ElementFace = ({
   }
 };
 
+const NO_GUIDES: CenterGuides = { vertical: false, horizontal: false };
+
 /**
  * The label drawn to scale. Items drag to move and drag their corner handle to
- * resize, both snapping to half a millimetre; arrow keys nudge the selected item
- * (Shift for bigger steps) and Delete removes it. The sheet is always white with
- * black ink in both themes because it stands for the paper.
+ * resize, both snapping to half a millimetre; a moved item is pulled onto the
+ * label's centre lines, which show as guides while it sits on them. Arrow keys
+ * nudge the selected item (Shift for bigger steps) and Delete removes it. The
+ * sheet is always white with black ink in both themes because it stands for
+ * the paper.
  */
 export const LabelCanvas = ({
   label,
@@ -133,9 +140,13 @@ export const LabelCanvas = ({
   scale,
 }: LabelCanvasProps) => {
   const drag = useRef<DragState | null>(null);
+  const [guides, setGuides] = useState<CenterGuides>(NO_GUIDES);
 
-  const replace = (next: LabelElement) =>
-    onChange(elements.map((element) => (element.id === next.id ? next : element)));
+  const replace = (next: LabelElement, tag: string) =>
+    onChange(
+      elements.map((element) => (element.id === next.id ? next : element)),
+      `${tag}:${next.id}`
+    );
 
   const begin = (
     event: PointerEvent<HTMLElement>,
@@ -159,29 +170,38 @@ export const LabelCanvas = ({
     if (state === null) return;
     const dx = (event.clientX - state.startX) / scale;
     const dy = (event.clientY - state.startY) / scale;
+    if (state.mode === 'move') {
+      const snapped = snapToCenter(
+        clampElement(
+          {
+            ...state.origin,
+            xMm: snapMm(state.origin.xMm + dx),
+            yMm: snapMm(state.origin.yMm + dy),
+          },
+          label
+        ),
+        label
+      );
+      setGuides(snapped.guides);
+      replace(snapped.element, 'move');
+      return;
+    }
     replace(
-      state.mode === 'move'
-        ? clampElement(
-            {
-              ...state.origin,
-              xMm: snapMm(state.origin.xMm + dx),
-              yMm: snapMm(state.origin.yMm + dy),
-            },
-            label
-          )
-        : clampElement(
-            {
-              ...state.origin,
-              widthMm: snapMm(state.origin.widthMm + dx),
-              heightMm: snapMm(state.origin.heightMm + dy),
-            },
-            label
-          )
+      clampElement(
+        {
+          ...state.origin,
+          widthMm: snapMm(state.origin.widthMm + dx),
+          heightMm: snapMm(state.origin.heightMm + dy),
+        },
+        label
+      ),
+      'resize'
     );
   };
 
   const finish = () => {
     drag.current = null;
+    setGuides(NO_GUIDES);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>, element: LabelElement) => {
@@ -195,7 +215,7 @@ export const LabelCanvas = ({
     const move = moves[event.key];
     if (move !== undefined) {
       event.preventDefault();
-      replace(moveElement(element, move[0], move[1], label));
+      replace(moveElement(element, move[0], move[1], label), 'nudge');
     } else if (event.key === 'Delete' || event.key === 'Backspace') {
       event.preventDefault();
       onRemove(element.id);
@@ -253,6 +273,32 @@ export const LabelCanvas = ({
           </div>
         );
       })}
+      {guides.vertical && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            left: (label.widthMm / 2) * scale,
+            top: 0,
+            bottom: 0,
+            borderLeft: '1px dashed var(--mantine-color-blue-6)',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+      {guides.horizontal && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: (label.heightMm / 2) * scale,
+            left: 0,
+            right: 0,
+            borderTop: '1px dashed var(--mantine-color-blue-6)',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
       {elements
         .filter((element) => element.id === selectedId)
         .map((element) => (
