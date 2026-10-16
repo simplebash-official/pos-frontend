@@ -64,11 +64,6 @@ export const LabelPrintSetupFields = ({
     [templates]
   );
 
-  const methodData = [
-    { label: t('Show the print window'), value: 'system' },
-    ...(canPrintDirect ? [{ label: t('Print straight to the printer'), value: 'direct' }] : []),
-  ];
-
   return (
     <Stack gap="md">
       <Select
@@ -86,22 +81,28 @@ export const LabelPrintSetupFields = ({
         <Text size="sm" fw={500} mb={4}>
           {t('When you press Print')}
         </Text>
-        <SegmentedToggle
-          fullWidth
-          orientation={isMobile ? 'vertical' : 'horizontal'}
-          value={draft.method ?? ''}
-          onChange={(value) =>
-            onChange({
-              ...draft,
-              method: value === 'direct' ? 'direct' : 'system',
-              printerName: value === 'direct' ? draft.printerName : null,
-            })
-          }
-          data={methodData}
-        />
-        {!canPrintDirect && (
-          <Text size="xs" c="dimmed" mt={4}>
-            {t('Printing straight to a label printer is available in the desktop app.')}
+        {canPrintDirect ? (
+          <SegmentedToggle
+            fullWidth
+            orientation={isMobile ? 'vertical' : 'horizontal'}
+            value={draft.method ?? ''}
+            onChange={(value) =>
+              onChange({
+                ...draft,
+                method: value === 'direct' ? 'direct' : 'system',
+                printerName: value === 'direct' ? draft.printerName : null,
+              })
+            }
+            data={[
+              { label: t('Show the print window'), value: 'system' },
+              { label: t('Print straight to the printer'), value: 'direct' },
+            ]}
+          />
+        ) : (
+          <Text size="sm" c="dimmed">
+            {t(
+              'The print window opens so you can pick your label printer. Printing straight to a label printer is available in the desktop app.'
+            )}
           </Text>
         )}
       </Box>

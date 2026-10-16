@@ -170,6 +170,8 @@ describe('LabelPrintSetupFields', () => {
     await open({ templateKey: 'starter_a', method: 'system', printerName: null, dpi: 203 });
     expect(text()).not.toContain('Print straight to the printer');
     expect(text()).toContain('available in the desktop app');
+    // Nothing to choose here, so no control that looks like it should do something.
+    expect(document.body.querySelectorAll('input[type="radio"]')).toHaveLength(0);
     expect(mockListPrinters).not.toHaveBeenCalled();
   });
 });

@@ -1,8 +1,11 @@
+import { isTauri } from '@/shared/lib/platform';
 import type { LabelDpi, LabelPrintSettings } from '../types';
 
 /**
  * A setup form in progress. Every choice starts empty: nothing is picked for
  * the person, and it only becomes real settings once every choice is made.
+ * The one exception is the way to print in a browser, where the print window
+ * is the only way there is, so there is nothing to choose.
  */
 export interface SetupDraft {
   templateKey: string | null;
@@ -11,16 +14,16 @@ export interface SetupDraft {
   dpi: LabelDpi | null;
 }
 
-export const EMPTY_SETUP_DRAFT: SetupDraft = {
+export const emptySetupDraft = (): SetupDraft => ({
   templateKey: null,
-  method: null,
+  method: isTauri() ? null : 'system',
   printerName: null,
   dpi: null,
-};
+});
 
 export const draftFromSettings = (settings: LabelPrintSettings | null): SetupDraft =>
   settings === null
-    ? EMPTY_SETUP_DRAFT
+    ? emptySetupDraft()
     : {
         templateKey: settings.templateKey,
         method: settings.method,

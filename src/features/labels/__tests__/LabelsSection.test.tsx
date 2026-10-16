@@ -218,11 +218,6 @@ describe('LabelsSection', () => {
   it('saves a complete first-time setup', async () => {
     const store = await open(null);
     await choose('Label design', 'Price tag 50 x 30 mm');
-    await act(async () => {
-      Array.from(document.body.querySelectorAll('label'))
-        .find((l) => l.textContent === 'Show the print window')!
-        .click();
-    });
     await choose('Printer detail', 'Standard (203 dpi) — most label printers');
     await act(async () => {
       button('Save Label Settings')!.click();
@@ -236,7 +231,6 @@ describe('LabelsSection', () => {
 
   it('only offers the print window in the browser, and says why', async () => {
     await open(saved);
-    expect(text()).toContain('Show the print window');
     expect(text()).not.toContain('Print straight to the printer');
     expect(text()).toContain(
       'Printing straight to a label printer is available in the desktop app.'

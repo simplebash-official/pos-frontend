@@ -1,11 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { isTauri } from '@/shared/lib/platform';
 import { parseLabelPrintSettings } from '../printSettings';
 import {
-  EMPTY_SETUP_DRAFT,
+  emptySetupDraft,
   draftFromSettings,
   settingsFromDraft,
   type SetupDraft,
 } from '../printSetupDraft';
+
+vi.mock('@/shared/lib/platform', () => ({ isTauri: vi.fn() }));
 
 describe('parseLabelPrintSettings', () => {
   it('accepts a complete system-print choice', () => {
@@ -54,9 +57,22 @@ describe('parseLabelPrintSettings', () => {
 });
 
 describe('setup draft', () => {
-  it('starts empty and is not settings yet', () => {
-    expect(settingsFromDraft(EMPTY_SETUP_DRAFT)).toBeNull();
-    expect(draftFromSettings(null)).toEqual(EMPTY_SETUP_DRAFT);
+  it('starts empty on the desktop and is not settings yet', () => {
+    vi.mocked(isTauri).mockReturnValue(true);
+    expect(emptySetupDraft().method).toBeNull();
+    expect(settingsFromDraft(emptySetupDraft())).toBeNull();
+    expect(draftFromSettings(null)).toEqual(emptySetupDraft());
+  });
+
+  it('has the print window picked in a browser, the only way there is, but still needs the rest', () => {
+    vi.mocked(isTauri).mockReturnValue(false);
+    expect(emptySetupDraft()).toEqual({
+      templateKey: null,
+      method: 'system',
+      printerName: null,
+      dpi: null,
+    });
+    expect(settingsFromDraft(emptySetupDraft())).toBeNull();
   });
 
   it('only becomes settings once every choice is made', () => {
