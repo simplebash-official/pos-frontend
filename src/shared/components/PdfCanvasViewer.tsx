@@ -5,7 +5,6 @@ import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
 import {
   Box,
-  Group,
   ActionIcon,
   Text,
   Loader,
@@ -18,8 +17,8 @@ import {
 import {
   IconMinus,
   IconPlus,
-  IconChevronLeft,
-  IconChevronRight,
+  IconChevronDown,
+  IconChevronUp,
   IconAlertCircle,
   IconArrowsMaximize,
 } from '@tabler/icons-react';
@@ -409,39 +408,43 @@ export const PdfCanvasViewer = ({
           style={{
             position: 'absolute',
             top: isMobile ? 8 : 14,
-            left: isMobile ? 8 : 14,
+            // Down the right edge, clear of the scrollbar, so it never covers the page.
+            right: isMobile ? 14 : 22,
             zIndex: 10,
             backgroundColor: 'var(--bg-card)',
             backdropFilter: 'blur(8px)',
-            padding: '4px 6px',
+            padding: isMobile ? '4px' : '2px',
           }}
         >
-          <Group gap={4} wrap="nowrap" align="center">
-            <Tooltip label={t('Zoom out')}>
+          <Stack gap={2} align="center">
+            <Tooltip label={t('Zoom out')} position="left">
               <ActionIcon
                 variant="subtle"
                 color="gray"
-                size={isMobile ? 36 : 28}
+                size={isMobile ? 36 : 24}
                 disabled={scale <= ZOOM_MIN}
                 onClick={zoomOut}
                 aria-label={t('Zoom out')}
               >
-                <IconMinus size={14} />
+                <IconMinus size={12} />
               </ActionIcon>
             </Tooltip>
 
-            <Tooltip label={scale === 1 && !autoFit ? 'Zoom 100%' : 'Reset to 100%'}>
+            <Tooltip
+              label={scale === 1 && !autoFit ? 'Zoom 100%' : 'Reset to 100%'}
+              position="left"
+            >
               <Button
                 variant="subtle"
                 color="gray"
                 size="compact-xs"
                 onClick={resetTo100}
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: 600,
-                  padding: '0 6px',
-                  minWidth: 44,
-                  height: isMobile ? 36 : 28,
+                  padding: '0 4px',
+                  minWidth: 36,
+                  height: isMobile ? 36 : 20,
                   color: 'var(--text-primary)',
                 }}
               >
@@ -449,64 +452,64 @@ export const PdfCanvasViewer = ({
               </Button>
             </Tooltip>
 
-            <Tooltip label={t('Zoom in')}>
+            <Tooltip label={t('Zoom in')} position="left">
               <ActionIcon
                 variant="subtle"
                 color="gray"
-                size={isMobile ? 36 : 28}
+                size={isMobile ? 36 : 24}
                 disabled={scale >= ZOOM_MAX}
                 onClick={zoomIn}
                 aria-label={t('Zoom in')}
               >
-                <IconPlus size={14} />
+                <IconPlus size={12} />
               </ActionIcon>
             </Tooltip>
 
-            <Tooltip label={autoFit ? 'Fit to width (active)' : 'Fit to width'}>
+            <Tooltip label={autoFit ? 'Fit to width (active)' : 'Fit to width'} position="left">
               <ActionIcon
                 variant={autoFit ? 'light' : 'subtle'}
                 color={autoFit ? 'blue' : 'gray'}
-                size={isMobile ? 36 : 28}
+                size={isMobile ? 36 : 24}
                 onClick={toggleFit}
                 aria-label={t('Fit to width')}
               >
-                <IconArrowsMaximize size={14} />
+                <IconArrowsMaximize size={12} />
               </ActionIcon>
             </Tooltip>
 
             {pageCount > 1 && (
               <>
-                <Divider orientation="vertical" my={4} color="var(--border)" />
+                <Divider w="70%" my={0} color="var(--border)" />
                 <ActionIcon
                   variant="subtle"
                   color="gray"
-                  size={isMobile ? 36 : 28}
+                  size={isMobile ? 36 : 24}
                   disabled={activePage <= 1}
                   onClick={() => scrollToPage(activePage - 1)}
                   aria-label={t('Previous page')}
                 >
-                  <IconChevronLeft size={14} />
+                  <IconChevronUp size={12} />
                 </ActionIcon>
                 <Text
                   size="xs"
                   fw={600}
-                  style={{ padding: '0 4px', textAlign: 'center', whiteSpace: 'nowrap' }}
+                  style={{ fontSize: 11, textAlign: 'center', whiteSpace: 'nowrap' }}
                 >
                   {activePage} / {pageCount}
                 </Text>
                 <ActionIcon
                   variant="subtle"
                   color="gray"
-                  size={isMobile ? 36 : 28}
+                  size={isMobile ? 36 : 24}
                   disabled={activePage >= pageCount}
                   onClick={() => scrollToPage(activePage + 1)}
                   aria-label={t('Next page')}
                 >
-                  <IconChevronRight size={14} />
+                  <IconChevronDown size={12} />
                 </ActionIcon>
               </>
             )}
-          </Group>
+          </Stack>
         </Paper>
       )}
 
