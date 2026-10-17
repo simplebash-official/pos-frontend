@@ -109,7 +109,7 @@ export const StepProgress = ({ steps, active, onBack }: StepProgressProps) => {
                 type="button"
                 onClick={() => onBack(index)}
                 aria-label={step.label}
-                style={{ display: 'block', width: '100%' }}
+                style={{ display: 'block', width: '100%', textAlign: 'center' }}
               >
                 {circle}
                 {labels}

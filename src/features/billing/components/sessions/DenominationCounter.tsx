@@ -94,11 +94,12 @@ export const DenominationCounter: React.FC<DenominationCounterProps> = ({
                     size="xs"
                     min={0}
                     step={1}
+                    startValue={1}
                     allowDecimal={false}
                     value={count === 0 ? '' : count}
                     placeholder="0"
                     onChange={(val) => handleCountChange(denom.id, val)}
-                    styles={{ input: { textAlign: 'right', width: 85 } }}
+                    styles={{ input: { textAlign: 'center', width: 96 } }}
                   />
                   <Text size="xs" c="dimmed" style={{ minWidth: 80, textAlign: 'right' }}>
                     <AnimatedNumber
