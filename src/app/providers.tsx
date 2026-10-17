@@ -12,7 +12,6 @@ import { store } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
 import { selectAppLanguage } from '@/store/slices/settingsSlice';
-import { AppUpdatePrompt } from '@/app/components/AppUpdatePrompt';
 import { PwaUpdateProvider } from '@/app/pwa/PwaUpdateContext';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
 import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
@@ -91,7 +90,6 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
               <Notifications position="top-right" zIndex={1000} />
               <LayoutTierProvider>
                 <PwaUpdateProvider>
-                  <AppUpdatePrompt />
                   <HeldCartCatchupNotifier />
                   <LiveRefresh />
                   <LowStockNotifier />

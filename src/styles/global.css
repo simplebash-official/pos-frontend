@@ -1009,3 +1009,93 @@ th.mantine-Table-th {
   position: relative;
   z-index: 1;
 }
+
+/* Web update indicator in the header (src/app/layout/HeaderUpdateIndicator.tsx). Only transform and
+   opacity animate. The progress line sits on the header's bottom edge (the header is positioned). */
+.update-pill {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--mantine-radius-default);
+  background: var(--bg-card);
+  animation: update-pill-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.update-pill-ready {
+  padding: 3px 4px 3px 10px;
+  border-color: var(--mantine-color-blue-filled);
+  background: var(--mantine-color-blue-light);
+}
+
+@media (max-width: 47.99em) {
+  .update-pill,
+  .update-pill-ready {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+}
+
+.update-progress-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.update-progress-bar {
+  width: 100%;
+  height: 100%;
+  background: var(--mantine-color-blue-filled);
+  transform-origin: left center;
+  transition: transform 0.4s ease-out;
+}
+
+.update-progress-indeterminate {
+  width: 40%;
+  animation: update-progress-slide 1.2s ease-in-out infinite;
+}
+
+.update-ring-indeterminate {
+  animation: update-ring-spin 1.2s linear infinite;
+}
+
+@keyframes update-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes update-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes update-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-pill,
+  .update-progress-indeterminate,
+  .update-ring-indeterminate {
+    animation: none;
+  }
+  .update-progress-bar {
+    transition: none;
+  }
+}

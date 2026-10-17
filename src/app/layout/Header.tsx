@@ -38,6 +38,7 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
 import { SyncBadge } from '@/features/sync-status';
+import { HeaderUpdateIndicator } from './HeaderUpdateIndicator';
 import { useCloudState } from '@/features/account';
 
 export interface HeaderProps {
@@ -198,6 +199,7 @@ export const Header = ({
             </ActionIcon>
           </Tooltip>
 
+          <HeaderUpdateIndicator cartItemsCount={cartItemsCount} />
           <SyncBadge />
           <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
@@ -264,6 +266,7 @@ export const Header = ({
           </ActionIcon>
         </Tooltip>
 
+        <HeaderUpdateIndicator cartItemsCount={cartItemsCount} />
         <SyncBadge />
         <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 

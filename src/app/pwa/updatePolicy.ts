@@ -27,3 +27,27 @@ export const shouldOfferUpdate = (needRefresh: boolean, cartItemsCount: number):
  */
 export const shouldPollForUpdate = (opts: { online: boolean; documentVisible: boolean }): boolean =>
   opts.online && opts.documentVisible;
+
+/** Where a new version is on its way to the cashier. */
+export type UpdatePhase = 'idle' | 'downloading' | 'ready';
+
+/**
+ * `ready` wins over `downloading`: once the new worker is waiting its download
+ * is finished, whatever state the installing worker was last seen in.
+ */
+export const updatePhase = (installing: boolean, needRefresh: boolean): UpdatePhase => {
+  if (needRefresh) return 'ready';
+  return installing ? 'downloading' : 'idle';
+};
+
+/**
+ * Progress message from the service worker (`updateProgress.ts`), or null when
+ * the data is not that shape — the channel is same-origin but untyped.
+ */
+export const parseUpdateProgress = (data: unknown): { done: number; total: number } | null => {
+  if (typeof data !== 'object' || data === null) return null;
+  const { done, total } = data as Record<string, unknown>;
+  if (typeof done !== 'number' || typeof total !== 'number') return null;
+  if (!Number.isFinite(done) || !Number.isFinite(total)) return null;
+  return { done, total };
+};

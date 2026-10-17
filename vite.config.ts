@@ -52,18 +52,15 @@ if (!isTauri) {
       // mid-sale would reload the page and lose the cart.
       registerType: 'prompt',
       injectRegister: 'auto',
+      // Hand-written worker (src/sw.ts) so the page can show download progress
+      // while a new version installs. It owns the navigation fallback, the
+      // /api denylist, outdated-cache cleanup and the SKIP_WAITING handler.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,mjs,css,html,svg,png,woff2}'],
-        navigateFallback: '/index.html',
-        // Never serve the shell in place of an API response — a cached 200
-        // would make an unreachable backend look online and defeat the
-        // connectivity detection entirely.
-        navigateFallbackDenylist: [/^\/api\//],
-        // Deliberately empty: Dexie is the data cache. An HTTP cache on top of
-        // it would be a third source of truth for the same records.
-        runtimeCaching: [],
-        cleanupOutdatedCaches: true,
         // The Tabler icon shards are large.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },

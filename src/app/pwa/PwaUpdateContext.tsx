@@ -11,15 +11,23 @@ import {
 } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 
-import { UPDATE_CHECK_INTERVAL_MS, shouldPollForUpdate } from './updatePolicy';
+import { downloadPercent } from '@/features/settings/lib/updateView';
+import {
+  UPDATE_CHECK_INTERVAL_MS,
+  parseUpdateProgress,
+  shouldPollForUpdate,
+  updatePhase,
+  type UpdatePhase,
+} from './updatePolicy';
+import { UPDATE_PROGRESS_CHANNEL } from './updateProgress';
 
 /**
  * Single owner of the PWA service-worker registration for the whole app.
  *
  * `useRegisterSW` registers the service worker as a side effect, so it must be
- * called exactly once — both `AppUpdatePrompt` (the toast) and the Settings
+ * called exactly once — both the header's `HeaderUpdateIndicator` and the Settings
  * "Updates" section read the state from this context instead of calling the
- * hook again. It also drives a periodic re-check so a freshly deployed version
+ * hook again, and the header's update indicator reads `update`. It also drives a periodic re-check so a freshly deployed version
  * is noticed without the cashier reloading the page.
  *
  * Under the Tauri desktop build `virtual:pwa-register/react` is aliased to a
@@ -34,6 +42,12 @@ interface PwaUpdateContextValue {
   offlineReady: boolean;
   /** True while a manual "check for updates" request is in flight. */
   checking: boolean;
+  /**
+   * Where the new version is: `downloading` while the service worker fetches
+   * it (`percent` is null until it knows how much there is), `ready` once it
+   * can be applied.
+   */
+  update: { phase: UpdatePhase; percent: number | null };
   /** Epoch ms of the last completed check, or null if none yet this session. */
   lastCheckedAt: number | null;
   /** Ask the browser to re-check for a new service worker right now. */
@@ -48,6 +62,8 @@ export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
   const registrationRef = useRef<ServiceWorkerRegistration | undefined>(undefined);
   const [checking, setChecking] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<number | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const [percent, setPercent] = useState<number | null>(null);
 
   const {
     needRefresh: [needRefresh],
@@ -56,8 +72,31 @@ export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
   } = useRegisterSW({
     onRegisteredSW: (_swUrl, registration) => {
       registrationRef.current = registration;
+      if (!registration) return;
+      const trackInstall = (worker: ServiceWorker | null) => {
+        // The very first install has no controller: nothing to update from.
+        if (!worker || !navigator.serviceWorker.controller) return;
+        setPercent(null);
+        setInstalling(true);
+        worker.addEventListener('statechange', () => {
+          if (worker.state === 'redundant' || worker.state === 'activated') setInstalling(false);
+        });
+      };
+      // An install may already be under way if the page loaded mid-download.
+      trackInstall(registration.installing);
+      registration.addEventListener('updatefound', () => trackInstall(registration.installing));
     },
   });
+
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    const channel = new BroadcastChannel(UPDATE_PROGRESS_CHANNEL);
+    channel.onmessage = (event: MessageEvent) => {
+      const progress = parseUpdateProgress(event.data);
+      if (progress) setPercent(downloadPercent(progress.done, progress.total));
+    };
+    return () => channel.close();
+  }, []);
 
   const runCheck = useCallback(async () => {
     const registration = registrationRef.current;
@@ -104,11 +143,21 @@ export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
       updateAvailable: needRefresh,
       offlineReady,
       checking,
+      update: { phase: updatePhase(installing, needRefresh), percent },
       lastCheckedAt,
       checkForUpdate,
       applyUpdate,
     }),
-    [needRefresh, offlineReady, checking, lastCheckedAt, checkForUpdate, applyUpdate]
+    [
+      needRefresh,
+      offlineReady,
+      checking,
+      installing,
+      percent,
+      lastCheckedAt,
+      checkForUpdate,
+      applyUpdate,
+    ]
   );
 
   return <PwaUpdateContext.Provider value={value}>{children}</PwaUpdateContext.Provider>;
