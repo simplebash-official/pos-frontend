@@ -3,6 +3,9 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Box, Paper, Tabs } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
+/** A flex column that takes the room left by its parent and may shrink below its content. */
+const FILL = { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 } as const;
+
 export interface AnimatedTab<V extends string> {
   value: V;
   label: string;
@@ -17,6 +20,8 @@ export interface AnimatedTabsProps<V extends string> {
   onChange: (value: V) => void;
   /** The panel for the tab that is active. */
   children: (value: V) => ReactNode;
+  /** Take all the height the parent has, so a panel can scroll a long list inside itself. */
+  fill?: boolean;
 }
 
 /**
@@ -78,6 +83,7 @@ export const AnimatedTabs = <V extends string>({
   value,
   onChange,
   children,
+  fill = false,
 }: AnimatedTabsProps<V>) => {
   const isMobile = useIsMobile();
   const reduceMotion = useReducedMotion();
@@ -94,7 +100,12 @@ export const AnimatedTabs = <V extends string>({
   const slide = reduceMotion ? 0 : 16;
 
   return (
-    <Paper p={0} bg="var(--bg-card)" shadow="xs" style={{ overflow: 'hidden' }}>
+    <Paper
+      p={0}
+      bg="var(--bg-card)"
+      shadow="xs"
+      style={{ overflow: 'hidden', ...(fill ? FILL : undefined) }}
+    >
       <Tabs
         id={baseId}
         value={value}
@@ -134,13 +145,14 @@ export const AnimatedTabs = <V extends string>({
         </Tabs.List>
       </Tabs>
 
-      <Box p="md" style={{ overflow: 'hidden' }}>
+      <Box p="md" style={{ overflow: 'hidden', ...(fill ? FILL : undefined) }}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={value}
             role="tabpanel"
             id={`${baseId}-panel-${value}`}
             aria-labelledby={`${baseId}-tab-${value}`}
+            style={fill ? FILL : undefined}
             initial={{ opacity: 0, x: direction * slide }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -direction * slide }}

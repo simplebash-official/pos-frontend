@@ -23,7 +23,7 @@ import { useLabelCoverage } from '../hooks/useLabelJobs';
 import { coverageLine } from '../lib/jobView';
 import { rowFromCoverage, type LabelRow } from '../lib/printJob';
 import { LABEL_LIMITS, type LabelCoverageRow, type LabelCoverageStatus } from '../types';
-import { LIST_SCROLL } from '../lib/listScroll';
+import { FILL_COLUMN, LIST_FILL } from '../lib/listScroll';
 
 const PAGE_SIZE = 20;
 
@@ -77,7 +77,7 @@ export const LabelCoverageTab = ({ onPrint }: LabelCoverageTabProps) => {
     count === undefined ? label : `${label} (${count})`;
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" style={isMobile ? undefined : FILL_COLUMN}>
       <Group gap="sm" wrap="wrap" align="flex-end">
         <SegmentedToggle
           value={status}
@@ -160,7 +160,7 @@ export const LabelCoverageTab = ({ onPrint }: LabelCoverageTabProps) => {
         </Text>
       )}
 
-      <Stack gap={6} style={isMobile ? undefined : LIST_SCROLL}>
+      <Stack gap={6} style={isMobile ? undefined : LIST_FILL}>
         {rows.map((row) => {
           const checked = chosen.has(row.product.key);
           // Beside the name on a computer, under it on a phone so the name keeps its room.

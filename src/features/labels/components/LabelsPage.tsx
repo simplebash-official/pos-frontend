@@ -4,6 +4,7 @@ import { Stack } from '@mantine/core';
 import { IconHistory, IconPalette, IconPrinter, IconTagStarred } from '@tabler/icons-react';
 import { AnimatedTabs } from '@/shared/components/drawer';
 import { PageHeader } from '@/shared/components/PageHeader';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useLabelCoverage } from '../hooks/useLabelJobs';
 import type { LabelRow } from '../lib/printJob';
 import { LabelCoverageTab } from './LabelCoverageTab';
@@ -19,6 +20,9 @@ type LabelsTab = 'print' | 'needs' | 'history' | 'designs';
  * sidebar entry both require inventory write).
  */
 export const LabelsPage = () => {
+  const isMobile = useIsMobile();
+  // A computer fits the window (only lists scroll); a phone scrolls the page as usual.
+  const fill = !isMobile;
   const [tab, setTab] = useState<LabelsTab>('print');
   // Kept here so a half-built print survives a look at another tab.
   const [rows, setRows] = useState<LabelRow[]>([]);
@@ -30,7 +34,7 @@ export const LabelsPage = () => {
   };
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" style={fill ? { height: '100%', minHeight: '34rem' } : undefined}>
       <PageHeader
         title={t('Labels')}
         description={t(
@@ -38,6 +42,7 @@ export const LabelsPage = () => {
         )}
       />
       <AnimatedTabs<LabelsTab>
+        fill={fill}
         value={tab}
         onChange={setTab}
         tabs={[

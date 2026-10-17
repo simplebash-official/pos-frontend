@@ -156,6 +156,25 @@ describe('drawer kit', () => {
       expect(onChange).toHaveBeenCalledWith('b');
     });
 
+    it("only takes the parent's height when asked to fill", async () => {
+      const panelStyle = () =>
+        (document.body.querySelector('[role="tabpanel"]') as HTMLElement).style;
+      await show(<Demo />);
+      expect(panelStyle().flex).toBe('');
+      await show(
+        <AnimatedTabs
+          fill
+          value="a"
+          onChange={() => undefined}
+          tabs={[{ value: 'a', label: 'Alpha', icon: <IconBox size={16} /> }]}
+        >
+          {() => <div>panel</div>}
+        </AnimatedTabs>
+      );
+      expect(panelStyle().display).toBe('flex');
+      expect(panelStyle().minHeight).toBe('0');
+    });
+
     it('links the panel to its tab for assistive technology', async () => {
       await show(<Demo />);
       const panel = document.body.querySelector('[role="tabpanel"]') as HTMLElement;

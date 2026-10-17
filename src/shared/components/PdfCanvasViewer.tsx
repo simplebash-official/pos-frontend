@@ -408,8 +408,7 @@ export const PdfCanvasViewer = ({
           style={{
             position: 'absolute',
             top: isMobile ? 8 : 14,
-            // Down the right edge, clear of the scrollbar, so it never covers the page.
-            right: isMobile ? 14 : 22,
+            right: isMobile ? 8 : 14,
             zIndex: 10,
             backgroundColor: 'var(--bg-card)',
             backdropFilter: 'blur(8px)',
@@ -516,6 +515,7 @@ export const PdfCanvasViewer = ({
       {/* Scrollable Viewport */}
       <Box
         ref={containerRef}
+        className="no-scrollbar"
         style={{
           width: '100%',
           height: '100%',

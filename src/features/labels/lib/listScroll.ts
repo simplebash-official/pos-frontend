@@ -1,12 +1,16 @@
 import type { CSSProperties } from 'react';
 
 /**
- * A long list scrolls inside its own box so the filters above and the page
- * numbers below stay on the first screen. The offset is the page title, tabs,
- * filter row, selection bar and page numbers that sit around the list.
+ * The Labels page fits the room it is given instead of guessing a height: each level from the
+ * page down is a flex column that may shrink (`FILL_COLUMN`), and the one long region inside a
+ * tab (`LIST_FILL`) takes what is left and scrolls on its own, so filters above and page numbers
+ * below stay on screen on any window size.
  */
-export const LIST_SCROLL: CSSProperties = {
-  maxHeight: 'calc(100dvh - 470px)',
-  minHeight: 280,
-  overflowY: 'auto',
+export const FILL_COLUMN: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  minHeight: 0,
 };
+
+export const LIST_FILL: CSSProperties = { flex: 1, minHeight: 0, overflowY: 'auto' };

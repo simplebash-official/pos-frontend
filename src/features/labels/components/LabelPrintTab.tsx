@@ -7,6 +7,8 @@ import { useLabelJobs } from '../hooks/useLabelJobs';
 import { usePrintAgain } from '../hooks/usePrintAgain';
 import { howItPrinted, labelCount } from '../lib/jobView';
 import type { LabelRow } from '../lib/printJob';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { FILL_COLUMN } from '../lib/listScroll';
 import { LabelPrintWorkspace } from './LabelPrintWorkspace';
 
 export interface LabelPrintTabProps {
@@ -19,8 +21,9 @@ export interface LabelPrintTabProps {
 export const LabelPrintTab = ({ rows, onRowsChange, onPrintAgain }: LabelPrintTabProps) => {
   const last = useLabelJobs({ page: 1, limit: 1 }).data?.items[0];
   const { printAgain, loadingKey } = usePrintAgain(onPrintAgain);
+  const isMobile = useIsMobile();
   return (
-    <Stack gap="md">
+    <Stack gap="md" style={isMobile ? undefined : FILL_COLUMN}>
       {last !== undefined && (
         <Paper p="sm" withBorder>
           <Group justify="space-between" wrap="wrap" gap="sm">
@@ -43,13 +46,14 @@ export const LabelPrintTab = ({ rows, onRowsChange, onPrintAgain }: LabelPrintTa
           </Group>
         </Paper>
       )}
-      <Paper p="md" withBorder>
+      <Paper p="md" withBorder style={isMobile ? undefined : FILL_COLUMN}>
         <LabelPrintWorkspace
           rows={rows}
           onRowsChange={onRowsChange}
           onPrinted={() => onRowsChange([])}
           footerStart={null}
           shortcutsActive
+          fill
         />
       </Paper>
     </Stack>

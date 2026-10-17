@@ -284,6 +284,8 @@ export interface LabelPrintWorkspaceProps {
   footerStart: ReactNode;
   /** Enter prints while this is true (desktop only). */
   shortcutsActive: boolean;
+  /** Fit the height the parent gives (items and preview scroll inside it) instead of fixed heights. */
+  fill: boolean;
 }
 
 /**
@@ -298,8 +300,10 @@ export const LabelPrintWorkspace = ({
   onPrinted,
   footerStart,
   shortcutsActive,
+  fill,
 }: LabelPrintWorkspaceProps) => {
   const isMobile = useIsMobile();
+  const fitting = fill && !isMobile;
   const dispatch = useAppDispatch();
   const settings = useAppSelector(selectLabelPrintSettings);
   const canWriteInventory = useHasPermission(PERMISSIONS.INVENTORY_WRITE);
@@ -614,9 +618,12 @@ export const LabelPrintWorkspace = ({
   );
 
   const renderPreview = () => (
-    <Stack gap="xs" style={{ minWidth: 0 }}>
+    <Stack gap="xs" style={{ minWidth: 0, minHeight: 0, height: fitting ? '100%' : undefined }}>
       {sectionLabel(t('What will be printed'))}
-      <Box h={isMobile ? 320 : 420} style={{ minHeight: 0 }}>
+      <Box
+        h={fitting ? undefined : isMobile ? 320 : 420}
+        style={fitting ? { flex: 1, minHeight: 220 } : { minHeight: 0 }}
+      >
         <PdfCanvasViewer
           blob={preview.data ?? null}
           loading={preview.isFetching}
@@ -639,7 +646,7 @@ export const LabelPrintWorkspace = ({
   );
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" style={fitting ? { flex: 1, minHeight: 0 } : undefined}>
       {templatesQuery.isLoading && <Skeleton height={120} />}
       {templatesQuery.isError && (
         <Alert color="red" variant="light">
@@ -679,10 +686,18 @@ export const LabelPrintWorkspace = ({
       )}
 
       {templates !== undefined && !showSetup && (
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+        <SimpleGrid
+          cols={{ base: 1, md: 2 }}
+          spacing="md"
+          style={
+            fitting ? { flex: 1, minHeight: 0, gridTemplateRows: 'minmax(0, 1fr)' } : undefined
+          }
+        >
           {/* A phone scrolls the whole page; the items column only scrolls on its own beside the preview. */}
           {isMobile ? (
             <Box style={{ minWidth: 0 }}>{renderItems()}</Box>
+          ) : fitting ? (
+            <Box style={{ minWidth: 0, minHeight: 0, overflowY: 'auto' }}>{renderItems()}</Box>
           ) : (
             <ScrollArea.Autosize
               scrollbars="y"

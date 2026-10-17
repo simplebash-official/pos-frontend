@@ -31,7 +31,7 @@ import { usePrintAgain } from '../hooks/usePrintAgain';
 import { howItPrinted, labelCount, outcomeView } from '../lib/jobView';
 import type { LabelRow } from '../lib/printJob';
 import type { LabelJob, LabelPrintAction } from '../types';
-import { LIST_SCROLL } from '../lib/listScroll';
+import { FILL_COLUMN, LIST_FILL } from '../lib/listScroll';
 
 const PAGE_SIZE = 20;
 
@@ -119,7 +119,7 @@ export const LabelHistoryTab = ({ onPrintAgain }: LabelHistoryTabProps) => {
   const jobs = query.data?.items ?? [];
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" style={isMobile ? undefined : FILL_COLUMN}>
       <SegmentedToggle
         value={action}
         onChange={(value) => {
@@ -147,7 +147,7 @@ export const LabelHistoryTab = ({ onPrintAgain }: LabelHistoryTabProps) => {
         </Text>
       )}
 
-      <Stack gap={6} style={isMobile ? undefined : LIST_SCROLL}>
+      <Stack gap={6} style={isMobile ? undefined : LIST_FILL}>
         {jobs.map((job) => {
           const products = [...new Set(job.items.map((item) => item.productName))];
           return (

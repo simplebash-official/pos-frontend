@@ -34,6 +34,7 @@ export const LabelPrintModal = ({ opened, onClose, rows }: LabelPrintModalProps)
         onRowsChange={setCurrent}
         onPrinted={onClose}
         shortcutsActive={opened}
+        fill={false}
         footerStart={
           <Button variant="default" onClick={onClose}>
             {t('Cancel')}
