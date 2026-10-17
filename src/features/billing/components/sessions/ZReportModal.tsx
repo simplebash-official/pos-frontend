@@ -151,7 +151,7 @@ export const ZReportModal: React.FC<ZReportModalProps> = ({ opened, onClose, ses
                   <Table.Thead>
                     <Table.Tr>
                       <Table.Th>{t('Method')}</Table.Th>
-                      <Table.Th style={{ textAlign: 'center' }}>{t('Txns')}</Table.Th>
+                      <Table.Th style={{ textAlign: 'center' }}>{t('Payments')}</Table.Th>
                       <Table.Th style={{ textAlign: 'right' }}>{t('Total')}</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
