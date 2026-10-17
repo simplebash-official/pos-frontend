@@ -140,7 +140,7 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
         )}
 
         {/* Previous Close Drawer Balance Info */}
-        <Card withBorder padding="sm" radius="md" bg="var(--mantine-color-gray-0)">
+        <Card withBorder padding="sm" radius="md" bg="var(--bg-app)">
           <Group justify="space-between" align="center">
             <div>
               <Text size="xs" c="dimmed" fw={600} tt="uppercase">

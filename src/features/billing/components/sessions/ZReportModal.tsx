@@ -55,7 +55,7 @@ export const ZReportModal: React.FC<ZReportModalProps> = ({ opened, onClose, ses
       ) : (
         <Stack gap="md">
           {/* Header Card */}
-          <Paper withBorder p="sm" radius="md" bg="var(--mantine-color-gray-0)">
+          <Paper withBorder p="sm" radius="md" bg="var(--bg-app)">
             <Grid gap="xs">
               <Grid.Col span={6}>
                 <Text size="xs" c="dimmed" tt="uppercase">

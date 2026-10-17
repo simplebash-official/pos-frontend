@@ -466,7 +466,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                   )}
 
                   {showConvertVariance && (
-                    <Card withBorder p="sm" radius="md" bg="var(--mantine-color-orange-0)">
+                    <Card withBorder p="sm" radius="md" bg="var(--mantine-color-orange-light)">
                       <Stack gap="xs">
                         <Text size="xs" fw={700}>
                           {t('Convert Shortage to Late Owner Withdrawal')}
@@ -619,7 +619,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
               </Button>
             </Group>
 
-            <Card withBorder p="sm" radius="md" bg="var(--mantine-color-blue-0)">
+            <Card withBorder p="sm" radius="md" bg="var(--mantine-color-blue-light)">
               <Group justify="space-between" align="center">
                 <Group gap="xs">
                   <IconBuildingBank size={20} color="var(--mantine-color-blue-6)" />
