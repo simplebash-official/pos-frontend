@@ -111,7 +111,7 @@ describe('Close shift window', () => {
     await click('SES-000002');
     await click('Close Register Shift');
     await shows('No Unfinished Work');
-    const steps = Array.from(document.body.querySelectorAll<HTMLElement>('.mantine-Stepper-step'));
+    const steps = Array.from(document.body.querySelectorAll<HTMLElement>('[data-step]'));
     await act(async () => steps[3]?.click());
     expect(text()).toContain('No Unfinished Work');
   });

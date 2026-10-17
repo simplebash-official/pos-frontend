@@ -12,6 +12,7 @@ import {
   Text,
   Textarea,
   TextInput,
+  ThemeIcon,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -259,8 +260,6 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
           { label: t('Float & Lock'), description: t('Next shift') },
         ]}
       />
-
-      <Divider />
 
       <StepSwitch step={activeStep}>
         {/* Step 1: Unfinished Work */}
@@ -707,7 +706,9 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
       onClose={onClose}
       title={
         <Group gap="xs">
-          <IconLock size={22} color="var(--mantine-color-orange-6)" />
+          <ThemeIcon variant="light" color="orange" size={34}>
+            <IconLock size={20} />
+          </ThemeIcon>
           <Text fw={700} size="lg">
             {t('Close Register Session')} — {session.sessionNumber}
           </Text>
