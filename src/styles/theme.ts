@@ -5,6 +5,8 @@ import {
   Drawer,
   DrawerContent,
   HoverCard,
+  Menu,
+  Modal,
   ModalContent,
   Notification,
   Paper,
@@ -80,6 +82,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
   },
   primaryColor: 'blue',
   defaultRadius: 'md',
+  respectReducedMotion: true,
   components: {
     /** Put your mantine component override here */
     Container: Container.extend({
@@ -102,6 +105,24 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       },
     }),
 
+    // One enter/exit for every dialog, menu and drawer: a short fade with a small scale/slide.
+    // Mantine runs these as CSS transitions on opacity + transform, and
+    // `respectReducedMotion` turns them off for people who ask the system for less motion.
+    Modal: Modal.extend({
+      defaultProps: {
+        transitionProps: {
+          transition: 'pop',
+          duration: 180,
+          timingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        },
+      },
+    }),
+    Menu: Menu.extend({
+      defaultProps: {
+        transitionProps: { transition: 'fade-down', duration: 140 },
+      },
+    }),
+
     ModalContent: ModalContent.extend({
       defaultProps: {
         p: 0,
@@ -120,6 +141,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
         offset: 16,
         radius: 'var(--mantine-radius-default)',
         shadow: 'xl',
+        transitionProps: { duration: 200, timingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' },
       },
     }),
 

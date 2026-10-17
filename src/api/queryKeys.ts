@@ -18,6 +18,18 @@ export const queryKeys = {
       byInvoice: (invoiceId: string) => ['billing', 'creditNotes', 'byInvoice', invoiceId] as const,
       stats: () => ['billing', 'creditNotes', 'stats'] as const,
     },
+    sessions: {
+      all: ['billing', 'sessions'] as const,
+      current: (terminalId?: string) => ['billing', 'sessions', 'current', terminalId] as const,
+      detail: (key: string) => ['billing', 'sessions', 'detail', key] as const,
+      list: (filters?: Record<string, unknown>) =>
+        ['billing', 'sessions', 'list', filters] as const,
+      zReport: (key: string) => ['billing', 'sessions', 'zReport', key] as const,
+      drawerState: (terminalId: string) =>
+        ['billing', 'sessions', 'drawerState', terminalId] as const,
+      movements: (filters?: Record<string, unknown>) =>
+        ['billing', 'sessions', 'movements', filters] as const,
+    },
   },
   repairs: {
     all: ['repairs'] as const,

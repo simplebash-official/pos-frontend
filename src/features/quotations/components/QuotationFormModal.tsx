@@ -841,7 +841,6 @@ export const QuotationFormModal = ({
                           <MoneyInput
                             aria-label={t('Discount amount')}
                             size="xs"
-                            allowEmpty
                             placeholder="Rs. 0.00"
                             valueCents={draft.discountValue}
                             onChangeCents={(cents) => patch({ discountValue: cents })}

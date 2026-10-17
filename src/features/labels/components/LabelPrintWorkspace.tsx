@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
@@ -303,6 +304,7 @@ export const LabelPrintWorkspace = ({
   fill,
 }: LabelPrintWorkspaceProps) => {
   const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
   const fitting = fill && !isMobile;
   const dispatch = useAppDispatch();
   const settings = useAppSelector(selectLabelPrintSettings);
@@ -595,15 +597,24 @@ export const LabelPrintWorkspace = ({
           </Stack>
         </Alert>
       )}
-      {rows.map((row) => (
-        <LabelRowEditor
-          key={row.product.key}
-          row={row}
-          usesPrice={template !== undefined && templateUsesPrice(template)}
-          onChange={(next) => updateRow(row.product.key, next)}
-          onRemove={() => removeRow(row.product.key)}
-        />
-      ))}
+      <AnimatePresence initial={false}>
+        {rows.map((row) => (
+          <motion.div
+            key={row.product.key}
+            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
+            transition={{ duration: reduceMotion ? 0 : 0.15 }}
+          >
+            <LabelRowEditor
+              row={row}
+              usesPrice={template !== undefined && templateUsesPrice(template)}
+              onChange={(next) => updateRow(row.product.key, next)}
+              onRemove={() => removeRow(row.product.key)}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
       {rows.length > 0 &&
         blockers
           .filter((blocker) => blocker.kind === 'other')

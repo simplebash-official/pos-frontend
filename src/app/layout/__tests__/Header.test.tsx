@@ -39,6 +39,10 @@ vi.mock('@/features/sync-status', () => ({
   SyncBadge: () => <div data-testid="sync-badge" />,
 }));
 
+vi.mock('@/features/billing/components/sessions', () => ({
+  RegisterSessionBadge: () => <div data-testid="register-session-badge" />,
+}));
+
 vi.mock('@/shared/hooks/useResponsive', () => ({
   useIsMobile: () => mockIsMobile,
 }));

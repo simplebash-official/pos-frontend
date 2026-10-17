@@ -267,6 +267,8 @@ export const LabelCanvas = ({
                 ? '2px solid var(--mantine-color-blue-6)'
                 : '1px dashed rgba(0, 0, 0, 0.25)',
               outlineOffset: 0,
+              // Paint-only and tiny: the ring eases in instead of snapping when the selection moves.
+              transition: 'outline-color 120ms ease',
             }}
           >
             <ElementFace element={element} sample={sample} shopName={shopName} scale={scale} />

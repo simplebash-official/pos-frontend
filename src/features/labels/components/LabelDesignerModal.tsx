@@ -79,6 +79,7 @@ import {
   type TextSource,
 } from '../types';
 import { LabelCanvas } from './LabelCanvas';
+import { FadeIn } from '@/shared/motion';
 import { LabelElementEditor } from './LabelElementEditor';
 
 /** Common label sizes, width x height in millimetres. */
@@ -475,12 +476,14 @@ export const LabelDesignerModal = ({
                 disabled={elements[0]?.id === selected.id}
               />
             </Group>
-            <LabelElementEditor
-              element={selected}
-              label={label}
-              onChange={(next) => replaceElement(next, 'edit')}
-              onRemove={() => remove(selected.id)}
-            />
+            <FadeIn key={selected.id}>
+              <LabelElementEditor
+                element={selected}
+                label={label}
+                onChange={(next) => replaceElement(next, 'edit')}
+                onRemove={() => remove(selected.id)}
+              />
+            </FadeIn>
           </Stack>
         )}
       </Paper>

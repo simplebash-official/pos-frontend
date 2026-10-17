@@ -200,7 +200,6 @@ export const LineDiscountPopover = ({
                     : t('Total line discount')
                 }
                 size="sm"
-                allowEmpty
                 placeholder="Rs. 0.00"
                 valueCents={fixedCents}
                 onChangeCents={setFixedCents}

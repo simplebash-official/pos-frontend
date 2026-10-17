@@ -178,9 +178,218 @@ export interface Invoice {
   closedAt?: string;
   closedBy?: string;
   createdAt: string;
+  sessionKey?: string;
   items: InvoiceItem[];
   notes?: string;
   shopProfileVersion?: number;
   warrantyTermsSnapshot?: string;
   documentSelection?: 'receipt' | 'invoice' | 'both' | 'none';
+}
+
+export type SessionStatus = 'open' | 'closing' | 'closed' | 'reopened';
+
+export type CashMovementType =
+  | 'pay_in'
+  | 'pay_out_expense'
+  | 'pay_out_supplier'
+  | 'owner_withdrawal'
+  | 'cash_drop'
+  | 'drawer_open_no_sale';
+
+export interface RegisterSession {
+  id: string;
+  key: string;
+  sessionNumber: string;
+  terminalId: string;
+  cashierId: string;
+  cashierNameSnapshot: string;
+  status: SessionStatus;
+  openedAt: string;
+  openingFloatCents: number;
+  openingDenominations?: Record<string, number>;
+  openingNote?: string;
+  expectedOpeningFloatCents?: number;
+  openingDiscrepancyCents: number;
+  openingDiscrepancyReason?: string;
+  openingApprovedById?: string;
+  openingApprovedByName?: string;
+  closedAt?: string;
+  closingCashierId?: string;
+  closingCashierNameSnapshot?: string;
+  expectedCashCents?: number;
+  countedCashCents?: number;
+  cashVarianceCents?: number;
+  closingDenominations?: Record<string, number>;
+  closingNote?: string;
+  closingFloatCents?: number;
+  cashDropToSafeCents?: number;
+  varianceReason?: string;
+  varianceApprovedById?: string;
+  varianceApprovedByName?: string;
+  reopenedAt?: string;
+  reopenedById?: string;
+  reopenedByName?: string;
+  reopenedReason?: string;
+  totalCashSalesCents: number;
+  totalCardSalesCents: number;
+  totalOnlineSalesCents: number;
+  totalCreditSalesCents: number;
+  totalCashRefundsCents: number;
+  totalPayInCents: number;
+  totalPayOutCents: number;
+  totalOwnerWithdrawalsCents: number;
+  totalCashDropsCents: number;
+  hasLateMovements: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CashMovement {
+  id: string;
+  key: string;
+  movementNumber: string;
+  movementType: CashMovementType;
+  amountCents: number;
+  sessionKey?: string;
+  terminalId: string;
+  reason: string;
+  recipientOrSource?: string;
+  supplierKey?: string;
+  recordedByUserId: string;
+  recordedByNameSnapshot: string;
+  approvedByUserId?: string;
+  approvedByNameSnapshot?: string;
+  recordedLate: boolean;
+  originalVarianceSessionKey?: string;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface DrawerState {
+  terminalId: string;
+  currentBalanceCents: number;
+  lastSessionKey?: string;
+  lastClosingFloatCents: number;
+  updatedAt: string;
+}
+
+export interface ZReportPaymentMethodSummary {
+  method: string;
+  count: number;
+  totalCents: number;
+}
+
+export interface ZReportCashReconciliation {
+  openingFloatCents: number;
+  cashSalesCents: number;
+  payInCents: number;
+  payOutCents: number;
+  cashRefundsCents: number;
+  ownerWithdrawalsCents: number;
+  cashDropsCents: number;
+  expectedCashCents: number;
+  countedCashCents: number;
+  varianceCents: number;
+  closingFloatCents: number;
+  safeDepositCents: number;
+}
+
+export interface ZReportResponse {
+  session: RegisterSession;
+  grossSalesCents: number;
+  returnsCents: number;
+  netSalesCents: number;
+  discountCents: number;
+  totalInvoicesCount: number;
+  paymentMethods: ZReportPaymentMethodSummary[];
+  cashMovements: CashMovement[];
+  cashReconciliation: ZReportCashReconciliation;
+  generatedAt: string;
+}
+
+export interface OpenSessionInput {
+  terminalId: string;
+  openingFloatCents: number;
+  openingDenominations?: Record<string, number>;
+  openingNote?: string;
+  discrepancyReason?: string;
+  managerPin?: string;
+}
+
+export interface SubmitBlindCountInput {
+  countedCashCents: number;
+  closingDenominations?: Record<string, number>;
+}
+
+export interface CloseSessionInput {
+  countedCashCents: number;
+  closingDenominations?: Record<string, number>;
+  closingFloatCents: number;
+  cashDropToSafeCents?: number;
+  closingNote?: string;
+  varianceReason?: string;
+  managerPin?: string;
+}
+
+export interface ReopenSessionInput {
+  reason: string;
+}
+
+export interface CreateCashMovementInput {
+  movementType: CashMovementType;
+  amountCents: number;
+  sessionKey?: string;
+  terminalId: string;
+  reason: string;
+  recipientOrSource?: string;
+  supplierKey?: string;
+  managerPin?: string;
+}
+
+export interface ConvertVarianceInput {
+  reason: string;
+  recipient: string;
+  managerPin: string;
+}
+
+export interface VerifyPinInput {
+  pin: string;
+  requiredRole?: string;
+}
+
+export interface VerifyPinResponse {
+  valid: boolean;
+  userId?: string;
+  userName?: string;
+  role?: string;
+}
+
+export interface SetPinInput {
+  pin: string;
+  targetUserId?: string;
+}
+
+export interface SessionListQuery {
+  terminalId?: string;
+  cashierId?: string;
+  status?: string;
+  datePreset?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface CashMovementListQuery {
+  sessionKey?: string;
+  terminalId?: string;
+  movementType?: string;
+  recordedLate?: boolean;
+  datePreset?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
 }

@@ -37,9 +37,11 @@ import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { SyncBadge } from '@/features/sync-status';
 import { HeaderUpdateIndicator } from './HeaderUpdateIndicator';
 import { useCloudState } from '@/features/account';
+import { RegisterSessionBadge } from '@/features/billing/components/sessions';
 
 export interface HeaderProps {
   opened: boolean;
@@ -67,6 +69,7 @@ export const Header = ({
   const isDashboard = location.pathname === ROUTES.DASHBOARD || location.pathname === '/';
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
   const showHeaderClock = isDashboard ? !heroClockVisible : true;
 
   const user = useAppSelector(selectAuthUser);
@@ -120,18 +123,29 @@ export const Header = ({
 
         {/* Right: Cashier, Held Sales, Sound, Focus Mode, Shortcuts */}
         <Group gap="xs" align="center" wrap="nowrap">
-          {heldCarts.length > 0 && (
-            <Button
-              size="xs"
-              color="orange"
-              variant="filled"
-              leftSection={<IconPlayerPause size={14} />}
-              onClick={onOpenHeldDrawer}
-            >
-              {t('Held (')}
-              {heldCarts.length})
-            </Button>
-          )}
+          <RegisterSessionBadge />
+          <AnimatePresence initial={false}>
+            {heldCarts.length > 0 && (
+              <motion.div
+                key="held"
+                initial={reduceMotion ? false : { opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.85 }}
+                transition={{ duration: reduceMotion ? 0 : 0.15 }}
+              >
+                <Button
+                  size="xs"
+                  color="orange"
+                  variant="filled"
+                  leftSection={<IconPlayerPause size={14} />}
+                  onClick={onOpenHeldDrawer}
+                >
+                  {t('Held (')}
+                  {heldCarts.length})
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <Tooltip label={`Sound Feedback: ${soundEnabled ? 'ON' : 'OFF'}`}>
             <ActionIcon

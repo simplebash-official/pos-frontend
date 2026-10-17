@@ -58,6 +58,7 @@ export interface CompleteSalePaymentInput {
 }
 
 export interface CompleteSaleInput {
+  sessionKey?: string;
   staff: { cashierName: string };
   customer?: {
     customerKey?: string;
@@ -140,6 +141,7 @@ export interface BackendInvoice {
   voidedReason?: string;
   closedAt?: string;
   closedBy?: string;
+  sessionKey?: string;
   notes?: string;
   warrantyTermsSnapshot?: string;
   documentSelection?: string;
@@ -231,6 +233,7 @@ export const toInvoice = (inv: BackendInvoice): Invoice => ({
   voidedReason: inv.voidedReason,
   closedAt: inv.closedAt,
   closedBy: inv.closedBy,
+  sessionKey: inv.sessionKey,
   createdAt: inv.createdAt,
   items: inv.items.map(toInvoiceItem),
   notes: inv.notes,

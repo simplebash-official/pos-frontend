@@ -6,6 +6,7 @@ import { IconCopy, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { IconAction } from '@/shared/components/drawer';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { FadeIn } from '@/shared/motion';
 import { getErrorMessage } from '@/shared/lib/error';
 import { useAppSelector } from '@/store/hooks';
 import { selectLabelPrintSettings, selectShopProfile } from '@/store/slices/settingsSlice';
@@ -114,50 +115,52 @@ export const LabelDesignsTab = () => {
 
       <Box style={isMobile ? undefined : LIST_FILL}>
         <SimpleGrid cols={{ base: 1, xs: 2, md: 3, xl: 4 }} spacing="md">
-          {templatesQuery.data?.map((template) => (
-            <Paper key={template.key} p="sm" withBorder>
-              <Stack gap="xs">
-                <DesignThumbnail template={template} shopName={shopProfile.tradingName} />
-                <Group justify="space-between" wrap="nowrap" gap="xs" align="flex-start">
-                  <Box style={{ minWidth: 0 }}>
-                    <Text fw={600} size="sm" truncate>
-                      {template.name}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {template.widthMm} × {template.heightMm} mm
-                      {template.builtIn ? ` · ${t('Ready-made')}` : ''}
-                      {settings?.templateKey === template.key
-                        ? ` · ${t('Used on this computer')}`
-                        : ''}
-                    </Text>
-                  </Box>
-                  <Group gap={6} wrap="nowrap">
-                    <IconAction
-                      kind="neutral"
-                      label={t('Make a copy of this design')}
-                      icon={<IconCopy size={16} />}
-                      onClick={() => setDesigner({ mode: 'copy', base: template })}
-                    />
-                    {!template.builtIn && (
-                      <>
-                        <IconAction
-                          kind="edit"
-                          label={t('Edit this design')}
-                          icon={<IconEdit size={16} />}
-                          onClick={() => setDesigner({ mode: 'edit', base: template })}
-                        />
-                        <IconAction
-                          kind="danger"
-                          label={t('Delete this design')}
-                          icon={<IconTrash size={16} />}
-                          onClick={() => setToDelete(template)}
-                        />
-                      </>
-                    )}
+          {templatesQuery.data?.map((template, index) => (
+            <FadeIn key={template.key} index={index}>
+              <Paper p="sm" withBorder>
+                <Stack gap="xs">
+                  <DesignThumbnail template={template} shopName={shopProfile.tradingName} />
+                  <Group justify="space-between" wrap="nowrap" gap="xs" align="flex-start">
+                    <Box style={{ minWidth: 0 }}>
+                      <Text fw={600} size="sm" truncate>
+                        {template.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {template.widthMm} × {template.heightMm} mm
+                        {template.builtIn ? ` · ${t('Ready-made')}` : ''}
+                        {settings?.templateKey === template.key
+                          ? ` · ${t('Used on this computer')}`
+                          : ''}
+                      </Text>
+                    </Box>
+                    <Group gap={6} wrap="nowrap">
+                      <IconAction
+                        kind="neutral"
+                        label={t('Make a copy of this design')}
+                        icon={<IconCopy size={16} />}
+                        onClick={() => setDesigner({ mode: 'copy', base: template })}
+                      />
+                      {!template.builtIn && (
+                        <>
+                          <IconAction
+                            kind="edit"
+                            label={t('Edit this design')}
+                            icon={<IconEdit size={16} />}
+                            onClick={() => setDesigner({ mode: 'edit', base: template })}
+                          />
+                          <IconAction
+                            kind="danger"
+                            label={t('Delete this design')}
+                            icon={<IconTrash size={16} />}
+                            onClick={() => setToDelete(template)}
+                          />
+                        </>
+                      )}
+                    </Group>
                   </Group>
-                </Group>
-              </Stack>
-            </Paper>
+                </Stack>
+              </Paper>
+            </FadeIn>
           ))}
         </SimpleGrid>
       </Box>

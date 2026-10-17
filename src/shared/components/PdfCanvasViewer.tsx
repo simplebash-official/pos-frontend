@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import { ensurePdfWorker } from '@/shared/lib/pdfWorker';
@@ -153,6 +154,7 @@ export const PdfCanvasViewer = ({
   initialAutoFit = false,
 }: PdfCanvasViewerProps) => {
   const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const zoomTargetScrollRef = useRef<{ scrollLeft: number; scrollTop: number } | null>(null);
@@ -566,6 +568,11 @@ export const PdfCanvasViewer = ({
 
         {!isPaused && !loading && !error && !loadError && pdfDoc && (
           <Box
+            component={motion.div}
+            key={pdfDoc.fingerprints?.[0] || 'doc'}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
             style={{
               display: 'flex',
               flexDirection: 'column',

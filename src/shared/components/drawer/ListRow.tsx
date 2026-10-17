@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { FadeIn } from '@/shared/motion';
 import { Box, Group, Text } from '@mantine/core';
 
 export interface ListRowProps {
@@ -18,14 +18,8 @@ export interface ListRowProps {
 
 /** A divided list row with a leading icon, title, meta lines and a trailing figure. */
 export const ListRow = ({ icon, title, meta, trailing, index, first }: ListRowProps) => {
-  const reduceMotion = useReducedMotion();
   return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18, delay: reduceMotion ? 0 : Math.min(index, 8) * 0.03 }}
-      style={{ borderTop: first ? undefined : '1px solid var(--border)' }}
-    >
+    <FadeIn index={index} style={{ borderTop: first ? undefined : '1px solid var(--border)' }}>
       <Group justify="space-between" wrap="nowrap" gap="sm" py="xs" align="center">
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
           {icon}
@@ -44,6 +38,6 @@ export const ListRow = ({ icon, title, meta, trailing, index, first }: ListRowPr
           <Box style={{ flexShrink: 0, textAlign: 'right' }}>{trailing}</Box>
         )}
       </Group>
-    </motion.div>
+    </FadeIn>
   );
 };

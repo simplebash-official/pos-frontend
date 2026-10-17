@@ -4,6 +4,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
+import { MotionGlobalConfig } from 'framer-motion';
 import { createRoot, type Root } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -17,6 +18,8 @@ import { newRow, type LabelRow } from '../lib/printJob';
 import type { LabelPrintSettings, LabelTemplate } from '../types';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+// Rows leave with a short exit animation; finish it at once so a removed row is gone straight away.
+MotionGlobalConfig.skipAnimations = true;
 if (typeof window.matchMedia !== 'function') {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,

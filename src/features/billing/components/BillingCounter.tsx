@@ -35,6 +35,10 @@ import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
+import { getDeviceId } from '@/api/deviceId';
+import { useCurrentSession } from '../hooks/useRegisterSession';
+import { OpenSessionModal } from './sessions/OpenSessionModal';
+import { t } from '@/shared/i18n/t';
 import type { ApiError } from '@/shared/types/common';
 import type { Invoice } from '../types';
 
@@ -86,6 +90,9 @@ export const BillingCounter = () => {
   // Modals state
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [orderDiscountOpen, setOrderDiscountOpen] = useState(false);
+  const terminalId = getDeviceId();
+  const { session: activeSession } = useCurrentSession(terminalId);
+  const [openSessionModalOpen, setOpenSessionModalOpen] = useState(false);
 
   // Stable references so CatalogPanel/CartPanel (both React.memo'd) don't re-render just because
   // BillingCounter re-rendered for an unrelated reason (e.g. a Notes/Card-Ref keystroke).
@@ -103,6 +110,17 @@ export const BillingCounter = () => {
   // Complete Payment Action (F2)
   const handleCompleteCheckout = useCallback(async () => {
     if (items.length === 0 || isProcessing) return;
+
+    if (!activeSession || activeSession.status !== 'open') {
+      notifications.show({
+        title: t('Register Shift Required'),
+        message: t('Please open a register session before completing sales.'),
+        color: 'red',
+      });
+      setOpenSessionModalOpen(true);
+      return;
+    }
+
     if (
       paymentMethod === PAYMENT_METHODS.CARD &&
       !isCredit &&
@@ -137,6 +155,7 @@ export const BillingCounter = () => {
       // lines delivered, and updates the customer's balance — see
       // `billing::service::sale::complete_sale`'s D4 fail-forward design.
       const payload: CompleteSaleInput = {
+        sessionKey: activeSession.key,
         staff: { cashierName },
         customer: hasCustomer
           ? {
@@ -281,6 +300,7 @@ export const BillingCounter = () => {
     openDocumentPreview,
     markSaleCompleted,
     isMobile,
+    activeSession,
   ]);
 
   // Global Cashier Focus & Hotkeys
@@ -595,6 +615,12 @@ export const BillingCounter = () => {
           />
         )}
       </Suspense>
+
+      <OpenSessionModal
+        opened={openSessionModalOpen}
+        onClose={() => setOpenSessionModalOpen(false)}
+        terminalId={terminalId}
+      />
     </Box>
   );
 };

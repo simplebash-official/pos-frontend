@@ -1,0 +1,137 @@
+/**
+ * @vitest-environment jsdom
+ * @jest-environment jsdom
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
+import { TestHarness } from '@/shared/components/drawer/TestHarness';
+import { RegisterSessionBadge } from '../RegisterSessionBadge';
+import type { RegisterSession } from '../../../types';
+
+installDrawerTestEnv();
+
+const baseSession = {
+  key: 'ses_1',
+  sessionNumber: 'SES-000002',
+  status: 'open',
+  openingFloatCents: 10000,
+  totalCashSalesCents: 0,
+  cashierNameSnapshot: 'Admin',
+} as RegisterSession;
+
+let currentSession: RegisterSession = baseSession;
+const idle = { mutateAsync: vi.fn(), isPending: false, data: undefined, isLoading: false };
+
+vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useCurrentSession: () => ({ session: currentSession, isLoading: false }),
+  useCloseSession: () => idle,
+  useConvertVariance: () => idle,
+  useSubmitBlindCount: () => idle,
+  useVerifyPin: () => idle,
+  useZReport: () => idle,
+  useOpenSession: () => idle,
+  useCreateCashMovement: () => idle,
+  useCashMovements: () => idle,
+}));
+vi.mock('@/features/billing/hooks/useCart', () => ({ useHeldCarts: () => ({ heldCarts: [] }) }));
+
+describe('Close shift window', () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    currentSession = baseSession;
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(() => {
+    act(() => root.unmount());
+    container.remove();
+  });
+
+  const render = async () => {
+    await act(async () => {
+      root.render(
+        <TestHarness role="admin">
+          <RegisterSessionBadge />
+        </TestHarness>
+      );
+    });
+  };
+  const text = () => document.body.textContent ?? '';
+  const find = (label: string | RegExp) =>
+    Array.from(document.body.querySelectorAll<HTMLElement>('button, [role=menuitem]')).find((b) =>
+      typeof label === 'string' ? b.textContent?.includes(label) : label.test(b.textContent ?? '')
+    );
+  // A menu or modal opens through a transition, so wait for the control to appear.
+  const click = async (label: string | RegExp) => {
+    await act(async () => {
+      await vi.waitFor(() => expect(find(label)).toBeTruthy());
+    });
+    await act(async () => find(label)!.click());
+  };
+  const shows = async (words: string) => {
+    await act(async () => {
+      await vi.waitFor(() => expect(text()).toContain(words));
+    });
+  };
+
+  it('stays on the same step when the session flips from open to closing', async () => {
+    await render();
+    await click('SES-000002');
+    await click('Close Register Shift');
+    await click('Proceed to Cash Count');
+    await shows('Blind Count Protocol');
+
+    currentSession = { ...baseSession, status: 'closing', countedCashCents: 0 };
+    await render();
+
+    await shows('Blind Count Protocol');
+    expect(text()).not.toContain('No Unfinished Work');
+  });
+
+  it('opens a session that was already counted on the Reconcile step', async () => {
+    currentSession = {
+      ...baseSession,
+      status: 'closing',
+      countedCashCents: 5000,
+      expectedCashCents: 10000,
+    };
+    await render();
+    await click('Closing...');
+    await shows('Cash Drawer Reconciliation');
+  });
+
+  it('does not let a tap on a later step skip ahead', async () => {
+    await render();
+    await click('SES-000002');
+    await click('Close Register Shift');
+    await shows('No Unfinished Work');
+    const steps = Array.from(document.body.querySelectorAll<HTMLElement>('.mantine-Stepper-step'));
+    await act(async () => steps[3]?.click());
+    expect(text()).toContain('No Unfinished Work');
+  });
+
+  it('warns when nothing stays in the drawer and lets one tap keep it all', async () => {
+    currentSession = {
+      ...baseSession,
+      status: 'closing',
+      openingFloatCents: 0,
+      countedCashCents: 2000,
+      expectedCashCents: 2000,
+      cashVarianceCents: 0,
+    };
+    await render();
+    await click('Closing...');
+    await click('Proceed to Next Float');
+    await shows('Nothing will stay in the drawer');
+
+    await click('Keep all in drawer');
+    await shows('The next shift will open with Rs. 20.00');
+    expect(text()).not.toContain('Nothing will stay in the drawer');
+  });
+});

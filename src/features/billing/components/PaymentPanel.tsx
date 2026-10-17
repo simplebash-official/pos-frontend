@@ -33,12 +33,19 @@ import {
   IconX,
   IconCheck,
   IconPrinter,
+  IconLock,
 } from '@tabler/icons-react';
+
+import { getDeviceId } from '@/api/deviceId';
+import { useCurrentSession } from '../hooks/useRegisterSession';
+import { OpenSessionModal } from './sessions/OpenSessionModal';
 
 import { useCartItems, useCartTotals, useCartCustomer, useCartCheckout } from '../hooks/useCart';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney, fromCents } from '@/shared/lib/money';
+import { AnimatedNumber, SPRING } from '@/shared/motion';
+import { motion } from 'framer-motion';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import {
   calculateOrderDiscount,
@@ -103,6 +110,11 @@ export const PaymentPanel = memo(
 
     const isMobile = useIsMobile();
     const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
+
+    const terminalId = getDeviceId();
+    const { session: activeSession } = useCurrentSession(terminalId);
+    const hasActiveSession = Boolean(activeSession && activeSession.status === 'open');
+    const [openSessionModalOpen, setOpenSessionModalOpen] = useState(false);
 
     // Collapsible Order Discount State
     const [showDiscountInput, setShowDiscountInput] = useState(false);
@@ -360,6 +372,7 @@ export const PaymentPanel = memo(
     const isEvenExchange = totalCents === 0 && !isCartEmpty;
 
     const isButtonDisabled =
+      !hasActiveSession ||
       isCartEmpty ||
       isProcessing ||
       isCreditCardDepositMissingDigits ||
@@ -398,6 +411,11 @@ export const PaymentPanel = memo(
 
     // Handle Primary Action Click / F2
     const handlePrimaryAction = () => {
+      if (!hasActiveSession) {
+        setOpenSessionModalOpen(true);
+        return;
+      }
+
       if (isButtonDisabled) return;
 
       // In-system 2-click guardrail for existing customer balance
@@ -486,9 +504,16 @@ export const PaymentPanel = memo(
             <Stack gap="md">
               <Group justify="space-between" align="center">
                 <Group gap="xs" align="center">
-                  <ThemeIcon size="md" radius="xl" color={heroColor} variant="filled">
-                    <IconCheck size={16} stroke={3} />
-                  </ThemeIcon>
+                  <motion.span
+                    initial={{ scale: 0.4, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={SPRING}
+                    style={{ display: 'inline-flex' }}
+                  >
+                    <ThemeIcon size="md" radius="xl" color={heroColor} variant="filled">
+                      <IconCheck size={16} stroke={3} />
+                    </ThemeIcon>
+                  </motion.span>
                   <Text fw={800} size="sm" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
                     {isCreditCompleted ? 'Sale Recorded on Account' : 'Sale Completed'}
                   </Text>
@@ -1208,21 +1233,31 @@ export const PaymentPanel = memo(
                           style={{
                             height: isMobile ? 54 : 48,
                             borderRadius: 'var(--mantine-radius-default)',
-                            border: isSelected
-                              ? '1.5px solid var(--mantine-color-blue-5)'
-                              : '1px solid var(--border)',
-                            backgroundColor: isSelected
-                              ? 'var(--mantine-color-blue-light)'
-                              : 'var(--bg-card)',
+                            position: 'relative',
+                            border: '1px solid var(--border)',
+                            backgroundColor: 'var(--bg-card)',
                             opacity: tile.disabled ? 0.45 : 1,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: tile.disabled ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.15s ease',
                           }}
                         >
-                          <Group gap={8} align="center">
+                          {isSelected && (
+                            <motion.span
+                              layoutId="pay-method-pill"
+                              aria-hidden
+                              transition={SPRING}
+                              style={{
+                                position: 'absolute',
+                                inset: -1,
+                                borderRadius: 'var(--mantine-radius-default)',
+                                border: '1.5px solid var(--mantine-color-blue-5)',
+                                backgroundColor: 'var(--mantine-color-blue-light)',
+                              }}
+                            />
+                          )}
+                          <Group gap={8} align="center" style={{ position: 'relative' }}>
                             <Icon
                               size={18}
                               color={
@@ -1331,7 +1366,10 @@ export const PaymentPanel = memo(
                           c={isCashShort ? 'amber.7' : changeDueCents > 0 ? 'green.6' : 'dimmed'}
                           style={{ fontFamily: 'monospace', fontSize: 18 }}
                         >
-                          {isCashShort ? formatMoney(shortByCents) : formatMoney(changeDueCents)}
+                          <AnimatedNumber
+                            value={isCashShort ? shortByCents : changeDueCents}
+                            format={formatMoney}
+                          />
                         </Text>
                       </Group>
                     </Stack>
@@ -1672,17 +1710,20 @@ export const PaymentPanel = memo(
             fullWidth
             size="lg"
             color={
-              isRefundDue
+              !hasActiveSession && !isCartEmpty
                 ? 'orange'
-                : isEvenExchange
-                  ? 'blue'
-                  : isCredit
-                    ? confirmCreditRequired
-                      ? 'orange'
-                      : 'amber'
-                    : 'blue'
+                : isRefundDue
+                  ? 'orange'
+                  : isEvenExchange
+                    ? 'blue'
+                    : isCredit
+                      ? confirmCreditRequired
+                        ? 'orange'
+                        : 'amber'
+                      : 'blue'
             }
-            disabled={isButtonDisabled}
+            disabled={!hasActiveSession ? isCartEmpty : isButtonDisabled}
+            leftSection={!hasActiveSession && !isCartEmpty ? <IconLock size={18} /> : undefined}
             loading={isProcessing}
             onClick={handlePrimaryAction}
             style={{
@@ -1690,48 +1731,57 @@ export const PaymentPanel = memo(
               fontSize: 16,
               fontWeight: 700,
               borderRadius: 'var(--mantine-radius-default)',
-              opacity: isButtonDisabled ? 0.6 : 1,
+              opacity: (!hasActiveSession ? isCartEmpty : isButtonDisabled) ? 0.6 : 1,
               transition: 'all 0.15s ease',
             }}
           >
             {isCartEmpty
               ? 'Add items to begin'
-              : isRefundDue
-                ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
-                : isEvenExchange
-                  ? `Complete Even Exchange`
-                  : isCredit
-                    ? confirmCreditRequired
-                      ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
-                      : creditPaidNowCents > 0
-                        ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
-                        : `Issue on Credit · ${formatMoney(totalCents)}`
-                    : isCashShort || isCardShort
-                      ? `Short by ${formatMoney(shortByCents)}`
-                      : isCardDigitsMissing || isSplitCardDigitsMissing
-                        ? 'Enter Card Last 4 Digits'
-                        : `Complete · ${formatMoney(totalCents)}`}
+              : !hasActiveSession
+                ? t('Open Shift to Complete Sale')
+                : isRefundDue
+                  ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
+                  : isEvenExchange
+                    ? `Complete Even Exchange`
+                    : isCredit
+                      ? confirmCreditRequired
+                        ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
+                        : creditPaidNowCents > 0
+                          ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
+                          : `Issue on Credit · ${formatMoney(totalCents)}`
+                      : isCashShort || isCardShort
+                        ? `Short by ${formatMoney(shortByCents)}`
+                        : isCardDigitsMissing || isSplitCardDigitsMissing
+                          ? 'Enter Card Last 4 Digits'
+                          : `Complete · ${formatMoney(totalCents)}`}
           </Button>
           <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
-            {isRefundDue
-              ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
-              : isEvenExchange
-                ? 'No payment or refund required · Press F2'
-                : confirmCreditRequired
-                  ? isMobile
-                    ? 'Customer has existing debt. Tap again to confirm credit sale.'
-                    : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
-                  : isButtonDisabled
-                    ? isCashShort
-                      ? 'Enter tendered cash amount to complete'
-                      : isCardDigitsMissing || isSplitCardDigitsMissing
-                        ? 'Card last 4 digits required to complete payment'
-                        : isSplitIncomplete
-                          ? 'Allocate the full total across split payments'
-                          : 'Complete disabled'
-                    : `${printConsequenceText} · Press F2`}
+            {!hasActiveSession && !isCartEmpty
+              ? t('Register shift is closed. Click to count float and open shift.')
+              : isRefundDue
+                ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
+                : isEvenExchange
+                  ? 'No payment or refund required · Press F2'
+                  : confirmCreditRequired
+                    ? isMobile
+                      ? 'Customer has existing debt. Tap again to confirm credit sale.'
+                      : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
+                    : isButtonDisabled
+                      ? isCashShort
+                        ? 'Enter tendered cash amount to complete'
+                        : isCardDigitsMissing || isSplitCardDigitsMissing
+                          ? 'Card last 4 digits required to complete payment'
+                          : isSplitIncomplete
+                            ? 'Allocate the full total across split payments'
+                            : 'Complete disabled'
+                      : `${printConsequenceText} · Press F2`}
           </Text>
         </Box>
+        <OpenSessionModal
+          opened={openSessionModalOpen}
+          onClose={() => setOpenSessionModalOpen(false)}
+          terminalId={terminalId}
+        />
       </Paper>
     );
   })

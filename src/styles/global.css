@@ -1099,3 +1099,8 @@ th.mantine-Table-th {
     transition: none;
   }
 }
+
+/* A passed step's connector turns blue (StepProgress). */
+.step-progress-separator[data-active] {
+  background: var(--mantine-color-blue-6) !important;
+}

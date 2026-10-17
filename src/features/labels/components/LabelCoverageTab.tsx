@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { FadeIn } from '@/shared/motion';
 import { useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import {
@@ -161,7 +162,7 @@ export const LabelCoverageTab = ({ onPrint }: LabelCoverageTabProps) => {
       )}
 
       <Stack gap={6} style={isMobile ? undefined : LIST_FILL}>
-        {rows.map((row) => {
+        {rows.map((row, index) => {
           const checked = chosen.has(row.product.key);
           // Beside the name on a computer, under it on a phone so the name keeps its room.
           const status = (
@@ -180,33 +181,34 @@ export const LabelCoverageTab = ({ onPrint }: LabelCoverageTabProps) => {
             </Group>
           );
           return (
-            <Paper
-              key={row.product.key}
-              p="sm"
-              withBorder
-              style={{ cursor: 'pointer' }}
-              onClick={() => toggle(row, !checked)}
-            >
-              <Group wrap="nowrap" gap="sm">
-                <Checkbox
-                  aria-label={row.product.name}
-                  checked={checked}
-                  onChange={(event) => toggle(row, event.currentTarget.checked)}
-                  onClick={(event) => event.stopPropagation()}
-                  size={isMobile ? 'md' : 'sm'}
-                />
-                <Box style={{ minWidth: 0, flex: 1 }}>
-                  <Text fw={600} size="sm" truncate>
-                    {row.product.name}
-                  </Text>
-                  <Text size="xs" c="dimmed" truncate>
-                    {row.product.sku} · {row.product.stockQuantity} {t('in stock')}
-                  </Text>
-                  {isMobile && status}
-                </Box>
-                {!isMobile && status}
-              </Group>
-            </Paper>
+            <FadeIn key={row.product.key} index={index}>
+              <Paper
+                p="sm"
+                withBorder
+                style={{ cursor: 'pointer' }}
+                onClick={() => toggle(row, !checked)}
+              >
+                <Group wrap="nowrap" gap="sm">
+                  <Checkbox
+                    aria-label={row.product.name}
+                    checked={checked}
+                    onChange={(event) => toggle(row, event.currentTarget.checked)}
+                    onClick={(event) => event.stopPropagation()}
+                    size={isMobile ? 'md' : 'sm'}
+                  />
+                  <Box style={{ minWidth: 0, flex: 1 }}>
+                    <Text fw={600} size="sm" truncate>
+                      {row.product.name}
+                    </Text>
+                    <Text size="xs" c="dimmed" truncate>
+                      {row.product.sku} · {row.product.stockQuantity} {t('in stock')}
+                    </Text>
+                    {isMobile && status}
+                  </Box>
+                  {!isMobile && status}
+                </Group>
+              </Paper>
+            </FadeIn>
           );
         })}
       </Stack>

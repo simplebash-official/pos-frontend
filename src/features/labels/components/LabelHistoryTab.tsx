@@ -1,4 +1,5 @@
 import { t } from '@/shared/i18n/t';
+import { FadeIn } from '@/shared/motion';
 import { useState } from 'react';
 import {
   Alert,
@@ -148,34 +149,35 @@ export const LabelHistoryTab = ({ onPrintAgain }: LabelHistoryTabProps) => {
       )}
 
       <Stack gap={6} style={isMobile ? undefined : LIST_FILL}>
-        {jobs.map((job) => {
+        {jobs.map((job, index) => {
           const products = [...new Set(job.items.map((item) => item.productName))];
           return (
-            <UnstyledButton
-              key={job.key}
-              onClick={() => openJob(job)}
-              aria-label={`${t('Open this print')}: ${formatDateTime(job.createdAt)}`}
-            >
-              <Paper p="sm" withBorder>
-                <Group justify="space-between" wrap="nowrap" gap="sm">
-                  <Box style={{ minWidth: 0, flex: 1 }}>
-                    <Text fw={600} size="sm" truncate>
-                      {products.slice(0, 2).join(', ')}
-                      {products.length > 2 ? ` +${products.length - 2}` : ''}
-                    </Text>
-                    <Text size="xs" c="dimmed" truncate>
-                      {formatDateTime(job.createdAt)} · {job.printedByName} · {howItPrinted(job)}
-                    </Text>
-                  </Box>
-                  <Stack gap={2} align="flex-end" style={{ flexShrink: 0 }}>
-                    <Text size="sm" fw={600}>
-                      {labelCount(job.totalLabels)}
-                    </Text>
-                    <OutcomeDot job={job} />
-                  </Stack>
-                </Group>
-              </Paper>
-            </UnstyledButton>
+            <FadeIn key={job.key} index={index}>
+              <UnstyledButton
+                onClick={() => openJob(job)}
+                aria-label={`${t('Open this print')}: ${formatDateTime(job.createdAt)}`}
+              >
+                <Paper p="sm" withBorder>
+                  <Group justify="space-between" wrap="nowrap" gap="sm">
+                    <Box style={{ minWidth: 0, flex: 1 }}>
+                      <Text fw={600} size="sm" truncate>
+                        {products.slice(0, 2).join(', ')}
+                        {products.length > 2 ? ` +${products.length - 2}` : ''}
+                      </Text>
+                      <Text size="xs" c="dimmed" truncate>
+                        {formatDateTime(job.createdAt)} · {job.printedByName} · {howItPrinted(job)}
+                      </Text>
+                    </Box>
+                    <Stack gap={2} align="flex-end" style={{ flexShrink: 0 }}>
+                      <Text size="sm" fw={600}>
+                        {labelCount(job.totalLabels)}
+                      </Text>
+                      <OutcomeDot job={job} />
+                    </Stack>
+                  </Group>
+                </Paper>
+              </UnstyledButton>
+            </FadeIn>
           );
         })}
       </Stack>
