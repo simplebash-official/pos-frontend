@@ -3,13 +3,17 @@ import { useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Badge } from '@mantine/core';
 import { IconX, IconPrinter, IconDownload } from '@tabler/icons-react';
 import type { Quotation } from '../types';
-import { useQuotationDocument } from '../hooks/useQuotations';
+import { useQuotationDocument, useQuotationDocumentDesign } from '../hooks/useQuotations';
 import {
   designKindFor,
   hasDesignChoice,
+  isDesignUnavailable,
   nextDesignPick,
 } from '@/features/billing/lib/documentDesign';
+import { useDocumentDesignChoice } from '@/features/billing/hooks/useDocumentDesignChoice';
+import { DesignUnavailableAlert } from '@/features/billing/components/DesignUnavailableAlert';
 import { DocumentDesignPicker } from '@/features/billing/components/DocumentDesignPicker';
+import { ReprintDesignDialog } from '@/features/billing/components/ReprintDesignDialog';
 import { useDocumentTemplateSettings } from '@/features/settings/hooks/useDocumentTemplates';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
@@ -44,9 +48,23 @@ export const QuotationPreviewModal = ({
   const pickKey = quotation?.id ?? '';
   const designOverride = designPick?.key === pickKey ? designPick.name : undefined;
 
-  const { blob, loading, error, isPaused } = useQuotationDocument(
+  // A quotation printed before with another design than would print now asks "original or
+  // current?" first; nothing is rendered until that is answered.
+  const designStatus = useQuotationDocumentDesign(
+    opened ? quotation?.id : undefined,
+    quotation?.status
+  );
+  const designChoice = useDocumentDesignChoice(pickKey, opened, designStatus);
+  // Picking a design in the bar prints with that design as it is now.
+  const fetchDesign = designOverride ? 'current' : designChoice.design;
+  const waitingForChoice = designChoice.needsChoice && !designOverride;
+  // Until the design is known (status loading, or the question open) nothing is on screen yet.
+  const deciding = designChoice.design === null && !designOverride;
+
+  const { blob, loading, error, errorCode, isPaused } = useQuotationDocument(
     opened ? quotation?.id : undefined,
     quotation?.status,
+    fetchDesign,
     designOverride
   );
 
@@ -120,7 +138,7 @@ export const QuotationPreviewModal = ({
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="blue"
-            disabled={loading || error}
+            disabled={loading || error || !blob}
             leftSection={<IconPrinter size={16} />}
             onClick={handlePrint}
             data-log-id="quotations.print"
@@ -156,19 +174,31 @@ export const QuotationPreviewModal = ({
           onChange={(name) => {
             const next = nextDesignPick(kindSettings, name);
             setDesignPick(next === null ? null : { key: pickKey, name: next });
+            designChoice.choose('current');
           }}
         />
       )}
 
       <Box style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        <PdfCanvasViewer
-          blob={blob}
-          loading={loading}
-          error={error}
-          isPaused={isPaused}
-          documentLabel="quotation"
-        />
+        {error && isDesignUnavailable(errorCode) ? (
+          <DesignUnavailableAlert />
+        ) : (
+          <PdfCanvasViewer
+            blob={blob}
+            loading={loading || deciding}
+            error={error}
+            isPaused={isPaused}
+            documentLabel="quotation"
+          />
+        )}
       </Box>
+
+      <ReprintDesignDialog
+        opened={waitingForChoice}
+        status={designStatus.data}
+        onChoose={designChoice.choose}
+        onCancel={onClose}
+      />
     </Modal>
   );
 };

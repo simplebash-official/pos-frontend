@@ -5,6 +5,7 @@ import {
   createQuotationRaw,
   fetchQuotations,
   getQuotationDocument,
+  getQuotationDocumentDesign,
 } from '../quotationsApi';
 import type { CreateQuotationInput, Quotation, QuotationListResult } from '../../types';
 
@@ -67,18 +68,32 @@ describe('cancelQuotationRaw', () => {
 });
 
 describe('getQuotationDocument', () => {
-  it('asks for the shop design by sending no template at all', async () => {
+  it('always says which PDF it wants and asks for the shop design with no template', async () => {
     const get = vi.spyOn(apiClient, 'get').mockResolvedValue(new Blob());
-    await getQuotationDocument('quo_1');
+    await getQuotationDocument('quo_1', 'current');
     expect(get).toHaveBeenCalledWith('/quotations/quo_1/document', {
       responseType: 'blob',
-      params: { template: undefined },
+      params: { design: 'current', template: undefined },
     });
   });
 
-  it('sends the chosen design for a single print', async () => {
+  it('can ask for the original and sends the chosen design for a single print', async () => {
     const get = vi.spyOn(apiClient, 'get').mockResolvedValue(new Blob());
-    await getQuotationDocument('quo_1', 'doc_temp_x');
-    expect(get.mock.calls[0][1]).toMatchObject({ params: { template: 'doc_temp_x' } });
+    await getQuotationDocument('quo_1', 'original');
+    await getQuotationDocument('quo_1', 'current', 'doc_temp_x');
+    expect(get.mock.calls[0][1]).toMatchObject({ params: { design: 'original' } });
+    expect(get.mock.calls[1][1]).toMatchObject({ params: { template: 'doc_temp_x' } });
+  });
+});
+
+describe('getQuotationDocumentDesign', () => {
+  it('reads the design status of a quotation', async () => {
+    const get = vi.spyOn(apiClient, 'get').mockResolvedValue({
+      success: true,
+      data: { stored: null, current: { templateRef: 'a', title: 'A', version: 1 }, differs: false },
+    });
+    const result = await getQuotationDocumentDesign('quo_1');
+    expect(get).toHaveBeenCalledWith('/quotations/quo_1/document/design');
+    expect(result.differs).toBe(false);
   });
 });

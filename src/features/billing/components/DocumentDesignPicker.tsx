@@ -6,13 +6,14 @@ import type { DocumentKindSettings } from '@/features/settings/types';
 
 interface DocumentDesignPickerProps {
   kind: DocumentKindSettings;
-  /** The design currently shown. */
-  value: string;
-  onChange: (name: string) => void;
+  /** The design currently shown; `null` when none is in force (the shop's choice was withdrawn). */
+  value: string | null;
+  onChange: (family: string) => void;
 }
 
 // A slim bar under the preview header: switch the design for this one print. The shop's own
-// choice (Settings → Document Designs) is not changed.
+// choice (Settings → Document Designs) is not changed. Switching always prints with that design
+// as it is now, so it also answers the "original or current?" question.
 export const DocumentDesignPicker = ({ kind, value, onChange }: DocumentDesignPickerProps) => {
   const isMobile = useIsMobile();
   return (
@@ -30,11 +31,12 @@ export const DocumentDesignPicker = ({ kind, value, onChange }: DocumentDesignPi
         </Text>
         <Select
           aria-label={t('Design')}
-          data={designSelectData(kind.templates)}
+          data={designSelectData(kind.families)}
+          placeholder={t('Choose a design')}
           value={value}
-          onChange={(name) => {
-            if (name) {
-              onChange(name);
+          onChange={(family) => {
+            if (family) {
+              onChange(family);
             }
           }}
           allowDeselect={false}

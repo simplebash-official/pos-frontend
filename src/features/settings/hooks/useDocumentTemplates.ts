@@ -15,8 +15,9 @@ export const useDocumentTemplateSettings = (enabled = true) =>
     enabled,
   });
 
-// Saving changes what every print looks like, so documents already fetched in this session are
-// dropped too — otherwise an invoice opened before the change would keep showing the old design.
+// Saving changes what every print looks like, so documents (and the "was it printed with another
+// design?" answers) already fetched in this session are dropped too — otherwise an invoice opened
+// before the change would keep showing the old design.
 export const useUpdateDocumentTemplates = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -25,25 +26,27 @@ export const useUpdateDocumentTemplates = () => {
       queryClient.setQueryData(queryKeys.settings.documentTemplates(), settings);
       void queryClient.invalidateQueries({ queryKey: ['billing', 'invoiceDocument'] });
       void queryClient.invalidateQueries({ queryKey: ['billing', 'creditNoteDocument'] });
+      void queryClient.invalidateQueries({ queryKey: ['quotations', 'document'] });
+      void queryClient.invalidateQueries({ queryKey: ['documentDesign'] });
     },
   });
 };
 
-// A PDF of one design's sample, for the "Preview" button. A design's sample never changes while
-// the app is open, so it is fetched once.
-export const useDocumentTemplatePreview = (name: string | null) => {
+// A PDF of one design's sample, for the "Preview" button. A version's sample never changes, so it
+// is fetched once per version.
+export const useDocumentTemplatePreview = (family: string | null, version: number) => {
   const {
     data: blob,
     isLoading,
     isError,
     fetchStatus,
   } = useQuery({
-    queryKey: queryKeys.settings.documentTemplatePreview(name ?? ''),
-    queryFn: () => getDocumentTemplatePreviewApi(name as string),
-    enabled: name !== null,
+    queryKey: queryKeys.settings.documentTemplatePreview(family ?? '', version),
+    queryFn: () => getDocumentTemplatePreviewApi(family as string),
+    enabled: family !== null,
     staleTime: Infinity,
   });
-  const enabled = name !== null;
+  const enabled = family !== null;
   return {
     blob: blob ?? null,
     loading: enabled && isLoading,

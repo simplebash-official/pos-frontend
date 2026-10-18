@@ -49,6 +49,23 @@ export interface HistoryEntry {
   message: string | null;
 }
 
+/** Where the shop's custom document designs stand on this computer. */
+export type PackagesPhase =
+  'notChecked' | 'upToDate' | 'pending' | 'needsAppUpdate' | 'error' | 'paused';
+
+/** Mirrors `PackagesStatus` in the desktop shell (`src-tauri/src/sync/state.rs`). */
+export interface PackagesStatus {
+  state: PackagesPhase;
+  /** Custom designs on this computer that the cloud lists for the shop. */
+  installed: number;
+  /** Still to download in the current check. */
+  pending: number;
+  /** Skipped because they need a newer version of this app. */
+  needsAppUpdate: number;
+  checkedAt: string | null;
+  lastError: string | null;
+}
+
 export interface SyncStatus {
   state: SyncPhase;
   /** False while cloud sync is disabled or this device is not linked. */
@@ -67,7 +84,18 @@ export interface SyncStatus {
   nextRetryAt: string | null;
   /** Newest first. */
   history: HistoryEntry[];
+  /** The shop's custom document designs, downloaded after each full cycle. */
+  packages: PackagesStatus;
 }
+
+export const NOT_CHECKED_PACKAGES: PackagesStatus = {
+  state: 'notChecked',
+  installed: 0,
+  pending: 0,
+  needsAppUpdate: 0,
+  checkedAt: null,
+  lastError: null,
+};
 
 export const DISABLED_SYNC_STATUS: SyncStatus = {
   state: 'idle',
@@ -83,6 +111,7 @@ export const DISABLED_SYNC_STATUS: SyncStatus = {
   lastCycle: null,
   nextRetryAt: null,
   history: [],
+  packages: NOT_CHECKED_PACKAGES,
 };
 
 /** One change that has not reached the cloud yet. */

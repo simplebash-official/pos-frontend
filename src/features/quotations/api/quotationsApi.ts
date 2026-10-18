@@ -1,5 +1,6 @@
 import { apiClient } from '@/api/client';
 import type { ApiResponse } from '@/shared/types/common';
+import type { DocumentDesign, DocumentDesignStatus } from '@/features/billing/api/documentsApi';
 import type {
   CreateQuotationInput,
   Quotation,
@@ -31,10 +32,22 @@ export const cancelQuotationRaw = async (id: string): Promise<Quotation> => {
   return response.data;
 };
 
-// `templateName` prints this one quotation in another design (an id from
-// `GET /settings/document-templates`). Leave it out to use the shop's chosen design.
-export const getQuotationDocument = (id: string, templateName?: string): Promise<Blob> =>
+// `design` says which PDF to get: the stored one as first printed, or the one printed with the
+// design in force now. `templateName` prints this one quotation in another design (a design id
+// from `GET /settings/document-templates`); leave it out to use the shop's chosen design.
+export const getQuotationDocument = (
+  id: string,
+  design: DocumentDesign,
+  templateName?: string
+): Promise<Blob> =>
   apiClient.get<Blob>(`/quotations/${id}/document`, {
     responseType: 'blob',
-    params: { template: templateName },
+    params: { design, template: templateName },
   });
+
+export const getQuotationDocumentDesign = async (id: string): Promise<DocumentDesignStatus> => {
+  const response = await apiClient.get<ApiResponse<DocumentDesignStatus>>(
+    `/quotations/${id}/document/design`
+  );
+  return response.data;
+};

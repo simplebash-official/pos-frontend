@@ -11,8 +11,11 @@ vi.mock('@/features/billing/hooks/useInvoiceDocument', () => ({
     blob: new Blob(['%PDF'], { type: 'application/pdf' }),
     loading: false,
     error: null,
+    errorCode: null,
     isPaused: false,
   }),
+  // Nothing printed before: no question to ask, the current design prints.
+  useInvoiceDocumentDesign: () => ({ data: undefined, isError: true }),
 }));
 
 vi.mock('@/shared/components/PdfCanvasViewer', () => ({

@@ -1,6 +1,6 @@
 import { apiClient } from '@/api/client';
 import type { ApiResponse } from '@/shared/types/common';
-import type { DocumentTemplatesSettings } from '../types';
+import type { DocumentTemplatesSettings, UpdateDocumentTemplatesRequest } from '../types';
 
 /**
  * The shop's document designs: for each kind of document the designs available and the one in use.
@@ -14,21 +14,21 @@ export async function getDocumentTemplatesApi(): Promise<DocumentTemplatesSettin
 }
 
 /**
- * Changes the shop's designs (admin only). Only the kinds present change; `null` returns a kind to
- * the standard design.
+ * Changes the shop's designs and their settings (admin only). Only what is present changes; a
+ * `null` selection returns a kind to the standard design.
  */
 export async function updateDocumentTemplatesApi(
-  selections: Record<string, string | null>
+  request: UpdateDocumentTemplatesRequest
 ): Promise<DocumentTemplatesSettings> {
   const response = await apiClient.put<ApiResponse<DocumentTemplatesSettings>>(
     '/settings/document-templates',
-    { selections }
+    request
   );
   return response.data;
 }
 
-/** A PDF of one design rendered with its own sample data (never a real invoice). */
-export const getDocumentTemplatePreviewApi = (name: string): Promise<Blob> =>
-  apiClient.get<Blob>(`/settings/document-templates/${encodeURIComponent(name)}/preview`, {
+/** A PDF of one design (by its family id) rendered with its own sample data (never a real invoice). */
+export const getDocumentTemplatePreviewApi = (family: string): Promise<Blob> =>
+  apiClient.get<Blob>(`/settings/document-templates/${encodeURIComponent(family)}/preview`, {
     responseType: 'blob',
   });

@@ -4,10 +4,18 @@ import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@ma
 import { IconX, IconPrinter, IconDownload } from '@tabler/icons-react';
 import type { Invoice, CreditNote } from '../types';
 import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
-import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
-import { useCreditNoteDocument } from '../hooks/useCreditNoteDocument';
-import { designKindFor, hasDesignChoice, nextDesignPick } from '../lib/documentDesign';
+import { useInvoiceDocument, useInvoiceDocumentDesign } from '../hooks/useInvoiceDocument';
+import { useCreditNoteDocument, useCreditNoteDocumentDesign } from '../hooks/useCreditNoteDocument';
+import { useDocumentDesignChoice } from '../hooks/useDocumentDesignChoice';
+import {
+  designKindFor,
+  hasDesignChoice,
+  isDesignUnavailable,
+  nextDesignPick,
+} from '../lib/documentDesign';
+import { DesignUnavailableAlert } from './DesignUnavailableAlert';
 import { DocumentDesignPicker } from './DocumentDesignPicker';
+import { ReprintDesignDialog } from './ReprintDesignDialog';
 import { useDocumentTemplateSettings } from '@/features/settings/hooks/useDocumentTemplates';
 import { getCreditNoteStatusMeta } from '@/features/invoices/lib/invoiceStatus';
 import { getPrintLogsForInvoice, recordPrintEvent } from '@/features/invoices/api/printLogStore';
@@ -78,13 +86,35 @@ export const SaleDocumentPreviewModal = ({
   }
   const designOverride = designPick?.key === pickKey ? designPick.name : undefined;
 
-  const invoiceDoc = useInvoiceDocument(invoice?.id, invoiceDocType, paperWidthMm, designOverride);
-  const creditNoteDoc = useCreditNoteDocument(
-    opened && creditNote ? creditNote.id : undefined,
-    'credit-note',
+  // A document printed before with another design than would print now asks "original or
+  // current?" first; nothing is rendered until that is answered.
+  const invoiceStatus = useInvoiceDocumentDesign(
+    opened ? invoice?.id : undefined,
+    invoiceDocType,
+    paperWidthMm
+  );
+  const creditNoteStatus = useCreditNoteDocumentDesign(opened ? creditNote?.id : undefined);
+  const designStatus = creditNote ? creditNoteStatus : invoiceStatus;
+  const designChoice = useDocumentDesignChoice(pickKey, opened, designStatus);
+  // Picking a design in the bar prints with that design as it is now.
+  const fetchDesign = designOverride ? 'current' : designChoice.design;
+
+  const invoiceDoc = useInvoiceDocument(
+    invoice?.id,
+    invoiceDocType,
+    fetchDesign,
+    paperWidthMm,
     designOverride
   );
-  const { blob, loading, error, isPaused } = creditNote ? creditNoteDoc : invoiceDoc;
+  const creditNoteDoc = useCreditNoteDocument(
+    opened && creditNote ? creditNote.id : undefined,
+    fetchDesign,
+    designOverride
+  );
+  const { blob, loading, error, errorCode, isPaused } = creditNote ? creditNoteDoc : invoiceDoc;
+  const waitingForChoice = designChoice.needsChoice && !designOverride;
+  // Until the design is known (status loading, or the question open) nothing is on screen yet.
+  const deciding = designChoice.design === null && !designOverride;
 
   const printDocLabel =
     documentKind === 'receipt'
@@ -157,15 +187,18 @@ export const SaleDocumentPreviewModal = ({
     ? `${statusWord} · ${formatDateTime(creditNote!.createdAt)}`
     : `${statusWord} · ${hero!.methodLabel} · ${formatDateTime(invoice!.createdAt)}`;
 
-  const documentPane = (
-    <PdfCanvasViewer
-      blob={blob}
-      loading={loading}
-      error={error}
-      isPaused={isPaused}
-      documentLabel={isReceipt ? 'receipt' : 'invoice'}
-    />
-  );
+  const documentPane =
+    error && isDesignUnavailable(errorCode) ? (
+      <DesignUnavailableAlert />
+    ) : (
+      <PdfCanvasViewer
+        blob={blob}
+        loading={loading || deciding}
+        error={error}
+        isPaused={isPaused}
+        documentLabel={isReceipt ? 'receipt' : 'invoice'}
+      />
+    );
 
   return (
     <Modal
@@ -217,7 +250,7 @@ export const SaleDocumentPreviewModal = ({
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="blue"
-            disabled={loading || !!error}
+            disabled={loading || !!error || !blob}
             leftSection={<IconPrinter size={16} />}
             onClick={handlePrint}
           >
@@ -255,6 +288,7 @@ export const SaleDocumentPreviewModal = ({
           onChange={(name) => {
             const next = nextDesignPick(kindSettings, name);
             setDesignPick(next === null ? null : { key: pickKey, name: next });
+            designChoice.choose('current');
           }}
         />
       )}
@@ -393,7 +427,7 @@ export const SaleDocumentPreviewModal = ({
                 <Button
                   fullWidth
                   color="blue"
-                  disabled={loading || !!error}
+                  disabled={loading || !!error || !blob}
                   leftSection={<IconPrinter size={16} />}
                   onClick={handlePrint}
                 >
@@ -412,6 +446,13 @@ export const SaleDocumentPreviewModal = ({
       ) : (
         <Box style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>{documentPane}</Box>
       )}
+
+      <ReprintDesignDialog
+        opened={waitingForChoice}
+        status={designStatus.data}
+        onChoose={designChoice.choose}
+        onCancel={onClose}
+      />
     </Modal>
   );
 };

@@ -3,7 +3,11 @@ import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Button, Group, Text, Paper, Container, Loader, Stack } from '@mantine/core';
 import { IconPrinter, IconX, IconAlertCircle, IconDownload } from '@tabler/icons-react';
-import { useInvoiceDocument } from '../hooks/useInvoiceDocument';
+import { useInvoiceDocument, useInvoiceDocumentDesign } from '../hooks/useInvoiceDocument';
+import { useDocumentDesignChoice } from '../hooks/useDocumentDesignChoice';
+import { isDesignUnavailable } from '../lib/documentDesign';
+import { DesignUnavailableAlert } from './DesignUnavailableAlert';
+import { ReprintDesignDialog } from './ReprintDesignDialog';
 import { recordPrintEvent } from '@/features/invoices/api/printLogStore';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
@@ -14,11 +18,25 @@ import { getDocumentUnavailableText } from '@/shared/lib/queryStatusText';
 // via "Download PDF" in `A4InvoicePreviewModal`. The backend always stamps
 // the PDF "ORIGINAL — CUSTOMER COPY" (see `documentsApi.ts`'s doc comment),
 // so there is no `?copy=` variant here anymore.
+// The window is always "open", so the choice hook gets a constant `opened`.
+const useDesignChoiceForWindow = (
+  key: string,
+  status: Parameters<typeof useDocumentDesignChoice>[2]
+) => useDocumentDesignChoice(key, true, status);
+
 export const StandalonePrintView = () => {
   const { id } = useParams<{ id: string }>();
   const printedRef = useRef(false);
 
-  const { blob, loading, error, isPaused } = useInvoiceDocument(id, 'a4-invoice');
+  // An invoice printed before with another design than would print now asks "original or
+  // current?" first; nothing is rendered or printed until that is answered.
+  const designStatus = useInvoiceDocumentDesign(id, 'a4-invoice');
+  const designChoice = useDesignChoiceForWindow(id ?? '', designStatus);
+  const { blob, loading, error, errorCode, isPaused } = useInvoiceDocument(
+    id,
+    'a4-invoice',
+    designChoice.design
+  );
 
   // This route only knows the invoice id (not its number), so the id names the file.
   const idLabel = id ?? 'invoice';
@@ -46,7 +64,29 @@ export const StandalonePrintView = () => {
     }
   }, [blob, id, idLabel]);
 
-  if (loading) {
+  if (designChoice.needsChoice) {
+    return (
+      <ReprintDesignDialog
+        opened
+        status={designStatus.data}
+        onChoose={designChoice.choose}
+        onCancel={() => window.close()}
+      />
+    );
+  }
+
+  if (error && isDesignUnavailable(errorCode)) {
+    return (
+      <Container size="sm" py={100}>
+        <DesignUnavailableAlert />
+        <Button mt="md" onClick={() => window.close()}>
+          {t('Close Window')}
+        </Button>
+      </Container>
+    );
+  }
+
+  if (loading || designChoice.design === null) {
     return (
       <Container size="sm" py={100} style={{ textAlign: 'center' }}>
         <Stack align="center" gap="xs">

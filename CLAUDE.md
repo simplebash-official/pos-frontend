@@ -293,6 +293,12 @@ Barcode/QR stickers for inventory items, printed on label printers. A **label de
 - **Billing scan**: `CatalogPanel.handleScanSubmit` tries a scanned code as a serial number last (`inventory/lib/serialScan.ts` → `GET /inventory/serials/by-number/{n}`), adding that exact unit at its own batch's price; the lookup uses the text as typed (the scan term itself is lowercased). A sold unit says so instead of failing silently.
 - Errors: requests with `responseType: 'blob'` get their JSON error body read back (`shared/lib/errorBody.ts`, used by the `apiClient` response interceptor), so the server's plain-language reason (barcode too narrow, no barcode yet…) reaches the person.
 
+## Document designs & reprints (`src/features/settings`, `src/features/billing`)
+
+Settings → **Document Designs** (`DocumentDesignsSection`) lists, per document kind, the design **families** the backend offers (the shop's bundled designs plus custom ones made for it), the saved choice, and — for a design that declares settings (`x-options`: toggle, select, colour, text) — a form for them. Unsaved edits live in `DesignEdits` (`lib/designOptions.ts`), which also builds the save request (`{selections, options}`; the standard design is sent as `null`) and validates values. A saved choice the backend no longer offers shows `effective: null`: the card says printing is paused until the admin picks again — nothing is replaced silently.
+
+Every document request names `design=original|current` (no default): `original` is the PDF stored when the document was first printed, `current` prints with the design in force now. The previews (`SaleDocumentPreviewModal`, `QuotationPreviewModal`, `StandalonePrintView`) first read the document's **design status** (`useInvoiceDocumentDesign` / `useCreditNoteDocumentDesign` / `useQuotationDocumentDesign`); if the stored print used another design (`differs`) they open `ReprintDesignDialog` and fetch nothing until the user picks (`useDocumentDesignChoice`, answer dropped when the preview closes). Picking a design in the preview's `DocumentDesignPicker` always means `current` with that design. A 422 `TEMPLATE_UNAVAILABLE` / `TEMPLATE_OPTIONS_INVALID` shows `DesignUnavailableAlert` in place of the PDF. Tests: `lib/__tests__/designOptions.test.ts`, `billing/lib/__tests__/documentDesign.test.ts`, the API tests, `ReprintDesignDialog.test.tsx`, `DocumentDesignsKindCard.test.tsx`.
+
 ## Spreadsheet Data Import Engine
 
 `src/features/imports/` provides a reusable, cross-module batch ingestion feature for Excel (`.xlsx`/`.xls`) and `.csv` files:

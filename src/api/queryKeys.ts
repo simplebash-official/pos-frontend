@@ -1,8 +1,8 @@
 export const queryKeys = {
   settings: {
     documentTemplates: () => ['settings', 'documentTemplates'] as const,
-    documentTemplatePreview: (name: string) =>
-      ['settings', 'documentTemplatePreview', name] as const,
+    documentTemplatePreview: (family: string, version: number) =>
+      ['settings', 'documentTemplatePreview', family, version] as const,
   },
   billing: {
     all: ['billing'] as const,
