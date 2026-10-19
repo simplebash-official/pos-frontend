@@ -13,6 +13,7 @@ import { ROUTES } from '@/constants/routes';
 import { SettingsNavDrillDownList, SettingsNavList, SettingsNavTabs } from './SettingsNav';
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
 import { ShopProfileSection } from './sections/ShopProfileSection';
+import { RegisterShiftsSection } from './sections/RegisterShiftsSection';
 import { BrandingSection } from './sections/BrandingSection';
 import { BankDetailsSection } from './sections/BankDetailsSection';
 import { PrintingSection } from './sections/PrintingSection';
@@ -70,6 +71,8 @@ const renderSection = (
   switch (id) {
     case 'shop-profile':
       return <ShopProfileSection onDirtyChange={onDirtyChange} />;
+    case 'register-shifts':
+      return <RegisterShiftsSection onDirtyChange={onDirtyChange} />;
     case 'branding':
       return <BrandingSection onDirtyChange={onDirtyChange} />;
     case 'bank-details':

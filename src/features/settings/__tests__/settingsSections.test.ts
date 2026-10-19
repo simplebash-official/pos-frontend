@@ -46,6 +46,7 @@ describe('settingsSections desktop filtering', () => {
     // Printing is open: it holds the A4 invoice design (Classic / Modern) switch.
     const activeSectionIds = [
       'shop-profile',
+      'register-shifts',
       'printing',
       'document-designs',
       'about',
@@ -58,6 +59,19 @@ describe('settingsSections desktop filtering', () => {
       expect(section?.comingSoon).toBeFalsy();
       expect(section?.disabled).toBeFalsy();
     });
+  });
+
+  it('configures the register-shifts section with correct labels and metadata', () => {
+    const regSection = SETTINGS_SECTIONS.find((s) => s.id === 'register-shifts');
+    expect(regSection).toBeDefined();
+    expect(regSection?.label).toBe('Registers & Shifts');
+    expect(regSection?.shortLabel).toBe('Registers');
+    expect(regSection?.description).toBe(
+      'Multi-device shift sharing and cash drawer isolation mode'
+    );
+    expect(regSection?.desktopOnly).toBeFalsy();
+    expect(getVisibleSettingsSections(false).some((s) => s.id === 'register-shifts')).toBe(true);
+    expect(getVisibleSettingsSections(true).some((s) => s.id === 'register-shifts')).toBe(true);
   });
 
   it('configures the about section with correct labels and visibility on both web and desktop', () => {

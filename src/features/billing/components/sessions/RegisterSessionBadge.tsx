@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
+  Badge,
   Box,
   Button,
   Divider,
@@ -14,6 +15,7 @@ import {
   IconCash,
   IconCoins,
   IconDoorExit,
+  IconLayersLinked,
   IconLock,
   IconLockOpen,
   IconReceipt,
@@ -31,7 +33,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import type { RegisterSession } from '../../types';
 
 /** A small dot that breathes (opacity only) while the shift is open. */
-const LiveDot = () => {
+const LiveDot = ({ isShared = false }: { isShared?: boolean }) => {
   const reduceMotion = useReducedMotion();
   return (
     <motion.span
@@ -42,7 +44,7 @@ const LiveDot = () => {
         width: 6,
         height: 6,
         borderRadius: '50%',
-        background: 'var(--mantine-color-teal-6)',
+        background: isShared ? 'var(--mantine-color-cyan-6)' : 'var(--mantine-color-teal-6)',
         display: 'inline-block',
       }}
     />
@@ -93,6 +95,7 @@ export const RegisterSessionBadge: React.FC = () => {
 
   const isOpen = session?.status === 'open';
   const isClosing = session?.status === 'closing';
+  const isShared = Boolean(session && session.terminalId !== terminalId);
 
   // One return for every status: the modals keep the same place in the tree, so the
   // Close window is not remounted (and its step and counted cash lost) when the
@@ -101,19 +104,35 @@ export const RegisterSessionBadge: React.FC = () => {
     <>
       {isOpen && (
         <FadeIn style={{ display: 'inline-block' }}>
-          <Menu shadow="md" width={300} position="bottom-end" radius="md">
+          <Menu shadow="md" width={320} position="bottom-end" radius="md">
             <Menu.Target>
               <Button
                 size="xs"
                 variant="light"
-                color="teal"
-                leftSection={<IconLockOpen size={14} color="var(--mantine-color-teal-6)" />}
+                color={isShared ? 'cyan' : 'teal'}
+                leftSection={
+                  isShared ? (
+                    <IconLayersLinked size={14} color="var(--mantine-color-cyan-6)" />
+                  ) : (
+                    <IconLockOpen size={14} color="var(--mantine-color-teal-6)" />
+                  )
+                }
               >
                 <Group gap={6} wrap="nowrap">
-                  <LiveDot />
+                  <LiveDot isShared={isShared} />
                   <Text size="xs" fw={700}>
                     {session.sessionNumber}
                   </Text>
+                  {isShared && (
+                    <Badge
+                      size="xs"
+                      variant="light"
+                      color="cyan"
+                      leftSection={<IconLayersLinked size={12} />}
+                    >
+                      {t('Shared')}
+                    </Badge>
+                  )}
                 </Group>
               </Button>
             </Menu.Target>
@@ -129,17 +148,29 @@ export const RegisterSessionBadge: React.FC = () => {
                 }}
               >
                 <Group gap="sm" wrap="nowrap" mb="sm">
-                  <ThemeIcon variant="light" color="teal" size={36}>
-                    <IconCash size={20} />
+                  <ThemeIcon variant="light" color={isShared ? 'cyan' : 'teal'} size={36}>
+                    {isShared ? <IconLayersLinked size={20} /> : <IconCash size={20} />}
                   </ThemeIcon>
-                  <div style={{ minWidth: 0 }}>
-                    <Text size="sm" fw={700} truncate>
-                      {session.sessionNumber}
-                    </Text>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <Group gap={6} wrap="nowrap" justify="space-between">
+                      <Text size="sm" fw={700} truncate>
+                        {session.sessionNumber}
+                      </Text>
+                      {isShared && (
+                        <Badge size="xs" variant="light" color="cyan">
+                          {t('Shared')}
+                        </Badge>
+                      )}
+                    </Group>
                     <Group gap={6} wrap="nowrap">
-                      <LiveDot />
-                      <Text size="xs" c="dimmed" truncate>
-                        {t('Shift open')}
+                      <LiveDot isShared={isShared} />
+                      <Text
+                        size="xs"
+                        c={isShared ? 'cyan' : 'dimmed'}
+                        truncate
+                        fw={isShared ? 600 : 400}
+                      >
+                        {isShared ? t('Active (Shared Shift)') : t('Shift open')}
                         {session.cashierNameSnapshot ? ` · ${session.cashierNameSnapshot}` : ''}
                       </Text>
                     </Group>
@@ -149,6 +180,44 @@ export const RegisterSessionBadge: React.FC = () => {
                   <ShiftFigure label={t('Float')} cents={session.openingFloatCents} />
                   <ShiftFigure label={t('Cash sales')} cents={session.totalCashSalesCents} />
                 </SimpleGrid>
+                {isShared && (
+                  <Box
+                    mt="xs"
+                    pt="xs"
+                    style={{ borderTop: '1px solid var(--border)' }}
+                  >
+                    <SimpleGrid cols={2} spacing="xs">
+                      <div>
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          fw={600}
+                          tt="uppercase"
+                          style={{ letterSpacing: '0.05em' }}
+                        >
+                          {t('Drawer Terminal')}
+                        </Text>
+                        <Text size="xs" fw={700} truncate title={session.terminalId}>
+                          {session.terminalId}
+                        </Text>
+                      </div>
+                      <div>
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          fw={600}
+                          tt="uppercase"
+                          style={{ letterSpacing: '0.05em' }}
+                        >
+                          {t('This Device')}
+                        </Text>
+                        <Text size="xs" fw={700} truncate title={terminalId}>
+                          {terminalId}
+                        </Text>
+                      </div>
+                    </SimpleGrid>
+                  </Box>
+                )}
               </Box>
 
               <Menu.Item

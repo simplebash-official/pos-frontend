@@ -17,7 +17,10 @@ export interface ShopProfile {
   defaultWarrantyText: string;
   defaultFooterText: string;
   receiptFooterText: string;
+  allowSharedUserSessions?: boolean;
 }
+
+export type UpdateShopProfileInput = Partial<ShopProfile>;
 
 export type AutoPrintOption = 'none' | 'receipt' | 'invoice' | 'both';
 export type InvoiceCopyOption = 'customer' | 'customer+office';

@@ -1,6 +1,6 @@
 import { apiClient } from '@/api/client';
 import type { ApiResponse } from '@/shared/types/common';
-import type { ShopProfile } from '../types';
+import type { ShopProfile, UpdateShopProfileInput } from '../types';
 
 /**
  * Fetches the active shop profile from the backend database.
@@ -13,7 +13,9 @@ export async function getShopProfileApi(): Promise<ShopProfile> {
 /**
  * Persists updated shop profile fields to the backend database.
  */
-export async function updateShopProfileApi(payload: Partial<ShopProfile>): Promise<ShopProfile> {
+export async function updateShopProfileApi(
+  payload: UpdateShopProfileInput
+): Promise<ShopProfile> {
   const response = await apiClient.put<ApiResponse<ShopProfile>>('/settings/shop-profile', payload);
   return response.data;
 }

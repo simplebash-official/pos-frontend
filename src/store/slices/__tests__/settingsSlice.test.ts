@@ -24,7 +24,18 @@ describe('settingsSlice reducer & selectors', () => {
   it('initializes with default shop profile and print settings', () => {
     const state = getInitialState();
     expect(state.shopProfile).toEqual(DEFAULT_SHOP_PROFILE);
+    expect(state.shopProfile.allowSharedUserSessions).toBe(false);
     expect(state.printSettings).toEqual(DEFAULT_PRINT_SETTINGS);
+  });
+
+  it('updates shop profile allowSharedUserSessions and increments version on change', () => {
+    const state = settingsReducer(
+      getInitialState(),
+      updateShopProfile({ allowSharedUserSessions: true })
+    );
+
+    expect(state.shopProfile.allowSharedUserSessions).toBe(true);
+    expect(state.shopProfile.version).toBe(DEFAULT_SHOP_PROFILE.version + 1);
   });
 
   it('updates shop profile and increments version on change', () => {

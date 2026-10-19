@@ -55,6 +55,7 @@ const sanitizeLegacyProfile = (profile: ShopProfile): ShopProfile => {
     accountName:
       profile.accountName === 'SimpleBash POS (Pvt) Ltd' ? '' : profile.accountName || '',
     accountNumber: profile.accountNumber === '8001234567' ? '' : profile.accountNumber || '',
+    allowSharedUserSessions: profile.allowSharedUserSessions ?? false,
   };
 };
 

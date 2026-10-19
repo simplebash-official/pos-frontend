@@ -19,6 +19,7 @@ export const DEFAULT_SHOP_PROFILE: ShopProfile = {
   defaultWarrantyText: '',
   defaultFooterText: '',
   receiptFooterText: '',
+  allowSharedUserSessions: false,
 };
 
 export const DEFAULT_PRINT_SETTINGS: PrintSettings = {

@@ -1,7 +1,8 @@
 import {
+  IconAlertTriangle,
   IconBuildingBank,
   IconBuildingStore,
-  IconAlertTriangle,
+  IconCashRegister,
   IconCloud,
   IconCloudUpload,
   IconDatabase,
@@ -17,6 +18,7 @@ import {
 
 export type SettingsSectionId =
   | 'shop-profile'
+  | 'register-shifts'
   | 'branding'
   | 'bank-details'
   | 'printing'
@@ -54,6 +56,13 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Profile',
     description: 'Business name, address and contact details',
     icon: IconBuildingStore,
+  },
+  {
+    id: 'register-shifts',
+    label: 'Registers & Shifts',
+    shortLabel: 'Registers',
+    description: 'Multi-device shift sharing and cash drawer isolation mode',
+    icon: IconCashRegister,
   },
   {
     id: 'branding',
