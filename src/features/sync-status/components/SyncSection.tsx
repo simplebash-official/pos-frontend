@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Alert, Button, Group, Paper, Stack, Text } from '@mantine/core';
+import { Alert, Box, Button, Divider, Group, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { logger } from '@/shared/logging';
@@ -43,64 +43,79 @@ export const SyncSection = ({ onOpenSection }: SyncSectionProps) => {
   const paused = status.state === 'paused';
 
   return (
-    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-      <Stack gap="lg">
-        <div>
-          <Text fw={700} size="lg">
-            {t('Cloud Sync')}
-          </Text>
-          <Text size="sm" c="dimmed" mt={2}>
-            {t(
-              'Keeps this computer and your other devices up to date through your cloud account. Selling never waits for the internet.'
-            )}
-          </Text>
-        </div>
+    <Paper
+      p="lg"
+      withBorder
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ flexShrink: 0 }}>
+        <Text fw={700} size="lg">
+          {t('Cloud Sync')}
+        </Text>
+        <Text size="sm" c="dimmed" mt={2}>
+          {t(
+            'Keeps this computer and your other devices up to date through your cloud account. Selling never waits for the internet.'
+          )}
+        </Text>
+      </div>
 
-        {!status.linked ? (
-          <Alert color="gray" variant="light">
-            {t(
-              'This device is not linked to a cloud account yet. Link it under Cloud Account first.'
-            )}
-          </Alert>
-        ) : (
-          <>
-            <SyncHero
-              status={status}
-              busy={busy}
-              onSyncNow={() => void run('now', syncNow)}
-              onTogglePause={() =>
-                void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)
-              }
-              onReview={() =>
-                status.bootstrapRequired ? setConfirmBootstrap(true) : onOpenSection?.('conflicts')
-              }
-            />
-            {status.bootstrapRequired && (
-              <Alert color="orange" variant="light" title={t('Your confirmation is needed')}>
-                <Stack gap="xs">
-                  <Text size="sm">
-                    {t(
-                      'The cloud already holds data for this shop. To continue, this computer must replace its local data with the cloud copy. Export a backup first if you are unsure.'
-                    )}
-                  </Text>
-                  <Group>
-                    <Button
-                      color="orange"
-                      size="xs"
-                      onClick={() => setConfirmBootstrap(true)}
-                      data-log-id="sync.bootstrap-start"
-                    >
-                      {t('Replace local data with cloud data')}
-                    </Button>
-                  </Group>
-                </Stack>
-              </Alert>
-            )}
-            <SyncModulesList status={status} />
-            <SyncActivityList history={status.history} />
-          </>
-        )}
-      </Stack>
+      <Divider my="md" style={{ flexShrink: 0 }} />
+
+      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <Stack gap="lg">
+          {!status.linked ? (
+            <Alert color="gray" variant="light">
+              {t(
+                'This device is not linked to a cloud account yet. Link it under Cloud Account first.'
+              )}
+            </Alert>
+          ) : (
+            <>
+              <SyncHero
+                status={status}
+                busy={busy}
+                onSyncNow={() => void run('now', syncNow)}
+                onTogglePause={() =>
+                  void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)
+                }
+                onReview={() =>
+                  status.bootstrapRequired ? setConfirmBootstrap(true) : onOpenSection?.('conflicts')
+                }
+              />
+              {status.bootstrapRequired && (
+                <Alert color="orange" variant="light" title={t('Your confirmation is needed')}>
+                  <Stack gap="xs">
+                    <Text size="sm">
+                      {t(
+                        'The cloud already holds data for this shop. To continue, this computer must replace its local data with the cloud copy. Export a backup first if you are unsure.'
+                      )}
+                    </Text>
+                    <Group>
+                      <Button
+                        color="orange"
+                        size="xs"
+                        onClick={() => setConfirmBootstrap(true)}
+                        data-log-id="sync.bootstrap-start"
+                      >
+                        {t('Replace local data with cloud data')}
+                      </Button>
+                    </Group>
+                  </Stack>
+                </Alert>
+              )}
+              <SyncModulesList status={status} />
+              <SyncActivityList history={status.history} />
+            </>
+          )}
+        </Stack>
+      </Box>
 
       <ConfirmDialog
         opened={confirmBootstrap}

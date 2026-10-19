@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import {
   Alert,
   Badge,
+  Box,
   Button,
   Checkbox,
   Divider,
@@ -279,19 +280,32 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
 
   return (
     <>
-      <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-        <Stack gap="lg">
-          <div>
-            <Text fw={700} size="lg">
-              {t('Data Backup & Restore')}
-            </Text>
-            <Text size="sm" c="dimmed" mt={2}>
-              {t(
-                'Save a complete backup copy of your shop data, or restore your system from a previously saved backup.'
-              )}
-            </Text>
-          </div>
-          <Divider />
+      <Paper
+        p="lg"
+        withBorder
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ flexShrink: 0 }}>
+          <Text fw={700} size="lg">
+            {t('Data Backup & Restore')}
+          </Text>
+          <Text size="sm" c="dimmed" mt={2}>
+            {t(
+              'Save a complete backup copy of your shop data, or restore your system from a previously saved backup.'
+            )}
+          </Text>
+        </div>
+        <Divider my="md" style={{ flexShrink: 0 }} />
+
+        <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          <Stack gap="lg">
 
           {/* Section 1: Export Shop Data */}
           <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
@@ -405,7 +419,8 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
               </Group>
             </Stack>
           </Paper>
-        </Stack>
+          </Stack>
+        </Box>
       </Paper>
 
       {/* Preflight Modal & Confirmation Dialog */}

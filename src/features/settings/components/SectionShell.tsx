@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { ReactNode } from 'react';
-import { Box, Button, Divider, Group, Paper, Stack, Text } from '@mantine/core';
+import { Box, Button, Divider, Group, Paper, Text } from '@mantine/core';
 
 export interface SectionShellProps {
   title: string;
@@ -29,33 +29,44 @@ export const SectionShell = ({
   children,
 }: SectionShellProps) => {
   return (
-    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-      <Stack gap="md">
-        <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
-          <Box>
-            <Text fw={700} size="lg">
-              {title}
+    <Paper
+      p="lg"
+      withBorder
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm" style={{ flexShrink: 0 }}>
+        <Box>
+          <Text fw={700} size="lg">
+            {title}
+          </Text>
+          {description && (
+            <Text size="sm" c="dimmed" mt={2}>
+              {description}
             </Text>
-            {description && (
-              <Text size="sm" c="dimmed" mt={2}>
-                {description}
-              </Text>
-            )}
-          </Box>
-          <Group gap="sm" style={{ flexShrink: 0 }}>
-            <Button variant="default" onClick={onCancel} disabled={!isDirty || saving}>
-              {t('Cancel')}
-            </Button>
-            <Button color="blue" onClick={onSave} disabled={!isDirty} loading={saving}>
-              {saveLabel}
-            </Button>
-          </Group>
+          )}
+        </Box>
+        <Group gap="sm" style={{ flexShrink: 0 }}>
+          <Button variant="default" onClick={onCancel} disabled={!isDirty || saving}>
+            {t('Cancel')}
+          </Button>
+          <Button color="blue" onClick={onSave} disabled={!isDirty} loading={saving}>
+            {saveLabel}
+          </Button>
         </Group>
+      </Group>
 
-        <Divider />
+      <Divider my="md" style={{ flexShrink: 0 }} />
 
+      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {children}
-      </Stack>
+      </Box>
     </Paper>
   );
 };

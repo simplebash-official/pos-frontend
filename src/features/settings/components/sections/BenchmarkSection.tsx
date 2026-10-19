@@ -228,75 +228,89 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
           : 'red';
 
   return (
-    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-      <Stack gap="lg">
-        {/* Header */}
-        <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
-          <div>
-            <Group gap="xs">
-              <ThemeIcon
-                color="blue"
-                variant="light"
-                size="lg"
-                radius="var(--mantine-radius-default)"
-              >
-                <IconDeviceDesktopAnalytics size={20} />
-              </ThemeIcon>
-              <div>
-                <Text fw={700} size="lg">
-                  {t('Hardware & POS Benchmark')}
-                </Text>
-                <Text size="sm" c="dimmed" mt={1}>
-                  {t('Test computer performance, POS speed & document rendering')}
-                </Text>
-              </div>
-            </Group>
-          </div>
-
-          <Group gap="xs" wrap="wrap">
-            <SegmentedControl
-              size="xs"
-              disabled={isRunning}
-              value={String(logFlows)}
-              onChange={(value) => setLogFlows(Number(value))}
-              data={[
-                { value: String(LOGGING_BENCH_PRESETS.quick), label: t('Quick log test') },
-                { value: String(LOGGING_BENCH_PRESETS.full), label: t('Full log test') },
-              ]}
-            />
-            {!isRunning && (
-              <Button
-                variant="default"
-                size="sm"
-                leftSection={<IconGauge size={16} />}
-                onClick={() => void handleMeasureLogging()}
-              >
-                {t('Measure logging only')}
-              </Button>
-            )}
-            {report && !isRunning && (
-              <Button
-                variant="default"
-                size="sm"
-                leftSection={<IconClipboardCopy size={16} />}
-                onClick={handleCopySummary}
-              >
-                {t('Copy Summary')}
-              </Button>
-            )}
-            <Button
+    <Paper
+      p="lg"
+      withBorder
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Header */}
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm" style={{ flexShrink: 0 }}>
+        <div>
+          <Group gap="xs">
+            <ThemeIcon
               color="blue"
-              size="sm"
-              loading={isRunning}
-              leftSection={report ? <IconRefresh size={16} /> : <IconPlayerPlay size={16} />}
-              onClick={handleStartBenchmark}
+              variant="light"
+              size="lg"
+              radius="var(--mantine-radius-default)"
             >
-              {report ? t('Re-run Benchmark') : t('Run System Benchmark')}
-            </Button>
+              <IconDeviceDesktopAnalytics size={20} />
+            </ThemeIcon>
+            <div>
+              <Text fw={700} size="lg">
+                {t('Hardware & POS Benchmark')}
+              </Text>
+              <Text size="sm" c="dimmed" mt={1}>
+                {t('Test computer performance, POS speed & document rendering')}
+              </Text>
+            </div>
           </Group>
-        </Group>
+        </div>
 
-        {/* Specs Pill Strip */}
+        <Group gap="xs" wrap="wrap">
+          <SegmentedControl
+            size="xs"
+            disabled={isRunning}
+            value={String(logFlows)}
+            onChange={(value) => setLogFlows(Number(value))}
+            data={[
+              { value: String(LOGGING_BENCH_PRESETS.quick), label: t('Quick log test') },
+              { value: String(LOGGING_BENCH_PRESETS.full), label: t('Full log test') },
+            ]}
+          />
+          {!isRunning && (
+            <Button
+              variant="default"
+              size="sm"
+              leftSection={<IconGauge size={16} />}
+              onClick={() => void handleMeasureLogging()}
+            >
+              {t('Measure logging only')}
+            </Button>
+          )}
+          {report && !isRunning && (
+            <Button
+              variant="default"
+              size="sm"
+              leftSection={<IconClipboardCopy size={16} />}
+              onClick={handleCopySummary}
+            >
+              {t('Copy Summary')}
+            </Button>
+          )}
+          <Button
+            color="blue"
+            size="sm"
+            loading={isRunning}
+            leftSection={report ? <IconRefresh size={16} /> : <IconPlayerPlay size={16} />}
+            onClick={handleStartBenchmark}
+          >
+            {report ? t('Re-run Benchmark') : t('Run System Benchmark')}
+          </Button>
+        </Group>
+      </Group>
+
+      <Divider my="md" style={{ flexShrink: 0 }} />
+
+      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <Stack gap="lg">
+          {/* Specs Pill Strip */}
         <Paper
           p="xs"
           withBorder
@@ -779,7 +793,8 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
             </Group>
           </Stack>
         )}
-      </Stack>
+        </Stack>
+      </Box>
     </Paper>
   );
 };

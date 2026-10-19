@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Alert, Badge, Button, Code, Collapse, Group, Paper, Stack, Text } from '@mantine/core';
+import { Alert, Badge, Box, Button, Code, Collapse, Divider, Group, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
@@ -108,33 +108,46 @@ export const ConflictsSection = (_props: SectionProps) => {
   const open = openConflicts(data ?? []);
 
   return (
-    <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-      <Stack gap="md">
-        <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
-          <Stack gap={2} style={{ minWidth: 0 }}>
-            <Text fw={700} size="lg">
-              {t('Sync conflicts')}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {t(
-                'Things worth a second look after devices synced. Nothing here stops you from selling.'
-              )}
-            </Text>
-          </Stack>
-          {open.length > 0 && (
-            <Button
-              size="xs"
-              variant="light"
-              loading={resolveAll.isPending}
-              disabled={resolve.isPending}
-              onClick={() => resolveAll.mutate(open.map((c) => c.key))}
-              data-log-id="sync.conflicts-resolve-all"
-            >
-              {t('Mark all as reviewed')}
-            </Button>
-          )}
-        </Group>
+    <Paper
+      p="lg"
+      withBorder
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm" style={{ flexShrink: 0 }}>
+        <Stack gap={2} style={{ minWidth: 0 }}>
+          <Text fw={700} size="lg">
+            {t('Sync conflicts')}
+          </Text>
+          <Text size="sm" c="dimmed">
+            {t(
+              'Things worth a second look after devices synced. Nothing here stops you from selling.'
+            )}
+          </Text>
+        </Stack>
+        {open.length > 0 && (
+          <Button
+            size="xs"
+            variant="light"
+            loading={resolveAll.isPending}
+            disabled={resolve.isPending}
+            onClick={() => resolveAll.mutate(open.map((c) => c.key))}
+            data-log-id="sync.conflicts-resolve-all"
+          >
+            {t('Mark all as reviewed')}
+          </Button>
+        )}
+      </Group>
 
+      <Divider my="md" style={{ flexShrink: 0 }} />
+
+      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {!status.linked ? (
           <Alert color="gray" variant="light">
             {t(
@@ -164,7 +177,7 @@ export const ConflictsSection = (_props: SectionProps) => {
             ))}
           </Stack>
         )}
-      </Stack>
+      </Box>
     </Paper>
   );
 };

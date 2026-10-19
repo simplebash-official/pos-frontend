@@ -3,6 +3,7 @@ import { PRODUCT_NAME } from '@/config/branding';
 import type { ReactNode } from 'react';
 import {
   Alert,
+  Box,
   Button,
   Divider,
   Grid,
@@ -38,21 +39,33 @@ import type { SectionProps } from './ShopProfileSection';
 // ============================================================================
 
 const LogsShell = ({ children }: { children: ReactNode }) => (
-  <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1, minWidth: 0 }}>
-    <Stack gap="md">
-      <div>
-        <Text fw={700} size="lg">
-          {t('Activity Log')}
-        </Text>
-        <Text size="sm" c="dimmed" mt={2}>
-          {t(
-            'Everything that happens in the app is recorded on this computer with its date, time and time zone, from the day it was installed.'
-          )}
-        </Text>
-      </div>
-      <Divider />
+  <Paper
+    p="lg"
+    withBorder
+    style={{
+      backgroundColor: 'var(--bg-card)',
+      flex: 1,
+      minWidth: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0,
+      overflow: 'hidden',
+    }}
+  >
+    <div style={{ flexShrink: 0 }}>
+      <Text fw={700} size="lg">
+        {t('Activity Log')}
+      </Text>
+      <Text size="sm" c="dimmed" mt={2}>
+        {t(
+          'Everything that happens in the app is recorded on this computer with its date, time and time zone, from the day it was installed.'
+        )}
+      </Text>
+    </div>
+    <Divider my="md" style={{ flexShrink: 0 }} />
+    <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
       {children}
-    </Stack>
+    </Box>
   </Paper>
 );
 

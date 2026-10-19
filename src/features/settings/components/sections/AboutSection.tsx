@@ -2,6 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Badge,
+  Box,
   Button,
   Divider,
   Group,
@@ -41,19 +42,30 @@ import type { SectionProps } from './ShopProfileSection';
 // ============================================================================
 
 const AboutShell = ({ description, children }: { description: string; children: ReactNode }) => (
-  <Paper p="lg" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
-    <Stack gap="md">
-      <div>
-        <Text fw={700} size="lg">
-          {t('About')}
-        </Text>
-        <Text size="sm" c="dimmed" mt={2}>
-          {description}
-        </Text>
-      </div>
-      <Divider />
+  <Paper
+    p="lg"
+    withBorder
+    style={{
+      backgroundColor: 'var(--bg-card)',
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0,
+      overflow: 'hidden',
+    }}
+  >
+    <div style={{ flexShrink: 0 }}>
+      <Text fw={700} size="lg">
+        {t('About')}
+      </Text>
+      <Text size="sm" c="dimmed" mt={2}>
+        {description}
+      </Text>
+    </div>
+    <Divider my="md" style={{ flexShrink: 0 }} />
+    <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
       {children}
-    </Stack>
+    </Box>
   </Paper>
 );
 

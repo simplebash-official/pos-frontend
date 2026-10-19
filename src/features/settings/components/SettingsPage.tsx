@@ -35,7 +35,18 @@ const renderSection = (
   if (meta?.comingSoon) {
     const Icon = meta.icon;
     return (
-      <Paper p="xl" withBorder style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
+      <Paper
+        p="xl"
+        withBorder
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          overflow: 'hidden',
+        }}
+      >
         <Stack align="center" justify="center" gap="md" py="xl" style={{ minHeight: 340 }}>
           <ThemeIcon size={64} radius="xl" variant="light" color="gray">
             <Icon size={32} />
@@ -139,38 +150,42 @@ export const SettingsPage = () => {
   const activeSectionMeta = SETTINGS_SECTIONS.find((s) => s.id === activeSection);
 
   const header = (
-    <PageHeader
-      title={t('POS & Document Settings')}
-      description={t('Configure shop profile, bank details, and printing behavior.')}
-    />
+    <Box style={{ flexShrink: 0 }}>
+      <PageHeader
+        title={t('POS & Document Settings')}
+        description={t('Configure shop profile, bank details, and printing behavior.')}
+      />
+    </Box>
   );
 
   let body: ReactNode;
 
   if (tier === 'desktop') {
     body = (
-      <Group align="stretch" gap="xl" wrap="nowrap" style={{ flex: 1 }}>
-        <Box style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+      <Group align="stretch" gap="xl" wrap="nowrap" style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <Box style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <SettingsNavList active={activeSection} onChange={requestNavigate} />
         </Box>
-        <Box style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <Box style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
           {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Group>
     );
   } else if (tier === 'tablet') {
     body = (
-      <Stack gap="md" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <SettingsNavTabs active={activeSection} onChange={requestNavigate} />
-        <Box style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <Stack gap="md" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box style={{ flexShrink: 0 }}>
+          <SettingsNavTabs active={activeSection} onChange={requestNavigate} />
+        </Box>
+        <Box style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Stack>
     );
   } else if (mobileSectionOpen) {
     body = (
-      <Stack gap="md" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <Group gap="xs">
+      <Stack gap="md" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Group gap="xs" style={{ flexShrink: 0 }}>
           <ActionIcon
             variant="default"
             size={44}
@@ -183,18 +198,22 @@ export const SettingsPage = () => {
             {activeSectionMeta?.label}
           </Text>
         </Group>
-        <Box style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Stack>
     );
   } else {
-    body = <SettingsNavDrillDownList active={activeSection} onChange={requestNavigate} />;
+    body = (
+      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <SettingsNavDrillDownList active={activeSection} onChange={requestNavigate} />
+      </Box>
+    );
   }
 
   return (
     <>
-      <Stack gap="lg" style={{ minHeight: '100%' }}>
+      <Stack gap="lg" style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
         {header}
         {body}
       </Stack>

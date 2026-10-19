@@ -14,20 +14,31 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
   const { state: cloud } = useCloudState();
   const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
   return (
-    <Paper withBorder p="xs" style={{ backgroundColor: 'var(--bg-card)', flex: 1 }}>
+    <Paper
+      withBorder
+      p="xs"
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
       <Text
         size="xs"
         fw={700}
         c="dimmed"
         tt="uppercase"
-        style={{ letterSpacing: '0.05em' }}
+        style={{ letterSpacing: '0.05em', flexShrink: 0 }}
         px="xs"
         pt={4}
         pb="xs"
       >
         {t('Menu')}
       </Text>
-      <Stack gap={2}>
+      <Stack gap={2} style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {sections.map((section) => {
           const isActive = active === section.id;
           const isDisabled = section.disabled || section.comingSoon;
