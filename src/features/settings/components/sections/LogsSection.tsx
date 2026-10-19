@@ -63,9 +63,7 @@ const LogsShell = ({ children }: { children: ReactNode }) => (
       </Text>
     </div>
     <Divider my="md" style={{ flexShrink: 0 }} />
-    <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-      {children}
-    </Box>
+    <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</Box>
   </Paper>
 );
 

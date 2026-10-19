@@ -1,6 +1,17 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Alert, Badge, Box, Button, Divider, Group, Paper, Stack, Switch, Text } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Switch,
+  Text,
+} from '@mantine/core';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';

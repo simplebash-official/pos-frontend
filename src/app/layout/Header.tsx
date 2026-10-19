@@ -31,6 +31,7 @@ import { useMantineColorScheme } from '@mantine/core';
 import { useCartItems, useHeldCarts, useCartSound } from '@/features/billing/hooks/useCart';
 import { NotificationPopover } from '@/features/notifications/components/NotificationPopover';
 import { ROUTES } from '@/constants/routes';
+import { formatUserRole } from '@/constants/roles';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
@@ -75,7 +76,8 @@ export const Header = ({
   const user = useAppSelector(selectAuthUser);
   const userName = user?.name || user?.username || 'Operator';
   const initial = userName.charAt(0).toUpperCase();
-  const userLabel = `${userName} (${user?.role || 'user'})`;
+  const roleLabel = user?.role ? formatUserRole(user.role) : '';
+  const userLabel = roleLabel ? `${userName} (${roleLabel})` : userName;
 
   const shopProfile = useAppSelector(selectShopProfile);
   const { state: cloudState } = useCloudState();
@@ -218,8 +220,13 @@ export const Header = ({
           <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
-            <Group gap={6} style={{ cursor: 'default' }} wrap="nowrap">
-              <Avatar size={24} radius="xl" color="blue" src={null}>
+            <Group
+              gap={6}
+              style={{ cursor: 'default' }}
+              wrap="nowrap"
+              aria-label={`Cashier: ${userLabel}`}
+            >
+              <Avatar size={28} radius="xl" color="blue">
                 {initial}
               </Avatar>
               <Text size="xs" fw={700} visibleFrom="xs">
@@ -336,7 +343,12 @@ export const Header = ({
         )}
 
         <Tooltip label={`Active User: ${userLabel}`}>
-          <Avatar size={isMobile ? 28 : 32} radius="xl" color="blue">
+          <Avatar
+            size={isMobile ? 28 : 32}
+            radius="xl"
+            color="blue"
+            aria-label={`Active User: ${userLabel}`}
+          >
             {initial}
           </Avatar>
         </Tooltip>

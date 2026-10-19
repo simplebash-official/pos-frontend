@@ -306,119 +306,118 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
 
         <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           <Stack gap="lg">
+            {/* Section 1: Export Shop Data */}
+            <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+              <Stack gap="sm">
+                <Group gap="xs">
+                  <ThemeIcon
+                    color="blue"
+                    variant="light"
+                    size="lg"
+                    radius="var(--mantine-radius-default)"
+                  >
+                    <IconDownload size={20} />
+                  </ThemeIcon>
+                  <div>
+                    <Text fw={700} size="md">
+                      {t('Export Shop Data')}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {t(
+                        'Download a complete copy of all your inventory, sales, customers, repairs, print jobs, and settings into a single backup file.'
+                      )}
+                    </Text>
+                  </div>
+                </Group>
 
-          {/* Section 1: Export Shop Data */}
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
-            <Stack gap="sm">
-              <Group gap="xs">
-                <ThemeIcon
-                  color="blue"
-                  variant="light"
-                  size="lg"
-                  radius="var(--mantine-radius-default)"
-                >
-                  <IconDownload size={20} />
-                </ThemeIcon>
-                <div>
-                  <Text fw={700} size="md">
-                    {t('Export Shop Data')}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {t(
-                      'Download a complete copy of all your inventory, sales, customers, repairs, print jobs, and settings into a single backup file.'
-                    )}
-                  </Text>
-                </div>
-              </Group>
+                <Checkbox
+                  label={t('Include shop branding, bank details, and printing settings')}
+                  checked={includeSettings}
+                  onChange={(e) => setIncludeSettings(e.currentTarget.checked)}
+                  size="sm"
+                  mt="xs"
+                />
 
-              <Checkbox
-                label={t('Include shop branding, bank details, and printing settings')}
-                checked={includeSettings}
-                onChange={(e) => setIncludeSettings(e.currentTarget.checked)}
-                size="sm"
-                mt="xs"
-              />
+                <Group justify="flex-start" mt="xs">
+                  <Button
+                    color="blue"
+                    leftSection={<IconDownload size={16} />}
+                    onClick={handleExport}
+                    loading={isExporting}
+                    style={{ minHeight: isMobile ? 44 : 36 }}
+                  >
+                    {t('Export Backup File')}
+                  </Button>
+                </Group>
+              </Stack>
+            </Paper>
 
-              <Group justify="flex-start" mt="xs">
-                <Button
-                  color="blue"
-                  leftSection={<IconDownload size={16} />}
-                  onClick={handleExport}
-                  loading={isExporting}
-                  style={{ minHeight: isMobile ? 44 : 36 }}
-                >
-                  {t('Export Backup File')}
-                </Button>
-              </Group>
-            </Stack>
-          </Paper>
+            {/* Section 2: Restore Shop Data */}
+            <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+              <Stack gap="sm">
+                <Group gap="xs">
+                  <ThemeIcon
+                    color="orange"
+                    variant="light"
+                    size="lg"
+                    radius="var(--mantine-radius-default)"
+                  >
+                    <IconUpload size={20} />
+                  </ThemeIcon>
+                  <div>
+                    <Text fw={700} size="md">
+                      {t('Restore From Backup')}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {t(
+                        'Restore your shop system from a previously downloaded .posbackup or .json backup file.'
+                      )}
+                    </Text>
+                  </div>
+                </Group>
 
-          {/* Section 2: Restore Shop Data */}
-          <Paper p="md" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
-            <Stack gap="sm">
-              <Group gap="xs">
-                <ThemeIcon
-                  color="orange"
-                  variant="light"
-                  size="lg"
-                  radius="var(--mantine-radius-default)"
-                >
-                  <IconUpload size={20} />
-                </ThemeIcon>
-                <div>
-                  <Text fw={700} size="md">
-                    {t('Restore From Backup')}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {t(
-                      'Restore your shop system from a previously downloaded .posbackup or .json backup file.'
-                    )}
-                  </Text>
-                </div>
-              </Group>
-
-              <Alert
-                color="orange"
-                icon={<IconAlertTriangle size={18} />}
-                title={t('Important Warning')}
-                mt="xs"
-              >
-                {t(
-                  'Restoring from a backup will replace all current shop data with the contents of the backup file. Any changes made since this backup was created will be overwritten. We recommend exporting a fresh backup first before restoring.'
-                )}
-              </Alert>
-
-              {parseError && (
                 <Alert
-                  color="red"
-                  icon={<IconAlertCircle size={18} />}
-                  title={t('Invalid Backup File')}
+                  color="orange"
+                  icon={<IconAlertTriangle size={18} />}
+                  title={t('Important Warning')}
+                  mt="xs"
                 >
-                  {parseError}
+                  {t(
+                    'Restoring from a backup will replace all current shop data with the contents of the backup file. Any changes made since this backup was created will be overwritten. We recommend exporting a fresh backup first before restoring.'
+                  )}
                 </Alert>
-              )}
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".posbackup,.json"
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-              />
+                {parseError && (
+                  <Alert
+                    color="red"
+                    icon={<IconAlertCircle size={18} />}
+                    title={t('Invalid Backup File')}
+                  >
+                    {parseError}
+                  </Alert>
+                )}
 
-              <Group justify="flex-start" mt="xs">
-                <Button
-                  variant="default"
-                  leftSection={<IconUpload size={16} />}
-                  onClick={() => fileInputRef.current?.click()}
-                  loading={isParsing}
-                  style={{ minHeight: isMobile ? 44 : 36 }}
-                >
-                  {t('Select Backup File')}
-                </Button>
-              </Group>
-            </Stack>
-          </Paper>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".posbackup,.json"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+
+                <Group justify="flex-start" mt="xs">
+                  <Button
+                    variant="default"
+                    leftSection={<IconUpload size={16} />}
+                    onClick={() => fileInputRef.current?.click()}
+                    loading={isParsing}
+                    style={{ minHeight: isMobile ? 44 : 36 }}
+                  >
+                    {t('Select Backup File')}
+                  </Button>
+                </Group>
+              </Stack>
+            </Paper>
           </Stack>
         </Box>
       </Paper>

@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Card,
   Container,
   createTheme,
@@ -85,6 +86,13 @@ export const mantineTheme: MantineThemeOverride = createTheme({
   respectReducedMotion: true,
   components: {
     /** Put your mantine component override here */
+    Avatar: Avatar.extend({
+      styles: {
+        placeholder: {
+          lineHeight: 1,
+        },
+      },
+    }),
     Container: Container.extend({
       vars: (_, { size, fluid }) => ({
         root: {

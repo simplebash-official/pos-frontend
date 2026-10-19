@@ -86,7 +86,9 @@ export const SyncSection = ({ onOpenSection }: SyncSectionProps) => {
                   void run(paused ? 'resume' : 'pause', paused ? syncResume : syncPause)
                 }
                 onReview={() =>
-                  status.bootstrapRequired ? setConfirmBootstrap(true) : onOpenSection?.('conflicts')
+                  status.bootstrapRequired
+                    ? setConfirmBootstrap(true)
+                    : onOpenSection?.('conflicts')
                 }
               />
               {status.bootstrapRequired && (

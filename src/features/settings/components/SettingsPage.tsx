@@ -162,29 +162,77 @@ export const SettingsPage = () => {
 
   if (tier === 'desktop') {
     body = (
-      <Group align="stretch" gap="xl" wrap="nowrap" style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-        <Box style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <Group
+        align="stretch"
+        gap="xl"
+        wrap="nowrap"
+        style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}
+      >
+        <Box
+          style={{
+            width: 280,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+          }}
+        >
           <SettingsNavList active={activeSection} onChange={requestNavigate} />
         </Box>
-        <Box style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+        <Box
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            overflow: 'hidden',
+          }}
+        >
           {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Group>
     );
   } else if (tier === 'tablet') {
     body = (
-      <Stack gap="md" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Stack
+        gap="md"
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         <Box style={{ flexShrink: 0 }}>
           <SettingsNavTabs active={activeSection} onChange={requestNavigate} />
         </Box>
-        <Box style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
           {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Stack>
     );
   } else if (mobileSectionOpen) {
     body = (
-      <Stack gap="md" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Stack
+        gap="md"
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         <Group gap="xs" style={{ flexShrink: 0 }}>
           <ActionIcon
             variant="default"
@@ -198,7 +246,15 @@ export const SettingsPage = () => {
             {activeSectionMeta?.label}
           </Text>
         </Group>
-        <Box style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
           {renderSection(activeSection, setIsSectionDirty, requestNavigate)}
         </Box>
       </Stack>

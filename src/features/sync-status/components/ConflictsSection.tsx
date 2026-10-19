@@ -1,6 +1,18 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Alert, Badge, Box, Button, Code, Collapse, Divider, Group, Paper, Stack, Text } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Code,
+  Collapse,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
@@ -120,7 +132,13 @@ export const ConflictsSection = (_props: SectionProps) => {
         overflow: 'hidden',
       }}
     >
-      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm" style={{ flexShrink: 0 }}>
+      <Group
+        justify="space-between"
+        align="flex-start"
+        wrap="wrap"
+        gap="sm"
+        style={{ flexShrink: 0 }}
+      >
         <Stack gap={2} style={{ minWidth: 0 }}>
           <Text fw={700} size="lg">
             {t('Sync conflicts')}

@@ -41,7 +41,13 @@ export const SectionShell = ({
         overflow: 'hidden',
       }}
     >
-      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm" style={{ flexShrink: 0 }}>
+      <Group
+        justify="space-between"
+        align="flex-start"
+        wrap="wrap"
+        gap="sm"
+        style={{ flexShrink: 0 }}
+      >
         <Box>
           <Text fw={700} size="lg">
             {title}
@@ -64,9 +70,7 @@ export const SectionShell = ({
 
       <Divider my="md" style={{ flexShrink: 0 }} />
 
-      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-        {children}
-      </Box>
+      <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</Box>
     </Paper>
   );
 };

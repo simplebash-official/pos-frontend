@@ -47,7 +47,10 @@ vi.mock('@/shared/hooks/useResponsive', () => ({
   useIsMobile: () => mockIsMobile,
 }));
 
-const createMockStore = (shopProfile?: Partial<ShopProfile>) =>
+const createMockStore = (
+  shopProfile?: Partial<ShopProfile>,
+  user?: { name?: string; username?: string; role?: string }
+) =>
   configureStore({
     reducer: {
       settings: () => ({
@@ -57,7 +60,8 @@ const createMockStore = (shopProfile?: Partial<ShopProfile>) =>
         },
       }),
       auth: () => ({
-        user: { name: 'Cashier John', username: 'cashier', role: 'admin' },
+        user:
+          user !== undefined ? user : { name: 'Cashier John', username: 'cashier', role: 'admin' },
       }),
     },
   });
@@ -154,5 +158,30 @@ describe('Header component shop name rendering', () => {
 
     expect(html).toContain('title="Custom Garage"');
     expect(html).not.toContain(PRODUCT_NAME);
+  });
+
+  it('renders Active User tooltip with capitalized role (e.g. Admin)', () => {
+    const store = createMockStore(undefined, {
+      name: 'Mayura AI',
+      username: 'mayura',
+      role: 'admin',
+    });
+    const html = renderHeader(store);
+
+    expect(html).toContain('Active User: Mayura AI (Admin)');
+    expect(html).not.toContain('Active User: Mayura AI (admin)');
+  });
+
+  it('renders Cashier tooltip with capitalized role on billing page', () => {
+    mockPathname = '/billing';
+    const store = createMockStore(undefined, {
+      name: 'Mayura AI',
+      username: 'mayura',
+      role: 'admin',
+    });
+    const html = renderHeader(store);
+
+    expect(html).toContain('Cashier: Mayura AI (Admin)');
+    expect(html).not.toContain('Cashier: Mayura AI (admin)');
   });
 });

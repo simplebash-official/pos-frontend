@@ -11,3 +11,8 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
   [USER_ROLES.MANAGER]: 'Manager',
   [USER_ROLES.STAFF]: 'Staff',
 };
+
+export const formatUserRole = (role: string): string => {
+  if (!role) return '';
+  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+};
