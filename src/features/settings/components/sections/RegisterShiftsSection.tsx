@@ -3,18 +3,17 @@ import { useEffect, useState } from 'react';
 import {
   Alert,
   Badge,
-  Box,
   Group,
   Paper,
   SimpleGrid,
   Stack,
-  Switch,
   Text,
   ThemeIcon,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertTriangle,
+  IconCheck,
   IconDeviceDesktop,
   IconLayersLinked,
 } from '@tabler/icons-react';
@@ -157,7 +156,7 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
           </Group>
         )}
 
-        {/* Mode Comparison Cards */}
+        {/* Mode Selection Cards */}
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
           {/* Card 1: Isolated Register Mode */}
           <Paper
@@ -165,15 +164,25 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
             withBorder
             p="md"
             radius="md"
+            role="radio"
+            aria-checked={!allowShared}
+            tabIndex={switchDisabled ? -1 : 0}
             style={{
               backgroundColor: !allowShared ? 'var(--mantine-color-blue-light)' : 'var(--bg-app)',
               borderColor: !allowShared ? 'var(--mantine-color-blue-filled)' : 'var(--border)',
               borderWidth: !allowShared ? 2 : 1,
-              cursor: switchDisabled ? 'default' : 'pointer',
+              cursor: switchDisabled ? 'not-allowed' : 'pointer',
+              opacity: switchDisabled ? 0.65 : 1,
               transition: 'all 0.15s ease',
             }}
             onClick={() => {
               if (!switchDisabled) setAllowShared(false);
+            }}
+            onKeyDown={(e) => {
+              if (!switchDisabled && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                setAllowShared(false);
+              }
             }}
           >
             <Stack gap="sm">
@@ -200,16 +209,22 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
                   {t('Multi-Counter Standard')}
                 </Badge>
               </Group>
+
               <Text size="sm" c="dimmed">
                 {t('Each terminal has its own independent shift, physical cash drawer, and Z-report.')}
               </Text>
-              {!allowShared && (
-                <Group gap={6} mt="xs">
-                  <Badge size="xs" color="blue" variant="dot">
-                    {t('Current Selection')}
+
+              <Group justify="space-between" align="center" mt="xs">
+                {!allowShared ? (
+                  <Badge size="sm" color="blue" variant="filled" leftSection={<IconCheck size={12} />}>
+                    {t('Active Selection')}
                   </Badge>
-                </Group>
-              )}
+                ) : (
+                  <Badge size="xs" color="gray" variant="light">
+                    {switchDisabled ? t('Isolated Mode') : t('Click to Select')}
+                  </Badge>
+                )}
+              </Group>
             </Stack>
           </Paper>
 
@@ -219,15 +234,25 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
             withBorder
             p="md"
             radius="md"
+            role="radio"
+            aria-checked={allowShared}
+            tabIndex={switchDisabled ? -1 : 0}
             style={{
               backgroundColor: allowShared ? 'var(--mantine-color-cyan-light)' : 'var(--bg-app)',
               borderColor: allowShared ? 'var(--mantine-color-cyan-filled)' : 'var(--border)',
               borderWidth: allowShared ? 2 : 1,
-              cursor: switchDisabled ? 'default' : 'pointer',
+              cursor: switchDisabled ? 'not-allowed' : 'pointer',
+              opacity: switchDisabled ? 0.65 : 1,
               transition: 'all 0.15s ease',
             }}
             onClick={() => {
               if (!switchDisabled) setAllowShared(true);
+            }}
+            onKeyDown={(e) => {
+              if (!switchDisabled && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                setAllowShared(true);
+              }
             }}
           >
             <Stack gap="sm">
@@ -254,44 +279,27 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
                   {t('Single-Counter Convenience')}
                 </Badge>
               </Group>
+
               <Text size="sm" c="dimmed">
                 {t(
                   "Secondary laptops or tablets share the counter's active shift and cash drawer float."
                 )}
               </Text>
-              {allowShared && (
-                <Group gap={6} mt="xs">
-                  <Badge size="xs" color="cyan" variant="dot">
-                    {t('Current Selection')}
+
+              <Group justify="space-between" align="center" mt="xs">
+                {allowShared ? (
+                  <Badge size="sm" color="cyan" variant="filled" leftSection={<IconCheck size={12} />}>
+                    {t('Active Selection')}
                   </Badge>
-                </Group>
-              )}
+                ) : (
+                  <Badge size="xs" color="gray" variant="light">
+                    {switchDisabled ? t('Shared Mode') : t('Click to Select')}
+                  </Badge>
+                )}
+              </Group>
             </Stack>
           </Paper>
         </SimpleGrid>
-
-        {/* Mode Toggle Switch */}
-        <Paper withBorder p="md" radius="md" style={{ backgroundColor: 'var(--bg-app)' }}>
-          <Group justify="space-between" align="center" wrap="nowrap">
-            <Box style={{ minWidth: 0 }}>
-              <Text fw={600} size="sm">
-                {t('Enable Shared Register Shifts across devices')}
-              </Text>
-              <Text size="xs" c="dimmed" mt={2}>
-                {t(
-                  'When enabled, secondary devices share the counter shift and cash drawer instead of opening isolated shifts.'
-                )}
-              </Text>
-            </Box>
-            <Switch
-              checked={allowShared}
-              onChange={(event) => setAllowShared(event.currentTarget.checked)}
-              disabled={switchDisabled}
-              size="md"
-              aria-label={t('Enable Shared Register Shifts across devices')}
-            />
-          </Group>
-        </Paper>
       </Stack>
     </SectionShell>
   );

@@ -137,53 +137,71 @@ describe('RegisterShiftsSection', () => {
     expect(container.textContent).toContain('Multi-Counter Standard');
     expect(container.textContent).toContain('Shared Shift Mode');
     expect(container.textContent).toContain('Single-Counter Convenience');
-    expect(container.textContent).toContain('Enable Shared Register Shifts across devices');
   });
 
-  it('allows admin to toggle the mode switch and notifies dirty state', async () => {
-    const onDirtyChange = vi.fn();
-    await renderComponent({ role: 'admin', onDirtyChange });
-
-    const toggle = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    expect(toggle).toBeTruthy();
-    expect(toggle.checked).toBe(false);
-
-    await act(async () => {
-      toggle.click();
-    });
-
-    expect(toggle.checked).toBe(true);
-    expect(onDirtyChange).toHaveBeenCalledWith(true);
-  });
-
-  it('allows clicking on the Shared Shift Mode card to toggle the mode', async () => {
+  it('allows admin to select Shared Shift Mode card and notifies dirty state', async () => {
     const onDirtyChange = vi.fn();
     await renderComponent({ role: 'admin', onDirtyChange });
 
     const sharedCard = container.querySelector('[data-mode="shared"]') as HTMLElement;
+    const isolatedCard = container.querySelector('[data-mode="isolated"]') as HTMLElement;
     expect(sharedCard).toBeTruthy();
+    expect(isolatedCard).toBeTruthy();
+    expect(isolatedCard.getAttribute('aria-checked')).toBe('true');
+    expect(sharedCard.getAttribute('aria-checked')).toBe('false');
 
     await act(async () => {
       sharedCard.click();
     });
 
-    const toggle = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    expect(toggle.checked).toBe(true);
+    expect(sharedCard.getAttribute('aria-checked')).toBe('true');
+    expect(isolatedCard.getAttribute('aria-checked')).toBe('false');
     expect(onDirtyChange).toHaveBeenCalledWith(true);
   });
 
-  it('disables switch and displays admin-only badge when user is not admin', async () => {
-    await renderComponent({ role: 'staff' });
+  it('allows switching back to Isolated Register Mode card', async () => {
+    vi.spyOn(settingsApi, 'getShopProfileApi').mockResolvedValue({
+      ...mockShopProfile,
+      allowSharedUserSessions: true,
+    });
+    const onDirtyChange = vi.fn();
+    await renderComponent({
+      role: 'admin',
+      onDirtyChange,
+      shopProfileOverride: { allowSharedUserSessions: true },
+    });
+
+    const isolatedCard = container.querySelector('[data-mode="isolated"]') as HTMLElement;
+    const sharedCard = container.querySelector('[data-mode="shared"]') as HTMLElement;
+    expect(sharedCard.getAttribute('aria-checked')).toBe('true');
+
+    await act(async () => {
+      isolatedCard.click();
+    });
+
+    expect(isolatedCard.getAttribute('aria-checked')).toBe('true');
+    expect(sharedCard.getAttribute('aria-checked')).toBe('false');
+    expect(onDirtyChange).toHaveBeenCalledWith(true);
+  });
+
+  it('disables mode cards and displays admin-only badge when user is not admin', async () => {
+    const onDirtyChange = vi.fn();
+    await renderComponent({ role: 'staff', onDirtyChange });
 
     expect(container.textContent).toContain(
       'Admin Only: Only shop administrators can change this mode.'
     );
-    const toggle = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    expect(toggle).toBeTruthy();
-    expect(toggle.disabled).toBe(true);
+    const sharedCard = container.querySelector('[data-mode="shared"]') as HTMLElement;
+    expect(sharedCard.getAttribute('tabindex')).toBe('-1');
+
+    await act(async () => {
+      sharedCard.click();
+    });
+    expect(sharedCard.getAttribute('aria-checked')).toBe('false');
+    expect(onDirtyChange).not.toHaveBeenCalledWith(true);
   });
 
-  it('displays alert and disables switch when active shifts exist', async () => {
+  it('displays alert and disables card selection when active shifts exist', async () => {
     vi.spyOn(sessionHooks, 'useSessionList').mockReturnValue({
       data: {
         sessions: [
@@ -213,25 +231,31 @@ describe('RegisterShiftsSection', () => {
       isLoading: false,
     } as never);
 
-    await renderComponent({ role: 'admin' });
+    const onDirtyChange = vi.fn();
+    await renderComponent({ role: 'admin', onDirtyChange });
 
     expect(container.textContent).toContain('Active Shifts Detected');
     expect(container.textContent).toContain(
       'Cannot change register shift mode while shifts are active. Please close all open shifts in the shop first.'
     );
 
-    const toggle = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    expect(toggle).toBeTruthy();
-    expect(toggle.disabled).toBe(true);
+    const sharedCard = container.querySelector('[data-mode="shared"]') as HTMLElement;
+    expect(sharedCard.getAttribute('tabindex')).toBe('-1');
+
+    await act(async () => {
+      sharedCard.click();
+    });
+    expect(sharedCard.getAttribute('aria-checked')).toBe('false');
+    expect(onDirtyChange).not.toHaveBeenCalledWith(true);
   });
 
   it('saves changes successfully and displays notification', async () => {
     const updateSpy = vi.spyOn(settingsApi, 'updateShopProfileApi');
     const { store } = await renderComponent({ role: 'admin' });
 
-    const toggle = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    const sharedCard = container.querySelector('[data-mode="shared"]') as HTMLElement;
     await act(async () => {
-      toggle.click();
+      sharedCard.click();
     });
 
     const saveButton = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -262,9 +286,9 @@ describe('RegisterShiftsSection', () => {
 
     await renderComponent({ role: 'admin' });
 
-    const toggle = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    const sharedCard = container.querySelector('[data-mode="shared"]') as HTMLElement;
     await act(async () => {
-      toggle.click();
+      sharedCard.click();
     });
 
     const saveButton = Array.from(container.querySelectorAll('button')).find((b) =>
