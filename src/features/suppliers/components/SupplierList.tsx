@@ -19,6 +19,7 @@ import {
   Select,
 } from '@mantine/core';
 import {
+  IconAlertCircle,
   IconPlus,
   IconRefresh,
   IconBuildingStore,
@@ -42,6 +43,7 @@ import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { getInitials, getAvatarColor } from '@/shared/lib/utils';
+import { getErrorMessage } from '@/shared/lib/error';
 import { Supplier, SupplierInput } from '../types';
 import {
   useAllSuppliers,
@@ -124,35 +126,46 @@ export const SupplierList = () => {
   };
 
   const handleFormSubmit = async (values: SupplierInput, linkedProductKeys: string[] = []) => {
-    if (supplierToEdit) {
-      const updated = await updateMutation.mutateAsync({
-        supplierKey: supplierToEdit.id,
-        input: values,
-      });
-      await setLinksMutation.mutateAsync({
-        supplierKey: supplierToEdit.key,
-        productKeys: linkedProductKeys,
-      });
-      notifications.show({
-        title: 'Supplier Updated',
-        message: `Updated details for ${updated.name}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
-      });
-    } else {
-      const newSup = await createMutation.mutateAsync(values);
-      if (newSup?.key) {
+    try {
+      if (supplierToEdit) {
+        const updated = await updateMutation.mutateAsync({
+          supplierKey: supplierToEdit.id,
+          input: values,
+        });
         await setLinksMutation.mutateAsync({
-          supplierKey: newSup.key,
+          supplierKey: supplierToEdit.key,
           productKeys: linkedProductKeys,
         });
+        notifications.show({
+          title: t('Supplier Updated'),
+          message: `${updated.name} updated successfully`,
+          color: 'teal',
+          icon: <IconCheck size={16} />,
+        });
+      } else {
+        const newSup = await createMutation.mutateAsync(values);
+        if (newSup?.key) {
+          await setLinksMutation.mutateAsync({
+            supplierKey: newSup.key,
+            productKeys: linkedProductKeys,
+          });
+        }
+        notifications.show({
+          title: t('Supplier Created'),
+          message: `${newSup.name} registered successfully`,
+          color: 'green',
+          icon: <IconCheck size={16} />,
+        });
       }
+    } catch (err) {
+      const message = getErrorMessage(err);
       notifications.show({
-        title: 'Supplier Created',
-        message: `Registered ${newSup.name} successfully`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
+        title: t('Error Saving Supplier'),
+        message,
+        color: 'red',
+        icon: <IconAlertCircle size={16} />,
       });
+      throw err;
     }
   };
 
@@ -175,7 +188,7 @@ export const SupplierList = () => {
   const columns: Column<Supplier>[] = [
     {
       key: 'name',
-      header: 'Business Name',
+      header: t('Business Name'),
       align: 'left',
       width: '30%',
       sortable: true,
@@ -186,10 +199,7 @@ export const SupplierList = () => {
           </ThemeIcon>
           <div>
             <Text size="sm" fw={700} c="blue">
-              {s.name ||
-                (s as unknown as Record<string, string>).companyName ||
-                (s as unknown as Record<string, string>).supplierName ||
-                'Unnamed Supplier'}
+              {s.name}
             </Text>
           </div>
         </Group>
@@ -197,64 +207,42 @@ export const SupplierList = () => {
     },
     {
       key: 'contactPerson',
-      header: 'Contact',
+      header: t('Contact'),
       align: 'center',
       width: '25%',
       sortable: true,
       render: (s) => (
         <Text size="xs" fw={600} ta="center">
-          {s.contactPerson || (s as unknown as Record<string, string>).contactName || 'N/A'}
+          {s.contactPerson}
         </Text>
       ),
     },
     {
       key: 'primaryPhone',
-      header: 'Phone',
+      header: t('Phone'),
       align: 'center',
       width: '25%',
       sortable: true,
       render: (s) => (
         <Center>
-          <PhoneDisplay
-            primaryPhone={
-              s.primaryPhone ||
-              (s as unknown as Record<string, string>).phone ||
-              (s as unknown as Record<string, string>).contactPhone ||
-              ''
-            }
-            secondaryPhone={
-              s.secondaryPhone ||
-              (s as unknown as Record<string, string>).backupPhone ||
-              (s as unknown as Record<string, string>).altPhone ||
-              ''
-            }
-          />
+          <PhoneDisplay primaryPhone={s.primaryPhone} secondaryPhone={s.secondaryPhone ?? ''} />
         </Center>
       ),
     },
     {
       key: 'category',
-      header: 'Category',
+      header: t('Category'),
       align: 'left',
       width: '20%',
       sortable: true,
       sortFn: (a, b, direction) => {
-        const catA =
-          (a.suppliedCategories && a.suppliedCategories[0]) ||
-          (a as unknown as Record<string, string>).category ||
-          '';
-        const catB =
-          (b.suppliedCategories && b.suppliedCategories[0]) ||
-          (b as unknown as Record<string, string>).category ||
-          '';
+        const catA = a.suppliedCategories[0] ?? '';
+        const catB = b.suppliedCategories[0] ?? '';
         const cmp = catA.localeCompare(catB);
         return direction === 'asc' ? cmp : -cmp;
       },
       render: (s) => {
-        const cat =
-          (s.suppliedCategories && s.suppliedCategories[0]) ||
-          (s as unknown as Record<string, string>).category ||
-          'General';
+        const cat = s.suppliedCategories[0] ?? t('General');
         return (
           <Badge size="xs" variant="light" color="blue">
             {cat}
@@ -470,41 +458,27 @@ export const SupplierList = () => {
                           </Avatar>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <Text size="sm" fw={700} lineClamp={1}>
-                              {s.name ||
-                                (s as unknown as Record<string, string>).companyName ||
-                                'Unnamed Supplier'}
+                              {s.name}
                             </Text>
                             <Text size="xs" c="dimmed" lineClamp={1}>
                               {s.contactPerson
-                                ? `Contact: ${s.contactPerson}`
-                                : 'No contact specified'}
+                                ? `${t('Contact')}: ${s.contactPerson}`
+                                : t('No contact specified')}
                             </Text>
                           </div>
                         </Group>
 
                         {/* Category Badge */}
                         <Badge color="blue" variant="light" size="sm" style={{ flexShrink: 0 }}>
-                          {(s.suppliedCategories && s.suppliedCategories[0]) ||
-                            (s as unknown as Record<string, string>).category ||
-                            'Supplier'}
+                          {s.suppliedCategories[0] ?? t('Supplier')}
                         </Badge>
                       </Group>
 
                       {/* Structured Phone Details */}
                       <Box pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
                         <PhoneDisplay
-                          primaryPhone={
-                            s.primaryPhone ||
-                            (s as unknown as Record<string, string>).phone ||
-                            (s as unknown as Record<string, string>).contactPhone ||
-                            ''
-                          }
-                          secondaryPhone={
-                            s.secondaryPhone ||
-                            (s as unknown as Record<string, string>).backupPhone ||
-                            (s as unknown as Record<string, string>).altPhone ||
-                            ''
-                          }
+                          primaryPhone={s.primaryPhone}
+                          secondaryPhone={s.secondaryPhone ?? ''}
                         />
                       </Box>
                     </div>
@@ -564,6 +538,7 @@ export const SupplierList = () => {
         onClose={() => setFormModalOpen(false)}
         onSubmit={handleFormSubmit}
         supplierToEdit={supplierToEdit}
+        loading={createMutation.isPending || updateMutation.isPending || setLinksMutation.isPending}
       />
 
       {/* Detail Drawer */}

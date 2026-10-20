@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useMemo, useRef } from 'react';
 import {
+  Alert,
   Modal,
   TextInput,
   Textarea,
@@ -20,6 +21,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import {
+  IconAlertCircle,
   IconBuildingStore,
   IconUser,
   IconPhone,
@@ -40,6 +42,7 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
 import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { adminCostText } from '@/features/inventory/lib/priceTiers';
+import { getErrorMessage } from '@/shared/lib/error';
 
 export interface SupplierFormModalProps {
   opened: boolean;
@@ -67,17 +70,19 @@ const SupplierFormContent = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<SupplierInput>({
-    name: supplierToEdit?.name || '',
-    contactPerson: supplierToEdit?.contactPerson || '',
-    primaryPhone: supplierToEdit?.primaryPhone || '',
-    secondaryPhone: supplierToEdit?.secondaryPhone || '',
-    address: supplierToEdit?.address || '',
-    suppliedCategories: supplierToEdit?.suppliedCategories || [],
-    email: supplierToEdit?.email || '',
-    notes: supplierToEdit?.notes || '',
+    name: supplierToEdit ? supplierToEdit.name : '',
+    contactPerson: supplierToEdit ? supplierToEdit.contactPerson : '',
+    primaryPhone: supplierToEdit ? supplierToEdit.primaryPhone : '',
+    secondaryPhone: supplierToEdit?.secondaryPhone ?? '',
+    address: supplierToEdit ? supplierToEdit.address : '',
+    suppliedCategories: supplierToEdit ? supplierToEdit.suppliedCategories : [],
+    email: supplierToEdit?.email ?? '',
+    notes: supplierToEdit?.notes ?? '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Product linking
   const { data: allProducts } = useAllProducts();
@@ -146,19 +151,35 @@ const SupplierFormContent = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Please enter the business name (e.g. "Colombo Mobile Parts")';
+      newErrors.name = t('Please enter the business name (e.g. "Colombo Mobile Parts")');
     }
     if (!formData.contactPerson.trim()) {
-      newErrors.contactPerson = 'Please enter the contact person\'s name (e.g. "Ranjith Kumara")';
+      newErrors.contactPerson = t(
+        'Please enter the contact person\'s name (e.g. "Ranjith Kumara")'
+      );
     }
     if (!formData.primaryPhone.trim()) {
-      newErrors.primaryPhone = 'Please enter the primary phone number';
+      newErrors.primaryPhone = t('Please enter the primary phone number');
     }
     if (!formData.address.trim()) {
-      newErrors.address = 'Please enter the address or physical location';
+      newErrors.address = t('Please enter the address or physical location');
     }
     if (!formData.suppliedCategories || formData.suppliedCategories.length === 0) {
-      newErrors.suppliedCategories = 'Please specify at least one supply tag (e.g. "Phone Parts")';
+      newErrors.suppliedCategories = t(
+        'Please specify at least one supply tag (e.g. "Phone Parts")'
+      );
+    }
+
+    const email = formData.email?.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = t('Please enter a valid email address (e.g. contact@supplier.lk)');
+    }
+
+    const secPhone = formData.secondaryPhone?.trim();
+    if (secPhone && !secPhone.split('').every((c) => '0123456789 -+'.includes(c))) {
+      newErrors.secondaryPhone = t(
+        'Backup phone may only contain digits, spaces, dashes, and a plus sign'
+      );
     }
 
     setErrors(newErrors);
@@ -169,17 +190,57 @@ const SupplierFormContent = ({
     e.preventDefault();
     if (!validate()) return;
 
-    // `onSubmit` owns persisting the links too — it queues them through the
-    // outbox so they survive being saved offline. Writing them again here
-    // would duplicate the write and bypass that queue.
-    await onSubmit(formData, linkedProductKeys);
-    onClose();
+    const email = formData.email?.trim();
+    const secondaryPhone = formData.secondaryPhone?.trim();
+    const notes = formData.notes?.trim();
+
+    const payload: SupplierInput = {
+      name: formData.name.trim(),
+      contactPerson: formData.contactPerson.trim(),
+      primaryPhone: formData.primaryPhone.trim(),
+      address: formData.address.trim(),
+      suppliedCategories: formData.suppliedCategories,
+      ...(email ? { email } : {}),
+      ...(secondaryPhone ? { secondaryPhone } : {}),
+      ...(notes ? { notes } : {}),
+    };
+
+    try {
+      setSubmitError(null);
+      setIsSubmitting(true);
+      await onSubmit(payload, linkedProductKeys);
+      onClose();
+    } catch (err) {
+      const message = getErrorMessage(err);
+      setSubmitError(message);
+      const lower = message.toLowerCase();
+      if (lower.includes('email')) {
+        setErrors((prev) => ({ ...prev, email: message }));
+      } else if (lower.includes('primary phone')) {
+        setErrors((prev) => ({ ...prev, primaryPhone: message }));
+      } else if (lower.includes('backup phone') || lower.includes('secondary phone')) {
+        setErrors((prev) => ({ ...prev, secondaryPhone: message }));
+      } else if (lower.includes('name')) {
+        setErrors((prev) => ({ ...prev, name: message }));
+      } else if (lower.includes('address')) {
+        setErrors((prev) => ({ ...prev, address: message }));
+      } else if (lower.includes('contact')) {
+        setErrors((prev) => ({ ...prev, contactPerson: message }));
+      } else if (lower.includes('categor')) {
+        setErrors((prev) => ({ ...prev, suppliedCategories: message }));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: keyof SupplierInput, value: unknown) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
+    if (submitError) {
+      setSubmitError(null);
     }
   };
 
@@ -189,6 +250,18 @@ const SupplierFormContent = ({
   return (
     <form onSubmit={handleSubmit}>
       <Stack gap="md">
+        {submitError && (
+          <Alert
+            color="red"
+            variant="light"
+            icon={<IconAlertCircle size={16} />}
+            title={t('Failed to Save Supplier')}
+            withCloseButton
+            onClose={() => setSubmitError(null)}
+          >
+            {submitError}
+          </Alert>
+        )}
         {/* Section 1: Supplier Profile */}
         <Stack gap={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
@@ -254,6 +327,7 @@ const SupplierFormContent = ({
                   leftSection={<IconMail size={16} />}
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.currentTarget.value)}
+                  error={errors.email}
                 />
               </Grid.Col>
             </Grid>
@@ -278,6 +352,7 @@ const SupplierFormContent = ({
                   leftSection={<IconPhone size={16} />}
                   value={formData.secondaryPhone}
                   onChange={(e) => handleChange('secondaryPhone', e.currentTarget.value)}
+                  error={errors.secondaryPhone}
                 />
               </Grid.Col>
             </Grid>
@@ -619,11 +694,11 @@ const SupplierFormContent = ({
 
         {/* Footer Actions */}
         <Group justify="flex-end" gap="sm" mt="md">
-          <Button variant="default" onClick={onClose} disabled={loading}>
+          <Button variant="default" onClick={onClose} disabled={loading || isSubmitting}>
             {t('Cancel')}
           </Button>
-          <Button type="submit" color="blue" loading={loading}>
-            {isEditing ? 'Save Changes' : 'Create Supplier'}
+          <Button type="submit" color="blue" loading={loading || isSubmitting}>
+            {isEditing ? t('Save Changes') : t('Create Supplier')}
           </Button>
         </Group>
       </Stack>
