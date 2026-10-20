@@ -40,6 +40,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
 import { StepSwitch } from '@/shared/motion';
 import { VARIANCE_TOLERANCE_CENTS } from './constants';
+import { calculateExpectedDrawerCash, calculateCashVariance } from './sessionMath';
 import type { RegisterSession } from '../../types';
 
 interface CloseSessionFormProps {
@@ -85,9 +86,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
 
   const [error, setError] = useState<string | null>(null);
 
-  const varianceCents =
-    session.cashVarianceCents ??
-    (session.expectedCashCents !== undefined ? countedCashCents - session.expectedCashCents : 0);
+  const expectedCashCents =
+    session.expectedCashCents ?? calculateExpectedDrawerCash(session);
+  const varianceCents = calculateCashVariance(countedCashCents, expectedCashCents);
   const hasVariance = varianceCents !== 0;
   const isLargeVariance = Math.abs(varianceCents) > VARIANCE_TOLERANCE_CENTS;
   const safeDepositCents = Math.max(0, countedCashCents - closingFloatCents);
@@ -176,6 +177,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
       // Recalculate session state with 0 variance
       setSession((prev) => ({
         ...prev,
+        totalOwnerWithdrawalsCents: prev.totalOwnerWithdrawalsCents + Math.abs(varianceCents),
         cashVarianceCents: 0,
         expectedCashCents: countedCashCents,
         hasLateMovements: true,
@@ -403,7 +405,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                     {t('System Expected Cash:')}
                   </Text>
                   <Text size="sm" fw={600}>
-                    {formatMoney(session.expectedCashCents ?? 0)}
+                    {formatMoney(expectedCashCents)}
                   </Text>
                 </Group>
                 <Group justify="space-between">
@@ -423,7 +425,11 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                     color={varianceCents === 0 ? 'teal' : varianceCents < 0 ? 'red' : 'yellow'}
                     variant="filled"
                   >
-                    {formatMoney(varianceCents)}
+                    {varianceCents > 0
+                      ? `+${formatMoney(varianceCents)}`
+                      : varianceCents < 0
+                        ? `-${formatMoney(Math.abs(varianceCents))}`
+                        : formatMoney(0)}
                   </Badge>
                 </Group>
               </Stack>

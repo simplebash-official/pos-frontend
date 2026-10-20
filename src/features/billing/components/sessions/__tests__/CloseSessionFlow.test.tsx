@@ -18,6 +18,11 @@ const baseSession = {
   status: 'open',
   openingFloatCents: 10000,
   totalCashSalesCents: 0,
+  totalPayInCents: 0,
+  totalPayOutCents: 0,
+  totalCashRefundsCents: 0,
+  totalOwnerWithdrawalsCents: 0,
+  totalCashDropsCents: 0,
   cashierNameSnapshot: 'Admin',
 } as RegisterSession;
 
@@ -133,5 +138,29 @@ describe('Close shift window', () => {
     await click('Keep all in drawer');
     await shows('The next shift will open with Rs. 20.00');
     expect(text()).not.toContain('Nothing will stay in the drawer');
+  });
+
+  it('correctly calculates expected cash and negative variance when shortage exists', async () => {
+    currentSession = {
+      ...baseSession,
+      status: 'closing',
+      openingFloatCents: 2000,
+      totalCashSalesCents: 444612,
+      countedCashCents: 444612,
+      expectedCashCents: undefined,
+      cashVarianceCents: undefined,
+    };
+    await render();
+    await click('Closing...');
+    await shows('Cash Drawer Reconciliation');
+
+    // Expected cash: 20.00 + 4,446.12 = 4,466.12
+    expect(text()).toContain('Rs. 4,466.12');
+    // Counted cash: 4,446.12
+    expect(text()).toContain('Rs. 4,446.12');
+    // Variance: -Rs. 20.00
+    expect(text()).toContain('-Rs. 20.00');
+    // Shortage alert must be displayed
+    expect(text()).toContain('Cash Shortage');
   });
 });
