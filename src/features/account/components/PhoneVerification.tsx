@@ -1,6 +1,16 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
-import { Alert, Anchor, Button, Group, PinInput, Stack, Text, TextInput } from '@mantine/core';
+import {
+  Alert,
+  Anchor,
+  Button,
+  Group,
+  PinInput,
+  Radio,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { logger } from '@/shared/logging';
 import { cloudOtpSend, cloudOtpVerify } from '../api/accountApi';
 import { otpErrorMessage } from '../lib/accountView';
@@ -11,7 +21,7 @@ import {
   normalizeLkPhone,
   validatePhone,
 } from '../lib/phone';
-import type { VerifiedPhone } from '../types';
+import type { OtpChannel, VerifiedPhone } from '../types';
 
 interface PhoneVerificationProps {
   verified: VerifiedPhone | null;
@@ -25,6 +35,7 @@ interface Challenge {
   otpId: string;
   /** Normalised `94XXXXXXXXX`. */
   phone: string;
+  channel: OtpChannel;
   uncertain: boolean;
 }
 
@@ -42,6 +53,8 @@ export const PhoneVerification = ({
   disabled = false,
 }: PhoneVerificationProps) => {
   const [number, setNumber] = useState('');
+  /** Chosen before the first code is sent; `null` until then (no default). */
+  const [channel, setChannel] = useState<OtpChannel | null>(null);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [code, setCode] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -55,13 +68,18 @@ export const PhoneVerification = ({
     return () => window.clearTimeout(timer);
   }, [secondsLeft]);
 
-  const send = async (phone: string) => {
+  const send = async (phone: string, via: OtpChannel) => {
     setError(null);
     setBusy('send');
     try {
-      const result = await cloudOtpSend(phone);
+      const result = await cloudOtpSend(phone, via);
       logger.info('app', 'account.phone_code_sent');
-      setChallenge({ otpId: result.otpId, phone, uncertain: result.deliveryUncertain });
+      setChallenge({
+        otpId: result.otpId,
+        phone,
+        channel: via,
+        uncertain: result.deliveryUncertain,
+      });
       setSecondsLeft(result.resendAfter);
       setCode('');
     } catch (err) {
@@ -77,8 +95,12 @@ export const PhoneVerification = ({
       setError(invalid);
       return;
     }
+    if (!channel) {
+      setError(t('Choose how you want to get your code.'));
+      return;
+    }
     const check = normalizeLkPhone(number);
-    if (check.ok) void send(check.phone);
+    if (check.ok) void send(check.phone, channel);
   };
 
   const verify = async (value: string) => {
@@ -136,7 +158,7 @@ export const PhoneVerification = ({
       <Stack gap="xs">
         <TextInput
           label={t('Mobile number')}
-          description={`${t('Sri Lankan mobile numbers only.')} ${t('We will text a 6-digit code to this number.')}`}
+          description={`${t('Sri Lankan mobile numbers only.')} ${t('We will send a 6-digit code to this number.')}`}
           placeholder={PHONE_COUNTRY.placeholder}
           // The country is fixed: the prefix is part of the field, so people type only the rest.
           leftSection={
@@ -161,6 +183,20 @@ export const PhoneVerification = ({
           disabled={disabled}
           data-log-redact
         />
+        <Radio.Group
+          label={t('How should we send your code?')}
+          value={channel ?? ''}
+          onChange={(next) => {
+            setChannel(next as OtpChannel);
+            setError(null);
+          }}
+          withAsterisk
+        >
+          <Group mt="xs" gap="lg">
+            <Radio value="sms" label={t('Text message')} disabled={disabled} />
+            <Radio value="whatsapp" label={t('WhatsApp')} disabled={disabled} />
+          </Group>
+        </Radio.Group>
         {error && (
           <Alert color="red" variant="light">
             {error}
@@ -184,7 +220,8 @@ export const PhoneVerification = ({
   return (
     <Stack gap="xs">
       <Text size="sm">
-        {t('Enter the code we sent to')} <strong>{maskPhone(challenge.phone)}</strong>.
+        {t('Enter the code we sent to')} <strong>{maskPhone(challenge.phone)}</strong>{' '}
+        {challenge.channel === 'whatsapp' ? t('on WhatsApp') : t('by text message')}.
       </Text>
       <PinInput
         length={CODE_LENGTH}
@@ -219,7 +256,7 @@ export const PhoneVerification = ({
             component="button"
             type="button"
             size="sm"
-            onClick={() => void send(challenge.phone)}
+            onClick={() => void send(challenge.phone, challenge.channel)}
             disabled={busy !== null || disabled}
             data-log-id="account.phone.resend"
           >
@@ -236,6 +273,22 @@ export const PhoneVerification = ({
           {t('Change number')}
         </Anchor>
       </Group>
+      {secondsLeft <= 0 && (
+        <Anchor
+          component="button"
+          type="button"
+          size="sm"
+          onClick={() =>
+            void send(challenge.phone, challenge.channel === 'sms' ? 'whatsapp' : 'sms')
+          }
+          disabled={busy !== null || disabled}
+          data-log-id="account.phone.switch_channel"
+        >
+          {challenge.channel === 'sms'
+            ? t('Send it on WhatsApp instead')
+            : t('Send it by text message instead')}
+        </Anchor>
+      )}
       <Group>
         <Button
           onClick={() => void verify(code)}

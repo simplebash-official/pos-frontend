@@ -46,7 +46,12 @@ export const ZReportModal = ({ opened, onClose, sessionKey }: ZReportModalProps)
   const designOverride = designPick?.key === pickKey ? designPick.name : undefined;
 
   // A closed session printed before with another design than would print now asks "original or current?"
-  const designStatus = useZReportDocumentDesign(opened ? sessionKey : undefined, designOverride);
+  const sessionVersion = report?.session?.version;
+  const designStatus = useZReportDocumentDesign(
+    opened ? sessionKey : undefined,
+    designOverride,
+    sessionVersion
+  );
   const designChoice = useDocumentDesignChoice(pickKey, opened, designStatus);
   const fetchDesign = designOverride ? 'current' : designChoice.design;
   const waitingForChoice = designChoice.needsChoice && !designOverride;
@@ -55,7 +60,8 @@ export const ZReportModal = ({ opened, onClose, sessionKey }: ZReportModalProps)
   const { blob, loading, error, errorCode, isPaused } = useZReportDocument(
     opened ? sessionKey : undefined,
     fetchDesign,
-    designOverride
+    designOverride,
+    sessionVersion
   );
 
   const sessionNumber = report?.session?.sessionNumber ?? sessionKey ?? '';

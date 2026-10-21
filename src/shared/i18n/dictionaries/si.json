@@ -2212,7 +2212,7 @@
   "We could not start signing in. Please try again.": "ඇතුළු වීම ආරම්භ කිරීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.",
   "We couldn't find a ready shop in the cloud, so let's set one up on this computer.": "cloud එකේ සූදානම් වෙළඳසැලක් අපට හමු නොවීය, එබැවින් මෙම පරිගණකයේ එකක් සකසමු.",
   "We couldn't reach SimpleBash. Check your internet connection and try again.": "අපට SimpleBash වෙත සම්බන්ධ විය නොහැකි විය. ඔබේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
-  "We will text a 6-digit code to this number.": "මෙම අංකයට ඉලක්කම් 6ක කේතයක් කෙටි පණිවිඩයකින් එවන්නෙමු.",
+  "We will send a 6-digit code to this number.": "මෙම අංකයට ඉලක්කම් 6ක කේතයක් එවන්නෙමු.",
   "We will try again after the next sync.": "ඊළඟ සමමුහුර්තයෙන් පසු නැවත උත්සාහ කරන්නෙමු.",
   "Website URL": "වෙබ් අඩවි URL",
   "Weekly": "සතිපතා",
@@ -2306,5 +2306,13 @@
   "Your text": "ඔබේ පෙළ",
   "Zero cloud lock-in: total data sovereignty": "ක්ලවුඩ් බාධාවන් නැත: පූර්ණ දත්ත ස්වාධීනත්වය",
   "Zoom in": "විශාලනය කරන්න",
+  "Text message": "කෙටි පණිවිඩය",
+  "WhatsApp": "WhatsApp",
+  "How should we send your code?": "කේතය එවිය යුත්තේ කෙසේද?",
+  "Choose how you want to get your code.": "කේතය ලබාගැනීමට කැමති ක්‍රමය තෝරන්න.",
+  "on WhatsApp": "WhatsApp හරහා",
+  "by text message": "කෙටි පණිවිඩයෙන්",
+  "Send it on WhatsApp instead": "ඒ වෙනුවට WhatsApp හරහා එවන්න",
+  "Send it by text message instead": "ඒ වෙනුවට කෙටි පණිවිඩයෙන් එවන්න",
   "Zoom out": "කුඩා කරන්න"
 }

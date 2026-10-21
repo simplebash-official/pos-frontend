@@ -86,8 +86,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
 
   const [error, setError] = useState<string | null>(null);
 
-  const expectedCashCents =
-    session.expectedCashCents ?? calculateExpectedDrawerCash(session);
+  const expectedCashCents = session.expectedCashCents ?? calculateExpectedDrawerCash(session);
   const varianceCents = calculateCashVariance(countedCashCents, expectedCashCents);
   const hasVariance = varianceCents !== 0;
   const isLargeVariance = Math.abs(varianceCents) > VARIANCE_TOLERANCE_CENTS;

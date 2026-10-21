@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import {
   getZReportDocument,
   getZReportDocumentDesign,
@@ -19,9 +20,10 @@ interface UseZReportDocumentResult {
 export const useZReportDocument = (
   sessionKey: string | undefined,
   design: DocumentDesign | null,
-  templateName?: string
+  templateName?: string,
+  sessionVersion?: number
 ): UseZReportDocumentResult => {
-  const enabled = Boolean(sessionKey && design);
+  const enabled = Boolean(sessionKey && design && sessionVersion !== undefined);
 
   const {
     data: blob,
@@ -30,9 +32,13 @@ export const useZReportDocument = (
     error,
     fetchStatus,
   } = useQuery({
-    queryKey: ['sessions', 'zReportDocument', sessionKey, design, templateName],
-    queryFn: () =>
-      getZReportDocument(sessionKey as string, design as DocumentDesign, templateName),
+    queryKey: queryKeys.billing.sessions.zReportDocument(
+      sessionKey as string,
+      design,
+      templateName,
+      sessionVersion
+    ),
+    queryFn: () => getZReportDocument(sessionKey as string, design as DocumentDesign, templateName),
     enabled,
   });
 
@@ -48,10 +54,15 @@ export const useZReportDocument = (
 // Reads whether this session's stored Z-Report print was made with another design than would print now.
 export const useZReportDocumentDesign = (
   sessionKey: string | undefined,
-  templateName?: string
+  templateName?: string,
+  sessionVersion?: number
 ) =>
   useQuery({
-    queryKey: ['documentDesign', 'z-report', sessionKey, templateName],
+    queryKey: queryKeys.billing.sessions.zReportDocumentDesign(
+      sessionKey as string,
+      templateName,
+      sessionVersion
+    ),
     queryFn: () => getZReportDocumentDesign(sessionKey as string, templateName),
-    enabled: Boolean(sessionKey),
+    enabled: Boolean(sessionKey && sessionVersion !== undefined),
   });

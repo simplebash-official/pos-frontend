@@ -68,6 +68,9 @@ export interface RegisterPayload {
   phoneProof: string;
 }
 
+/** How the one-time code reaches the phone; the owner picks one and identity sends on it only. */
+export type OtpChannel = 'sms' | 'whatsapp';
+
 /** Mirrors `api::OtpSendResult` from the desktop shell (camelCase). */
 export interface OtpSendResult {
   otpId: string;

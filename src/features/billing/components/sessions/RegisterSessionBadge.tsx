@@ -181,11 +181,7 @@ export const RegisterSessionBadge: React.FC = () => {
                   <ShiftFigure label={t('Cash sales')} cents={session.totalCashSalesCents} />
                 </SimpleGrid>
                 {isShared && (
-                  <Box
-                    mt="xs"
-                    pt="xs"
-                    style={{ borderTop: '1px solid var(--border)' }}
-                  >
+                  <Box mt="xs" pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
                     <SimpleGrid cols={2} spacing="xs">
                       <div>
                         <Text

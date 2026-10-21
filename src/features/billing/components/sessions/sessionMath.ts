@@ -34,9 +34,6 @@ export function calculateExpectedDrawerCash(
  * A negative value represents a cash shortage.
  * A positive value represents a cash overage.
  */
-export function calculateCashVariance(
-  countedCashCents: number,
-  expectedCashCents: number
-): number {
+export function calculateCashVariance(countedCashCents: number, expectedCashCents: number): number {
   return countedCashCents - expectedCashCents;
 }

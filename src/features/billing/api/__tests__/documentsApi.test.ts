@@ -113,7 +113,11 @@ describe('getZReportDocumentDesign', () => {
   it('reads the design status of a session Z-report', async () => {
     const get = vi.spyOn(apiClient, 'get').mockResolvedValue({
       success: true,
-      data: { stored: null, current: { templateRef: 'doc_temp_ZRep0rtV1Std000', title: 'Z-Report', version: 1 }, differs: false },
+      data: {
+        stored: null,
+        current: { templateRef: 'doc_temp_ZRep0rtV1Std000', title: 'Z-Report', version: 1 },
+        differs: false,
+      },
     });
     const result = await getZReportDocumentDesign('ses_1', 'doc_temp_z');
     expect(get).toHaveBeenCalledWith('/sessions/ses_1/document/design', {

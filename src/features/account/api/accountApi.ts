@@ -6,6 +6,7 @@ import {
   type DeviceInfo,
   type LinkPoll,
   type LoginPayload,
+  type OtpChannel,
   type OtpSendResult,
   type OtpVerifyResult,
   type PendingLink,
@@ -60,8 +61,9 @@ export const getCloudState = async (): Promise<CloudState> => {
 export const cloudRegister = (payload: RegisterPayload) =>
   call<RegisterResult>('cloud_register', { ...payload });
 
-/** Texts a 6-digit code to `phone` (`94XXXXXXXXX`). */
-export const cloudOtpSend = (phone: string) => call<OtpSendResult>('cloud_otp_send', { phone });
+/** Sends a 6-digit code to `phone` (`94XXXXXXXXX`) on `channel`. */
+export const cloudOtpSend = (phone: string, channel: OtpChannel) =>
+  call<OtpSendResult>('cloud_otp_send', { phone, channel });
 
 /** Trades the right code for the one-time proof of the phone number. */
 export const cloudOtpVerify = (otpId: string, code: string) =>

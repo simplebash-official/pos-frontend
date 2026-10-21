@@ -213,8 +213,11 @@ describe('phone verification commands', () => {
   it('sends the phone and the code to the shell under the names it expects', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(true);
     invoke.mockResolvedValueOnce({ otpId: 'otp_1', expiresIn: 300, resendAfter: 60 });
-    await cloudOtpSend('94771234567');
-    expect(invoke).toHaveBeenLastCalledWith('cloud_otp_send', { phone: '94771234567' });
+    await cloudOtpSend('94771234567', 'whatsapp');
+    expect(invoke).toHaveBeenLastCalledWith('cloud_otp_send', {
+      phone: '94771234567',
+      channel: 'whatsapp',
+    });
     invoke.mockResolvedValueOnce({ phoneProof: 'ovp_1', expiresIn: 600 });
     await cloudOtpVerify('otp_1', '042817');
     expect(invoke).toHaveBeenLastCalledWith('cloud_otp_verify', {
@@ -242,7 +245,9 @@ describe('phone verification commands', () => {
 
   it('is unavailable on the web, like every cloud command', async () => {
     vi.spyOn(runtime, 'isTauri').mockReturnValue(false);
-    await expect(cloudOtpSend('94771234567')).rejects.toMatchObject({ code: 'CLOUD_DISABLED' });
+    await expect(cloudOtpSend('94771234567', 'sms')).rejects.toMatchObject({
+      code: 'CLOUD_DISABLED',
+    });
     await expect(cloudOtpVerify('otp_1', '123456')).rejects.toMatchObject({
       code: 'CLOUD_DISABLED',
     });

@@ -21,6 +21,14 @@ describe('PhoneVerification (first screen)', () => {
     expect(out).toContain('type="tel"');
   });
 
+  it('asks how to send the code and preselects nothing', () => {
+    const out = html();
+    expect(out).toContain('How should we send your code?');
+    expect(out).toContain('Text message');
+    expect(out).toContain('WhatsApp');
+    expect(out).not.toContain('checked=""');
+  });
+
   it('keeps the number out of the logs and names its button for them', () => {
     const out = html();
     expect(out).toContain('data-log-redact');

@@ -8,6 +8,7 @@ export default {
     // A Vite virtual module; Vitest aliases it to the same stub (see vitest.config.ts).
     '^virtual:pwa-register/react$': '<rootDir>/src/app/components/pwaRegisterStub.ts',
     '^@/config/env$': '<rootDir>/src/__mocks__/envMock.cjs',
+    '^pdfjs-dist$': '<rootDir>/src/__mocks__/pdfjsDistMock.cjs',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^vitest$': '<rootDir>/src/__mocks__/vitestMock.cjs',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',

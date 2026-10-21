@@ -1,15 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
-import {
-  Alert,
-  Badge,
-  Group,
-  Paper,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { Alert, Badge, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertTriangle,
@@ -18,11 +9,7 @@ import {
   IconLayersLinked,
 } from '@tabler/icons-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  selectShopProfile,
-  setShopProfile,
-  updateShopProfile,
-} from '@/store/slices/settingsSlice';
+import { selectShopProfile, setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
 import { selectUserRole } from '@/store/slices/authSlice';
 import { USER_ROLES } from '@/constants/roles';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -102,7 +89,9 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
           title: t('Cannot Change Mode'),
           message: getErrorMessage(
             err,
-            t('Cannot change register shift mode while shifts are active. Please close all open shifts in the shop first.')
+            t(
+              'Cannot change register shift mode while shifts are active. Please close all open shifts in the shop first.'
+            )
           ),
           color: 'red',
         });
@@ -211,12 +200,19 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
               </Group>
 
               <Text size="sm" c="dimmed">
-                {t('Each terminal has its own independent shift, physical cash drawer, and Z-report.')}
+                {t(
+                  'Each terminal has its own independent shift, physical cash drawer, and Z-report.'
+                )}
               </Text>
 
               <Group justify="space-between" align="center" mt="xs">
                 {!allowShared ? (
-                  <Badge size="sm" color="blue" variant="filled" leftSection={<IconCheck size={12} />}>
+                  <Badge
+                    size="sm"
+                    color="blue"
+                    variant="filled"
+                    leftSection={<IconCheck size={12} />}
+                  >
                     {t('Active Selection')}
                   </Badge>
                 ) : (
@@ -288,7 +284,12 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
 
               <Group justify="space-between" align="center" mt="xs">
                 {allowShared ? (
-                  <Badge size="sm" color="cyan" variant="filled" leftSection={<IconCheck size={12} />}>
+                  <Badge
+                    size="sm"
+                    color="cyan"
+                    variant="filled"
+                    leftSection={<IconCheck size={12} />}
+                  >
                     {t('Active Selection')}
                   </Badge>
                 ) : (
