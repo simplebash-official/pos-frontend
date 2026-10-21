@@ -5,6 +5,8 @@ import {
   getCreditNoteDocumentDesign,
   getInvoiceDocument,
   getInvoiceDocumentDesign,
+  getZReportDocument,
+  getZReportDocumentDesign,
 } from '../documentsApi';
 
 afterEach(() => {
@@ -88,5 +90,35 @@ describe('getCreditNoteDocumentDesign', () => {
     const result = await getCreditNoteDocumentDesign('cn_1');
     expect(get).toHaveBeenCalledWith('/billing/credit-notes/cn_1/documents/credit-note/design');
     expect(result.differs).toBe(true);
+  });
+});
+
+describe('getZReportDocument', () => {
+  it('requests the Z-report PDF with design and template', async () => {
+    const get = spyOnGet();
+    await getZReportDocument('ses_1', 'current');
+    await getZReportDocument('ses_1', 'original', 'doc_temp_z');
+    expect(get.mock.calls[0][0]).toBe('/sessions/ses_1/document');
+    expect(get.mock.calls[0][1]).toMatchObject({
+      params: { design: 'current', template: undefined },
+    });
+    expect(get.mock.calls[1][0]).toBe('/sessions/ses_1/document');
+    expect(get.mock.calls[1][1]).toMatchObject({
+      params: { design: 'original', template: 'doc_temp_z' },
+    });
+  });
+});
+
+describe('getZReportDocumentDesign', () => {
+  it('reads the design status of a session Z-report', async () => {
+    const get = vi.spyOn(apiClient, 'get').mockResolvedValue({
+      success: true,
+      data: { stored: null, current: { templateRef: 'doc_temp_ZRep0rtV1Std000', title: 'Z-Report', version: 1 }, differs: false },
+    });
+    const result = await getZReportDocumentDesign('ses_1', 'doc_temp_z');
+    expect(get).toHaveBeenCalledWith('/sessions/ses_1/document/design', {
+      params: { template: 'doc_temp_z' },
+    });
+    expect(result.differs).toBe(false);
   });
 });

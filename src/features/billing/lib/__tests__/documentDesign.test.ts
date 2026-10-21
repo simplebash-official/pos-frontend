@@ -38,6 +38,7 @@ describe('designKindFor', () => {
     expect(designKindFor('receipt')).toBe('thermal-receipt');
     expect(designKindFor('credit-note')).toBe('credit-note');
     expect(designKindFor('quotation')).toBe('quotation');
+    expect(designKindFor('z-report')).toBe('z-report');
   });
 });
 

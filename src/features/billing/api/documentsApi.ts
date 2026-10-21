@@ -84,3 +84,26 @@ export const getCreditNoteDocumentDesign = async (
   );
   return response.data;
 };
+
+// A Z-Report (End-of-Session Summary) PDF is scoped to the session's key or id —
+// see `sessions::routes::get_z_report_document`.
+export const getZReportDocument = (
+  sessionKey: string,
+  design: DocumentDesign = 'current',
+  templateName?: string
+): Promise<Blob> =>
+  apiClient.get<Blob>(`/sessions/${sessionKey}/document`, {
+    responseType: 'blob',
+    params: { design, template: templateName },
+  });
+
+export const getZReportDocumentDesign = async (
+  sessionKey: string,
+  templateName?: string
+): Promise<DocumentDesignStatus> => {
+  const response = await apiClient.get<ApiResponse<DocumentDesignStatus>>(
+    `/sessions/${sessionKey}/document/design`,
+    { params: { template: templateName } }
+  );
+  return response.data;
+};

@@ -78,9 +78,9 @@ export interface DocumentDesignFamily {
   options: DesignOption[];
 }
 
-/** A kind of printed document (A4 invoice, receipt, credit note) and the designs for it. */
+/** A kind of printed document (A4 invoice, receipt, credit note, quotation, Z-report) and the designs for it. */
 export interface DocumentKindSettings {
-  /** `a4-invoice`, `thermal-receipt`, `credit-note` or `quotation`. */
+  /** `a4-invoice`, `thermal-receipt`, `credit-note`, `quotation` or `z-report`. */
   kind: string;
   label: string;
   /** The shop's choice; `null` means the standard design. */

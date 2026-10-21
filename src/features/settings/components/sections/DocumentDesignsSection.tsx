@@ -60,6 +60,7 @@ const KIND_ICONS: Record<string, ReactNode> = {
   'thermal-receipt': <IconReceipt size={18} />,
   'credit-note': <IconReceiptRefund size={18} />,
   quotation: <IconFileDescription size={18} />,
+  'z-report': <IconReceipt size={18} />,
 };
 
 // Pick how invoices, receipts, credit notes and quotations look, and adjust the settings a design
