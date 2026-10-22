@@ -181,6 +181,57 @@ describe('drawer kit', () => {
       const labelledBy = panel.getAttribute('aria-labelledby') as string;
       expect(document.getElementById(labelledBy)?.textContent).toContain('Alpha');
     });
+
+    it('scrolls container to reveal full tab when an overlapped tab is clicked', async () => {
+      await show(<Demo />);
+      const list = document.body.querySelector('[role="tablist"]') as HTMLDivElement;
+      expect(list).not.toBeNull();
+
+      const scrollToSpy = vi.fn();
+      list.scrollTo = scrollToSpy;
+      list.scrollLeft = 80;
+
+      // Mock bounding rects: list width 300 (left: 100, right: 400)
+      vi.spyOn(list, 'getBoundingClientRect').mockReturnValue({
+        left: 100,
+        right: 400,
+        width: 300,
+        top: 0,
+        bottom: 40,
+        height: 40,
+        x: 100,
+        y: 0,
+        toJSON: () => {},
+      });
+
+      const alphaTab = Array.from(document.body.querySelectorAll('[role="tab"]')).find((el) =>
+        el.textContent?.includes('Alpha')
+      ) as HTMLButtonElement;
+
+      // Mock alphaTab as cut off on the left (left: 60 < list.left 100 + padding 10 = 110)
+      vi.spyOn(alphaTab, 'getBoundingClientRect').mockReturnValue({
+        left: 60,
+        right: 180,
+        width: 120,
+        top: 0,
+        bottom: 40,
+        height: 40,
+        x: 60,
+        y: 0,
+        toJSON: () => {},
+      });
+
+      await act(async () => {
+        alphaTab.click();
+      });
+
+      // Delta: 60 - 110 = -50 -> targetLeft: 80 - 50 = 30
+      expect(scrollToSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          left: 30,
+        })
+      );
+    });
   });
 
   describe('RichDrawer', () => {

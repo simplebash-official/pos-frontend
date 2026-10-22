@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Badge,
+  Box,
   Button,
   Center,
   Divider,
@@ -12,9 +13,8 @@ import {
   Table,
   Text,
   ThemeIcon,
-  Tooltip,
+  UnstyledButton,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import {
   IconActivity,
   IconAlertCircle,
@@ -24,6 +24,7 @@ import {
   IconCalendar,
   IconCash,
   IconCashRegister,
+  IconChevronRight,
   IconClock,
   IconClockPlay,
   IconCoins,
@@ -38,6 +39,7 @@ import {
 } from '@tabler/icons-react';
 import {
   AnimatedTabs,
+  CopyIconButton,
   DrawerAfter,
   DrawerCard,
   DrawerFooter,
@@ -251,15 +253,6 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
   const countedCash = session.countedCashCents;
   const variance = session.cashVarianceCents;
 
-  const handleCopySessionNumber = () => {
-    void navigator.clipboard.writeText(session.sessionNumber);
-    notifications.show({
-      title: t('Copied'),
-      message: `${t('Session number copied to clipboard')}: ${session.sessionNumber}`,
-      color: 'blue',
-    });
-  };
-
   // Denominations object parsing if available
   const rawDenoms = session.closingDenominations ?? session.openingDenominations;
   const denomsObj: Record<string, number> =
@@ -282,7 +275,7 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
     },
     {
       value: 'movements' as const,
-      label: t('Cash Movements'),
+      label: t('Movements'),
       icon: <IconCoins size={16} />,
       count: movements.length,
     },
@@ -487,19 +480,14 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                 >
                   <Stack gap="xs">
                     <InfoRow icon={<IconCashRegister size={14} />} label={t('Session Number')}>
-                      <Group gap={4} wrap="nowrap">
+                      <Group gap={4} wrap="nowrap" align="center">
                         <Text size="xs" fw={700} ff="monospace">
                           {s.sessionNumber}
                         </Text>
-                        <Tooltip label={t('Copy')}>
-                          <Button
-                            variant="subtle"
-                            size="compact-xs"
-                            onClick={handleCopySessionNumber}
-                          >
-                            {t('Copy')}
-                          </Button>
-                        </Tooltip>
+                        <CopyIconButton
+                          value={s.sessionNumber}
+                          label={t('Copy session number')}
+                        />
                       </Group>
                     </InfoRow>
 
@@ -634,7 +622,7 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                           action={
                             invoicesTotal !== undefined ? (
                               <Badge variant="light" color="blue" size="sm">
-                                {invoicesTotal} {t('Invoices')}
+                                {invoicesTotal} {invoicesTotal === 1 ? t('Invoice') : t('Invoices')}
                               </Badge>
                             ) : undefined
                           }
@@ -660,72 +648,73 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                               </Text>
                             </Stack>
                           ) : (
-                            <Stack gap="sm">
-                              <Table striped highlightOnHover verticalSpacing="xs">
-                                <Table.Thead>
-                                  <Table.Tr>
-                                    <Table.Th>{t('Invoice #')}</Table.Th>
-                                    <Table.Th>{t('Customer')}</Table.Th>
-                                    <Table.Th>{t('Tender')}</Table.Th>
-                                    <Table.Th ta="center">{t('Status')}</Table.Th>
-                                    <Table.Th ta="right">{t('Total')}</Table.Th>
-                                    <Table.Th ta="right">{t('Time')}</Table.Th>
-                                  </Table.Tr>
-                                </Table.Thead>
-                                <Table.Tbody>
-                                  {invoices.map((inv) => {
-                                    const { color, label } = getInvoiceStatusMeta(inv);
-                                    return (
-                                      <Table.Tr
-                                        key={inv.id || inv.invoiceNumber}
-                                        onClick={() => {
-                                          setSelectedInvoice(inv);
-                                          setInvoiceDrawerOpened(true);
-                                        }}
-                                        style={{ cursor: 'pointer' }}
-                                      >
-                                        <Table.Td>
-                                          <Text size="xs" fw={700} ff="monospace">
-                                            {inv.invoiceNumber}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="xs" truncate maw={120}>
-                                            {inv.customerName || t('Walk-in Customer')}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="xs" tt="uppercase" fw={600}>
-                                            {inv.paymentMethod}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td ta="center">
-                                          <Badge size="xs" color={color}>
-                                            {label}
-                                          </Badge>
-                                        </Table.Td>
-                                        <Table.Td
-                                          ta="right"
-                                          style={{ fontVariantNumeric: 'tabular-nums' }}
+                            <Stack gap="xs">
+                              {invoices.map((inv) => {
+                                const { color, label } = getInvoiceStatusMeta(inv);
+                                return (
+                                  <UnstyledButton
+                                    key={inv.id || inv.invoiceNumber}
+                                    data-testid="shift-invoice-row"
+                                    data-invoice-number={inv.invoiceNumber}
+                                    onClick={() => {
+                                      setSelectedInvoice(inv);
+                                      setInvoiceDrawerOpened(true);
+                                    }}
+                                    className="shift-invoice-row"
+                                  >
+                                    <Group justify="space-between" wrap="nowrap" align="center" gap="sm">
+                                      <Group wrap="nowrap" gap="sm" style={{ minWidth: 0, flex: 1 }}>
+                                        <ThemeIcon
+                                          size={36}
+                                          radius="md"
+                                          variant="light"
+                                          color={color}
+                                          style={{ flexShrink: 0 }}
                                         >
-                                          <Text size="xs" fw={700}>
-                                            {formatMoney(inv.totalCents)}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td
-                                          ta="right"
-                                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                                        >
-                                          <Text size="xs" c="dimmed">
-                                            {formatDateTime(inv.createdAt).split(' ')[1] ||
-                                              formatDateTime(inv.createdAt)}
-                                          </Text>
-                                        </Table.Td>
-                                      </Table.Tr>
-                                    );
-                                  })}
-                                </Table.Tbody>
-                              </Table>
+                                          <IconReceipt size={18} />
+                                        </ThemeIcon>
+                                        <Box style={{ minWidth: 0, flex: 1 }}>
+                                          <Group gap="xs" wrap="nowrap" align="center">
+                                            <Text size="sm" fw={700} ff="monospace" style={{ whiteSpace: 'nowrap' }}>
+                                              {inv.invoiceNumber}
+                                            </Text>
+                                            <Badge size="xs" color={color} variant="light">
+                                              {label}
+                                            </Badge>
+                                            {inv.paymentMethod && (
+                                              <Badge size="xs" variant="outline" color="gray" tt="uppercase">
+                                                {inv.paymentMethod}
+                                              </Badge>
+                                            )}
+                                          </Group>
+                                          <Group gap={6} wrap="nowrap" align="center" mt={3}>
+                                            <Text size="xs" c="dimmed" truncate maw={160}>
+                                              {inv.customerName || t('Walk-in Customer')}
+                                            </Text>
+                                            <Text size="xs" c="dimmed">
+                                              ·
+                                            </Text>
+                                            <Text
+                                              size="xs"
+                                              c="dimmed"
+                                              style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
+                                            >
+                                              {formatDateTime(inv.createdAt)}
+                                            </Text>
+                                          </Group>
+                                        </Box>
+                                      </Group>
+
+                                      <Group wrap="nowrap" gap="xs" align="center" style={{ flexShrink: 0 }}>
+                                        <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                          {formatMoney(inv.totalCents)}
+                                        </Text>
+                                        <IconChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                                      </Group>
+                                    </Group>
+                                  </UnstyledButton>
+                                );
+                              })}
 
                               {invoicesTotalPages > 1 && (
                                 <Group justify="space-between" align="center" pt="xs">

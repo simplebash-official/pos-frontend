@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Box, Paper, Tabs } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -22,6 +22,8 @@ export interface AnimatedTabsProps<V extends string> {
   children: (value: V) => ReactNode;
   /** Take all the height the parent has, so a panel can scroll a long list inside itself. */
   fill?: boolean;
+  /** Stretch tabs to fill the entire bar width (default false to keep natural widths). */
+  grow?: boolean;
 }
 
 /**
@@ -86,11 +88,57 @@ export const AnimatedTabs = <V extends string>({
   onChange,
   children,
   fill = false,
+  grow = false,
 }: AnimatedTabsProps<V>) => {
   const isMobile = useIsMobile();
   const reduceMotion = useReducedMotion();
   const baseId = useId();
   const index = tabs.findIndex((tab) => tab.value === value);
+
+  const listRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  const scrollToTab = useCallback(
+    (tabEl: HTMLElement | null, behavior: ScrollBehavior = 'smooth') => {
+      if (!tabEl || !listRef.current) return;
+      const list = listRef.current;
+      const listRect = list.getBoundingClientRect();
+      const tabRect = tabEl.getBoundingClientRect();
+
+      // Guard for JSDOM or zero-layout test environments
+      if (listRect.width === 0 || tabRect.width === 0) return;
+
+      const padding = 10; // matches Tabs.List horizontal padding (var(--mantine-spacing-xs))
+
+      if (tabRect.left < listRect.left + padding) {
+        // Cut off on the left: scroll container left to reveal full tab
+        const delta = tabRect.left - (listRect.left + padding);
+        const targetLeft = Math.max(0, list.scrollLeft + delta);
+        if (typeof list.scrollTo === 'function') {
+          list.scrollTo({ left: targetLeft, behavior });
+        } else {
+          list.scrollLeft = targetLeft;
+        }
+      } else if (tabRect.right > listRect.right - padding) {
+        // Cut off on the right: scroll container right to reveal full tab
+        const delta = tabRect.right - (listRect.right - padding);
+        const targetLeft = list.scrollLeft + delta;
+        if (typeof list.scrollTo === 'function') {
+          list.scrollTo({ left: targetLeft, behavior });
+        } else {
+          list.scrollLeft = targetLeft;
+        }
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const activeEl = tabRefs.current.get(value);
+    if (activeEl) {
+      scrollToTab(activeEl, reduceMotion ? 'auto' : 'smooth');
+    }
+  }, [value, reduceMotion, scrollToTab]);
 
   // Slide the panel the way the tab bar moved; adjusted while rendering so it is right on the first frame.
   const [previousIndex, setPreviousIndex] = useState(index);
@@ -117,13 +165,15 @@ export const AnimatedTabs = <V extends string>({
         classNames={{ root: 'rich-tabs' }}
       >
         <Tabs.List
-          grow
+          ref={listRef}
+          grow={grow}
           style={{
             flexWrap: 'nowrap',
             overflowX: 'auto',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
+            scrollBehavior: reduceMotion ? 'auto' : 'smooth',
             gap: isMobile ? 4 : 6,
             padding: 'var(--mantine-spacing-xs)',
             background: 'var(--bg-app)',
@@ -135,6 +185,16 @@ export const AnimatedTabs = <V extends string>({
             return (
               <Tabs.Tab
                 key={tab.value}
+                ref={(node) => {
+                  if (node) {
+                    tabRefs.current.set(tab.value, node);
+                  } else {
+                    tabRefs.current.delete(tab.value);
+                  }
+                }}
+                onClick={(e) => {
+                  scrollToTab(e.currentTarget, reduceMotion ? 'auto' : 'smooth');
+                }}
                 value={tab.value}
                 px={isMobile ? 6 : 10}
                 leftSection={isMobile ? undefined : tab.icon}

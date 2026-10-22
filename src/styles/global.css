@@ -866,8 +866,7 @@ th.mantine-Table-th {
 }
 
 .rich-drawer-rail {
-  position: sticky;
-  top: 0;
+  min-width: 0;
 }
 
 /* The headline numbers run across the top of both columns. */
@@ -934,14 +933,10 @@ th.mantine-Table-th {
   gap: 6px;
   white-space: nowrap;
   flex-shrink: 0;
-  min-width: 0;
 }
 
 .rich-tabs .mantine-Tabs-tabLabel {
-  flex: 0 1 auto;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .rich-tabs .mantine-Tabs-tabSection {
@@ -972,6 +967,35 @@ th.mantine-Table-th {
   box-shadow:
     0 1px 2px rgb(0 0 0 / 20%),
     0 2px 8px color-mix(in srgb, var(--mantine-color-blue-filled) 35%, transparent);
+}
+
+/* Shift invoices list card in RegisterSessionDetailDrawer */
+.shift-invoice-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--mantine-radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-decoration: none;
+  color: inherit;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.shift-invoice-row:hover {
+  background: var(--bg-hover);
+  border-color: var(--mantine-color-blue-outline);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.shift-invoice-row:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: 1px;
 }
 
 /* Sidebar: one pill glides to the active item (framer-motion layoutId); the link's own active

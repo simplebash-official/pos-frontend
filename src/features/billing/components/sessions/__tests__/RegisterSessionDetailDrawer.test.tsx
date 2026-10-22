@@ -220,10 +220,10 @@ describe('RegisterSessionDetailDrawer', () => {
     expect(reopenBtn).toBeDefined();
   });
 
-  it('switches to Cash Movements tab and renders movement log', async () => {
+  it('switches to Movements tab and renders movement log', async () => {
     await renderComponent();
     const movementsTab = Array.from(document.body.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Cash Movements')
+      b.textContent?.includes('Movements')
     );
     expect(movementsTab).toBeDefined();
 
@@ -250,9 +250,9 @@ describe('RegisterSessionDetailDrawer', () => {
     expect(text()).toContain('Alice Green');
 
     // Click the invoice row to open InvoiceDetailDrawer on top
-    const invoiceRow = Array.from(document.body.querySelectorAll('tr')).find((tr) =>
-      tr.textContent?.includes('INV-000042')
-    );
+    const invoiceRow = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-testid="shift-invoice-row"]')
+    ).find((row) => row.textContent?.includes('INV-000042'));
     expect(invoiceRow).toBeDefined();
 
     await act(async () => {
