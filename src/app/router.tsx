@@ -27,6 +27,11 @@ const BillingCounter = lazy(() =>
 const InvoicesList = lazy(() =>
   import('@/features/invoices/components/InvoicesList').then((m) => ({ default: m.InvoicesList }))
 );
+const RegisterShiftsPage = lazy(() =>
+  import('@/features/billing/components/sessions/RegisterShiftsPage').then((m) => ({
+    default: m.RegisterShiftsPage,
+  }))
+);
 const RepairJobList = lazy(() =>
   import('@/features/repairs/components/RepairJobList').then((m) => ({ default: m.RepairJobList }))
 );
@@ -113,6 +118,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<BillingPageSkeleton />}>
             <BillingCounter />
           </Suspense>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.SHIFTS,
+        element: (
+          <RequirePermission permissions={[PERMISSIONS.REGISTER_SESSIONS_VIEW]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <RegisterShiftsPage />
+            </Suspense>
+          </RequirePermission>
         ),
       },
       {

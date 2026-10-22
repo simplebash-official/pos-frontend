@@ -513,6 +513,7 @@ export const CreditNoteModal = ({
     <Modal
       opened={opened}
       onClose={handleClose}
+      zIndex={400}
       title={
         <Text fw={700} size="lg">
           {t('Process Credit Note — #')}

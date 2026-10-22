@@ -4,6 +4,7 @@ import {
   closeInvoice,
   completeSale,
   fetchAllInvoices,
+  fetchPaginatedInvoices,
   voidInvoice,
   type CompleteSaleInput,
   type CompleteSaleResult,
@@ -27,6 +28,21 @@ export const useAllInvoices = () => {
     queryFn: fetchAllInvoices,
   });
   return { ...query, data: query.data ?? NO_INVOICES };
+};
+
+export const useSessionInvoices = (
+  sessionKey?: string,
+  page: number = 1,
+  limit: number = 15,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: ['billing', 'invoices', 'session', sessionKey, { page, limit }],
+    queryFn: () => fetchPaginatedInvoices({ sessionKey, page, limit }),
+    enabled: Boolean(sessionKey) && enabled,
+    staleTime: 30_000,
+    placeholderData: (previousData) => previousData,
+  });
 };
 
 const invalidateAfterSale = (queryClient: ReturnType<typeof useQueryClient>) => {

@@ -29,6 +29,7 @@ export const InvoiceVoidModal = ({
   <Modal
     opened={opened}
     onClose={onClose}
+    zIndex={400}
     title={
       <Text fw={700} size="lg">
         {t('Void Invoice — #')}

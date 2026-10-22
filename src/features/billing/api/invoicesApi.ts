@@ -272,7 +272,45 @@ export interface FetchInvoicesParams {
   datePreset?: 'today';
   /** Exact match on the customer's server-issued key — scopes to one customer's invoices. */
   customerKey?: string;
+  /** Filter by register shift session key. */
+  sessionKey?: string;
+  /** 1-based page number. */
+  page?: number;
+  /** Maximum number of records per page. */
+  limit?: number;
 }
+
+export interface PaginatedInvoicesResult {
+  invoices: Invoice[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export const fetchPaginatedInvoices = async (
+  params?: FetchInvoicesParams
+): Promise<PaginatedInvoicesResult> => {
+  const response = await apiClient.get<ApiResponse<InvoiceListResponseData>>('/billing/invoices', {
+    params: {
+      page: params?.page ?? 1,
+      limit: params?.limit ?? 15,
+      sessionKey: params?.sessionKey,
+      search: params?.search,
+      status: params?.status,
+      paymentMethod: params?.paymentMethod,
+      datePreset: params?.datePreset,
+      customerKey: params?.customerKey,
+    },
+  });
+  return {
+    invoices: response.data.invoices.map(toInvoice),
+    total: response.data.total,
+    page: response.data.page,
+    limit: response.data.limit,
+    totalPages: response.data.totalPages,
+  };
+};
 
 // One page (backend's 200 max), used for a filtered/searched request —
 // called by `useBackendFilteredList` (`InvoicesList.tsx`) with `search`/

@@ -122,4 +122,29 @@ describe('RegisterSessionBadge', () => {
     expect(button).toBeTruthy();
     expect(button?.textContent).toContain('Open Shift');
   });
+
+  it('renders reopened session badge with REOPENED tag and actions menu', async () => {
+    vi.spyOn(deviceIdModule, 'getDeviceId').mockReturnValue('main-counter-pos');
+    await renderComponent({
+      ...mockSession,
+      status: 'reopened',
+    });
+
+    const button = container.querySelector('button');
+    expect(button).toBeTruthy();
+    expect(button?.textContent).toContain('SES-000042');
+    expect(button?.textContent).toMatch(/reopened/i);
+    expect(button?.textContent).not.toContain('Open Shift');
+
+    await act(async () => {
+      button!.click();
+    });
+
+    await vi.waitFor(() => {
+      const bodyText = document.body.textContent ?? '';
+      expect(bodyText).toContain('Reopened for Audit');
+      expect(bodyText).toContain('Cash In / Cash Out');
+      expect(bodyText).toContain('Close Register Shift');
+    });
+  });
 });

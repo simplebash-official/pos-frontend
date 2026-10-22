@@ -11,6 +11,8 @@ export const PERMISSIONS = {
   USERS_MANAGE: 'users:manage',
   USERS_MANAGE_STAFF: 'users:manage:staff',
   SESSIONS_VIEW: 'sessions:view',
+  REGISTER_SESSIONS_VIEW: 'register_sessions:view',
+  REGISTER_SESSIONS_MANAGE: 'register_sessions:manage',
   INVENTORY_READ: 'inventory:read',
   INVENTORY_WRITE: 'inventory:write',
   CUSTOMERS_WRITE: 'customers:write',

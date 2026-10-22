@@ -113,7 +113,9 @@ export const PaymentPanel = memo(
 
     const terminalId = getDeviceId();
     const { session: activeSession } = useCurrentSession(terminalId);
-    const hasActiveSession = Boolean(activeSession && activeSession.status === 'open');
+    const hasActiveSession = Boolean(
+      activeSession && (activeSession.status === 'open' || activeSession.status === 'reopened')
+    );
     const [openSessionModalOpen, setOpenSessionModalOpen] = useState(false);
 
     // Collapsible Order Discount State

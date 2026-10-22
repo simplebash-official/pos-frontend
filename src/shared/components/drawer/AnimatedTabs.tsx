@@ -35,24 +35,26 @@ export const CountChip = ({ count, active }: { count: number; active: boolean })
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minWidth: 22,
-      height: 22,
-      padding: '0 6px',
-      borderRadius: 11,
-      fontSize: 12,
+      minWidth: 20,
+      height: 20,
+      padding: '0 5px',
+      borderRadius: 10,
+      fontSize: 11,
       fontWeight: 700,
       lineHeight: 1,
       fontVariantNumeric: 'tabular-nums',
+      flexShrink: 0,
       background: active
         ? 'color-mix(in srgb, var(--mantine-color-white) 24%, transparent)'
         : count > 0
           ? 'var(--mantine-color-blue-light)'
-          : 'var(--bg-active)',
+          : 'var(--bg-card)',
       color: active
         ? 'var(--mantine-color-white)'
         : count > 0
           ? 'var(--mantine-color-blue-light-color)'
           : 'var(--text-secondary)',
+      border: !active ? '1px solid var(--border)' : '1px solid transparent',
     }}
   >
     {count}
@@ -118,6 +120,10 @@ export const AnimatedTabs = <V extends string>({
           grow
           style={{
             flexWrap: 'nowrap',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
             gap: isMobile ? 4 : 6,
             padding: 'var(--mantine-spacing-xs)',
             background: 'var(--bg-app)',
@@ -130,7 +136,7 @@ export const AnimatedTabs = <V extends string>({
               <Tabs.Tab
                 key={tab.value}
                 value={tab.value}
-                px={isMobile ? 6 : undefined}
+                px={isMobile ? 6 : 10}
                 leftSection={isMobile ? undefined : tab.icon}
                 rightSection={
                   tab.count === undefined ? undefined : (

@@ -204,6 +204,7 @@ export const SaleDocumentPreviewModal = ({
     <Modal
       opened={opened}
       onClose={onClose}
+      zIndex={400}
       fullScreen
       padding={0}
       withCloseButton={false}

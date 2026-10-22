@@ -69,6 +69,8 @@ export interface InvoiceDetailDrawerProps {
   onRefresh?: () => void;
   /** Open the Record Payment modal as soon as the drawer shows (deep link). */
   openPaymentModalOnMount?: boolean;
+  /** Custom z-index when stacking drawers (e.g. nested invoice inspection over session drawer). */
+  zIndex?: number;
 }
 
 /** Everything the drawer decides from the invoice itself, computed in one place. */
@@ -113,6 +115,7 @@ export const InvoiceDetailDrawer = ({
   invoice,
   onRefresh,
   openPaymentModalOnMount = false,
+  zIndex,
 }: InvoiceDetailDrawerProps) => {
   const isMobile = useIsMobile();
 
@@ -276,6 +279,7 @@ export const InvoiceDetailDrawer = ({
         opened={opened}
         onClose={handleClose}
         width="wide"
+        zIndex={zIndex ?? 300}
         title={{
           icon: <IconFileInvoice size={20} />,
           text: `${t('Invoice #')}${invoice?.invoiceNumber ?? ''}`,

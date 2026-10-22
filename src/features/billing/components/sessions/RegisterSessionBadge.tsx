@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import {
   IconCash,
+  IconCashRegister,
   IconCoins,
   IconDoorExit,
   IconLayersLinked,
@@ -93,9 +94,11 @@ export const RegisterSessionBadge: React.FC = () => {
     return null;
   }
 
-  const isOpen = session?.status === 'open';
+  const isOpen = session?.status === 'open' || session?.status === 'reopened';
   const isClosing = session?.status === 'closing';
+  const isReopened = session?.status === 'reopened';
   const isShared = Boolean(session && session.terminalId !== terminalId);
+  const badgeColor = isReopened ? 'grape' : isShared ? 'cyan' : 'teal';
 
   // One return for every status: the modals keep the same place in the tree, so the
   // Close window is not remounted (and its step and counted cash lost) when the
@@ -109,9 +112,11 @@ export const RegisterSessionBadge: React.FC = () => {
               <Button
                 size="xs"
                 variant="light"
-                color={isShared ? 'cyan' : 'teal'}
+                color={badgeColor}
                 leftSection={
-                  isShared ? (
+                  isReopened ? (
+                    <IconLockOpen size={14} color="var(--mantine-color-grape-6)" />
+                  ) : isShared ? (
                     <IconLayersLinked size={14} color="var(--mantine-color-cyan-6)" />
                   ) : (
                     <IconLockOpen size={14} color="var(--mantine-color-teal-6)" />
@@ -123,6 +128,11 @@ export const RegisterSessionBadge: React.FC = () => {
                   <Text size="xs" fw={700}>
                     {session.sessionNumber}
                   </Text>
+                  {isReopened && (
+                    <Badge size="xs" variant="light" color="grape">
+                      {t('Reopened')}
+                    </Badge>
+                  )}
                   {isShared && (
                     <Badge
                       size="xs"
@@ -148,14 +158,25 @@ export const RegisterSessionBadge: React.FC = () => {
                 }}
               >
                 <Group gap="sm" wrap="nowrap" mb="sm">
-                  <ThemeIcon variant="light" color={isShared ? 'cyan' : 'teal'} size={36}>
-                    {isShared ? <IconLayersLinked size={20} /> : <IconCash size={20} />}
+                  <ThemeIcon variant="light" color={badgeColor} size={36}>
+                    {isReopened ? (
+                      <IconCashRegister size={20} />
+                    ) : isShared ? (
+                      <IconLayersLinked size={20} />
+                    ) : (
+                      <IconCash size={20} />
+                    )}
                   </ThemeIcon>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <Group gap={6} wrap="nowrap" justify="space-between">
                       <Text size="sm" fw={700} truncate>
                         {session.sessionNumber}
                       </Text>
+                      {isReopened && (
+                        <Badge size="xs" variant="light" color="grape">
+                          {t('Reopened')}
+                        </Badge>
+                      )}
                       {isShared && (
                         <Badge size="xs" variant="light" color="cyan">
                           {t('Shared')}
@@ -166,11 +187,15 @@ export const RegisterSessionBadge: React.FC = () => {
                       <LiveDot isShared={isShared} />
                       <Text
                         size="xs"
-                        c={isShared ? 'cyan' : 'dimmed'}
+                        c={isReopened ? 'grape' : isShared ? 'cyan' : 'dimmed'}
                         truncate
-                        fw={isShared ? 600 : 400}
+                        fw={isShared || isReopened ? 600 : 400}
                       >
-                        {isShared ? t('Active (Shared Shift)') : t('Shift open')}
+                        {isReopened
+                          ? t('Reopened for Audit')
+                          : isShared
+                            ? t('Active (Shared Shift)')
+                            : t('Shift open')}
                         {session.cashierNameSnapshot ? ` · ${session.cashierNameSnapshot}` : ''}
                       </Text>
                     </Group>

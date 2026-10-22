@@ -372,6 +372,7 @@ export interface SetPinInput {
 }
 
 export interface SessionListQuery {
+  search?: string;
   terminalId?: string;
   cashierId?: string;
   status?: string;

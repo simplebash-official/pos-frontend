@@ -111,7 +111,10 @@ export const BillingCounter = () => {
   const handleCompleteCheckout = useCallback(async () => {
     if (items.length === 0 || isProcessing) return;
 
-    if (!activeSession || activeSession.status !== 'open') {
+    if (
+      !activeSession ||
+      (activeSession.status !== 'open' && activeSession.status !== 'reopened')
+    ) {
       notifications.show({
         title: t('Register Shift Required'),
         message: t('Please open a register session before completing sales.'),

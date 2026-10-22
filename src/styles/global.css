@@ -920,36 +920,47 @@ th.mantine-Table-th {
 .rich-tabs .mantine-Tabs-tab {
   position: relative;
   isolation: isolate;
-  min-height: 40px;
+  min-height: 38px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  opacity: 0.72;
   transition:
     background-color 150ms ease,
-    color 150ms ease;
-}
-
-/* Icon, name and count read as one centred group instead of spreading to the tab's edges. */
-.rich-tabs .mantine-Tabs-tab {
+    color 150ms ease,
+    opacity 150ms ease;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .rich-tabs .mantine-Tabs-tabLabel {
   flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rich-tabs .mantine-Tabs-tabSection {
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .rich-tabs .mantine-Tabs-tab:not([data-active]):hover {
   background-color: var(--bg-hover);
   color: var(--text-primary);
+  opacity: 1;
 }
 
 .rich-tabs .mantine-Tabs-tab[data-active] {
   background-color: transparent;
   color: var(--mantine-color-white);
+  opacity: 1;
 }
 
 .rich-tab-pill {

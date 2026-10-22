@@ -3,6 +3,7 @@ import {
   IconLayoutDashboard,
   IconReceipt,
   IconFileInvoice,
+  IconCashRegister,
   IconHammer,
   IconPrinter,
   IconFileText,
@@ -66,6 +67,13 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         icon: IconFileInvoice,
         to: ROUTES.INVOICES,
         color: 'grape',
+      },
+      {
+        label: 'Register Shifts',
+        icon: IconCashRegister,
+        to: ROUTES.SHIFTS,
+        color: 'teal',
+        requiredPermissions: [PERMISSIONS.REGISTER_SESSIONS_VIEW],
       },
       {
         label: 'Repair Jobs',

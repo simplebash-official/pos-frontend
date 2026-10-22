@@ -17,6 +17,8 @@ export interface RichDrawerProps<T> {
   children: (item: T) => ReactNode;
   /** A pinned bar under the content; render a `DrawerFooter`. */
   footer?: (item: T) => ReactNode;
+  /** Custom z-index when stacking drawers (e.g. nested invoice inspection over session drawer). */
+  zIndex?: number;
 }
 
 /**
@@ -32,6 +34,7 @@ export const RichDrawer = <T,>({
   title,
   children,
   footer,
+  zIndex,
 }: RichDrawerProps<T>) => {
   const isMobile = useIsMobile();
   const [cached, setCached] = useState<T | null>(data);
@@ -43,6 +46,7 @@ export const RichDrawer = <T,>({
       opened={opened}
       onClose={onClose}
       position="right"
+      zIndex={zIndex}
       size={isMobile ? '100%' : 'md'}
       classNames={{ content: `rich-drawer rich-drawer--${width}` }}
       title={
