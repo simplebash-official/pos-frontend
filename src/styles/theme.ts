@@ -113,13 +113,19 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       },
     }),
 
-    // One enter/exit for every dialog, menu and drawer: a short fade with a small scale/slide.
+    // One enter/exit for every dialog, menu and drawer: a short fade with a small slide.
     // Mantine runs these as CSS transitions on opacity + transform, and
     // `respectReducedMotion` turns them off for people who ask the system for less motion.
+    // Modals slide without scaling: a scaled box makes Mantine's SegmentedControl measure its
+    // indicator at 90% width on mount, and it never re-measures.
     Modal: Modal.extend({
       defaultProps: {
         transitionProps: {
-          transition: 'pop',
+          transition: {
+            in: { opacity: 1, transform: 'translateY(0)' },
+            out: { opacity: 0, transform: 'translateY(8px)' },
+            transitionProperty: 'opacity, transform',
+          },
           duration: 180,
           timingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
         },

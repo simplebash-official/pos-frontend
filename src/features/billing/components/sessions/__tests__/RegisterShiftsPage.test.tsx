@@ -176,8 +176,6 @@ describe('RegisterShiftsPage', () => {
     expect(text()).toContain('Bob Silva');
     expect(text()).toContain('Open');
     expect(text()).toContain('Closed');
-    expect(text()).toContain('main-counter-pos');
-    expect(text()).toContain('side-counter-pos');
   });
 
   it('renders current shift shortcut button when session is active', async () => {

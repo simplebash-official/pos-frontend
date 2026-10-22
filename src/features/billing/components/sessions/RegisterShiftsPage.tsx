@@ -260,17 +260,6 @@ export const RegisterShiftsPage = () => {
       },
     },
     {
-      key: 'terminalId',
-      header: t('Terminal'),
-      align: 'left',
-      width: 130,
-      render: (s) => (
-        <Text size="xs" fw={500}>
-          {s.terminalId}
-        </Text>
-      ),
-    },
-    {
       key: 'cashier',
       header: t('Cashier'),
       align: 'left',
