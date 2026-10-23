@@ -1,14 +1,18 @@
-import { Button, Group, Kbd, SimpleGrid, Stack, Text, Tooltip } from '@mantine/core';
-import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { SimpleGrid, Tooltip } from '@mantine/core';
+import { motion } from 'framer-motion';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
+import { SPRING, useMotionPresets } from '@/shared/motion';
 import type { CashMovementType } from '../../../types';
+import { ChoiceCard, ChoiceGroup } from './ChoiceCard';
 import {
   MOVEMENT_GROUPS,
   MOVEMENT_TYPES_IN_ORDER,
+  getGroupIcon,
   getGroupLabel,
   getGroupOf,
   getTypeHint,
+  getTypeIcon,
   getTypeLabel,
   type MovementGroupId,
 } from './movementTypes';
@@ -16,19 +20,20 @@ import {
 export interface MovementTypePickerProps {
   value: CashMovementType;
   onChange: (type: CashMovementType) => void;
-  /** Whether this person may record the kind of payment; the rest are shown but greyed out. */
+  /** Whether this person may record the kind of payment; the rest are shown but locked. */
   canUse: (type: CashMovementType) => boolean;
 }
 
 /**
- * Two taps pick any kind of drawer event: the group first (money out, money in, move cash,
- * other), then the type inside it. Groups with one type pick it directly. On a computer the
- * number keys 1 to 8 pick a type too.
+ * Picks what happened in two parts that look different on purpose: a tab strip for the direction
+ * (money out, money in, move cash, other) and, under it, one card per kind with a picture, its
+ * name and what it is for. A group with one kind shows that one card. On a computer the number
+ * keys 1 to 8 pick a kind too (the cards say so in their tooltip).
  */
-export const MovementTypePicker = ({ value, onChange, canUse }: MovementTypePickerProps) => {
+export const MovementGroupTabs = ({ value, onChange, canUse }: MovementTypePickerProps) => {
   const isMobile = useIsMobile();
+  const { reduced } = useMotionPresets();
   const group = getGroupOf(value);
-  const typesInGroup = MOVEMENT_GROUPS.find((g) => g.id === group)!.types;
 
   const pickGroup = (id: MovementGroupId) => {
     const types = MOVEMENT_GROUPS.find((g) => g.id === id)!.types;
@@ -37,77 +42,116 @@ export const MovementTypePicker = ({ value, onChange, canUse }: MovementTypePick
   };
 
   return (
-    <Stack gap="xs">
-      <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-        {t('What are you recording?')}
-      </Text>
-      {isMobile ? (
-        // Four labels do not fit one row on a phone, so the groups become a two by two grid.
-        <SimpleGrid cols={2} spacing="xs" aria-label={t('Kind of cash movement')}>
-          {MOVEMENT_GROUPS.map((g) => (
-            <Button
-              key={g.id}
-              variant={g.id === group ? 'filled' : 'default'}
-              h={44}
-              disabled={!g.types.some(canUse)}
-              onClick={() => pickGroup(g.id)}
-              aria-pressed={g.id === group}
-            >
+    <ChoiceGroup
+      label={t('Kind of cash movement')}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+        gap: 4,
+        padding: 4,
+        background: 'var(--bg-active)',
+        borderRadius: 'var(--mantine-radius-default)',
+      }}
+    >
+      {MOVEMENT_GROUPS.map((g) => {
+        const selected = g.id === group;
+        const allowed = g.types.some(canUse);
+        return (
+          <button
+            key={g.id}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            disabled={!allowed}
+            onClick={() => pickGroup(g.id)}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              minHeight: isMobile ? 44 : 36,
+              padding: '0 2px',
+              border: 0,
+              background: 'transparent',
+              color: selected ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontWeight: selected ? 600 : 500,
+              fontSize: isMobile ? 'var(--mantine-font-size-xs)' : 'var(--mantine-font-size-sm)',
+              whiteSpace: 'nowrap',
+              cursor: allowed ? 'pointer' : 'not-allowed',
+              opacity: allowed ? 1 : 0.55,
+            }}
+          >
+            {selected && (
+              <motion.span
+                layoutId="cash-group-pill"
+                transition={reduced ? { duration: 0 } : SPRING}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'var(--bg-card)',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
+                  borderRadius: 'calc(var(--mantine-radius-default) - 2px)',
+                }}
+              />
+            )}
+            <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {!isMobile && getGroupIcon(g.id)}
               {getGroupLabel(g.id)}
-            </Button>
-          ))}
-        </SimpleGrid>
-      ) : (
-        <SegmentedToggle
-          fullWidth
-          value={group}
-          onChange={(id) => pickGroup(id as MovementGroupId)}
-          data={MOVEMENT_GROUPS.map((g) => ({
-            value: g.id,
-            label: getGroupLabel(g.id),
-            disabled: !g.types.some(canUse),
-          }))}
-          size="sm"
-          aria-label={t('Kind of cash movement')}
-        />
-      )}
+            </span>
+          </button>
+        );
+      })}
+    </ChoiceGroup>
+  );
+};
 
-      {typesInGroup.length > 1 && (
-        <Group gap="xs" data-testid="type-chips">
-          {typesInGroup.map((type) => {
-            const allowed = canUse(type);
-            const button = (
-              <Button
-                key={type}
-                size="sm"
-                variant={type === value ? 'filled' : 'default'}
-                h={isMobile ? 44 : undefined}
-                disabled={!allowed}
-                onClick={() => onChange(type)}
-                aria-pressed={type === value}
-                rightSection={
-                  <Kbd size="xs" visibleFrom="sm">
-                    {MOVEMENT_TYPES_IN_ORDER.indexOf(type) + 1}
-                  </Kbd>
-                }
-              >
-                {getTypeLabel(type)}
-              </Button>
-            );
-            return allowed ? (
-              button
-            ) : (
+/** The cards of the chosen group's kinds. */
+export const MovementKindCards = ({ value, onChange, canUse }: MovementTypePickerProps) => {
+  const isMobile = useIsMobile();
+  const typesInGroup = MOVEMENT_GROUPS.find((g) => g.id === getGroupOf(value))!.types;
+  return (
+    <ChoiceGroup label={t('Which one?')}>
+      <SimpleGrid
+        cols={{ base: 1, sm: typesInGroup.length === 1 ? 1 : 2 }}
+        spacing="xs"
+        data-testid="type-chips"
+      >
+        {typesInGroup.map((type) => {
+          const allowed = canUse(type);
+          const card = (
+            <ChoiceCard
+              key={type}
+              label={getTypeLabel(type)}
+              // On a phone only the chosen card explains itself, so the amount stays near the top.
+              hint={isMobile && type !== value ? undefined : getTypeHint(type)}
+              icon={getTypeIcon(type)}
+              selected={type === value}
+              allowed={allowed}
+              tall={isMobile}
+              onSelect={() => onChange(type)}
+            />
+          );
+          if (!allowed) {
+            return (
               <Tooltip key={type} label={t('A manager can record this.')}>
-                <span>{button}</span>
+                <span style={{ display: 'flex' }}>{card}</span>
               </Tooltip>
             );
-          })}
-        </Group>
-      )}
-
-      <Text size="xs" c="dimmed">
-        {getTypeHint(value)}
-      </Text>
-    </Stack>
+          }
+          return isMobile ? (
+            card
+          ) : (
+            <Tooltip
+              key={type}
+              label={`${t('Press')} ${MOVEMENT_TYPES_IN_ORDER.indexOf(type) + 1}`}
+              openDelay={600}
+            >
+              <span style={{ display: 'flex' }}>{card}</span>
+            </Tooltip>
+          );
+        })}
+      </SimpleGrid>
+    </ChoiceGroup>
   );
 };

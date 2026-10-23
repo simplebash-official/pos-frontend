@@ -1,5 +1,19 @@
 import type { ReactNode } from 'react';
-import { IconActivity, IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
+import {
+  IconActivity,
+  IconArrowDownLeft,
+  IconArrowDownRight,
+  IconArrowUpRight,
+  IconArrowsExchange,
+  IconBuildingBank,
+  IconCashPlus,
+  IconCup,
+  IconHome2,
+  IconLockOpen,
+  IconTruckDelivery,
+  IconUsers,
+  IconWallet,
+} from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import type { CashDirection, CashMovementType } from '../../../types';
 
@@ -136,5 +150,41 @@ export const getDirectionLook = (
       return { color: 'orange', icon: <IconArrowUpRight size={14} />, label: t('Money out') };
     case 'neutral':
       return { color: 'gray', icon: <IconActivity size={14} />, label: t('Not counted') };
+  }
+};
+
+/** The small picture on a kind's card, so the kinds can be told apart at a glance. */
+export const getTypeIcon = (type: CashMovementType): ReactNode => {
+  switch (type) {
+    case 'petty_expense':
+      return <IconCup size={20} />;
+    case 'rent_and_bills':
+      return <IconHome2 size={20} />;
+    case 'staff_payment':
+      return <IconUsers size={20} />;
+    case 'supplier_payment':
+      return <IconTruckDelivery size={20} />;
+    case 'owner_withdrawal':
+      return <IconWallet size={20} />;
+    case 'add_cash':
+      return <IconCashPlus size={20} />;
+    case 'cash_drop':
+      return <IconBuildingBank size={20} />;
+    case 'no_sale':
+      return <IconLockOpen size={20} />;
+  }
+};
+
+/** The arrow on a group's tab: out, in, between places, or neither. */
+export const getGroupIcon = (id: MovementGroupId): ReactNode => {
+  switch (id) {
+    case 'out':
+      return <IconArrowUpRight size={16} />;
+    case 'in':
+      return <IconArrowDownLeft size={16} />;
+    case 'transfer':
+      return <IconArrowsExchange size={16} />;
+    case 'other':
+      return <IconActivity size={16} />;
   }
 };

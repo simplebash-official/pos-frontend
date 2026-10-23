@@ -7,15 +7,18 @@ import {
   Group,
   Modal,
   PasswordInput,
+  ScrollArea,
   Stack,
   Text,
   TextInput,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   IconAlertCircle,
   IconAlertTriangle,
   IconArrowBackUp,
+  IconCash,
   IconCheck,
   IconLock,
   IconPrinter,
@@ -28,6 +31,7 @@ import { PERMISSIONS } from '@/constants/permissions';
 import { getErrorMessage } from '@/shared/lib/error';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
+import { AnimatedNumber, FadeIn, useMotionPresets } from '@/shared/motion';
 import { useCashCategories, useCashSettings, usePeriodStatus } from '../../hooks/useCashLookups';
 import {
   useCreateCashMovement,
@@ -40,7 +44,9 @@ import { useUndoWindow } from '../../hooks/useUndoWindow';
 import type { CashMovement, CashMovementType } from '../../types';
 import { CategoryPicker } from './movement/CategoryPicker';
 import { MovementDetailFields } from './movement/MovementDetailFields';
-import { MovementTypePicker } from './movement/MovementTypePicker';
+import { MovementStep } from './movement/MovementStep';
+import { MovementGroupTabs, MovementKindCards } from './movement/MovementTypePicker';
+import { ShortcutPills, type ShortcutPill } from './movement/ShortcutPills';
 import {
   drawerDelta,
   emptyForm,
@@ -55,7 +61,10 @@ import {
   ALWAYS_PIN_TYPES,
   CASHIER_CATEGORY_TYPES,
   MANAGED_TYPES,
+  MOVEMENT_GROUPS,
   MOVEMENT_TYPES_IN_ORDER,
+  getCategoryLabel,
+  getGroupOf,
   getTypeLabel,
 } from './movement/movementTypes';
 import { printCashMovementVoucher } from './sessionPrint';
@@ -79,6 +88,21 @@ export interface CashMovementModalProps {
   prefill?: CashMovementPrefill;
   onMovementCreated?: (movement: CashMovement) => void;
 }
+
+/** A block that fades and rises in, and fades out, when it appears or goes (opacity and transform only). */
+const Reveal = ({ children }: { children: React.ReactNode }) => {
+  const { fadeUp, transition } = useMotionPresets();
+  return (
+    <motion.div
+      initial={fadeUp.initial}
+      animate={fadeUp.animate}
+      exit={{ opacity: 0 }}
+      transition={transition}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const AMOUNT_FIELD_ID = 'cash-movement-amount';
 
@@ -148,6 +172,16 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   const pinRequired = needsPin(form.type, category, form.amountCents, overDrawer);
   const canUndo = useUndoWindow(completed?.undoUntil);
   const isNoSale = form.type === 'no_sale';
+  const groupIndex = MOVEMENT_GROUPS.findIndex((g) => g.id === getGroupOf(form.type));
+  // The screen under the tabs slides the way the tabs moved; adjusted while rendering so the
+  // direction is right on the very first frame.
+  const [previousGroupIndex, setPreviousGroupIndex] = useState(groupIndex);
+  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
+  if (groupIndex !== previousGroupIndex) {
+    setSlideDirection(groupIndex > previousGroupIndex ? 1 : -1);
+    setPreviousGroupIndex(groupIndex);
+  }
+  const { reduced: reducedMotion } = useMotionPresets();
 
   const canUseType = (type: CashMovementType) => !MANAGED_TYPES.has(type) || canRecordManaged;
   const canCreateCategory =
@@ -252,6 +286,32 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
     }
   };
 
+  const dropExcessCents =
+    form.type === 'cash_drop' &&
+    cashSettings?.floatTargetCents !== undefined &&
+    cashInDrawer !== undefined &&
+    cashInDrawer > cashSettings.floatTargetCents
+      ? cashInDrawer - cashSettings.floatTargetCents
+      : undefined;
+  const pills: ShortcutPill[] = [
+    ...(cashSettings?.quickAmountsCents ?? []).map((cents) => ({
+      key: String(cents),
+      label: formatMoney(cents),
+      onSelect: () => patch({ amountCents: cents }),
+    })),
+    ...(dropExcessCents === undefined
+      ? []
+      : [
+          {
+            key: 'drop-excess',
+            label: `${t('Drop excess')} (${formatMoney(dropExcessCents)})`,
+            onSelect: () => patch({ amountCents: dropExcessCents }),
+            dataLogId: 'cash.drop-excess',
+          },
+        ]),
+  ];
+  const amountStep = isNoSale ? 0 : 2;
+
   const pinReason = useMemo(() => {
     if (overDrawer) {
       return t(
@@ -278,61 +338,66 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       size="lg"
       centered
       fullScreen={isMobile}
+      scrollAreaComponent={ScrollArea.Autosize}
     >
       {completed ? (
         <Stack gap="md">
-          <Alert color="teal" variant="light" icon={<IconCheck size={20} />} title={t('Saved')}>
-            {t('The cash movement is recorded and the drawer has been updated.')}
-          </Alert>
+          <FadeIn>
+            <Alert color="teal" variant="light" icon={<IconCheck size={20} />} title={t('Saved')}>
+              {t('The cash movement is recorded and the drawer has been updated.')}
+            </Alert>
+          </FadeIn>
 
-          <Card withBorder padding="md">
-            <Stack gap="xs">
-              <Group justify="space-between">
-                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                  {t('Voucher number')}
-                </Text>
-                <Text fw={700} ff="monospace">
-                  {completed.movementNumber}
-                </Text>
-              </Group>
-              <Group justify="space-between">
-                <Text size="sm">{getTypeLabel(completed.movementType)}</Text>
-                {completed.movementType !== 'no_sale' && (
-                  <Text size="lg" fw={700}>
-                    {formatMoney(completed.amountCents)}
+          <FadeIn index={1}>
+            <Card withBorder padding="md">
+              <Stack gap="xs">
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                    {t('Voucher number')}
                   </Text>
+                  <Text fw={700} ff="monospace">
+                    {completed.movementNumber}
+                  </Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="sm">{getTypeLabel(completed.movementType)}</Text>
+                  {completed.movementType !== 'no_sale' && (
+                    <Text size="lg" fw={700}>
+                      {formatMoney(completed.amountCents)}
+                    </Text>
+                  )}
+                </Group>
+                <Group justify="space-between">
+                  <Text size="sm">{t('For')}</Text>
+                  <Text size="sm" fw={500}>
+                    {completed.customLabel
+                      ? `${completed.categoryName}: ${completed.customLabel}`
+                      : completed.categoryName}
+                  </Text>
+                </Group>
+                {completed.payeeName && (
+                  <Group justify="space-between">
+                    <Text size="sm">{t('Name')}</Text>
+                    <Text size="sm" fw={500}>
+                      {completed.payeeName}
+                    </Text>
+                  </Group>
                 )}
-              </Group>
-              <Group justify="space-between">
-                <Text size="sm">{t('For')}</Text>
-                <Text size="sm" fw={500}>
-                  {completed.customLabel
-                    ? `${completed.categoryName}: ${completed.customLabel}`
-                    : completed.categoryName}
-                </Text>
-              </Group>
-              {completed.payeeName && (
                 <Group justify="space-between">
-                  <Text size="sm">{t('Name')}</Text>
-                  <Text size="sm" fw={500}>
-                    {completed.payeeName}
-                  </Text>
+                  <Text size="sm">{t('Recorded by')}</Text>
+                  <Text size="sm">{completed.recordedByNameSnapshot}</Text>
                 </Group>
-              )}
-              <Group justify="space-between">
-                <Text size="sm">{t('Recorded by')}</Text>
-                <Text size="sm">{completed.recordedByNameSnapshot}</Text>
-              </Group>
-              {completed.approvedByNameSnapshot && (
-                <Group justify="space-between">
-                  <Text size="sm">{t('Approved by')}</Text>
-                  <Text size="sm" fw={500}>
-                    {completed.approvedByNameSnapshot}
-                  </Text>
-                </Group>
-              )}
-            </Stack>
-          </Card>
+                {completed.approvedByNameSnapshot && (
+                  <Group justify="space-between">
+                    <Text size="sm">{t('Approved by')}</Text>
+                    <Text size="sm" fw={500}>
+                      {completed.approvedByNameSnapshot}
+                    </Text>
+                  </Group>
+                )}
+              </Stack>
+            </Card>
+          </FadeIn>
 
           <Group justify="space-between" mt="md" gap="sm">
             <Group gap="sm">
@@ -371,162 +436,230 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
           )}
         </Stack>
       ) : (
-        <form onSubmit={handleSubmit} noValidate>
-          <Stack gap="md">
-            <MovementTypePicker value={form.type} onChange={changeType} canUse={canUseType} />
+        <form onSubmit={handleSubmit} noValidate autoComplete="off">
+          <Stack gap="lg">
+            <MovementStep number={1} title={t('What happened?')} required={false}>
+              <MovementGroupTabs value={form.type} onChange={changeType} canUse={canUseType} />
+            </MovementStep>
 
-            {!isNoSale && (
-              <Stack gap="xs">
-                <MoneyInput
-                  id={AMOUNT_FIELD_ID}
-                  label={t('Amount')}
-                  valueCents={form.amountCents}
-                  onChangeCents={(cents) => patch({ amountCents: cents })}
-                  size="md"
-                  required
-                  autoFocus={!isMobile}
-                />
-                <Group gap="xs">
-                  {cashSettings?.quickAmountsCents.map((cents) => (
-                    <Button
-                      key={cents}
-                      size="xs"
-                      variant="default"
-                      h={isMobile ? 44 : undefined}
-                      onClick={() => patch({ amountCents: cents })}
-                    >
-                      {formatMoney(cents)}
-                    </Button>
-                  ))}
-                </Group>
-                {form.type === 'cash_drop' &&
-                  cashSettings?.floatTargetCents !== undefined &&
-                  cashInDrawer !== undefined &&
-                  cashInDrawer > cashSettings.floatTargetCents && (
-                    <Button
-                      size="xs"
-                      variant="light"
-                      h={isMobile ? 44 : undefined}
-                      onClick={() =>
-                        patch({ amountCents: cashInDrawer - (cashSettings.floatTargetCents ?? 0) })
-                      }
-                      data-log-id="cash.drop-excess"
-                    >
-                      {`${t('Drop excess')} (${formatMoney(cashInDrawer - cashSettings.floatTargetCents)})`}
-                    </Button>
-                  )}
-                {cashInDrawer !== undefined && (
-                  <Text
-                    size="sm"
-                    c={cashAfter !== undefined && cashAfter < 0 ? 'red' : 'dimmed'}
-                    data-testid="drawer-preview"
-                  >
-                    {form.amountCents > 0 && drawerDelta(form.type, form.amountCents) !== 0
-                      ? `${t('In the drawer')}: ${formatMoney(cashInDrawer)} → ${formatMoney(cashAfter as number)}`
-                      : `${t('In the drawer now')}: ${formatMoney(cashInDrawer)}`}
-                  </Text>
-                )}
-                {overDrawer && (
-                  <Alert
-                    icon={<IconAlertTriangle size={16} />}
-                    color="orange"
-                    variant="light"
-                    title={t('More than the drawer holds')}
-                  >
-                    {t(
-                      'The drawer does not have this much cash. A manager or owner can still allow it.'
+            {/* Everything under the tabs is one screen that slides left or right with the tabs. */}
+            <div style={{ overflowX: 'clip' }}>
+              <AnimatePresence mode="wait" initial={false} custom={slideDirection}>
+                <motion.div
+                  key={groupIndex}
+                  custom={slideDirection}
+                  variants={{
+                    enter: (dir: number) => ({ opacity: 0, x: reducedMotion ? 0 : dir * 28 }),
+                    center: { opacity: 1, x: 0 },
+                    exit: (dir: number) => ({ opacity: 0, x: reducedMotion ? 0 : dir * -28 }),
+                  }}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: reducedMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Stack gap="lg">
+                    <MovementKindCards
+                      value={form.type}
+                      onChange={changeType}
+                      canUse={canUseType}
+                    />
+
+                    {!isNoSale && (
+                      <MovementStep number={amountStep} title={t('How much?')} required>
+                        <MoneyInput
+                          id={AMOUNT_FIELD_ID}
+                          aria-label={t('Amount')}
+                          valueCents={form.amountCents}
+                          onChangeCents={(cents) => patch({ amountCents: cents })}
+                          size="md"
+                          autoFocus={!isMobile}
+                        />
+                        {pills.length > 0 && (
+                          <ShortcutPills
+                            caption={t('Quick amounts')}
+                            pills={pills}
+                            tall={isMobile}
+                          />
+                        )}
+                        {cashInDrawer !== undefined && (
+                          <Group gap={6} wrap="nowrap">
+                            <IconCash size={16} color="var(--text-muted)" aria-hidden />
+                            <Text
+                              size="sm"
+                              c={cashAfter !== undefined && cashAfter < 0 ? 'red' : 'dimmed'}
+                              data-testid="drawer-preview"
+                            >
+                              {form.amountCents > 0 &&
+                              drawerDelta(form.type, form.amountCents) !== 0 ? (
+                                <>
+                                  {`${t('In the drawer')}: `}
+                                  <AnimatedNumber value={cashInDrawer} format={formatMoney} />
+                                  {' → '}
+                                  <AnimatedNumber
+                                    value={cashAfter as number}
+                                    format={formatMoney}
+                                  />
+                                </>
+                              ) : (
+                                <>
+                                  {`${t('In the drawer now')}: `}
+                                  <AnimatedNumber value={cashInDrawer} format={formatMoney} />
+                                </>
+                              )}
+                            </Text>
+                          </Group>
+                        )}
+                        <AnimatePresence initial={false}>
+                          {overDrawer && (
+                            <Reveal key="over-drawer">
+                              <Alert
+                                icon={<IconAlertTriangle size={16} />}
+                                color="orange"
+                                variant="light"
+                                title={t('More than the drawer holds')}
+                              >
+                                {t(
+                                  'The drawer does not have this much cash. A manager or owner can still allow it.'
+                                )}
+                              </Alert>
+                            </Reveal>
+                          )}
+                        </AnimatePresence>
+                      </MovementStep>
                     )}
+
+                    {/* Re-keyed by kind so the part that differs from kind to kind fades in as one piece. */}
+                    <FadeIn key={form.type}>
+                      <Stack gap="lg" style={{ minHeight: isMobile ? undefined : 320 }}>
+                        <MovementStep
+                          number={amountStep + 1}
+                          title={getCategoryLabel(form.type)}
+                          required
+                        >
+                          <CategoryPicker
+                            key={form.type}
+                            movementType={form.type}
+                            categories={categories}
+                            loading={categoriesLoading}
+                            value={{ categoryKey: form.categoryKey, customLabel: form.customLabel }}
+                            onChange={(choice) => patch(choice)}
+                            canCreate={canCreateCategory}
+                            onCreated={focusAmount}
+                          />
+                        </MovementStep>
+
+                        <MovementStep number={amountStep + 2} title={t('Details')} required={false}>
+                          <MovementDetailFields
+                            form={form}
+                            onChange={patch}
+                            periodStatus={isRent ? periodStatus : undefined}
+                          />
+                        </MovementStep>
+                      </Stack>
+                    </FadeIn>
+                  </Stack>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <AnimatePresence initial={false}>
+              {pinRequired && (
+                <Reveal key="pin">
+                  <Alert
+                    icon={<IconLock size={18} />}
+                    color="blue"
+                    variant="light"
+                    title={t('Manager or owner approval needed')}
+                  >
+                    <Stack gap="xs" mt="xs">
+                      <Text size="xs">{pinReason}</Text>
+                      {overDrawer && (
+                        <TextInput
+                          label={t('Why is this payout bigger than the drawer holds?')}
+                          value={form.overrideReason}
+                          onChange={(e) => patch({ overrideReason: e.currentTarget.value })}
+                          maxLength={200}
+                          required
+                        />
+                      )}
+                      <Group align="flex-end" gap="xs" wrap="nowrap">
+                        <PasswordInput
+                          label={t('PIN')}
+                          placeholder={t('Enter PIN')}
+                          value={form.managerPin}
+                          onChange={(e) => {
+                            patch({ managerPin: e.currentTarget.value });
+                            setPinError(null);
+                            setVerifiedApprover(null);
+                          }}
+                          error={pinError}
+                          style={{ flex: 1 }}
+                        />
+                        <Button
+                          variant="light"
+                          onClick={handleVerifyPin}
+                          loading={verifyPin.isPending}
+                          type="button"
+                          disabled={!form.managerPin.trim()}
+                          h={isMobile ? 44 : undefined}
+                        >
+                          {t('Check PIN')}
+                        </Button>
+                      </Group>
+                      {verifiedApprover && (
+                        <Badge color="green" variant="light" leftSection={<IconCheck size={14} />}>
+                          {verifiedApprover.name
+                            ? `${t('Approved by')} ${verifiedApprover.name}`
+                            : t('PIN accepted')}
+                        </Badge>
+                      )}
+                    </Stack>
                   </Alert>
-                )}
-              </Stack>
-            )}
+                </Reveal>
+              )}
 
-            <CategoryPicker
-              key={form.type}
-              movementType={form.type}
-              categories={categories}
-              loading={categoriesLoading}
-              value={{ categoryKey: form.categoryKey, customLabel: form.customLabel }}
-              onChange={(choice) => patch(choice)}
-              canCreate={canCreateCategory}
-              onCreated={focusAmount}
-            />
+              {submitError && (
+                <Reveal key="error">
+                  <Alert
+                    icon={<IconAlertCircle size={16} />}
+                    color="red"
+                    variant="light"
+                    title={t('Please check')}
+                  >
+                    {submitError}
+                  </Alert>
+                </Reveal>
+              )}
+            </AnimatePresence>
 
-            <MovementDetailFields
-              form={form}
-              onChange={patch}
-              periodStatus={isRent ? periodStatus : undefined}
-            />
-
-            {pinRequired && (
-              <Alert
-                icon={<IconLock size={18} />}
-                color="blue"
-                variant="light"
-                title={t('Manager or owner approval needed')}
+            <Group
+              justify="flex-end"
+              gap="sm"
+              py="sm"
+              style={{
+                position: 'sticky',
+                bottom: 0,
+                marginBottom: 'calc(var(--mantine-spacing-md) * -1)',
+                background: 'var(--mantine-color-body)',
+                borderTop: '1px solid var(--border)',
+                zIndex: 2,
+              }}
+            >
+              <Button
+                variant="default"
+                onClick={handleClose}
+                type="button"
+                h={isMobile ? 44 : undefined}
               >
-                <Stack gap="xs" mt="xs">
-                  <Text size="xs">{pinReason}</Text>
-                  {overDrawer && (
-                    <TextInput
-                      label={t('Why is this payout bigger than the drawer holds?')}
-                      value={form.overrideReason}
-                      onChange={(e) => patch({ overrideReason: e.currentTarget.value })}
-                      maxLength={200}
-                      required
-                    />
-                  )}
-                  <Group align="flex-end" gap="xs" wrap="nowrap">
-                    <PasswordInput
-                      label={t('PIN')}
-                      placeholder={t('Enter PIN')}
-                      value={form.managerPin}
-                      onChange={(e) => {
-                        patch({ managerPin: e.currentTarget.value });
-                        setPinError(null);
-                        setVerifiedApprover(null);
-                      }}
-                      error={pinError}
-                      style={{ flex: 1 }}
-                    />
-                    <Button
-                      variant="light"
-                      onClick={handleVerifyPin}
-                      loading={verifyPin.isPending}
-                      type="button"
-                      disabled={!form.managerPin.trim()}
-                      h={isMobile ? 44 : undefined}
-                    >
-                      {t('Check PIN')}
-                    </Button>
-                  </Group>
-                  {verifiedApprover && (
-                    <Badge color="green" variant="light" leftSection={<IconCheck size={14} />}>
-                      {verifiedApprover.name
-                        ? `${t('Approved by')} ${verifiedApprover.name}`
-                        : t('PIN accepted')}
-                    </Badge>
-                  )}
-                </Stack>
-              </Alert>
-            )}
-
-            {submitError && (
-              <Alert
-                icon={<IconAlertCircle size={16} />}
-                color="red"
-                variant="light"
-                title={t('Please check')}
-              >
-                {submitError}
-              </Alert>
-            )}
-
-            <Group justify="flex-end" mt="md" gap="sm">
-              <Button variant="default" onClick={handleClose} type="button">
                 {t('Cancel')}
               </Button>
-              <Button type="submit" color="blue" loading={createMovement.isPending}>
+              <Button
+                type="submit"
+                color="blue"
+                loading={createMovement.isPending}
+                h={isMobile ? 44 : undefined}
+              >
                 {isNoSale ? t('Open drawer') : t('Record')}
               </Button>
             </Group>

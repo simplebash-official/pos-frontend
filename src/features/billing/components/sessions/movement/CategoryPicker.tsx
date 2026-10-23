@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Badge, Button, Checkbox, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
-import { IconDots } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { SearchCombobox } from '@/shared/components/SearchCombobox';
 import { getErrorMessage } from '@/shared/lib/error';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { useCreateCashCategory, useSimilarCashCategories } from '../../../hooks/useCashLookups';
 import type { CashCategory, CashMovementType } from '../../../types';
-import { getCategoryLabel } from './movementTypes';
+import { ChoiceCard, ChoiceGroup } from './ChoiceCard';
 
 /** How many of the shop's most used categories get a one-tap chip. */
 const CHIP_COUNT = 5;
@@ -105,50 +105,47 @@ export const CategoryPicker = ({
     }
   };
 
-  const chipHeight = isMobile ? 44 : undefined;
-
   return (
     <Stack gap="xs">
-      <Text size="sm" fw={500}>
-        {getCategoryLabel(movementType)}{' '}
-        <Text span c="red">
-          *
-        </Text>
-      </Text>
-
-      <Group gap="xs" data-testid="category-chips">
-        {chips.map((c) => {
-          const selected = c.key === value.categoryKey;
-          const label = selected && value.customLabel ? `${c.name}: ${value.customLabel}` : c.name;
-          return (
-            <Button
-              key={c.key}
-              size="sm"
-              variant={selected ? 'filled' : 'default'}
-              h={chipHeight}
-              onClick={() => select(c.key)}
-              aria-pressed={selected}
-            >
-              {label}
-              {c.reviewStatus === 'needs_review' && (
-                <Badge size="xs" variant="light" ml={6}>
-                  {t('New')}
-                </Badge>
-              )}
-            </Button>
-          );
-        })}
-        <Button
-          size="sm"
-          variant="default"
-          h={chipHeight}
-          leftSection={<IconDots size={16} />}
-          onClick={() => setShowMore((open) => !open)}
-          aria-expanded={showMore}
-        >
-          {t('More')}
-        </Button>
-      </Group>
+      <ChoiceGroup label={t('Pick one')}>
+        <Group gap="xs" data-testid="category-chips">
+          {chips.map((c) => {
+            const selected = c.key === value.categoryKey;
+            const label =
+              selected && value.customLabel ? `${c.name}: ${value.customLabel}` : c.name;
+            return (
+              <div key={c.key} style={{ flex: isMobile ? '1 1 100%' : '0 1 auto' }}>
+                <ChoiceCard
+                  label={label}
+                  selected={selected}
+                  allowed
+                  tall={isMobile}
+                  onSelect={() => select(c.key)}
+                  trailing={
+                    c.reviewStatus === 'needs_review' ? (
+                      <Badge size="xs" variant="light" ml={6}>
+                        {t('New')}
+                      </Badge>
+                    ) : undefined
+                  }
+                />
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            className="choice-card choice-more"
+            style={{ width: isMobile ? '100%' : 'auto', minHeight: isMobile ? 56 : 44 }}
+            onClick={() => setShowMore((open) => !open)}
+            aria-expanded={showMore}
+          >
+            <IconPlus size={16} aria-hidden />
+            <Text size="sm" fw={600} component="span">
+              {t('More')}
+            </Text>
+          </button>
+        </Group>
+      </ChoiceGroup>
 
       {showMore && draftName === null && (
         <SearchCombobox

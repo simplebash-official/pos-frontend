@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Alert, Button, Checkbox, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useMemo, type ReactNode } from 'react';
+import { Alert, Button, Checkbox, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
 import { SearchCombobox, type SearchComboboxItem } from '@/shared/components/SearchCombobox';
 import { t } from '@/shared/i18n/t';
 import { usePayees } from '../../../hooks/useCashLookups';
@@ -103,6 +103,8 @@ export const MovementDetailFields = ({
       value={form.note}
       onChange={(e) => onChange({ note: e.currentTarget.value })}
       maxLength={NOTE_MAX}
+      autoComplete="off"
+      name="cash-movement-note"
     />
   );
 
@@ -112,7 +114,17 @@ export const MovementDetailFields = ({
       value={form.referenceNo}
       onChange={(e) => onChange({ referenceNo: e.currentTarget.value })}
       maxLength={60}
+      autoComplete="off"
+      name="cash-movement-reference"
     />
+  );
+
+  // Two short text fields share a row on a computer.
+  const pair = (first: ReactNode, second: ReactNode) => (
+    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+      {first}
+      {second}
+    </SimpleGrid>
   );
 
   switch (type) {
@@ -142,8 +154,7 @@ export const MovementDetailFields = ({
               onCreate: (typed) => typed && onChange({ payeeKey: null, payeeName: typed }),
             }}
           />
-          {reference(t('Receipt or bill number (optional)'))}
-          {note}
+          {pair(reference(t('Receipt or bill number (optional)')), note)}
         </Stack>
       );
     case 'rent_and_bills':
@@ -162,6 +173,7 @@ export const MovementDetailFields = ({
           />
           <Select
             label={t('Month this payment covers')}
+            placeholder={t('Choose a month')}
             data={months}
             value={form.period}
             onChange={(value) => onChange({ period: value })}
@@ -198,8 +210,7 @@ export const MovementDetailFields = ({
               </Stack>
             </Alert>
           )}
-          {reference(t('Agreement, meter or bill number (optional)'))}
-          {note}
+          {pair(reference(t('Agreement, meter or bill number (optional)')), note)}
           <Text size="xs" c="dimmed">
             {t(
               'This records cash paid from the drawer. A bank transfer for rent is not recorded here.'
@@ -223,6 +234,7 @@ export const MovementDetailFields = ({
           />
           <Select
             label={t('Pay month (optional)')}
+            placeholder={t('Choose a month')}
             data={months}
             value={form.period}
             onChange={(value) => onChange({ period: value })}
@@ -246,8 +258,7 @@ export const MovementDetailFields = ({
             noCreateHint={t('To add a supplier, ask a manager.')}
             emptyText={t('No supplier found.')}
           />
-          {reference(t('Bill or order number (optional)'))}
-          {note}
+          {pair(reference(t('Bill or order number (optional)')), note)}
         </Stack>
       );
     case 'owner_withdrawal':
@@ -274,8 +285,7 @@ export const MovementDetailFields = ({
             maxLength={60}
             autoComplete="off"
           />
-          {reference(t('Reference (optional)'))}
-          {note}
+          {pair(reference(t('Reference (optional)')), note)}
         </Stack>
       );
     case 'cash_drop':

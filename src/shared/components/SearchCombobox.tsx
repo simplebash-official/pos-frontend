@@ -199,13 +199,18 @@ export const SearchCombobox = ({
                     {item.label}
                   </Text>
                   {item.description && (
-                    <Text size="xs" c="dimmed" truncate>
+                    <Text size="xs" c="dimmed" truncate className="search-combobox-sub">
                       {item.description}
                     </Text>
                   )}
                 </Stack>
                 {item.meta && (
-                  <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+                  <Text
+                    size="xs"
+                    c="dimmed"
+                    className="search-combobox-sub"
+                    style={{ flexShrink: 0 }}
+                  >
                     {item.meta}
                   </Text>
                 )}

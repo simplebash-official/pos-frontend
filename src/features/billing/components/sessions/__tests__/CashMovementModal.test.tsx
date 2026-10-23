@@ -135,17 +135,20 @@ describe('CashMovementModal', () => {
   };
   const text = () => document.body.textContent ?? '';
   const buttons = () => Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'));
-  // A type chip also carries its number-key hint ("Small expense1"), so match on how the text starts.
+  // A kind card also carries its one-line hint, so match on how the text starts.
   const button = (label: string | RegExp) =>
     buttons().find((b) =>
       typeof label === 'string'
         ? (b.textContent ?? '').trim().startsWith(label)
         : label.test(b.textContent ?? '')
     );
+  // The direction tabs (Money out, Money in, ...) are radios inside the "Kind of cash movement" group.
   const group = (label: string) =>
-    Array.from(document.body.querySelectorAll<HTMLLabelElement>('label')).find(
-      (l) => l.textContent?.trim() === label
-    );
+    Array.from(
+      document.querySelectorAll<HTMLButtonElement>(
+        '[role="radiogroup"][aria-label="Kind of cash movement"] [role="radio"]'
+      )
+    ).find((b) => b.textContent?.trim() === label);
   const click = async (label: string | RegExp) => {
     const target = button(label);
     if (!target) throw new Error(`no button named ${String(label)}`);
@@ -174,9 +177,45 @@ describe('CashMovementModal', () => {
 
   it('opens on a small expense with no helper line about adding or withdrawing', async () => {
     await render(CASHIER);
-    expect(button('Small expense')?.getAttribute('aria-pressed')).toBe('true');
+    expect(button('Small expense')?.getAttribute('aria-checked')).toBe('true');
     expect(text()).not.toContain('Enter amount to add or withdraw');
     expect(text()).toContain('What is it for?');
+  });
+
+  it('numbers the steps and says what each thing is: choices are radios, quick amounts are pills', async () => {
+    await render(CASHIER);
+    const steps = Array.from(document.querySelectorAll('[role="group"][aria-label]')).map((g) =>
+      g.getAttribute('aria-label')
+    );
+    expect(steps).toEqual(['What happened?', 'How much?', 'What is it for?', 'Details']);
+    // Exactly one kind is chosen, and each kind says what it is for inside its own card.
+    const kinds = Array.from(
+      document.querySelectorAll('[role="radiogroup"][aria-label="Which one?"] [role="radio"]')
+    );
+    expect(kinds.filter((k) => k.getAttribute('aria-checked') === 'true')).toHaveLength(1);
+    expect(kinds[0].textContent).toContain('Small daily spends');
+    expect(text()).toContain('Quick amounts');
+    expect(button('Rs. 500.00')?.getAttribute('role')).not.toBe('radio');
+  });
+
+  it('moves between kinds with the arrow keys, like any radio group', async () => {
+    await render(MANAGER);
+    const first = button('Small expense')!;
+    first.focus();
+    await act(async () => {
+      first.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    });
+    expect(button('Rent and bills')?.getAttribute('aria-checked')).toBe('true');
+    expect(button('Small expense')?.getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('skips the amount step for a no-sale open and renumbers the rest', async () => {
+    await render(CASHIER);
+    await act(async () => group('Other')!.click());
+    const steps = Array.from(document.querySelectorAll('[role="group"][aria-label]')).map((g) =>
+      g.getAttribute('aria-label')
+    );
+    expect(steps).toEqual(['What happened?', 'Why are you opening the drawer?', 'Details']);
   });
 
   it('shows the busiest categories as one-tap chips', async () => {
