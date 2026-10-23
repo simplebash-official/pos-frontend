@@ -20,6 +20,8 @@ import { PrintingSection } from './sections/PrintingSection';
 import { DocumentDesignsSection } from './sections/DocumentDesignsSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
 import { LabelsSection } from '@/features/labels/components/LabelsSection';
+import { CashCategoriesSection } from './sections/CashCategoriesSection';
+import { CashRulesSection } from './sections/CashRulesSection';
 import { AboutSection } from './sections/AboutSection';
 import { BackupSection } from './sections/BackupSection';
 import { BenchmarkSection } from './sections/BenchmarkSection';
@@ -73,6 +75,10 @@ const renderSection = (
       return <ShopProfileSection onDirtyChange={onDirtyChange} />;
     case 'register-shifts':
       return <RegisterShiftsSection onDirtyChange={onDirtyChange} />;
+    case 'cash-rules':
+      return <CashRulesSection onDirtyChange={onDirtyChange} />;
+    case 'cash-categories':
+      return <CashCategoriesSection />;
     case 'branding':
       return <BrandingSection onDirtyChange={onDirtyChange} />;
     case 'bank-details':

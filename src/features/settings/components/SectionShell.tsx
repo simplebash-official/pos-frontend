@@ -10,6 +10,8 @@ export interface SectionShellProps {
   onSave: () => void;
   onCancel: () => void;
   saveLabel?: string;
+  /** For a section whose changes save as they are made (a list you edit in place): no Save/Cancel. */
+  hideActions?: boolean;
   children: ReactNode;
 }
 
@@ -26,6 +28,7 @@ export const SectionShell = ({
   onSave,
   onCancel,
   saveLabel = 'Save Changes',
+  hideActions = false,
   children,
 }: SectionShellProps) => {
   return (
@@ -58,14 +61,16 @@ export const SectionShell = ({
             </Text>
           )}
         </Box>
-        <Group gap="sm" style={{ flexShrink: 0 }}>
-          <Button variant="default" onClick={onCancel} disabled={!isDirty || saving}>
-            {t('Cancel')}
-          </Button>
-          <Button color="blue" onClick={onSave} disabled={!isDirty} loading={saving}>
-            {saveLabel}
-          </Button>
-        </Group>
+        {!hideActions && (
+          <Group gap="sm" style={{ flexShrink: 0 }}>
+            <Button variant="default" onClick={onCancel} disabled={!isDirty || saving}>
+              {t('Cancel')}
+            </Button>
+            <Button color="blue" onClick={onSave} disabled={!isDirty} loading={saving}>
+              {saveLabel}
+            </Button>
+          </Group>
+        )}
       </Group>
 
       <Divider my="md" style={{ flexShrink: 0 }} />

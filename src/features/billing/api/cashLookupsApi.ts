@@ -1,6 +1,9 @@
 import { apiClient } from '@/api/client';
 import type { ApiResponse } from '@/shared/types/common';
 import type {
+  CashSettings,
+  UpdateCashCategoryInput,
+  UpdateCashSettingsInput,
   PeriodStatus,
   CashCategory,
   CashMovementType,
@@ -47,6 +50,36 @@ export const findSimilarCashCategories = async (
 
 export const createCashCategory = async (input: CreateCashCategoryInput): Promise<CashCategory> => {
   const response = await apiClient.post<ApiResponse<CashCategory>>('/cash-categories', input);
+  return response.data;
+};
+
+export const updateCashCategory = async (
+  key: string,
+  input: UpdateCashCategoryInput
+): Promise<CashCategory> => {
+  const response = await apiClient.patch<ApiResponse<CashCategory>>(
+    `/cash-categories/${encodeURIComponent(key)}`,
+    input
+  );
+  return response.data;
+};
+
+/** Moves everything filed under `key` into `targetKey` and hides `key`. */
+export const mergeCashCategory = async (key: string, targetKey: string): Promise<CashCategory> => {
+  const response = await apiClient.post<ApiResponse<CashCategory>>(
+    `/cash-categories/${encodeURIComponent(key)}/merge`,
+    { targetKey }
+  );
+  return response.data;
+};
+
+export const getCashSettings = async (): Promise<CashSettings> => {
+  const response = await apiClient.get<ApiResponse<CashSettings>>('/cash-settings');
+  return response.data;
+};
+
+export const updateCashSettings = async (input: UpdateCashSettingsInput): Promise<CashSettings> => {
+  const response = await apiClient.put<ApiResponse<CashSettings>>('/cash-settings', input);
   return response.data;
 };
 

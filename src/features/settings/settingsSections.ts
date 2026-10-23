@@ -3,6 +3,8 @@ import {
   IconBuildingBank,
   IconBuildingStore,
   IconCashRegister,
+  IconAdjustments,
+  IconCategory,
   IconCloud,
   IconCloudUpload,
   IconDatabase,
@@ -19,6 +21,8 @@ import {
 export type SettingsSectionId =
   | 'shop-profile'
   | 'register-shifts'
+  | 'cash-rules'
+  | 'cash-categories'
   | 'branding'
   | 'bank-details'
   | 'printing'
@@ -63,6 +67,20 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Registers',
     description: 'Multi-device shift sharing and cash drawer isolation mode',
     icon: IconCashRegister,
+  },
+  {
+    id: 'cash-rules',
+    label: 'Cash Drawer Rules',
+    shortLabel: 'Drawer rules',
+    description: 'Undo time, approval limit, quick amounts and float target',
+    icon: IconAdjustments,
+  },
+  {
+    id: 'cash-categories',
+    label: 'Cash Categories',
+    shortLabel: 'Categories',
+    description: 'Rename, hide, merge and review what cash is filed under',
+    icon: IconCategory,
   },
   {
     id: 'branding',

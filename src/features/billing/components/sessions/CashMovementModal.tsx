@@ -28,7 +28,7 @@ import { PERMISSIONS } from '@/constants/permissions';
 import { getErrorMessage } from '@/shared/lib/error';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
-import { useCashCategories, usePeriodStatus } from '../../hooks/useCashLookups';
+import { useCashCategories, useCashSettings, usePeriodStatus } from '../../hooks/useCashLookups';
 import {
   useCreateCashMovement,
   useDrawerState,
@@ -80,8 +80,6 @@ export interface CashMovementModalProps {
   onMovementCreated?: (movement: CashMovement) => void;
 }
 
-/** One-tap amounts for the common cases. */
-const QUICK_AMOUNTS_CENTS = [10_000, 50_000, 100_000, 500_000];
 const AMOUNT_FIELD_ID = 'cash-movement-amount';
 
 const START_TYPE: CashMovementType = 'petty_expense';
@@ -95,6 +93,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   onMovementCreated,
 }) => {
   const isMobile = useIsMobile();
+  const { data: cashSettings } = useCashSettings(opened);
   const createMovement = useCreateCashMovement();
   const reverseMovement = useReverseCashMovement();
   const verifyPin = useVerifyPin();
@@ -388,7 +387,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
                   autoFocus={!isMobile}
                 />
                 <Group gap="xs">
-                  {QUICK_AMOUNTS_CENTS.map((cents) => (
+                  {cashSettings?.quickAmountsCents.map((cents) => (
                     <Button
                       key={cents}
                       size="xs"
@@ -400,6 +399,22 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
                     </Button>
                   ))}
                 </Group>
+                {form.type === 'cash_drop' &&
+                  cashSettings?.floatTargetCents !== undefined &&
+                  cashInDrawer !== undefined &&
+                  cashInDrawer > cashSettings.floatTargetCents && (
+                    <Button
+                      size="xs"
+                      variant="light"
+                      h={isMobile ? 44 : undefined}
+                      onClick={() =>
+                        patch({ amountCents: cashInDrawer - (cashSettings.floatTargetCents ?? 0) })
+                      }
+                      data-log-id="cash.drop-excess"
+                    >
+                      {`${t('Drop excess')} (${formatMoney(cashInDrawer - cashSettings.floatTargetCents)})`}
+                    </Button>
+                  )}
                 {cashInDrawer !== undefined && (
                   <Text
                     size="sm"

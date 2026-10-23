@@ -12,7 +12,7 @@ import { MantineProvider } from '@mantine/core';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { CashMovementModal } from '../CashMovementModal';
-import type { CashCategory, CashMovement } from '../../../types';
+import type { CashCategory, CashMovement, CashSettings } from '../../../types';
 
 installDrawerTestEnv();
 
@@ -35,6 +35,13 @@ const category = (key: string, name: string, over: Partial<CashCategory> = {}): 
   ...over,
 });
 
+const SETTINGS: CashSettings = {
+  undoWindowSeconds: 120,
+  quickAmountsCents: [10_000, 50_000, 100_000, 500_000],
+  version: 1,
+  updatedAt: '2026-01-01T00:00:00Z',
+};
+
 const createMovement = { mutateAsync: vi.fn(), isPending: false };
 const createCategory = { mutateAsync: vi.fn(), isPending: false };
 const verifyPin = { mutateAsync: vi.fn(), isPending: false };
@@ -42,6 +49,8 @@ const reverseMovement = { mutateAsync: vi.fn(), isPending: false };
 // What the server says the shift's drawer holds; `undefined` while it has not loaded.
 let cashInDrawer: number | undefined = 10_000_000;
 let categories: CashCategory[] = [];
+// The shop's drawer rules as the server holds them.
+let settings: CashSettings | undefined;
 
 vi.mock('@/features/billing/hooks/useCashLookups', () => ({
   useCashCategories: () => ({ data: categories, isLoading: false }),
@@ -49,6 +58,7 @@ vi.mock('@/features/billing/hooks/useCashLookups', () => ({
   useCreateCashCategory: () => createCategory,
   usePayees: () => ({ data: [], isLoading: false }),
   usePeriodStatus: () => ({ data: undefined }),
+  useCashSettings: () => ({ data: settings }),
   useCreatePayee: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
@@ -94,6 +104,7 @@ describe('CashMovementModal', () => {
 
   beforeEach(() => {
     Element.prototype.scrollIntoView ??= () => undefined;
+    settings = SETTINGS;
     categories = [
       category('ccat_tea', 'Tea and refreshments', { usageCount: 5 }),
       category('ccat_fuel', 'Fuel'),
@@ -338,6 +349,40 @@ describe('CashMovementModal', () => {
       await act(async () => group('Money in')!.click());
       await typeInto(amountField(), '500');
       expect(text()).toContain('Rs. 10,000.00 → Rs. 10,500.00');
+    });
+
+    it('offers the quick amounts the shop chose, and none before they have loaded', async () => {
+      settings = undefined;
+      await render(CASHIER);
+      expect(button('Rs. 250.00')).toBeUndefined();
+      act(() => root.unmount());
+      root = createRoot(container);
+      settings = { ...SETTINGS, quickAmountsCents: [25_000, 75_000] };
+      await render(CASHIER);
+      expect(button('Rs. 250.00')).toBeTruthy();
+      expect(button('Rs. 750.00')).toBeTruthy();
+      expect(button('Rs. 100.00')).toBeUndefined();
+      await click('Rs. 750.00');
+      expect((amountField() as HTMLInputElement).value).toBe('Rs. 750.00');
+    });
+
+    it('offers to drop the excess above the float target on a cash drop, and only then', async () => {
+      cashInDrawer = 1_000_000;
+      settings = { ...SETTINGS, floatTargetCents: 300_000 };
+      categories = [category('ccat_safe', 'To safe', { movementType: 'cash_drop' })];
+      await render(CASHIER);
+      expect(button('Drop excess')).toBeUndefined();
+      await act(async () => group('Move cash')!.click());
+      expect(button('Drop excess (Rs. 7,000.00)')).toBeTruthy();
+      await click('Drop excess');
+      expect((amountField() as HTMLInputElement).value).toBe('Rs. 7000.00');
+
+      act(() => root.unmount());
+      root = createRoot(container);
+      settings = { ...SETTINGS, floatTargetCents: 2_000_000 };
+      await render(CASHIER);
+      await act(async () => group('Move cash')!.click());
+      expect(button('Drop excess')).toBeUndefined();
     });
 
     it('shows nothing about the drawer until the server has told us', async () => {

@@ -53,6 +53,7 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.reports.all,
   ],
   cashCategories: [queryKeys.billing.cash.all],
+  cashSettings: [queryKeys.billing.cash.all],
   expenses: [
     queryKeys.expenses.all,
     queryKeys.accounts.all,

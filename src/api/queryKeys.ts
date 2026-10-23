@@ -46,6 +46,7 @@ export const queryKeys = {
         ['billing', 'cash', 'similarCategories', movementType, name] as const,
       payees: (filters?: Record<string, unknown>) =>
         ['billing', 'cash', 'payees', filters] as const,
+      settings: () => ['billing', 'cash', 'settings'] as const,
       periodStatus: (categoryKey: string | null, payeeKey: string | null, period: string | null) =>
         ['billing', 'cash', 'periodStatus', categoryKey, payeeKey, period] as const,
     },

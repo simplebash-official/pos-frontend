@@ -234,6 +234,44 @@ export interface CashCategory {
   updatedAt: string;
 }
 
+/** Fields of a category a manager can change; leave one out to leave it as it is. */
+export interface UpdateCashCategoryInput {
+  name?: string;
+  /** An empty string clears the Sinhala name. */
+  nameSi?: string;
+  reportGroup?: CashReportGroup;
+  pinned?: boolean;
+  sortOrder?: number;
+  active?: boolean;
+  requiresReceipt?: boolean;
+  /** Zero clears the limit. */
+  requiresApprovalOverCents?: number;
+  /** Marks a cashier-made category as looked at. */
+  approve?: boolean;
+}
+
+/** The shop's drawer rules. */
+export interface CashSettings {
+  /** Seconds the person who recorded a movement can undo it without a manager. */
+  undoWindowSeconds: number;
+  /** A payout above this needs a manager PIN whatever its category; absent means no shop-wide limit. */
+  approvalThresholdCents?: number;
+  /** Amount shortcuts under the amount field, smallest first. */
+  quickAmountsCents: number[];
+  /** What each drawer should hold after excess is dropped; absent means no target. */
+  floatTargetCents?: number;
+  version: number;
+  updatedAt: string;
+}
+
+/** The whole set is sent every time; an absent optional value clears it. */
+export interface UpdateCashSettingsInput {
+  undoWindowSeconds: number;
+  approvalThresholdCents?: number;
+  quickAmountsCents: number[];
+  floatTargetCents?: number;
+}
+
 export interface CreateCashCategoryInput {
   movementType: CashMovementType;
   name: string;
