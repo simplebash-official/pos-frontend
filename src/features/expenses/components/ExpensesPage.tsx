@@ -42,6 +42,7 @@ import type {
   RecurringBill,
   RecurringExpense,
 } from '../types';
+import { ReceiptsAction } from '@/features/attachments/components/ReceiptsAction';
 import { ExpenseFormModal, type ExpensePrefill } from './ExpenseFormModal';
 import { ExpensePaymentModal } from './ExpensePaymentModal';
 import { RecurringFormModal } from './RecurringFormModal';
@@ -247,9 +248,14 @@ export const ExpensesPage = () => {
         key: 'actions',
         header: '',
         align: 'right',
-        render: (row) =>
-          canManage && canPay(row) ? (
-            <Group gap={6} justify="flex-end" wrap="nowrap" onClick={(e) => e.stopPropagation()}>
+        render: (row) => (
+          <Group gap={6} justify="flex-end" wrap="nowrap" onClick={(e) => e.stopPropagation()}>
+            <ReceiptsAction
+              ownerKind={row.source === 'drawer' ? 'cash_movement' : 'expense'}
+              ownerKey={row.key}
+              number={row.number}
+            />
+            {canManage && canPay(row) && (
               <ActionIcon
                 variant="light"
                 color="blue"
@@ -260,8 +266,9 @@ export const ExpensesPage = () => {
               >
                 <IconCreditCardPay size={16} />
               </ActionIcon>
-            </Group>
-          ) : null,
+            )}
+          </Group>
+        ),
       },
     ],
     [isMobile, canManage]

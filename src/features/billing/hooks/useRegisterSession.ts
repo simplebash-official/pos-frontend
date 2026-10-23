@@ -146,6 +146,7 @@ export const useCreateCashMovement = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
     },
   });
 };
@@ -162,6 +163,7 @@ export const useReverseCashMovement = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
     },
   });
 };

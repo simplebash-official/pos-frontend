@@ -50,6 +50,17 @@ export const queryKeys = {
         ['billing', 'cash', 'periodStatus', categoryKey, payeeKey, period] as const,
     },
   },
+  balances: {
+    all: ['balances'] as const,
+    suppliers: () => ['balances', 'suppliers'] as const,
+    staff: () => ['balances', 'staff'] as const,
+    staffDetail: (key: string | null) => ['balances', 'staff', key] as const,
+  },
+  attachments: {
+    all: ['attachments'] as const,
+    list: (kind: string, key: string) => ['attachments', 'list', kind, key] as const,
+    image: (key: string) => ['attachments', 'image', key] as const,
+  },
   accounts: {
     all: ['accounts'] as const,
     list: () => ['accounts', 'list'] as const,

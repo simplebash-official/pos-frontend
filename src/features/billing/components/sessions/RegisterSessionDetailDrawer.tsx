@@ -69,6 +69,7 @@ import { formatDateTime } from '@/shared/lib/date';
 import { t } from '@/shared/i18n/t';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { calculateExpectedDrawerCash } from './sessionMath';
+import { ReceiptsAction } from '@/features/attachments/components/ReceiptsAction';
 import { ReverseMovementModal } from './ReverseMovementModal';
 import { ZReportModal } from './ZReportModal';
 import { ReopenSessionModal } from './ReopenSessionModal';
@@ -830,6 +831,7 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                     <Table.Th>{t('By')}</Table.Th>
                                     <Table.Th>{t('For')}</Table.Th>
                                     <Table.Th>{t('Recorded At')}</Table.Th>
+                                    <Table.Th />
                                     {canReverse && <Table.Th />}
                                   </Table.Tr>
                                 </Table.Thead>
@@ -891,6 +893,15 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                           <Text size="xs" c="dimmed">
                                             {formatDateTime(m.createdAt)}
                                           </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                          {m.movementType !== 'no_sale' && (
+                                            <ReceiptsAction
+                                              ownerKind="cash_movement"
+                                              ownerKey={m.key}
+                                              number={m.movementNumber}
+                                            />
+                                          )}
                                         </Table.Td>
                                         {canReverse && (
                                           <Table.Td>

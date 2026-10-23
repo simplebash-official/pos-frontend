@@ -52,6 +52,7 @@ export const useCreatePurchase = () => {
     mutationFn: (input: StockPurchaseInput) => createPurchase(input),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.purchases.bySupplier(variables.supplierKey),
       });

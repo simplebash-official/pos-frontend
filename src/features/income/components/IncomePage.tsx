@@ -14,6 +14,7 @@ import { t } from '@/shared/i18n/t';
 import { useIncome, useIncomeStats } from '../hooks/useIncome';
 import { receivedIntoLabel } from '../lib/incomeView';
 import type { IncomeRow, IncomeSource } from '../types';
+import { ReceiptsAction } from '@/features/attachments/components/ReceiptsAction';
 import { IncomeFormModal } from './IncomeFormModal';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
@@ -94,6 +95,18 @@ export const IncomePage = () => {
         header: t('Received in'),
         align: 'left',
         render: (row) => <Text size="sm">{receivedIntoLabel(row.receivedInto)}</Text>,
+      },
+      {
+        key: 'receipts',
+        header: '',
+        align: 'right',
+        render: (row) => (
+          <ReceiptsAction
+            ownerKind={row.source === 'drawer' ? 'cash_movement' : 'income'}
+            ownerKey={row.key}
+            number={row.number}
+          />
+        ),
       },
     ],
     []

@@ -50,6 +50,7 @@ const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.PRINT_JOBS]: `Print Jobs · ${PRODUCT_NAME}`,
   [ROUTES.EXPENSES]: `Expenses · ${PRODUCT_NAME}`,
   [ROUTES.INCOME]: `Income · ${PRODUCT_NAME}`,
+  [ROUTES.BALANCES]: `Balances · ${PRODUCT_NAME}`,
   [ROUTES.MONEY_ACCOUNTS]: `Money Accounts · ${PRODUCT_NAME}`,
   [ROUTES.INVENTORY]: `Inventory & Stock · ${PRODUCT_NAME}`,
   [ROUTES.LABELS]: `Labels · ${PRODUCT_NAME}`,

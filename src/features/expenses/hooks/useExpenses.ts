@@ -35,6 +35,7 @@ export const useCreateExpense = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
     },
   });
 };
@@ -47,6 +48,7 @@ export const useAddExpensePayment = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
     },
   });
 };
