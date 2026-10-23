@@ -20,7 +20,14 @@ export interface ModuleStatsResult<T> {
  */
 export function useModuleStats<T>(
   module:
-    'billing' | 'repairs' | 'printJobs' | 'inventory' | 'suppliers' | 'customers' | 'expenses',
+    | 'billing'
+    | 'repairs'
+    | 'printJobs'
+    | 'inventory'
+    | 'suppliers'
+    | 'customers'
+    | 'expenses'
+    | 'income',
   queryKey: readonly unknown[],
   fetchFn: () => Promise<T>
 ): ModuleStatsResult<T> {

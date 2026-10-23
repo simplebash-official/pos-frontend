@@ -101,7 +101,9 @@ export const getTypeHint = (type: CashMovementType): string => {
     case 'owner_withdrawal':
       return t('Cash the owner takes out of the shop for personal use.');
     case 'add_cash':
-      return t('Cash put into the drawer, such as change, the owner’s money or a bank withdrawal.');
+      return t(
+        'Cash put into the drawer, such as change, the owner’s money, a bank withdrawal or money you received that is not a sale.'
+      );
     case 'cash_drop':
       return t('Extra cash moved from the drawer to the safe or the bank.');
     case 'no_sale':

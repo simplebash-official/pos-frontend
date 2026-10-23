@@ -43,6 +43,9 @@ const ExpensesPage = lazy(() =>
     default: m.ExpensesPage,
   }))
 );
+const IncomePage = lazy(() =>
+  import('@/features/income/components/IncomePage').then((m) => ({ default: m.IncomePage }))
+);
 const QuotationsPage = lazy(() =>
   import('@/features/quotations/components/QuotationsPage').then((m) => ({
     default: m.QuotationsPage,
@@ -175,6 +178,16 @@ export const router = createBrowserRouter([
           <RequirePermission permissions={[PERMISSIONS.EXPENSES_VIEW]}>
             <Suspense fallback={<PageSkeleton />}>
               <ExpensesPage />
+            </Suspense>
+          </RequirePermission>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.INCOME,
+        element: (
+          <RequirePermission permissions={[PERMISSIONS.INCOME_VIEW]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <IncomePage />
             </Suspense>
           </RequirePermission>
         ),

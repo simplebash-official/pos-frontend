@@ -21,6 +21,8 @@ export const PERMISSIONS = {
   PAYEES_MANAGE: 'payees:manage',
   EXPENSES_VIEW: 'expenses:view',
   EXPENSES_MANAGE: 'expenses:manage',
+  INCOME_VIEW: 'income:view',
+  INCOME_MANAGE: 'income:manage',
   INVENTORY_READ: 'inventory:read',
   INVENTORY_WRITE: 'inventory:write',
   CUSTOMERS_WRITE: 'customers:write',

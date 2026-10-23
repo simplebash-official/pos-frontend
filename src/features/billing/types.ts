@@ -202,7 +202,13 @@ export type CashMovementType =
 export type CashDirection = 'out' | 'in' | 'neutral';
 
 export type CashReportGroup =
-  'operating_expense' | 'purchases' | 'payroll' | 'owner_equity' | 'transfer' | 'liabilities';
+  | 'operating_expense'
+  | 'purchases'
+  | 'payroll'
+  | 'owner_equity'
+  | 'transfer'
+  | 'liabilities'
+  | 'other_income';
 
 export type CashCategoryReviewStatus = 'approved' | 'needs_review';
 

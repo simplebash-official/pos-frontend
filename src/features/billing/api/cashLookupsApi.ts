@@ -14,6 +14,8 @@ export interface CashCategoryListQuery {
   movementType?: CashMovementType;
   /** Only categories that count as a business cost, for the expense ledger. */
   forExpenses?: boolean;
+  /** Only categories that count as income, for the income ledger. */
+  forIncome?: boolean;
   includeHidden?: boolean;
   search?: string;
   needsReview?: boolean;
