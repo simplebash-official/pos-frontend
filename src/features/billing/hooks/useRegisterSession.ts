@@ -144,6 +144,8 @@ export const useCreateCashMovement = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
       // A drawer payment is a cost on the Expenses page and counts towards a regular bill.
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     },
   });
 };
@@ -158,6 +160,8 @@ export const useReverseCashMovement = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
       // A reversed drawer payment stops counting as a cost.
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     },
   });
 };

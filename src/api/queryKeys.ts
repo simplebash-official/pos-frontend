@@ -50,6 +50,10 @@ export const queryKeys = {
         ['billing', 'cash', 'periodStatus', categoryKey, payeeKey, period] as const,
     },
   },
+  accounts: {
+    all: ['accounts'] as const,
+    list: () => ['accounts', 'list'] as const,
+  },
   income: {
     all: ['income'] as const,
     list: (filters?: Record<string, unknown>) => ['income', 'list', filters] as const,

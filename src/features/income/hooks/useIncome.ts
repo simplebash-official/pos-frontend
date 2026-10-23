@@ -20,6 +20,7 @@ export const useCreateIncome = () => {
     mutationFn: (input: CreateIncomeInput) => createIncome(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     },
   });
 };
