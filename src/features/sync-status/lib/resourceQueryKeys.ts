@@ -38,6 +38,17 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.reports.all,
   ],
   quotations: [queryKeys.quotations.all],
+  cashMovements: [
+    queryKeys.billing.sessions.all,
+    queryKeys.billing.cash.all,
+    queryKeys.expenses.all,
+    queryKeys.reports.all,
+  ],
+  cashCategories: [queryKeys.billing.cash.all],
+  expenses: [queryKeys.expenses.all, queryKeys.reports.all],
+  recurringExpenses: [queryKeys.expenses.all],
+  expensePayments: [queryKeys.expenses.all, queryKeys.reports.all],
+  payees: [queryKeys.billing.cash.all],
   users: [queryKeys.users.all],
 };
 

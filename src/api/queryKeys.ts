@@ -38,6 +38,24 @@ export const queryKeys = {
       movements: (filters?: Record<string, unknown>) =>
         ['billing', 'sessions', 'movements', filters] as const,
     },
+    cash: {
+      all: ['billing', 'cash'] as const,
+      categories: (filters?: Record<string, unknown>) =>
+        ['billing', 'cash', 'categories', filters] as const,
+      similarCategories: (movementType: string, name: string) =>
+        ['billing', 'cash', 'similarCategories', movementType, name] as const,
+      payees: (filters?: Record<string, unknown>) =>
+        ['billing', 'cash', 'payees', filters] as const,
+      periodStatus: (categoryKey: string | null, payeeKey: string | null, period: string | null) =>
+        ['billing', 'cash', 'periodStatus', categoryKey, payeeKey, period] as const,
+    },
+  },
+  expenses: {
+    all: ['expenses'] as const,
+    list: (filters?: Record<string, unknown>) => ['expenses', 'list', filters] as const,
+    detail: (key: string | null) => ['expenses', 'detail', key] as const,
+    stats: () => ['expenses', 'stats'] as const,
+    recurring: (includeInactive: boolean) => ['expenses', 'recurring', includeInactive] as const,
   },
   repairs: {
     all: ['repairs'] as const,

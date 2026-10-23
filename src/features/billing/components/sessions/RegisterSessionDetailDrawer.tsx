@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ActionIcon,
   Badge,
   Box,
   Button,
@@ -17,9 +18,10 @@ import {
 } from '@mantine/core';
 import {
   IconActivity,
-  IconAlertCircle,
+  IconArrowBackUp,
   IconArrowDownRight,
   IconArrowUpRight,
+  IconAlertCircle,
   IconBuildingBank,
   IconCalendar,
   IconCash,
@@ -65,11 +67,14 @@ import { USER_ROLES } from '@/constants/roles';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { t } from '@/shared/i18n/t';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { calculateExpectedDrawerCash } from './sessionMath';
+import { ReverseMovementModal } from './ReverseMovementModal';
 import { ZReportModal } from './ZReportModal';
 import { ReopenSessionModal } from './ReopenSessionModal';
 import { ConvertVarianceModal } from './ConvertVarianceModal';
 import type { CashMovement, RegisterSession } from '../../types';
+import { getDirectionLook, getTypeLabel } from './movement/movementTypes';
 
 export interface RegisterSessionDetailDrawerProps {
   opened: boolean;
@@ -115,52 +120,8 @@ const getStatusBadge = (status: RegisterSession['status']) => {
   }
 };
 
-const getMovementTypeMeta = (type: string) => {
-  switch (type) {
-    case 'pay_in':
-      return {
-        label: t('Pay In (Float Top-up)'),
-        color: 'teal',
-        icon: <IconArrowDownRight size={14} />,
-      };
-    case 'pay_out_expense':
-      return {
-        label: t('Petty Cash Expense'),
-        color: 'orange',
-        icon: <IconArrowUpRight size={14} />,
-      };
-    case 'pay_out_supplier':
-      return {
-        label: t('Supplier Payment'),
-        color: 'pink',
-        icon: <IconArrowUpRight size={14} />,
-      };
-    case 'owner_withdrawal':
-      return {
-        label: t('Owner Drawings'),
-        color: 'indigo',
-        icon: <IconArrowUpRight size={14} />,
-      };
-    case 'cash_drop':
-      return {
-        label: t('Cash Drop to Safe'),
-        color: 'blue',
-        icon: <IconArrowUpRight size={14} />,
-      };
-    case 'drawer_open_no_sale':
-      return {
-        label: t('Drawer Open (No Sale)'),
-        color: 'gray',
-        icon: <IconActivity size={14} />,
-      };
-    default:
-      return {
-        label: type,
-        color: 'gray',
-        icon: null,
-      };
-  }
-};
+// A reversal cancels the entry it points at, so it counts as minus.
+const signedAmount = (m: CashMovement) => (m.reversesKey ? -m.amountCents : m.amountCents);
 
 const formatShiftDuration = (openedAt: string, closedAt?: string | null) => {
   const start = new Date(openedAt).getTime();
@@ -219,6 +180,9 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
   const { data: movementsData, isLoading: movementsLoading } = useCashMovementList(
     opened && session?.key ? { sessionKey: session.key, limit: 100 } : undefined
   );
+  const canReverse = permissions.includes(PERMISSIONS.CASH_MOVEMENTS_REVERSE);
+  const isMobile = useIsMobile();
+  const [reversing, setReversing] = useState<CashMovement | null>(null);
   const movements: CashMovement[] = useMemo(
     () => movementsData?.movements ?? [],
     [movementsData?.movements]
@@ -227,16 +191,16 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
   const totalMovementsInCents = useMemo(
     () =>
       movements
-        .filter((m) => m.movementType === 'pay_in')
-        .reduce((acc, m) => acc + (m.amountCents || 0), 0),
+        .filter((m) => m.movementType === 'add_cash')
+        .reduce((acc, m) => acc + signedAmount(m), 0),
     [movements]
   );
 
   const totalMovementsOutCents = useMemo(
     () =>
       movements
-        .filter((m) => m.movementType !== 'pay_in' && m.movementType !== 'drawer_open_no_sale')
-        .reduce((acc, m) => acc + (m.amountCents || 0), 0),
+        .filter((m) => m.movementType !== 'add_cash' && m.movementType !== 'no_sale')
+        .reduce((acc, m) => acc + signedAmount(m), 0),
     [movements]
   );
 
@@ -484,10 +448,7 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                         <Text size="xs" fw={700} ff="monospace">
                           {s.sessionNumber}
                         </Text>
-                        <CopyIconButton
-                          value={s.sessionNumber}
-                          label={t('Copy session number')}
-                        />
+                        <CopyIconButton value={s.sessionNumber} label={t('Copy session number')} />
                       </Group>
                     </InfoRow>
 
@@ -662,8 +623,17 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                     }}
                                     className="shift-invoice-row"
                                   >
-                                    <Group justify="space-between" wrap="nowrap" align="center" gap="sm">
-                                      <Group wrap="nowrap" gap="sm" style={{ minWidth: 0, flex: 1 }}>
+                                    <Group
+                                      justify="space-between"
+                                      wrap="nowrap"
+                                      align="center"
+                                      gap="sm"
+                                    >
+                                      <Group
+                                        wrap="nowrap"
+                                        gap="sm"
+                                        style={{ minWidth: 0, flex: 1 }}
+                                      >
                                         <ThemeIcon
                                           size={36}
                                           radius="md"
@@ -675,14 +645,24 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                         </ThemeIcon>
                                         <Box style={{ minWidth: 0, flex: 1 }}>
                                           <Group gap="xs" wrap="nowrap" align="center">
-                                            <Text size="sm" fw={700} ff="monospace" style={{ whiteSpace: 'nowrap' }}>
+                                            <Text
+                                              size="sm"
+                                              fw={700}
+                                              ff="monospace"
+                                              style={{ whiteSpace: 'nowrap' }}
+                                            >
                                               {inv.invoiceNumber}
                                             </Text>
                                             <Badge size="xs" color={color} variant="light">
                                               {label}
                                             </Badge>
                                             {inv.paymentMethod && (
-                                              <Badge size="xs" variant="outline" color="gray" tt="uppercase">
+                                              <Badge
+                                                size="xs"
+                                                variant="outline"
+                                                color="gray"
+                                                tt="uppercase"
+                                              >
                                                 {inv.paymentMethod}
                                               </Badge>
                                             )}
@@ -697,7 +677,10 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                             <Text
                                               size="xs"
                                               c="dimmed"
-                                              style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
+                                              style={{
+                                                fontVariantNumeric: 'tabular-nums',
+                                                whiteSpace: 'nowrap',
+                                              }}
                                             >
                                               {formatDateTime(inv.createdAt)}
                                             </Text>
@@ -705,11 +688,23 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                         </Box>
                                       </Group>
 
-                                      <Group wrap="nowrap" gap="xs" align="center" style={{ flexShrink: 0 }}>
-                                        <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                      <Group
+                                        wrap="nowrap"
+                                        gap="xs"
+                                        align="center"
+                                        style={{ flexShrink: 0 }}
+                                      >
+                                        <Text
+                                          size="sm"
+                                          fw={700}
+                                          style={{ fontVariantNumeric: 'tabular-nums' }}
+                                        >
                                           {formatMoney(inv.totalCents)}
                                         </Text>
-                                        <IconChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                                        <IconChevronRight
+                                          size={16}
+                                          style={{ color: 'var(--text-secondary)' }}
+                                        />
                                       </Group>
                                     </Group>
                                   </UnstyledButton>
@@ -720,8 +715,8 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                 <Group justify="space-between" align="center" pt="xs">
                                   <Text size="xs" c="dimmed">
                                     {t('Showing')} {(invoicesPage - 1) * 15 + 1} -{' '}
-                                    {Math.min(invoicesPage * 15, invoicesTotal ?? 0)}{' '}
-                                    {t('of')} {invoicesTotal}
+                                    {Math.min(invoicesPage * 15, invoicesTotal ?? 0)} {t('of')}{' '}
+                                    {invoicesTotal}
                                   </Text>
                                   <Pagination
                                     total={invoicesTotalPages}
@@ -826,58 +821,109 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                               </SimpleGrid>
                             </Stack>
                           ) : (
-                            <Table striped highlightOnHover verticalSpacing="xs">
-                              <Table.Thead>
-                                <Table.Tr>
-                                  <Table.Th>{t('Type')}</Table.Th>
-                                  <Table.Th>{t('Amount')}</Table.Th>
-                                  <Table.Th>{t('By')}</Table.Th>
-                                  <Table.Th>{t('Reason / Note')}</Table.Th>
-                                  <Table.Th>{t('Recorded At')}</Table.Th>
-                                </Table.Tr>
-                              </Table.Thead>
-                              <Table.Tbody>
-                                {movements.map((m) => {
-                                  const meta = getMovementTypeMeta(m.movementType);
-                                  return (
-                                    <Table.Tr key={m.id || m.key}>
-                                      <Table.Td>
-                                        <Badge
-                                          size="xs"
-                                          variant="light"
-                                          color={meta.color}
-                                          leftSection={meta.icon}
-                                        >
-                                          {meta.label}
-                                        </Badge>
-                                      </Table.Td>
-                                      <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                        <Text fw={700} size="xs">
-                                          {formatMoney(m.amountCents)}
-                                        </Text>
-                                      </Table.Td>
-                                      <Table.Td>
-                                        <Text size="xs">
-                                          {m.recordedByNameSnapshot || m.recordedByUserId}
-                                        </Text>
-                                      </Table.Td>
-                                      <Table.Td>
-                                        <Text size="xs" c="dimmed">
-                                          {m.reason || '-'}
-                                        </Text>
-                                      </Table.Td>
-                                      <Table.Td>
-                                        <Text size="xs" c="dimmed">
-                                          {formatDateTime(m.createdAt)}
-                                        </Text>
-                                      </Table.Td>
-                                    </Table.Tr>
-                                  );
-                                })}
-                              </Table.Tbody>
-                            </Table>
+                            <Table.ScrollContainer minWidth={620}>
+                              <Table striped highlightOnHover verticalSpacing="xs">
+                                <Table.Thead>
+                                  <Table.Tr>
+                                    <Table.Th>{t('Type')}</Table.Th>
+                                    <Table.Th>{t('Amount')}</Table.Th>
+                                    <Table.Th>{t('By')}</Table.Th>
+                                    <Table.Th>{t('For')}</Table.Th>
+                                    <Table.Th>{t('Recorded At')}</Table.Th>
+                                    {canReverse && <Table.Th />}
+                                  </Table.Tr>
+                                </Table.Thead>
+                                <Table.Tbody>
+                                  {movements.map((m) => {
+                                    const look = getDirectionLook(m.direction);
+                                    return (
+                                      <Table.Tr key={m.id || m.key}>
+                                        <Table.Td>
+                                          <Group gap={6} wrap="nowrap">
+                                            <ThemeIcon size="sm" variant="light" color={look.color}>
+                                              {look.icon}
+                                            </ThemeIcon>
+                                            <Text size="xs" fw={600}>
+                                              {getTypeLabel(m.movementType)}
+                                            </Text>
+                                          </Group>
+                                          {m.reversesKey && (
+                                            <Text size="xs" c="dimmed">
+                                              {t('Reversal')}
+                                            </Text>
+                                          )}
+                                          {m.reversedByKey && (
+                                            <Text size="xs" c="red">
+                                              {t('Reversed')}
+                                            </Text>
+                                          )}
+                                        </Table.Td>
+                                        <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                          <Text
+                                            fw={700}
+                                            size="xs"
+                                            td={m.reversedByKey ? 'line-through' : undefined}
+                                            c={m.reversedByKey ? 'dimmed' : undefined}
+                                          >
+                                            {formatMoney(m.amountCents)}
+                                          </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                          <Text size="xs">
+                                            {m.recordedByNameSnapshot || m.recordedByUserId}
+                                          </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                          <Text size="xs" c="dimmed">
+                                            {[
+                                              m.customLabel
+                                                ? `${m.categoryName}: ${m.customLabel}`
+                                                : m.categoryName,
+                                              m.payeeName,
+                                              m.note,
+                                              m.approvalReason,
+                                            ]
+                                              .filter(Boolean)
+                                              .join(' · ')}
+                                          </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                          <Text size="xs" c="dimmed">
+                                            {formatDateTime(m.createdAt)}
+                                          </Text>
+                                        </Table.Td>
+                                        {canReverse && (
+                                          <Table.Td>
+                                            {!m.reversesKey &&
+                                              !m.reversedByKey &&
+                                              m.movementType !== 'no_sale' &&
+                                              (session.status === 'open' ||
+                                                session.status === 'reopened') && (
+                                                <ActionIcon
+                                                  variant="light"
+                                                  color="red"
+                                                  size={isMobile ? 44 : 32}
+                                                  aria-label={`${t('Reverse entry')} ${m.movementNumber}`}
+                                                  onClick={() => setReversing(m)}
+                                                  data-log-id="shifts.reverse-movement"
+                                                >
+                                                  <IconArrowBackUp size={16} />
+                                                </ActionIcon>
+                                              )}
+                                          </Table.Td>
+                                        )}
+                                      </Table.Tr>
+                                    );
+                                  })}
+                                </Table.Tbody>
+                              </Table>
+                            </Table.ScrollContainer>
                           )}
                         </DrawerCard>
+                        <ReverseMovementModal
+                          movement={reversing}
+                          onClose={() => setReversing(null)}
+                        />
                       </Stack>
                     );
                   }

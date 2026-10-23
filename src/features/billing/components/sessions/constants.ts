@@ -17,5 +17,4 @@ export const SRI_LANKA_DENOMINATIONS: DenominationItem[] = [
   { id: '1', label: 'Rs. 1', valueRupees: 1 },
 ];
 
-export const OWNER_ADMIN_THRESHOLD_CENTS = 50_000; // Rs. 500
 export const VARIANCE_TOLERANCE_CENTS = 500; // Rs. 5.00

@@ -72,6 +72,7 @@ const mockSessions: RegisterSession[] = [
 ];
 
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useReverseCashMovement: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useCurrentSession: () => ({
     session: mockSessions[0],
     isLoading: false,

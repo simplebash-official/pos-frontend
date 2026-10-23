@@ -49,6 +49,7 @@ const closedSession: RegisterSession = {
 };
 
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useReverseCashMovement: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useSessionDetail: () => ({
     session: closedSession,
     isLoading: false,
@@ -60,10 +61,14 @@ vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
           id: 'mov_1',
           key: 'mov_1',
           movementNumber: 'MOV-001',
-          movementType: 'pay_in',
+          movementType: 'add_cash',
+          direction: 'in',
           amountCents: 5000,
           terminalId: 'side-counter-pos',
-          reason: 'Float top-up',
+          categoryKey: 'ccat_add_cash_test',
+          categoryName: 'Change float top-up',
+          payeeName: 'Main safe',
+          note: 'Counted twice',
           recordedByUserId: 'u2',
           recordedByNameSnapshot: 'Bob Silva',
           recordedLate: false,
@@ -71,8 +76,45 @@ vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
           updatedAt: '2026-10-21T09:00:00Z',
           version: 1,
         },
+        {
+          id: 'mov_2',
+          key: 'mov_2',
+          movementNumber: 'MOV-002',
+          movementType: 'petty_expense',
+          direction: 'out',
+          amountCents: 3000,
+          terminalId: 'side-counter-pos',
+          categoryKey: 'ccat_petty_x',
+          categoryName: 'Fuel',
+          reversedByKey: 'mov_2_rev',
+          recordedByUserId: 'u2',
+          recordedByNameSnapshot: 'Bob Silva',
+          recordedLate: false,
+          createdAt: '2026-10-21T09:05:00Z',
+          updatedAt: '2026-10-21T09:05:00Z',
+          version: 1,
+        },
+        {
+          id: 'mov_3',
+          key: 'mov_2_rev',
+          movementNumber: 'MOV-003',
+          movementType: 'petty_expense',
+          direction: 'in',
+          amountCents: 3000,
+          terminalId: 'side-counter-pos',
+          categoryKey: 'ccat_petty_x',
+          categoryName: 'Fuel',
+          reversesKey: 'mov_2',
+          approvalReason: 'Wrong amount',
+          recordedByUserId: 'u1',
+          recordedByNameSnapshot: 'Mia Manager',
+          recordedLate: false,
+          createdAt: '2026-10-21T09:10:00Z',
+          updatedAt: '2026-10-21T09:10:00Z',
+          version: 1,
+        },
       ],
-      total: 1,
+      total: 3,
       page: 1,
       limit: 100,
       totalPages: 1,
@@ -231,8 +273,15 @@ describe('RegisterSessionDetailDrawer', () => {
       movementsTab?.click();
     });
 
-    expect(text()).toContain('Float top-up');
-    expect(text()).toContain('Pay In (Float Top-up)');
+    expect(text()).toContain('Change float top-up');
+    expect(text()).toContain('Main safe');
+    expect(text()).toContain('Counted twice');
+    expect(text()).toContain('Add cash to drawer');
+    // A reversed entry says so, its reversal is labelled and carries the reason, and the totals net out.
+    expect(text()).toContain('Reversed');
+    expect(text()).toContain('Reversal');
+    expect(text()).toContain('Wrong amount');
+    expect(text()).toContain('-Rs. 0.00');
   });
 
   it('switches to Invoices tab, displays paginated invoices, and opens InvoiceDetailDrawer on row click', async () => {

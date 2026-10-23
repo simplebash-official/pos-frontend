@@ -1,0 +1,434 @@
+/**
+ * @vitest-environment jsdom
+ * @jest-environment jsdom
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, useState, type ReactNode } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MantineProvider } from '@mantine/core';
+import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
+import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
+import { CashMovementModal } from '../CashMovementModal';
+import type { CashCategory, CashMovement } from '../../../types';
+
+installDrawerTestEnv();
+
+const category = (key: string, name: string, over: Partial<CashCategory> = {}): CashCategory => ({
+  id: key,
+  key,
+  movementType: 'petty_expense',
+  name,
+  reportGroup: 'operating_expense',
+  isSystem: true,
+  reviewStatus: 'approved',
+  pinned: false,
+  sortOrder: 0,
+  active: true,
+  requiresReceipt: false,
+  usageCount: 0,
+  version: 1,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...over,
+});
+
+const createMovement = { mutateAsync: vi.fn(), isPending: false };
+const createCategory = { mutateAsync: vi.fn(), isPending: false };
+const verifyPin = { mutateAsync: vi.fn(), isPending: false };
+const reverseMovement = { mutateAsync: vi.fn(), isPending: false };
+// What the server says the shift's drawer holds; `undefined` while it has not loaded.
+let cashInDrawer: number | undefined = 10_000_000;
+let categories: CashCategory[] = [];
+
+vi.mock('@/features/billing/hooks/useCashLookups', () => ({
+  useCashCategories: () => ({ data: categories, isLoading: false }),
+  useSimilarCashCategories: () => ({ data: [] }),
+  useCreateCashCategory: () => createCategory,
+  usePayees: () => ({ data: [], isLoading: false }),
+  usePeriodStatus: () => ({ data: undefined }),
+  useCreatePayee: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useCreateCashMovement: () => createMovement,
+  useCashMovementList: () => ({ data: undefined }),
+  useReverseCashMovement: () => reverseMovement,
+  useVerifyPin: () => verifyPin,
+  useSessionDetail: () => ({
+    session: cashInDrawer === undefined ? null : { expectedCashCents: cashInDrawer },
+  }),
+  useDrawerState: () => ({ drawerState: null }),
+}));
+vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
+
+const Harness = ({ permissions, children }: { permissions: string[]; children: ReactNode }) => {
+  const [store] = useState(() =>
+    configureStore({
+      reducer: {
+        auth: () => ({
+          user: { id: 'u1', name: 'T', username: 't', role: 'staff', permissions },
+        }),
+      },
+    })
+  );
+  const [queryClient] = useState(() => new QueryClient());
+  return (
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider env="test">
+          <LayoutTierProvider>{children}</LayoutTierProvider>
+        </MantineProvider>
+      </QueryClientProvider>
+    </Provider>
+  );
+};
+
+const CASHIER = ['cash_movements:create', 'cash_categories:create'];
+const MANAGER = [...CASHIER, 'cash_movements:create:managed', 'cash_categories:manage'];
+
+describe('CashMovementModal', () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    Element.prototype.scrollIntoView ??= () => undefined;
+    categories = [
+      category('ccat_tea', 'Tea and refreshments', { usageCount: 5 }),
+      category('ccat_fuel', 'Fuel'),
+      category('ccat_other', 'Other'),
+    ];
+    createMovement.mutateAsync.mockReset();
+    createCategory.mutateAsync.mockReset();
+    verifyPin.mutateAsync.mockReset();
+    reverseMovement.mutateAsync.mockReset();
+    cashInDrawer = 10_000_000;
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+  afterEach(() => {
+    act(() => root.unmount());
+    container.remove();
+  });
+
+  const render = async (permissions: string[]) => {
+    await act(async () => {
+      root.render(
+        <Harness permissions={permissions}>
+          <CashMovementModal opened onClose={vi.fn()} terminalId="term_1" sessionKey="ses_1" />
+        </Harness>
+      );
+    });
+  };
+  const text = () => document.body.textContent ?? '';
+  const buttons = () => Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'));
+  // A type chip also carries its number-key hint ("Small expense1"), so match on how the text starts.
+  const button = (label: string | RegExp) =>
+    buttons().find((b) =>
+      typeof label === 'string'
+        ? (b.textContent ?? '').trim().startsWith(label)
+        : label.test(b.textContent ?? '')
+    );
+  const group = (label: string) =>
+    Array.from(document.body.querySelectorAll<HTMLLabelElement>('label')).find(
+      (l) => l.textContent?.trim() === label
+    );
+  const click = async (label: string | RegExp) => {
+    const target = button(label);
+    if (!target) throw new Error(`no button named ${String(label)}`);
+    await act(async () => target.click());
+  };
+  const typeInto = async (el: HTMLInputElement, value: string) => {
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(el, value);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  };
+  const field = (label: string) =>
+    Array.from(document.body.querySelectorAll<HTMLLabelElement>('label'))
+      .find((l) => (l.textContent ?? '').startsWith(label))
+      ?.closest('div')
+      ?.querySelector('input') as HTMLInputElement;
+  const amountField = () => document.getElementById('cash-movement-amount') as HTMLInputElement;
+  const submit = async () => {
+    await act(async () => {
+      document.body
+        .querySelector('form')!
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+  };
+
+  it('opens on a small expense with no helper line about adding or withdrawing', async () => {
+    await render(CASHIER);
+    expect(button('Small expense')?.getAttribute('aria-pressed')).toBe('true');
+    expect(text()).not.toContain('Enter amount to add or withdraw');
+    expect(text()).toContain('What is it for?');
+  });
+
+  it('shows the busiest categories as one-tap chips', async () => {
+    await render(CASHIER);
+    const chips = document.querySelector('[data-testid="category-chips"]')!;
+    expect(chips.textContent).toContain('Tea and refreshments');
+    expect(chips.textContent).toContain('Fuel');
+  });
+
+  it('greys out the kinds of payment a cashier cannot record, and frees them for a manager', async () => {
+    await render(CASHIER);
+    expect(button('Rent and bills')?.disabled).toBe(true);
+    expect(button('Staff payment')?.disabled).toBe(true);
+    expect(button('Small expense')?.disabled).toBe(false);
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    await render(MANAGER);
+    expect(button('Rent and bills')?.disabled).toBe(false);
+  });
+
+  it('records a small expense with the picked category and the typed amount', async () => {
+    const saved = {
+      movementNumber: 'CSH-000001',
+      movementType: 'petty_expense',
+      amountCents: 50_000,
+      categoryName: 'Tea and refreshments',
+      recordedByNameSnapshot: 'T',
+    } as CashMovement;
+    createMovement.mutateAsync.mockResolvedValue(saved);
+
+    await render(CASHIER);
+    await typeInto(amountField(), '500');
+    await click('Tea and refreshments');
+    await submit();
+
+    expect(createMovement.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(createMovement.mutateAsync.mock.calls[0][0]).toMatchObject({
+      movementType: 'petty_expense',
+      amountCents: 50_000,
+      sessionKey: 'ses_1',
+      terminalId: 'term_1',
+      categoryKey: 'ccat_tea',
+    });
+    expect(text()).toContain('CSH-000001');
+    expect(text()).toContain('Print voucher');
+  });
+
+  it('says what is missing instead of sending an incomplete form', async () => {
+    await render(CASHIER);
+    await submit();
+    expect(createMovement.mutateAsync).not.toHaveBeenCalled();
+    expect(text()).toContain('Please enter an amount greater than zero.');
+
+    await typeInto(amountField(), '100');
+    await submit();
+    expect(text()).toContain('Please pick what this is for.');
+  });
+
+  it('hides the amount for a no-sale open and asks why the drawer is opened', async () => {
+    categories = [category('ccat_change', 'Give change', { movementType: 'no_sale' })];
+    await render(CASHIER);
+    await act(async () => group('Other')!.click());
+    expect(amountField()).toBeNull();
+    expect(text()).toContain('Why are you opening the drawer?');
+    expect(button('Open drawer')).toBeTruthy();
+  });
+
+  it('asks for a manager PIN on owner withdrawals and does not send without a checked one', async () => {
+    categories = [category('ccat_personal', 'Personal use', { movementType: 'owner_withdrawal' })];
+    await render(CASHIER);
+    await click('Owner withdrawal');
+    expect(text()).toContain('Manager or owner approval needed');
+
+    await typeInto(amountField(), '200');
+    await click('Personal use');
+    const taken = Array.from(document.querySelectorAll('input')).find(
+      (i) => i.closest('[data-testid]') === null && i.getAttribute('maxlength') === '60'
+    ) as HTMLInputElement;
+    await typeInto(taken, 'Mr. Silva');
+    await submit();
+    expect(createMovement.mutateAsync).not.toHaveBeenCalled();
+    expect(text()).toContain('A manager or owner PIN is needed for this payment.');
+  });
+
+  it('adds a new category on the spot and uses it', async () => {
+    createCategory.mutateAsync.mockResolvedValue(
+      category('ccat_diesel', 'Generator diesel', { isSystem: false, reviewStatus: 'needs_review' })
+    );
+    await render(CASHIER);
+    await click('More');
+
+    const search = document.querySelector(
+      'input[placeholder="Type to search"]'
+    ) as HTMLInputElement;
+    await typeInto(search, 'Generator diesel');
+    const footer = document.querySelector('[data-testid="combobox-create"]') as HTMLElement;
+    expect(footer.textContent).toContain('Generator diesel');
+    await act(async () => footer.click());
+
+    expect(document.querySelector('[data-testid="new-category-confirm"]')).toBeTruthy();
+    expect(text()).toContain('Save for future use');
+    await click('Use this category');
+
+    expect(createCategory.mutateAsync).toHaveBeenCalledWith({
+      movementType: 'petty_expense',
+      name: 'Generator diesel',
+    });
+  });
+
+  it('uses a new name once, filed under Other, when it is not saved', async () => {
+    createMovement.mutateAsync.mockResolvedValue({
+      movementNumber: 'CSH-000002',
+      movementType: 'petty_expense',
+      amountCents: 100,
+      categoryName: 'Other',
+      customLabel: 'Generator diesel',
+      recordedByNameSnapshot: 'T',
+    } as CashMovement);
+    await render(CASHIER);
+    await typeInto(amountField(), '1');
+    await click('More');
+    await typeInto(
+      document.querySelector('input[placeholder="Type to search"]') as HTMLInputElement,
+      'Generator diesel'
+    );
+    await act(async () =>
+      (document.querySelector('[data-testid="combobox-create"]') as HTMLElement).click()
+    );
+    const save = document.querySelector(
+      '[data-testid="new-category-confirm"] input[type="checkbox"]'
+    ) as HTMLInputElement;
+    await act(async () => save.click());
+    await click('Use this category');
+    expect(createCategory.mutateAsync).not.toHaveBeenCalled();
+
+    await submit();
+    expect(createMovement.mutateAsync.mock.calls[0][0]).toMatchObject({
+      categoryKey: 'ccat_other',
+      customLabel: 'Generator diesel',
+    });
+  });
+
+  it('tells a cashier to ask a manager when the kind of payment is not theirs to add to', async () => {
+    categories = [category('ccat_r', 'Shop rent', { movementType: 'rent_and_bills' })];
+    await render([
+      'cash_movements:create',
+      'cash_categories:create',
+      'cash_movements:create:managed',
+    ]);
+    await click('Rent and bills');
+    await click('More');
+    expect(text()).toContain('To add a new one, ask a manager.');
+    expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
+  });
+
+  describe('the drawer', () => {
+    it('shows what the drawer holds and what is left after this payment', async () => {
+      cashInDrawer = 1_000_000;
+      await render(CASHIER);
+      expect(text()).toContain('In the drawer now: Rs. 10,000.00');
+      await typeInto(amountField(), '500');
+      expect(text()).toContain('In the drawer: Rs. 10,000.00 → Rs. 9,500.00');
+    });
+
+    it('adds to the drawer for added cash', async () => {
+      cashInDrawer = 1_000_000;
+      categories = [category('ccat_float', 'Opening float', { movementType: 'add_cash' })];
+      await render(CASHIER);
+      await act(async () => group('Money in')!.click());
+      await typeInto(amountField(), '500');
+      expect(text()).toContain('Rs. 10,000.00 → Rs. 10,500.00');
+    });
+
+    it('shows nothing about the drawer until the server has told us', async () => {
+      cashInDrawer = undefined;
+      await render(CASHIER);
+      await typeInto(amountField(), '500');
+      expect(document.querySelector('[data-testid="drawer-preview"]')).toBeNull();
+      expect(text()).not.toContain('More than the drawer holds');
+    });
+
+    it('warns when a payout is more than the drawer holds and asks for a manager PIN and a reason', async () => {
+      cashInDrawer = 10_000;
+      createMovement.mutateAsync.mockResolvedValue({
+        movementNumber: 'CSH-000009',
+        movementType: 'petty_expense',
+        amountCents: 20_000,
+        categoryName: 'Tea and refreshments',
+        recordedByNameSnapshot: 'T',
+      } as CashMovement);
+      verifyPin.mutateAsync.mockResolvedValue({ valid: true, userName: 'Manager Mia' });
+
+      await render(CASHIER);
+      await typeInto(amountField(), '200');
+      expect(text()).toContain('More than the drawer holds');
+      expect(text()).toContain('Rs. 100.00 → Rs. -100.00');
+      expect(text()).toContain('Manager or owner approval needed');
+
+      await click('Tea and refreshments');
+      await submit();
+      expect(createMovement.mutateAsync).not.toHaveBeenCalled();
+      expect(text()).toContain('A manager or owner PIN is needed for this payment.');
+
+      await typeInto(field('PIN'), '5555');
+      await click('Check PIN');
+      await submit();
+      expect(createMovement.mutateAsync).not.toHaveBeenCalled();
+      expect(text()).toContain('Please say why this payout is bigger than the cash in the drawer.');
+
+      await typeInto(field('Why is this payout bigger'), 'Supplier waiting');
+      await submit();
+      expect(createMovement.mutateAsync).toHaveBeenCalledTimes(1);
+      expect(createMovement.mutateAsync.mock.calls[0][0]).toMatchObject({
+        amountCents: 20_000,
+        managerPin: '5555',
+        overrideReason: 'Supplier waiting',
+      });
+    });
+
+    it('does not ask for a reason when the payout fits in the drawer', async () => {
+      cashInDrawer = 1_000_000;
+      await render(CASHIER);
+      await typeInto(amountField(), '500');
+      expect(text()).not.toContain('Why is this payout bigger');
+    });
+  });
+
+  describe('undo', () => {
+    const saved = (undoUntil?: string) =>
+      ({
+        key: 'cshm_9',
+        movementNumber: 'CSH-000009',
+        movementType: 'petty_expense',
+        amountCents: 500,
+        categoryName: 'Tea and refreshments',
+        recordedByNameSnapshot: 'T',
+        undoUntil,
+      }) as CashMovement;
+
+    const record = async () => {
+      await render(CASHIER);
+      await typeInto(amountField(), '5');
+      await click('Tea and refreshments');
+      await submit();
+    };
+
+    it('offers Undo for a little while after saving and reverses the entry', async () => {
+      createMovement.mutateAsync.mockResolvedValue(
+        saved(new Date(Date.now() + 60_000).toISOString())
+      );
+      reverseMovement.mutateAsync.mockResolvedValue({});
+      await record();
+      expect(text()).toContain('Undo this entry');
+      await click('Undo this entry');
+      expect(reverseMovement.mutateAsync).toHaveBeenCalledWith({ key: 'cshm_9', input: {} });
+    });
+
+    it('has no Undo once the window has passed or the server gave none', async () => {
+      createMovement.mutateAsync.mockResolvedValue(saved(undefined));
+      await record();
+      expect(text()).toContain('Print voucher');
+      expect(text()).not.toContain('Undo this entry');
+    });
+  });
+});

@@ -189,12 +189,68 @@ export interface Invoice {
 export type SessionStatus = 'open' | 'closing' | 'closed' | 'reopened';
 
 export type CashMovementType =
-  | 'pay_in'
-  | 'pay_out_expense'
-  | 'pay_out_supplier'
+  | 'petty_expense'
+  | 'rent_and_bills'
+  | 'staff_payment'
+  | 'supplier_payment'
   | 'owner_withdrawal'
+  | 'add_cash'
   | 'cash_drop'
-  | 'drawer_open_no_sale';
+  | 'no_sale';
+
+/** Which way a movement moves the drawer's cash; stored on every row by the server. */
+export type CashDirection = 'out' | 'in' | 'neutral';
+
+export type CashReportGroup =
+  'operating_expense' | 'purchases' | 'payroll' | 'owner_equity' | 'transfer' | 'liabilities';
+
+export type CashCategoryReviewStatus = 'approved' | 'needs_review';
+
+/** A category a drawer cash movement is filed under, for one movement type. */
+export interface CashCategory {
+  id: string;
+  key: string;
+  movementType: CashMovementType;
+  name: string;
+  nameSi?: string;
+  reportGroup: CashReportGroup;
+  isSystem: boolean;
+  reviewStatus: CashCategoryReviewStatus;
+  pinned: boolean;
+  sortOrder: number;
+  active: boolean;
+  requiresReceipt: boolean;
+  requiresApprovalOverCents?: number;
+  usageCount: number;
+  createdByNameSnapshot?: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCashCategoryInput {
+  movementType: CashMovementType;
+  name: string;
+  nameSi?: string;
+  reportGroup?: CashReportGroup;
+}
+
+export type PayeeType = 'supplier' | 'staff' | 'vendor' | 'other';
+
+/** One row of the shared payee directory (suppliers, staff, vendors and saved names). */
+export interface Payee {
+  key: string;
+  payeeType: PayeeType;
+  name: string;
+  phone?: string;
+  usageCount: number;
+}
+
+export interface CreatePayeeInput {
+  payeeType: Extract<PayeeType, 'vendor' | 'other'>;
+  name: string;
+  phone?: string;
+}
 
 export interface RegisterSession {
   id: string;
@@ -250,16 +306,32 @@ export interface CashMovement {
   key: string;
   movementNumber: string;
   movementType: CashMovementType;
+  direction: CashDirection;
   amountCents: number;
   sessionKey?: string;
   terminalId: string;
-  reason: string;
-  recipientOrSource?: string;
-  supplierKey?: string;
+  categoryKey: string;
+  /** Live name of the category, so a rename shows on old movements. */
+  categoryName: string;
+  customLabel?: string;
+  payeeKey?: string;
+  payeeName?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  referenceNo?: string;
+  note?: string;
   recordedByUserId: string;
   recordedByNameSnapshot: string;
   approvedByUserId?: string;
   approvedByNameSnapshot?: string;
+  /** Why a manager allowed a payout over the cash in the drawer, or why the movement was reversed. */
+  approvalReason?: string;
+  /** Set on a reversal: the movement it cancels. */
+  reversesKey?: string;
+  /** Set when this movement has been reversed. */
+  reversedByKey?: string;
+  /** Until when the person who recorded it can undo it without a manager. */
+  undoUntil?: string;
   recordedLate: boolean;
   originalVarianceSessionKey?: string;
   createdAt: string;
@@ -339,13 +411,28 @@ export interface ReopenSessionInput {
 
 export interface CreateCashMovementInput {
   movementType: CashMovementType;
+  /** 0 for `no_sale`, above 0 for every other type. */
   amountCents: number;
   sessionKey?: string;
   terminalId: string;
-  reason: string;
-  recipientOrSource?: string;
-  supplierKey?: string;
+  categoryKey: string;
+  customLabel?: string;
+  payeeKey?: string;
+  payeeName?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  referenceNo?: string;
+  note?: string;
   managerPin?: string;
+  /** Why a payout bigger than the cash in the drawer is allowed; sent with a manager PIN. */
+  overrideReason?: string;
+  /** Set to record a rent or bill payment for a month that is already paid. */
+  confirmDuplicate?: boolean;
+}
+
+export interface ReverseCashMovementInput {
+  /** Required once the undo window has passed. */
+  reason?: string;
 }
 
 export interface ConvertVarianceInput {
@@ -387,10 +474,29 @@ export interface CashMovementListQuery {
   sessionKey?: string;
   terminalId?: string;
   movementType?: string;
+  categoryKey?: string;
+  payeeKey?: string;
   recordedLate?: boolean;
   datePreset?: string;
   from?: string;
   to?: string;
   page?: number;
   limit?: number;
+}
+
+/** One cost already recorded against a bill's month. */
+export interface PeriodPayment {
+  /** Where it came from is in `paidFrom`; `number` is the voucher or expense number. */
+  number: string;
+  date: string;
+  amountCents: number;
+  paidFrom: 'drawer' | 'bank' | 'card' | 'online' | 'unpaid';
+}
+
+export interface PeriodStatus {
+  period: string;
+  paidCents: number;
+  expectedCents?: number;
+  alreadyPaid: boolean;
+  payments: PeriodPayment[];
 }

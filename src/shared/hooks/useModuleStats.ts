@@ -19,7 +19,8 @@ export interface ModuleStatsResult<T> {
  * own narrow local fallback.
  */
 export function useModuleStats<T>(
-  module: 'billing' | 'repairs' | 'printJobs' | 'inventory' | 'suppliers' | 'customers',
+  module:
+    'billing' | 'repairs' | 'printJobs' | 'inventory' | 'suppliers' | 'customers' | 'expenses',
   queryKey: readonly unknown[],
   fetchFn: () => Promise<T>
 ): ModuleStatsResult<T> {

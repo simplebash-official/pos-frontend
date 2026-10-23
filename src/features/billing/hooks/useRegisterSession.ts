@@ -4,6 +4,7 @@ import {
   closeSession,
   convertVariance,
   createCashMovement,
+  reverseCashMovement,
   getCurrentSession,
   getDrawerState,
   getSession,
@@ -21,6 +22,7 @@ import type {
   CloseSessionInput,
   ConvertVarianceInput,
   CreateCashMovementInput,
+  ReverseCashMovementInput,
   OpenSessionInput,
   ReopenSessionInput,
   SessionListQuery,
@@ -138,6 +140,24 @@ export const useCreateCashMovement = () => {
     mutationFn: (input: CreateCashMovementInput) => createCashMovement(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      // Movement counts rank the category and payee pickers.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
+      // A drawer payment is a cost on the Expenses page and counts towards a regular bill.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
+    },
+  });
+};
+
+export const useReverseCashMovement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ key, input }: { key: string; input: ReverseCashMovementInput }) =>
+      reverseCashMovement(key, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
+      // A reversed drawer payment stops counting as a cost.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
     },
   });
 };

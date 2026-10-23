@@ -11,13 +11,35 @@ export const printCashMovementVoucher = (movement: CashMovement) => {
   iframe.style.border = '0';
 
   const typeLabels: Record<CashMovementType, string> = {
-    pay_in: 'PAY-IN / CASH ADDITION',
-    pay_out_expense: 'PAY-OUT / PETTY EXPENSE',
-    pay_out_supplier: 'PAY-OUT / SUPPLIER PAYMENT',
+    petty_expense: 'PAY-OUT / SMALL EXPENSE',
+    rent_and_bills: 'PAY-OUT / RENT AND BILLS',
+    staff_payment: 'PAY-OUT / STAFF PAYMENT',
+    supplier_payment: 'PAY-OUT / SUPPLIER PAYMENT',
     owner_withdrawal: 'OWNER WITHDRAWAL (DRAWINGS)',
-    cash_drop: 'CASH DROP TO SAFE',
-    drawer_open_no_sale: 'NO SALE DRAWER OPEN',
+    add_cash: 'PAY-IN / CASH ADDITION',
+    cash_drop: 'CASH DROP',
+    no_sale: 'NO SALE DRAWER OPEN',
   };
+  // Words typed by the cashier end up inside HTML, so they are escaped first.
+  const esc = (text: string) =>
+    text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const row = (label: string, value: string | undefined, bold = true) =>
+    value
+      ? `<div class="row"><span>${label}</span><span${bold ? ' class="bold"' : ''}>${esc(value)}</span></div>`
+      : '';
+  const category = movement.customLabel
+    ? `${movement.categoryName}: ${movement.customLabel}`
+    : movement.categoryName;
+  const payeeLabel =
+    movement.movementType === 'add_cash'
+      ? 'Received from:'
+      : movement.movementType === 'owner_withdrawal'
+        ? 'Taken by:'
+        : 'Paid to:';
+  const period =
+    movement.periodStart && movement.periodEnd
+      ? `${movement.periodStart} to ${movement.periodEnd}`
+      : undefined;
 
   const html = `
     <!DOCTYPE html>
@@ -59,8 +81,11 @@ export const printCashMovementVoucher = (movement: CashMovement) => {
         <div class="divider"></div>
         <div class="row amount"><span class="bold">AMOUNT:</span><span class="bold">${formatMoney(movement.amountCents)}</span></div>
         <div class="divider"></div>
-        <div class="row"><span>Reason:</span><span class="bold">${movement.reason}</span></div>
-        ${movement.recipientOrSource ? `<div class="row"><span>Recipient/Source:</span><span class="bold">${movement.recipientOrSource}</span></div>` : ''}
+        ${row('For:', category)}
+        ${row(payeeLabel, movement.payeeName)}
+        ${row('Period:', period, false)}
+        ${row('Reference:', movement.referenceNo, false)}
+        ${row('Note:', movement.note, false)}
         <div class="row"><span>Recorded By:</span><span>${movement.recordedByNameSnapshot}</span></div>
         ${movement.approvedByNameSnapshot ? `<div class="row"><span>Authorized By:</span><span class="bold">${movement.approvedByNameSnapshot}</span></div>` : ''}
         

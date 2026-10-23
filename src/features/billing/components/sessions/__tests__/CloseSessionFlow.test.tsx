@@ -38,6 +38,9 @@ vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
   useZReport: () => idle,
   useOpenSession: () => idle,
   useCreateCashMovement: () => idle,
+  useReverseCashMovement: () => idle,
+  useSessionDetail: () => ({ session: null }),
+  useDrawerState: () => ({ drawerState: null }),
   useCashMovements: () => idle,
 }));
 vi.mock('@/features/billing/hooks/useCart', () => ({ useHeldCarts: () => ({ heldCarts: [] }) }));

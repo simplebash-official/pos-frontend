@@ -6,6 +6,7 @@ import type {
   CloseSessionInput,
   ConvertVarianceInput,
   CreateCashMovementInput,
+  ReverseCashMovementInput,
   DrawerState,
   OpenSessionInput,
   RegisterSession,
@@ -107,6 +108,17 @@ export const getZReport = async (key: string): Promise<ZReportResponse> => {
 
 export const createCashMovement = async (input: CreateCashMovementInput): Promise<CashMovement> => {
   const response = await apiClient.post<ApiResponse<CashMovement>>('/sessions/movements', input);
+  return response.data;
+};
+
+export const reverseCashMovement = async (
+  key: string,
+  input: ReverseCashMovementInput
+): Promise<CashMovement> => {
+  const response = await apiClient.post<ApiResponse<CashMovement>>(
+    `/sessions/movements/${encodeURIComponent(key)}/reverse`,
+    input
+  );
   return response.data;
 };
 

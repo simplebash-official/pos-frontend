@@ -14,6 +14,7 @@ import { initializeAuth } from '@/store/slices/authSlice';
 import { selectAppLanguage } from '@/store/slices/settingsSlice';
 import { PwaUpdateProvider } from '@/app/pwa/PwaUpdateContext';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
+import { BillReminderNotifier } from '@/features/expenses/components/BillReminderNotifier';
 import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
 import { LiveRefresh } from '@/features/sync-status';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
@@ -93,6 +94,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
                   <HeldCartCatchupNotifier />
                   <LiveRefresh />
                   <LowStockNotifier />
+                  <BillReminderNotifier />
                   <ModalsProvider>
                     <CalculatorProvider>{children}</CalculatorProvider>
                   </ModalsProvider>

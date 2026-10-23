@@ -38,6 +38,11 @@ const RepairJobList = lazy(() =>
 const PrintJobList = lazy(() =>
   import('@/features/print-jobs/components/PrintJobList').then((m) => ({ default: m.PrintJobList }))
 );
+const ExpensesPage = lazy(() =>
+  import('@/features/expenses/components/ExpensesPage').then((m) => ({
+    default: m.ExpensesPage,
+  }))
+);
 const QuotationsPage = lazy(() =>
   import('@/features/quotations/components/QuotationsPage').then((m) => ({
     default: m.QuotationsPage,
@@ -160,6 +165,16 @@ export const router = createBrowserRouter([
           <RequirePermission permissions={[PERMISSIONS.QUOTATIONS_MANAGE]}>
             <Suspense fallback={<PageSkeleton />}>
               <QuotationsPage />
+            </Suspense>
+          </RequirePermission>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.EXPENSES,
+        element: (
+          <RequirePermission permissions={[PERMISSIONS.EXPENSES_VIEW]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <ExpensesPage />
             </Suspense>
           </RequirePermission>
         ),
