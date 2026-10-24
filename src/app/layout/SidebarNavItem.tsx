@@ -36,6 +36,33 @@ const PopCount = ({ count }: { count: number }) => {
   );
 };
 
+/** Soft tint of an item's colour: the active pill behind the row. */
+const tint = (color: string) =>
+  `color-mix(in srgb, var(--mantine-color-${color}-filled) 14%, transparent)`;
+
+// White ink fails contrast on these light swatches, so their solid tile takes dark ink.
+const DARK_INK = new Set(['lime', 'yellow', 'amber']);
+
+/** The item's icon on a small tile in its own colour; solid while the item is open. */
+export const IconTile = ({
+  Icon,
+  color,
+  isActive = false,
+}: {
+  Icon: NavIcon;
+  color: string;
+  isActive?: boolean;
+}) => (
+  <span
+    className="sidebar-icon-tile"
+    data-active={isActive}
+    data-ink={DARK_INK.has(color) ? 'dark' : 'light'}
+    style={{ '--tile': `var(--mantine-color-${color}-filled)` } as CSSProperties}
+  >
+    <Icon size={18} stroke={1.75} />
+  </span>
+);
+
 const INDICATOR_STYLES = {
   indicator: {
     fontSize: 9,
@@ -82,12 +109,7 @@ export const RailNavItem = memo(function RailNavItem({
         styles={INDICATOR_STYLES}
       >
         <div className="sidebar-item">
-          {isActive && (
-            <SidebarPill
-              layoutId="sidebar-pill-rail"
-              background={`var(--mantine-color-${color}-filled)`}
-            />
-          )}
+          {isActive && <SidebarPill layoutId="sidebar-pill-rail" background={tint(color)} />}
           <ActionIcon
             component={RouterNavLink}
             to={to}
@@ -95,11 +117,10 @@ export const RailNavItem = memo(function RailNavItem({
             className="sidebar-link"
             variant={isActive ? 'transparent' : 'subtle'}
             color="gray"
-            style={isActive ? { color: 'var(--mantine-color-white)' } : undefined}
             aria-label={label}
             onClick={onClick}
           >
-            <Icon size={20} stroke={1.5} />
+            <IconTile Icon={Icon} color={color} isActive={isActive} />
           </ActionIcon>
         </div>
       </Indicator>
@@ -137,17 +158,12 @@ export const FullNavItem = memo(function FullNavItem({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.18, delay: slideIn ? Math.min(enterIndex, 10) * 0.02 : 0 }}
     >
-      {isActive && (
-        <SidebarPill
-          layoutId="sidebar-pill-full"
-          background={`var(--mantine-color-${color}-light)`}
-        />
-      )}
+      {isActive && <SidebarPill layoutId="sidebar-pill-full" background={tint(color)} />}
       <NavLink
         component={RouterNavLink}
         to={to}
         label={label}
-        leftSection={<Icon size={20} stroke={1.5} />}
+        leftSection={<IconTile Icon={Icon} color={color} isActive={isActive} />}
         rightSection={
           badgeCount > 0 ? (
             <Badge size="xs" color="red" variant="filled">

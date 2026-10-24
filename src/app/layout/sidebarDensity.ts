@@ -22,12 +22,6 @@ export interface SidebarDensityPreset {
   labelPt: string | number;
   /** NavLink vertical padding — px. */
   navlinkPy: number;
-  /** Top margin above the footer block — Mantine spacing token. */
-  footerMt: string;
-  /** `my` on the divider above the footer paper — token or px. */
-  footerDividerMy: string | number;
-  /** Footer `Paper` padding — Mantine spacing token. */
-  footerPad: string;
 }
 
 export const SIDEBAR_DENSITY_PRESETS: Record<SidebarDensity, SidebarDensityPreset> = {
@@ -38,9 +32,6 @@ export const SIDEBAR_DENSITY_PRESETS: Record<SidebarDensity, SidebarDensityPrese
     showLabels: true,
     labelPt: 'sm',
     navlinkPy: 8,
-    footerMt: 'md',
-    footerDividerMy: 'xs',
-    footerPad: 'xs',
   },
   compact: {
     rootPad: '2xs',
@@ -49,9 +40,6 @@ export const SIDEBAR_DENSITY_PRESETS: Record<SidebarDensity, SidebarDensityPrese
     showLabels: true,
     labelPt: 2,
     navlinkPy: 5,
-    footerMt: '2xs',
-    footerDividerMy: 2,
-    footerPad: '3xs',
   },
   dense: {
     rootPad: '3xs',
@@ -60,9 +48,6 @@ export const SIDEBAR_DENSITY_PRESETS: Record<SidebarDensity, SidebarDensityPrese
     showLabels: true,
     labelPt: 0,
     navlinkPy: 4,
-    footerMt: '3xs',
-    footerDividerMy: 0,
-    footerPad: '3xs',
   },
 };
 

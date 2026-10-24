@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { AppShell as MantineAppShell } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useLocalStorage } from '@mantine/hooks';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
 import { Header } from './Header';
@@ -14,6 +14,7 @@ import {
   SHELL_NAVBAR_WIDTH,
 } from './constants';
 import { ROUTES } from '@/constants/routes';
+import { STORAGE_KEYS } from '@/constants/storage';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { selectShopProfile, setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
@@ -64,6 +65,10 @@ const ROUTE_TITLES: Record<string, string> = {
 
 export const AppShell = () => {
   const [opened, { toggle, close }] = useDisclosure();
+  const [collapsed, setCollapsed] = useLocalStorage({
+    key: STORAGE_KEYS.SIDEBAR_COLLAPSED,
+    defaultValue: false,
+  });
   const [focusMode, setFocusMode] = useState(false);
   const [heldDrawerOpen, setHeldDrawerOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -186,11 +191,17 @@ export const AppShell = () => {
   }, [isDashboard, location.pathname]);
 
   const headerHeight = isBillingPage ? BILLING_HEADER_HEIGHT : SHELL_HEADER_HEIGHT;
+  // The user's collapse choice only applies where the bar could be full: Billing and tablet are
+  // already forced to the rail, and a phone uses a drawer.
+  const canToggleSidebar = tier === 'desktop' && !isBillingPage;
+  const showRail = isBillingPage
+    ? !focusMode
+    : tier === 'tablet' || (canToggleSidebar && collapsed);
   const navbarWidth = isBillingPage
     ? focusMode
       ? 0
       : SHELL_NAVBAR_RAIL_WIDTH
-    : tier === 'tablet'
+    : showRail
       ? SHELL_NAVBAR_RAIL_WIDTH
       : SHELL_NAVBAR_WIDTH;
 
@@ -230,7 +241,8 @@ export const AppShell = () => {
         <MantineAppShell.Navbar ref={navbarRef} bg="var(--bg-sidebar)">
           <Sidebar
             closeMobile={close}
-            isRail={tier !== 'mobile' && (isBillingPage ? !focusMode : tier === 'tablet')}
+            isRail={tier !== 'mobile' && showRail}
+            onToggleCollapse={canToggleSidebar ? () => setCollapsed((prev) => !prev) : undefined}
             drawerOpen={opened}
           />
         </MantineAppShell.Navbar>

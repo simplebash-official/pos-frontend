@@ -30,13 +30,13 @@ const createMockStore = (role: UserRole) => {
   });
 };
 
-const renderSidebar = (role: UserRole, isRail = false) => {
+const renderSidebar = (role: UserRole, isRail = false, onToggleCollapse?: () => void) => {
   const store = createMockStore(role);
   return renderToString(
     <Provider store={store}>
       <MantineProvider>
         <MemoryRouter initialEntries={['/dashboard']}>
-          <Sidebar isRail={isRail} />
+          <Sidebar isRail={isRail} onToggleCollapse={onToggleCollapse} />
         </MemoryRouter>
       </MantineProvider>
     </Provider>
@@ -88,5 +88,51 @@ describe('Sidebar settings visibility by user role', () => {
       const html = renderSidebar(USER_ROLES.STAFF, true);
       expect(html).not.toContain(ROUTES.SETTINGS);
     });
+  });
+});
+
+describe('Sidebar collapse button and pinned footer', () => {
+  const toggle = () => undefined;
+
+  it('offers Collapse when full and Expand when on the rail', () => {
+    expect(renderSidebar(USER_ROLES.ADMIN, false, toggle)).toContain(
+      'aria-label="Collapse sidebar"'
+    );
+    expect(renderSidebar(USER_ROLES.ADMIN, true, toggle)).toContain('aria-label="Expand sidebar"');
+  });
+
+  it("hides the button where the width is not the user's to choose", () => {
+    expect(renderSidebar(USER_ROLES.ADMIN, false)).not.toContain('sidebar"');
+    expect(renderSidebar(USER_ROLES.ADMIN, true)).not.toContain('Expand sidebar');
+  });
+
+  it('keeps Sign Out outside the scrolling nav list in both layouts', () => {
+    for (const isRail of [false, true]) {
+      const html = renderSidebar(USER_ROLES.STAFF, isRail, toggle);
+      const navEnd = html.indexOf('</nav>');
+      expect(navEnd).toBeGreaterThan(0);
+      expect(html.indexOf('aria-label="Sign Out"')).toBeGreaterThan(navEnd);
+    }
+  });
+});
+
+describe('Sidebar account footer', () => {
+  it('shows who is signed in and their role in the full layout', () => {
+    const html = renderSidebar(USER_ROLES.MANAGER, false);
+    expect(html).toContain('Test User');
+    expect(html).toContain('Manager');
+  });
+
+  it('shows only the initial in the rail', () => {
+    const html = renderSidebar(USER_ROLES.STAFF, true);
+    expect(html).not.toContain('Test User');
+    expect(html).toContain('>T<');
+  });
+
+  it('offers the three colour choices and a Sign Out button in the full layout', () => {
+    const html = renderSidebar(USER_ROLES.STAFF, false);
+    for (const label of ['Light Mode', 'Dark Mode', 'System', 'Sign Out']) {
+      expect(html).toContain(`aria-label="${label}"`);
+    }
   });
 });

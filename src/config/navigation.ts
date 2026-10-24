@@ -20,6 +20,13 @@ import {
   IconChartBar,
   IconSettings,
   IconKey,
+  IconLayoutGrid,
+  IconShoppingCart,
+  IconTool,
+  IconCoins,
+  IconBox,
+  IconUsersGroup,
+  IconChartPie,
 } from '@tabler/icons-react';
 import { ROUTES, PERMISSIONS } from '@/constants';
 import type { Permission } from '@/constants/permissions';
@@ -41,6 +48,7 @@ export interface NavItemConfig {
 export interface NavCategoryGroup {
   id: string;
   title: string;
+  icon: NavItemConfig['icon'];
   items: NavItemConfig[];
 }
 
@@ -48,6 +56,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
   {
     id: 'overview',
     title: 'Overview',
+    icon: IconLayoutGrid,
     items: [
       {
         label: 'Dashboard',
@@ -58,8 +67,9 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     ],
   },
   {
-    id: 'sales-operations',
-    title: 'Sales & Operations',
+    id: 'sell',
+    title: 'Sell',
+    icon: IconShoppingCart,
     items: [
       {
         label: 'Billing Counter',
@@ -74,12 +84,19 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         color: 'grape',
       },
       {
-        label: 'Register Shifts',
-        icon: IconCashRegister,
-        to: ROUTES.SHIFTS,
-        color: 'teal',
-        requiredPermissions: [PERMISSIONS.REGISTER_SESSIONS_VIEW],
+        label: 'Quotations',
+        icon: IconFileText,
+        to: ROUTES.QUOTATIONS,
+        color: 'lime',
+        requiredPermissions: [PERMISSIONS.QUOTATIONS_MANAGE],
       },
+    ],
+  },
+  {
+    id: 'workshop',
+    title: 'Workshop',
+    icon: IconTool,
+    items: [
       {
         label: 'Repair Jobs',
         icon: IconHammer,
@@ -92,12 +109,19 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         to: ROUTES.PRINT_JOBS,
         color: 'teal',
       },
+    ],
+  },
+  {
+    id: 'money',
+    title: 'Money',
+    icon: IconCoins,
+    items: [
       {
-        label: 'Quotations',
-        icon: IconFileText,
-        to: ROUTES.QUOTATIONS,
-        color: 'lime',
-        requiredPermissions: [PERMISSIONS.QUOTATIONS_MANAGE],
+        label: 'Register Shifts',
+        icon: IconCashRegister,
+        to: ROUTES.SHIFTS,
+        color: 'teal',
+        requiredPermissions: [PERMISSIONS.REGISTER_SESSIONS_VIEW],
       },
       {
         label: 'Expenses',
@@ -137,8 +161,9 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     ],
   },
   {
-    id: 'inventory-supply',
-    title: 'Inventory & Supply',
+    id: 'stock',
+    title: 'Stock',
+    icon: IconBox,
     items: [
       {
         label: 'Inventory & Stock',
@@ -166,6 +191,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
   {
     id: 'people-staff',
     title: 'People & Staff',
+    icon: IconUsersGroup,
     items: [
       {
         label: 'Customers',
@@ -192,6 +218,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
   {
     id: 'analytics',
     title: 'Business Analytics',
+    icon: IconChartPie,
     items: [
       {
         label: 'Analytics & Reports',

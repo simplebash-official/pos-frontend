@@ -6,6 +6,10 @@ export const STORAGE_KEYS = {
   SHOP_CODE: 'pos_shop_code',
   // keep in sync with the inline color-scheme script in index.html
   COLOR_SCHEME: 'pos-color-scheme',
+  /** Whether the user collapsed the desktop sidebar to its icon rail. */
+  SIDEBAR_COLLAPSED: 'pos-sidebar-collapsed',
+  /** Ids of sidebar sections the user folded shut. */
+  SIDEBAR_FOLDED: 'pos-sidebar-folded',
   CUSTOMERS: 'pos_customers_data',
   HELD_CARTS: 'pos_held_carts_data',
   SETTINGS: 'pos_settings_data',
