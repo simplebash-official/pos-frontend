@@ -412,6 +412,15 @@ export interface ZReportCashReconciliation {
   safeDepositCents: number;
 }
 
+/** A shift's movements of one kind and category, totalled by the server (a reversed one and its reversal cancel out). */
+export interface ZReportMovementGroup {
+  movementType: CashMovementType;
+  direction: CashDirection;
+  categoryName: string;
+  count: number;
+  totalCents: number;
+}
+
 export interface ZReportResponse {
   session: RegisterSession;
   grossSalesCents: number;
@@ -421,6 +430,7 @@ export interface ZReportResponse {
   totalInvoicesCount: number;
   paymentMethods: ZReportPaymentMethodSummary[];
   cashMovements: CashMovement[];
+  movementSummary: ZReportMovementGroup[];
   cashReconciliation: ZReportCashReconciliation;
   generatedAt: string;
 }

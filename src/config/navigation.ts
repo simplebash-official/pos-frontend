@@ -11,6 +11,7 @@ import {
   IconCashBanknote,
   IconBuildingBank,
   IconReportMoney,
+  IconChartHistogram,
   IconPackage,
   IconTags,
   IconUsers,
@@ -118,6 +119,13 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
         to: ROUTES.MONEY_ACCOUNTS,
         color: 'indigo',
         requiredPermissions: [PERMISSIONS.ACCOUNTS_VIEW],
+      },
+      {
+        label: 'Money Reports',
+        icon: IconChartHistogram,
+        to: ROUTES.MONEY_REPORTS,
+        color: 'teal',
+        requiredPermissions: [PERMISSIONS.REPORTS_VIEW],
       },
       {
         label: 'Balances',

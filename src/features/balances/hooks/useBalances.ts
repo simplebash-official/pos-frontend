@@ -37,6 +37,7 @@ export const useSetBalanceOpening = () => {
     }) => setBalanceOpening(subject, key, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.moneyReports.all });
     },
   });
 };
@@ -53,6 +54,7 @@ export const useRecoverAdvance = () => {
     }) => recoverAdvance(employeeKey, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.moneyReports.all });
     },
   });
 };

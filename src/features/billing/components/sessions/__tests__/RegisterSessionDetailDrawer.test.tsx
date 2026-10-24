@@ -122,7 +122,17 @@ vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
     isLoading: false,
   }),
   useZReport: () => ({
-    data: null,
+    data: {
+      movementSummary: [
+        {
+          movementType: 'add_cash',
+          direction: 'in',
+          categoryName: 'Change float top-up',
+          count: 2,
+          totalCents: 250000,
+        },
+      ],
+    },
     isLoading: false,
   }),
   useReopenSession: () => ({
@@ -282,6 +292,36 @@ describe('RegisterSessionDetailDrawer', () => {
     expect(text()).toContain('Reversal');
     expect(text()).toContain('Wrong amount');
     expect(text()).toContain('-Rs. 0.00');
+    // The server's totals by kind and category sit above the log.
+    expect(text()).toContain('By kind and category');
+    expect(text()).toContain('Add cash to drawer · Change float top-up');
+    expect(text()).toContain('× 2');
+    // Every payout has a voucher to print again.
+    expect(document.body.querySelector('button[aria-label^="Print voucher"]')).not.toBeNull();
+  });
+
+  it('narrows the movement log by the words typed and says when nothing matches', async () => {
+    await renderComponent();
+    const movementsTab = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Movements')
+    );
+    await act(async () => {
+      movementsTab?.click();
+    });
+    const search = document.body.querySelector<HTMLInputElement>('input[placeholder^="Voucher"]')!;
+    const type = async (value: string) =>
+      act(async () => {
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+        setter.call(search, value);
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    await type('main safe');
+    const rows = () => document.body.querySelectorAll('tbody tr').length;
+    expect(text()).toContain('Main safe');
+    const matching = rows();
+    await type('zzzz-nothing');
+    expect(text()).toContain('No movement matches');
+    expect(rows()).toBeLessThan(matching);
   });
 
   it('switches to Invoices tab, displays paginated invoices, and opens InvoiceDetailDrawer on row click', async () => {

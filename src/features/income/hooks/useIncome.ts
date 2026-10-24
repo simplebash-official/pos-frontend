@@ -21,6 +21,7 @@ export const useCreateIncome = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.moneyReports.all });
     },
   });
 };

@@ -9,10 +9,12 @@ import {
   Group,
   Pagination,
   Paper,
+  Select,
   SimpleGrid,
   Stack,
   Table,
   Text,
+  TextInput,
   ThemeIcon,
   UnstyledButton,
 } from '@mantine/core';
@@ -22,6 +24,8 @@ import {
   IconArrowDownRight,
   IconArrowUpRight,
   IconAlertCircle,
+  IconPrinter,
+  IconSearch,
   IconBuildingBank,
   IconCalendar,
   IconCash,
@@ -55,7 +59,7 @@ import {
   KpiTile,
   RichDrawer,
 } from '@/shared/components/drawer';
-import { useCashMovementList, useSessionDetail } from '../../hooks/useRegisterSession';
+import { useCashMovementList, useSessionDetail, useZReport } from '../../hooks/useRegisterSession';
 import { useSessionInvoices } from '../../hooks/useInvoices';
 import { InvoiceDetailDrawer } from '@/features/invoices/components/InvoiceDetailDrawer';
 import { getInvoiceStatusMeta } from '@/features/invoices/lib/invoiceStatus';
@@ -76,6 +80,8 @@ import { ReopenSessionModal } from './ReopenSessionModal';
 import { ConvertVarianceModal } from './ConvertVarianceModal';
 import type { CashMovement, RegisterSession } from '../../types';
 import { getDirectionLook, getTypeLabel } from './movement/movementTypes';
+import { filterMovements, kindsPresent, type KindFilter } from './movement/movementLog';
+import { printCashMovementVoucher } from './sessionPrint';
 
 export interface RegisterSessionDetailDrawerProps {
   opened: boolean;
@@ -187,6 +193,19 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
   const movements: CashMovement[] = useMemo(
     () => movementsData?.movements ?? [],
     [movementsData?.movements]
+  );
+
+  // The log can be narrowed by kind and by words; the totals and the summary above it stay for the whole shift.
+  const [kindFilter, setKindFilter] = useState<KindFilter>('all');
+  const [movementSearch, setMovementSearch] = useState('');
+  const visibleMovements = useMemo(
+    () => filterMovements(movements, { kind: kindFilter, search: movementSearch }),
+    [movements, kindFilter, movementSearch]
+  );
+  const movementKinds = useMemo(() => kindsPresent(movements), [movements]);
+  // The server's totals by kind and category (the same figures the printed Z-report carries).
+  const { data: zReport } = useZReport(
+    opened && activeTab === 'movements' ? session?.key : undefined
   );
 
   const totalMovementsInCents = useMemo(
@@ -766,6 +785,49 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                           </SimpleGrid>
                         )}
 
+                        {zReport !== undefined && zReport.movementSummary.length > 0 && (
+                          <DrawerCard
+                            label={t('By kind and category')}
+                            icon={<IconCash size={16} />}
+                          >
+                            <Stack gap={6}>
+                              {zReport.movementSummary.map((g) => {
+                                const look = getDirectionLook(g.direction);
+                                return (
+                                  <Group
+                                    key={`${g.movementType}-${g.categoryName}`}
+                                    justify="space-between"
+                                    wrap="nowrap"
+                                    gap="sm"
+                                  >
+                                    <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
+                                      <ThemeIcon size="sm" variant="light" color={look.color}>
+                                        {look.icon}
+                                      </ThemeIcon>
+                                      <Text size="sm" truncate>
+                                        {`${getTypeLabel(g.movementType)} · ${g.categoryName}`}
+                                      </Text>
+                                      <Text size="xs" c="dimmed">
+                                        {`× ${g.count}`}
+                                      </Text>
+                                    </Group>
+                                    <Text
+                                      size="sm"
+                                      fw={600}
+                                      style={{
+                                        fontVariantNumeric: 'tabular-nums',
+                                        whiteSpace: 'nowrap',
+                                      }}
+                                    >
+                                      {formatMoney(g.totalCents)}
+                                    </Text>
+                                  </Group>
+                                );
+                              })}
+                            </Stack>
+                          </DrawerCard>
+                        )}
+
                         <DrawerCard
                           label={t('Cash Movements Log')}
                           icon={<IconCoins size={16} />}
@@ -822,113 +884,165 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                               </SimpleGrid>
                             </Stack>
                           ) : (
-                            <Table.ScrollContainer minWidth={620}>
-                              <Table striped highlightOnHover verticalSpacing="xs">
-                                <Table.Thead>
-                                  <Table.Tr>
-                                    <Table.Th>{t('Type')}</Table.Th>
-                                    <Table.Th>{t('Amount')}</Table.Th>
-                                    <Table.Th>{t('By')}</Table.Th>
-                                    <Table.Th>{t('For')}</Table.Th>
-                                    <Table.Th>{t('Recorded At')}</Table.Th>
-                                    <Table.Th />
-                                    {canReverse && <Table.Th />}
-                                  </Table.Tr>
-                                </Table.Thead>
-                                <Table.Tbody>
-                                  {movements.map((m) => {
-                                    const look = getDirectionLook(m.direction);
-                                    return (
-                                      <Table.Tr key={m.id || m.key}>
-                                        <Table.Td>
-                                          <Group gap={6} wrap="nowrap">
-                                            <ThemeIcon size="sm" variant="light" color={look.color}>
-                                              {look.icon}
-                                            </ThemeIcon>
-                                            <Text size="xs" fw={600}>
-                                              {getTypeLabel(m.movementType)}
-                                            </Text>
-                                          </Group>
-                                          {m.reversesKey && (
-                                            <Text size="xs" c="dimmed">
-                                              {t('Reversal')}
-                                            </Text>
-                                          )}
-                                          {m.reversedByKey && (
-                                            <Text size="xs" c="red">
-                                              {t('Reversed')}
-                                            </Text>
-                                          )}
-                                        </Table.Td>
-                                        <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                          <Text
-                                            fw={700}
-                                            size="xs"
-                                            td={m.reversedByKey ? 'line-through' : undefined}
-                                            c={m.reversedByKey ? 'dimmed' : undefined}
-                                          >
-                                            {formatMoney(m.amountCents)}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="xs">
-                                            {m.recordedByNameSnapshot || m.recordedByUserId}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="xs" c="dimmed">
-                                            {[
-                                              m.customLabel
-                                                ? `${m.categoryName}: ${m.customLabel}`
-                                                : m.categoryName,
-                                              m.payeeName,
-                                              m.note,
-                                              m.approvalReason,
-                                            ]
-                                              .filter(Boolean)
-                                              .join(' · ')}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          <Text size="xs" c="dimmed">
-                                            {formatDateTime(m.createdAt)}
-                                          </Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                          {m.movementType !== 'no_sale' && (
-                                            <ReceiptsAction
-                                              ownerKind="cash_movement"
-                                              ownerKey={m.key}
-                                              number={m.movementNumber}
-                                            />
-                                          )}
-                                        </Table.Td>
-                                        {canReverse && (
+                            <Stack gap="sm">
+                              <Group gap="sm" grow={isMobile} align="flex-end">
+                                <Select
+                                  label={t('Kind')}
+                                  value={kindFilter}
+                                  onChange={(value) =>
+                                    setKindFilter((value ?? 'all') as KindFilter)
+                                  }
+                                  allowDeselect={false}
+                                  data={[
+                                    { value: 'all', label: t('All kinds') },
+                                    ...movementKinds.map((kind) => ({
+                                      value: kind,
+                                      label: getTypeLabel(kind),
+                                    })),
+                                  ]}
+                                  comboboxProps={{ withinPortal: true }}
+                                  style={{ minWidth: isMobile ? 0 : 200 }}
+                                />
+                                <TextInput
+                                  label={t('Search')}
+                                  placeholder={t('Voucher, category, name or note')}
+                                  leftSection={<IconSearch size={16} />}
+                                  value={movementSearch}
+                                  onChange={(e) => setMovementSearch(e.currentTarget.value)}
+                                  autoComplete="off"
+                                  style={{ flex: 1, minWidth: isMobile ? 0 : 220 }}
+                                />
+                              </Group>
+                              {visibleMovements.length === 0 && (
+                                <Text size="sm" c="dimmed">
+                                  {t(
+                                    'No movement matches. Change the kind or the words you typed.'
+                                  )}
+                                </Text>
+                              )}
+                              <Table.ScrollContainer minWidth={620}>
+                                <Table striped highlightOnHover verticalSpacing="xs">
+                                  <Table.Thead>
+                                    <Table.Tr>
+                                      <Table.Th>{t('Type')}</Table.Th>
+                                      <Table.Th>{t('Amount')}</Table.Th>
+                                      <Table.Th>{t('By')}</Table.Th>
+                                      <Table.Th>{t('For')}</Table.Th>
+                                      <Table.Th>{t('Recorded At')}</Table.Th>
+                                      <Table.Th />
+                                      {canReverse && <Table.Th />}
+                                    </Table.Tr>
+                                  </Table.Thead>
+                                  <Table.Tbody>
+                                    {visibleMovements.map((m) => {
+                                      const look = getDirectionLook(m.direction);
+                                      return (
+                                        <Table.Tr key={m.id || m.key}>
                                           <Table.Td>
-                                            {!m.reversesKey &&
-                                              !m.reversedByKey &&
-                                              m.movementType !== 'no_sale' &&
-                                              (session.status === 'open' ||
-                                                session.status === 'reopened') && (
+                                            <Group gap={6} wrap="nowrap">
+                                              <ThemeIcon
+                                                size="sm"
+                                                variant="light"
+                                                color={look.color}
+                                              >
+                                                {look.icon}
+                                              </ThemeIcon>
+                                              <Text size="xs" fw={600}>
+                                                {getTypeLabel(m.movementType)}
+                                              </Text>
+                                            </Group>
+                                            {m.reversesKey && (
+                                              <Text size="xs" c="dimmed">
+                                                {t('Reversal')}
+                                              </Text>
+                                            )}
+                                            {m.reversedByKey && (
+                                              <Text size="xs" c="red">
+                                                {t('Reversed')}
+                                              </Text>
+                                            )}
+                                          </Table.Td>
+                                          <Table.Td style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                            <Text
+                                              fw={700}
+                                              size="xs"
+                                              td={m.reversedByKey ? 'line-through' : undefined}
+                                              c={m.reversedByKey ? 'dimmed' : undefined}
+                                            >
+                                              {formatMoney(m.amountCents)}
+                                            </Text>
+                                          </Table.Td>
+                                          <Table.Td>
+                                            <Text size="xs">
+                                              {m.recordedByNameSnapshot || m.recordedByUserId}
+                                            </Text>
+                                          </Table.Td>
+                                          <Table.Td>
+                                            <Text size="xs" c="dimmed">
+                                              {[
+                                                m.customLabel
+                                                  ? `${m.categoryName}: ${m.customLabel}`
+                                                  : m.categoryName,
+                                                m.payeeName,
+                                                m.note,
+                                                m.approvalReason,
+                                              ]
+                                                .filter(Boolean)
+                                                .join(' · ')}
+                                            </Text>
+                                          </Table.Td>
+                                          <Table.Td>
+                                            <Text size="xs" c="dimmed">
+                                              {formatDateTime(m.createdAt)}
+                                            </Text>
+                                          </Table.Td>
+                                          <Table.Td>
+                                            {m.movementType !== 'no_sale' && (
+                                              <Group gap={6} wrap="nowrap">
                                                 <ActionIcon
                                                   variant="light"
-                                                  color="red"
                                                   size={isMobile ? 44 : 32}
-                                                  aria-label={`${t('Reverse entry')} ${m.movementNumber}`}
-                                                  onClick={() => setReversing(m)}
-                                                  data-log-id="shifts.reverse-movement"
+                                                  aria-label={`${t('Print voucher')} ${m.movementNumber}`}
+                                                  onClick={() => printCashMovementVoucher(m)}
+                                                  data-log-id="shifts.print-voucher"
                                                 >
-                                                  <IconArrowBackUp size={16} />
+                                                  <IconPrinter size={16} />
                                                 </ActionIcon>
-                                              )}
+                                                <ReceiptsAction
+                                                  ownerKind="cash_movement"
+                                                  ownerKey={m.key}
+                                                  number={m.movementNumber}
+                                                />
+                                              </Group>
+                                            )}
                                           </Table.Td>
-                                        )}
-                                      </Table.Tr>
-                                    );
-                                  })}
-                                </Table.Tbody>
-                              </Table>
-                            </Table.ScrollContainer>
+                                          {canReverse && (
+                                            <Table.Td>
+                                              {!m.reversesKey &&
+                                                !m.reversedByKey &&
+                                                m.movementType !== 'no_sale' &&
+                                                (session.status === 'open' ||
+                                                  session.status === 'reopened') && (
+                                                  <ActionIcon
+                                                    variant="light"
+                                                    color="red"
+                                                    size={isMobile ? 44 : 32}
+                                                    aria-label={`${t('Reverse entry')} ${m.movementNumber}`}
+                                                    onClick={() => setReversing(m)}
+                                                    data-log-id="shifts.reverse-movement"
+                                                  >
+                                                    <IconArrowBackUp size={16} />
+                                                  </ActionIcon>
+                                                )}
+                                            </Table.Td>
+                                          )}
+                                        </Table.Tr>
+                                      );
+                                    })}
+                                  </Table.Tbody>
+                                </Table>
+                              </Table.ScrollContainer>
+                            </Stack>
                           )}
                         </DrawerCard>
                         <ReverseMovementModal

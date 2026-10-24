@@ -53,6 +53,7 @@ export const useCreatePurchase = () => {
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.moneyReports.all });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.purchases.bySupplier(variables.supplierKey),
       });

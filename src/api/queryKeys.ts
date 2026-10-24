@@ -62,6 +62,16 @@ export const queryKeys = {
     list: (kind: string, key: string) => ['attachments', 'list', kind, key] as const,
     image: (key: string) => ['attachments', 'image', key] as const,
   },
+  moneyReports: {
+    all: ['moneyReports'] as const,
+    profitLoss: (period: { from: string; to: string }) =>
+      ['moneyReports', 'profitLoss', period] as const,
+    expenses: (period: { from: string; to: string }) =>
+      ['moneyReports', 'expenses', period] as const,
+    cashFlow: (period: { from: string; to: string }) =>
+      ['moneyReports', 'cashFlow', period] as const,
+    payables: () => ['moneyReports', 'payables'] as const,
+  },
   accounts: {
     all: ['accounts'] as const,
     list: () => ['accounts', 'list'] as const,
