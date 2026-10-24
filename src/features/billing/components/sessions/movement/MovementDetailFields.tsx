@@ -119,9 +119,10 @@ export const MovementDetailFields = ({
     />
   );
 
-  // Two short text fields share a row on a computer.
+  // Two short text fields share a row on a computer. Bottom-aligned so the boxes line up
+  // when one label wraps onto two lines.
   const pair = (first: ReactNode, second: ReactNode) => (
-    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" style={{ alignItems: 'end' }}>
       {first}
       {second}
     </SimpleGrid>
