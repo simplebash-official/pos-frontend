@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
   Badge,
@@ -26,6 +26,7 @@ import {
   IconPlayerTrackNext,
 } from '@tabler/icons-react';
 import {
+  useCancelClose,
   useCloseSession,
   useConvertVariance,
   useSubmitBlindCount,
@@ -46,12 +47,17 @@ import type { RegisterSession } from '../../types';
 interface CloseSessionFormProps {
   session: RegisterSession;
   onClose: () => void;
+  // Walking away without closing: the Cancel button, as opposed to `onClose` after a real close.
+  onDismiss: () => void;
+  onCountSubmitted: () => void;
   onSessionClosed?: (closedSession: RegisterSession) => void;
 }
 
 const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
   session: initialSession,
   onClose,
+  onDismiss,
+  onCountSubmitted,
   onSessionClosed,
 }) => {
   const { heldCarts } = useHeldCarts();
@@ -131,6 +137,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         },
       });
       setSession(updated);
+      onCountSubmitted();
       setClosingFloatCents(Math.min(countedCashCents, updated.openingFloatCents));
       setActiveStep(2); // Move to reconciliation step
     } catch (err: unknown) {
@@ -291,7 +298,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
             )}
 
             <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={onClose}>
+              <Button variant="default" onClick={onDismiss}>
                 {t('Cancel')}
               </Button>
               <Button
@@ -705,10 +712,38 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
   session,
   onSessionClosed,
 }) => {
+  const cancelCloseMutation = useCancelClose();
+  // Set once the count is saved: the server then holds the shift as "closing" until it is closed
+  // or this window is dismissed. A ref, because the shift prop only catches up after a refetch.
+  const countSubmitted = useRef(false);
+
+  const finish = () => {
+    countSubmitted.current = false;
+    onClose();
+  };
+
+  // Dismissing a counted shift puts it back to open, so the header stops saying "Closing...".
+  const dismiss = async () => {
+    if (countSubmitted.current || session.status === 'closing') {
+      try {
+        await cancelCloseMutation.mutateAsync(session.key);
+      } catch {
+        notifications.show({
+          title: t('Shift still shows as closing'),
+          message: t(
+            'We could not put the shift back. Open Close Shift again to finish or cancel it.'
+          ),
+          color: 'orange',
+        });
+      }
+    }
+    finish();
+  };
+
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={() => void dismiss()}
       title={
         <Group gap="xs">
           <ThemeIcon variant="light" color="orange" size={34}>
@@ -726,7 +761,11 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
         <CloseSessionForm
           key={session.key}
           session={session}
-          onClose={onClose}
+          onClose={finish}
+          onDismiss={() => void dismiss()}
+          onCountSubmitted={() => {
+            countSubmitted.current = true;
+          }}
           onSessionClosed={onSessionClosed}
         />
       )}

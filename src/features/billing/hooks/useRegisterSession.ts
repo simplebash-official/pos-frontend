@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import {
+  cancelClose,
   closeSession,
   convertVariance,
   createCashMovement,
@@ -95,6 +96,16 @@ export const useSubmitBlindCount = () => {
   return useMutation({
     mutationFn: ({ key, input }: { key: string; input: SubmitBlindCountInput }) =>
       submitBlindCount(key, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+    },
+  });
+};
+
+export const useCancelClose = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (key: string) => cancelClose(key),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
     },

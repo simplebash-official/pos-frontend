@@ -28,9 +28,11 @@ const baseSession = {
 
 let currentSession: RegisterSession = baseSession;
 const idle = { mutateAsync: vi.fn(), isPending: false, data: undefined, isLoading: false };
+const cancelClose = { ...idle, mutateAsync: vi.fn() };
 
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
   useCurrentSession: () => ({ session: currentSession, isLoading: false }),
+  useCancelClose: () => cancelClose,
   useCloseSession: () => idle,
   useConvertVariance: () => idle,
   useSubmitBlindCount: () => idle,
@@ -51,6 +53,8 @@ describe('Close shift window', () => {
 
   beforeEach(() => {
     currentSession = baseSession;
+    cancelClose.mutateAsync.mockReset();
+    cancelClose.mutateAsync.mockResolvedValue(undefined);
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -112,6 +116,57 @@ describe('Close shift window', () => {
     await render();
     await click('Closing...');
     await shows('Cash Drawer Reconciliation');
+  });
+
+  const dismissWindow = async () => {
+    await act(async () => {
+      document.body.querySelector<HTMLElement>('.mantine-Modal-close')!.click();
+    });
+  };
+
+  it('puts a counted shift back to open when the window is dismissed', async () => {
+    currentSession = {
+      ...baseSession,
+      status: 'closing',
+      countedCashCents: 5000,
+      expectedCashCents: 10000,
+    };
+    await render();
+    await click('Closing...');
+    await shows('Cash Drawer Reconciliation');
+
+    await dismissWindow();
+
+    expect(cancelClose.mutateAsync).toHaveBeenCalledWith('ses_1');
+    await act(async () => {
+      await vi.waitFor(() => expect(text()).not.toContain('Cash Drawer Reconciliation'));
+    });
+  });
+
+  it('still closes the window when putting the shift back fails', async () => {
+    cancelClose.mutateAsync.mockRejectedValue(new Error('offline'));
+    currentSession = { ...baseSession, status: 'closing', countedCashCents: 5000 };
+    await render();
+    await click('Closing...');
+    await shows('Cash Drawer Reconciliation');
+
+    await dismissWindow();
+
+    expect(cancelClose.mutateAsync).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await vi.waitFor(() => expect(text()).not.toContain('Cash Drawer Reconciliation'));
+    });
+  });
+
+  it('leaves an uncounted shift alone when the window is dismissed', async () => {
+    await render();
+    await click('SES-000002');
+    await click('Close Register Shift');
+    await shows('No Unfinished Work');
+
+    await dismissWindow();
+
+    expect(cancelClose.mutateAsync).not.toHaveBeenCalled();
   });
 
   it('does not let a tap on a later step skip ahead', async () => {

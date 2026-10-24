@@ -21,6 +21,8 @@
   "Agreement, meter or bill number (optional)": "ගිවිසුම්, මීටර් හෝ බිල් අංකය (අනිවාර්ය නෑ)",
   "All expenses": "ඔක්කොම වියදම්",
   "All kinds": "සියලු වර්ග",
+  "Shift still shows as closing": "ෂිෆ්ට් එක තවමත් වසමින් පවතින බව පෙන්වයි",
+  "We could not put the shift back. Open Close Shift again to finish or cancel it.": "ෂිෆ්ට් එක ආපසු දාන්න බැරි වුණා. ඒක අවසන් කරන්න හෝ අවලංගු කරන්න ආයෙත් Close Shift විවෘත කරන්න.",
   "already recorded": "කලින්ම සටහන් කරලා තියෙන්නේ",
   "Amount owed on that day": "එදාට ගෙවන්න තිබුණු ණය ගාන",
   "Amount taken from pay": "පඩියෙන් කපාගත්ත ගාන",

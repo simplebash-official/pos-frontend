@@ -66,6 +66,13 @@ export const submitBlindCount = async (
   return response.data;
 };
 
+export const cancelClose = async (key: string): Promise<RegisterSession> => {
+  const response = await apiClient.post<ApiResponse<RegisterSession>>(
+    `/sessions/${encodeURIComponent(key)}/cancel-close`
+  );
+  return response.data;
+};
+
 export const closeSession = async (
   key: string,
   input: CloseSessionInput
