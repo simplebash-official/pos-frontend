@@ -2,6 +2,7 @@ import { NavLink as RouterNavLink } from 'react-router-dom';
 import {
   ActionIcon,
   Avatar,
+  Badge,
   Center,
   Group,
   Stack,
@@ -11,6 +12,7 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import {
+  IconBriefcase,
   IconChevronLeft,
   IconChevronRight,
   IconChevronsDown,
@@ -18,11 +20,13 @@ import {
   IconDeviceDesktop,
   IconLogout,
   IconMoon,
+  IconShieldCheck,
   IconSun,
+  IconUser,
 } from '@tabler/icons-react';
 
 import { ROUTES } from '@/constants/routes';
-import { USER_ROLES, formatUserRole } from '@/constants/roles';
+import { USER_ROLES, formatUserRole, type UserRole } from '@/constants/roles';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { t } from '@/shared/i18n/t';
 import { useAppSelector } from '@/store/hooks';
@@ -40,6 +44,13 @@ const SCHEME_LABEL: Record<SchemeChoice, string> = {
   auto: 'System',
 };
 const SCHEME_ICON = { light: IconSun, dark: IconMoon, auto: IconDeviceDesktop } as const;
+
+/** The role pill under the name, so the role never reads as part of the name. */
+const ROLE_LOOK: Record<UserRole, { color: string; Icon: typeof IconUser }> = {
+  [USER_ROLES.ADMIN]: { color: 'blue', Icon: IconShieldCheck },
+  [USER_ROLES.MANAGER]: { color: 'violet', Icon: IconBriefcase },
+  [USER_ROLES.STAFF]: { color: 'gray', Icon: IconUser },
+};
 
 export interface SidebarFooterProps {
   isRail: boolean;
@@ -76,6 +87,7 @@ export const SidebarFooter = ({
 
   const name = user?.name || user?.username || 'Operator';
   const roleLabel = user?.role ? formatUserRole(user.role) : '';
+  const roleLook = user?.role ? ROLE_LOOK[user.role as UserRole] : undefined;
   const tap = isMobile ? 44 : 34;
 
   const foldAllLabel = allFolded ? t('Expand All') : t('Collapse All');
@@ -162,10 +174,18 @@ export const SidebarFooter = ({
         <Text fz={13} fw={600} lh={1.2} lineClamp={2} title={name}>
           {name}
         </Text>
-        {roleLabel && (
-          <Text size="xs" c="dimmed" lh={1.2} truncate>
+        {roleLook && (
+          <Badge
+            size="xs"
+            variant="light"
+            color={roleLook.color}
+            tt="none"
+            mt={4}
+            leftSection={<roleLook.Icon size={11} stroke={2} />}
+            className="sidebar-footer-role"
+          >
             {roleLabel}
-          </Text>
+          </Badge>
         )}
       </div>
     </Group>
@@ -178,7 +198,7 @@ export const SidebarFooter = ({
         gap={8}
         p={8}
         className="sidebar-footer-card"
-        style={{ height: isMobile ? 68 : 64 }}
+        style={{ height: isMobile ? 76 : 72 }}
       >
         {isAdmin ? (
           <UnstyledButton
