@@ -44,6 +44,9 @@ const RECEIPTS = [
     date: '2026-10-15T10:00:00Z',
     lines: [line('USB-C Cable', 12), line('Lightning Cable', 4)],
     totalCents: 62_000,
+    extraChargesCents: 1_500,
+    paidToOthersCents: 0,
+    charges: [{ kind: 'shipping' }, { kind: 'other', description: 'Packing tape' }],
     creditedCents: 2_000,
     paidCents: 20_000,
     dueCents: 40_000,
@@ -55,6 +58,9 @@ const RECEIPTS = [
     date: '2026-10-10T10:00:00Z',
     lines: [line('HDMI Cable', 8)],
     totalCents: 30_400,
+    extraChargesCents: 0,
+    paidToOthersCents: 0,
+    charges: [],
     creditedCents: 0,
     paidCents: 30_400,
     dueCents: 0,
@@ -231,6 +237,8 @@ describe('SupplierDetailDrawer', () => {
     expect(text()).toContain('Part paid');
     expect(text()).toContain('Owed Rs. 400.00');
     expect(text()).toContain('Credit from supplier: Rs. 20.00');
+    // Each extra charge is named, an other charge by what it is.
+    expect(text()).toContain('Extra charges: Shipping or courier, Other charge (Packing tape)');
     expect(text()).toContain('Paid');
   });
 

@@ -59,13 +59,13 @@ export const ChargePayeeField = ({ value, onChange }: ChargePayeeFieldProps) => 
 
   return (
     <SearchCombobox
-      label={t('Who is paid?')}
+      label={t('Who is paid? (optional)')}
       placeholder={t('Courier, agent or porter')}
       loading={isLoading}
       items={items}
       value={value}
       onChange={onChange}
-      required
+      clearable
       create={
         canCreate
           ? {

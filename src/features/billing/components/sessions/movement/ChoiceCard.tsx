@@ -108,21 +108,27 @@ export const ChoiceCard = ({
         )}
       </span>
       {!allowed && <IconLock size={16} aria-hidden color="var(--text-muted)" />}
-      {selected && (
-        <motion.span
-          aria-hidden
-          initial={pop.initial}
-          animate={pop.animate}
-          transition={transition}
-          style={{
-            display: 'flex',
-            color: 'var(--mantine-primary-color-filled)',
-            flexShrink: 0,
-          }}
-        >
-          <IconCheck size={18} />
-        </motion.span>
-      )}
+      {/* The tick's space is always reserved, so choosing a card never changes how its text wraps. */}
+      <span
+        aria-hidden
+        style={{
+          display: 'flex',
+          width: 18,
+          flexShrink: 0,
+          color: 'var(--mantine-primary-color-filled)',
+        }}
+      >
+        {selected && (
+          <motion.span
+            initial={pop.initial}
+            animate={pop.animate}
+            transition={transition}
+            style={{ display: 'flex' }}
+          >
+            <IconCheck size={18} />
+          </motion.span>
+        )}
+      </span>
     </button>
   );
 };

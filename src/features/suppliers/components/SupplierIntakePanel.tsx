@@ -8,6 +8,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { ReceiveStockModal } from '@/features/purchases/components/ReceiveStockModal';
 import { RecordCreditModal } from '@/features/purchases/components/RecordCreditModal';
 import { receiptLabel } from '@/features/purchases/lib/settlement';
+import { chargeLabel } from '@/features/purchases/lib/chargeKinds';
 import { receiptStatusLook } from '@/features/purchases/lib/receiptView';
 import type { PurchaseReceipt } from '@/features/purchases/types';
 import type { Supplier } from '../types';
@@ -99,6 +100,11 @@ export const SupplierIntakePanel = ({
                       {formatDate(receipt.date)} · {receipt.receiptNumber}
                     </div>
                     <div>{productsOf(receipt)}</div>
+                    {receipt.charges.length > 0 ? (
+                      <div>
+                        {t('Extra charges:')} {receipt.charges.map(chargeLabel).join(', ')}
+                      </div>
+                    ) : null}
                     {receipt.extraChargesCents !== 0 ? (
                       <div>
                         {t('Extra charges on the bill:')} {formatMoney(receipt.extraChargesCents)}

@@ -84,8 +84,10 @@ export interface ReceiptCharge {
   amountCents: number;
   billedBy: BilledBy;
   allocation?: ChargeAllocation;
-  /** The payee a third-party charge was paid to. */
+  /** The payee a third-party charge was paid to, when one was named. */
   payeeKey?: string;
+  /** What an "other" charge is. */
+  description?: string;
   paymentKind?: PaymentKind;
   paymentKey?: string;
   createdAt: string;
@@ -159,8 +161,10 @@ export interface ReceiptChargeInput {
   billedBy: BilledBy;
   /** Required with two or more products, refused with one. */
   allocation?: ChargeAllocation;
-  /** The saved payee a charge paid to someone else goes to. */
+  /** The saved payee a charge paid to someone else goes to. Optional. */
   payeeKey?: string;
+  /** What an "other" charge is, in a few words. Optional, and only for the "other" kind. */
+  description?: string;
 }
 
 /** One manager or owner approval for all the cash this request takes out of the drawer. */

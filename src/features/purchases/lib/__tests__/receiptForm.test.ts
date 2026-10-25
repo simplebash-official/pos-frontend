@@ -203,12 +203,11 @@ describe('validateReceipt', () => {
     expect(validateReceipt(withCharge({ kind: 'shipping', amountCents: 100 }), ctx)).toMatch(
       /who asks/i
     );
+    // Who is paid is optional: a charge paid to someone else can go without a saved payee.
+    const noPayee = withCharge({ kind: 'shipping', amountCents: 100, billedBy: 'third_party' });
     expect(
-      validateReceipt(
-        withCharge({ kind: 'shipping', amountCents: 100, billedBy: 'third_party' }),
-        ctx
-      )
-    ).toMatch(/who is paid/i);
+      validateReceipt({ ...noPayee, chargesPayment: { source: 'bank', paidOn: '2026-10-25' } }, ctx)
+    ).toBeNull();
     expect(
       validateReceipt(
         withCharge({ kind: 'shipping', amountCents: 100, billedBy: 'supplier', allocation: null }),
@@ -392,6 +391,42 @@ describe('toReceiptInput', () => {
       lines: [{ ...line('prod_phone', 2, 1, 2), serialNumbers: [' A ', 'B'] }],
     });
     expect(toReceiptInput(form, ctx).lines[0].serialNumbers).toEqual(['A', 'B']);
+  });
+});
+
+describe('describing an other charge', () => {
+  const other = (patch: Partial<ChargeState>): ReceiptFormState =>
+    filled({
+      charges: [
+        charge({
+          kind: 'other',
+          amountCents: 12_000,
+          billedBy: 'supplier',
+          allocation: 'value',
+          ...patch,
+        }),
+      ],
+    });
+
+  it('sends the trimmed description of an other charge, and nothing when it is blank', () => {
+    expect(
+      toReceiptInput(other({ description: '  Packing tape ' }), ctx).charges[0].description
+    ).toBe('Packing tape');
+    expect(
+      toReceiptInput(other({ description: '   ' }), ctx).charges[0].description
+    ).toBeUndefined();
+  });
+
+  it('never sends a description for any other kind of charge', () => {
+    const shipping = other({ kind: 'shipping', description: 'left over' });
+    expect(toReceiptInput(shipping, ctx).charges[0].description).toBeUndefined();
+  });
+
+  it('refuses a description of more than 80 letters', () => {
+    expect(validateReceipt(other({ description: 'x'.repeat(81) }), ctx)).toMatch(
+      /up to 80 letters/i
+    );
+    expect(validateReceipt(other({ description: 'x'.repeat(80) }), ctx)).toBeNull();
   });
 });
 

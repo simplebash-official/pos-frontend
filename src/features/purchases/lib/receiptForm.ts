@@ -4,6 +4,7 @@
 
 import { t } from '@/shared/i18n/t';
 import { isDay } from '@/features/expenses/lib/expenseForm';
+import { CHARGE_DESCRIPTION_MAX } from './chargeKinds';
 import { chargeTotals, spreadCharges, type ChargeFigure } from './landedCost';
 import { lineMargin, suggestedPriceCents, type PriceStepCents } from './margin';
 import type {
@@ -54,8 +55,10 @@ export interface ChargeState {
   /** Always positive; a discount is its own kind. */
   amountCents: number;
   billedBy: BilledBy | null;
-  /** The courier or agent a charge paid to someone else goes to. */
+  /** The courier or agent a charge paid to someone else goes to. Optional. */
   payeeKey: string | null;
+  /** What an "other" charge is. Optional; only sent for the "other" kind. */
+  description: string;
   /** Only used with two or more products. */
   allocation: ChargeAllocation | null;
 }
@@ -131,6 +134,7 @@ export const emptyCharge = (): ChargeState => ({
   amountCents: 0,
   billedBy: null,
   payeeKey: null,
+  description: '',
   allocation: null,
 });
 
@@ -327,8 +331,8 @@ const validateCharges = (form: ReceiptFormState): string | null => {
     if (charge.kind === 'discount' && charge.billedBy !== 'supplier') {
       return `${label}: ${t("a discount can only be on the supplier's bill.")}`;
     }
-    if (charge.billedBy === 'third_party' && charge.payeeKey === null) {
-      return `${label}: ${t('please pick who is paid.')}`;
+    if (charge.description.trim().length > CHARGE_DESCRIPTION_MAX) {
+      return `${label}: ${t('the description can have up to 80 letters.')}`;
     }
     if (form.lines.length > 1 && charge.allocation === null) {
       return `${label}: ${t('please choose how to spread it over the products.')}`;
@@ -469,6 +473,7 @@ const chargeInput = (charge: ChargeState, lineCount: number): ReceiptChargeInput
     allocation: lineCount > 1 && charge.allocation !== null ? charge.allocation : undefined,
     payeeKey:
       charge.billedBy === 'third_party' && charge.payeeKey !== null ? charge.payeeKey : undefined,
+    description: charge.kind === 'other' ? trimmed(charge.description) : undefined,
   };
 };
 

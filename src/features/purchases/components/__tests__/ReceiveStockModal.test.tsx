@@ -467,6 +467,40 @@ describe('ReceiveStockModal', () => {
     expect(text()).not.toContain('Rs. 5,200.00');
   });
 
+  it('asks what an other charge is, optionally, and sends it', async () => {
+    await open();
+    await fillPlainLine();
+    await click('Add an extra charge');
+    await choose('What is it for?', 'Shipping or courier');
+    expect(text()).not.toContain('What is it? (optional)');
+    await choose('What is it for?', 'Other charge');
+    expect(text()).toContain('What is it? (optional)');
+    await typeInto(field('What is it? (optional)'), ' Packing tape ');
+    await typeInto(field('Amount'), '120');
+    await radio("On the supplier's bill");
+    await submit();
+    expect(createReceipt.mock.calls[0][0].charges[0]).toMatchObject({
+      kind: 'other',
+      amountCents: 12_000,
+      description: 'Packing tape',
+    });
+  });
+
+  it('lets a charge paid to someone else go without saying who', async () => {
+    await open();
+    await fillPlainLine();
+    await click('Add an extra charge');
+    await choose('What is it for?', 'Shipping or courier');
+    await typeInto(field('Amount'), '400');
+    await radio('I pay someone else');
+    expect(text()).toContain('Who is paid? (optional)');
+    await radio('Cash drawer');
+    await submit();
+    const input = createReceipt.mock.calls[0][0];
+    expect(input.charges[0].billedBy).toBe('third_party');
+    expect(input.charges[0].payeeKey).toBeUndefined();
+  });
+
   it('asks how to spread a charge only when there are two products', async () => {
     await open();
     await fillPlainLine();

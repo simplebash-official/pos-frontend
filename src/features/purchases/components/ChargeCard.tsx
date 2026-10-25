@@ -1,5 +1,14 @@
 import { t } from '@/shared/i18n/t';
-import { ActionIcon, Group, Paper, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Group,
+  Paper,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import {
@@ -10,6 +19,7 @@ import type { ChargeState } from '../lib/receiptForm';
 import type { BilledBy, ChargeAllocation, ChargeKind } from '../types';
 import { CHOICE_GRID } from './choiceGrid';
 import { ChargePayeeField } from './ChargePayeeField';
+import { CHARGE_DESCRIPTION_MAX, CHARGE_KINDS } from '../lib/chargeKinds';
 
 export interface ChargeCardProps {
   /** 1-based position, so people can say "Extra charge 2". */
@@ -21,15 +31,6 @@ export interface ChargeCardProps {
   onRemove: () => void;
   isMobile: boolean;
 }
-
-const KINDS: Array<{ kind: ChargeKind; label: () => string }> = [
-  { kind: 'shipping', label: () => t('Shipping or courier') },
-  { kind: 'customs', label: () => t('Customs or duty') },
-  { kind: 'handling', label: () => t('Handling or loading') },
-  { kind: 'insurance', label: () => t('Insurance') },
-  { kind: 'other', label: () => t('Other charge') },
-  { kind: 'discount', label: () => t('Discount from the supplier') },
-];
 
 const WHO: Array<{ billedBy: BilledBy; label: () => string; hint: () => string }> = [
   {
@@ -77,6 +78,8 @@ export const ChargeCard = ({
       kind,
       billedBy: kind === 'discount' ? 'supplier' : charge.billedBy,
       payeeKey: kind === 'discount' ? null : charge.payeeKey,
+      // A description only belongs to an "Other charge"; leaving that kind drops it.
+      description: kind === 'other' ? charge.description : '',
     });
   };
 
@@ -102,7 +105,7 @@ export const ChargeCard = ({
           <Select
             label={t('What is it for?')}
             placeholder={t('Pick one')}
-            data={KINDS.map((option) => ({ value: option.kind, label: option.label() }))}
+            data={CHARGE_KINDS.map((option) => ({ value: option.kind, label: option.label() }))}
             value={charge.kind}
             onChange={(value) => changeKind(value as ChargeKind | null)}
             allowDeselect={false}
@@ -115,6 +118,18 @@ export const ChargeCard = ({
             size={fieldSize}
           />
         </SimpleGrid>
+
+        {charge.kind === 'other' ? (
+          <TextInput
+            label={t('What is it? (optional)')}
+            placeholder={t('e.g. Packing tape, loading tip')}
+            value={charge.description}
+            onChange={(event) => onChange({ ...charge, description: event.currentTarget.value })}
+            maxLength={CHARGE_DESCRIPTION_MAX}
+            autoComplete="off"
+            size={fieldSize}
+          />
+        ) : null}
 
         {charge.kind === 'discount' ? (
           <Text size="xs" c="dimmed">
