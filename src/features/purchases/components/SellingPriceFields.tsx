@@ -94,7 +94,7 @@ export const SellingPriceFields = ({
               placeholder={t('Pick one')}
               data={PRICE_STEPS_CENTS.map((cents) => ({
                 value: String(cents),
-                label: formatMoney(cents),
+                label: cents === 1 ? t("Don't round") : formatMoney(cents),
               }))}
               value={pricing.stepCents === null ? null : String(pricing.stepCents)}
               onChange={(value) =>

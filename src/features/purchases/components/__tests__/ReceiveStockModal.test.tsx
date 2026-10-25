@@ -369,6 +369,11 @@ describe('ReceiveStockModal', () => {
     expect(text()).toContain('You asked for 25%. Rounding the price up gives 25.4%.');
     await typeInto(field('Price for the whole lot'), '88000');
     expect(field('Selling price each').value).toBe('Rs. 1,180.00');
+    // No rounding: the exact price the margin asks for, and no rounding note.
+    await choose('Round the price up to', "Don't round");
+    expect(field('Selling price each').value).toBe('Rs. 1,173.34');
+    expect(text()).not.toContain('rounded up');
+    await choose('Round the price up to', 'Rs. 10.00');
     await submit();
     expect(createReceipt.mock.calls[0][0].lines[0]).toMatchObject({
       lineTotalCents: 8_800_000,

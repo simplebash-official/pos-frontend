@@ -2,8 +2,8 @@
 // cost is the landed total (price plus its share of extra charges), never a per-unit cost rounded
 // first. Free of React so it can be tested on its own.
 
-/** The steps a suggested selling price can be rounded up to, in cents (Rs 1, 10, 50, 100). */
-export const PRICE_STEPS_CENTS = [100, 1000, 5000, 10000] as const;
+/** The steps a suggested selling price can be rounded up to, in cents; 1 means no rounding. */
+export const PRICE_STEPS_CENTS = [1, 100, 1000, 5000, 10000] as const;
 export type PriceStepCents = (typeof PRICE_STEPS_CENTS)[number];
 
 export interface LineMargin {
