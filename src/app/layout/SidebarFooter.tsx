@@ -175,7 +175,7 @@ export const SidebarFooter = ({
     <Group gap={8} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
       {avatar}
       <div style={{ minWidth: 0 }}>
-        <Text fz={13} fw={600} lh={1.2} lineClamp={2} title={name}>
+        <Text fz={13} fw={600} lh={1.2} lineClamp={2}>
           {name}
         </Text>
         {roleLook && (
@@ -202,6 +202,7 @@ export const SidebarFooter = ({
         gap={8}
         p={8}
         className="sidebar-footer-card"
+        title={name}
         style={{ height: isMobile ? 76 : 72 }}
       >
         {canSettings ? (
@@ -210,7 +211,6 @@ export const SidebarFooter = ({
             to={ROUTES.SETTINGS}
             className="sidebar-footer-identity"
             aria-label={t('Settings')}
-            title={t('Settings')}
             onClick={onNavigate}
           >
             {identity}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   costInMode,
+  effectiveSellingCents,
   emptyCharge,
   emptyForm,
   emptyLine,
@@ -8,6 +9,8 @@ import {
   involvesCash,
   lineGoodsCents,
   lineLandedCents,
+  lineSellingCents,
+  pricingInMode,
   receiptSummary,
   toReceiptInput,
   validateReceipt,
@@ -398,5 +401,78 @@ describe('withSerialSlots', () => {
     expect(withSerialSlots(base, true).serialNumbers).toEqual(['A', '', '']);
     expect(withSerialSlots({ ...base, quantity: 1 }, true).serialNumbers).toEqual(['A']);
     expect(withSerialSlots(base, false).serialNumbers).toEqual([]);
+  });
+});
+
+describe('setting the selling price by price or by margin', () => {
+  const lot = (patch: Partial<LineState> = {}): LineState => ({
+    ...line('prod_case', 100, 0, 0),
+    cost: { mode: 'lot', totalCents: 8_500_000 },
+    ...patch,
+  });
+
+  it('uses the typed price in price mode', () => {
+    expect(effectiveSellingCents(lot({ sellingPriceCents: 120_000 }), 8_500_000)).toBe(120_000);
+  });
+
+  it('works the price out from the margin in margin mode, rounded up to the step', () => {
+    const asked = lot({ pricing: { mode: 'margin', marginTenths: 250, stepCents: 1000 } });
+    // Cost Rs 850.00 each: 25% needs Rs 1,133.34, rounded up to Rs 1,140.00.
+    expect(effectiveSellingCents(asked, 8_500_000)).toBe(114_000);
+    // A courier on top raises the cost, so the price follows it.
+    expect(effectiveSellingCents(asked, 8_540_000)).toBe(114_000);
+    expect(effectiveSellingCents(asked, 8_800_000)).toBe(118_000);
+  });
+
+  it('is no price while the margin or the rounding is missing, or the margin cannot be earned', () => {
+    const noMargin = lot({ pricing: { mode: 'margin', marginTenths: null, stepCents: 100 } });
+    const noStep = lot({ pricing: { mode: 'margin', marginTenths: 250, stepCents: null } });
+    const tooMuch = lot({ pricing: { mode: 'margin', marginTenths: 1000, stepCents: 100 } });
+    expect(effectiveSellingCents(noMargin, 8_500_000)).toBe(0);
+    expect(effectiveSellingCents(noStep, 8_500_000)).toBe(0);
+    expect(effectiveSellingCents(tooMuch, 8_500_000)).toBe(0);
+  });
+
+  it('keeps the price steady when switching from price to margin and back', () => {
+    const typed = lot({ sellingPriceCents: 114_000 });
+    const asMargin = pricingInMode(typed, 'margin', 8_500_000);
+    // Rs 1,140 on a Rs 850 cost earns 25.4%, and the rounding starts at Rs 1.
+    expect(asMargin.pricing).toEqual({ mode: 'margin', marginTenths: 254, stepCents: 100 });
+    expect(effectiveSellingCents(asMargin, 8_500_000)).toBeGreaterThanOrEqual(113_900);
+    expect(effectiveSellingCents(asMargin, 8_500_000)).toBeLessThanOrEqual(114_000);
+    const back = pricingInMode(asMargin, 'price', 8_500_000);
+    expect(back.pricing).toEqual({ mode: 'price' });
+    expect(back.sellingPriceCents).toBe(effectiveSellingCents(asMargin, 8_500_000));
+  });
+
+  it('starts the margin empty when no price was typed or it sells below cost', () => {
+    expect(pricingInMode(lot(), 'margin', 8_500_000).pricing).toEqual({
+      mode: 'margin',
+      marginTenths: null,
+      stepCents: null,
+    });
+    const loss = lot({ sellingPriceCents: 500 });
+    expect(pricingInMode(loss, 'margin', 8_500_000).pricing).toEqual({
+      mode: 'margin',
+      marginTenths: null,
+      stepCents: null,
+    });
+  });
+
+  it('asks for the margin and the rounding, and sends the worked-out price', () => {
+    const base = (pricing: LineState['pricing']) => filled({ lines: [lot({ pricing })] });
+    expect(
+      validateReceipt(base({ mode: 'margin', marginTenths: null, stepCents: 100 }), ctx)
+    ).toMatch(/margin you want/i);
+    expect(
+      validateReceipt(base({ mode: 'margin', marginTenths: 250, stepCents: null }), ctx)
+    ).toMatch(/round the price/i);
+    expect(
+      validateReceipt(base({ mode: 'margin', marginTenths: 1000, stepCents: 100 }), ctx)
+    ).toMatch(/less than 100%/i);
+    const ok = base({ mode: 'margin', marginTenths: 250, stepCents: 1000 });
+    expect(validateReceipt(ok, ctx)).toBeNull();
+    expect(lineSellingCents(ok)).toEqual([114_000]);
+    expect(toReceiptInput(ok, ctx).lines[0].sellingPriceCents).toBe(114_000);
   });
 });

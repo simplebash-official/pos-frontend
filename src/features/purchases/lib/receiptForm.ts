@@ -5,6 +5,7 @@
 import { t } from '@/shared/i18n/t';
 import { isDay } from '@/features/expenses/lib/expenseForm';
 import { chargeTotals, spreadCharges, type ChargeFigure } from './landedCost';
+import { lineMargin, suggestedPriceCents, type PriceStepCents } from './margin';
 import type {
   BilledBy,
   ChargeAllocation,
@@ -24,13 +25,23 @@ import type {
  */
 export type CostEntry = { mode: 'unit'; unitCents: number } | { mode: 'lot'; totalCents: number };
 
+/**
+ * How a product's selling price is set: typed as a price, or worked out from the margin the person
+ * wants (the lowest price that earns it, rounded up to a step). Only one is in charge at a time.
+ */
+export type PricingEntry =
+  | { mode: 'price' }
+  | { mode: 'margin'; marginTenths: number | null; stepCents: PriceStepCents | null };
+
 export interface LineState {
   /** Only for React keys and for telling two lines apart on screen; never sent. */
   id: number;
   productKey: string | null;
   quantity: number | '';
   cost: CostEntry;
+  /** The typed selling price; only used while `pricing` is `price`. */
   sellingPriceCents: number;
+  pricing: PricingEntry;
   /** One per unit while the product is serialized, otherwise empty. */
   serialNumbers: string[];
 }
@@ -110,6 +121,7 @@ export const emptyLine = (productKey: string | null): LineState => ({
   quantity: 1,
   cost: { mode: 'unit', unitCents: 0 },
   sellingPriceCents: 0,
+  pricing: { mode: 'price' },
   serialNumbers: [],
 });
 
@@ -207,6 +219,58 @@ export const lineLandedCents = (form: ReceiptFormState): number[] => {
   return lines.map((line, index) => line.goodsCents + shares[index]);
 };
 
+/**
+ * The selling price each of a line: the typed price, or in margin mode the price that earns the
+ * margin asked for on `landedTotalCents`. `0` while the margin or the rounding is still missing, or
+ * the margin cannot be earned (100% or more). Never stored: it follows quantity, cost and charges.
+ */
+export const effectiveSellingCents = (line: LineState, landedTotalCents: number): number => {
+  if (line.pricing.mode === 'price') return line.sellingPriceCents;
+  const { marginTenths, stepCents } = line.pricing;
+  if (marginTenths === null || stepCents === null) return 0;
+  return suggestedPriceCents(landedTotalCents, lineQuantity(line), marginTenths, stepCents) ?? 0;
+};
+
+/** Each line's selling price each, from its landed cost. */
+export const lineSellingCents = (form: ReceiptFormState): number[] => {
+  const landed = lineLandedCents(form);
+  return form.lines.map((line, index) => effectiveSellingCents(line, landed[index]));
+};
+
+/**
+ * The same line with the other way of setting the price in charge, without the price jumping.
+ * Price to margin starts from the margin the typed price earns now (one decimal) rounded at Rs 1;
+ * margin to price keeps the price that was worked out as the typed price.
+ */
+export const pricingInMode = (
+  line: LineState,
+  mode: PricingEntry['mode'],
+  landedTotalCents: number
+): LineState => {
+  if (line.pricing.mode === mode) return line;
+  if (mode === 'margin') {
+    const earned = lineMargin(landedTotalCents, lineQuantity(line), line.sellingPriceCents);
+    const tenths =
+      earned === null || earned.marginPercent === null
+        ? null
+        : Math.round(earned.marginPercent * 10);
+    const usable = tenths !== null && tenths >= 0 && tenths < 1000;
+    return {
+      ...line,
+      pricing: {
+        mode: 'margin',
+        marginTenths: usable ? tenths : null,
+        stepCents: usable ? 100 : null,
+      },
+    };
+  }
+  return {
+    ...line,
+    pricing: { mode: 'price' },
+    sellingPriceCents: effectiveSellingCents(line, landedTotalCents),
+  };
+};
+
 export interface ReceiptSummary {
   goodsCents: number;
   /** On the supplier's bill, discounts taken off. */
@@ -298,6 +362,7 @@ export const validateReceipt = (form: ReceiptFormState, ctx: ReceiptFormContext)
   }
   if (form.lines.length === 0) return t('Add at least one product.');
 
+  const landedByLine = lineLandedCents(form);
   const seen = new Set<string>();
   for (const [index, line] of form.lines.entries()) {
     const label = `${t('Product')} ${index + 1}`;
@@ -312,7 +377,19 @@ export const validateReceipt = (form: ReceiptFormState, ctx: ReceiptFormContext)
         ? `${label}: ${t('please enter what the whole lot cost.')}`
         : `${label}: ${t('please enter what each unit cost.')}`;
     }
-    if (line.sellingPriceCents <= 0) return `${label}: ${t('please enter the selling price.')}`;
+    if (line.pricing.mode === 'margin') {
+      if (line.pricing.marginTenths === null) {
+        return `${label}: ${t('please enter the margin you want.')}`;
+      }
+      if (line.pricing.stepCents === null) {
+        return `${label}: ${t('please pick how to round the price.')}`;
+      }
+      if (effectiveSellingCents(line, landedByLine[index]) <= 0) {
+        return `${label}: ${t('that margin cannot be earned. Use less than 100%.')}`;
+      }
+    } else if (line.sellingPriceCents <= 0) {
+      return `${label}: ${t('please enter the selling price.')}`;
+    }
     if (ctx.serializedProductKeys.has(line.productKey)) {
       if (
         line.serialNumbers.length !== lineQuantity(line) ||
@@ -407,14 +484,15 @@ export const toReceiptInput = (
   ctx: ReceiptFormContext
 ): CreateReceiptInput => {
   if (!form.supplierKey) throw new Error('A receipt needs a supplier; validate the form first');
-  const lines: ReceiptLineInput[] = form.lines.map((line) => {
+  const sellingByLine = lineSellingCents(form);
+  const lines: ReceiptLineInput[] = form.lines.map((line, index) => {
     if (!line.productKey) throw new Error('A line needs a product; validate the form first');
     const serial = ctx.serializedProductKeys.has(line.productKey);
     return {
       productKey: line.productKey,
       quantity: lineQuantity(line),
       lineTotalCents: lineGoodsCents(line),
-      sellingPriceCents: line.sellingPriceCents,
+      sellingPriceCents: sellingByLine[index],
       serialNumbers: serial ? line.serialNumbers.map((s) => s.trim()) : undefined,
     };
   });

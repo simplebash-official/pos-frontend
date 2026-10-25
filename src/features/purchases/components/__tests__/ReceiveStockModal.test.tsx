@@ -344,6 +344,46 @@ describe('ReceiveStockModal', () => {
     expect(text()).toContain('You are selling for less than these units cost.');
   });
 
+  it('sets the selling price either by typing it or from a margin, never both', async () => {
+    await open();
+    await pickProduct('Phone Case');
+    await typeInto(field('How many arrived'), '100');
+    await segment('Whole lot');
+    await typeInto(field('Price for the whole lot'), '85000');
+
+    // By price: the price is typed and the margin fields are not there.
+    expect(field('Selling price each').readOnly).toBe(false);
+    expect(text()).not.toContain('Margin I want (%)');
+    await typeInto(field('Selling price each'), '1200');
+    expect(text()).toContain('29.2%');
+
+    // By margin: the price is worked out, read-only, and follows the cost.
+    await segment('I set the margin');
+    expect(text()).toContain('Margin I want (%)');
+    expect(field('Selling price each').readOnly).toBe(true);
+    await typeInto(field('Margin I want (%)'), '25');
+    await choose('Round the price up to', 'Rs. 10.00');
+    expect(field('Selling price each').value).toBe('Rs. 1,140.00');
+    expect(text()).toContain('rounded up');
+    await typeInto(field('Price for the whole lot'), '88000');
+    expect(field('Selling price each').value).toBe('Rs. 1,180.00');
+    await submit();
+    expect(createReceipt.mock.calls[0][0].lines[0]).toMatchObject({
+      lineTotalCents: 8_800_000,
+      sellingPriceCents: 118_000,
+    });
+  });
+
+  it('asks for the margin before saving a price set by margin', async () => {
+    await open();
+    await pickProduct('Phone Case');
+    await typeInto(field('Cost of each unit'), '500');
+    await segment('I set the margin');
+    await submit();
+    expect(createReceipt).not.toHaveBeenCalled();
+    expect(text()).toContain('please enter the margin you want');
+  });
+
   it("takes the supplier's price for the whole lot and shows the price each", async () => {
     await open();
     await pickProduct('Phone Case');

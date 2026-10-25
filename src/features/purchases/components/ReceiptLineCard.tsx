@@ -19,11 +19,13 @@ import type { Product } from '@/features/inventory/types';
 import {
   costInMode,
   lineGoodsCents,
+  effectiveSellingCents,
   lineQuantity,
   type CostEntry,
   type LineState,
 } from '../lib/receiptForm';
 import { LineMarginCard } from './LineMarginCard';
+import { SellingPriceFields } from './SellingPriceFields';
 
 export interface ReceiptLineCardProps {
   /** 1-based position, so people can say "Product 2". */
@@ -141,7 +143,7 @@ export const ReceiptLineCard = ({
               ) : null}
             </Stack>
 
-            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
               <NumberInput
                 label={t('How many arrived')}
                 value={line.quantity}
@@ -171,22 +173,22 @@ export const ReceiptLineCard = ({
                   size={fieldSize}
                 />
               )}
-              <MoneyInput
-                label={t('Selling price each')}
-                valueCents={line.sellingPriceCents}
-                onChangeCents={(sellingPriceCents) => onChange({ ...line, sellingPriceCents })}
-                size={fieldSize}
-              />
             </SimpleGrid>
+
+            <SellingPriceFields
+              line={line}
+              landedTotalCents={landedTotalCents}
+              onChange={onChange}
+              isMobile={isMobile}
+            />
 
             <LineMarginCard
               quantity={quantity}
               landedTotalCents={landedTotalCents}
-              sellingPriceCents={line.sellingPriceCents}
+              sellingPriceCents={effectiveSellingCents(line, landedTotalCents)}
               includesCharges={includesCharges}
               chargesIncomplete={chargesIncomplete}
-              onUsePrice={(sellingPriceCents) => onChange({ ...line, sellingPriceCents })}
-              isMobile={isMobile}
+              priceRoundedUp={line.pricing.mode === 'margin'}
             />
 
             {serialized && quantity > 0 ? (

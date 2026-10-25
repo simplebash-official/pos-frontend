@@ -1,14 +1,8 @@
 import { t } from '@/shared/i18n/t';
-import { useState } from 'react';
-import { Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { formatMoney } from '@/shared/lib/money';
 import { roundedUnitCents } from '../lib/landedCost';
-import {
-  lineMargin,
-  PRICE_STEPS_CENTS,
-  suggestedPriceCents,
-  type PriceStepCents,
-} from '../lib/margin';
+import { lineMargin } from '../lib/margin';
 
 export interface LineMarginCardProps {
   quantity: number;
@@ -19,8 +13,8 @@ export interface LineMarginCardProps {
   includesCharges: boolean;
   /** True while a charge is half filled in, so it is not yet in the cost. */
   chargesIncomplete: boolean;
-  onUsePrice: (cents: number) => void;
-  isMobile: boolean;
+  /** True while the price is worked out from a margin and rounded up, so the margin can be a little more. */
+  priceRoundedUp: boolean;
 }
 
 const figure: React.CSSProperties = { fontVariantNumeric: 'tabular-nums' };
@@ -38,23 +32,9 @@ export const LineMarginCard = ({
   sellingPriceCents,
   includesCharges,
   chargesIncomplete,
-  onUsePrice,
-  isMobile,
+  priceRoundedUp,
 }: LineMarginCardProps) => {
-  const fieldSize = isMobile ? 'md' : 'sm';
-  const [targetPercent, setTargetPercent] = useState<number | ''>('');
-  const [step, setStep] = useState<PriceStepCents | null>(null);
-
   const margin = lineMargin(landedTotalCents, quantity, sellingPriceCents);
-  const suggestion =
-    targetPercent === '' || step === null
-      ? null
-      : suggestedPriceCents(
-          landedTotalCents,
-          quantity,
-          Math.round(Number(targetPercent) * 10),
-          step
-        );
 
   return (
     <Paper p="sm" bg="var(--bg-app)" aria-live="polite" data-testid="line-margin">
@@ -109,7 +89,11 @@ export const LineMarginCard = ({
               </Text>
             ) : (
               <Text size="xs" c="dimmed">
-                {t('Margin is the profit as a share of the selling price.')}
+                {priceRoundedUp
+                  ? t(
+                      'The price is rounded up, so the margin can be a little more than you asked for.'
+                    )
+                  : t('Margin is the profit as a share of the selling price.')}
               </Text>
             )}
           </>
@@ -119,53 +103,6 @@ export const LineMarginCard = ({
           <Text size="xs" c="orange">
             {t('Finish the extra charges to include them in this cost.')}
           </Text>
-        ) : null}
-
-        {landedTotalCents > 0 && quantity > 0 ? (
-          <Stack gap="xs">
-            <Text size="sm" fw={500}>
-              {t('Work out the selling price from the margin you want')}
-            </Text>
-            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-              <NumberInput
-                label={t('Margin I want (%)')}
-                value={targetPercent}
-                onChange={(value) => setTargetPercent(value === '' ? '' : Number(value))}
-                min={0}
-                max={99.9}
-                decimalScale={1}
-                size={fieldSize}
-              />
-              <Select
-                label={t('Round the price up to')}
-                placeholder={t('Pick one')}
-                data={PRICE_STEPS_CENTS.map((cents) => ({
-                  value: String(cents),
-                  label: formatMoney(cents),
-                }))}
-                value={step === null ? null : String(step)}
-                onChange={(value) =>
-                  setStep(value === null ? null : (Number(value) as PriceStepCents))
-                }
-                allowDeselect={false}
-                size={fieldSize}
-              />
-            </SimpleGrid>
-            {suggestion !== null ? (
-              <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-                <Text size="sm">
-                  {`${t('Sell at')} ${formatMoney(suggestion)} ${t('each to earn at least this margin.')}`}
-                </Text>
-                <Button
-                  size={isMobile ? 'md' : 'xs'}
-                  variant="light"
-                  onClick={() => onUsePrice(suggestion)}
-                >
-                  {t('Use this price')}
-                </Button>
-              </Group>
-            ) : null}
-          </Stack>
         ) : null}
       </Stack>
     </Paper>
