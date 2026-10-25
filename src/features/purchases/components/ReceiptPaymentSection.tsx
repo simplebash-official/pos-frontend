@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { Alert, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Select, Stack, Text, TextInput } from '@mantine/core';
 import {
   IconBuildingBank,
   IconCash,
@@ -175,7 +175,7 @@ export const ReceiptPaymentSection = ({
 
           {approvalRequired && cash ? (
             <Alert color="orange" title={t('A manager or owner must approve this')}>
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+              <Stack gap="sm">
                 <TextInput
                   label={t('Manager or owner PIN')}
                   type="password"
@@ -198,7 +198,7 @@ export const ReceiptPaymentSection = ({
                   }
                   size={fieldSize}
                 />
-              </SimpleGrid>
+              </Stack>
             </Alert>
           ) : null}
         </Stack>

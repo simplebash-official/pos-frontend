@@ -1,16 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import {
-  Alert,
-  Button,
-  Group,
-  Modal,
-  Select,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Alert, Button, Group, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconBuildingBank, IconCash, IconCreditCard, IconDeviceMobile } from '@tabler/icons-react';
 import { getDeviceId } from '@/api/deviceId';
@@ -264,7 +254,7 @@ export const PaySupplierModal = ({
 
           {approvalRequired && form.source === 'drawer' ? (
             <Alert color="orange" title={t('A manager or owner must approve this')}>
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+              <Stack gap="sm">
                 <TextInput
                   label={t('Manager or owner PIN')}
                   type="password"
@@ -283,7 +273,7 @@ export const PaySupplierModal = ({
                   onChange={(event) => patch({ overrideReason: event.currentTarget.value })}
                   size={fieldSize}
                 />
-              </SimpleGrid>
+              </Stack>
             </Alert>
           ) : null}
 
