@@ -220,7 +220,6 @@ export const Sidebar = ({
                 >
                   <Stack gap={preset.itemGap}>
                     {category.items.map((item) => {
-                      const Icon = item.icon;
                       const isActive = location.pathname.startsWith(item.to);
                       const isInventory = item.to === ROUTES.INVENTORY;
 
@@ -232,7 +231,7 @@ export const Sidebar = ({
                           <NavLink
                             key={item.to}
                             label={t(item.label)}
-                            leftSection={<IconTile Icon={Icon} color={item.color} />}
+                            leftSection={<IconTile Icon={item.icon} color={item.color} />}
                             defaultOpened={isActive || isChildActive}
                             color={item.color}
                             variant="light"
@@ -244,7 +243,6 @@ export const Sidebar = ({
                             }}
                           >
                             {item.subItems.map((sub) => {
-                              const SubIcon = sub.icon;
                               const isSubActive = location.pathname.startsWith(sub.to);
                               return (
                                 <NavLink
@@ -254,7 +252,7 @@ export const Sidebar = ({
                                   label={sub.label}
                                   leftSection={
                                     <IconTile
-                                      Icon={SubIcon}
+                                      Icon={sub.icon}
                                       color={sub.color}
                                       isActive={isSubActive}
                                     />

@@ -86,8 +86,13 @@ vi.mock('@/features/inventory/components/ProductPickerModal', () => ({
   }) => (opened ? <button onClick={() => onSelect('prod_b')}>pick HDMI</button> : null),
 }));
 vi.mock('@/features/purchases/components/ReceiveStockModal', () => ({
-  ReceiveStockModal: ({ opened, initialSupplierKey }: { opened: boolean; initialSupplierKey: string }) =>
-    opened ? <div>receive stock window for {initialSupplierKey}</div> : null,
+  ReceiveStockModal: ({
+    opened,
+    initialSupplierKey,
+  }: {
+    opened: boolean;
+    initialSupplierKey: string;
+  }) => (opened ? <div>receive stock window for {initialSupplierKey}</div> : null),
 }));
 vi.mock('@/features/purchases/components/PaySupplierModal', () => ({
   PaySupplierModal: ({ opened, supplierName }: { opened: boolean; supplierName: string }) =>

@@ -1039,8 +1039,7 @@ th.mantine-Table-th {
   scrollbar-gutter: stable;
 }
 
-/* Each item's icon sits on a tile tinted with its own colour (--tile); the open item's tile is
-   solid. Colour fades are paint-only; the hover lift is a transform. */
+/* Icons take the text colour; only the open item's sits on a solid tile in its own colour (--tile). */
 .sidebar-icon-tile {
   display: inline-flex;
   align-items: center;
@@ -1048,8 +1047,7 @@ th.mantine-Table-th {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  color: var(--tile);
-  background: color-mix(in srgb, var(--tile) 16%, transparent);
+  color: var(--text-secondary);
   transition:
     background-color 150ms ease,
     color 150ms ease,
