@@ -99,6 +99,17 @@ export const SupplierIntakePanel = ({
                       {formatDate(receipt.date)} · {receipt.receiptNumber}
                     </div>
                     <div>{productsOf(receipt)}</div>
+                    {receipt.extraChargesCents !== 0 ? (
+                      <div>
+                        {t('Extra charges on the bill:')} {formatMoney(receipt.extraChargesCents)}
+                      </div>
+                    ) : null}
+                    {receipt.paidToOthersCents !== 0 ? (
+                      <div>
+                        {t('Paid to others (courier, agent):')}{' '}
+                        {formatMoney(receipt.paidToOthersCents)}
+                      </div>
+                    ) : null}
                     {receipt.creditedCents > 0 ? (
                       <div>
                         {t('Credit from supplier:')} {formatMoney(receipt.creditedCents)}

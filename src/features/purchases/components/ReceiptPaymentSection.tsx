@@ -1,12 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { Alert, Select, Stack, Text, TextInput } from '@mantine/core';
-import {
-  IconBuildingBank,
-  IconCash,
-  IconCreditCard,
-  IconDeviceMobile,
-  IconUser,
-} from '@tabler/icons-react';
+import { Select, Stack, Text, TextInput } from '@mantine/core';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import {
   ChoiceCard,
@@ -14,7 +7,8 @@ import {
 } from '@/features/billing/components/sessions/movement/ChoiceCard';
 import type { CashCategory } from '@/features/billing/types';
 import { sourceNeedsRegister, type PaymentMode, type PaymentState } from '../lib/receiptForm';
-import type { PaymentSource } from '../types';
+import { CHOICE_GRID } from './choiceGrid';
+import { PaymentSourceChoice } from './PaymentSourceChoice';
 
 export interface ReceiptPaymentSectionProps {
   payment: PaymentState;
@@ -23,8 +17,6 @@ export interface ReceiptPaymentSectionProps {
   categories: CashCategory[];
   /** Whether a shift is open on this register, for the line under the cash choices. */
   shiftOpen: boolean;
-  /** Shown once the server asked for a manager or owner PIN. */
-  approvalRequired: boolean;
   isMobile: boolean;
 }
 
@@ -34,57 +26,12 @@ const MODES: Array<{ mode: PaymentMode; label: () => string; hint: () => string 
   { mode: 'part', label: () => t('Part paid'), hint: () => t('Some now, some later.') },
 ];
 
-const SOURCES: Array<{
-  source: PaymentSource;
-  label: () => string;
-  hint: () => string;
-  icon: React.ReactNode;
-}> = [
-  {
-    source: 'drawer',
-    label: () => t('Cash drawer'),
-    hint: () => t('Cash from this register.'),
-    icon: <IconCash size={18} />,
-  },
-  {
-    source: 'owner_pocket',
-    label: () => t('My own pocket'),
-    hint: () => t('You paid with your own money.'),
-    icon: <IconUser size={18} />,
-  },
-  {
-    source: 'bank',
-    label: () => t('Bank'),
-    hint: () => t('Paid from the bank.'),
-    icon: <IconBuildingBank size={18} />,
-  },
-  {
-    source: 'card',
-    label: () => t('Card'),
-    hint: () => t('Paid by card.'),
-    icon: <IconCreditCard size={18} />,
-  },
-  {
-    source: 'online',
-    label: () => t('Online'),
-    hint: () => t('Paid by an online transfer.'),
-    icon: <IconDeviceMobile size={18} />,
-  },
-];
-
-const CHOICE_GRID: React.CSSProperties = {
-  display: 'grid',
-  gap: 8,
-  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-};
-
 /** How the stock is paid for: later, in full now, or part now; and where the money comes from. */
 export const ReceiptPaymentSection = ({
   payment,
   onChange,
   categories,
   shiftOpen,
-  approvalRequired,
   isMobile,
 }: ReceiptPaymentSectionProps) => {
   const fieldSize = isMobile ? 'md' : 'sm';
@@ -114,20 +61,12 @@ export const ReceiptPaymentSection = ({
           <Text size="sm" fw={500}>
             {t('Where is the money coming from?')}
           </Text>
-          <ChoiceGroup label={t('Where the money comes from')} style={CHOICE_GRID}>
-            {SOURCES.map((option) => (
-              <ChoiceCard
-                key={option.source}
-                label={option.label()}
-                hint={option.hint()}
-                icon={option.icon}
-                selected={payment.source === option.source}
-                allowed
-                tall={isMobile}
-                onSelect={() => onChange({ ...payment, source: option.source })}
-              />
-            ))}
-          </ChoiceGroup>
+          <PaymentSourceChoice
+            label={t('Where the money comes from')}
+            value={payment.source}
+            onChange={(source) => onChange({ ...payment, source })}
+            isMobile={isMobile}
+          />
 
           {payment.mode === 'part' ? (
             <MoneyInput
@@ -171,35 +110,6 @@ export const ReceiptPaymentSection = ({
                 'Your money is first put into the drawer and then paid to the supplier, so the drawer count stays right.'
               )}
             </Text>
-          ) : null}
-
-          {approvalRequired && cash ? (
-            <Alert color="orange" title={t('A manager or owner must approve this')}>
-              <Stack gap="sm">
-                <TextInput
-                  label={t('Manager or owner PIN')}
-                  type="password"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={payment.managerPin}
-                  onChange={(event) =>
-                    onChange({ ...payment, managerPin: event.currentTarget.value })
-                  }
-                  size={fieldSize}
-                />
-                <TextInput
-                  label={t('Why is more being paid than the drawer holds?')}
-                  description={t(
-                    'Only needed when the payment is bigger than the cash in the drawer.'
-                  )}
-                  value={payment.overrideReason}
-                  onChange={(event) =>
-                    onChange({ ...payment, overrideReason: event.currentTarget.value })
-                  }
-                  size={fieldSize}
-                />
-              </Stack>
-            </Alert>
           ) : null}
         </Stack>
       )}

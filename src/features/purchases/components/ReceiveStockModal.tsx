@@ -6,7 +6,6 @@ import {
   Button,
   Group,
   Modal,
-  Paper,
   SimpleGrid,
   Stack,
   Text,
@@ -28,21 +27,29 @@ import type { CashCategory } from '@/features/billing/types';
 import { useCurrentSession } from '@/features/billing/hooks/useRegisterSession';
 import { useCreateReceipt } from '../hooks/usePurchases';
 import {
+  emptyCharge,
   emptyForm,
   emptyLine,
-  leftOwedCents,
-  payingNowCents,
-  receiptTotalCents,
+  hasIncompleteCharge,
+  involvesCash,
+  lineLandedCents,
+  receiptSummary,
   toReceiptInput,
   validateReceipt,
   withSerialSlots,
+  type ApprovalState,
+  type ChargesPaymentState,
+  type ChargeState,
   type LineState,
   type PaymentState,
   type ReceiptFormContext,
   type ReceiptFormState,
 } from '../lib/receiptForm';
+import { ApprovalFields } from './ApprovalFields';
+import { ExtraChargesSection } from './ExtraChargesSection';
 import { ReceiptLineCard } from './ReceiptLineCard';
 import { ReceiptPaymentSection } from './ReceiptPaymentSection';
+import { ReceiptSummaryPanel } from './ReceiptSummaryPanel';
 
 interface ReceiveStockModalProps {
   opened: boolean;
@@ -130,9 +137,9 @@ export const ReceiveStockModal = ({
     sessionKey: session === null ? null : session.key,
   };
 
-  const total = receiptTotalCents(form);
-  const payingNow = payingNowCents(form);
-  const leftOwed = leftOwedCents(form);
+  const summary = receiptSummary(form);
+  const landedByLine = lineLandedCents(form);
+  const chargesIncomplete = hasIncompleteCharge(form);
 
   const changeLine = (line: LineState) => {
     const product = line.productKey === null ? undefined : productByKey.get(line.productKey);
@@ -142,6 +149,17 @@ export const ReceiveStockModal = ({
       lines: prev.lines.map((existing) => (existing.id === next.id ? next : existing)),
     }));
   };
+
+  const changeCharge = (charge: ChargeState) =>
+    setForm((prev) => ({
+      ...prev,
+      charges: prev.charges.map((existing) => (existing.id === charge.id ? charge : existing)),
+    }));
+
+  const changeChargesPayment = (chargesPayment: ChargesPaymentState) =>
+    setForm((prev) => ({ ...prev, chargesPayment }));
+
+  const changeApproval = (approval: ApprovalState) => setForm((prev) => ({ ...prev, approval }));
 
   const changePayment = (payment: PaymentState) => {
     // The cash-on-delivery category is offered first the moment money is being paid.
@@ -308,6 +326,9 @@ export const ReceiveStockModal = ({
                           }))
                       : null
                   }
+                  landedTotalCents={landedByLine[index]}
+                  includesCharges={form.charges.length > 0 && !chargesIncomplete}
+                  chargesIncomplete={chargesIncomplete}
                   isMobile={isMobile}
                 />
               ))}
@@ -334,47 +355,42 @@ export const ReceiveStockModal = ({
               size={fieldSize}
             />
 
+            <ExtraChargesSection
+              charges={form.charges}
+              lineCount={form.lines.length}
+              payment={form.chargesPayment}
+              shiftOpen={session !== null}
+              onChangeCharge={changeCharge}
+              onAdd={() =>
+                setForm((prev) => ({ ...prev, charges: [...prev.charges, emptyCharge()] }))
+              }
+              onRemove={(id) =>
+                setForm((prev) => ({
+                  ...prev,
+                  charges: prev.charges.filter((existing) => existing.id !== id),
+                }))
+              }
+              onChangePayment={changeChargesPayment}
+              isMobile={isMobile}
+            />
+
             <ReceiptPaymentSection
               payment={form.payment}
               onChange={changePayment}
               categories={categories}
               shiftOpen={session !== null}
-              approvalRequired={approvalRequired}
               isMobile={isMobile}
             />
 
-            <Paper p="md" bg="var(--bg-app)" aria-live="polite">
-              <SimpleGrid cols={3} spacing="xs">
-                <Stack gap={0}>
-                  <Text size="xs" c="dimmed">
-                    {t('Bill total')}
-                  </Text>
-                  <Text fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {formatMoney(total)}
-                  </Text>
-                </Stack>
-                <Stack gap={0}>
-                  <Text size="xs" c="dimmed">
-                    {t('Paying now')}
-                  </Text>
-                  <Text fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {formatMoney(payingNow)}
-                  </Text>
-                </Stack>
-                <Stack gap={0}>
-                  <Text size="xs" c="dimmed">
-                    {t('Left to pay later')}
-                  </Text>
-                  <Text
-                    fw={700}
-                    c={leftOwed > 0 ? 'orange' : 'green'}
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {formatMoney(leftOwed)}
-                  </Text>
-                </Stack>
-              </SimpleGrid>
-            </Paper>
+            {approvalRequired && involvesCash(form) ? (
+              <ApprovalFields
+                approval={form.approval}
+                onChange={changeApproval}
+                isMobile={isMobile}
+              />
+            ) : null}
+
+            <ReceiptSummaryPanel summary={summary} />
 
             {clientProblem !== null ? (
               <Alert color="red" role="alert">

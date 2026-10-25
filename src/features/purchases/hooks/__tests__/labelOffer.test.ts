@@ -8,7 +8,7 @@ const intake = {
   supplierKey: 'sup_1',
   productKey: 'prod_cable',
   quantity: 12,
-  unitCostCents: 40000,
+  lineTotalCents: 12 * 40000,
   sellingPriceCents: 65000,
   date: '2026-10-16T09:00:00Z',
 };

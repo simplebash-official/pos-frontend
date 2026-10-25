@@ -12,10 +12,18 @@ import {
 } from '@mantine/core';
 import { IconPackage, IconTrash } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { formatMoney } from '@/shared/lib/money';
 import { priceText } from '@/features/inventory/lib/priceTiers';
 import type { Product } from '@/features/inventory/types';
-import { lineTotalCents, type LineState } from '../lib/receiptForm';
+import {
+  costInMode,
+  lineGoodsCents,
+  lineQuantity,
+  type CostEntry,
+  type LineState,
+} from '../lib/receiptForm';
+import { LineMarginCard } from './LineMarginCard';
 
 export interface ReceiptLineCardProps {
   /** 1-based position, so people can say "Product 2". */
@@ -27,6 +35,12 @@ export interface ReceiptLineCardProps {
   onPickProduct: () => void;
   /** `null` when this is the only line, which cannot be removed. */
   onRemove: (() => void) | null;
+  /** What the units really cost: the price plus this line's share of the extra charges. */
+  landedTotalCents: number;
+  /** True when extra charges are part of that cost. */
+  includesCharges: boolean;
+  /** True while an extra charge is half filled in, so it is not yet counted. */
+  chargesIncomplete: boolean;
   isMobile: boolean;
 }
 
@@ -38,11 +52,21 @@ export const ReceiptLineCard = ({
   onChange,
   onPickProduct,
   onRemove,
+  landedTotalCents,
+  includesCharges,
+  chargesIncomplete,
   isMobile,
 }: ReceiptLineCardProps) => {
   const fieldSize = isMobile ? 'md' : 'sm';
   const serialized = product !== null && product.isSerialized;
-  const quantity = line.quantity === '' ? 0 : Number(line.quantity);
+  const quantity = lineQuantity(line);
+  const goodsCents = lineGoodsCents(line);
+  const canShowEach = costInMode(line, 'unit') !== null;
+
+  const chooseMode = (mode: CostEntry['mode']) => {
+    const cost = costInMode(line, mode);
+    if (cost !== null) onChange({ ...line, cost });
+  };
 
   return (
     <Paper p="md" withBorder>
@@ -95,6 +119,28 @@ export const ReceiptLineCard = ({
 
         {product ? (
           <>
+            <Stack gap={6}>
+              <Text size="sm" fw={500}>
+                {t('How did the supplier price this?')}
+              </Text>
+              <SegmentedToggle
+                fullWidth
+                size={isMobile ? 'md' : 'sm'}
+                aria-label={t('How did the supplier price this?')}
+                value={line.cost.mode}
+                onChange={(value) => chooseMode(value as CostEntry['mode'])}
+                data={[
+                  { value: 'unit', label: t('Price each'), disabled: !canShowEach },
+                  { value: 'lot', label: t('Whole lot') },
+                ]}
+              />
+              {!canShowEach ? (
+                <Text size="xs" c="dimmed">
+                  {t('This lot does not divide evenly, so it cannot be shown as a price each.')}
+                </Text>
+              ) : null}
+            </Stack>
+
             <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
               <NumberInput
                 label={t('How many arrived')}
@@ -106,12 +152,25 @@ export const ReceiptLineCard = ({
                 allowDecimal={false}
                 size={fieldSize}
               />
-              <MoneyInput
-                label={t('Cost of each unit')}
-                valueCents={line.unitCostCents}
-                onChangeCents={(unitCostCents) => onChange({ ...line, unitCostCents })}
-                size={fieldSize}
-              />
+              {line.cost.mode === 'unit' ? (
+                <MoneyInput
+                  label={t('Cost of each unit')}
+                  valueCents={line.cost.unitCents}
+                  onChangeCents={(unitCents) =>
+                    onChange({ ...line, cost: { mode: 'unit', unitCents } })
+                  }
+                  size={fieldSize}
+                />
+              ) : (
+                <MoneyInput
+                  label={t('Price for the whole lot')}
+                  valueCents={line.cost.totalCents}
+                  onChangeCents={(totalCents) =>
+                    onChange({ ...line, cost: { mode: 'lot', totalCents } })
+                  }
+                  size={fieldSize}
+                />
+              )}
               <MoneyInput
                 label={t('Selling price each')}
                 valueCents={line.sellingPriceCents}
@@ -119,6 +178,16 @@ export const ReceiptLineCard = ({
                 size={fieldSize}
               />
             </SimpleGrid>
+
+            <LineMarginCard
+              quantity={quantity}
+              landedTotalCents={landedTotalCents}
+              sellingPriceCents={line.sellingPriceCents}
+              includesCharges={includesCharges}
+              chargesIncomplete={chargesIncomplete}
+              onUsePrice={(sellingPriceCents) => onChange({ ...line, sellingPriceCents })}
+              isMobile={isMobile}
+            />
 
             {serialized && quantity > 0 ? (
               <Stack gap={6}>
@@ -151,7 +220,7 @@ export const ReceiptLineCard = ({
             ) : null}
 
             <Text size="xs" c="dimmed" ta="right">
-              {`${t('This product comes to')} ${formatMoney(lineTotalCents(line))}`}
+              {`${t('This product comes to')} ${formatMoney(goodsCents)}`}
             </Text>
           </>
         ) : (

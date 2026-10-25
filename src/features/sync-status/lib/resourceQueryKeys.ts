@@ -41,6 +41,12 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.moneyReports.all,
   ],
   receiptSettlements: [queryKeys.receipts.all, queryKeys.balances.all, queryKeys.moneyReports.all],
+  receiptCharges: [
+    queryKeys.purchases.all,
+    queryKeys.receipts.all,
+    queryKeys.balances.all,
+    queryKeys.moneyReports.all,
+  ],
   supplierCredits: [
     queryKeys.supplierCredits.all,
     queryKeys.receipts.all,

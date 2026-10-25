@@ -70,12 +70,20 @@ export const ItemIntakePanel = ({
                   {t('Qty:')} {purchase.quantity}
                 </Badge>
                 <Badge size="xs" variant="light" color="teal">
-                  {formatMoney(purchase.totalCostCents)}
+                  {formatMoney(purchase.landedTotalCents)}
+                </Badge>
+                <Badge size="xs" variant="light" color="gray">
+                  {t('Cost each')} {formatMoney(purchase.landedUnitCostCents)}
                 </Badge>
                 <Badge size="xs" variant="light" color="blue">
                   {t('Sells at')} {formatMoney(purchase.sellingPriceCents)}
                 </Badge>
               </Group>
+              {purchase.chargesShareCents !== 0 ? (
+                <Text size="xs" c="dimmed" mt={4}>
+                  {`${t('Includes')} ${formatMoney(purchase.chargesShareCents)} ${t('of extra charges')}`}
+                </Text>
+              ) : null}
               <Text size="xs" c="dimmed" mt={4}>
                 {formatDateTime(purchase.date)}
               </Text>
