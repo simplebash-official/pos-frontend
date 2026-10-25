@@ -1,4 +1,5 @@
 import type { CashMovementType, CashReportGroup, PeriodPayment } from '@/features/billing/types';
+import type { ReceiptSettlementInput } from '@/features/purchases/types';
 
 /** Where the money for a cost comes from. `drawer` is never entered here; those rows come from cash movements. */
 export type PaidFrom = 'drawer' | 'bank' | 'card' | 'online' | 'unpaid';
@@ -91,6 +92,8 @@ export interface CreateExpenseInput {
   dueDate?: string;
   referenceNo?: string;
   note?: string;
+  /** A supplier payment paid on entry: the supplier's bills it pays, and how much of it each. */
+  settlements?: ReceiptSettlementInput[];
 }
 
 export interface CreateExpensePaymentInput {

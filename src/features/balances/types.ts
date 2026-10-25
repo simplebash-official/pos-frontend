@@ -7,6 +7,8 @@ export interface SupplierBalance {
   asOfDate?: string;
   purchasedCents?: number;
   paidCents?: number;
+  /** Taken off by supplier credits (short or damaged goods, price differences) since `asOfDate`. */
+  creditedCents?: number;
   /** What is owed; negative when the shop has paid ahead. */
   balanceCents?: number;
 }

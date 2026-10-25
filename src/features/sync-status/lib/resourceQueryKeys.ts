@@ -12,7 +12,12 @@ import { queryKeys } from '@/api/queryKeys';
  */
 export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown[]>> = {
   categories: [queryKeys.categories.all, queryKeys.inventory.all],
-  suppliers: [queryKeys.suppliers.all, queryKeys.supplierProducts.all, queryKeys.purchases.all],
+  suppliers: [
+    queryKeys.suppliers.all,
+    queryKeys.supplierProducts.all,
+    queryKeys.purchases.all,
+    queryKeys.receipts.all,
+  ],
   products: [
     queryKeys.inventory.all,
     queryKeys.supplierProducts.all,
@@ -24,7 +29,25 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
   customers: [queryKeys.customers.all, queryKeys.reports.all, queryKeys.moneyReports.all],
   purchases: [
     queryKeys.purchases.all,
+    queryKeys.receipts.all,
     queryKeys.inventory.all,
+    queryKeys.balances.all,
+    queryKeys.moneyReports.all,
+  ],
+  purchaseReceipts: [
+    queryKeys.purchases.all,
+    queryKeys.receipts.all,
+    queryKeys.balances.all,
+    queryKeys.moneyReports.all,
+  ],
+  receiptSettlements: [
+    queryKeys.receipts.all,
+    queryKeys.balances.all,
+    queryKeys.moneyReports.all,
+  ],
+  supplierCredits: [
+    queryKeys.supplierCredits.all,
+    queryKeys.receipts.all,
     queryKeys.balances.all,
     queryKeys.moneyReports.all,
   ],

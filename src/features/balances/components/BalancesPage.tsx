@@ -7,6 +7,7 @@ import { PageHeader } from '@/shared/components/PageHeader';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { PERMISSIONS } from '@/constants/permissions';
+import { PaySupplierModal } from '@/features/purchases/components/PaySupplierModal';
 import { formatDate } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
@@ -25,6 +26,9 @@ type BalancesTab = 'suppliers' | 'staff';
 export const BalancesPage = () => {
   const isMobile = useIsMobile();
   const canManage = useHasPermission(PERMISSIONS.BALANCES_MANAGE);
+  const canPayCash = useHasPermission(PERMISSIONS.CASH_MOVEMENTS_CREATE_MANAGED);
+  const canPayLedger = useHasPermission(PERMISSIONS.EXPENSES_MANAGE);
+  const canPay = canPayCash || canPayLedger;
   const [tab, setTab] = useState<BalancesTab>('suppliers');
   const suppliers = useSupplierBalances();
   const staff = useStaffAdvances();
@@ -35,6 +39,7 @@ export const BalancesPage = () => {
     name: string;
     current?: { amountCents: number; asOfDate: string };
   } | null>(null);
+  const [paying, setPaying] = useState<{ key: string; name: string } | null>(null);
   const [recovering, setRecovering] = useState<StaffAdvance | null>(null);
   const [history, setHistory] = useState<StaffAdvance | null>(null);
 
@@ -69,6 +74,17 @@ export const BalancesPage = () => {
           row.paidCents === undefined ? null : (
             <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(row.paidCents)}
+            </Text>
+          ),
+      },
+      {
+        key: 'credit',
+        header: t('Credit'),
+        align: 'right',
+        render: (row) =>
+          row.creditedCents === undefined ? null : (
+            <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {formatMoney(row.creditedCents)}
             </Text>
           ),
       },
@@ -108,34 +124,51 @@ export const BalancesPage = () => {
         key: 'actions',
         header: '',
         align: 'right',
-        render: (row) =>
-          canManage ? (
-            <Button
-              variant={row.balanceCents === undefined ? 'light' : 'default'}
-              size="xs"
-              h={isMobile ? 44 : undefined}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpening({
-                  subject: 'supplier',
-                  key: row.supplierKey,
-                  name: row.name,
-                  current:
-                    row.openingBalanceCents !== undefined && row.asOfDate !== undefined
-                      ? { amountCents: row.openingBalanceCents, asOfDate: row.asOfDate }
-                      : undefined,
-                });
-              }}
-              data-log-id="balances.supplier-opening"
-            >
-              {row.balanceCents === undefined
-                ? t('Set opening balance')
-                : t('Change opening balance')}
-            </Button>
-          ) : null,
+        render: (row) => (
+          <Group gap={6} justify="flex-end" wrap="nowrap">
+            {canPay ? (
+              <Button
+                variant="light"
+                size="xs"
+                h={isMobile ? 44 : undefined}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPaying({ key: row.supplierKey, name: row.name });
+                }}
+                data-log-id="balances.pay-supplier"
+              >
+                {t('Pay')}
+              </Button>
+            ) : null}
+            {canManage ? (
+              <Button
+                variant={row.balanceCents === undefined ? 'light' : 'default'}
+                size="xs"
+                h={isMobile ? 44 : undefined}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpening({
+                    subject: 'supplier',
+                    key: row.supplierKey,
+                    name: row.name,
+                    current:
+                      row.openingBalanceCents !== undefined && row.asOfDate !== undefined
+                        ? { amountCents: row.openingBalanceCents, asOfDate: row.asOfDate }
+                        : undefined,
+                  });
+                }}
+                data-log-id="balances.supplier-opening"
+              >
+                {row.balanceCents === undefined
+                  ? t('Set opening balance')
+                  : t('Change opening balance')}
+              </Button>
+            ) : null}
+          </Group>
+        ),
       },
     ],
-    [canManage, isMobile]
+    [canManage, canPay, isMobile]
   );
 
   const staffColumns = useMemo<Column<StaffAdvance>[]>(
@@ -305,6 +338,14 @@ export const BalancesPage = () => {
           name={opening.name}
           current={opening.current}
           onClose={() => setOpening(null)}
+        />
+      )}
+      {paying !== null && (
+        <PaySupplierModal
+          opened
+          onClose={() => setPaying(null)}
+          supplierKey={paying.key}
+          supplierName={paying.name}
         />
       )}
       {recovering !== null && (

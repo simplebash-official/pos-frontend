@@ -1,14 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import {
-  createPurchase,
+  createReceipt,
+  createSupplierCredit,
+  fetchCreditsBySupplier,
+  fetchOpenReceipts,
   fetchPurchasesByProduct,
   fetchPurchasesBySupplier,
+  fetchReceiptsBySupplier,
+  voidSupplierCredit,
 } from '../api/purchasesApi';
 import { offerLabelPrint, type LabelPrintOffer } from '@/features/labels';
-import { EnrichedStockPurchase, StockPurchaseInput } from '../types';
+import type {
+  CreateReceiptInput,
+  CreateSupplierCreditInput,
+  EnrichedStockPurchase,
+  PurchaseReceipt,
+  ReceiptLineInput,
+  SupplierCredit,
+} from '../types';
 
 const NO_PURCHASES: EnrichedStockPurchase[] = [];
+const NO_RECEIPTS: PurchaseReceipt[] = [];
+const NO_CREDITS: SupplierCredit[] = [];
 
 export const usePurchasesBySupplier = (supplierKey: string | undefined) => {
   const query = useQuery({
@@ -28,40 +42,96 @@ export const usePurchasesByProduct = (productKey: string | undefined) => {
   return { ...query, data: query.data ?? NO_PURCHASES };
 };
 
+/** Every receipt of one supplier, newest first, with what is paid and due on each. */
+export const useReceiptsBySupplier = (supplierKey: string | undefined) => {
+  const query = useQuery({
+    queryKey: queryKeys.receipts.bySupplier(supplierKey ?? ''),
+    queryFn: () => fetchReceiptsBySupplier(supplierKey as string),
+    enabled: Boolean(supplierKey),
+  });
+  return { ...query, data: query.data ?? NO_RECEIPTS };
+};
+
+/** The supplier's receipts that still have something to pay, oldest first (the order they are paid in). */
+export const useOpenReceipts = (supplierKey: string | undefined) => {
+  const query = useQuery({
+    queryKey: queryKeys.receipts.open(supplierKey ?? ''),
+    queryFn: () => fetchOpenReceipts(supplierKey as string),
+    enabled: Boolean(supplierKey),
+  });
+  return { ...query, data: query.data ?? NO_RECEIPTS };
+};
+
+export const useCreditsBySupplier = (supplierKey: string | undefined) => {
+  const query = useQuery({
+    queryKey: queryKeys.supplierCredits.bySupplier(supplierKey ?? ''),
+    queryFn: () => fetchCreditsBySupplier(supplierKey as string),
+    enabled: Boolean(supplierKey),
+  });
+  return { ...query, data: query.data ?? NO_CREDITS };
+};
+
 /**
- * The labels offered for a stock intake: one per unit received at its selling
+ * The labels offered for one received line: one per unit received at its selling
  * price, and for a serial product one for each unit received.
  */
-export const labelOfferFor = (input: StockPurchaseInput): LabelPrintOffer => {
-  const serialNumbers = input.serialNumbers ?? null;
+export const labelOfferFor = (line: ReceiptLineInput): LabelPrintOffer => {
+  const serialNumbers = line.serialNumbers ?? null;
   return {
-    productKey: input.productKey,
-    copies: serialNumbers === null ? input.quantity : 1,
-    priceCents: input.sellingPriceCents,
+    productKey: line.productKey,
+    copies: serialNumbers === null ? line.quantity : 1,
+    priceCents: line.sellingPriceCents,
     serialNumbers,
   };
 };
 
-/**
- * Records a stock intake. The backend also increments the product's stock and
- * writes its own movement. Every intake then offers to print its labels.
- */
-export const useCreatePurchase = () => {
+/** What a receipt (or a payment against receipts) changes on screens that are already open. */
+const useInvalidateMoney = () => {
   const queryClient = useQueryClient();
+  return () => {
+    for (const queryKey of [
+      queryKeys.purchases.all,
+      queryKeys.receipts.all,
+      queryKeys.supplierCredits.all,
+      queryKeys.balances.all,
+      queryKeys.moneyReports.all,
+      queryKeys.inventory.all,
+      queryKeys.accounts.all,
+      queryKeys.expenses.all,
+      queryKeys.billing.sessions.all,
+    ]) {
+      void queryClient.invalidateQueries({ queryKey });
+    }
+  };
+};
+
+/**
+ * Records a receipt: every line comes into stock and the payment, if any, is made, in one save.
+ * Each line then offers to print its labels.
+ */
+export const useCreateReceipt = () => {
+  const invalidate = useInvalidateMoney();
   return useMutation({
-    mutationFn: (input: StockPurchaseInput) => createPurchase(input),
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.moneyReports.all });
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.purchases.bySupplier(variables.supplierKey),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.purchases.byProduct(variables.productKey),
-      });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      offerLabelPrint(labelOfferFor(variables));
+    mutationFn: (input: CreateReceiptInput) => createReceipt(input),
+    onSuccess: (_receipt, variables) => {
+      invalidate();
+      for (const line of variables.lines) offerLabelPrint(labelOfferFor(line));
     },
+  });
+};
+
+export const useCreateSupplierCredit = () => {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (input: CreateSupplierCreditInput) => createSupplierCredit(input),
+    onSuccess: invalidate,
+  });
+};
+
+export const useVoidSupplierCredit = () => {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (key: string) => voidSupplierCredit(key),
+    onSuccess: invalidate,
   });
 };

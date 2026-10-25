@@ -1,11 +1,12 @@
 import { t } from '@/shared/i18n/t';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Divider, Group, Stack, Text } from '@mantine/core';
 import {
   IconAddressBook,
   IconBuildingStore,
   IconCalendarPlus,
   IconClock,
+  IconCash,
   IconCoin,
   IconEdit,
   IconMail,
@@ -18,7 +19,8 @@ import { Supplier } from '../types';
 import { formatDate, formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import { useProductsForSupplier } from '@/features/supplier-products/hooks/useSupplierProducts';
-import { usePurchasesBySupplier } from '@/features/purchases/hooks/usePurchases';
+import { useReceiptsBySupplier } from '@/features/purchases/hooks/usePurchases';
+import { PaySupplierModal } from '@/features/purchases/components/PaySupplierModal';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import {
   AnimatedTabs,
@@ -63,15 +65,12 @@ export const SupplierDetailDrawer = ({
   const { data: linkedProducts = [], isLoading: loadingProducts } = useProductsForSupplier(
     supplier?.key
   );
-  const { data: purchases = [], isLoading: loadingPurchases } = usePurchasesBySupplier(
-    supplier?.key
-  );
+  const { data: receipts, isLoading: loadingReceipts } = useReceiptsBySupplier(supplier?.key);
   const { data: allProducts = [] } = useAllProducts({ enabled: opened });
+  const [payOpen, setPayOpen] = useState(false);
 
-  const totalSpendCents = useMemo(
-    () => purchases.reduce((acc, p) => acc + (p.totalCostCents || 0), 0),
-    [purchases]
-  );
+  // What is still owed on this supplier's bills: each bill's own due, worked out by the server.
+  const owedCents = receipts.reduce((sum, receipt) => sum + receipt.dueCents, 0);
 
   const handleClose = () => {
     setActiveTab('products');
@@ -103,7 +102,7 @@ export const SupplierDetailDrawer = ({
             {t('Close')}
           </Button>
           <Button
-            variant="filled"
+            variant="light"
             color="blue"
             size="sm"
             leftSection={<IconEdit size={16} />}
@@ -111,12 +110,21 @@ export const SupplierDetailDrawer = ({
           >
             {t('Edit Details')}
           </Button>
+          <Button
+            variant="filled"
+            color="blue"
+            size="sm"
+            leftSection={<IconCash size={16} />}
+            onClick={() => setPayOpen(true)}
+          >
+            {t('Pay Supplier')}
+          </Button>
         </DrawerFooter>
       )}
     >
       {(sup) => {
         const linkedAny = linkedProducts.length > 0;
-        const lastPurchase = purchases[0];
+        const lastReceipt = receipts[0];
 
         return (
           <DrawerGrid>
@@ -124,20 +132,24 @@ export const SupplierDetailDrawer = ({
               <KpiTile icon={<IconPackage size={16} />} color="blue" label={t('Products')}>
                 <Figure value={String(linkedProducts.length)} hint={t('items')} color="blue" />
               </KpiTile>
-              <KpiTile icon={<IconReceipt size={16} />} color="gray" label={t('Intakes')}>
-                <Figure value={String(purchases.length)} hint={t('orders')} color="gray" />
+              <KpiTile icon={<IconReceipt size={16} />} color="gray" label={t('Bills')}>
+                <Figure value={String(receipts.length)} hint={t('received')} color="gray" />
               </KpiTile>
-              <KpiTile icon={<IconCoin size={16} />} color="teal" label={t('Total Spend')}>
+              <KpiTile
+                icon={<IconCoin size={16} />}
+                color={owedCents > 0 ? 'orange' : 'teal'}
+                label={t('We owe')}
+              >
                 <Figure
-                  value={formatMoney(totalSpendCents)}
-                  hint={t('across all intakes')}
-                  color="teal"
+                  value={formatMoney(owedCents)}
+                  hint={owedCents > 0 ? t('on unpaid bills') : t('nothing owed')}
+                  color={owedCents > 0 ? 'orange' : 'teal'}
                 />
               </KpiTile>
-              <KpiTile icon={<IconTruckDelivery size={16} />} color="gray" label={t('Last Intake')}>
+              <KpiTile icon={<IconTruckDelivery size={16} />} color="gray" label={t('Last Bill')}>
                 <Figure
-                  value={lastPurchase ? formatDate(lastPurchase.date) : '—'}
-                  hint={lastPurchase ? `${t('Qty: +')}${lastPurchase.quantity}` : t('None yet')}
+                  value={lastReceipt ? formatDate(lastReceipt.date) : '—'}
+                  hint={lastReceipt ? lastReceipt.receiptNumber : t('None yet')}
                   color="gray"
                 />
               </KpiTile>
@@ -239,9 +251,9 @@ export const SupplierDetailDrawer = ({
                   },
                   {
                     value: 'intake',
-                    label: t('Intake'),
+                    label: t('Bills'),
                     icon: <IconReceipt size={16} />,
-                    count: purchases.length,
+                    count: receipts.length,
                   },
                 ]}
               >
@@ -256,15 +268,20 @@ export const SupplierDetailDrawer = ({
                   ) : (
                     <SupplierIntakePanel
                       supplier={sup}
-                      purchases={purchases}
-                      loading={loadingPurchases}
-                      linked={linkedProducts}
-                      allProducts={allProducts}
+                      receipts={receipts}
+                      loading={loadingReceipts}
+                      onPay={() => setPayOpen(true)}
                     />
                   )
                 }
               </AnimatedTabs>
             </DrawerMain>
+            <PaySupplierModal
+              opened={payOpen}
+              onClose={() => setPayOpen(false)}
+              supplierKey={sup.key}
+              supplierName={sup.name}
+            />
           </DrawerGrid>
         );
       }}

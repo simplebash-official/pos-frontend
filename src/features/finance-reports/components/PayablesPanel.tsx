@@ -134,7 +134,7 @@ export const PayablesPanel = ({
           )}
           <Text size="xs" c="dimmed">
             {t(
-              'A supplier is listed once you have set what you owed them on the Balances page. Suppliers without that are not included.'
+              'A supplier you have set an opening balance for is listed by what you owe in total. Any other supplier is listed by the bills from them that are still unpaid.'
             )}
           </Text>
           <Anchor component={Link} to={ROUTES.BALANCES} size="sm">

@@ -34,6 +34,8 @@ export const useCreateExpense = () => {
     mutationFn: (input: CreateExpenseInput) => createExpense(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
+      // A supplier payment can pay supplier bills.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.receipts.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.moneyReports.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.balances.all });

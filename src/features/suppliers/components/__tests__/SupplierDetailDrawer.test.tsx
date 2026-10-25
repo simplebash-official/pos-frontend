@@ -31,25 +31,34 @@ const LINKED = [
     },
   },
 ];
-const PURCHASES = [
+const line = (name: string, quantity: number) => ({
+  key: `pur_${name}`,
+  quantity,
+  product: { name },
+});
+const RECEIPTS = [
   {
-    id: 'pur_1',
-    quantity: 12,
-    unitCostCents: 3_400,
-    totalCostCents: 40_800,
-    sellingPriceCents: 5_500,
-    date: '2026-10-15T10:00:00Z',
+    key: 'prc_2',
+    receiptNumber: 'PUR-000002',
     referenceNo: 'INV-8834',
-    product: { name: 'USB-C Cable' },
+    date: '2026-10-15T10:00:00Z',
+    lines: [line('USB-C Cable', 12), line('Lightning Cable', 4)],
+    totalCents: 62_000,
+    creditedCents: 2_000,
+    paidCents: 20_000,
+    dueCents: 40_000,
+    status: 'partly_paid',
   },
   {
-    id: 'pur_2',
-    quantity: 8,
-    unitCostCents: 3_800,
-    totalCostCents: 30_400,
-    sellingPriceCents: 6_000,
+    key: 'prc_1',
+    receiptNumber: 'PUR-000001',
     date: '2026-10-10T10:00:00Z',
-    product: { name: 'Lightning Cable' },
+    lines: [line('HDMI Cable', 8)],
+    totalCents: 30_400,
+    creditedCents: 0,
+    paidCents: 30_400,
+    dueCents: 0,
+    status: 'paid',
   },
 ];
 const ALL_PRODUCTS = [{ key: 'prod_b', name: 'HDMI Cable', sku: 'CAB-0002' }];
@@ -60,8 +69,9 @@ vi.mock('@/features/supplier-products/hooks/useSupplierProducts', () => ({
   useUnlinkProduct: () => ({ mutate: unlinkMutate, isPending: false }),
 }));
 vi.mock('@/features/purchases/hooks/usePurchases', () => ({
-  usePurchasesBySupplier: () => ({ data: PURCHASES, isLoading: false }),
-  useCreatePurchase: () => idle,
+  useReceiptsBySupplier: () => ({ data: RECEIPTS, isLoading: false }),
+  useOpenReceipts: () => ({ data: [], isLoading: false }),
+  useCreateSupplierCredit: () => idle,
 }));
 vi.mock('@/features/inventory/hooks/useProducts', () => ({
   useAllProducts: () => ({ data: ALL_PRODUCTS }),
@@ -76,8 +86,12 @@ vi.mock('@/features/inventory/components/ProductPickerModal', () => ({
   }) => (opened ? <button onClick={() => onSelect('prod_b')}>pick HDMI</button> : null),
 }));
 vi.mock('@/features/purchases/components/ReceiveStockModal', () => ({
-  ReceiveStockModal: ({ opened }: { opened: boolean }) =>
-    opened ? <div>advanced receive modal</div> : null,
+  ReceiveStockModal: ({ opened, initialSupplierKey }: { opened: boolean; initialSupplierKey: string }) =>
+    opened ? <div>receive stock window for {initialSupplierKey}</div> : null,
+}));
+vi.mock('@/features/purchases/components/PaySupplierModal', () => ({
+  PaySupplierModal: ({ opened, supplierName }: { opened: boolean; supplierName: string }) =>
+    opened ? <div>pay supplier window for {supplierName}</div> : null,
 }));
 
 const makeSupplier = (overrides: Partial<Supplier> = {}): Supplier =>
@@ -154,7 +168,8 @@ describe('SupplierDetailDrawer', () => {
     expect(text()).toContain('Colombo Mobile Parts');
     expect(text()).toContain('Active Supplier');
     expect(text()).toContain('Phone Parts · Batteries');
-    expect(text()).toContain('Rs. 712.00'); // total spend 408.00 + 304.00
+    expect(text()).toContain('We owe');
+    expect(text()).toContain('Rs. 400.00'); // what the unpaid bill still owes
     expect(text()).toContain('0771234567');
     expect(text()).toContain('45 First Cross Street');
     expect(text()).toContain('sales@colombo.example');
@@ -201,25 +216,40 @@ describe('SupplierDetailDrawer', () => {
     expect(button('Link Product')!.disabled).toBe(true);
   });
 
-  it('shows the intake history, with the quick form and the advanced form', async () => {
+  it('lists the supplier bills with what is paid and owed on each', async () => {
     await open(makeSupplier());
-    await act(async () => tab('Intake').click());
+    await act(async () => tab('Bills').click());
     await until(() => expect(text()).toContain('INV-8834'));
-    expect(text()).toContain('Lightning Cable');
-    expect(text()).toContain('Qty: +12');
+    // A bill with no supplier invoice number is listed by our own number.
+    expect(text()).toContain('PUR-000001');
+    expect(text()).toContain('USB-C Cable ×12 · Lightning Cable ×4');
+    expect(text()).toContain('Part paid');
+    expect(text()).toContain('Owed Rs. 400.00');
+    expect(text()).toContain('Credit from supplier: Rs. 20.00');
+    expect(text()).toContain('Paid');
+  });
 
+  it('opens the Receive Stock window for this supplier and the credit window', async () => {
+    await open(makeSupplier());
+    await act(async () => tab('Bills').click());
+    await until(() => expect(text()).toContain('INV-8834'));
     await act(async () => button('Receive stock')!.click());
-    expect(text()).toContain('Quantity Received *');
-    expect(button('Record Intake')!.disabled).toBe(true);
+    expect(text()).toContain('receive stock window for sup_1');
 
     await act(async () =>
       (
         document.body.querySelector(
-          'button[aria-label="Advanced Receive Form"]'
+          'button[aria-label="Record credit from this supplier"]'
         ) as HTMLButtonElement
       ).click()
     );
-    expect(text()).toContain('advanced receive modal');
+    await until(() => expect(text()).toContain('Credit from Colombo Mobile Parts'));
+  });
+
+  it('opens the Pay Supplier window from the footer and from the bills tab', async () => {
+    await open(makeSupplier());
+    await act(async () => button('Pay Supplier')!.click());
+    expect(text()).toContain('pay supplier window for Colombo Mobile Parts');
   });
 
   it('calls back for Edit, Delete and Close', async () => {

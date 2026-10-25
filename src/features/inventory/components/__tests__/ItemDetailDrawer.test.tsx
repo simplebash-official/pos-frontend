@@ -77,7 +77,23 @@ vi.mock('@/features/supplier-products/hooks/useSupplierProducts', () => ({
 }));
 vi.mock('@/features/purchases/hooks/usePurchases', () => ({
   usePurchasesByProduct: () => ({ data: NO_ROWS, isLoading: false }),
-  useCreatePurchase: () => idleMutation,
+}));
+vi.mock('@/features/purchases/components/ReceiveStockModal', () => ({
+  ReceiveStockModal: ({
+    opened,
+    initialProductKey,
+    onClose,
+  }: {
+    opened: boolean;
+    initialProductKey: string;
+    onClose: () => void;
+  }) =>
+    opened ? (
+      <div>
+        receive stock window for {initialProductKey}
+        <button onClick={onClose}>close receive window</button>
+      </div>
+    ) : null,
 }));
 
 const makeProduct = (stockQuantity: number): Product =>
@@ -202,21 +218,13 @@ describe('ItemDetailDrawer', () => {
     expect(text()).toContain(label);
   });
 
-  it('opens the intake form from "Receive from supplier", disabled until it is filled in', async () => {
+  it('opens the Receive Stock window for this item from "Receive from supplier"', async () => {
     await open('admin');
-    expect(text()).not.toContain('Quantity Received');
+    expect(text()).not.toContain('receive stock window');
     await act(async () => button('Receive from supplier')!.click());
-    await until(() => expect(text()).toContain('Quantity Received'));
-    expect(text()).toContain('Selling Price each');
-    expect(button('Record Intake')!.disabled).toBe(true);
-    // The toggle button is hidden while the form is open and returns when it closes.
-    expect(button('Receive stock')).toBeUndefined();
-    // The stock card's own add-stock form also has a (hidden) Cancel; the intake form's is last.
-    const cancels = Array.from(document.body.querySelectorAll('button')).filter(
-      (b) => b.textContent === 'Cancel'
-    );
-    await act(async () => cancels[cancels.length - 1].click());
-    expect(button('Receive stock')).toBeDefined();
+    await until(() => expect(text()).toContain('receive stock window for prod_a'));
+    await act(async () => button('close receive window')!.click());
+    expect(text()).not.toContain('receive stock window');
   });
 
   it('opens the link-supplier form on the Suppliers tab', async () => {

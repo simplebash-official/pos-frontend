@@ -9,6 +9,8 @@ import { formatMoney } from '@/shared/lib/money';
 import type { CashMovementType, PayeeType, PeriodStatus } from '../../../types';
 import type { MovementFormState } from './movementForm';
 import { PayeePicker } from './PayeePicker';
+import { SettlementPicker } from '@/features/purchases/components/SettlementPicker';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 /** A name typed instead of picked; stands in for a payee in the list until it is saved. */
 const TYPED_PAYEE = '__typed__';
@@ -84,6 +86,7 @@ export const MovementDetailFields = ({
   periodStatus,
   canCreatePayee,
 }: MovementDetailFieldsProps) => {
+  const isMobile = useIsMobile();
   const type = form.type;
   const savedType = PAYEE_TYPE_FOR[type];
   const needsSavedPayee = savedType !== undefined;
@@ -265,11 +268,20 @@ export const MovementDetailFields = ({
             loading={isLoading}
             items={payeeItems}
             value={form.payeeKey}
-            onChange={(key) => onChange({ payeeKey: key })}
+            onChange={(key) => onChange({ payeeKey: key, settlements: [] })}
             required
             noCreateHint={t('To add a supplier, ask a manager.')}
             emptyText={t('No supplier found.')}
           />
+          {form.payeeKey ? (
+            <SettlementPicker
+              supplierKey={form.payeeKey}
+              paymentCents={form.amountCents}
+              value={form.settlements}
+              onChange={(settlements) => onChange({ settlements })}
+              isMobile={isMobile}
+            />
+          ) : null}
           {pair(reference(t('Bill or order number (optional)')), note)}
         </Stack>
       );

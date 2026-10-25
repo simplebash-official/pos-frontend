@@ -81,7 +81,6 @@ export const ItemActivityTabs = ({
         product={product}
         purchases={purchases}
         loading={loadingPurchases}
-        supplierOptions={supplierOptions}
         formOpen={intakeFormOpen}
         onFormOpenChange={onIntakeFormOpenChange}
       />

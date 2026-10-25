@@ -151,6 +151,8 @@ export const useCreateCashMovement = () => {
     mutationFn: (input: CreateCashMovementInput) => createCashMovement(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      // A supplier payment can pay supplier bills.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.receipts.all });
       // Movement counts rank the category and payee pickers.
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
       // A drawer payment is a cost on the Expenses page and counts towards a regular bill.
@@ -171,6 +173,8 @@ export const useReverseCashMovement = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
+      // A reversed supplier payment stops counting against the supplier's bills.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.receipts.all });
       // A reversed drawer payment stops counting as a cost.
       void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.income.all });

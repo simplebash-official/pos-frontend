@@ -153,6 +153,15 @@ export const queryKeys = {
     bySupplier: (supplierKey: string) => ['purchases', 'bySupplier', supplierKey] as const,
     byProduct: (productKey: string) => ['purchases', 'byProduct', productKey] as const,
   },
+  receipts: {
+    all: ['receipts'] as const,
+    bySupplier: (supplierKey: string) => ['receipts', 'bySupplier', supplierKey] as const,
+    open: (supplierKey: string) => ['receipts', 'open', supplierKey] as const,
+  },
+  supplierCredits: {
+    all: ['supplierCredits'] as const,
+    bySupplier: (supplierKey: string) => ['supplierCredits', 'bySupplier', supplierKey] as const,
+  },
   employees: {
     all: ['employees'] as const,
     list: (filters?: Record<string, unknown>) => ['employees', 'list', filters] as const,

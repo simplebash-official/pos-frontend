@@ -4,6 +4,8 @@
 
 import { t } from '@/shared/i18n/t';
 import type { CashCategory, CashMovementType, CreateCashMovementInput } from '../../../types';
+import type { ReceiptSettlementInput } from '@/features/purchases/types';
+import { allocatedCents } from '@/features/purchases/lib/settlement';
 import { ALWAYS_PIN_TYPES } from './movementTypes';
 
 export interface MovementFormState {
@@ -24,6 +26,8 @@ export interface MovementFormState {
   overrideReason: string;
   /** Ticked to record a rent or bill payment for a month that is already paid. */
   confirmDuplicate: boolean;
+  /** A supplier payment only: the supplier's bills it pays, and how much of it each. */
+  settlements: ReceiptSettlementInput[];
 }
 
 /** A fresh form for a kind of payment. */
@@ -40,6 +44,7 @@ export const emptyForm = (type: CashMovementType): MovementFormState => ({
   managerPin: '',
   overrideReason: '',
   confirmDuplicate: false,
+  settlements: [],
 });
 
 /** Switching kind starts the type-specific fields over; the amount and note carry across. */
@@ -124,6 +129,9 @@ export const validateForm = (
       break;
     case 'supplier_payment':
       if (!form.payeeKey) return t('Please pick the supplier.');
+      if (allocatedCents(form.settlements) > form.amountCents) {
+        return t('You are putting more against the bills than you are paying.');
+      }
       break;
     case 'owner_withdrawal':
       if (!form.payeeName.trim()) return t('Please enter who took the cash.');
@@ -185,6 +193,7 @@ export const toInput = (
     case 'supplier_payment':
       input.payeeKey = form.payeeKey ?? undefined;
       input.referenceNo = text(form.referenceNo);
+      input.settlements = form.settlements;
       break;
     case 'owner_withdrawal':
       input.payeeName = text(form.payeeName);

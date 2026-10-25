@@ -1,4 +1,5 @@
 import type { PaymentMethod } from '@/constants/payment';
+import type { ReceiptSettlementInput } from '@/features/purchases/types';
 
 export type LineSourceType = 'retail' | 'repair' | 'print';
 
@@ -491,6 +492,8 @@ export interface CreateCashMovementInput {
   overrideReason?: string;
   /** Set to record a rent or bill payment for a month that is already paid. */
   confirmDuplicate?: boolean;
+  /** Supplier payments only: the supplier's bills this payment pays, and how much of it each. */
+  settlements?: ReceiptSettlementInput[];
 }
 
 export interface ReverseCashMovementInput {
