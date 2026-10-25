@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { feedbackMeta } from '@/api/mutationFeedback';
 import { queryKeys } from '@/api/queryKeys';
+import { t } from '@/shared/i18n/t';
 import {
   createCashCategory,
   createPayee,
@@ -8,6 +10,7 @@ import {
   mergeCashCategory,
   updateCashCategory,
   updateCashSettings,
+  updatePayee,
   getPeriodStatus,
   listCashCategories,
   listPayees,
@@ -15,11 +18,14 @@ import {
   type PayeeListQuery,
 } from '../api/cashLookupsApi';
 import type {
+  CashCategory,
   CashMovementType,
   CreateCashCategoryInput,
   CreatePayeeInput,
+  Payee,
   UpdateCashCategoryInput,
   UpdateCashSettingsInput,
+  UpdatePayeeInput,
 } from '../types';
 
 /** Categories for one kind of payment, best first. Waits until a kind is chosen. */
@@ -42,6 +48,11 @@ export const useCreateCashCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateCashCategoryInput) => createCashCategory(input),
+    meta: feedbackMeta<CashCategory>({
+      successTitle: t('Category added'),
+      successMessage: (category) => category.name,
+      failureTitle: t('Could not add the category'),
+    }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
     },
@@ -59,6 +70,22 @@ export const useCreatePayee = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreatePayeeInput) => createPayee(input),
+    meta: feedbackMeta<Payee>({
+      successTitle: t('Landlord or company added'),
+      successMessage: (payee) => payee.name,
+      failureTitle: t('Could not add the landlord or company'),
+    }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
+    },
+  });
+};
+
+export const useUpdatePayee = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ key, input }: { key: string; input: UpdatePayeeInput }) =>
+      updatePayee(key, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all });
     },

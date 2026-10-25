@@ -125,6 +125,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   const canRecordManaged = useHasPermission(PERMISSIONS.CASH_MOVEMENTS_CREATE_MANAGED);
   const canManageCategories = useHasPermission(PERMISSIONS.CASH_CATEGORIES_MANAGE);
   const canCreateCategories = useHasPermission(PERMISSIONS.CASH_CATEGORIES_CREATE);
+  const canManagePayees = useHasPermission(PERMISSIONS.PAYEES_MANAGE);
 
   const [form, setForm] = useState<MovementFormState>(() =>
     prefill === undefined
@@ -554,6 +555,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
                             form={form}
                             onChange={patch}
                             periodStatus={isRent ? periodStatus : undefined}
+                            canCreatePayee={canManagePayees}
                           />
                         </MovementStep>
                       </Stack>

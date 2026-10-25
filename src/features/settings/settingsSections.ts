@@ -16,13 +16,16 @@ import {
   IconPhoto,
   IconPrinter,
   IconInfoCircle,
+  IconBuildingCommunity,
 } from '@tabler/icons-react';
+import { PERMISSIONS, type Permission } from '@/constants/permissions';
 
 export type SettingsSectionId =
   | 'shop-profile'
   | 'register-shifts'
   | 'cash-rules'
   | 'cash-categories'
+  | 'payees'
   | 'branding'
   | 'bank-details'
   | 'printing'
@@ -51,6 +54,11 @@ export interface SettingsSectionMeta {
   requiresLink?: boolean;
   comingSoon?: boolean;
   disabled?: boolean;
+  /**
+   * Besides an Admin (who sees every section), anyone holding this permission may open it. A
+   * section without one is for Admins only.
+   */
+  permission?: Permission;
 }
 
 export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
@@ -81,6 +89,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Categories',
     description: 'Rename, hide, merge and review what cash is filed under',
     icon: IconCategory,
+  },
+  {
+    id: 'payees',
+    label: 'Landlords & Companies',
+    shortLabel: 'Payees',
+    description: 'Who you pay rent and bills to: add, rename and hide',
+    icon: IconBuildingCommunity,
+    permission: PERMISSIONS.PAYEES_MANAGE,
   },
   {
     id: 'branding',
@@ -203,3 +219,27 @@ export const getVisibleSettingsSections = (
       (!section.requiresCloud || cloudEnabled) &&
       (!section.requiresLink || cloudLinked)
   );
+
+/** Every permission that opens at least one section; holding one lets a non-Admin into Settings. */
+export const SETTINGS_PERMISSIONS: Permission[] = SETTINGS_SECTIONS.flatMap((s) =>
+  s.permission === undefined ? [] : [s.permission]
+);
+
+export interface SettingsAccess {
+  isAdmin: boolean;
+  permissions: string[];
+}
+
+/** Keeps the sections this person may open: all of them for an Admin, else those their permissions grant. */
+export const sectionsForAccess = (
+  sections: SettingsSectionMeta[],
+  access: SettingsAccess
+): SettingsSectionMeta[] =>
+  sections.filter(
+    (section) =>
+      access.isAdmin ||
+      (section.permission !== undefined && access.permissions.includes(section.permission))
+  );
+
+export const canOpenSettings = (access: SettingsAccess): boolean =>
+  access.isAdmin || SETTINGS_PERMISSIONS.some((p) => access.permissions.includes(p));

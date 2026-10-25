@@ -288,12 +288,21 @@ export interface Payee {
   name: string;
   phone?: string;
   usageCount: number;
+  /** False once hidden from the pickers; the payee stays so past payments still show its name. */
+  active: boolean;
 }
 
 export interface CreatePayeeInput {
   payeeType: Extract<PayeeType, 'vendor' | 'other'>;
   name: string;
   phone?: string;
+}
+
+/** Only what changed is sent. A blank phone clears it. */
+export interface UpdatePayeeInput {
+  name?: string;
+  phone?: string;
+  active?: boolean;
 }
 
 export interface RegisterSession {

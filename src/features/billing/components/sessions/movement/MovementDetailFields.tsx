@@ -8,6 +8,7 @@ import { formatDate } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import type { CashMovementType, PayeeType, PeriodStatus } from '../../../types';
 import type { MovementFormState } from './movementForm';
+import { PayeePicker } from './PayeePicker';
 
 /** A name typed instead of picked; stands in for a payee in the list until it is saved. */
 const TYPED_PAYEE = '__typed__';
@@ -34,6 +35,8 @@ export interface MovementDetailFieldsProps {
   onChange: (patch: Partial<MovementFormState>) => void;
   /** What is already recorded for this rent's month, when the kind is rent and the month is picked. */
   periodStatus: PeriodStatus | undefined;
+  /** Whether this person may add a landlord or company from the picker. */
+  canCreatePayee: boolean;
 }
 
 /**
@@ -43,9 +46,12 @@ export interface MovementDetailFieldsProps {
 const LastPaymentHint = ({
   form,
   onChange,
+  offeredKeys,
 }: {
   form: MovementFormState;
   onChange: (patch: Partial<MovementFormState>) => void;
+  /** Payees the picker offers; a hidden payee is not, and the server refuses it on a new payment. */
+  offeredKeys: string[];
 }) => {
   const { data } = useCashMovementList({
     movementType: 'rent_and_bills',
@@ -54,6 +60,7 @@ const LastPaymentHint = ({
   });
   const last = (data?.movements ?? []).find((m) => !m.reversesKey && !m.reversedByKey);
   if (!last || (form.amountCents > 0 && form.payeeKey !== null)) return null;
+  if (last.payeeKey && !offeredKeys.includes(last.payeeKey)) return null;
   return (
     <Button
       variant="light"
@@ -75,6 +82,7 @@ export const MovementDetailFields = ({
   form,
   onChange,
   periodStatus,
+  canCreatePayee,
 }: MovementDetailFieldsProps) => {
   const type = form.type;
   const savedType = PAYEE_TYPE_FOR[type];
@@ -161,16 +169,12 @@ export const MovementDetailFields = ({
     case 'rent_and_bills':
       return (
         <Stack gap="md">
-          <SearchCombobox
-            label={t('Who is being paid?')}
-            placeholder={t('Landlord or company')}
-            loading={isLoading}
+          <PayeePicker
             items={payeeItems}
+            loading={isLoading}
             value={form.payeeKey}
             onChange={(key) => onChange({ payeeKey: key })}
-            required
-            noCreateHint={t('To add someone new, ask a manager.')}
-            emptyText={t('Nobody added yet.')}
+            canCreate={canCreatePayee}
           />
           <Select
             label={t('Month this payment covers')}
@@ -182,7 +186,13 @@ export const MovementDetailFields = ({
             allowDeselect={false}
             comboboxProps={{ withinPortal: true }}
           />
-          {form.categoryKey !== null && <LastPaymentHint form={form} onChange={onChange} />}
+          {form.categoryKey !== null && (
+            <LastPaymentHint
+              form={form}
+              onChange={onChange}
+              offeredKeys={payeeItems.map((item) => item.value)}
+            />
+          )}
           {periodStatus !== undefined && periodStatus.paidCents > 0 && (
             <Alert
               color={periodStatus.alreadyPaid ? 'orange' : 'blue'}

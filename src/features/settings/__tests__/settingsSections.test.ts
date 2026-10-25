@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { SETTINGS_SECTIONS, getVisibleSettingsSections } from '../settingsSections';
+import {
+  SETTINGS_PERMISSIONS,
+  SETTINGS_SECTIONS,
+  canOpenSettings,
+  getVisibleSettingsSections,
+  sectionsForAccess,
+} from '../settingsSections';
 
 describe('settingsSections desktop filtering', () => {
   it('includes the backup and benchmark sections in SETTINGS_SECTIONS with desktopOnly flag', () => {
@@ -82,5 +88,37 @@ describe('settingsSections desktop filtering', () => {
     expect(aboutSection?.desktopOnly).toBeFalsy();
     expect(getVisibleSettingsSections(false).some((s) => s.id === 'about')).toBe(true);
     expect(getVisibleSettingsSections(true).some((s) => s.id === 'about')).toBe(true);
+  });
+});
+
+describe('settingsSections access', () => {
+  const web = () => getVisibleSettingsSections(false);
+  const admin = { isAdmin: true, permissions: [] };
+  const manager = { isAdmin: false, permissions: ['payees:manage', 'expenses:manage'] };
+  const cashier = { isAdmin: false, permissions: ['cash_movements:create'] };
+
+  it('gives only the payees section a permission, so every other section stays Admin-only', () => {
+    expect(SETTINGS_SECTIONS.filter((s) => s.permission !== undefined).map((s) => s.id)).toEqual([
+      'payees',
+    ]);
+    expect(SETTINGS_PERMISSIONS).toEqual(['payees:manage']);
+  });
+
+  it('shows an Admin every section', () => {
+    expect(sectionsForAccess(web(), admin)).toEqual(web());
+  });
+
+  it('shows someone with payees:manage only the landlords and companies section', () => {
+    expect(sectionsForAccess(web(), manager).map((s) => s.id)).toEqual(['payees']);
+  });
+
+  it('shows someone without it nothing', () => {
+    expect(sectionsForAccess(web(), cashier)).toEqual([]);
+  });
+
+  it('lets an Admin or a payee manager into Settings, and nobody else', () => {
+    expect(canOpenSettings(admin)).toBe(true);
+    expect(canOpenSettings(manager)).toBe(true);
+    expect(canOpenSettings(cashier)).toBe(false);
   });
 });

@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppShell } from './layout/AppShell';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
+import { RequireSettingsAccess } from './components/RequireSettingsAccess';
 import { RequirePermission } from './components/RequirePermission';
 import { GuestOnly } from './components/GuestOnly';
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
@@ -306,11 +307,11 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.SETTINGS,
         element: (
-          <RequireAdmin>
+          <RequireSettingsAccess>
             <Suspense fallback={<PageSkeleton />}>
               <SettingsPage />
             </Suspense>
-          </RequireAdmin>
+          </RequireSettingsAccess>
         ),
       },
       {

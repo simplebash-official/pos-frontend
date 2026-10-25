@@ -1,8 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { Badge, Box, NavLink, Paper, Stack, Tabs, Text, ThemeIcon } from '@mantine/core';
-import { isTauri } from '@/shared/lib/runtime';
-import { useCloudState } from '@/features/account';
-import { getVisibleSettingsSections, type SettingsSectionId } from '../settingsSections';
+import { useVisibleSettingsSections } from '../hooks/useVisibleSettingsSections';
+import type { SettingsSectionId } from '../settingsSections';
 
 interface SettingsNavProps {
   active: SettingsSectionId;
@@ -11,8 +10,7 @@ interface SettingsNavProps {
 
 /** Desktop: a persistent vertical list of sections, styled identically to the left sidebar NavLink. */
 export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
-  const { state: cloud } = useCloudState();
-  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
+  const sections = useVisibleSettingsSections();
   return (
     <Paper
       withBorder
@@ -113,8 +111,7 @@ export const SettingsNavList = ({ active, onChange }: SettingsNavProps) => {
 
 /** Tablet: a top tab strip standing in for the sidebar. */
 export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
-  const { state: cloud } = useCloudState();
-  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
+  const sections = useVisibleSettingsSections();
   return (
     <Tabs
       value={active}
@@ -150,8 +147,7 @@ export const SettingsNavTabs = ({ active, onChange }: SettingsNavProps) => {
 
 /** Mobile: a full-screen drill-down list — the section list itself, one row per section. */
 export const SettingsNavDrillDownList = ({ active, onChange }: SettingsNavProps) => {
-  const { state: cloud } = useCloudState();
-  const sections = getVisibleSettingsSections(isTauri(), cloud.enabled, cloud.linked);
+  const sections = useVisibleSettingsSections();
   return (
     <Stack gap="xs">
       <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>

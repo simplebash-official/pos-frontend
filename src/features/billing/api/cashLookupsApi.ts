@@ -11,6 +11,7 @@ import type {
   CreatePayeeInput,
   Payee,
   PayeeType,
+  UpdatePayeeInput,
 } from '../types';
 
 export interface CashCategoryListQuery {
@@ -27,6 +28,8 @@ export interface CashCategoryListQuery {
 export interface PayeeListQuery {
   payeeType?: PayeeType;
   search?: string;
+  /** Also list hidden payees (Settings only; needs `payees:manage`). */
+  includeHidden?: boolean;
 }
 
 /** Categories for the picker, best first (pinned, then most used by this shop). */
@@ -86,13 +89,22 @@ export const updateCashSettings = async (input: UpdateCashSettingsInput): Promis
 /** Suppliers, staff, vendors and saved names, most used first. */
 export const listPayees = async (query: PayeeListQuery): Promise<Payee[]> => {
   const response = await apiClient.get<ApiResponse<Payee[]>>('/payees', {
-    params: query as Record<string, string | undefined>,
+    params: { ...query },
   });
   return response.data;
 };
 
 export const createPayee = async (input: CreatePayeeInput): Promise<Payee> => {
   const response = await apiClient.post<ApiResponse<Payee>>('/payees', input);
+  return response.data;
+};
+
+/** Renames a payee, changes its phone, or hides / shows it. */
+export const updatePayee = async (key: string, input: UpdatePayeeInput): Promise<Payee> => {
+  const response = await apiClient.patch<ApiResponse<Payee>>(
+    `/payees/${encodeURIComponent(key)}`,
+    input
+  );
   return response.data;
 };
 

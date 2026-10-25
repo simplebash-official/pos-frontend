@@ -4,6 +4,7 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { attachMutationFeedback } from '@/api/mutationFeedback';
 import {
   createLoggingMutationCache,
   createLoggingQueryCache,
@@ -63,7 +64,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
     () =>
       new QueryClient({
         queryCache: createLoggingQueryCache(),
-        mutationCache: createLoggingMutationCache(),
+        mutationCache: attachMutationFeedback(createLoggingMutationCache()),
         defaultOptions: {
           queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes

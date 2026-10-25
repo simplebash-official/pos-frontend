@@ -30,6 +30,7 @@ import {
 } from '@tabler/icons-react';
 import { ROUTES, PERMISSIONS } from '@/constants';
 import type { Permission } from '@/constants/permissions';
+import { SETTINGS_PERMISSIONS } from '@/features/settings/settingsSections';
 
 export interface NavItemConfig {
   label: string;
@@ -238,6 +239,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: IconSettings,
     to: ROUTES.SETTINGS,
     color: 'gray',
-    adminOnly: true,
+    // An Admin holds every permission; a Manager gets in for the sections their permissions grant.
+    requiredPermissions: SETTINGS_PERMISSIONS,
   },
 ];

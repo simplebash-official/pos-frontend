@@ -30,7 +30,8 @@ import { USER_ROLES, formatUserRole, type UserRole } from '@/constants/roles';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { t } from '@/shared/i18n/t';
 import { useAppSelector } from '@/store/hooks';
-import { selectAuthUser, selectUserRole } from '@/store/slices/authSlice';
+import { selectAuthUser, selectUserPermissions, selectUserRole } from '@/store/slices/authSlice';
+import { canOpenSettings } from '@/features/settings/settingsSections';
 
 type SchemeChoice = 'light' | 'dark' | 'auto';
 const NEXT_SCHEME: Record<SchemeChoice, SchemeChoice> = {
@@ -83,7 +84,10 @@ export const SidebarFooter = ({
   const scheme = colorScheme as SchemeChoice;
   const user = useAppSelector(selectAuthUser);
   const role = useAppSelector(selectUserRole);
-  const isAdmin = role === USER_ROLES.ADMIN;
+  const canSettings = canOpenSettings({
+    isAdmin: role === USER_ROLES.ADMIN,
+    permissions: useAppSelector(selectUserPermissions),
+  });
 
   const name = user?.name || user?.username || 'Operator';
   const roleLabel = user?.role ? formatUserRole(user.role) : '';
@@ -137,7 +141,7 @@ export const SidebarFooter = ({
     return (
       <Stack gap="xs" align="center" py="xs" style={{ flexShrink: 0 }}>
         <Tooltip label={roleLabel ? `${name} · ${roleLabel}` : name} position="right" withArrow>
-          {isAdmin ? (
+          {canSettings ? (
             <UnstyledButton
               component={RouterNavLink}
               to={ROUTES.SETTINGS}
@@ -200,7 +204,7 @@ export const SidebarFooter = ({
         className="sidebar-footer-card"
         style={{ height: isMobile ? 76 : 72 }}
       >
-        {isAdmin ? (
+        {canSettings ? (
           <UnstyledButton
             component={RouterNavLink}
             to={ROUTES.SETTINGS}

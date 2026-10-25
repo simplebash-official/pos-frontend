@@ -372,6 +372,26 @@ describe('CashMovementModal', () => {
     expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
   });
 
+  it('lets someone who may manage payees add a landlord from the picker, and tells others to ask', async () => {
+    categories = [category('ccat_r', 'Shop rent', { movementType: 'rent_and_bills' })];
+    const managed = ['cash_movements:create', 'cash_movements:create:managed'];
+    const landlordField = () =>
+      document.querySelector('input[placeholder="Landlord or company"]') as HTMLInputElement;
+
+    await render([...managed, 'payees:manage']);
+    await click('Rent and bills');
+    await typeInto(landlordField(), 'Water Board');
+    expect(document.querySelector('[data-testid="combobox-create"]')).not.toBeNull();
+
+    await act(async () => root.unmount());
+    root = createRoot(container);
+    await render(managed);
+    await click('Rent and bills');
+    await typeInto(landlordField(), 'Water Board');
+    expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
+    expect(text()).toContain('To add someone new, ask a manager.');
+  });
+
   describe('the drawer', () => {
     it('shows what the drawer holds and what is left after this payment', async () => {
       cashInDrawer = 1_000_000;

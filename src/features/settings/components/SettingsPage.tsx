@@ -6,12 +6,10 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
-import { useAppSelector } from '@/store/hooks';
-import { selectUserRole } from '@/store/slices/authSlice';
-import { USER_ROLES } from '@/constants/roles';
 import { ROUTES } from '@/constants/routes';
 import { SettingsNavDrillDownList, SettingsNavList, SettingsNavTabs } from './SettingsNav';
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '../settingsSections';
+import { useVisibleSettingsSections } from '../hooks/useVisibleSettingsSections';
 import { ShopProfileSection } from './sections/ShopProfileSection';
 import { RegisterShiftsSection } from './sections/RegisterShiftsSection';
 import { BrandingSection } from './sections/BrandingSection';
@@ -21,6 +19,7 @@ import { DocumentDesignsSection } from './sections/DocumentDesignsSection';
 import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
 import { LabelsSection } from '@/features/labels/components/LabelsSection';
 import { CashCategoriesSection } from './sections/CashCategoriesSection';
+import { PayeesSection } from './sections/PayeesSection';
 import { CashRulesSection } from './sections/CashRulesSection';
 import { AboutSection } from './sections/AboutSection';
 import { BackupSection } from './sections/BackupSection';
@@ -79,6 +78,8 @@ const renderSection = (
       return <CashRulesSection onDirtyChange={onDirtyChange} />;
     case 'cash-categories':
       return <CashCategoriesSection />;
+    case 'payees':
+      return <PayeesSection />;
     case 'branding':
       return <BrandingSection onDirtyChange={onDirtyChange} />;
     case 'bank-details':
@@ -109,8 +110,22 @@ const renderSection = (
   }
 };
 
+/** Settings for whoever may open at least one section; everyone else goes back to the dashboard. */
 export const SettingsPage = () => {
-  const userRole = useAppSelector(selectUserRole);
+  const sections = useVisibleSettingsSections();
+  if (sections.length === 0) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  }
+  return <SettingsContent firstSection={sections[0].id} openable={sections.map((s) => s.id)} />;
+};
+
+const SettingsContent = ({
+  firstSection,
+  openable,
+}: {
+  firstSection: SettingsSectionId;
+  openable: SettingsSectionId[];
+}) => {
   const tier = useLayoutTier();
 
   // The sync badge deep-links here with `state: { section }`.
@@ -118,21 +133,16 @@ export const SettingsPage = () => {
     useLocation().state as { section?: SettingsSectionId | 'updates' } | null
   )?.section;
   const targetSection = requestedSection === 'updates' ? 'about' : requestedSection;
-  const initialSection: SettingsSectionId = SETTINGS_SECTIONS.some((s) => s.id === targetSection)
-    ? (targetSection as SettingsSectionId)
-    : 'shop-profile';
+  const initialSection: SettingsSectionId =
+    targetSection !== undefined && openable.includes(targetSection) ? targetSection : firstSection;
   const [activeSection, setActiveSection] = useState<SettingsSectionId>(initialSection);
   // Mobile only: whether the user has drilled into a section, or is still looking at the list.
-  const [mobileSectionOpen, setMobileSectionOpen] = useState(initialSection !== 'shop-profile');
+  const [mobileSectionOpen, setMobileSectionOpen] = useState(initialSection !== firstSection);
   const [isSectionDirty, setIsSectionDirty] = useState(false);
   // undefined = no pending navigation attempt; otherwise the target the user tried to switch to.
   const [pendingTarget, setPendingTarget] = useState<SettingsSectionId | 'back' | undefined>(
     undefined
   );
-
-  if (userRole !== USER_ROLES.ADMIN) {
-    return <Navigate to={ROUTES.DASHBOARD} replace />;
-  }
 
   const commitNavigate = (target: SettingsSectionId | 'back') => {
     if (target === 'back') {
