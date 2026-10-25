@@ -116,6 +116,7 @@ export const PayeePicker = ({ items, loading, value, onChange, canCreate }: Paye
           ? {
               labelFor: (typed) => `${t('+ Add')} "${typed}" ${t('as a new landlord or company')}`,
               emptyLabel: t('+ Add a new landlord or company'),
+              requiresName: false,
               onCreate: openDraft,
             }
           : undefined

@@ -160,6 +160,7 @@ export const MovementDetailFields = ({
             create={{
               labelFor: (typed) => `${t('Use')} "${typed}"`,
               emptyLabel: t('Type a name to use it'),
+              requiresName: true,
               onCreate: (typed) => typed && onChange({ payeeKey: null, payeeName: typed }),
             }}
           />

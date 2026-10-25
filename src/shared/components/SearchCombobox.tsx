@@ -31,7 +31,12 @@ export interface SearchComboboxCreate {
   labelFor: (typed: string) => string;
   /** Footer text while nothing is typed, e.g. `+ Create new supplier`. */
   emptyLabel: string;
-  /** Called with the trimmed text (empty when nothing was typed). */
+  /**
+   * True when an entry cannot be made without a name (a free-text field): with nothing typed the
+   * footer is only a hint, not a button, so a click never silently does nothing.
+   */
+  requiresName: boolean;
+  /** Called with the trimmed text (empty when nothing was typed and `requiresName` is false). */
   onCreate: (typed: string) => void;
 }
 
@@ -222,7 +227,11 @@ export const SearchCombobox = ({
 
         {(create || noCreateHint) && (
           <Combobox.Footer>
-            {create ? (
+            {create && create.requiresName && !typed ? (
+              <Text size="sm" c="dimmed" data-testid="combobox-create-hint">
+                {create.emptyLabel}
+              </Text>
+            ) : create ? (
               <UnstyledButton
                 // Keep the field focused so the list does not close before the click lands.
                 onMouseDown={(event) => event.preventDefault()}

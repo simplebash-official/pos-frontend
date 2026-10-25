@@ -192,6 +192,7 @@ export const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({ opened, onCl
             create={{
               labelFor: (typed) => `${t('Use')} "${typed}"`,
               emptyLabel: t('Type a name to use it'),
+              requiresName: true,
               onCreate: (typed) => typed && patch({ payeeKey: null, payeeName: typed }),
             }}
           />

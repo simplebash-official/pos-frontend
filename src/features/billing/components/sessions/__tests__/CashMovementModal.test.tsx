@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { CashMovementModal } from '../CashMovementModal';
@@ -262,6 +263,40 @@ describe('CashMovementModal', () => {
     });
     expect(text()).toContain('CSH-000001');
     expect(text()).toContain('Print voucher');
+  });
+
+  it('tells the person a typed name is kept for next time, and only then', async () => {
+    const saved = {
+      movementNumber: 'CSH-000002',
+      movementType: 'petty_expense',
+      amountCents: 50_000,
+      recordedByNameSnapshot: 'T',
+    } as CashMovement;
+    createMovement.mutateAsync.mockResolvedValue(saved);
+    vi.mocked(notifications.show).mockClear();
+
+    await render(CASHIER);
+    await typeInto(amountField(), '500');
+    await click('Tea and refreshments');
+    await submit();
+    expect(notifications.show).toHaveBeenLastCalledWith(
+      expect.objectContaining({ message: 'CSH-000002 was saved.' })
+    );
+
+    vi.mocked(notifications.show).mockClear();
+    await act(async () => root.unmount());
+    root = createRoot(container);
+    await render(CASHIER);
+    await typeInto(amountField(), '500');
+    await click('Tea and refreshments');
+    await typeInto(field('Paid to'), 'Corner shop');
+    await click(/Use "Corner shop"/);
+    await submit();
+    expect(notifications.show).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        message: 'CSH-000002 was saved. "Corner shop" is in your list for next time.',
+      })
+    );
   });
 
   it('says what is missing instead of sending an incomplete form', async () => {

@@ -148,6 +148,7 @@ describe('SearchCombobox', () => {
           create={{
             labelFor: (typed) => `+ Create "${typed}"`,
             emptyLabel: '+ Create new category',
+            requiresName: false,
             onCreate,
           }}
         />
@@ -165,10 +166,41 @@ describe('SearchCombobox', () => {
     expect(onCreate).toHaveBeenCalledWith('Generator diesel');
   });
 
+  it('shows a hint, not a button, when a name is required and none is typed', () => {
+    const onCreate = vi.fn();
+    act(() =>
+      root.render(
+        <Harness
+          create={{
+            labelFor: (typed) => `Use "${typed}"`,
+            emptyLabel: 'Type a name to use it',
+            requiresName: true,
+            onCreate,
+          }}
+        />
+      )
+    );
+    act(() => input().focus());
+    expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
+    expect(document.querySelector('[data-testid="combobox-create-hint"]')?.textContent).toBe(
+      'Type a name to use it'
+    );
+
+    type('Corner shop');
+    const footer = document.querySelector('[data-testid="combobox-create"]') as HTMLElement;
+    expect(footer.textContent).toContain('Use "Corner shop"');
+    act(() => footer.click());
+    expect(onCreate).toHaveBeenCalledWith('Corner shop');
+  });
+
   it('creates on Enter only when nothing matches', () => {
     const onCreate = vi.fn();
     act(() =>
-      root.render(<Harness create={{ labelFor: (x) => x, emptyLabel: 'new', onCreate }} />)
+      root.render(
+        <Harness
+          create={{ labelFor: (x) => x, emptyLabel: 'new', requiresName: false, onCreate }}
+        />
+      )
     );
     type('fuel');
     press('Enter');

@@ -164,6 +164,7 @@ export const CategoryPicker = ({
               ? {
                   labelFor: (typed) => `${t('+ Create')} "${typed}" ${t('as a new category')}`,
                   emptyLabel: t('+ Create a new category'),
+                  requiresName: false,
                   onCreate: openDraft,
                 }
               : undefined

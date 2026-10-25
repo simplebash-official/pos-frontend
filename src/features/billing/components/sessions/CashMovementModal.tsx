@@ -258,9 +258,17 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       const movement = await createMovement.mutateAsync(
         toInput(form, { terminalId, sessionKey }, pinRequired, overDrawer)
       );
+      // The server saves a name typed on a small expense or cash received for next time.
+      const typedName = form.payeeName.trim();
+      const nameSaved =
+        (form.type === 'petty_expense' || form.type === 'add_cash') &&
+        form.payeeKey === null &&
+        typedName !== '';
       notifications.show({
         title: t('Cash movement recorded'),
-        message: `${movement.movementNumber} ${t('was saved.')}`,
+        message: nameSaved
+          ? `${movement.movementNumber} ${t('was saved.')} "${typedName}" ${t('is in your list for next time.')}`
+          : `${movement.movementNumber} ${t('was saved.')}`,
         color: 'teal',
       });
       setCompleted(movement);

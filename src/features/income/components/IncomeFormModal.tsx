@@ -164,6 +164,7 @@ export const IncomeFormModal: React.FC<IncomeFormModalProps> = ({ opened, onClos
             create={{
               labelFor: (typed) => `${t('Use')} "${typed}"`,
               emptyLabel: t('Type a name to use it'),
+              requiresName: true,
               onCreate: (typed) => typed && patch({ payeeKey: null, payeeName: typed }),
             }}
           />
