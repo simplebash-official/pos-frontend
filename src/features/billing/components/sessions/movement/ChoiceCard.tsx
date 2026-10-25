@@ -108,13 +108,15 @@ export const ChoiceCard = ({
         )}
       </span>
       {!allowed && <IconLock size={16} aria-hidden color="var(--text-muted)" />}
-      {/* The tick's space is always reserved, so choosing a card never changes how its text wraps. */}
+      {/* The tick sits in the corner, outside the text's room, so choosing a card never changes how
+          its text wraps and the card does not need a column of its own for it. */}
       <span
         aria-hidden
         style={{
+          position: 'absolute',
+          top: 6,
+          right: 6,
           display: 'flex',
-          width: 18,
-          flexShrink: 0,
           color: 'var(--mantine-primary-color-filled)',
         }}
       >
@@ -125,7 +127,7 @@ export const ChoiceCard = ({
             transition={transition}
             style={{ display: 'flex' }}
           >
-            <IconCheck size={18} />
+            <IconCheck size={16} />
           </motion.span>
         )}
       </span>

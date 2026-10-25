@@ -1355,7 +1355,7 @@ a.sidebar-footer-identity:hover {
   gap: var(--mantine-spacing-sm);
   width: 100%;
   min-height: 44px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   text-align: left;
   color: var(--text-primary);
   background: var(--bg-card);
