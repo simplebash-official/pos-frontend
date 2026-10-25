@@ -3,19 +3,14 @@ import { NumberInput, Select, SimpleGrid, Stack, Text, TextInput } from '@mantin
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { formatMoney } from '@/shared/lib/money';
-import { PRICE_STEPS_CENTS, type PriceStepCents } from '../lib/margin';
-import {
-  effectiveSellingCents,
-  marginAsked,
-  pricingInMode,
-  type LineState,
-  type PricingEntry,
-} from '../lib/receiptForm';
+import { PRICE_STEPS_CENTS, type PriceStepCents } from '../lib/priceSteps';
+import type { LineState } from '../lib/receiptForm';
+import type { CalcReceiptLineReply } from '../types';
 
 export interface SellingPriceFieldsProps {
   line: LineState;
-  /** What the units really cost: the price plus the line's share of any extra charges. */
-  landedTotalCents: number;
+  /** What the server worked out for this line; `undefined` until its first answer. */
+  reply: CalcReceiptLineReply | undefined;
   onChange: (line: LineState) => void;
   isMobile: boolean;
 }
@@ -27,21 +22,38 @@ export interface SellingPriceFieldsProps {
  */
 export const SellingPriceFields = ({
   line,
-  landedTotalCents,
+  reply,
   onChange,
   isMobile,
 }: SellingPriceFieldsProps) => {
   const fieldSize = isMobile ? 'md' : 'sm';
   const { pricing } = line;
-  const worked = effectiveSellingCents(line, landedTotalCents);
-  const asked = marginAsked(line, landedTotalCents);
+  const worked = reply === undefined ? 0 : reply.sellingPriceCents;
   const rounding =
-    asked !== null && worked > asked.exactCents
+    reply !== undefined &&
+    reply.priceRoundedUp &&
+    reply.priceWithoutRoundingCents !== null &&
+    pricing.mode === 'margin' &&
+    pricing.marginTenths !== null
       ? t('{exact} at {percent}%, rounded up to {price}')
-          .replace('{exact}', formatMoney(asked.exactCents))
-          .replace('{percent}', String(asked.askedPercent))
+          .replace('{exact}', formatMoney(reply.priceWithoutRoundingCents))
+          .replace('{percent}', String(pricing.marginTenths / 10))
           .replace('{price}', formatMoney(worked))
       : t('Worked out from your margin.');
+
+  // Switching keeps the price steady, using the figures the server worked out.
+  const switchTo = (mode: string) => {
+    if (reply === undefined || mode === pricing.mode) return;
+    if (mode === 'margin') {
+      const tenths = reply.marginTenthsIfSwitched;
+      onChange({
+        ...line,
+        pricing: { mode: 'margin', marginTenths: tenths, stepCents: tenths === null ? null : 100 },
+      });
+    } else {
+      onChange({ ...line, pricing: { mode: 'price' }, sellingPriceCents: reply.sellingPriceCents });
+    }
+  };
 
   return (
     <Stack gap="xs">
@@ -53,12 +65,10 @@ export const SellingPriceFields = ({
         size={isMobile ? 'md' : 'sm'}
         aria-label={t('How do you want to set the selling price?')}
         value={pricing.mode}
-        onChange={(value) =>
-          onChange(pricingInMode(line, value as PricingEntry['mode'], landedTotalCents))
-        }
+        onChange={switchTo}
         data={[
-          { value: 'price', label: t('I set the price') },
-          { value: 'margin', label: t('I set the margin') },
+          { value: 'price', label: t('I set the price'), disabled: reply === undefined },
+          { value: 'margin', label: t('I set the margin'), disabled: reply === undefined },
         ]}
       />
 

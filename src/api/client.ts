@@ -24,6 +24,12 @@ export interface RequestOptions extends Omit<AxiosRequestConfig, 'params' | 'url
 
 const MUTATING_METHODS = new Set(['post', 'put', 'patch', 'delete']);
 
+/**
+ * Live calculations are POSTs that store nothing and fire on every change: they carry no replay
+ * key (a repeat is harmless) and must not wake the desktop's sync.
+ */
+const isLiveCalc = (url: string | undefined) => url !== undefined && url.startsWith('/calc/');
+
 let autoSyncTimer: ReturnType<typeof setTimeout> | null = null;
 const triggerAutoSync = () => {
   if (!isTauri()) return;
@@ -91,7 +97,12 @@ class ApiClient {
       // the backend returns the original response instead of double-applying
       // the write. Only set when the caller hasn't already supplied one.
       const method = config.method?.toLowerCase();
-      if (method && MUTATING_METHODS.has(method) && !config.headers.has(HEADER_IDEMPOTENCY_KEY)) {
+      if (
+        method &&
+        MUTATING_METHODS.has(method) &&
+        !isLiveCalc(config.url) &&
+        !config.headers.has(HEADER_IDEMPOTENCY_KEY)
+      ) {
         config.headers.set(HEADER_IDEMPOTENCY_KEY, createIdempotencyKey());
       }
       return config;
@@ -105,7 +116,7 @@ class ApiClient {
         // A completed round trip is the strongest possible proof of reachability.
         reportNetworkObservation('reachable', readServerTime(response.headers));
         const method = response.config.method?.toLowerCase();
-        if (method && MUTATING_METHODS.has(method)) {
+        if (method && MUTATING_METHODS.has(method) && !isLiveCalc(response.config.url)) {
           triggerAutoSync();
         }
         return response;

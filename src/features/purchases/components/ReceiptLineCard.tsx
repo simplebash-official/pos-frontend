@@ -16,15 +16,8 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { formatMoney } from '@/shared/lib/money';
 import { priceText } from '@/features/inventory/lib/priceTiers';
 import type { Product } from '@/features/inventory/types';
-import {
-  costInMode,
-  lineGoodsCents,
-  effectiveSellingCents,
-  marginAsked,
-  lineQuantity,
-  type CostEntry,
-  type LineState,
-} from '../lib/receiptForm';
+import { lineQuantity, type CostEntry, type LineState } from '../lib/receiptForm';
+import type { CalcReceiptLineReply } from '../types';
 import { LineMarginCard } from './LineMarginCard';
 import { SellingPriceFields } from './SellingPriceFields';
 
@@ -38,8 +31,10 @@ export interface ReceiptLineCardProps {
   onPickProduct: () => void;
   /** `null` when this is the only line, which cannot be removed. */
   onRemove: (() => void) | null;
-  /** What the units really cost: the price plus this line's share of the extra charges. */
-  landedTotalCents: number;
+  /** What the server worked out for this line; `undefined` until its first answer. */
+  reply: CalcReceiptLineReply | undefined;
+  /** False while a newer answer is on its way. */
+  isCurrent: boolean;
   /** True when extra charges are part of that cost. */
   includesCharges: boolean;
   /** True while an extra charge is half filled in, so it is not yet counted. */
@@ -55,7 +50,8 @@ export const ReceiptLineCard = ({
   onChange,
   onPickProduct,
   onRemove,
-  landedTotalCents,
+  reply,
+  isCurrent,
   includesCharges,
   chargesIncomplete,
   isMobile,
@@ -63,16 +59,17 @@ export const ReceiptLineCard = ({
   const fieldSize = isMobile ? 'md' : 'sm';
   const serialized = product !== null && product.isSerialized;
   const quantity = lineQuantity(line);
-  const goodsCents = lineGoodsCents(line);
-  const canShowEach = costInMode(line, 'unit') !== null;
+  const canShowEach = reply !== undefined && reply.costAsUnitCents !== null;
 
+  // The other way of typing the same cost, as the server worked it out.
   const chooseMode = (mode: CostEntry['mode']) => {
-    const cost = costInMode(line, mode);
-    if (cost !== null) onChange({ ...line, cost });
+    if (reply === undefined || mode === line.cost.mode) return;
+    if (mode === 'lot') {
+      onChange({ ...line, cost: { mode: 'lot', totalCents: reply.costAsLotCents } });
+    } else if (reply.costAsUnitCents !== null) {
+      onChange({ ...line, cost: { mode: 'unit', unitCents: reply.costAsUnitCents } });
+    }
   };
-
-  const sellingCents = effectiveSellingCents(line, landedTotalCents);
-  const asked = marginAsked(line, landedTotalCents);
 
   return (
     <Paper p="md" withBorder>
@@ -179,21 +176,21 @@ export const ReceiptLineCard = ({
               )}
             </SimpleGrid>
 
-            <SellingPriceFields
-              line={line}
-              landedTotalCents={landedTotalCents}
-              onChange={onChange}
-              isMobile={isMobile}
-            />
+            <SellingPriceFields line={line} reply={reply} onChange={onChange} isMobile={isMobile} />
 
             <LineMarginCard
-              quantity={quantity}
-              landedTotalCents={landedTotalCents}
-              sellingPriceCents={sellingCents}
+              reply={reply}
+              isCurrent={isCurrent}
               includesCharges={includesCharges}
               chargesIncomplete={chargesIncomplete}
-              askedPercent={asked === null ? null : asked.askedPercent}
-              priceRoundedUp={asked !== null && sellingCents > asked.exactCents}
+              askedPercent={
+                reply !== undefined &&
+                reply.priceWithoutRoundingCents !== null &&
+                line.pricing.mode === 'margin' &&
+                line.pricing.marginTenths !== null
+                  ? line.pricing.marginTenths / 10
+                  : null
+              }
             />
 
             {serialized && quantity > 0 ? (
@@ -227,7 +224,9 @@ export const ReceiptLineCard = ({
             ) : null}
 
             <Text size="xs" c="dimmed" ta="right">
-              {`${t('This product comes to')} ${formatMoney(goodsCents)}`}
+              {reply === undefined
+                ? ''
+                : `${t('This product comes to')} ${formatMoney(reply.goodsCents)}`}
             </Text>
           </>
         ) : (

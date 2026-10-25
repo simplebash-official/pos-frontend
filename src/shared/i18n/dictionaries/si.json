@@ -2905,8 +2905,10 @@
   "on WhatsApp": "WhatsApp එකට",
   "by text message": "SMS එකකින්",
   "By value": "වටිනාකම අනුව",
+  "Could not work out the figures. Check the connection and try again.": "ගණන් හදාගන්න බැරි වුණා. සම්බන්ධතාවය බලලා ආයෙත් උත්සාහ කරන්න",
   "Don't round": "වටකරන්න එපා",
   "Send it on WhatsApp instead": "ඒ වෙනුවට WhatsApp එකට එවන්න",
   "Send it by text message instead": "ඒ වෙනුවට SMS එකකින් එවන්න",
+  "Working out the figures...": "ගණන් හදනවා...",
   "Zoom out": "පොඩි කරලා බලන්න (Zoom out)"
 }

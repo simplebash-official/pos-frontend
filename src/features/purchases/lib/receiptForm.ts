@@ -1,19 +1,12 @@
-// The Receive Stock form's state and its rules, kept free of React so they can be tested on
-// their own. The server enforces every rule again; these exist to say what is wrong in plain
-// words before anything is sent.
+// The Receive Stock form's state, kept free of React. It holds only what the person typed. Every
+// figure, rounding and rule comes from the server (`/calc/receipt`); this file just shapes the
+// form into that request and, once the server agrees, into the request that records the receipt.
 
-import { t } from '@/shared/i18n/t';
-import { isDay } from '@/features/expenses/lib/expenseForm';
-import { CHARGE_DESCRIPTION_MAX } from './chargeKinds';
-import { chargeTotals, spreadCharges, type ChargeFigure } from './landedCost';
-import {
-  lineMargin,
-  suggestedPriceCents,
-  unroundedPriceCents,
-  type PriceStepCents,
-} from './margin';
+import type { PriceStepCents } from './priceSteps';
 import type {
   BilledBy,
+  CalcReceiptReply,
+  CalcReceiptRequest,
   ChargeAllocation,
   ChargeKind,
   ChargesPaymentInput,
@@ -180,160 +173,42 @@ const isCash = (source: PaymentSource | null) => source === 'drawer' || source =
 export const lineQuantity = (line: LineState): number =>
   line.quantity === '' ? 0 : Number(line.quantity);
 
-/** What the whole line costs, before extra charges: the lot price, or quantity x price each. */
-export const lineGoodsCents = (line: LineState): number =>
-  line.cost.mode === 'lot' ? line.cost.totalCents : lineQuantity(line) * line.cost.unitCents;
-
-/**
- * The same line typed the other way. Price each to lot is always exact. Lot to price each is only
- * possible when the lot divides evenly; otherwise it is `null` and the person stays in lot mode,
- * because rounding the price each would make the bill disagree with the supplier's.
- */
-export const costInMode = (line: LineState, mode: CostEntry['mode']): CostEntry | null => {
-  if (line.cost.mode === mode) return line.cost;
-  if (mode === 'lot') return { mode: 'lot', totalCents: lineGoodsCents(line) };
-  const quantity = lineQuantity(line);
-  const total = lineGoodsCents(line);
-  if (total === 0) return { mode: 'unit', unitCents: 0 };
-  if (quantity < 1 || total % quantity !== 0) return null;
-  return { mode: 'unit', unitCents: total / quantity };
-};
-
-/** The extra charges that are filled in far enough to count towards cost. */
-const countedCharges = (form: ReceiptFormState): ChargeFigure[] =>
-  form.charges.flatMap((charge) => {
-    if (charge.kind === null || charge.amountCents <= 0 || charge.billedBy === null) return [];
-    if (form.lines.length > 1 && charge.allocation === null) return [];
-    return [
-      {
-        kind: charge.kind,
-        amountCents: charge.amountCents,
-        billedBy: charge.billedBy,
-        allocation: form.lines.length > 1 ? charge.allocation : null,
-      },
-    ];
-  });
-
-/** True while a charge is half filled in, so its cost cannot be counted yet. */
-export const hasIncompleteCharge = (form: ReceiptFormState): boolean =>
-  countedCharges(form).length !== form.charges.length;
-
-/** What each line really costs: its price plus its share of the charges that are filled in. */
-export const lineLandedCents = (form: ReceiptFormState): number[] => {
-  const lines = form.lines.map((line) => ({
-    quantity: lineQuantity(line),
-    goodsCents: lineGoodsCents(line),
-  }));
-  const shares = spreadCharges(lines, countedCharges(form));
-  return lines.map((line, index) => line.goodsCents + shares[index]);
-};
-
-/**
- * The selling price each of a line: the typed price, or in margin mode the price that earns the
- * margin asked for on `landedTotalCents`. `0` while the margin or the rounding is still missing, or
- * the margin cannot be earned (100% or more). Never stored: it follows quantity, cost and charges.
- */
-export const effectiveSellingCents = (line: LineState, landedTotalCents: number): number => {
-  if (line.pricing.mode === 'price') return line.sellingPriceCents;
-  const { marginTenths, stepCents } = line.pricing;
-  if (marginTenths === null || stepCents === null) return 0;
-  return suggestedPriceCents(landedTotalCents, lineQuantity(line), marginTenths, stepCents) ?? 0;
-};
-
-/**
- * In margin mode, the price the margin alone asks for and the margin asked, so the screen can say
- * when rounding up moved the price. `null` in price mode or while the margin is not filled in.
- */
-export const marginAsked = (
-  line: LineState,
-  landedTotalCents: number
-): { exactCents: number; askedPercent: number } | null => {
-  if (line.pricing.mode === 'price' || line.pricing.marginTenths === null) return null;
-  const exactCents = unroundedPriceCents(
-    landedTotalCents,
-    lineQuantity(line),
-    line.pricing.marginTenths
-  );
-  return exactCents === null ? null : { exactCents, askedPercent: line.pricing.marginTenths / 10 };
-};
-
-/** Each line's selling price each, from its landed cost. */
-export const lineSellingCents = (form: ReceiptFormState): number[] => {
-  const landed = lineLandedCents(form);
-  return form.lines.map((line, index) => effectiveSellingCents(line, landed[index]));
-};
-
-/**
- * The same line with the other way of setting the price in charge, without the price jumping.
- * Price to margin starts from the margin the typed price earns now (one decimal) rounded at Rs 1;
- * margin to price keeps the price that was worked out as the typed price.
- */
-export const pricingInMode = (
-  line: LineState,
-  mode: PricingEntry['mode'],
-  landedTotalCents: number
-): LineState => {
-  if (line.pricing.mode === mode) return line;
-  if (mode === 'margin') {
-    const earned = lineMargin(landedTotalCents, lineQuantity(line), line.sellingPriceCents);
-    const tenths =
-      earned === null || earned.marginPercent === null
-        ? null
-        : Math.round(earned.marginPercent * 10);
-    const usable = tenths !== null && tenths >= 0 && tenths < 1000;
-    return {
-      ...line,
-      pricing: {
-        mode: 'margin',
-        marginTenths: usable ? tenths : null,
-        stepCents: usable ? 100 : null,
-      },
-    };
-  }
-  return {
-    ...line,
-    pricing: { mode: 'price' },
-    sellingPriceCents: effectiveSellingCents(line, landedTotalCents),
-  };
-};
-
-export interface ReceiptSummary {
-  goodsCents: number;
-  /** On the supplier's bill, discounts taken off. */
-  extraBilledCents: number;
-  /** What the supplier's bill comes to. */
-  totalCents: number;
-  /** Paid to someone else (courier, agent); not owed to the supplier. */
-  paidToOthersCents: number;
-  payingNowCents: number;
-  leftOwedCents: number;
-  /** All the money leaving today: what is paid to the supplier plus what is paid to others. */
-  cashOutTodayCents: number;
-}
-
-export const receiptSummary = (form: ReceiptFormState): ReceiptSummary => {
-  const goodsCents = form.lines.reduce((sum, line) => sum + lineGoodsCents(line), 0);
-  const totals = chargeTotals(countedCharges(form));
-  const totalCents = goodsCents + totals.supplierBilledCents;
-  let payingNowCents = 0;
-  if (form.payment.mode === 'full') payingNowCents = totalCents;
-  if (form.payment.mode === 'part') payingNowCents = form.payment.partCents;
-  return {
-    goodsCents,
-    extraBilledCents: totals.supplierBilledCents,
-    totalCents,
-    paidToOthersCents: totals.paidToOthersCents,
-    payingNowCents,
-    leftOwedCents: totalCents - payingNowCents,
-    cashOutTodayCents: payingNowCents + totals.paidToOthersCents,
-  };
-};
-
-/** Whether any cash leaves the drawer, which is what a manager's approval is for. */
-export const involvesCash = (form: ReceiptFormState): boolean =>
-  (form.payment.mode !== 'credit' && isCash(form.payment.source)) ||
-  (form.charges.some((charge) => charge.billedBy === 'third_party') &&
-    isCash(form.chargesPayment.source));
+/** The form as the server's calculator wants it: what was typed, nothing worked out. */
+export const toCalcReceiptRequest = (
+  form: ReceiptFormState,
+  serializedProductKeys: ReadonlySet<string>
+): CalcReceiptRequest => ({
+  supplierKey: form.supplierKey,
+  referenceNo: form.referenceNo,
+  date: form.date,
+  lines: form.lines.map((line) => ({
+    productKey: line.productKey,
+    serialized: line.productKey !== null && serializedProductKeys.has(line.productKey),
+    quantity: line.quantity === '' ? null : line.quantity,
+    costMode: line.cost.mode,
+    costCents: line.cost.mode === 'lot' ? line.cost.totalCents : line.cost.unitCents,
+    pricingMode: line.pricing.mode,
+    sellingPriceCents: line.sellingPriceCents,
+    marginTenths: line.pricing.mode === 'margin' ? line.pricing.marginTenths : null,
+    stepCents: line.pricing.mode === 'margin' ? line.pricing.stepCents : null,
+    serialNumbers: line.serialNumbers,
+  })),
+  charges: form.charges.map((charge) => ({
+    kind: charge.kind,
+    amountCents: charge.amountCents,
+    billedBy: charge.billedBy,
+    allocation: charge.allocation,
+    description: charge.description,
+  })),
+  chargesPayment: { source: form.chargesPayment.source, paidOn: form.chargesPayment.paidOn },
+  payment: {
+    mode: form.payment.mode,
+    source: form.payment.source,
+    partCents: form.payment.partCents,
+    paidOn: form.payment.paidOn,
+    categoryKey: form.payment.categoryKey,
+  },
+});
 
 /** Keeps a line's serial boxes the same length as its quantity (serialized products only). */
 export const withSerialSlots = (line: LineState, serialized: boolean): LineState => {
@@ -344,122 +219,20 @@ export const withSerialSlots = (line: LineState, serialized: boolean): LineState
   return { ...line, serialNumbers: next };
 };
 
-const validateCharges = (form: ReceiptFormState): string | null => {
-  for (const [index, charge] of form.charges.entries()) {
-    const label = `${t('Extra charge')} ${index + 1}`;
-    if (charge.kind === null) return `${label}: ${t('please pick what it is for.')}`;
-    if (charge.amountCents <= 0) return `${label}: ${t('please enter the amount.')}`;
-    if (charge.billedBy === null) return `${label}: ${t('please say who asks for this money.')}`;
-    if (charge.kind === 'discount' && charge.billedBy !== 'supplier') {
-      return `${label}: ${t("a discount can only be on the supplier's bill.")}`;
-    }
-    if (charge.description.trim().length > CHARGE_DESCRIPTION_MAX) {
-      return `${label}: ${t('the description can have up to 80 letters.')}`;
-    }
-    if (form.lines.length > 1 && charge.allocation === null) {
-      return `${label}: ${t('please choose how to spread it over the products.')}`;
-    }
-  }
-  if (form.charges.some((charge) => charge.billedBy === 'third_party')) {
-    const { chargesPayment } = form;
-    if (chargesPayment.source === null) {
-      return t('Please pick where the money for the extra charges comes from.');
-    }
-    if (!isCash(chargesPayment.source) && !isDay(chargesPayment.paidOn)) {
-      return t('Please pick the day the extra charges left the account.');
-    }
-  }
-  const landed = lineLandedCents(form);
-  if (landed.some((cents) => cents <= 0)) {
-    return t('The discounts are more than a product costs.');
-  }
-  if (receiptSummary(form).totalCents <= 0) {
-    return t('The discounts are more than the bill comes to.');
-  }
-  return null;
-};
-
-/** The first thing that stops this receipt from being saved, in plain words, or `null`. */
-export const validateReceipt = (form: ReceiptFormState, ctx: ReceiptFormContext): string | null => {
-  if (!form.supplierKey) return t('Please pick the supplier.');
-  if (!isDay(form.date)) return t('Please pick the day the stock was received.');
-  if (form.referenceNo.trim().length > 60) {
-    return t('The invoice number can have up to 60 letters.');
-  }
-  if (form.lines.length === 0) return t('Add at least one product.');
-
-  const landedByLine = lineLandedCents(form);
-  const seen = new Set<string>();
-  for (const [index, line] of form.lines.entries()) {
-    const label = `${t('Product')} ${index + 1}`;
-    if (!line.productKey) return `${label}: ${t('please pick the product.')}`;
-    if (seen.has(line.productKey)) {
-      return `${label}: ${t('this product is already on the list. Raise its quantity instead.')}`;
-    }
-    seen.add(line.productKey);
-    if (lineQuantity(line) < 1) return `${label}: ${t('please enter how many arrived.')}`;
-    if (lineGoodsCents(line) <= 0) {
-      return line.cost.mode === 'lot'
-        ? `${label}: ${t('please enter what the whole lot cost.')}`
-        : `${label}: ${t('please enter what each unit cost.')}`;
-    }
-    if (line.pricing.mode === 'margin') {
-      if (line.pricing.marginTenths === null) {
-        return `${label}: ${t('please enter the margin you want.')}`;
-      }
-      if (line.pricing.stepCents === null) {
-        return `${label}: ${t('please pick how to round the price.')}`;
-      }
-      if (effectiveSellingCents(line, landedByLine[index]) <= 0) {
-        return `${label}: ${t('that margin cannot be earned. Use less than 100%.')}`;
-      }
-    } else if (line.sellingPriceCents <= 0) {
-      return `${label}: ${t('please enter the selling price.')}`;
-    }
-    if (ctx.serializedProductKeys.has(line.productKey)) {
-      if (
-        line.serialNumbers.length !== lineQuantity(line) ||
-        line.serialNumbers.some((s) => !s.trim())
-      ) {
-        return `${label}: ${t('please enter a serial number for every unit.')}`;
-      }
-    }
-  }
-  const serials = form.lines.flatMap((line) => line.serialNumbers.map((s) => s.trim()));
-  if (new Set(serials).size !== serials.length) {
-    return t('The same serial number is written twice. Each unit needs its own.');
-  }
-
-  const chargeProblem = validateCharges(form);
-  if (chargeProblem !== null) return chargeProblem;
-
-  const { payment } = form;
-  if (payment.mode === 'credit') return null;
-  if (!payment.source) return t('Please pick where the money comes from.');
-  if (!payment.categoryKey) return t('Please pick what this payment is filed under.');
-  const total = receiptSummary(form).totalCents;
-  if (payment.mode === 'part') {
-    if (payment.partCents <= 0) return t('Please enter how much you are paying now.');
-    if (payment.partCents >= total) {
-      return t('That is the whole bill. Choose "Paid in full" instead.');
-    }
-  }
-  if (!isCash(payment.source) && !isDay(payment.paidOn)) {
-    return t('Please pick the day the money left the account.');
-  }
-  return null;
-};
-
 const trimmed = (value: string) => value.trim() || undefined;
 
-const paymentInput = (form: ReceiptFormState, ctx: ReceiptFormContext): ReceiptPaymentInput => {
+const paymentInput = (
+  form: ReceiptFormState,
+  ctx: ReceiptFormContext,
+  payingNowCents: number
+): ReceiptPaymentInput => {
   const { payment } = form;
   if (!payment.source || !payment.categoryKey) {
-    throw new Error('The payment is not complete; validate the form first');
+    throw new Error('The payment is not complete; the server said Save was allowed');
   }
   const base = {
     source: payment.source,
-    amountCents: receiptSummary(form).payingNowCents,
+    amountCents: payingNowCents,
     categoryKey: payment.categoryKey,
   };
   if (isCash(payment.source)) {
@@ -478,7 +251,8 @@ const chargesPaymentInput = (
 ): ChargesPaymentInput | undefined => {
   if (!form.charges.some((charge) => charge.billedBy === 'third_party')) return undefined;
   const { source, paidOn } = form.chargesPayment;
-  if (source === null) throw new Error('The extra charges are not paid; validate the form first');
+  if (source === null)
+    throw new Error('The extra charges are not paid; the server said Save was allowed');
   return isCash(source)
     ? { source, terminalId: ctx.terminalId, sessionKey: ctx.sessionKey ?? undefined }
     : { source, paidOn };
@@ -486,7 +260,7 @@ const chargesPaymentInput = (
 
 const chargeInput = (charge: ChargeState, lineCount: number): ReceiptChargeInput => {
   if (charge.kind === null || charge.billedBy === null) {
-    throw new Error('A charge is not complete; validate the form first');
+    throw new Error('A charge is not complete; the server said Save was allowed');
   }
   return {
     kind: charge.kind,
@@ -499,27 +273,35 @@ const chargeInput = (charge: ChargeState, lineCount: number): ReceiptChargeInput
   };
 };
 
-const approvalInput = (form: ReceiptFormState): ReceiptApprovalInput | undefined => {
+const approvalInput = (
+  form: ReceiptFormState,
+  involvesCash: boolean
+): ReceiptApprovalInput | undefined => {
   const pin = trimmed(form.approval.managerPin);
-  if (pin === undefined || !involvesCash(form)) return undefined;
+  if (pin === undefined || !involvesCash) return undefined;
   return { managerPin: pin, overrideReason: trimmed(form.approval.overrideReason) };
 };
 
-/** The request body, with only the fields this receipt uses. Call only after `validateReceipt` passes. */
+/**
+ * The request that records the receipt, with only the fields this receipt uses. Call only when the
+ * server's answer for this exact form has no blockers; its figures are what is sent.
+ */
 export const toReceiptInput = (
   form: ReceiptFormState,
-  ctx: ReceiptFormContext
+  ctx: ReceiptFormContext,
+  calc: CalcReceiptReply
 ): CreateReceiptInput => {
-  if (!form.supplierKey) throw new Error('A receipt needs a supplier; validate the form first');
-  const sellingByLine = lineSellingCents(form);
+  if (!form.supplierKey)
+    throw new Error('A receipt needs a supplier; the server said Save was allowed');
   const lines: ReceiptLineInput[] = form.lines.map((line, index) => {
-    if (!line.productKey) throw new Error('A line needs a product; validate the form first');
+    if (!line.productKey)
+      throw new Error('A line needs a product; the server said Save was allowed');
     const serial = ctx.serializedProductKeys.has(line.productKey);
     return {
       productKey: line.productKey,
       quantity: lineQuantity(line),
-      lineTotalCents: lineGoodsCents(line),
-      sellingPriceCents: sellingByLine[index],
+      lineTotalCents: calc.lines[index].goodsCents,
+      sellingPriceCents: calc.lines[index].sellingPriceCents,
       serialNumbers: serial ? line.serialNumbers.map((s) => s.trim()) : undefined,
     };
   });
@@ -529,10 +311,13 @@ export const toReceiptInput = (
     date: new Date(`${form.date}T00:00:00`).toISOString(),
     notes: trimmed(form.notes),
     lines,
-    payment: form.payment.mode === 'credit' ? undefined : paymentInput(form, ctx),
+    payment:
+      form.payment.mode === 'credit'
+        ? undefined
+        : paymentInput(form, ctx, calc.summary.payingNowCents),
     charges: form.charges.map((charge) => chargeInput(charge, form.lines.length)),
     chargesPayment: chargesPaymentInput(form, ctx),
-    approval: approvalInput(form),
+    approval: approvalInput(form, calc.involvesCash),
     confirmDuplicate: form.confirmDuplicate,
   };
 };

@@ -1,6 +1,8 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import type {
+  CalcReceiptReply,
+  CalcReceiptRequest,
   CreateReceiptInput,
   CreateSupplierCreditInput,
   EnrichedStockPurchase,
@@ -120,5 +122,16 @@ export const voidSupplierCredit = async (key: string): Promise<SupplierCredit> =
     `/supplier-credits/${key}/void`,
     {}
   );
+  return response.data;
+};
+
+/** Every figure for the Receive Stock form as typed so far. Stores nothing. */
+export const calcReceipt = async (
+  request: CalcReceiptRequest,
+  signal: AbortSignal
+): Promise<CalcReceiptReply> => {
+  const response = await apiClient.post<ApiResponse<CalcReceiptReply>>('/calc/receipt', request, {
+    signal,
+  });
   return response.data;
 };

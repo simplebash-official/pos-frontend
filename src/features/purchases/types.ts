@@ -231,3 +231,129 @@ export interface CreateSupplierCreditInput {
   reason: CreditReason;
   note?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Live calculation of the Receive Stock form (`POST /calc/receipt`)
+// ---------------------------------------------------------------------------
+
+/** One product line as typed. `null` is a box still empty; 0 is an amount not typed yet. */
+export interface CalcReceiptLineRequest {
+  productKey: string | null;
+  serialized: boolean;
+  quantity: number | null;
+  costMode: 'unit' | 'lot';
+  costCents: number;
+  pricingMode: 'price' | 'margin';
+  sellingPriceCents: number;
+  marginTenths: number | null;
+  stepCents: number | null;
+  serialNumbers: string[];
+}
+
+export interface CalcReceiptChargeRequest {
+  kind: ChargeKind | null;
+  amountCents: number;
+  billedBy: BilledBy | null;
+  allocation: ChargeAllocation | null;
+  description: string;
+}
+
+export interface CalcReceiptRequest {
+  supplierKey: string | null;
+  referenceNo: string;
+  date: string;
+  lines: CalcReceiptLineRequest[];
+  charges: CalcReceiptChargeRequest[];
+  chargesPayment: { source: PaymentSource | null; paidOn: string };
+  payment: {
+    mode: 'credit' | 'full' | 'part';
+    source: PaymentSource | null;
+    partCents: number;
+    paidOn: string;
+    categoryKey: string | null;
+  };
+}
+
+export interface CalcMargin {
+  profitEachCents: number;
+  lotProfitCents: number;
+  /** Tenths of a percent: 167 is 16.7%. */
+  marginTenths: number;
+  belowCost: boolean;
+}
+
+export interface CalcReceiptLineReply {
+  goodsCents: number;
+  /** Goods plus this line's share of the extra charges that are filled in. */
+  landedCents: number;
+  unitCostCents: number;
+  /** The cost as a price each; `null` when the lot does not divide evenly. */
+  costAsUnitCents: number | null;
+  costAsLotCents: number;
+  /** The price that will be saved; 0 while it cannot be worked out yet. */
+  sellingPriceCents: number;
+  priceWithoutRoundingCents: number | null;
+  priceRoundedUp: boolean;
+  margin: CalcMargin | null;
+  /** The margin to start from when switching price to margin; `null` when it does not fit. */
+  marginTenthsIfSwitched: number | null;
+}
+
+export interface CalcReceiptSummary {
+  goodsCents: number;
+  extraBilledCents: number;
+  totalCents: number;
+  paidToOthersCents: number;
+  payingNowCents: number;
+  leftOwedCents: number;
+  cashOutTodayCents: number;
+}
+
+export type BlockerCode =
+  | 'supplier_missing'
+  | 'date_invalid'
+  | 'reference_too_long'
+  | 'no_lines'
+  | 'product_missing'
+  | 'product_duplicate'
+  | 'quantity_missing'
+  | 'cost_lot_missing'
+  | 'cost_unit_missing'
+  | 'margin_missing'
+  | 'step_missing'
+  | 'margin_unreachable'
+  | 'price_missing'
+  | 'serials_missing'
+  | 'serials_duplicate'
+  | 'charge_kind_missing'
+  | 'charge_amount_missing'
+  | 'charge_billed_by_missing'
+  | 'charge_discount_not_on_supplier_bill'
+  | 'charge_description_too_long'
+  | 'charge_allocation_missing'
+  | 'charges_source_missing'
+  | 'charges_day_invalid'
+  | 'discounts_exceed_line'
+  | 'discounts_exceed_bill'
+  | 'payment_source_missing'
+  | 'payment_category_missing'
+  | 'part_amount_missing'
+  | 'part_is_whole_bill'
+  | 'payment_day_invalid';
+
+/** One thing that stops Save. `line` / `charge` are zero-based positions. */
+export interface CalcBlocker {
+  code: BlockerCode;
+  line: number | null;
+  charge: number | null;
+}
+
+export interface CalcReceiptReply {
+  lines: CalcReceiptLineReply[];
+  summary: CalcReceiptSummary;
+  /** True while an extra charge is half filled in, so it is not counted yet. */
+  chargesIncomplete: boolean;
+  /** True when cash leaves the drawer, which is what a manager's approval is for. */
+  involvesCash: boolean;
+  blockers: CalcBlocker[];
+}

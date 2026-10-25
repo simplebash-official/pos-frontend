@@ -25,17 +25,16 @@ import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useCashCategories } from '@/features/billing/hooks/useCashLookups';
 import type { CashCategory } from '@/features/billing/types';
 import { useCurrentSession } from '@/features/billing/hooks/useRegisterSession';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcReceipt } from '../api/purchasesApi';
 import { useCreateReceipt } from '../hooks/usePurchases';
+import { blockerMessage } from '../lib/blockerText';
 import {
   emptyCharge,
   emptyForm,
   emptyLine,
-  hasIncompleteCharge,
-  involvesCash,
-  lineLandedCents,
-  receiptSummary,
+  toCalcReceiptRequest,
   toReceiptInput,
-  validateReceipt,
   withSerialSlots,
   type ApprovalState,
   type ChargesPaymentState,
@@ -137,9 +136,9 @@ export const ReceiveStockModal = ({
     sessionKey: session === null ? null : session.key,
   };
 
-  const summary = receiptSummary(form);
-  const landedByLine = lineLandedCents(form);
-  const chargesIncomplete = hasIncompleteCharge(form);
+  // Every figure and rule comes from the server; the form only holds what was typed.
+  const calc = useCalc('receipt', toCalcReceiptRequest(form, serializedProductKeys), calcReceipt);
+  const answer = calc.data;
 
   const changeLine = (line: LineState) => {
     const product = line.productKey === null ? undefined : productByKey.get(line.productKey);
@@ -172,12 +171,16 @@ export const ReceiveStockModal = ({
   };
 
   const submit = (confirmDuplicate: boolean) => {
+    // Save waits for the answer to this exact form.
+    if (!calc.isCurrent || answer === undefined) return;
     const toSend: ReceiptFormState = { ...form, confirmDuplicate };
-    const problem = validateReceipt(toSend, context);
-    setClientProblem(problem);
     setServerProblem(null);
-    if (problem !== null) return;
-    createReceipt(toReceiptInput(toSend, context), {
+    if (answer.blockers.length > 0) {
+      setClientProblem(blockerMessage(answer.blockers[0]));
+      return;
+    }
+    setClientProblem(null);
+    createReceipt(toReceiptInput(toSend, context, answer), {
       onSuccess: (receipt) => {
         notifications.show({
           title: t('Stock received'),
@@ -326,9 +329,12 @@ export const ReceiveStockModal = ({
                           }))
                       : null
                   }
-                  landedTotalCents={landedByLine[index]}
-                  includesCharges={form.charges.length > 0 && !chargesIncomplete}
-                  chargesIncomplete={chargesIncomplete}
+                  reply={answer === undefined ? undefined : answer.lines[index]}
+                  isCurrent={calc.isCurrent}
+                  includesCharges={
+                    answer !== undefined && form.charges.length > 0 && !answer.chargesIncomplete
+                  }
+                  chargesIncomplete={answer !== undefined && answer.chargesIncomplete}
                   isMobile={isMobile}
                 />
               ))}
@@ -382,7 +388,7 @@ export const ReceiveStockModal = ({
               isMobile={isMobile}
             />
 
-            {approvalRequired && involvesCash(form) ? (
+            {approvalRequired && answer !== undefined && answer.involvesCash ? (
               <ApprovalFields
                 approval={form.approval}
                 onChange={changeApproval}
@@ -390,7 +396,15 @@ export const ReceiveStockModal = ({
               />
             ) : null}
 
-            <ReceiptSummaryPanel summary={summary} />
+            <ReceiptSummaryPanel
+              summary={answer === undefined ? undefined : answer.summary}
+              isCurrent={calc.isCurrent}
+            />
+            {calc.error !== null ? (
+              <Alert color="red" role="alert">
+                {t('Could not work out the figures. Check the connection and try again.')}
+              </Alert>
+            ) : null}
 
             {clientProblem !== null ? (
               <Alert color="red" role="alert">
@@ -433,6 +447,7 @@ export const ReceiveStockModal = ({
                 type="submit"
                 color="blue"
                 loading={isPending}
+                disabled={!calc.isCurrent}
                 data-log-id="purchases.receive-stock"
               >
                 {form.payment.mode === 'credit' ? t('Receive Stock') : t('Receive and pay')}

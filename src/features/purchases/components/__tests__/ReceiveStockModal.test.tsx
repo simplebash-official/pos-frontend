@@ -8,10 +8,18 @@ import { createRoot, type Root } from 'react-dom/client';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import { ReceiveStockModal } from '../ReceiveStockModal';
+import type { CalcReceiptLineReply, CalcReceiptReply, CalcReceiptRequest } from '../../types';
 
 installDrawerTestEnv();
 
 const createReceipt = vi.fn();
+// The server's calculator. Every figure on screen is one of its answers, so the tests script the
+// answers; nothing is worked out in the tests either.
+const calc = vi.fn();
+
+vi.mock('../../api/purchasesApi', () => ({
+  calcReceipt: (request: CalcReceiptRequest, signal: AbortSignal) => calc(request, signal),
+}));
 
 const PRODUCTS = [
   { key: 'prod_case', name: 'Phone Case', isSerialized: false, priceTiers: [] },
@@ -66,6 +74,57 @@ vi.mock('@/features/suppliers/components/SupplierPickerModal', () => ({
   SupplierPickerModal: () => null,
 }));
 
+/** `act`, then a tick for the calculator's answer to arrive and be drawn. */
+const actAndSettle = async (fn: () => Promise<void> | void) => {
+  await act(async () => {
+    await fn();
+  });
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+};
+
+const lineReply = (patch: Partial<CalcReceiptLineReply>): CalcReceiptLineReply => ({
+  goodsCents: 500_000,
+  landedCents: 500_000,
+  unitCostCents: 50_000,
+  costAsUnitCents: 50_000,
+  costAsLotCents: 500_000,
+  sellingPriceCents: 90_000,
+  priceWithoutRoundingCents: null,
+  priceRoundedUp: false,
+  margin: null,
+  marginTenthsIfSwitched: null,
+  ...patch,
+});
+
+const answer = (
+  lines: CalcReceiptLineReply[],
+  patch: Partial<CalcReceiptReply> = {},
+  payingNowCents = 0
+): CalcReceiptReply => ({
+  lines,
+  summary: {
+    goodsCents: 500_000,
+    extraBilledCents: 0,
+    totalCents: 500_000,
+    paidToOthersCents: 0,
+    payingNowCents,
+    leftOwedCents: 500_000 - payingNowCents,
+    cashOutTodayCents: payingNowCents,
+  },
+  chargesIncomplete: false,
+  involvesCash: false,
+  blockers: [],
+  ...patch,
+});
+
+/** The calculator answers every request with this, once. */
+const answerWith = (reply: (request: CalcReceiptRequest) => CalcReceiptReply) =>
+  calc.mockImplementation((request: CalcReceiptRequest) => Promise.resolve(reply(request)));
+
+const lastRequest = (): CalcReceiptRequest => calc.mock.calls[calc.mock.calls.length - 1][0];
+
 describe('ReceiveStockModal', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -75,6 +134,10 @@ describe('ReceiveStockModal', () => {
     Element.prototype.scrollIntoView ??= () => undefined;
     createReceipt.mockReset();
     onClose.mockReset();
+    calc.mockReset();
+    calc.mockImplementation((request: CalcReceiptRequest) =>
+      Promise.resolve(answer(request.lines.map(() => lineReply({}))))
+    );
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -86,7 +149,7 @@ describe('ReceiveStockModal', () => {
   });
 
   const open = async () => {
-    await act(async () => {
+    await actAndSettle(async () => {
       root.render(
         <TestHarness role="admin">
           <ReceiveStockModal opened onClose={onClose} initialSupplierKey="sup_1" />
@@ -101,42 +164,42 @@ describe('ReceiveStockModal', () => {
   const click = async (label: string) => {
     const target = button(label);
     if (!target) throw new Error(`no button named ${label}`);
-    await act(async () => target.click());
+    await actAndSettle(async () => target.click());
   };
   const clickLabelled = async (ariaLabel: string) => {
     const target = document.body.querySelector<HTMLButtonElement>(
       `button[aria-label="${ariaLabel}"]`
     );
     if (!target) throw new Error(`no button labelled ${ariaLabel}`);
-    await act(async () => target.click());
+    await actAndSettle(async () => target.click());
   };
   const radio = async (label: string) => {
     const target = Array.from(document.body.querySelectorAll<HTMLElement>('[role="radio"]')).find(
       (el) => (el.textContent ?? '').startsWith(label)
     );
     if (!target) throw new Error(`no choice named ${label}`);
-    await act(async () => target.click());
+    await actAndSettle(async () => target.click());
   };
   const segment = async (label: string) => {
     const target = Array.from(document.body.querySelectorAll<HTMLLabelElement>('label')).find(
       (el) => (el.textContent ?? '').trim() === label
     );
     if (!target) throw new Error(`no segment named ${label}`);
-    await act(async () => target.click());
+    await actAndSettle(async () => target.click());
   };
   /** Opens a Mantine select by its label and picks the option with this text. */
   const choose = async (label: string, option: string) => {
     const input = field(label);
     if (!input) throw new Error(`no field named ${label}`);
-    await act(async () => input.click());
+    await actAndSettle(async () => input.click());
     const target = Array.from(document.body.querySelectorAll<HTMLElement>('[role="option"]')).find(
       (el) => (el.textContent ?? '').trim() === option
     );
     if (!target) throw new Error(`no option named ${option}`);
-    await act(async () => target.click());
+    await actAndSettle(async () => target.click());
   };
   const typeInto = async (el: HTMLInputElement, value: string) => {
-    await act(async () => {
+    await actAndSettle(async () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
       setter.call(el, value);
       el.dispatchEvent(new Event('input', { bubbles: true }));
@@ -148,7 +211,7 @@ describe('ReceiveStockModal', () => {
       ?.closest('div')
       ?.querySelector('input') as HTMLInputElement;
   const submit = async () => {
-    await act(async () => {
+    await actAndSettle(async () => {
       document.body
         .querySelector('form')!
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
@@ -174,10 +237,27 @@ describe('ReceiveStockModal', () => {
     expect(button('Receive Stock')).toBeDefined();
   });
 
-  it('records a bill bought on credit with every line and no payment', async () => {
+  it('asks the server for the figures with what was typed, and waits for the answer to save', async () => {
+    calc.mockImplementation(() => new Promise(() => undefined));
+    await open();
+    expect(text()).toContain('Working out the figures...');
+    expect(button('Receive Stock')?.disabled).toBe(true);
+    await fillPlainLine();
+    expect(lastRequest().lines[0]).toMatchObject({
+      productKey: 'prod_case',
+      quantity: 10,
+      costMode: 'unit',
+      costCents: 50_000,
+      sellingPriceCents: 90_000,
+    });
+    await submit();
+    expect(createReceipt).not.toHaveBeenCalled();
+  });
+
+  it('records a bill bought on credit with the figures the server worked out', async () => {
     await open();
     await fillPlainLine();
-    expect(text()).toContain('Rs. 5,000.00'); // 10 units at Rs. 500
+    expect(text()).toContain('Rs. 5,000.00'); // the server's bill total
     await submit();
 
     expect(createReceipt).toHaveBeenCalledTimes(1);
@@ -199,17 +279,25 @@ describe('ReceiveStockModal', () => {
 
     // The window closes once the server says it was saved.
     const { onSuccess } = createReceipt.mock.calls[0][1];
-    await act(async () =>
+    await actAndSettle(async () =>
       onSuccess({ receiptNumber: 'PUR-000010', dueCents: 500_000, paidCents: 0 })
     );
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('pays in full from the drawer on this register and the open shift', async () => {
+  it('pays what the server says is paid now, from the drawer on this register and shift', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() => lineReply({})),
+        { involvesCash: true },
+        500_000
+      )
+    );
     await open();
     await fillPlainLine();
     await radio('Paid in full');
     await radio('Cash drawer');
+    expect(lastRequest().payment).toMatchObject({ mode: 'full', source: 'drawer' });
     expect(button('Receive and pay')).toBeDefined();
     await submit();
 
@@ -224,13 +312,20 @@ describe('ReceiveStockModal', () => {
     expect(input.approval).toBeUndefined();
   });
 
-  it('pays part from the bank on a chosen day, leaving the rest owed', async () => {
+  it('pays part from the bank on a chosen day, with the amount the server counted', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() => lineReply({})),
+        {},
+        request.payment.partCents
+      )
+    );
     await open();
     await fillPlainLine();
     await radio('Part paid');
     await radio('Bank');
     await typeInto(field('How much are you paying now'), '2000');
-    expect(text()).toContain('Rs. 3,000.00'); // left to pay later
+    expect(text()).toContain('Rs. 3,000.00'); // the server's "left to pay later"
     await submit();
 
     const { payment } = createReceipt.mock.calls[0][0];
@@ -240,50 +335,154 @@ describe('ReceiveStockModal', () => {
     expect(payment.paidOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
-  it('says what is missing instead of sending an incomplete bill', async () => {
+  it('says the first thing the server found missing instead of sending an incomplete bill', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() => lineReply({})),
+        {
+          blockers: [
+            { code: 'cost_unit_missing', line: 0, charge: null },
+            { code: 'payment_source_missing', line: null, charge: null },
+          ],
+        }
+      )
+    );
     await open();
     await pickProduct('Phone Case');
     await submit();
     expect(createReceipt).not.toHaveBeenCalled();
-    expect(text()).toContain('please enter what each unit cost');
+    expect(text()).toContain('Product 1: please enter what each unit cost');
+  });
 
-    await typeInto(field('Cost of each unit'), '500');
-    await typeInto(field('Selling price each'), '900');
-    await radio('Paid in full');
+  it('turns a general blocker into plain words', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() => lineReply({})),
+        {
+          blockers: [{ code: 'payment_source_missing', line: null, charge: null }],
+        }
+      )
+    );
+    await open();
+    await fillPlainLine();
     await submit();
     expect(text()).toContain('Please pick where the money comes from.');
     expect(createReceipt).not.toHaveBeenCalled();
   });
 
-  it('asks for a serial number for every unit of a serialized product', async () => {
+  it('shows an error and keeps Save off when the server cannot be reached', async () => {
+    calc.mockImplementation(() => Promise.reject({ message: 'down', statusCode: 0 }));
     await open();
-    await pickProduct('Smart Phone');
-    await typeInto(field('How many arrived'), '2');
-    await typeInto(field('Cost of each unit'), '45000');
-    await typeInto(field('Selling price each'), '52000');
-    expect(
-      document.body.querySelectorAll('input[aria-label^="Serial number for unit"]')
-    ).toHaveLength(2);
-    await submit();
-    expect(createReceipt).not.toHaveBeenCalled();
-    expect(text()).toContain('please enter a serial number for every unit');
-
-    const serials = document.body.querySelectorAll<HTMLInputElement>(
-      'input[aria-label^="Serial number for unit"]'
-    );
-    await typeInto(serials[0], 'SN-1');
-    await typeInto(serials[1], 'SN-2');
-    await submit();
-    expect(createReceipt.mock.calls[0][0].lines[0].serialNumbers).toEqual(['SN-1', 'SN-2']);
+    expect(text()).toContain('Could not work out the figures');
+    expect(button('Receive Stock')?.disabled).toBe(true);
   });
 
-  it('can add and remove products on the same bill', async () => {
+  it("shows what the product earns from the server's figures", async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() =>
+          lineReply({
+            margin: {
+              profitEachCents: 40_000,
+              lotProfitCents: 400_000,
+              marginTenths: 444,
+              belowCost: false,
+            },
+          })
+        )
+      )
+    );
     await open();
-    expect(document.body.querySelector('button[aria-label^="Remove"]')).toBeNull();
-    await click('Add another product');
-    expect(text()).toContain('Product 2');
-    await clickLabelled('Remove Product 2');
-    expect(text()).not.toContain('Product 2');
+    await pickProduct('Phone Case');
+    expect(text()).toContain('Rs. 400.00');
+    expect(text()).toContain('44.4%');
+    expect(text()).toContain('Rs. 4,000.00');
+  });
+
+  it('warns when the server says the product sells below cost', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() =>
+          lineReply({
+            margin: {
+              profitEachCents: -10_000,
+              lotProfitCents: -100_000,
+              marginTenths: -250,
+              belowCost: true,
+            },
+          })
+        )
+      )
+    );
+    await open();
+    await pickProduct('Phone Case');
+    expect(text()).toContain('You are selling for less than these units cost.');
+  });
+
+  it("explains a price that was rounded up, using the server's two prices", async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() =>
+          lineReply({
+            sellingPriceCents: 18_400,
+            priceWithoutRoundingCents: 18_316,
+            priceRoundedUp: true,
+            margin: {
+              profitEachCents: 8_400,
+              lotProfitCents: 33_600,
+              marginTenths: 457,
+              belowCost: false,
+            },
+          })
+        )
+      )
+    );
+    await open();
+    await pickProduct('Phone Case');
+    await segment('I set the margin');
+    await typeInto(field('Margin I want (%)'), '45.4');
+    expect(lastRequest().lines[0]).toMatchObject({ pricingMode: 'margin', marginTenths: 454 });
+    await choose('Round the price up to', 'Rs. 1.00');
+    expect(text()).toContain('Rs. 183.16 at 45.4%, rounded up to Rs. 184.00');
+    expect(text()).toContain('Margin you get');
+    expect(text()).toContain('You asked for 45.4%. Rounding the price up gives 45.7%.');
+  });
+
+  it('switches to a margin the server worked out for the typed price, and shows no rounding note when the price is exact', async () => {
+    answerWith((request) =>
+      answer(request.lines.map(() => lineReply({ marginTenthsIfSwitched: 444 })))
+    );
+    await open();
+    await pickProduct('Phone Case');
+    await segment('I set the margin');
+    expect(lastRequest().lines[0]).toMatchObject({
+      pricingMode: 'margin',
+      marginTenths: 444,
+      stepCents: 100,
+    });
+    expect(field('Margin I want (%)').value).toBe('44.4');
+    expect(text()).toContain('Worked out from your margin.');
+  });
+
+  it('keeps a lot that does not divide evenly in lot mode', async () => {
+    answerWith((request) => answer(request.lines.map(() => lineReply({ costAsUnitCents: null }))));
+    await open();
+    await pickProduct('Phone Case');
+    expect(text()).toContain('This lot does not divide evenly');
+    const priceEach = Array.from(document.body.querySelectorAll<HTMLInputElement>('input')).find(
+      (el) => el.type === 'radio' && el.value === 'unit'
+    );
+    expect(priceEach?.disabled).toBe(true);
+  });
+
+  it("switches the cost to the whole lot using the server's lot price", async () => {
+    answerWith((request) =>
+      answer(request.lines.map(() => lineReply({ costAsLotCents: 777_000 })))
+    );
+    await open();
+    await pickProduct('Phone Case');
+    await segment('Whole lot');
+    expect(lastRequest().lines[0]).toMatchObject({ costMode: 'lot', costCents: 777_000 });
   });
 
   it('warns about a bill that looks recorded already, and records it when told it is different', async () => {
@@ -306,6 +505,13 @@ describe('ReceiveStockModal', () => {
   });
 
   it('asks for a manager PIN once the server says the payment needs approval', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() => lineReply({})),
+        { involvesCash: true },
+        500_000
+      )
+    );
     createReceipt.mockImplementationOnce((_input, options) =>
       options.onError({
         code: 'DRAWER_CASH_EXCEEDED',
@@ -328,192 +534,34 @@ describe('ReceiveStockModal', () => {
     expect(approval).toEqual({ managerPin: '5555', overrideReason: 'Supplier waiting' });
   });
 
-  it('shows what the product earns while the prices are typed', async () => {
+  it('says a half-filled extra charge is not in the cost yet', async () => {
+    answerWith((request) =>
+      answer(
+        request.lines.map(() =>
+          lineReply({
+            margin: {
+              profitEachCents: 1,
+              lotProfitCents: 1,
+              marginTenths: 1,
+              belowCost: false,
+            },
+          })
+        ),
+        { chargesIncomplete: true }
+      )
+    );
     await open();
     await pickProduct('Phone Case');
-    expect(text()).toContain('Enter what it cost and the selling price to see your margin.');
-    await typeInto(field('How many arrived'), '10');
-    await typeInto(field('Cost of each unit'), '500');
-    await typeInto(field('Selling price each'), '900');
-    // Rs. 900 - Rs. 500 = Rs. 400 each, 44.4% of the selling price, Rs. 4,000 on the lot.
-    expect(text()).toContain('Rs. 400.00');
-    expect(text()).toContain('44.4%');
-    expect(text()).toContain('Rs. 4,000.00');
-
-    await typeInto(field('Selling price each'), '400');
-    expect(text()).toContain('You are selling for less than these units cost.');
+    expect(text()).toContain('Finish the extra charges to include them in this cost.');
   });
 
-  it('sets the selling price either by typing it or from a margin, never both', async () => {
+  it('can add and remove products on the same bill', async () => {
     await open();
-    await pickProduct('Phone Case');
-    await typeInto(field('How many arrived'), '100');
-    await segment('Whole lot');
-    await typeInto(field('Price for the whole lot'), '85000');
-
-    // By price: the price is typed and the margin fields are not there.
-    expect(field('Selling price each').readOnly).toBe(false);
-    expect(text()).not.toContain('Margin I want (%)');
-    await typeInto(field('Selling price each'), '1200');
-    expect(text()).toContain('29.2%');
-
-    // By margin: the price is worked out, read-only, and follows the cost.
-    await segment('I set the margin');
-    expect(text()).toContain('Margin I want (%)');
-    expect(field('Selling price each').readOnly).toBe(true);
-    await typeInto(field('Margin I want (%)'), '25');
-    await choose('Round the price up to', 'Rs. 10.00');
-    expect(field('Selling price each').value).toBe('Rs. 1,140.00');
-    expect(text()).toContain('Rs. 1,133.34 at 25%, rounded up to Rs. 1,140.00');
-    expect(text()).toContain('Margin you get');
-    expect(text()).toContain('You asked for 25%. Rounding the price up gives 25.4%.');
-    await typeInto(field('Price for the whole lot'), '88000');
-    expect(field('Selling price each').value).toBe('Rs. 1,180.00');
-    // No rounding: the exact price the margin asks for, and no rounding note.
-    await choose('Round the price up to', "Don't round");
-    expect(field('Selling price each').value).toBe('Rs. 1,173.34');
-    expect(text()).not.toContain('rounded up');
-    await choose('Round the price up to', 'Rs. 10.00');
-    await submit();
-    expect(createReceipt.mock.calls[0][0].lines[0]).toMatchObject({
-      lineTotalCents: 8_800_000,
-      sellingPriceCents: 118_000,
-    });
-  });
-
-  it('asks for the margin before saving a price set by margin', async () => {
-    await open();
-    await pickProduct('Phone Case');
-    await typeInto(field('Cost of each unit'), '500');
-    await segment('I set the margin');
-    await submit();
-    expect(createReceipt).not.toHaveBeenCalled();
-    expect(text()).toContain('please enter the margin you want');
-  });
-
-  it("takes the supplier's price for the whole lot and shows the price each", async () => {
-    await open();
-    await pickProduct('Phone Case');
-    await typeInto(field('How many arrived'), '100');
-    await segment('Whole lot');
-    await typeInto(field('Price for the whole lot'), '85000');
-    await typeInto(field('Selling price each'), '1200');
-    expect(text()).toContain('Rs. 850.00'); // cost each, worked out from the lot
-    expect(text()).toContain('29.2%');
-    await submit();
-
-    expect(createReceipt.mock.calls[0][0].lines[0]).toMatchObject({
-      quantity: 100,
-      lineTotalCents: 8_500_000,
-    });
-  });
-
-  it('keeps a lot that does not divide evenly in lot mode', async () => {
-    await open();
-    await pickProduct('Phone Case');
-    await typeInto(field('How many arrived'), '30');
-    await segment('Whole lot');
-    await typeInto(field('Price for the whole lot'), '50000');
-    expect(text()).toContain('does not divide evenly');
-    const each = Array.from(
-      document.body.querySelectorAll<HTMLInputElement>('input[type="radio"]')
-    ).find((el) => el.value === 'unit');
-    expect(each?.disabled).toBe(true);
-  });
-
-  it("adds the courier to the cost, pays them from the drawer, and keeps the supplier's bill as it was", async () => {
-    await open();
-    await fillPlainLine();
-    await click('Add an extra charge');
-    expect(text()).toContain('Extra charge 1');
-    // Half filled in: nothing is counted yet, and the person is told.
-    expect(text()).toContain('Finish the extra charges');
-
-    await choose('What is it for?', 'Shipping or courier');
-    await typeInto(field('Amount'), '700');
-    await radio('I pay someone else');
-    await choose('Who is paid?', 'Fast Courier');
-    await radio('Cash drawer'); // the first source group on the page is the extra charges'
-    expect(text()).not.toContain('Finish the extra charges');
-    // Rs. 5,000 of goods + Rs. 700 courier = Rs. 5,700 each... over 10 units: Rs. 570.00 each.
-    expect(text()).toContain('Cost each, with extra charges');
-    expect(text()).toContain('Rs. 570.00');
-    // The supplier's bill is still the goods; the courier is paid on top today.
-    expect(text()).toContain('Paid to others');
-    expect(text()).toContain('Money going out today');
-    await submit();
-
-    const input = createReceipt.mock.calls[0][0];
-    expect(input.charges).toEqual([
-      {
-        kind: 'shipping',
-        amountCents: 70_000,
-        billedBy: 'third_party',
-        allocation: undefined,
-        payeeKey: 'pye_courier',
-      },
-    ]);
-    expect(input.chargesPayment).toEqual({
-      source: 'drawer',
-      terminalId: 'term_1',
-      sessionKey: 'sess_1',
-    });
-    expect(input.payment).toBeUndefined();
-  });
-
-  it("adds a charge on the supplier's bill to what is owed, and removes it again", async () => {
-    await open();
-    await fillPlainLine();
-    await click('Add an extra charge');
-    await choose('What is it for?', 'Shipping or courier');
-    await typeInto(field('Amount'), '200');
-    await radio("On the supplier's bill");
-    expect(text()).toContain('Rs. 5,200.00'); // the bill total
-    await clickLabelled('Remove Extra charge 1');
-    expect(text()).not.toContain('Extra charge 1');
-    expect(text()).not.toContain('Rs. 5,200.00');
-  });
-
-  it('asks what an other charge is, optionally, and sends it', async () => {
-    await open();
-    await fillPlainLine();
-    await click('Add an extra charge');
-    await choose('What is it for?', 'Shipping or courier');
-    expect(text()).not.toContain('What is it? (optional)');
-    await choose('What is it for?', 'Other charge');
-    expect(text()).toContain('What is it? (optional)');
-    await typeInto(field('What is it? (optional)'), ' Packing tape ');
-    await typeInto(field('Amount'), '120');
-    await radio("On the supplier's bill");
-    await submit();
-    expect(createReceipt.mock.calls[0][0].charges[0]).toMatchObject({
-      kind: 'other',
-      amountCents: 12_000,
-      description: 'Packing tape',
-    });
-  });
-
-  it('lets a charge paid to someone else go without saying who', async () => {
-    await open();
-    await fillPlainLine();
-    await click('Add an extra charge');
-    await choose('What is it for?', 'Shipping or courier');
-    await typeInto(field('Amount'), '400');
-    await radio('I pay someone else');
-    expect(text()).toContain('Who is paid? (optional)');
-    await radio('Cash drawer');
-    await submit();
-    const input = createReceipt.mock.calls[0][0];
-    expect(input.charges[0].billedBy).toBe('third_party');
-    expect(input.charges[0].payeeKey).toBeUndefined();
-  });
-
-  it('asks how to spread a charge only when there are two products', async () => {
-    await open();
-    await fillPlainLine();
-    await click('Add an extra charge');
-    expect(text()).not.toContain('How is it spread over the products?');
     await click('Add another product');
-    expect(text()).toContain('How is it spread over the products?');
+    expect(text()).toContain('Product 2');
+    expect(lastRequest().lines).toHaveLength(2);
+    await clickLabelled('Remove Product 2');
+    // The one-product form was asked about before, so its answer is already kept.
+    expect(text()).not.toContain('Product 2');
   });
 });
