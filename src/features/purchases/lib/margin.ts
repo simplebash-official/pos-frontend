@@ -45,7 +45,7 @@ export const suggestedPriceCents = (
   landedTotalCents: number,
   quantity: number,
   marginTenths: number,
-  stepCents: PriceStepCents
+  stepCents: number
 ): number | null => {
   if (quantity < 1 || landedTotalCents <= 0) return null;
   if (!Number.isInteger(marginTenths) || marginTenths < 0 || marginTenths >= 1000) return null;
@@ -57,3 +57,10 @@ export const suggestedPriceCents = (
   const step = BigInt(stepCents);
   return Number(ceilDiv(lowest, step) * step);
 };
+
+/** The same price before any rounding up, to the cent: what the margin alone asks for. */
+export const unroundedPriceCents = (
+  landedTotalCents: number,
+  quantity: number,
+  marginTenths: number
+): number | null => suggestedPriceCents(landedTotalCents, quantity, marginTenths, 1);

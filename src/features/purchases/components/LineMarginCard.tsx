@@ -13,7 +13,9 @@ export interface LineMarginCardProps {
   includesCharges: boolean;
   /** True while a charge is half filled in, so it is not yet in the cost. */
   chargesIncomplete: boolean;
-  /** True while the price is worked out from a margin and rounded up, so the margin can be a little more. */
+  /** The margin the person asked for, when the price was worked out from it; `null` when they typed the price. */
+  askedPercent: number | null;
+  /** True when rounding the price up moved it above what the asked margin needs. */
   priceRoundedUp: boolean;
 }
 
@@ -32,6 +34,7 @@ export const LineMarginCard = ({
   sellingPriceCents,
   includesCharges,
   chargesIncomplete,
+  askedPercent,
   priceRoundedUp,
 }: LineMarginCardProps) => {
   const margin = lineMargin(landedTotalCents, quantity, sellingPriceCents);
@@ -68,7 +71,7 @@ export const LineMarginCard = ({
               </Stack>
               <Stack gap={0}>
                 <Text size="xs" c="dimmed">
-                  {t('Margin')}
+                  {askedPercent === null ? t('Margin') : t('Margin you get')}
                 </Text>
                 <Text fw={600} c={profitColor(margin.lotProfitCents)} style={figure}>
                   {`${margin.marginPercent === null ? '' : margin.marginPercent.toFixed(1)}%`}
@@ -89,10 +92,10 @@ export const LineMarginCard = ({
               </Text>
             ) : (
               <Text size="xs" c="dimmed">
-                {priceRoundedUp
-                  ? t(
-                      'The price is rounded up, so the margin can be a little more than you asked for.'
-                    )
+                {priceRoundedUp && askedPercent !== null && margin.marginPercent !== null
+                  ? t('You asked for {asked}%. Rounding the price up gives {got}%.')
+                      .replace('{asked}', String(askedPercent))
+                      .replace('{got}', margin.marginPercent.toFixed(1))
                   : t('Margin is the profit as a share of the selling price.')}
               </Text>
             )}

@@ -20,6 +20,7 @@ import {
   costInMode,
   lineGoodsCents,
   effectiveSellingCents,
+  marginAsked,
   lineQuantity,
   type CostEntry,
   type LineState,
@@ -69,6 +70,9 @@ export const ReceiptLineCard = ({
     const cost = costInMode(line, mode);
     if (cost !== null) onChange({ ...line, cost });
   };
+
+  const sellingCents = effectiveSellingCents(line, landedTotalCents);
+  const asked = marginAsked(line, landedTotalCents);
 
   return (
     <Paper p="md" withBorder>
@@ -185,10 +189,11 @@ export const ReceiptLineCard = ({
             <LineMarginCard
               quantity={quantity}
               landedTotalCents={landedTotalCents}
-              sellingPriceCents={effectiveSellingCents(line, landedTotalCents)}
+              sellingPriceCents={sellingCents}
               includesCharges={includesCharges}
               chargesIncomplete={chargesIncomplete}
-              priceRoundedUp={line.pricing.mode === 'margin'}
+              askedPercent={asked === null ? null : asked.askedPercent}
+              priceRoundedUp={asked !== null && sellingCents > asked.exactCents}
             />
 
             {serialized && quantity > 0 ? (

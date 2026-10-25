@@ -6,6 +6,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { PRICE_STEPS_CENTS, type PriceStepCents } from '../lib/margin';
 import {
   effectiveSellingCents,
+  marginAsked,
   pricingInMode,
   type LineState,
   type PricingEntry,
@@ -33,6 +34,14 @@ export const SellingPriceFields = ({
   const fieldSize = isMobile ? 'md' : 'sm';
   const { pricing } = line;
   const worked = effectiveSellingCents(line, landedTotalCents);
+  const asked = marginAsked(line, landedTotalCents);
+  const rounding =
+    asked !== null && worked > asked.exactCents
+      ? t('{exact} at {percent}%, rounded up to {price}')
+          .replace('{exact}', formatMoney(asked.exactCents))
+          .replace('{percent}', String(asked.askedPercent))
+          .replace('{price}', formatMoney(worked))
+      : t('Worked out from your margin.');
 
   return (
     <Stack gap="xs">
@@ -103,7 +112,7 @@ export const SellingPriceFields = ({
           </SimpleGrid>
           <TextInput
             label={t('Selling price each')}
-            description={t('Worked out from your margin.')}
+            description={rounding}
             placeholder={t('Fill in the margin and the rounding')}
             value={worked > 0 ? formatMoney(worked) : ''}
             readOnly

@@ -31,6 +31,14 @@ import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 /** How many rows the picker draws at once. Beyond this the user should keep typing. */
 const VISIBLE_RESULT_LIMIT = 50;
 
+/** Every card is the same height, so rows never jump as the search changes what wraps. */
+const CARD_HEIGHT = { desktop: 112, mobile: 176 };
+/** Room for the name's two lines, so a one-line name does not shrink its card. */
+const NAME_HEIGHT = 36;
+/** Two badge rows at most; a long barcode drops off rather than growing the card. */
+const BADGES_MAX_HEIGHT = 44;
+const COST_WIDTH = 170;
+
 export interface ProductPickerModalProps {
   opened: boolean;
   onClose: () => void;
@@ -143,6 +151,7 @@ export const ProductPickerModal = ({
                   p="md"
                   radius="var(--mantine-radius-default)"
                   withBorder
+                  h={isMobile ? CARD_HEIGHT.mobile : CARD_HEIGHT.desktop}
                 >
                   <Group justify="space-between" align="center">
                     <Group gap="md">
@@ -189,6 +198,8 @@ export const ProductPickerModal = ({
                     p="md"
                     radius="var(--mantine-radius-default)"
                     className="picker-card"
+                    h={isMobile ? CARD_HEIGHT.mobile : CARD_HEIGHT.desktop}
+                    style={{ overflow: 'hidden' }}
                     onClick={() => handleSelect(p.key)}
                   >
                     <Group
@@ -196,12 +207,13 @@ export const ProductPickerModal = ({
                       align="center"
                       wrap={isMobile ? 'wrap' : 'nowrap'}
                       gap="md"
+                      h="100%"
                     >
                       {/* Left Icon & Info */}
                       <Group
                         gap="md"
                         wrap="nowrap"
-                        style={{ minWidth: 0, flex: 1 }}
+                        style={{ minWidth: 0, flex: isMobile ? '1 1 100%' : 1 }}
                         align="flex-start"
                       >
                         <ThemeIcon
@@ -215,11 +227,27 @@ export const ProductPickerModal = ({
                         </ThemeIcon>
 
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <Text size="sm" fw={700} lineClamp={2} style={{ lineHeight: 1.3 }}>
-                            <SearchHighlight text={p.name} terms={searchTerms} />
-                          </Text>
+                          <Box h={NAME_HEIGHT}>
+                            <Text size="sm" fw={700} lineClamp={2} style={{ lineHeight: 1.3 }}>
+                              <SearchHighlight text={p.name} terms={searchTerms} />
+                            </Text>
+                          </Box>
 
-                          <Group gap={6} mt={6} wrap="wrap">
+                          <Group
+                            gap={6}
+                            mt={6}
+                            wrap="wrap"
+                            mah={BADGES_MAX_HEIGHT}
+                            style={{ overflow: 'hidden' }}
+                          >
+                            <Badge
+                              size="xs"
+                              variant="subtle"
+                              color={isLowStock ? 'red' : 'gray'}
+                              radius="var(--mantine-radius-default)"
+                            >
+                              {p.stockQuantity} {t('in stock')}
+                            </Badge>
                             <Badge
                               size="xs"
                               variant="filled"
@@ -227,6 +255,14 @@ export const ProductPickerModal = ({
                               radius="var(--mantine-radius-default)"
                             >
                               <SearchHighlight text={p.sku} terms={searchTerms} />
+                            </Badge>
+                            <Badge
+                              size="xs"
+                              variant="light"
+                              color={catColor}
+                              radius="var(--mantine-radius-default)"
+                            >
+                              {p.subcategory}
                             </Badge>
                             {p.barcode && (
                               <Badge
@@ -239,29 +275,15 @@ export const ProductPickerModal = ({
                                 <SearchHighlight text={p.barcode} terms={searchTerms} />
                               </Badge>
                             )}
-                            <Badge
-                              size="xs"
-                              variant="light"
-                              color={catColor}
-                              radius="var(--mantine-radius-default)"
-                            >
-                              {p.subcategory}
-                            </Badge>
-                            <Badge
-                              size="xs"
-                              variant="subtle"
-                              color={isLowStock ? 'red' : 'gray'}
-                              radius="var(--mantine-radius-default)"
-                            >
-                              {p.stockQuantity} {t('in stock')}
-                            </Badge>
                           </Group>
                         </div>
                       </Group>
 
                       {/* Right Price & Link Action */}
                       <Group gap="md" wrap="nowrap" style={{ flexShrink: 0 }} align="center">
-                        <Box style={{ textAlign: 'left' }}>
+                        <Box
+                          style={{ textAlign: 'left', width: isMobile ? undefined : COST_WIDTH }}
+                        >
                           <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
                             {t('Default Cost')}
                           </Text>

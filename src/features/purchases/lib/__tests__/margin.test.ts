@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineMargin, suggestedPriceCents } from '../margin';
+import { lineMargin, suggestedPriceCents, unroundedPriceCents } from '../margin';
 
 describe('lineMargin', () => {
   it('works the profit out of the whole lot, not a rounded unit cost', () => {
@@ -50,5 +50,13 @@ describe('suggestedPriceCents', () => {
     expect(suggestedPriceCents(8_500_000, 100, -1, 100)).toBeNull();
     expect(suggestedPriceCents(0, 100, 250, 100)).toBeNull();
     expect(suggestedPriceCents(8_500_000, 0, 250, 100)).toBeNull();
+  });
+});
+
+describe('unroundedPriceCents', () => {
+  it('is the margin-only price before rounding up', () => {
+    // Rs 100 each at 45.4% needs Rs 183.16; Rs 1 rounding makes it Rs 184.
+    expect(unroundedPriceCents(40000, 4, 454)).toBe(18316);
+    expect(suggestedPriceCents(40000, 4, 454, 100)).toBe(18400);
   });
 });

@@ -364,7 +364,9 @@ describe('ReceiveStockModal', () => {
     await typeInto(field('Margin I want (%)'), '25');
     await choose('Round the price up to', 'Rs. 10.00');
     expect(field('Selling price each').value).toBe('Rs. 1,140.00');
-    expect(text()).toContain('rounded up');
+    expect(text()).toContain('Rs. 1,133.34 at 25%, rounded up to Rs. 1,140.00');
+    expect(text()).toContain('Margin you get');
+    expect(text()).toContain('You asked for 25%. Rounding the price up gives 25.4%.');
     await typeInto(field('Price for the whole lot'), '88000');
     expect(field('Selling price each').value).toBe('Rs. 1,180.00');
     await submit();

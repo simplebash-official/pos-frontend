@@ -6,7 +6,12 @@ import { t } from '@/shared/i18n/t';
 import { isDay } from '@/features/expenses/lib/expenseForm';
 import { CHARGE_DESCRIPTION_MAX } from './chargeKinds';
 import { chargeTotals, spreadCharges, type ChargeFigure } from './landedCost';
-import { lineMargin, suggestedPriceCents, type PriceStepCents } from './margin';
+import {
+  lineMargin,
+  suggestedPriceCents,
+  unroundedPriceCents,
+  type PriceStepCents,
+} from './margin';
 import type {
   BilledBy,
   ChargeAllocation,
@@ -233,6 +238,23 @@ export const effectiveSellingCents = (line: LineState, landedTotalCents: number)
   const { marginTenths, stepCents } = line.pricing;
   if (marginTenths === null || stepCents === null) return 0;
   return suggestedPriceCents(landedTotalCents, lineQuantity(line), marginTenths, stepCents) ?? 0;
+};
+
+/**
+ * In margin mode, the price the margin alone asks for and the margin asked, so the screen can say
+ * when rounding up moved the price. `null` in price mode or while the margin is not filled in.
+ */
+export const marginAsked = (
+  line: LineState,
+  landedTotalCents: number
+): { exactCents: number; askedPercent: number } | null => {
+  if (line.pricing.mode === 'price' || line.pricing.marginTenths === null) return null;
+  const exactCents = unroundedPriceCents(
+    landedTotalCents,
+    lineQuantity(line),
+    line.pricing.marginTenths
+  );
+  return exactCents === null ? null : { exactCents, askedPercent: line.pricing.marginTenths / 10 };
 };
 
 /** Each line's selling price each, from its landed cost. */
