@@ -67,8 +67,9 @@ describe('SidebarFooter role pill', () => {
     expect(pill?.textContent).toBe(label);
     expect(pill?.querySelector('svg')).not.toBeNull();
     // The name line holds only the name.
-    expect(c.querySelector('[title="Mayura Sandakalum Sellapperuma"]')?.textContent).toBe(
-      'Mayura Sandakalum Sellapperuma'
+    const nameLine = Array.from(c.querySelectorAll('div, p')).find(
+      (el) => el.textContent === 'Mayura Sandakalum Sellapperuma'
     );
+    expect(nameLine).toBeDefined();
   });
 });
