@@ -19,6 +19,7 @@ export const PERMISSIONS = {
   CASH_CATEGORIES_CREATE: 'cash_categories:create',
   CASH_CATEGORIES_MANAGE: 'cash_categories:manage',
   PAYEES_MANAGE: 'payees:manage',
+  SUPPLIERS_CREATE: 'suppliers:create',
   EXPENSES_VIEW: 'expenses:view',
   EXPENSES_MANAGE: 'expenses:manage',
   BALANCES_VIEW: 'balances:view',

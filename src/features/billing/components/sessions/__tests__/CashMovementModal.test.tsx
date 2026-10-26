@@ -257,6 +257,73 @@ describe('CashMovementModal', () => {
     expect(steps).toEqual(['What happened?', 'Why are you opening the drawer?', 'Details']);
   });
 
+  it('lets someone who may register suppliers add one from the supplier payment list', async () => {
+    await render([...MANAGER, 'suppliers:create']);
+    await click('Supplier payment');
+    await typeInto(
+      document.querySelector('input[placeholder="Who is being paid?"]') as HTMLInputElement,
+      'Kandy Traders'
+    );
+    const add = document.querySelector('[data-testid="combobox-create"]');
+    expect(add?.textContent).toContain('+ Add "Kandy Traders" as a new supplier');
+    expect(text()).not.toContain('To add a supplier, ask a manager.');
+  });
+
+  describe('Escape', () => {
+    const pressEscape = () =>
+      act(async () => {
+        document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      });
+    const renderWith = async (onClose: () => void) => {
+      await act(async () => {
+        root.render(
+          <Harness permissions={[...MANAGER, 'suppliers:create']}>
+            <CashMovementModal opened onClose={onClose} terminalId="term_1" sessionKey="ses_1" />
+          </Harness>
+        );
+      });
+    };
+
+    it('closes the cash window', async () => {
+      const onClose = vi.fn();
+      await renderWith(onClose);
+      await pressEscape();
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves the cash window open while the register supplier window is up', async () => {
+      const onClose = vi.fn();
+      await renderWith(onClose);
+      await click('Supplier payment');
+      await typeInto(
+        document.querySelector('input[placeholder="Who is being paid?"]') as HTMLInputElement,
+        'Kandy Traders'
+      );
+      await act(async () =>
+        (document.querySelector('[data-testid="combobox-create"]') as HTMLElement).click()
+      );
+      expect(text()).toContain('Register New Supplier');
+
+      await pressEscape();
+      expect(onClose).not.toHaveBeenCalled();
+      // The supplier window closed itself, so the next Escape closes the cash window again.
+      await vi.waitFor(() => expect(text()).not.toContain('Register New Supplier'));
+      await pressEscape();
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('tells a manager without the supplier permission to ask a manager, with no way to add', async () => {
+    await render(MANAGER);
+    await click('Supplier payment');
+    await typeInto(
+      document.querySelector('input[placeholder="Who is being paid?"]') as HTMLInputElement,
+      'Kandy Traders'
+    );
+    expect(text()).toContain('To add a supplier, ask a manager.');
+    expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
+  });
+
   it('shows the busiest categories as one-tap chips', async () => {
     await render(CASHIER);
     const chips = document.querySelector('[data-testid="category-chips"]')!;

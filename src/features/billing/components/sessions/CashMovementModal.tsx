@@ -124,6 +124,10 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   const canManageCategories = useHasPermission(PERMISSIONS.CASH_CATEGORIES_MANAGE);
   const canCreateCategories = useHasPermission(PERMISSIONS.CASH_CATEGORIES_CREATE);
   const canManagePayees = useHasPermission(PERMISSIONS.PAYEES_MANAGE);
+  const canCreateSupplier = useHasPermission(PERMISSIONS.SUPPLIERS_CREATE);
+  // A window opened from inside this one (register supplier). Every open Mantine modal closes on
+  // Escape, so this one sits out while it is up.
+  const [nestedWindowOpen, setNestedWindowOpen] = useState(false);
 
   const [form, setForm] = useState<MovementFormState>(() =>
     prefill === undefined
@@ -336,6 +340,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
+      closeOnEscape={!nestedWindowOpen}
       title={
         <Text fw={700} size="lg">
           {t('Cash Movement')}
@@ -566,6 +571,8 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
                             onChange={patch}
                             periodStatus={isRent ? periodStatus : undefined}
                             canCreatePayee={canManagePayees}
+                            canCreateSupplier={canCreateSupplier}
+                            onNestedWindowChange={setNestedWindowOpen}
                           />
                         </MovementStep>
                       </Stack>

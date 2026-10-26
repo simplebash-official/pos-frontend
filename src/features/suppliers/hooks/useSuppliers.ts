@@ -42,9 +42,13 @@ export const useCreateSupplier = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: SupplierInput) => createSupplier(input),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
-    },
+    // Returned, so `mutateAsync` resolves once the payee lists (the cash window's supplier
+    // dropdown) hold the new supplier and it can be picked.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.billing.cash.all }),
+      ]),
   });
 };
 

@@ -43,12 +43,15 @@ if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === 'unde
   (globalThis as { ResizeObserver?: unknown }).ResizeObserver = ResizeObserverStub;
 }
 
+const useAllProducts = vi.fn(() => ({ data: [] }));
+const useProductsForSupplier = vi.fn(() => ({ data: [], isFetching: false }));
+
 vi.mock('@/features/inventory/hooks/useProducts', () => ({
-  useAllProducts: () => ({ data: [] }),
+  useAllProducts: () => useAllProducts(),
 }));
 
 vi.mock('@/features/supplier-products', () => ({
-  useProductsForSupplier: () => ({ data: [], isFetching: false }),
+  useProductsForSupplier: () => useProductsForSupplier(),
 }));
 
 vi.mock('@/shared/hooks/useResponsive', () => ({
@@ -100,7 +103,14 @@ describe('SupplierFormModal', () => {
     }
   };
 
-  const open = async (supplierToEdit?: Supplier | null, loading = false) => {
+  const open = async (
+    supplierToEdit?: Supplier | null,
+    loading = false,
+    options: { linkProducts: boolean; initialName: string } = {
+      linkProducts: true,
+      initialName: '',
+    }
+  ) => {
     const store = configureStore({
       reducer: {
         auth: () => ({
@@ -123,6 +133,8 @@ describe('SupplierFormModal', () => {
                   onSubmit={onSubmit}
                   supplierToEdit={supplierToEdit}
                   loading={loading}
+                  linkProducts={options.linkProducts}
+                  initialName={options.initialName}
                 />
               </LayoutTierProvider>
             </MantineProvider>
@@ -175,6 +187,36 @@ describe('SupplierFormModal', () => {
     expect(emailInput?.value).toBe('');
     expect(primaryPhoneInput?.value).toBe('');
     expect(secondaryPhoneInput?.value).toBe('');
+  });
+
+  it('fills the business name of a new supplier from the name typed elsewhere', async () => {
+    await open(null, false, { linkProducts: false, initialName: 'Kandy Traders' });
+    expect(getInputByPlaceholder('e.g. Colombo Mobile Parts')?.value).toBe('Kandy Traders');
+  });
+
+  it('offers the product links, and loads products, only when linking is on', async () => {
+    await open(null, false, { linkProducts: true, initialName: '' });
+    expect(text()).toContain('Linked Inventory Products');
+    expect(useAllProducts).toHaveBeenCalled();
+  });
+
+  it('shows no product links and loads no products when linking is off', async () => {
+    await open(null, false, { linkProducts: false, initialName: '' });
+    expect(text()).toContain('Register New Supplier');
+    expect(text()).not.toContain('Linked Inventory Products');
+    expect(useAllProducts).not.toHaveBeenCalled();
+    expect(useProductsForSupplier).not.toHaveBeenCalled();
+  });
+
+  it('submits without product keys when linking is off', async () => {
+    onSubmit.mockResolvedValue(undefined);
+    await open(makeSupplier(), false, { linkProducts: false, initialName: '' });
+    await act(async () => {
+      getForm().dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await settle();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][1]).toBeUndefined();
   });
 
   it('pre-populates existing supplier data when editing', async () => {

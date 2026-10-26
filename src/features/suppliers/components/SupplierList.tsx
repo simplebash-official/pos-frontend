@@ -538,6 +538,8 @@ export const SupplierList = () => {
         onClose={() => setFormModalOpen(false)}
         onSubmit={handleFormSubmit}
         supplierToEdit={supplierToEdit}
+        linkProducts
+        initialName=""
         loading={createMutation.isPending || updateMutation.isPending || setLinksMutation.isPending}
       />
 

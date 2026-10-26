@@ -9,6 +9,7 @@ import { formatMoney } from '@/shared/lib/money';
 import type { CashMovementType, PayeeType, PeriodStatus } from '../../../types';
 import type { MovementFormState } from './movementForm';
 import { PayeePicker } from './PayeePicker';
+import { SupplierPicker } from './SupplierPicker';
 import { SettlementPicker } from '@/features/purchases/components/SettlementPicker';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -39,6 +40,10 @@ export interface MovementDetailFieldsProps {
   periodStatus: PeriodStatus | undefined;
   /** Whether this person may add a landlord or company from the picker. */
   canCreatePayee: boolean;
+  /** Whether this person may register a new supplier from the picker. */
+  canCreateSupplier: boolean;
+  /** Told when a window opened from a picker (register supplier) opens or closes. */
+  onNestedWindowChange: (open: boolean) => void;
 }
 
 /**
@@ -85,6 +90,8 @@ export const MovementDetailFields = ({
   onChange,
   periodStatus,
   canCreatePayee,
+  canCreateSupplier,
+  onNestedWindowChange,
 }: MovementDetailFieldsProps) => {
   const isMobile = useIsMobile();
   const type = form.type;
@@ -262,16 +269,13 @@ export const MovementDetailFields = ({
     case 'supplier_payment':
       return (
         <Stack gap="md">
-          <SearchCombobox
-            label={t('Supplier')}
-            placeholder={t('Who is being paid?')}
-            loading={isLoading}
+          <SupplierPicker
             items={payeeItems}
+            loading={isLoading}
             value={form.payeeKey}
             onChange={(key) => onChange({ payeeKey: key, settlements: [] })}
-            required
-            noCreateHint={t('To add a supplier, ask a manager.')}
-            emptyText={t('No supplier found.')}
+            canCreate={canCreateSupplier}
+            onWindowOpenChange={onNestedWindowChange}
           />
           {form.payeeKey ? (
             <SettlementPicker
