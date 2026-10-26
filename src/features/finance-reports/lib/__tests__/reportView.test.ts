@@ -50,15 +50,16 @@ describe('words for the server codes', () => {
 });
 
 describe('monthlyChart', () => {
-  const cat = (name: string, cents: number[]) => ({
-    categoryName: name,
+  const band = (name: string, cents: number[], isOther = false) => ({
+    name,
+    isOther,
     months: cents.map((totalCents, i) => ({ month: `2026-0${i + 1}`, totalCents })),
   });
   const months = [{ month: '2026-01' }, { month: '2026-02' }];
 
-  it('turns cents into whole rupees per month, one series per category', () => {
+  it('turns cents into whole rupees per month, one series per band the server sent', () => {
     const chart = monthlyChart(
-      [cat('Rent', [100_000, 100_000]), cat('Tea', [5_000, 0])],
+      [band('Rent', [100_000, 100_000]), band('Tea', [5_000, 0])],
       months,
       'Other'
     );
@@ -69,10 +70,9 @@ describe('monthlyChart', () => {
     ]);
   });
 
-  it('puts everything beyond the five biggest into "Other"', () => {
-    const many = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map((n, i) => cat(n, [(7 - i) * 100, 0]));
-    const chart = monthlyChart(many, months, 'Other');
-    expect(chart.series).toEqual(['A', 'B', 'C', 'D', 'E', 'Other']);
-    expect(chart.data[0].Other).toBe((200 + 100) / 100);
+  it('names the band the server marks as the rest', () => {
+    const chart = monthlyChart([band('', [300, 0], true)], months, 'Other');
+    expect(chart.series).toEqual(['Other']);
+    expect(chart.data[0].Other).toBe(3);
   });
 });

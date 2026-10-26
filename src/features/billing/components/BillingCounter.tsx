@@ -5,12 +5,12 @@ import { useOutletContext } from 'react-router-dom';
 
 import {
   useCartItems,
-  useCartTotals,
   useCartCustomer,
   useCartCheckout,
   useHeldCarts,
   useCartSound,
 } from '../hooks/useCart';
+import { useCheckout } from '../hooks/useCheckout';
 import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
@@ -54,13 +54,12 @@ export const BillingCounter = () => {
   const { items, updateQty, remove } = useCartItems();
   const { customerId, customerName, customerPhone, customerAddress, attachCustomer } =
     useCartCustomer();
-  const { discountCents, discountType, discountValue, subtotalCents, totalCents, setDiscount } =
-    useCartTotals();
+  // Every figure on this screen is the server's answer for the cart as it stands.
+  const { data: checkout, isCurrent, discountType, discountValue, setDiscount } = useCheckout();
   const {
     paymentMethod,
     splitPayments,
     isCredit,
-    tenderedAmountCents,
     creditDepositCents,
     creditDepositMethod,
     documentSelection,
@@ -110,6 +109,8 @@ export const BillingCounter = () => {
   // Complete Payment Action (F2)
   const handleCompleteCheckout = useCallback(async () => {
     if (items.length === 0 || isProcessing) return;
+    // The sale is sent with the server's figures for this exact cart, so wait for them.
+    if (checkout === undefined || !isCurrent) return;
 
     if (
       !activeSession ||
@@ -145,9 +146,7 @@ export const BillingCounter = () => {
     setIsProcessing(true);
     try {
       const calculatedChangeCents =
-        paymentMethod === PAYMENT_METHODS.CASH
-          ? Math.max(0, (tenderedAmountCents || 0) - totalCents)
-          : 0;
+        paymentMethod === PAYMENT_METHODS.CASH ? checkout.payment.changeDueCents : 0;
 
       const cashierName = authUser?.name || 'Store Cashier';
 
@@ -168,7 +167,7 @@ export const BillingCounter = () => {
               customerAddress: customerAddress || undefined,
             }
           : undefined,
-        items: items.map((i) => {
+        items: items.map((i, index) => {
           const sourceType = i.sourceType || 'retail';
           const productKey = sourceType === 'retail' ? i.productKey : undefined;
           const sourceTicketKey =
@@ -181,7 +180,7 @@ export const BillingCounter = () => {
             sellingPriceCents: productKey ? i.unitPriceCents : undefined,
             sourceTicketKey,
             quantity: i.quantity,
-            discountCents: i.discountCents,
+            discountCents: checkout.items[index].discountCents,
             sourceType,
             serialNumbers: i.serialNumbers,
             ...(isResolved
@@ -190,7 +189,7 @@ export const BillingCounter = () => {
                   name: i.name,
                   sku: i.sku,
                   unitPriceCents: i.unitPriceCents,
-                  totalCents: i.totalCents,
+                  totalCents: checkout.items[index].totalCents,
                   sourceTicketNumber: i.sourceTicketNumber,
                   assignedEmployeeName: i.assignedEmployeeName,
                 }),
@@ -201,11 +200,7 @@ export const BillingCounter = () => {
         payment: {
           paymentMethod,
           isCredit,
-          amountReceivedCents: isCredit
-            ? Math.min(Math.max(0, creditDepositCents), Math.max(0, totalCents - 1))
-            : paymentMethod === PAYMENT_METHODS.CASH
-              ? tenderedAmountCents
-              : totalCents,
+          amountReceivedCents: checkout.payment.amountReceivedCents,
           depositMethod: isCredit && creditDepositCents > 0 ? creditDepositMethod : undefined,
           splitPayments:
             paymentMethod === PAYMENT_METHODS.SPLIT
@@ -283,14 +278,14 @@ export const BillingCounter = () => {
     customerAddress,
     discountType,
     discountValue,
-    totalCents,
+    checkout,
+    isCurrent,
     paymentMethod,
     cardRef,
     onlineRef,
     onlineNote,
     splitPayments,
     isCredit,
-    tenderedAmountCents,
     creditDepositCents,
     creditDepositMethod,
     dueDate,
@@ -595,10 +590,13 @@ export const BillingCounter = () => {
           focusScanBar(true);
         }}
         targetName="Entire Order"
-        originalCents={subtotalCents}
-        currentDiscountCents={discountCents}
-        onApplyDiscount={(cents, type, value) => {
-          setDiscount(cents, type, value);
+        originalCents={checkout === undefined ? null : checkout.subtotalCents}
+        currentDiscount={
+          discountType === null ? null : { type: discountType, value: discountValue }
+        }
+        onApplyDiscount={(discount) => {
+          if (discount === null) setDiscount(null, 0);
+          else setDiscount(discount.type, discount.value);
           focusScanBar(true);
         }}
       >

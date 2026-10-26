@@ -24,7 +24,8 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 
-import { useCartItems, useCartTotals, useCartCustomer, useHeldCarts } from '../hooks/useCart';
+import { useCartItems, useCartCustomer, useHeldCarts } from '../hooks/useCart';
+import { useCheckout } from '../hooks/useCheckout';
 import { CartLineItem } from './CartLineItem';
 import { UndoRemoveBanner } from './UndoRemoveBanner';
 import { formatMoney } from '@/shared/lib/money';
@@ -63,7 +64,6 @@ export const CartPanel = memo(function CartPanel({
     items,
     itemCount,
     totalUnitCount,
-    sourceBreakdown,
     lastRemovedItem,
     updateQty,
     updateLineDisc,
@@ -74,7 +74,12 @@ export const CartPanel = memo(function CartPanel({
     isCredit,
     completedSale,
   } = useCartItems();
-  const { totalCents, discountType, discountValue } = useCartTotals();
+  const { data: checkout, isCurrent, discountType, discountValue } = useCheckout();
+  // A row's figures are looked up by its id, so an answer to an earlier cart (before a line was
+  // added or moved) still lands on the right row; a line it does not know yet shows nothing.
+  const lineAnswers = new Map(
+    (checkout === undefined ? [] : checkout.items).map((l) => [l.key, l])
+  );
   const {
     customerId,
     customerName,
@@ -159,7 +164,9 @@ export const CartPanel = memo(function CartPanel({
     }
   };
 
+  const sourceBreakdown = checkout === undefined ? null : checkout.sourceBreakdown;
   const hasMixedSources =
+    sourceBreakdown !== null &&
     [
       sourceBreakdown.retailCents > 0,
       sourceBreakdown.repairsCents > 0,
@@ -235,11 +242,15 @@ export const CartPanel = memo(function CartPanel({
               variant="light"
               color="blue"
               leftSection={<IconFileText size={14} />}
-              disabled={items.length === 0 || Boolean(completedSale)}
+              disabled={
+                items.length === 0 || Boolean(completedSale) || checkout === undefined || !isCurrent
+              }
               onClick={() =>
+                checkout !== undefined &&
                 setQuotationDraft(
                   draftFromCart({
                     items,
+                    lineDiscountsCents: checkout.items.map((line) => line.discountCents),
                     customerId,
                     customerName,
                     customerPhone,
@@ -430,6 +441,12 @@ export const CartPanel = memo(function CartPanel({
               <CartLineItem
                 key={item.id}
                 item={item}
+                lineGrossCents={
+                  lineAnswers.has(item.id) ? lineAnswers.get(item.id)!.grossCents : null
+                }
+                lineTotalCents={
+                  lineAnswers.has(item.id) ? lineAnswers.get(item.id)!.totalCents : null
+                }
                 isNewest={index === 0}
                 onUpdateQty={updateQty}
                 onUpdateLineDiscount={updateLineDisc}
@@ -469,7 +486,7 @@ export const CartPanel = memo(function CartPanel({
       )}
 
       {/* 5. Mixed Cart Breakdown Footer (rendered when >1 source type present) */}
-      {hasMixedSources && (
+      {sourceBreakdown !== null && hasMixedSources && (
         <Box pt="xs" mt="xs" style={{ borderTop: '1px dashed var(--border-strong)' }}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={2} style={{ fontSize: 10 }}>
             {t('Mixed Cart Source Breakdown')}
@@ -506,7 +523,7 @@ export const CartPanel = memo(function CartPanel({
           onClick={onRequestPayment}
           style={{ height: 52, flexShrink: 0 }}
         >
-          {t('Charge')} {formatMoney(totalCents)}
+          {t('Charge')} {checkout === undefined ? '' : formatMoney(checkout.totalCents)}
         </Button>
       )}
 

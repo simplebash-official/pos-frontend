@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Popover, Stack, Group, Button, Text } from '@mantine/core';
 import { formatMoney, fromCents } from '@/shared/lib/money';
-import { calculateOrderDiscount } from '@/shared/lib/posCalculations';
+import type { CalcDiscount } from '../types';
 import { AmountInput } from '@/shared/components/AmountInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 
@@ -10,13 +10,12 @@ export interface DiscountPopoverProps {
   opened: boolean;
   onClose: () => void;
   targetName: string;
-  originalCents: number;
-  currentDiscountCents: number;
-  onApplyDiscount: (
-    discountCents: number,
-    discountType: 'percentage' | 'fixed',
-    discountValue: number
-  ) => void;
+  /** What the discount comes off, as the server worked it out; `null` until it has answered. */
+  originalCents: number | null;
+  /** The discount as typed now; `null` for none. */
+  currentDiscount: CalcDiscount | null;
+  /** The discount as typed: the server works out what it comes to. `null` removes it. */
+  onApplyDiscount: (discount: CalcDiscount | null) => void;
   children: React.ReactNode;
 }
 
@@ -25,34 +24,36 @@ export const DiscountPopover = ({
   onClose,
   targetName,
   originalCents,
-  currentDiscountCents,
+  currentDiscount,
   onApplyDiscount,
   children,
 }: DiscountPopoverProps) => {
-  const [mode, setMode] = useState<'percentage' | 'amount'>('percentage');
+  const [mode, setMode] = useState<'percentage' | 'amount'>(
+    currentDiscount !== null && currentDiscount.type === 'fixed' ? 'amount' : 'percentage'
+  );
   const [val, setVal] = useState<number | ''>(
-    currentDiscountCents > 0 ? fromCents(currentDiscountCents) : ''
+    currentDiscount === null
+      ? ''
+      : currentDiscount.type === 'fixed'
+        ? fromCents(currentDiscount.value)
+        : currentDiscount.value
   );
 
   const handleApply = () => {
     const num = typeof val === 'number' ? val : 0;
-    const computedCents = calculateOrderDiscount(
-      originalCents,
-      mode === 'percentage' ? 'percentage' : 'fixed',
-      mode === 'percentage' ? num : Math.round(num * 100)
-    );
-
     onApplyDiscount(
-      computedCents,
-      mode === 'percentage' ? 'percentage' : 'fixed',
-      mode === 'percentage' ? Math.min(100, Math.max(0, num)) : Math.max(0, Math.round(num * 100))
+      num > 0
+        ? mode === 'percentage'
+          ? { type: 'percentage', value: Math.min(100, num) }
+          : { type: 'fixed', value: Math.round(num * 100) }
+        : null
     );
     onClose();
   };
 
   const handleClear = () => {
     setVal('');
-    onApplyDiscount(0, 'fixed', 0);
+    onApplyDiscount(null);
     onClose();
   };
 
@@ -95,13 +96,13 @@ export const DiscountPopover = ({
             onModeChange={setMode}
             value={val}
             onChange={setVal}
-            maxAmount={fromCents(originalCents)}
+            maxAmount={originalCents === null ? undefined : fromCents(originalCents)}
             withCalculator
             autoFocus
           />
 
           <Text size="xs" c="dimmed">
-            {t('Original:')} {formatMoney(originalCents)}
+            {t('Original:')} {originalCents === null ? '' : formatMoney(originalCents)}
           </Text>
 
           <Group justify="space-between" mt="xs">

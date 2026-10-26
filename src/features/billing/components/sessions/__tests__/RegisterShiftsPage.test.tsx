@@ -24,6 +24,7 @@ const mockSessions: RegisterSession[] = [
     openedAt: '2026-10-22T08:00:00Z',
     openingFloatCents: 10000,
     openingDiscrepancyCents: 0,
+    expectedCashCents: 36000,
     totalCashSalesCents: 25000,
     totalCardSalesCents: 15000,
     totalOnlineSalesCents: 0,
@@ -111,6 +112,15 @@ vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
   }),
 }));
 
+// The server's totals as literals; the page shows them and adds nothing up itself.
+vi.mock('@/features/billing/hooks/useShiftTotals', () => ({
+  useShiftTotals: () => ({
+    data: { shiftCount: 3, runningCount: 2, cashSalesCents: 123_456, netVarianceCents: -700 },
+    isCurrent: true,
+    error: null,
+  }),
+}));
+
 vi.mock('@/features/billing/hooks/useZReportDocument', () => ({
   useZReportDocument: () => ({
     blob: null,
@@ -167,6 +177,9 @@ describe('RegisterShiftsPage', () => {
     expect(text()).toContain('Total Cash Sales');
     expect(text()).toContain('Shifts in Filter');
     expect(text()).toContain('Net Variance');
+    expect(text()).toContain('2 Open');
+    expect(text()).toContain('Rs. 1,234.56');
+    expect(text()).toContain('Rs. -7.00');
   });
 
   it('renders register sessions table with data', async () => {

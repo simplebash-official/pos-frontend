@@ -41,6 +41,7 @@ import { PermissionGuard } from '@/shared/components/PermissionGuard';
 import { PERMISSIONS } from '@/constants/permissions';
 import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
+import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import {
   AnimatedTabs,
   DrawerAfter,
@@ -75,6 +76,36 @@ export interface EmployeeDetailDrawerProps {
   onEdit: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
 }
+
+// Price and parts of the sample job; the server works out the profit and the commission.
+const SAMPLE_PRICE_CENTS = 1_000_000;
+const SAMPLE_MATERIAL_CENTS = 400_000;
+
+const CommissionExample = ({ emp }: { emp: Employee }) => {
+  const earnings = useJobEarnings({
+    priceCents: SAMPLE_PRICE_CENTS,
+    materialCostCents: SAMPLE_MATERIAL_CENTS,
+    splitType: emp.defaultSplitType,
+    splitValue: emp.defaultSplitValue,
+  });
+  const figures = earnings.data;
+  return (
+    <Text size="xs" c="dimmed" mt={2}>
+      {figures === undefined
+        ? t('Working out the figures...')
+        : t(
+            'A job priced at {price} with {parts} of parts leaves {profit} profit. This employee earns {commission}.'
+          )
+            .replace('{price}', formatMoney(SAMPLE_PRICE_CENTS))
+            .replace('{parts}', formatMoney(SAMPLE_MATERIAL_CENTS))
+            .replace('{profit}', formatMoney(figures.profitCents))
+            .replace('{commission}', formatMoney(figures.commissionCents))}
+      {figures !== undefined &&
+        figures.capped &&
+        ` ${t('A fixed commission is never more than the profit.')}`}
+    </Text>
+  );
+};
 
 export const EmployeeDetailDrawer = ({
   employee,
@@ -446,15 +477,7 @@ export const EmployeeDetailDrawer = ({
                                 <Text size="xs" fw={600}>
                                   {t('Sample Job Scenario:')}
                                 </Text>
-                                <Text size="xs" c="dimmed" mt={2}>
-                                  {percentage
-                                    ? `On a repair job priced at Rs. 10,000 with Rs. 4,000 spare part cost (Rs. 6,000 profit), this employee earns ${formatMoney(
-                                        Math.round(600000 * (emp.defaultSplitValue / 100))
-                                      )} (${emp.defaultSplitValue}%).`
-                                    : `On any completed job assigned to this employee, they earn ${formatMoney(
-                                        emp.defaultSplitValue
-                                      )} fixed.`}
-                                </Text>
+                                <CommissionExample emp={emp} />
                               </div>
                             </Group>
                           </Paper>

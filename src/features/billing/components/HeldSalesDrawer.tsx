@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Box, Button, Center, Divider, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { Figure, IconAction, KpiStrip, KpiTile, RichDrawer } from '@/shared/components/drawer';
 import { useHeldCarts } from '../hooks/useCart';
+import { useHeldCartTotals } from '../hooks/useCheckout';
 import { formatMoney } from '@/shared/lib/money';
 
 export interface HeldSalesDrawerProps {
@@ -50,16 +51,13 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
     return `${hours}h ${elapsedMins % 60}m ago`;
   };
 
-  const heldWithTotals = useMemo(
-    () =>
-      heldCarts.map((h) => {
-        const subtotal = h.items.reduce((acc, i) => acc + i.totalCents, 0);
-        const total = Math.max(0, subtotal - h.discountCents);
-        return { ...h, subtotal, total };
-      }),
-    [heldCarts]
-  );
-  const parkedValueCents = heldWithTotals.reduce((acc, h) => acc + h.total, 0);
+  // What each parked cart comes to is the server's answer; a cart still waiting shows no figure.
+  const totals = useHeldCartTotals(heldCarts);
+  const answered = heldCarts.every((h) => totals.has(h.id));
+  const parkedValueCents = heldCarts.reduce((acc, h) => {
+    const answer = totals.get(h.id);
+    return answer === undefined ? acc : acc + answer.totalCents;
+  }, 0);
 
   return (
     <RichDrawer
@@ -80,7 +78,11 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
               <Figure value={String(heldCarts.length)} hint={t('sales waiting')} color="orange" />
             </KpiTile>
             <KpiTile icon={<IconCoin size={16} />} color="blue" label={t('Total')}>
-              <Figure value={formatMoney(parkedValueCents)} hint={t('parked value')} color="blue" />
+              <Figure
+                value={answered ? formatMoney(parkedValueCents) : ''}
+                hint={t('parked value')}
+                color="blue"
+              />
             </KpiTile>
           </KpiStrip>
 
@@ -93,7 +95,7 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
             </Center>
           ) : (
             <AnimatePresence initial={false}>
-              {heldWithTotals.map((h) => {
+              {heldCarts.map((h) => {
                 const ageHours = getAgeHours(h.heldAt, nowMs);
                 const isStale = ageHours >= STALE_AFTER_HOURS;
 
@@ -134,7 +136,9 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
                               <Text size="xs" c="dimmed">
                                 {h.items.length} {t('item(s) · Total:')}{' '}
                                 <Text span fw={700} c="var(--text-primary)" inherit>
-                                  {formatMoney(h.total)}
+                                  {totals.has(h.id)
+                                    ? formatMoney(totals.get(h.id)!.totalCents)
+                                    : ''}
                                 </Text>
                               </Text>
                             </Box>

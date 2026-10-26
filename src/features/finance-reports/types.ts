@@ -48,6 +48,15 @@ export interface CategoryBreakdown {
   categoryName: string;
   reportGroup: ReportGroup;
   totalCents: number;
+  /** Share of the period's total cost, whole percent. */
+  sharePercent: number;
+  months: MonthTotal[];
+}
+
+/** One band of the monthly bar chart; the band for everything outside the biggest few has no name. */
+export interface ChartSeries {
+  name: string;
+  isOther: boolean;
   months: MonthTotal[];
 }
 
@@ -56,6 +65,7 @@ export interface ExpenseBreakdown {
   to: string;
   totalCents: number;
   categories: CategoryBreakdown[];
+  chart: ChartSeries[];
   months: MonthTotal[];
 }
 

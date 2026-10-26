@@ -7,6 +7,7 @@ import { formatMoney } from '@/shared/lib/money';
 import { formatCentsRange } from '@/features/inventory/lib/priceTiers';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { CartItem } from '@/store/slices/cartSlice';
+import type { CalcDiscount } from '../types';
 import { DiscountPopover } from './DiscountPopover';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 import { focusBarcodeScanner } from '../lib/focusScanner';
@@ -15,14 +16,19 @@ import { useIsAdmin } from '@/shared/hooks/usePermissions';
 
 export interface CartLineItemProps {
   item: CartItem;
+  /** Price times quantity and what the line comes to, as the server worked them out; `null` until it has answered. */
+  lineGrossCents: number | null;
+  lineTotalCents: number | null;
   isNewest?: boolean;
   onUpdateQty: (id: string, qty: number) => void;
-  onUpdateLineDiscount: (id: string, discountCents: number) => void;
+  onUpdateLineDiscount: (id: string, discount: CalcDiscount | null) => void;
   onRemove: (id: string) => void;
 }
 
 export const CartLineItem = memo(function CartLineItem({
   item,
+  lineGrossCents,
+  lineTotalCents,
   isNewest = false,
   onUpdateQty,
   onUpdateLineDiscount,
@@ -48,8 +54,7 @@ export const CartLineItem = memo(function CartLineItem({
   const catColor = iconInfo.color;
 
   // Calculated values
-  const hasLineDiscount = item.discountCents > 0;
-  const originalLineTotal = item.unitPriceCents * item.quantity;
+  const hasLineDiscount = item.discount !== null;
   const isStockNegative =
     sourceType === 'retail' &&
     typeof item.stockQuantity === 'number' &&
@@ -170,9 +175,9 @@ export const CartLineItem = memo(function CartLineItem({
             opened={discountOpen}
             onClose={() => setDiscountOpen(false)}
             targetName={item.name}
-            originalCents={originalLineTotal}
-            currentDiscountCents={item.discountCents}
-            onApplyDiscount={(disc) => onUpdateLineDiscount(item.id, disc)}
+            originalCents={lineGrossCents}
+            currentDiscount={item.discount}
+            onApplyDiscount={(discount) => onUpdateLineDiscount(item.id, discount)}
           >
             <Tooltip label={isMobile ? 'Line discount' : 'Line Discount (D)'} position="top">
               <ActionIcon
@@ -247,14 +252,14 @@ export const CartLineItem = memo(function CartLineItem({
             </Text>
           )}
 
-          {hasLineDiscount && (
+          {hasLineDiscount && lineGrossCents !== null && (
             <Text size="xs" c="dimmed" td="line-through" style={{ fontSize: 11 }}>
-              {formatMoney(originalLineTotal)}
+              {formatMoney(lineGrossCents)}
             </Text>
           )}
 
           <Text size="sm" fw={700} style={{ fontFamily: 'monospace' }}>
-            {formatMoney(item.totalCents)}
+            {lineTotalCents === null ? '' : formatMoney(lineTotalCents)}
           </Text>
         </Group>
       </Group>

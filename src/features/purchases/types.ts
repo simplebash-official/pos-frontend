@@ -357,3 +357,40 @@ export interface CalcReceiptReply {
   involvesCash: boolean;
   blockers: CalcBlocker[];
 }
+
+// ---------------------------------------------------------------------------
+// Live calculation of a supplier payment against bills (`POST /calc/settlement`)
+// ---------------------------------------------------------------------------
+
+export interface CalcSettlementRequest {
+  supplierKey: string;
+  paymentCents: number;
+  settlements: ReceiptSettlementInput[];
+}
+
+export type SettlementBlockerCode =
+  'bill_not_owed' | 'amount_missing' | 'over_bill' | 'bill_repeated' | 'over_payment';
+
+export interface SettlementBlocker {
+  code: SettlementBlockerCode;
+  receiptKey: string | null;
+  dueCents: number | null;
+}
+
+export interface SettlementPartReply {
+  receiptKey: string;
+  amountCents: number;
+}
+
+export interface CalcSettlementReply {
+  /** What every open bill of the supplier still owes together. */
+  owedCents: number;
+  allocatedCents: number;
+  /** The payment spread over the open bills, oldest first. */
+  oldestFirst: SettlementPartReply[];
+  /** Every open bill paid in full. */
+  payEverything: SettlementPartReply[];
+  /** What ticking each open bill would put against it now. */
+  ifTicked: SettlementPartReply[];
+  blockers: SettlementBlocker[];
+}

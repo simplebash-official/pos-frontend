@@ -13,7 +13,13 @@ import { notifications } from '@mantine/notifications';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { CashMovementModal } from '../CashMovementModal';
-import type { CashCategory, CashMovement, CashSettings } from '../../../types';
+import type {
+  CalcCashMovementReply,
+  CalcCashMovementRequest,
+  CashCategory,
+  CashMovement,
+  CashSettings,
+} from '../../../types';
 
 installDrawerTestEnv();
 
@@ -47,8 +53,28 @@ const createMovement = { mutateAsync: vi.fn(), isPending: false };
 const createCategory = { mutateAsync: vi.fn(), isPending: false };
 const verifyPin = { mutateAsync: vi.fn(), isPending: false };
 const reverseMovement = { mutateAsync: vi.fn(), isPending: false };
-// What the server says the shift's drawer holds; `undefined` while it has not loaded.
-let cashInDrawer: number | undefined = 10_000_000;
+// What the server answers for the form as it stands (`POST /calc/cash-movement`). The figures are
+// literals chosen by each test; nothing is worked out here. `null` is an answer still on its way.
+let script: ((request: CalcCashMovementRequest) => CalcCashMovementReply) | null;
+const reply = (over: Partial<CalcCashMovementReply>): CalcCashMovementReply => ({
+  takesCashOut: true,
+  cashInDrawerCents: 10_000_000,
+  cashAfterCents: 10_000_000,
+  drawerDeltaCents: 0,
+  overDrawer: false,
+  pinRequired: false,
+  periodAlreadyPaid: false,
+  blockers: [],
+  ...over,
+});
+// The usual answer for a form being filled in: what is still missing, in order.
+const filling = (request: CalcCashMovementRequest): CalcCashMovementReply =>
+  reply({
+    blockers: [
+      ...(request.amountCents === 0 ? (['amount_missing'] as const) : []),
+      ...(request.categoryKey === null ? (['category_missing'] as const) : []),
+    ],
+  });
 let categories: CashCategory[] = [];
 // The shop's drawer rules as the server holds them.
 let settings: CashSettings | undefined;
@@ -62,15 +88,15 @@ vi.mock('@/features/billing/hooks/useCashLookups', () => ({
   useCashSettings: () => ({ data: settings }),
   useCreatePayee: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
+vi.mock('@/features/billing/api/calcApi', () => ({
+  calcCashMovement: (request: CalcCashMovementRequest) =>
+    script === null ? new Promise(() => undefined) : Promise.resolve(script(request)),
+}));
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
   useCreateCashMovement: () => createMovement,
   useCashMovementList: () => ({ data: undefined }),
   useReverseCashMovement: () => reverseMovement,
   useVerifyPin: () => verifyPin,
-  useSessionDetail: () => ({
-    session: cashInDrawer === undefined ? null : { expectedCashCents: cashInDrawer },
-  }),
-  useDrawerState: () => ({ drawerState: null }),
 }));
 vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
 
@@ -115,7 +141,7 @@ describe('CashMovementModal', () => {
     createCategory.mutateAsync.mockReset();
     verifyPin.mutateAsync.mockReset();
     reverseMovement.mutateAsync.mockReset();
-    cashInDrawer = 10_000_000;
+    script = filling;
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -150,10 +176,21 @@ describe('CashMovementModal', () => {
         '[role="radiogroup"][aria-label="Kind of cash movement"] [role="radio"]'
       )
     ).find((b) => b.textContent?.trim() === label);
+  // Lets the scripted answer for the latest form land.
+  const flush = () =>
+    act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  // Figures count up to their new value and warnings fade in, so wait for the text to appear.
+  const eventuallyShows = (expected: string) =>
+    act(async () => {
+      await vi.waitFor(() => expect(text()).toContain(expected));
+    });
   const click = async (label: string | RegExp) => {
     const target = button(label);
     if (!target) throw new Error(`no button named ${String(label)}`);
     await act(async () => target.click());
+    await flush();
   };
   const typeInto = async (el: HTMLInputElement, value: string) => {
     await act(async () => {
@@ -161,6 +198,7 @@ describe('CashMovementModal', () => {
       setter.call(el, value);
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    await flush();
   };
   const field = (label: string) =>
     Array.from(document.body.querySelectorAll<HTMLLabelElement>('label'))
@@ -321,9 +359,19 @@ describe('CashMovementModal', () => {
 
   it('asks for a manager PIN on owner withdrawals and does not send without a checked one', async () => {
     categories = [category('ccat_personal', 'Personal use', { movementType: 'owner_withdrawal' })];
+    script = (request) =>
+      reply({
+        pinRequired: true,
+        blockers: [
+          ...(request.amountCents === 0 ? (['amount_missing'] as const) : []),
+          ...(request.categoryKey === null ? (['category_missing'] as const) : []),
+          ...(request.payeeName === '' ? (['who_took_cash_missing'] as const) : []),
+          ...(!request.pinEntered ? (['pin_missing'] as const) : []),
+        ],
+      });
     await render(CASHIER);
     await click('Owner withdrawal');
-    expect(text()).toContain('Manager or owner approval needed');
+    await eventuallyShows('Manager or owner approval needed');
 
     await typeInto(amountField(), '200');
     await click('Personal use');
@@ -428,21 +476,32 @@ describe('CashMovementModal', () => {
   });
 
   describe('the drawer', () => {
+    // Added or paid out: the drawer figures come from the answer, keyed here by the typed amount.
+    const drawerAt =
+      (after: Record<number, number>, over: Partial<CalcCashMovementReply> = {}) =>
+      (request: CalcCashMovementRequest) =>
+        reply({
+          cashInDrawerCents: 1_000_000,
+          cashAfterCents: after[request.amountCents],
+          drawerDeltaCents: request.amountCents === 0 ? 0 : after[request.amountCents] - 1_000_000,
+          ...over,
+        });
+
     it('shows what the drawer holds and what is left after this payment', async () => {
-      cashInDrawer = 1_000_000;
+      script = drawerAt({ 0: 1_000_000, 50_000: 950_000 });
       await render(CASHIER);
       expect(text()).toContain('In the drawer now: Rs. 10,000.00');
       await typeInto(amountField(), '500');
-      expect(text()).toContain('In the drawer: Rs. 10,000.00 → Rs. 9,500.00');
+      await eventuallyShows('In the drawer: Rs. 10,000.00 → Rs. 9,500.00');
     });
 
     it('adds to the drawer for added cash', async () => {
-      cashInDrawer = 1_000_000;
+      script = drawerAt({ 0: 1_000_000, 50_000: 1_050_000 }, { takesCashOut: false });
       categories = [category('ccat_float', 'Opening float', { movementType: 'add_cash' })];
       await render(CASHIER);
       await act(async () => group('Money in')!.click());
       await typeInto(amountField(), '500');
-      expect(text()).toContain('Rs. 10,000.00 → Rs. 10,500.00');
+      await eventuallyShows('Rs. 10,000.00 → Rs. 10,500.00');
     });
 
     it('offers the quick amounts the shop chose, and none before they have loaded', async () => {
@@ -461,7 +520,7 @@ describe('CashMovementModal', () => {
     });
 
     it('offers to drop the excess above the float target on a cash drop, and only then', async () => {
-      cashInDrawer = 1_000_000;
+      script = drawerAt({ 0: 1_000_000 });
       settings = { ...SETTINGS, floatTargetCents: 300_000 };
       categories = [category('ccat_safe', 'To safe', { movementType: 'cash_drop' })];
       await render(CASHIER);
@@ -480,7 +539,7 @@ describe('CashMovementModal', () => {
     });
 
     it('shows nothing about the drawer until the server has told us', async () => {
-      cashInDrawer = undefined;
+      script = null;
       await render(CASHIER);
       await typeInto(amountField(), '500');
       expect(document.querySelector('[data-testid="drawer-preview"]')).toBeNull();
@@ -488,7 +547,21 @@ describe('CashMovementModal', () => {
     });
 
     it('warns when a payout is more than the drawer holds and asks for a manager PIN and a reason', async () => {
-      cashInDrawer = 10_000;
+      // The drawer holds Rs 100.00; the payout is Rs 200.00.
+      script = (request) =>
+        reply({
+          cashInDrawerCents: 10_000,
+          cashAfterCents: request.amountCents === 0 ? 10_000 : -10_000,
+          drawerDeltaCents: request.amountCents === 0 ? 0 : -20_000,
+          overDrawer: request.amountCents > 0,
+          pinRequired: request.amountCents > 0,
+          blockers: [
+            ...(request.categoryKey === null ? (['category_missing'] as const) : []),
+            ...(!request.pinEntered ? (['pin_missing'] as const) : []),
+            ...(request.pinEntered && !request.pinVerified ? (['pin_not_verified'] as const) : []),
+            ...(!request.overrideReasonEntered ? (['override_reason_missing'] as const) : []),
+          ],
+        });
       createMovement.mutateAsync.mockResolvedValue({
         movementNumber: 'CSH-000009',
         movementType: 'petty_expense',
@@ -500,8 +573,8 @@ describe('CashMovementModal', () => {
 
       await render(CASHIER);
       await typeInto(amountField(), '200');
-      expect(text()).toContain('More than the drawer holds');
-      expect(text()).toContain('Rs. 100.00 → Rs. -100.00');
+      await eventuallyShows('More than the drawer holds');
+      await eventuallyShows('Rs. 100.00 → Rs. -100.00');
       expect(text()).toContain('Manager or owner approval needed');
 
       await click('Tea and refreshments');
@@ -526,7 +599,7 @@ describe('CashMovementModal', () => {
     });
 
     it('does not ask for a reason when the payout fits in the drawer', async () => {
-      cashInDrawer = 1_000_000;
+      script = drawerAt({ 0: 1_000_000, 50_000: 950_000 });
       await render(CASHIER);
       await typeInto(amountField(), '500');
       expect(text()).not.toContain('Why is this payout bigger');

@@ -62,13 +62,14 @@ export interface TechnicianWorkload {
 
 export interface FastMovingItem {
   productId: string;
-  productKey: string;
+  productKey: string | null;
   name: string;
-  category: string;
+  /** The product's own figures are `null` when the product no longer exists. */
+  category: string | null;
   soldTodayUnits: number;
-  remainingStock: number;
+  remainingStock: number | null;
   sellingPriceCents: number;
-  minThreshold: number;
+  minThreshold: number | null;
 }
 
 export interface ActivityEvent {
@@ -89,7 +90,6 @@ export interface CashDrawerShiftSummary {
   cardSalesCents: number;
   onlineSalesCents: number;
   creditSalesCents: number;
-  cashOutCents: number;
   expectedDrawerCashCents: number;
 }
 
@@ -103,4 +103,85 @@ export interface DashboardData {
   recentActivities: ActivityEvent[];
   shiftSummary: CashDrawerShiftSummary;
   lastRefreshed: string;
+}
+
+/** The server's grouping of the shop's records (`GET /reports/dashboard-pulse`). */
+export interface DashboardPulseReply {
+  activeRepairsCount: number;
+  readyRepairsCount: number;
+  uncollectedReadyValueCents: number;
+  activePrintJobsCount: number;
+  repairPipeline: PulseStage[];
+  printPipeline: PulseStage[];
+  technicians: PulseTechnician[];
+  fastMovers: PulseFastMover[];
+  lowStock: PulseLowStock[];
+  readyRepairs: PulseReadyRepair[];
+  recentActivity: PulseActivity[];
+}
+
+export interface PulseStage {
+  stage: string;
+  count: number;
+  percent: number;
+}
+
+export interface PulseTechnician {
+  employeeKey: string;
+  name: string;
+  role: 'technician' | 'printer';
+  activeJobsCount: number;
+  completedTodayCount: number;
+  capacityPercent: number;
+  status: 'available' | 'busy' | 'overloaded';
+  currentDeviceModel: string | null;
+  currentTicketNumber: string | null;
+}
+
+export interface PulseFastMover {
+  productKey: string | null;
+  name: string;
+  soldTodayUnits: number;
+  sellingPriceCents: number;
+  category: string | null;
+  remainingStock: number | null;
+  minThreshold: number | null;
+}
+
+export interface PulseLowStock {
+  productId: string;
+  reference: string;
+  name: string;
+  stockQuantity: number;
+  threshold: number;
+  outOfStock: boolean;
+  updatedAt: string;
+  daysSinceUpdate: number;
+}
+
+export interface PulseReadyRepair {
+  id: string;
+  ticketNumber: string;
+  deviceModel: string;
+  customerName: string;
+  customerPhone: string;
+  createdAt: string;
+  daysWaiting: number;
+  severity: 'critical' | 'warning';
+  amountCents: number;
+}
+
+export interface PulseActivity {
+  kind: 'sale' | 'repair' | 'print';
+  id: string;
+  reference: string;
+  amountCents: number;
+  createdAt: string;
+  paymentMethod: string | null;
+  cashierName: string | null;
+  status: string | null;
+  deviceModel: string | null;
+  customerName: string | null;
+  jobType: string | null;
+  quantity: number | null;
 }

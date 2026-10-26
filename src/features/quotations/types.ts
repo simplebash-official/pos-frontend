@@ -89,3 +89,53 @@ export interface CreateQuotationInput {
   terms?: string;
   preparedBy?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Live calculation of the quotation form (`POST /calc/quotation`)
+// ---------------------------------------------------------------------------
+
+export interface CalcQuotationLineRequest {
+  /** The form line's id, echoed in its answer. */
+  key: string;
+  name: string;
+  unitPriceCents: number;
+  quantity: number;
+  /** As typed: a percentage (0-100), or fixed cents off each unit or the whole line. `null` for none. */
+  discount: {
+    type: 'percentage' | 'fixed';
+    scope: 'per_unit' | 'total';
+    value: number;
+  } | null;
+}
+
+export interface CalcQuotationRequest {
+  customerKey: string | null;
+  customerName: string;
+  lines: CalcQuotationLineRequest[];
+  orderDiscount: { type: 'percentage' | 'fixed'; value: number } | null;
+  /** `YYYY-MM-DD`. */
+  validUntil: string;
+}
+
+export type QuotationBlockerCode =
+  | 'customer_missing'
+  | 'no_lines'
+  | 'name_missing'
+  | 'quantity_invalid'
+  | 'order_discount_negative'
+  | 'order_discount_over100'
+  | 'valid_until_invalid'
+  | 'valid_until_in_past';
+
+export interface CalcQuotationReply {
+  lines: { key: string; grossCents: number; discountCents: number; totalCents: number }[];
+  /** Price times quantity over all lines, before any discount. */
+  grossSubtotalCents: number;
+  /** All the line discounts together. */
+  lineDiscountsCents: number;
+  subtotalCents: number;
+  discountCents: number;
+  totalCents: number;
+  /** What stops the quotation being created, in the order to say it; empty means it can go ahead. */
+  blockers: { code: QuotationBlockerCode; line: number | null }[];
+}

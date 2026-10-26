@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
 import { IconX, IconPrinter, IconDownload } from '@tabler/icons-react';
 import type { Invoice, CreditNote } from '../types';
-import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
+import { getSaleHeroPresentation, isOnAccountSale } from '../lib/saleHeroPresentation';
+import { useInvoiceBalance } from '../hooks/useInvoiceBalance';
 import { useInvoiceDocument, useInvoiceDocumentDesign } from '../hooks/useInvoiceDocument';
 import { useCreditNoteDocument, useCreditNoteDocumentDesign } from '../hooks/useCreditNoteDocument';
 import { useDocumentDesignChoice } from '../hooks/useDocumentDesignChoice';
@@ -51,6 +52,10 @@ export const SaleDocumentPreviewModal = ({
 
   const invoice = subject?.kind === 'invoice' ? subject.invoice : null;
   const creditNote = subject?.kind === 'creditNote' ? subject.creditNote : null;
+  const balance = useInvoiceBalance(
+    invoice ? invoice.id : '',
+    invoice ? isOnAccountSale(invoice) : false
+  ).data;
 
   // Bumped after a Print click to force a fresh read of the (localStorage-backed) print log below.
   const [, forcePrintLogRefresh] = useState(0);
@@ -167,7 +172,11 @@ export const SaleDocumentPreviewModal = ({
 
   // `getSaleHeroPresentation` only understands an `Invoice` — the credit
   // note case builds its own, much simpler header values below instead.
-  const hero = invoice ? getSaleHeroPresentation(invoice, invoice.changeDueCents ?? 0) : null;
+  const hero = invoice
+    ? getSaleHeroPresentation(invoice, invoice.changeDueCents ?? 0, balance)
+    : null;
+  // A sale on account waits for the server's paid and owed figures.
+  if (invoice && hero === null) return null;
 
   const statusWord = isCreditNote
     ? getCreditNoteStatusMeta(creditNote!.status).label

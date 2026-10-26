@@ -33,11 +33,11 @@ import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
 import { AnimatedNumber, FadeIn, useMotionPresets } from '@/shared/motion';
 import { useCashCategories, useCashSettings, usePeriodStatus } from '../../hooks/useCashLookups';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcCashMovement } from '../../api/calcApi';
 import {
   useCreateCashMovement,
-  useDrawerState,
   useReverseCashMovement,
-  useSessionDetail,
   useVerifyPin,
 } from '../../hooks/useRegisterSession';
 import { useUndoWindow } from '../../hooks/useUndoWindow';
@@ -48,13 +48,10 @@ import { MovementStep } from './movement/MovementStep';
 import { MovementGroupTabs, MovementKindCards } from './movement/MovementTypePicker';
 import { ShortcutPills, type ShortcutPill } from './movement/ShortcutPills';
 import {
-  drawerDelta,
   emptyForm,
-  isOverDrawer,
-  needsPin,
   switchType,
+  toCalcRequest,
   toInput,
-  validateForm,
   type MovementFormState,
 } from './movement/movementForm';
 import {
@@ -67,6 +64,7 @@ import {
   getGroupOf,
   getTypeLabel,
 } from './movement/movementTypes';
+import { movementBlockerText } from './movement/blockerText';
 import { printCashMovementVoucher } from './sessionPrint';
 
 /** Starting values for a payment the person is about to make, e.g. a regular bill that is due. */
@@ -150,27 +148,23 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
     { movementType: form.type },
     opened
   );
-  const category = categories.find((c) => c.key === form.categoryKey);
-  // The cash the drawer holds right now, from the server: the shift's expected cash, or the drawer's
-  // own balance between shifts. Unknown until it loads, and then nothing is blocked or previewed here
-  // (the server checks it again either way).
-  const { session: shift } = useSessionDetail(sessionKey);
-  const { drawerState } = useDrawerState(sessionKey === undefined ? terminalId : undefined);
-  const cashInDrawer =
-    sessionKey === undefined ? drawerState?.currentBalanceCents : shift?.expectedCashCents;
-  const overDrawer = isOverDrawer(form.type, form.amountCents, cashInDrawer);
-  const cashAfter =
-    cashInDrawer === undefined
-      ? undefined
-      : cashInDrawer + drawerDelta(form.type, form.amountCents);
+  // Everything worked out about this payment comes from the server: the cash the drawer holds,
+  // whether it goes over, whether a PIN is needed and what still stops it being saved.
+  const calc = useCalc(
+    'cash-movement',
+    toCalcRequest(form, { terminalId, sessionKey }, verifiedApprover !== null),
+    calcCashMovement
+  );
+  const figures = calc.data;
+  const cashInDrawer = figures?.cashInDrawerCents;
+  const overDrawer = figures?.overDrawer === true;
+  const pinRequired = figures?.pinRequired === true;
   const isRent = form.type === 'rent_and_bills';
   const periodStatus = usePeriodStatus(
     isRent ? form.categoryKey : null,
     form.payeeKey,
     isRent ? form.period : null
   ).data;
-  const periodAlreadyPaid = isRent && periodStatus?.alreadyPaid === true;
-  const pinRequired = needsPin(form.type, category, form.amountCents, overDrawer);
   const canUndo = useUndoWindow(completed?.undoUntil);
   const isNoSale = form.type === 'no_sale';
   const groupIndex = MOVEMENT_GROUPS.findIndex((g) => g.id === getGroupOf(form.type));
@@ -245,13 +239,16 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const problem = validateForm(form, category, {
-      pinVerified: verifiedApprover !== null,
-      overDrawer,
-      periodAlreadyPaid,
-    });
-    if (problem) {
-      setSubmitError(problem);
+    if (figures === undefined || !calc.isCurrent) {
+      setSubmitError(
+        calc.error === null
+          ? t('Working out the figures...')
+          : t('Could not work out the figures. Check the connection and try again.')
+      );
+      return;
+    }
+    if (figures.blockers.length > 0) {
+      setSubmitError(movementBlockerText(figures.blockers[0]));
       return;
     }
     try {
@@ -491,29 +488,34 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
                             tall={isMobile}
                           />
                         )}
-                        {cashInDrawer !== undefined && (
+                        {figures !== undefined && (
                           <Group gap={6} wrap="nowrap">
                             <IconCash size={16} color="var(--text-muted)" aria-hidden />
                             <Text
                               size="sm"
-                              c={cashAfter !== undefined && cashAfter < 0 ? 'red' : 'dimmed'}
+                              c={figures.cashAfterCents < 0 ? 'red' : 'dimmed'}
                               data-testid="drawer-preview"
                             >
-                              {form.amountCents > 0 &&
-                              drawerDelta(form.type, form.amountCents) !== 0 ? (
+                              {form.amountCents > 0 && figures.drawerDeltaCents !== 0 ? (
                                 <>
                                   {`${t('In the drawer')}: `}
-                                  <AnimatedNumber value={cashInDrawer} format={formatMoney} />
+                                  <AnimatedNumber
+                                    value={figures.cashInDrawerCents}
+                                    format={formatMoney}
+                                  />
                                   {' → '}
                                   <AnimatedNumber
-                                    value={cashAfter as number}
+                                    value={figures.cashAfterCents}
                                     format={formatMoney}
                                   />
                                 </>
                               ) : (
                                 <>
                                   {`${t('In the drawer now')}: `}
-                                  <AnimatedNumber value={cashInDrawer} format={formatMoney} />
+                                  <AnimatedNumber
+                                    value={figures.cashInDrawerCents}
+                                    format={formatMoney}
+                                  />
                                 </>
                               )}
                             </Text>

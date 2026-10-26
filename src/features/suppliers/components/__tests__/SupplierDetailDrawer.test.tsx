@@ -69,6 +69,20 @@ const RECEIPTS = [
 ];
 const ALL_PRODUCTS = [{ key: 'prod_b', name: 'HDMI Cable', sku: 'CAB-0002' }];
 
+// What the server says the supplier's open bills owe together (the Rs 400.00 unpaid bill).
+vi.mock('@/features/purchases/hooks/useSettlement', () => ({
+  useSettlement: () => ({
+    data: {
+      owedCents: 40_000,
+      allocatedCents: 0,
+      oldestFirst: [],
+      payEverything: [],
+      blockers: [],
+    },
+    isCurrent: true,
+    error: null,
+  }),
+}));
 vi.mock('@/features/supplier-products/hooks/useSupplierProducts', () => ({
   useProductsForSupplier: () => ({ data: LINKED, isLoading: false }),
   useLinkProduct: () => ({ mutate: linkMutate, isPending: false }),

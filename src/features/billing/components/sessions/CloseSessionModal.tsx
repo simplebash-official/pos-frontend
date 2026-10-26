@@ -40,9 +40,31 @@ import { StepProgress } from './StepProgress';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
 import { StepSwitch } from '@/shared/motion';
-import { VARIANCE_TOLERANCE_CENTS } from './constants';
-import { calculateExpectedDrawerCash, calculateCashVariance } from './sessionMath';
-import type { RegisterSession } from '../../types';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcShiftCount } from '../../api/calcApi';
+import { getSession } from '../../api/sessionsApi';
+import { useCashCount } from '../../hooks/useCashCount';
+import type { CalcShiftCountReply, RegisterSession } from '../../types';
+
+/** The close figures of the server's answer, once it has them all (it always does for a shift being closed). */
+const closeFigures = (reply: CalcShiftCountReply | undefined) =>
+  reply !== undefined &&
+  reply.closingFloatCents !== null &&
+  reply.keepOpeningFloatCents !== null &&
+  reply.safeDepositCents !== null
+    ? {
+        countedCents: reply.countedCents,
+        expectedCents: reply.expectedCents,
+        varianceCents: reply.varianceCents,
+        reasonRequired: reply.reasonRequired,
+        pinRequired: reply.pinRequired,
+        varianceToleranceCents: reply.varianceToleranceCents,
+        closingFloatCents: reply.closingFloatCents,
+        keepOpeningFloatCents: reply.keepOpeningFloatCents,
+        safeDepositCents: reply.safeDepositCents,
+      }
+    : undefined;
 
 interface CloseSessionFormProps {
   session: RegisterSession;
@@ -72,7 +94,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
 
   // Step 2: Blind Count
   const [countMode, setCountMode] = useState<'total' | 'denominations'>('total');
-  const [countedCashCents, setCountedCashCents] = useState(initialSession.countedCashCents ?? 0);
+  const [typedCountedCents, setTypedCountedCents] = useState(0);
   const [denominations, setDenominations] = useState<Record<string, number>>({});
 
   // Step 3: Variance & Approval
@@ -87,21 +109,39 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
   const [withdrawalReason, setWithdrawalReason] = useState('');
 
   // Step 4: Next Shift Float & Deposit
-  const [closingFloatCents, setClosingFloatCents] = useState(initialSession.openingFloatCents);
+  // The float the person chose; until they do the server suggests keeping the opening float.
+  const [closingFloatChoice, setClosingFloatChoice] = useState<number | null>(null);
   const [closingNote, setClosingNote] = useState('');
 
   const [error, setError] = useState<string | null>(null);
 
-  const expectedCashCents = session.expectedCashCents ?? calculateExpectedDrawerCash(session);
-  const varianceCents = calculateCashVariance(countedCashCents, expectedCashCents);
-  const hasVariance = varianceCents !== 0;
-  const isLargeVariance = Math.abs(varianceCents) > VARIANCE_TOLERANCE_CENTS;
-  const safeDepositCents = Math.max(0, countedCashCents - closingFloatCents);
+  const queryClient = useQueryClient();
+  const denominationCount = useCashCount(denominations);
+  // The count being entered: what was typed, or the server's total for the notes and coins. `null`
+  // until that total is for the counts as they stand now.
+  const enteredCents =
+    countMode === 'total'
+      ? typedCountedCents
+      : denominationCount.isCurrent && denominationCount.data
+        ? denominationCount.data.totalCents
+        : null;
 
-  const handleDenominationsChange = (denoms: Record<string, number>, totalCents: number) => {
-    setDenominations(denoms);
-    setCountedCashCents(totalCents);
-  };
+  // Once the count is recorded the server compares it with the drawer and works out the variance,
+  // whether a reason or PIN is needed, and the float and safe deposit.
+  const recordedCount = session.countedCashCents;
+  const shift = useCalc(
+    'shift-count',
+    {
+      sessionKey: session.key,
+      terminalId: null,
+      // Unused until a count is recorded: the request is not sent before then.
+      countedCents: recordedCount === undefined ? 0 : recordedCount,
+      closingFloatCents: closingFloatChoice,
+    },
+    calcShiftCount,
+    recordedCount !== undefined
+  );
+  const figures = closeFigures(shift.data);
 
   const handleVerifyPin = async () => {
     if (!managerPin.trim()) {
@@ -128,17 +168,18 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
 
   const handleSubmitBlindCount = async () => {
     setError(null);
+    if (enteredCents === null) return;
     try {
       const updated = await submitBlindCountMutation.mutateAsync({
         key: session.key,
         input: {
-          countedCashCents,
+          countedCashCents: enteredCents,
           closingDenominations: countMode === 'denominations' ? denominations : undefined,
         },
       });
       setSession(updated);
       onCountSubmitted();
-      setClosingFloatCents(Math.min(countedCashCents, updated.openingFloatCents));
+      setClosingFloatChoice(null);
       setActiveStep(2); // Move to reconciliation step
     } catch (err: unknown) {
       const message =
@@ -180,14 +221,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         color: 'teal',
       });
 
-      // Recalculate session state with 0 variance
-      setSession((prev) => ({
-        ...prev,
-        totalOwnerWithdrawalsCents: prev.totalOwnerWithdrawalsCents + Math.abs(varianceCents),
-        cashVarianceCents: 0,
-        expectedCashCents: countedCashCents,
-        hasLateMovements: true,
-      }));
+      // The shift now holds the withdrawal; ask the server for it and for the figures again.
+      setSession(await getSession(session.key));
+      await queryClient.invalidateQueries({ queryKey: ['calc', 'shift-count'] });
       setShowConvertVariance(false);
     } catch (err: unknown) {
       const message =
@@ -201,12 +237,16 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
   const handleFinalClose = async () => {
     setError(null);
 
-    if (hasVariance) {
+    if (figures === undefined || !shift.isCurrent) {
+      setError(t('Working out the figures...'));
+      return;
+    }
+    if (figures.reasonRequired) {
       if (!varianceReason.trim()) {
         setError(t('Please provide an explanation for the cash variance.'));
         return;
       }
-      if (isLargeVariance && !managerPin.trim()) {
+      if (figures.pinRequired && !managerPin.trim()) {
         setError(t('Manager PIN authorization is required for variance exceeding tolerance.'));
         return;
       }
@@ -216,13 +256,13 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
       const closed = await closeSessionMutation.mutateAsync({
         key: session.key,
         input: {
-          countedCashCents,
+          countedCashCents: figures.countedCents,
           closingDenominations: countMode === 'denominations' ? denominations : undefined,
-          closingFloatCents,
-          cashDropToSafeCents: safeDepositCents,
+          closingFloatCents: figures.closingFloatCents,
+          cashDropToSafeCents: figures.safeDepositCents,
           closingNote: closingNote.trim() || undefined,
-          varianceReason: hasVariance ? varianceReason.trim() : undefined,
-          managerPin: isLargeVariance ? managerPin.trim() : undefined,
+          varianceReason: figures.reasonRequired ? varianceReason.trim() : undefined,
+          managerPin: figures.pinRequired ? managerPin.trim() : undefined,
         },
       });
 
@@ -249,6 +289,14 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
       setError(message);
     }
   };
+
+  const waiting = (
+    <Text size="sm" c="dimmed">
+      {shift.error === null
+        ? t('Working out the figures...')
+        : t('Could not work out the figures. Check the connection and try again.')}
+    </Text>
+  );
 
   return (
     <Stack gap="md">
@@ -339,13 +387,17 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
               <MoneyInput
                 label={t('Total Cash Counted')}
                 description={t('Enter the exact cash amount in drawer.')}
-                valueCents={countedCashCents}
-                onChangeCents={setCountedCashCents}
+                valueCents={typedCountedCents}
+                onChangeCents={setTypedCountedCents}
                 size="md"
                 autoFocus
               />
             ) : (
-              <DenominationCounter value={denominations} onChange={handleDenominationsChange} />
+              <DenominationCounter
+                counts={denominations}
+                onChange={setDenominations}
+                count={denominationCount}
+              />
             )}
 
             <Group justify="space-between" mt="md">
@@ -360,7 +412,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                 color="blue"
                 loading={submitBlindCountMutation.isPending}
                 onClick={handleSubmitBlindCount}
-                disabled={countedCashCents < 0}
+                disabled={enteredCents === null}
               >
                 {t('Submit Count & Calculate')}
               </Button>
@@ -369,7 +421,8 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         )}
 
         {/* Step 3: Reconciliation & Variance */}
-        {activeStep === 2 && (
+        {activeStep === 2 && figures === undefined && waiting}
+        {activeStep === 2 && figures !== undefined && (
           <Stack gap="md">
             <Card withBorder p="sm" radius="md">
               <Stack gap="xs">
@@ -411,7 +464,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                     {t('System Expected Cash:')}
                   </Text>
                   <Text size="sm" fw={600}>
-                    {formatMoney(expectedCashCents)}
+                    {formatMoney(figures.expectedCents)}
                   </Text>
                 </Group>
                 <Group justify="space-between">
@@ -419,7 +472,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                     {t('Counted Cash:')}
                   </Text>
                   <Text size="sm" fw={600}>
-                    {formatMoney(countedCashCents)}
+                    {formatMoney(figures.countedCents)}
                   </Text>
                 </Group>
                 <Group justify="space-between">
@@ -428,32 +481,38 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                   </Text>
                   <Badge
                     size="lg"
-                    color={varianceCents === 0 ? 'teal' : varianceCents < 0 ? 'red' : 'yellow'}
+                    color={
+                      figures.varianceCents === 0
+                        ? 'teal'
+                        : figures.varianceCents < 0
+                          ? 'red'
+                          : 'yellow'
+                    }
                     variant="filled"
                   >
-                    {varianceCents > 0
-                      ? `+${formatMoney(varianceCents)}`
-                      : varianceCents < 0
-                        ? `-${formatMoney(Math.abs(varianceCents))}`
+                    {figures.varianceCents > 0
+                      ? `+${formatMoney(figures.varianceCents)}`
+                      : figures.varianceCents < 0
+                        ? `-${formatMoney(Math.abs(figures.varianceCents))}`
                         : formatMoney(0)}
                   </Badge>
                 </Group>
               </Stack>
             </Card>
 
-            {hasVariance && (
+            {figures.reasonRequired && (
               <Alert
                 icon={<IconAlertTriangle size={20} />}
-                color={varianceCents < 0 ? 'red' : 'yellow'}
+                color={figures.varianceCents < 0 ? 'red' : 'yellow'}
                 variant="light"
-                title={varianceCents < 0 ? t('Cash Shortage') : t('Cash Overage')}
+                title={figures.varianceCents < 0 ? t('Cash Shortage') : t('Cash Overage')}
               >
                 <Stack gap="xs" mt="xs">
                   <Text size="sm">
-                    {isLargeVariance
+                    {figures.pinRequired
                       ? t(
-                          'The variance exceeds the allowed tolerance (Rs. 5.00). An explanation and Manager PIN approval are required.'
-                        )
+                          'The variance exceeds the allowed tolerance ({tolerance}). An explanation and Manager PIN approval are required.'
+                        ).replace('{tolerance}', formatMoney(figures.varianceToleranceCents))
                       : t('A small variance was recorded. Please provide an explanation note.')}
                   </Text>
 
@@ -466,7 +525,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                   />
 
                   {/* Option to convert cash shortage to late owner withdrawal */}
-                  {varianceCents < 0 && !showConvertVariance && (
+                  {figures.varianceCents < 0 && !showConvertVariance && (
                     <Button
                       variant="light"
                       color="orange"
@@ -523,7 +582,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                     </Card>
                   )}
 
-                  {isLargeVariance && (
+                  {figures.pinRequired && (
                     <Group align="flex-end" gap="xs">
                       <PasswordInput
                         label={t('Manager PIN')}
@@ -573,7 +632,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                 rightSection={<IconPlayerTrackNext size={16} />}
                 onClick={() => setActiveStep(3)}
                 disabled={
-                  hasVariance && (!varianceReason.trim() || (isLargeVariance && !managerPin.trim()))
+                  !shift.isCurrent ||
+                  (figures.reasonRequired &&
+                    (!varianceReason.trim() || (figures.pinRequired && !managerPin.trim())))
                 }
               >
                 {t('Proceed to Next Float')}
@@ -583,7 +644,8 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         )}
 
         {/* Step 4: Next Shift Float & Safe Deposit */}
-        {activeStep === 3 && (
+        {activeStep === 3 && figures === undefined && waiting}
+        {activeStep === 3 && figures !== undefined && (
           <Stack gap="md">
             <Card withBorder p="sm" radius="md">
               <Stack gap="xs">
@@ -593,7 +655,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                 <Group justify="space-between">
                   <Text size="sm">{t('Total Cash Counted in Drawer:')}</Text>
                   <Text size="md" fw={700}>
-                    {formatMoney(countedCashCents)}
+                    {formatMoney(figures.countedCents)}
                   </Text>
                 </Group>
               </Stack>
@@ -602,8 +664,8 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
             <MoneyInput
               label={t('Closing Float (Kept in Drawer for Next Shift)')}
               description={t('The amount left in the drawer for the incoming cashier.')}
-              valueCents={closingFloatCents}
-              onChangeCents={(val) => setClosingFloatCents(Math.min(val, countedCashCents))}
+              valueCents={figures.closingFloatCents}
+              onChangeCents={(val) => setClosingFloatChoice(Math.min(val, figures.countedCents))}
               size="md"
               required
             />
@@ -612,21 +674,18 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
               <Button
                 size="xs"
                 variant="default"
-                onClick={() => setClosingFloatCents(countedCashCents)}
+                onClick={() => setClosingFloatChoice(figures.countedCents)}
               >
-                {t('Keep all in drawer')} ({formatMoney(countedCashCents)})
+                {t('Keep all in drawer')} ({formatMoney(figures.countedCents)})
               </Button>
               <Button
                 size="xs"
                 variant="default"
-                onClick={() =>
-                  setClosingFloatCents(Math.min(countedCashCents, session.openingFloatCents))
-                }
+                onClick={() => setClosingFloatChoice(figures.keepOpeningFloatCents)}
               >
-                {t('Keep opening float')} (
-                {formatMoney(Math.min(countedCashCents, session.openingFloatCents))})
+                {t('Keep opening float')} ({formatMoney(figures.keepOpeningFloatCents)})
               </Button>
-              <Button size="xs" variant="default" onClick={() => setClosingFloatCents(0)}>
+              <Button size="xs" variant="default" onClick={() => setClosingFloatChoice(0)}>
                 {t('Take all to safe')}
               </Button>
             </Group>
@@ -645,12 +704,12 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                   </div>
                 </Group>
                 <Text size="xl" fw={700} c="blue">
-                  {formatMoney(safeDepositCents)}
+                  {formatMoney(figures.safeDepositCents)}
                 </Text>
               </Group>
             </Card>
 
-            {closingFloatCents === 0 && countedCashCents > 0 ? (
+            {figures.closingFloatCents === 0 && figures.countedCents > 0 ? (
               <Alert
                 icon={<IconAlertTriangle size={18} />}
                 color="yellow"
@@ -662,7 +721,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
               </Alert>
             ) : (
               <Text size="sm" c="dimmed" data-testid="next-shift-line">
-                {t('The next shift will open with')} {formatMoney(closingFloatCents)}{' '}
+                {t('The next shift will open with')} {formatMoney(figures.closingFloatCents)}{' '}
                 {t('in the drawer.')}
               </Text>
             )}

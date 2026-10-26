@@ -5,11 +5,10 @@ import { IconCheck, IconTrash } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
-import {
-  calculateLineDiscountCents,
-  type LineDiscountScope,
-  type LineDiscountType,
-} from '../lib/quotationForm';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcQuotation } from '../api/quotationsApi';
+import type { LineDiscountScope, LineDiscountType } from '../lib/quotationForm';
+import type { CalcQuotationRequest } from '../types';
 
 export interface LineDiscountPopoverProps {
   opened: boolean;
@@ -20,9 +19,8 @@ export interface LineDiscountPopoverProps {
   currentDiscountType?: LineDiscountType;
   currentDiscountScope?: LineDiscountScope;
   currentDiscountValue?: number;
-  currentDiscountCents: number;
+  /** The discount as typed: the server works out what it comes to. */
   onApplyDiscount: (
-    discountCents: number,
     discountType: LineDiscountType,
     discountScope: LineDiscountScope,
     discountValue: number
@@ -33,6 +31,64 @@ export interface LineDiscountPopoverProps {
 
 const PERCENT_PRESETS = [5, 10, 15, 20, 25];
 
+/**
+ * What the typed discount would come to, as the server works it out. Lives inside the open popover
+ * so it only asks while someone is looking at it.
+ */
+const DiscountPreview = ({
+  name,
+  unitPriceCents,
+  quantity,
+  discount,
+}: {
+  name: string;
+  unitPriceCents: number;
+  quantity: number;
+  discount: { type: LineDiscountType; scope: LineDiscountScope; value: number };
+}) => {
+  const request: CalcQuotationRequest = {
+    customerKey: null,
+    customerName: '',
+    lines: [
+      {
+        key: 'preview',
+        name,
+        unitPriceCents,
+        quantity,
+        discount: discount.value > 0 ? discount : null,
+      },
+    ],
+    orderDiscount: null,
+    validUntil: '',
+  };
+  const { data } = useCalc('quotation', request, calcQuotation);
+  const line = data === undefined ? null : data.lines[0];
+  return (
+    <Box p={6} style={{ backgroundColor: 'var(--bg-hover)', borderRadius: 4 }}>
+      <Group justify="space-between">
+        <Text size="xs" c="dimmed">
+          {t('Discount amount')}:
+        </Text>
+        <Text size="xs" fw={700} c={line !== null && line.discountCents > 0 ? 'red' : 'dimmed'}>
+          {line === null
+            ? ''
+            : line.discountCents > 0
+              ? `-${formatMoney(line.discountCents)}`
+              : formatMoney(0)}
+        </Text>
+      </Group>
+      <Group justify="space-between" mt={2}>
+        <Text size="xs" fw={600}>
+          {t('New line total')}:
+        </Text>
+        <Text size="xs" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {line === null ? '' : formatMoney(line.totalCents)}
+        </Text>
+      </Group>
+    </Box>
+  );
+};
+
 export const LineDiscountPopover = ({
   opened,
   onClose,
@@ -42,7 +98,6 @@ export const LineDiscountPopover = ({
   currentDiscountType = 'percentage',
   currentDiscountScope = 'per_unit',
   currentDiscountValue,
-  currentDiscountCents,
   onApplyDiscount,
   onRemoveDiscount,
   children,
@@ -61,54 +116,21 @@ export const LineDiscountPopover = ({
   const [fixedCents, setFixedCents] = useState<number>(
     currentDiscountType === 'fixed' && typeof currentDiscountValue === 'number'
       ? currentDiscountValue
-      : currentDiscountCents > 0
-        ? currentDiscountCents
-        : 0
+      : 0
   );
 
-  const grossCents = Math.max(0, unitPriceCents * quantity);
-
-  const previewDiscountCents =
+  // The discount as it stands in the box right now.
+  const typed: { type: LineDiscountType; scope: LineDiscountScope; value: number } =
     mode === 'percentage'
-      ? calculateLineDiscountCents(
-          unitPriceCents,
-          quantity,
-          'percentage',
-          'total',
-          typeof pct === 'number' ? pct : 0
-        )
-      : calculateLineDiscountCents(
-          unitPriceCents,
-          quantity,
-          'fixed',
-          quantity > 1 ? scope : 'total',
-          fixedCents
-        );
-
-  const previewNetCents = Math.max(0, grossCents - previewDiscountCents);
+      ? { type: 'percentage', scope: 'total', value: typeof pct === 'number' ? pct : 0 }
+      : { type: 'fixed', scope: quantity > 1 ? scope : 'total', value: fixedCents };
 
   const handleApply = () => {
-    if (mode === 'percentage') {
-      const value = typeof pct === 'number' ? Math.min(100, Math.max(0, pct)) : 0;
-      const computed = calculateLineDiscountCents(
-        unitPriceCents,
-        quantity,
-        'percentage',
-        'total',
-        value
-      );
-      onApplyDiscount(computed, 'percentage', 'total', value);
-    } else {
-      const activeScope: LineDiscountScope = quantity > 1 ? scope : 'total';
-      const computed = calculateLineDiscountCents(
-        unitPriceCents,
-        quantity,
-        'fixed',
-        activeScope,
-        fixedCents
-      );
-      onApplyDiscount(computed, 'fixed', activeScope, fixedCents);
-    }
+    onApplyDiscount(
+      typed.type,
+      typed.scope,
+      typed.type === 'percentage' ? Math.min(100, Math.max(0, typed.value)) : typed.value
+    );
     onClose();
   };
 
@@ -133,7 +155,7 @@ export const LineDiscountPopover = ({
               {t('Discount for')} {targetName}
             </Text>
             <Text size="xs" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {quantity} × {formatMoney(unitPriceCents)} = {formatMoney(grossCents)} gross
+              {quantity} × {formatMoney(unitPriceCents)}
             </Text>
           </Box>
 
@@ -203,40 +225,20 @@ export const LineDiscountPopover = ({
                 placeholder="Rs. 0.00"
                 valueCents={fixedCents}
                 onChangeCents={setFixedCents}
-                max={scope === 'per_unit' && quantity > 1 ? unitPriceCents / 100 : grossCents / 100}
+                max={scope === 'per_unit' && quantity > 1 ? unitPriceCents / 100 : undefined}
                 autoFocus
               />
-
-              {scope === 'per_unit' && quantity > 1 && fixedCents > 0 && (
-                <Text size="xs" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {formatMoney(fixedCents)} × {quantity} = {formatMoney(previewDiscountCents)}{' '}
-                  {t('total discount')}
-                </Text>
-              )}
             </Stack>
           )}
 
           <Divider my={2} />
 
-          {/* Live Calculation Preview */}
-          <Box p={6} style={{ backgroundColor: 'var(--bg-hover)', borderRadius: 4 }}>
-            <Group justify="space-between">
-              <Text size="xs" c="dimmed">
-                {t('Discount amount')}:
-              </Text>
-              <Text size="xs" fw={700} c={previewDiscountCents > 0 ? 'red' : 'dimmed'}>
-                {previewDiscountCents > 0 ? `-${formatMoney(previewDiscountCents)}` : 'Rs. 0.00'}
-              </Text>
-            </Group>
-            <Group justify="space-between" mt={2}>
-              <Text size="xs" fw={600}>
-                {t('New line total')}:
-              </Text>
-              <Text size="xs" fw={800} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {formatMoney(previewNetCents)}
-              </Text>
-            </Group>
-          </Box>
+          <DiscountPreview
+            name={targetName}
+            unitPriceCents={unitPriceCents}
+            quantity={quantity}
+            discount={typed}
+          />
 
           <Group justify="space-between" mt="xs">
             <Button
@@ -245,7 +247,7 @@ export const LineDiscountPopover = ({
               color="red"
               leftSection={<IconTrash size={14} />}
               onClick={handleRemove}
-              disabled={currentDiscountCents === 0 && previewDiscountCents === 0}
+              disabled={currentDiscountValue === undefined || currentDiscountValue <= 0}
             >
               {t('Remove')}
             </Button>

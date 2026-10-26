@@ -1,18 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import type { CartItem } from '@/store/slices/cartSlice';
 import type { Product } from '@/features/inventory/types';
+import type { CalcQuotationReply } from '../../types';
 import {
   buildCreateInput,
-  calculateLineDiscountCents,
   defaultValidUntil,
   draftFromCart,
-  draftTotals,
   emptyDraft,
   emptyLine,
   formatLineDiscountBadge,
   lineFromProduct,
+  toCalcQuotationRequest,
   todayString,
-  validateDraft,
   type QuotationDraft,
   type QuotationLineDraft,
 } from '../quotationForm';
@@ -43,90 +42,53 @@ describe('dates', () => {
   });
 });
 
-describe('draftTotals', () => {
-  it('sums lines after line discounts and applies a percentage order discount', () => {
-    const draft = validDraft({
-      lines: [line({ discountCents: 500 }), line({ unitPriceCents: 2500, quantity: 1 })],
-      discountType: 'percentage',
-      discountValue: 10,
-    });
-    expect(draftTotals(draft)).toEqual({
-      lineTotals: [19500, 2500],
-      subtotalCents: 22000,
-      discountCents: 2200,
-      totalCents: 19800,
-    });
-  });
-
-  it('treats a fixed order discount as cents and never lets it exceed the subtotal', () => {
-    const fixed = draftTotals(validDraft({ discountType: 'fixed', discountValue: 1000 }));
-    expect(fixed.discountCents).toBe(1000);
-    expect(fixed.totalCents).toBe(19000);
-
-    const huge = draftTotals(validDraft({ discountType: 'fixed', discountValue: 999999 }));
-    expect(huge.discountCents).toBe(20000);
-    expect(huge.totalCents).toBe(0);
-  });
-
-  it('is zero for an empty quotation', () => {
-    expect(draftTotals(validDraft({ lines: [] }))).toEqual({
-      lineTotals: [],
-      subtotalCents: 0,
-      discountCents: 0,
-      totalCents: 0,
-    });
-  });
+// What the server answered for a form: the figures are scripted, never worked out here.
+const answerFor = (discounts: number[]): CalcQuotationReply => ({
+  lines: discounts.map((discountCents, index) => ({
+    key: `line-${index}`,
+    grossCents: 0,
+    discountCents,
+    totalCents: 0,
+  })),
+  grossSubtotalCents: 0,
+  lineDiscountsCents: discounts.reduce((sum, cents) => sum + cents, 0),
+  subtotalCents: 0,
+  discountCents: 0,
+  totalCents: 0,
+  blockers: [],
 });
 
-describe('validateDraft', () => {
-  it('accepts a complete draft, including one valid only until today', () => {
-    expect(validateDraft(validDraft(), NOW)).toBeNull();
-    expect(validateDraft(validDraft({ validUntil: '2026-10-13' }), NOW)).toBeNull();
+describe('toCalcQuotationRequest', () => {
+  it('sends the form as typed: lines with their typed discount, and the order discount', () => {
+    const request = toCalcQuotationRequest(
+      validDraft({
+        customerKey: 'cust_1',
+        lines: [
+          line({ uid: 'a', discountType: 'percentage', discountValue: 10 }),
+          line({
+            uid: 'b',
+            discountType: 'fixed',
+            discountScope: 'per_unit',
+            discountValue: 150,
+          }),
+          line({ uid: 'c' }),
+        ],
+        discountType: 'fixed',
+        discountValue: 700,
+      })
+    );
+    expect(request.customerKey).toBe('cust_1');
+    expect(request.lines.map((l) => [l.key, l.discount])).toEqual([
+      ['a', { type: 'percentage', scope: 'total', value: 10 }],
+      ['b', { type: 'fixed', scope: 'per_unit', value: 150 }],
+      ['c', null],
+    ]);
+    expect(request.orderDiscount).toEqual({ type: 'fixed', value: 700 });
+    expect(request.validUntil).toBe('2026-11-12');
   });
 
-  it('accepts a saved customer without a typed name', () => {
-    expect(validateDraft(validDraft({ customerKey: 'cust_1', customerName: '' }), NOW)).toBeNull();
-  });
-
-  const cases: Array<[string, Partial<QuotationDraft>, string]> = [
-    ['no customer', { customerName: '   ' }, 'Please choose a customer, or type the name.'],
-    ['no items', { lines: [] }, 'Add at least one item.'],
-    ['unnamed item', { lines: [line({ name: ' ' })] }, 'Every item needs a name.'],
-    ['zero quantity', { lines: [line({ quantity: 0 })] }, 'Quantity must be 1 or more.'],
-    ['fractional quantity', { lines: [line({ quantity: 1.5 })] }, 'Quantity must be 1 or more.'],
-    ['negative price', { lines: [line({ unitPriceCents: -1 })] }, 'A price cannot be negative.'],
-    [
-      'line discount above the price',
-      { lines: [line({ discountCents: 20001 })] },
-      'A discount cannot be more than the price of the item.',
-    ],
-    [
-      'negative line discount',
-      { lines: [line({ discountCents: -1 })] },
-      'A discount cannot be more than the price of the item.',
-    ],
-    ['negative order discount', { discountValue: -5 }, 'A discount cannot be negative.'],
-    [
-      'percentage over 100',
-      { discountType: 'percentage', discountValue: 101 },
-      'A discount cannot be more than 100%.',
-    ],
-    ['empty date', { validUntil: '' }, 'Choose the last day this offer is valid.'],
-    ['malformed date', { validUntil: '13/10/2026' }, 'Choose the last day this offer is valid.'],
-    [
-      'date in the past',
-      { validUntil: '2026-10-12' },
-      'The valid-until date cannot be in the past.',
-    ],
-  ];
-  it.each(cases)('rejects %s with a plain message', (_label, overrides, message) => {
-    expect(validateDraft(validDraft(overrides), NOW)).toBe(message);
-  });
-
-  it('allows a fixed order discount over 100 (it is cents, not a percentage)', () => {
-    expect(
-      validateDraft(validDraft({ discountType: 'fixed', discountValue: 500 }), NOW)
-    ).toBeNull();
+  it('sends no order discount while none is typed', () => {
+    expect(toCalcQuotationRequest(validDraft()).orderDiscount).toBeNull();
   });
 });
 
@@ -136,9 +98,10 @@ describe('buildCreateInput', () => {
       validDraft({
         lines: [
           line({ productKey: 'prod_1', name: 'Galaxy A15', unitPriceCents: 65000, quantity: 3 }),
-          line({ name: '  Labour  ', unitPriceCents: 1500, quantity: 1, discountCents: 100 }),
+          line({ name: '  Labour  ', unitPriceCents: 1500, quantity: 1 }),
         ],
       }),
+      answerFor([0, 100]),
       'Kamal'
     );
     expect(input.items).toEqual([
@@ -149,33 +112,38 @@ describe('buildCreateInput', () => {
   });
 
   it('never sends a total — the backend works them out', () => {
-    const input = buildCreateInput(validDraft(), undefined);
+    const input = buildCreateInput(validDraft(), answerFor([0]), undefined);
     const serialized = JSON.stringify(input);
     expect(serialized).not.toMatch(/total|subtotal/i);
   });
 
   it('sends a saved customer by key only, and a walk-in by typed details', () => {
     expect(
-      buildCreateInput(validDraft({ customerKey: 'cust_1', customerName: 'ignored' }), undefined)
-        .customer
+      buildCreateInput(
+        validDraft({ customerKey: 'cust_1', customerName: 'ignored' }),
+        answerFor([0]),
+        undefined
+      ).customer
     ).toEqual({ customerKey: 'cust_1' });
 
     expect(
       buildCreateInput(
         validDraft({ customerName: ' Rita ', customerPhone: '', customerAddress: ' 5 Main St ' }),
+        answerFor([0]),
         undefined
       ).customer
     ).toEqual({ customerName: 'Rita', customerPhone: undefined, customerAddress: '5 Main St' });
   });
 
   it('only sends an order discount, notes and terms when there is something to send', () => {
-    const plain = buildCreateInput(validDraft(), undefined);
+    const plain = buildCreateInput(validDraft(), answerFor([0]), undefined);
     expect(plain.pricingAdjustments).toBeUndefined();
     expect(plain.notes).toBeUndefined();
     expect(plain.terms).toBeUndefined();
 
     const full = buildCreateInput(
       validDraft({ discountType: 'fixed', discountValue: 1000, notes: ' hi ', terms: 'pay first' }),
+      answerFor([0]),
       undefined
     );
     expect(full.pricingAdjustments).toEqual({ discountType: 'fixed', discountValue: 1000 });
@@ -203,7 +171,6 @@ describe('lineFromProduct', () => {
       sku: 'ACC-0009',
       unitPriceCents: 2500,
       quantity: 1,
-      discountCents: 0,
     });
   });
 
@@ -219,15 +186,16 @@ describe('draftFromCart', () => {
     name: 'Item',
     unitPriceCents: 1000,
     quantity: 1,
-    discountCents: 0,
-    totalCents: 1000,
+    discount: null,
     ...overrides,
   });
 
-  const seed = (items: CartItem[]) =>
+  // `lineDiscountsCents` is what the server worked each line's discount out to.
+  const seed = (items: CartItem[], lineDiscountsCents: number[] = items.map(() => 0)) =>
     draftFromCart(
       {
         items,
+        lineDiscountsCents,
         customerId: 'cust_1',
         customerName: 'Rita',
         customerPhone: '0712223334',
@@ -268,7 +236,7 @@ describe('draftFromCart', () => {
   });
 
   it('carries the customer, quantities, line discounts and the order discount over', () => {
-    const draft = seed([cartItem({ quantity: 3, discountCents: 200 })]);
+    const draft = seed([cartItem({ quantity: 3, discount: { type: 'fixed', value: 200 } })], [200]);
     expect(draft).toMatchObject({
       customerKey: 'cust_1',
       customerName: 'Rita',
@@ -278,13 +246,19 @@ describe('draftFromCart', () => {
       discountValue: 5,
       validUntil: '2026-11-12',
     });
-    expect(draft.lines[0]).toMatchObject({ quantity: 3, discountCents: 200 });
+    expect(draft.lines[0]).toMatchObject({
+      quantity: 3,
+      discountType: 'fixed',
+      discountScope: 'total',
+      discountValue: 200,
+    });
   });
 
   it('starts with no discount when the cart has none', () => {
     const draft = draftFromCart(
       {
         items: [cartItem({})],
+        lineDiscountsCents: [0],
         customerId: null,
         customerName: null,
         discountType: null,
@@ -298,46 +272,6 @@ describe('draftFromCart', () => {
   });
 });
 
-describe('calculateLineDiscountCents', () => {
-  it('calculates percentage discounts on line gross', () => {
-    // 10 units at Rs. 9.99 (999 cents) = 9990 gross. 10% = 999 cents.
-    expect(calculateLineDiscountCents(999, 10, 'percentage', 'total', 10)).toBe(999);
-    // 1 unit at Rs. 50.00 (5000 cents). 25% = 1250 cents.
-    expect(calculateLineDiscountCents(5000, 1, 'percentage', 'total', 25)).toBe(1250);
-  });
-
-  it('clamps percentage to 100% and gross', () => {
-    expect(calculateLineDiscountCents(1000, 2, 'percentage', 'total', 150)).toBe(2000);
-  });
-
-  it('calculates fixed per-unit discount for bulk quantities', () => {
-    // 10 units at Rs. 10.00 (1000 cents). Rs. 2.00 (200 cents) off each = 2000 cents discount.
-    expect(calculateLineDiscountCents(1000, 10, 'fixed', 'per_unit', 200)).toBe(2000);
-  });
-
-  it('clamps fixed per-unit discount to the gross total', () => {
-    // 5 units at Rs. 2.00 (200 cents) = 1000 gross. Trying to discount Rs. 3.00 (300 cents) each = 1500 -> clamped to 1000.
-    expect(calculateLineDiscountCents(200, 5, 'fixed', 'per_unit', 300)).toBe(1000);
-  });
-
-  it('calculates fixed whole-line discount for bulk quantities', () => {
-    // 10 units at Rs. 10.00 (1000 cents) = 10000 gross. Flat Rs. 15.00 (1500 cents) discount.
-    expect(calculateLineDiscountCents(1000, 10, 'fixed', 'total', 1500)).toBe(1500);
-  });
-
-  it('calculates fixed discount for single item (quantity 1)', () => {
-    // 1 unit at Rs. 48.00 (4800 cents). Rs. 5.00 (500 cents) discount.
-    expect(calculateLineDiscountCents(4800, 1, 'fixed', 'total', 500)).toBe(500);
-    expect(calculateLineDiscountCents(4800, 1, 'fixed', 'per_unit', 500)).toBe(500);
-  });
-
-  it('returns 0 for zero or negative values or missing mode', () => {
-    expect(calculateLineDiscountCents(1000, 5, undefined, undefined, 0)).toBe(0);
-    expect(calculateLineDiscountCents(1000, 5, 'percentage', 'total', 0)).toBe(0);
-    expect(calculateLineDiscountCents(1000, 5, 'fixed', 'per_unit', -50)).toBe(0);
-  });
-});
-
 describe('formatLineDiscountBadge', () => {
   it('formats percentage discounts', () => {
     const l = line({
@@ -345,9 +279,8 @@ describe('formatLineDiscountBadge', () => {
       quantity: 5,
       discountType: 'percentage',
       discountValue: 10,
-      discountCents: 500,
     });
-    expect(formatLineDiscountBadge(l)).toBe('10% (-Rs. 5.00)');
+    expect(formatLineDiscountBadge(l, 500)).toBe('10% (-Rs. 5.00)');
   });
 
   it('formats per-unit bulk discounts', () => {
@@ -357,9 +290,8 @@ describe('formatLineDiscountBadge', () => {
       discountType: 'fixed',
       discountScope: 'per_unit',
       discountValue: 200,
-      discountCents: 1000,
     });
-    expect(formatLineDiscountBadge(l)).toBe('-Rs. 2.00/ea (-Rs. 10.00)');
+    expect(formatLineDiscountBadge(l, 1000)).toBe('-Rs. 2.00/ea (-Rs. 10.00)');
   });
 
   it('formats whole-line fixed discounts', () => {
@@ -369,13 +301,12 @@ describe('formatLineDiscountBadge', () => {
       discountType: 'fixed',
       discountScope: 'total',
       discountValue: 800,
-      discountCents: 800,
     });
-    expect(formatLineDiscountBadge(l)).toBe('-Rs. 8.00');
+    expect(formatLineDiscountBadge(l, 800)).toBe('-Rs. 8.00');
   });
 
   it('returns null when discount is zero', () => {
-    const l = line({ discountCents: 0 });
-    expect(formatLineDiscountBadge(l)).toBeNull();
+    const l = line();
+    expect(formatLineDiscountBadge(l, 0)).toBeNull();
   });
 });

@@ -17,7 +17,9 @@ export interface LiveCalc<Reply> {
 export const useCalc = <Request, Reply>(
   name: string,
   request: Request,
-  fetcher: (request: Request, signal: AbortSignal) => Promise<Reply>
+  fetcher: (request: Request, signal: AbortSignal) => Promise<Reply>,
+  /** False while the request cannot be made yet (something it needs has not been entered). */
+  enabled?: boolean
 ): LiveCalc<Reply> => {
   const query = useQuery({
     queryKey: ['calc', name, request],
@@ -27,6 +29,7 @@ export const useCalc = <Request, Reply>(
     gcTime: 30_000,
     retry: false,
     refetchOnWindowFocus: false,
+    enabled,
   });
   return {
     data: query.data,

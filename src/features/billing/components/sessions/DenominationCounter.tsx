@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   ActionIcon,
   Badge,
@@ -14,45 +14,28 @@ import { IconTrash } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
 import { AnimatedNumber } from '@/shared/motion';
-import { SRI_LANKA_DENOMINATIONS } from './constants';
+import type { LiveCalc } from '@/shared/hooks/useCalc';
+import type { CalcCashCountReply } from '../../types';
 
 export interface DenominationCounterProps {
-  value?: Record<string, number>;
-  onChange: (denominations: Record<string, number>, totalCents: number) => void;
+  /** How many of each note or coin has been typed, keyed by its rupee value. */
+  counts: Record<string, number>;
+  onChange: (counts: Record<string, number>) => void;
+  /** The server's total for `counts`; each row's subtotal comes from it too. */
+  count: LiveCalc<CalcCashCountReply>;
 }
 
 export const DenominationCounter: React.FC<DenominationCounterProps> = ({
-  value = {},
+  counts,
   onChange,
+  count,
 }) => {
-  const counts = value;
-
-  const totalCents = useMemo(() => {
-    let sum = 0;
-    for (const denom of SRI_LANKA_DENOMINATIONS) {
-      const count = counts[denom.id] ?? 0;
-      sum += denom.valueRupees * count * 100;
-    }
-    return sum;
-  }, [counts]);
-
-  const handleCountChange = (denomId: string, count: number | string) => {
-    const parsed = typeof count === 'number' ? Math.max(0, Math.floor(count)) : 0;
-    const next = { ...counts, [denomId]: parsed };
-    let sum = 0;
-    for (const d of SRI_LANKA_DENOMINATIONS) {
-      sum += d.valueRupees * (next[d.id] ?? 0) * 100;
-    }
-    onChange(next, sum);
+  const handleCountChange = (denomId: string, value: number | string) => {
+    const parsed = typeof value === 'number' ? Math.max(0, Math.floor(value)) : 0;
+    onChange({ ...counts, [denomId]: parsed });
   };
 
-  const handleReset = () => {
-    const next: Record<string, number> = {};
-    for (const denom of SRI_LANKA_DENOMINATIONS) {
-      next[denom.id] = 0;
-    }
-    onChange(next, 0);
-  };
+  const handleReset = () => onChange({});
 
   return (
     <Card withBorder padding="sm" radius="md">
@@ -63,7 +46,12 @@ export const DenominationCounter: React.FC<DenominationCounterProps> = ({
           </Text>
           <Group gap="xs">
             <Badge size="lg" variant="light" color="blue">
-              {t('Total:')} <AnimatedNumber value={totalCents} format={formatMoney} />
+              {t('Total:')}{' '}
+              {count.data === undefined ? (
+                '…'
+              ) : (
+                <AnimatedNumber value={count.data.totalCents} format={formatMoney} />
+              )}
             </Badge>
             <Tooltip label={t('Clear all counts')}>
               <ActionIcon
@@ -79,40 +67,46 @@ export const DenominationCounter: React.FC<DenominationCounterProps> = ({
           </Group>
         </Group>
 
-        <Grid gap="xs">
-          {SRI_LANKA_DENOMINATIONS.map((denom) => {
-            const count = counts[denom.id] ?? 0;
-            const lineSubtotalCents = denom.valueRupees * count * 100;
-
-            return (
-              <Grid.Col span={{ base: 12, sm: 6 }} key={denom.id}>
-                <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
-                  <Text size="xs" fw={500} style={{ minWidth: 65 }}>
-                    {denom.label}
-                  </Text>
-                  <NumberInput
-                    size="xs"
-                    min={0}
-                    step={1}
-                    startValue={1}
-                    allowDecimal={false}
-                    value={count === 0 ? '' : count}
-                    placeholder="0"
-                    onChange={(val) => handleCountChange(denom.id, val)}
-                    styles={{ input: { textAlign: 'center', width: 96 } }}
-                  />
-                  <Text size="xs" c="dimmed" style={{ minWidth: 80, textAlign: 'right' }}>
-                    <AnimatedNumber
-                      value={lineSubtotalCents}
-                      format={formatMoney}
-                      duration={0.25}
+        {count.data === undefined ? (
+          <Text size="sm" c="dimmed">
+            {count.error === null
+              ? t('Working out the figures...')
+              : t('Could not work out the figures. Check the connection and try again.')}
+          </Text>
+        ) : (
+          <Grid gap="xs">
+            {count.data.lines.map((line) => {
+              const typed = counts[line.id];
+              return (
+                <Grid.Col span={{ base: 12, sm: 6 }} key={line.id}>
+                  <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+                    <Text size="xs" fw={500} style={{ minWidth: 65 }}>
+                      {formatMoney(line.valueCents)}
+                    </Text>
+                    <NumberInput
+                      size="xs"
+                      min={0}
+                      step={1}
+                      startValue={1}
+                      allowDecimal={false}
+                      value={typed === undefined || typed === 0 ? '' : typed}
+                      placeholder="0"
+                      onChange={(val) => handleCountChange(line.id, val)}
+                      styles={{ input: { textAlign: 'center', width: 96 } }}
                     />
-                  </Text>
-                </Group>
-              </Grid.Col>
-            );
-          })}
-        </Grid>
+                    <Text size="xs" c="dimmed" style={{ minWidth: 80, textAlign: 'right' }}>
+                      <AnimatedNumber
+                        value={line.subtotalCents}
+                        format={formatMoney}
+                        duration={0.25}
+                      />
+                    </Text>
+                  </Group>
+                </Grid.Col>
+              );
+            })}
+          </Grid>
+        )}
       </Stack>
     </Card>
   );

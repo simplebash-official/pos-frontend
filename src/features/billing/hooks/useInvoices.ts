@@ -1,3 +1,4 @@
+import { invalidateInvoiceBalance } from './useInvoiceBalance';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import {
@@ -51,6 +52,7 @@ const invalidateAfterSale = (queryClient: ReturnType<typeof useQueryClient>) => 
   void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+  void invalidateInvoiceBalance(queryClient);
 };
 
 /**

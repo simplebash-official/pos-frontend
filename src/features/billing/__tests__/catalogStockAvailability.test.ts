@@ -45,7 +45,7 @@ const cartLine = {
   name: tripod.name,
   unitPriceCents: tripod.priceTiers[0].sellingPriceCents,
   quantity: 3,
-  discountCents: 0,
+  discount: null,
   sourceType: 'retail' as const,
 };
 

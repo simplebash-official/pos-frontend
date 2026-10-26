@@ -1,3 +1,4 @@
+import { invalidateInvoiceBalance } from './useInvoiceBalance';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { createCreditNote, fetchCreditNotes, voidCreditNote } from '../api/creditNotesApi';
@@ -27,6 +28,7 @@ export const useCreateCreditNote = () => {
     mutationFn: ({ input }: CreateCreditNotePayload) => createCreditNote(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.creditNotes.all });
+      void invalidateInvoiceBalance(queryClient);
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });

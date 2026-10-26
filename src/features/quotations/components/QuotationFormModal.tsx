@@ -47,15 +47,16 @@ import { formatMoney } from '@/shared/lib/money';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { useCreateQuotation } from '../hooks/useQuotations';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcQuotation } from '../api/quotationsApi';
+import { quotationBlockerMessage } from '../lib/blockerText';
 import {
   buildCreateInput,
-  calculateLineDiscountCents,
-  draftTotals,
   emptyLine,
   formatLineDiscountBadge,
   lineFromProduct,
+  toCalcQuotationRequest,
   todayString,
-  validateDraft,
   type LineDiscountScope,
   type LineDiscountType,
   type QuotationDraft,
@@ -117,9 +118,13 @@ export const QuotationFormModal = ({
     [products]
   );
 
-  const totals = draftTotals(draft);
-  const grossSubtotalCents = draft.lines.reduce((sum, l) => sum + l.unitPriceCents * l.quantity, 0);
-  const totalLineDiscountsCents = draft.lines.reduce((sum, l) => sum + l.discountCents, 0);
+  // Every figure and rule here is the server's answer for the form as typed.
+  const calc = useCalc('quotation', toCalcQuotationRequest(draft), calcQuotation);
+  const answer = calc.data;
+  // A line's figures are looked up by its id, so an answer to an earlier form (before a line was
+  // added) still lands on the right line; a line it does not know yet shows nothing.
+  const lineAnswers = new Map((answer === undefined ? [] : answer.lines).map((l) => [l.key, l]));
+  const money = (cents: number | undefined) => (cents === undefined ? '' : formatMoney(cents));
 
   const daysFromToday = draft.validUntil
     ? dayjs(draft.validUntil).startOf('day').diff(dayjs().startOf('day'), 'day')
@@ -146,44 +151,14 @@ export const QuotationFormModal = ({
   const removeLine = (uid: string) =>
     setDraft((d) => ({ ...d, lines: d.lines.filter((line) => line.uid !== uid) }));
 
-  const handleUpdateQuantity = (uid: string, quantity: number) => {
-    setDraft((d) => ({
-      ...d,
-      lines: d.lines.map((line) => {
-        if (line.uid !== uid) return line;
-        const discountCents = calculateLineDiscountCents(
-          line.unitPriceCents,
-          quantity,
-          line.discountType,
-          line.discountScope,
-          line.discountValue
-        );
-        return { ...line, quantity, discountCents };
-      }),
-    }));
-  };
+  const handleUpdateQuantity = (uid: string, quantity: number) => patchLine(uid, { quantity });
 
   const handleApplyLineDiscount = (
     uid: string,
-    discountCents: number,
     discountType: LineDiscountType,
     discountScope: LineDiscountScope,
     discountValue: number
-  ) => {
-    setDraft((d) => ({
-      ...d,
-      lines: d.lines.map((line) => {
-        if (line.uid !== uid) return line;
-        return {
-          ...line,
-          discountType,
-          discountScope,
-          discountValue,
-          discountCents,
-        };
-      }),
-    }));
-  };
+  ) => patchLine(uid, { discountType, discountScope, discountValue });
 
   const handleRemoveLineDiscount = (uid: string) => {
     setDraft((d) => ({
@@ -195,7 +170,6 @@ export const QuotationFormModal = ({
           discountType: undefined,
           discountScope: undefined,
           discountValue: undefined,
-          discountCents: 0,
         };
       }),
     }));
@@ -230,11 +204,14 @@ export const QuotationFormModal = ({
   };
 
   const handleSubmit = async () => {
-    const found = validateDraft(draft);
+    // Create waits for the answer to this exact form.
+    if (!calc.isCurrent || answer === undefined) return;
+    const found =
+      answer.blockers.length > 0 ? quotationBlockerMessage(answer.blockers[0].code) : null;
     setProblem(found);
     if (found !== null) return;
     try {
-      const created = await create.mutateAsync(buildCreateInput(draft, authUser?.name));
+      const created = await create.mutateAsync(buildCreateInput(draft, answer, authUser?.name));
       notifications.show({
         title: t('Quotation created'),
         message: created.quotationNumber,
@@ -415,9 +392,12 @@ export const QuotationFormModal = ({
               <Stack gap="xs">
                 {draft.lines.map((line, index) => {
                   const fromStock = line.productKey !== undefined;
-                  const lineTotal = totals.lineTotals[index];
-                  const grossLine = line.unitPriceCents * line.quantity;
-                  const discountBadgeText = formatLineDiscountBadge(line);
+                  const lineAnswer = lineAnswers.get(line.uid);
+                  const hasLineDiscount = lineAnswer !== undefined && lineAnswer.discountCents > 0;
+                  const discountBadgeText =
+                    lineAnswer === undefined
+                      ? null
+                      : formatLineDiscountBadge(line, lineAnswer.discountCents);
 
                   return (
                     <Paper
@@ -426,8 +406,7 @@ export const QuotationFormModal = ({
                       withBorder
                       style={{
                         backgroundColor: 'var(--bg-surface)',
-                        borderColor:
-                          line.discountCents > 0 ? 'var(--mantine-color-blue-4)' : undefined,
+                        borderColor: hasLineDiscount ? 'var(--mantine-color-blue-4)' : undefined,
                       }}
                     >
                       <Stack gap="xs">
@@ -529,17 +508,7 @@ export const QuotationFormModal = ({
                                   size="sm"
                                   valueCents={line.unitPriceCents}
                                   onChangeCents={(cents) => {
-                                    const discountCents = calculateLineDiscountCents(
-                                      cents,
-                                      line.quantity,
-                                      line.discountType,
-                                      line.discountScope,
-                                      line.discountValue
-                                    );
-                                    patchLine(line.uid, {
-                                      unitPriceCents: cents,
-                                      discountCents,
-                                    });
+                                    patchLine(line.uid, { unitPriceCents: cents });
                                   }}
                                   style={{ width: 120 }}
                                 />
@@ -562,9 +531,8 @@ export const QuotationFormModal = ({
                                 currentDiscountType={line.discountType}
                                 currentDiscountScope={line.discountScope}
                                 currentDiscountValue={line.discountValue}
-                                currentDiscountCents={line.discountCents}
-                                onApplyDiscount={(dCents, dType, dScope, dVal) =>
-                                  handleApplyLineDiscount(line.uid, dCents, dType, dScope, dVal)
+                                onApplyDiscount={(dType, dScope, dVal) =>
+                                  handleApplyLineDiscount(line.uid, dType, dScope, dVal)
                                 }
                                 onRemoveDiscount={() => handleRemoveLineDiscount(line.uid)}
                               >
@@ -572,7 +540,7 @@ export const QuotationFormModal = ({
                                   size="xs"
                                   fullWidth
                                   variant="light"
-                                  color={line.discountCents > 0 ? 'teal' : 'blue'}
+                                  color={hasLineDiscount ? 'teal' : 'blue'}
                                   leftSection={<IconTag size={13} />}
                                   onClick={() =>
                                     setActiveDiscountLineUid(
@@ -595,14 +563,16 @@ export const QuotationFormModal = ({
                               <Text size="xs" c="dimmed" mb={2}>
                                 {t('Item total')}
                               </Text>
-                              {line.discountCents > 0 && (
+                              {hasLineDiscount && (
                                 <Text
                                   size="xs"
                                   c="dimmed"
                                   td="line-through"
                                   style={{ fontVariantNumeric: 'tabular-nums' }}
                                 >
-                                  {formatMoney(grossLine)}
+                                  {money(
+                                    lineAnswer === undefined ? undefined : lineAnswer.grossCents
+                                  )}
                                 </Text>
                               )}
                               <Text
@@ -610,12 +580,14 @@ export const QuotationFormModal = ({
                                 size="sm"
                                 style={{
                                   fontVariantNumeric: 'tabular-nums',
-                                  height: line.discountCents > 0 ? undefined : 30,
+                                  height: hasLineDiscount ? undefined : 30,
                                   display: 'flex',
                                   alignItems: 'center',
                                 }}
                               >
-                                {formatMoney(lineTotal)}
+                                {money(
+                                  lineAnswer === undefined ? undefined : lineAnswer.totalCents
+                                )}
                               </Text>
                             </Stack>
                           </Group>
@@ -754,11 +726,11 @@ export const QuotationFormModal = ({
                       {t('Gross subtotal')}
                     </Text>
                     <Text size="sm" fw={500} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {formatMoney(grossSubtotalCents)}
+                      {money(answer === undefined ? undefined : answer.grossSubtotalCents)}
                     </Text>
                   </Group>
 
-                  {totalLineDiscountsCents > 0 && (
+                  {answer !== undefined && answer.lineDiscountsCents > 0 && (
                     <Group justify="space-between">
                       <Text size="sm" c="green" fw={500}>
                         {t('Line discounts saved')}
@@ -769,7 +741,7 @@ export const QuotationFormModal = ({
                         fw={600}
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
-                        -{formatMoney(totalLineDiscountsCents)}
+                        -{money(answer === undefined ? undefined : answer.lineDiscountsCents)}
                       </Text>
                     </Group>
                   )}
@@ -868,7 +840,7 @@ export const QuotationFormModal = ({
                         </Group>
                       )}
 
-                      {totals.discountCents > 0 && (
+                      {answer !== undefined && answer.discountCents > 0 && (
                         <Group justify="space-between" pt={2}>
                           <Text size="xs" c="dimmed">
                             {t('Order discount deducted')}:
@@ -879,7 +851,7 @@ export const QuotationFormModal = ({
                             fw={700}
                             style={{ fontVariantNumeric: 'tabular-nums' }}
                           >
-                            -{formatMoney(totals.discountCents)}
+                            -{money(answer === undefined ? undefined : answer.discountCents)}
                           </Text>
                         </Group>
                       )}
@@ -905,7 +877,7 @@ export const QuotationFormModal = ({
                       c="blue"
                       style={{ fontVariantNumeric: 'tabular-nums', fontSize: '1.5rem' }}
                     >
-                      {formatMoney(totals.totalCents)}
+                      {money(answer === undefined ? undefined : answer.totalCents)}
                     </Text>
                   </Group>
                 </Box>
@@ -936,10 +908,12 @@ export const QuotationFormModal = ({
               color="blue"
               h={touchHeight}
               loading={create.isPending}
+              disabled={!calc.isCurrent}
               onClick={() => void handleSubmit()}
               data-log-id="quotations.create"
             >
-              {t('Create Quotation')} · {formatMoney(totals.totalCents)}
+              {t('Create Quotation')} ·{' '}
+              {money(answer === undefined ? undefined : answer.totalCents)}
             </Button>
           </Group>
         </Stack>

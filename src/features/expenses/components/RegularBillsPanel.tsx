@@ -22,6 +22,7 @@ import { t } from '@/shared/i18n/t';
 import { useUpdateRecurringExpense } from '../hooks/useRecurring';
 import { paidFromLabel } from '../lib/expenseView';
 import { billLook, dueText, needsPaying } from '../lib/billView';
+import { shareOf, useShares } from '@/shared/hooks/useShares';
 import type { RecurringBill, RecurringExpense } from '../types';
 
 export interface RegularBillsPanelProps {
@@ -44,6 +45,15 @@ export const RegularBillsPanel = ({
 }: RegularBillsPanelProps) => {
   const isMobile = useIsMobile();
   const update = useUpdateRecurringExpense();
+  const billParts =
+    bills === undefined
+      ? []
+      : bills.map((bill) => ({
+          key: bill.template.key,
+          cents: bill.paidCents,
+          wholeCents: bill.template.amountCents,
+        }));
+  const shares = useShares(billParts, billParts.length > 0).data;
 
   if (loading) {
     return (
@@ -78,7 +88,7 @@ export const RegularBillsPanel = ({
       {bills.map((bill) => {
         const look = billLook(bill.status);
         const { template } = bill;
-        const percent = Math.min(100, Math.round((bill.paidCents / template.amountCents) * 100));
+        const percent = shareOf(shares, template.key)?.percent;
         return (
           <Paper key={template.key} withBorder p="md" data-testid="regular-bill">
             <Stack gap="xs">
@@ -107,11 +117,13 @@ export const RegularBillsPanel = ({
                     : `${dueText(bill)} · ${formatDate(bill.dueDate)}`}
                 </Text>
               </Group>
-              <Progress
-                value={percent}
-                color={bill.status === 'overdue' ? 'red' : 'blue'}
-                size="sm"
-              />
+              {percent === undefined ? null : (
+                <Progress
+                  value={percent}
+                  color={bill.status === 'overdue' ? 'red' : 'blue'}
+                  size="sm"
+                />
+              )}
               {canManage && (
                 <Group justify="flex-end" gap="xs">
                   <ActionIcon

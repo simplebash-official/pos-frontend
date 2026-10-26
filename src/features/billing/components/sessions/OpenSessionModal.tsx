@@ -16,6 +16,9 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle, IconCheck, IconCash, IconKey, IconLock } from '@tabler/icons-react';
 import { useDrawerState, useOpenSession, useVerifyPin } from '../../hooks/useRegisterSession';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcShiftCount } from '../../api/calcApi';
+import { useCashCount } from '../../hooks/useCashCount';
 import { DenominationCounter } from './DenominationCounter';
 import { CountMethodToggle } from './CountMethodToggle';
 import { MoneyInput } from '@/shared/components/MoneyInput';
@@ -42,7 +45,7 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
   const verifyPinMutation = useVerifyPin();
 
   const [mode, setMode] = useState<'total' | 'denominations'>('total');
-  const [countedFloatCents, setCountedFloatCents] = useState(drawerState?.currentBalanceCents ?? 0);
+  const [typedFloatCents, setTypedFloatCents] = useState(drawerState?.currentBalanceCents ?? 0);
   const [denominations, setDenominations] = useState<Record<string, number>>({});
   const [openingNote, setOpeningNote] = useState('');
   const [discrepancyReason, setDiscrepancyReason] = useState('');
@@ -52,13 +55,29 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const expectedFloatCents = drawerState?.currentBalanceCents ?? 0;
-  const discrepancyCents = countedFloatCents - expectedFloatCents;
-  const hasDiscrepancy = discrepancyCents !== 0;
-
-  const handleDenominationsChange = (denoms: Record<string, number>, totalCents: number) => {
-    setDenominations(denoms);
-    setCountedFloatCents(totalCents);
-  };
+  const count = useCashCount(denominations);
+  // The float counted: what was typed, or the server's total for the notes and coins. `null` until
+  // that total is for the counts as they stand now.
+  const countedFloatCents =
+    mode === 'total'
+      ? typedFloatCents
+      : count.isCurrent && count.data
+        ? count.data.totalCents
+        : null;
+  const shift = useCalc(
+    'shift-count',
+    {
+      sessionKey: null,
+      terminalId,
+      // Unused while `countedFloatCents` is null: the request is not sent then.
+      countedCents: countedFloatCents === null ? 0 : countedFloatCents,
+      closingFloatCents: null,
+    },
+    calcShiftCount,
+    countedFloatCents !== null
+  );
+  const figures = shift.isCurrent && countedFloatCents !== null ? shift.data : undefined;
+  const hasDiscrepancy = figures !== undefined && figures.pinRequired;
 
   const handleVerifyPin = async () => {
     if (!managerPin.trim()) {
@@ -87,6 +106,14 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
     e.preventDefault();
     setSubmitError(null);
 
+    if (figures === undefined || countedFloatCents === null) {
+      setSubmitError(
+        shift.error === null
+          ? t('Working out the figures...')
+          : t('Could not work out the figures. Check the connection and try again.')
+      );
+      return;
+    }
     if (hasDiscrepancy) {
       if (!discrepancyReason.trim()) {
         setSubmitError(t('Please provide an explanation note for the float discrepancy.'));
@@ -168,25 +195,25 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
           <MoneyInput
             label={t('Counted Cash in Drawer')}
             description={t('Enter the actual cash amount physically present in the drawer.')}
-            valueCents={countedFloatCents}
-            onChangeCents={setCountedFloatCents}
+            valueCents={typedFloatCents}
+            onChangeCents={setTypedFloatCents}
             size="md"
             autoFocus
           />
         ) : (
-          <DenominationCounter value={denominations} onChange={handleDenominationsChange} />
+          <DenominationCounter counts={denominations} onChange={setDenominations} count={count} />
         )}
 
         {/* Discrepancy Warning & Approval */}
-        {hasDiscrepancy && (
+        {figures !== undefined && figures.pinRequired && (
           <Alert
             icon={<IconAlertTriangle size={20} />}
-            color={discrepancyCents < 0 ? 'red' : 'yellow'}
+            color={figures.varianceCents < 0 ? 'red' : 'yellow'}
             variant="light"
             title={
-              discrepancyCents < 0
-                ? `${t('Float Shortage Detected:')} ${formatMoney(Math.abs(discrepancyCents))}`
-                : `${t('Float Overage Detected:')} ${formatMoney(discrepancyCents)}`
+              figures.varianceCents < 0
+                ? `${t('Float Shortage Detected:')} ${formatMoney(Math.abs(figures.varianceCents))}`
+                : `${t('Float Overage Detected:')} ${formatMoney(figures.varianceCents)}`
             }
           >
             <Stack gap="xs" mt="xs">
@@ -258,7 +285,10 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
             color="teal"
             size="md"
             loading={openSessionMutation.isPending}
-            disabled={hasDiscrepancy && (!discrepancyReason.trim() || !managerPin.trim())}
+            disabled={
+              figures === undefined ||
+              (hasDiscrepancy && (!discrepancyReason.trim() || !managerPin.trim()))
+            }
             leftSection={<IconKey size={18} />}
           >
             {t('Open Shift Session')}

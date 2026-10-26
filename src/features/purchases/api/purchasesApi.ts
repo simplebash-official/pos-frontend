@@ -3,6 +3,8 @@ import { ApiResponse } from '@/shared/types/common';
 import type {
   CalcReceiptReply,
   CalcReceiptRequest,
+  CalcSettlementReply,
+  CalcSettlementRequest,
   CreateReceiptInput,
   CreateSupplierCreditInput,
   EnrichedStockPurchase,
@@ -133,5 +135,18 @@ export const calcReceipt = async (
   const response = await apiClient.post<ApiResponse<CalcReceiptReply>>('/calc/receipt', request, {
     signal,
   });
+  return response.data;
+};
+
+/** What a supplier owes, how a payment spreads over their bills, and what is wrong with a split. Stores nothing. */
+export const calcSettlement = async (
+  request: CalcSettlementRequest,
+  signal: AbortSignal
+): Promise<CalcSettlementReply> => {
+  const response = await apiClient.post<ApiResponse<CalcSettlementReply>>(
+    '/calc/settlement',
+    request,
+    { signal }
+  );
   return response.data;
 };

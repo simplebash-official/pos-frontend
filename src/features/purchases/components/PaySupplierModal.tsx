@@ -29,7 +29,7 @@ import {
   type PayFormState,
   type PaySource,
 } from '../lib/payForm';
-import { autoAllocate, totalDueCents } from '../lib/settlement';
+import { useSettlement } from '../hooks/useSettlement';
 import { SettlementPicker } from './SettlementPicker';
 
 export interface PaySupplierModalProps {
@@ -108,7 +108,8 @@ export const PaySupplierModal = ({
   const createMovement = useCreateCashMovement();
   const createExpense = useCreateExpense();
   const saving = createMovement.isPending || createExpense.isPending;
-  const owed = totalDueCents(open);
+  const settlement = useSettlement(supplierKey, form.amountCents, form.settlements);
+  const owed = settlement.data === undefined ? 0 : settlement.data.owedCents;
 
   const patch = (changes: Partial<PayFormState>) => {
     setForm((current) => ({ ...current, ...changes }));
@@ -124,11 +125,18 @@ export const PaySupplierModal = ({
     });
   };
 
-  const payEverything = () => patch({ amountCents: owed, settlements: autoAllocate(open, owed) });
+  const payEverything = () => {
+    if (settlement.data === undefined) return;
+    patch({ amountCents: settlement.data.owedCents, settlements: settlement.data.payEverything });
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const wrong = validatePay(form, open);
+    if (settlement.data === undefined || !settlement.isCurrent) {
+      setProblem(t('Working out the figures...'));
+      return;
+    }
+    const wrong = validatePay(form, open, settlement.data.blockers);
     if (wrong !== null) {
       setProblem(wrong);
       return;

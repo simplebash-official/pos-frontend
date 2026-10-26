@@ -1,3 +1,4 @@
+import { useSettlement } from '@/features/purchases/hooks/useSettlement';
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Box, Button, Divider, Group, Stack, Text } from '@mantine/core';
@@ -69,8 +70,9 @@ export const SupplierDetailDrawer = ({
   const { data: allProducts = [] } = useAllProducts({ enabled: opened });
   const [payOpen, setPayOpen] = useState(false);
 
-  // What is still owed on this supplier's bills: each bill's own due, worked out by the server.
-  const owedCents = receipts.reduce((sum, receipt) => sum + receipt.dueCents, 0);
+  // What is still owed on this supplier's bills, added up by the server.
+  const owed = useSettlement(supplier ? supplier.key : '', 0, [], Boolean(supplier));
+  const owedCents = owed.data === undefined ? 0 : owed.data.owedCents;
 
   const handleClose = () => {
     setActiveTab('products');

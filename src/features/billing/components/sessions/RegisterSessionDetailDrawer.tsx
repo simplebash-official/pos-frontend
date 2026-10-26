@@ -60,6 +60,7 @@ import {
   RichDrawer,
 } from '@/shared/components/drawer';
 import { useCashMovementList, useSessionDetail, useZReport } from '../../hooks/useRegisterSession';
+import { useCashCount } from '../../hooks/useCashCount';
 import { useSessionInvoices } from '../../hooks/useInvoices';
 import { InvoiceDetailDrawer } from '@/features/invoices/components/InvoiceDetailDrawer';
 import { getInvoiceStatusMeta } from '@/features/invoices/lib/invoiceStatus';
@@ -72,7 +73,6 @@ import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
 import { t } from '@/shared/i18n/t';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { calculateExpectedDrawerCash } from './sessionMath';
 import { ReceiptsAction } from '@/features/attachments/components/ReceiptsAction';
 import { ReverseMovementModal } from './ReverseMovementModal';
 import { ZReportModal } from './ZReportModal';
@@ -141,6 +141,47 @@ const formatShiftDuration = (openedAt: string, closedAt?: string | null) => {
   const hours = Math.floor(diffMinutes / 60);
   const mins = diffMinutes % 60;
   return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+};
+
+/** The saved count of notes and coins, one row each, with the server's subtotals. */
+const DenominationRows: React.FC<{ counts: Record<string, number> }> = ({ counts }) => {
+  const count = useCashCount(counts);
+  if (count.data === undefined) {
+    return (
+      <Table.Tr>
+        <Table.Td colSpan={3}>
+          <Text size="xs" c="dimmed">
+            {count.error === null
+              ? t('Working out the figures...')
+              : t('Could not work out the figures. Check the connection and try again.')}
+          </Text>
+        </Table.Td>
+      </Table.Tr>
+    );
+  }
+  return (
+    <>
+      {count.data.lines
+        .filter((row) => row.id in counts)
+        .map((row) => (
+          <Table.Tr key={row.id}>
+            <Table.Td>
+              <Text size="xs" fw={600}>
+                {formatMoney(row.valueCents)}
+              </Text>
+            </Table.Td>
+            <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text size="xs">{row.count}</Text>
+            </Table.Td>
+            <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text size="xs" fw={700}>
+                {formatMoney(row.subtotalCents)}
+              </Text>
+            </Table.Td>
+          </Table.Tr>
+        ))}
+    </>
+  );
 };
 
 export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerProps> = ({
@@ -233,7 +274,7 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
     (session.totalOnlineSalesCents || 0) +
     (session.totalCreditSalesCents || 0);
 
-  const expectedCash = session.expectedCashCents ?? calculateExpectedDrawerCash(session);
+  const expectedCash = session.expectedCashCents;
   const countedCash = session.countedCashCents;
   const variance = session.cashVarianceCents;
 
@@ -1371,36 +1412,7 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                               </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
-                              {Object.entries(denomsObj)
-                                .map(([denom, qty]) => {
-                                  const numDenom = Number(denom);
-                                  const subtotalCents = Math.round(numDenom * 100 * qty);
-                                  return { denom: numDenom, qty, subtotalCents };
-                                })
-                                .sort((a, b) => b.denom - a.denom)
-                                .map((row) => (
-                                  <Table.Tr key={row.denom}>
-                                    <Table.Td>
-                                      <Text size="xs" fw={600}>
-                                        {formatMoney(Math.round(row.denom * 100))}
-                                      </Text>
-                                    </Table.Td>
-                                    <Table.Td
-                                      ta="right"
-                                      style={{ fontVariantNumeric: 'tabular-nums' }}
-                                    >
-                                      <Text size="xs">{row.qty}</Text>
-                                    </Table.Td>
-                                    <Table.Td
-                                      ta="right"
-                                      style={{ fontVariantNumeric: 'tabular-nums' }}
-                                    >
-                                      <Text size="xs" fw={700}>
-                                        {formatMoney(row.subtotalCents)}
-                                      </Text>
-                                    </Table.Td>
-                                  </Table.Tr>
-                                ))}
+                              <DenominationRows counts={denomsObj} />
                             </Table.Tbody>
                           </Table>
                         </DrawerCard>

@@ -32,7 +32,7 @@ export const ExpensesPanel = ({
       />
     );
   }
-  const chart = monthlyChart(report.categories, report.months, t('Other'));
+  const chart = monthlyChart(report.chart, report.months, t('Other'));
   return (
     <Stack gap="md">
       <MetricCardRow
@@ -90,13 +90,13 @@ export const ExpensesPanel = ({
                   <Table.Td>
                     <Group gap="xs" wrap="nowrap">
                       <Progress
-                        value={(c.totalCents / report.totalCents) * 100}
+                        value={c.sharePercent}
                         size="sm"
                         style={{ flex: 1 }}
                         aria-label={c.categoryName}
                       />
                       <Text size="xs" c="dimmed" w={34} style={{ textAlign: 'right' }}>
-                        {`${Math.round((c.totalCents / report.totalCents) * 100)}%`}
+                        {`${c.sharePercent}%`}
                       </Text>
                     </Group>
                   </Table.Td>

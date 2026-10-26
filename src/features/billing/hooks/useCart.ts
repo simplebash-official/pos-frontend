@@ -7,7 +7,6 @@ import {
   clearLastRemovedItem,
   updateQuantity,
   updateLineDiscount,
-  setDiscount as setDiscountAction,
   setCustomer,
   setTenderedAmountCents,
   setCreditDepositCents,
@@ -33,15 +32,8 @@ import {
   selectActiveCartItems,
   selectReservedQuantityByProductId,
   selectReservedQuantityByProductPrice,
-  selectCartDiscountCents,
-  selectCartDiscountType,
-  selectCartDiscountValue,
-  selectSubtotalCents,
-  selectTotalCents,
   selectCartItemsCount,
   selectTotalUnitCount,
-  selectSourceBreakdown,
-  selectSplitRemainingCents,
   selectHeldCarts,
   selectLastRemovedItem,
   selectSoundEnabled,
@@ -62,10 +54,10 @@ import {
   selectAssignedStaffId,
   selectAssignedStaffName,
   type CartItem,
+  type LineDiscountInput,
 } from '@/store/slices/cartSlice';
 import type { PaymentMethod } from '@/constants/payment';
 import type { SplitPaymentDetail } from '@/features/billing/types';
-import type { DiscountType } from '@/store/slices/cartSlice';
 
 /**
  * These hooks split what used to be one monolithic `useCart()` into purpose-scoped slices of cart
@@ -84,15 +76,11 @@ export const useCartItems = () => {
   const reservedQuantityByProductPrice = useAppSelector(selectReservedQuantityByProductPrice);
   const itemCount = useAppSelector(selectCartItemsCount);
   const totalUnitCount = useAppSelector(selectTotalUnitCount);
-  const sourceBreakdown = useAppSelector(selectSourceBreakdown);
   const lastRemovedItem = useAppSelector(selectLastRemovedItem);
   const isCredit = useAppSelector(selectIsCredit);
   const completedSale = useAppSelector(selectCompletedSale);
 
-  const add = useCallback(
-    (item: Omit<CartItem, 'totalCents'>) => dispatch(addItem(item)),
-    [dispatch]
-  );
+  const add = useCallback((item: CartItem) => dispatch(addItem(item)), [dispatch]);
   const remove = useCallback((id: string) => dispatch(removeItem(id)), [dispatch]);
   const undoRemove = useCallback(() => dispatch(undoRemoveItem()), [dispatch]);
   const clearUndo = useCallback(() => dispatch(clearLastRemovedItem()), [dispatch]);
@@ -101,7 +89,8 @@ export const useCartItems = () => {
     [dispatch]
   );
   const updateLineDisc = useCallback(
-    (id: string, discountCents: number) => dispatch(updateLineDiscount({ id, discountCents })),
+    (id: string, discount: LineDiscountInput | null) =>
+      dispatch(updateLineDiscount({ id, discount })),
     [dispatch]
   );
   const clear = useCallback(() => dispatch(clearCart()), [dispatch]);
@@ -113,7 +102,6 @@ export const useCartItems = () => {
     reservedQuantityByProductPrice,
     itemCount,
     totalUnitCount,
-    sourceBreakdown,
     lastRemovedItem,
     isCredit,
     completedSale,
@@ -124,32 +112,6 @@ export const useCartItems = () => {
     updateQty,
     updateLineDisc,
     clear,
-  };
-};
-
-export const useCartTotals = () => {
-  const dispatch = useAppDispatch();
-  const subtotalCents = useAppSelector(selectSubtotalCents);
-  const discountCents = useAppSelector(selectCartDiscountCents);
-  const discountType = useAppSelector(selectCartDiscountType);
-  const discountValue = useAppSelector(selectCartDiscountValue);
-  const totalCents = useAppSelector(selectTotalCents);
-  const splitRemainingCents = useAppSelector(selectSplitRemainingCents);
-
-  const setDiscount = useCallback(
-    (cents: number, type: DiscountType | null, value: number) =>
-      dispatch(setDiscountAction({ cents, type, value })),
-    [dispatch]
-  );
-
-  return {
-    subtotalCents,
-    discountCents,
-    discountType,
-    discountValue,
-    totalCents,
-    splitRemainingCents,
-    setDiscount,
   };
 };
 

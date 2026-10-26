@@ -8,7 +8,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import { RegisterSessionBadge } from '../RegisterSessionBadge';
-import type { RegisterSession } from '../../../types';
+import type { CalcShiftCountReply, CalcShiftCountRequest, RegisterSession } from '../../../types';
 
 installDrawerTestEnv();
 
@@ -27,6 +27,25 @@ const baseSession = {
 } as RegisterSession;
 
 let currentSession: RegisterSession = baseSession;
+// What the server answers for the shift count (`POST /calc/shift-count`): literals chosen by each test.
+const answer = (over: Partial<CalcShiftCountReply>): CalcShiftCountReply => ({
+  countedCents: 5000,
+  expectedCents: 10000,
+  varianceCents: -5000,
+  reasonRequired: true,
+  pinRequired: true,
+  varianceToleranceCents: 500,
+  closingFloatCents: 5000,
+  keepOpeningFloatCents: 5000,
+  safeDepositCents: 0,
+  ...over,
+});
+let script: (request: CalcShiftCountRequest) => CalcShiftCountReply = () => answer({});
+vi.mock('@/features/billing/api/calcApi', () => ({
+  calcShiftCount: (request: CalcShiftCountRequest) => Promise.resolve(script(request)),
+  calcCashCount: () => Promise.resolve({ lines: [], totalCents: 0 }),
+  calcCashMovement: () => new Promise(() => undefined),
+}));
 const idle = { mutateAsync: vi.fn(), isPending: false, data: undefined, isLoading: false };
 const cancelClose = { ...idle, mutateAsync: vi.fn() };
 
@@ -53,6 +72,7 @@ describe('Close shift window', () => {
 
   beforeEach(() => {
     currentSession = baseSession;
+    script = () => answer({});
     cancelClose.mutateAsync.mockReset();
     cancelClose.mutateAsync.mockResolvedValue(undefined);
     container = document.createElement('div');
@@ -188,6 +208,30 @@ describe('Close shift window', () => {
       expectedCashCents: 2000,
       cashVarianceCents: 0,
     };
+    // Nothing chosen yet: the opening float (none) stays and all of it goes to the safe. Chosen as
+    // the whole count: all of it stays.
+    script = (request) =>
+      request.closingFloatCents === null
+        ? answer({
+            countedCents: 2000,
+            expectedCents: 2000,
+            varianceCents: 0,
+            reasonRequired: false,
+            pinRequired: false,
+            closingFloatCents: 0,
+            keepOpeningFloatCents: 0,
+            safeDepositCents: 2000,
+          })
+        : answer({
+            countedCents: 2000,
+            expectedCents: 2000,
+            varianceCents: 0,
+            reasonRequired: false,
+            pinRequired: false,
+            closingFloatCents: 2000,
+            keepOpeningFloatCents: 0,
+            safeDepositCents: 0,
+          });
     await render();
     await click('Closing...');
     await click('Proceed to Next Float');
@@ -198,16 +242,22 @@ describe('Close shift window', () => {
     expect(text()).not.toContain('Nothing will stay in the drawer');
   });
 
-  it('correctly calculates expected cash and negative variance when shortage exists', async () => {
+  it('shows the expected cash and the negative variance the server worked out for a shortage', async () => {
     currentSession = {
       ...baseSession,
       status: 'closing',
       openingFloatCents: 2000,
       totalCashSalesCents: 444612,
       countedCashCents: 444612,
-      expectedCashCents: undefined,
-      cashVarianceCents: undefined,
     };
+    script = () =>
+      answer({
+        countedCents: 444612,
+        expectedCents: 446612,
+        varianceCents: -2000,
+        reasonRequired: true,
+        pinRequired: false,
+      });
     await render();
     await click('Closing...');
     await shows('Cash Drawer Reconciliation');

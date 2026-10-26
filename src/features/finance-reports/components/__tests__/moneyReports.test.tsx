@@ -48,8 +48,12 @@ const COSTS: ExpenseBreakdown = {
       categoryName: 'Shop rent',
       reportGroup: 'operating_expense',
       totalCents: 120_000,
+      sharePercent: 100,
       months: [{ month: '2026-10', totalCents: 120_000 }],
     },
+  ],
+  chart: [
+    { name: 'Shop rent', isOther: false, months: [{ month: '2026-10', totalCents: 120_000 }] },
   ],
   months: [{ month: '2026-10', totalCents: 120_000 }],
 };

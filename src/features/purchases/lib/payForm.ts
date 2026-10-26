@@ -5,8 +5,8 @@ import { t } from '@/shared/i18n/t';
 import { isDay } from '@/features/expenses/lib/expenseForm';
 import type { CreateCashMovementInput } from '@/features/billing/types';
 import type { CreateExpenseInput } from '@/features/expenses/types';
-import type { PurchaseReceipt, ReceiptSettlementInput } from '../types';
-import { validateSettlements } from './settlement';
+import type { PurchaseReceipt, ReceiptSettlementInput, SettlementBlocker } from '../types';
+import { settlementBlockerText } from './settlement';
 
 export type PaySource = 'drawer' | 'bank' | 'card' | 'online';
 
@@ -31,14 +31,19 @@ export const emptyPayForm = (today: string): PayFormState => ({
   overrideReason: '',
 });
 
-export const validatePay = (form: PayFormState, open: PurchaseReceipt[]): string | null => {
+/** What stops the payment being saved, in plain words, or `null`. `blockers` is the server's count of the split. */
+export const validatePay = (
+  form: PayFormState,
+  open: PurchaseReceipt[],
+  blockers: SettlementBlocker[]
+): string | null => {
   if (!form.source) return t('Please pick where the money comes from.');
   if (form.amountCents <= 0) return t('Please enter how much you are paying.');
   if (!form.categoryKey) return t('Please pick what this payment is filed under.');
   if (form.source !== 'drawer' && !isDay(form.paidOn)) {
     return t('Please pick the day the money left the account.');
   }
-  return validateSettlements(form.settlements, open, form.amountCents);
+  return blockers.length === 0 ? null : settlementBlockerText(blockers[0], open);
 };
 
 const text = (value: string) => value.trim() || undefined;

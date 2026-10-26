@@ -326,7 +326,8 @@ export interface RegisterSession {
   closedAt?: string;
   closingCashierId?: string;
   closingCashierNameSnapshot?: string;
-  expectedCashCents?: number;
+  /** What the drawer should hold, worked out by the server on every read. */
+  expectedCashCents: number;
   countedCashCents?: number;
   cashVarianceCents?: number;
   closingDenominations?: Record<string, number>;
@@ -565,4 +566,227 @@ export interface PeriodStatus {
   expectedCents?: number;
   alreadyPaid: boolean;
   payments: PeriodPayment[];
+}
+
+// ---------------------------------------------------------------------------
+// Live calculation of the cart and payment (`POST /calc/checkout`)
+// ---------------------------------------------------------------------------
+
+/** A discount as typed: a percentage (0-100) or, for `fixed`, cents. */
+export interface CalcDiscount {
+  type: 'percentage' | 'fixed';
+  value: number;
+}
+
+export interface CalcCartLineRequest {
+  /** The cart line's id, echoed in its answer so a reply can be matched to its line. */
+  key: string;
+  unitPriceCents: number;
+  quantity: number;
+  /** What was typed as this line's discount; `null` for none. */
+  discount: CalcDiscount | null;
+  sourceType: LineSourceType;
+}
+
+export interface CalcCheckoutRequest {
+  items: CalcCartLineRequest[];
+  /** `value` is a percentage (0-100) or, for `fixed`, cents. `null` for no discount. */
+  orderDiscount: CalcDiscount | null;
+  payment: {
+    method: PaymentMethod;
+    tenderedCents: number;
+    splitLegsCents: number[];
+    customerBalanceCents: number;
+    isCredit: boolean;
+    creditDepositCents: number;
+  };
+}
+
+export interface CalcLineReply {
+  /** The `key` of the request line this answers. */
+  key: string;
+  grossCents: number;
+  discountCents: number;
+  totalCents: number;
+}
+
+export interface CalcCheckoutPaymentReply {
+  effectiveTenderedCents: number;
+  changeDueCents: number;
+  shortByCents: number;
+  isCashShort: boolean;
+  isCardShort: boolean;
+  isFullyPaid: boolean;
+  splitAllocatedCents: number;
+  splitRemainingCents: number;
+  isSplitValid: boolean;
+  newCustomerBalanceCents: number;
+  creditPaidNowCents: number;
+  creditRemainderCents: number;
+  /** The `amountReceivedCents` to send with the sale. */
+  amountReceivedCents: number;
+  /** The most a credit sale can take up front; at least one cent stays on account. */
+  maxCreditDepositCents: number;
+}
+
+export interface CalcCheckoutReply {
+  /** One per request line, in order. */
+  items: CalcLineReply[];
+  itemCount: number;
+  totalUnitCount: number;
+  subtotalCents: number;
+  orderDiscountCents: number;
+  totalCents: number;
+  sourceBreakdown: { retailCents: number; repairsCents: number; printCents: number };
+  payment: CalcCheckoutPaymentReply;
+  /** Cash amounts to offer as quick buttons, smallest first. */
+  quickTenderCents: number[];
+}
+
+// ---------------------------------------------------------------------------
+// Live calculation of a return (`POST /calc/credit-note`)
+// ---------------------------------------------------------------------------
+
+export interface CalcCreditNoteRequest {
+  /** The invoice the return is against; `null` for a return with no receipt. */
+  invoiceKey: string | null;
+  returned: { lineIndex: number; quantity: number }[];
+  /** Set (with `invoiceKey: null`) for a return with no receipt; 0 for what is not typed yet. */
+  noReceipt: { unitPriceCents: number; quantity: number } | null;
+  exchanged: { unitPriceCents: number; quantity: number }[];
+}
+
+export interface CalcCreditNoteReply {
+  /** One per requested returned line, in order. */
+  lines: { lineIndex: number; unitCents: number; refundCents: number }[];
+  returnSubtotalCents: number;
+  exchangeSubtotalCents: number;
+  /** Positive: the customer is owed this; negative: the customer owes it. */
+  netRefundCents: number;
+  /** The part of the net that goes back as cash (capped at what was paid on the invoice). */
+  refundCashCents: number;
+  /** The part that only reduces what the customer owes. */
+  balanceReductionCents: number;
+  /** Where the cash goes by default. */
+  refundLegs: { method: string; amountCents: number }[];
+  isRefundDue: boolean;
+  isCustomerOwing: boolean;
+  isEvenExchange: boolean;
+  /** Whole days since the sale; `null` for a return with no receipt. */
+  daysSinceSale: number | null;
+  returnWindowDays: number;
+  pastReturnWindow: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Live calculations for cash (`POST /calc/cash-movement|cash-count|shift-count`)
+// ---------------------------------------------------------------------------
+
+export interface CalcCashMovementRequest {
+  movementType: CashMovementType;
+  amountCents: number;
+  categoryKey: string | null;
+  sessionKey: string | null;
+  terminalId: string;
+  payeeKey: string | null;
+  payeeName: string;
+  /** `YYYY-MM`. */
+  period: string | null;
+  settlementAmountsCents: number[];
+  pinEntered: boolean;
+  pinVerified: boolean;
+  overrideReasonEntered: boolean;
+  confirmDuplicate: boolean;
+}
+
+export type CashMovementBlocker =
+  | 'amount_missing'
+  | 'category_missing'
+  | 'open_reason_missing'
+  | 'rent_payee_missing'
+  | 'period_missing'
+  | 'staff_missing'
+  | 'supplier_missing'
+  | 'over_allocated'
+  | 'who_took_cash_missing'
+  | 'pin_missing'
+  | 'pin_not_verified'
+  | 'override_reason_missing'
+  | 'period_already_paid';
+
+export interface CalcCashMovementReply {
+  takesCashOut: boolean;
+  cashInDrawerCents: number;
+  cashAfterCents: number;
+  drawerDeltaCents: number;
+  overDrawer: boolean;
+  pinRequired: boolean;
+  periodAlreadyPaid: boolean;
+  blockers: CashMovementBlocker[];
+}
+
+export interface CalcCashCountRequest {
+  /** How many of each note or coin, keyed by its rupee value. */
+  counts: Record<string, number>;
+}
+
+export interface CashCountLine {
+  id: string;
+  valueCents: number;
+  count: number;
+  subtotalCents: number;
+}
+
+export interface CalcCashCountReply {
+  lines: CashCountLine[];
+  totalCents: number;
+}
+
+export interface CalcShiftCountRequest {
+  /** Closing: the open shift. */
+  sessionKey: string | null;
+  /** Opening: the terminal being counted. */
+  terminalId: string | null;
+  countedCents: number;
+  closingFloatCents: number | null;
+}
+
+export interface CalcShiftCountReply {
+  /** The count that was asked about. */
+  countedCents: number;
+  expectedCents: number;
+  varianceCents: number;
+  reasonRequired: boolean;
+  pinRequired: boolean;
+  /** How far off a closing count can be before it needs a manager PIN. */
+  varianceToleranceCents: number;
+  /** Closing: the float that stays in the drawer (the one chosen, else the opening float). */
+  closingFloatCents: number | null;
+  /** Closing: the opening float, or the whole count when that is less. */
+  keepOpeningFloatCents: number | null;
+  safeDepositCents: number | null;
+}
+
+export interface CalcInvoiceBalanceRequest {
+  invoiceKey: string;
+}
+
+export interface CalcInvoiceBalanceReply {
+  /** Everything paid against the invoice (checkout deposit and later payments). */
+  paidCents: number;
+  /** What is still owed; nothing for a sale paid at the till. */
+  balanceDueCents: number;
+}
+
+export interface CalcShiftTotalsRequest {
+  sessionKeys: string[];
+}
+
+export interface CalcShiftTotalsReply {
+  shiftCount: number;
+  /** Open, closing or reopened: still counting sales. */
+  runningCount: number;
+  cashSalesCents: number;
+  /** Net cash difference of the closed shifts: over is positive, short is negative. */
+  netVarianceCents: number;
 }

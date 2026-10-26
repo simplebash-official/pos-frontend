@@ -1,6 +1,6 @@
 import { formatMoney } from '@/shared/lib/money';
 import { PAYMENT_METHODS } from '@/constants/payment';
-import type { Invoice } from '../types';
+import type { CalcInvoiceBalanceReply, Invoice } from '../types';
 
 export interface SaleHeroPresentation {
   isCreditCompleted: boolean;
@@ -17,22 +17,34 @@ export interface SaleHeroPresentation {
   methodLabel: string;
 }
 
+const isRefundSale = (invoice: Invoice) => invoice.totalCents < 0;
+const isEvenExchangeSale = (invoice: Invoice) =>
+  invoice.totalCents === 0 && invoice.items.some((i) => i.quantity < 0);
+
+/** A sale left on the customer's account: its paid and owed figures come from the server. */
+export const isOnAccountSale = (invoice: Invoice): boolean =>
+  !isRefundSale(invoice) &&
+  !isEvenExchangeSale(invoice) &&
+  (invoice.isCredit || invoice.status === 'pending' || invoice.status === 'partially_paid');
+
+/**
+ * How the sale confirmation looks. A sale on account needs the server's paid and owed figures
+ * (`useInvoiceBalance`); until they arrive there is nothing to show, so this returns `null`.
+ */
 export const getSaleHeroPresentation = (
   invoice: Invoice,
-  changeDueCents: number
-): SaleHeroPresentation => {
-  const isRefund = invoice.totalCents < 0;
-  const isEvenExchange = invoice.totalCents === 0 && invoice.items.some((i) => i.quantity < 0);
-  const isCreditCompleted =
-    !isRefund &&
-    !isEvenExchange &&
-    (invoice.isCredit || invoice.status === 'pending' || invoice.status === 'partially_paid');
+  changeDueCents: number,
+  balance: CalcInvoiceBalanceReply | undefined
+): SaleHeroPresentation | null => {
+  const isRefund = isRefundSale(invoice);
+  const isEvenExchange = isEvenExchangeSale(invoice);
+  const isCreditCompleted = isOnAccountSale(invoice);
+  if (isCreditCompleted && balance === undefined) return null;
   const isChangeDue = !isCreditCompleted && !isRefund && !isEvenExchange && changeDueCents > 0;
 
-  const paidNowCents = isCreditCompleted ? (invoice.amountReceivedCents ?? 0) : 0;
-  const isPartialCredit =
-    isCreditCompleted && paidNowCents > 0 && paidNowCents < invoice.totalCents;
-  const balanceDueCents = Math.max(0, invoice.totalCents - paidNowCents);
+  const paidNowCents = balance === undefined ? 0 : balance.paidCents;
+  const balanceDueCents = balance === undefined ? 0 : balance.balanceDueCents;
+  const isPartialCredit = isCreditCompleted && paidNowCents > 0 && balanceDueCents > 0;
 
   const heroColor: 'amber' | 'bordeaux' | 'green' | 'orange' | 'blue' = isRefund
     ? 'orange'

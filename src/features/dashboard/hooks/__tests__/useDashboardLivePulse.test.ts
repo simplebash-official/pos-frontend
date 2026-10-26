@@ -1,240 +1,182 @@
 import { describe, expect, it } from 'vitest';
-import dayjs from 'dayjs';
 import {
-  computeDashboardData,
-  toReminderItems,
   INITIAL_DASHBOARD_DATA,
+  toDashboardData,
+  toReminderItems,
   useDashboardLivePulse,
 } from '../useDashboardLivePulse';
 import type { ReminderEntry } from '@/features/reports/types';
-import type { Invoice } from '@/features/billing/types';
-import type { RepairJob } from '@/features/repairs/types';
-import type { PrintJob } from '@/features/print-jobs/types';
-import type { Product } from '@/features/inventory/types';
-import type { Employee } from '@/features/employees/types';
+import type { DashboardPulseReply } from '../../types';
 
-describe('computeDashboardData', () => {
-  const now = dayjs('2026-08-27T12:00:00.000Z');
+// The server's answer as literals: this layer lays figures out and never adds anything up.
+const PULSE: DashboardPulseReply = {
+  activeRepairsCount: 3,
+  readyRepairsCount: 1,
+  uncollectedReadyValueCents: 13_000,
+  activePrintJobsCount: 2,
+  repairPipeline: [
+    { stage: 'received', count: 1, percent: 25 },
+    { stage: 'diagnosing', count: 1, percent: 25 },
+    { stage: 'in_repair', count: 1, percent: 25 },
+    { stage: 'ready', count: 1, percent: 25 },
+  ],
+  printPipeline: [
+    { stage: 'received', count: 1, percent: 50 },
+    { stage: 'in_repair', count: 0, percent: 0 },
+    { stage: 'ready', count: 0, percent: 0 },
+    { stage: 'delivered', count: 1, percent: 50 },
+  ],
+  technicians: [
+    {
+      employeeKey: 'emp_1',
+      name: 'Nimal',
+      role: 'technician',
+      activeJobsCount: 2,
+      completedTodayCount: 1,
+      capacityPercent: 40,
+      status: 'busy',
+      currentDeviceModel: 'Galaxy S21',
+      currentTicketNumber: 'REP-000001',
+    },
+  ],
+  fastMovers: [
+    {
+      productKey: 'prod_1',
+      name: 'USB Cable',
+      soldTodayUnits: 4,
+      sellingPriceCents: 150_000,
+      category: 'Accessories',
+      remainingStock: 2,
+      minThreshold: 5,
+    },
+    {
+      productKey: null,
+      name: 'Old Item',
+      soldTodayUnits: 1,
+      sellingPriceCents: 1_000,
+      category: null,
+      remainingStock: null,
+      minThreshold: null,
+    },
+  ],
+  lowStock: [
+    {
+      productId: 'p1',
+      reference: 'SKU-1',
+      name: 'Charger',
+      stockQuantity: 0,
+      threshold: 5,
+      outOfStock: true,
+      updatedAt: '2026-08-20T10:00:00Z',
+      daysSinceUpdate: 7,
+    },
+  ],
+  readyRepairs: [
+    {
+      id: 'r1',
+      ticketNumber: 'REP-000009',
+      deviceModel: 'iPhone 12',
+      customerName: 'Asha',
+      customerPhone: '0771234567',
+      createdAt: '2026-08-20T10:00:00Z',
+      daysWaiting: 7,
+      severity: 'critical',
+      amountCents: 13_000,
+    },
+  ],
+  recentActivity: [
+    {
+      kind: 'sale',
+      id: 'inv_1',
+      reference: 'INV-1',
+      amountCents: 1_500,
+      createdAt: '2026-08-27T11:00:00Z',
+      paymentMethod: 'cash',
+      cashierName: 'Admin',
+      status: null,
+      deviceModel: null,
+      customerName: null,
+      jobType: null,
+      quantity: null,
+    },
+  ],
+};
 
-  it('aggregates live sales, repairs, and stock alerts accurately', () => {
-    const products: Product[] = [
-      {
-        id: 'prod_1',
-        key: 'prod_1',
-        name: 'USB-C Cable',
-        sku: 'CAB-001',
-        categoryKey: 'cat_1',
-        category: 'Accessories',
-        subcategoryKey: 'sub_1',
-        subcategory: 'Cables',
-        priceTiers: [
-          {
-            sellingPriceCents: 500,
-            quantity: 2,
-            minUnitCostCents: 200,
-            maxUnitCostCents: 200,
-            oldestReceivedAt: '2026-01-01T00:00:00Z',
-          },
-        ],
-        stockQuantity: 2,
-        minStockThreshold: 5,
-        isSerialized: false,
-        updatedAt: now.toISOString(),
-      },
-    ];
+const MONEY = {
+  todaySalesCents: 1500,
+  todayInvoicesCount: 1,
+  avgBasketCents: 1500,
+  shift: {
+    openingFloatCents: 5000,
+    cashSalesCents: 1500,
+    cardSalesCents: 0,
+    onlineSalesCents: 0,
+    creditSalesCents: 0,
+    expectedDrawerCashCents: 6500,
+  },
+};
 
-    const invoices: Invoice[] = [
-      {
-        id: 'inv_1',
-        invoiceNumber: 'INV-1001',
-        subtotalCents: 1500,
-        discountCents: 0,
-        totalCents: 1500,
-        paymentMethod: 'cash',
-        status: 'paid',
-        amountReceivedCents: 1500,
-        isOverdue: false,
-        creditNoteCount: 0,
-        hasCreditNotes: false,
-        refundedCents: 0,
-        createdAt: now.toISOString(),
-        items: [
-          {
-            id: 'item_1',
-            productId: 'prod_1',
-            name: 'USB-C Cable',
-            quantity: 3,
-            unitPriceCents: 500,
-            discountCents: 0,
-            totalCents: 1500,
-          },
-        ],
-      },
-    ];
+describe('toDashboardData', () => {
+  const data = toDashboardData(PULSE, MONEY);
 
-    const repairs: RepairJob[] = [
-      {
-        id: 'rep_1',
-        ticketNumber: 'TKT-2001',
-        customerName: 'Kamal Perera',
-        customerPhone: '0771234567',
-        deviceModel: 'Samsung S21',
-        issueDescription: 'Battery drain',
-        status: 'in_repair',
-        estimatedCostCents: 4500,
-        materialCostCents: 500,
-        createdAt: now.toISOString(),
-      },
-      {
-        id: 'rep_2',
-        ticketNumber: 'TKT-2002',
-        customerName: 'Nimal Silva',
-        customerPhone: '0781234567',
-        deviceModel: 'iPhone 13',
-        issueDescription: 'Screen crack',
-        status: 'ready',
-        estimatedCostCents: 8500,
-        materialCostCents: 1500,
-        createdAt: now.toISOString(),
-      },
-    ];
-
-    const printJobs: PrintJob[] = [
-      {
-        id: 'pj_1',
-        ticketNumber: 'PRN-3001',
-        customerName: 'Anura Bandara',
-        jobType: 't-shirt',
-        quantity: 10,
-        status: 'received',
-        estimatedCostCents: 12000,
-        createdAt: now.toISOString(),
-      },
-    ];
-
-    const employees: Employee[] = [
-      {
-        id: 'emp_1',
-        key: 'emp_1',
-        name: 'Sunil Hardware',
-        phone: '0712345678',
-        role: 'technician',
-        defaultSplitType: 'percentage',
-        defaultSplitValue: 20,
-        status: 'active',
-        createdAt: now.toISOString(),
-        updatedAt: now.toISOString(),
-      },
-    ];
-
-    const data = computeDashboardData({
-      invoices,
-      repairs,
-      printJobs,
-      products,
-      employees,
-      now,
-    });
-
-    // 1. Check KPIs
+  it('shows the counts and totals the server sent, and the open shift', () => {
+    expect(data.kpis.activeRepairsCount).toBe(3);
+    expect(data.kpis.uncollectedReadyValueCents).toBe(13_000);
     expect(data.kpis.todaySalesCents).toBe(1500);
-    expect(data.kpis.todayInvoicesCount).toBe(1);
-    expect(data.kpis.avgBasketCents).toBe(1500);
-    expect(data.kpis.activeRepairsCount).toBe(1);
-    expect(data.kpis.readyRepairsCount).toBe(1);
-    expect(data.kpis.uncollectedReadyValueCents).toBe(10000); // 8500 + 1500
-    expect(data.kpis.cashDrawerBalanceCents).toBe(1500);
-
-    // 2. Check Urgent Action Center
-    const stockoutAlert = data.urgentActions.find((a) => a.type === 'stockout');
-    expect(stockoutAlert).toBeDefined();
-    expect(stockoutAlert?.title).toContain('USB-C Cable');
-    expect(stockoutAlert?.rawDate).toBe(now.toISOString());
-    expect(stockoutAlert?.daysWaiting).toBe(0);
-
-    const uncollectedAlert = data.urgentActions.find((a) => a.type === 'uncollected');
-    expect(uncollectedAlert).toBeDefined();
-    expect(uncollectedAlert?.title).toContain('iPhone 13 Ready for Pickup');
-    expect(uncollectedAlert?.rawDate).toBe(now.toISOString());
-    expect(uncollectedAlert?.daysWaiting).toBe(0);
-
-    // 3. Check Service Pipelines
-    const repairStageReady = data.repairPipeline.find((s) => s.stage === 'ready');
-    expect(repairStageReady?.count).toBe(1);
-
-    const printStageQueued = data.printPipeline.find((s) => s.stage === 'received');
-    expect(printStageQueued?.count).toBe(1);
-
-    // 4. Check Shift Summary
-    expect(data.shiftSummary.cashSalesCents).toBe(1500);
-    expect(data.shiftSummary.expectedDrawerCashCents).toBe(1500);
-
-    // 5. Check Fast Movers
-    expect(data.fastMovingItems.length).toBe(1);
-    expect(data.fastMovingItems[0].name).toBe('USB-C Cable');
-    expect(data.fastMovingItems[0].soldTodayUnits).toBe(3);
-
-    // 6. Check Activity Stream
-    expect(data.recentActivities.length).toBeGreaterThan(0);
-    expect(data.recentActivities.some((a) => a.type === 'sale')).toBe(true);
-    expect(data.recentActivities.some((a) => a.type === 'repair_update')).toBe(true);
+    expect(data.kpis.cashDrawerBalanceCents).toBe(6500);
+    expect(data.shiftSummary.openingFloatCents).toBe(5000);
   });
 
-  it('handles empty database records cleanly without NaN or exceptions', () => {
-    const data = computeDashboardData({
-      invoices: [],
-      repairs: [],
-      printJobs: [],
-      products: [],
-      employees: [],
-      now,
-    });
+  it('with no open shift the cash figures are zero', () => {
+    const none = toDashboardData(PULSE, { ...MONEY, shift: null });
+    expect(none.kpis.cashDrawerBalanceCents).toBe(0);
+    expect(none.kpis.openingFloatCents).toBe(0);
+  });
 
-    expect(data.kpis.todaySalesCents).toBe(0);
-    expect(data.kpis.todayInvoicesCount).toBe(0);
-    expect(data.kpis.avgBasketCents).toBe(0);
-    expect(data.urgentActions).toEqual([]);
-    expect(data.technicians).toEqual([]);
-    expect(data.fastMovingItems).toEqual([]);
-    expect(data.recentActivities).toEqual([]);
+  it('names the pipeline stages and keeps the server shares', () => {
+    expect(data.repairPipeline.map((s) => [s.label, s.count, s.percentage])).toEqual([
+      ['Received', 1, 25],
+      ['Diagnosing', 1, 25],
+      ['In Repair', 1, 25],
+      ['Ready for Pickup', 1, 25],
+    ]);
+    expect(data.printPipeline[3]).toMatchObject({ label: 'Delivered Today', percentage: 50 });
+  });
+
+  it('turns low stock and waiting repairs into urgent actions with the server severity', () => {
+    const stock = data.urgentActions.find((a) => a.type === 'stockout');
+    expect(stock).toMatchObject({ severity: 'critical', daysWaiting: 7, referenceId: 'SKU-1' });
+    expect(stock?.title).toContain('OUT OF STOCK');
+    const ready = data.urgentActions.find((a) => a.type === 'uncollected');
+    expect(ready).toMatchObject({ severity: 'critical', amountCents: 13_000, daysWaiting: 7 });
+    expect(ready?.timestamp).toBe('7d ready');
+  });
+
+  it('shows a technician with the server load and current job', () => {
+    expect(data.technicians[0]).toMatchObject({
+      name: 'Nimal',
+      capacityPercentage: 40,
+      status: 'busy',
+      currentTask: 'Galaxy S21 (REP-000001)',
+    });
+  });
+
+  it('leaves out stock figures for a product that no longer exists', () => {
+    expect(data.fastMovingItems[0]).toMatchObject({ productKey: 'prod_1', remainingStock: 2 });
+    expect(data.fastMovingItems[1]).toMatchObject({ productKey: null, remainingStock: null });
+  });
+
+  it('words the activity rows', () => {
+    expect(data.recentActivities[0]).toMatchObject({
+      id: 'sale-inv_1',
+      type: 'sale',
+      title: 'Sale Completed · INV-1',
+    });
   });
 
   it('exports hook and initial state', () => {
     expect(typeof useDashboardLivePulse).toBe('function');
     expect(INITIAL_DASHBOARD_DATA).toBeDefined();
-  });
-
-  it('does not emit any credit reminder itself — that is the server feed now', () => {
-    const overdueCredit: Invoice = {
-      id: 'inv_1',
-      invoiceNumber: 'INV-1',
-      subtotalCents: 5000,
-      discountCents: 0,
-      totalCents: 5000,
-      paymentMethod: 'cash',
-      status: 'pending',
-      isCredit: true,
-      amountReceivedCents: 0,
-      dueDate: '2020-01-01',
-      isOverdue: true,
-      creditNoteCount: 0,
-      hasCreditNotes: false,
-      refundedCents: 0,
-      createdAt: '2026-09-01T10:00:00Z',
-      items: [],
-    } as Invoice;
-
-    const data = computeDashboardData({
-      invoices: [overdueCredit],
-      repairs: [],
-      printJobs: [],
-      products: [],
-      employees: [],
-    });
-
-    expect(
-      data.urgentActions.some((a) => a.type === 'credit_overdue' || a.type === 'credit_due_soon')
-    ).toBe(false);
   });
 });
 

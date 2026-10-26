@@ -3,7 +3,8 @@ import { Badge, Box, Group, Text, UnstyledButton } from '@mantine/core';
 import { IconCash, IconLayoutGrid, IconShoppingCart } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
 
-import { useCartItems, useCartTotals } from '../hooks/useCart';
+import { useCartItems } from '../hooks/useCart';
+import { useCheckout } from '../hooks/useCheckout';
 import { formatMoney } from '@/shared/lib/money';
 
 /** Which of the three billing regions is on screen. Only meaningful below the desktop tier. */
@@ -26,7 +27,7 @@ const TABS: { pane: BillingPane; label: string; Icon: Icon }[] = [
  */
 export const BillingSummaryStrip = ({ onOpenCart }: { onOpenCart: () => void }) => {
   const { itemCount, totalUnitCount } = useCartItems();
-  const { totalCents } = useCartTotals();
+  const { data: checkout } = useCheckout();
 
   if (itemCount === 0) {
     return null;
@@ -50,7 +51,7 @@ export const BillingSummaryStrip = ({ onOpenCart }: { onOpenCart: () => void }) 
           {itemCount} {itemCount === 1 ? 'line' : 'lines'} · {totalUnitCount} {t('qty')}
         </Text>
         <Text size="lg" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {formatMoney(totalCents)}
+          {checkout === undefined ? '' : formatMoney(checkout.totalCents)}
         </Text>
       </Group>
     </UnstyledButton>

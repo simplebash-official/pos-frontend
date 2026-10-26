@@ -98,8 +98,7 @@ describe('POS Barcode Scanner Autofocus & Quick Adjust Quantity', () => {
       name: 'Wireless Mouse',
       unitPriceCents: 2500,
       quantity: 1,
-      discountCents: 0,
-      totalCents: 2500,
+      discount: null,
       sourceType: 'retail',
       ...overrides,
     });

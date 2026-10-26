@@ -29,6 +29,7 @@ describe('RegisterSessionBadge', () => {
     openedAt: '2026-10-19T00:00:00Z',
     openingFloatCents: 5000,
     openingDiscrepancyCents: 0,
+    expectedCashCents: 17500,
     totalCashSalesCents: 12500,
     totalCardSalesCents: 0,
     totalOnlineSalesCents: 0,

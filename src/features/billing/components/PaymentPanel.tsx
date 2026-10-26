@@ -17,6 +17,7 @@ import {
   UnstyledButton,
   Badge,
   ThemeIcon,
+  Skeleton,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import {
@@ -40,24 +41,21 @@ import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
 
-import { useCartItems, useCartTotals, useCartCustomer, useCartCheckout } from '../hooks/useCart';
+import { useCartItems, useCartCustomer, useCartCheckout } from '../hooks/useCart';
+import { useCheckout } from '../hooks/useCheckout';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { formatMoney, fromCents } from '@/shared/lib/money';
 import { AnimatedNumber, SPRING } from '@/shared/motion';
 import { motion } from 'framer-motion';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
-import {
-  calculateOrderDiscount,
-  calculatePaymentState,
-  calculateQuickTenderSuggestions,
-} from '@/shared/lib/posCalculations';
 import { AmountInput } from '@/shared/components/AmountInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { getSaleHeroPresentation } from '../lib/saleHeroPresentation';
-import type { Invoice, SplitPaymentDetail } from '../types';
+import { getSaleHeroPresentation, isOnAccountSale } from '../lib/saleHeroPresentation';
+import { useInvoiceBalance } from '../hooks/useInvoiceBalance';
+import type { CalcCheckoutReply, Invoice, SplitPaymentDetail } from '../types';
 
 export interface PaymentPanelProps {
   isProcessing: boolean;
@@ -71,14 +69,55 @@ export interface PaymentPanelHandle {
   triggerPrimaryAction: () => void;
 }
 
+interface PaymentPanelBodyProps extends PaymentPanelProps {
+  /** The server's answer for the cart and its payment as they stand. */
+  checkout: CalcCheckoutReply;
+  /** False while a newer answer is on its way; the sale cannot be completed meanwhile. */
+  isCurrent: boolean;
+}
+
+/**
+ * Every figure here (totals, discount, change, short by, split, credit, quick buttons) is the
+ * server's answer. Until the first answer arrives, or if the server cannot be reached, there is
+ * nothing to pay with, so the panel says so instead of showing guessed numbers.
+ */
 export const PaymentPanel = memo(
-  forwardRef<PaymentPanelHandle, PaymentPanelProps>(function PaymentPanel(
-    { isProcessing, onCompleteCheckout, onOpenDocumentPreview },
+  forwardRef<PaymentPanelHandle, PaymentPanelProps>(function PaymentPanel(props, ref) {
+    const { data: checkout, isCurrent, error } = useCheckout();
+    if (checkout === undefined) {
+      return (
+        <Stack p="md" gap="xs" align="center" justify="center" h="100%">
+          <Text
+            size="sm"
+            c={error === null ? 'dimmed' : 'red'}
+            role={error === null ? undefined : 'alert'}
+          >
+            {error === null
+              ? t('Working out the figures...')
+              : t('Could not work out the figures. Check the connection and try again.')}
+          </Text>
+        </Stack>
+      );
+    }
+    return <PaymentPanelBody {...props} ref={ref} checkout={checkout} isCurrent={isCurrent} />;
+  })
+);
+
+const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
+  function PaymentPanelBody(
+    { isProcessing, onCompleteCheckout, onOpenDocumentPreview, checkout, isCurrent },
     ref
   ) {
     const { items } = useCartItems();
-    const { subtotalCents, discountCents, totalCents, setDiscount, splitRemainingCents } =
-      useCartTotals();
+    const { setDiscount, discountType, discountValue } = useCheckout();
+    const {
+      subtotalCents,
+      orderDiscountCents: discountCents,
+      totalCents,
+      payment: paymentState,
+      quickTenderCents: quickChips,
+    } = checkout;
+    const { splitRemainingCents } = paymentState;
     const { customerId, customerName, customerBalanceCents } = useCartCustomer();
     const {
       paymentMethod,
@@ -109,6 +148,10 @@ export const PaymentPanel = memo(
     } = useCartCheckout();
 
     const isMobile = useIsMobile();
+    const heroBalance = useInvoiceBalance(
+      completedSale ? completedSale.invoice.id : '',
+      completedSale ? isOnAccountSale(completedSale.invoice) : false
+    ).data;
     const regionPadding = isMobile ? 'var(--mantine-spacing-sm)' : 'var(--mantine-spacing-md)';
 
     const terminalId = getDeviceId();
@@ -148,7 +191,7 @@ export const PaymentPanel = memo(
         setShowDiscountInput(false);
         setDiscountInput('');
         setHasEditedDiscount(false);
-        setLastSyncedDiscountCents(null);
+        setLastSyncedDiscountValue(null);
         setTenderedRupees('');
       }
     }, [items.length]);
@@ -157,52 +200,31 @@ export const PaymentPanel = memo(
     const [confirmCreditRequired, setConfirmCreditRequired] = useState(false);
     const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Calculate order discount cents based on mode & input
-    const calculatedDiscountCents = useMemo(() => {
-      if (
-        !showDiscountInput ||
-        typeof discountInput !== 'number' ||
-        discountInput <= 0 ||
-        subtotalCents <= 0
-      ) {
-        return 0;
-      }
-      return calculateOrderDiscount(
-        subtotalCents,
-        discountMode === 'percentage' ? 'percentage' : 'fixed',
-        discountMode === 'percentage' ? discountInput : Math.round(discountInput * 100)
-      );
-    }, [showDiscountInput, discountInput, discountMode, subtotalCents]);
-
-    // Sync calculated discount to cart store
+    // The discount as typed goes to the store; the server works out what it comes to.
     useEffect(() => {
-      if (calculatedDiscountCents <= 0) {
-        setDiscount(0, null, 0);
+      if (!showDiscountInput || typeof discountInput !== 'number' || discountInput <= 0) {
+        setDiscount(null, 0);
         return;
       }
-      setDiscount(
-        calculatedDiscountCents,
-        discountMode === 'percentage' ? 'percentage' : 'fixed',
-        discountMode === 'percentage'
-          ? Math.min(100, Math.max(0, typeof discountInput === 'number' ? discountInput : 0))
-          : calculatedDiscountCents
-      );
-    }, [calculatedDiscountCents, discountMode, discountInput, setDiscount]);
+      if (discountMode === 'percentage') {
+        setDiscount('percentage', Math.min(100, discountInput));
+      } else {
+        setDiscount('fixed', Math.round(discountInput * 100));
+      }
+    }, [showDiscountInput, discountMode, discountInput, setDiscount]);
 
-    // Sync external discountCents to discountInput state if set externally
-    const [lastSyncedDiscountCents, setLastSyncedDiscountCents] = useState<number | null>(null);
+    // A discount set elsewhere (a restored parked cart) fills the input with what was typed then.
+    const [lastSyncedDiscountValue, setLastSyncedDiscountValue] = useState<number | null>(null);
     if (
       !hasEditedDiscount &&
-      discountCents > 0 &&
+      discountType !== null &&
+      discountValue > 0 &&
       discountInput === '' &&
-      discountCents !== lastSyncedDiscountCents
+      discountValue !== lastSyncedDiscountValue
     ) {
-      setLastSyncedDiscountCents(discountCents);
-      if (discountMode === 'percentage' && subtotalCents > 0) {
-        setDiscountInput(Math.round((discountCents / subtotalCents) * 100));
-      } else {
-        setDiscountInput(fromCents(discountCents));
-      }
+      setLastSyncedDiscountValue(discountValue);
+      setDiscountMode(discountType === 'percentage' ? 'percentage' : 'amount');
+      setDiscountInput(discountType === 'percentage' ? discountValue : fromCents(discountValue));
     }
 
     // Tendered cash state in rupees
@@ -258,14 +280,10 @@ export const PaymentPanel = memo(
 
     // Sync tendered amount to Redux store
     useEffect(() => {
-      const cents =
-        typeof tenderedRupees === 'number'
-          ? Math.round(tenderedRupees * 100)
-          : paymentMethod === PAYMENT_METHODS.CARD
-            ? totalCents
-            : 0;
-      changeTenderedAmountCents(cents);
-    }, [tenderedRupees, paymentMethod, totalCents, changeTenderedAmountCents]);
+      changeTenderedAmountCents(
+        typeof tenderedRupees === 'number' ? Math.round(tenderedRupees * 100) : 0
+      );
+    }, [tenderedRupees, changeTenderedAmountCents]);
 
     // Clear tendered amount when switching to credit mode
     useEffect(() => {
@@ -274,41 +292,15 @@ export const PaymentPanel = memo(
       }
     }, [isCredit]);
 
-    // Payment calculations via centralized Calculation Engine
-    const paymentState = useMemo(() => {
-      const tenderedCents =
-        typeof tenderedRupees === 'number'
-          ? Math.round(tenderedRupees * 100)
-          : paymentMethod === PAYMENT_METHODS.CARD
-            ? totalCents
-            : 0;
-
-      return calculatePaymentState({
-        totalCents,
-        tenderedAmountCents: tenderedCents,
-        paymentMethod,
-        splitPayments,
-        customerBalanceCents,
-        isCredit,
-        creditDepositCents,
-      });
-    }, [
-      tenderedRupees,
-      paymentMethod,
-      totalCents,
-      splitPayments,
-      customerBalanceCents,
-      isCredit,
-      creditDepositCents,
-    ]);
-
     const {
       changeDueCents,
       shortByCents,
       isCashShort,
       isCardShort,
       creditPaidNowCents,
+      maxCreditDepositCents,
       creditRemainderCents,
+      newCustomerBalanceCents: newCreditBalanceCents,
     } = paymentState;
 
     // A card deposit on a credit sale needs the last 4 digits, same as a
@@ -326,11 +318,6 @@ export const PaymentPanel = memo(
     const isSplitIncomplete =
       paymentMethod === PAYMENT_METHODS.SPLIT &&
       (splitRemainingCents !== 0 || splitPayments.length === 0);
-
-    // Quick Tender Chips calculation
-    const quickChips = useMemo(() => {
-      return calculateQuickTenderSuggestions(totalCents);
-    }, [totalCents]);
 
     // Handle Split Rows
     const handleAddSplitRow = () => {
@@ -374,6 +361,7 @@ export const PaymentPanel = memo(
     const isEvenExchange = totalCents === 0 && !isCartEmpty;
 
     const isButtonDisabled =
+      !isCurrent ||
       !hasActiveSession ||
       isCartEmpty ||
       isProcessing ||
@@ -457,11 +445,11 @@ export const PaymentPanel = memo(
       { id: PAYMENT_METHODS.SPLIT, label: 'Split', icon: IconArrowsSplit, disabled: false },
     ];
 
-    const newCreditBalanceCents = (customerBalanceCents || 0) + creditRemainderCents;
-
     // Render Confirmation Card if sale was completed
     if (completedSale) {
       const { invoice, changeDueCents: saleChangeCents } = completedSale;
+      const hero = getSaleHeroPresentation(invoice, saleChangeCents, heroBalance);
+      if (hero === null) return <Skeleton h="100%" />;
       const {
         isCreditCompleted,
         isPartialCredit,
@@ -471,7 +459,7 @@ export const PaymentPanel = memo(
         heroAmountCents,
         heroCaption,
         methodLabel,
-      } = getSaleHeroPresentation(invoice, saleChangeCents);
+      } = hero;
 
       const showReprintAction =
         invoice.documentSelection === 'receipt' ||
@@ -835,7 +823,7 @@ export const PaymentPanel = memo(
                         onClick={() => {
                           setDiscountInput('');
                           setShowDiscountInput(false);
-                          setDiscount(0, null, 0);
+                          setDiscount(null, 0);
                         }}
                         style={{ width: 32, height: 32 }}
                       >
@@ -866,7 +854,7 @@ export const PaymentPanel = memo(
                       ta="right"
                       style={{ fontFamily: 'monospace', flex: 3, minWidth: 0 }}
                     >
-                      - {formatMoney(calculatedDiscountCents)}
+                      - {formatMoney(discountCents)}
                     </Text>
                   </Group>
                 </Stack>
@@ -1097,10 +1085,11 @@ export const PaymentPanel = memo(
                     value={creditDepositCents > 0 ? fromCents(creditDepositCents) : ''}
                     onChange={(v) => {
                       const rupees = typeof v === 'number' ? v : 0;
-                      const maxCents = Math.max(0, totalCents - 1);
-                      changeCreditDepositCents(Math.min(Math.round(rupees * 100), maxCents));
+                      changeCreditDepositCents(
+                        Math.min(Math.round(rupees * 100), maxCreditDepositCents)
+                      );
                     }}
-                    maxAmount={Math.max(0, Math.floor((totalCents - 1) / 100))}
+                    maxAmount={Math.floor(maxCreditDepositCents / 100)}
                   />
 
                   {creditDepositMethod === 'card' && creditPaidNowCents > 0 && (
@@ -1786,5 +1775,5 @@ export const PaymentPanel = memo(
         />
       </Paper>
     );
-  })
+  }
 );

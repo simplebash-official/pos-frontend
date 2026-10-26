@@ -20,6 +20,14 @@ import {
 import { CashDrawerShiftSummary } from '../types';
 import { formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { shareOf, useShares } from '@/shared/hooks/useShares';
+
+const BAR_SECTIONS = [
+  { key: 'cash', color: 'blue', label: 'Cash' },
+  { key: 'card', color: 'blue.4', label: 'Card' },
+  { key: 'online', color: 'cyan.6', label: 'Online' },
+  { key: 'credit', color: 'gray.5', label: 'Credit' },
+];
 
 export interface CashShiftSummaryWidgetProps {
   shiftSummary: CashDrawerShiftSummary;
@@ -28,16 +36,20 @@ export interface CashShiftSummaryWidgetProps {
 export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetProps) => {
   const isMobile = useIsMobile();
 
-  const totalInflow =
-    shiftSummary.cashSalesCents +
-    shiftSummary.cardSalesCents +
-    shiftSummary.onlineSalesCents +
-    shiftSummary.creditSalesCents;
-
-  const cashPct = totalInflow > 0 ? (shiftSummary.cashSalesCents / totalInflow) * 100 : 0;
-  const cardPct = totalInflow > 0 ? (shiftSummary.cardSalesCents / totalInflow) * 100 : 0;
-  const onlinePct = totalInflow > 0 ? (shiftSummary.onlineSalesCents / totalInflow) * 100 : 0;
-  const creditPct = totalInflow > 0 ? (shiftSummary.creditSalesCents / totalInflow) * 100 : 0;
+  const shares = useShares(
+    [
+      { key: 'cash', cents: shiftSummary.cashSalesCents, wholeCents: null },
+      { key: 'card', cents: shiftSummary.cardSalesCents, wholeCents: null },
+      { key: 'online', cents: shiftSummary.onlineSalesCents, wholeCents: null },
+      { key: 'credit', cents: shiftSummary.creditSalesCents, wholeCents: null },
+    ],
+    true
+  ).data;
+  const pct = (key: string) => shareOf(shares, key)?.percent;
+  const cashPct = pct('cash');
+  const cardPct = pct('card');
+  const onlinePct = pct('online');
+  const creditPct = pct('credit');
 
   return (
     <Paper
@@ -65,24 +77,20 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
           </Group>
 
           <Badge variant="outline" color="gray" size="sm">
-            {t('Total Inflow:')} {formatMoney(totalInflow)}
+            {t('Total Inflow:')} {shares === undefined ? '' : formatMoney(shares.totalCents)}
           </Badge>
         </Group>
 
         {/* Multi-segment Payment Method Bar */}
         <Progress.Root size="lg" radius="xl">
-          <Progress.Section value={cashPct} color="blue">
-            <Progress.Label>{cashPct > 15 ? 'Cash' : ''}</Progress.Label>
-          </Progress.Section>
-          <Progress.Section value={cardPct} color="blue.4">
-            <Progress.Label>{cardPct > 15 ? 'Card' : ''}</Progress.Label>
-          </Progress.Section>
-          <Progress.Section value={onlinePct} color="cyan.6">
-            <Progress.Label>{onlinePct > 15 ? 'Online' : ''}</Progress.Label>
-          </Progress.Section>
-          <Progress.Section value={creditPct} color="gray.5">
-            <Progress.Label>{creditPct > 15 ? 'Credit' : ''}</Progress.Label>
-          </Progress.Section>
+          {BAR_SECTIONS.map(({ key, color, label }) => {
+            const percent = pct(key);
+            return percent === undefined ? null : (
+              <Progress.Section key={key} value={percent} color={color}>
+                <Progress.Label>{percent > 15 ? label : ''}</Progress.Label>
+              </Progress.Section>
+            );
+          })}
         </Progress.Root>
 
         {/* 4-Box Payment Methods Grid */}
@@ -100,7 +108,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
               {formatMoney(shiftSummary.cashSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {cashPct.toFixed(0)}
+              {cashPct}
               {t('% of sales')}
             </Text>
           </Paper>
@@ -118,7 +126,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
               {formatMoney(shiftSummary.cardSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {cardPct.toFixed(0)}
+              {cardPct}
               {t('% of sales')}
             </Text>
           </Paper>
@@ -136,7 +144,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
               {formatMoney(shiftSummary.onlineSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {onlinePct.toFixed(0)}
+              {onlinePct}
               {t('% of sales')}
             </Text>
           </Paper>
@@ -154,7 +162,7 @@ export const CashShiftSummaryWidget = ({ shiftSummary }: CashShiftSummaryWidgetP
               {formatMoney(shiftSummary.creditSalesCents)}
             </Text>
             <Text size="3xs" c="dimmed">
-              {creditPct.toFixed(0)}
+              {creditPct}
               {t('% of sales')}
             </Text>
           </Paper>

@@ -4,7 +4,8 @@ import { MoneyInput } from '@/shared/components/MoneyInput';
 import { formatDate } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
 import { useOpenReceipts } from '../hooks/usePurchases';
-import { allocatedCents, autoAllocate, receiptLabel } from '../lib/settlement';
+import { useSettlement } from '../hooks/useSettlement';
+import { receiptLabel } from '../lib/settlement';
 import type { ReceiptSettlementInput } from '../types';
 
 export interface SettlementPickerProps {
@@ -25,6 +26,7 @@ export const SettlementPicker = ({
   isMobile,
 }: SettlementPickerProps) => {
   const { data: open, isLoading } = useOpenReceipts(supplierKey);
+  const settlement = useSettlement(supplierKey, paymentCents, value);
 
   if (isLoading) return <Skeleton height={64} />;
   if (open.length === 0) {
@@ -36,16 +38,16 @@ export const SettlementPicker = ({
   }
 
   const partFor = (receiptKey: string) => value.find((part) => part.receiptKey === receiptKey);
-  const allocated = allocatedCents(value);
+  const figures = settlement.data;
 
-  const toggle = (receiptKey: string, dueCents: number, on: boolean) => {
+  const toggle = (receiptKey: string, on: boolean) => {
     if (!on) {
       onChange(value.filter((part) => part.receiptKey !== receiptKey));
       return;
     }
-    const room = Math.max(paymentCents - allocated, 0);
-    const take = room > 0 ? Math.min(room, dueCents) : dueCents;
-    onChange([...value, { receiptKey, amountCents: take }]);
+    const suggestion = figures?.ifTicked.find((part) => part.receiptKey === receiptKey);
+    if (suggestion === undefined) return;
+    onChange([...value, suggestion]);
   };
 
   const setAmount = (receiptKey: string, amountCents: number) =>
@@ -63,8 +65,8 @@ export const SettlementPicker = ({
           variant="light"
           size={isMobile ? 'sm' : 'xs'}
           style={{ minHeight: isMobile ? 44 : undefined }}
-          disabled={paymentCents <= 0}
-          onClick={() => onChange(autoAllocate(open, paymentCents))}
+          disabled={paymentCents <= 0 || figures === undefined || !settlement.isCurrent}
+          onClick={() => figures !== undefined && onChange(figures.oldestFirst)}
         >
           {t('Pay the oldest bills first')}
         </Button>
@@ -87,9 +89,8 @@ export const SettlementPicker = ({
             >
               <Checkbox
                 checked={part !== undefined}
-                onChange={(event) =>
-                  toggle(receipt.key, receipt.dueCents, event.currentTarget.checked)
-                }
+                disabled={part === undefined && (figures === undefined || !settlement.isCurrent)}
+                onChange={(event) => toggle(receipt.key, event.currentTarget.checked)}
                 size={isMobile ? 'md' : 'sm'}
                 label={
                   <Stack gap={0}>
@@ -115,8 +116,18 @@ export const SettlementPicker = ({
           );
         })}
       </Stack>
-      <Text size="xs" c={allocated > paymentCents ? 'red' : 'dimmed'} aria-live="polite">
-        {`${t('Put against bills:')} ${formatMoney(allocated)} ${t('of')} ${formatMoney(paymentCents)}`}
+      <Text
+        size="xs"
+        c={
+          figures !== undefined && figures.blockers.some((b) => b.code === 'over_payment')
+            ? 'red'
+            : 'dimmed'
+        }
+        aria-live="polite"
+      >
+        {figures === undefined
+          ? t('Working out the figures...')
+          : `${t('Put against bills:')} ${formatMoney(figures.allocatedCents)} ${t('of')} ${formatMoney(paymentCents)}`}
       </Text>
     </Stack>
   );

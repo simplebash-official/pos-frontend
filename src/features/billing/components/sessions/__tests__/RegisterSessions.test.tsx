@@ -9,7 +9,6 @@ import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import { DenominationCounter } from '../DenominationCounter';
 import { PinVerificationModal } from '../PinVerificationModal';
-import { SRI_LANKA_DENOMINATIONS } from '../constants';
 
 installDrawerTestEnv();
 
@@ -50,46 +49,74 @@ describe('RegisterSessions Components', () => {
     );
 
   describe('DenominationCounter', () => {
-    it('renders all standard Sri Lanka denominations', async () => {
-      const onChange = vi.fn();
-      await renderComponent(<DenominationCounter value={{}} onChange={onChange} />);
-
-      for (const denom of SRI_LANKA_DENOMINATIONS) {
-        expect(text()).toContain(denom.label);
-      }
+    // The server's answer for the counts, as literals.
+    const line = (rupees: number, count: number, subtotalCents: number) => ({
+      id: String(rupees),
+      valueCents: rupees * 100,
+      count,
+      subtotalCents,
+    });
+    const answered = (totalCents: number, counted: Record<number, [number, number]> = {}) => ({
+      data: {
+        lines: [5000, 1000, 500, 100, 50, 20, 10, 5, 2, 1].map((rupees) =>
+          line(rupees, counted[rupees]?.[0] ?? 0, counted[rupees]?.[1] ?? 0)
+        ),
+        totalCents,
+      },
+      isCurrent: true,
+      error: null,
     });
 
-    it('calculates total cents correctly when denomination counts are supplied', async () => {
-      const onChange = vi.fn();
-      // 2 x Rs. 5000 (Rs. 10,000 = 1,000,000 cents) + 3 x Rs. 500 (Rs. 1,500 = 150,000 cents) = 1,150,000 cents
-      const value = {
-        '5000': 2,
-        '500': 3,
-      };
-      await renderComponent(<DenominationCounter value={value} onChange={onChange} />);
-
-      expect(text()).toContain('Rs. 11,500.00');
+    it('lists every note and coin the server knows', async () => {
+      await renderComponent(
+        <DenominationCounter counts={{}} onChange={vi.fn()} count={answered(0)} />
+      );
+      expect(text()).toContain('Rs. 5,000.00');
+      expect(text()).toContain('Rs. 1.00');
     });
 
-    it('resets all counts when clear button is clicked', async () => {
+    it('shows the total and subtotals the server worked out', async () => {
+      await renderComponent(
+        <DenominationCounter
+          counts={{ '5000': 2, '500': 3 }}
+          onChange={vi.fn()}
+          count={answered(1_150_000, { 5000: [2, 1_000_000], 500: [3, 150_000] })}
+        />
+      );
+      await act(async () => {
+        await vi.waitFor(() => expect(text()).toContain('Rs. 11,500.00'));
+      });
+      expect(text()).toContain('Rs. 10,000.00');
+    });
+
+    it('waits for the server before listing anything', async () => {
+      await renderComponent(
+        <DenominationCounter
+          counts={{}}
+          onChange={vi.fn()}
+          count={{ data: undefined, isCurrent: false, error: null }}
+        />
+      );
+      expect(text()).toContain('Working out the figures...');
+    });
+
+    it('clears all counts when the clear button is clicked', async () => {
       const onChange = vi.fn();
       await renderComponent(
-        <DenominationCounter value={{ '5000': 2, '1000': 1 }} onChange={onChange} />
+        <DenominationCounter
+          counts={{ '5000': 2, '1000': 1 }}
+          onChange={onChange}
+          count={answered(1_100_000)}
+        />
       );
-
       const clearBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
         b.getAttribute('aria-label')?.toLowerCase().includes('clear')
       );
       expect(clearBtn).toBeDefined();
-
       await act(async () => {
         clearBtn!.click();
       });
-
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ '5000': 0, '1000': 0, '500': 0 }),
-        0
-      );
+      expect(onChange).toHaveBeenCalledWith({});
     });
   });
 

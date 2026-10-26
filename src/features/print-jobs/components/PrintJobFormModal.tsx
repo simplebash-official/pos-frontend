@@ -1,3 +1,4 @@
+import { toEarningsRequest, useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import {
@@ -96,24 +97,13 @@ export const PrintJobFormModal = ({
     }
   };
 
-  const estPriceRupees = Number(form.values.estimatedPriceRupees) || 0;
-  const matCostRupees = Number(form.values.materialCostRupees) || 0;
-  const profitRupees = Math.max(0, estPriceRupees - matCostRupees);
-
-  const profitCents = toCents(profitRupees);
-  let calculatedEarningsCents = 0;
+  // Profit and commission are the server's figures for what is typed so far.
+  const earnings = useJobEarnings(toEarningsRequest(form.values));
+  const figures = earnings.data;
+  const profitCents = figures === undefined ? 0 : figures.profitCents;
+  const calculatedEarningsCents = figures === undefined ? 0 : figures.commissionCents;
+  const isFixedSplitCapped = figures !== undefined && figures.capped;
   const splitVal = Number(form.values.splitValueRupeesOrPercent) || 0;
-  const isFixedSplitCapped =
-    form.values.splitType === 'fixed' && splitVal > profitRupees && profitRupees > 0;
-
-  if (form.values.assignedEmployeeId && splitVal > 0) {
-    if (form.values.splitType === 'percentage') {
-      calculatedEarningsCents = Math.round((profitCents * splitVal) / 100);
-    } else {
-      const fixedCents = toCents(splitVal);
-      calculatedEarningsCents = Math.min(profitCents, fixedCents);
-    }
-  }
 
   const handleSubmit = async (values: PrintJobFormValues) => {
     const payload = toPrintJobInput(values);
@@ -324,7 +314,7 @@ export const PrintJobFormModal = ({
                     >
                       {t('Fixed split (')}
                       {formatMoney(toCents(splitVal))}
-                      {t(') exceeds the job net profit (')} {formatMoney(toCents(profitRupees))}
+                      {t(') exceeds the job net profit (')} {formatMoney(profitCents)}
                       {t(
                         '). Commission will be capped at the total\n                                                                profit.'
                       )}

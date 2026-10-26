@@ -18,7 +18,17 @@ const closeInvoice = vi.fn();
 
 let PAYMENTS: unknown[] = [];
 let CREDIT_NOTES: unknown[] = [];
+// What the server says is still owed on the invoice (`POST /calc/invoice-balance`), set per test.
+let BALANCE_DUE_CENTS = 0;
 
+vi.mock('@/features/billing/hooks/useInvoiceBalance', () => ({
+  useInvoiceBalance: () => ({
+    data: { paidCents: 0, balanceDueCents: BALANCE_DUE_CENTS },
+    isCurrent: true,
+    error: null,
+  }),
+  invalidateInvoiceBalance: vi.fn(),
+}));
 vi.mock('@/features/billing/hooks/usePayments', () => ({
   useInvoicePayments: () => ({ data: PAYMENTS }),
   useRecordPayment: () => ({ mutateAsync: recordPayment }),
@@ -79,6 +89,7 @@ describe('InvoiceDetailDrawer', () => {
   const onRefresh = vi.fn();
 
   beforeEach(() => {
+    BALANCE_DUE_CENTS = 0;
     [onClose, onRefresh, recordPayment, voidInvoice, closeInvoice].forEach((fn) => fn.mockReset());
     recordPayment.mockResolvedValue({});
     voidInvoice.mockResolvedValue({});
@@ -169,6 +180,7 @@ describe('InvoiceDetailDrawer', () => {
         recordedAt: '2026-10-15T11:00:00Z',
       },
     ];
+    BALANCE_DUE_CENTS = 70_000;
     await open(credit());
     expect(text()).toContain('Balance Due');
     expect(text()).toContain('Rs. 700.00');
@@ -189,6 +201,7 @@ describe('InvoiceDetailDrawer', () => {
         recordedAt: '2026-10-15T11:00:00Z',
       },
     ];
+    BALANCE_DUE_CENTS = 70_000;
     await open(credit());
     await act(async () => button('Record Payment')!.click());
     await until(() => expect(text()).toContain('Record Payment — #INV-000001'));
@@ -203,6 +216,7 @@ describe('InvoiceDetailDrawer', () => {
   });
 
   it('opens the payment dialog straight away for a deep link to a payable invoice', async () => {
+    BALANCE_DUE_CENTS = 70_000;
     await open(credit(), { deepLink: true });
     expect(text()).toContain('Record Payment — #INV-000001');
   });

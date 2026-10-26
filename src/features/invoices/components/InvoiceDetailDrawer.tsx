@@ -1,3 +1,4 @@
+import { useInvoiceBalance } from '@/features/billing/hooks/useInvoiceBalance';
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Button, Group, Stack, Text } from '@mantine/core';
@@ -150,8 +151,9 @@ export const InvoiceDetailDrawer = ({
   const closeInvoiceMutation = useCloseInvoice();
   const isAdmin = useIsAdmin();
 
-  const totalPaidCents = payments.reduce((sum, p) => sum + p.amountCents, 0);
-  const remainingCents = invoice ? Math.max(0, invoice.totalCents - totalPaidCents) : 0;
+  // What is still owed, worked out by the server (total less payments less returns).
+  const balance = useInvoiceBalance(invoice ? invoice.id : '', Boolean(invoice));
+  const remainingCents = balance.data === undefined ? 0 : balance.data.balanceDueCents;
 
   const handleClose = () => {
     setActiveTab('items');

@@ -45,6 +45,20 @@ const EARNINGS = [
   },
 ];
 
+// The server's answer for the sample job (Rs 10,000 less Rs 4,000 of parts, a 10% split), as literals.
+vi.mock('@/shared/hooks/useJobEarnings', () => ({
+  useJobEarnings: () => ({
+    data: {
+      priceEntered: true,
+      profitCents: 600_000,
+      commissionCents: 60_000,
+      capped: false,
+      shopKeepsCents: 540_000,
+    },
+    isCurrent: true,
+    error: null,
+  }),
+}));
 vi.mock('../../hooks/useEmployeeEarnings', () => ({
   useEmployeeEarnings: () => ({
     data: EARNINGS,
@@ -172,8 +186,8 @@ describe('EmployeeDetailDrawer', () => {
     await open(makeEmployee());
     await act(async () => tab('Split Rules').click());
     await until(() => expect(text()).toContain('Percentage of Job Profit: 10%'));
-    expect(text()).toContain('Rs. 6,000 profit');
-    expect(text()).toContain('this employee earns Rs. 600.00 (10%)');
+    expect(text()).toContain('leaves Rs. 6,000.00 profit');
+    expect(text()).toContain('This employee earns Rs. 600.00.');
   });
 
   it('offers to create a login when there is none, and shows the account when there is', async () => {

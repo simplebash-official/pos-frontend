@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { MantineProvider } from '@mantine/core';
 import { Provider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureStore } from '@reduxjs/toolkit';
 import cartReducer, { addItem } from '@/store/slices/cartSlice';
 import settingsReducer from '@/store/slices/settingsSlice';
@@ -28,17 +29,19 @@ const render = (permissions: string[]) => {
       name: 'Galaxy A15',
       unitPriceCents: 65000,
       quantity: 1,
-      discountCents: 0,
+      discount: null,
       sourceType: 'retail',
     })
   );
   return renderToString(
     <Provider store={store}>
-      <MantineProvider>
-        <LayoutTierProvider>
-          <CartPanel onOpenCustomerPicker={() => undefined} onRequestPayment={() => undefined} />
-        </LayoutTierProvider>
-      </MantineProvider>
+      <QueryClientProvider client={new QueryClient()}>
+        <MantineProvider>
+          <LayoutTierProvider>
+            <CartPanel onOpenCustomerPicker={() => undefined} onRequestPayment={() => undefined} />
+          </LayoutTierProvider>
+        </MantineProvider>
+      </QueryClientProvider>
     </Provider>
   );
 };

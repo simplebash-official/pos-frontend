@@ -2,6 +2,8 @@ import { apiClient } from '@/api/client';
 import type { ApiResponse } from '@/shared/types/common';
 import type { DocumentDesign, DocumentDesignStatus } from '@/features/billing/api/documentsApi';
 import type {
+  CalcQuotationReply,
+  CalcQuotationRequest,
   CreateQuotationInput,
   Quotation,
   QuotationListParams,
@@ -48,6 +50,19 @@ export const getQuotationDocument = (
 export const getQuotationDocumentDesign = async (id: string): Promise<DocumentDesignStatus> => {
   const response = await apiClient.get<ApiResponse<DocumentDesignStatus>>(
     `/quotations/${id}/document/design`
+  );
+  return response.data;
+};
+
+/** Each line's discount and total, the order totals, and what still stops the quotation. Stores nothing. */
+export const calcQuotation = async (
+  request: CalcQuotationRequest,
+  signal: AbortSignal
+): Promise<CalcQuotationReply> => {
+  const response = await apiClient.post<ApiResponse<CalcQuotationReply>>(
+    '/calc/quotation',
+    request,
+    { signal }
   );
   return response.data;
 };

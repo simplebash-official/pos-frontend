@@ -2,7 +2,6 @@ import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolki
 import { PAYMENT_METHODS, type PaymentMethod } from '@/constants/payment';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
-import { calculateLineItem, calculateCartTotals } from '@/shared/lib/posCalculations';
 import type { CentsRange } from '@/features/inventory/lib/priceTiers';
 
 export interface CartItem {
@@ -30,8 +29,11 @@ export interface CartItem {
    */
   unitPriceCents: number;
   quantity: number;
-  discountCents: number;
-  totalCents: number;
+  /**
+   * The discount as typed: a percentage of this line or fixed cents; `null` for none. What it comes
+   * to, and what the line comes to, are worked out by the server.
+   */
+  discount: LineDiscountInput | null;
   sourceType?: LineSourceType;
   sourceTicketNumber?: string;
   assignedEmployeeId?: string;
@@ -55,6 +57,11 @@ export interface CompletedSaleData {
 
 export type DiscountType = 'percentage' | 'fixed';
 
+export interface LineDiscountInput {
+  type: DiscountType;
+  value: number;
+}
+
 export interface HeldCart {
   id: string;
   label?: string;
@@ -62,7 +69,6 @@ export interface HeldCart {
   customerId: string | null;
   customerName: string | null;
   customerPhone?: string | null;
-  discountCents: number;
   discountType: DiscountType | null;
   discountValue: number;
   paymentMethod: PaymentMethod;
@@ -79,7 +85,6 @@ interface CartState {
   customerPhone: string | null;
   customerAddress: string | null;
   customerBalanceCents: number;
-  discountCents: number;
   discountType: DiscountType | null;
   discountValue: number;
   paymentMethod: PaymentMethod;
@@ -103,10 +108,27 @@ interface CartState {
   completedSale: CompletedSaleData | null;
 }
 
+/**
+ * Carts parked before line discounts were stored as typed hold `discountCents` (and a worked-out
+ * `totalCents`) on each line. A parked cart outlives an upgrade, so those lines are read once as a
+ * fixed discount of the same amount; the worked-out total is dropped (the server works it out).
+ */
+const toTypedLineDiscount = (line: Record<string, unknown>): CartItem => {
+  const { discountCents, totalCents: _worked, ...rest } = line;
+  if ('discount' in rest) return rest as unknown as CartItem;
+  const cents = typeof discountCents === 'number' ? discountCents : 0;
+  return {
+    ...rest,
+    discount: cents > 0 ? { type: 'fixed', value: cents } : null,
+  } as unknown as CartItem;
+};
+
 const loadHeldCartsFromStorage = (): HeldCart[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.HELD_CARTS);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const carts = JSON.parse(raw) as Array<HeldCart & { items: Record<string, unknown>[] }>;
+    return carts.map((cart) => ({ ...cart, items: cart.items.map(toTypedLineDiscount) }));
   } catch {
     return [];
   }
@@ -140,7 +162,6 @@ const initialState: CartState = {
   customerPhone: null,
   customerAddress: null,
   customerBalanceCents: 0,
-  discountCents: 0,
   discountType: null,
   discountValue: 0,
   paymentMethod: PAYMENT_METHODS.CASH,
@@ -170,7 +191,6 @@ const resetCartState = (state: CartState) => {
   state.customerPhone = null;
   state.customerAddress = null;
   state.customerBalanceCents = 0;
-  state.discountCents = 0;
   state.discountType = null;
   state.discountValue = 0;
   state.paymentMethod = PAYMENT_METHODS.CASH;
@@ -203,7 +223,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addItem: (state, action: PayloadAction<Omit<CartItem, 'totalCents'>>) => {
+    addItem: (state, action: PayloadAction<CartItem>) => {
       if (state.completedSale) {
         resetCartState(state);
       }
@@ -235,12 +255,6 @@ const cartSlice = createSlice({
         const addQty = sourceType === 'repair' || sourceType === 'print' ? 0 : item.quantity;
         const newQty = existing.quantity + addQty;
         existing.quantity = newQty;
-        const calculated = calculateLineItem({
-          unitPriceCents: existing.unitPriceCents,
-          quantity: newQty,
-          discountCents: existing.discountCents,
-        });
-        existing.totalCents = calculated.totalCents;
         if (item.serialNumbers && item.serialNumbers.length > 0) {
           existing.serialNumbers = [...(existing.serialNumbers ?? []), ...item.serialNumbers];
         }
@@ -251,13 +265,8 @@ const cartSlice = createSlice({
         return;
       }
 
-      const calculated = calculateLineItem({
-        unitPriceCents: item.unitPriceCents,
-        quantity: item.quantity,
-        discountCents: item.discountCents,
-      });
       // Newest line is inserted at the TOP
-      state.items.unshift({ ...item, sourceType, totalCents: calculated.totalCents });
+      state.items.unshift({ ...item, sourceType });
     },
 
     removeItem: (state, action: PayloadAction<string>) => {
@@ -307,25 +316,16 @@ const cartSlice = createSlice({
       }
 
       item.quantity = quantity;
-      const calculated = calculateLineItem({
-        unitPriceCents: item.unitPriceCents,
-        quantity,
-        discountCents: item.discountCents,
-      });
-      item.totalCents = calculated.totalCents;
     },
 
-    updateLineDiscount: (state, action: PayloadAction<{ id: string; discountCents: number }>) => {
-      const { id, discountCents } = action.payload;
+    updateLineDiscount: (
+      state,
+      action: PayloadAction<{ id: string; discount: LineDiscountInput | null }>
+    ) => {
+      const { id, discount } = action.payload;
       const item = state.items.find((i) => i.id === id);
       if (item) {
-        item.discountCents = Math.max(0, discountCents);
-        const calculated = calculateLineItem({
-          unitPriceCents: item.unitPriceCents,
-          quantity: item.quantity,
-          discountCents: item.discountCents,
-        });
-        item.totalCents = calculated.totalCents;
+        item.discount = discount !== null && discount.value > 0 ? discount : null;
       }
     },
 
@@ -383,11 +383,7 @@ const cartSlice = createSlice({
       state.dueDate = action.payload;
     },
 
-    setDiscount: (
-      state,
-      action: PayloadAction<{ cents: number; type: DiscountType | null; value: number }>
-    ) => {
-      state.discountCents = action.payload.cents;
+    setDiscount: (state, action: PayloadAction<{ type: DiscountType | null; value: number }>) => {
       state.discountType = action.payload.type;
       state.discountValue = action.payload.value;
     },
@@ -475,7 +471,6 @@ const cartSlice = createSlice({
         customerId: state.customerId,
         customerName: state.customerName,
         customerPhone: state.customerPhone,
-        discountCents: state.discountCents,
         discountType: state.discountType,
         discountValue: state.discountValue,
         paymentMethod: state.paymentMethod,
@@ -492,7 +487,6 @@ const cartSlice = createSlice({
       state.customerName = null;
       state.customerPhone = null;
       state.customerBalanceCents = 0;
-      state.discountCents = 0;
       state.discountType = null;
       state.discountValue = 0;
       state.isCredit = false;
@@ -507,7 +501,6 @@ const cartSlice = createSlice({
       state.customerId = target.customerId;
       state.customerName = target.customerName;
       state.customerPhone = target.customerPhone ?? null;
-      state.discountCents = target.discountCents;
       state.discountType = target.discountType;
       state.discountValue = target.discountValue;
       state.paymentMethod = target.paymentMethod;
@@ -576,7 +569,6 @@ export const {
 } = cartSlice.actions;
 
 export const selectCartItems = (state: { cart: CartState }) => state.cart.items;
-export const selectCartDiscountCents = (state: { cart: CartState }) => state.cart.discountCents;
 export const selectCartDiscountType = (state: { cart: CartState }) => state.cart.discountType;
 export const selectCartDiscountValue = (state: { cart: CartState }) => state.cart.discountValue;
 export const selectHeldCarts = (state: { cart: CartState }) => state.cart.heldCarts;
@@ -616,36 +608,12 @@ export const selectCustomerInfo = createSelector(
   })
 );
 
-export const selectCartTotals = createSelector(
-  [selectCartItems, selectCartDiscountType, selectCartDiscountValue],
-  (items, discountType, discountValue) =>
-    calculateCartTotals({
-      items,
-      orderDiscountType: discountType,
-      orderDiscountValue: discountValue,
-    })
-);
+/** Lines in the cart. A count for badges; what the cart comes to is worked out by the server. */
+export const selectCartItemsCount = createSelector([selectCartItems], (items) => items.length);
 
-export const selectCartItemsCount = createSelector(
-  [selectCartTotals],
-  (totals) => totals.itemCount
-);
-
-export const selectTotalUnitCount = createSelector(
-  [selectCartTotals],
-  (totals) => totals.totalUnitCount
-);
-
-export const selectSubtotalCents = createSelector(
-  [selectCartTotals],
-  (totals) => totals.subtotalCents
-);
-
-export const selectTotalCents = createSelector([selectCartTotals], (totals) => totals.totalCents);
-
-export const selectSourceBreakdown = createSelector(
-  [selectCartTotals],
-  (totals) => totals.sourceBreakdown
+/** Units across all lines, for badges. */
+export const selectTotalUnitCount = createSelector([selectCartItems], (items) =>
+  items.reduce((units, item) => units + item.quantity, 0)
 );
 
 // A completed sale's lines stay in `items` so the finished sale keeps rendering, but by then the
@@ -692,14 +660,5 @@ export const selectReservedQuantityByProductPrice = createSelector(
 );
 
 export const selectSplitPayments = (state: { cart: CartState }) => state.cart.splitPayments;
-
-export const selectSplitAllocatedCents = createSelector([selectSplitPayments], (splitPayments) =>
-  splitPayments.reduce((acc, p) => acc + p.amountCents, 0)
-);
-
-export const selectSplitRemainingCents = createSelector(
-  [selectTotalCents, selectSplitAllocatedCents],
-  (total, allocated) => (total > 0 ? Math.max(0, total - allocated) : 0)
-);
 
 export default cartSlice.reducer;

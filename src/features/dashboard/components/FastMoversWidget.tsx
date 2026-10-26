@@ -71,7 +71,10 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
         ) : (
           <Stack gap="xs">
             {items.map((item, index) => {
-              const isLowStock = item.remainingStock <= item.minThreshold;
+              const isLowStock =
+                item.remainingStock !== null &&
+                item.minThreshold !== null &&
+                item.remainingStock <= item.minThreshold;
 
               return (
                 <Paper
@@ -98,12 +101,16 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                           {item.name}
                         </Text>
                         <Group gap="xs" mt={2}>
-                          <Text size="3xs" c="dimmed">
-                            {item.category}
-                          </Text>
-                          <Text size="3xs" c="dimmed">
-                            •
-                          </Text>
+                          {item.category === null ? null : (
+                            <>
+                              <Text size="3xs" c="dimmed">
+                                {item.category}
+                              </Text>
+                              <Text size="3xs" c="dimmed">
+                                •
+                              </Text>
+                            </>
+                          )}
                           <Text size="3xs" fw={700} c="dimmed">
                             {formatMoney(item.sellingPriceCents)}
                           </Text>
@@ -130,7 +137,7 @@ export const FastMoversWidget = ({ items }: FastMoversWidgetProps) => {
                         <Text size="3xs" c="dimmed" fw={700} tt="uppercase">
                           {t('Shelf Stock')}
                         </Text>
-                        {isLowStock ? (
+                        {item.remainingStock === null ? null : isLowStock ? (
                           <Badge
                             size="xs"
                             color="red"

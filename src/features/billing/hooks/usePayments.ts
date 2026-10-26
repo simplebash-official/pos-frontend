@@ -1,3 +1,4 @@
+import { invalidateInvoiceBalance } from './useInvoiceBalance';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { fetchInvoicePayments, recordPayment } from '../api/paymentsApi';
@@ -29,6 +30,7 @@ export const useRecordPayment = () => {
         queryKey: queryKeys.billing.payments(variables.invoiceKey),
       });
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+      void invalidateInvoiceBalance(queryClient);
       void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
     },
   });

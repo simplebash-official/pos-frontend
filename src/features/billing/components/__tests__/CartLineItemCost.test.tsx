@@ -16,8 +16,7 @@ const item: CartItem = {
   unitPriceCents: 65000,
   costRangeCents: { min: 48000, max: 48000 },
   quantity: 1,
-  discountCents: 0,
-  totalCents: 65000,
+  discount: null,
   sourceType: 'retail',
 };
 
@@ -33,6 +32,8 @@ const render = (role: string, line: CartItem) => {
         <LayoutTierProvider>
           <CartLineItem
             item={line}
+            lineGrossCents={65000}
+            lineTotalCents={65000}
             onUpdateQty={() => undefined}
             onUpdateLineDiscount={() => undefined}
             onRemove={() => undefined}

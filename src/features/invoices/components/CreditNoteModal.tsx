@@ -38,6 +38,8 @@ import {
 } from '@/features/inventory/lib/priceTiers';
 import type { PriceTier, Product } from '@/features/inventory/types';
 import { useCreateCreditNote } from '@/features/billing/hooks/useCreditNotes';
+import { useCalc } from '@/shared/hooks/useCalc';
+import { calcCreditNote } from '@/features/billing/api/calcApi';
 import type {
   CreateCreditNoteExchangeItemInput,
   CreateCreditNoteItemInput,
@@ -56,12 +58,6 @@ export interface CreditNoteModalProps {
   invoice: Invoice | null;
   onCreditNoteSuccess?: () => void;
 }
-
-// This codebase has no `returnWindowDays` surfaced anywhere on the frontend
-// yet (a backend `Config` value, not yet exposed through any API response) —
-// this local fallback drives the banner threshold only, and should be
-// replaced once that value is wired through (see final report).
-const RETURN_WINDOW_DAYS_FALLBACK = 30;
 
 interface SerialUnitState {
   selected: boolean;
@@ -228,21 +224,19 @@ export const CreditNoteModal = ({
     if (!invoice) return [];
     const rows: {
       item: InvoiceItem;
+      /** Position of the line on the invoice, which is how the server finds it. */
+      lineIndex: number;
       state: LineState;
       quantity: number;
-      refundAmountCents: number;
     }[] = [];
 
-    for (const item of items) {
+    for (const [lineIndex, item] of items.entries()) {
       if (item.serialNumbers?.length) continue;
       const state = getLineState(item);
       const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
       if (state.selected && remaining > 0) {
         const qty = Math.min(Math.max(1, state.quantity), remaining);
-        const proratedDiscount =
-          item.quantity > 0 ? Math.round((item.discountCents / item.quantity) * qty) : 0;
-        const refundAmountCents = Math.max(0, item.unitPriceCents * qty - proratedDiscount);
-        rows.push({ item, state, quantity: qty, refundAmountCents });
+        rows.push({ item, lineIndex, state, quantity: qty });
       }
     }
     return rows;
@@ -253,17 +247,14 @@ export const CreditNoteModal = ({
     if (!invoice) return [];
     const rows: {
       item: InvoiceItem;
+      lineIndex: number;
       serial: string;
       unit: SerialUnitState;
-      refundAmountCents: number;
       withinWarranty: boolean;
     }[] = [];
-    for (const item of items) {
+    for (const [lineIndex, item] of items.entries()) {
       if (!item.serialNumbers?.length) continue;
       const state = getLineState(item);
-      const proratedDiscount =
-        item.quantity > 0 ? Math.round(item.discountCents / item.quantity) : 0;
-      const refundAmountCents = Math.max(0, item.unitPriceCents - proratedDiscount);
       const product = productMap.get(item.productId);
       const withinWarranty = Boolean(
         product?.warrantyMonths &&
@@ -272,7 +263,7 @@ export const CreditNoteModal = ({
       for (const serial of item.serialNumbers) {
         const unit = state.serialUnits?.[serial];
         if (!unit?.selected) continue;
-        rows.push({ item, serial, unit, refundAmountCents, withinWarranty });
+        rows.push({ item, lineIndex, serial, unit, withinWarranty });
       }
     }
     return rows;
@@ -293,37 +284,48 @@ export const CreditNoteModal = ({
     [noReceiptBatches]
   );
   const noReceiptPrice = noReceiptPriceCents === null ? null : Number(noReceiptPriceCents);
-  const noReceiptRefundCents =
-    noReceipt && noReceiptProduct && noReceiptPrice !== null && typeof noReceiptQty === 'number'
-      ? noReceiptPrice * noReceiptQty
-      : 0;
-
-  const returnSubtotalCents = noReceipt
-    ? noReceiptRefundCents
-    : selectedLines.reduce((sum, l) => sum + l.refundAmountCents, 0) +
-      serializedLines.reduce((sum, l) => sum + l.refundAmountCents, 0);
-
-  const exchangeSubtotalCents = exchangeLines.reduce(
-    (sum, l) => sum + l.unitPriceCents * l.quantity,
-    0
+  // What the return comes to is the server's answer for exactly what is picked: the refund each
+  // line is worth, the net, the cash that goes back (capped at what was paid), where it goes, and
+  // whether the sale is past the return window.
+  const noReceiptEntry =
+    noReceipt && noReceiptProduct
+      ? {
+          unitPriceCents: noReceiptPrice === null ? 0 : noReceiptPrice,
+          quantity: typeof noReceiptQty === 'number' ? noReceiptQty : 0,
+        }
+      : null;
+  const calc = useCalc(
+    'credit-note',
+    {
+      invoiceKey: noReceipt || !invoice ? null : invoice.id,
+      returned: noReceipt
+        ? []
+        : [
+            ...selectedLines.map((l) => ({ lineIndex: l.lineIndex, quantity: l.quantity })),
+            ...serializedLines.map((l) => ({ lineIndex: l.lineIndex, quantity: 1 })),
+          ],
+      noReceipt: noReceipt
+        ? noReceiptEntry === null
+          ? { unitPriceCents: 0, quantity: 0 }
+          : noReceiptEntry
+        : null,
+      exchanged: exchangeLines.map((l) => ({
+        unitPriceCents: l.unitPriceCents,
+        quantity: l.quantity,
+      })),
+    },
+    calcCreditNote
   );
-  const netRefundCents = returnSubtotalCents - exchangeSubtotalCents;
-
-  const daysSinceSale = invoice
-    ? Math.floor((nowMs - new Date(invoice.createdAt).getTime()) / 86_400_000)
-    : 0;
-  const isPastReturnWindow = !noReceipt && daysSinceSale > RETURN_WINDOW_DAYS_FALLBACK;
-  const needsOverride = noReceipt || isPastReturnWindow;
-
-  const isSplitPaid = invoice?.paymentMethod === 'split' && !!invoice.splitPayments?.length;
-  const refundLegTargets = useMemo(() => {
-    if (!isSplitPaid || !invoice?.splitPayments) return [];
-    const totalSplit = invoice.splitPayments.reduce((s, p) => s + p.amountCents, 0) || 1;
-    return invoice.splitPayments.map((p) => ({
-      method: p.method,
-      proportional: Math.round((p.amountCents / totalSplit) * Math.max(0, netRefundCents)),
-    }));
-  }, [isSplitPaid, invoice, netRefundCents]);
+  const answer = calc.data;
+  /** What returned line number `position` (plain lines first, then serial units) is worth back. */
+  const refundOf = (position: number): number | null =>
+    answer !== undefined && calc.isCurrent && position < answer.lines.length
+      ? answer.lines[position].refundCents
+      : null;
+  const netRefundCents = answer === undefined ? null : answer.netRefundCents;
+  const needsOverride = noReceipt || (answer !== undefined && answer.pastReturnWindow);
+  const refundLegTargets = answer === undefined ? [] : answer.refundLegs;
+  const isSplitPaid = refundLegTargets.length > 1;
 
   const hasMissingDisposition =
     selectedLines.some((l) => l.state.condition === 'damaged' && !l.state.disposition) ||
@@ -331,15 +333,16 @@ export const CreditNoteModal = ({
 
   const canSubmit =
     (noReceipt
-      ? !!noReceiptProduct && noReceiptRefundCents > 0
+      ? !!noReceiptProduct && answer !== undefined && answer.returnSubtotalCents > 0
       : selectedLines.length > 0 || serializedLines.length > 0) &&
+    calc.isCurrent &&
     !hasMissingDisposition &&
     (!needsOverride || (isAdmin && overrideReason.trim().length > 0));
 
   if (!invoice) return null;
 
   const handleSubmit = async () => {
-    if (!canSubmit || isSubmitting) return;
+    if (!canSubmit || isSubmitting || answer === undefined) return;
     setIsSubmitting(true);
     try {
       const returnedItems: CreateCreditNoteItemInput[] = noReceipt
@@ -395,11 +398,11 @@ export const CreditNoteModal = ({
       }));
 
       let refundBreakdownInput: CreateCreditNoteRefundBreakdownInput[] | undefined;
-      if (isSplitPaid && netRefundCents > 0) {
+      if (isSplitPaid && answer.netRefundCents > 0) {
         refundBreakdownInput = refundLegTargets
           .map((leg) => ({
             method: leg.method as CreateCreditNoteRefundBreakdownInput['method'],
-            amountCents: refundBreakdown[leg.method] ?? leg.proportional,
+            amountCents: refundBreakdown[leg.method] ?? leg.amountCents,
           }))
           .filter((leg) => leg.amountCents > 0);
       }
@@ -419,10 +422,10 @@ export const CreditNoteModal = ({
       notifications.show({
         title: 'Credit Note Created',
         message:
-          netRefundCents > 0
-            ? `Refund of ${formatMoney(netRefundCents)} processed.`
-            : netRefundCents < 0
-              ? `Customer owes ${formatMoney(-netRefundCents)} for the exchange.`
+          answer.netRefundCents > 0
+            ? `Refund of ${formatMoney(answer.netRefundCents)} processed.`
+            : answer.netRefundCents < 0
+              ? `Customer owes ${formatMoney(-answer.netRefundCents)} for the exchange.`
               : 'Exchange settled — no money changed hands.',
         color: 'green',
       });
@@ -525,10 +528,10 @@ export const CreditNoteModal = ({
       fullScreen={isMobile}
     >
       <Stack gap="md">
-        {isPastReturnWindow && !noReceipt && (
+        {answer !== undefined && answer.pastReturnWindow && !noReceipt && (
           <Alert color="amber" icon={<IconAlertTriangle size={16} />}>
-            {t('This sale was made')} {daysSinceSale} {t('days ago — outside our')}{' '}
-            {RETURN_WINDOW_DAYS_FALLBACK}
+            {t('This sale was made')} {answer.daysSinceSale} {t('days ago — outside our')}{' '}
+            {answer.returnWindowDays}
             {t('-day return window.')}{' '}
             {isAdmin ? 'You can approve it anyway below.' : 'A manager needs to approve this.'}
           </Alert>
@@ -579,10 +582,10 @@ export const CreditNoteModal = ({
                 />
               )}
               <QuantityInput value={noReceiptQty} min={1} onChange={setNoReceiptQty} />
-              {noReceiptProduct && noReceiptPrice !== null && (
+              {noReceiptProduct && noReceiptPrice !== null && answer !== undefined && (
                 <Text size="xs" c="dimmed">
-                  {formatMoney(noReceiptPrice)} {t('each —')} {formatMoney(noReceiptRefundCents)}{' '}
-                  {t('total.')}
+                  {formatMoney(noReceiptPrice)} {t('each —')}{' '}
+                  {formatMoney(answer.returnSubtotalCents)} {t('total.')}
                 </Text>
               )}
             </Stack>
@@ -608,10 +611,14 @@ export const CreditNoteModal = ({
 
                   if (isSerialized) {
                     const itemSerialLines = serializedLines.filter((l) => l.item.id === item.id);
-                    const itemRefundCents = itemSerialLines.reduce(
-                      (sum, l) => sum + l.refundAmountCents,
-                      0
+                    // Each picked unit's worth comes from the server, which answers serial units
+                    // after the plain lines, in the order they were asked.
+                    const unitRefunds = itemSerialLines.map((l) =>
+                      refundOf(selectedLines.length + serializedLines.indexOf(l))
                     );
+                    const itemRefundCents = unitRefunds.some((cents) => cents === null)
+                      ? null
+                      : unitRefunds.reduce<number>((sum, cents) => sum + (cents as number), 0);
                     return (
                       <Table.Tr key={item.id}>
                         <Table.Td />
@@ -712,7 +719,7 @@ export const CreditNoteModal = ({
                             fw={700}
                             c={itemSerialLines.length ? 'orange.8' : 'dimmed'}
                           >
-                            {formatMoney(itemRefundCents)}
+                            {itemRefundCents === null ? '' : formatMoney(itemRefundCents)}
                           </Text>
                         </Table.Td>
                       </Table.Tr>
@@ -845,7 +852,9 @@ export const CreditNoteModal = ({
                       </Table.Td>
                       <Table.Td style={{ verticalAlign: 'top', textAlign: 'right' }}>
                         <Text size="sm" fw={700} c={line ? 'orange.8' : 'dimmed'}>
-                          {formatMoney(line?.refundAmountCents ?? 0)}
+                          {line === undefined || refundOf(selectedLines.indexOf(line)) === null
+                            ? ''
+                            : formatMoney(refundOf(selectedLines.indexOf(line)) as number)}
                         </Text>
                       </Table.Td>
                     </Table.Tr>
@@ -919,7 +928,7 @@ export const CreditNoteModal = ({
           )}
         </Box>
 
-        {isSplitPaid && netRefundCents > 0 && (
+        {isSplitPaid && netRefundCents !== null && netRefundCents > 0 && (
           <Paper p="sm" withBorder>
             <Text
               size="xs"
@@ -940,7 +949,7 @@ export const CreditNoteModal = ({
                   value={
                     refundBreakdown[leg.method] !== undefined
                       ? refundBreakdown[leg.method] / 100
-                      : leg.proportional / 100
+                      : leg.amountCents / 100
                   }
                   onChange={(v) =>
                     setRefundBreakdown((prev) => ({
@@ -958,10 +967,12 @@ export const CreditNoteModal = ({
           <Stack gap="xs">
             <Group justify="space-between">
               <Text size="sm" fw={700}>
-                {netRefundCents >= 0 ? 'Refund Due to Customer' : 'Customer Pays Extra'}
+                {netRefundCents === null || netRefundCents >= 0
+                  ? 'Refund Due to Customer'
+                  : 'Customer Pays Extra'}
               </Text>
               <Text size="lg" fw={800} c="orange.8">
-                {formatMoney(Math.abs(netRefundCents))}
+                {netRefundCents === null ? '' : formatMoney(Math.abs(netRefundCents))}
               </Text>
             </Group>
             <Textarea

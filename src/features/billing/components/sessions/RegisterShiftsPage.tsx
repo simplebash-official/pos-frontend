@@ -14,10 +14,10 @@ import { MetricCardRow, type MetricCardDef } from '@/shared/components/MetricCar
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useCurrentSession, useSessionList } from '../../hooks/useRegisterSession';
+import { useShiftTotals } from '../../hooks/useShiftTotals';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
-import { calculateExpectedDrawerCash } from './sessionMath';
 import { RegisterSessionDetailDrawer } from './RegisterSessionDetailDrawer';
 import type { RegisterSession } from '../../types';
 
@@ -148,44 +148,32 @@ export const RegisterShiftsPage = () => {
     });
   }, [allSessions, searchQuery, statusFilter, datePreset, terminalFilter]);
 
-  // Calculate Metrics for KPI Cards
-  const activeShiftsCount = useMemo(
-    () =>
-      allSessions.filter(
-        (s) => s.status === 'open' || s.status === 'closing' || s.status === 'reopened'
-      ).length,
-    [allSessions]
-  );
-
-  const totalCashSalesCents = useMemo(
-    () => filteredSessions.reduce((acc, s) => acc + (s.totalCashSalesCents || 0), 0),
-    [filteredSessions]
-  );
-
-  const totalDiscrepancyCents = useMemo(
-    () =>
-      filteredSessions
-        .filter((s) => s.status === 'closed')
-        .reduce((acc, s) => acc + (s.cashVarianceCents || 0), 0),
-    [filteredSessions]
-  );
+  // Every total comes from the server, over the shifts the list is showing.
+  const allTotals = useShiftTotals(
+    allSessions.map((s) => s.key),
+    true
+  ).data;
+  const shownTotals = useShiftTotals(
+    filteredSessions.map((s) => s.key),
+    true
+  ).data;
 
   const kpiCards: MetricCardDef[] = [
     {
       key: 'active-shifts',
       label: t('Active Shifts'),
-      value: `${activeShiftsCount} ${t('Open')}`,
-      color: activeShiftsCount > 0 ? 'teal' : 'gray',
+      value: allTotals === undefined ? '' : `${allTotals.runningCount} ${t('Open')}`,
+      color: allTotals !== undefined && allTotals.runningCount > 0 ? 'teal' : 'gray',
       icon: <IconClockPlay size={20} />,
-      loading: isLoading,
+      loading: isLoading || allTotals === undefined,
     },
     {
       key: 'total-cash-sales',
       label: t('Total Cash Sales'),
-      value: formatMoney(totalCashSalesCents),
+      value: shownTotals === undefined ? '' : formatMoney(shownTotals.cashSalesCents),
       color: 'cyan',
       icon: <IconCash size={20} />,
-      loading: isLoading,
+      loading: isLoading || shownTotals === undefined,
     },
     {
       key: 'total-shifts',
@@ -199,12 +187,19 @@ export const RegisterShiftsPage = () => {
       key: 'net-discrepancy',
       label: t('Net Variance'),
       value:
-        totalDiscrepancyCents === 0
-          ? t('Balanced')
-          : `${totalDiscrepancyCents > 0 ? '+' : ''}${formatMoney(totalDiscrepancyCents)}`,
-      color: totalDiscrepancyCents === 0 ? 'teal' : totalDiscrepancyCents < 0 ? 'red' : 'orange',
+        shownTotals === undefined
+          ? ''
+          : shownTotals.netVarianceCents === 0
+            ? t('Balanced')
+            : `${shownTotals.netVarianceCents > 0 ? '+' : ''}${formatMoney(shownTotals.netVarianceCents)}`,
+      color:
+        shownTotals === undefined || shownTotals.netVarianceCents === 0
+          ? 'teal'
+          : shownTotals.netVarianceCents < 0
+            ? 'red'
+            : 'orange',
       icon: <IconScale size={20} />,
-      loading: isLoading,
+      loading: isLoading || shownTotals === undefined,
     },
   ];
 
@@ -330,7 +325,7 @@ export const RegisterShiftsPage = () => {
         const val =
           s.status === 'closed' && s.countedCashCents != null
             ? s.countedCashCents
-            : calculateExpectedDrawerCash(s);
+            : s.expectedCashCents;
         return (
           <Text size="xs" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
             {formatMoney(val)}

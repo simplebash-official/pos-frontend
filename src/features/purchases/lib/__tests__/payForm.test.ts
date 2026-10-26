@@ -14,23 +14,23 @@ const ready = () => ({
 
 describe('validatePay', () => {
   it('accepts a complete payment', () => {
-    expect(validatePay(ready(), open)).toBeNull();
+    expect(validatePay(ready(), open, [])).toBeNull();
   });
 
   it('asks for what is missing, in plain words', () => {
-    expect(validatePay({ ...ready(), source: null }, open)).toMatch(/where the money/i);
-    expect(validatePay({ ...ready(), amountCents: 0 }, open)).toMatch(/how much/i);
-    expect(validatePay({ ...ready(), categoryKey: null }, open)).toMatch(/filed under/i);
-    expect(validatePay({ ...ready(), paidOn: 'soon' }, open)).toMatch(/day/i);
+    expect(validatePay({ ...ready(), source: null }, open, [])).toMatch(/where the money/i);
+    expect(validatePay({ ...ready(), amountCents: 0 }, open, [])).toMatch(/how much/i);
+    expect(validatePay({ ...ready(), categoryKey: null }, open, [])).toMatch(/filed under/i);
+    expect(validatePay({ ...ready(), paidOn: 'soon' }, open, [])).toMatch(/day/i);
   });
 
   it('does not ask for a day when paying cash from the drawer', () => {
-    expect(validatePay({ ...ready(), source: 'drawer', paidOn: '' }, open)).toBeNull();
+    expect(validatePay({ ...ready(), source: 'drawer', paidOn: '' }, open, [])).toBeNull();
   });
 
-  it('refuses a split that does not fit the bills', () => {
+  it('puts the first thing the server found wrong with the split into words', () => {
     expect(
-      validatePay({ ...ready(), settlements: [{ receiptKey: 'a', amountCents: 900 }] }, open)
+      validatePay(ready(), open, [{ code: 'over_bill', receiptKey: 'a', dueCents: 800 }])
     ).toMatch(/only/);
   });
 });

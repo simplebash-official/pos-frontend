@@ -14,7 +14,12 @@ import { queryKeys } from '@/api/queryKeys';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { QuotationFormModal } from '../QuotationFormModal';
 import { emptyDraft, type QuotationDraft } from '../../lib/quotationForm';
-import type { CreateQuotationInput, Quotation } from '../../types';
+import type {
+  CalcQuotationReply,
+  CalcQuotationRequest,
+  CreateQuotationInput,
+  Quotation,
+} from '../../types';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -63,16 +68,47 @@ const typeInto = async (input: HTMLInputElement | HTMLTextAreaElement, value: st
   });
 };
 
+/** The server's calculator, scripted: what it answers for each request. Nothing is worked out here. */
+let calcAnswer: (request: CalcQuotationRequest) => CalcQuotationReply;
+
+const answerFor = (
+  request: CalcQuotationRequest,
+  figures: Record<string, [gross: number, discount: number, total: number]> = {},
+  patch: Partial<CalcQuotationReply> = {}
+): CalcQuotationReply => ({
+  lines: request.lines.map((line) => {
+    const [grossCents, discountCents, totalCents] = figures[line.key] ?? [0, 0, 0];
+    return { key: line.key, grossCents, discountCents, totalCents };
+  }),
+  grossSubtotalCents: 0,
+  lineDiscountsCents: 0,
+  subtotalCents: 0,
+  discountCents: 0,
+  totalCents: 0,
+  blockers: [],
+  ...patch,
+});
+
 describe('QuotationFormModal', () => {
-  // The API is the only thing faked: `apiClient.post` is the create-quotation request.
+  // The API is the only thing faked: `/calc/quotation` is the server's calculator and
+  // `/quotations` is the create request.
   let post: ReturnType<typeof vi.spyOn>;
+  const createCalls = () => post.mock.calls.filter((call: unknown[]) => call[0] === '/quotations');
 
   let container: HTMLDivElement;
   let root: Root;
   const onCreated = vi.fn();
 
   beforeEach(() => {
-    post = vi.spyOn(apiClient, 'post').mockResolvedValue({ success: true, data: saved } as never);
+    calcAnswer = (request) => answerFor(request);
+    post = vi
+      .spyOn(apiClient, 'post')
+      .mockImplementation(((url: string, body: unknown) =>
+        Promise.resolve(
+          url === '/calc/quotation'
+            ? { success: true, data: calcAnswer(body as CalcQuotationRequest) }
+            : { success: true, data: saved }
+        )) as never);
     onCreated.mockReset();
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -113,6 +149,7 @@ describe('QuotationFormModal', () => {
       );
     });
     await flush();
+    await flush();
   };
 
   const body = () => document.body;
@@ -126,31 +163,61 @@ describe('QuotationFormModal', () => {
     );
     return body().querySelector<HTMLInputElement>(`#${labelEl?.getAttribute('for')}`)!;
   };
-  const click = (el: HTMLElement | undefined) =>
-    act(async () => {
+  const click = async (el: HTMLElement | undefined) => {
+    await act(async () => {
       el?.click();
     });
-
-  it('says what is missing, in plain words, and sends nothing', async () => {
-    await open(emptyDraft());
-    await click(byText('button', 'Create Quotation'));
     await flush();
+  };
 
-    expect(body().textContent).toContain('Please choose a customer, or type the name.');
-    expect(post).not.toHaveBeenCalled();
+  const labourDraft = (extra: Partial<QuotationDraft['lines'][number]> = {}): QuotationDraft => ({
+    ...emptyDraft(),
+    customerName: 'Rita',
+    lines: [{ uid: 'l1', name: 'Labour', unitPriceCents: 1000, quantity: 1, ...extra }],
   });
 
-  it('asks for at least one item once the customer is filled in', async () => {
+  it('says the first thing the server found missing, in plain words, and sends nothing', async () => {
+    calcAnswer = (request) =>
+      answerFor(request, {}, { blockers: [{ code: 'customer_missing', line: null }] });
+    await open(emptyDraft());
+    await click(byText('button', 'Create Quotation'));
+
+    expect(body().textContent).toContain('Please choose a customer, or type the name.');
+    expect(createCalls()).toHaveLength(0);
+  });
+
+  it('turns the server\'s "no items" into a plain message', async () => {
+    calcAnswer = (request) =>
+      answerFor(request, {}, { blockers: [{ code: 'no_lines', line: null }] });
     await open(emptyDraft());
     await typeInto(inputByLabel('Customer name'), 'Nimal Perera');
-    await click(byText('button', 'Create Quotation'));
     await flush();
+    await click(byText('button', 'Create Quotation'));
 
     expect(body().textContent).toContain('Add at least one item.');
-    expect(post).not.toHaveBeenCalled();
+    expect(createCalls()).toHaveLength(0);
+  });
+
+  it('asks the server for the figures with what was typed', async () => {
+    await open(emptyDraft());
+    await typeInto(inputByLabel('Customer name'), 'Nimal Perera');
+    await click(byText('button', 'Add your own item'));
+    await typeInto(inputByLabel('Item 1'), 'Screen replacement');
+    await typeInto(inputByLabel('Price each'), '150');
+    const last = post.mock.calls
+      .filter((c: unknown[]) => c[0] === '/calc/quotation')
+      .at(-1)![1] as CalcQuotationRequest;
+    expect(last.customerName).toBe('Nimal Perera');
+    expect(last.lines[0]).toMatchObject({
+      name: 'Screen replacement',
+      unitPriceCents: 15000,
+      quantity: 1,
+      discount: null,
+    });
   });
 
   it('sends a walk-in customer and an own item — with no totals — then hands back the saved quotation', async () => {
+    calcAnswer = (request) => answerFor(request, { [request.lines[0]?.key]: [15000, 0, 15000] });
     await open(emptyDraft());
 
     await typeInto(inputByLabel('Customer name'), 'Nimal Perera');
@@ -158,12 +225,9 @@ describe('QuotationFormModal', () => {
     await typeInto(inputByLabel('Item 1'), 'Screen replacement');
     await typeInto(inputByLabel('Price each'), '150');
     await click(byText('button', 'Create Quotation'));
-    await flush();
 
-    expect(body().textContent).not.toContain('Add at least one item.');
-    expect(post).toHaveBeenCalledTimes(1);
-    expect(post.mock.calls[0][0]).toBe('/quotations');
-    const sent = post.mock.calls[0][1] as CreateQuotationInput;
+    expect(createCalls()).toHaveLength(1);
+    const sent = createCalls()[0][1] as CreateQuotationInput;
     expect(sent.customer).toMatchObject({ customerName: 'Nimal Perera' });
     expect(sent.items).toEqual([
       { name: 'Screen replacement', unitPriceCents: 15000, quantity: 1, discountCents: 0 },
@@ -173,86 +237,81 @@ describe('QuotationFormModal', () => {
     expect(onCreated).toHaveBeenCalledWith(saved);
   });
 
-  it('shows the live quoted total from the items', async () => {
-    await open({
-      ...emptyDraft(),
-      customerName: 'Rita',
-      lines: [
-        {
-          uid: 'l1',
-          name: 'Labour',
-          unitPriceCents: 150000,
-          quantity: 2,
-          discountCents: 0,
-        },
-      ],
-    });
+  it("shows the server's quoted total", async () => {
+    calcAnswer = (request) =>
+      answerFor(
+        request,
+        { l1: [300000, 0, 300000] },
+        { subtotalCents: 300000, totalCents: 300000 }
+      );
+    await open(labourDraft({ unitPriceCents: 150000, quantity: 2 }));
     expect(body().textContent).toContain('Rs. 3,000.00');
   });
 
-  it('does not close or report success when the backend refuses', async () => {
-    post.mockRejectedValue(new Error('nope'));
-    await open({
-      ...emptyDraft(),
-      customerName: 'Rita',
-      lines: [{ uid: 'l1', name: 'Labour', unitPriceCents: 1000, quantity: 1, discountCents: 0 }],
-    });
-    await click(byText('button', 'Create Quotation'));
-    await flush();
+  it('keeps Create off while the answer is not for what is on screen', async () => {
+    post.mockImplementation((() => new Promise(() => undefined)) as never);
+    await open(labourDraft());
+    expect((byText('button', 'Create Quotation') as HTMLButtonElement).disabled).toBe(true);
+  });
 
-    expect(post).toHaveBeenCalledTimes(1);
+  it('does not close or report success when the backend refuses', async () => {
+    post.mockImplementation(((url: string, request: unknown) =>
+      url === '/calc/quotation'
+        ? Promise.resolve({
+            success: true,
+            data: answerFor(request as CalcQuotationRequest, { l1: [1000, 0, 1000] }),
+          })
+        : Promise.reject(new Error('nope'))) as never);
+    await open(labourDraft());
+    await click(byText('button', 'Create Quotation'));
+
+    expect(createCalls()).toHaveLength(1);
     expect(onCreated).not.toHaveBeenCalled();
   });
 
-  it('renders line discount badge and updates quoted total correctly', async () => {
-    await open({
-      ...emptyDraft(),
-      customerName: 'Rita',
-      lines: [
-        {
-          uid: 'l1',
-          name: 'Bulk Cable',
-          unitPriceCents: 1000,
-          quantity: 10,
-          discountType: 'fixed',
-          discountScope: 'per_unit',
-          discountValue: 200,
-          discountCents: 2000,
-        },
-      ],
-    });
-    // Gross: Rs. 100.00, Discount: Rs. 20.00 (2.00/ea), Net total: Rs. 80.00
+  it("renders the line discount badge and totals from the server's figures", async () => {
+    calcAnswer = (request) =>
+      answerFor(
+        request,
+        { l1: [10000, 2000, 8000] },
+        { lineDiscountsCents: 2000, subtotalCents: 8000, totalCents: 8000 }
+      );
+    await open(
+      labourDraft({
+        name: 'Bulk Cable',
+        unitPriceCents: 1000,
+        quantity: 10,
+        discountType: 'fixed',
+        discountScope: 'per_unit',
+        discountValue: 200,
+      })
+    );
     expect(body().textContent).toContain('-Rs. 2.00/ea (-Rs. 20.00)');
     expect(body().textContent).toContain('Rs. 80.00');
   });
 
-  it('sends quotation-level order discount in the create request', async () => {
+  it("sends the typed discount to the server, and each line's worked-out discount in the create request", async () => {
+    calcAnswer = (request) =>
+      answerFor(request, { l1: [10000, 2000, 8000] }, { totalCents: 7200, discountCents: 800 });
     await open({
-      ...emptyDraft(),
-      customerName: 'Rita',
+      ...labourDraft({
+        unitPriceCents: 10000,
+        discountType: 'percentage',
+        discountValue: 20,
+      }),
       discountType: 'percentage',
       discountValue: 10,
-      lines: [
-        {
-          uid: 'l1',
-          name: 'Labour',
-          unitPriceCents: 10000,
-          quantity: 1,
-          discountCents: 0,
-        },
-      ],
     });
-    // Gross: Rs. 100.00, 10% order discount = Rs. 10.00, Total = Rs. 90.00
-    expect(body().textContent).toContain('Rs. 90.00');
+    const last = post.mock.calls
+      .filter((c: unknown[]) => c[0] === '/calc/quotation')
+      .at(-1)![1] as CalcQuotationRequest;
+    expect(last.lines[0].discount).toEqual({ type: 'percentage', scope: 'total', value: 20 });
+    expect(last.orderDiscount).toEqual({ type: 'percentage', value: 10 });
+    expect(body().textContent).toContain('Rs. 72.00');
 
     await click(byText('button', 'Create Quotation'));
-    await flush();
-
-    expect(post).toHaveBeenCalledTimes(1);
-    const sent = post.mock.calls[0][1] as CreateQuotationInput;
-    expect(sent.pricingAdjustments).toEqual({
-      discountType: 'percentage',
-      discountValue: 10,
-    });
+    const sent = createCalls()[0][1] as CreateQuotationInput;
+    expect(sent.items[0]).toMatchObject({ discountCents: 2000 });
+    expect(sent.pricingAdjustments).toEqual({ discountType: 'percentage', discountValue: 10 });
   });
 });

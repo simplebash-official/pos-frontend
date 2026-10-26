@@ -145,6 +145,25 @@ vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
   }),
 }));
 
+// The server's total for the saved count (5 x Rs 5,000 and 10 x Rs 1,000), as literals.
+vi.mock('@/features/billing/api/calcApi', () => ({
+  calcCashCount: () =>
+    Promise.resolve({
+      lines: [
+        { id: '5000', valueCents: 500_000, count: 5, subtotalCents: 2_500_000 },
+        { id: '1000', valueCents: 100_000, count: 10, subtotalCents: 1_000_000 },
+      ],
+      totalCents: 3_500_000,
+    }),
+}));
+vi.mock('@/features/billing/hooks/useInvoiceBalance', () => ({
+  useInvoiceBalance: () => ({
+    data: { paidCents: 0, balanceDueCents: 0 },
+    isCurrent: true,
+    error: null,
+  }),
+  invalidateInvoiceBalance: vi.fn(),
+}));
 vi.mock('@/features/billing/hooks/useInvoices', () => ({
   useVoidInvoice: () => ({ mutateAsync: vi.fn() }),
   useCloseInvoice: () => ({ mutateAsync: vi.fn() }),
@@ -348,8 +367,10 @@ describe('RegisterSessionDetailDrawer', () => {
       invoiceRow?.click();
     });
 
-    // InvoiceDetailDrawer title appears with high-level invoice header
-    expect(text()).toContain('Invoice #INV-000042');
+    // InvoiceDetailDrawer title appears with high-level invoice header (it opens through a transition)
+    await act(async () => {
+      await vi.waitFor(() => expect(text()).toContain('Invoice #INV-000042'));
+    });
     // Session drawer header is still mounted underneath
     expect(text()).toContain('SES-000041');
   });

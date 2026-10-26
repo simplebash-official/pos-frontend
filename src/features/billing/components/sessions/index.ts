@@ -1,4 +1,3 @@
-export * from './constants';
 export * from './sessionPrint';
 export * from './DenominationCounter';
 export * from './PinVerificationModal';

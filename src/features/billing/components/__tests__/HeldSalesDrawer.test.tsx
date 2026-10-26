@@ -19,11 +19,21 @@ vi.mock('../../hooks/useCart', () => ({
   useHeldCarts: () => ({ heldCarts: HELD, loadHeldCart, removeHeldCart }),
 }));
 
-const held = (id: string, label: string, hoursAgo: number, totals: number[], discount = 0) => ({
+// What each parked cart comes to is the server's answer, scripted here by cart id.
+let ANSWERS: Record<string, number> = {};
+vi.mock('../../hooks/useCheckout', () => ({
+  useHeldCartTotals: (carts: Array<{ id: string }>) =>
+    new Map(
+      carts
+        .filter((cart) => cart.id in ANSWERS)
+        .map((cart) => [cart.id, { totalCents: ANSWERS[cart.id] }])
+    ),
+}));
+
+const held = (id: string, label: string, hoursAgo: number, itemCount: number) => ({
   id,
   label,
-  items: totals.map((totalCents) => ({ totalCents })),
-  discountCents: discount,
+  items: Array.from({ length: itemCount }, () => ({})),
   heldAt: new Date(Date.now() - hoursAgo * 60 * 60 * 1000).toISOString(),
 });
 
@@ -35,6 +45,7 @@ describe('HeldSalesDrawer', () => {
   beforeEach(() => {
     [onClose, loadHeldCart, removeHeldCart].forEach((fn) => fn.mockReset());
     HELD = [];
+    ANSWERS = {};
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -71,14 +82,16 @@ describe('HeldSalesDrawer', () => {
   });
 
   it('shows the count and the combined value of the parked sales', async () => {
-    HELD = [held('h1', 'Nimal', 0.1, [10_000, 5_000], 1_000), held('h2', 'Kamal', 0.2, [20_000])];
+    HELD = [held('h1', 'Nimal', 0.1, 2), held('h2', 'Kamal', 0.2, 1)];
+    ANSWERS = { h1: 14_000, h2: 20_000 };
     await open();
     expect(text()).toContain('2 parked');
-    expect(text()).toContain('Rs. 340.00'); // (150.00 - 10.00) + 200.00
+    expect(text()).toContain('Rs. 340.00'); // the server's two totals added
   });
 
   it('lists each sale with its item count, total and age', async () => {
-    HELD = [held('h1', 'Nimal', 0.1, [10_000, 5_000], 1_000)];
+    HELD = [held('h1', 'Nimal', 0.1, 2)];
+    ANSWERS = { h1: 14_000 };
     await open();
     expect(text()).toContain('Nimal');
     expect(text()).toContain('2 item(s)');
@@ -87,13 +100,13 @@ describe('HeldSalesDrawer', () => {
   });
 
   it('flags a sale parked for over two hours as stale, and not a fresh one', async () => {
-    HELD = [held('h1', 'Old sale', 3, [1_000]), held('h2', 'Fresh sale', 0.1, [1_000])];
+    HELD = [held('h1', 'Old sale', 3, 1), held('h2', 'Fresh sale', 0.1, 1)];
     await open();
     expect(text().match(/Stale/g)).toHaveLength(1);
   });
 
   it('restores a sale to the cart and closes', async () => {
-    HELD = [held('h1', 'Nimal', 0.1, [1_000])];
+    HELD = [held('h1', 'Nimal', 0.1, 1)];
     await open();
     await act(async () => button('Restore to cart')!.click());
     expect(loadHeldCart).toHaveBeenCalledWith('h1');
@@ -101,7 +114,7 @@ describe('HeldSalesDrawer', () => {
   });
 
   it('discards a held sale', async () => {
-    HELD = [held('h1', 'Nimal', 0.1, [1_000])];
+    HELD = [held('h1', 'Nimal', 0.1, 1)];
     await open();
     await act(async () =>
       (

@@ -29,7 +29,11 @@ describe('getSaleHeroPresentation', () => {
       dueDate: '2026-12-31',
     });
 
-    const hero = getSaleHeroPresentation(invoice, 0);
+    // The paid and owed figures are the server's answer for this invoice.
+    const hero = getSaleHeroPresentation(invoice, 0, {
+      paidCents: 50000,
+      balanceDueCents: 100000,
+    })!;
 
     expect(hero.isPartialCredit).toBe(true);
     expect(hero.paidNowCents).toBe(50000);
@@ -46,7 +50,7 @@ describe('getSaleHeroPresentation', () => {
       status: 'pending',
     });
 
-    const hero = getSaleHeroPresentation(invoice, 0);
+    const hero = getSaleHeroPresentation(invoice, 0, { paidCents: 0, balanceDueCents: 150000 })!;
 
     expect(hero.isCreditCompleted).toBe(true);
     expect(hero.isPartialCredit).toBe(false);
@@ -62,10 +66,16 @@ describe('getSaleHeroPresentation', () => {
       amountReceivedCents: 150000,
     });
 
-    const hero = getSaleHeroPresentation(invoice, 0);
+    const hero = getSaleHeroPresentation(invoice, 0, undefined)!;
 
     expect(hero.isPartialCredit).toBe(false);
     expect(hero.isCreditCompleted).toBe(false);
     expect(hero.heroAmountCents).toBe(150000);
+  });
+
+  it('has nothing to show for a sale on account until the server has said what is owed', () => {
+    const invoice = baseInvoice({ isCredit: true, status: 'pending' });
+
+    expect(getSaleHeroPresentation(invoice, 0, undefined)).toBeNull();
   });
 });

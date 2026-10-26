@@ -27,13 +27,8 @@ import cartReducer, {
   restoreCart,
   deleteHeldCart,
   clearCart,
-  selectCartTotals,
-  selectSubtotalCents,
-  selectTotalCents,
   selectCartItemsCount,
   selectTotalUnitCount,
-  selectSplitAllocatedCents,
-  selectSplitRemainingCents,
   selectPaymentMethod,
   selectSplitPayments,
   selectIsCredit,
@@ -51,13 +46,13 @@ import type { Invoice } from '@/features/billing/types';
 // The reserved-stock selectors only read `completedSale`'s presence, so a stub invoice is enough.
 const completedInvoice = { invoiceNumber: 'INV-000006' } as Invoice;
 
-const sampleItem: Omit<CartItem, 'totalCents'> = {
+const sampleItem: CartItem = {
   id: 'line-1',
   productId: 'prod_1',
   name: 'USB-C Cable',
   unitPriceCents: 500, // Rs. 5.00
   quantity: 2,
-  discountCents: 0,
+  discount: null,
   sourceType: 'retail',
 };
 
@@ -73,7 +68,7 @@ describe('cartSlice reducer & selectors', () => {
       const state = cartReducer(getInitialState(), addItem(sampleItem));
       expect(state.items).toHaveLength(1);
       expect(state.items[0].name).toBe('USB-C Cable');
-      expect(state.items[0].totalCents).toBe(1000); // 500 * 2
+      expect(state.items[0].quantity).toBe(2);
     });
 
     it('increments quantity and moves existing item to the top when re-added', () => {
@@ -89,7 +84,6 @@ describe('cartSlice reducer & selectors', () => {
 
       expect(state.items).toHaveLength(1);
       expect(state.items[0].quantity).toBe(5); // 2 + 3
-      expect(state.items[0].totalCents).toBe(2500);
     });
 
     it('keeps a different price of the same product as its own line when adding several', () => {
@@ -107,18 +101,17 @@ describe('cartSlice reducer & selectors', () => {
       const cheaper = state.items.find((line) => line.unitPriceCents === 400);
       const dearer = state.items.find((line) => line.unitPriceCents === 500);
       expect(cheaper?.quantity).toBe(7); // 3 + 4 merged
-      expect(cheaper?.totalCents).toBe(2800);
       expect(dearer?.quantity).toBe(2); // untouched
     });
 
     it('does not increment quantity for service tickets (locked to quantity 1)', () => {
-      const repairItem: Omit<CartItem, 'totalCents'> = {
+      const repairItem: CartItem = {
         id: 'rep-line-1',
         productId: 'rep_1',
         name: 'Screen Repair',
         unitPriceCents: 4500,
         quantity: 1,
-        discountCents: 0,
+        discount: null,
         sourceType: 'repair',
         sourceTicketNumber: 'REP-001',
       };
@@ -137,7 +130,6 @@ describe('cartSlice reducer & selectors', () => {
       state = cartReducer(state, updateQuantity({ id: 'line-1', quantity: 4 }));
 
       expect(state.items[0].quantity).toBe(4);
-      expect(state.items[0].totalCents).toBe(2000);
     });
 
     it('removes item when quantity is set to 0', () => {
@@ -158,25 +150,38 @@ describe('cartSlice reducer & selectors', () => {
       expect(state.items[0].name).toBe('USB-C Cable');
     });
 
-    it('updates line-level discount', () => {
+    it("keeps the line discount as typed; what it comes to is the server's to work out", () => {
       let state = cartReducer(getInitialState(), addItem(sampleItem));
-      state = cartReducer(state, updateLineDiscount({ id: 'line-1', discountCents: 100 }));
+      state = cartReducer(
+        state,
+        updateLineDiscount({ id: 'line-1', discount: { type: 'fixed', value: 100 } })
+      );
+      expect(state.items[0].discount).toEqual({ type: 'fixed', value: 100 });
 
-      expect(state.items[0].discountCents).toBe(100);
-      expect(state.items[0].totalCents).toBe(900); // 1000 - 100
+      state = cartReducer(
+        state,
+        updateLineDiscount({ id: 'line-1', discount: { type: 'percentage', value: 10 } })
+      );
+      expect(state.items[0].discount).toEqual({ type: 'percentage', value: 10 });
+
+      // Nothing typed, or a zero, is no discount.
+      state = cartReducer(state, updateLineDiscount({ id: 'line-1', discount: null }));
+      expect(state.items[0].discount).toBeNull();
+      state = cartReducer(
+        state,
+        updateLineDiscount({ id: 'line-1', discount: { type: 'fixed', value: 0 } })
+      );
+      expect(state.items[0].discount).toBeNull();
     });
   });
 
   describe('discounts, customer, and payments', () => {
     it('sets order-level fixed and percentage discount', () => {
-      let state = cartReducer(
-        getInitialState(),
-        setDiscount({ cents: 200, type: 'fixed', value: 200 })
-      );
-      expect(state.discountCents).toBe(200);
+      let state = cartReducer(getInitialState(), setDiscount({ type: 'fixed', value: 200 }));
       expect(state.discountType).toBe('fixed');
+      expect(state.discountValue).toBe(200);
 
-      state = cartReducer(state, setDiscount({ cents: 100, type: 'percentage', value: 10 }));
+      state = cartReducer(state, setDiscount({ type: 'percentage', value: 10 }));
       expect(state.discountType).toBe('percentage');
       expect(state.discountValue).toBe(10);
     });
@@ -265,7 +270,7 @@ describe('cartSlice reducer & selectors', () => {
   });
 
   describe('selectors', () => {
-    it('calculates totals, unit counts, and split remaining accurately', () => {
+    it("counts lines and units for the badges; what the cart comes to is the server's", () => {
       const rootState = {
         cart: {
           ...getInitialState(),
@@ -276,8 +281,7 @@ describe('cartSlice reducer & selectors', () => {
               name: 'Item 1',
               unitPriceCents: 500,
               quantity: 2,
-              discountCents: 0,
-              totalCents: 1000,
+              discount: null,
               sourceType: 'retail' as const,
             },
             {
@@ -286,24 +290,15 @@ describe('cartSlice reducer & selectors', () => {
               name: 'Item 2',
               unitPriceCents: 1000,
               quantity: 1,
-              discountCents: 100,
-              totalCents: 900,
+              discount: { type: 'fixed' as const, value: 100 },
               sourceType: 'retail' as const,
             },
           ],
-          discountType: 'percentage' as const,
-          discountValue: 10,
-          splitPayments: [{ id: 'sp-1', method: 'cash' as const, amountCents: 1000 }],
         },
       };
 
-      const totals = selectCartTotals(rootState);
-      expect(totals.subtotalCents).toBe(1900);
-      expect(selectSubtotalCents(rootState)).toBe(1900);
       expect(selectCartItemsCount(rootState)).toBe(2);
       expect(selectTotalUnitCount(rootState)).toBe(3); // 2 + 1
-      expect(selectSplitAllocatedCents(rootState)).toBe(1000);
-      expect(selectSplitRemainingCents(rootState)).toBe(selectTotalCents(rootState) - 1000);
     });
 
     it('counts retail units per product while the sale is still open', () => {
@@ -317,7 +312,7 @@ describe('cartSlice reducer & selectors', () => {
           name: 'Screen Repair',
           unitPriceCents: 2500,
           quantity: 1,
-          discountCents: 0,
+          discount: null,
           sourceType: 'repair',
           sourceTicketNumber: 'REP-1001',
         })

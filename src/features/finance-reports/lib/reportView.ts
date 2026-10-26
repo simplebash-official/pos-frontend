@@ -84,35 +84,27 @@ export const cashFlowLabel = (code: CashFlowCode): string => {
 /** "Oct 2026" for a `YYYY-MM` month. */
 export const monthLabel = (month: string): string => dayjs(`${month}-01`).format('MMM YYYY');
 
-/** How many of the biggest categories get their own colour in the monthly chart; the rest join "Other". */
-export const CHART_CATEGORIES = 5;
-
 export interface MonthlyChart {
   /** One row per month: `{ month: 'Oct 2026', <series name>: rupees }`. */
   data: Record<string, string | number>[];
-  /** The series, biggest category first; "Other" last when there is one. */
+  /** The series in the order the server sent them. */
   series: string[];
 }
 
 /**
- * Turns the costs by category and month into stacked-bar rows. Chart values are whole rupees (the
- * charts format them back to money), so cents are divided by 100 here and nowhere else.
+ * Lays the server's chart bands out as stacked-bar rows. Chart values are whole rupees (the charts
+ * format them back to money), so cents are divided by 100 here and nowhere else.
  */
 export const monthlyChart = (
-  categories: { categoryName: string; months: { month: string; totalCents: number }[] }[],
+  chart: { name: string; isOther: boolean; months: { month: string; totalCents: number }[] }[],
   months: { month: string }[],
   otherName: string
 ): MonthlyChart => {
-  const top = categories.slice(0, CHART_CATEGORIES);
-  const rest = categories.slice(CHART_CATEGORIES);
-  const series = [...top.map((c) => c.categoryName), ...(rest.length > 0 ? [otherName] : [])];
+  const named = chart.map((band) => ({ band, name: band.isOther ? otherName : band.name }));
   const data = months.map(({ month }, index) => {
     const row: Record<string, string | number> = { month: monthLabel(month) };
-    for (const c of top) row[c.categoryName] = c.months[index].totalCents / 100;
-    if (rest.length > 0) {
-      row[otherName] = rest.reduce((sum, c) => sum + c.months[index].totalCents, 0) / 100;
-    }
+    for (const { band, name } of named) row[name] = band.months[index].totalCents / 100;
     return row;
   });
-  return { data, series };
+  return { data, series: named.map(({ name }) => name) };
 };

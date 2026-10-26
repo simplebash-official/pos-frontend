@@ -27,6 +27,35 @@ const OPEN = [
   { key: 'prc_2', receiptNumber: 'PUR-000002', date: '2026-10-05T00:00:00Z', dueCents: 120_000 },
 ];
 
+// The server's count of a payment against the two open bills (Rs 800 and Rs 1,200), as literals
+// for the amounts these tests type: Rs 500 spreads onto the oldest bill, Rs 900 on the first bill
+// is more than it owes.
+vi.mock('../../hooks/useSettlement', () => ({
+  useSettlement: (
+    _supplierKey: string,
+    paymentCents: number,
+    settlements: { receiptKey: string; amountCents: number }[]
+  ) => ({
+    data: {
+      owedCents: 200_000,
+      allocatedCents: settlements.length === 0 ? 0 : settlements[0].amountCents,
+      oldestFirst: paymentCents === 50_000 ? [{ receiptKey: 'prc_1', amountCents: 50_000 }] : [],
+      payEverything: [
+        { receiptKey: 'prc_1', amountCents: 80_000 },
+        { receiptKey: 'prc_2', amountCents: 120_000 },
+      ],
+      ifTicked: [
+        { receiptKey: 'prc_1', amountCents: 70_000 },
+        { receiptKey: 'prc_2', amountCents: 120_000 },
+      ],
+      blockers: settlements.some((part) => part.amountCents === 90_000)
+        ? [{ code: 'over_bill', receiptKey: 'prc_1', dueCents: 80_000 }]
+        : [],
+    },
+    isCurrent: true,
+    error: null,
+  }),
+}));
 vi.mock('@/api/deviceId', () => ({ getDeviceId: () => 'term_1' }));
 vi.mock('../../hooks/usePurchases', () => ({
   useOpenReceipts: () => ({ data: OPEN, isLoading: false }),
@@ -159,6 +188,18 @@ describe('paying a supplier and recording a credit', () => {
         payeeKey: 'sup_1',
         settlements: [{ receiptKey: 'prc_1', amountCents: 50_000 }],
       });
+    });
+
+    it('puts the amount the server suggests against a bill that is ticked', async () => {
+      await open();
+      await radio('Bank');
+      await typeInto(field('How much are you paying'), '1500');
+      const first = document.body.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      await act(async () => first.click());
+      const amount = document.body.querySelector<HTMLInputElement>(
+        'input[aria-label^="Amount for"]'
+      )!;
+      expect(amount.value).toContain('700');
     });
 
     it('refuses to put more against a bill than it owes', async () => {
