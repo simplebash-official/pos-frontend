@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { cacheNames } from 'workbox-core';
+import { cacheNames, clientsClaim } from 'workbox-core';
 import {
   addPlugins,
   addRoute,
@@ -44,6 +44,7 @@ addPlugins([
 precache(manifest);
 addRoute();
 cleanupOutdatedCaches();
+clientsClaim();
 
 // Runs alongside Workbox's own install handler. Files already in the cache
 // (unchanged since the last version) are skipped by Workbox, so they are left

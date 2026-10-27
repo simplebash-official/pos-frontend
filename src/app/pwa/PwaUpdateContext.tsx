@@ -11,24 +11,34 @@ import {
 } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 
+import { env } from '@/config/env';
 import { downloadPercent } from '@/features/settings/lib/updateView';
 import {
-  UPDATE_CHECK_INTERVAL_MS,
+  ACTIVE_POLL_INTERVAL_MS,
+  BACKGROUND_POLL_INTERVAL_MS,
+  MIN_CHECK_THROTTLE_MS,
+  isServerVersionNewer,
   parseUpdateProgress,
-  shouldPollForUpdate,
+  shouldCheckForUpdate,
   updatePhase,
+  type BuildIdentity,
   type UpdatePhase,
 } from './updatePolicy';
 import { UPDATE_PROGRESS_CHANNEL } from './updateProgress';
+import { fetchServerVersion } from './versionProbe';
 
 /**
  * Single owner of the PWA service-worker registration for the whole app.
  *
  * `useRegisterSW` registers the service worker as a side effect, so it must be
  * called exactly once — both the header's `HeaderUpdateIndicator` and the Settings
- * "Updates" section read the state from this context instead of calling the
- * hook again, and the header's update indicator reads `update`. It also drives a periodic re-check so a freshly deployed version
- * is noticed without the cashier reloading the page.
+ * "Updates" section read the state from this context.
+ *
+ * It features multi-trigger intelligent update detection:
+ * - Probes `/version.json` immediately on tab visibility, focus, and network reconnect
+ * - Adaptive background polling (60s while active, 5m when hidden)
+ * - Triggers immediate background precaching upon detecting a new release
+ * - Guaranteed clean client claim and page reload on update application
  *
  * Under the Tauri desktop build `virtual:pwa-register/react` is aliased to a
  * no-op stub (see `pwaRegisterStub.ts`), so everything here degrades to
@@ -40,7 +50,7 @@ interface PwaUpdateContextValue {
   updateAvailable: boolean;
   /** The app shell is cached and the POS works offline. */
   offlineReady: boolean;
-  /** True while a manual "check for updates" request is in flight. */
+  /** True while a manual or automatic "check for updates" request is in flight. */
   checking: boolean;
   /**
    * Where the new version is: `downloading` while the service worker fetches
@@ -58,11 +68,18 @@ interface PwaUpdateContextValue {
 
 const PwaUpdateContext = createContext<PwaUpdateContextValue | null>(null);
 
+const clientBuildIdentity: BuildIdentity = {
+  version: env.appVersion,
+  buildTime: env.buildTime,
+  commit: env.commit,
+};
+
 export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
   const registrationRef = useRef<ServiceWorkerRegistration | undefined>(undefined);
   const [checking, setChecking] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<number | null>(null);
   const [installing, setInstalling] = useState(false);
+  const [hasWaitingWorker, setHasWaitingWorker] = useState(false);
   const [percent, setPercent] = useState<number | null>(null);
 
   const {
@@ -73,20 +90,36 @@ export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
     onRegisteredSW: (_swUrl, registration) => {
       registrationRef.current = registration;
       if (!registration) return;
+
+      // An update may already be waiting if downloaded previously or during a previous session
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        setHasWaitingWorker(true);
+      }
+
       const trackInstall = (worker: ServiceWorker | null) => {
         // The very first install has no controller: nothing to update from.
         if (!worker || !navigator.serviceWorker.controller) return;
         setPercent(null);
         setInstalling(true);
         worker.addEventListener('statechange', () => {
-          if (worker.state === 'redundant' || worker.state === 'activated') setInstalling(false);
+          if (worker.state === 'redundant' || worker.state === 'activated') {
+            setInstalling(false);
+          }
+          if (worker.state === 'installed') {
+            setInstalling(false);
+            setHasWaitingWorker(true);
+          }
         });
       };
+
       // An install may already be under way if the page loaded mid-download.
       trackInstall(registration.installing);
       registration.addEventListener('updatefound', () => trackInstall(registration.installing));
     },
   });
+
+  const isUpdateReady = needRefresh || hasWaitingWorker;
+  const currentPhase = updatePhase(installing, isUpdateReady);
 
   useEffect(() => {
     if (typeof BroadcastChannel === 'undefined') return;
@@ -101,10 +134,22 @@ export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
   const runCheck = useCallback(async () => {
     const registration = registrationRef.current;
     if (!registration) return;
+
     try {
-      await registration.update();
+      const controller = new AbortController();
+      const serverVersion = await fetchServerVersion(controller.signal);
+
+      const hasUpdate =
+        serverVersion !== null ? isServerVersionNewer(serverVersion, clientBuildIdentity) : true;
+
+      if (hasUpdate) {
+        await registration.update();
+        if (registration.waiting && navigator.serviceWorker.controller) {
+          setHasWaitingWorker(true);
+        }
+      }
     } catch {
-      // A failed check just means we keep the current version — never surface it.
+      // Failed check keeps running the current version quietly.
     } finally {
       setLastCheckedAt(Date.now());
     }
@@ -119,40 +164,105 @@ export const PwaUpdateProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [runCheck]);
 
-  // Periodic background re-check. Gated so it never fires for a hidden tab or
-  // an offline terminal.
+  // Reactive and adaptive background re-checking:
+  // Listens to tab visibility, window focus, and online state.
   useEffect(() => {
-    const tick = () => {
-      if (
-        shouldPollForUpdate({
-          online: navigator.onLine,
-          documentVisible: document.visibilityState === 'visible',
-        })
-      ) {
-        void runCheck();
+    const attemptCheck = () => {
+      const canCheck = shouldCheckForUpdate({
+        online: navigator.onLine,
+        checking,
+        phase: currentPhase,
+        lastCheckedAt,
+        now: Date.now(),
+        minIntervalMs: MIN_CHECK_THROTTLE_MS,
+      });
+
+      if (canCheck) {
+        void checkForUpdate();
       }
     };
-    const id = window.setInterval(tick, UPDATE_CHECK_INTERVAL_MS);
-    return () => window.clearInterval(id);
-  }, [runCheck]);
 
-  const applyUpdate = useCallback(() => updateServiceWorker(true), [updateServiceWorker]);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        attemptCheck();
+      }
+    };
+
+    const onFocus = () => {
+      attemptCheck();
+    };
+
+    const onOnline = () => {
+      attemptCheck();
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('online', onOnline);
+
+    const pollInterval =
+      document.visibilityState === 'visible'
+        ? ACTIVE_POLL_INTERVAL_MS
+        : BACKGROUND_POLL_INTERVAL_MS;
+
+    const timerId = window.setInterval(attemptCheck, pollInterval);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('online', onOnline);
+      window.clearInterval(timerId);
+    };
+  }, [checkForUpdate, checking, currentPhase, lastCheckedAt]);
+
+  const applyUpdate = useCallback(async () => {
+    const controllerChangePromise = new Promise<void>((resolve) => {
+      if (typeof navigator === 'undefined' || !navigator.serviceWorker) {
+        resolve();
+        return;
+      }
+      const handler = () => {
+        navigator.serviceWorker.removeEventListener('controllerchange', handler);
+        resolve();
+      };
+      navigator.serviceWorker.addEventListener('controllerchange', handler);
+    });
+
+    const registration = registrationRef.current;
+    if (registration?.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+
+    try {
+      await updateServiceWorker(true);
+    } catch {
+      // updateServiceWorker failure handled by controller change race
+    }
+
+    // Wait for controllerchange or safety timeout
+    await Promise.race([
+      controllerChangePromise,
+      new Promise<void>((resolve) => setTimeout(resolve, 800)),
+    ]);
+
+    window.location.reload();
+  }, [updateServiceWorker]);
 
   const value = useMemo<PwaUpdateContextValue>(
     () => ({
-      updateAvailable: needRefresh,
+      updateAvailable: isUpdateReady,
       offlineReady,
       checking,
-      update: { phase: updatePhase(installing, needRefresh), percent },
+      update: { phase: currentPhase, percent },
       lastCheckedAt,
       checkForUpdate,
       applyUpdate,
     }),
     [
-      needRefresh,
+      isUpdateReady,
       offlineReady,
       checking,
-      installing,
+      currentPhase,
       percent,
       lastCheckedAt,
       checkForUpdate,

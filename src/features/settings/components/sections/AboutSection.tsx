@@ -152,7 +152,7 @@ const WebAbout = () => {
     setApplying(true);
     try {
       await pwa.applyUpdate();
-    } finally {
+    } catch {
       setApplying(false);
       setConfirmOpen(false);
     }

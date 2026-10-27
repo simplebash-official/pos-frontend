@@ -20,7 +20,17 @@ const gitSha = process.env.VITE_GIT_SHA ?? '';
 // Detection of a *new* version is the service worker's job, not this file's.
 const emitVersionJson = (): Plugin => ({
   name: 'simplebash-emit-version-json',
-  apply: 'build',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      if (req.url === '/version.json') {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        res.end(JSON.stringify({ version: appVersion, buildTime, commit: gitSha }, null, 2));
+        return;
+      }
+      next();
+    });
+  },
   generateBundle() {
     this.emitFile({
       type: 'asset',

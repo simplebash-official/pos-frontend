@@ -1,8 +1,13 @@
 import { describe, it, expect } from 'vitest';
 
 import {
+  ACTIVE_POLL_INTERVAL_MS,
+  BACKGROUND_POLL_INTERVAL_MS,
+  MIN_CHECK_THROTTLE_MS,
   UPDATE_CHECK_INTERVAL_MS,
+  isServerVersionNewer,
   parseUpdateProgress,
+  shouldCheckForUpdate,
   shouldOfferUpdate,
   shouldPollForUpdate,
   updatePhase,
@@ -36,10 +41,131 @@ describe('shouldPollForUpdate', () => {
   });
 });
 
-describe('UPDATE_CHECK_INTERVAL_MS', () => {
-  it('is a sane positive interval (minutes, not milliseconds by mistake)', () => {
-    expect(UPDATE_CHECK_INTERVAL_MS).toBeGreaterThanOrEqual(60_000);
-    expect(UPDATE_CHECK_INTERVAL_MS).toBeLessThanOrEqual(60 * 60_000);
+describe('polling intervals and throttle constants', () => {
+  it('has sensible polling intervals and minimum throttle', () => {
+    expect(ACTIVE_POLL_INTERVAL_MS).toBe(60_000);
+    expect(BACKGROUND_POLL_INTERVAL_MS).toBe(300_000);
+    expect(MIN_CHECK_THROTTLE_MS).toBe(15_000);
+    expect(UPDATE_CHECK_INTERVAL_MS).toBe(ACTIVE_POLL_INTERVAL_MS);
+  });
+});
+
+describe('shouldCheckForUpdate', () => {
+  it('allows checking on initial start when lastCheckedAt is null', () => {
+    expect(
+      shouldCheckForUpdate({
+        online: true,
+        checking: false,
+        phase: 'idle',
+        lastCheckedAt: null,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(true);
+  });
+
+  it('allows checking when throttle time has passed', () => {
+    expect(
+      shouldCheckForUpdate({
+        online: true,
+        checking: false,
+        phase: 'idle',
+        lastCheckedAt: 80_000,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(true);
+  });
+
+  it('blocks checking when within the throttle window', () => {
+    expect(
+      shouldCheckForUpdate({
+        online: true,
+        checking: false,
+        phase: 'idle',
+        lastCheckedAt: 90_000,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(false);
+  });
+
+  it('blocks checking when offline, already checking, or already downloading/ready', () => {
+    expect(
+      shouldCheckForUpdate({
+        online: false,
+        checking: false,
+        phase: 'idle',
+        lastCheckedAt: null,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(false);
+
+    expect(
+      shouldCheckForUpdate({
+        online: true,
+        checking: true,
+        phase: 'idle',
+        lastCheckedAt: null,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(false);
+
+    expect(
+      shouldCheckForUpdate({
+        online: true,
+        checking: false,
+        phase: 'downloading',
+        lastCheckedAt: null,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(false);
+
+    expect(
+      shouldCheckForUpdate({
+        online: true,
+        checking: false,
+        phase: 'ready',
+        lastCheckedAt: null,
+        now: 100_000,
+        minIntervalMs: 15_000,
+      })
+    ).toBe(false);
+  });
+});
+
+describe('isServerVersionNewer', () => {
+  it('detects a new version when commit hashes differ', () => {
+    const client = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: 'abc1234' };
+    const server = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: 'def5678' };
+    expect(isServerVersionNewer(server, client)).toBe(true);
+  });
+
+  it('detects no version change when commits match', () => {
+    const client = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: 'abc1234' };
+    const server = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: 'abc1234' };
+    expect(isServerVersionNewer(server, client)).toBe(false);
+  });
+
+  it('falls back to buildTime comparison if commits are empty', () => {
+    const client = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: '' };
+    const server = { version: '1.0.0', buildTime: '2026-10-27T12:00:00Z', commit: '' };
+    expect(isServerVersionNewer(server, client)).toBe(true);
+  });
+
+  it('falls back to version string comparison if commit and buildTime are empty', () => {
+    const client = { version: '1.0.0', buildTime: '', commit: '' };
+    const server = { version: '1.0.1', buildTime: '', commit: '' };
+    expect(isServerVersionNewer(server, client)).toBe(true);
+  });
+
+  it('returns false when all identifiers match', () => {
+    const client = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: 'abc' };
+    const server = { version: '1.0.0', buildTime: '2026-10-27T10:00:00Z', commit: 'abc' };
+    expect(isServerVersionNewer(server, client)).toBe(false);
   });
 });
 

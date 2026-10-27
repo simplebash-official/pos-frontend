@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  * @jest-environment jsdom
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
@@ -28,6 +28,22 @@ window.matchMedia = (query: string) =>
   disconnect() {}
 };
 
+let activeRoot: ReturnType<typeof createRoot> | null = null;
+let activeContainer: HTMLDivElement | null = null;
+
+afterEach(() => {
+  if (activeRoot) {
+    act(() => {
+      activeRoot?.unmount();
+    });
+    activeRoot = null;
+  }
+  if (activeContainer && activeContainer.parentNode) {
+    activeContainer.parentNode.removeChild(activeContainer);
+    activeContainer = null;
+  }
+});
+
 const renderFooter = (role: UserRole) => {
   const store = configureStore({
     reducer: {
@@ -36,8 +52,11 @@ const renderFooter = (role: UserRole) => {
   });
   const container = document.createElement('div');
   document.body.appendChild(container);
+  activeContainer = container;
+  const root = createRoot(container);
+  activeRoot = root;
   act(() =>
-    createRoot(container).render(
+    root.render(
       <Provider store={store}>
         <MantineProvider>
           <MemoryRouter>

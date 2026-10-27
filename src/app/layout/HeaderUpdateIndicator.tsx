@@ -36,8 +36,8 @@ export const HeaderUpdateIndicator = ({ cartItemsCount }: HeaderUpdateIndicatorP
     setApplying(true);
     try {
       await pwa.applyUpdate();
-    } finally {
-      // The page reloads on success; this only matters if it somehow does not.
+    } catch {
+      // Reload is expected on success; catch only resets if update application failed.
       setApplying(false);
       setConfirmOpen(false);
     }

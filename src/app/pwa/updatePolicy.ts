@@ -3,12 +3,40 @@
 // `environment: 'node'` — see vitest.config.ts / jest.config.js).
 
 /**
- * How often the app asks the browser to re-check for a new service worker.
- * 15 min: frequent enough that a cashier sees a fresh deploy within a shift,
- * infrequent enough to be invisible. A deploy is detected on the next check;
- * the prompt is still gated by {@link shouldOfferUpdate}.
+ * How often the app checks for a new server version when the tab is visible and active.
+ * 60s: fast enough to pick up a GitHub Actions deploy almost immediately, lightweight
+ * enough to use negligible battery and bandwidth (~120B request).
  */
-export const UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000;
+export const ACTIVE_POLL_INTERVAL_MS = 60 * 1000;
+
+/**
+ * How often the app checks for a new server version when the tab is backgrounded.
+ * 5 min: relaxed schedule so inactive background tabs do not drain battery or memory.
+ */
+export const BACKGROUND_POLL_INTERVAL_MS = 5 * 60 * 1000;
+
+/**
+ * Minimum throttle time between update checks triggered by events
+ * (such as visibility change, window focus, route navigation, or network reconnect).
+ */
+export const MIN_CHECK_THROTTLE_MS = 15 * 1000;
+
+/**
+ * Primary check interval alias for backwards compatibility with tests.
+ */
+export const UPDATE_CHECK_INTERVAL_MS = ACTIVE_POLL_INTERVAL_MS;
+
+/**
+ * Build identity descriptor used to identify client and server versions.
+ */
+export interface BuildIdentity {
+  version: string;
+  buildTime: string;
+  commit: string;
+}
+
+/** Where a new version is on its way to the cashier. */
+export type UpdatePhase = 'idle' | 'downloading' | 'ready';
 
 /**
  * Whether the "update available" prompt should be on screen right now.
@@ -28,8 +56,45 @@ export const shouldOfferUpdate = (needRefresh: boolean, cartItemsCount: number):
 export const shouldPollForUpdate = (opts: { online: boolean; documentVisible: boolean }): boolean =>
   opts.online && opts.documentVisible;
 
-/** Where a new version is on its way to the cashier. */
-export type UpdatePhase = 'idle' | 'downloading' | 'ready';
+/**
+ * Guards whether an update check should be dispatched.
+ * Skips if offline, already checking, already downloading/ready, or if called within the throttle window.
+ */
+export interface ShouldCheckForUpdateOptions {
+  online: boolean;
+  checking: boolean;
+  phase: UpdatePhase;
+  lastCheckedAt: number | null;
+  now: number;
+  minIntervalMs: number;
+}
+
+export const shouldCheckForUpdate = (opts: ShouldCheckForUpdateOptions): boolean => {
+  if (!opts.online || opts.checking || opts.phase !== 'idle') {
+    return false;
+  }
+  if (opts.lastCheckedAt === null) {
+    return true;
+  }
+  return opts.now - opts.lastCheckedAt >= opts.minIntervalMs;
+};
+
+/**
+ * Determines whether the build identity reported by the server represents a new release
+ * compared to the client build currently executing in the browser.
+ */
+export const isServerVersionNewer = (server: BuildIdentity, client: BuildIdentity): boolean => {
+  if (server.commit.length > 0 && client.commit.length > 0) {
+    return server.commit !== client.commit;
+  }
+  if (server.buildTime.length > 0 && client.buildTime.length > 0) {
+    return server.buildTime !== client.buildTime;
+  }
+  if (server.version.length > 0 && client.version.length > 0) {
+    return server.version !== client.version;
+  }
+  return false;
+};
 
 /**
  * `ready` wins over `downloading`: once the new worker is waiting its download
