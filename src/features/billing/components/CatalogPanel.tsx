@@ -71,7 +71,6 @@ import { SerialNumberPickerModal } from '@/features/inventory/components/SerialN
 import { PriceTierPickerModal } from '@/features/inventory/components/PriceTierPickerModal';
 import {
   adminCostRange,
-  formatCentsRange,
   sellingPriceRange,
   availableTiers,
 } from '@/features/inventory/lib/priceTiers';
@@ -81,7 +80,7 @@ import type { PriceTier } from '@/features/inventory/types';
 
 // Matches the product card's own fixed height so the virtualizer's size estimate is exact rather
 // than approximate.
-const CARD_HEIGHT = 144;
+export const CARD_HEIGHT = 168;
 const ROW_GAP = 10; // theme spacing "xs"
 
 const chunk = <T,>(items: T[], size: number): T[][] => {
@@ -1176,15 +1175,56 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             size="sm"
                             fw={800}
                             c="blue.7"
-                            style={{ fontSize: 14, fontFamily: 'monospace' }}
+                            style={{
+                              fontSize: 13,
+                              fontFamily: 'monospace',
+                              lineHeight: 1.25,
+                              wordBreak: 'break-word',
+                            }}
                           >
-                            {priceRange === null ? t('No price yet') : formatCentsRange(priceRange)}
+                            {priceRange === null ? (
+                              t('No price yet')
+                            ) : priceRange.min === priceRange.max ? (
+                              formatMoney(priceRange.min)
+                            ) : (
+                              <span>
+                                <span style={{ whiteSpace: 'nowrap' }}>
+                                  {formatMoney(priceRange.min)}
+                                </span>
+                                {' – '}
+                                <span style={{ whiteSpace: 'nowrap' }}>
+                                  {formatMoney(priceRange.max)}
+                                </span>
+                              </span>
+                            )}
                           </Text>
                         );
                         const costNode =
                           isAdmin && costRange !== null ? (
-                            <Text size="10px" c="dimmed" style={{ fontFamily: 'monospace' }}>
-                              {t('Cost')} {formatCentsRange(costRange)}
+                            <Text
+                              size="10px"
+                              c="dimmed"
+                              style={{
+                                fontFamily: 'monospace',
+                                lineHeight: 1.2,
+                              }}
+                            >
+                              {t('Cost')}{' '}
+                              {costRange.min === costRange.max ? (
+                                <span style={{ whiteSpace: 'nowrap' }}>
+                                  {formatMoney(costRange.min)}
+                                </span>
+                              ) : (
+                                <span>
+                                  <span style={{ whiteSpace: 'nowrap' }}>
+                                    {formatMoney(costRange.min)}
+                                  </span>
+                                  {' – '}
+                                  <span style={{ whiteSpace: 'nowrap' }}>
+                                    {formatMoney(costRange.max)}
+                                  </span>
+                                </span>
+                              )}
                             </Text>
                           ) : null;
                         const stockBadge = isZeroStock ? (
@@ -1282,9 +1322,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                 </div>
                               </Box>
 
-                              {/* Bottom Row: Price & Stock Badge. A card with a price choice gives the
-                                  price range its own line so nothing wraps, and puts the "N prices"
-                                  tag and stock count together on a footer line. */}
+                              {/* Bottom Row: Price & Stock Badge */}
                               {hasPriceChoice ? (
                                 <Stack gap={0}>
                                   {priceNode}
@@ -1307,6 +1345,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                         textTransform: 'none',
                                         fontWeight: 700,
                                         fontSize: 10,
+                                        flexShrink: 0,
                                       }}
                                     >
                                       {priceCount} {t('prices')}
@@ -1315,12 +1354,17 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                   </Group>
                                 </Stack>
                               ) : (
-                                <Group justify="space-between" align="flex-end">
-                                  <Stack gap={0}>
+                                <Group
+                                  justify="space-between"
+                                  align="flex-end"
+                                  wrap="nowrap"
+                                  gap={4}
+                                >
+                                  <Stack gap={0} style={{ minWidth: 0, flex: 1 }}>
                                     {priceNode}
                                     {costNode}
                                   </Stack>
-                                  {stockBadge}
+                                  <Box style={{ flexShrink: 0 }}>{stockBadge}</Box>
                                 </Group>
                               )}
                             </Stack>
