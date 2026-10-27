@@ -69,6 +69,7 @@ export interface CompleteSaleInput {
   items: CompleteSaleItemInput[];
   pricingAdjustments?: CompleteSalePricingAdjustments;
   payment: CompleteSalePaymentInput;
+  quotationKey?: string;
   notes?: string;
   // The frontend's current `ShopProfile` object, embedded verbatim by the
   // backend as a frozen snapshot on the invoice — see CLAUDE.md's D2 note.

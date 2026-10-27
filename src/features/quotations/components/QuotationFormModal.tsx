@@ -55,6 +55,7 @@ import {
   emptyLine,
   formatLineDiscountBadge,
   lineFromProduct,
+  newLineUid,
   toCalcQuotationRequest,
   todayString,
   type LineDiscountScope,
@@ -108,12 +109,22 @@ export const QuotationFormModal = ({
   const { data: products = [] } = useAllProducts({ enabled: opened });
   const productOptions = useMemo(
     () =>
-      // A quotation can only offer a price the product is in stock at today.
-      products.flatMap((p) => {
+      products.map((p) => {
+        const isOutOfStock = p.stockQuantity <= 0;
         const range = sellingPriceRange(p);
-        return range === null
-          ? []
-          : [{ value: p.key, label: `${p.name} · ${p.sku} (${formatCentsRange(range)})` }];
+        if (isOutOfStock) {
+          const priceLabel = p.lastSellingPriceCents
+            ? ` · ${formatMoney(p.lastSellingPriceCents)}`
+            : '';
+          return {
+            value: p.key,
+            label: `${p.name} · ${p.sku} [${t('Out of Stock')}${priceLabel}]`,
+          };
+        }
+        return {
+          value: p.key,
+          label: `${p.name} · ${p.sku} (${range ? formatCentsRange(range) : ''})`,
+        };
       }),
     [products]
   );
@@ -194,11 +205,29 @@ export const QuotationFormModal = ({
 
   const handleAddProduct = (key: string | null) => {
     const product = products.find((p) => p.key === key);
-    if (product && product.priceTiers.length === 1) {
+    if (!product) return;
+    if (product.priceTiers.length === 1) {
       addProductAt(product, product.priceTiers[0]);
-    } else if (product) {
+    } else if (product.priceTiers.length > 1) {
       // In stock at several prices: ask which one this offer is at.
       setTierPickerProduct(product);
+    } else {
+      // Out of stock product: add with lastSellingPriceCents or 0
+      const unitPriceCents = product.lastSellingPriceCents ?? 0;
+      setDraft((d) => ({
+        ...d,
+        lines: [
+          ...d.lines,
+          {
+            uid: newLineUid(),
+            productKey: product.key,
+            name: product.name,
+            sku: product.sku,
+            unitPriceCents,
+            quantity: 1,
+          },
+        ],
+      }));
     }
     setProductSearch('');
   };
@@ -392,6 +421,11 @@ export const QuotationFormModal = ({
               <Stack gap="xs">
                 {draft.lines.map((line, index) => {
                   const fromStock = line.productKey !== undefined;
+                  const lineProduct = line.productKey
+                    ? products.find((p) => p.key === line.productKey)
+                    : undefined;
+                  const isLineOutOfStock =
+                    lineProduct !== undefined && lineProduct.stockQuantity <= 0;
                   const lineAnswer = lineAnswers.get(line.uid);
                   const hasLineDiscount = lineAnswer !== undefined && lineAnswer.discountCents > 0;
                   const discountBadgeText =
@@ -430,9 +464,16 @@ export const QuotationFormModal = ({
                             </Badge>
                             {fromStock ? (
                               <Box style={{ flex: 1, minWidth: 0 }}>
-                                <Text fw={600} size="sm" lineClamp={1}>
-                                  {line.name}
-                                </Text>
+                                <Group gap="xs" align="center" wrap="nowrap">
+                                  <Text fw={600} size="sm" lineClamp={1}>
+                                    {line.name}
+                                  </Text>
+                                  {isLineOutOfStock && (
+                                    <Badge size="xs" color="red" variant="light">
+                                      {t('Out of Stock')}
+                                    </Badge>
+                                  )}
+                                </Group>
                                 {line.sku && (
                                   <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
                                     {line.sku}
@@ -484,7 +525,7 @@ export const QuotationFormModal = ({
                             </Box>
 
                             <Box style={{ width: 120, flexShrink: 0 }}>
-                              {fromStock ? (
+                              {fromStock && !isLineOutOfStock ? (
                                 <>
                                   <Text size="xs" c="dimmed" mb={2}>
                                     {t('Price each')}
@@ -508,9 +549,8 @@ export const QuotationFormModal = ({
                                   size="sm"
                                   valueCents={line.unitPriceCents}
                                   onChangeCents={(cents) => {
-                                    patchLine(line.uid, { unitPriceCents: cents });
+                                    patchLine(line.uid, { unitPriceCents: cents ?? 0 });
                                   }}
-                                  style={{ width: 120 }}
                                 />
                               )}
                             </Box>

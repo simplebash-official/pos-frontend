@@ -3,10 +3,10 @@
 // of the app, and every total shown here comes back from the backend (it recomputes them).
 
 /** What the backend stores. "Expired" is not stored; it is `isExpired` on an active quotation. */
-export type QuotationStatus = 'active' | 'cancelled';
+export type QuotationStatus = 'active' | 'fulfilled' | 'cancelled';
 
 /** The views the list can filter to. */
-export type QuotationListStatus = 'active' | 'expired' | 'cancelled';
+export type QuotationListStatus = 'active' | 'fulfilled' | 'expired' | 'cancelled';
 
 export interface QuotationItem {
   productKey?: string;
@@ -26,6 +26,12 @@ export interface Quotation {
   status: QuotationStatus;
   /** Still `active`, but its valid-until date has passed. */
   isExpired: boolean;
+  /** True when quotation was created with out-of-stock items. */
+  hasOutOfStockItems?: boolean;
+  /** Invoice key that converted this quotation into a completed sale. */
+  fulfilledByInvoiceKey?: string;
+  /** Timestamp when the quotation was converted. */
+  fulfilledAt?: string;
   customerKey?: string;
   customerName: string;
   customerPhone?: string;

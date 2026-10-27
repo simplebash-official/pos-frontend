@@ -21,7 +21,9 @@ export type UrgentItemType =
   | 'due_soon_job'
   | 'uncollected'
   | 'credit_overdue'
-  | 'credit_due_soon';
+  | 'credit_due_soon'
+  | 'quotation_stock_needed'
+  | 'quotation_ready_to_fill';
 
 export interface UrgentActionItem {
   id: string;
@@ -118,6 +120,29 @@ export interface DashboardPulseReply {
   lowStock: PulseLowStock[];
   readyRepairs: PulseReadyRepair[];
   recentActivity: PulseActivity[];
+  pendingStockQuotations?: PulseQuotation[];
+}
+
+export interface PulseQuotationItem {
+  productKey: string | null;
+  name: string;
+  sku: string | null;
+  quotedQuantity: number;
+  currentStockQuantity: number;
+  unitPriceCents: number;
+  hasSufficientStock: boolean;
+}
+
+export interface PulseQuotation {
+  key: string;
+  quotationNumber: string;
+  customerName: string;
+  customerPhone: string | null;
+  totalCents: number;
+  createdAt: string;
+  validUntil: string;
+  items: PulseQuotationItem[];
+  isReadyToFill: boolean;
 }
 
 export interface PulseStage {

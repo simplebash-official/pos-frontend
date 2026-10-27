@@ -197,6 +197,29 @@ export const toDashboardData = (
     linkTo: '/repairs',
   }));
 
+  const quotationItems: UrgentActionItem[] = (pulse.pendingStockQuotations ?? []).map((q) => {
+    const isReady = q.isReadyToFill;
+    const itemsSummary = q.items.map((i) => `${i.name} (x${i.quotedQuantity})`).join(', ');
+    return {
+      id: `quotation-${q.key}`,
+      type: isReady ? 'quotation_ready_to_fill' : 'quotation_stock_needed',
+      title: isReady
+        ? `Quotation ${q.quotationNumber} is ready to fill!`
+        : `Quotation ${q.quotationNumber} awaiting stock`,
+      subtitle: `${q.customerName}${q.customerPhone ? ` (${q.customerPhone})` : ''} · ${formatMoney(q.totalCents)} · Items: ${itemsSummary}`,
+      severity: isReady ? 'info' : 'warning',
+      timestamp: formatRelativeTime(q.createdAt),
+      rawDate: q.createdAt,
+      referenceId: q.quotationNumber,
+      referenceKey: q.key,
+      customerName: q.customerName,
+      customerPhone: q.customerPhone ?? undefined,
+      amountCents: q.totalCents,
+      actionLabel: isReady ? 'Fill Quotation' : 'View Quotation',
+      linkTo: isReady ? `/billing?fillQuotation=${q.key}` : '/quotations',
+    };
+  });
+
   const pipeline = (
     stages: DashboardPulseReply['repairPipeline'],
     look: Record<string, { label: string; color: string }>
@@ -237,7 +260,7 @@ export const toDashboardData = (
   return {
     lastRefreshed: new Date().toISOString(),
     kpis,
-    urgentActions: [...stockItems, ...readyItems],
+    urgentActions: [...quotationItems, ...stockItems, ...readyItems],
     repairPipeline: pipeline(pulse.repairPipeline, REPAIR_STAGES),
     printPipeline: pipeline(pulse.printPipeline, PRINT_STAGES),
     technicians,

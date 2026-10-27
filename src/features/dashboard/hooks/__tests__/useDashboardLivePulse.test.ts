@@ -174,6 +174,71 @@ describe('toDashboardData', () => {
     });
   });
 
+  it('turns pending stock quotations into urgent actions', () => {
+    const pulseWithQuotes: DashboardPulseReply = {
+      ...PULSE,
+      pendingStockQuotations: [
+        {
+          key: 'quo_ready',
+          quotationNumber: 'QUO-0001',
+          customerName: 'Kamal',
+          customerPhone: '0771234567',
+          totalCents: 5000,
+          createdAt: '2026-08-20T10:00:00Z',
+          validUntil: '2026-09-20',
+          isReadyToFill: true,
+          items: [
+            {
+              productKey: 'p1',
+              name: 'Screen Protector',
+              sku: 'SP-1',
+              quotedQuantity: 2,
+              currentStockQuantity: 10,
+              unitPriceCents: 2500,
+              hasSufficientStock: true,
+            },
+          ],
+        },
+        {
+          key: 'quo_waiting',
+          quotationNumber: 'QUO-0002',
+          customerName: 'Nimal',
+          customerPhone: null,
+          totalCents: 3000,
+          createdAt: '2026-08-20T10:00:00Z',
+          validUntil: '2026-09-20',
+          isReadyToFill: false,
+          items: [
+            {
+              productKey: 'p2',
+              name: 'Battery',
+              sku: 'BAT-1',
+              quotedQuantity: 1,
+              currentStockQuantity: 0,
+              unitPriceCents: 3000,
+              hasSufficientStock: false,
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = toDashboardData(pulseWithQuotes, MONEY);
+    const readyQuote = result.urgentActions.find((a) => a.id === 'quotation-quo_ready');
+    expect(readyQuote).toBeDefined();
+    expect(readyQuote?.type).toBe('quotation_ready_to_fill');
+    expect(readyQuote?.actionLabel).toBe('Fill Quotation');
+    expect(readyQuote?.linkTo).toBe('/billing?fillQuotation=quo_ready');
+    expect(readyQuote?.title).toContain('ready to fill');
+
+    const waitingQuote = result.urgentActions.find((a) => a.id === 'quotation-quo_waiting');
+    expect(waitingQuote).toBeDefined();
+    expect(waitingQuote?.type).toBe('quotation_stock_needed');
+    expect(waitingQuote?.actionLabel).toBe('View Quotation');
+    expect(waitingQuote?.linkTo).toBe('/quotations');
+    expect(waitingQuote?.title).toContain('awaiting stock');
+  });
+
   it('exports hook and initial state', () => {
     expect(typeof useDashboardLivePulse).toBe('function');
     expect(INITIAL_DASHBOARD_DATA).toBeDefined();

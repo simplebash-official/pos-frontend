@@ -52,6 +52,7 @@ const invalidateAfterSale = (queryClient: ReturnType<typeof useQueryClient>) => 
   void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.quotations.all });
   void invalidateInvoiceBalance(queryClient);
 };
 

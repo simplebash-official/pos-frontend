@@ -54,6 +54,8 @@ export interface Product extends SyncedEntityFields {
    * price among its stock batches, cheapest first. Empty when out of stock.
    */
   priceTiers: PriceTier[];
+  /** Historical selling price recorded on stock batches. Present even when out of stock. */
+  lastSellingPriceCents?: number | null;
   /** Units in stock — the sum of every batch's remaining quantity. */
   stockQuantity: number;
   minStockThreshold: number;

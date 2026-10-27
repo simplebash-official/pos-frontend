@@ -76,6 +76,8 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
     () =>
       activeItems.filter((item) => {
         if (filter === 'all') return true;
+        if (filter === 'quotations')
+          return item.type === 'quotation_stock_needed' || item.type === 'quotation_ready_to_fill';
         if (filter === 'repairs')
           return (
             item.type === 'pending_approval' ||
@@ -194,6 +196,9 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
         return <IconClockExclamation size={18} />;
       case 'uncollected':
         return <IconHammer size={18} />;
+      case 'quotation_stock_needed':
+      case 'quotation_ready_to_fill':
+        return <IconFileDollar size={18} />;
       case 'credit_overdue':
       case 'credit_due_soon':
         return <IconFileDollar size={18} />;
@@ -258,6 +263,7 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
               onChange={handleFilterChange}
               data={[
                 { label: `All (${activeItems.length})`, value: 'all' },
+                { label: t('Quotations'), value: 'quotations' },
                 { label: t('Repairs & Pickup'), value: 'repairs' },
                 { label: t('Stockouts'), value: 'stock' },
                 { label: t('Credit'), value: 'credit' },

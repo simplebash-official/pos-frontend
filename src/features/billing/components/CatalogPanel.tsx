@@ -437,11 +437,36 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const handleAddProduct = (p: Product) => {
     const remainingStock = p.stockQuantity - (reservedQuantityByProductId.get(p.id) ?? 0);
     if (remainingStock <= 0) {
+      const unitPriceCents = p.priceTiers[0]?.sellingPriceCents ?? p.lastSellingPriceCents;
+      if (unitPriceCents !== undefined && unitPriceCents !== null) {
+        add({
+          id: `item-${Date.now()}-${Math.random()}`,
+          productId: p.id,
+          productKey: p.key,
+          name: p.name,
+          sku: p.sku,
+          category: p.category,
+          subcategory: p.subcategory,
+          unitPriceCents,
+          originalUnitPriceCents: unitPriceCents,
+          quantity: 1,
+          discount: null,
+          sourceType: 'retail',
+          stockQuantity: p.stockQuantity,
+        });
+        playScanSuccessSound(soundEnabled);
+        notifications.show({
+          title: t('Added (Out of Stock)'),
+          message: `"${p.name}" added to cart for quotation.`,
+          color: 'blue',
+        });
+        return;
+      }
       playErrorSound(soundEnabled);
       notifications.show({
-        title: 'Out of Stock',
-        message: `"${p.name}" is currently out of stock.`,
-        color: 'red',
+        title: t('Price Required'),
+        message: `"${p.name}" has never been received and has no historical price. Create a quotation in the Quotations screen to set a custom price.`,
+        color: 'orange',
       });
       return;
     }
@@ -1185,9 +1210,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                             radius="var(--mantine-radius-default)"
                             style={{
                               height: CARD_HEIGHT,
-                              opacity: isZeroStock ? 0.5 : 1,
-                              filter: isZeroStock ? 'grayscale(1)' : undefined,
-                              cursor: isZeroStock ? 'not-allowed' : 'pointer',
+                              opacity: isZeroStock ? 0.75 : 1,
+                              cursor: 'pointer',
                               borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
                               boxShadow: isSelected
                                 ? '0 0 0 2px var(--mantine-color-blue-4)'

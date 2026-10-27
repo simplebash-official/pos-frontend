@@ -4,6 +4,7 @@ import {
   cancelQuotationRaw,
   createQuotationRaw,
   fetchQuotations,
+  getQuotationRaw,
   getQuotationDocument,
   getQuotationDocumentDesign,
 } from '../api/quotationsApi';
@@ -17,6 +18,13 @@ export const useQuotations = (params: QuotationListParams) =>
     queryFn: () => fetchQuotations(params),
     // Keep the previous page on screen while the next one loads instead of flashing a skeleton.
     placeholderData: keepPreviousData,
+  });
+
+export const useQuotation = (idOrKey?: string) =>
+  useQuery({
+    queryKey: queryKeys.quotations.detail(idOrKey ?? ''),
+    queryFn: () => getQuotationRaw(idOrKey!),
+    enabled: Boolean(idOrKey),
   });
 
 export const useCreateQuotation = () => {

@@ -3,6 +3,8 @@ import { PAYMENT_METHODS, type PaymentMethod } from '@/constants/payment';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
 import type { CentsRange } from '@/features/inventory/lib/priceTiers';
+import type { Product } from '@/features/inventory/types';
+import type { Quotation } from '@/features/quotations/types';
 
 export interface CartItem {
   id: string;
@@ -106,6 +108,8 @@ interface CartState {
   soundEnabled: boolean;
   heldCarts: HeldCart[];
   completedSale: CompletedSaleData | null;
+  /** Quotation key if cart was loaded to fulfill a quotation. */
+  activeQuotationKey: string | null;
 }
 
 /**
@@ -181,6 +185,7 @@ const initialState: CartState = {
   soundEnabled: true,
   heldCarts: loadHeldCartsFromStorage(),
   completedSale: null,
+  activeQuotationKey: null,
 };
 
 const resetCartState = (state: CartState) => {
@@ -207,6 +212,7 @@ const resetCartState = (state: CartState) => {
   state.assignedStaffName = null;
   state.splitPayments = [];
   state.completedSale = null;
+  state.activeQuotationKey = null;
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.PRINT_SELECTION_PAY_NOW);
     if (stored === 'none' || stored === 'receipt' || stored === 'invoice') {
@@ -525,6 +531,50 @@ const cartSlice = createSlice({
       state.completedSale = action.payload;
     },
 
+    setActiveQuotationKey: (state, action: PayloadAction<string | null>) => {
+      state.activeQuotationKey = action.payload;
+    },
+
+    loadQuotationIntoCart: (
+      state,
+      action: PayloadAction<{
+        quotation: Quotation;
+        catalogProducts?: Product[];
+      }>
+    ) => {
+      resetCartState(state);
+      const { quotation, catalogProducts = [] } = action.payload;
+      state.activeQuotationKey = quotation.key;
+      state.customerName = quotation.customerName;
+      state.customerPhone = quotation.customerPhone ?? null;
+      state.customerAddress = quotation.customerAddress ?? null;
+      state.discountType = quotation.discountType;
+      state.discountValue = quotation.discountValue;
+      state.notes = quotation.notes ?? '';
+
+      const productsByKey = new Map<string, Product>();
+      catalogProducts.forEach((p) => productsByKey.set(p.key, p));
+
+      state.items = quotation.items.map((item, index) => {
+        const prod = item.productKey ? productsByKey.get(item.productKey) : undefined;
+        return {
+          id: `quote_item_${index}_${Date.now()}`,
+          productId: prod ? prod.id : (item.productKey ?? `manual_${index}`),
+          productKey: item.productKey,
+          name: item.name,
+          sku: item.sku ?? prod?.sku,
+          category: prod?.category,
+          subcategory: prod?.subcategory,
+          unitPriceCents: item.unitPriceCents,
+          originalUnitPriceCents: item.unitPriceCents,
+          quantity: item.quantity,
+          discount: item.discountCents > 0 ? { type: 'fixed', value: item.discountCents } : null,
+          sourceType: 'retail' as LineSourceType,
+          stockQuantity: prod?.stockQuantity ?? 0,
+        };
+      });
+    },
+
     startNewSale: (state) => {
       resetCartState(state);
     },
@@ -564,11 +614,15 @@ export const {
   deleteHeldCart,
   markHeldCartReminded,
   completeSaleSuccess,
+  setActiveQuotationKey,
+  loadQuotationIntoCart,
   startNewSale,
   clearCart,
 } = cartSlice.actions;
 
 export const selectCartItems = (state: { cart: CartState }) => state.cart.items;
+export const selectActiveQuotationKey = (state: { cart: CartState }) =>
+  state.cart.activeQuotationKey;
 export const selectCartDiscountType = (state: { cart: CartState }) => state.cart.discountType;
 export const selectCartDiscountValue = (state: { cart: CartState }) => state.cart.discountValue;
 export const selectHeldCarts = (state: { cart: CartState }) => state.cart.heldCarts;

@@ -38,8 +38,11 @@ import cartReducer, {
   selectNotes,
   selectAssignedStaffId,
   selectAssignedStaffName,
+  loadQuotationIntoCart,
+  selectActiveQuotationKey,
   type CartItem,
 } from '../cartSlice';
+import type { Quotation } from '@/features/quotations/types';
 import { PAYMENT_METHODS } from '@/constants/payment';
 import type { Invoice } from '@/features/billing/types';
 
@@ -374,6 +377,79 @@ describe('cartSlice reducer & selectors', () => {
       expect(selectNotes(rootState)).toBe('gift wrap requested');
       expect(selectAssignedStaffId(rootState)).toBe('staff_1');
       expect(selectAssignedStaffName(rootState)).toBe('Jane');
+    });
+
+    it('loads a quotation into cart, preserving items, customer, discount and setting activeQuotationKey', () => {
+      const quotation: Quotation = {
+        id: 'q1',
+        key: 'quo_123',
+        quotationNumber: 'QUO-0001',
+        status: 'active',
+        isExpired: false,
+        customerName: 'Alice Silva',
+        customerPhone: '0771234567',
+        customerAddress: '123 Main St',
+        discountType: 'percentage',
+        discountValue: 10,
+        discountCents: 500,
+        subtotalCents: 5000,
+        totalCents: 4500,
+        validUntil: '2026-11-26',
+        notes: 'Quote for out of stock items',
+        createdAt: '2026-10-26T12:00:00Z',
+        updatedAt: '2026-10-26T12:00:00Z',
+        items: [
+          {
+            productKey: 'prod_oos',
+            name: 'Out of Stock Case',
+            sku: 'CASE-01',
+            quantity: 3,
+            unitPriceCents: 1500,
+            discountCents: 0,
+            totalCents: 4500,
+          },
+        ],
+      };
+
+      const state = cartReducer(
+        getInitialState(),
+        loadQuotationIntoCart({
+          quotation,
+          catalogProducts: [
+            {
+              id: 'p_oos',
+              key: 'prod_oos',
+              name: 'Out of Stock Case',
+              sku: 'CASE-01',
+              categoryKey: 'cat_1',
+              category: 'Cases',
+              subcategoryKey: 'sub_1',
+              subcategory: 'Slim',
+              priceTiers: [],
+              lastSellingPriceCents: 1500,
+              stockQuantity: 0,
+              minStockThreshold: 5,
+              isSerialized: false,
+            },
+          ],
+        })
+      );
+
+      expect(selectActiveQuotationKey({ cart: state })).toBe('quo_123');
+      expect(state.customerName).toBe('Alice Silva');
+      expect(state.customerPhone).toBe('0771234567');
+      expect(state.discountType).toBe('percentage');
+      expect(state.discountValue).toBe(10);
+      expect(state.notes).toBe('Quote for out of stock items');
+      expect(state.items).toHaveLength(1);
+      expect(state.items[0].productKey).toBe('prod_oos');
+      expect(state.items[0].quantity).toBe(3);
+      expect(state.items[0].unitPriceCents).toBe(1500);
+      expect(state.items[0].stockQuantity).toBe(0);
+
+      // Clearing cart or starting new sale resets activeQuotationKey
+      const cleared = cartReducer(state, clearCart());
+      expect(selectActiveQuotationKey({ cart: cleared })).toBeNull();
     });
   });
 });

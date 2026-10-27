@@ -103,6 +103,7 @@ export const queryKeys = {
   quotations: {
     all: ['quotations'] as const,
     list: (filters?: Record<string, unknown>) => ['quotations', 'list', filters] as const,
+    detail: (id: string) => ['quotations', 'detail', id] as const,
     document: (id: string, template?: string) => ['quotations', 'document', id, template] as const,
   },
   inventory: {

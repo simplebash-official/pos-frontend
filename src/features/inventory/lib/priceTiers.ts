@@ -20,7 +20,12 @@ export const formatCentsRange = (range: CentsRange): string =>
  */
 export const sellingPriceRange = (product: Product): CentsRange | null => {
   const tiers = product.priceTiers;
-  if (tiers.length === 0) return null;
+  if (tiers.length === 0) {
+    if (product.lastSellingPriceCents !== undefined && product.lastSellingPriceCents !== null) {
+      return { min: product.lastSellingPriceCents, max: product.lastSellingPriceCents };
+    }
+    return null;
+  }
   return {
     min: tiers[0].sellingPriceCents,
     max: tiers[tiers.length - 1].sellingPriceCents,

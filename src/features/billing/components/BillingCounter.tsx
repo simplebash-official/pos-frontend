@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 
 import {
   useCartItems,
@@ -29,9 +29,12 @@ import type { CompleteSaleInput } from '../api/invoicesApi';
 import { useCompleteSale } from '../hooks/useInvoices';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { playPaymentCompleteSound } from '../lib/audio';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
+import { loadQuotationIntoCart, selectActiveQuotationKey } from '@/store/slices/cartSlice';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
+import { getQuotationRaw } from '@/features/quotations/api/quotationsApi';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
@@ -101,6 +104,52 @@ export const BillingCounter = () => {
   // Processing & Last completed invoice state
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCompletedInvoice, setLastCompletedInvoice] = useState<Invoice | null>(null);
+
+  const dispatch = useAppDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const fillQuotationKey = searchParams.get('fillQuotation');
+  const { data: allProducts = [] } = useAllProducts();
+  const activeQuotationKey = useAppSelector(selectActiveQuotationKey);
+
+  useEffect(() => {
+    if (!fillQuotationKey) return;
+    let isCancelled = false;
+    getQuotationRaw(fillQuotationKey)
+      .then((quotation) => {
+        if (isCancelled) return;
+        dispatch(loadQuotationIntoCart({ quotation, catalogProducts: allProducts }));
+        notifications.show({
+          title: t('Quotation Loaded'),
+          message: `${quotation.quotationNumber} loaded for fulfillment. Complete sale to fulfill quotation.`,
+          color: 'blue',
+        });
+        setSearchParams(
+          (params) => {
+            params.delete('fillQuotation');
+            return params;
+          },
+          { replace: true }
+        );
+      })
+      .catch((err) => {
+        if (isCancelled) return;
+        notifications.show({
+          title: t('Failed to load quotation'),
+          message: err?.message || 'Could not load quotation.',
+          color: 'red',
+        });
+        setSearchParams(
+          (params) => {
+            params.delete('fillQuotation');
+            return params;
+          },
+          { replace: true }
+        );
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, [fillQuotationKey, allProducts, dispatch, setSearchParams]);
 
   // Lets F2 run PaymentPanel's own guardrailed primary-action path (see the F2 shortcut below)
   // instead of jumping straight to checkout and bypassing the credit-limit confirmation.
@@ -220,6 +269,7 @@ export const BillingCounter = () => {
             : undefined,
         },
         notes,
+        quotationKey: activeQuotationKey || undefined,
         shopProfileSnapshot: shopProfile,
         warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
         documentSelection,
@@ -291,6 +341,7 @@ export const BillingCounter = () => {
     dueDate,
     documentSelection,
     notes,
+    activeQuotationKey,
     soundEnabled,
     authUser,
     shopProfile,

@@ -34,6 +34,11 @@ export const cancelQuotationRaw = async (id: string): Promise<Quotation> => {
   return response.data;
 };
 
+export const getQuotationRaw = async (idOrKey: string): Promise<Quotation> => {
+  const response = await apiClient.get<ApiResponse<Quotation>>(`/quotations/${idOrKey}`);
+  return response.data;
+};
+
 // `design` says which PDF to get: the stored one as first printed, or the one printed with the
 // design in force now. `templateName` prints this one quotation in another design (a design id
 // from `GET /settings/document-templates`); leave it out to use the shop's chosen design.

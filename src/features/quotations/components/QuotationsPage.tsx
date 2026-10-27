@@ -1,9 +1,26 @@
 import { t } from '@/shared/i18n/t';
-import { useMemo, useState } from 'react';
-import { ActionIcon, Badge, Button, Group, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Group,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Tooltip,
+} from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconBan, IconFilePlus, IconPrinter, IconSearch } from '@tabler/icons-react';
+import {
+  IconBan,
+  IconFilePlus,
+  IconPrinter,
+  IconSearch,
+  IconShoppingCartCheck,
+} from '@tabler/icons-react';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable, type Column } from '@/shared/components/DataTable';
@@ -16,6 +33,9 @@ import { emptyDraft } from '../lib/quotationForm';
 import type { Quotation, QuotationListStatus } from '../types';
 import { QuotationFormModal } from './QuotationFormModal';
 import { QuotationPreviewModal } from './QuotationPreviewModal';
+import { useAppDispatch } from '@/store/hooks';
+import { loadQuotationIntoCart } from '@/store/slices/cartSlice';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 const SEARCH_DEBOUNCE_MS = 300;
@@ -23,10 +43,15 @@ const SEARCH_DEBOUNCE_MS = 300;
 type StatusFilter = 'all' | QuotationListStatus;
 
 const isStatusFilter = (value: string | null): value is StatusFilter =>
-  value === 'all' || value === 'active' || value === 'expired' || value === 'cancelled';
+  value === 'all' ||
+  value === 'active' ||
+  value === 'fulfilled' ||
+  value === 'expired' ||
+  value === 'cancelled';
 
 const statusBadge = (quotation: Quotation) => {
   if (quotation.status === 'cancelled') return { label: t('Cancelled'), color: 'red' };
+  if (quotation.status === 'fulfilled') return { label: t('Fulfilled'), color: 'teal' };
   if (quotation.isExpired) return { label: t('Expired'), color: 'orange' };
   return { label: t('Valid'), color: 'green' };
 };
@@ -36,6 +61,9 @@ const statusBadge = (quotation: Quotation) => {
 // the backend refuses everyone else regardless.
 export const QuotationsPage = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { data: products = [] } = useAllProducts();
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
   const [status, setStatus] = useState<StatusFilter>('all');
@@ -53,6 +81,19 @@ export const QuotationsPage = () => {
   const [previewing, setPreviewing] = useState<Quotation | null>(null);
   const [cancelling, setCancelling] = useState<Quotation | null>(null);
   const cancelMutation = useCancelQuotation();
+
+  const handleFillQuotation = useCallback(
+    (quotation: Quotation) => {
+      dispatch(loadQuotationIntoCart({ quotation, catalogProducts: products }));
+      notifications.show({
+        title: t('Quotation Loaded'),
+        message: `${quotation.quotationNumber} loaded into billing cart.`,
+        color: 'blue',
+      });
+      navigate('/billing');
+    },
+    [dispatch, navigate, products]
+  );
 
   const handleConfirmCancel = async () => {
     if (cancelling === null) return;
@@ -159,22 +200,36 @@ export const QuotationsPage = () => {
               <IconPrinter size={16} />
             </ActionIcon>
             {q.status === 'active' && (
-              <ActionIcon
-                variant="light"
-                color="red"
-                size={isMobile ? 44 : 32}
-                aria-label={`${t('Cancel quotation')} ${q.quotationNumber}`}
-                onClick={() => setCancelling(q)}
-                data-log-id="quotations.cancel"
-              >
-                <IconBan size={16} />
-              </ActionIcon>
+              <>
+                <Tooltip label={t('Fill quotation in POS')}>
+                  <ActionIcon
+                    variant="light"
+                    color="green"
+                    size={isMobile ? 44 : 32}
+                    aria-label={`${t('Fill quotation')} ${q.quotationNumber}`}
+                    onClick={() => handleFillQuotation(q)}
+                    data-log-id="quotations.fill"
+                  >
+                    <IconShoppingCartCheck size={16} />
+                  </ActionIcon>
+                </Tooltip>
+                <ActionIcon
+                  variant="light"
+                  color="red"
+                  size={isMobile ? 44 : 32}
+                  aria-label={`${t('Cancel quotation')} ${q.quotationNumber}`}
+                  onClick={() => setCancelling(q)}
+                  data-log-id="quotations.cancel"
+                >
+                  <IconBan size={16} />
+                </ActionIcon>
+              </>
             )}
           </Group>
         ),
       },
     ],
-    [isMobile]
+    [isMobile, handleFillQuotation]
   );
 
   return (
@@ -217,6 +272,7 @@ export const QuotationsPage = () => {
             data={[
               { value: 'all', label: t('All quotations') },
               { value: 'active', label: t('Still valid') },
+              { value: 'fulfilled', label: t('Fulfilled') },
               { value: 'expired', label: t('Expired') },
               { value: 'cancelled', label: t('Cancelled') },
             ]}
