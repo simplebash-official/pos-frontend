@@ -1,29 +1,12 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
+import { calc_earnings } from '@/wasm';
 import { RepairJob, RepairJobInput } from '../types';
 
-export const calculateRepairEarnings = (input: {
-  estimatedCostCents?: number;
-  materialCostCents?: number;
-  splitType?: 'percentage' | 'fixed';
-  splitValue?: number;
-}): number => {
-  if (!input.splitType || !input.splitValue || input.estimatedCostCents === undefined) return 0;
-  const revenue = input.estimatedCostCents;
-  const cost = input.materialCostCents || 0;
-  const profit = Math.max(0, revenue - cost);
-
-  if (input.splitType === 'percentage') {
-    return Math.round((profit * input.splitValue) / 100);
-  } else {
-    return Math.min(profit, input.splitValue);
-  }
-};
 
 // Shape returned by the backend's `Repair` domain type — no
-// `employeeEarningsCents` (that's a client-side-only computed value, see
-// `calculateRepairEarnings`; no `employees` backend module exists yet, so
-// no commission math happens server-side — TODO(employees-backend)).
+// `employeeEarningsCents` (that's a client-side computed value via
+// `calc_earnings` from WASM).
 export interface BackendRepair {
   id: string;
   key: string;
@@ -76,12 +59,12 @@ export const toRepairJob = (repair: BackendRepair): RepairJob => ({
   assignedEmployeeName: repair.assignedEmployeeName,
   splitType: repair.splitType,
   splitValue: repair.splitValue,
-  employeeEarningsCents: calculateRepairEarnings({
-    estimatedCostCents: repair.estimatedCostCents,
-    materialCostCents: repair.materialCostCents,
+  employeeEarningsCents: calc_earnings({
+    priceCents: repair.estimatedCostCents,
+    materialCostCents: repair.materialCostCents ?? 0,
     splitType: repair.splitType,
-    splitValue: repair.splitValue,
-  }),
+    splitValue: repair.splitValue ?? 0,
+  }).commissionCents,
   createdAt: repair.createdAt,
 });
 

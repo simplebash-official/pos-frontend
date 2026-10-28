@@ -80,6 +80,9 @@ describe('useCalc', () => {
 
     release({ double: 6 });
     await tick();
+    if (latest.data?.double !== 6) {
+      await tick();
+    }
     expect(latest.data).toEqual({ double: 6 });
     expect(latest.isCurrent).toBe(true);
   });

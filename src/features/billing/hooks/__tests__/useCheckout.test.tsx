@@ -23,8 +23,8 @@ import type { CalcCheckoutRequest } from '../../types';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const calc = vi.fn();
-vi.mock('../../api/calcApi', () => ({
-  calcCheckout: (request: CalcCheckoutRequest, signal: AbortSignal) => calc(request, signal),
+vi.mock('@/wasm', () => ({
+  calc_checkout: (request: CalcCheckoutRequest) => calc(request),
 }));
 
 let latest: ReturnType<typeof useCheckout>;
@@ -44,7 +44,7 @@ describe('useCheckout', () => {
 
   beforeEach(() => {
     calc.mockReset();
-    calc.mockResolvedValue({ totalCents: 0 });
+    calc.mockReturnValue({ totalCents: 0 });
     store = makeStore();
     container = document.createElement('div');
     root = createRoot(container);
@@ -92,7 +92,7 @@ describe('useCheckout', () => {
           sourceType: 'retail',
         },
       ],
-      orderDiscount: null,
+      orderDiscount: undefined,
       payment: {
         method: 'cash',
         tenderedCents: 5000,
@@ -106,7 +106,7 @@ describe('useCheckout', () => {
 
   it('sends the order discount once one is typed, and none when it is cleared', async () => {
     await render();
-    expect(lastRequest().orderDiscount).toBeNull();
+    expect(lastRequest().orderDiscount).toBeUndefined();
     await act(async () => latest.setDiscount('fixed', 700));
     await act(async () => new Promise((resolve) => setTimeout(resolve, 0)));
     expect(lastRequest().orderDiscount).toEqual({ type: 'fixed', value: 700 });
@@ -127,7 +127,9 @@ describe('useCheckout', () => {
   });
 
   it('has no figures and an error when the server cannot answer, and works nothing out', async () => {
-    calc.mockRejectedValue({ message: 'down', statusCode: 0 });
+    calc.mockImplementation(() => {
+      throw { message: 'down', statusCode: 0 };
+    });
     await render();
     expect(latest.data).toBeUndefined();
     expect(latest.isCurrent).toBe(false);

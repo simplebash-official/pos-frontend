@@ -29,7 +29,7 @@ export default defineConfig({
     // `fake-indexeddb/auto` installs a real IndexedDB implementation on
     // `globalThis`, so Dexie runs unmodified — these tests exercise the actual
     // engine against an actual database rather than a mocked one.
-    setupFiles: ['./src/offline/__tests__/setup.ts'],
+    setupFiles: ['./src/offline/__tests__/setup.ts', './src/setupTests.ts'],
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/graphify-out/**'],
   },
