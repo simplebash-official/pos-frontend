@@ -1,0 +1,16 @@
+{
+  "name": "pos-calc-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-only",
+  "files": [
+    "pos_calc_wasm_bg.wasm",
+    "pos_calc_wasm.js",
+    "pos_calc_wasm.d.ts"
+  ],
+  "main": "pos_calc_wasm.js",
+  "types": "pos_calc_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

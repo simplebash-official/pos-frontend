@@ -70,6 +70,7 @@ import { selectUserPermissions, selectUserRole } from '@/store/slices/authSlice'
 import { PERMISSIONS } from '@/constants/permissions';
 import { USER_ROLES } from '@/constants/roles';
 import { formatMoney } from '@/shared/lib/money';
+import { sumCashMovements, sumRegisterSales } from '@/shared/calculations';
 import { formatDateTime } from '@/shared/lib/date';
 import { t } from '@/shared/i18n/t';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -127,8 +128,6 @@ const getStatusBadge = (status: RegisterSession['status']) => {
   }
 };
 
-// A reversal cancels the entry it points at, so it counts as minus.
-const signedAmount = (m: CashMovement) => (m.reversesKey ? -m.amountCents : m.amountCents);
 
 const formatShiftDuration = (openedAt: string, closedAt?: string | null) => {
   const start = new Date(openedAt).getTime();
@@ -249,30 +248,15 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
     opened && activeTab === 'movements' ? session?.key : undefined
   );
 
-  const totalMovementsInCents = useMemo(
-    () =>
-      movements
-        .filter((m) => m.movementType === 'add_cash')
-        .reduce((acc, m) => acc + signedAmount(m), 0),
-    [movements]
-  );
-
-  const totalMovementsOutCents = useMemo(
-    () =>
-      movements
-        .filter((m) => m.movementType !== 'add_cash' && m.movementType !== 'no_sale')
-        .reduce((acc, m) => acc + signedAmount(m), 0),
+  const { totalInCents: totalMovementsInCents, totalOutCents: totalMovementsOutCents } = useMemo(
+    () => sumCashMovements(movements),
     [movements]
   );
 
   if (!session) return null;
 
   const statusMeta = getStatusBadge(session.status);
-  const totalSales =
-    (session.totalCashSalesCents || 0) +
-    (session.totalCardSalesCents || 0) +
-    (session.totalOnlineSalesCents || 0) +
-    (session.totalCreditSalesCents || 0);
+  const totalSales = sumRegisterSales(session);
 
   const expectedCash = session.expectedCashCents;
   const countedCash = session.countedCashCents;

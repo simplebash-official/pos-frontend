@@ -26,6 +26,7 @@ import type {
   CreditNoteItemDisposition,
 } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
+import { isWithinWarranty, calcItemRemainingUnits } from '@/shared/calculations';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
@@ -155,7 +156,7 @@ export const CreditNoteModal = ({
   const getLineState = useCallback(
     (item: InvoiceItem): LineState => {
       if (lineStates[item.id]) return lineStates[item.id];
-      const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
+      const remaining = calcItemRemainingUnits(item);
       const serialUnits: Record<string, SerialUnitState> | undefined = item.serialNumbers?.length
         ? Object.fromEntries(
             item.serialNumbers.map((serial) => [
@@ -233,7 +234,7 @@ export const CreditNoteModal = ({
     for (const [lineIndex, item] of items.entries()) {
       if (item.serialNumbers?.length) continue;
       const state = getLineState(item);
-      const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
+      const remaining = calcItemRemainingUnits(item);
       if (state.selected && remaining > 0) {
         const qty = Math.min(Math.max(1, state.quantity), remaining);
         rows.push({ item, lineIndex, state, quantity: qty });
@@ -256,9 +257,10 @@ export const CreditNoteModal = ({
       if (!item.serialNumbers?.length) continue;
       const state = getLineState(item);
       const product = productMap.get(item.productId);
-      const withinWarranty = Boolean(
-        product?.warrantyMonths &&
-        nowMs < new Date(invoice.createdAt).getTime() + product.warrantyMonths * 30 * 86_400_000
+      const withinWarranty = isWithinWarranty(
+        invoice.createdAt,
+        product?.warrantyMonths,
+        nowMs
       );
       for (const serial of item.serialNumbers) {
         const unit = state.serialUnits?.[serial];
@@ -604,7 +606,7 @@ export const CreditNoteModal = ({
               <Table.Tbody>
                 {items.map((item) => {
                   const state = getLineState(item);
-                  const remaining = Math.max(0, item.quantity - (item.returnedQuantity || 0));
+                  const remaining = calcItemRemainingUnits(item);
                   const isFullyReturned = remaining === 0;
                   const line = selectedLines.find((l) => l.item.id === item.id);
                   const isSerialized = Boolean(item.serialNumbers?.length);
@@ -639,11 +641,10 @@ export const CreditNoteModal = ({
                                 reason: 'defective',
                               };
                               const product = products.find((p) => p.key === item.productId);
-                              const withinWarranty = Boolean(
-                                product?.warrantyMonths &&
-                                nowMs <
-                                  new Date(invoice.createdAt).getTime() +
-                                    product.warrantyMonths * 30 * 86_400_000
+                              const withinWarranty = isWithinWarranty(
+                                invoice.createdAt,
+                                product?.warrantyMonths,
+                                nowMs
                               );
                               const warrantyMeta = getWarrantyMeta(withinWarranty);
                               return (

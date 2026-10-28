@@ -20,6 +20,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import type { Invoice, CreditNote } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
+import { describeInvoiceUnits } from '@/shared/calculations';
 import { formatDate, formatDateTime } from '@/shared/lib/date';
 import { getPrintLogsForInvoice } from '../api/printLogStore';
 import { getInvoiceStatusMeta, getOverdueMeta } from '../lib/invoiceStatus';
@@ -76,10 +77,8 @@ export interface InvoiceDetailDrawerProps {
 
 /** Everything the drawer decides from the invoice itself, computed in one place. */
 const describeInvoice = (inv: Invoice) => {
-  const totalReturnedUnits = inv.items.reduce((acc, item) => acc + (item.returnedQuantity || 0), 0);
-  const totalOriginalUnits = inv.items.reduce((acc, item) => acc + item.quantity, 0);
-  const isFullyReturned = totalOriginalUnits > 0 && totalReturnedUnits >= totalOriginalUnits;
-  const isPartiallyReturned = totalReturnedUnits > 0 && !isFullyReturned;
+  const { totalReturnedUnits, isFullyReturned, isPartiallyReturned } =
+    describeInvoiceUnits(inv.items);
   const isCreditPending = inv.status === 'pending' || inv.status === 'partially_paid';
   const canClose = inv.status === 'paid' && !inv.hasCreditNotes;
   // Mirrors the backend's own guard (`void_invoice` refuses when the

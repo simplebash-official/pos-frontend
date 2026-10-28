@@ -4,6 +4,7 @@ import { IconArrowBackUp } from '@tabler/icons-react';
 import { DrawerCard } from '@/shared/components/drawer';
 import type { CreditNote } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
+import { sumCreditNoteItemsCount } from '@/shared/calculations';
 import { formatDateTime } from '@/shared/lib/date';
 import { getCreditNoteStatusMeta } from '../lib/invoiceStatus';
 
@@ -31,7 +32,7 @@ export const InvoiceCreditNotesCard = ({
     action={
       creditNotes.length > 0 ? (
         <Text size="xs" c="orange" fw={700}>
-          {creditNotes.reduce((sum, cn) => sum + cn.items.length, 0)} {t('items returned')}
+          {sumCreditNoteItemsCount(creditNotes)} {t('items returned')}
         </Text>
       ) : undefined
     }

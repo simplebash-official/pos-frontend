@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from '@/app/App';
 import { router } from '@/app/router';
 import { initLogging, installNavigationCapture, reactRootErrorOptions } from '@/shared/logging';
+import { initWasm } from '@/wasm';
 
 const container = document.getElementById('root');
 
@@ -15,6 +16,8 @@ if (!container) {
 if (initLogging()) {
   installNavigationCapture(router);
 }
+
+await initWasm();
 
 createRoot(container, reactRootErrorOptions).render(
   <StrictMode>

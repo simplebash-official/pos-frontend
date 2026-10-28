@@ -1,27 +1,9 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
+import { calc_earnings } from '@/wasm';
 import { PrintJob, PrintJobInput, PrintJobType } from '../types';
 
-export const calculatePrintEarnings = (input: {
-  estimatedCostCents: number;
-  materialCostCents?: number;
-  splitType?: 'percentage' | 'fixed';
-  splitValue?: number;
-}): number => {
-  if (!input.splitType || !input.splitValue) return 0;
-  const revenue = input.estimatedCostCents;
-  const cost = input.materialCostCents || 0;
-  const profit = Math.max(0, revenue - cost);
-
-  if (input.splitType === 'percentage') {
-    return Math.round((profit * input.splitValue) / 100);
-  } else {
-    return Math.min(profit, input.splitValue);
-  }
-};
-
-// Mirrors `repairsApi.ts`'s `BackendRepair` — see that file's comment for
-// why there's no `employeeEarningsCents` here either.
+// Client-side computed employee earnings via `calc_earnings` from WASM.
 export interface BackendPrintJob {
   id: string;
   key: string;
@@ -68,12 +50,12 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   assignedEmployeeName: job.assignedEmployeeName,
   splitType: job.splitType,
   splitValue: job.splitValue,
-  employeeEarningsCents: calculatePrintEarnings({
-    estimatedCostCents: job.estimatedCostCents,
-    materialCostCents: job.materialCostCents,
+  employeeEarningsCents: calc_earnings({
+    priceCents: job.estimatedCostCents,
+    materialCostCents: job.materialCostCents ?? 0,
     splitType: job.splitType,
-    splitValue: job.splitValue,
-  }),
+    splitValue: job.splitValue ?? 0,
+  }).commissionCents,
   createdAt: job.createdAt,
 });
 

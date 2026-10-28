@@ -1,4 +1,8 @@
 import 'fake-indexeddb/auto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { initWasmSync } from './wasm';
+
 
 // Polyfill in-memory localStorage for Node test environments
 if (typeof globalThis.localStorage === 'undefined') {
@@ -44,3 +48,17 @@ if (typeof window !== 'undefined') {
   }
   window.ResizeObserver = ResizeObserverMock;
 }
+
+// Synchronously initialize WASM for tests
+let wasmPath = path.resolve(process.cwd(), 'src/wasm/pos-calc/pos_calc_wasm_bg.wasm');
+if (typeof __dirname !== 'undefined') {
+  const localPath = path.resolve(__dirname, 'wasm/pos-calc/pos_calc_wasm_bg.wasm');
+  if (fs.existsSync(localPath)) {
+    wasmPath = localPath;
+  }
+}
+if (fs.existsSync(wasmPath)) {
+  const wasmBytes = fs.readFileSync(wasmPath);
+  initWasmSync({ module: wasmBytes });
+}
+

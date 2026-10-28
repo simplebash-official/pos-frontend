@@ -1,18 +1,15 @@
 import { t } from '@/shared/i18n/t';
-import { formatMoney } from '@/shared/lib/money';
+import {
+  calculateProfitRange,
+  getTiersWithRoom,
+  formatCentsRange,
+  type CentsRange,
+  type TierWithRoom as CalcTierWithRoom,
+} from '@/shared/calculations';
 import type { PriceTier, Product } from '../types';
 
-/** The lowest and highest amount in a set, for "Rs 1,200 – Rs 1,500" style labels. */
-export interface CentsRange {
-  min: number;
-  max: number;
-}
-
-/** "Rs 1,200" when both ends match, otherwise "Rs 1,200 – Rs 1,500". */
-export const formatCentsRange = (range: CentsRange): string =>
-  range.min === range.max
-    ? formatMoney(range.min)
-    : `${formatMoney(range.min)} – ${formatMoney(range.max)}`;
+export { formatCentsRange };
+export type { CentsRange };
 
 /**
  * The prices a product is in stock at, cheapest to dearest. `null` when
@@ -54,9 +51,7 @@ export const adminCostRange = (product: Product): CentsRange | null => {
 };
 
 /** A price tier with how many of its units the current sale has not taken yet. */
-export interface TierWithRoom extends PriceTier {
-  left: number;
-}
+export type TierWithRoom = CalcTierWithRoom<PriceTier>;
 
 /**
  * Each tier's units still free for this sale, given how many the cart already
@@ -65,11 +60,7 @@ export interface TierWithRoom extends PriceTier {
 export const tiersWithRoom = (
   tiers: PriceTier[],
   reservedByPrice: ReadonlyMap<number, number>
-): TierWithRoom[] =>
-  tiers.map((tier) => ({
-    ...tier,
-    left: tier.quantity - (reservedByPrice.get(tier.sellingPriceCents) ?? 0),
-  }));
+): TierWithRoom[] => getTiersWithRoom(tiers, reservedByPrice);
 
 /**
  * The tiers this sale can still take from. More than one means the cashier
@@ -99,11 +90,5 @@ export const adminCostText = (product: Product): string => {
  */
 export const profitRange = (product: Product): CentsRange | null => {
   if (adminCostRange(product) === null) return null;
-  const lows = product.priceTiers.map(
-    (tier) => tier.sellingPriceCents - (tier.maxUnitCostCents as number)
-  );
-  const highs = product.priceTiers.map(
-    (tier) => tier.sellingPriceCents - (tier.minUnitCostCents as number)
-  );
-  return { min: Math.min(...lows), max: Math.max(...highs) };
+  return calculateProfitRange(product.priceTiers);
 };

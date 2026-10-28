@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react';
-import { keepPreviousData, useQueries } from '@tanstack/react-query';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectCartDiscountType,
@@ -16,29 +15,32 @@ import {
   type DiscountType,
   type HeldCart,
 } from '@/store/slices/cartSlice';
-import { useCalc, type LiveCalc } from '@/shared/hooks/useCalc';
-import { calcCheckout } from '../api/calcApi';
-import type { CalcCartLineRequest, CalcCheckoutReply, CalcCheckoutRequest } from '../types';
+import type { LiveCalc } from '@/shared/hooks/useCalc';
+import type { ApiError } from '@/shared/types/common';
+import {
+  calc_checkout,
+  type CalcCartLine,
+  type CalcCheckoutReply,
+  type CalcCheckoutRequest,
+} from '@/wasm';
 
 /** A cart line as the calculator wants it. A line with no source type is a retail line. */
-export const toCalcLine = (item: CartItem): CalcCartLineRequest => ({
+export const toCalcLine = (item: CartItem): CalcCartLine => ({
   key: item.id,
   unitPriceCents: item.unitPriceCents,
   quantity: item.quantity,
-  discount: item.discount,
+  discount: item.discount ? { type: item.discount.type, value: item.discount.value } : undefined,
   sourceType: item.sourceType === undefined ? 'retail' : item.sourceType,
 });
 
 /**
- * Asks the server to work out the cart and its payment as they stand: every line, the totals, the
- * order discount, change, short by, split, credit and the quick-tender buttons. Every screen that
- * shows one of those numbers reads it from here; the request is the same everywhere, so they all
- * share one answer.
+ * Works out the cart and its payment as they stand via WASM: every line, the totals, the
+ * order discount, change, short by, split, credit and the quick-tender buttons.
  */
 export const useCheckout = (): LiveCalc<CalcCheckoutReply> & {
   discountType: DiscountType | null;
   discountValue: number;
-  /** Sets the order discount as typed: a percentage, or cents. The server works out the amount. */
+  /** Sets the order discount as typed: a percentage, or cents. */
   setDiscount: (type: DiscountType | null, value: number) => void;
 } => {
   const dispatch = useAppDispatch();
@@ -52,13 +54,13 @@ export const useCheckout = (): LiveCalc<CalcCheckoutReply> & {
   const isCredit = useAppSelector(selectIsCredit);
   const creditDepositCents = useAppSelector(selectCreditDepositCents);
 
-  const request = useMemo<CalcCheckoutRequest>(
-    () => ({
+  const calc = useMemo<LiveCalc<CalcCheckoutReply>>(() => {
+    const request: CalcCheckoutRequest = {
       items: items.map(toCalcLine),
       orderDiscount:
         discountType !== null && discountValue > 0
           ? { type: discountType, value: discountValue }
-          : null,
+          : undefined,
       payment: {
         method,
         tenderedCents,
@@ -67,20 +69,32 @@ export const useCheckout = (): LiveCalc<CalcCheckoutReply> & {
         isCredit,
         creditDepositCents,
       },
-    }),
-    [
-      items,
-      discountType,
-      discountValue,
-      method,
-      tenderedCents,
-      splitPayments,
-      balanceCents,
-      isCredit,
-      creditDepositCents,
-    ]
-  );
-  const calc = useCalc('checkout', request, calcCheckout);
+    };
+    try {
+      const data = calc_checkout(request);
+      return {
+        data,
+        isCurrent: true,
+        error: null,
+      };
+    } catch (err) {
+      return {
+        data: undefined,
+        isCurrent: false,
+        error: err as ApiError,
+      };
+    }
+  }, [
+    items,
+    discountType,
+    discountValue,
+    method,
+    tenderedCents,
+    splitPayments,
+    balanceCents,
+    isCredit,
+    creditDepositCents,
+  ]);
 
   const setDiscount = useCallback(
     (type: DiscountType | null, value: number) => dispatch(setDiscountAction({ type, value })),
@@ -90,19 +104,18 @@ export const useCheckout = (): LiveCalc<CalcCheckoutReply> & {
 };
 
 /**
- * What each parked cart comes to, worked out by the server (keyed by the cart's id). A cart whose
- * answer has not arrived yet has no entry, so nothing is shown for it rather than a guess.
+ * What each parked cart comes to, worked out synchronously via WASM (keyed by the cart's id).
  */
 export const useHeldCartTotals = (heldCarts: HeldCart[]): Map<string, CalcCheckoutReply> => {
-  const answers = useQueries({
-    queries: heldCarts.map((held) => {
+  return useMemo(() => {
+    const totals = new Map<string, CalcCheckoutReply>();
+    for (const held of heldCarts) {
       const request: CalcCheckoutRequest = {
         items: held.items.map(toCalcLine),
         orderDiscount:
           held.discountType !== null && held.discountValue > 0
             ? { type: held.discountType, value: held.discountValue }
-            : null,
-        // A parked cart has no payment yet; the total does not depend on one.
+            : undefined,
         payment: {
           method: held.paymentMethod,
           tenderedCents: 0,
@@ -112,21 +125,14 @@ export const useHeldCartTotals = (heldCarts: HeldCart[]): Map<string, CalcChecko
           creditDepositCents: 0,
         },
       };
-      return {
-        queryKey: ['calc', 'checkout', request],
-        queryFn: ({ signal }: { signal: AbortSignal }) => calcCheckout(request, signal),
-        placeholderData: keepPreviousData,
-        staleTime: Infinity,
-        gcTime: 30_000,
-        retry: false,
-        refetchOnWindowFocus: false,
-      };
-    }),
-  });
-  const totals = new Map<string, CalcCheckoutReply>();
-  heldCarts.forEach((held, index) => {
-    const data = answers[index].data;
-    if (data !== undefined) totals.set(held.id, data);
-  });
-  return totals;
+      try {
+        const reply = calc_checkout(request);
+        totals.set(held.id, reply);
+      } catch {
+        // omit if calculation fails
+      }
+    }
+    return totals;
+  }, [heldCarts]);
 };
+

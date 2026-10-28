@@ -1,7 +1,9 @@
-import { apiClient } from '@/api/client';
-import { useCalc, type LiveCalc } from '@/shared/hooks/useCalc';
+import { useMemo } from 'react';
+import type { LiveCalc } from '@/shared/hooks/useCalc';
+import type { ApiError } from '@/shared/types/common';
 import { toCents } from '@/shared/lib/money';
-import type { ApiResponse } from '@/shared/types/common';
+import { calc_earnings, type CalcEarningsReply } from '@/wasm';
+
 
 export interface CalcEarningsRequest {
   /** `null` until a price is typed. */
@@ -13,24 +15,7 @@ export interface CalcEarningsRequest {
   splitValue: number;
 }
 
-export interface CalcEarningsReply {
-  priceEntered: boolean;
-  profitCents: number;
-  commissionCents: number;
-  /** A fixed commission bigger than the profit, cut down to the profit. */
-  capped: boolean;
-  shopKeepsCents: number;
-}
-
-const calcEarnings = async (
-  request: CalcEarningsRequest,
-  signal: AbortSignal
-): Promise<CalcEarningsReply> => {
-  const response = await apiClient.post<ApiResponse<CalcEarningsReply>>('/calc/earnings', request, {
-    signal,
-  });
-  return response.data;
-};
+export type { CalcEarningsReply };
 
 /** A job form's typed values as the calculator wants them (rupee boxes become cents here, nothing else). */
 export const toEarningsRequest = (values: {
@@ -59,6 +44,28 @@ export const toEarningsRequest = (values: {
   };
 };
 
-/** The job's profit and the assigned employee's commission, worked out by the server. */
-export const useJobEarnings = (request: CalcEarningsRequest): LiveCalc<CalcEarningsReply> =>
-  useCalc('earnings', request, calcEarnings);
+/** The job's profit and the assigned employee's commission, worked out via WASM. */
+export const useJobEarnings = (request: CalcEarningsRequest): LiveCalc<CalcEarningsReply> => {
+  return useMemo(() => {
+    try {
+      const data = calc_earnings({
+        priceCents: request.priceCents ?? undefined,
+        materialCostCents: request.materialCostCents,
+        splitType: request.splitType ?? undefined,
+        splitValue: request.splitValue,
+      });
+      return {
+        data,
+        isCurrent: true,
+        error: null,
+      };
+    } catch (err) {
+      return {
+        data: undefined,
+        isCurrent: false,
+        error: err as ApiError,
+      };
+    }
+  }, [request.priceCents, request.materialCostCents, request.splitType, request.splitValue]);
+};
+

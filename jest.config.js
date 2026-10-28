@@ -9,6 +9,7 @@ export default {
     '^virtual:pwa-register/react$': '<rootDir>/src/app/components/pwaRegisterStub.ts',
     '^@/config/env$': '<rootDir>/src/__mocks__/envMock.cjs',
     '^pdfjs-dist$': '<rootDir>/src/__mocks__/pdfjsDistMock.cjs',
+    'pos_calc_wasm\\.js$': '<rootDir>/src/__mocks__/posCalcWasm.cjs',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^vitest$': '<rootDir>/src/__mocks__/vitestMock.cjs',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',

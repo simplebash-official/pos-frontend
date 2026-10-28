@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { PipelineStageCount } from '../types';
 import { ROUTES } from '@/constants/routes';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { sumPipelineStages } from '@/shared/calculations';
 
 export interface ServicePipelineWidgetProps {
   repairPipeline: PipelineStageCount[];
@@ -30,11 +31,11 @@ export const ServicePipelineWidget = ({
   const isMobile = useIsMobile();
 
   const totalRepairs = useMemo(
-    () => repairPipeline.reduce((sum, item) => sum + item.count, 0),
+    () => sumPipelineStages(repairPipeline),
     [repairPipeline]
   );
   const totalPrints = useMemo(
-    () => printPipeline.reduce((sum, item) => sum + item.count, 0),
+    () => sumPipelineStages(printPipeline),
     [printPipeline]
   );
 

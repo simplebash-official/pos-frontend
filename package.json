@@ -1,10 +1,14 @@
 {
   "name": "simplebash-pos",
   "private": true,
-  "version": "0.36.0",
+  "version": "1.0.0",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
+    "build:wasm": "if command -v wasm-pack >/dev/null 2>&1; then wasm-pack build --target web --out-dir ../../../frontend/src/wasm/pos-calc ../backend/crates/pos-calc-wasm --release && rm -f src/wasm/pos-calc/.gitignore; else echo 'wasm-pack not found, using pre-built wasm artifacts'; fi",
+    "build:wasm:dev": "if command -v wasm-pack >/dev/null 2>&1; then wasm-pack build --target web --out-dir ../../../frontend/src/wasm/pos-calc ../backend/crates/pos-calc-wasm --dev && rm -f src/wasm/pos-calc/.gitignore; else echo 'wasm-pack not found, using pre-built wasm artifacts'; fi",
+    "predev": "npm run build:wasm:dev",
+    "prebuild": "npm run build:wasm",
     "dev": "vite",
     "build": "tsc && tsc -p tsconfig.sw.json && vite build",
     "build:tauri": "cross-env TAURI=true tsc && cross-env TAURI=true vite build --mode tauri",
