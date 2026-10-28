@@ -92,3 +92,26 @@ describe('SidebarFooter role pill', () => {
     expect(nameLine).toBeDefined();
   });
 });
+
+describe('SidebarFooter card clickability and sign-out isolation', () => {
+  it('marks card as clickable for admin who has settings access', () => {
+    const c = renderFooter(USER_ROLES.ADMIN);
+    const card = c.querySelector('.sidebar-footer-card');
+    expect(card?.getAttribute('data-clickable')).toBe('true');
+  });
+
+  it('does not mark card as clickable for roles without settings access', () => {
+    for (const role of [USER_ROLES.MANAGER, USER_ROLES.STAFF]) {
+      const c = renderFooter(role);
+      const card = c.querySelector('.sidebar-footer-card');
+      expect(card?.getAttribute('data-clickable')).toBeNull();
+    }
+  });
+
+  it('renders sign-out button with sidebar-footer-signout class', () => {
+    const c = renderFooter(USER_ROLES.ADMIN);
+    const signOutBtn = c.querySelector('.sidebar-footer-signout');
+    expect(signOutBtn).not.toBeNull();
+    expect(signOutBtn?.getAttribute('aria-label')).toBe('Sign Out');
+  });
+});
