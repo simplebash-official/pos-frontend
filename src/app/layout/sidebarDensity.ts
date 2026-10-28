@@ -16,10 +16,6 @@ export interface SidebarDensityPreset {
   groupGap: string;
   /** Gap between items within a category — px. */
   itemGap: number;
-  /** Whether the uppercase category headers render (replaced by a `Divider` when false). */
-  showLabels: boolean;
-  /** Top padding on a category header — token or px. */
-  labelPt: string | number;
   /** NavLink vertical padding — px. */
   navlinkPy: number;
 }
@@ -27,26 +23,20 @@ export interface SidebarDensityPreset {
 export const SIDEBAR_DENSITY_PRESETS: Record<SidebarDensity, SidebarDensityPreset> = {
   comfortable: {
     rootPad: 'sm',
-    groupGap: 'md',
+    groupGap: 'sm',
     itemGap: 4,
-    showLabels: true,
-    labelPt: 'sm',
     navlinkPy: 8,
   },
   compact: {
-    rootPad: '2xs',
-    groupGap: '2xs',
+    rootPad: 'xs',
+    groupGap: 'xs',
     itemGap: 4,
-    showLabels: true,
-    labelPt: 2,
-    navlinkPy: 5,
+    navlinkPy: 6,
   },
   dense: {
-    rootPad: '3xs',
-    groupGap: '3xs',
-    itemGap: 2,
-    showLabels: true,
-    labelPt: 0,
+    rootPad: 'xs',
+    groupGap: 'xs',
+    itemGap: 3,
     navlinkPy: 4,
   },
 };
@@ -76,6 +66,7 @@ interface DensityBox {
   lastAvail: number;
   ceiling: SidebarDensity | null;
   density: SidebarDensity;
+  pending: SidebarDensity | null;
   enabled: boolean;
 }
 
@@ -109,7 +100,7 @@ const AVAIL_DEADZONE = 4;
  */
 export function useSidebarDensity(
   enabled: boolean,
-  contentSignal: number = 0
+  contentKey: string
 ): SidebarDensityResult {
   const [density, setDensity] = useState<SidebarDensity>('comfortable');
   const box = useRef<DensityBox>({
@@ -119,11 +110,13 @@ export function useSidebarDensity(
     lastAvail: -1,
     ceiling: null,
     density,
+    pending: null,
     enabled,
   });
 
   useLayoutEffect(() => {
     box.current.density = density;
+    box.current.pending = null;
   }, [density]);
   useLayoutEffect(() => {
     box.current.enabled = enabled;
@@ -135,6 +128,7 @@ export function useSidebarDensity(
     const b = box.current;
     const el = b.el;
     if (!el || !b.enabled) return;
+    if (b.pending !== null && b.pending !== b.density) return;
 
     const avail = el.clientHeight;
     if (avail === 0) return;
@@ -156,9 +150,18 @@ export function useSidebarDensity(
 
     if (next === b.density) return;
     // Step; the layout effect below re-measures once this render has committed, still before paint.
-    b.density = next;
+    b.pending = next;
     setDensity(next);
   }, []);
+
+  // When contentKey changes (sections fold/unfold, item counts change), clear stale ceilings
+  // and evaluate immediately before browser paint.
+  useLayoutEffect(() => {
+    window.clearTimeout(box.current.timer);
+    box.current.ceiling = null;
+    box.current.pending = null;
+    evaluate();
+  }, [contentKey, evaluate]);
 
   // Keep settling until it fits, inside the same frame: an update made in the layout phase is
   // flushed before the browser paints, so only the final density is ever seen (an animation-frame
@@ -185,6 +188,7 @@ export function useSidebarDensity(
       b.el = el;
       b.lastAvail = -1;
       b.ceiling = null;
+      b.pending = null;
       if (!el) return;
 
       b.ro = new ResizeObserver(scheduleDebounced);
@@ -194,11 +198,6 @@ export function useSidebarDensity(
     },
     [evaluate, scheduleDebounced]
   );
-
-  // A change in what the sidebar renders can change its natural height.
-  useEffect(() => {
-    if (box.current.el) scheduleDebounced();
-  }, [contentSignal, enabled, scheduleDebounced]);
 
   useEffect(() => {
     const b = box.current;

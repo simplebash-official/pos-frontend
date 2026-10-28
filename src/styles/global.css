@@ -1186,9 +1186,13 @@ a.sidebar-footer-identity:focus-visible {
   outline-offset: 1px;
 }
 
-.sidebar-scroll[data-density='compact'] .sidebar-section,
+.sidebar-scroll[data-density='compact'] .sidebar-section {
+  min-height: 38px;
+  padding-block: 5px;
+}
+
 .sidebar-scroll[data-density='dense'] .sidebar-section {
-  min-height: 34px;
+  min-height: 38px;
   padding-block: 4px;
 }
 
@@ -1208,10 +1212,15 @@ a.sidebar-footer-identity:focus-visible {
     color 150ms ease;
 }
 
-.sidebar-scroll[data-density='compact'] .sidebar-section-tile,
+.sidebar-scroll[data-density='compact'] .sidebar-section-tile {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
 .sidebar-scroll[data-density='dense'] .sidebar-section-tile {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 7px;
 }
 

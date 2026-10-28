@@ -40,10 +40,15 @@ describe('stepDensity', () => {
 });
 
 describe('SIDEBAR_DENSITY_PRESETS', () => {
-  it('keeps group labels visible across all tiers', () => {
-    expect(SIDEBAR_DENSITY_PRESETS.comfortable.showLabels).toBe(true);
-    expect(SIDEBAR_DENSITY_PRESETS.compact.showLabels).toBe(true);
-    expect(SIDEBAR_DENSITY_PRESETS.dense.showLabels).toBe(true);
+  it('defines spacing properties for each density tier', () => {
+    const tiers: SidebarDensity[] = ['comfortable', 'compact', 'dense'];
+    tiers.forEach((tier) => {
+      const preset = SIDEBAR_DENSITY_PRESETS[tier];
+      expect(preset.rootPad).toBeDefined();
+      expect(preset.groupGap).toBeDefined();
+      expect(preset.itemGap).toBeGreaterThan(0);
+      expect(preset.navlinkPy).toBeGreaterThan(0);
+    });
   });
 
   it('never grows a numeric spacing knob as it compresses', () => {
@@ -65,9 +70,14 @@ describe('SIDEBAR_DENSITY_PRESETS', () => {
  * up otherwise, with a `ceiling` that blocks re-loosening into a tier known to overflow at the
  * current height.
  */
-function settle(contentAt: Record<SidebarDensity, number>, available: number): SidebarDensity {
-  let density: SidebarDensity = 'comfortable';
-  let ceiling: SidebarDensity | null = null;
+function settleFrom(
+  contentAt: Record<SidebarDensity, number>,
+  available: number,
+  startDensity: SidebarDensity,
+  startCeiling: SidebarDensity | null
+): { density: SidebarDensity; ceiling: SidebarDensity | null } {
+  let density: SidebarDensity = startDensity;
+  let ceiling: SidebarDensity | null = startCeiling;
   for (let i = 0; i < 10; i++) {
     const overflowing = contentAt[density] > available;
     let next: SidebarDensity = density;
@@ -80,10 +90,14 @@ function settle(contentAt: Record<SidebarDensity, number>, available: number): S
       const up = looser(density);
       if (up !== density && up !== ceiling) next = up;
     }
-    if (next === density) return density;
+    if (next === density) return { density, ceiling };
     density = next;
   }
   throw new Error('did not converge');
+}
+
+function settle(contentAt: Record<SidebarDensity, number>, available: number): SidebarDensity {
+  return settleFrom(contentAt, available, 'comfortable', null).density;
 }
 
 describe('settle machine', () => {
@@ -107,5 +121,35 @@ describe('settle machine', () => {
     // comfortable (900) overflows 640 by a lot; compact (760) still overflows; dense (560) fits
     // with 80px to spare — the ceiling must stop it bouncing back up.
     expect(settle(content, 640)).toBe('dense');
+  });
+
+  it('resets ceiling on content shrink and settles back to comfortable', () => {
+    const expandedContent: Record<SidebarDensity, number> = {
+      comfortable: 900,
+      compact: 760,
+      dense: 560,
+    };
+    const expandedResult = settleFrom(expandedContent, 640, 'comfortable', null);
+    expect(expandedResult.density).toBe('dense');
+    expect(expandedResult.ceiling).toBe('compact');
+
+    const collapsedContent: Record<SidebarDensity, number> = {
+      comfortable: 350,
+      compact: 320,
+      dense: 300,
+    };
+
+    // Stale ceiling from expanded state blocks step-up to compact/comfortable
+    const blockedResult = settleFrom(
+      collapsedContent,
+      640,
+      expandedResult.density,
+      expandedResult.ceiling
+    );
+    expect(blockedResult.density).toBe('dense');
+
+    // Resetting ceiling on content shrink allows stepping all the way back to comfortable
+    const resetResult = settleFrom(collapsedContent, 640, expandedResult.density, null);
+    expect(resetResult.density).toBe('comfortable');
   });
 });
