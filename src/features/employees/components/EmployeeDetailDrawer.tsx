@@ -41,6 +41,7 @@ import { PermissionGuard } from '@/shared/components/PermissionGuard';
 import { PERMISSIONS } from '@/constants/permissions';
 import { formatDateTime } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
+import { sumEmployeeEarnings } from '@/shared/calculations';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import {
   AnimatedTabs,
@@ -129,12 +130,8 @@ export const EmployeeDetailDrawer = ({
   const safeEarnings = useMemo(() => earnings ?? [], [earnings]);
 
   // Summary Metrics
-  const totalEarnedCents = safeEarnings.reduce((acc, curr) => acc + curr.earnedAmountCents, 0);
+  const { totalEarnedCents, totalRevenueGeneratedCents } = sumEmployeeEarnings(safeEarnings);
   const totalJobsCompleted = safeEarnings.length;
-  const totalRevenueGeneratedCents = safeEarnings.reduce(
-    (acc, curr) => acc + curr.totalAmountCents,
-    0
-  );
 
   // Filtered earnings list
   const filteredEarnings = useMemo(() => {

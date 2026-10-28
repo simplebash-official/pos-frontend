@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconBoxSeam } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
+import { sumTierQuantities } from '@/shared/calculations';
 import { stockStatus } from '../lib/stockStatus';
 import { tierColor } from '../lib/tierColors';
 import type { Product } from '../types';
@@ -29,7 +30,7 @@ export interface ItemStockCardProps {
 const StockByPrice = ({ product }: { product: Product }) => {
   const tiers = product.priceTiers;
   if (tiers.length === 0) return null;
-  const total = tiers.reduce((sum, tier) => sum + tier.quantity, 0);
+  const total = sumTierQuantities(tiers);
   return (
     <Stack gap={8}>
       <Progress.Root size="lg" radius="xl">

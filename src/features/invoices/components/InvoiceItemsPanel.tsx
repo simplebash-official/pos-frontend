@@ -2,6 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { Divider, Group, Paper, ScrollArea, Stack, Table, Text } from '@mantine/core';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
+import { calcItemReturnedUnits, isItemFullyReturned } from '@/shared/calculations';
 
 const TABULAR = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' } as const;
 
@@ -24,8 +25,8 @@ export const InvoiceItemsPanel = ({ invoice }: { invoice: Invoice }) => (
         </Table.Thead>
         <Table.Tbody>
           {invoice.items.map((item) => {
-            const alreadyReturned = item.returnedQuantity || 0;
-            const isItemFullyReturned = alreadyReturned >= item.quantity;
+            const alreadyReturned = calcItemReturnedUnits(item);
+            const itemFullyReturned = isItemFullyReturned(item);
             return (
               <Table.Tr key={item.id}>
                 <Table.Td>
@@ -39,11 +40,11 @@ export const InvoiceItemsPanel = ({ invoice }: { invoice: Invoice }) => (
                         span
                         inherit
                         fw={700}
-                        c={isItemFullyReturned ? 'dimmed' : 'orange'}
+                        c={itemFullyReturned ? 'dimmed' : 'orange'}
                         ff="inherit"
                       >
                         {item.sku ? ' · ' : ''}
-                        {isItemFullyReturned
+                        {itemFullyReturned
                           ? t('Fully Returned')
                           : `${t('Returned:')} ${alreadyReturned}`}
                       </Text>

@@ -13,6 +13,7 @@ import { Figure, IconAction, KpiStrip, KpiTile, RichDrawer } from '@/shared/comp
 import { useHeldCarts } from '../hooks/useCart';
 import { useHeldCartTotals } from '../hooks/useCheckout';
 import { formatMoney } from '@/shared/lib/money';
+import { sumParkedCartsTotal } from '@/shared/calculations';
 
 export interface HeldSalesDrawerProps {
   opened: boolean;
@@ -54,10 +55,7 @@ export const HeldSalesDrawer = ({ opened, onClose }: HeldSalesDrawerProps) => {
   // What each parked cart comes to is the server's answer; a cart still waiting shows no figure.
   const totals = useHeldCartTotals(heldCarts);
   const answered = heldCarts.every((h) => totals.has(h.id));
-  const parkedValueCents = heldCarts.reduce((acc, h) => {
-    const answer = totals.get(h.id);
-    return answer === undefined ? acc : acc + answer.totalCents;
-  }, 0);
+  const parkedValueCents = sumParkedCartsTotal(heldCarts, totals);
 
   return (
     <RichDrawer
