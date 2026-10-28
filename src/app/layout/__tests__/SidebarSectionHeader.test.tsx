@@ -33,7 +33,6 @@ const renderHeader = (isOpen: boolean, holdsActive: boolean) => {
           isOpen={isOpen}
           holdsActive={holdsActive}
           controlsId="sidebar-section-money"
-          paddingTop={0}
           isMobile={false}
           onToggle={() => {}}
         />

@@ -13,8 +13,6 @@ export interface SidebarSectionHeaderProps {
   /** The open page is inside this section, so a folded section still points at it. */
   holdsActive: boolean;
   controlsId: string;
-  /** Top margin that follows the sidebar density. */
-  paddingTop: string | number;
   isMobile: boolean;
   onToggle: () => void;
 }
@@ -26,7 +24,6 @@ export const SidebarSectionHeader = ({
   isOpen,
   holdsActive,
   controlsId,
-  paddingTop,
   isMobile,
   onToggle,
 }: SidebarSectionHeaderProps) => {
@@ -34,7 +31,6 @@ export const SidebarSectionHeader = ({
   return (
     <UnstyledButton
       className="sidebar-section"
-      mt={paddingTop}
       data-open={isOpen}
       data-holds-active={pointsAtPage}
       aria-expanded={isOpen}

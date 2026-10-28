@@ -70,17 +70,6 @@ export const Sidebar = ({
     [isVisible]
   );
 
-  const { ref: densityRef, density } = useSidebarDensity(
-    !isMobile,
-    visibleCategories.length + (lowStockCount > 0 ? 1 : 0)
-  );
-  const preset = SIDEBAR_DENSITY_PRESETS[density];
-  const railTight = density !== 'comfortable';
-  const navLinkStyles = useMemo(
-    () => ({ root: { paddingTop: preset.navlinkPy, paddingBottom: preset.navlinkPy } }),
-    [preset.navlinkPy]
-  );
-
   // Switching between the rail and the full list fades the new one in (reduced motion: at once).
   // Fade only — an exit would keep two sidebars in the DOM.
   const reduceMotion = useReducedMotion();
@@ -105,6 +94,15 @@ export const Sidebar = ({
     defaultValue: [],
   });
   const [justOpened, setJustOpened] = useState<string | null>(null);
+
+  const contentKey = `${isRail ? 'rail' : 'full'}:${visibleCategories.length}:${folded.length}:${folded.join(',')}:${lowStockCount}`;
+  const { ref: densityRef, density } = useSidebarDensity(!isMobile, contentKey);
+  const preset = SIDEBAR_DENSITY_PRESETS[density];
+  const railTight = density !== 'comfortable';
+  const navLinkStyles = useMemo(
+    () => ({ root: { paddingTop: preset.navlinkPy, paddingBottom: preset.navlinkPy } }),
+    [preset.navlinkPy]
+  );
   const toggleFold = (id: string) => {
     setJustOpened(folded.includes(id) ? id : null);
     setFolded((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -190,25 +188,20 @@ export const Sidebar = ({
         gap={preset.groupGap}
         style={{ flex: '1 1 0', minHeight: 0, overflowY: 'auto' }}
       >
-        {visibleCategories.map((category, index) => {
+        {visibleCategories.map((category) => {
           const isOpen = !folded.includes(category.id);
           return (
             <Stack key={category.id} gap={preset.itemGap}>
-              {preset.showLabels ? (
-                <SidebarSectionHeader
-                  title={t(category.title)}
-                  Icon={category.icon}
-                  count={category.items.length}
-                  isOpen={isOpen}
-                  holdsActive={category.items.some((item) => location.pathname.startsWith(item.to))}
-                  controlsId={`sidebar-section-${category.id}`}
-                  paddingTop={preset.labelPt}
-                  isMobile={isMobile}
-                  onToggle={() => toggleFold(category.id)}
-                />
-              ) : index > 0 ? (
-                <Divider />
-              ) : null}
+              <SidebarSectionHeader
+                title={t(category.title)}
+                Icon={category.icon}
+                count={category.items.length}
+                isOpen={isOpen}
+                holdsActive={category.items.some((item) => location.pathname.startsWith(item.to))}
+                controlsId={`sidebar-section-${category.id}`}
+                isMobile={isMobile}
+                onToggle={() => toggleFold(category.id)}
+              />
               {isOpen && (
                 <motion.div
                   id={`sidebar-section-${category.id}`}

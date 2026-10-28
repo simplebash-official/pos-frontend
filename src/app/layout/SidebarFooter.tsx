@@ -123,6 +123,7 @@ export const SidebarFooter = ({
         color="red"
         aria-label={t('Sign Out')}
         onClick={onLogout}
+        className="sidebar-footer-signout"
       >
         <IconLogout size={20} stroke={1.5} />
       </ActionIcon>
@@ -202,6 +203,7 @@ export const SidebarFooter = ({
         gap={8}
         p={8}
         className="sidebar-footer-card"
+        data-clickable={canSettings ? 'true' : undefined}
         title={name}
         style={{ height: isMobile ? 76 : 72 }}
       >

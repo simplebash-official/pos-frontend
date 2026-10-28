@@ -1116,9 +1116,23 @@ th.mantine-Table-th {
 }
 
 .sidebar-footer-card {
+  position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--mantine-radius-default);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.sidebar-footer-card[data-clickable='true'] {
+  cursor: pointer;
+}
+
+.sidebar-footer-card[data-clickable='true']:hover {
+  background: var(--bg-hover);
+}
+
+.sidebar-footer-card[data-clickable='true']:hover:has(.sidebar-footer-signout:hover) {
+  background: var(--bg-card);
 }
 
 .sidebar-footer-identity {
@@ -1128,8 +1142,25 @@ th.mantine-Table-th {
   border-radius: var(--mantine-radius-default);
 }
 
-a.sidebar-footer-identity:hover {
-  background: var(--bg-hover);
+a.sidebar-footer-identity::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.sidebar-footer-signout {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-footer-card:has(a.sidebar-footer-identity:focus-visible) {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: 2px;
+}
+
+a.sidebar-footer-identity:focus-visible {
+  outline: none;
 }
 
 /* Section header: a full-size row lined up with the items under it (same padding, same tile size,
@@ -1155,9 +1186,13 @@ a.sidebar-footer-identity:hover {
   outline-offset: 1px;
 }
 
-.sidebar-scroll[data-density='compact'] .sidebar-section,
+.sidebar-scroll[data-density='compact'] .sidebar-section {
+  min-height: 38px;
+  padding-block: 5px;
+}
+
 .sidebar-scroll[data-density='dense'] .sidebar-section {
-  min-height: 34px;
+  min-height: 38px;
   padding-block: 4px;
 }
 
@@ -1177,10 +1212,15 @@ a.sidebar-footer-identity:hover {
     color 150ms ease;
 }
 
-.sidebar-scroll[data-density='compact'] .sidebar-section-tile,
+.sidebar-scroll[data-density='compact'] .sidebar-section-tile {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
 .sidebar-scroll[data-density='dense'] .sidebar-section-tile {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 7px;
 }
 
