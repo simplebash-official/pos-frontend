@@ -3,9 +3,11 @@ import {
   ActionIcon,
   Avatar,
   Badge,
+  Button,
   Center,
+  Divider,
   Group,
-  Menu,
+  Popover,
   Stack,
   Text,
   Tooltip,
@@ -93,6 +95,7 @@ export const SidebarFooter = ({
   });
 
   const name = user?.name || user?.username || 'Operator';
+  const firstName = name.trim().split(/\s+/)[0];
   const roleLabel = user?.role ? formatUserRole(user.role) : '';
   const roleLook = user?.role ? ROLE_LOOK[user.role as UserRole] : undefined;
   const tap = isMobile ? 44 : 34;
@@ -180,108 +183,107 @@ export const SidebarFooter = ({
       <ActionIcon
         component={RouterNavLink}
         to={ROUTES.SETTINGS}
-        size={isMobile ? tap : 32}
+        size={isMobile ? tap : 30}
         variant="subtle"
         color="gray"
         aria-label={t('Settings')}
-        onClick={onNavigate}
+        onClick={(event) => {
+          event.stopPropagation();
+          onNavigate?.();
+        }}
         className="sidebar-footer-settings"
       >
-        <IconSettings size={19} stroke={1.5} />
+        <IconSettings size={18} stroke={1.5} />
       </ActionIcon>
     </Tooltip>
   ) : null;
 
   return (
     <Stack gap="xs" p="xs" style={{ flexShrink: 0 }}>
-      <Group
-        wrap="nowrap"
-        gap={6}
-        p={8}
-        className="sidebar-footer-card"
-        data-clickable="true"
-        title={name}
-        style={{ height: isMobile ? 76 : 72 }}
+      <Popover
+        position="top"
+        offset={8}
+        shadow="lg"
+        radius="md"
+        width="target"
+        withinPortal
       >
-        <Menu
-          position="top-start"
-          offset={8}
-          shadow="lg"
-          radius="md"
-          width={240}
-          withArrow
-          withinPortal
-        >
-          <Menu.Target>
-            <UnstyledButton
-              className="sidebar-footer-identity"
-              aria-label={t('User profile menu')}
+        <Popover.Target>
+          <div
+            className="sidebar-footer-card"
+            data-clickable="true"
+            title={name}
+            style={{ height: isMobile ? 64 : 58 }}
+          >
+            <Group
+              wrap="nowrap"
+              gap={6}
+              p={6}
+              style={{ height: '100%', width: '100%' }}
             >
-              <Group gap={8} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-                <div className="sidebar-footer-avatar-wrapper">{avatar}</div>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <Text fz={13} fw={600} lh={1.2} lineClamp={1}>
-                    {name}
-                  </Text>
-                  {roleLook && (
-                    <Badge
-                      size="xs"
-                      variant="light"
-                      color={roleLook.color}
-                      tt="none"
-                      mt={3}
-                      leftSection={<roleLook.Icon size={11} stroke={2} />}
-                      className="sidebar-footer-role"
-                    >
-                      {roleLabel}
-                    </Badge>
-                  )}
-                </div>
-                <IconChevronUp size={14} stroke={1.75} className="sidebar-footer-chevron" />
-              </Group>
-            </UnstyledButton>
-          </Menu.Target>
-
-          <Menu.Dropdown>
-            <div className="sidebar-footer-menu-header">
-              <Group gap={10} wrap="nowrap">
-                {avatar}
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <Text fz={13} fw={600} truncate>
-                    {name}
-                  </Text>
-                  {user?.username && (
-                    <Text fz={11} c="dimmed" truncate>
-                      @{user.username}
-                    </Text>
-                  )}
-                </div>
-              </Group>
-            </div>
-            <Menu.Divider />
-            {canSettings && (
-              <Menu.Item
-                component={RouterNavLink}
-                to={ROUTES.SETTINGS}
-                leftSection={<IconSettings size={16} stroke={1.5} />}
-                onClick={onNavigate}
-                className="sidebar-footer-menu-settings"
+              <UnstyledButton
+                className="sidebar-footer-identity"
+                aria-label={t('User profile menu')}
+                style={{ flex: 1, minWidth: 0, height: '100%' }}
               >
-                {t('Settings')}
-              </Menu.Item>
-            )}
-            <Menu.Item
-              color="red"
-              leftSection={<IconLogout size={16} stroke={1.5} />}
-              onClick={onLogout}
-              className="sidebar-footer-signout-item"
-            >
-              {t('Sign Out')}
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-        {settingsButton}
-      </Group>
+                <Group gap={8} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                  <div className="sidebar-footer-avatar-wrapper">{avatar}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <Text fz={13} fw={600} lh={1.2} lineClamp={1}>
+                      {firstName}
+                    </Text>
+                    {roleLook && (
+                      <Badge
+                        size="xs"
+                        variant="light"
+                        color={roleLook.color}
+                        tt="none"
+                        mt={2}
+                        leftSection={<roleLook.Icon size={11} stroke={2} />}
+                        className="sidebar-footer-role"
+                      >
+                        {roleLabel}
+                      </Badge>
+                    )}
+                  </div>
+                  <IconChevronUp size={14} stroke={1.75} className="sidebar-footer-chevron" />
+                </Group>
+              </UnstyledButton>
+              {settingsButton}
+            </Group>
+          </div>
+        </Popover.Target>
+
+        <Popover.Dropdown p={8} className="sidebar-footer-popover-dropdown">
+          <div className="sidebar-footer-menu-header">
+            <Group gap={10} wrap="nowrap">
+              {avatar}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <Text fz={13} fw={600} lh={1.3} style={{ wordBreak: 'break-word' }}>
+                  {name}
+                </Text>
+                {user?.username && (
+                  <Text fz={11} c="dimmed" truncate>
+                    @{user.username}
+                  </Text>
+                )}
+              </div>
+            </Group>
+          </div>
+          <Divider my={6} />
+          <Button
+            variant="subtle"
+            color="red"
+            fullWidth
+            justify="flex-start"
+            leftSection={<IconLogout size={16} stroke={1.5} />}
+            onClick={onLogout}
+            className="sidebar-footer-signout-item"
+          >
+            {t('Sign Out')}
+          </Button>
+        </Popover.Dropdown>
+      </Popover>
 
       <Group gap="xs" wrap="nowrap">
         <SegmentedToggle

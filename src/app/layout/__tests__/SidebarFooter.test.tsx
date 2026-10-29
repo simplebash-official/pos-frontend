@@ -58,7 +58,7 @@ const renderFooter = (role: UserRole) => {
   act(() =>
     root.render(
       <Provider store={store}>
-        <MantineProvider>
+        <MantineProvider env="test">
           <MemoryRouter>
             <SidebarFooter
               isRail={false}
@@ -85,9 +85,9 @@ describe('SidebarFooter role pill', () => {
     const pill = c.querySelector('.sidebar-footer-role');
     expect(pill?.textContent).toBe(label);
     expect(pill?.querySelector('svg')).not.toBeNull();
-    // The name line holds only the name.
+    // The name line in the card holds only the first name.
     const nameLine = Array.from(c.querySelectorAll('div, p')).find(
-      (el) => el.textContent === 'Mayura Sandakalum Sellapperuma'
+      (el) => el.textContent === 'Mayura'
     );
     expect(nameLine).toBeDefined();
   });
@@ -110,11 +110,29 @@ describe('SidebarFooter card settings button and user profile menu', () => {
     }
   });
 
-  it('renders user menu trigger with sidebar-footer-identity class', () => {
+  it('renders user menu trigger with sidebar-footer-identity class and reduced card height', () => {
     const c = renderFooter(USER_ROLES.ADMIN);
-    const trigger = c.querySelector('.sidebar-footer-identity');
+    const card = c.querySelector('.sidebar-footer-card') as HTMLElement;
+    expect(card).not.toBeNull();
+    expect(card?.style.height).toBe('58px');
+
+    const trigger = c.querySelector('.sidebar-footer-identity') as HTMLElement;
     expect(trigger).not.toBeNull();
     expect(trigger?.getAttribute('aria-label')).toBe('User profile menu');
     expect(trigger?.querySelector('.sidebar-footer-chevron')).not.toBeNull();
+
+    act(() => {
+      card.click();
+    });
+
+    const signOutBtn = document.querySelector('.sidebar-footer-signout-item');
+    expect(signOutBtn).not.toBeNull();
+    expect(signOutBtn?.textContent).toContain('Sign Out');
+
+    const dropdown = document.querySelector('.sidebar-footer-popover-dropdown');
+    expect(dropdown?.textContent).toContain('Mayura Sandakalum Sellapperuma');
+
+    const popoverSettings = document.querySelector('.sidebar-footer-popover-dropdown a[href="/settings"]');
+    expect(popoverSettings).toBeNull();
   });
 });
