@@ -29,6 +29,7 @@ const renderHeader = (isOpen: boolean, holdsActive: boolean) => {
         <SidebarSectionHeader
           title="Money"
           Icon={IconCoins}
+          color="green"
           count={6}
           isOpen={isOpen}
           holdsActive={holdsActive}

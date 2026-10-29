@@ -7,6 +7,7 @@ import { t } from '@/shared/i18n/t';
 export interface SidebarSectionHeaderProps {
   title: string;
   Icon: ComponentType<{ size?: number | string; stroke?: number | string }>;
+  color: string;
   /** Items in the section; shown as a count while it is folded. */
   count: number;
   isOpen: boolean;
@@ -20,6 +21,7 @@ export interface SidebarSectionHeaderProps {
 export const SidebarSectionHeader = ({
   title,
   Icon,
+  color,
   count,
   isOpen,
   holdsActive,
@@ -36,7 +38,12 @@ export const SidebarSectionHeader = ({
       aria-expanded={isOpen}
       aria-controls={controlsId}
       aria-label={`${title}, ${count}`}
-      style={{ minHeight: isMobile ? 44 : undefined }}
+      style={
+        {
+          minHeight: isMobile ? 44 : undefined,
+          '--cat-color': `var(--mantine-color-${color}-filled)`,
+        } as React.CSSProperties
+      }
       onClick={onToggle}
     >
       <span

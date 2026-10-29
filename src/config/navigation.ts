@@ -50,6 +50,7 @@ export interface NavCategoryGroup {
   id: string;
   title: string;
   icon: NavItemConfig['icon'];
+  color: string;
   items: NavItemConfig[];
 }
 
@@ -58,6 +59,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'overview',
     title: 'Overview',
     icon: IconLayoutGrid,
+    color: 'blue',
     items: [
       {
         label: 'Dashboard',
@@ -71,6 +73,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'sell',
     title: 'Sell',
     icon: IconShoppingCart,
+    color: 'teal',
     items: [
       {
         label: 'Billing Counter',
@@ -97,6 +100,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'workshop',
     title: 'Workshop',
     icon: IconTool,
+    color: 'orange',
     items: [
       {
         label: 'Repair Jobs',
@@ -116,6 +120,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'money',
     title: 'Money',
     icon: IconCoins,
+    color: 'green',
     items: [
       {
         label: 'Register Shifts',
@@ -165,6 +170,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'stock',
     title: 'Stock',
     icon: IconBox,
+    color: 'indigo',
     items: [
       {
         label: 'Inventory & Stock',
@@ -193,6 +199,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'people-staff',
     title: 'People & Staff',
     icon: IconUsersGroup,
+    color: 'violet',
     items: [
       {
         label: 'Customers',
@@ -220,6 +227,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'analytics',
     title: 'Business Analytics',
     icon: IconChartPie,
+    color: 'cyan',
     items: [
       {
         label: 'Analytics & Reports',
