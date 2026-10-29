@@ -93,25 +93,28 @@ describe('SidebarFooter role pill', () => {
   });
 });
 
-describe('SidebarFooter card clickability and sign-out isolation', () => {
-  it('marks card as clickable for admin who has settings access', () => {
+describe('SidebarFooter card settings button and user profile menu', () => {
+  it('renders settings button with sidebar-footer-settings class for admin', () => {
     const c = renderFooter(USER_ROLES.ADMIN);
-    const card = c.querySelector('.sidebar-footer-card');
-    expect(card?.getAttribute('data-clickable')).toBe('true');
+    const settingsBtn = c.querySelector('.sidebar-footer-settings');
+    expect(settingsBtn).not.toBeNull();
+    expect(settingsBtn?.getAttribute('aria-label')).toBe('Settings');
+    expect(settingsBtn?.getAttribute('href')).toBe('/settings');
   });
 
-  it('does not mark card as clickable for roles without settings access', () => {
+  it('does not render settings button for roles without settings access', () => {
     for (const role of [USER_ROLES.MANAGER, USER_ROLES.STAFF]) {
       const c = renderFooter(role);
-      const card = c.querySelector('.sidebar-footer-card');
-      expect(card?.getAttribute('data-clickable')).toBeNull();
+      const settingsBtn = c.querySelector('.sidebar-footer-settings');
+      expect(settingsBtn).toBeNull();
     }
   });
 
-  it('renders sign-out button with sidebar-footer-signout class', () => {
+  it('renders user menu trigger with sidebar-footer-identity class', () => {
     const c = renderFooter(USER_ROLES.ADMIN);
-    const signOutBtn = c.querySelector('.sidebar-footer-signout');
-    expect(signOutBtn).not.toBeNull();
-    expect(signOutBtn?.getAttribute('aria-label')).toBe('Sign Out');
+    const trigger = c.querySelector('.sidebar-footer-identity');
+    expect(trigger).not.toBeNull();
+    expect(trigger?.getAttribute('aria-label')).toBe('User profile menu');
+    expect(trigger?.querySelector('.sidebar-footer-chevron')).not.toBeNull();
   });
 });

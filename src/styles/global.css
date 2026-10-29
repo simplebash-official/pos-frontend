@@ -1119,8 +1119,12 @@ th.mantine-Table-th {
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--mantine-radius-default);
-  transition: background-color 120ms ease, border-color 120ms ease;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--border) 40%, transparent);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .sidebar-footer-card[data-clickable='true'] {
@@ -1129,38 +1133,74 @@ th.mantine-Table-th {
 
 .sidebar-footer-card[data-clickable='true']:hover {
   background: var(--bg-hover);
-}
-
-.sidebar-footer-card[data-clickable='true']:hover:has(.sidebar-footer-signout:hover) {
-  background: var(--bg-card);
+  border-color: color-mix(in srgb, var(--border) 60%, var(--mantine-color-blue-filled) 40%);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--border) 50%, transparent);
 }
 
 .sidebar-footer-identity {
-  display: block;
+  display: flex;
+  align-items: center;
   flex: 1;
   min-width: 0;
-  border-radius: var(--mantine-radius-default);
+  padding: 4px;
+  border-radius: 8px;
+  transition: background-color 120ms ease;
 }
 
-a.sidebar-footer-identity::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
+.sidebar-footer-identity:hover {
+  background: color-mix(in srgb, var(--bg-hover) 80%, transparent);
+}
+
+.sidebar-footer-identity:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: 1px;
+}
+
+.sidebar-footer-avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 2px var(--bg-card),
+    0 0 0 3.5px color-mix(in srgb, var(--mantine-color-blue-filled) 35%, transparent);
+}
+
+.sidebar-footer-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: 2px;
+  transition:
+    transform 180ms ease,
+    color 120ms ease;
+}
+
+.sidebar-footer-identity:hover .sidebar-footer-chevron {
+  color: var(--text-primary);
+}
+
+.sidebar-footer-settings {
+  position: relative;
+  z-index: 1;
+  border-radius: 8px;
+  transition:
+    transform 220ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.sidebar-footer-settings:hover {
+  transform: rotate(30deg);
+  color: var(--text-primary);
+}
+
+.sidebar-footer-menu-header {
+  padding: 6px 10px;
 }
 
 .sidebar-footer-signout {
   position: relative;
   z-index: 1;
-}
-
-.sidebar-footer-card:has(a.sidebar-footer-identity:focus-visible) {
-  outline: 2px solid var(--mantine-color-blue-filled);
-  outline-offset: 2px;
-}
-
-a.sidebar-footer-identity:focus-visible {
-  outline: none;
 }
 
 /* Section header: a full-size row lined up with the items under it (same padding, same tile size,
