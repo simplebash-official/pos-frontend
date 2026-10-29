@@ -42,17 +42,21 @@ This module houses **Tier 2 (Presentation Math & Formatting Layer)** calculation
 ## Engineering Rules
 
 ### 1. Zero Fallback / Explicit Contract Rule (`CLAUDE.md#L225`)
+
 Do **not** use implicit fallback operators (`|| 0`, `?? ''`) or invent guessed defaults at calculation sites.
+
 - If an input is required to compute a valid result, the function signature must require it or return an explicit typed outcome.
 - For example, `isWithinWarranty` returns `false` if `warrantyMonths` is absent, undefined, or `<= 0`.
 - Missing values in rollup sums are checked explicitly with `typeof val === 'number'` rather than silent truthiness coercion.
 
 ### 2. 30-Day Billing Month Warranty Convention
+
 - In accordance with retail accounting conventions, product warranties are evaluated using standard 30-day billing months:
   $$\text{durationMs} = \text{warrantyMonths} \times 30 \times 86{,}400{,}000\text{ ms}$$
 - `isWithinWarranty(createdAt, warrantyMonths, currentTimestampMs)` evaluates whether the current timestamp is strictly less than the expiration timestamp.
 
 ### 3. Integer Cents Currency Standard
+
 - All monetary values are represented as integer cents (`1000` = Rs. 10.00).
 - Float conversions (`toCents`, `fromCents`, `formatMoney`, `parseMoneyToCents`) must use `currency.ts`.
 

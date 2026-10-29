@@ -32,8 +32,7 @@ export const getTiersWithRoom = <T extends PriceTierLike>(
 ): TierWithRoom<T>[] =>
   tiers.map((tier) => {
     const reserved = reservedByPrice.get(tier.sellingPriceCents);
-    const reservedQty =
-      typeof reserved === 'number' && Number.isFinite(reserved) ? reserved : 0;
+    const reservedQty = typeof reserved === 'number' && Number.isFinite(reserved) ? reserved : 0;
     return {
       ...tier,
       left: tier.quantity - reservedQty,

@@ -211,11 +211,38 @@ export const SupplierList = () => {
       align: 'center',
       width: '25%',
       sortable: true,
-      render: (s) => (
-        <Text size="xs" fw={600} ta="center">
-          {s.contactPerson}
-        </Text>
-      ),
+      render: (s) => {
+        const otherCount =
+          s.contactPersons && s.contactPersons.length > 1 ? s.contactPersons.length - 1 : 0;
+
+        if (otherCount === 0) {
+          return (
+            <Text size="xs" fw={600} ta="center">
+              {s.contactPerson}
+            </Text>
+          );
+        }
+
+        const tooltipContent = s.contactPersons
+          ?.slice(1)
+          .map((cp) => `${cp.name} (${cp.phoneNumbers.join(', ')})`)
+          .join('\n');
+
+        return (
+          <Center>
+            <Group gap={6} justify="center" wrap="nowrap">
+              <Text size="xs" fw={600}>
+                {s.contactPerson}
+              </Text>
+              <Tooltip label={tooltipContent} multiline withArrow>
+                <Badge size="xs" variant="light" color="blue" style={{ cursor: 'help' }}>
+                  {`+${otherCount}`}
+                </Badge>
+              </Tooltip>
+            </Group>
+          </Center>
+        );
+      },
     },
     {
       key: 'primaryPhone',
@@ -460,11 +487,23 @@ export const SupplierList = () => {
                             <Text size="sm" fw={700} lineClamp={1}>
                               {s.name}
                             </Text>
-                            <Text size="xs" c="dimmed" lineClamp={1}>
-                              {s.contactPerson
-                                ? `${t('Contact')}: ${s.contactPerson}`
-                                : t('No contact specified')}
-                            </Text>
+                            <Group gap={6} wrap="nowrap">
+                              <Text size="xs" c="dimmed" lineClamp={1}>
+                                {s.contactPerson
+                                  ? `${t('Contact')}: ${s.contactPerson}`
+                                  : t('No contact specified')}
+                              </Text>
+                              {s.contactPersons && s.contactPersons.length > 1 && (
+                                <Badge
+                                  size="xs"
+                                  variant="light"
+                                  color="blue"
+                                  style={{ flexShrink: 0 }}
+                                >
+                                  {`+${s.contactPersons.length - 1}`}
+                                </Badge>
+                              )}
+                            </Group>
                           </div>
                         </Group>
 

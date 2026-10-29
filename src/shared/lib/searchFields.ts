@@ -47,7 +47,18 @@ export const CUSTOMER_SEARCH_FIELDS: readonly SearchField<Customer>[] = [
 export const SUPPLIER_SEARCH_FIELDS: readonly SearchField<Supplier>[] = [
   { get: (s) => s.name, weight: 3, kind: 'text' },
   { get: (s) => s.contactPerson, weight: 2, kind: 'text' },
+  {
+    get: (s) => (s.contactPersons ? s.contactPersons.map((cp) => cp.name).join(' ') : ''),
+    weight: 2,
+    kind: 'text',
+  },
   { get: (s) => s.primaryPhone, weight: 2, kind: 'digits' },
+  {
+    get: (s) =>
+      s.contactPersons ? s.contactPersons.flatMap((cp) => cp.phoneNumbers).join(' ') : '',
+    weight: 2,
+    kind: 'digits',
+  },
   { get: (s) => s.secondaryPhone, weight: 1, kind: 'digits' },
   { get: (s) => s.email, weight: 1, kind: 'text' },
   { get: (s) => s.suppliedCategories.join(' '), weight: 1, kind: 'text' },

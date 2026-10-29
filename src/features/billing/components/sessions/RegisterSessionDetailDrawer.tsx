@@ -128,7 +128,6 @@ const getStatusBadge = (status: RegisterSession['status']) => {
   }
 };
 
-
 const formatShiftDuration = (openedAt: string, closedAt?: string | null) => {
   const start = new Date(openedAt).getTime();
   const end = closedAt ? new Date(closedAt).getTime() : Date.now();

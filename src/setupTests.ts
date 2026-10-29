@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { initWasmSync } from './wasm';
 
-
 // Polyfill in-memory localStorage for Node test environments
 if (typeof globalThis.localStorage === 'undefined') {
   let store: Record<string, string> = {};
@@ -61,4 +60,3 @@ if (fs.existsSync(wasmPath)) {
   const wasmBytes = fs.readFileSync(wasmPath);
   initWasmSync({ module: wasmBytes });
 }
-

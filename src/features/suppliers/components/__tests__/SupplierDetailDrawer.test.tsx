@@ -289,4 +289,21 @@ describe('SupplierDetailDrawer', () => {
     await act(async () => button('Close')!.click());
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('renders multiple contact persons with phone numbers and more contacts badge in hero', async () => {
+    const multiSupplier = makeSupplier({
+      contactPerson: 'Ranjith Silva',
+      contactPersons: [
+        { name: 'Ranjith Silva', phoneNumbers: ['0771234567', '0112345678'] },
+        { name: 'Kamal Perera', phoneNumbers: ['0719876543'] },
+      ],
+    });
+    await open(multiSupplier);
+
+    expect(text()).toContain('Ranjith Silva');
+    expect(text()).toContain('+1 more');
+    expect(text()).toContain('Kamal Perera');
+    expect(text()).toContain('0719876543');
+    expect(text()).toContain('Primary');
+  });
 });

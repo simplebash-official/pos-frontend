@@ -132,7 +132,9 @@ describe('SidebarFooter card settings button and user profile menu', () => {
     const dropdown = document.querySelector('.sidebar-footer-popover-dropdown');
     expect(dropdown?.textContent).toContain('Mayura Sandakalum Sellapperuma');
 
-    const popoverSettings = document.querySelector('.sidebar-footer-popover-dropdown a[href="/settings"]');
+    const popoverSettings = document.querySelector(
+      '.sidebar-footer-popover-dropdown a[href="/settings"]'
+    );
     expect(popoverSettings).toBeNull();
   });
 });

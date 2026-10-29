@@ -51,16 +51,28 @@ export interface RegisterSessionSalesInput {
 export const sumRegisterSales = (session?: RegisterSessionSalesInput | null): number => {
   if (!session) return 0;
   let total = 0;
-  if (typeof session.totalCashSalesCents === 'number' && Number.isFinite(session.totalCashSalesCents)) {
+  if (
+    typeof session.totalCashSalesCents === 'number' &&
+    Number.isFinite(session.totalCashSalesCents)
+  ) {
     total += session.totalCashSalesCents;
   }
-  if (typeof session.totalCardSalesCents === 'number' && Number.isFinite(session.totalCardSalesCents)) {
+  if (
+    typeof session.totalCardSalesCents === 'number' &&
+    Number.isFinite(session.totalCardSalesCents)
+  ) {
     total += session.totalCardSalesCents;
   }
-  if (typeof session.totalOnlineSalesCents === 'number' && Number.isFinite(session.totalOnlineSalesCents)) {
+  if (
+    typeof session.totalOnlineSalesCents === 'number' &&
+    Number.isFinite(session.totalOnlineSalesCents)
+  ) {
     total += session.totalOnlineSalesCents;
   }
-  if (typeof session.totalCreditSalesCents === 'number' && Number.isFinite(session.totalCreditSalesCents)) {
+  if (
+    typeof session.totalCreditSalesCents === 'number' &&
+    Number.isFinite(session.totalCreditSalesCents)
+  ) {
     total += session.totalCreditSalesCents;
   }
   return total;
@@ -115,7 +127,11 @@ export const sumParkedCartsTotal = (
 
   for (const cart of heldCarts) {
     const answer = totalsMap.get(cart.id);
-    if (answer !== undefined && typeof answer.totalCents === 'number' && Number.isFinite(answer.totalCents)) {
+    if (
+      answer !== undefined &&
+      typeof answer.totalCents === 'number' &&
+      Number.isFinite(answer.totalCents)
+    ) {
       total += answer.totalCents;
     }
   }
@@ -132,9 +148,7 @@ export interface PipelineStageCountLike {
  * Sums the total item count across stages in a workflow pipeline (e.g. repairs, print jobs).
  * Safely ignores negative or non-finite counts.
  */
-export const sumPipelineStages = (
-  stages: ReadonlyArray<PipelineStageCountLike>
-): number => {
+export const sumPipelineStages = (stages: ReadonlyArray<PipelineStageCountLike>): number => {
   let total = 0;
   for (const stage of stages) {
     if (typeof stage.count === 'number' && Number.isFinite(stage.count) && stage.count > 0) {

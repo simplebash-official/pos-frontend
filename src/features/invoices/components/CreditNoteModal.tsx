@@ -257,11 +257,7 @@ export const CreditNoteModal = ({
       if (!item.serialNumbers?.length) continue;
       const state = getLineState(item);
       const product = productMap.get(item.productId);
-      const withinWarranty = isWithinWarranty(
-        invoice.createdAt,
-        product?.warrantyMonths,
-        nowMs
-      );
+      const withinWarranty = isWithinWarranty(invoice.createdAt, product?.warrantyMonths, nowMs);
       for (const serial of item.serialNumbers) {
         const unit = state.serialUnits?.[serial];
         if (!unit?.selected) continue;

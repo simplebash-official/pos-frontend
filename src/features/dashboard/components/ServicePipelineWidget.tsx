@@ -30,14 +30,8 @@ export const ServicePipelineWidget = ({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const totalRepairs = useMemo(
-    () => sumPipelineStages(repairPipeline),
-    [repairPipeline]
-  );
-  const totalPrints = useMemo(
-    () => sumPipelineStages(printPipeline),
-    [printPipeline]
-  );
+  const totalRepairs = useMemo(() => sumPipelineStages(repairPipeline), [repairPipeline]);
+  const totalPrints = useMemo(() => sumPipelineStages(printPipeline), [printPipeline]);
 
   return (
     <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">

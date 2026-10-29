@@ -200,14 +200,7 @@ export const SidebarFooter = ({
 
   return (
     <Stack gap="xs" p="xs" style={{ flexShrink: 0 }}>
-      <Popover
-        position="top"
-        offset={8}
-        shadow="lg"
-        radius="md"
-        width="target"
-        withinPortal
-      >
+      <Popover position="top" offset={8} shadow="lg" radius="md" width="target" withinPortal>
         <Popover.Target>
           <div
             className="sidebar-footer-card"
@@ -215,12 +208,7 @@ export const SidebarFooter = ({
             title={name}
             style={{ height: isMobile ? 64 : 58 }}
           >
-            <Group
-              wrap="nowrap"
-              gap={6}
-              p={6}
-              style={{ height: '100%', width: '100%' }}
-            >
+            <Group wrap="nowrap" gap={6} p={6} style={{ height: '100%', width: '100%' }}>
               <UnstyledButton
                 className="sidebar-footer-identity"
                 aria-label={t('User profile menu')}

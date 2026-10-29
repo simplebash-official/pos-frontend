@@ -360,4 +360,116 @@ describe('SupplierFormModal', () => {
     expect(cancelButton?.disabled).toBe(true);
     expect(submitButton?.disabled).toBe(true);
   });
+
+  it('supports multiple contact persons with up to 2 phone numbers each and submits full payload', async () => {
+    onSubmit.mockResolvedValue(undefined);
+    await open(null, false, { linkProducts: false, initialName: 'Mega Supplies' });
+
+    // Fill primary contact person (has up to 2 phones)
+    const nameInput = getInputByPlaceholder('e.g. Ranjith Kumara')!;
+    const phone1Input = getInputByPlaceholder('e.g. 077 123 4567')!;
+    const phone2Input = getInputByPlaceholder('e.g. 011 234 5678')!;
+    const addressInput = document.body.querySelector<HTMLTextAreaElement>(
+      'textarea[placeholder="e.g. No. 45, First Cross Street, Pettah, Colombo 11"]'
+    )!;
+
+    await setValue(nameInput, 'First Contact');
+    await setValue(phone1Input, '077 111 2222');
+    await setValue(phone2Input, '011 333 4444');
+    await setValue(addressInput, 'Colombo 03');
+
+    // Add supply tag so form is valid
+    const tagInput = document.body.querySelector<HTMLInputElement>(
+      'input[placeholder="Select or type tags (e.g. Phone Parts, Screen Protectors)"]'
+    )!;
+    await setValue(tagInput, 'Displays');
+    await act(async () => {
+      tagInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+    await settle();
+
+    // Click "+ Add Another Contact Person"
+    const addContactButton = getButton('+ Add Another Contact Person')!;
+    expect(addContactButton).toBeDefined();
+    await act(async () => {
+      addContactButton.click();
+    });
+    await settle();
+
+    expect(text()).toContain('Contact Person #2');
+
+    // Fill second contact person (has up to 2 phones)
+    const secNameInput = getInputByPlaceholder('e.g. Sunimal Dias')!;
+    const secPhone1Input = getInputByPlaceholder('e.g. 077 222 3333')!;
+    const secPhone2Input = getInputByPlaceholder('e.g. 011 444 5555')!;
+
+    await setValue(secNameInput, 'Second Contact');
+    await setValue(secPhone1Input, '071 555 6666');
+    await setValue(secPhone2Input, '011 777 8888');
+
+    await act(async () => {
+      getForm().dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await settle();
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const [payload] = onSubmit.mock.calls[0];
+    expect(payload.name).toBe('Mega Supplies');
+    expect(payload.contactPerson).toBe('First Contact');
+    expect(payload.primaryPhone).toBe('077 111 2222');
+    expect(payload.secondaryPhone).toBe('011 333 4444');
+    expect(payload.contactPersons).toEqual([
+      {
+        name: 'First Contact',
+        phoneNumbers: ['077 111 2222', '011 333 4444'],
+      },
+      {
+        name: 'Second Contact',
+        phoneNumbers: ['071 555 6666', '011 777 8888'],
+      },
+    ]);
+  });
+
+  it('removes an added contact person when remove button is clicked', async () => {
+    await open(null, false, { linkProducts: false, initialName: 'Test' });
+
+    const addContactButton = getButton('+ Add Another Contact Person')!;
+    await act(async () => {
+      addContactButton.click();
+    });
+    await settle();
+
+    expect(text()).toContain('Contact Person #2');
+
+    const removeButton = document.body.querySelector<HTMLButtonElement>(
+      'button[aria-label="Remove contact person"]'
+    )!;
+    expect(removeButton).toBeDefined();
+    await act(async () => {
+      removeButton.click();
+    });
+    await settle();
+
+    expect(text()).not.toContain('Contact Person #2');
+  });
+
+  it('pre-populates multiple contact persons from existing supplier data', async () => {
+    const existing = makeSupplier({
+      name: 'Multi Contact Supplier',
+      contactPersons: [
+        { name: 'Lead Person', phoneNumbers: ['077 123 4567', '011 234 5678'] },
+        { name: 'Deputy Person', phoneNumbers: ['071 999 8888'] },
+      ],
+    });
+    await open(existing);
+
+    expect(text()).toContain('Primary Contact Person');
+    expect(text()).toContain('Contact Person #2');
+
+    const leadInput = getInputByPlaceholder('e.g. Ranjith Kumara');
+    const deputyInput = getInputByPlaceholder('e.g. Sunimal Dias');
+
+    expect(leadInput?.value).toBe('Lead Person');
+    expect(deputyInput?.value).toBe('Deputy Person');
+  });
 });

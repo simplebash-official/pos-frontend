@@ -121,10 +121,10 @@ describe('pos-calc-wasm calculations and integration parity', () => {
       const res = calc_cash_count({
         counts: {
           '5000': 10, // 50,000 rupees -> 5,000,000 cents
-          '1000': 5,  // 5,000 rupees  -> 500,000 cents
-          '500': 2,   // 1,000 rupees  -> 100,000 cents
-          '100': 10,  // 1,000 rupees  -> 100,000 cents
-          '20': 5,    // 100 rupees    -> 10,000 cents
+          '1000': 5, // 5,000 rupees  -> 500,000 cents
+          '500': 2, // 1,000 rupees  -> 100,000 cents
+          '100': 10, // 1,000 rupees  -> 100,000 cents
+          '20': 5, // 100 rupees    -> 10,000 cents
         },
       });
 
@@ -285,7 +285,7 @@ describe('pos-calc-wasm calculations and integration parity', () => {
         issueDescription: 'Cracked OLED',
         status: 'in_repair',
         estimatedCostCents: 15000, // 150.00
-        materialCostCents: 5000,   // 50.00 -> profit = 100.00 (10000 cents)
+        materialCostCents: 5000, // 50.00 -> profit = 100.00 (10000 cents)
         assignedEmployeeId: 'emp_1',
         assignedEmployeeName: 'Sunil',
         splitType: 'percentage',

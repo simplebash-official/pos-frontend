@@ -1,7 +1,7 @@
 import { useSettlement } from '@/features/purchases/hooks/useSettlement';
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Box, Button, Divider, Group, Stack, Text } from '@mantine/core';
+import { Badge, Box, Button, Divider, Group, Paper, Stack, Text } from '@mantine/core';
 import {
   IconAddressBook,
   IconBuildingStore,
@@ -168,12 +168,19 @@ export const SupplierDetailDrawer = ({
                 title={sup.name}
                 subtitle={
                   <>
-                    <div>
-                      <Text component="span" fw={700} c="blue" inherit>
-                        {sup.contactPerson}
-                      </Text>{' '}
-                      {t('(Representative)')}
-                    </div>
+                    <Group gap={6} wrap="nowrap">
+                      <div>
+                        <Text component="span" fw={700} c="blue" inherit>
+                          {sup.contactPerson}
+                        </Text>{' '}
+                        {t('(Representative)')}
+                      </div>
+                      {sup.contactPersons && sup.contactPersons.length > 1 && (
+                        <Badge size="xs" variant="light" color="blue">
+                          {`+${sup.contactPersons.length - 1} ${t('more')}`}
+                        </Badge>
+                      )}
+                    </Group>
                     {sup.suppliedCategories.length > 0 ? (
                       <div>{sup.suppliedCategories.join(' · ')}</div>
                     ) : null}
@@ -184,16 +191,65 @@ export const SupplierDetailDrawer = ({
               <DrawerAfter>
                 <DrawerCard label={t('Contact & Address')} icon={<IconAddressBook size={14} />}>
                   <Stack gap="sm">
-                    <Box>
-                      <Text size="xs" c="dimmed" fw={500} mb={4}>
-                        {t('Contact Phone Numbers')}
-                      </Text>
-                      <PhoneDisplay
-                        primaryPhone={sup.primaryPhone}
-                        secondaryPhone={sup.secondaryPhone}
-                        layout="stack"
-                      />
-                    </Box>
+                    {sup.contactPersons && sup.contactPersons.length > 0 ? (
+                      <Stack gap="xs">
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          fw={600}
+                          tt="uppercase"
+                          style={{ letterSpacing: '0.04em' }}
+                        >
+                          {t('Contact Persons')}
+                        </Text>
+                        {sup.contactPersons.map((cp, idx) => (
+                          <Paper
+                            key={idx}
+                            p="xs"
+                            withBorder
+                            radius="sm"
+                            bg={idx === 0 ? 'var(--mantine-color-blue-light)' : undefined}
+                            style={{
+                              borderColor:
+                                idx === 0
+                                  ? 'var(--mantine-color-blue-light-border)'
+                                  : 'var(--mantine-color-default-border)',
+                            }}
+                          >
+                            <Stack gap={4}>
+                              <Group justify="space-between" align="center" wrap="nowrap">
+                                <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
+                                  <Text size="xs" fw={700} lineClamp={1}>
+                                    {cp.name}
+                                  </Text>
+                                  {idx === 0 && (
+                                    <Badge size="xs" variant="light" color="blue">
+                                      {t('Primary')}
+                                    </Badge>
+                                  )}
+                                </Group>
+                              </Group>
+                              <PhoneDisplay
+                                primaryPhone={cp.phoneNumbers[0] ?? ''}
+                                secondaryPhone={cp.phoneNumbers[1] ?? ''}
+                                layout="stack"
+                              />
+                            </Stack>
+                          </Paper>
+                        ))}
+                      </Stack>
+                    ) : (
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={500} mb={4}>
+                          {t('Contact Phone Numbers')}
+                        </Text>
+                        <PhoneDisplay
+                          primaryPhone={sup.primaryPhone}
+                          secondaryPhone={sup.secondaryPhone}
+                          layout="stack"
+                        />
+                      </Box>
+                    )}
                     <Divider />
                     <InfoRow icon={<IconMapPin size={16} />} label={t('Address')} stacked>
                       {sup.address}

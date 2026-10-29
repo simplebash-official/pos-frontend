@@ -4,7 +4,6 @@ import type { ApiError } from '@/shared/types/common';
 import { toCents } from '@/shared/lib/money';
 import { calc_earnings, type CalcEarningsReply } from '@/wasm';
 
-
 export interface CalcEarningsRequest {
   /** `null` until a price is typed. */
   priceCents: number | null;
@@ -68,4 +67,3 @@ export const useJobEarnings = (request: CalcEarningsRequest): LiveCalc<CalcEarni
     }
   }, [request.priceCents, request.materialCostCents, request.splitType, request.splitValue]);
 };
-

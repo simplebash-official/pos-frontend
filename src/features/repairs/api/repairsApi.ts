@@ -3,7 +3,6 @@ import { ApiResponse } from '@/shared/types/common';
 import { calc_earnings } from '@/wasm';
 import { RepairJob, RepairJobInput } from '../types';
 
-
 // Shape returned by the backend's `Repair` domain type — no
 // `employeeEarningsCents` (that's a client-side computed value via
 // `calc_earnings` from WASM).

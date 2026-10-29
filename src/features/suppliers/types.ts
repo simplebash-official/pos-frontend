@@ -1,5 +1,10 @@
 import type { SyncedEntityFields } from '@/shared/types/common';
 
+export interface ContactPerson {
+  name: string;
+  phoneNumbers: string[];
+}
+
 export interface Supplier extends SyncedEntityFields {
   id: string;
   key: string; // server-generated e.g. "sup_xxx" — used by supplier-products / purchases linking
@@ -7,6 +12,7 @@ export interface Supplier extends SyncedEntityFields {
   contactPerson: string; // Human contact person (e.g., "Ranjith Kumara")
   primaryPhone: string; // Primary phone number
   secondaryPhone?: string; // Backup phone number
+  contactPersons?: ContactPerson[]; // Multiple contact persons, up to 2 phones each
   address: string; // Physical location or rough address
   suppliedCategories: string[]; // Categories/tags supplied (e.g. "Phone Parts", "Mug Blanks", "Paper & Ink")
   email?: string; // Optional email address

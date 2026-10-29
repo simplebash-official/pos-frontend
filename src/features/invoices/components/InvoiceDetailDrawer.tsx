@@ -77,8 +77,9 @@ export interface InvoiceDetailDrawerProps {
 
 /** Everything the drawer decides from the invoice itself, computed in one place. */
 const describeInvoice = (inv: Invoice) => {
-  const { totalReturnedUnits, isFullyReturned, isPartiallyReturned } =
-    describeInvoiceUnits(inv.items);
+  const { totalReturnedUnits, isFullyReturned, isPartiallyReturned } = describeInvoiceUnits(
+    inv.items
+  );
   const isCreditPending = inv.status === 'pending' || inv.status === 'partially_paid';
   const canClose = inv.status === 'paid' && !inv.hasCreditNotes;
   // Mirrors the backend's own guard (`void_invoice` refuses when the

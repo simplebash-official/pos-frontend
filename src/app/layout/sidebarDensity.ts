@@ -98,10 +98,7 @@ const AVAIL_DEADZONE = 4;
  * Pass `enabled = false` (mobile, where the navbar is a full-screen drawer that may scroll freely)
  * to skip measurement and always report `comfortable`.
  */
-export function useSidebarDensity(
-  enabled: boolean,
-  contentKey: string
-): SidebarDensityResult {
+export function useSidebarDensity(enabled: boolean, contentKey: string): SidebarDensityResult {
   const [density, setDensity] = useState<SidebarDensity>('comfortable');
   const box = useRef<DensityBox>({
     el: null,

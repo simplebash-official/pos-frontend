@@ -101,9 +101,7 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
       expect(numberToWords(Infinity)).toBe('Sri Lankan Rupees Zero Only');
       expect(numberToWords(100)).toBe('Sri Lankan Rupees One Only');
       expect(numberToWords(8000000)).toBe('Sri Lankan Rupees Eighty Thousand Only');
-      expect(numberToWords(8000050)).toBe(
-        'Sri Lankan Rupees Eighty Thousand and Cents Fifty Only'
-      );
+      expect(numberToWords(8000050)).toBe('Sri Lankan Rupees Eighty Thousand and Cents Fifty Only');
       expect(numberToWords(10000000)).toBe('Sri Lankan Rupees One Lakh Only');
     });
 
@@ -173,12 +171,25 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
 
   describe('inventoryMetrics.ts', () => {
     const sampleTiers = [
-      { sellingPriceCents: 120_000, quantity: 5, minUnitCostCents: 100_000, maxUnitCostCents: 100_000 },
-      { sellingPriceCents: 150_000, quantity: 12, minUnitCostCents: 110_000, maxUnitCostCents: 110_000 },
+      {
+        sellingPriceCents: 120_000,
+        quantity: 5,
+        minUnitCostCents: 100_000,
+        maxUnitCostCents: 100_000,
+      },
+      {
+        sellingPriceCents: 150_000,
+        quantity: 12,
+        minUnitCostCents: 110_000,
+        maxUnitCostCents: 110_000,
+      },
     ];
 
     it('calculates remaining room in price tiers given cart reservations', () => {
-      const reserved = new Map([[120_000, 5], [150_000, 2]]);
+      const reserved = new Map([
+        [120_000, 5],
+        [150_000, 2],
+      ]);
       const result = getTiersWithRoom(sampleTiers, reserved);
 
       expect(result).toHaveLength(2);
@@ -208,7 +219,12 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
 
     it('supports tiers selling below cost (negative profit / loss)', () => {
       const lossTiers = [
-        { sellingPriceCents: 80_000, quantity: 2, minUnitCostCents: 100_000, maxUnitCostCents: 110_000 },
+        {
+          sellingPriceCents: 80_000,
+          quantity: 2,
+          minUnitCostCents: 100_000,
+          maxUnitCostCents: 110_000,
+        },
       ];
       const range = calculateProfitRange(lossTiers);
       expect(range).toEqual({ min: -30_000, max: -20_000 });
@@ -225,7 +241,12 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
       expect(() => calculateProfitRange(incompleteTiers)).toThrow(/cost was not provided/);
 
       const nullCostTiers = [
-        { sellingPriceCents: 120_000, quantity: 5, minUnitCostCents: null, maxUnitCostCents: 100_000 },
+        {
+          sellingPriceCents: 120_000,
+          quantity: 5,
+          minUnitCostCents: null,
+          maxUnitCostCents: 100_000,
+        },
       ];
       expect(() => calculateProfitRange(nullCostTiers)).toThrow(/cost was not provided/);
     });
@@ -266,10 +287,7 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
     });
 
     it('handles orders with zero returns', () => {
-      const items = [
-        { quantity: 4, returnedQuantity: 0 },
-        { quantity: 1 },
-      ];
+      const items = [{ quantity: 4, returnedQuantity: 0 }, { quantity: 1 }];
       const summary = describeInvoiceUnits(items);
 
       expect(summary.totalOriginalUnits).toBe(5);
@@ -319,10 +337,7 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
     });
 
     it('sums total items returned across credit notes', () => {
-      const creditNotes = [
-        { items: [{ id: '1' }, { id: '2' }] },
-        { items: [{ id: '3' }] },
-      ];
+      const creditNotes = [{ items: [{ id: '1' }, { id: '2' }] }, { items: [{ id: '3' }] }];
       expect(sumCreditNoteItemsCount(creditNotes)).toBe(3);
       expect(sumCreditNoteItemsCount([])).toBe(0);
       expect(sumCreditNoteItemsCount([{ items: [] }])).toBe(0);
@@ -384,7 +399,9 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
       expect(sumRegisterSales({})).toBe(0);
       expect(sumRegisterSales(null)).toBe(0);
       expect(sumRegisterSales(undefined)).toBe(0);
-      expect(sumRegisterSales({ totalCashSalesCents: NaN, totalCardSalesCents: 10_000 })).toBe(10_000);
+      expect(sumRegisterSales({ totalCashSalesCents: NaN, totalCardSalesCents: 10_000 })).toBe(
+        10_000
+      );
     });
 
     it('sums employee earnings and revenue', () => {
@@ -396,7 +413,10 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
       const summary = sumEmployeeEarnings(earnings);
       expect(summary.totalEarnedCents).toBe(12_500);
       expect(summary.totalRevenueGeneratedCents).toBe(125_000);
-      expect(sumEmployeeEarnings([])).toEqual({ totalEarnedCents: 0, totalRevenueGeneratedCents: 0 });
+      expect(sumEmployeeEarnings([])).toEqual({
+        totalEarnedCents: 0,
+        totalRevenueGeneratedCents: 0,
+      });
     });
 
     it('sums parked carts total value matching answer map', () => {

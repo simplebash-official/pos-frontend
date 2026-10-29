@@ -36,7 +36,7 @@ import {
 } from '@tabler/icons-react';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useProductsForSupplier } from '@/features/supplier-products';
-import { Supplier, SupplierInput } from '../types';
+import { Supplier, SupplierInput, ContactPerson } from '../types';
 import { DEFAULT_SUGGESTED_TAGS } from '../constants';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useEntitySearch } from '@/shared/hooks/useEntitySearch';
@@ -72,6 +72,13 @@ interface FormContentProps {
   linkedProductKeys: string[] | undefined;
 }
 
+interface FormContactPerson {
+  id: string;
+  name: string;
+  phone1: string;
+  phone2: string;
+}
+
 const SupplierFormContent = ({
   supplierToEdit,
   initialName,
@@ -83,15 +90,33 @@ const SupplierFormContent = ({
 }: FormContentProps) => {
   const isEditing = Boolean(supplierToEdit);
 
-  const [formData, setFormData] = useState<SupplierInput>({
+  const [formData, setFormData] = useState<
+    Omit<SupplierInput, 'contactPerson' | 'primaryPhone' | 'secondaryPhone' | 'contactPersons'>
+  >({
     name: supplierToEdit ? supplierToEdit.name : initialName,
-    contactPerson: supplierToEdit ? supplierToEdit.contactPerson : '',
-    primaryPhone: supplierToEdit ? supplierToEdit.primaryPhone : '',
-    secondaryPhone: supplierToEdit?.secondaryPhone ?? '',
     address: supplierToEdit ? supplierToEdit.address : '',
     suppliedCategories: supplierToEdit ? supplierToEdit.suppliedCategories : [],
     email: supplierToEdit?.email ?? '',
     notes: supplierToEdit?.notes ?? '',
+  });
+
+  const [contactPersons, setContactPersons] = useState<FormContactPerson[]>(() => {
+    if (supplierToEdit?.contactPersons && supplierToEdit.contactPersons.length > 0) {
+      return supplierToEdit.contactPersons.map((cp, idx) => ({
+        id: `cp-${idx}-${Date.now()}`,
+        name: cp.name,
+        phone1: cp.phoneNumbers[0] ?? '',
+        phone2: cp.phoneNumbers[1] ?? '',
+      }));
+    }
+    return [
+      {
+        id: 'cp-0',
+        name: supplierToEdit ? supplierToEdit.contactPerson : '',
+        phone1: supplierToEdit ? supplierToEdit.primaryPhone : '',
+        phone2: supplierToEdit?.secondaryPhone ?? '',
+      },
+    ];
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -103,14 +128,6 @@ const SupplierFormContent = ({
 
     if (!formData.name.trim()) {
       newErrors.name = t('Please enter the business name (e.g. "Colombo Mobile Parts")');
-    }
-    if (!formData.contactPerson.trim()) {
-      newErrors.contactPerson = t(
-        'Please enter the contact person\'s name (e.g. "Ranjith Kumara")'
-      );
-    }
-    if (!formData.primaryPhone.trim()) {
-      newErrors.primaryPhone = t('Please enter the primary phone number');
     }
     if (!formData.address.trim()) {
       newErrors.address = t('Please enter the address or physical location');
@@ -126,12 +143,56 @@ const SupplierFormContent = ({
       newErrors.email = t('Please enter a valid email address (e.g. contact@supplier.lk)');
     }
 
-    const secPhone = formData.secondaryPhone?.trim();
+    const primaryCp = contactPersons[0];
+    if (!primaryCp?.name.trim()) {
+      newErrors.contactPerson = t(
+        'Please enter the contact person\'s name (e.g. "Ranjith Kumara")'
+      );
+    }
+    if (!primaryCp?.phone1.trim()) {
+      newErrors.primaryPhone = t('Please enter the primary phone number');
+    } else if (
+      !primaryCp.phone1
+        .trim()
+        .split('')
+        .every((c) => '0123456789 -+'.includes(c))
+    ) {
+      newErrors.primaryPhone = t(
+        'Primary phone may only contain digits, spaces, dashes, and a plus sign'
+      );
+    }
+
+    const secPhone = primaryCp?.phone2.trim();
     if (secPhone && !secPhone.split('').every((c) => '0123456789 -+'.includes(c))) {
       newErrors.secondaryPhone = t(
         'Backup phone may only contain digits, spaces, dashes, and a plus sign'
       );
     }
+
+    contactPersons.slice(1).forEach((cp, idx) => {
+      const actualIdx = idx + 1;
+      if (!cp.name.trim()) {
+        newErrors[`cp_${actualIdx}_name`] = t("Please enter the contact person's name");
+      }
+      if (!cp.phone1.trim()) {
+        newErrors[`cp_${actualIdx}_phone1`] = t('Please enter the primary phone number');
+      } else if (
+        !cp.phone1
+          .trim()
+          .split('')
+          .every((c) => '0123456789 -+'.includes(c))
+      ) {
+        newErrors[`cp_${actualIdx}_phone1`] = t(
+          'Phone number may only contain digits, spaces, dashes, and a plus sign'
+        );
+      }
+      const p2 = cp.phone2.trim();
+      if (p2 && !p2.split('').every((c) => '0123456789 -+'.includes(c))) {
+        newErrors[`cp_${actualIdx}_phone2`] = t(
+          'Backup phone may only contain digits, spaces, dashes, and a plus sign'
+        );
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -142,17 +203,35 @@ const SupplierFormContent = ({
     if (!validate()) return;
 
     const email = formData.email?.trim();
-    const secondaryPhone = formData.secondaryPhone?.trim();
     const notes = formData.notes?.trim();
+
+    const mappedContactPersons: ContactPerson[] = contactPersons
+      .filter((cp) => cp.name.trim() || cp.phone1.trim())
+      .map((cp) => {
+        const phones = [cp.phone1.trim()];
+        if (cp.phone2.trim()) {
+          phones.push(cp.phone2.trim());
+        }
+        return {
+          name: cp.name.trim(),
+          phoneNumbers: phones,
+        };
+      });
+
+    const primaryCp = contactPersons[0];
+    const legacyContactPerson = primaryCp ? primaryCp.name.trim() : '';
+    const legacyPrimaryPhone = primaryCp ? primaryCp.phone1.trim() : '';
+    const legacySecondaryPhone = primaryCp?.phone2.trim();
 
     const payload: SupplierInput = {
       name: formData.name.trim(),
-      contactPerson: formData.contactPerson.trim(),
-      primaryPhone: formData.primaryPhone.trim(),
+      contactPerson: legacyContactPerson,
+      primaryPhone: legacyPrimaryPhone,
       address: formData.address.trim(),
       suppliedCategories: formData.suppliedCategories,
+      contactPersons: mappedContactPersons,
       ...(email ? { email } : {}),
-      ...(secondaryPhone ? { secondaryPhone } : {}),
+      ...(legacySecondaryPhone ? { secondaryPhone: legacySecondaryPhone } : {}),
       ...(notes ? { notes } : {}),
     };
 
@@ -185,7 +264,13 @@ const SupplierFormContent = ({
     }
   };
 
-  const handleChange = (field: keyof SupplierInput, value: unknown) => {
+  const handleChange = (
+    field: keyof Omit<
+      SupplierInput,
+      'contactPerson' | 'primaryPhone' | 'secondaryPhone' | 'contactPersons'
+    >,
+    value: unknown
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
@@ -193,6 +278,51 @@ const SupplierFormContent = ({
     if (submitError) {
       setSubmitError(null);
     }
+  };
+
+  const handleContactChange = (
+    index: number,
+    field: 'name' | 'phone1' | 'phone2',
+    value: string
+  ) => {
+    setContactPersons((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: value };
+      return next;
+    });
+
+    if (index === 0) {
+      const errKey =
+        field === 'name' ? 'contactPerson' : field === 'phone1' ? 'primaryPhone' : 'secondaryPhone';
+      if (errors[errKey]) {
+        setErrors((prev) => ({ ...prev, [errKey]: '' }));
+      }
+    } else {
+      const errKey = `cp_${index}_${field}`;
+      if (errors[errKey]) {
+        setErrors((prev) => ({ ...prev, [errKey]: '' }));
+      }
+    }
+    if (submitError) {
+      setSubmitError(null);
+    }
+  };
+
+  const handleAddContactPerson = () => {
+    setContactPersons((prev) => [
+      ...prev,
+      {
+        id: `cp-${prev.length}-${Date.now()}`,
+        name: '',
+        phone1: '',
+        phone2: '',
+      },
+    ]);
+  };
+
+  const handleRemoveContactPerson = (index: number) => {
+    if (contactPersons.length <= 1) return;
+    setContactPersons((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -250,60 +380,134 @@ const SupplierFormContent = ({
 
         {/* Section 2: Contact & Location */}
         <Stack gap={6}>
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            {t('Contact & Location')}
-          </Text>
+          <Group justify="space-between" align="center">
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+              {t('Contact & Location')}
+            </Text>
+            {contactPersons.length > 1 && (
+              <Badge size="xs" variant="light" color="blue">
+                {`${contactPersons.length} ${t('Contacts')}`}
+              </Badge>
+            )}
+          </Group>
 
           <Stack gap="sm">
-            <Grid gap="sm">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput
-                  label={t('Contact Person')}
-                  placeholder={t('e.g. Ranjith Kumara')}
-                  leftSection={<IconUser size={16} />}
-                  required
-                  value={formData.contactPerson}
-                  onChange={(e) => handleChange('contactPerson', e.currentTarget.value)}
-                  error={errors.contactPerson}
-                />
-              </Grid.Col>
+            {contactPersons.map((cp, idx) => (
+              <Paper
+                key={cp.id}
+                p="sm"
+                withBorder
+                radius="sm"
+                style={{
+                  borderColor:
+                    idx === 0
+                      ? 'var(--mantine-color-blue-light-border)'
+                      : 'var(--mantine-color-default-border)',
+                  backgroundColor: idx === 0 ? 'var(--mantine-color-blue-light)' : 'transparent',
+                }}
+              >
+                <Stack gap="xs">
+                  <Group justify="space-between" align="center">
+                    <Group gap={6}>
+                      <ThemeIcon
+                        size="sm"
+                        radius="xl"
+                        variant={idx === 0 ? 'filled' : 'light'}
+                        color={idx === 0 ? 'blue' : 'gray'}
+                      >
+                        <IconUser size={12} />
+                      </ThemeIcon>
+                      <Text size="xs" fw={700} c={idx === 0 ? 'blue' : undefined}>
+                        {idx === 0
+                          ? t('Primary Contact Person')
+                          : `${t('Contact Person')} #${idx + 1}`}
+                      </Text>
+                      {idx === 0 && (
+                        <Badge size="xs" variant="light" color="blue">
+                          {t('Primary')}
+                        </Badge>
+                      )}
+                    </Group>
+                    {contactPersons.length > 1 && (
+                      <Tooltip label={t('Remove this contact person')}>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={() => handleRemoveContactPerson(idx)}
+                          aria-label={t('Remove contact person')}
+                        >
+                          <IconTrash size={14} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </Group>
 
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput
-                  label={t('Email Address')}
-                  placeholder={t('e.g. contact@supplier.lk')}
-                  leftSection={<IconMail size={16} />}
-                  value={formData.email}
-                  onChange={(e) => handleChange('email', e.currentTarget.value)}
-                  error={errors.email}
-                />
-              </Grid.Col>
-            </Grid>
+                  <Grid gap="sm">
+                    <Grid.Col span={{ base: 12, sm: idx === 0 ? 6 : 12 }}>
+                      <TextInput
+                        label={t('Contact Person')}
+                        placeholder={idx === 0 ? t('e.g. Ranjith Kumara') : t('e.g. Sunimal Dias')}
+                        leftSection={<IconUser size={16} />}
+                        required
+                        value={cp.name}
+                        onChange={(e) => handleContactChange(idx, 'name', e.currentTarget.value)}
+                        error={idx === 0 ? errors.contactPerson : errors[`cp_${idx}_name`]}
+                      />
+                    </Grid.Col>
 
-            <Grid gap="sm">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput
-                  label={t('Primary Phone Number')}
-                  placeholder={t('e.g. 077 123 4567')}
-                  leftSection={<IconPhone size={16} />}
-                  required
-                  value={formData.primaryPhone}
-                  onChange={(e) => handleChange('primaryPhone', e.currentTarget.value)}
-                  error={errors.primaryPhone}
-                />
-              </Grid.Col>
+                    {idx === 0 && (
+                      <Grid.Col span={{ base: 12, sm: 6 }}>
+                        <TextInput
+                          label={t('Email Address')}
+                          placeholder={t('e.g. contact@supplier.lk')}
+                          leftSection={<IconMail size={16} />}
+                          value={formData.email}
+                          onChange={(e) => handleChange('email', e.currentTarget.value)}
+                          error={errors.email}
+                        />
+                      </Grid.Col>
+                    )}
+                  </Grid>
 
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput
-                  label={t('Backup Phone Number')}
-                  placeholder={t('e.g. 011 234 5678')}
-                  leftSection={<IconPhone size={16} />}
-                  value={formData.secondaryPhone}
-                  onChange={(e) => handleChange('secondaryPhone', e.currentTarget.value)}
-                  error={errors.secondaryPhone}
-                />
-              </Grid.Col>
-            </Grid>
+                  <Grid gap="sm">
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <TextInput
+                        label={t('Primary Phone Number')}
+                        placeholder={idx === 0 ? t('e.g. 077 123 4567') : t('e.g. 077 222 3333')}
+                        leftSection={<IconPhone size={16} />}
+                        required
+                        value={cp.phone1}
+                        onChange={(e) => handleContactChange(idx, 'phone1', e.currentTarget.value)}
+                        error={idx === 0 ? errors.primaryPhone : errors[`cp_${idx}_phone1`]}
+                      />
+                    </Grid.Col>
+
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <TextInput
+                        label={t('Backup Phone Number')}
+                        placeholder={idx === 0 ? t('e.g. 011 234 5678') : t('e.g. 011 444 5555')}
+                        leftSection={<IconPhone size={16} />}
+                        value={cp.phone2}
+                        onChange={(e) => handleContactChange(idx, 'phone2', e.currentTarget.value)}
+                        error={idx === 0 ? errors.secondaryPhone : errors[`cp_${idx}_phone2`]}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </Stack>
+              </Paper>
+            ))}
+
+            <Button
+              variant="light"
+              color="blue"
+              size="xs"
+              leftSection={<IconPlus size={14} />}
+              onClick={handleAddContactPerson}
+              style={{ alignSelf: 'flex-start' }}
+            >
+              {t('+ Add Another Contact Person')}
+            </Button>
 
             <Textarea
               label={t('Address / Location')}
