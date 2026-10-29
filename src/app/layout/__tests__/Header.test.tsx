@@ -184,4 +184,18 @@ describe('Header component shop name rendering', () => {
     expect(html).toContain('Cashier: Mayura AI (Admin)');
     expect(html).not.toContain('Cashier: Mayura AI (admin)');
   });
+
+  it('renders register session badge in standard header across other screens', () => {
+    mockPathname = '/dashboard';
+    const store = createMockStore();
+    const html = renderHeader(store);
+    expect(html).toContain('data-testid="register-session-badge"');
+  });
+
+  it('renders register session badge in billing header', () => {
+    mockPathname = '/billing';
+    const store = createMockStore();
+    const html = renderHeader(store);
+    expect(html).toContain('data-testid="register-session-badge"');
+  });
 });

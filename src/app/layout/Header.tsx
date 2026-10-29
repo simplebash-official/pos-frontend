@@ -262,6 +262,7 @@ export const Header = ({
 
       {/* Dynamic Header Clock: smoothly shown on scroll or on other screens */}
       <Box
+        visibleFrom="sm"
         style={{
           opacity: showHeaderClock ? 1 : 0,
           transform: showHeaderClock ? 'translateY(0) scale(1)' : 'translateY(-6px) scale(0.96)',
@@ -275,6 +276,7 @@ export const Header = ({
       </Box>
 
       <Group gap="xs" wrap="nowrap" align="center">
+        <RegisterSessionBadge />
         <Tooltip label={t('Calculator (Alt+C)')}>
           <ActionIcon
             variant="subtle"
