@@ -437,7 +437,7 @@ function usePageIsDark(fallback: boolean): boolean {
 
 export const ThinkingOrb = ({
   state = 'connecting',
-  size = 64,
+  size = 88,
   theme = 'auto',
   speed = 1,
   paused = false,

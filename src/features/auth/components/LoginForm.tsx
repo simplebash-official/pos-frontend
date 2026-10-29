@@ -8,12 +8,10 @@ import {
   PasswordInput,
   Button,
   Stack,
-  Portal,
-  Overlay,
 } from '@mantine/core';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { PageLoader } from '@/shared/components/PageLoader';
+import { BusyOverlay } from '@/shared/components/BusyOverlay';
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
@@ -172,27 +170,11 @@ export const LoginForm = () => {
 
   return (
     <>
-      {isSubmitting && (
-        <Portal>
-          <Overlay
-            color="#000"
-            backgroundOpacity={0.7}
-            blur={5}
-            zIndex={9999}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <PageLoader
-              variant="orb"
-              orbState="connecting"
-              orbTheme="dark"
-              size={64}
-              title={t('Signing in...')}
-              subtitle="Connecting to POS console..."
-              height="auto"
-            />
-          </Overlay>
-        </Portal>
-      )}
+      <BusyOverlay
+        visible={isSubmitting}
+        title={t('Signing in...')}
+        subtitle="Connecting to POS console..."
+      />
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
         <Text fz="xl" fw={900} c="blue">

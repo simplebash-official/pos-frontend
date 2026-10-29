@@ -1,7 +1,7 @@
 import { useSettlement } from '@/features/purchases/hooks/useSettlement';
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Badge, Box, Button, Divider, Group, Paper, Stack, Text } from '@mantine/core';
+import { Badge, Box, Button, Divider, Group, Stack, Text } from '@mantine/core';
 import {
   IconAddressBook,
   IconBuildingStore,
@@ -203,30 +203,28 @@ export const SupplierDetailDrawer = ({
                           {t('Contact Persons')}
                         </Text>
                         {sup.contactPersons.map((cp, idx) => (
-                          <Paper
+                          <Box
                             key={idx}
                             p="xs"
-                            withBorder
-                            radius="sm"
-                            bg={idx === 0 ? 'var(--mantine-color-blue-light)' : undefined}
                             style={{
-                              borderColor:
-                                idx === 0
-                                  ? 'var(--mantine-color-blue-light-border)'
-                                  : 'var(--mantine-color-default-border)',
+                              borderRadius: 'var(--mantine-radius-default)',
+                              border:
+                                '1.5px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+                              backgroundColor:
+                                'light-dark(var(--mantine-color-gray-0), rgba(255, 255, 255, 0.02))',
                             }}
                           >
                             <Stack gap={4}>
                               <Group justify="space-between" align="center" wrap="nowrap">
                                 <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
-                                  <Text size="xs" fw={700} lineClamp={1}>
+                                  <Text
+                                    size="xs"
+                                    fw={700}
+                                    lineClamp={1}
+                                    c={idx === 0 ? 'blue' : undefined}
+                                  >
                                     {cp.name}
                                   </Text>
-                                  {idx === 0 && (
-                                    <Badge size="xs" variant="light" color="blue">
-                                      {t('Primary')}
-                                    </Badge>
-                                  )}
                                 </Group>
                               </Group>
                               <PhoneDisplay
@@ -235,7 +233,7 @@ export const SupplierDetailDrawer = ({
                                 layout="stack"
                               />
                             </Stack>
-                          </Paper>
+                          </Box>
                         ))}
                       </Stack>
                     ) : (

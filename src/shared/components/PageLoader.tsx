@@ -19,7 +19,7 @@ export interface PageLoaderProps {
 export const PageLoader = ({
   title,
   subtitle,
-  size = 45,
+  size = 88,
   height = '70vh',
   variant = 'orb',
   orbState = 'connecting',
@@ -42,7 +42,7 @@ export const PageLoader = ({
     <Center h={height} style={{ width: '100%' }}>
       <Stack align="center" gap="sm">
         {isOrb ? (
-          <ThinkingOrb state={orbState} size={size || 64} theme={orbTheme} speed={speed} />
+          <ThinkingOrb state={orbState} size={size || 88} theme={orbTheme} speed={speed} />
         ) : (
           <Loader size={size} type="dots" />
         )}

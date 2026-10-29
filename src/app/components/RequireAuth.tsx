@@ -31,7 +31,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
       <PageLoader
         variant="orb"
         orbState="connecting"
-        size={72}
+        size={88}
         title={t('Authenticating session...')}
         subtitle={`Connecting to ${PRODUCT_NAME} console`}
         height="100vh"
