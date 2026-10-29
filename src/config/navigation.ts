@@ -73,7 +73,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'sell',
     title: 'Sell',
     icon: IconShoppingCart,
-    color: 'teal',
+    color: 'cyan',
     items: [
       {
         label: 'Billing Counter',
@@ -100,7 +100,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'workshop',
     title: 'Workshop',
     icon: IconTool,
-    color: 'orange',
+    color: 'teal',
     items: [
       {
         label: 'Repair Jobs',
@@ -170,7 +170,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'stock',
     title: 'Stock',
     icon: IconBox,
-    color: 'indigo',
+    color: 'lime',
     items: [
       {
         label: 'Inventory & Stock',
@@ -199,7 +199,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'people-staff',
     title: 'People & Staff',
     icon: IconUsersGroup,
-    color: 'violet',
+    color: 'yellow',
     items: [
       {
         label: 'Customers',
@@ -227,7 +227,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
     id: 'analytics',
     title: 'Business Analytics',
     icon: IconChartPie,
-    color: 'cyan',
+    color: 'orange',
     items: [
       {
         label: 'Analytics & Reports',

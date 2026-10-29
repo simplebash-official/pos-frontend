@@ -1305,6 +1305,10 @@ th.mantine-Table-th {
   box-shadow: 0 2px 8px color-mix(in srgb, var(--cat-color) 40%, transparent);
 }
 
+.sidebar-section[data-holds-active='true'] .sidebar-section-tile[data-ink='dark'] {
+  color: #141414;
+}
+
 .sidebar-section-title {
   flex: 1;
   min-width: 0;

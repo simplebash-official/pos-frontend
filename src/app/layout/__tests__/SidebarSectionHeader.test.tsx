@@ -67,4 +67,28 @@ describe('SidebarSectionHeader', () => {
     expect(c.querySelector('button')?.getAttribute('data-holds-active')).toBe('true');
     expect(c.querySelector(marker)).not.toBeNull();
   });
+
+  it('sets data-ink="dark" for light color swatches (lime, yellow, amber)', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    act(() =>
+      createRoot(container).render(
+        <MantineProvider>
+          <SidebarSectionHeader
+            title="People & Staff"
+            Icon={IconCoins}
+            color="yellow"
+            count={3}
+            isOpen={false}
+            holdsActive={true}
+            controlsId="sidebar-section-people"
+            isMobile={false}
+            onToggle={() => {}}
+          />
+        </MantineProvider>
+      )
+    );
+    const tile = container.querySelector('.sidebar-section-tile');
+    expect(tile?.getAttribute('data-ink')).toBe('dark');
+  });
 });
