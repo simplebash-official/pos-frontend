@@ -195,6 +195,7 @@ export const Sidebar = ({
               <SidebarSectionHeader
                 title={t(category.title)}
                 Icon={category.icon}
+                color={category.color}
                 count={category.items.length}
                 isOpen={isOpen}
                 holdsActive={category.items.some((item) => location.pathname.startsWith(item.to))}

@@ -106,13 +106,16 @@ describe('Sidebar collapse button and pinned footer', () => {
     expect(renderSidebar(USER_ROLES.ADMIN, true)).not.toContain('Expand sidebar');
   });
 
-  it('keeps Sign Out outside the scrolling nav list in both layouts', () => {
-    for (const isRail of [false, true]) {
-      const html = renderSidebar(USER_ROLES.STAFF, isRail, toggle);
-      const navEnd = html.indexOf('</nav>');
-      expect(navEnd).toBeGreaterThan(0);
-      expect(html.indexOf('aria-label="Sign Out"')).toBeGreaterThan(navEnd);
-    }
+  it('keeps footer controls outside the scrolling nav list in both layouts', () => {
+    const railHtml = renderSidebar(USER_ROLES.STAFF, true, toggle);
+    const railNavEnd = railHtml.indexOf('</nav>');
+    expect(railNavEnd).toBeGreaterThan(0);
+    expect(railHtml.indexOf('aria-label="Sign Out"')).toBeGreaterThan(railNavEnd);
+
+    const fullHtml = renderSidebar(USER_ROLES.STAFF, false, toggle);
+    const fullNavEnd = fullHtml.indexOf('</nav>');
+    expect(fullNavEnd).toBeGreaterThan(0);
+    expect(fullHtml.indexOf('aria-label="User profile menu"')).toBeGreaterThan(fullNavEnd);
   });
 });
 
@@ -129,9 +132,9 @@ describe('Sidebar account footer', () => {
     expect(html).toContain('>T<');
   });
 
-  it('offers the three colour choices and a Sign Out button in the full layout', () => {
+  it('offers the three colour choices and the user profile menu in the full layout', () => {
     const html = renderSidebar(USER_ROLES.STAFF, false);
-    for (const label of ['Light Mode', 'Dark Mode', 'System', 'Sign Out']) {
+    for (const label of ['Light Mode', 'Dark Mode', 'System', 'User profile menu']) {
       expect(html).toContain(`aria-label="${label}"`);
     }
   });

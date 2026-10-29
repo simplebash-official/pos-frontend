@@ -1119,8 +1119,12 @@ th.mantine-Table-th {
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--mantine-radius-default);
-  transition: background-color 120ms ease, border-color 120ms ease;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--border) 40%, transparent);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .sidebar-footer-card[data-clickable='true'] {
@@ -1129,38 +1133,93 @@ th.mantine-Table-th {
 
 .sidebar-footer-card[data-clickable='true']:hover {
   background: var(--bg-hover);
-}
-
-.sidebar-footer-card[data-clickable='true']:hover:has(.sidebar-footer-signout:hover) {
-  background: var(--bg-card);
+  border-color: color-mix(in srgb, var(--border) 60%, var(--mantine-color-blue-filled) 40%);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--border) 50%, transparent);
 }
 
 .sidebar-footer-identity {
-  display: block;
+  display: flex;
+  align-items: center;
   flex: 1;
   min-width: 0;
-  border-radius: var(--mantine-radius-default);
+  padding: 4px;
+  border-radius: 8px;
+  transition: background-color 120ms ease;
 }
 
-a.sidebar-footer-identity::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
+.sidebar-footer-identity:hover {
+  background: color-mix(in srgb, var(--bg-hover) 80%, transparent);
+}
+
+.sidebar-footer-identity:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: 1px;
+}
+
+.sidebar-footer-avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 2px var(--bg-card),
+    0 0 0 3.5px color-mix(in srgb, var(--mantine-color-blue-filled) 35%, transparent);
+}
+
+.sidebar-footer-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: 2px;
+  transition:
+    transform 180ms ease,
+    color 120ms ease;
+}
+
+.sidebar-footer-identity:hover .sidebar-footer-chevron {
+  color: var(--text-primary);
+}
+
+.sidebar-footer-card[aria-expanded='true'] .sidebar-footer-chevron {
+  transform: rotate(180deg);
+  color: var(--text-primary);
+}
+
+.sidebar-footer-settings {
+  position: relative;
+  z-index: 1;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.sidebar-footer-settings:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-footer-popover-dropdown {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+.sidebar-footer-menu-header {
+  padding: 4px 6px;
+}
+
+.sidebar-footer-signout-item {
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  height: 36px;
 }
 
 .sidebar-footer-signout {
   position: relative;
   z-index: 1;
-}
-
-.sidebar-footer-card:has(a.sidebar-footer-identity:focus-visible) {
-  outline: 2px solid var(--mantine-color-blue-filled);
-  outline-offset: 2px;
-}
-
-a.sidebar-footer-identity:focus-visible {
-  outline: none;
 }
 
 /* Section header: a full-size row lined up with the items under it (same padding, same tile size,
@@ -1174,15 +1233,17 @@ a.sidebar-footer-identity:focus-visible {
   padding: 6px var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-default);
   cursor: pointer;
-  transition: background-color 120ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
 .sidebar-section:hover {
-  background: var(--bg-hover);
+  background: color-mix(in srgb, var(--cat-color) 8%, var(--bg-hover));
 }
 
 .sidebar-section:focus-visible {
-  outline: 2px solid var(--mantine-color-blue-filled);
+  outline: 2px solid var(--cat-color);
   outline-offset: 1px;
 }
 
@@ -1204,12 +1265,21 @@ a.sidebar-footer-identity:focus-visible {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  color: var(--text-secondary);
-  background: var(--bg-hover);
-  box-shadow: inset 0 0 0 1px var(--border);
+  color: var(--cat-color);
+  background: color-mix(in srgb, var(--cat-color) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat-color) 20%, transparent);
   transition:
-    background-color 150ms ease,
-    color 150ms ease;
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.sidebar-section:hover .sidebar-section-tile {
+  background: color-mix(in srgb, var(--cat-color) 18%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--cat-color) 32%, transparent),
+    0 2px 6px color-mix(in srgb, var(--cat-color) 16%, transparent);
 }
 
 .sidebar-scroll[data-density='compact'] .sidebar-section-tile {
@@ -1224,15 +1294,19 @@ a.sidebar-footer-identity:focus-visible {
   border-radius: 7px;
 }
 
-/* Folded, but the open page is inside: the header itself shows it. */
+/* Folded, but the open page is inside: the header itself shows it in its category colour. */
 .sidebar-section[data-holds-active='true'] {
-  background: color-mix(in srgb, var(--mantine-color-blue-filled) 14%, transparent);
+  background: color-mix(in srgb, var(--cat-color) 14%, transparent);
 }
 
 .sidebar-section[data-holds-active='true'] .sidebar-section-tile {
   color: var(--mantine-color-white);
-  background: var(--mantine-color-blue-filled);
-  box-shadow: none;
+  background: var(--cat-color);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--cat-color) 40%, transparent);
+}
+
+.sidebar-section[data-holds-active='true'] .sidebar-section-tile[data-ink='dark'] {
+  color: #141414;
 }
 
 .sidebar-section-title {
@@ -1262,9 +1336,16 @@ a.sidebar-footer-identity:focus-visible {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: center;
-  color: var(--text-secondary);
-  background: var(--bg-hover);
-  box-shadow: inset 0 0 0 1px var(--border);
+  color: var(--cat-color);
+  background: color-mix(in srgb, var(--cat-color) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat-color) 22%, transparent);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.sidebar-section:hover .sidebar-section-count {
+  background: color-mix(in srgb, var(--cat-color) 20%, transparent);
 }
 
 .sidebar-section-chevron {
@@ -1276,7 +1357,7 @@ a.sidebar-footer-identity:focus-visible {
 }
 
 .sidebar-section:hover .sidebar-section-chevron {
-  color: var(--text-primary);
+  color: var(--cat-color);
 }
 
 .sidebar-section[data-open='false'] .sidebar-section-chevron {

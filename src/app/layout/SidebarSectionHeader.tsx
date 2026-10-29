@@ -4,9 +4,13 @@ import { IconChevronDown } from '@tabler/icons-react';
 
 import { t } from '@/shared/i18n/t';
 
+// White ink fails contrast on these light swatches, so their solid active tile takes dark ink.
+const DARK_INK = new Set(['lime', 'yellow', 'amber']);
+
 export interface SidebarSectionHeaderProps {
   title: string;
   Icon: ComponentType<{ size?: number | string; stroke?: number | string }>;
+  color: string;
   /** Items in the section; shown as a count while it is folded. */
   count: number;
   isOpen: boolean;
@@ -20,6 +24,7 @@ export interface SidebarSectionHeaderProps {
 export const SidebarSectionHeader = ({
   title,
   Icon,
+  color,
   count,
   isOpen,
   holdsActive,
@@ -36,11 +41,17 @@ export const SidebarSectionHeader = ({
       aria-expanded={isOpen}
       aria-controls={controlsId}
       aria-label={`${title}, ${count}`}
-      style={{ minHeight: isMobile ? 44 : undefined }}
+      style={
+        {
+          minHeight: isMobile ? 44 : undefined,
+          '--cat-color': `var(--mantine-color-${color}-filled)`,
+        } as React.CSSProperties
+      }
       onClick={onToggle}
     >
       <span
         className="sidebar-section-tile"
+        data-ink={DARK_INK.has(color) ? 'dark' : 'light'}
         {...(pointsAtPage ? { role: 'img', 'aria-label': t('Current page is in here') } : {})}
       >
         <Icon size={17} stroke={1.75} />
