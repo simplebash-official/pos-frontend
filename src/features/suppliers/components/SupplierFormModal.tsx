@@ -393,17 +393,15 @@ const SupplierFormContent = ({
 
           <Stack gap="sm">
             {contactPersons.map((cp, idx) => (
-              <Paper
+              <Box
                 key={cp.id}
                 p="sm"
-                withBorder
-                radius="sm"
                 style={{
-                  borderColor:
-                    idx === 0
-                      ? 'var(--mantine-color-blue-light-border)'
-                      : 'var(--mantine-color-default-border)',
-                  backgroundColor: idx === 0 ? 'var(--mantine-color-blue-light)' : 'transparent',
+                  borderRadius: 'var(--mantine-radius-default)',
+                  border:
+                    '1.5px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+                  backgroundColor:
+                    'light-dark(var(--mantine-color-gray-0), rgba(255, 255, 255, 0.02))',
                 }}
               >
                 <Stack gap="xs">
@@ -422,11 +420,6 @@ const SupplierFormContent = ({
                           ? t('Primary Contact Person')
                           : `${t('Contact Person')} #${idx + 1}`}
                       </Text>
-                      {idx === 0 && (
-                        <Badge size="xs" variant="light" color="blue">
-                          {t('Primary')}
-                        </Badge>
-                      )}
                     </Group>
                     {contactPersons.length > 1 && (
                       <Tooltip label={t('Remove this contact person')}>
@@ -495,7 +488,7 @@ const SupplierFormContent = ({
                     </Grid.Col>
                   </Grid>
                 </Stack>
-              </Paper>
+              </Box>
             ))}
 
             <Button
