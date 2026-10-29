@@ -388,8 +388,8 @@ describe('SupplierFormModal', () => {
     });
     await settle();
 
-    // Click "+ Add Another Contact Person"
-    const addContactButton = getButton('+ Add Another Contact Person')!;
+    // Click "Add Another Contact Person"
+    const addContactButton = getButton('Add Another Contact Person')!;
     expect(addContactButton).toBeDefined();
     await act(async () => {
       addContactButton.click();
@@ -433,7 +433,7 @@ describe('SupplierFormModal', () => {
   it('removes an added contact person when remove button is clicked', async () => {
     await open(null, false, { linkProducts: false, initialName: 'Test' });
 
-    const addContactButton = getButton('+ Add Another Contact Person')!;
+    const addContactButton = getButton('Add Another Contact Person')!;
     await act(async () => {
       addContactButton.click();
     });

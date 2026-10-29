@@ -499,7 +499,7 @@ const SupplierFormContent = ({
               onClick={handleAddContactPerson}
               style={{ alignSelf: 'flex-start' }}
             >
-              {t('+ Add Another Contact Person')}
+              {t('Add Another Contact Person')}
             </Button>
 
             <Textarea
