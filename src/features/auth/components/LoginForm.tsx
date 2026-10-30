@@ -16,7 +16,6 @@ import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { loginApi, lookupShopApi } from '../api/authApi';
-import { SERVICE_CENTER_NAME } from '@/config/branding';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { logger } from '@/shared/logging';
 import { ShopAccountCard } from '@/features/account';
@@ -98,14 +97,6 @@ export const LoginForm = () => {
     }
   }, [shopCode, linkName, dispatch]);
 
-  const displayShopName =
-    linkName ||
-    apiShopName ||
-    (shopProfile?.tradingName?.trim() !== 'SimpleBash POS' && shopProfile?.tradingName?.trim()) ||
-    shopProfile?.tradingName?.trim() ||
-    shopProfile?.legalName?.trim() ||
-    SERVICE_CENTER_NAME;
-
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
 
@@ -178,7 +169,7 @@ export const LoginForm = () => {
 
       <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
         <Text fz="xl" fw={900} c="blue">
-          {displayShopName === SERVICE_CENTER_NAME ? t(SERVICE_CENTER_NAME) : displayShopName}
+          {t('Welcome Back')}
         </Text>
 
         <Title
