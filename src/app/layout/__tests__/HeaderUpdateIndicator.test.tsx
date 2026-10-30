@@ -64,6 +64,7 @@ describe('HeaderUpdateIndicator', () => {
     const html = render();
     expect(html).toContain('Downloading the update…');
     expect(html).toContain('42%');
+    expect(html).toContain('update-pill-percent');
     expect(html).toContain('scaleX(0.42)');
     expect(html).not.toContain('update-progress-indeterminate');
   });
@@ -72,6 +73,8 @@ describe('HeaderUpdateIndicator', () => {
     mockUpdate = { phase: 'downloading', percent: null };
     const html = render();
     expect(html).toContain('update-progress-indeterminate');
+    expect(html).toContain('update-pill-percent');
+    expect(html).toContain('visibility:hidden');
     expect(html).not.toContain('%');
   });
 

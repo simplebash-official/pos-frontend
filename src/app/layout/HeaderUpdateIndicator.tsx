@@ -66,9 +66,24 @@ export const HeaderUpdateIndicator = ({ cartItemsCount }: HeaderUpdateIndicatorP
             ) : (
               <>
                 <Loader size={14} />
-                <Text size="xs" fw={600} style={{ whiteSpace: 'nowrap' }}>
-                  {label}
-                  {percent === null ? '' : ` ${percent}%`}
+                <Text
+                  size="xs"
+                  fw={600}
+                  style={{
+                    whiteSpace: 'nowrap',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <span>{label}</span>
+                  <span
+                    className="update-pill-percent"
+                    style={{ visibility: percent === null ? 'hidden' : 'visible' }}
+                    aria-hidden={percent === null ? true : undefined}
+                  >
+                    {percent === null ? '' : `${percent}%`}
+                  </span>
                 </Text>
               </>
             )}

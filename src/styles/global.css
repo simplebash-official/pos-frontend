@@ -1388,6 +1388,14 @@ th.mantine-Table-th {
   animation: update-pill-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.update-pill-percent {
+  display: inline-block;
+  min-width: 4.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
 .update-pill-ready {
   padding: 3px 4px 3px 10px;
   border-color: var(--mantine-color-blue-filled);
