@@ -8,6 +8,7 @@ import {
   toEmployeeInput,
 } from '../moneyFormUtils';
 import type { RepairJob } from '@/features/repairs/types';
+import type { PrintJob } from '@/features/print-jobs/types';
 import type { Employee } from '@/features/employees/types';
 
 describe('moneyFormUtils conversions', () => {
@@ -72,10 +73,32 @@ describe('moneyFormUtils conversions', () => {
   describe('Print Job Conversions', () => {
     it('generates default form values for new print job', () => {
       const defaults = fromPrintJob(null);
+      expect(defaults.customerName).toBe('');
+      expect(defaults.customerPhone).toBe('');
       expect(defaults.jobType).toBe('mug');
       expect(defaults.quantity).toBe(1);
       expect(defaults.splitType).toBe('fixed');
       expect(defaults.splitValueRupeesOrPercent).toBe(500);
+    });
+
+    it('populates form from existing print job with customerPhone', () => {
+      const job: PrintJob = {
+        id: 'prn_1',
+        ticketNumber: 'PRN-001',
+        customerName: 'Bob',
+        customerPhone: '0711122334',
+        jobType: 'mug',
+        quantity: 2,
+        status: 'received',
+        estimatedCostCents: 20000,
+        createdAt: '2026-08-20T10:00:00.000Z',
+      };
+
+      const form = fromPrintJob(job);
+      expect(form.customerName).toBe('Bob');
+      expect(form.customerPhone).toBe('0711122334');
+      expect(form.jobType).toBe('mug');
+      expect(form.estimatedPriceRupees).toBe(200);
     });
 
     it('converts form values to print job input with cents conversion', () => {

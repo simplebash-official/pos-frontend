@@ -112,7 +112,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
   }
   return {
     customerName: job.customerName,
-    customerPhone: job.customerPhone || '',
+    customerPhone: job.customerPhone,
     jobType: job.jobType,
     quantity: job.quantity,
     promisedReadyAt: job.promisedReadyAt ?? null,

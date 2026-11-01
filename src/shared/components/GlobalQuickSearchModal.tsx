@@ -177,7 +177,7 @@ export const GlobalQuickSearchModal = () => {
     const repairRows: QuickSearchResult[] = repairHits.results.map((r) => ({
       id: r.id,
       title: `${r.ticketNumber}: ${r.deviceModel}`,
-      subtitle: `${r.customerName} · ${r.estimatedCostCents !== undefined ? formatMoney(r.estimatedCostCents) : 'Pending diagnosis'}`,
+      subtitle: `${r.customerName} · ${r.customerPhone} · ${r.estimatedCostCents !== undefined ? formatMoney(r.estimatedCostCents) : 'Pending diagnosis'}`,
       category: 'Repair',
       icon: IconHammer,
       color: 'orange',
@@ -187,7 +187,7 @@ export const GlobalQuickSearchModal = () => {
     const printJobRows: QuickSearchResult[] = printJobHits.results.map((p) => ({
       id: p.id,
       title: `${p.ticketNumber}: ${p.jobType.toUpperCase()} (${p.quantity} units)`,
-      subtitle: `${p.customerName} · ${formatMoney(p.estimatedCostCents)}`,
+      subtitle: `${p.customerName} · ${p.customerPhone} · ${formatMoney(p.estimatedCostCents)}`,
       category: 'Print Job',
       icon: IconPrinter,
       color: 'teal',

@@ -100,7 +100,7 @@ export interface CombinedServiceJob {
   title: string;
   description: string;
   customerName: string;
-  customerPhone?: string;
+  customerPhone: string;
   status: string;
   costCents?: number;
   assignedEmployeeId?: string;
@@ -566,7 +566,12 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       }
     }
 
-    if (term.startsWith('prt-') || term.startsWith('prt')) {
+    if (
+      term.startsWith('prn-') ||
+      term.startsWith('prn') ||
+      term.startsWith('prt-') ||
+      term.startsWith('prt')
+    ) {
       const matchPrt = printJobs.find((p) => p.ticketNumber.toLowerCase() === term);
       if (matchPrt) {
         add({
@@ -1389,7 +1394,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                 ref={jobSearchInputRef}
                 trigger="button"
                 showHistoryButton
-                placeholder={t('Search ticket #, customer name, device…')}
+                placeholder={t('Search ticket #, customer name, phone, device…')}
                 leftSection={<IconSearch size={18} color="var(--text-secondary)" />}
                 rightSection={
                   jobSearch ? (
@@ -1577,7 +1582,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                               {metaText && (
                                 <Text size="xs" c="dimmed" lineClamp={1} mt={2}>
-                                  {metaText}
+                                  <SearchHighlight text={metaText} terms={jobSearchTerms} />
                                 </Text>
                               )}
 

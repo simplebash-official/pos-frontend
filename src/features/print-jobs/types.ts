@@ -8,7 +8,7 @@ export interface PrintJob {
   id: string;
   ticketNumber: string;
   customerName: string;
-  customerPhone?: string;
+  customerPhone: string;
   jobType: PrintJobType;
   quantity: number;
   promisedReadyAt?: string; // "YYYY-MM-DD" — date promised to the customer

@@ -304,6 +304,7 @@ describe('pos-calc-wasm calculations and integration parity', () => {
         key: 'prn_1',
         ticketNumber: 'PRN-001',
         customerName: 'Nihal Silva',
+        customerPhone: '0771234567',
         jobType: 'custom',
         quantity: 50,
         status: 'ready',

@@ -56,6 +56,8 @@ export const PrintJobFormModal = ({
     initialValues: fromPrintJob(null),
     validate: {
       customerName: (val) => (val.trim() ? null : 'Customer name is required'),
+      customerPhone: (val) =>
+        /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
       quantity: (val) => (Number(val) >= 1 ? null : 'Quantity must be at least 1'),
       estimatedPriceRupees: (val) => {
         if (val === '' || val === undefined || val === null) {
@@ -141,6 +143,7 @@ export const PrintJobFormModal = ({
               label={t('Customer Phone')}
               placeholder={t('e.g. 0712345678')}
               leftSection={<IconPhone size={16} />}
+              required
               {...form.getInputProps('customerPhone')}
             />
           </Group>

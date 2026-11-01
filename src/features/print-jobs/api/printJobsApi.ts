@@ -10,7 +10,7 @@ export interface BackendPrintJob {
   ticketNumber: string;
   customerKey?: string;
   customerName: string;
-  customerPhone?: string;
+  customerPhone: string;
   jobType: PrintJobType;
   quantity: number;
   promisedReadyAt?: string;
