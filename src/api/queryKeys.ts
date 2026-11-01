@@ -33,8 +33,7 @@ export const queryKeys = {
       ) => ['billing', 'sessions', 'zReportDocument', key, design, template, version] as const,
       zReportDocumentDesign: (key: string, template?: string, version?: number | string) =>
         ['billing', 'sessions', 'zReportDocumentDesign', key, template, version] as const,
-      drawerState: (terminalId: string) =>
-        ['billing', 'sessions', 'drawerState', terminalId] as const,
+      drawerState: () => ['billing', 'sessions', 'drawerState'] as const,
       movements: (filters?: Record<string, unknown>) =>
         ['billing', 'sessions', 'movements', filters] as const,
     },

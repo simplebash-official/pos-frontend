@@ -141,10 +141,9 @@ export const listCashMovements = async (
   return response.data;
 };
 
-export const getDrawerState = async (terminalId: string): Promise<DrawerState | null> => {
-  const response = await apiClient.get<ApiResponse<DrawerState | null>>(
-    `/sessions/drawer-state/${encodeURIComponent(terminalId)}`
-  );
+/** The signed-in user's own drawer balance (it follows the user, not the machine). */
+export const getDrawerState = async (): Promise<DrawerState | null> => {
+  const response = await apiClient.get<ApiResponse<DrawerState | null>>('/sessions/drawer-state');
   return response.data;
 };
 

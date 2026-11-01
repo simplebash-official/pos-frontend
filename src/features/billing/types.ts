@@ -395,7 +395,8 @@ export interface CashMovement {
 }
 
 export interface DrawerState {
-  terminalId: string;
+  /** The user the balance belongs to (the shift owner). */
+  userKey: string;
   currentBalanceCents: number;
   lastSessionKey?: string;
   lastClosingFloatCents: number;

@@ -147,6 +147,17 @@ describe('loginErrorMessage', () => {
     );
     expect(loginErrorMessage(undefined, 'fallback')).toBe('fallback');
   });
+
+  it('tells staff their shift is open on another machine (409), in either mode', () => {
+    const err = {
+      statusCode: 409,
+      code: 'SESSION_OPEN_ON_OTHER_DEVICE',
+      message: 'Your shift is open on another machine. Close it there first.',
+    };
+    expect(loginErrorMessage(err, 'fallback')).toBe(err.message);
+    vi.stubEnv('VITE_MULTI_TENANT', 'true');
+    expect(loginErrorMessage(err, 'fallback')).toBe(err.message);
+  });
 });
 
 describe('shop code from an "Open POS" link', () => {

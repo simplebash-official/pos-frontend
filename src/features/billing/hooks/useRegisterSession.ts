@@ -41,11 +41,10 @@ export const useCurrentSession = (terminalId?: string) => {
   return { ...query, session: query.data ?? null };
 };
 
-export const useDrawerState = (terminalId?: string) => {
+export const useDrawerState = () => {
   const query = useQuery({
-    queryKey: queryKeys.billing.sessions.drawerState(terminalId ?? ''),
-    queryFn: () => getDrawerState(terminalId as string),
-    enabled: Boolean(terminalId),
+    queryKey: queryKeys.billing.sessions.drawerState(),
+    queryFn: getDrawerState,
   });
   return { ...query, drawerState: query.data ?? null };
 };

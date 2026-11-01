@@ -182,9 +182,6 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
                 </Text>
               )}
             </div>
-            <Badge variant="outline" color="gray" size="sm">
-              {t('Terminal:')} {terminalId}
-            </Badge>
           </Group>
         </Card>
 
@@ -312,7 +309,7 @@ export const OpenSessionModal: React.FC<OpenSessionModalProps> = ({
   terminalId,
   onSessionOpened,
 }) => {
-  const { drawerState, isLoading: isDrawerLoading } = useDrawerState(terminalId);
+  const { drawerState, isLoading: isDrawerLoading } = useDrawerState();
 
   return (
     <Modal
