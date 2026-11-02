@@ -30,6 +30,7 @@ export const BrandPanel = ({
         borderRadius: compact ? 20 : 32,
         overflow: 'hidden',
         isolation: 'isolate',
+        border: '1px solid var(--brand-panel-border)',
       }}
     >
       <BrandBackdrop />

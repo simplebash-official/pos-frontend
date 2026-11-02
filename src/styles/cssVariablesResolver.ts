@@ -56,6 +56,7 @@ const lightTokens: Record<string, string> = {
   '--brand-chip-bg': 'rgba(12, 20, 18, 0.88)',
   '--brand-chip-border': 'transparent',
   '--auth-page-bg': 'var(--bg-card)',
+  '--brand-panel-border': 'transparent',
   '--brand-on': '#FFFFFF',
   '--brand-on-muted': 'rgba(255, 255, 255, 0.78)',
   '--glass-bg': 'rgba(255, 255, 255, 0.16)',
@@ -99,20 +100,22 @@ const darkTokens: Record<string, string> = {
   '--search-highlight-bg': 'rgba(250, 196, 25, 0.18)',
   '--search-highlight-text': 'var(--mantine-color-amber-3)',
 
-  // A deep emerald (not black) so the panel still reads as green next to dark surfaces.
-  '--brand-grad-from': '#022C22',
-  '--brand-grad-via': '#064E3B',
-  '--brand-grad-to': '#047857',
-  '--brand-grid-line': 'rgba(255, 255, 255, 0.06)',
+  // A deep, muted forest green: still the brand's green, but dark and low in saturation
+  // like the app's charcoal surfaces, so it sits calmly next to them.
+  '--brand-grad-from': '#0F1F1A',
+  '--brand-grad-via': '#132C24',
+  '--brand-grad-to': '#1A4234',
+  '--brand-grid-line': 'rgba(255, 255, 255, 0.045)',
+  '--brand-panel-border': 'rgba(255, 255, 255, 0.07)',
   '--brand-accent': '#F59E0B',
   '--brand-accent-on': '#1C1917',
-  '--receipt-paper': '#F5F2EA',
+  '--receipt-paper': '#ECE8DF',
   '--receipt-ink': '#1C1917',
   // Frosted glass: a dark slip would vanish on the dark panel.
-  '--brand-chip-bg': 'rgba(255, 255, 255, 0.12)',
-  '--brand-chip-border': 'rgba(255, 255, 255, 0.22)',
-  // Near-black with a hint of the panel's green, so the two halves of the login belong together.
-  '--auth-page-bg': '#0E1714',
+  '--brand-chip-bg': 'rgba(255, 255, 255, 0.08)',
+  '--brand-chip-border': 'rgba(255, 255, 255, 0.14)',
+  // The app's own dark page colour, so the inputs and text look as they do everywhere else.
+  '--auth-page-bg': 'var(--bg-app)',
   '--brand-on': '#FFFFFF',
   '--brand-on-muted': 'rgba(255, 255, 255, 0.72)',
   '--glass-bg': 'rgba(255, 255, 255, 0.08)',
