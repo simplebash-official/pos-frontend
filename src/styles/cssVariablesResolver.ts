@@ -42,6 +42,23 @@ const lightTokens: Record<string, string> = {
   // Matched text inside a search result.
   '--search-highlight-bg': 'var(--mantine-color-amber-2)',
   '--search-highlight-text': 'var(--text-primary)',
+
+  // Brand panel of the sign-in / onboarding screens, styled as a shop counter:
+  // till green (money, "sale complete") with receipt-amber price tags on top.
+  '--brand-grad-from': '#064E3B',
+  '--brand-grad-via': '#047857',
+  '--brand-grad-to': '#10B981',
+  '--brand-grid-line': 'rgba(255, 255, 255, 0.07)',
+  '--brand-accent': '#FBBF24',
+  '--brand-accent-on': '#1C1917',
+  '--receipt-paper': '#FFFDF7',
+  '--receipt-ink': '#292524',
+  '--brand-on': '#FFFFFF',
+  '--brand-on-muted': 'rgba(255, 255, 255, 0.78)',
+  '--glass-bg': 'rgba(255, 255, 255, 0.16)',
+  '--glass-border': 'rgba(255, 255, 255, 0.32)',
+  '--glass-active-bg': '#FFFFFF',
+  '--glass-active-text': '#18181B',
 };
 
 const darkTokens: Record<string, string> = {
@@ -78,6 +95,22 @@ const darkTokens: Record<string, string> = {
   // far too bright against a dark surface, and light text on it fails contrast.
   '--search-highlight-bg': 'rgba(250, 196, 25, 0.18)',
   '--search-highlight-text': 'var(--mantine-color-amber-3)',
+
+  // Deeper green so the panel doesn't glare next to dark surfaces.
+  '--brand-grad-from': '#03140F',
+  '--brand-grad-via': '#052E25',
+  '--brand-grad-to': '#0B4D3C',
+  '--brand-grid-line': 'rgba(255, 255, 255, 0.05)',
+  '--brand-accent': '#F59E0B',
+  '--brand-accent-on': '#1C1917',
+  '--receipt-paper': '#E7E5E4',
+  '--receipt-ink': '#1C1917',
+  '--brand-on': '#FFFFFF',
+  '--brand-on-muted': 'rgba(255, 255, 255, 0.72)',
+  '--glass-bg': 'rgba(255, 255, 255, 0.08)',
+  '--glass-border': 'rgba(255, 255, 255, 0.16)',
+  '--glass-active-bg': 'var(--mantine-color-dark-6)',
+  '--glass-active-text': 'var(--mantine-color-text)',
 };
 
 /** Mantine's scheme-adaptive semantic vars, expressed in terms of the tokens above. */

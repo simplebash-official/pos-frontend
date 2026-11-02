@@ -11,50 +11,28 @@
   flex-direction: column;
 }
 
-/* Dynamic background image with gradient overlay */
-.mobile-auth-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
-  z-index: 1;
-  transition:
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.5s ease;
-}
-
 .mobile-auth-bg-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.35) 0%,
-    rgba(30, 58, 138, 0.45) 45%,
-    rgba(15, 23, 42, 0.85) 100%
+    rgba(0, 0, 0, 0) 0%,
+    rgba(2, 44, 34, 0.25) 45%,
+    rgba(2, 20, 16, 0.75) 100%
   );
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   z-index: 2;
+  pointer-events: none;
 }
 
 [data-mantine-color-scheme='dark'] .mobile-auth-bg-overlay {
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.55) 0%,
-    rgba(15, 23, 42, 0.7) 45%,
-    rgba(0, 0, 0, 0.95) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(2, 20, 16, 0.55) 45%,
+    rgba(0, 0, 0, 0.9) 100%
   );
-}
-
-/* Background state in login mode */
-.mobile-auth-viewport[data-view='login'] .mobile-auth-bg {
-  transform: scale(1.04);
-  filter: brightness(0.9);
-}
-
-[data-mantine-color-scheme='dark'] .mobile-auth-viewport[data-view='login'] .mobile-auth-bg {
-  filter: brightness(0.7);
 }
 
 /* Screen Content Container */
@@ -82,30 +60,24 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
+  /* A price tag, like GlassPill on the desktop panel. */
+  background: var(--brand-accent);
+  color: var(--brand-accent-on);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  padding: 6px 14px;
-  border-radius: var(--mantine-radius-xl, 9999px);
+  padding: 6px 14px 6px 10px;
+  border-radius: 6px 9999px 9999px 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   width: fit-content;
-}
-
-[data-mantine-color-scheme='dark'] .mobile-splash-brand-badge {
-  background: rgba(0, 0, 0, 0.55);
-  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .mobile-splash-brand-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--mantine-color-blue-4, #60a5fa);
-  box-shadow: 0 0 8px var(--mantine-color-blue-4, #60a5fa);
+  /* The tag's string hole. */
+  background-color: var(--brand-grad-from);
 }
 
 .mobile-splash-hero {
@@ -152,7 +124,7 @@
   width: 100%;
   height: 54px;
   background: #ffffff;
-  color: var(--mantine-color-blue-6, #228be6);
+  color: var(--brand-grad-via);
   border: none;
   font-weight: 700;
   font-size: 16px;
@@ -172,13 +144,9 @@
 }
 
 [data-mantine-color-scheme='dark'] .mobile-splash-start-btn {
-  background: var(--mantine-color-blue-filled, #228be6);
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(34, 139, 230, 0.4);
-}
-
-[data-mantine-color-scheme='dark'] .mobile-splash-start-btn:active {
-  background: var(--mantine-color-blue-7, #1c7ed6);
+  background: var(--brand-accent);
+  color: var(--brand-accent-on);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .mobile-splash-footer-note {

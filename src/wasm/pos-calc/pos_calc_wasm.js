@@ -1,6 +1,7 @@
 /* @ts-self-types="./pos_calc_wasm.d.ts" */
 
 /**
+ * Totals a cash count by denomination.
  * @param {CalcCashCountRequest} request
  * @returns {CalcCashCountReply}
  */
@@ -13,6 +14,7 @@ export function calc_cash_count(request) {
 }
 
 /**
+ * Works out a cart and its payment.
  * @param {CalcCheckoutRequest} request
  * @returns {CalcCheckoutReply}
  */
@@ -25,6 +27,7 @@ export function calc_checkout(request) {
 }
 
 /**
+ * Works out what a repair job earns and the commission on it.
  * @param {CalcEarningsRequest} request
  * @returns {CalcEarningsReply}
  */
@@ -37,6 +40,7 @@ export function calc_earnings(request) {
 }
 
 /**
+ * Works out a quotation; its validity date is checked against today in the browser.
  * @param {CalcQuotationRequest} request
  * @returns {CalcQuotationReply}
  */
@@ -49,6 +53,7 @@ export function calc_quotation(request) {
 }
 
 /**
+ * Works out a stock receipt.
  * @param {CalcReceiptRequest} request
  * @returns {CalcReceiptReply}
  */
@@ -61,6 +66,7 @@ export function calc_receipt(request) {
 }
 
 /**
+ * Works out each part's share of its whole.
  * @param {CalcSharesRequest} request
  * @returns {CalcSharesReply}
  */

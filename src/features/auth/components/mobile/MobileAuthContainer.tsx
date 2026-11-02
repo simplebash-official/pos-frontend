@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import wallLoginImg from '@/assets/wall_login.jpg';
+import { BrandBackdrop } from '@/shared/components/brand';
 import { MobileSplashScreen } from './MobileSplashScreen';
 import { MobileLoginForm } from './MobileLoginForm';
 import './mobileAuth.css';
@@ -11,8 +11,8 @@ export const MobileAuthContainer = () => {
 
   return (
     <div className="mobile-auth-viewport" data-view={view}>
-      {/* Background with fluid gradient and image */}
-      <div className="mobile-auth-bg" style={{ backgroundImage: `url(${wallLoginImg})` }} />
+      {/* Animated Brand Backdrop */}
+      <BrandBackdrop />
       <div className="mobile-auth-bg-overlay" />
 
       {/* Screen View Router */}

@@ -81,12 +81,14 @@ describe('PrintJobFormModal validation', () => {
     vi.clearAllMocks();
   });
 
-  const renderModal = (props: {
-    opened?: boolean;
-    onClose?: () => void;
-    onSubmit?: (val: PrintJobInput) => Promise<void>;
-    jobToEdit?: PrintJob | null;
-  } = {}) => {
+  const renderModal = (
+    props: {
+      opened?: boolean;
+      onClose?: () => void;
+      onSubmit?: (val: PrintJobInput) => Promise<void>;
+      jobToEdit?: PrintJob | null;
+    } = {}
+  ) => {
     const defaultProps = {
       opened: true,
       onClose: vi.fn(),
@@ -122,7 +124,9 @@ describe('PrintJobFormModal validation', () => {
 
     renderModal({ onSubmit, jobToEdit: existingJob });
 
-    const phoneInput = document.querySelector('input[placeholder="e.g. 0712345678"]') as HTMLInputElement;
+    const phoneInput = document.querySelector(
+      'input[placeholder="e.g. 0712345678"]'
+    ) as HTMLInputElement;
     const formEl = document.querySelector('form') as HTMLFormElement;
 
     expect(phoneInput).toBeTruthy();

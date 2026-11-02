@@ -359,16 +359,34 @@ export type SplitKind = "percentage" | "fixed";
 export type TenderMethod = "cash" | "card" | "online" | "split";
 
 
+/**
+ * Totals a cash count by denomination.
+ */
 export function calc_cash_count(request: CalcCashCountRequest): CalcCashCountReply;
 
+/**
+ * Works out a cart and its payment.
+ */
 export function calc_checkout(request: CalcCheckoutRequest): CalcCheckoutReply;
 
+/**
+ * Works out what a repair job earns and the commission on it.
+ */
 export function calc_earnings(request: CalcEarningsRequest): CalcEarningsReply;
 
+/**
+ * Works out a quotation; its validity date is checked against today in the browser.
+ */
 export function calc_quotation(request: CalcQuotationRequest): CalcQuotationReply;
 
+/**
+ * Works out a stock receipt.
+ */
 export function calc_receipt(request: CalcReceiptRequest): CalcReceiptReply;
 
+/**
+ * Works out each part's share of its whole.
+ */
 export function calc_shares(request: CalcSharesRequest): CalcSharesReply;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;

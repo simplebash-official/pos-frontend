@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import { Box, Flex } from '@mantine/core';
-import wallLoginImg from '@/assets/wall_login.jpg';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { t } from '@/shared/i18n/t';
+import { BrandPanel } from './BrandPanel';
 import { MobileAuthContainer } from './mobile/MobileAuthContainer';
 
 export interface AuthLayoutProps {
@@ -39,7 +40,7 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
           {children}
         </Flex>
 
-        {/* Right Column: Visual Brand Image Canvas */}
+        {/* Right Column: Visual Brand Panel Canvas */}
         <Box
           w={{ base: '100%', md: '55%', lg: '58%' }}
           p={{ base: '16px', md: '20px 20px 20px 0' }}
@@ -55,12 +56,15 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
               width: '100%',
               borderRadius: '32px',
               overflow: 'hidden',
-              backgroundImage: `url(${wallLoginImg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
               boxShadow: '0 20px 40px var(--border-strong)',
             }}
-          />
+          >
+            <BrandPanel
+              badge={t('Point of Sale')}
+              headline={t('Run your shop, simply')}
+              subline={t('Sales, stock and repairs in one place. Log in to open your shop.')}
+            />
+          </Box>
         </Box>
       </Flex>
     </Box>
