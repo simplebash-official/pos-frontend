@@ -168,7 +168,7 @@ export const LoginForm = () => {
         subtitle="Connecting to POS console..."
       />
 
-      <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 360 }}>
+      <Stack w="100%" align="center" gap="lg" style={{ maxWidth: 400 }}>
         <Text fz="xl" fw={900} c="blue">
           {displayShopName === SERVICE_CENTER_NAME ? t(SERVICE_CENTER_NAME) : displayShopName}
         </Text>

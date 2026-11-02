@@ -50,7 +50,7 @@ describe('BrandPanel', () => {
     expect(container?.textContent).toContain('Sales, stock and repairs in one place.');
     expect(container?.textContent).toContain('SimpleBash');
     expect(container?.querySelector('[data-testid="receipt-card"]')).not.toBeNull();
-    expect(container?.textContent).toContain('Payment approved');
+    expect(container?.textContent).toContain("Today's profit");
   });
 
   it('renders in compact mode without badge and subline', () => {

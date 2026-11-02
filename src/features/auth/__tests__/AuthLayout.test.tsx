@@ -52,8 +52,8 @@ describe('AuthLayout', () => {
     const out = renderAuthLayout();
 
     expect(out).toContain('Login Content');
-    expect(out).toContain('Point of Sale');
-    expect(out).toContain('Run your shop, simply');
+    expect(out).toContain('Your shop&#x27;s accountant');
+    expect(out).toContain('Every rupee, counted for you');
     expect(out).toContain('SimpleBash');
     // Ensure no static wall_login img reference remains
     expect(out).not.toContain('wall_login.jpg');

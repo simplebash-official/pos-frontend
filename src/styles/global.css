@@ -192,16 +192,30 @@ body,
   height: 100dvh;
 }
 
-/* Login screen inner columns: on mobile they should size to their content (no forced full-screen
-   height stacking on top of the image band), matching AuthLayout's column/row switch at `md`
-   (62em) so the min-height and the direction change together. */
-.auth-layout-min-h {
-  min-height: auto;
+/* Browser autofill paints its own blue-grey background over the login inputs.
+   A large inset shadow is the only way to cover it; keep the text colour ours. */
+.auth-layout-root input:-webkit-autofill,
+.auth-layout-root input:-webkit-autofill:hover,
+.auth-layout-root input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--mantine-color-default) inset;
+  box-shadow: 0 0 0 1000px var(--mantine-color-default) inset;
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-out 0s;
 }
-@media (min-width: 62em) {
-  .auth-layout-min-h {
-    min-height: 100vh;
-    min-height: 100dvh;
+
+/* The login panel's counter scene (receipt, price tag, profit slip) sits above the headline.
+   On short windows (a 1366x768 laptop) shrink it towards the top-right corner so it clears
+   the text; on very short ones drop it. */
+@media (max-height: 760px) {
+  .auth-counter-scene {
+    transform: scale(0.8);
+    transform-origin: top right;
+  }
+}
+@media (max-height: 600px) {
+  .auth-counter-scene {
+    display: none;
   }
 }
 

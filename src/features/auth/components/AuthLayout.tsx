@@ -16,57 +16,39 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
     return <MobileAuthContainer />;
   }
 
+  // Same proportions as the SimpleBash app's sign-in: the brand panel takes 44% of the
+  // window, the form the rest, with a 16px frame around and between them.
   return (
     <Box
       className="auth-layout-root"
       style={{
         width: '100%',
-        backgroundColor: 'var(--bg-card)',
+        backgroundColor: 'var(--auth-page-bg)',
         overflowY: 'auto',
+        display: 'flex',
         transition: 'background-color 0.3s ease',
       }}
     >
-      <Flex direction={{ base: 'column', md: 'row' }} className="auth-layout-min-h" w="100%">
-        {/* Left Column: Form Container */}
+      <Box style={{ width: '100%', minHeight: '100%', display: 'flex', padding: 16, gap: 16 }}>
         <Flex
+          style={{ flex: '1 1 48%', minWidth: 0 }}
           direction="column"
           justify="center"
           align="center"
-          w={{ base: '100%', md: '45%', lg: '42%' }}
-          p={{ base: '40px 24px', md: '64px 48px' }}
-          className="auth-layout-min-h"
-          style={{ position: 'relative' }}
+          p={{ base: 32, lg: 56 }}
         >
           {children}
         </Flex>
-
-        {/* Right Column: Visual Brand Panel Canvas */}
-        <Box
-          w={{ base: '100%', md: '55%', lg: '58%' }}
-          p={{ base: '16px', md: '20px 20px 20px 0' }}
-          mih={{ base: 200, md: 440 }}
-          style={{
-            display: 'flex',
-          }}
-        >
-          <Box
-            mih={{ base: 200, md: 'calc(100vh - 40px)' }}
-            style={{
-              position: 'relative',
-              width: '100%',
-              borderRadius: '32px',
-              overflow: 'hidden',
-              boxShadow: '0 20px 40px var(--border-strong)',
-            }}
-          >
-            <BrandPanel
-              badge={t('Point of Sale')}
-              headline={t('Run your shop, simply')}
-              subline={t('Sales, stock and repairs in one place. Log in to open your shop.')}
-            />
-          </Box>
+        <Box style={{ flex: '0 0 44%', minWidth: 0 }}>
+          <BrandPanel
+            badge={t("Your shop's accountant")}
+            headline={t('Every rupee, counted for you')}
+            subline={t(
+              'Sales, stock, expenses and profit are kept up to date while you work. Log in to see where your money went.'
+            )}
+          />
         </Box>
-      </Flex>
+      </Box>
     </Box>
   );
 };

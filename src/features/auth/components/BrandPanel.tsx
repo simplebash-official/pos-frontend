@@ -57,7 +57,7 @@ export const BrandPanel = ({
                 fw={700}
                 fz={compact ? 24 : { base: 32, lg: 44 }}
                 lh={1.15}
-                style={{ color: 'var(--brand-on)', letterSpacing: '-0.02em' }}
+                style={{ color: 'var(--brand-on)', letterSpacing: '-0.02em', textWrap: 'balance' }}
               >
                 {headline}
               </Title>

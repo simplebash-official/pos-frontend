@@ -4,7 +4,7 @@ import { EASE } from '@/shared/motion';
 import { t } from '@/shared/i18n/t';
 
 const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
-const FEATURES = ['Sales', 'Stock', 'Repairs', 'Reports'];
+const FEATURES = ['Sales', 'Expenses', 'Stock', 'Profit'];
 const BARCODE_HEIGHT = 36;
 
 // Thin and thick bars, repeated: reads as a barcode at a glance.
@@ -21,7 +21,7 @@ const Dashes = () => (
 );
 
 /**
- * A till receipt that prints the product's features line by line, with a scanner
+ * A till receipt that prints the day's records line by line, with a scanner
  * line sweeping its barcode. Decorative: the panel's subline says the same thing.
  */
 export const ReceiptCard = () => {
@@ -96,7 +96,7 @@ export const ReceiptCard = () => {
           >
             <span>{t('Total')}</span>
             <span style={{ background: 'var(--brand-accent)', padding: '0 4px' }}>
-              {t('Ready to sell')}
+              {t('All counted')}
             </span>
           </Box>
         </motion.div>

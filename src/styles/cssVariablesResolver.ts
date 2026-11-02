@@ -53,6 +53,9 @@ const lightTokens: Record<string, string> = {
   '--brand-accent-on': '#1C1917',
   '--receipt-paper': '#FFFDF7',
   '--receipt-ink': '#292524',
+  '--brand-chip-bg': 'rgba(12, 20, 18, 0.88)',
+  '--brand-chip-border': 'transparent',
+  '--auth-page-bg': 'var(--bg-card)',
   '--brand-on': '#FFFFFF',
   '--brand-on-muted': 'rgba(255, 255, 255, 0.78)',
   '--glass-bg': 'rgba(255, 255, 255, 0.16)',
@@ -96,15 +99,20 @@ const darkTokens: Record<string, string> = {
   '--search-highlight-bg': 'rgba(250, 196, 25, 0.18)',
   '--search-highlight-text': 'var(--mantine-color-amber-3)',
 
-  // Deeper green so the panel doesn't glare next to dark surfaces.
-  '--brand-grad-from': '#03140F',
-  '--brand-grad-via': '#052E25',
-  '--brand-grad-to': '#0B4D3C',
-  '--brand-grid-line': 'rgba(255, 255, 255, 0.05)',
+  // A deep emerald (not black) so the panel still reads as green next to dark surfaces.
+  '--brand-grad-from': '#022C22',
+  '--brand-grad-via': '#064E3B',
+  '--brand-grad-to': '#047857',
+  '--brand-grid-line': 'rgba(255, 255, 255, 0.06)',
   '--brand-accent': '#F59E0B',
   '--brand-accent-on': '#1C1917',
-  '--receipt-paper': '#E7E5E4',
+  '--receipt-paper': '#F5F2EA',
   '--receipt-ink': '#1C1917',
+  // Frosted glass: a dark slip would vanish on the dark panel.
+  '--brand-chip-bg': 'rgba(255, 255, 255, 0.12)',
+  '--brand-chip-border': 'rgba(255, 255, 255, 0.22)',
+  // Near-black with a hint of the panel's green, so the two halves of the login belong together.
+  '--auth-page-bg': '#0E1714',
   '--brand-on': '#FFFFFF',
   '--brand-on-muted': 'rgba(255, 255, 255, 0.72)',
   '--glass-bg': 'rgba(255, 255, 255, 0.08)',

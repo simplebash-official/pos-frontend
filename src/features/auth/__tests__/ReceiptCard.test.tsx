@@ -40,11 +40,11 @@ describe('ReceiptCard', () => {
     for (const text of [
       'Receipt',
       'Sales',
+      'Expenses',
       'Stock',
-      'Repairs',
-      'Reports',
+      'Profit',
       'Total',
-      'Ready to sell',
+      'All counted',
     ]) {
       expect(card?.textContent).toContain(text);
     }

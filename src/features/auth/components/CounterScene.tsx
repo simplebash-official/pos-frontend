@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
+import { IconTrendingUp } from '@tabler/icons-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { formatMoney } from '@/shared/lib/money';
 import { EASE } from '@/shared/motion';
@@ -7,7 +7,7 @@ import { t } from '@/shared/i18n/t';
 import { ReceiptCard } from './ReceiptCard';
 
 // Shown once the receipt has finished printing (its last row starts at 0.3 + 5 * 0.18 s).
-const PAID_DELAY = 1.5;
+const PROFIT_DELAY = 1.5;
 
 /** An amber price tag hanging from its string, swaying a little. */
 const PriceTag = ({ reduced }: { reduced: boolean }) => (
@@ -62,12 +62,12 @@ const PriceTag = ({ reduced }: { reduced: boolean }) => (
   </motion.div>
 );
 
-/** The card machine's "approved" slip, popping in when the sale is done. */
-const PaymentChip = ({ reduced }: { reduced: boolean }) => (
+/** The day's profit, popping in once the receipt has been added up. */
+const ProfitChip = ({ reduced }: { reduced: boolean }) => (
   <motion.div
     initial={reduced ? false : { opacity: 0, scale: 0.85, y: 8 }}
     animate={{ opacity: 1, scale: 1, y: 0 }}
-    transition={reduced ? { duration: 0 } : { delay: PAID_DELAY, duration: 0.3, ease: EASE }}
+    transition={reduced ? { duration: 0 } : { delay: PROFIT_DELAY, duration: 0.3, ease: EASE }}
   >
     <Box
       py={10}
@@ -77,7 +77,9 @@ const PaymentChip = ({ reduced }: { reduced: boolean }) => (
         alignItems: 'center',
         gap: 10,
         borderRadius: 14,
-        background: 'rgba(12, 20, 18, 0.88)',
+        background: 'var(--brand-chip-bg)',
+        border: '1px solid var(--brand-chip-border)',
+        backdropFilter: 'blur(10px)',
         color: '#FFFFFF',
         boxShadow: '0 14px 30px rgba(0, 0, 0, 0.3)',
         transform: 'rotate(2deg)',
@@ -94,12 +96,12 @@ const PaymentChip = ({ reduced }: { reduced: boolean }) => (
           flexShrink: 0,
         }}
       >
-        <IconCheck size={18} stroke={3} />
+        <IconTrendingUp size={18} stroke={2.5} />
       </Box>
       <Box>
-        <Box style={{ fontSize: 13, fontWeight: 700 }}>{t('Payment approved')}</Box>
-        <Box style={{ fontSize: 12, opacity: 0.7, fontVariantNumeric: 'tabular-nums' }}>
-          {t('Card')} · {formatMoney(245000)}
+        <Box style={{ fontSize: 12, opacity: 0.7 }}>{t("Today's profit")}</Box>
+        <Box style={{ fontSize: 15, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+          +{formatMoney(1245000)}
         </Box>
       </Box>
     </Box>
@@ -107,21 +109,28 @@ const PaymentChip = ({ reduced }: { reduced: boolean }) => (
 );
 
 /**
- * The checkout counter on the brand panel: a receipt printing, a price tag and the
- * card machine's approval. Decorative only, so it is hidden from screen readers.
+ * The checkout counter on the brand panel: a receipt printing the day, a price tag and
+ * the day's profit. Decorative only, so it is hidden from screen readers.
  */
 export const CounterScene = () => {
   const reduced = useReducedMotion() === true;
   return (
-    <Box aria-hidden data-testid="counter-scene" visibleFrom="md">
-      <Box style={{ position: 'absolute', top: 130, left: '14%' }}>
+    <Box
+      aria-hidden
+      data-testid="counter-scene"
+      visibleFrom="md"
+      className="auth-counter-scene"
+      style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+    >
+      {/* Needs the wider panel: below lg the receipt would cover it. */}
+      <Box visibleFrom="lg" style={{ position: 'absolute', top: 130, left: '14%' }}>
         <PriceTag reduced={reduced} />
       </Box>
       <Box style={{ position: 'absolute', top: 96, right: '8%' }}>
         <ReceiptCard />
       </Box>
       <Box style={{ position: 'absolute', top: 350, right: 'calc(8% + 150px)' }}>
-        <PaymentChip reduced={reduced} />
+        <ProfitChip reduced={reduced} />
       </Box>
     </Box>
   );
