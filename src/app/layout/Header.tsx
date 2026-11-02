@@ -21,8 +21,6 @@ import {
   IconVolumeOff,
   IconHelpCircle,
   IconPlayerPause,
-  IconMoon,
-  IconSun,
   IconCalculator,
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -37,6 +35,7 @@ import { selectAuthUser } from '@/store/slices/authSlice';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useColorSchemeReveal } from '@/shared/hooks/useColorSchemeReveal';
+import { NEXT_SCHEME, SCHEME_ICON, SCHEME_LABEL, type SchemeChoice } from './colorSchemeChoice';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -93,7 +92,8 @@ export const Header = ({
   const { soundEnabled, toggleSoundFeedback } = useCartSound();
   const { colorScheme } = useMantineColorScheme();
   const revealColorScheme = useColorSchemeReveal();
-  const isDark = colorScheme === 'dark';
+  const scheme = colorScheme as SchemeChoice;
+  const SchemeIcon = SCHEME_ICON[scheme];
 
   if (isBillingPage) {
     return (
@@ -206,14 +206,15 @@ export const Header = ({
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+          <Tooltip label={t(SCHEME_LABEL[scheme])}>
             <ActionIcon
               variant="subtle"
               color="gray"
               size="sm"
-              onClick={(event) => revealColorScheme(isDark ? 'light' : 'dark', event.currentTarget)}
+              aria-label={t(SCHEME_LABEL[scheme])}
+              onClick={(event) => revealColorScheme(NEXT_SCHEME[scheme], event.currentTarget)}
             >
-              {isDark ? <IconSun size={16} /> : <IconMoon size={16} />}
+              <SchemeIcon size={16} />
             </ActionIcon>
           </Tooltip>
 

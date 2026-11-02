@@ -22,12 +22,9 @@ import {
   IconChevronUp,
   IconChevronsDown,
   IconChevronsUp,
-  IconDeviceDesktop,
   IconLogout,
-  IconMoon,
   IconSettings,
   IconShieldCheck,
-  IconSun,
   IconUser,
 } from '@tabler/icons-react';
 
@@ -39,19 +36,7 @@ import { t } from '@/shared/i18n/t';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser, selectUserPermissions, selectUserRole } from '@/store/slices/authSlice';
 import { canOpenSettings } from '@/features/settings/settingsSections';
-
-type SchemeChoice = 'light' | 'dark' | 'auto';
-const NEXT_SCHEME: Record<SchemeChoice, SchemeChoice> = {
-  light: 'dark',
-  dark: 'auto',
-  auto: 'light',
-};
-const SCHEME_LABEL: Record<SchemeChoice, string> = {
-  light: 'Light Mode',
-  dark: 'Dark Mode',
-  auto: 'System',
-};
-const SCHEME_ICON = { light: IconSun, dark: IconMoon, auto: IconDeviceDesktop } as const;
+import { NEXT_SCHEME, SCHEME_ICON, SCHEME_LABEL, type SchemeChoice } from './colorSchemeChoice';
 
 /** The role pill under the name, so the role never reads as part of the name. */
 const ROLE_LOOK: Record<UserRole, { color: string; Icon: typeof IconUser }> = {

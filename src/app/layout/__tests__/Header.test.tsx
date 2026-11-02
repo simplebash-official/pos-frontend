@@ -199,3 +199,27 @@ describe('Header component shop name rendering', () => {
     expect(html).toContain('data-testid="register-session-badge"');
   });
 });
+
+describe('Header theme button', () => {
+  beforeEach(() => {
+    mockPathname = '/billing';
+    mockIsMobile = false;
+  });
+
+  // Same icon and label as the sidebar's theme button: the mode in force, not the next one.
+  it.each([
+    ['light', 'Light Mode', 'tabler-icon-sun'],
+    ['dark', 'Dark Mode', 'tabler-icon-moon'],
+    ['auto', 'System', 'tabler-icon-device-desktop'],
+  ] as const)('shows the %s mode as the sidebar does', (scheme, label, iconClass) => {
+    const html = renderToString(
+      <Provider store={createMockStore()}>
+        <MantineProvider defaultColorScheme={scheme}>
+          <Header opened={false} toggle={vi.fn()} />
+        </MantineProvider>
+      </Provider>
+    );
+    const button = html.match(new RegExp(`<button[^>]*aria-label="${label}"[^>]*>.*?</button>`));
+    expect(button?.[0]).toContain(iconClass);
+  });
+});
