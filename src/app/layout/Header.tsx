@@ -36,6 +36,7 @@ import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser } from '@/store/slices/authSlice';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useColorSchemeReveal } from '@/shared/hooks/useColorSchemeReveal';
 import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { ModernClock } from '@/shared/components/ModernClock';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -90,7 +91,8 @@ export const Header = ({
   const { itemCount: cartItemsCount } = useCartItems();
   const { heldCarts } = useHeldCarts();
   const { soundEnabled, toggleSoundFeedback } = useCartSound();
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const { colorScheme } = useMantineColorScheme();
+  const revealColorScheme = useColorSchemeReveal();
   const isDark = colorScheme === 'dark';
 
   if (isBillingPage) {
@@ -209,7 +211,7 @@ export const Header = ({
               variant="subtle"
               color="gray"
               size="sm"
-              onClick={() => setColorScheme(isDark ? 'light' : 'dark')}
+              onClick={(event) => revealColorScheme(isDark ? 'light' : 'dark', event.currentTarget)}
             >
               {isDark ? <IconSun size={16} /> : <IconMoon size={16} />}
             </ActionIcon>

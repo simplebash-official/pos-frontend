@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 import {
   ActionIcon,
@@ -33,6 +34,7 @@ import {
 import { ROUTES } from '@/constants/routes';
 import { USER_ROLES, formatUserRole, type UserRole } from '@/constants/roles';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { useColorSchemeReveal } from '@/shared/hooks/useColorSchemeReveal';
 import { t } from '@/shared/i18n/t';
 import { useAppSelector } from '@/store/hooks';
 import { selectAuthUser, selectUserPermissions, selectUserRole } from '@/store/slices/authSlice';
@@ -85,8 +87,10 @@ export const SidebarFooter = ({
   allFolded,
   onToggleFoldAll,
 }: SidebarFooterProps) => {
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const { colorScheme } = useMantineColorScheme();
   const scheme = colorScheme as SchemeChoice;
+  const revealColorScheme = useColorSchemeReveal();
+  const schemeToggleRef = useRef<HTMLDivElement>(null);
   const user = useAppSelector(selectAuthUser);
   const role = useAppSelector(selectUserRole);
   const canSettings = canOpenSettings({
@@ -167,7 +171,7 @@ export const SidebarFooter = ({
             variant="subtle"
             color="gray"
             aria-label={schemeLabel}
-            onClick={() => setColorScheme(NEXT_SCHEME[scheme])}
+            onClick={(event) => revealColorScheme(NEXT_SCHEME[scheme], event.currentTarget)}
           >
             <SchemeIcon size={20} stroke={1.5} />
           </ActionIcon>
@@ -277,8 +281,9 @@ export const SidebarFooter = ({
         <SegmentedToggle
           style={{ flex: 1 }}
           size={isMobile ? 'md' : 'xs'}
+          ref={schemeToggleRef}
           value={scheme}
-          onChange={(value) => setColorScheme(value as SchemeChoice)}
+          onChange={(value) => revealColorScheme(value as SchemeChoice, schemeToggleRef.current!)}
           data={(Object.keys(SCHEME_ICON) as SchemeChoice[]).map((value) => {
             const Icon = SCHEME_ICON[value];
             return {

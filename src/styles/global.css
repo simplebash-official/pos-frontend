@@ -1541,3 +1541,11 @@ th.mantine-Table-th {
   /* Mantine's `c` prop is an inline style, so only !important can override it. */
   color: rgba(255, 255, 255, 0.85) !important;
 }
+
+/* Circular reveal theme switch (useColorSchemeReveal): the hook animates the new view's
+   clip-path itself, so the default cross-fade is switched off. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -41,6 +41,7 @@ import { ROUTES } from '@/constants/routes';
 import { queryKeys } from '@/api/queryKeys';
 import { logger } from '@/shared/logging';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useColorSchemeReveal } from '@/shared/hooks/useColorSchemeReveal';
 import { isTauri } from '@/shared/lib/runtime';
 import { useSetupStatus, useInitializeSetup } from '../hooks/useSetupStatus';
 import { completeInstallationSetupNative, recoverCompletedSetup } from '../api/onboardingApi';
@@ -58,7 +59,8 @@ export const WelcomeWizard = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const { colorScheme } = useMantineColorScheme();
+  const revealColorScheme = useColorSchemeReveal();
   const appLanguage = useAppSelector(selectAppLanguage);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitialized = useAppSelector(selectIsAuthInitialized);
@@ -200,8 +202,8 @@ export const WelcomeWizard = () => {
     }
   };
 
-  const toggleColorScheme = () => {
-    setColorScheme(colorScheme === 'dark' ? 'light' : 'dark');
+  const toggleColorScheme = (event: MouseEvent<HTMLElement>) => {
+    revealColorScheme(colorScheme === 'dark' ? 'light' : 'dark', event.currentTarget);
   };
 
   const shortId = status?.installation_id
