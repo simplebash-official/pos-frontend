@@ -76,13 +76,6 @@ export const CREDIT_NOTE_FLAG_META = {
   exchange: { color: 'indigo', label: 'Exchange' } as InvoiceStatusMeta,
 };
 
-/** Badge for a serial-tracked unit's warranty state, e.g. on a Credit Note's per-serial rows. */
-export function getWarrantyMeta(withinWarranty: boolean): InvoiceStatusMeta {
-  return withinWarranty
-    ? { color: 'teal', label: 'Under Warranty' }
-    : { color: 'gray', label: 'Warranty Expired' };
-}
-
 export const RETURN_REASON_OPTIONS = [
   { value: 'defective', label: 'Defective / Not Working' },
   { value: 'wrong_item', label: 'Wrong Item or Size' },

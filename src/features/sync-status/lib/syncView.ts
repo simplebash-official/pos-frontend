@@ -162,6 +162,11 @@ export const MODULES: readonly ModuleDef[] = [
   { id: 'repairs', label: 'Repair Jobs', resources: ['repairs'] },
   { id: 'printJobs', label: 'Print Jobs', resources: ['printJobs'] },
   {
+    id: 'warranties',
+    label: 'Warranties',
+    resources: ['warranties', 'warrantyEvents', 'warrantyClaims'],
+  },
+  {
     id: 'inventory',
     label: 'Inventory & Stock',
     resources: [
@@ -191,6 +196,9 @@ const RECORD_NAMES: Record<string, string> = {
   payments: 'Payment',
   creditNotes: 'Credit note',
   quotations: 'Quotation',
+  warranties: 'Warranty',
+  warrantyEvents: 'Warranty history',
+  warrantyClaims: 'Warranty claim',
   repairs: 'Repair job',
   printJobs: 'Print job',
   products: 'Product',

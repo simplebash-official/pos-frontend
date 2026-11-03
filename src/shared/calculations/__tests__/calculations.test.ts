@@ -7,9 +7,6 @@ import {
   parseMoneyToCents,
   numberToWords,
   numberToWordsRupees,
-  isWithinWarranty,
-  getWarrantyExpirationTimestamp,
-  BILLING_MONTH_MS,
   getTiersWithRoom,
   tiersWithRoom,
   calculateProfitRange,
@@ -113,59 +110,6 @@ describe('Centralized Calculations Module (@/shared/calculations)', () => {
     it('handles rounding of fractional cents', () => {
       expect(numberToWords(1550.4)).toBe('Sri Lankan Rupees Fifteen and Cents Fifty Only');
       expect(numberToWords(1550.6)).toBe('Sri Lankan Rupees Fifteen and Cents Fifty One Only');
-    });
-  });
-
-  describe('warranty.ts', () => {
-    const saleDateStr = '2026-01-01T00:00:00.000Z';
-    const saleDateMs = new Date(saleDateStr).getTime();
-
-    it('computes exact expiration timestamp using 30-day billing month rule', () => {
-      const exp12Ms = getWarrantyExpirationTimestamp(saleDateStr, 12);
-      expect(exp12Ms).toBe(saleDateMs + 12 * BILLING_MONTH_MS);
-
-      const expDateObj = getWarrantyExpirationTimestamp(new Date(saleDateStr), 6);
-      expect(expDateObj).toBe(saleDateMs + 6 * BILLING_MONTH_MS);
-    });
-
-    it('handles non-positive or non-finite warranty duration in getWarrantyExpirationTimestamp', () => {
-      expect(getWarrantyExpirationTimestamp(saleDateStr, 0)).toBe(saleDateMs);
-      expect(getWarrantyExpirationTimestamp(saleDateStr, -1)).toBe(saleDateMs);
-      expect(getWarrantyExpirationTimestamp(saleDateStr, NaN)).toBe(saleDateMs);
-      expect(getWarrantyExpirationTimestamp(saleDateStr, Infinity)).toBe(saleDateMs);
-    });
-
-    it('throws on unparseable date strings in getWarrantyExpirationTimestamp', () => {
-      expect(() => getWarrantyExpirationTimestamp('invalid-date', 12)).toThrow(/Invalid createdAt/);
-      expect(() => getWarrantyExpirationTimestamp('', 12)).toThrow(/Invalid createdAt/);
-    });
-
-    it('accurately evaluates active vs expired warranty status', () => {
-      // 12 months = 360 days (2026-01-01 to 2026-12-27)
-      const midwayMs = new Date('2026-06-01T00:00:00.000Z').getTime();
-      const expiredMs = new Date('2027-02-01T00:00:00.000Z').getTime();
-
-      expect(isWithinWarranty(saleDateStr, 12, midwayMs)).toBe(true);
-      expect(isWithinWarranty(saleDateStr, 12, expiredMs)).toBe(false);
-
-      // Boundary condition: exact expiration time is expired (< check)
-      const exactExpiration = saleDateMs + 12 * BILLING_MONTH_MS;
-      expect(isWithinWarranty(saleDateStr, 12, exactExpiration)).toBe(false);
-      expect(isWithinWarranty(saleDateStr, 12, exactExpiration - 1)).toBe(true);
-    });
-
-    it('returns false safely without throwing when date is invalid in isWithinWarranty', () => {
-      expect(isWithinWarranty('invalid-date', 12, saleDateMs)).toBe(false);
-      expect(isWithinWarranty('', 12, saleDateMs)).toBe(false);
-    });
-
-    it('returns false when warranty is missing, non-finite, or non-positive', () => {
-      expect(isWithinWarranty(saleDateStr, undefined, saleDateMs)).toBe(false);
-      expect(isWithinWarranty(saleDateStr, null, saleDateMs)).toBe(false);
-      expect(isWithinWarranty(saleDateStr, 0, saleDateMs)).toBe(false);
-      expect(isWithinWarranty(saleDateStr, -2, saleDateMs)).toBe(false);
-      expect(isWithinWarranty(saleDateStr, NaN, saleDateMs)).toBe(false);
-      expect(isWithinWarranty(saleDateStr, Infinity, saleDateMs)).toBe(false);
     });
   });
 

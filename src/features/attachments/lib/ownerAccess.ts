@@ -10,5 +10,7 @@ export const recordPermission = (kind: AttachmentOwner): Permission => {
       return PERMISSIONS.EXPENSES_MANAGE;
     case 'income':
       return PERMISSIONS.INCOME_MANAGE;
+    case 'warranty_claim':
+      return PERMISSIONS.WARRANTY_CLAIMS_RECORD;
   }
 };

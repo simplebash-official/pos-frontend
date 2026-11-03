@@ -63,13 +63,7 @@ export interface DataImportModalProps {
 }
 
 function isNumericColumn(key: string): boolean {
-  return [
-    'sellingPrice',
-    'costPrice',
-    'stockQuantity',
-    'minStockThreshold',
-    'warrantyMonths',
-  ].includes(key);
+  return ['sellingPrice', 'costPrice', 'stockQuantity', 'minStockThreshold'].includes(key);
 }
 
 function getColumnMinWidth(key: string): number {
@@ -88,8 +82,12 @@ function getColumnMinWidth(key: string): number {
       return 110;
     case 'barcode':
       return 150;
-    case 'warrantyMonths':
+    case 'warranty':
       return 120;
+    case 'warrantyType':
+      return 130;
+    case 'warrantyTerms':
+      return 200;
     case 'isSerialized':
       return 100;
     default:
@@ -410,7 +408,7 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
       }
     }
 
-    if (key === 'stockQuantity' || key === 'minStockThreshold' || key === 'warrantyMonths') {
+    if (key === 'stockQuantity' || key === 'minStockThreshold') {
       const num = Number(val);
       if (!isNaN(num)) {
         return (

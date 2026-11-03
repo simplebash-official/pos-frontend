@@ -1,0 +1,109 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import { feedbackMeta } from '@/api/mutationFeedback';
+import { t } from '@/shared/i18n/t';
+import {
+  convertClaimToPaidRepair,
+  decideClaim,
+  fetchClaim,
+  fetchClaims,
+  inspectClaim,
+  openClaim,
+  recordSupplierReturn,
+  resolveClaim,
+  returnClaimToCustomer,
+  sendClaimToSupplier,
+  type SendToSupplierInput,
+} from '../api/claimsApi';
+import type {
+  ClaimDecision,
+  ClaimListFilter,
+  ManagerApproval,
+  OpenClaimInput,
+  ReplacementInput,
+  SupplierOutcome,
+  WarrantyClaim,
+} from '../types';
+
+/** The claims queue. Pass `null` to wait. */
+export const useClaims = (filter: ClaimListFilter | null) =>
+  useQuery({
+    queryKey: queryKeys.warrantyClaims.list({ ...filter }),
+    queryFn: () => fetchClaims(filter as ClaimListFilter),
+    enabled: filter !== null,
+  });
+
+/** One claim. Pass `null` to wait. */
+export const useClaim = (key: string | null) =>
+  useQuery({
+    queryKey: queryKeys.warrantyClaims.detail(key ?? ''),
+    queryFn: () => fetchClaim(key as string),
+    enabled: key !== null,
+  });
+
+/** A claim step changes the claim and its warranty, so both refresh. */
+const useRefreshClaims = () => {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.warrantyClaims.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all }),
+    ]);
+};
+
+const claimNumber = (claim: WarrantyClaim) => claim.claimNumber;
+
+export const useOpenClaim = () => {
+  const refresh = useRefreshClaims();
+  return useMutation({
+    mutationFn: (input: OpenClaimInput) => openClaim(input),
+    onSuccess: () => refresh(),
+    meta: feedbackMeta<WarrantyClaim>({
+      successTitle: t('Claim started'),
+      successMessage: claimNumber,
+      failureTitle: t('The claim was not started'),
+    }),
+  });
+};
+
+/** Every step after opening: one hook, one mutation per step kind. */
+export type ClaimStepInput =
+  | { kind: 'inspect'; key: string; inspectionNotes: string }
+  | { kind: 'decide'; key: string; decision: ClaimDecision; approval: ManagerApproval }
+  | { kind: 'send'; key: string; input: SendToSupplierInput }
+  | { kind: 'supplierReturn'; key: string; outcome: SupplierOutcome; note?: string }
+  | { kind: 'resolve'; key: string; resolutionNote?: string; replacement?: ReplacementInput }
+  | { kind: 'return'; key: string }
+  | { kind: 'paidRepair'; key: string };
+
+const runStep = (step: ClaimStepInput): Promise<WarrantyClaim> => {
+  switch (step.kind) {
+    case 'inspect':
+      return inspectClaim(step.key, step.inspectionNotes);
+    case 'decide':
+      return decideClaim(step.key, step.decision, step.approval);
+    case 'send':
+      return sendClaimToSupplier(step.key, step.input);
+    case 'supplierReturn':
+      return recordSupplierReturn(step.key, step.outcome, step.note);
+    case 'resolve':
+      return resolveClaim(step.key, step.resolutionNote, step.replacement);
+    case 'return':
+      return returnClaimToCustomer(step.key);
+    case 'paidRepair':
+      return convertClaimToPaidRepair(step.key);
+  }
+};
+
+export const useClaimStep = () => {
+  const refresh = useRefreshClaims();
+  return useMutation({
+    mutationFn: runStep,
+    onSuccess: () => refresh(),
+    meta: feedbackMeta<WarrantyClaim>({
+      successTitle: t('Claim updated'),
+      successMessage: claimNumber,
+      failureTitle: t('The claim was not updated'),
+    }),
+  });
+};

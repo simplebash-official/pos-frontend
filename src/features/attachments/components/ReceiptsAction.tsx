@@ -43,7 +43,8 @@ export const ReceiptsAction: React.FC<ReceiptsActionProps> = ({ ownerKind, owner
         <ReceiptPhotosModal
           ownerKind={ownerKind}
           ownerKey={ownerKey}
-          title={number}
+          title={`${t('Receipts')} — ${number}`}
+          emptyText={t('No receipt photos yet.')}
           canAdd={canAttach && canRecord}
           onClose={() => setOpen(false)}
         />

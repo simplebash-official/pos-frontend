@@ -30,6 +30,8 @@ import {
 import { CATEGORY_COLOR_OPTIONS, DEFAULT_CATEGORY_ICON, resolveCategoryIcon } from '../constants';
 import { Category } from '../types';
 import { TablerIconPicker } from '@/shared/components/TablerIconPicker';
+import { ProductWarrantyFields, profileProblem, toProfileInput } from '@/features/warranties';
+import type { ProductWarranty } from '@/features/warranties';
 import {
   ExpandableCard,
   ExpandableCardGroup,
@@ -140,6 +142,12 @@ const CategoryItem = ({
   const [editIcon, setEditIcon] = useState<string | null>(category.icon);
   const [editColor, setEditColor] = useState<string | null>(category.color);
   const [editNameError, setEditNameError] = useState<string | undefined>();
+  const [editWarranty, setEditWarranty] = useState<ProductWarranty>(
+    category.warrantyTemplate === undefined
+      ? { coverage: { kind: 'none' } }
+      : category.warrantyTemplate
+  );
+  const [warrantyTried, setWarrantyTried] = useState(false);
 
   const catIconEl = createElement(resolveCategoryIcon(iconMap, category.icon), { size: 20 });
 
@@ -148,16 +156,30 @@ const CategoryItem = ({
     setEditIcon(category.icon);
     setEditColor(category.color);
     setEditNameError(undefined);
+    setEditWarranty(
+      category.warrantyTemplate === undefined
+        ? { coverage: { kind: 'none' } }
+        : category.warrantyTemplate
+    );
+    setWarrantyTried(false);
     setIsEditing(true);
     onExpandCategory(category.key);
   };
 
   const handleSaveEdit = () => {
     if (!editName.trim() || !editIcon || !editColor) return;
+    setWarrantyTried(true);
+    if (profileProblem(editWarranty) !== null) return;
     updateCategory.mutate(
       {
         categoryKey: category.key,
-        updates: { name: editName.trim(), icon: editIcon, color: editColor },
+        updates: {
+          name: editName.trim(),
+          icon: editIcon,
+          color: editColor,
+          // Coverage "none" removes the template.
+          warrantyTemplate: toProfileInput(editWarranty),
+        },
       },
       {
         onSuccess: () => {
@@ -248,6 +270,14 @@ const CategoryItem = ({
                 />
                 <CategoryColorPicker value={editColor} onChange={setEditColor} />
               </Group>
+              <Text size="xs" fw={600} c="dimmed" mt="xs">
+                {t('Warranty for new products in this category')}
+              </Text>
+              <ProductWarrantyFields
+                value={editWarranty}
+                onChange={setEditWarranty}
+                error={warrantyTried ? profileProblem(editWarranty) : null}
+              />
               <Group justify="flex-end" gap="xs" mt="xs">
                 <Button
                   size="xs"

@@ -5,6 +5,7 @@ import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/bil
 import type { CentsRange } from '@/features/inventory/lib/priceTiers';
 import type { Product } from '@/features/inventory/types';
 import type { Quotation } from '@/features/quotations/types';
+import type { ProductWarranty } from '@/features/warranties/types';
 
 export interface CartItem {
   id: string;
@@ -50,6 +51,10 @@ export interface CartItem {
   stockQuantity?: number;
   /** Only present for a serial-tracked product; one entry per unit, kept in sync with `quantity`. */
   serialNumbers?: string[];
+  /** The product's warranty when the line was added; absent for repair, print and typed lines. */
+  warranty?: ProductWarranty;
+  /** A different warranty the cashier chose for this line (sent as `warrantyOverride`). */
+  warrantyOverride?: ProductWarranty;
 }
 
 export interface CompletedSaleData {
@@ -324,6 +329,18 @@ const cartSlice = createSlice({
       item.quantity = quantity;
     },
 
+    /** Gives a line a different warranty than its product's; `null` goes back to the product's. */
+    setLineWarrantyOverride: (
+      state,
+      action: PayloadAction<{ id: string; warranty: ProductWarranty | null }>
+    ) => {
+      const item = state.items.find((i) => i.id === action.payload.id);
+      if (item) {
+        item.warrantyOverride =
+          action.payload.warranty === null ? undefined : action.payload.warranty;
+      }
+    },
+
     updateLineDiscount: (
       state,
       action: PayloadAction<{ id: string; discount: LineDiscountInput | null }>
@@ -571,6 +588,7 @@ const cartSlice = createSlice({
           discount: item.discountCents > 0 ? { type: 'fixed', value: item.discountCents } : null,
           sourceType: 'retail' as LineSourceType,
           stockQuantity: prod?.stockQuantity ?? 0,
+          warranty: prod?.warranty,
         };
       });
     },
@@ -593,6 +611,7 @@ export const {
   clearLastRemovedItem,
   updateQuantity,
   updateLineDiscount,
+  setLineWarrantyOverride,
   setCustomer,
   setTenderedAmountCents,
   setCreditDepositCents,

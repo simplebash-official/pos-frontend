@@ -1,4 +1,5 @@
 import type { SyncedEntityFields } from '@/shared/types/common';
+import type { ProductWarranty } from '@/features/warranties/types';
 
 export interface Subcategory extends SyncedEntityFields {
   key: string;
@@ -13,6 +14,8 @@ export interface Category extends SyncedEntityFields {
   name: string;
   icon: string;
   color: string;
+  /** The warranty a new product of this category starts with in the product form. */
+  warrantyTemplate?: ProductWarranty;
   subcategories: Subcategory[];
   createdAt: string;
   updatedAt: string;
@@ -23,6 +26,7 @@ export interface CategoryInput {
   icon: string;
   color: string;
   subcategories: string[];
+  warrantyTemplate?: ProductWarranty;
 }
 
 export interface ValidSubcategoryOption {
@@ -60,7 +64,8 @@ export interface Product extends SyncedEntityFields {
   stockQuantity: number;
   minStockThreshold: number;
   isSerialized: boolean;
-  warrantyMonths?: number;
+  /** The warranty each unit comes with; copied onto a warranty record for every unit sold. */
+  warranty: ProductWarranty;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -145,7 +150,8 @@ export interface CreateProductInput {
   autoGenerateBarcode?: boolean;
   suppliers?: ProductSupplierIntake[];
   isSerialized?: boolean;
-  warrantyMonths?: number;
+  /** Required: send coverage `none` for no warranty. */
+  warranty: ProductWarranty;
 }
 
 export interface UpdateProductInput {
@@ -160,7 +166,8 @@ export interface UpdateProductInput {
    */
   barcode?: string;
   isSerialized?: boolean;
-  warrantyMonths?: number;
+  /** Replaces the warranty for units sold from now on. */
+  warranty?: ProductWarranty;
 }
 
 export type ProductInput = CreateProductInput;
@@ -216,8 +223,6 @@ export interface ProductSerial {
   status: ProductSerialStatus;
   invoiceKey?: string;
   soldAt?: string;
-  warrantyMonths?: number;
-  warrantyExpiresAt?: string;
   creditNoteKey?: string;
   createdAt: string;
   updatedAt: string;

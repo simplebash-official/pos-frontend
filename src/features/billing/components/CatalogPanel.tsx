@@ -425,6 +425,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       sourceType: 'retail',
       stockQuantity: tier.quantity,
       serialNumbers: serialNumber ? [serialNumber] : undefined,
+      warranty: p.warranty,
     });
     playScanSuccessSound(soundEnabled);
     setShakeError(null);
@@ -452,6 +453,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           discount: null,
           sourceType: 'retail',
           stockQuantity: p.stockQuantity,
+          warranty: p.warranty,
         });
         playScanSuccessSound(soundEnabled);
         notifications.show({
@@ -1647,6 +1649,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         onClose={() => setSerialPickerProduct(null)}
         productName={serialPickerProduct?.name ?? ''}
         productKey={serialPickerProduct?.key ?? ''}
+        warranty={serialPickerProduct === null ? null : serialPickerProduct.warranty}
         excludeSerialNumbers={
           serialPickerProduct ? alreadyPickedSerialsForProduct(serialPickerProduct.key) : []
         }

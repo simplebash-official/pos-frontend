@@ -34,7 +34,9 @@ import { notifications } from '@mantine/notifications';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { Product, CreateProductInput, UpdateProductInput, ProductSupplierIntake } from '../types';
 import { isValidManualBarcode } from '../lib/barcode';
-import { useValidCategories } from '../hooks/useCategories';
+import { useCategories, useValidCategories } from '../hooks/useCategories';
+import { ProductWarrantyFields, profileProblem, toProfileInput } from '@/features/warranties';
+import type { ProductWarranty } from '@/features/warranties';
 import { toCents, formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useGlobalCalculator } from '@/shared/components/calculator';
@@ -183,9 +185,20 @@ const ProductFormContent = ({
 
   // Serial number & warranty tracking
   const [isSerialized, setIsSerialized] = useState(productToEdit?.isSerialized ?? false);
-  const [warrantyMonths, setWarrantyMonths] = useState<number | string>(
-    productToEdit?.warrantyMonths ?? ''
+  const [warranty, setWarranty] = useState<ProductWarranty>(
+    productToEdit === undefined || productToEdit === null
+      ? { coverage: { kind: 'none' } }
+      : productToEdit.warranty
   );
+  // A new product takes its category's warranty until the person changes it themselves.
+  const [warrantyTouched, setWarrantyTouched] = useState(isEditing);
+  const { data: categoryList } = useCategories();
+  const categoryTemplate = useMemo(() => {
+    const category = categoryList.find((c) => c.key === categoryKey);
+    return category?.warrantyTemplate === undefined
+      ? undefined
+      : { categoryName: category.name, warranty: category.warrantyTemplate };
+  }, [categoryList, categoryKey]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -243,6 +256,10 @@ const ProductFormContent = ({
   const handleCategoryChange = (value: string | null) => {
     setCategoryKey(value);
     setSubcategoryKey(null);
+    if (!warrantyTouched) {
+      const template = categoryList.find((c) => c.key === value)?.warrantyTemplate;
+      setWarranty(template === undefined ? { coverage: { kind: 'none' } } : template);
+    }
     if (errors.categoryKey) setErrors((prev) => ({ ...prev, categoryKey: '' }));
   };
 
@@ -251,6 +268,8 @@ const ProductFormContent = ({
     if (!name.trim()) newErrors.name = 'Product name is required';
     if (!categoryKey) newErrors.categoryKey = 'Select a category';
     if (!subcategoryKey) newErrors.subcategoryKey = 'Select a subcategory';
+    const warrantyError = profileProblem(warranty);
+    if (warrantyError !== null) newErrors.warranty = warrantyError;
 
     const hasOpeningStock = !isEditing && !hasSupplierIntakes && Number(stockQuantity) > 0;
     if (hasOpeningStock) {
@@ -337,7 +356,7 @@ const ProductFormContent = ({
         subcategoryKey,
         minStockThreshold: Number(minStockThreshold || 0),
         isSerialized,
-        warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
+        warranty: toProfileInput(warranty),
       };
 
       // Only send `barcode` when it actually changed — an unchanged value would
@@ -382,7 +401,7 @@ const ProductFormContent = ({
         minStockThreshold: Number(minStockThreshold || 0),
         suppliers: suppliersPayload.length > 0 ? suppliersPayload : undefined,
         isSerialized,
-        warrantyMonths: isSerialized && warrantyMonths !== '' ? Number(warrantyMonths) : undefined,
+        warranty: toProfileInput(warranty),
       };
 
       if (autoGenerateBarcode) {
@@ -895,7 +914,7 @@ const ProductFormContent = ({
         {/* Serial Numbers & Warranty */}
         <Stack gap={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-            {t('Serial Numbers &amp; Warranty')}
+            {t('Serial numbers')}
           </Text>
 
           <Box
@@ -924,7 +943,7 @@ const ProductFormContent = ({
                   </Text>
                   <Text size="xs" c="dimmed" lh={1.3}>
                     {t(
-                      'Turn this on for electronics or appliances where each unit needs its own serial\n                                                          number and warranty, like a phone or a fridge.'
+                      'Turn this on for electronics or appliances where each unit needs its own serial number, like a phone or a fridge. Each unit sold then gets its own warranty.'
                     )}
                   </Text>
                 </Stack>
@@ -939,20 +958,23 @@ const ProductFormContent = ({
               />
             </Group>
           </Box>
+        </Stack>
 
-          {isSerialized && (
-            <NumberInput
-              mt={4}
-              label={t('Warranty period (months)')}
-              placeholder={t('e.g. 12')}
-              min={0}
-              value={warrantyMonths}
-              onChange={setWarrantyMonths}
-              description={t(
-                'How many months of warranty this item comes with, starting from the sale date. Leave blank if it has no warranty.'
-              )}
-            />
-          )}
+        {/* Warranty: how long each unit is covered, who gives it, what it covers */}
+        <Stack gap={6}>
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+            {t('Warranty')}
+          </Text>
+          <ProductWarrantyFields
+            value={warranty}
+            onChange={(next) => {
+              setWarranty(next);
+              setWarrantyTouched(true);
+              if (errors.warranty) setErrors((prev) => ({ ...prev, warranty: '' }));
+            }}
+            categoryTemplate={categoryTemplate}
+            error={errors.warranty ? errors.warranty : null}
+          />
         </Stack>
 
         {/* Pricing of the stock on hand now (its opening delivery) */}

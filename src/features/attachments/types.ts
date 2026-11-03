@@ -1,4 +1,4 @@
-export type AttachmentOwner = 'cash_movement' | 'expense' | 'income';
+export type AttachmentOwner = 'cash_movement' | 'expense' | 'income' | 'warranty_claim';
 
 export interface Attachment {
   key: string;

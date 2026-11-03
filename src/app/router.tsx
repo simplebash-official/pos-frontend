@@ -25,6 +25,11 @@ const BillingCounter = lazy(() =>
     default: m.BillingCounter,
   }))
 );
+const WarrantiesPage = lazy(() =>
+  import('@/features/warranties/components/WarrantiesPage').then((m) => ({
+    default: m.WarrantiesPage,
+  }))
+);
 const InvoicesList = lazy(() =>
   import('@/features/invoices/components/InvoicesList').then((m) => ({ default: m.InvoicesList }))
 );
@@ -166,6 +171,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<PageSkeleton />}>
             <RepairJobList />
           </Suspense>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.WARRANTIES,
+        element: (
+          <RequirePermission permissions={[PERMISSIONS.WARRANTIES_VIEW]}>
+            <Suspense fallback={<PageSkeleton />}>
+              <WarrantiesPage />
+            </Suspense>
+          </RequirePermission>
         ),
       },
       {

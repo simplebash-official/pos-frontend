@@ -18,6 +18,7 @@ export type ShortcutActionId =
   | 'lastInvoice'
   | 'quickSearch'
   | 'calculator'
+  | 'warrantyLookup'
   | 'keyboardShortcuts'
   | 'lineQtyArrows'
   | 'lineQtyPlusMinus'
@@ -151,6 +152,14 @@ export const SHORTCUT_REGISTRY: Record<ShortcutActionId, ShortcutDefinition> = {
     description: 'Universal command palette for items, customers, jobs, and invoices',
     windows: { primary: 'Ctrl+K' },
     mac: { primary: 'Mod+K' },
+  },
+  warrantyLookup: {
+    id: 'warrantyLookup',
+    category: 'navigation',
+    title: 'Check a warranty',
+    description: 'Open the warranty lookup with the search box ready for a scan',
+    windows: { primary: 'Alt+W' },
+    mac: { primary: 'Alt+W' },
   },
   calculator: {
     id: 'calculator',

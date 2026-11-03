@@ -40,6 +40,9 @@ export const PERMISSIONS = {
   REPORTS_VIEW: 'reports:view',
   EMPLOYEES_READ: 'employees:read',
   EMPLOYEES_WRITE: 'employees:write',
+  WARRANTIES_VIEW: 'warranties:view',
+  WARRANTY_CLAIMS_RECORD: 'warranty_claims:record',
+  WARRANTIES_ADJUST_AT_SALE: 'warranties:adjust_at_sale',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

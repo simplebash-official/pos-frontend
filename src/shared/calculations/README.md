@@ -19,7 +19,6 @@ This module houses **Tier 2 (Presentation Math & Formatting Layer)** calculation
 │ import { ... } from '@/shared/calculations'                            │
 │ ├── currency.ts           -> toCents, fromCents, parseMoney, format    │
 │ ├── words.ts              -> numberToWords (receipt word generation)   │
-│ ├── warranty.ts           -> isWithinWarranty, getExpirationDate       │
 │ ├── inventoryMetrics.ts   -> tiersWithRoom, calculateProfitRange       │
 │ ├── invoiceMetrics.ts     -> describeInvoiceUnits, unit summaries      │
 │ ├── rollups.ts            -> sumCashMovements, sumRegisterSales, etc.  │
@@ -46,14 +45,11 @@ This module houses **Tier 2 (Presentation Math & Formatting Layer)** calculation
 Do **not** use implicit fallback operators (`|| 0`, `?? ''`) or invent guessed defaults at calculation sites.
 
 - If an input is required to compute a valid result, the function signature must require it or return an explicit typed outcome.
-- For example, `isWithinWarranty` returns `false` if `warrantyMonths` is absent, undefined, or `<= 0`.
 - Missing values in rollup sums are checked explicitly with `typeof val === 'number'` rather than silent truthiness coercion.
 
-### 2. 30-Day Billing Month Warranty Convention
+### 2. Warranty periods are not worked out here
 
-- In accordance with retail accounting conventions, product warranties are evaluated using standard 30-day billing months:
-  $$\text{durationMs} = \text{warrantyMonths} \times 30 \times 86{,}400{,}000\text{ ms}$$
-- `isWithinWarranty(createdAt, warrantyMonths, currentTimestampMs)` evaluates whether the current timestamp is strictly less than the expiration timestamp.
+- A warranty's end date and days left come from the server (the warranty record) or, for a preview, from `calc_warranty` in `@/wasm` (`pos-calc-core`'s calendar rule). Nothing in this folder counts warranty time.
 
 ### 3. Integer Cents Currency Standard
 
@@ -66,7 +62,6 @@ Do **not** use implicit fallback operators (`|| 0`, `?? ''`) or invent guessed d
 
 - **`currency.ts`**: Cents-to-rupees conversions, localized money formatting (`formatMoney`, `formatCentsRange`), and resilient user input string parsing (`parseMoneyToCents`).
 - **`words.ts`**: Converts integer cents into formal English words for receipt printing and tax invoices (e.g. `numberToWords`, `numberToWordsRupees`).
-- **`warranty.ts`**: Validates whether an invoice/item remains within its manufacturer or store warranty (`isWithinWarranty`, `getWarrantyExpirationTimestamp`).
 - **`inventoryMetrics.ts`**: Inventory stock tier calculations (`getTiersWithRoom`, `calculateProfitRange`, `sumTierQuantities`).
 - **`invoiceMetrics.ts`**: Aggregates returned and original units from invoice items and checks completion states (`describeInvoiceUnits`, `calcItemReturnedUnits`, `calcItemRemainingUnits`, `isItemFullyReturned`, `sumCreditNoteItemsCount`).
 - **`rollups.ts`**: Drawer summary aggregations (`sumCashMovements`, `sumRegisterSales`, `sumEmployeeEarnings`, `sumParkedCartsTotal`, `sumPipelineStages`).

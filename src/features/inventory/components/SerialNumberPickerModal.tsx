@@ -5,12 +5,18 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useProductSerials } from '../hooks/useProductSerials';
 import { useProductBatches } from '../hooks/useProducts';
 import { formatMoney } from '@/shared/lib/money';
+import { formatDate } from '@/shared/lib/date';
+import { WarrantyChip } from '@/features/warranties/components/WarrantyChip';
+import { endsOnIfStartedToday } from '@/features/warranties/lib/warrantyView';
+import type { ProductWarranty } from '@/features/warranties/types';
 
 export interface SerialNumberPickerModalProps {
   opened: boolean;
   onClose: () => void;
   productName: string;
   productKey: string;
+  /** The product's warranty, shown so the cashier can tell the customer before the sale. */
+  warranty: ProductWarranty | null;
   /** Serials already picked for this product elsewhere in the current sale, hidden from the list. */
   excludeSerialNumbers?: string[];
   /** The chosen unit and the price it sells at (its delivery's selling price). */
@@ -27,9 +33,11 @@ export const SerialNumberPickerModal = ({
   onClose,
   productName,
   productKey,
+  warranty,
   excludeSerialNumbers,
   onSelect,
 }: SerialNumberPickerModalProps) => {
+  const warrantyEnds = warranty === null ? null : endsOnIfStartedToday(warranty.coverage);
   const isMobile = useIsMobile();
   const [chosen, setChosen] = useState<string | null>(null);
   const { data: serials, isLoading } = useProductSerials(productKey, 'in_stock', {
@@ -71,6 +79,18 @@ export const SerialNumberPickerModal = ({
         <Text size="sm" c="dimmed">
           {t('This item is tracked by serial number. Pick which one is being sold.')}
         </Text>
+        {warranty !== null && (
+          <Group gap="xs" wrap="wrap">
+            <WarrantyChip coverage={warranty.coverage} />
+            <Text size="xs" c="dimmed">
+              {warrantyEnds !== null
+                ? `${t('If sold today, covered until')} ${formatDate(warrantyEnds)}`
+                : warranty.coverage.kind === 'lifetime'
+                  ? t('Covered for life')
+                  : t('This item has no warranty')}
+            </Text>
+          </Group>
+        )}
 
         {isLoading || batchesLoading ? (
           <Center py="md">

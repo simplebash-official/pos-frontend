@@ -45,6 +45,9 @@ import {
   KpiTile,
   RichDrawer,
 } from '@/shared/components/drawer';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
+import { InvoiceClaimsCard, type ClaimRefund } from '@/features/warranties';
 import { InvoiceCreditNotesCard } from './InvoiceCreditNotesCard';
 import { InvoiceItemsPanel } from './InvoiceItemsPanel';
 import { InvoicePaymentModal } from './InvoicePaymentModal';
@@ -71,6 +74,8 @@ export interface InvoiceDetailDrawerProps {
   onRefresh?: () => void;
   /** Open the Record Payment modal as soon as the drawer shows (deep link). */
   openPaymentModalOnMount?: boolean;
+  /** Refund this warranty claim (open the credit-note window for it) once it loads (deep link). */
+  refundClaimOnMount?: string;
   /** Custom z-index when stacking drawers (e.g. nested invoice inspection over session drawer). */
   zIndex?: number;
 }
@@ -116,9 +121,12 @@ export const InvoiceDetailDrawer = ({
   invoice,
   onRefresh,
   openPaymentModalOnMount = false,
+  refundClaimOnMount,
   zIndex,
 }: InvoiceDetailDrawerProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const [refundClaim, setRefundClaim] = useState<ClaimRefund | null>(null);
 
   const [activeTab, setActiveTab] = useState<InvoiceTab>('items');
 
@@ -564,6 +572,17 @@ export const InvoiceDetailDrawer = ({
               </DrawerRail>
 
               <DrawerMain>
+                <InvoiceClaimsCard
+                  invoiceKey={inv.id}
+                  refundOnLoad={refundClaimOnMount}
+                  onRefund={(refund) => {
+                    setRefundClaim(refund);
+                    setCreditNoteModalOpen(true);
+                  }}
+                  onOpen={(claimKey) =>
+                    navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${claimKey}`)
+                  }
+                />
                 <InvoiceCreditNotesCard
                   creditNotes={invoiceCreditNotes}
                   isFullyReturned={d.isFullyReturned}
@@ -611,8 +630,12 @@ export const InvoiceDetailDrawer = ({
         {creditNoteModalOpen && (
           <CreditNoteModal
             opened={creditNoteModalOpen}
-            onClose={() => setCreditNoteModalOpen(false)}
+            onClose={() => {
+              setCreditNoteModalOpen(false);
+              setRefundClaim(null);
+            }}
             invoice={invoice}
+            warrantyClaim={refundClaim}
             onCreditNoteSuccess={() => {
               onRefresh?.();
             }}

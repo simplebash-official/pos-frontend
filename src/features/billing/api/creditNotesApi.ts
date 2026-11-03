@@ -63,6 +63,8 @@ export interface CreateCreditNoteInput {
   /** Required to bypass the return window, or to create a no-receipt credit note. */
   overrideReason?: string;
   refundBreakdown?: CreateCreditNoteRefundBreakdownInput[];
+  /** Refunds this warranty claim (decided as a refund); the return window does not apply. */
+  warrantyClaimKey?: string;
 }
 
 interface BackendCreditNoteItem {

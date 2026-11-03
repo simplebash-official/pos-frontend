@@ -18,9 +18,15 @@ import {
   IconHammer,
   IconPrinter,
   IconArrowRight,
+  IconShieldCheck,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useDebouncedValue } from '@mantine/hooks';
+import { useWarrantyLookup } from '@/features/warranties/hooks/useWarranties';
+import { validUntil } from '@/features/warranties/lib/warrantyView';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { SearchHistoryInput } from './SearchHistoryInput';
 import { SearchHighlight } from './SearchHighlight';
 
@@ -51,7 +57,7 @@ interface QuickSearchResult {
   id: string;
   title: string;
   subtitle: string;
-  category: 'Product' | 'Customer' | 'Repair' | 'Print Job';
+  category: 'Product' | 'Customer' | 'Repair' | 'Print Job' | 'Warranty';
   icon: React.ElementType;
   color: string;
   route: string;
@@ -147,6 +153,12 @@ export const GlobalQuickSearchModal = () => {
     MAX_RESULTS
   );
 
+  // Warranties are found by the server (serial, invoice, warranty number or phone), so the
+  // palette asks it after a short pause, and only people who may see warranties.
+  const canViewWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
+  const [warrantyQuery] = useDebouncedValue(canViewWarranties ? activeQuery : '', 300);
+  const warrantyLookup = useWarrantyLookup(warrantyQuery);
+
   // Every list is searched with the same query, so any one of them carries the
   // terms the highlighter needs.
   const terms: readonly SearchTerm[] = productHits.terms;
@@ -194,8 +206,32 @@ export const GlobalQuickSearchModal = () => {
       route: ROUTES.PRINT_JOBS,
     }));
 
-    return mergeByCategory([productRows, customerRows, repairRows, printJobRows]);
-  }, [terms, productHits.results, customerHits.results, repairHits.results, printJobHits.results]);
+    const warrantyRows: QuickSearchResult[] =
+      warrantyLookup.data === undefined || warrantyQuery.trim() !== activeQuery.trim()
+        ? []
+        : warrantyLookup.data.groups.flatMap((group) =>
+            group.warranties.map((w) => ({
+              id: w.key,
+              title: `${w.warrantyNumber}: ${w.itemName}`,
+              subtitle: `${w.serialNumber === undefined ? w.invoiceNumber : w.serialNumber} · ${validUntil(w)}`,
+              category: 'Warranty' as const,
+              icon: IconShieldCheck,
+              color: 'teal',
+              route: `${ROUTES.WARRANTIES}?key=${w.key}`,
+            }))
+          );
+
+    return mergeByCategory([productRows, customerRows, repairRows, printJobRows, warrantyRows]);
+  }, [
+    terms,
+    productHits.results,
+    customerHits.results,
+    repairHits.results,
+    printJobHits.results,
+    warrantyLookup.data,
+    warrantyQuery,
+    activeQuery,
+  ]);
 
   return (
     <Modal

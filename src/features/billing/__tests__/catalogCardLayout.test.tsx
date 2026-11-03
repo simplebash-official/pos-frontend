@@ -42,6 +42,7 @@ describe('Catalog card layout & price formatting', () => {
     stockQuantity: 15,
     minStockThreshold: 3,
     isSerialized: false,
+    warranty: { coverage: { kind: 'none' } },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   };
@@ -68,6 +69,7 @@ describe('Catalog card layout & price formatting', () => {
     stockQuantity: 111,
     minStockThreshold: 10,
     isSerialized: false,
+    warranty: { coverage: { kind: 'none' } },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   };

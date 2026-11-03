@@ -232,6 +232,7 @@ export const BillingCounter = () => {
             discountCents: checkout.items[index].discountCents,
             sourceType,
             serialNumbers: i.serialNumbers,
+            warrantyOverride: productKey ? i.warrantyOverride : undefined,
             ...(isResolved
               ? {}
               : {

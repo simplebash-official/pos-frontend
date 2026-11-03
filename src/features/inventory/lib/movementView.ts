@@ -12,6 +12,7 @@ const MOVEMENT_LABELS: Record<string, string> = {
   return_restock: 'Returned to stock',
   return_write_off: 'Returned and thrown away',
   return_supplier_rma: 'Sent back to supplier',
+  warranty_replacement: 'Given as a warranty replacement',
 };
 
 /** What a shop user reads for a movement type; an unrecognised type is shown as sent. */
