@@ -5,6 +5,7 @@ import init, {
   calc_earnings,
   calc_quotation,
   calc_receipt,
+  calc_repair,
   calc_shares,
   calc_warranty,
 } from './pos-calc/pos_calc_wasm.js';
@@ -35,6 +36,7 @@ export {
   calc_earnings,
   calc_quotation,
   calc_receipt,
+  calc_repair,
   calc_shares,
   calc_warranty,
 };

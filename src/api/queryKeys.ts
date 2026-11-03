@@ -93,6 +93,8 @@ export const queryKeys = {
     list: (filters: { customerKey?: string; invoiceKey?: string }) =>
       ['warranties', 'list', filters] as const,
     detail: (key: string) => ['warranties', 'detail', key] as const,
+    card: (key: string, paper: string, template: string | undefined, version: number) =>
+      ['warranties', 'card', key, paper, template, version] as const,
   },
   warrantyClaims: {
     all: ['warrantyClaims'] as const,
@@ -104,6 +106,10 @@ export const queryKeys = {
     list: (filters?: Record<string, unknown>) => ['repairs', 'list', filters] as const,
     detail: (id: string) => ['repairs', 'detail', id] as const,
     stats: () => ['repairs', 'stats'] as const,
+  },
+  repairServices: {
+    all: ['repairServices'] as const,
+    list: (includeHidden: boolean) => ['repairServices', 'list', includeHidden] as const,
   },
   printJobs: {
     all: ['printJobs'] as const,

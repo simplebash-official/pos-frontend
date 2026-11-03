@@ -243,6 +243,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
     for (const r of repairs) {
       if (r.status === 'delivered' || r.status === 'cancelled') continue;
+      // A warranty rework is free and handed back from the repair screen, never billed.
+      if (r.kind.kind === 'warranty_rework') continue;
       list.push({
         id: r.id,
         ticketNumber: r.ticketNumber,
@@ -252,7 +254,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         customerName: r.customerName,
         customerPhone: r.customerPhone,
         status: r.status,
-        costCents: r.estimatedCostCents,
+        // A job with no work on it has no price yet.
+        costCents: r.items.length === 0 ? undefined : r.priceCents,
         assignedEmployeeId: r.assignedEmployeeId,
         assignedEmployeeName: r.assignedEmployeeName,
       });
@@ -515,11 +518,17 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     if (term.startsWith('rep-') || term.startsWith('rep')) {
       const matchRep = repairs.find((r) => r.ticketNumber.toLowerCase() === term);
       if (matchRep) {
-        if (matchRep.estimatedCostCents === undefined) {
+        if (matchRep.kind.kind === 'warranty_rework' || matchRep.items.length === 0) {
           playErrorSound(soundEnabled);
           notifications.show({
-            title: 'Not priced yet',
-            message: `Ticket ${matchRep.ticketNumber} hasn't been priced yet. Add a price before billing it.`,
+            title:
+              matchRep.kind.kind === 'warranty_rework'
+                ? t('Warranty rework')
+                : t('No work added yet'),
+            message:
+              matchRep.kind.kind === 'warranty_rework'
+                ? `${matchRep.ticketNumber}: ${t('free under warranty. Hand it back from the repair screen.')}`
+                : `${matchRep.ticketNumber}: ${t('add the work done before billing it.')}`,
             color: 'red',
           });
           setScanQuery('');
@@ -532,7 +541,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           productId: matchRep.id,
           name: `${matchRep.ticketNumber}: ${matchRep.deviceModel} Repair`,
           sku: matchRep.ticketNumber,
-          unitPriceCents: matchRep.estimatedCostCents,
+          unitPriceCents: matchRep.priceCents,
           quantity: 1,
           discount: null,
           sourceType: 'repair',

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Button, Center, Loader, Stack, Text } from '@mantine/core';
+import { Alert, Anchor, Button, Center, Loader, Stack, Text } from '@mantine/core';
 import {
   IconAlertTriangle,
   IconBuildingStore,
@@ -62,6 +62,7 @@ const ACTION_LABEL: Record<ClaimAction, string> = {
   refund: 'Give the refund',
   return: 'Give it back',
   paidRepair: 'Make a paid repair job',
+  rework: 'Open the rework job',
 };
 
 type Loaded =
@@ -114,7 +115,10 @@ export const ClaimDetailDrawer = ({
     setDialog(action);
   };
 
-  const allowed = (action: ClaimAction) => canRecord && (action !== 'paidRepair' || canRepair);
+  // Opening a repair job, paid or rework, also needs `repairs:write`.
+  const allowed = (action: ClaimAction) =>
+    canRecord && ((action !== 'paidRepair' && action !== 'rework') || canRepair);
+  const onRepairWork = warranty.data?.warranty.sourceType === 'repair';
 
   return (
     <>
@@ -138,7 +142,7 @@ export const ClaimDetailDrawer = ({
               </DrawerFooter>
             );
           }
-          const actions = claimActions(loaded.claim).filter(allowed);
+          const actions = claimActions(loaded.claim, onRepairWork).filter(allowed);
           return (
             <DrawerFooter
               start={
@@ -372,7 +376,8 @@ export const ClaimDetailDrawer = ({
                 {(c.resolutionNote !== undefined ||
                   c.replacementSerialNumber !== undefined ||
                   c.creditNoteKey !== undefined ||
-                  c.paidRepairNumber !== undefined) && (
+                  c.paidRepairNumber !== undefined ||
+                  c.reworkRepairNumber !== undefined) && (
                   <DrawerCard label={t('Outcome')} icon={<IconReceiptRefund size={14} />}>
                     <Stack gap="xs">
                       {c.replacementSerialNumber !== undefined && (
@@ -383,6 +388,21 @@ export const ClaimDetailDrawer = ({
                       {c.creditNoteKey !== undefined && (
                         <InfoRow icon={<IconReceiptRefund size={14} />} label={t('Refund')}>
                           {t('Given with a credit note')}
+                        </InfoRow>
+                      )}
+                      {c.reworkRepairKey !== undefined && c.reworkRepairNumber !== undefined && (
+                        <InfoRow icon={<IconTool size={14} />} label={t('Rework job')} mono>
+                          <Anchor
+                            component="button"
+                            type="button"
+                            size="sm"
+                            ff="monospace"
+                            onClick={() =>
+                              navigate(`${ROUTES.REPAIRS}?jobKey=${c.reworkRepairKey}`)
+                            }
+                          >
+                            {c.reworkRepairNumber}
+                          </Anchor>
                         </InfoRow>
                       )}
                       {c.paidRepairNumber !== undefined && (

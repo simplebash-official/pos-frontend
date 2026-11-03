@@ -66,6 +66,19 @@ export function calc_receipt(request) {
 }
 
 /**
+ * Works out what a repair job charges and costs from its items.
+ * @param {CalcRepairRequest} request
+ * @returns {RepairTotals}
+ */
+export function calc_repair(request) {
+    const ret = wasm.calc_repair(request);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
  * Works out each part's share of its whole.
  * @param {CalcSharesRequest} request
  * @returns {CalcSharesReply}

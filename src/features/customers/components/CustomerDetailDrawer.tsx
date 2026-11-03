@@ -419,10 +419,9 @@ export const CustomerDetailDrawer = ({
                                 </>
                               }
                               trailing={
-                                rep.estimatedCostCents !== undefined &&
-                                rep.estimatedCostCents > 0 ? (
+                                rep.items.length > 0 ? (
                                   <Text size="sm" fw={700}>
-                                    {formatMoney(rep.estimatedCostCents)}
+                                    {formatMoney(rep.priceCents)}
                                   </Text>
                                 ) : (
                                   <Text size="xs" fw={700} c="yellow">

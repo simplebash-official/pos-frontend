@@ -29,23 +29,45 @@ const states = (claim: WarrantyClaim) =>
 
 describe('claimActions', () => {
   it('offers only the steps the server allows from each status', () => {
-    expect(claimActions(CLAIM)).toEqual(['inspect']);
-    expect(claimActions({ ...CLAIM, status: 'inspected' })).toEqual(['decide', 'sendToSupplier']);
-    expect(claimActions({ ...CLAIM, status: 'decided', decision: 'replace' })).toEqual([
+    expect(claimActions(CLAIM, false)).toEqual(['inspect']);
+    expect(claimActions({ ...CLAIM, status: 'inspected' }, false)).toEqual([
+      'decide',
+      'sendToSupplier',
+    ]);
+    expect(claimActions({ ...CLAIM, status: 'decided', decision: 'replace' }, false)).toEqual([
       'resolve',
       'sendToSupplier',
     ]);
-    expect(claimActions({ ...CLAIM, status: 'decided', decision: 'refund' })).toEqual(['refund']);
-    expect(claimActions({ ...CLAIM, status: 'at_supplier' })).toEqual(['supplierReturn']);
-    expect(claimActions({ ...CLAIM, status: 'resolved', decision: 'refund' })).toEqual([]);
-    expect(claimActions({ ...CLAIM, status: 'resolved', decision: 'repair' })).toEqual(['return']);
+    expect(claimActions({ ...CLAIM, status: 'decided', decision: 'refund' }, false)).toEqual([
+      'refund',
+    ]);
+    expect(claimActions({ ...CLAIM, status: 'at_supplier' }, false)).toEqual(['supplierReturn']);
+    expect(claimActions({ ...CLAIM, status: 'resolved', decision: 'refund' }, false)).toEqual([]);
+    expect(claimActions({ ...CLAIM, status: 'resolved', decision: 'repair' }, false)).toEqual([
+      'return',
+    ]);
   });
 
   it('turns a rejected claim into a paid repair only once', () => {
     const rejected = { ...CLAIM, status: 'resolved' as const, decision: 'reject' as const };
-    expect(claimActions(rejected)).toEqual(['return', 'paidRepair']);
-    expect(claimActions({ ...rejected, paidRepairKey: 'rep_1' })).toEqual(['return']);
-    expect(claimActions({ ...rejected, status: 'returned' })).toEqual(['paidRepair']);
+    expect(claimActions(rejected, false)).toEqual(['return', 'paidRepair']);
+    expect(claimActions({ ...rejected, paidRepairKey: 'rep_1' }, false)).toEqual(['return']);
+    expect(claimActions({ ...rejected, status: 'returned' }, false)).toEqual(['paidRepair']);
+  });
+
+  it('offers one free rework job for repair work decided as a repair', () => {
+    const decided = { ...CLAIM, status: 'decided' as const, decision: 'repair' as const };
+    expect(claimActions(decided, true)).toEqual(['rework', 'resolve', 'sendToSupplier']);
+    expect(claimActions({ ...decided, reworkRepairKey: 'rep_9' }, true)).toEqual([
+      'resolve',
+      'sendToSupplier',
+    ]);
+    // A warranty that came with a product, or one not loaded yet, has no job to redo.
+    expect(claimActions(decided, false)).toEqual(['resolve', 'sendToSupplier']);
+    expect(claimActions({ ...decided, decision: 'replace' }, true)).toEqual([
+      'resolve',
+      'sendToSupplier',
+    ]);
   });
 });
 

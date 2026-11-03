@@ -5,6 +5,7 @@ const MOVEMENT_LABELS: Record<string, string> = {
   sale: 'Sold',
   purchase_receipt: 'Received from supplier',
   repair_part_consumption: 'Used in a repair',
+  warranty_rework_part_consumption: 'Used in a free warranty repair',
   manual_adjustment: 'Adjusted by hand',
   return: 'Returned',
   opening_balance: 'Opening balance',

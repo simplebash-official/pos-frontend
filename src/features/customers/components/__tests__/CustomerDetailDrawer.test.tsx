@@ -31,7 +31,10 @@ const REPAIRS = [
     issueDescription: 'Cracked screen',
     customerPhone: '0771234567',
     createdAt: '2026-10-13T10:00:00Z',
-    estimatedCostCents: 0,
+    kind: { kind: 'standard' },
+    items: [],
+    priceCents: 0,
+    costCents: 0,
   },
 ];
 

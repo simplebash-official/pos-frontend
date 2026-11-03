@@ -52,7 +52,7 @@ export const InvoiceClaimsCard = ({
     refundOnLoad === undefined || claims.data === undefined
       ? undefined
       : claims.data.items.find(
-          (claim) => claim.key === refundOnLoad && claimActions(claim).includes('refund')
+          (claim) => claim.key === refundOnLoad && claimActions(claim, false).includes('refund')
         );
   const pendingRefund = pending === undefined ? null : refundOf(pending);
   useEffect(() => {
@@ -65,7 +65,8 @@ export const InvoiceClaimsCard = ({
   return (
     <DrawerCard label={t('Warranty claims')} icon={<IconClipboardCheck size={14} />}>
       {claims.data.items.map((claim, index) => {
-        const refund = canRecord && claimActions(claim).includes('refund') ? refundOf(claim) : null;
+        const refund =
+          canRecord && claimActions(claim, false).includes('refund') ? refundOf(claim) : null;
         return (
           <ListRow
             key={claim.key}

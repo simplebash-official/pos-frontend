@@ -1,7 +1,7 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { calc_earnings } from '@/wasm';
-import { RepairJob, RepairJobInput } from '../types';
+import { RepairItem, RepairJob, RepairJobInput, RepairKind } from '../types';
 
 // Shape returned by the backend's `Repair` domain type — no
 // `employeeEarningsCents` (that's a client-side computed value via
@@ -19,8 +19,10 @@ export interface BackendRepair {
   promisedReadyAt?: string;
   isOverdue?: boolean;
   status: RepairJob['status'];
-  estimatedCostCents?: number;
-  materialCostCents?: number;
+  kind: RepairKind;
+  items: RepairItem[];
+  priceCents: number;
+  costCents: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
@@ -52,15 +54,18 @@ export const toRepairJob = (repair: BackendRepair): RepairJob => ({
   promisedReadyAt: repair.promisedReadyAt,
   isOverdue: repair.isOverdue,
   status: repair.status,
-  estimatedCostCents: repair.estimatedCostCents,
-  materialCostCents: repair.materialCostCents,
+  kind: repair.kind,
+  items: repair.items,
+  priceCents: repair.priceCents,
+  costCents: repair.costCents,
   assignedEmployeeId: repair.assignedEmployeeId,
   assignedEmployeeName: repair.assignedEmployeeName,
   splitType: repair.splitType,
   splitValue: repair.splitValue,
   employeeEarningsCents: calc_earnings({
-    priceCents: repair.estimatedCostCents,
-    materialCostCents: repair.materialCostCents ?? 0,
+    // A job with no work on it has no price yet, so no commission either.
+    priceCents: repair.items.length === 0 ? undefined : repair.priceCents,
+    materialCostCents: repair.costCents,
     splitType: repair.splitType,
     splitValue: repair.splitValue ?? 0,
   }).commissionCents,
@@ -134,4 +139,9 @@ export const updateRepairJobRaw = async (
  */
 export const deleteRepairsRaw = async (ids: string[]): Promise<void> => {
   await Promise.all(ids.map((id) => apiClient.delete(`/repairs/${id}`)));
+};
+
+export const fetchRepairJob = async (id: string): Promise<RepairJob> => {
+  const response = await apiClient.get<ApiResponse<BackendRepair>>(`/repairs/${id}`);
+  return toRepairJob(response.data);
 };

@@ -4,6 +4,7 @@ import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
 import {
   convertClaimToPaidRepair,
+  openClaimRework,
   decideClaim,
   fetchClaim,
   fetchClaims,
@@ -48,6 +49,8 @@ const useRefreshClaims = () => {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.warrantyClaims.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all }),
+      // A paid repair or a rework step opens a repair job.
+      queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all }),
     ]);
 };
 
@@ -74,7 +77,8 @@ export type ClaimStepInput =
   | { kind: 'supplierReturn'; key: string; outcome: SupplierOutcome; note?: string }
   | { kind: 'resolve'; key: string; resolutionNote?: string; replacement?: ReplacementInput }
   | { kind: 'return'; key: string }
-  | { kind: 'paidRepair'; key: string };
+  | { kind: 'paidRepair'; key: string }
+  | { kind: 'rework'; key: string };
 
 const runStep = (step: ClaimStepInput): Promise<WarrantyClaim> => {
   switch (step.kind) {
@@ -92,6 +96,8 @@ const runStep = (step: ClaimStepInput): Promise<WarrantyClaim> => {
       return returnClaimToCustomer(step.key);
     case 'paidRepair':
       return convertClaimToPaidRepair(step.key);
+    case 'rework':
+      return openClaimRework(step.key);
   }
 };
 

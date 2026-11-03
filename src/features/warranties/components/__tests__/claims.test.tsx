@@ -32,6 +32,7 @@ vi.mock('../../api/claimsApi', () => ({
   resolveClaim: vi.fn(),
   returnClaimToCustomer: vi.fn(),
   convertClaimToPaidRepair: vi.fn(),
+  openClaimRework: vi.fn(),
 }));
 vi.mock('../../api/warrantiesApi', () => ({
   lookupWarranties: vi.fn(),

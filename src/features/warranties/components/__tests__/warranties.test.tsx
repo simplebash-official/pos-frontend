@@ -226,6 +226,9 @@ describe('warranty screens', () => {
     await vi.waitFor(() => expect(document.body.textContent).toContain('Galaxy A55'));
     expect(document.body.textContent).toContain('Invoice not fully paid');
     expect(document.body.textContent).toContain('Screen damage is not covered.');
+    expect(
+      [...document.querySelectorAll('button')].some((b) => b.textContent === 'Print card')
+    ).toBe(true);
 
     const more = [...document.querySelectorAll('button')].find((b) => b.textContent === 'More');
     expect(more).toBeDefined();

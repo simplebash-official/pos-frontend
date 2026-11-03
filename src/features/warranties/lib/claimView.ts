@@ -162,11 +162,21 @@ export type ClaimAction =
   | 'resolve'
   | 'refund'
   | 'return'
-  | 'paidRepair';
+  | 'paidRepair'
+  | 'rework';
 
-export const claimActions = (claim: WarrantyClaim): ClaimAction[] => {
+/**
+ * The steps that can be taken next, first one first. `onRepairWork` is whether the claimed
+ * warranty came with repair work (it can then be redone as a free rework job); pass `false`
+ * while the warranty is not known.
+ */
+export const claimActions = (claim: WarrantyClaim, onRepairWork: boolean): ClaimAction[] => {
   const paidRepair: ClaimAction[] =
     claim.decision === 'reject' && claim.paidRepairKey === undefined ? ['paidRepair'] : [];
+  const rework: ClaimAction[] =
+    onRepairWork && claim.decision === 'repair' && claim.reworkRepairKey === undefined
+      ? ['rework']
+      : [];
   switch (claim.status) {
     case 'received':
       return ['inspect'];
@@ -174,7 +184,7 @@ export const claimActions = (claim: WarrantyClaim): ClaimAction[] => {
       return ['decide', 'sendToSupplier'];
     case 'decided':
       if (claim.decision === 'refund') return ['refund'];
-      return ['resolve', 'sendToSupplier'];
+      return [...rework, 'resolve', 'sendToSupplier'];
     case 'at_supplier':
       return ['supplierReturn'];
     case 'resolved':

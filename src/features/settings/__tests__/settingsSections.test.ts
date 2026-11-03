@@ -39,8 +39,8 @@ describe('settingsSections desktop filtering', () => {
     expect(visibleOnDesktop.some((s) => s.id === 'benchmark')).toBe(true);
   });
 
-  it('marks branding, bank-details, and templates as comingSoon and disabled', () => {
-    const comingSoonSectionIds = ['branding', 'bank-details', 'templates'];
+  it('marks branding and bank-details as comingSoon and disabled', () => {
+    const comingSoonSectionIds = ['branding', 'bank-details'];
 
     comingSoonSectionIds.forEach((id) => {
       const section = SETTINGS_SECTIONS.find((s) => s.id === id);
@@ -55,6 +55,7 @@ describe('settingsSections desktop filtering', () => {
       'register-shifts',
       'printing',
       'document-designs',
+      'templates',
       'about',
       'backup',
       'benchmark',
@@ -97,11 +98,20 @@ describe('settingsSections access', () => {
   const manager = { isAdmin: false, permissions: ['payees:manage', 'expenses:manage'] };
   const cashier = { isAdmin: false, permissions: ['cash_movements:create'] };
 
-  it('gives only the payees section a permission, so every other section stays Admin-only', () => {
+  it('gives only the payees and repair services sections a permission; the rest stay Admin-only', () => {
     expect(SETTINGS_SECTIONS.filter((s) => s.permission !== undefined).map((s) => s.id)).toEqual([
       'payees',
+      'repair-services',
     ]);
-    expect(SETTINGS_PERMISSIONS).toEqual(['payees:manage']);
+    expect(SETTINGS_PERMISSIONS).toEqual(['payees:manage', 'repair_services:manage']);
+  });
+
+  it('shows someone with repair_services:manage only the repair services section', () => {
+    expect(
+      sectionsForAccess(web(), { isAdmin: false, permissions: ['repair_services:manage'] }).map(
+        (s) => s.id
+      )
+    ).toEqual(['repair-services']);
   });
 
   it('shows an Admin every section', () => {

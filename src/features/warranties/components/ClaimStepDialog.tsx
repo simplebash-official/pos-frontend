@@ -14,11 +14,9 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { queryKeys } from '@/api/queryKeys';
 import { usePayees } from '@/features/billing/hooks/useCashLookups';
-import { fetchProductById } from '@/features/inventory/api/productsApi';
+import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { useProductSerials } from '@/features/inventory/hooks/useProductSerials';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -184,11 +182,9 @@ const ReplacementPicker = ({
   const productKey = claim.productKey;
   const serialized = claim.serialNumber !== undefined;
   const serials = useProductSerials(productKey, 'in_stock', { enabled: serialized });
-  const product = useQuery({
-    queryKey: queryKeys.inventory.productDetail(productKey ?? ''),
-    queryFn: () => fetchProductById(productKey as string),
-    enabled: productKey !== undefined && !serialized,
-  });
+  // The product read route takes the database id, so the product is found by key in the list.
+  const products = useAllProducts({ enabled: productKey !== undefined && !serialized });
+  const product = products.data.find((candidate) => candidate.key === productKey);
 
   if (productKey === undefined) {
     return (
@@ -214,12 +210,19 @@ const ReplacementPicker = ({
       />
     );
   }
-  if (product.data === undefined) return <Loader size="sm" />;
+  if (products.isLoading) return <Loader size="sm" />;
+  if (product === undefined) {
+    return (
+      <Alert color="orange" icon={<IconInfoCircle size={16} />}>
+        {t('This item is no longer in the catalogue, so it cannot be swapped for a new one.')}
+      </Alert>
+    );
+  }
   return (
     <Select
       label={t('Take the new unit from stock sold at')}
       placeholder={t('Choose a price')}
-      data={product.data.priceTiers.map((tier) => ({
+      data={product.priceTiers.map((tier) => ({
         value: String(tier.sellingPriceCents),
         label: `${formatMoney(tier.sellingPriceCents)} · ${tier.quantity} ${t('left')}`,
       }))}
@@ -493,6 +496,30 @@ export const ClaimStepDialog = ({
           loading={loading}
         >
           <Text size="sm">{t('Mark that the customer has taken the item.')}</Text>
+          {error !== null && (
+            <Text size="sm" c="red" role="alert" mt="xs">
+              {error}
+            </Text>
+          )}
+        </ConfirmDialog>
+      );
+
+    case 'rework':
+      return (
+        <ConfirmDialog
+          opened
+          onClose={close}
+          onConfirm={() => run({ kind: 'rework', key })}
+          title={t('Open a free rework job?')}
+          confirmLabel={t('Open the rework job')}
+          confirmColor="blue"
+          loading={loading}
+        >
+          <Text size="sm">
+            {t(
+              'A repair job is opened to redo the work for free, for the same customer and device. The technician adds any parts used there, and hands it back from the repair screen.'
+            )}
+          </Text>
           {error !== null && (
             <Text size="sm" c="red" role="alert" mt="xs">
               {error}

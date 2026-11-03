@@ -42,6 +42,8 @@ export const useUpdateRepairJob = () => {
     mutationFn: ({ repairKey, input }: UpdateRepairPayload) => updateRepairJobRaw(repairKey, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
+      // Handing back a warranty rework takes its parts out of stock.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 };

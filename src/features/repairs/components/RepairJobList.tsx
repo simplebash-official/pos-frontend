@@ -13,6 +13,7 @@ import {
   IconAlertCircle,
   IconChartPie,
   IconSearch,
+  IconShieldCheck,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
@@ -187,7 +188,19 @@ export const RepairJobList = () => {
       header: 'Ticket #',
       align: 'left',
       sortable: true,
-      render: (job) => <strong>{job.ticketNumber}</strong>,
+      render: (job) => (
+        <Stack gap={2}>
+          <strong>{job.ticketNumber}</strong>
+          {job.kind.kind === 'warranty_rework' && (
+            <Group gap={4} wrap="nowrap">
+              <IconShieldCheck size={12} style={{ color: 'var(--status-busy)', flexShrink: 0 }} />
+              <Text size="xs" c="dimmed">
+                {t('Rework of')} {job.kind.originalTicketNumber}
+              </Text>
+            </Group>
+          )}
+        </Stack>
+      ),
     },
     {
       key: 'customerName',
@@ -267,13 +280,17 @@ export const RepairJobList = () => {
       },
     },
     {
-      key: 'estimatedCostCents',
+      key: 'priceCents',
       header: 'Total Price',
       align: 'left',
       sortable: true,
       render: (job) =>
-        job.estimatedCostCents !== undefined && job.estimatedCostCents > 0 ? (
-          formatMoney(job.estimatedCostCents)
+        job.kind.kind === 'warranty_rework' ? (
+          <Text size="sm" c="dimmed">
+            {t('Free (warranty)')}
+          </Text>
+        ) : job.items.length > 0 ? (
+          formatMoney(job.priceCents)
         ) : (
           <Badge color="yellow" variant="light">
             {t('Pending diagnosis')}

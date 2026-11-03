@@ -11,6 +11,7 @@ import {
   IconInfoCircle,
   IconLink,
   IconPhone,
+  IconPrinter,
   IconReceipt,
   IconShieldCheck,
   IconShieldOff,
@@ -53,6 +54,7 @@ import { CoverageEditor } from './CoverageEditor';
 import { ageLabel, decisionLabel } from '../lib/claimView';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
 import { StartClaimModal } from './StartClaimModal';
+import { WarrantyCardModal } from './WarrantyCardModal';
 import { ClaimStatusDot, WarrantyStateDot } from './WarrantyStateDot';
 
 type DetailTab = 'overview' | 'claims' | 'activity' | 'linked';
@@ -145,6 +147,7 @@ export const WarrantyDetailDrawer = ({
   const [tab, setTab] = useState<DetailTab>('overview');
   const [action, setAction] = useState<'void' | 'extend' | null>(null);
   const [claiming, setClaiming] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [newCoverage, setNewCoverage] = useState<WarrantyCoverage>({
     kind: 'limited',
     value: 2,
@@ -229,6 +232,14 @@ export const WarrantyDetailDrawer = ({
             >
               <Button variant="default" onClick={onClose}>
                 {t('Close')}
+              </Button>
+              <Button
+                variant="default"
+                leftSection={<IconPrinter size={16} />}
+                onClick={() => setPrinting(true)}
+                data-log-id="warranties.open-card"
+              >
+                {t('Print card')}
               </Button>
               {canRecord && CLAIMABLE.has(loaded.detail.warranty.state) && (
                 <Button
@@ -501,6 +512,9 @@ export const WarrantyDetailDrawer = ({
 
       {warrantyKey !== null && (
         <>
+          {printing && query.data !== undefined && (
+            <WarrantyCardModal warranty={query.data.warranty} onClose={() => setPrinting(false)} />
+          )}
           <StartClaimModal
             warranty={claiming && query.data !== undefined ? query.data.warranty : null}
             onClose={() => setClaiming(false)}

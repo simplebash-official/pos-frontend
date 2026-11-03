@@ -6,8 +6,10 @@ import {
   extendWarranty,
   fetchWarranties,
   fetchWarranty,
+  getWarrantyCard,
   lookupWarranties,
   voidWarranty,
+  type WarrantyCardPaper,
   type WarrantyListFilter,
 } from '../api/warrantiesApi';
 import type { ManagerApproval, WarrantyCoverage, WarrantyDetail } from '../types';
@@ -83,4 +85,34 @@ export const useExtendWarranty = () => {
       failureTitle: t('The warranty was not extended'),
     }),
   });
+};
+
+/**
+ * The warranty's printed card. Keyed by the warranty's `version`, so a card asked for after an
+ * extension or a cancellation is fetched again. Pass `null` to wait.
+ */
+export const useWarrantyCard = (
+  warranty: { key: string; version: number } | null,
+  paper: WarrantyCardPaper,
+  templateName: string | undefined
+) => {
+  const query = useQuery({
+    queryKey: queryKeys.warranties.card(
+      warranty?.key ?? '',
+      paper,
+      templateName,
+      warranty?.version ?? 0
+    ),
+    queryFn: () => getWarrantyCard((warranty as { key: string }).key, paper, templateName),
+    enabled: warranty !== null,
+  });
+  const enabled = warranty !== null;
+  return {
+    blob: query.data ?? null,
+    loading: enabled && query.isLoading,
+    error: enabled && query.isError,
+    errorCode:
+      enabled && query.isError ? ((query.error as { code?: string } | null)?.code ?? null) : null,
+    isPaused: enabled && query.fetchStatus === 'paused',
+  };
 };

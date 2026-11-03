@@ -189,7 +189,7 @@ export const GlobalQuickSearchModal = () => {
     const repairRows: QuickSearchResult[] = repairHits.results.map((r) => ({
       id: r.id,
       title: `${r.ticketNumber}: ${r.deviceModel}`,
-      subtitle: `${r.customerName} · ${r.customerPhone} · ${r.estimatedCostCents !== undefined ? formatMoney(r.estimatedCostCents) : 'Pending diagnosis'}`,
+      subtitle: `${r.customerName} · ${r.customerPhone} · ${r.items.length > 0 ? formatMoney(r.priceCents) : t('Pending diagnosis')}`,
       category: 'Repair',
       icon: IconHammer,
       color: 'orange',

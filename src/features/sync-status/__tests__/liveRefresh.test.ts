@@ -12,7 +12,7 @@ const SYNCED = MODULES.flatMap((m) => m.resources);
 
 describe('resource → screens map', () => {
   it('covers every synced record type', () => {
-    expect(SYNCED).toHaveLength(20);
+    expect(SYNCED).toHaveLength(21);
     const missing = SYNCED.filter((resource) => !RESOURCE_QUERY_ROOTS[resource]);
     expect(missing).toEqual([]);
   });

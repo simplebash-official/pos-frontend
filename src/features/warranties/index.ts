@@ -5,6 +5,7 @@ export { WarrantyChip } from './components/WarrantyChip';
 export { WarrantyStateDot } from './components/WarrantyStateDot';
 export { ProductWarrantyFields } from './components/ProductWarrantyFields';
 export { CoverageEditor } from './components/CoverageEditor';
+export { StartClaimModal } from './components/StartClaimModal';
 export { useWarranties } from './hooks/useWarranties';
 export {
   coverageLabel,

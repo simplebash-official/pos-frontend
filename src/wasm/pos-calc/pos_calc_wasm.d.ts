@@ -225,6 +225,16 @@ export interface CalcReceiptSummary {
     cashOutTodayCents: number;
 }
 
+export interface CalcRepairItem {
+    laborCents: number | undefined;
+    partCents: number | undefined;
+    partCostCents: number | undefined;
+}
+
+export interface CalcRepairRequest {
+    items: CalcRepairItem[];
+}
+
 export interface CalcSharesReply {
     totalCents: number;
     parts: ShareLine[];
@@ -315,6 +325,13 @@ export interface QuotationBlocker {
     line: number | undefined;
 }
 
+export interface RepairTotals {
+    laborCents: number;
+    partsCents: number;
+    priceCents: number;
+    costCents: number;
+}
+
 export interface ShareLine {
     key: string;
     basisPoints: number;
@@ -398,6 +415,11 @@ export function calc_quotation(request: CalcQuotationRequest): CalcQuotationRepl
 export function calc_receipt(request: CalcReceiptRequest): CalcReceiptReply;
 
 /**
+ * Works out what a repair job charges and costs from its items.
+ */
+export function calc_repair(request: CalcRepairRequest): RepairTotals;
+
+/**
  * Works out each part's share of its whole.
  */
 export function calc_shares(request: CalcSharesRequest): CalcSharesReply;
@@ -416,6 +438,7 @@ export interface InitOutput {
     readonly calc_earnings: (a: any) => [number, number, number];
     readonly calc_quotation: (a: any) => [number, number, number];
     readonly calc_receipt: (a: any) => [number, number, number];
+    readonly calc_repair: (a: any) => [number, number, number];
     readonly calc_shares: (a: any) => [number, number, number];
     readonly calc_warranty: (a: any) => [number, number, number];
     readonly __wbindgen_malloc: (a: number, b: number) => number;

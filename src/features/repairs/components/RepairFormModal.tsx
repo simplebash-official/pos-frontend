@@ -1,6 +1,6 @@
 import { toEarningsRequest, useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import { t } from '@/shared/i18n/t';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Modal,
   TextInput,
@@ -14,6 +14,7 @@ import {
   Paper,
   Badge,
   Alert,
+  Anchor,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
@@ -24,16 +25,27 @@ import {
   IconPercentage,
   IconCoin,
   IconAlertTriangle,
+  IconBarcode,
+  IconShieldCheck,
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import { RepairJob, RepairJobInput } from '../types';
+import {
+  isRework,
+  itemFromSaved,
+  itemsProblem,
+  toItemInputs,
+  useRepairTotals,
+  type ItemDraft,
+} from '../lib/repairItems';
+import { RepairItemsEditor } from './RepairItemsEditor';
+import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
-import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
+import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus, ROUTES } from '@/constants';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { SplitType } from '@/features/employees/types';
 import { RepairFormValues, fromRepairJob, toRepairInput } from '@/shared/lib/moneyFormUtils';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-
-const STATUSES_REQUIRING_PRICE: JobStatus[] = ['ready', 'delivered'];
 
 interface RepairFormModalProps {
   opened: boolean;
@@ -63,30 +75,36 @@ export const RepairFormModal = ({
         /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
       deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
       issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
-      estimatedPriceRupees: (val, values) => {
-        const isEmpty = val === '' || val === undefined || val === null;
-        if (isEmpty) {
-          return STATUSES_REQUIRING_PRICE.includes(values.status)
-            ? 'Enter the repair price before marking this ticket ready or delivered'
-            : null;
-        }
-        return Number(val) >= 0 ? null : 'Price must be 0 or greater';
-      },
-      materialCostRupees: (val) =>
-        val === '' || val === undefined || val === null || Number(val) >= 0
-          ? null
-          : 'Cost must be 0 or greater',
     },
   });
+
+  const [drafts, setDrafts] = useState<ItemDraft[]>([]);
+  const [tried, setTried] = useState(false);
+  const [nestedOpen, setNestedOpen] = useState(false);
 
   useEffect(() => {
     if (opened) {
       form.setValues(fromRepairJob(jobToEdit));
+      // Loading the job being edited into local state when the window opens.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDrafts(jobToEdit ? jobToEdit.items.map(itemFromSaved) : []);
     } else {
       form.reset();
+      setDrafts([]);
     }
+    setTried(false);
+    setNestedOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobToEdit, opened]);
+
+  const kind = jobToEdit ? jobToEdit.kind : ({ kind: 'standard' } as const);
+  const rework = isRework(kind);
+  // A handed-back job's work no longer changes (the server refuses it too).
+  const workLocked = jobToEdit?.status === 'delivered';
+  const totals = useRepairTotals(drafts, rework);
+  const workProblem = workLocked ? null : itemsProblem(drafts, kind, form.values.status);
+  const hasStockPart = drafts.some((draft) => draft.part?.source === 'stock');
+  const navigate = useNavigate();
 
   const handleEmployeeChange = (employeeKey: string) => {
     const emp = employees.find((e) => e.key === employeeKey);
@@ -107,7 +125,19 @@ export const RepairFormModal = ({
   };
 
   // Profit and commission are the server's figures for what is typed so far.
-  const earnings = useJobEarnings(toEarningsRequest(form.values));
+  const split = toEarningsRequest({
+    estimatedPriceRupees: '',
+    materialCostRupees: '',
+    assignedEmployeeId: form.values.assignedEmployeeId,
+    splitType: form.values.splitType,
+    splitValueRupeesOrPercent: form.values.splitValueRupeesOrPercent,
+  });
+  const priced = drafts.length > 0 && totals !== null && totals.costKnown;
+  const earnings = useJobEarnings({
+    ...split,
+    priceCents: priced ? totals.totals.priceCents : null,
+    materialCostCents: priced ? totals.totals.costCents : 0,
+  });
   const figures = earnings.data;
   const profitCents = figures === undefined ? 0 : figures.profitCents;
   const calculatedEarningsCents = figures === undefined ? 0 : figures.commissionCents;
@@ -115,11 +145,26 @@ export const RepairFormModal = ({
   const splitVal = Number(form.values.splitValueRupeesOrPercent) || 0;
 
   const handleSubmit = async (values: RepairFormValues) => {
-    const payload = toRepairInput(values);
+    setTried(true);
+    if (workProblem !== null) return;
+    const payload = toRepairInput(values, workLocked ? undefined : toItemInputs(drafts, rework));
     await onSubmit(payload);
     form.reset();
     onClose();
   };
+
+  const statusOptions = Object.values(JOB_STATUS).map((status: JobStatus) => ({
+    value: status,
+    label: JOB_STATUS_LABELS[status],
+    // A job with parts from stock is handed back by billing it, so its parts leave stock.
+    disabled:
+      status === 'delivered' && !rework && hasStockPart && jobToEdit?.status !== 'delivered',
+  }));
+  const priceHint = !priced
+    ? drafts.length === 0
+      ? t('Add the work to see profit')
+      : t('Profit shows once saved')
+    : null;
 
   return (
     <Modal
@@ -130,12 +175,42 @@ export const RepairFormModal = ({
           {isEditing ? `Edit Ticket ${jobToEdit?.ticketNumber}` : 'Create New Repair Ticket'}
         </Text>
       }
-      size="lg"
+      size="xl"
       centered
       fullScreen={isMobile}
+      closeOnEscape={!nestedOpen}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
+          {jobToEdit !== null &&
+            jobToEdit !== undefined &&
+            jobToEdit.kind.kind === 'warranty_rework' && (
+              <Alert color="blue" icon={<IconShieldCheck size={16} />} p="sm">
+                <Text size="sm" fw={700}>
+                  {t('Warranty rework: free for the customer')}
+                </Text>
+                <Text size="sm">
+                  {t('Redoing job')}{' '}
+                  <Text component="span" fw={600}>
+                    {jobToEdit.kind.originalTicketNumber}
+                  </Text>{' '}
+                  {t('under claim')}{' '}
+                  <Anchor
+                    component="button"
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (jobToEdit.kind.kind !== 'warranty_rework') return;
+                      navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${jobToEdit.kind.claimKey}`);
+                    }}
+                  >
+                    {jobToEdit.kind.claimNumber}
+                  </Anchor>
+                  {'. '}
+                  {t('Mark it delivered when it is handed back; parts used leave stock then.')}
+                </Text>
+              </Alert>
+            )}
           {/* Customer Details */}
           <Group grow align="flex-start">
             <TextInput
@@ -164,16 +239,28 @@ export const RepairFormModal = ({
               {...form.getInputProps('deviceModel')}
             />
 
-            <Select
-              label={t('Ticket Status')}
-              data={Object.values(JOB_STATUS).map((status: JobStatus) => ({
-                value: status,
-                label: JOB_STATUS_LABELS[status],
-              }))}
-              required
-              {...form.getInputProps('status')}
+            <TextInput
+              label={t('Serial number or IMEI')}
+              placeholder={t('Optional. Its warranty is found by it later.')}
+              leftSection={<IconBarcode size={16} />}
+              data-barcode-scanner="true"
+              {...form.getInputProps('serialNumber')}
             />
           </Group>
+
+          <Select
+            label={t('Ticket Status')}
+            data={statusOptions}
+            required
+            description={
+              !rework && hasStockPart && jobToEdit?.status !== 'delivered'
+                ? t(
+                    'Bill this job to hand it back: its parts from stock leave stock with the bill.'
+                  )
+                : undefined
+            }
+            {...form.getInputProps('status')}
+          />
 
           <Textarea
             label={t('Issue & Diagnosis Description')}
@@ -200,50 +287,36 @@ export const RepairFormModal = ({
             }}
           />
 
-          {/* Pricing & Cost */}
-          <Paper p="sm" withBorder>
-            <Stack gap="xs">
-              <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                {t('Pricing & Material Cost (LKR)')}
+          {/* Work, parts and their warranties */}
+          <RepairItemsEditor
+            drafts={drafts}
+            onChange={setDrafts}
+            rework={rework}
+            readOnly={workLocked}
+            showProblems={tried}
+            totals={totals}
+            onNestedWindowChange={setNestedOpen}
+          />
+          {tried && workProblem !== null && drafts.length === 0 && (
+            <Text size="sm" c="red" role="alert">
+              {workProblem}
+            </Text>
+          )}
+
+          {!rework && drafts.length > 0 && (
+            <Group justify="space-between">
+              <Text size="sm" c="dimmed">
+                {t('Estimated Repair Net Profit:')}
               </Text>
-              <Group grow align="flex-start">
-                <NumberInput
-                  label={t('Repair Total Price (LKR)')}
-                  placeholder={t('e.g. 45000')}
-                  min={0}
-                  prefix="Rs. "
-                  {...form.getInputProps('estimatedPriceRupees')}
-                />
-
-                <NumberInput
-                  label={t('Material / Spare Parts Cost (LKR)')}
-                  placeholder={t('e.g. 25000')}
-                  min={0}
-                  prefix="Rs. "
-                  {...form.getInputProps('materialCostRupees')}
-                />
-              </Group>
-
-              <Text size="xs" c="dimmed">
-                {t('Leave the price blank until the device is diagnosed. You can add it later.')}
+              <Text size="sm" fw={800} c={priced ? 'green' : 'dimmed'}>
+                {priced ? formatMoney(profitCents) : priceHint}
               </Text>
+            </Group>
+          )}
 
-              <Group justify="space-between">
-                <Text size="sm" c="dimmed">
-                  {t('Estimated Repair Net Profit:')}
-                </Text>
-                <Text
-                  size="sm"
-                  fw={800}
-                  c={form.values.estimatedPriceRupees === '' ? 'dimmed' : 'green'}
-                >
-                  {form.values.estimatedPriceRupees === ''
-                    ? 'Set a price to see profit'
-                    : formatMoney(profitCents)}
-                </Text>
-              </Group>
-            </Stack>
-          </Paper>
+          {workLocked && jobToEdit !== null && jobToEdit !== undefined && !rework && (
+            <RepairWarrantiesPanel repairKey={jobToEdit.id} onNestedWindowChange={setNestedOpen} />
+          )}
 
           {/* Assigned Employee & Profit Split */}
           <Paper p="sm" withBorder>
@@ -340,14 +413,8 @@ export const RepairFormModal = ({
                       <Text size="xs" fw={600}>
                         {t('Employee Commission Payout:')}
                       </Text>
-                      <Text
-                        fw={800}
-                        size="md"
-                        c={form.values.estimatedPriceRupees === '' ? 'dimmed' : 'blue'}
-                      >
-                        {form.values.estimatedPriceRupees === ''
-                          ? 'Set a price to see payout'
-                          : formatMoney(calculatedEarningsCents)}
+                      <Text fw={800} size="md" c={priced ? 'blue' : 'dimmed'}>
+                        {priced ? formatMoney(calculatedEarningsCents) : priceHint}
                       </Text>
                     </Group>
                   </Paper>

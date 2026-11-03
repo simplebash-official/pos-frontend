@@ -199,6 +199,9 @@ export interface WarrantyClaim {
   creditNoteKey?: string;
   paidRepairKey?: string;
   paidRepairNumber?: string;
+  /** The free rework job opened from a claim on repair work decided as a repair. */
+  reworkRepairKey?: string;
+  reworkRepairNumber?: string;
   supplier?: SupplierClaim;
   receivedOn: string;
   resolvedOn?: string;
