@@ -6,13 +6,15 @@ import {
   extendWarranty,
   fetchWarranties,
   fetchWarranty,
+  fetchWarrantyStats,
   getWarrantyCard,
   lookupWarranties,
   voidWarranty,
   type WarrantyCardPaper,
   type WarrantyListFilter,
 } from '../api/warrantiesApi';
-import type { ManagerApproval, WarrantyCoverage, WarrantyDetail } from '../types';
+import { useModuleStats } from '@/shared/hooks/useModuleStats';
+import type { ManagerApproval, WarrantyCoverage, WarrantyDetail, WarrantyStats } from '../types';
 
 /** The shortest text worth asking the server about. */
 export const LOOKUP_MIN_LENGTH = 3;
@@ -34,6 +36,18 @@ export const useWarranties = (filter: WarrantyListFilter | null) =>
     queryKey: queryKeys.warranties.list(filter ?? {}),
     queryFn: () => fetchWarranties(filter as WarrantyListFilter),
     enabled: filter !== null,
+  });
+
+/** The warranty desk's headline numbers, kept for offline as the other KPI strips are. */
+export const useWarrantyStats = () =>
+  useModuleStats<WarrantyStats>('warranties', queryKeys.warranties.stats(), fetchWarrantyStats);
+
+/** Warranties in force that end within the week, soonest first. */
+export const useEndingSoonWarranties = (enabled: boolean) =>
+  useQuery({
+    queryKey: queryKeys.warranties.list({ state: 'expiring_soon' }),
+    queryFn: () => fetchWarranties({ state: 'expiring_soon' }),
+    enabled,
   });
 
 /** One warranty in full. Pass `null` to wait. */

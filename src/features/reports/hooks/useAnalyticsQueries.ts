@@ -18,6 +18,7 @@ import {
   fetchOutstandingReceivables,
   fetchReminders,
   fetchTopProducts,
+  fetchWarrantyReport,
   type AnalyticsRequestParams,
   type FetchRemindersParams,
 } from '../api/analyticsApi';
@@ -117,6 +118,13 @@ export const useAnalyticsRefunds = (p: P, enabled = true) =>
   useQuery({
     queryKey: queryKeys.reports.analytics('refunds', key(p)),
     queryFn: () => fetchAnalyticsRefunds(p),
+    ...opts(enabled),
+  });
+
+export const useWarrantyReport = (p: P, enabled = true) =>
+  useQuery({
+    queryKey: queryKeys.reports.analytics('warranties', key(p)),
+    queryFn: () => fetchWarrantyReport(p),
     ...opts(enabled),
   });
 

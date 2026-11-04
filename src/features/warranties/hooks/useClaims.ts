@@ -42,7 +42,7 @@ export const useClaim = (key: string | null) =>
     enabled: key !== null,
   });
 
-/** A claim step changes the claim and its warranty, so both refresh. */
+/** A claim step changes the claim, its warranty and the dashboard's reminders, so all refresh. */
 const useRefreshClaims = () => {
   const queryClient = useQueryClient();
   return () =>
@@ -51,6 +51,8 @@ const useRefreshClaims = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all }),
       // A paid repair or a rework step opens a repair job.
       queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all }),
+      // Late claims are listed on the dashboard's reminders.
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.all }),
     ]);
 };
 

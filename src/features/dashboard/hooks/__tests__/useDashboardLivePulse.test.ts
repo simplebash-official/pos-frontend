@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   INITIAL_DASHBOARD_DATA,
   toDashboardData,
+  toEndingSoonItem,
   toReminderItems,
   useDashboardLivePulse,
 } from '../useDashboardLivePulse';
@@ -291,5 +292,64 @@ describe('toReminderItems', () => {
 
   it('returns [] when the feed has not loaded', () => {
     expect(toReminderItems(undefined)).toEqual([]);
+  });
+
+  it('maps a late supplier to an Open claim action on the claim', () => {
+    const [item] = toReminderItems([
+      entry({
+        kind: 'claim_supplier_late',
+        key: 'wcl_1',
+        referenceNumber: 'WCL-000001',
+        title: 'Galaxy A55',
+        customerName: 'Nimal Perera',
+        amountCents: 0,
+        dueDate: '2026-11-01',
+        daysFromDue: 3,
+        linkTo: '/warranties?view=claims&claim=wcl_1',
+      }),
+    ]);
+    expect(item.type).toBe('warranty_claim_late');
+    expect(item.title).toBe('Supplier is late: Galaxy A55');
+    expect(item.subtitle).toContain('WCL-000001 · Nimal Perera · Was due back on');
+    expect(item.timestamp).toBe('3 days late');
+    expect(item.actionLabel).toBe('Open claim');
+    expect(item.linkTo).toBe('/warranties?view=claims&claim=wcl_1');
+    expect(item.daysWaiting).toBe(3);
+    expect(item.amountCents).toBeUndefined();
+  });
+
+  it('maps a slow claim, naming a walk-in customer as such', () => {
+    const [item] = toReminderItems([
+      entry({ kind: 'claim_slow', title: 'Charger', daysFromDue: 1, customerName: undefined }),
+    ]);
+    expect(item.type).toBe('warranty_claim_late');
+    expect(item.title).toBe('Claim waiting too long: Charger');
+    expect(item.subtitle).toContain('Walk-in customer · Waiting more than a week');
+    expect(item.timestamp).toBe('1 day late');
+  });
+});
+
+describe('toEndingSoonItem', () => {
+  const stats = (endingSoonCount: number) => ({
+    inForceCount: 10,
+    endingSoonCount,
+    endingSoonUntil: '2026-11-09',
+    openClaimCount: 0,
+    lateClaimCount: 0,
+    reworkCostThisMonthCents: 0,
+  });
+
+  it('is one row opening the ending-soon list', () => {
+    const [item] = toEndingSoonItem(stats(3));
+    expect(item.type).toBe('warranties_ending');
+    expect(item.title).toBe('3 warranties end this week');
+    expect(item.severity).toBe('info');
+    expect(item.linkTo).toBe('/warranties?view=ending');
+    expect(toEndingSoonItem(stats(1))[0].title).toBe('1 warranty ends this week');
+  });
+
+  it('is nothing when none end or the numbers have not loaded', () => {
+    expect(toEndingSoonItem(stats(0))).toEqual([]);
+    expect(toEndingSoonItem(undefined)).toEqual([]);
   });
 });

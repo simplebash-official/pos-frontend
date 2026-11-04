@@ -18,6 +18,8 @@ import { WarrantyDetailDrawer } from '../WarrantyDetailDrawer';
 import { ProductWarrantyFields } from '../ProductWarrantyFields';
 import { LineWarrantyControl } from '../LineWarrantyControl';
 import * as warrantiesApi from '../../api/warrantiesApi';
+import { db } from '@/offline/db/schema';
+import { formatMoney } from '@/shared/lib/money';
 
 installDrawerTestEnv();
 
@@ -81,6 +83,7 @@ vi.mock('../../api/warrantiesApi', () => ({
   lookupWarranties: vi.fn(),
   fetchWarranties: vi.fn(),
   fetchWarranty: vi.fn(),
+  fetchWarrantyStats: vi.fn(),
   voidWarranty: vi.fn(),
   extendWarranty: vi.fn(),
 }));
@@ -96,6 +99,7 @@ const api = {
   lookup: vi.mocked(warrantiesApi.lookupWarranties),
   detail: vi.mocked(warrantiesApi.fetchWarranty),
   list: vi.mocked(warrantiesApi.fetchWarranties),
+  stats: vi.mocked(warrantiesApi.fetchWarrantyStats),
   voidWarranty: vi.mocked(warrantiesApi.voidWarranty),
 };
 
@@ -135,6 +139,15 @@ const Harness = ({
 
 const STAFF = ['warranties:view', 'warranty_claims:record'];
 
+const STATS = {
+  inForceCount: 12,
+  endingSoonCount: 3,
+  endingSoonUntil: '2026-11-09',
+  openClaimCount: 4,
+  lateClaimCount: 2,
+  reworkCostThisMonthCents: 150_000,
+};
+
 describe('warranty screens', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -144,6 +157,8 @@ describe('warranty screens', () => {
     api.detail.mockReset();
     api.voidWarranty.mockReset();
     api.list.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 200 });
+    api.stats.mockReset();
+    api.stats.mockResolvedValue(STATS);
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -177,6 +192,54 @@ describe('warranty screens', () => {
     expect(document.body.textContent).toContain('Ready when the customer is');
     expect(document.body.textContent).toContain('Serial or IMEI');
     expect(api.lookup).not.toHaveBeenCalled();
+  });
+
+  it('shows the desk numbers the server worked out', async () => {
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('2 late'));
+    const text = document.body.textContent;
+    expect(text).toContain('Covered now');
+    expect(text).toContain('12');
+    expect(text).toContain('Ending this week');
+    expect(text).toContain(formatMoney(150_000));
+    expect(text).toContain('Rework this month');
+  });
+
+  it('shows a dash, not a zero, when the numbers cannot be had', async () => {
+    await db.statsCache.clear();
+    api.stats.mockRejectedValue(new Error('offline'));
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(api.stats).toHaveBeenCalled());
+    await vi.waitFor(() => expect(document.body.textContent).not.toContain('2 late'));
+    // The numbers hook retries once (about a second) before giving up.
+    await vi.waitFor(() => expect(document.body.textContent).toContain('—'), { timeout: 5000 });
+  });
+
+  it('lists the warranties ending this week and opens one', async () => {
+    const ending: Warranty = {
+      ...WARRANTY,
+      state: 'expiring_soon',
+      endsOn: '2026-11-06',
+      daysRemaining: 3,
+    };
+    api.list.mockResolvedValue({ items: [ending], total: 1, page: 1, limit: 200 });
+    api.detail.mockReturnValue(new Promise(() => undefined));
+    await render(<WarrantiesPage />, '/warranties?view=ending');
+    await vi.waitFor(() => expect(api.list).toHaveBeenCalledWith({ state: 'expiring_soon' }));
+    await vi.waitFor(() => expect(document.body.textContent).toContain('3 days left'));
+    expect(document.body.textContent).toContain('A call now lets the customer');
+    const open = document.querySelector<HTMLButtonElement>('button[aria-label="Open WTY-000001"]');
+    expect(open).not.toBeNull();
+    await act(async () => open?.click());
+    await vi.waitFor(() => expect(api.detail).toHaveBeenCalledWith('wty_1'));
+  });
+
+  it('says so when no warranty ends this week', async () => {
+    api.list.mockResolvedValue({ items: [], total: 0, page: 1, limit: 200 });
+    await render(<WarrantiesPage />, '/warranties?view=ending');
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain('No warranty ends this week')
+    );
   });
 
   it('shows the warranties grouped by device, with cover left', async () => {

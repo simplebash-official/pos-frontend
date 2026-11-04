@@ -312,6 +312,54 @@ export interface RefundProductRow {
   amountCents: number;
 }
 
+/** How often one group of warranties given in the period was claimed. */
+export interface ClaimRateRow {
+  /** Product, repair service or technician; absent only for jobs nobody was assigned to. */
+  name?: string;
+  issuedCount: number;
+  claimedCount: number;
+  /** claimed / issued, in basis points. */
+  claimRateBps: number;
+}
+
+/** What one supplier did with the claims sent to them in the period. */
+export interface SupplierClaimRow {
+  supplierKey: string;
+  supplierName: string;
+  sentCount: number;
+  awayCount: number;
+  overdueCount: number;
+  repairedCount: number;
+  replacedCount: number;
+  creditedCount: number;
+  rejectedCount: number;
+  /** Absent until one has come back. */
+  averageDaysAway?: number;
+}
+
+export interface ReworkMonth {
+  /** `YYYY-MM`. */
+  month: string;
+  jobCount: number;
+  costCents: number;
+}
+
+/** `GET /reports/warranties` */
+export interface WarrantyReport {
+  periodStart: string;
+  periodEnd: string;
+  issuedCount: number;
+  claimedCount: number;
+  claimRateBps: number;
+  byProduct: ClaimRateRow[];
+  byRepairService: ClaimRateRow[];
+  byTechnician: ClaimRateRow[];
+  bySupplier: SupplierClaimRow[];
+  reworkByMonth: ReworkMonth[];
+  reworkJobCount: number;
+  reworkCostCents: number;
+}
+
 export interface RefundAnalyticsResponse {
   periodStart: string;
   periodEnd: string;
@@ -429,7 +477,15 @@ export interface OutstandingReceivablesResponse {
 }
 
 /** `GET /reports/reminders` — the dashboard's unified attention feed. */
-export type ReminderKind = 'credit_overdue' | 'credit_due_soon' | 'job_overdue' | 'job_due_soon';
+export type ReminderKind =
+  | 'credit_overdue'
+  | 'credit_due_soon'
+  | 'job_overdue'
+  | 'job_due_soon'
+  /** A warranty claim open longer than a week. */
+  | 'claim_slow'
+  /** A warranty claim with a supplier past the day they gave. */
+  | 'claim_supplier_late';
 
 export interface ReminderEntry {
   kind: ReminderKind;
@@ -454,6 +510,7 @@ export interface RemindersResponse {
   creditDueSoonAmountCents: number;
   jobsOverdueCount: number;
   jobsDueSoonCount: number;
+  claimsLateCount: number;
   dueWithinDays: number;
   total?: number;
   page?: number;

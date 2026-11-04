@@ -23,7 +23,9 @@ export type UrgentItemType =
   | 'credit_overdue'
   | 'credit_due_soon'
   | 'quotation_stock_needed'
-  | 'quotation_ready_to_fill';
+  | 'quotation_ready_to_fill'
+  | 'warranty_claim_late'
+  | 'warranties_ending';
 
 export interface UrgentActionItem {
   id: string;

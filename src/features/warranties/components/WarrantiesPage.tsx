@@ -30,14 +30,18 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
-import { LOOKUP_MIN_LENGTH, useWarrantyLookup } from '../hooks/useWarranties';
+import { LOOKUP_MIN_LENGTH, useWarrantyLookup, useWarrantyStats } from '../hooks/useWarranties';
 import { matchLabel } from '../lib/warrantyView';
 import { ClaimDetailDrawer } from './ClaimDetailDrawer';
 import { ClaimsQueue } from './ClaimsQueue';
+import { EndingSoonList } from './EndingSoonList';
 import { WarrantyDetailDrawer } from './WarrantyDetailDrawer';
 import { WarrantyGroupCard } from './WarrantyGroupCard';
+import { WarrantyMetrics } from './WarrantyMetrics';
 
-type PageView = 'lookup' | 'claims';
+type PageView = 'lookup' | 'claims' | 'ending';
+
+const VIEWS: PageView[] = ['lookup', 'claims', 'ending'];
 
 /** What the search box accepts, shown as hints under it. */
 const HINTS = [
@@ -58,7 +62,12 @@ export const WarrantiesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const openKey = searchParams.get('key');
   const openClaimKey = searchParams.get('claim');
-  const view: PageView = searchParams.get('view') === 'claims' ? 'claims' : 'lookup';
+  const requestedView = searchParams.get('view');
+  const view: PageView =
+    VIEWS.find((candidate) => candidate === requestedView) === undefined
+      ? 'lookup'
+      : (requestedView as PageView);
+  const stats = useWarrantyStats();
   const [text, setText] = useState('');
   const [submitted, setSubmitted] = useState('');
   const [debounced] = useDebouncedValue(text, 300);
@@ -87,8 +96,8 @@ export const WarrantiesPage = () => {
   };
   const setView = (value: PageView) => {
     const next = new URLSearchParams(searchParams);
-    if (value === 'claims') next.set('view', 'claims');
-    else next.delete('view');
+    if (value === 'lookup') next.delete('view');
+    else next.set('view', value);
     setSearchParams(next, { replace: true });
   };
 
@@ -102,6 +111,13 @@ export const WarrantiesPage = () => {
         description={t('Scan or type to check a warranty while the customer waits.')}
       />
 
+      {/* On a phone the scan box comes first; the numbers wait on the other views. */}
+      {(!isMobile || view !== 'lookup') && (
+        <Box mb="md">
+          <WarrantyMetrics />
+        </Box>
+      )}
+
       <SegmentedToggle
         mb="md"
         value={view}
@@ -109,6 +125,7 @@ export const WarrantiesPage = () => {
         data={[
           { value: 'lookup', label: t('Look up') },
           { value: 'claims', label: t('Claims') },
+          { value: 'ending', label: t('Ending soon') },
         ]}
         size={isMobile ? 'md' : 'sm'}
         fullWidth={isMobile}
@@ -116,6 +133,11 @@ export const WarrantiesPage = () => {
 
       {view === 'claims' ? (
         <ClaimsQueue onOpen={openClaim} />
+      ) : view === 'ending' ? (
+        <EndingSoonList
+          until={stats.data === undefined ? null : stats.data.endingSoonUntil}
+          onOpen={openWarranty}
+        />
       ) : (
         <>
           <Paper

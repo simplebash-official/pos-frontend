@@ -90,8 +90,13 @@ export const queryKeys = {
   warranties: {
     all: ['warranties'] as const,
     lookup: (q: string) => ['warranties', 'lookup', q] as const,
-    list: (filters: { customerKey?: string; invoiceKey?: string }) =>
-      ['warranties', 'list', filters] as const,
+    list: (filters: {
+      customerKey?: string;
+      invoiceKey?: string;
+      repairKey?: string;
+      state?: string;
+    }) => ['warranties', 'list', filters] as const,
+    stats: () => ['warranties', 'stats'] as const,
     detail: (key: string) => ['warranties', 'detail', key] as const,
     card: (key: string, paper: string, template: string | undefined, version: number) =>
       ['warranties', 'card', key, paper, template, version] as const,

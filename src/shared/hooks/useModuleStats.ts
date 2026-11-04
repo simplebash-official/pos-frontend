@@ -27,7 +27,8 @@ export function useModuleStats<T>(
     | 'suppliers'
     | 'customers'
     | 'expenses'
-    | 'income',
+    | 'income'
+    | 'warranties',
   queryKey: readonly unknown[],
   fetchFn: () => Promise<T>
 ): ModuleStatsResult<T> {

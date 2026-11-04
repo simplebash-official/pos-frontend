@@ -126,6 +126,21 @@ export interface WarrantyLookupResult {
   groups: WarrantyGroup[];
 }
 
+/** The warranty desk at a glance (`GET /warranties/stats`), worked out by the server. */
+export interface WarrantyStats {
+  /** In force today and not held by a claim (ending soon included). */
+  inForceCount: number;
+  /** Of those, the ones in their last week. */
+  endingSoonCount: number;
+  /** The last end day that still counts as ending soon (`YYYY-MM-DD`). */
+  endingSoonUntil: string;
+  openClaimCount: number;
+  /** Open over a week, or with a supplier past the day they gave. */
+  lateClaimCount: number;
+  /** Parts cost of the rework jobs opened this month. */
+  reworkCostThisMonthCents: number;
+}
+
 export interface WarrantyListResult {
   items: Warranty[];
   total: number;
