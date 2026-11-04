@@ -15,6 +15,7 @@ import type { Product } from '../../types';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 vi.mock('../../hooks/useCategories', () => ({
+  useCategories: () => ({ data: [] }),
   useValidCategories: () => ({
     data: [{ key: 'cat_1', name: 'Phones', subcategories: [{ key: 'sub_1', name: 'Screens' }] }],
   }),
@@ -77,6 +78,7 @@ const product = {
   stockQuantity: 4,
   minStockThreshold: 1,
   isSerialized: false,
+  warranty: { coverage: { kind: 'none' } },
 } as Product;
 
 describe('ProductFormModal cost', () => {

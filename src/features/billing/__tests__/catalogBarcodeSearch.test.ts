@@ -25,6 +25,7 @@ const p = (over: Partial<Product>): Product => ({
   stockQuantity: 9,
   minStockThreshold: 2,
   isSerialized: false,
+  warranty: { coverage: { kind: 'none' } },
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
   ...over,

@@ -44,6 +44,7 @@ import { useCurrentSession } from '../hooks/useRegisterSession';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
 
 import { useCartItems, useCartCustomer, useCartCheckout } from '../hooks/useCart';
+import { WarrantySummarySection } from '@/features/warranties/components/WarrantySummarySection';
 import { useCheckout } from '../hooks/useCheckout';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
@@ -1578,6 +1579,23 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
                 </Box>
               </Stack>
             )}
+
+            {/* Warranties this sale gives, to read out to the customer */}
+            <WarrantySummarySection
+              lines={items.flatMap((item) => {
+                const warranty = item.warrantyOverride ?? item.warranty;
+                return warranty === undefined
+                  ? []
+                  : [
+                      {
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        coverage: warranty.coverage,
+                      },
+                    ];
+              })}
+            />
 
             {/* 8. ORDER NOTE */}
             <Box mt={4}>

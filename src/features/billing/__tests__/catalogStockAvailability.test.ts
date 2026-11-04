@@ -34,6 +34,7 @@ const tripod: Product = {
   stockQuantity: 50,
   minStockThreshold: 5,
   isSerialized: false,
+  warranty: { coverage: { kind: 'none' } },
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 };

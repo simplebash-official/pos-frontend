@@ -73,6 +73,7 @@ const itemA: Product = {
   stockQuantity: 17,
   minStockThreshold: 1,
   isSerialized: false,
+  warranty: { coverage: { kind: 'none' } },
 };
 
 describe('PriceTierPickerModal', () => {

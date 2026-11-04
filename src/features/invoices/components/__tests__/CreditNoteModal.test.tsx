@@ -8,6 +8,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import type { CalcCreditNoteReply, CalcCreditNoteRequest, Invoice } from '@/features/billing/types';
+import type { ClaimRefund } from '@/features/warranties';
 import { CreditNoteModal } from '../CreditNoteModal';
 
 installDrawerTestEnv();
@@ -85,11 +86,16 @@ describe('CreditNoteModal', () => {
     container.remove();
   });
 
-  const open = async () => {
+  const open = async (warrantyClaim: ClaimRefund | null = null) => {
     await act(async () => {
       root.render(
         <TestHarness role="admin">
-          <CreditNoteModal opened onClose={() => undefined} invoice={INVOICE} />
+          <CreditNoteModal
+            opened
+            onClose={() => undefined}
+            invoice={INVOICE}
+            warrantyClaim={warrantyClaim}
+          />
         </TestHarness>
       );
     });
@@ -113,6 +119,22 @@ describe('CreditNoteModal', () => {
     // 333 cents is the server's figure (the line's net total over the units sold, to the cent below).
     expect(text()).toContain('Rs. 3.33');
     expect(text()).toContain('Refund Due to Customer');
+  });
+
+  it('refunds a warranty claim without the return window and names the claim', async () => {
+    calc.mockResolvedValue(
+      reply({ pastReturnWindow: true, daysSinceSale: 200, returnWindowDays: 30 })
+    );
+    await open({ key: 'wcl_1', claimNumber: 'WCL-000001', lineIndex: 0 });
+    expect(text()).toContain('Refund for warranty claim WCL-000001');
+    expect(text()).not.toContain('This sale was made');
+    expect(text()).not.toContain('This customer has no receipt');
+    expect(lastRequest().returned).toEqual([{ lineIndex: 0, quantity: 1 }]);
+    await vi.waitFor(() => expect(submitButton().disabled).toBe(false));
+    await act(async () => submitButton().click());
+    await vi.waitFor(() => expect(createCreditNote).toHaveBeenCalled());
+    expect(createCreditNote.mock.calls[0][0].input.warrantyClaimKey).toBe('wcl_1');
+    expect(createCreditNote.mock.calls[0][0].input.overrideReason).toBeUndefined();
   });
 
   it("says the sale is past the return window using the server's days and window", async () => {

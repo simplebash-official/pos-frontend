@@ -87,11 +87,29 @@ export const queryKeys = {
     stats: () => ['expenses', 'stats'] as const,
     recurring: (includeInactive: boolean) => ['expenses', 'recurring', includeInactive] as const,
   },
+  warranties: {
+    all: ['warranties'] as const,
+    lookup: (q: string) => ['warranties', 'lookup', q] as const,
+    list: (filters: { customerKey?: string; invoiceKey?: string }) =>
+      ['warranties', 'list', filters] as const,
+    detail: (key: string) => ['warranties', 'detail', key] as const,
+    card: (key: string, paper: string, template: string | undefined, version: number) =>
+      ['warranties', 'card', key, paper, template, version] as const,
+  },
+  warrantyClaims: {
+    all: ['warrantyClaims'] as const,
+    list: (filter: Record<string, unknown>) => ['warrantyClaims', 'list', filter] as const,
+    detail: (key: string) => ['warrantyClaims', 'detail', key] as const,
+  },
   repairs: {
     all: ['repairs'] as const,
     list: (filters?: Record<string, unknown>) => ['repairs', 'list', filters] as const,
     detail: (id: string) => ['repairs', 'detail', id] as const,
     stats: () => ['repairs', 'stats'] as const,
+  },
+  repairServices: {
+    all: ['repairServices'] as const,
+    list: (includeHidden: boolean) => ['repairServices', 'list', includeHidden] as const,
   },
   printJobs: {
     all: ['printJobs'] as const,

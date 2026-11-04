@@ -17,6 +17,7 @@ import {
   IconPrinter,
   IconInfoCircle,
   IconBuildingCommunity,
+  IconTool,
 } from '@tabler/icons-react';
 import { PERMISSIONS, type Permission } from '@/constants/permissions';
 
@@ -26,6 +27,7 @@ export type SettingsSectionId =
   | 'cash-rules'
   | 'cash-categories'
   | 'payees'
+  | 'repair-services'
   | 'branding'
   | 'bank-details'
   | 'printing'
@@ -99,6 +101,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     permission: PERMISSIONS.PAYEES_MANAGE,
   },
   {
+    id: 'repair-services',
+    label: 'Repair Services',
+    shortLabel: 'Repairs',
+    description: 'The repairs you do often, with their usual labour and warranty',
+    icon: IconTool,
+    permission: PERMISSIONS.REPAIR_SERVICES_MANAGE,
+  },
+  {
     id: 'branding',
     label: 'Branding & Logo',
     shortLabel: 'Branding',
@@ -141,10 +151,8 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     id: 'templates',
     label: 'Document Templates',
     shortLabel: 'Templates',
-    description: 'Warranty terms and receipt footer text',
+    description: 'Warranty policy and footer text',
     icon: IconFileText,
-    comingSoon: true,
-    disabled: true,
   },
   {
     id: 'about',

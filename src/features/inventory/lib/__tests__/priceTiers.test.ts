@@ -30,6 +30,7 @@ const product = (priceTiers: PriceTier[]): Product => ({
   stockQuantity: priceTiers.reduce((sum, t) => sum + t.quantity, 0),
   minStockThreshold: 1,
   isSerialized: false,
+  warranty: { coverage: { kind: 'none' } },
 });
 
 describe('price tiers', () => {

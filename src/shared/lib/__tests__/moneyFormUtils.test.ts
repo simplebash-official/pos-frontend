@@ -29,9 +29,12 @@ describe('moneyFormUtils conversions', () => {
         customerPhone: '0771234567',
         deviceModel: 'iPhone 13',
         issueDescription: 'Cracked screen',
+        serialNumber: 'IMEI-1',
         status: 'in_repair',
-        estimatedCostCents: 15000, // Rs. 150.00
-        materialCostCents: 5000, // Rs. 50.00
+        kind: { kind: 'standard' },
+        items: [],
+        priceCents: 0,
+        costCents: 0,
         assignedEmployeeId: 'emp_1',
         assignedEmployeeName: 'Bob',
         splitType: 'fixed',
@@ -41,30 +44,38 @@ describe('moneyFormUtils conversions', () => {
 
       const form = fromRepairJob(job);
       expect(form.customerName).toBe('Alice');
-      expect(form.estimatedPriceRupees).toBe(150);
-      expect(form.materialCostRupees).toBe(50);
+      expect(form.serialNumber).toBe('IMEI-1');
       expect(form.splitValueRupeesOrPercent).toBe(20);
     });
 
     it('converts form values to repair input converting rupees to cents', () => {
-      const input = toRepairInput({
+      const values = {
         customerName: 'Alice',
         customerPhone: '0771234567',
         deviceModel: 'iPhone 13',
+        serialNumber: '  ',
         issueDescription: 'Cracked screen',
         promisedReadyAt: '2026-09-15',
-        status: 'in_repair',
-        estimatedPriceRupees: 150.5,
-        materialCostRupees: 50.25,
+        status: 'in_repair' as const,
         assignedEmployeeId: 'emp_1',
         assignedEmployeeName: 'Bob',
-        splitType: 'fixed',
+        splitType: 'fixed' as const,
         splitValueRupeesOrPercent: 20,
-      });
+      };
+      const items = [
+        {
+          description: 'Replace screen',
+          laborCents: 250000,
+          warranty: { coverage: { kind: 'none' as const } },
+        },
+      ];
+      const input = toRepairInput(values, items);
 
       expect(input.customer.customerName).toBe('Alice');
-      expect(input.estimatedCostCents).toBe(15050);
-      expect(input.materialCostCents).toBe(5025);
+      expect(input.serialNumber).toBeUndefined();
+      expect(input.items).toEqual(items);
+      // A handed-back job sends no items, so the saved ones stay as they are.
+      expect(toRepairInput(values, undefined).items).toBeUndefined();
       expect(input.assignment?.splitValue).toBe(2000); // 20 rupees -> 2000 cents
       expect(input.promisedReadyAt).toBe('2026-09-15');
     });

@@ -33,18 +33,21 @@ const Photo: React.FC<{ attachment: Attachment }> = ({ attachment }) => {
 export interface ReceiptPhotosModalProps {
   ownerKind: AttachmentOwner;
   ownerKey: string;
-  /** What the photos are for, shown in the title (a voucher or expense number). */
+  /** The window title, e.g. "Receipts — VCH-0042". */
   title: string;
+  /** Shown while the record has no photos. */
+  emptyText: string;
   /** Whether this person may add a photo to this kind of record. */
   canAdd: boolean;
   onClose: () => void;
 }
 
-/** The receipt photos of one record, with a button to take or pick another. */
+/** The photos of one record (receipts, a claimed item), with a button to take or pick another. */
 export const ReceiptPhotosModal: React.FC<ReceiptPhotosModalProps> = ({
   ownerKind,
   ownerKey,
   title,
+  emptyText,
   canAdd,
   onClose,
 }) => {
@@ -85,7 +88,7 @@ export const ReceiptPhotosModal: React.FC<ReceiptPhotosModalProps> = ({
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          {`${t('Receipts')} — ${title}`}
+          {title}
         </Text>
       }
       size="lg"
@@ -97,7 +100,7 @@ export const ReceiptPhotosModal: React.FC<ReceiptPhotosModalProps> = ({
           <Skeleton h={160} />
         ) : photos.length === 0 ? (
           <Text size="sm" c="dimmed">
-            {t('No receipt photos yet.')}
+            {emptyText}
           </Text>
         ) : (
           <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="xs">

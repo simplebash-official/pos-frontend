@@ -35,11 +35,15 @@ export const PERMISSIONS = {
   CUSTOMERS_WRITE: 'customers:write',
   BILLING_WRITE: 'billing:write',
   REPAIRS_WRITE: 'repairs:write',
+  REPAIR_SERVICES_MANAGE: 'repair_services:manage',
   PRINT_JOBS_WRITE: 'print_jobs:write',
   QUOTATIONS_MANAGE: 'quotations:manage',
   REPORTS_VIEW: 'reports:view',
   EMPLOYEES_READ: 'employees:read',
   EMPLOYEES_WRITE: 'employees:write',
+  WARRANTIES_VIEW: 'warranties:view',
+  WARRANTY_CLAIMS_RECORD: 'warranty_claims:record',
+  WARRANTIES_ADJUST_AT_SALE: 'warranties:adjust_at_sale',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

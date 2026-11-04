@@ -1,10 +1,12 @@
 import { t } from '@/shared/i18n/t';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import { getErrorMessage } from '@/shared/lib/error';
+import { updateShopProfileApi } from '../../api/settingsApi';
 import { SectionShell } from '../SectionShell';
 import type { SectionProps } from './ShopProfileSection';
 
@@ -14,9 +16,16 @@ interface DocumentTemplatesFormValues {
   receiptFooterText: string;
 }
 
+/**
+ * The shop's standing text on printed documents: its general warranty policy (on invoices,
+ * receipts and warranty cards), the quotation footer and the receipt's thank-you line. Saved to
+ * the shop profile on the server, so every device prints the same words. A sale keeps the policy
+ * it was made with.
+ */
 export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
   const shopProfile = useAppSelector(selectShopProfile);
+  const [saving, setSaving] = useState(false);
 
   const form = useForm<DocumentTemplatesFormValues>({
     initialValues: {
@@ -31,46 +40,79 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
     onDirtyChange(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const handleSave = () => {
-    dispatch(updateShopProfile({ ...form.values }));
-    form.resetDirty();
-    notifications.show({
-      title: 'Settings Saved',
-      message: 'Document templates updated successfully.',
-      color: 'green',
-    });
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const persisted = await updateShopProfileApi({
+        defaultWarrantyText: form.values.defaultWarrantyText.trim(),
+        defaultFooterText: form.values.defaultFooterText.trim(),
+        receiptFooterText: form.values.receiptFooterText.trim(),
+      });
+      dispatch(updateShopProfile(persisted));
+      const saved: DocumentTemplatesFormValues = {
+        defaultWarrantyText: persisted.defaultWarrantyText,
+        defaultFooterText: persisted.defaultFooterText,
+        receiptFooterText: persisted.receiptFooterText,
+      };
+      form.setInitialValues(saved);
+      form.setValues(saved);
+      form.resetDirty(saved);
+      notifications.show({
+        title: t('Settings Saved'),
+        message: t('The text on your documents is saved.'),
+        color: 'green',
+      });
+    } catch (error: unknown) {
+      notifications.show({
+        title: t('Save Failed'),
+        message: getErrorMessage(error),
+        color: 'red',
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <SectionShell
       title={t('Document Templates')}
-      description={t('Standard text printed on invoices and receipts.')}
+      description={t('Standard text printed on invoices, receipts and warranty cards.')}
       isDirty={isDirty}
-      onSave={handleSave}
+      saving={saving}
+      onSave={() => void handleSave()}
       onCancel={() => form.reset()}
     >
       <Stack gap="md">
         <div>
           <Textarea
-            label={t('Default Warranty & Terms Policy (A4 Invoice)')}
-            rows={4}
+            label={t('Warranty policy')}
+            description={t(
+              'Printed on every invoice, receipt and warranty card. Each sale keeps the policy it was made with.'
+            )}
+            autosize
+            minRows={4}
+            maxRows={10}
             {...form.getInputProps('defaultWarrantyText')}
           />
           {!form.values.defaultWarrantyText.trim() && (
             <Text size="xs" c="orange" mt={4}>
-              {t("Your invoices won't show any warranty terms while this is empty.")}
+              {t('Your documents will not show a warranty policy while this is empty.')}
             </Text>
           )}
         </div>
 
         <Textarea
-          label={t('A4 Invoice Footer Text')}
-          rows={2}
+          label={t('Quotation footer')}
+          description={t('Printed at the bottom of every quotation.')}
+          autosize
+          minRows={2}
+          maxRows={6}
           {...form.getInputProps('defaultFooterText')}
         />
 
         <TextInput
-          label={t('Thermal Receipt Footer Text')}
+          label={t('Receipt thank-you line')}
+          description={t('The last line of a printed receipt.')}
           {...form.getInputProps('receiptFooterText')}
         />
       </Stack>

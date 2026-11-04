@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { AppShell as MantineAppShell } from '@mantine/core';
 import { useDisclosure, useLocalStorage } from '@mantine/hooks';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
@@ -14,6 +14,8 @@ import {
   SHELL_NAVBAR_WIDTH,
 } from './constants';
 import { ROUTES } from '@/constants/routes';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
@@ -49,6 +51,7 @@ const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.INVOICES]: `Invoices · ${PRODUCT_NAME}`,
   [ROUTES.REPAIRS]: `Phone Repairs · ${PRODUCT_NAME}`,
   [ROUTES.PRINT_JOBS]: `Print Jobs · ${PRODUCT_NAME}`,
+  [ROUTES.WARRANTIES]: `Warranties · ${PRODUCT_NAME}`,
   [ROUTES.EXPENSES]: `Expenses · ${PRODUCT_NAME}`,
   [ROUTES.INCOME]: `Income · ${PRODUCT_NAME}`,
   [ROUTES.BALANCES]: `Balances · ${PRODUCT_NAME}`,
@@ -150,6 +153,14 @@ export const AppShell = () => {
 
   // Alt+C calculator hotkey
   useAppShortcuts([{ key: 'Alt+C', ignoreInput: true, handler: () => toggleCalculator() }]);
+
+  // Alt+W opens the warranty lookup from anywhere, for people who may check warranties.
+  const navigate = useNavigate();
+  const canCheckWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
+  useAppShortcuts(
+    [{ key: 'Alt+W', ignoreInput: true, handler: () => navigate(ROUTES.WARRANTIES) }],
+    canCheckWarranties
+  );
 
   const isDashboard = location.pathname === ROUTES.DASHBOARD || location.pathname === '/';
   const [heroClockVisible, setHeroClockVisible] = useState(isDashboard);

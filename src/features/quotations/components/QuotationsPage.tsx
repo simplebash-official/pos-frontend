@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ActionIcon,
+  Alert,
   Badge,
   Button,
   Group,
@@ -15,9 +16,11 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+  IconAlertCircle,
   IconBan,
   IconFilePlus,
   IconPrinter,
+  IconRefresh,
   IconSearch,
   IconShoppingCartCheck,
 } from '@tabler/icons-react';
@@ -70,7 +73,7 @@ export const QuotationsPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[1]);
 
-  const { data, isLoading } = useQuotations({
+  const { data, isLoading, isError, error, refetch } = useQuotations({
     page,
     limit: pageSize,
     search: debouncedSearch === '' ? undefined : debouncedSearch,
@@ -287,12 +290,37 @@ export const QuotationsPage = () => {
           />
         </Group>
 
+        {isError && (
+          <Alert
+            color="red"
+            icon={<IconAlertCircle size={18} />}
+            title={t('Could not load quotations')}
+          >
+            <Group justify="space-between" align="center" gap="sm">
+              <Text size="sm">{getErrorMessage(error)}</Text>
+              <Button
+                variant="subtle"
+                color="red"
+                size="xs"
+                leftSection={<IconRefresh size={14} />}
+                onClick={() => void refetch()}
+              >
+                {t('Try Again')}
+              </Button>
+            </Group>
+          </Alert>
+        )}
+
         <DataTable<Quotation>
           data={data?.quotations ?? []}
           columns={columns}
           keyExtractor={(q) => q.key}
           loading={isLoading}
-          emptyText={t('No quotations found. Press "New Quotation" to make one.')}
+          emptyText={
+            isError
+              ? t('Could not load quotations.')
+              : t('No quotations found. Press "New Quotation" to make one.')
+          }
           selectable={false}
           onRowClick={setPreviewing}
           clientPagination={false}

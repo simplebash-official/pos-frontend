@@ -159,8 +159,13 @@ export interface ModuleDef {
 export const MODULES: readonly ModuleDef[] = [
   { id: 'sales', label: 'Sales & Invoices', resources: ['invoices', 'payments', 'creditNotes'] },
   { id: 'quotations', label: 'Quotations', resources: ['quotations'] },
-  { id: 'repairs', label: 'Repair Jobs', resources: ['repairs'] },
+  { id: 'repairs', label: 'Repair Jobs', resources: ['repairs', 'repairServices'] },
   { id: 'printJobs', label: 'Print Jobs', resources: ['printJobs'] },
+  {
+    id: 'warranties',
+    label: 'Warranties',
+    resources: ['warranties', 'warrantyEvents', 'warrantyClaims'],
+  },
   {
     id: 'inventory',
     label: 'Inventory & Stock',
@@ -191,7 +196,11 @@ const RECORD_NAMES: Record<string, string> = {
   payments: 'Payment',
   creditNotes: 'Credit note',
   quotations: 'Quotation',
+  warranties: 'Warranty',
+  warrantyEvents: 'Warranty history',
+  warrantyClaims: 'Warranty claim',
   repairs: 'Repair job',
+  repairServices: 'Repair service',
   printJobs: 'Print job',
   products: 'Product',
   categories: 'Category',

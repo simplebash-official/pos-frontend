@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '@mantine/core';
+import { MemoryRouter } from 'react-router-dom';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 
 export const TestHarness = ({ role, children }: { role: string; children: ReactNode }) => {
@@ -21,7 +22,9 @@ export const TestHarness = ({ role, children }: { role: string; children: ReactN
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <MantineProvider>
-          <LayoutTierProvider>{children}</LayoutTierProvider>
+          <MemoryRouter>
+            <LayoutTierProvider>{children}</LayoutTierProvider>
+          </MemoryRouter>
         </MantineProvider>
       </QueryClientProvider>
     </Provider>

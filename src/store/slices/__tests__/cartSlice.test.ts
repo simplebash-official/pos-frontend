@@ -430,6 +430,7 @@ describe('cartSlice reducer & selectors', () => {
               stockQuantity: 0,
               minStockThreshold: 5,
               isSerialized: false,
+              warranty: { coverage: { kind: 'none' } },
             },
           ],
         })

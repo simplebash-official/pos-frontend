@@ -9,7 +9,11 @@ export interface InventoryImportRowData {
   stockQuantity?: number;
   minStockThreshold?: number;
   barcode?: string;
-  warrantyMonths?: number;
+  /** "12 months", "2 years", "lifetime" or "none"; empty means no warranty. */
+  warranty?: string;
+  /** shop, manufacturer or both; needed when there is a warranty. */
+  warrantyType?: string;
+  warrantyTerms?: string;
   isSerialized?: boolean;
 }
 
@@ -141,23 +145,43 @@ export const inventoryImportConfig: ImportConfig = {
       },
     },
     {
-      key: 'warrantyMonths',
-      label: 'Warranty (Months)',
+      key: 'warranty',
+      label: 'Warranty',
       required: false,
-      aliases: ['warranty_months', 'warranty'],
-      description: 'Warranty length in months (leave empty for none)',
-      example: 6,
-      transform: (val) => {
-        if (val === undefined || val === null || val === '') return undefined;
-        const num = parseInt(String(val), 10);
-        return isNaN(num) ? undefined : num;
-      },
+      aliases: ['warranty', 'warranty_period', 'warranty_months'],
+      description:
+        'How long each unit is covered: for example "12 months", "2 years", "lifetime" or "none". Leave empty for no warranty.',
+      example: '6 months',
       validate: (val) => {
-        if (val === undefined || val === null || val === '') return null;
-        const num = Number(val);
-        if (isNaN(num) || num < 0) return 'Warranty months cannot be negative';
-        return null;
+        if (val === undefined || val === null || String(val).trim() === '') return null;
+        const text = String(val).trim().toLowerCase();
+        if (/^(none|no|no warranty|lifetime)$/.test(text)) return null;
+        if (/^[1-9]\d*\s+(day|days|week|weeks|month|months|year|years)$/.test(text)) return null;
+        return 'Write the warranty like "12 months", "2 years", "lifetime" or "none"';
       },
+    },
+    {
+      key: 'warrantyType',
+      label: 'Warranty Given By',
+      required: false,
+      aliases: ['warranty_type', 'warranty_by'],
+      description:
+        'Who gives the warranty: shop, manufacturer or both. Needed when there is a warranty.',
+      example: 'shop',
+      validate: (val) => {
+        if (val === undefined || val === null || String(val).trim() === '') return null;
+        return /^(shop|manufacturer|both)$/i.test(String(val).trim())
+          ? null
+          : 'Write shop, manufacturer or both';
+      },
+    },
+    {
+      key: 'warrantyTerms',
+      label: 'Warranty Terms',
+      required: false,
+      aliases: ['warranty_terms', 'terms'],
+      description: 'What is covered and what is not (optional)',
+      example: 'Water damage is not covered',
     },
     {
       key: 'isSerialized',
@@ -196,7 +220,9 @@ export const inventoryImportConfig: ImportConfig = {
       stockQuantity: 25,
       minStockThreshold: 5,
       barcode: '8901234567890',
-      warrantyMonths: 6,
+      warranty: '6 months',
+      warrantyType: 'manufacturer',
+      warrantyTerms: 'Water damage is not covered',
       isSerialized: 'No',
     },
     {
@@ -208,7 +234,9 @@ export const inventoryImportConfig: ImportConfig = {
       stockQuantity: 12,
       minStockThreshold: 3,
       barcode: '',
-      warrantyMonths: 3,
+      warranty: '3 months',
+      warrantyType: 'shop',
+      warrantyTerms: '',
       isSerialized: 'No',
     },
     {
@@ -220,7 +248,9 @@ export const inventoryImportConfig: ImportConfig = {
       stockQuantity: 100,
       minStockThreshold: 20,
       barcode: '',
-      warrantyMonths: '',
+      warranty: 'none',
+      warrantyType: '',
+      warrantyTerms: '',
       isSerialized: 'No',
     },
   ],

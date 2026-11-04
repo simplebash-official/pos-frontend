@@ -284,8 +284,19 @@ describe('pos-calc-wasm calculations and integration parity', () => {
         deviceModel: 'iPhone 13',
         issueDescription: 'Cracked OLED',
         status: 'in_repair',
-        estimatedCostCents: 15000, // 150.00
-        materialCostCents: 5000, // 50.00 -> profit = 100.00 (10000 cents)
+        kind: { kind: 'standard' },
+        items: [
+          {
+            key: 'rit_1',
+            description: 'Replace OLED',
+            laborCents: 15000,
+            partCents: 0,
+            partCostCents: 5000,
+            warranty: { coverage: { kind: 'none' } },
+          },
+        ],
+        priceCents: 15000, // 150.00
+        costCents: 5000, // 50.00 -> profit = 100.00 (10000 cents)
         assignedEmployeeId: 'emp_1',
         assignedEmployeeName: 'Sunil',
         splitType: 'percentage',

@@ -12,7 +12,11 @@ import { DiscountPopover } from './DiscountPopover';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 import { focusBarcodeScanner } from '../lib/focusScanner';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { useIsAdmin } from '@/shared/hooks/usePermissions';
+import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useAppDispatch } from '@/store/hooks';
+import { setLineWarrantyOverride } from '@/store/slices/cartSlice';
+import { LineWarrantyControl } from '@/features/warranties/components/LineWarrantyControl';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -40,6 +44,8 @@ export const CartLineItem = memo(function CartLineItem({
   // 44px target floor in both axes — at 40x46 a mis-tap deletes a line instead of discounting it.
   const isMobile = useIsMobile();
   const isAdmin = useIsAdmin();
+  const canAdjustWarranty = useHasPermission(PERMISSIONS.WARRANTIES_ADJUST_AT_SALE);
+  const dispatch = useAppDispatch();
   const rowMinHeight = isMobile ? 56 : 46;
   const railWidth = isMobile ? 48 : 40;
 
@@ -134,6 +140,16 @@ export const CartLineItem = memo(function CartLineItem({
                 >
                   {t('Print')}
                 </Badge>
+              )}
+              {sourceType === 'retail' && item.warranty !== undefined && (
+                <LineWarrantyControl
+                  warranty={item.warranty}
+                  override={item.warrantyOverride}
+                  canAdjust={canAdjustWarranty}
+                  onOverride={(warranty) =>
+                    dispatch(setLineWarrantyOverride({ id: item.id, warranty }))
+                  }
+                />
               )}
             </Group>
 

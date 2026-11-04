@@ -17,7 +17,7 @@ import {
   Alert,
   Badge,
 } from '@mantine/core';
-import { IconAlertTriangle, IconShieldLock } from '@tabler/icons-react';
+import { IconAlertTriangle, IconInfoCircle, IconShieldLock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import type {
   Invoice,
@@ -26,7 +26,8 @@ import type {
   CreditNoteItemDisposition,
 } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
-import { isWithinWarranty, calcItemRemainingUnits } from '@/shared/calculations';
+import { calcItemRemainingUnits } from '@/shared/calculations';
+import { useWarranties, WarrantyStateDot, type ClaimRefund } from '@/features/warranties';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
@@ -50,7 +51,6 @@ import {
   ITEM_CONDITION_OPTIONS,
   ITEM_DISPOSITION_OPTIONS,
   RETURN_REASON_OPTIONS,
-  getWarrantyMeta,
 } from '../lib/invoiceStatus';
 
 export interface CreditNoteModalProps {
@@ -58,6 +58,8 @@ export interface CreditNoteModalProps {
   onClose: () => void;
   invoice: Invoice | null;
   onCreditNoteSuccess?: () => void;
+  /** Refund this warranty claim: its unit is picked and the return window does not apply. */
+  warrantyClaim: ClaimRefund | null;
 }
 
 interface SerialUnitState {
@@ -91,6 +93,7 @@ export const CreditNoteModal = ({
   onClose,
   invoice,
   onCreditNoteSuccess,
+  warrantyClaim,
 }: CreditNoteModalProps) => {
   const isMobile = useIsMobile();
   // TODO: this override is Admin-only, but the copy at line ~434 tells the
@@ -133,7 +136,6 @@ export const CreditNoteModal = ({
   }
 
   const items = useMemo(() => invoice?.items ?? [], [invoice?.items]);
-  const [nowMs] = useState(() => Date.now());
 
   const resetForm = useCallback(() => {
     setLineStates({});
@@ -157,12 +159,14 @@ export const CreditNoteModal = ({
     (item: InvoiceItem): LineState => {
       if (lineStates[item.id]) return lineStates[item.id];
       const remaining = calcItemRemainingUnits(item);
+      // A claim refund picks exactly the claimed line (or unit); nothing else starts ticked.
+      const claimed = warrantyClaim !== null && items.indexOf(item) === warrantyClaim.lineIndex;
       const serialUnits: Record<string, SerialUnitState> | undefined = item.serialNumbers?.length
         ? Object.fromEntries(
             item.serialNumbers.map((serial) => [
               serial,
               {
-                selected: false,
+                selected: claimed && serial === warrantyClaim?.serialNumber,
                 condition: 'resalable' as CreditNoteItemCondition,
                 disposition: null,
                 reason: 'defective',
@@ -171,7 +175,7 @@ export const CreditNoteModal = ({
           )
         : undefined;
       return {
-        selected: remaining > 0,
+        selected: remaining > 0 && (warrantyClaim === null || claimed),
         quantity: Math.min(1, remaining) || 1,
         condition: 'resalable',
         disposition: null,
@@ -179,7 +183,7 @@ export const CreditNoteModal = ({
         serialUnits,
       };
     },
-    [lineStates]
+    [lineStates, items, warrantyClaim]
   );
 
   const updateLine = useCallback(
@@ -251,22 +255,33 @@ export const CreditNoteModal = ({
       lineIndex: number;
       serial: string;
       unit: SerialUnitState;
-      withinWarranty: boolean;
     }[] = [];
     for (const [lineIndex, item] of items.entries()) {
       if (!item.serialNumbers?.length) continue;
       const state = getLineState(item);
-      const product = productMap.get(item.productId);
-      const withinWarranty = isWithinWarranty(invoice.createdAt, product?.warrantyMonths, nowMs);
       for (const serial of item.serialNumbers) {
         const unit = state.serialUnits?.[serial];
         if (!unit?.selected) continue;
-        rows.push({ item, lineIndex, serial, unit, withinWarranty });
+        rows.push({ item, lineIndex, serial, unit });
       }
     }
     return rows;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoice, items, lineStates, productMap, getLineState, nowMs]);
+  }, [invoice, items, lineStates, getLineState]);
+
+  // Each sold unit's warranty as the server holds it (its own end date, its state today).
+  const { data: invoiceWarranties } = useWarranties(
+    invoice === null || invoice === undefined ? null : { invoiceKey: invoice.id }
+  );
+  const warrantyBySerial = useMemo(
+    () =>
+      new Map(
+        (invoiceWarranties?.items ?? [])
+          .filter((w) => w.serialNumber !== undefined)
+          .map((w) => [w.serialNumber as string, w])
+      ),
+    [invoiceWarranties]
+  );
 
   const noReceiptProduct = noReceiptProductKey ? productMap.get(noReceiptProductKey) : undefined;
   // Every price the product has ever been received at — a no-receipt return
@@ -321,7 +336,8 @@ export const CreditNoteModal = ({
       ? answer.lines[position].refundCents
       : null;
   const netRefundCents = answer === undefined ? null : answer.netRefundCents;
-  const needsOverride = noReceipt || (answer !== undefined && answer.pastReturnWindow);
+  const needsOverride =
+    noReceipt || (warrantyClaim === null && answer !== undefined && answer.pastReturnWindow);
   const refundLegTargets = answer === undefined ? [] : answer.refundLegs;
   const isSplitPaid = refundLegTargets.length > 1;
 
@@ -414,6 +430,7 @@ export const CreditNoteModal = ({
           noReceipt: noReceipt || undefined,
           overrideReason: needsOverride ? overrideReason.trim() : undefined,
           refundBreakdown: refundBreakdownInput,
+          warrantyClaimKey: warrantyClaim === null ? undefined : warrantyClaim.key,
         },
       });
 
@@ -526,16 +543,25 @@ export const CreditNoteModal = ({
       fullScreen={isMobile}
     >
       <Stack gap="md">
-        {answer !== undefined && answer.pastReturnWindow && !noReceipt && (
-          <Alert color="amber" icon={<IconAlertTriangle size={16} />}>
-            {t('This sale was made')} {answer.daysSinceSale} {t('days ago — outside our')}{' '}
-            {answer.returnWindowDays}
-            {t('-day return window.')}{' '}
-            {isAdmin ? 'You can approve it anyway below.' : 'A manager needs to approve this.'}
+        {warrantyClaim !== null && (
+          <Alert color="blue" icon={<IconInfoCircle size={16} />}>
+            {t('Refund for warranty claim')} {warrantyClaim.claimNumber}.{' '}
+            {t('The claimed item is picked below. The return time limit does not apply.')}
           </Alert>
         )}
+        {warrantyClaim === null &&
+          answer !== undefined &&
+          answer.pastReturnWindow &&
+          !noReceipt && (
+            <Alert color="amber" icon={<IconAlertTriangle size={16} />}>
+              {t('This sale was made')} {answer.daysSinceSale} {t('days ago — outside our')}{' '}
+              {answer.returnWindowDays}
+              {t('-day return window.')}{' '}
+              {isAdmin ? 'You can approve it anyway below.' : 'A manager needs to approve this.'}
+            </Alert>
+          )}
 
-        {isAdmin ? (
+        {warrantyClaim !== null ? null : isAdmin ? (
           <Switch
             label={t('This customer has no receipt')}
             checked={noReceipt}
@@ -636,13 +662,7 @@ export const CreditNoteModal = ({
                                 disposition: null,
                                 reason: 'defective',
                               };
-                              const product = products.find((p) => p.key === item.productId);
-                              const withinWarranty = isWithinWarranty(
-                                invoice.createdAt,
-                                product?.warrantyMonths,
-                                nowMs
-                              );
-                              const warrantyMeta = getWarrantyMeta(withinWarranty);
+                              const unitWarranty = warrantyBySerial.get(serial);
                               return (
                                 <Paper key={serial} p="xs" withBorder bg="var(--bg-app)">
                                   <Stack gap={6}>
@@ -661,9 +681,13 @@ export const CreditNoteModal = ({
                                           {serial}
                                         </Text>
                                       </Group>
-                                      <Badge size="xs" color={warrantyMeta.color} variant="light">
-                                        {warrantyMeta.label}
-                                      </Badge>
+                                      {unitWarranty === undefined ? (
+                                        <Text size="xs" c="dimmed">
+                                          {t('No warranty')}
+                                        </Text>
+                                      ) : (
+                                        <WarrantyStateDot state={unitWarranty.state} size="xs" />
+                                      )}
                                     </Group>
                                     {unit.selected && (
                                       <Group grow>

@@ -1,5 +1,5 @@
 import { fromCents, toCents } from './money';
-import { RepairJob, RepairJobInput } from '@/features/repairs/types';
+import { RepairItemInput, RepairJob, RepairJobInput } from '@/features/repairs/types';
 import { PrintJob, PrintJobInput } from '@/features/print-jobs/types';
 import { Employee, EmployeeInput } from '@/features/employees/types';
 
@@ -7,11 +7,11 @@ export interface RepairFormValues {
   customerName: string;
   customerPhone: string;
   deviceModel: string;
+  /** The customer's device serial or IMEI; its warranties are found by it later. */
+  serialNumber: string;
   issueDescription: string;
   promisedReadyAt: string | null;
   status: RepairJob['status'];
-  estimatedPriceRupees: number | string;
-  materialCostRupees: number | string;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
@@ -24,11 +24,10 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
       customerName: '',
       customerPhone: '',
       deviceModel: '',
+      serialNumber: '',
       issueDescription: '',
       promisedReadyAt: null,
       status: 'received',
-      estimatedPriceRupees: '',
-      materialCostRupees: '',
       splitType: 'percentage',
       splitValueRupeesOrPercent: 30,
     };
@@ -37,12 +36,10 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
     customerName: job.customerName,
     customerPhone: job.customerPhone,
     deviceModel: job.deviceModel,
+    serialNumber: job.serialNumber ?? '',
     issueDescription: job.issueDescription,
     promisedReadyAt: job.promisedReadyAt ?? null,
     status: job.status,
-    estimatedPriceRupees:
-      job.estimatedCostCents !== undefined ? fromCents(job.estimatedCostCents) : '',
-    materialCostRupees: job.materialCostCents ? fromCents(job.materialCostCents) : '',
     assignedEmployeeId: job.assignedEmployeeId,
     assignedEmployeeName: job.assignedEmployeeName,
     splitType: job.splitType,
@@ -51,12 +48,17 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
   };
 };
 
-const rupeesFieldToCents = (value: number | string): number | undefined =>
-  value === '' || value === undefined || value === null ? undefined : toCents(Number(value));
-
-export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
+/**
+ * The repair request from the form. `items` is the whole list of work, or `undefined` to leave
+ * the saved items as they are (a handed-back job, whose work no longer changes).
+ */
+export const toRepairInput = (
+  form: RepairFormValues,
+  items: RepairItemInput[] | undefined
+): RepairJobInput => {
   const splitValNum = Number(form.splitValueRupeesOrPercent) || 0;
   const splitValueCentsOrPercent = form.splitType === 'fixed' ? toCents(splitValNum) : splitValNum;
+  const serial = form.serialNumber.trim();
 
   return {
     customer: {
@@ -72,11 +74,11 @@ export const toRepairInput = (form: RepairFormValues): RepairJobInput => {
         }
       : undefined,
     deviceModel: form.deviceModel,
+    serialNumber: serial === '' ? undefined : serial,
     issueDescription: form.issueDescription,
     promisedReadyAt: form.promisedReadyAt || undefined,
     status: form.status,
-    estimatedCostCents: rupeesFieldToCents(form.estimatedPriceRupees),
-    materialCostCents: rupeesFieldToCents(form.materialCostRupees),
+    items,
   };
 };
 

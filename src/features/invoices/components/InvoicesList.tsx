@@ -94,8 +94,10 @@ export const InvoicesList = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [openPaymentOnMount, setOpenPaymentOnMount] = useState(false);
+  const [refundClaimOnMount, setRefundClaimOnMount] = useState<string | undefined>(undefined);
 
-  // Deep link from the dashboard reminders: /invoices?invoiceKey=<key>&action=recordPayment
+  // Deep links: /invoices?invoiceKey=<key>&action=recordPayment from the dashboard reminders, and
+  // /invoices?invoiceKey=<key>&refundClaim=<claim key> from a warranty claim decided as a refund.
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const key = searchParams.get('invoiceKey');
@@ -106,10 +108,13 @@ export const InvoicesList = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedInvoice(match);
     setOpenPaymentOnMount(searchParams.get('action') === 'recordPayment');
+    const refundClaim = searchParams.get('refundClaim');
+    setRefundClaimOnMount(refundClaim === null ? undefined : refundClaim);
     setDrawerOpened(true);
     const next = new URLSearchParams(searchParams);
     next.delete('invoiceKey');
     next.delete('action');
+    next.delete('refundClaim');
     setSearchParams(next, { replace: true });
   }, [invoices, searchParams, setSearchParams]);
 
@@ -421,9 +426,11 @@ export const InvoicesList = () => {
         onClose={() => {
           setDrawerOpened(false);
           setOpenPaymentOnMount(false);
+          setRefundClaimOnMount(undefined);
         }}
         invoice={liveSelectedInvoice}
         openPaymentModalOnMount={openPaymentOnMount}
+        refundClaimOnMount={refundClaimOnMount}
       />
     </>
   );

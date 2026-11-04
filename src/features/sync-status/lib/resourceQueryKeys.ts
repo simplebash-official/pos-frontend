@@ -62,6 +62,7 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.reports.all,
     queryKeys.moneyReports.all,
   ],
+  repairServices: [queryKeys.repairServices.all],
   printJobs: [
     queryKeys.printJobs.all,
     queryKeys.employees.all,
@@ -91,6 +92,9 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.moneyReports.all,
   ],
   quotations: [queryKeys.quotations.all],
+  warranties: [queryKeys.warranties.all],
+  warrantyEvents: [queryKeys.warranties.all],
+  warrantyClaims: [queryKeys.warrantyClaims.all, queryKeys.warranties.all],
   cashMovements: [
     queryKeys.billing.sessions.all,
     queryKeys.billing.cash.all,

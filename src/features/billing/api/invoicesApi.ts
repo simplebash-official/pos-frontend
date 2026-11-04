@@ -1,3 +1,4 @@
+import type { ProductWarranty } from '@/features/warranties/types';
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import type { Invoice, InvoiceItem, InvoiceStatus, SplitPaymentDetail } from '../types';
@@ -29,6 +30,8 @@ export interface CompleteSaleItemInput {
   assignedEmployeeName?: string;
   /** Which specific in-stock units are being sold, for a serial-tracked product. */
   serialNumbers?: string[];
+  /** A different warranty for this product line (needs `warranties:adjust_at_sale`). */
+  warrantyOverride?: ProductWarranty;
 }
 
 export interface CompleteSaleSplitPaymentInput {

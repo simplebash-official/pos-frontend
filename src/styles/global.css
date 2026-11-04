@@ -1549,3 +1549,18 @@ th.mantine-Table-th {
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Warranty lookup: a warranty line inside a device card. */
+.warranty-line {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.warranty-line:hover {
+  background: var(--bg-hover) !important;
+  border-color: var(--border-strong) !important;
+}
+.warranty-line:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-filled);
+  outline-offset: 2px;
+}
