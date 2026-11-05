@@ -188,7 +188,13 @@ const ProductFormContent = ({
   const [warranty, setWarranty] = useState<ProductWarranty>(
     productToEdit === undefined || productToEdit === null
       ? { coverage: { kind: 'none' } }
-      : productToEdit.warranty
+      : {
+          ...productToEdit.warranty,
+          warrantyType:
+            productToEdit.warranty.coverage.kind === 'none'
+              ? undefined
+              : (productToEdit.warranty.warrantyType ?? 'shop'),
+        }
   );
   // A new product takes its category's warranty until the person changes it themselves.
   const [warrantyTouched, setWarrantyTouched] = useState(isEditing);
@@ -258,7 +264,15 @@ const ProductFormContent = ({
     setSubcategoryKey(null);
     if (!warrantyTouched) {
       const template = categoryList.find((c) => c.key === value)?.warrantyTemplate;
-      setWarranty(template === undefined ? { coverage: { kind: 'none' } } : template);
+      setWarranty(
+        template === undefined
+          ? { coverage: { kind: 'none' } }
+          : {
+              ...template,
+              warrantyType:
+                template.coverage.kind === 'none' ? undefined : (template.warrantyType ?? 'shop'),
+            }
+      );
     }
     if (errors.categoryKey) setErrors((prev) => ({ ...prev, categoryKey: '' }));
   };
@@ -268,7 +282,11 @@ const ProductFormContent = ({
     if (!name.trim()) newErrors.name = 'Product name is required';
     if (!categoryKey) newErrors.categoryKey = 'Select a category';
     if (!subcategoryKey) newErrors.subcategoryKey = 'Select a subcategory';
-    const warrantyError = profileProblem(warranty);
+    const warrantyToValidate: ProductWarranty =
+      warranty.coverage.kind === 'none'
+        ? warranty
+        : { ...warranty, warrantyType: warranty.warrantyType ?? 'shop' };
+    const warrantyError = profileProblem(warrantyToValidate);
     if (warrantyError !== null) newErrors.warranty = warrantyError;
 
     const hasOpeningStock = !isEditing && !hasSupplierIntakes && Number(stockQuantity) > 0;

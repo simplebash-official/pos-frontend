@@ -21,7 +21,11 @@ export const WorkWarrantyFields = ({ value, onChange }: WorkWarrantyFieldsProps)
       value={value.coverage}
       allowNone
       onChange={(coverage) =>
-        onChange(coverage.kind === 'none' ? { coverage } : { ...value, coverage })
+        onChange(
+          coverage.kind === 'none'
+            ? { coverage }
+            : { ...value, coverage, warrantyType: value.warrantyType ?? 'shop' }
+        )
       }
     />
     {value.coverage.kind !== 'none' && (
@@ -29,7 +33,7 @@ export const WorkWarrantyFields = ({ value, onChange }: WorkWarrantyFieldsProps)
         <SegmentedToggle
           fullWidth
           size="xs"
-          value={value.warrantyType ?? ''}
+          value={value.warrantyType ?? 'shop'}
           onChange={(type) => onChange({ ...value, warrantyType: type as WarrantyType })}
           data={TYPES.map((type) => ({ value: type.value, label: t(type.label) }))}
           aria-label={t('Who gives this warranty?')}

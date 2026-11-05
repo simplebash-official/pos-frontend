@@ -70,7 +70,13 @@ export const ProductWarrantyFields = ({
         allowNone
         disabled={disabled}
         onChange={(coverage) =>
-          coverage.kind === 'none' ? onChange({ coverage }) : onChange({ ...value, coverage })
+          coverage.kind === 'none'
+            ? onChange({ coverage })
+            : onChange({
+                ...value,
+                coverage,
+                warrantyType: value.warrantyType ?? 'shop',
+              })
         }
       />
 
@@ -83,7 +89,7 @@ export const ProductWarrantyFields = ({
             <SegmentedToggle
               fullWidth
               size={isMobile ? 'md' : 'sm'}
-              value={value.warrantyType ?? ''}
+              value={value.warrantyType ?? 'shop'}
               onChange={(type) => onChange({ ...value, warrantyType: type as WarrantyType })}
               data={TYPES.map((type) => ({ value: type.value, label: t(type.label) }))}
               disabled={disabled}
@@ -112,6 +118,7 @@ export const ProductWarrantyFields = ({
           p="xs"
           style={{
             borderRadius: 'var(--mantine-radius-default)',
+            border: '1px solid var(--border)',
             background: 'var(--status-ok-bg)',
           }}
         >
@@ -119,7 +126,7 @@ export const ProductWarrantyFields = ({
             <ThemeIcon variant="light" color="green" size="sm">
               <IconCalendarCheck size={14} />
             </ThemeIcon>
-            <Text size="xs" c="var(--text-secondary)">
+            <Text size="xs" c="var(--text-primary)">
               {t('A unit sold today is covered until')} <b>{formatDate(endsOn)}</b>.
             </Text>
           </Group>

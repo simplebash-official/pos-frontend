@@ -1,7 +1,14 @@
 import { t } from '@/shared/i18n/t';
 import { useState, memo } from 'react';
 import { Paper, Group, Box, Text, ActionIcon, Tooltip, Badge, ThemeIcon } from '@mantine/core';
-import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
+import {
+  IconTrash,
+  IconTools,
+  IconPrinter,
+  IconAlertTriangle,
+  IconTag,
+  IconShieldCheck,
+} from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
 import { formatCentsRange } from '@/features/inventory/lib/priceTiers';
@@ -16,7 +23,7 @@ import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useAppDispatch } from '@/store/hooks';
 import { setLineWarrantyOverride } from '@/store/slices/cartSlice';
-import { LineWarrantyControl } from '@/features/warranties/components/LineWarrantyControl';
+import { LineWarrantyControl, LineWarrantyBadge } from '@/features/warranties/components/LineWarrantyControl';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -142,13 +149,9 @@ export const CartLineItem = memo(function CartLineItem({
                 </Badge>
               )}
               {sourceType === 'retail' && item.warranty !== undefined && (
-                <LineWarrantyControl
+                <LineWarrantyBadge
                   warranty={item.warranty}
                   override={item.warrantyOverride}
-                  canAdjust={canAdjustWarranty}
-                  onOverride={(warranty) =>
-                    dispatch(setLineWarrantyOverride({ id: item.id, warranty }))
-                  }
                 />
               )}
             </Group>
@@ -184,8 +187,42 @@ export const CartLineItem = memo(function CartLineItem({
           </Box>
         </Group>
 
-        {/* Top Right: Discount Column Button & Delete Column Button */}
+        {/* Top Right: Warranty, Discount & Delete Column Buttons */}
         <Group gap={0} align="stretch" style={{ flexShrink: 0 }}>
+          {/* Warranty Column */}
+          {sourceType === 'retail' && item.warranty !== undefined && canAdjustWarranty && (
+            <LineWarrantyControl
+              warranty={item.warranty}
+              override={item.warrantyOverride}
+              canAdjust={canAdjustWarranty}
+              onOverride={(warranty) =>
+                dispatch(setLineWarrantyOverride({ id: item.id, warranty }))
+              }
+            >
+              <Tooltip label={isMobile ? t('Line warranty') : t('Line warranty')} position="top">
+                <ActionIcon
+                  variant="light"
+                  color={
+                    item.warrantyOverride !== undefined
+                      ? 'teal'
+                      : item.warranty.coverage.kind !== 'none'
+                        ? 'blue'
+                        : 'gray'
+                  }
+                  radius={0}
+                  style={{
+                    width: railWidth,
+                    height: '100%',
+                    borderLeft: '1px solid var(--border)',
+                  }}
+                  aria-label={t('Change the warranty for this sale')}
+                >
+                  <IconShieldCheck size={16} />
+                </ActionIcon>
+              </Tooltip>
+            </LineWarrantyControl>
+          )}
+
           {/* Discount Column */}
           <DiscountPopover
             opened={discountOpen}

@@ -159,7 +159,13 @@ const CategoryItem = ({
     setEditWarranty(
       category.warrantyTemplate === undefined
         ? { coverage: { kind: 'none' } }
-        : category.warrantyTemplate
+        : {
+            ...category.warrantyTemplate,
+            warrantyType:
+              category.warrantyTemplate.coverage.kind === 'none'
+                ? undefined
+                : (category.warrantyTemplate.warrantyType ?? 'shop'),
+          }
     );
     setWarrantyTried(false);
     setIsEditing(true);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Group, Popover, Stack, Text, UnstyledButton } from '@mantine/core';
+import { Badge, Box, Button, Group, Popover, Stack, Text, UnstyledButton } from '@mantine/core';
 import { IconShieldCheck, IconShieldOff } from '@tabler/icons-react';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { t } from '@/shared/i18n/t';
@@ -7,6 +7,13 @@ import { formatDate } from '@/shared/lib/date';
 import { coverageLabel, endsOnIfStartedToday, profileProblem } from '../lib/warrantyView';
 import type { ProductWarranty, WarrantyType } from '../types';
 import { CoverageEditor } from './CoverageEditor';
+
+export interface LineWarrantyBadgeProps {
+  /** The product's own warranty. */
+  warranty: ProductWarranty;
+  /** The cashier's different warranty for this line, if any. */
+  override?: ProductWarranty;
+}
 
 export interface LineWarrantyControlProps {
   /** The product's own warranty. */
@@ -16,6 +23,8 @@ export interface LineWarrantyControlProps {
   /** People without the permission only see the tag. */
   canAdjust: boolean;
   onOverride: (warranty: ProductWarranty | null) => void;
+  /** Optional custom trigger, e.g. ActionIcon in the cart action rail. */
+  children?: React.ReactNode;
 }
 
 const TYPES: { value: WarrantyType; label: string }[] = [
@@ -45,6 +54,32 @@ const warrantyBadgeText = (effective: ProductWarranty, endsOn: string | null): s
 };
 
 /**
+ * Informative, non-clickable status badge showing the warranty for this sale line.
+ */
+export const LineWarrantyBadge = ({ warranty, override }: LineWarrantyBadgeProps) => {
+  const effective = override ?? warranty;
+  const covered = effective.coverage.kind !== 'none';
+  const endsOn = endsOnIfStartedToday(effective.coverage);
+
+  return (
+    <Badge
+      size="xs"
+      variant={override === undefined ? 'light' : 'filled'}
+      color={covered ? 'teal' : 'gray'}
+      leftSection={covered ? <IconShieldCheck size={11} /> : <IconShieldOff size={11} />}
+      style={{
+        textTransform: 'none',
+        flexShrink: 0,
+        fontWeight: 600,
+      }}
+      title={endsOn === null ? t('Warranty') : `${t('Warranty until')} ${formatDate(endsOn)}`}
+    >
+      {warrantyBadgeText(effective, endsOn)}
+    </Badge>
+  );
+};
+
+/**
  * The warranty tag on a cart line ("12 months · ends 5 Nov 2027"). For a manager or owner it opens
  * a small editor to give this sale a different warranty; the change is sent with the sale and the
  * product keeps its own warranty.
@@ -54,6 +89,7 @@ export const LineWarrantyControl = ({
   override,
   canAdjust,
   onOverride,
+  children,
 }: LineWarrantyControlProps) => {
   const [opened, setOpened] = useState(false);
   const [tried, setTried] = useState(false);
@@ -64,33 +100,18 @@ export const LineWarrantyControl = ({
     warrantyType: effective.coverage.kind === 'none' ? undefined : initialType,
   });
 
-  const covered = effective.coverage.kind !== 'none';
-  const endsOn = endsOnIfStartedToday(effective.coverage);
   const problem = profileProblem(draft);
 
-  const tag = (
-    <Badge
-      size="xs"
-      variant={override === undefined ? 'light' : 'filled'}
-      color={covered ? 'teal' : 'gray'}
-      leftSection={covered ? <IconShieldCheck size={11} /> : <IconShieldOff size={11} />}
-      style={{
-        textTransform: 'none',
-        flexShrink: 0,
-        cursor: canAdjust ? 'pointer' : 'default',
-        fontWeight: 600,
-      }}
-      title={endsOn === null ? t('Warranty') : `${t('Warranty until')} ${formatDate(endsOn)}`}
-    >
-      {warrantyBadgeText(effective, endsOn)}
-    </Badge>
-  );
-
-  if (!canAdjust) return tag;
+  if (!canAdjust) {
+    return children !== undefined ? null : (
+      <LineWarrantyBadge warranty={warranty} override={override} />
+    );
+  }
 
   const handleOpen = () => {
     const currentEffective = override ?? warranty;
-    const defaultType: WarrantyType = currentEffective.warrantyType ?? warranty.warrantyType ?? 'shop';
+    const defaultType: WarrantyType =
+      currentEffective.warrantyType ?? warranty.warrantyType ?? 'shop';
     setDraft({
       ...currentEffective,
       warrantyType: currentEffective.coverage.kind === 'none' ? undefined : defaultType,
@@ -113,20 +134,36 @@ export const LineWarrantyControl = ({
   return (
     <Popover
       opened={opened}
-      onChange={setOpened}
-      position="bottom-start"
+      onChange={(nextOpened) => {
+        if (nextOpened) {
+          handleOpen();
+        } else {
+          setOpened(false);
+        }
+      }}
+      position={children !== undefined ? 'bottom-end' : 'bottom-start'}
       withArrow
       shadow="md"
       trapFocus
     >
       <Popover.Target>
-        <UnstyledButton
-          onClick={handleOpen}
-          aria-label={t('Change the warranty for this sale')}
-          style={{ display: 'inline-flex', flexShrink: 0 }}
-        >
-          {tag}
-        </UnstyledButton>
+        {children !== undefined ? (
+          <Box
+            component="span"
+            onClick={handleOpen}
+            style={{ display: 'inline-flex', height: '100%' }}
+          >
+            {children}
+          </Box>
+        ) : (
+          <UnstyledButton
+            onClick={handleOpen}
+            aria-label={t('Change the warranty for this sale')}
+            style={{ display: 'inline-flex', flexShrink: 0 }}
+          >
+            <LineWarrantyBadge warranty={warranty} override={override} />
+          </UnstyledButton>
+        )}
       </Popover.Target>
       <Popover.Dropdown style={{ width: 'min(320px, calc(100vw - 32px))' }}>
         <Stack gap="sm">

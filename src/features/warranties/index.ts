@@ -1,3 +1,4 @@
+export { LineWarrantyControl, LineWarrantyBadge } from './components/LineWarrantyControl';
 export { WarrantiesPage } from './components/WarrantiesPage';
 export { WarrantyDetailDrawer } from './components/WarrantyDetailDrawer';
 export { InvoiceClaimsCard } from './components/InvoiceClaimsCard';

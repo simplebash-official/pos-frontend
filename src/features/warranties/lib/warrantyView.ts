@@ -138,7 +138,7 @@ export const toProfileInput = (profile: ProductWarranty): ProductWarranty => {
   const terms = profile.terms?.trim();
   return {
     coverage: profile.coverage,
-    warrantyType: profile.warrantyType,
+    warrantyType: profile.warrantyType ?? 'shop',
     terms: terms === undefined || terms === '' ? undefined : terms,
   };
 };
