@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, Anchor, Button, Center, Loader, Stack, Text } from '@mantine/core';
 import {
   IconAlertTriangle,
+  IconBox,
   IconBuildingStore,
   IconCamera,
   IconClipboardCheck,
@@ -250,8 +251,21 @@ export const ClaimDetailDrawer = ({
                           {c.serialNumber}
                         </div>
                       )}
+                      {(c.quantity ?? 1) > 1 && (
+                        <div>
+                          {c.quantity} {t('units claimed')}
+                        </div>
+                      )}
                       <div>
-                        {c.warrantyNumber} · {c.invoiceNumber}
+                        {c.warrantyNumber} ·{' '}
+                        <Anchor
+                          component="a"
+                          href={`/invoices?invoiceKey=${c.invoiceKey}`}
+                          size="xs"
+                          fw={600}
+                        >
+                          {c.invoiceNumber}
+                        </Anchor>
                       </div>
                     </>
                   }
@@ -288,6 +302,11 @@ export const ClaimDetailDrawer = ({
 
                 <DrawerCard label={t('What came in')} icon={<IconSearch size={14} />}>
                   <Stack gap="xs">
+                    {(c.quantity ?? 1) > 1 && (
+                      <InfoRow icon={<IconBox size={14} />} label={t('Units claimed')}>
+                        {c.quantity}
+                      </InfoRow>
+                    )}
                     <InfoRow icon={<IconAlertTriangle size={14} />} label={t('The fault')} stacked>
                       {c.issueDescription}
                     </InfoRow>

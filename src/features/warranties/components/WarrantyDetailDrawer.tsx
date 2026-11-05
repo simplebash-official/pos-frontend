@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Alert, Button, Center, Group, Loader, Menu, Progress, Stack, Text } from '@mantine/core';
+import { Alert, Anchor, Button, Center, Group, Loader, Menu, Progress, Stack, Text } from '@mantine/core';
 import {
   IconActivity,
   IconAlertTriangle,
+  IconBox,
   IconCalendarDue,
   IconChevronUp,
   IconClipboardCheck,
@@ -277,34 +278,57 @@ export const WarrantyDetailDrawer = ({
           return (
             <DrawerGrid>
               <KpiStrip>
-                <KpiTile
-                  icon={<IconClockHour4 size={16} />}
-                  color={look.color}
-                  label={t('Cover left')}
-                >
-                  <Figure
-                    value={
-                      warranty.daysRemaining === undefined
-                        ? t('For life')
-                        : `${warranty.daysRemaining}`
-                    }
-                    hint={
-                      warranty.daysRemaining === undefined
-                        ? t('Never runs out')
-                        : daysLeftLabel(warranty)
-                    }
+                {warranty.endsOn === undefined ? (
+                  <KpiTile
+                    icon={<IconShieldCheck size={16} />}
                     color={look.color}
-                  />
-                </KpiTile>
-                <KpiTile icon={<IconCalendarDue size={16} />} color="blue" label={t('Valid until')}>
-                  <Figure
-                    value={
-                      warranty.endsOn === undefined ? t('Lifetime') : formatDate(warranty.endsOn)
-                    }
-                    hint={coverageLabel(warranty.coverage)}
-                    color="blue"
-                  />
-                </KpiTile>
+                    label={t('Coverage')}
+                  >
+                    <Figure
+                      value={t('Lifetime')}
+                      hint={typeLabel(warranty.warrantyType)}
+                      color={look.color}
+                    />
+                  </KpiTile>
+                ) : (
+                  <>
+                    <KpiTile
+                      icon={<IconClockHour4 size={16} />}
+                      color={look.color}
+                      label={t('Cover left')}
+                    >
+                      <Figure
+                        value={
+                          warranty.daysRemaining === undefined
+                            ? t('For life')
+                            : `${warranty.daysRemaining}`
+                        }
+                        hint={daysLeftLabel(warranty)}
+                        color={look.color}
+                      />
+                    </KpiTile>
+                    <KpiTile icon={<IconCalendarDue size={16} />} color="blue" label={t('Valid until')}>
+                      <Figure
+                        value={formatDate(warranty.endsOn)}
+                        hint={coverageLabel(warranty.coverage)}
+                        color="blue"
+                      />
+                    </KpiTile>
+                  </>
+                )}
+                {warranty.quantity > 1 && (
+                  <KpiTile icon={<IconBox size={16} />} color="teal" label={t('Units')}>
+                    <Figure
+                      value={`${warranty.claimedQuantity ?? 0} / ${warranty.quantity}`}
+                      hint={
+                        (warranty.claimedQuantity ?? 0) > 0
+                          ? `${warranty.claimedQuantity ?? 0} of ${warranty.quantity} ${t('claimed')}`
+                          : `${warranty.quantity} ${t('units covered')}`
+                      }
+                      color="teal"
+                    />
+                  </KpiTile>
+                )}
                 <KpiTile icon={<IconActivity size={16} />} color="grape" label={t('Claims')}>
                   <Figure
                     value={String(warranty.claimCount)}
@@ -330,7 +354,9 @@ export const WarrantyDetailDrawer = ({
                       )}
                       {warranty.quantity > 1 && (
                         <div>
-                          {warranty.quantity} {t('units on one warranty')}
+                          {(warranty.claimedQuantity ?? 0) > 0
+                            ? `${warranty.claimedQuantity ?? 0} of ${warranty.quantity} ${t('units claimed')} · ${warranty.quantity - (warranty.claimedQuantity ?? 0)} ${t('remaining')}`
+                            : `${warranty.quantity} ${t('units covered')}`}
                         </div>
                       )}
                       <div>{typeLabel(warranty.warrantyType)}</div>
@@ -340,8 +366,18 @@ export const WarrantyDetailDrawer = ({
                   <PeriodBar warranty={warranty} />
                 </DrawerHero>
                 <DrawerAfter>
-                  <DrawerCard label={t('Customer')} icon={<IconUser size={14} />}>
-                    <InfoRow icon={<IconUser size={14} />} label={t('Name')}>
+                  <DrawerCard label={t('Sale & Customer')} icon={<IconReceipt size={14} />}>
+                    <InfoRow icon={<IconFileInvoice size={14} />} label={t('Invoice')}>
+                      <Anchor
+                        component="a"
+                        href={`/invoices?invoiceKey=${invoice.key}`}
+                        size="xs"
+                        fw={600}
+                      >
+                        {invoice.invoiceNumber}
+                      </Anchor>
+                    </InfoRow>
+                    <InfoRow icon={<IconUser size={14} />} label={t('Customer')}>
                       {warranty.customerName === undefined
                         ? t('Walk-in customer')
                         : warranty.customerName}
@@ -408,7 +444,10 @@ export const WarrantyDetailDrawer = ({
                         <InfoRow icon={<IconShieldCheck size={14} />} label={t('Given by')}>
                           {typeLabel(warranty.warrantyType)}
                         </InfoRow>
-                        <InfoRow icon={<IconReceipt size={14} />} label={t('Price paid')}>
+                        <InfoRow
+                          icon={<IconReceipt size={14} />}
+                          label={warranty.quantity > 1 ? t('Price paid (per unit)') : t('Price paid')}
+                        >
                           {formatMoney(warranty.unitPriceCents)}
                         </InfoRow>
                         <InfoRow icon={<IconInfoCircle size={14} />} label={t('Terms')} stacked>
@@ -482,7 +521,19 @@ export const WarrantyDetailDrawer = ({
                           icon={<IconFileInvoice size={18} />}
                           title={`${t('Invoice')} ${invoice.invoiceNumber}`}
                           meta={`${formatDate(invoice.createdAt)} · ${formatMoney(invoice.totalCents)}`}
-                          trailing={<WarrantyStateDot state={warranty.state} size="xs" />}
+                          trailing={
+                            <Group gap="xs" wrap="nowrap">
+                              <WarrantyStateDot state={warranty.state} size="xs" />
+                              <Button
+                                variant="subtle"
+                                size="xs"
+                                component="a"
+                                href={`/invoices?invoiceKey=${invoice.key}`}
+                              >
+                                {t('Open')}
+                              </Button>
+                            </Group>
+                          }
                         />
                         {replaces !== null && (
                           <WarrantyLinkRow

@@ -54,32 +54,40 @@ export const outcomeLabel = (outcome: SupplierOutcome): string => t(OUTCOME_LABE
 
 export const OUTCOMES: SupplierOutcome[] = ['repaired', 'replaced', 'credited', 'rejected'];
 
-const CHECK_LABEL: Record<keyof VoidChecks, string> = {
-  screenCracked: 'Screen cracked',
+const CHECK_LABEL: Record<string, string> = {
+  physicalDamage: 'Physical damage / cracks',
   liquidDamage: 'Liquid damage',
   sealBroken: 'Seal broken',
   tampered: 'Opened or tampered with',
+  screenCracked: 'Physical damage / cracks',
 };
 
-export const VOID_CHECK_KEYS: (keyof VoidChecks)[] = [
-  'screenCracked',
+export const VOID_CHECK_KEYS: ('physicalDamage' | 'liquidDamage' | 'sealBroken' | 'tampered')[] = [
+  'physicalDamage',
   'liquidDamage',
   'sealBroken',
   'tampered',
 ];
 
-export const voidCheckLabel = (key: keyof VoidChecks): string => t(CHECK_LABEL[key]);
+export const voidCheckLabel = (key: string): string => t(CHECK_LABEL[key] ?? key);
 
 export const NO_CHECKS: VoidChecks = {
-  screenCracked: false,
+  physicalDamage: false,
   liquidDamage: false,
   sealBroken: false,
   tampered: false,
+  screenCracked: false,
 };
 
 /** The checks that were ticked, as words; empty when the item came in clean. */
-export const tickedChecks = (checks: VoidChecks): string[] =>
-  VOID_CHECK_KEYS.filter((key) => checks[key]).map(voidCheckLabel);
+export const tickedChecks = (checks: VoidChecks): string[] => {
+  const flagged: string[] = [];
+  if (checks.physicalDamage || checks.screenCracked) flagged.push(voidCheckLabel('physicalDamage'));
+  if (checks.liquidDamage) flagged.push(voidCheckLabel('liquidDamage'));
+  if (checks.sealBroken) flagged.push(voidCheckLabel('sealBroken'));
+  if (checks.tampered) flagged.push(voidCheckLabel('tampered'));
+  return flagged;
+};
 
 /** "Today", "1 day", "12 days" since the claim came in. */
 export const ageLabel = (ageDays: number): string => {

@@ -209,7 +209,13 @@ describe('warranty claim screens', () => {
     expect(api.open).toHaveBeenCalledWith({
       warrantyKey: 'wty_1',
       issueDescription: 'Turns off after ten minutes',
-      voidChecks: { screenCracked: false, liquidDamage: true, sealBroken: false, tampered: false },
+      voidChecks: {
+        physicalDamage: false,
+        liquidDamage: true,
+        sealBroken: false,
+        tampered: false,
+        screenCracked: false,
+      },
       assignedEmployeeKey: undefined,
       approval: undefined,
     });
@@ -271,5 +277,38 @@ describe('warranty claim screens', () => {
     await vi.waitFor(() => expect(text()).toContain('WCL-000002'));
     expect(text()).toContain('1 claim has waited too long.');
     expect(api.list).toHaveBeenCalledWith({ status: 'open', q: undefined });
+  });
+
+  it('claims partial quantity on a multi-unit warranty', async () => {
+    api.open.mockResolvedValue({ ...CLAIM, quantity: 2 });
+    const onStarted = vi.fn();
+    const multiWarranty: Warranty = {
+      ...WARRANTY,
+      quantity: 4,
+      claimedQuantity: 1,
+      serialNumber: undefined,
+    };
+    await render(
+      <StartClaimModal warranty={multiWarranty} onClose={vi.fn()} onStarted={onStarted} />
+    );
+    await vi.waitFor(() => expect(text()).toContain('Units to claim'));
+    expect(text()).toContain('1 of 4 units claimed');
+
+    const issue = document.querySelector('textarea') as HTMLTextAreaElement;
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(issue, 'Two of the cameras broke');
+      issue.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    await act(async () => button('Start the claim')?.click());
+    await vi.waitFor(() => expect(onStarted).toHaveBeenCalled());
+    expect(api.open).toHaveBeenCalledWith(
+      expect.objectContaining({
+        warrantyKey: 'wty_1',
+        quantity: 1,
+        issueDescription: 'Two of the cameras broke',
+      })
+    );
   });
 });

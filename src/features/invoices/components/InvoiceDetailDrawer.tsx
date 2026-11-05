@@ -1,7 +1,7 @@
 import { useInvoiceBalance } from '@/features/billing/hooks/useInvoiceBalance';
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { Button, Group, Stack, Text } from '@mantine/core';
+import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import {
   IconActivity,
   IconBan,
@@ -14,6 +14,7 @@ import {
   IconPackage,
   IconPrinter,
   IconReceipt,
+  IconShieldCheck,
   IconSquareCheck,
   IconWallet,
 } from '@tabler/icons-react';
@@ -47,7 +48,7 @@ import {
 } from '@/shared/components/drawer';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
-import { InvoiceClaimsCard, type ClaimRefund } from '@/features/warranties';
+import { InvoiceClaimsCard, useClaims, type ClaimRefund } from '@/features/warranties';
 import { InvoiceCreditNotesCard } from './InvoiceCreditNotesCard';
 import { InvoiceItemsPanel } from './InvoiceItemsPanel';
 import { InvoicePaymentModal } from './InvoicePaymentModal';
@@ -154,6 +155,10 @@ export const InvoiceDetailDrawer = ({
 
   const { data: payments } = useInvoicePayments(invoice?.id);
   const { data: invoiceCreditNotes } = useInvoiceCreditNotes(invoice?.id);
+  const { data: invoiceClaims } = useClaims(
+    invoice?.id ? { status: 'all', invoiceKey: invoice.id } : null
+  );
+  const claimCount = invoiceClaims?.total ?? invoiceClaims?.items.length ?? 0;
   const recordPaymentMutation = useRecordPayment();
   const voidInvoiceMutation = useVoidInvoice();
   const closeInvoiceMutation = useCloseInvoice();
@@ -463,16 +468,33 @@ export const InvoiceDetailDrawer = ({
                     <>
                       {inv.customerPhone ? <div>{inv.customerPhone}</div> : null}
                       {inv.customerAddress ? <div>{inv.customerAddress}</div> : null}
-                      {inv.hasCreditNotes ? (
-                        <div>
-                          {inv.creditNoteCount} {t('Credit Note')}
-                          {inv.creditNoteCount === 1 ? '' : 's'}
-                          {d.isFullyReturned
-                            ? ` · ${t('Fully Returned')}`
-                            : d.isPartiallyReturned
-                              ? ` · ${t('Partially Returned')} (${d.totalReturnedUnits})`
-                              : ''}
-                        </div>
+                      {inv.hasCreditNotes || claimCount > 0 ? (
+                        <Group gap={6} mt={4} wrap="wrap">
+                          {inv.hasCreditNotes && (
+                            <Badge size="xs" color="orange" variant="light">
+                              {inv.creditNoteCount} {inv.creditNoteCount === 1 ? t('Return') : t('Returns')}
+                              {d.isFullyReturned
+                                ? ` · ${t('Fully Returned')}`
+                                : d.isPartiallyReturned
+                                  ? ` (${d.totalReturnedUnits})`
+                                  : ''}
+                            </Badge>
+                          )}
+                          {claimCount > 0 && (
+                            <Badge
+                              size="xs"
+                              color="blue"
+                              variant="light"
+                              leftSection={<IconShieldCheck size={10} />}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() =>
+                                navigate(`${ROUTES.WARRANTIES}?view=claims&invoiceKey=${inv.id}`)
+                              }
+                            >
+                              {claimCount} {claimCount === 1 ? t('Claim') : t('Claims')}
+                            </Badge>
+                          )}
+                        </Group>
                       ) : null}
                     </>
                   }

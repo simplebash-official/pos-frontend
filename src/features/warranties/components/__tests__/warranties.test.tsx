@@ -347,4 +347,51 @@ describe('warranty screens', () => {
     expect(document.body.textContent).toContain('12 months');
     expect(document.querySelector('[aria-label="Change the warranty for this sale"]')).toBeNull();
   });
+
+  it('shows reactive details and does not display premature error on line warranty control', async () => {
+    await render(
+      <LineWarrantyControl
+        warranty={{
+          coverage: { kind: 'none' },
+        }}
+        override={undefined}
+        canAdjust={true}
+        onOverride={vi.fn()}
+      />
+    );
+    expect(document.body.textContent).toContain('No warranty');
+    const button = document.querySelector(
+      '[aria-label="Change the warranty for this sale"]'
+    ) as HTMLElement;
+    expect(button).toBeDefined();
+    await act(async () => button.click());
+    // Should NOT show premature error before user attempts to apply
+    expect(document.body.textContent).not.toContain('Choose who gives the warranty.');
+  });
+
+  it('merges lifetime tiles and labels price per unit for multi-unit warranty detail', async () => {
+    api.detail.mockResolvedValue({
+      ...DETAIL,
+      warranty: {
+        ...WARRANTY,
+        quantity: 3,
+        claimedQuantity: 1,
+        coverage: { kind: 'lifetime' },
+        endsOn: undefined,
+        daysRemaining: undefined,
+      },
+    });
+    await render(
+      <WarrantyDetailDrawer
+        warrantyKey="wty_1"
+        onClose={vi.fn()}
+        onOpenWarranty={vi.fn()}
+        onOpenClaim={vi.fn()}
+      />
+    );
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Lifetime'));
+    expect(document.body.textContent).toContain('Coverage');
+    expect(document.body.textContent).toContain('Price paid (per unit)');
+    expect(document.body.textContent).toContain('1 of 3 units claimed · 2 remaining');
+  });
 });

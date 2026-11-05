@@ -61,7 +61,7 @@ export const InvoiceItemsPanel = ({ invoice }: { invoice: Invoice }) => {
                         </Text>
                       ) : null}
                     </Text>
-                    {lineWarranties !== undefined && (
+                    {lineWarranties !== undefined ? (
                       <Group gap={6} mt={4} wrap="wrap">
                         <WarrantyStateDot state={lineWarranties[0].state} size="xs" />
                         <Text size="3xs" c="dimmed">
@@ -71,6 +71,10 @@ export const InvoiceItemsPanel = ({ invoice }: { invoice: Invoice }) => {
                             : ''}
                         </Text>
                       </Group>
+                    ) : (
+                      <Text size="3xs" c="dimmed" mt={4}>
+                        {t('No warranty')}
+                      </Text>
                     )}
                   </Table.Td>
                   <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>

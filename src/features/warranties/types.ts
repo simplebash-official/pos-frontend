@@ -39,6 +39,7 @@ export interface Warranty {
   itemName: string;
   serialNumber?: string;
   quantity: number;
+  claimedQuantity?: number;
   customerKey?: string;
   customerName?: string;
   customerPhone?: string;
@@ -163,10 +164,12 @@ export type ClaimDecision = 'repair' | 'replace' | 'refund' | 'reject';
 
 /** What staff saw on the item when it came in; any of these may void the warranty. */
 export interface VoidChecks {
-  screenCracked: boolean;
+  physicalDamage?: boolean;
   liquidDamage: boolean;
   sealBroken: boolean;
   tampered: boolean;
+  /** Legacy alias for backwards compatibility. */
+  screenCracked?: boolean;
 }
 
 export type SupplierOutcome = 'repaired' | 'replaced' | 'credited' | 'rejected';
@@ -191,6 +194,7 @@ export interface WarrantyClaim {
   warrantyNumber: string;
   itemName: string;
   serialNumber?: string;
+  quantity?: number;
   productKey?: string;
   invoiceKey: string;
   invoiceNumber: string;
@@ -250,6 +254,8 @@ export interface ClaimListResult {
 
 export interface OpenClaimInput {
   warrantyKey: string;
+  quantity?: number;
+  serialNumber?: string;
   issueDescription: string;
   voidChecks: VoidChecks;
   assignedEmployeeKey?: string;

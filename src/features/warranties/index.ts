@@ -8,6 +8,7 @@ export { CoverageEditor } from './components/CoverageEditor';
 export { StartClaimModal } from './components/StartClaimModal';
 export { WarrantyMetrics } from './components/WarrantyMetrics';
 export { useWarranties } from './hooks/useWarranties';
+export { useClaims } from './hooks/useClaims';
 export { fetchWarrantyStats } from './api/warrantiesApi';
 export {
   coverageLabel,

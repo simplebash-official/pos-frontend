@@ -279,22 +279,44 @@ body,
   background-color: var(--bg-active);
   padding: 4px;
   border-radius: var(--mantine-radius-default);
+  border: 1px solid var(--border);
 }
 
 .segmented-toggle-indicator {
   background-color: var(--bg-card);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   border-radius: calc(var(--mantine-radius-default) - 2px);
 }
 
 .segmented-toggle-label {
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-weight: 500;
+  transition: color 0.15s ease;
 }
 
 .segmented-toggle-label[data-active] {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-root {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-indicator {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-label {
+  color: var(--mantine-color-dark-2);
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-label[data-active] {
+  color: var(--mantine-color-white);
+  font-weight: 700;
 }
 
 /* Analytics & Reports segmented pill tabs with white active button */
