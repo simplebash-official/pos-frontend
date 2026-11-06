@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import { Alert, Anchor, Button, Center, Group, Loader, Menu, Progress, Stack, Text } from '@mantine/core';
+import {
+  Alert,
+  Anchor,
+  Button,
+  Center,
+  Group,
+  Loader,
+  Menu,
+  Progress,
+  Stack,
+  Text,
+} from '@mantine/core';
 import {
   IconActivity,
   IconAlertTriangle,
@@ -307,7 +318,11 @@ export const WarrantyDetailDrawer = ({
                         color={look.color}
                       />
                     </KpiTile>
-                    <KpiTile icon={<IconCalendarDue size={16} />} color="blue" label={t('Valid until')}>
+                    <KpiTile
+                      icon={<IconCalendarDue size={16} />}
+                      color="blue"
+                      label={t('Valid until')}
+                    >
                       <Figure
                         value={formatDate(warranty.endsOn)}
                         hint={coverageLabel(warranty.coverage)}
@@ -446,7 +461,9 @@ export const WarrantyDetailDrawer = ({
                         </InfoRow>
                         <InfoRow
                           icon={<IconReceipt size={14} />}
-                          label={warranty.quantity > 1 ? t('Price paid (per unit)') : t('Price paid')}
+                          label={
+                            warranty.quantity > 1 ? t('Price paid (per unit)') : t('Price paid')
+                          }
                         >
                           {formatMoney(warranty.unitPriceCents)}
                         </InfoRow>

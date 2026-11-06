@@ -172,6 +172,18 @@ export interface VoidChecks {
   screenCracked?: boolean;
 }
 
+/** A condition checklist item (e.g. "Physical damage / cracks", "Scratched lens"). */
+export interface WarrantyCondition {
+  key: string;
+  name: string;
+  active: boolean;
+  createdAt?: string;
+}
+
+export interface WarrantyConditionsResponse {
+  conditions: WarrantyCondition[];
+}
+
 export type SupplierOutcome = 'repaired' | 'replaced' | 'credited' | 'rejected';
 
 /** The part of a claim sent on to a supplier or maker. */
@@ -203,6 +215,7 @@ export interface WarrantyClaim {
   customerPhone?: string;
   issueDescription: string;
   voidChecks: VoidChecks;
+  conditions?: string[];
   assignedEmployeeKey?: string;
   assignedEmployeeName?: string;
   status: ClaimStatus;
@@ -258,6 +271,7 @@ export interface OpenClaimInput {
   serialNumber?: string;
   issueDescription: string;
   voidChecks: VoidChecks;
+  conditions?: string[];
   assignedEmployeeKey?: string;
   /** Only for a warranty that has already run out. */
   approval?: ManagerApproval;

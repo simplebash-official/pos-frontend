@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Anchor, Button, Center, Loader, Stack, Text } from '@mantine/core';
+import { Alert, Anchor, Badge, Button, Center, Group, Loader, Stack, Text } from '@mantine/core';
 import {
   IconAlertTriangle,
   IconBox,
@@ -197,7 +197,8 @@ export const ClaimDetailDrawer = ({
           }
           const c = loaded.claim;
           const look = claimStatusLook(c.status);
-          const checks = tickedChecks(c.voidChecks);
+          const checks =
+            c.conditions && c.conditions.length > 0 ? c.conditions : tickedChecks(c.voidChecks);
           const slow = needsAttention(c);
           return (
             <DrawerGrid>
@@ -311,7 +312,19 @@ export const ClaimDetailDrawer = ({
                       {c.issueDescription}
                     </InfoRow>
                     <InfoRow icon={<IconSearch size={14} />} label={t('Seen on it')} stacked>
-                      {checks.length === 0 ? t('Nothing; it looked fine') : checks.join(' · ')}
+                      {checks.length === 0 ? (
+                        <Text size="sm" c="dimmed">
+                          {t('Nothing; it looked fine')}
+                        </Text>
+                      ) : (
+                        <Group gap="xs" wrap="wrap" mt={4}>
+                          {checks.map((item) => (
+                            <Badge key={item} color="orange" variant="light" size="sm">
+                              {item}
+                            </Badge>
+                          ))}
+                        </Group>
+                      )}
                     </InfoRow>
                     {c.inspectionNotes !== undefined && (
                       <InfoRow

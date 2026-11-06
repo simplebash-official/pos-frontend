@@ -23,7 +23,10 @@ import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useAppDispatch } from '@/store/hooks';
 import { setLineWarrantyOverride } from '@/store/slices/cartSlice';
-import { LineWarrantyControl, LineWarrantyBadge } from '@/features/warranties/components/LineWarrantyControl';
+import {
+  LineWarrantyControl,
+  LineWarrantyBadge,
+} from '@/features/warranties/components/LineWarrantyControl';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -149,10 +152,7 @@ export const CartLineItem = memo(function CartLineItem({
                 </Badge>
               )}
               {sourceType === 'retail' && item.warranty !== undefined && (
-                <LineWarrantyBadge
-                  warranty={item.warranty}
-                  override={item.warrantyOverride}
-                />
+                <LineWarrantyBadge warranty={item.warranty} override={item.warrantyOverride} />
               )}
             </Group>
 

@@ -9,6 +9,8 @@ import type {
   ReplacementInput,
   SupplierOutcome,
   WarrantyClaim,
+  WarrantyCondition,
+  WarrantyConditionsResponse,
 } from '../types';
 
 const base = '/warranty-claims';
@@ -66,3 +68,21 @@ export const convertClaimToPaidRepair = (key: string) => step(key, 'paid-repair'
 
 /** Opens the free rework job for a claim on repair work decided as a repair. */
 export const openClaimRework = (key: string) => step(key, 'rework', {});
+
+export const fetchConditions = async (): Promise<WarrantyCondition[]> => {
+  const response = await apiClient.get<ApiResponse<WarrantyConditionsResponse>>(
+    `${base}/conditions`
+  );
+  return response.data.conditions;
+};
+
+export const createCondition = async (name: string): Promise<WarrantyCondition> => {
+  const response = await apiClient.post<ApiResponse<WarrantyCondition>>(`${base}/conditions`, {
+    name,
+  });
+  return response.data;
+};
+
+export const deleteCondition = async (key: string): Promise<void> => {
+  await apiClient.delete<ApiResponse<WarrantyCondition>>(`${base}/conditions/${key}`);
+};

@@ -472,7 +472,8 @@ export const InvoiceDetailDrawer = ({
                         <Group gap={6} mt={4} wrap="wrap">
                           {inv.hasCreditNotes && (
                             <Badge size="xs" color="orange" variant="light">
-                              {inv.creditNoteCount} {inv.creditNoteCount === 1 ? t('Return') : t('Returns')}
+                              {inv.creditNoteCount}{' '}
+                              {inv.creditNoteCount === 1 ? t('Return') : t('Returns')}
                               {d.isFullyReturned
                                 ? ` · ${t('Fully Returned')}`
                                 : d.isPartiallyReturned

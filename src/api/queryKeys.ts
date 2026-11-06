@@ -105,6 +105,7 @@ export const queryKeys = {
     all: ['warrantyClaims'] as const,
     list: (filter: Record<string, unknown>) => ['warrantyClaims', 'list', filter] as const,
     detail: (key: string) => ['warrantyClaims', 'detail', key] as const,
+    conditions: () => ['warrantyClaims', 'conditions'] as const,
   },
   repairs: {
     all: ['repairs'] as const,

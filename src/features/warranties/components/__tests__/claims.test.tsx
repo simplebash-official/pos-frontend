@@ -33,6 +33,13 @@ vi.mock('../../api/claimsApi', () => ({
   returnClaimToCustomer: vi.fn(),
   convertClaimToPaidRepair: vi.fn(),
   openClaimRework: vi.fn(),
+  fetchConditions: vi.fn().mockResolvedValue([]),
+  createCondition: vi
+    .fn()
+    .mockImplementation((name: string) =>
+      Promise.resolve({ key: `wcon_${name}`, name, active: true })
+    ),
+  deleteCondition: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('../../api/warrantiesApi', () => ({
   lookupWarranties: vi.fn(),
@@ -214,11 +221,33 @@ describe('warranty claim screens', () => {
         liquidDamage: true,
         sealBroken: false,
         tampered: false,
-        screenCracked: false,
       },
+      conditions: ['Liquid damage'],
       assignedEmployeeKey: undefined,
       approval: undefined,
     });
+  });
+
+  it('adds a new condition on the fly and saves it to the shop dictionary', async () => {
+    api.open.mockResolvedValue(CLAIM);
+    const onStarted = vi.fn();
+    await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={onStarted} />);
+    await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+
+    const addInput = document.querySelector(
+      'input[placeholder*="Add new condition"]'
+    ) as HTMLInputElement;
+    expect(addInput).toBeTruthy();
+
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(addInput, 'Loose USB-C port');
+      addInput.dispatchEvent(new Event('input', { bubbles: true }));
+      addInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+
+    expect(text()).toContain('Loose USB-C port');
+    expect(claimsApi.createCondition).toHaveBeenCalledWith('Loose USB-C port');
   });
 
   it('asks a manager to accept a claim on an ended warranty', async () => {

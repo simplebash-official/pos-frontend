@@ -1,22 +1,27 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   ActionIcon,
   Alert,
   Box,
   Button,
-  Checkbox,
   Group,
   Modal,
   NumberInput,
   Paper,
   Select,
-  SimpleGrid,
   Stack,
   Text,
   TextInput,
   Textarea,
 } from '@mantine/core';
-import { IconAlertTriangle, IconInfoCircle, IconPhoto, IconTrash } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconInfoCircle,
+  IconPhoto,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useUploadAttachment } from '@/features/attachments/hooks/useAttachments';
 import { blobToBase64, shrinkImage } from '@/features/attachments/lib/shrinkImage';
 import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
@@ -24,8 +29,12 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
-import { useOpenClaim } from '../hooks/useClaims';
-import { NO_CHECKS, VOID_CHECK_KEYS, voidCheckLabel } from '../lib/claimView';
+import {
+  useCreateWarrantyCondition,
+  useOpenClaim,
+  useWarrantyConditions,
+} from '../hooks/useClaims';
+import { NO_CHECKS } from '../lib/claimView';
 import type { ManagerApproval, VoidChecks, Warranty, WarrantyClaim } from '../types';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
 import { WarrantyStateDot } from './WarrantyStateDot';
@@ -41,15 +50,24 @@ interface IntakeState {
   serialNumber: string;
   issue: string;
   checks: VoidChecks;
+  conditions: string[];
   technicianKey: string | null;
   photos: File[];
 }
+
+const DEFAULT_STARTER_CONDITIONS = [
+  'Physical damage / cracks',
+  'Liquid damage',
+  'Seal broken',
+  'Opened or tampered with',
+];
 
 const EMPTY_STATE = (warranty: Warranty | null): IntakeState => ({
   quantity: 1,
   serialNumber: warranty?.serialNumber ?? '',
   issue: '',
   checks: NO_CHECKS,
+  conditions: [],
   technicianKey: null,
   photos: [],
 });
@@ -69,9 +87,67 @@ const IntakeFields = ({
   const isMobile = useIsMobile();
   const employees = useAllEmployees();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const anyTicked = VOID_CHECK_KEYS.some((key) => value.checks[key]);
+  const conditionsQuery = useWarrantyConditions();
+  const createConditionMutation = useCreateWarrantyCondition();
+  const [newConditionInput, setNewConditionInput] = useState('');
+
   const unclaimedUnits = Math.max(1, warranty.quantity - (warranty.claimedQuantity ?? 0));
   const isMultiUnit = warranty.quantity > 1;
+
+  const availableOptions = useMemo(() => {
+    const list: string[] = [];
+    if (conditionsQuery.data && conditionsQuery.data.length > 0) {
+      for (const item of conditionsQuery.data) {
+        if (!list.includes(item.name)) list.push(item.name);
+      }
+    } else {
+      for (const item of DEFAULT_STARTER_CONDITIONS) {
+        if (!list.includes(item)) list.push(item);
+      }
+    }
+    for (const item of value.conditions) {
+      if (!list.includes(item)) list.push(item);
+    }
+    return list;
+  }, [conditionsQuery.data, value.conditions]);
+
+  const toggleCondition = (name: string) => {
+    const nextConditions = value.conditions.includes(name)
+      ? value.conditions.filter((c) => c !== name)
+      : [...value.conditions, name];
+    const nextChecks: VoidChecks = {
+      physicalDamage: nextConditions.some((c) => /physical|crack|broken/i.test(c)),
+      liquidDamage: nextConditions.some((c) => /liquid|water/i.test(c)),
+      sealBroken: nextConditions.some((c) => /seal/i.test(c)),
+      tampered: nextConditions.some((c) => /tamper|opened/i.test(c)),
+    };
+    onChange({
+      ...value,
+      conditions: nextConditions,
+      checks: nextChecks,
+    });
+  };
+
+  const handleAddCondition = () => {
+    const trimmed = newConditionInput.trim();
+    if (!trimmed) return;
+    if (!value.conditions.includes(trimmed)) {
+      const nextConditions = [...value.conditions, trimmed];
+      const nextChecks: VoidChecks = {
+        physicalDamage: nextConditions.some((c) => /physical|crack|broken/i.test(c)),
+        liquidDamage: nextConditions.some((c) => /liquid|water/i.test(c)),
+        sealBroken: nextConditions.some((c) => /seal/i.test(c)),
+        tampered: nextConditions.some((c) => /tamper|opened/i.test(c)),
+      };
+      onChange({
+        ...value,
+        conditions: nextConditions,
+        checks: nextChecks,
+      });
+      createConditionMutation.mutate(trimmed);
+    }
+    setNewConditionInput('');
+  };
 
   return (
     <Stack gap="md">
@@ -93,7 +169,11 @@ const IntakeFields = ({
               {isMultiUnit && (
                 <>
                   {' · '}
-                  <Text component="span" fw={600} c={(warranty.claimedQuantity ?? 0) > 0 ? 'orange' : 'dimmed'}>
+                  <Text
+                    component="span"
+                    fw={600}
+                    c={(warranty.claimedQuantity ?? 0) > 0 ? 'orange' : 'dimmed'}
+                  >
                     {(warranty.claimedQuantity ?? 0) > 0
                       ? `${warranty.claimedQuantity} of ${warranty.quantity} ${t('units claimed')}`
                       : `${warranty.quantity} ${t('units covered')}`}
@@ -149,45 +229,68 @@ const IntakeFields = ({
         data-autofocus={isMobile ? undefined : true}
       />
 
-      <Stack gap={6}>
-        {sectionLabel(t('Condition checklist'))}
-        <Text size="xs" c="dimmed">
-          {t(
-            'Check for physical faults in front of the customer. Leave all empty if the unit looks undamaged.'
-          )}
-        </Text>
-        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs">
-          {VOID_CHECK_KEYS.map((key) => (
-            <Checkbox.Card
-              key={key}
-              checked={value.checks[key]}
-              onClick={() =>
-                onChange({ ...value, checks: { ...value.checks, [key]: !value.checks[key] } })
-              }
-              p="sm"
-              style={{
-                minHeight: 44,
-                borderColor: value.checks[key]
-                  ? 'var(--mantine-color-orange-filled)'
-                  : 'var(--mantine-color-default-border)',
-                backgroundColor: value.checks[key]
-                  ? 'var(--mantine-color-orange-light)'
-                  : undefined,
-              }}
-            >
-              <Group wrap="nowrap" gap="sm">
-                <Checkbox.Indicator color="orange" />
-                <Text size="sm" fw={600}>
-                  {voidCheckLabel(key)}
-                </Text>
-              </Group>
-            </Checkbox.Card>
-          ))}
-        </SimpleGrid>
-        {anyTicked ? (
+      <Stack gap="xs">
+        <Group justify="space-between" align="center">
+          {sectionLabel(t('Condition checklist'))}
+          <Text size="xs" c="dimmed">
+            {t('Leave all empty if undamaged')}
+          </Text>
+        </Group>
+
+        <Group gap="xs" wrap="wrap">
+          {availableOptions.map((name) => {
+            const isSelected = value.conditions.includes(name);
+            return (
+              <Button
+                key={name}
+                type="button"
+                size="xs"
+                variant={isSelected ? 'light' : 'default'}
+                color={isSelected ? 'orange' : 'gray'}
+                leftSection={isSelected ? <IconCheck size={14} /> : undefined}
+                onClick={() => toggleCondition(name)}
+                style={{
+                  minHeight: 36,
+                  borderColor: isSelected ? 'var(--mantine-color-orange-filled)' : undefined,
+                  fontWeight: isSelected ? 600 : 500,
+                }}
+              >
+                {t(name)}
+              </Button>
+            );
+          })}
+        </Group>
+
+        <TextInput
+          placeholder={t('+ Add new condition (e.g. Scratched lens) and press Enter')}
+          value={newConditionInput}
+          onChange={(event) => setNewConditionInput(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleAddCondition();
+            }
+          }}
+          rightSection={
+            newConditionInput.trim() ? (
+              <ActionIcon
+                size="sm"
+                variant="light"
+                color="blue"
+                onClick={handleAddCondition}
+                aria-label={t('Add condition')}
+              >
+                <IconPlus size={14} />
+              </ActionIcon>
+            ) : null
+          }
+          size={isMobile ? 'md' : 'sm'}
+        />
+
+        {value.conditions.length > 0 ? (
           <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
             {t(
-              'This may mean the warranty does not cover the fault. Ticking an item flags the claim for review during inspection, rather than auto-rejecting it.'
+              'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
             )}
           </Alert>
         ) : (
@@ -328,6 +431,7 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
             : undefined,
         issueDescription: state.issue.trim(),
         voidChecks: state.checks,
+        conditions: state.conditions,
         assignedEmployeeKey: state.technicianKey === null ? undefined : state.technicianKey,
         approval,
       },

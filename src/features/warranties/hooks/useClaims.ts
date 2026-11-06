@@ -4,6 +4,9 @@ import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
 import {
   convertClaimToPaidRepair,
+  createCondition,
+  deleteCondition,
+  fetchConditions,
   openClaimRework,
   decideClaim,
   fetchClaim,
@@ -113,5 +116,33 @@ export const useClaimStep = () => {
       successMessage: claimNumber,
       failureTitle: t('The claim was not updated'),
     }),
+  });
+};
+
+/** Active condition checklist options for the shop. */
+export const useWarrantyConditions = () =>
+  useQuery({
+    queryKey: queryKeys.warrantyClaims.conditions(),
+    queryFn: fetchConditions,
+    staleTime: 60_000,
+  });
+
+export const useCreateWarrantyCondition = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => createCondition(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.warrantyClaims.conditions() });
+    },
+  });
+};
+
+export const useDeleteWarrantyCondition = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (key: string) => deleteCondition(key),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.warrantyClaims.conditions() });
+    },
   });
 };

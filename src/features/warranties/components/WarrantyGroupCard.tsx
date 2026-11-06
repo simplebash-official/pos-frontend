@@ -73,13 +73,11 @@ const WarrantyLine = ({
           </Group>
           <Text size="xs" c="dimmed" ff="monospace" style={{ overflowWrap: 'anywhere' }}>
             {warranty.invoiceNumber} · {warranty.warrantyNumber}
-            {isMultiUnit ? (
-              (warranty.claimedQuantity ?? 0) > 0 ? (
-                ` · ${warranty.claimedQuantity} of ${warranty.quantity} ${t('claimed')}`
-              ) : (
-                ` · ${warranty.quantity} ${t('units')}`
-              )
-            ) : ''}
+            {isMultiUnit
+              ? (warranty.claimedQuantity ?? 0) > 0
+                ? ` · ${warranty.claimedQuantity} of ${warranty.quantity} ${t('claimed')}`
+                : ` · ${warranty.quantity} ${t('units')}`
+              : ''}
           </Text>
           {(warranty.customerName || warranty.customerPhone) && (
             <Text size="xs" c="dimmed">
