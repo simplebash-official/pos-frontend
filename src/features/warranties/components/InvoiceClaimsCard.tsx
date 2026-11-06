@@ -45,6 +45,7 @@ export const InvoiceClaimsCard = ({
       claimNumber: claim.claimNumber,
       serialNumber: claim.serialNumber,
       lineIndex: warranty.lineIndex,
+      quantity: claim.quantity ?? 1,
     };
   };
 

@@ -176,7 +176,9 @@ export const CreditNoteModal = ({
         : undefined;
       return {
         selected: remaining > 0 && (warrantyClaim === null || claimed),
-        quantity: Math.min(1, remaining) || 1,
+        quantity: claimed
+          ? Math.min(warrantyClaim.quantity, remaining)
+          : Math.min(1, remaining) || 1,
         condition: 'resalable',
         disposition: null,
         reason: 'defective',
@@ -670,6 +672,7 @@ export const CreditNoteModal = ({
                                       <Group gap="xs" wrap="nowrap">
                                         <Checkbox
                                           checked={unit.selected}
+                                          disabled={warrantyClaim !== null}
                                           onChange={(e) =>
                                             updateSerialUnit(item, serial, {
                                               selected: e.currentTarget.checked,
@@ -752,7 +755,7 @@ export const CreditNoteModal = ({
                       <Table.Td style={{ verticalAlign: 'top', paddingTop: 14 }}>
                         <Checkbox
                           checked={state.selected && !isFullyReturned}
-                          disabled={isFullyReturned}
+                          disabled={isFullyReturned || warrantyClaim !== null}
                           onChange={(e) =>
                             updateLine(item.id, { selected: e.currentTarget.checked })
                           }
@@ -825,7 +828,7 @@ export const CreditNoteModal = ({
                               value={state.quantity}
                               min={1}
                               max={remaining}
-                              disabled={!state.selected}
+                              disabled={!state.selected || warrantyClaim !== null}
                               size="xs"
                               onChange={(v) =>
                                 updateLine(item.id, {
@@ -833,32 +836,41 @@ export const CreditNoteModal = ({
                                 })
                               }
                             />
-                            <Group gap={4} align="center" justify="center" wrap="nowrap">
-                              <Text
-                                size="xs"
-                                c="dimmed"
-                                style={{ fontSize: 11, whiteSpace: 'nowrap' }}
-                              >
-                                {t('Max:')} {remaining}
-                              </Text>
-                              <Button
-                                size="compact-xs"
-                                variant="light"
-                                color="blue"
-                                disabled={state.selected && state.quantity >= remaining}
-                                onClick={() =>
-                                  updateLine(item.id, { selected: true, quantity: remaining })
-                                }
-                                style={{
-                                  fontSize: 10,
-                                  height: 18,
-                                  paddingLeft: 6,
-                                  paddingRight: 6,
-                                }}
-                              >
-                                {t('Max')}
-                              </Button>
-                            </Group>
+                            {warrantyClaim !== null && items.indexOf(item) === warrantyClaim.lineIndex ? (
+                              <Badge size="xs" color="blue" variant="light">
+                                {t('Claimed:')} {warrantyClaim.quantity}
+                              </Badge>
+                            ) : (
+                              <Group gap={4} align="center" justify="center" wrap="nowrap">
+                                <Text
+                                  size="xs"
+                                  c="dimmed"
+                                  style={{ fontSize: 11, whiteSpace: 'nowrap' }}
+                                >
+                                  {t('Max:')} {remaining}
+                                </Text>
+                                <Button
+                                  size="compact-xs"
+                                  variant="light"
+                                  color="blue"
+                                  disabled={
+                                    warrantyClaim !== null ||
+                                    (state.selected && state.quantity >= remaining)
+                                  }
+                                  onClick={() =>
+                                    updateLine(item.id, { selected: true, quantity: remaining })
+                                  }
+                                  style={{
+                                    fontSize: 10,
+                                    height: 18,
+                                    paddingLeft: 6,
+                                    paddingRight: 6,
+                                  }}
+                                >
+                                  {t('Max')}
+                                </Button>
+                              </Group>
+                            )}
                             {Boolean(item.returnedQuantity && item.returnedQuantity > 0) && (
                               <Text
                                 size="3xs"

@@ -292,4 +292,6 @@ export interface ClaimRefund {
   serialNumber?: string;
   /** The invoice line the claimed warranty came from. */
   lineIndex: number;
+  /** The exact quantity of the claim to refund. */
+  quantity: number;
 }
