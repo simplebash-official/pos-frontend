@@ -17,6 +17,7 @@ import { WarrantiesPage } from '../WarrantiesPage';
 import { WarrantyDetailDrawer } from '../WarrantyDetailDrawer';
 import { ProductWarrantyFields } from '../ProductWarrantyFields';
 import { LineWarrantyControl } from '../LineWarrantyControl';
+import { CoverageEditor } from '../CoverageEditor';
 import * as warrantiesApi from '../../api/warrantiesApi';
 import { db } from '@/offline/db/schema';
 import { formatMoney } from '@/shared/lib/money';
@@ -367,6 +368,21 @@ describe('warranty screens', () => {
     await act(async () => button.click());
     // Should NOT show premature error before user attempts to apply
     expect(document.body.textContent).not.toContain('Choose who gives the warranty.');
+  });
+
+  it('renders coverage editor with non-portaled combobox for counted in select', async () => {
+    const onChange = vi.fn();
+    await render(
+      <CoverageEditor
+        value={{ kind: 'limited', value: 12, unit: 'months' }}
+        onChange={onChange}
+        allowNone
+      />
+    );
+    expect(document.body.textContent).toContain('How long');
+    expect(document.body.textContent).toContain('Counted in');
+    const select = document.querySelector('input[value="Months"]');
+    expect(select).not.toBeNull();
   });
 
   it('merges lifetime tiles and labels price per unit for multi-unit warranty detail', async () => {

@@ -73,6 +73,7 @@ export const CoverageEditor = ({ value, onChange, allowNone, disabled }: Coverag
             allowDeselect={false}
             disabled={disabled}
             size={isMobile ? 'md' : 'sm'}
+            comboboxProps={{ withinPortal: false }}
           />
         </Group>
       )}
