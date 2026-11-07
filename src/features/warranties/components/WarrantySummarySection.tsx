@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Collapse, Group, Stack, Text, UnstyledButton } from '@mantine/core';
+import { Badge, Box, Collapse, Group, Stack, Text, ThemeIcon, UnstyledButton } from '@mantine/core';
 import { IconChevronDown, IconShieldCheck } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
@@ -27,53 +27,117 @@ export const WarrantySummarySection = ({ lines }: { lines: WarrantySummaryLine[]
     <Box
       p="xs"
       style={{
-        borderRadius: 'var(--mantine-radius-default)',
-        border: '1px solid var(--border)',
-        background: 'var(--status-ok-bg)',
+        borderRadius: 'var(--mantine-radius-md)',
+        border: '1px solid color-mix(in srgb, var(--status-ok) 28%, var(--border))',
+        background: 'color-mix(in srgb, var(--status-ok) 8%, var(--bg-card))',
+        transition: 'border-color 0.15s ease',
       }}
     >
       <UnstyledButton
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        style={{ width: '100%', minHeight: 32 }}
+        style={{
+          width: '100%',
+          display: 'block',
+          borderRadius: 'var(--mantine-radius-sm)',
+          padding: '2px 4px',
+          transition: 'background-color 0.15s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor =
+            'color-mix(in srgb, var(--status-ok) 12%, transparent)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
-        <Group justify="space-between" wrap="nowrap">
-          <Group gap={6} wrap="nowrap">
-            <IconShieldCheck size={16} color="var(--status-ok)" />
-            <Text size="xs" fw={700} tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+        <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+          <Group gap={8} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+            <ThemeIcon
+              size={22}
+              radius="sm"
+              variant="light"
+              color="teal"
+              style={{ flexShrink: 0 }}
+            >
+              <IconShieldCheck size={13} />
+            </ThemeIcon>
+            <Text
+              size="xs"
+              fw={700}
+              tt="uppercase"
+              lineClamp={1}
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {t('Warranty on this sale')}
             </Text>
           </Group>
-          <Group gap={6} wrap="nowrap">
-            <Text size="xs" c="dimmed">
+
+          <Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
+            <Badge
+              size="xs"
+              variant="light"
+              color="teal"
+              style={{ textTransform: 'none', fontWeight: 600 }}
+            >
               {covered.length} {covered.length === 1 ? t('item covered') : t('items covered')}
-            </Text>
+            </Badge>
             <IconChevronDown
               size={14}
               style={{
                 transform: open ? 'rotate(180deg)' : 'none',
-                transition: 'transform 0.15s ease',
+                transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
+                color: 'var(--text-secondary)',
               }}
             />
           </Group>
         </Group>
       </UnstyledButton>
+
       <Collapse expanded={open}>
-        <Stack gap={4} mt="xs">
+        <Stack gap={0} mt="xs">
           {covered.map((line) => {
             const endsOn = endsOnIfStartedToday(line.coverage);
             return (
-              <Group key={line.id} justify="space-between" wrap="nowrap" gap="xs">
-                <Text size="xs" lineClamp={1} style={{ minWidth: 0 }}>
-                  {line.quantity > 1 ? `${line.quantity} × ` : ''}
-                  {line.name}
-                </Text>
-                <Text size="xs" fw={700} style={{ whiteSpace: 'nowrap' }}>
-                  {endsOn === null
-                    ? coverageLabel(line.coverage)
-                    : `${coverageLabel(line.coverage)} · ${t('until')} ${formatDate(endsOn)}`}
-                </Text>
-              </Group>
+              <Box
+                key={line.id}
+                py={6}
+                px={4}
+                style={{
+                  borderTop: '1px solid color-mix(in srgb, var(--status-ok) 18%, transparent)',
+                }}
+              >
+                <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+                  <Box style={{ minWidth: 0, flex: 1 }}>
+                    <Text size="xs" fw={500} lineClamp={1} title={line.name}>
+                      {line.quantity > 1 ? (
+                        <Text component="span" fw={700} c="teal">
+                          {line.quantity} ×{' '}
+                        </Text>
+                      ) : null}
+                      {line.name}
+                    </Text>
+                    {endsOn !== null && (
+                      <Text size="2xs" c="dimmed" mt={1} style={{ fontSize: 11 }}>
+                        {t('until')} {formatDate(endsOn)}
+                      </Text>
+                    )}
+                  </Box>
+
+                  <Badge
+                    size="xs"
+                    variant="light"
+                    color="teal"
+                    style={{ flexShrink: 0, textTransform: 'none', fontWeight: 600 }}
+                  >
+                    {coverageLabel(line.coverage)}
+                  </Badge>
+                </Group>
+              </Box>
             );
           })}
         </Stack>
