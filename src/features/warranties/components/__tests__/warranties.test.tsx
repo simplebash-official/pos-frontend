@@ -370,7 +370,7 @@ describe('warranty screens', () => {
     expect(document.body.textContent).not.toContain('Choose who gives the warranty.');
   });
 
-  it('renders coverage editor with non-portaled combobox for counted in select', async () => {
+  it('renders coverage editor with non-portaled combobox and allows clearing duration without showing 0', async () => {
     const onChange = vi.fn();
     await render(
       <CoverageEditor
@@ -383,6 +383,18 @@ describe('warranty screens', () => {
     expect(document.body.textContent).toContain('Counted in');
     const select = document.querySelector('input[value="Months"]');
     expect(select).not.toBeNull();
+
+    // When value is 0 (cleared by user), input should be empty (not showing '0') with placeholder '12'
+    await render(
+      <CoverageEditor
+        value={{ kind: 'limited', value: 0, unit: 'months' }}
+        onChange={onChange}
+        allowNone
+      />
+    );
+    const durationInput = document.querySelector('input[placeholder="12"]') as HTMLInputElement;
+    expect(durationInput).not.toBeNull();
+    expect(durationInput.value).toBe('');
   });
 
   it('merges lifetime tiles and labels price per unit for multi-unit warranty detail', async () => {

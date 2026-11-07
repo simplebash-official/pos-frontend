@@ -55,10 +55,11 @@ export const CoverageEditor = ({ value, onChange, allowNone, disabled }: Coverag
         <Group gap="sm" grow wrap="nowrap" align="flex-start">
           <NumberInput
             label={t('How long')}
+            placeholder="12"
             min={1}
             allowDecimal={false}
             allowNegative={false}
-            value={value.value}
+            value={value.value === 0 ? '' : value.value}
             onChange={(next) => onChange({ ...value, value: typeof next === 'number' ? next : 0 })}
             disabled={disabled}
             size={isMobile ? 'md' : 'sm'}
