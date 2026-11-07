@@ -67,4 +67,25 @@ describe('AuthLayout', () => {
     expect(out).toContain('mobile-splash-container');
     expect(out).not.toContain('wall_login.jpg');
   });
+
+  it('renders mobile layout with children directly when on forgot password route', () => {
+    mockIsMobile = true;
+    const store = createTestStore();
+    const out = renderToString(
+      <Provider store={store}>
+        <QueryClientProvider client={new QueryClient()}>
+          <MantineProvider>
+            <MemoryRouter initialEntries={['/forgot-password']}>
+              <AuthLayout>
+                <div data-testid="forgot-password-child">Forgot Password Content</div>
+              </AuthLayout>
+            </MemoryRouter>
+          </MantineProvider>
+        </QueryClientProvider>
+      </Provider>
+    );
+
+    expect(out).toContain('Forgot Password Content');
+    expect(out).not.toContain('mobile-splash-container');
+  });
 });

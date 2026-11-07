@@ -43,3 +43,30 @@ export interface UserSession {
   name: string;
   role: UserRole;
 }
+
+export interface ForgotPasswordPayload {
+  identifier: string;
+  shopCode?: string;
+}
+
+export interface ForgotPasswordResponse {
+  message?: string;
+  success?: boolean;
+  data?: unknown;
+}
+
+export interface VerifyResetTokenResponse {
+  valid: boolean;
+  message?: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message?: string;
+  success?: boolean;
+  data?: unknown;
+}

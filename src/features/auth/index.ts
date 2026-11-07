@@ -1,5 +1,7 @@
 export { EmailLoginScreen } from './components/EmailLoginScreen';
 export { LoginForm } from './components/LoginForm';
+export { ForgotPasswordScreen } from './components/ForgotPasswordScreen';
+export { ResetPasswordScreen } from './components/ResetPasswordScreen';
 export { AuthLayout } from './components/AuthLayout';
 export { MobileAuthContainer } from './components/mobile/MobileAuthContainer';
 export { MobileSplashScreen } from './components/mobile/MobileSplashScreen';

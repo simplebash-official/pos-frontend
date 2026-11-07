@@ -1,7 +1,17 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect } from 'react';
-import { Box, Title, Text, TextInput, PasswordInput, Button, Stack } from '@mantine/core';
-import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  Box,
+  Title,
+  Text,
+  TextInput,
+  PasswordInput,
+  Button,
+  Stack,
+  Anchor,
+  Group,
+} from '@mantine/core';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { BusyOverlay } from '@/shared/components/BusyOverlay';
 import { ROUTES } from '@/constants/routes';
@@ -100,6 +110,10 @@ export const LoginForm = () => {
 
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
+
+  const forgotPasswordUrl = shopCode?.trim()
+    ? `${ROUTES.FORGOT_PASSWORD}?shop=${encodeURIComponent(shopCode.trim())}`
+    : ROUTES.FORGOT_PASSWORD;
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -236,6 +250,23 @@ export const LoginForm = () => {
                 },
               }}
             />
+
+            <Group justify="flex-end">
+              <Anchor
+                component={Link}
+                to={forgotPasswordUrl}
+                size="sm"
+                c="blue"
+                fw={600}
+                style={{
+                  minHeight: isMobile ? 44 : undefined,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+              >
+                {t('Forgot password?')}
+              </Anchor>
+            </Group>
 
             <Button
               type="submit"

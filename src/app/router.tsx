@@ -101,6 +101,16 @@ const EmailLoginScreen = lazy(() =>
     default: m.EmailLoginScreen,
   }))
 );
+const ForgotPasswordScreen = lazy(() =>
+  import('@/features/auth/components/ForgotPasswordScreen').then((m) => ({
+    default: m.ForgotPasswordScreen,
+  }))
+);
+const ResetPasswordScreen = lazy(() =>
+  import('@/features/auth/components/ResetPasswordScreen').then((m) => ({
+    default: m.ResetPasswordScreen,
+  }))
+);
 const AccountSuspendedPage = lazy(() =>
   import('@/features/account/components/AccountSuspendedPage').then((m) => ({
     default: m.AccountSuspendedPage,
@@ -350,6 +360,28 @@ export const router = createBrowserRouter([
       <GuestOnly>
         <Suspense fallback={<PageSkeleton />}>
           <EmailLoginScreen />
+        </Suspense>
+      </GuestOnly>
+    ),
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: ROUTES.FORGOT_PASSWORD,
+    element: (
+      <GuestOnly>
+        <Suspense fallback={<PageSkeleton />}>
+          <ForgotPasswordScreen />
+        </Suspense>
+      </GuestOnly>
+    ),
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: ROUTES.RESET_PASSWORD,
+    element: (
+      <GuestOnly>
+        <Suspense fallback={<PageSkeleton />}>
+          <ResetPasswordScreen />
         </Suspense>
       </GuestOnly>
     ),

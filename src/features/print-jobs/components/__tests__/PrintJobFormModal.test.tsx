@@ -51,10 +51,8 @@ vi.mock('@/shared/hooks/useJobEarnings', () => ({
   toEarningsRequest: () => ({}),
 }));
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
+vi.mock('@/shared/i18n/t', () => ({
+  t: (key: string) => key,
 }));
 
 describe('PrintJobFormModal validation', () => {
