@@ -193,6 +193,7 @@ describe('warranty claim screens', () => {
     const onStarted = vi.fn();
     await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={onStarted} />);
     await vi.waitFor(() => expect(text()).toContain('What is wrong with it?'));
+    expect(text()).not.toContain('Who will look at it?');
 
     // Nothing is sent without saying what is wrong.
     await act(async () => button('Start the claim')?.click());

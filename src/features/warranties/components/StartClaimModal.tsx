@@ -8,7 +8,6 @@ import {
   Modal,
   NumberInput,
   Paper,
-  Select,
   Stack,
   Text,
   TextInput,
@@ -24,7 +23,6 @@ import {
 } from '@tabler/icons-react';
 import { useUploadAttachment } from '@/features/attachments/hooks/useAttachments';
 import { blobToBase64, shrinkImage } from '@/features/attachments/lib/shrinkImage';
-import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
@@ -72,7 +70,7 @@ const EMPTY_STATE = (warranty: Warranty | null): IntakeState => ({
   photos: [],
 });
 
-/** The item, what is wrong with it, what staff can see on it, and who will look at it. */
+/** The item, what is wrong with it, and what staff can see on it. */
 const IntakeFields = ({
   warranty,
   value,
@@ -85,7 +83,6 @@ const IntakeFields = ({
   issueError: string | null;
 }) => {
   const isMobile = useIsMobile();
-  const employees = useAllEmployees();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const conditionsQuery = useWarrantyConditions();
   const createConditionMutation = useCreateWarrantyCondition();
@@ -366,20 +363,6 @@ const IntakeFields = ({
           />
         </Group>
       </Stack>
-
-      <Select
-        label={t('Who will look at it?')}
-        placeholder={t('Choose later')}
-        data={employees.data
-          .filter((employee) => employee.status === 'active')
-          .map((employee) => ({ value: employee.key, label: employee.name }))}
-        value={value.technicianKey}
-        onChange={(key) => onChange({ ...value, technicianKey: key })}
-        clearable
-        searchable
-        size={isMobile ? 'md' : 'sm'}
-        comboboxProps={{ withinPortal: true }}
-      />
     </Stack>
   );
 };
