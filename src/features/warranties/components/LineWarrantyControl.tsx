@@ -60,6 +60,18 @@ export const LineWarrantyBadge = ({ warranty, override }: LineWarrantyBadgeProps
   const effective = override ?? warranty;
   const covered = effective.coverage.kind !== 'none';
   const endsOn = endsOnIfStartedToday(effective.coverage);
+  const typeLabel =
+    effective.warrantyType === 'manufacturer'
+      ? t('Maker')
+      : effective.warrantyType === 'both'
+        ? t('Both')
+        : t('Shop');
+
+  const tooltipTitle = !covered
+    ? t('No warranty')
+    : endsOn === null
+      ? `${t('Lifetime')} · ${typeLabel}`
+      : `${t('Warranty until')} ${formatDate(endsOn)} · ${typeLabel}`;
 
   return (
     <Badge
@@ -72,7 +84,7 @@ export const LineWarrantyBadge = ({ warranty, override }: LineWarrantyBadgeProps
         flexShrink: 0,
         fontWeight: 600,
       }}
-      title={endsOn === null ? t('Warranty') : `${t('Warranty until')} ${formatDate(endsOn)}`}
+      title={tooltipTitle}
     >
       {warrantyBadgeText(effective, endsOn)}
     </Badge>

@@ -119,6 +119,7 @@ export const CartLineItem = memo(function CartLineItem({
                 lineClamp={1}
                 c={isStockNegative ? 'red.7' : undefined}
                 style={{ flexShrink: 1, minWidth: 0 }}
+                title={item.name}
               >
                 {item.name}
               </Text>
@@ -151,12 +152,10 @@ export const CartLineItem = memo(function CartLineItem({
                   {t('Print')}
                 </Badge>
               )}
-              {sourceType === 'retail' && item.warranty !== undefined && (
-                <LineWarrantyBadge warranty={item.warranty} override={item.warrantyOverride} />
-              )}
             </Group>
 
-            <Group gap={4} align="center" mt={2} wrap="nowrap">
+            {/* Subtitle Line: SKU, Cost, Tech & Out of Stock */}
+            <Group gap={6} align="center" mt={2} wrap="nowrap" style={{ minWidth: 0 }}>
               {item.sku && (
                 <Text
                   size="xs"
@@ -174,7 +173,7 @@ export const CartLineItem = memo(function CartLineItem({
               )}
               {isStockNegative && (
                 <Text size="xs" c="red.6" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
-                  {item.sku ? ' · ' : ''}
+                  {item.sku || (isAdmin && item.costRangeCents !== undefined) ? ' · ' : ''}
                   {t('Out of Stock')}
                 </Text>
               )}
@@ -271,34 +270,40 @@ export const CartLineItem = memo(function CartLineItem({
       {/* 2. HORIZONTAL DIVIDER */}
       <Box style={{ borderTop: '1px solid var(--border)' }} />
 
-      {/* 3. BOTTOM ROW: Quantity Counter (Left) & Price (Right) */}
-      <Group justify="space-between" align="center" px="xs" py={6}>
-        {/* Left: Quantity Counter */}
-        {isServiceJob ? (
-          <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
-            {t('1 (Locked)')}
-          </Badge>
-        ) : (
-          <QuantityInput
-            data-cart-newest-qty={isNewest ? 'true' : undefined}
-            value={item.quantity}
-            onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
-            min={1}
-            size={isMobile ? 'sm' : 'xs'}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                focusBarcodeScanner(true);
-              } else if (e.key === 'Escape') {
-                e.preventDefault();
-                focusBarcodeScanner(true);
-              }
-            }}
-          />
-        )}
+      {/* 3. BOTTOM ROW: Quantity Counter & Warranty (Left) & Price (Right) */}
+      <Group justify="space-between" align="center" px="xs" py={6} wrap="nowrap">
+        {/* Left: Quantity Counter & Warranty Badge */}
+        <Group gap="xs" align="center" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+          {isServiceJob ? (
+            <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
+              {t('1 (Locked)')}
+            </Badge>
+          ) : (
+            <QuantityInput
+              data-cart-newest-qty={isNewest ? 'true' : undefined}
+              value={item.quantity}
+              onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
+              min={1}
+              size={isMobile ? 'sm' : 'xs'}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  focusBarcodeScanner(true);
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  focusBarcodeScanner(true);
+                }
+              }}
+            />
+          )}
+
+          {sourceType === 'retail' && item.warranty !== undefined && (
+            <LineWarrantyBadge warranty={item.warranty} override={item.warrantyOverride} />
+          )}
+        </Group>
 
         {/* Right: Price Display */}
-        <Group gap="xs" align="center">
+        <Group gap="xs" align="center" style={{ flexShrink: 0 }}>
           {!isServiceJob && item.quantity > 1 && (
             <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
               {formatMoney(item.unitPriceCents)} {t('each')}
