@@ -48,7 +48,7 @@ export const quickReplaceClaim = async (input: QuickReplaceInput): Promise<Warra
 export const inspectClaim = (key: string, inspectionNotes: string) =>
   step(key, 'inspect', { inspectionNotes });
 
-export const decideClaim = (key: string, decision: ClaimDecision, approval: ManagerApproval) =>
+export const decideClaim = (key: string, decision: ClaimDecision, approval?: ManagerApproval) =>
   step(key, 'decide', { decision, approval });
 
 export interface SendToSupplierInput {

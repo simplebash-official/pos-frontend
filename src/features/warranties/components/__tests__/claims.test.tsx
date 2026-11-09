@@ -131,12 +131,20 @@ const DETAIL: WarrantyDetail = {
   claims: [CLAIM],
 };
 
-const Harness = ({ permissions, children }: { permissions: string[]; children: ReactNode }) => {
+const Harness = ({
+  permissions,
+  role,
+  children,
+}: {
+  permissions: string[];
+  role: 'staff' | 'manager' | 'admin';
+  children: ReactNode;
+}) => {
   const [store] = useState(() =>
     configureStore({
       reducer: {
         auth: () => ({
-          user: { id: 'u1', name: 'T', username: 't', role: 'staff', permissions },
+          user: { id: 'u1', name: 'T', username: 't', role, permissions },
         }),
       },
     })
@@ -182,9 +190,13 @@ describe('warranty claim screens', () => {
     container.remove();
   });
 
-  const render = async (node: ReactNode) => {
+  const render = async (node: ReactNode, role: 'staff' | 'manager' | 'admin' = 'staff') => {
     await act(async () => {
-      root.render(<Harness permissions={STAFF}>{node}</Harness>);
+      root.render(
+        <Harness permissions={STAFF} role={role}>
+          {node}
+        </Harness>
+      );
     });
   };
 
@@ -263,6 +275,35 @@ describe('warranty claim screens', () => {
     expect(text()).toContain('A manager or owner must approve this');
     expect(text()).toContain('Manager or owner PIN');
   });
+
+  it.each(['manager', 'admin'] as const)(
+    'lets a signed-in %s accept a claim on an ended warranty without a PIN or reason',
+    async (role) => {
+      api.open.mockResolvedValue(CLAIM);
+      await render(
+        <StartClaimModal
+          warranty={{ ...WARRANTY, state: 'expired', daysRemaining: 0 }}
+          onClose={vi.fn()}
+          onStarted={vi.fn()}
+        />,
+        role
+      );
+      await vi.waitFor(() => expect(text()).toContain('Start a claim on an ended warranty'));
+      expect(text()).not.toContain('A manager or owner must approve this');
+      expect(text()).not.toContain('Manager or owner PIN');
+      expect(text()).toContain('This will be recorded as approved by you.');
+
+      const issue = document.querySelector('textarea') as HTMLTextAreaElement;
+      await act(async () => {
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(issue, 'Turns off after ten minutes');
+        issue.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      await act(async () => button('Start the claim')?.click());
+      await vi.waitFor(() => expect(api.open).toHaveBeenCalledTimes(1));
+      expect(api.open.mock.calls[0][0].approval).toBeUndefined();
+    }
+  );
 
   it('shows where a claim is and offers its next step', async () => {
     api.detail.mockResolvedValue(CLAIM);

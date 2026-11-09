@@ -4,7 +4,7 @@ import { IconClipboardCheck, IconReplace } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
-import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { useCanSelfApprove, useHasPermission } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { canQuickReplace, canStartClaim } from '../lib/warrantyView';
@@ -38,6 +38,7 @@ export const ClaimLauncher = ({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
+  const selfApproves = useCanSelfApprove();
   const [openWindow, setOpenWindow] = useState<OpenWindow>(null);
   const [started, setStarted] = useState<WarrantyClaim | null>(null);
 
@@ -92,7 +93,9 @@ export const ClaimLauncher = ({
             onClick={() => show('start')}
             data-log-id="warranties.open-start-claim"
           >
-            {warranty.state === 'expired' ? t('Claim with manager approval') : t('Start claim')}
+            {warranty.state === 'expired' && !selfApproves
+              ? t('Claim with manager approval')
+              : t('Start claim')}
           </Button>
         )}
       </Group>

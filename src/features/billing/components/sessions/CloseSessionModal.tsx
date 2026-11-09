@@ -42,6 +42,7 @@ import { t } from '@/shared/i18n/t';
 import { StepSwitch } from '@/shared/motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCalc } from '@/shared/hooks/useCalc';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { calcShiftCount } from '../../api/calcApi';
 import { getSession } from '../../api/sessionsApi';
 import { useCashCount } from '../../hooks/useCashCount';
@@ -100,6 +101,8 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
   // Step 3: Variance & Approval
   const [varianceReason, setVarianceReason] = useState('');
   const [managerPin, setManagerPin] = useState('');
+  // Admins and Managers approve their own late withdrawal; Staff need a manager's PIN.
+  const selfApproves = useCanSelfApprove();
   const [verifiedManager, setVerifiedManager] = useState<string | null>(null);
   const [pinError, setPinError] = useState<string | null>(null);
 
@@ -200,7 +203,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
       setError(t('Reason is required for owner withdrawal.'));
       return;
     }
-    if (!managerPin.trim()) {
+    if (!selfApproves && !managerPin.trim()) {
       setError(t('Manager PIN is required.'));
       return;
     }
@@ -211,7 +214,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         input: {
           recipient: withdrawalRecipient.trim(),
           reason: withdrawalReason.trim(),
-          managerPin: managerPin.trim(),
+          managerPin: selfApproves ? undefined : managerPin.trim(),
         },
       });
 
@@ -513,7 +516,11 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                       ? t(
                           'The variance exceeds the allowed tolerance ({tolerance}). An explanation and Manager PIN approval are required.'
                         ).replace('{tolerance}', formatMoney(figures.varianceToleranceCents))
-                      : t('A small variance was recorded. Please provide an explanation note.')}
+                      : Math.abs(figures.varianceCents) > figures.varianceToleranceCents
+                        ? t(
+                            'The variance exceeds the allowed tolerance ({tolerance}). An explanation is required.'
+                          ).replace('{tolerance}', formatMoney(figures.varianceToleranceCents))
+                        : t('A small variance was recorded. Please provide an explanation note.')}
                   </Text>
 
                   <Textarea
@@ -572,7 +579,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
                             disabled={
                               !withdrawalRecipient.trim() ||
                               !withdrawalReason.trim() ||
-                              !managerPin.trim()
+                              (!selfApproves && !managerPin.trim())
                             }
                           >
                             {t('Record Late Withdrawal')}

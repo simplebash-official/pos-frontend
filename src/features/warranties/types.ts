@@ -295,7 +295,8 @@ export interface QuickReplaceInput {
   inspectionNotes: string;
   replacement: ReplacementInput;
   resolutionNote?: string;
-  approval: ManagerApproval;
+  /** Staff send a manager's PIN and reason; a signed-in Admin or Manager sends none. */
+  approval?: ManagerApproval;
 }
 
 /** A claim decided as a refund, as the credit-note window needs it. */

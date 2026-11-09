@@ -94,7 +94,7 @@ export const useQuickReplace = () => {
 /** Every step after opening: one hook, one mutation per step kind. */
 export type ClaimStepInput =
   | { kind: 'inspect'; key: string; inspectionNotes: string }
-  | { kind: 'decide'; key: string; decision: ClaimDecision; approval: ManagerApproval }
+  | { kind: 'decide'; key: string; decision: ClaimDecision; approval?: ManagerApproval }
   | { kind: 'send'; key: string; input: SendToSupplierInput }
   | { kind: 'supplierReturn'; key: string; outcome: SupplierOutcome; note?: string }
   | { kind: 'resolve'; key: string; resolutionNote?: string; replacement?: ReplacementInput }

@@ -55,7 +55,7 @@ export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplac
     return null;
   };
 
-  const submit = (approval: ManagerApproval) => {
+  const submit = (approval: ManagerApproval | undefined) => {
     if (replacement === null) return;
     replace.mutate(
       {

@@ -68,7 +68,7 @@ export const getWarrantyCard = (
 
 export const voidWarranty = async (
   key: string,
-  approval: ManagerApproval
+  approval?: ManagerApproval
 ): Promise<WarrantyDetail> => {
   const response = await apiClient.post<ApiResponse<WarrantyDetail>>(`/warranties/${key}/void`, {
     approval,
@@ -79,7 +79,7 @@ export const voidWarranty = async (
 export const extendWarranty = async (
   key: string,
   coverage: WarrantyCoverage,
-  approval: ManagerApproval
+  approval?: ManagerApproval
 ): Promise<WarrantyDetail> => {
   const response = await apiClient.post<ApiResponse<WarrantyDetail>>(`/warranties/${key}/extend`, {
     coverage,

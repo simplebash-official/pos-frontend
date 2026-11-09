@@ -506,7 +506,8 @@ export interface ReverseCashMovementInput {
 export interface ConvertVarianceInput {
   reason: string;
   recipient: string;
-  managerPin: string;
+  /** Sent by Staff only; a signed-in Admin or Manager approves the conversion themselves. */
+  managerPin?: string;
 }
 
 export interface VerifyPinInput {

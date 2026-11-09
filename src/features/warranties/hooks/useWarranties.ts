@@ -65,7 +65,7 @@ const useRefreshWarranties = () => {
 
 export interface VoidWarrantyInput {
   key: string;
-  approval: ManagerApproval;
+  approval?: ManagerApproval;
 }
 
 export const useVoidWarranty = () => {
@@ -84,7 +84,7 @@ export const useVoidWarranty = () => {
 export interface ExtendWarrantyInput {
   key: string;
   coverage: WarrantyCoverage;
-  approval: ManagerApproval;
+  approval?: ManagerApproval;
 }
 
 export const useExtendWarranty = () => {

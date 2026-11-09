@@ -77,7 +77,9 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
     countedFloatCents !== null
   );
   const figures = shift.isCurrent && countedFloatCents !== null ? shift.data : undefined;
-  const hasDiscrepancy = figures !== undefined && figures.pinRequired;
+  // The explanation is asked for any difference; the manager's PIN only of Staff.
+  const hasDiscrepancy = figures !== undefined && figures.reasonRequired;
+  const needsPin = figures !== undefined && figures.pinRequired;
 
   const handleVerifyPin = async () => {
     if (!managerPin.trim()) {
@@ -114,15 +116,13 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
       );
       return;
     }
-    if (hasDiscrepancy) {
-      if (!discrepancyReason.trim()) {
-        setSubmitError(t('Please provide an explanation note for the float discrepancy.'));
-        return;
-      }
-      if (!managerPin.trim()) {
-        setSubmitError(t('Manager PIN is required to authorize the float discrepancy.'));
-        return;
-      }
+    if (hasDiscrepancy && !discrepancyReason.trim()) {
+      setSubmitError(t('Please provide an explanation note for the float discrepancy.'));
+      return;
+    }
+    if (needsPin && !managerPin.trim()) {
+      setSubmitError(t('Manager PIN is required to authorize the float discrepancy.'));
+      return;
     }
 
     try {
@@ -132,7 +132,7 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
         openingDenominations: mode === 'denominations' ? denominations : undefined,
         openingNote: openingNote.trim() || undefined,
         discrepancyReason: hasDiscrepancy ? discrepancyReason.trim() : undefined,
-        managerPin: hasDiscrepancy ? managerPin.trim() : undefined,
+        managerPin: needsPin ? managerPin.trim() : undefined,
       });
 
       notifications.show({
@@ -202,7 +202,7 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
         )}
 
         {/* Discrepancy Warning & Approval */}
-        {figures !== undefined && figures.pinRequired && (
+        {figures !== undefined && figures.reasonRequired && (
           <Alert
             icon={<IconAlertTriangle size={20} />}
             color={figures.varianceCents < 0 ? 'red' : 'yellow'}
@@ -216,7 +216,9 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
             <Stack gap="xs" mt="xs">
               <Text size="sm">
                 {t('The counted cash differs from what was left in the drawer at the last close.')}{' '}
-                {t('A reason and Manager approval are required to proceed.')}
+                {needsPin
+                  ? t('A reason and Manager approval are required to proceed.')
+                  : t('A reason is required to proceed.')}
               </Text>
 
               <Textarea
@@ -228,36 +230,38 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
                 onChange={(e) => setDiscrepancyReason(e.currentTarget.value)}
               />
 
-              <Divider my="xs" />
+              {needsPin && <Divider my="xs" />}
 
-              <Group align="flex-end" gap="xs">
-                <PasswordInput
-                  label={t('Manager PIN')}
-                  placeholder={t('Enter PIN')}
-                  leftSection={<IconLock size={16} />}
-                  value={managerPin}
-                  onChange={(e) => {
-                    setManagerPin(e.currentTarget.value);
-                    setPinError(null);
-                    setVerifiedManager(null);
-                  }}
-                  error={pinError}
-                  style={{ flex: 1 }}
-                  required
-                />
-                <Button
-                  variant="light"
-                  color="blue"
-                  onClick={handleVerifyPin}
-                  loading={verifyPinMutation.isPending}
-                  type="button"
-                  disabled={!managerPin.trim()}
-                >
-                  {t('Verify')}
-                </Button>
-              </Group>
+              {needsPin && (
+                <Group align="flex-end" gap="xs">
+                  <PasswordInput
+                    label={t('Manager PIN')}
+                    placeholder={t('Enter PIN')}
+                    leftSection={<IconLock size={16} />}
+                    value={managerPin}
+                    onChange={(e) => {
+                      setManagerPin(e.currentTarget.value);
+                      setPinError(null);
+                      setVerifiedManager(null);
+                    }}
+                    error={pinError}
+                    style={{ flex: 1 }}
+                    required
+                  />
+                  <Button
+                    variant="light"
+                    color="blue"
+                    onClick={handleVerifyPin}
+                    loading={verifyPinMutation.isPending}
+                    type="button"
+                    disabled={!managerPin.trim()}
+                  >
+                    {t('Verify')}
+                  </Button>
+                </Group>
+              )}
 
-              {verifiedManager && (
+              {needsPin && verifiedManager && (
                 <Badge color="green" variant="light" leftSection={<IconCheck size={14} />}>
                   {t('Authorized by:')} {verifiedManager}
                 </Badge>
@@ -284,7 +288,8 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
             loading={openSessionMutation.isPending}
             disabled={
               figures === undefined ||
-              (hasDiscrepancy && (!discrepancyReason.trim() || !managerPin.trim()))
+              (hasDiscrepancy && !discrepancyReason.trim()) ||
+              (needsPin && !managerPin.trim())
             }
             leftSection={<IconKey size={18} />}
           >

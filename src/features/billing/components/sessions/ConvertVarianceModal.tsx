@@ -14,6 +14,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconCheck, IconScale } from '@tabler/icons-react';
 import { useConvertVariance } from '../../hooks/useRegisterSession';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { formatMoney } from '@/shared/lib/money';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -34,6 +35,7 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
   onSuccess,
 }) => {
   const isMobile = useIsMobile();
+  const selfApproves = useCanSelfApprove();
   const convertMutation = useConvertVariance();
   const variance = session?.cashVarianceCents ?? 0;
   const isShortage = variance < 0;
@@ -63,7 +65,7 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
       return;
     }
 
-    if (!managerPin.trim()) {
+    if (!selfApproves && !managerPin.trim()) {
       notifications.show({
         title: t('Manager PIN Required'),
         message: t('Manager PIN is required to authorize variance conversion.'),
@@ -78,7 +80,7 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
         input: {
           recipient: recipient.trim(),
           reason: reason.trim(),
-          managerPin: managerPin.trim(),
+          managerPin: selfApproves ? undefined : managerPin.trim(),
         },
       });
 
@@ -148,13 +150,15 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
           required
         />
 
-        <PasswordInput
-          label={t('Manager PIN')}
-          placeholder={t('Enter PIN to authorize')}
-          value={managerPin}
-          onChange={(e) => setManagerPin(e.currentTarget.value)}
-          required
-        />
+        {!selfApproves && (
+          <PasswordInput
+            label={t('Manager PIN')}
+            placeholder={t('Enter PIN to authorize')}
+            value={managerPin}
+            onChange={(e) => setManagerPin(e.currentTarget.value)}
+            required
+          />
+        )}
 
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={onClose} disabled={convertMutation.isPending}>
@@ -165,7 +169,7 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
             leftSection={<IconCheck size={16} />}
             onClick={handleConvert}
             loading={convertMutation.isPending}
-            disabled={!recipient.trim() || !reason.trim() || !managerPin.trim()}
+            disabled={!recipient.trim() || !reason.trim() || (!selfApproves && !managerPin.trim())}
           >
             {t('Apply Conversion')}
           </Button>
