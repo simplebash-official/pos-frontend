@@ -54,6 +54,7 @@ import { InvoiceItemsPanel } from './InvoiceItemsPanel';
 import { InvoicePaymentModal } from './InvoicePaymentModal';
 import { InvoicePaymentsPanel } from './InvoicePaymentsPanel';
 import { InvoiceVoidModal } from './InvoiceVoidModal';
+import { ResolveCreditNoteModal } from './ResolveCreditNoteModal';
 
 const SaleDocumentPreviewModal = lazy(() =>
   import('@/features/billing/components/SaleDocumentPreviewModal').then((m) => ({
@@ -137,6 +138,7 @@ export const InvoiceDetailDrawer = ({
     null
   );
   const [previewCreditNote, setPreviewCreditNote] = useState<CreditNote | null>(null);
+  const [resolvingCreditNote, setResolvingCreditNote] = useState<CreditNote | null>(null);
 
   // Credit Note Modal State
   const [creditNoteModalOpen, setCreditNoteModalOpen] = useState(false);
@@ -612,6 +614,7 @@ export const InvoiceDetailDrawer = ({
                   creditNotes={invoiceCreditNotes}
                   isFullyReturned={d.isFullyReturned}
                   onPreview={setPreviewCreditNote}
+                  onResolve={setResolvingCreditNote}
                   onProcessReturn={() => setCreditNoteModalOpen(true)}
                 />
 
@@ -684,6 +687,14 @@ export const InvoiceDetailDrawer = ({
             }}
             subject={invoice ? { kind: 'invoice', invoice } : null}
             documentKind={previewDocumentKind}
+          />
+        )}
+
+        {/* Inspect and resolve a credit note whose units were held back */}
+        {resolvingCreditNote !== null && (
+          <ResolveCreditNoteModal
+            creditNote={resolvingCreditNote}
+            onClose={() => setResolvingCreditNote(null)}
           />
         )}
 

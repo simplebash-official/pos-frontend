@@ -27,7 +27,9 @@ const createTestItem = (overrides?: Partial<CartItem>): CartItem => ({
 const renderItem = (line: CartItem) => {
   const store = configureStore({
     reducer: {
-      auth: () => ({ user: { id: 'u1', name: 'Admin', username: 'admin', role: 'admin', permissions: [] } }),
+      auth: () => ({
+        user: { id: 'u1', name: 'Admin', username: 'admin', role: 'admin', permissions: [] },
+      }),
     },
   });
   return renderToString(

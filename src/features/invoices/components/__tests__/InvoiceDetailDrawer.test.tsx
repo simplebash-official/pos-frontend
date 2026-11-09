@@ -295,11 +295,12 @@ describe('InvoiceDetailDrawer', () => {
         status: 'resolved',
         netRefundCents: 50_000,
         createdAt: '2026-10-15T12:00:00Z',
-        items: [{}],
+        items: [{ name: 'Phone Case', quantity: 1, condition: 'resalable' }],
       },
     ];
     await open(makeInvoice({ hasCreditNotes: true, creditNoteCount: 1 }));
-    expect(text()).toContain('Refund: Rs. 500.00');
+    expect(text()).toContain('Refunded');
+    expect(text()).toContain('Rs. 500.00');
     expect(text()).toContain('CN-0001');
     await act(async () => button('Process Return / Exchange')!.click());
     await until(() => expect(text()).toContain('credit note modal'));
