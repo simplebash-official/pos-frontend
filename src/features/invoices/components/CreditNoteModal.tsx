@@ -155,6 +155,10 @@ export const CreditNoteModal = ({
     onClose();
   }, [resetForm, onClose]);
 
+  // A claimed unit is faulty by definition, so it is held for inspection, never put back on sale.
+  const startCondition: CreditNoteItemCondition =
+    warrantyClaim === null ? 'resalable' : 'pending_inspection';
+
   const getLineState = useCallback(
     (item: InvoiceItem): LineState => {
       if (lineStates[item.id]) return lineStates[item.id];
@@ -167,7 +171,7 @@ export const CreditNoteModal = ({
               serial,
               {
                 selected: claimed && serial === warrantyClaim?.serialNumber,
-                condition: 'resalable' as CreditNoteItemCondition,
+                condition: startCondition,
                 disposition: null,
                 reason: 'defective',
               },
@@ -179,13 +183,13 @@ export const CreditNoteModal = ({
         quantity: claimed
           ? Math.min(warrantyClaim.quantity, remaining)
           : Math.min(1, remaining) || 1,
-        condition: 'resalable',
+        condition: startCondition,
         disposition: null,
         reason: 'defective',
         serialUnits,
       };
     },
-    [lineStates, items, warrantyClaim]
+    [lineStates, items, warrantyClaim, startCondition]
   );
 
   const updateLine = useCallback(
@@ -209,7 +213,7 @@ export const CreditNoteModal = ({
         const current = prev[item.id] || getLineState(item);
         const currentUnit = current.serialUnits?.[serial] ?? {
           selected: false,
-          condition: 'resalable' as CreditNoteItemCondition,
+          condition: startCondition,
           disposition: null,
           reason: 'defective',
         };
@@ -222,7 +226,7 @@ export const CreditNoteModal = ({
         };
       });
     },
-    [getLineState]
+    [getLineState, startCondition]
   );
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.key, p])), [products]);
@@ -660,7 +664,7 @@ export const CreditNoteModal = ({
                             {(item.serialNumbers ?? []).map((serial) => {
                               const unit = state.serialUnits?.[serial] ?? {
                                 selected: false,
-                                condition: 'resalable' as CreditNoteItemCondition,
+                                condition: startCondition,
                                 disposition: null,
                                 reason: 'defective',
                               };
@@ -769,13 +773,17 @@ export const CreditNoteModal = ({
                           </Text>
                           {state.selected && !isFullyReturned && (
                             <Stack gap={6} mt={4}>
-                              <Select
-                                size="xs"
-                                label={t('Reason')}
-                                data={RETURN_REASON_OPTIONS}
-                                value={state.reason}
-                                onChange={(v) => updateLine(item.id, { reason: v || 'defective' })}
-                              />
+                              {warrantyClaim === null && (
+                                <Select
+                                  size="xs"
+                                  label={t('Reason')}
+                                  data={RETURN_REASON_OPTIONS}
+                                  value={state.reason}
+                                  onChange={(v) =>
+                                    updateLine(item.id, { reason: v || 'defective' })
+                                  }
+                                />
+                              )}
                               <Select
                                 size="xs"
                                 label={t('Condition')}
@@ -836,7 +844,8 @@ export const CreditNoteModal = ({
                                 })
                               }
                             />
-                            {warrantyClaim !== null && items.indexOf(item) === warrantyClaim.lineIndex ? (
+                            {warrantyClaim !== null &&
+                            items.indexOf(item) === warrantyClaim.lineIndex ? (
                               <Badge size="xs" color="blue" variant="light">
                                 {t('Claimed:')} {warrantyClaim.quantity}
                               </Badge>
