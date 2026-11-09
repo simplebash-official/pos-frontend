@@ -64,15 +64,12 @@ import {
 import type { Warranty, WarrantyCoverage, WarrantyDetail } from '../types';
 import { CoverageEditor } from './CoverageEditor';
 import { ageLabel, decisionLabel } from '../lib/claimView';
+import { ClaimLauncher } from './ClaimLauncher';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
-import { StartClaimModal } from './StartClaimModal';
 import { WarrantyCardModal } from './WarrantyCardModal';
 import { ClaimStatusDot, WarrantyStateDot } from './WarrantyStateDot';
 
 type DetailTab = 'overview' | 'claims' | 'activity' | 'linked';
-
-/** A claim can start on a warranty that is in force, or (with a manager) one that has ended. */
-const CLAIMABLE = new Set(['active', 'expiring_soon', 'expired']);
 
 export interface WarrantyDetailDrawerProps {
   /** The `wty_` key to show; `null` while closed. */
@@ -158,8 +155,8 @@ export const WarrantyDetailDrawer = ({
   const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
   const [tab, setTab] = useState<DetailTab>('overview');
   const [action, setAction] = useState<'void' | 'extend' | null>(null);
-  const [claiming, setClaiming] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [claimWindowOpen, setClaimWindowOpen] = useState(false);
   const [newCoverage, setNewCoverage] = useState<WarrantyCoverage>({
     kind: 'limited',
     value: 2,
@@ -195,6 +192,7 @@ export const WarrantyDetailDrawer = ({
         opened={warrantyKey !== null}
         onClose={onClose}
         width="wide"
+        closeOnEscape={!claimWindowOpen}
         title={{
           icon: <IconShieldCheck size={20} />,
           text: t('Warranty'),
@@ -253,17 +251,13 @@ export const WarrantyDetailDrawer = ({
               >
                 {t('Print card')}
               </Button>
-              {canRecord && CLAIMABLE.has(loaded.detail.warranty.state) && (
-                <Button
-                  leftSection={<IconClipboardCheck size={16} />}
-                  onClick={() => setClaiming(true)}
-                  data-log-id="warranties.open-start-claim"
-                >
-                  {loaded.detail.warranty.state === 'expired'
-                    ? t('Claim with manager approval')
-                    : t('Start claim')}
-                </Button>
-              )}
+              <ClaimLauncher
+                key={loaded.detail.warranty.key}
+                warranty={loaded.detail.warranty}
+                compact={false}
+                onStarted={(claim) => onOpenClaim(claim.key)}
+                onNestedWindowChange={setClaimWindowOpen}
+              />
             </DrawerFooter>
           )
         }
@@ -583,14 +577,6 @@ export const WarrantyDetailDrawer = ({
           {printing && query.data !== undefined && (
             <WarrantyCardModal warranty={query.data.warranty} onClose={() => setPrinting(false)} />
           )}
-          <StartClaimModal
-            warranty={claiming && query.data !== undefined ? query.data.warranty : null}
-            onClose={() => setClaiming(false)}
-            onStarted={(claim) => {
-              setClaiming(false);
-              onOpenClaim(claim.key);
-            }}
-          />
           <ManagerApprovalModal
             opened={action === 'void'}
             onClose={closeAction}

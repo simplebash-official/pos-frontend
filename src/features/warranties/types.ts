@@ -284,6 +284,20 @@ export interface ReplacementInput {
   sellingPriceCents?: number;
 }
 
+/** One window that swaps a unit: the intake, what was found, the new unit and a manager's PIN. */
+export interface QuickReplaceInput {
+  warrantyKey: string;
+  quantity?: number;
+  serialNumber?: string;
+  issueDescription: string;
+  voidChecks: VoidChecks;
+  conditions?: string[];
+  inspectionNotes: string;
+  replacement: ReplacementInput;
+  resolutionNote?: string;
+  approval: ManagerApproval;
+}
+
 /** A claim decided as a refund, as the credit-note window needs it. */
 export interface ClaimRefund {
   key: string;

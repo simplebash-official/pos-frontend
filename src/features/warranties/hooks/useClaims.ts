@@ -13,6 +13,7 @@ import {
   fetchClaims,
   inspectClaim,
   openClaim,
+  quickReplaceClaim,
   recordSupplierReturn,
   resolveClaim,
   returnClaimToCustomer,
@@ -24,6 +25,7 @@ import type {
   ClaimListFilter,
   ManagerApproval,
   OpenClaimInput,
+  QuickReplaceInput,
   ReplacementInput,
   SupplierOutcome,
   WarrantyClaim,
@@ -56,6 +58,8 @@ const useRefreshClaims = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all }),
       // Late claims are listed on the dashboard's reminders.
       queryClient.invalidateQueries({ queryKey: queryKeys.reports.all }),
+      // A replacement takes a unit out of stock and sends the faulty one back.
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all }),
     ]);
 };
 
@@ -70,6 +74,19 @@ export const useOpenClaim = () => {
       successTitle: t('Claim started'),
       successMessage: claimNumber,
       failureTitle: t('The claim was not started'),
+    }),
+  });
+};
+
+export const useQuickReplace = () => {
+  const refresh = useRefreshClaims();
+  return useMutation({
+    mutationFn: (input: QuickReplaceInput) => quickReplaceClaim(input),
+    onSuccess: () => refresh(),
+    meta: feedbackMeta<WarrantyClaim>({
+      successTitle: t('Unit replaced'),
+      successMessage: claimNumber,
+      failureTitle: t('The unit was not replaced'),
     }),
   });
 };

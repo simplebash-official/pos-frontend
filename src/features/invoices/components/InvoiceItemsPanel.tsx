@@ -1,15 +1,34 @@
+import { Fragment } from 'react';
 import { t } from '@/shared/i18n/t';
 import { Divider, Group, Paper, ScrollArea, Stack, Table, Text } from '@mantine/core';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { calcItemReturnedUnits, isItemFullyReturned } from '@/shared/calculations';
-import { useWarranties, validUntil, WarrantyStateDot } from '@/features/warranties';
+import { ClaimLauncher, useWarranties, validUntil, WarrantyStateDot } from '@/features/warranties';
 import type { Warranty } from '@/features/warranties';
 
 const TABULAR = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' } as const;
 
+/** Which unit a warranty is for (its serial number, or how many units), then how long it lasts. */
+const warrantyLabel = (warranty: Warranty): string => {
+  if (warranty.serialNumber !== undefined) {
+    return `${warranty.serialNumber} · ${validUntil(warranty)}`;
+  }
+  if (warranty.quantity > 1) {
+    return `${warranty.quantity} ${t('units covered')} · ${validUntil(warranty)}`;
+  }
+  return validUntil(warranty);
+};
+
 /** What was sold, with anything returned marked in plain words, and the totals that make up the bill. */
-export const InvoiceItemsPanel = ({ invoice }: { invoice: Invoice }) => {
+export const InvoiceItemsPanel = ({
+  invoice,
+  onNestedWindowChange,
+}: {
+  invoice: Invoice;
+  /** A claim window is open over the drawer, so the drawer must not close on Escape. */
+  onNestedWindowChange: (open: boolean) => void;
+}) => {
   const { data: warranties } = useWarranties({ invoiceKey: invoice.id });
   const warrantiesByLine = new Map<number, Warranty[]>();
   for (const warranty of warranties?.items ?? []) {
@@ -39,50 +58,67 @@ export const InvoiceItemsPanel = ({ invoice }: { invoice: Invoice }) => {
               const alreadyReturned = calcItemReturnedUnits(item);
               const itemFullyReturned = isItemFullyReturned(item);
               return (
-                <Table.Tr key={item.id}>
-                  <Table.Td>
-                    <Text size="xs" fw={600}>
-                      {item.name}
-                    </Text>
-                    <Text size="3xs" c="dimmed" ff="monospace">
-                      {item.sku ? `${t('SKU:')} ${item.sku}` : null}
-                      {alreadyReturned > 0 ? (
-                        <Text
-                          span
-                          inherit
-                          fw={700}
-                          c={itemFullyReturned ? 'dimmed' : 'orange'}
-                          ff="inherit"
-                        >
-                          {item.sku ? ' · ' : ''}
-                          {itemFullyReturned
-                            ? t('Fully Returned')
-                            : `${t('Returned:')} ${alreadyReturned}`}
-                        </Text>
-                      ) : null}
-                    </Text>
-                    {lineWarranties !== undefined ? (
-                      <Group gap={6} mt={4} wrap="wrap">
-                        <WarrantyStateDot state={lineWarranties[0].state} size="xs" />
-                        <Text size="3xs" c="dimmed">
-                          {validUntil(lineWarranties[0])}
-                          {lineWarranties.length > 1
-                            ? ` · ${lineWarranties.length} ${t('warranties')}`
-                            : ''}
-                        </Text>
-                      </Group>
-                    ) : (
-                      <Text size="3xs" c="dimmed" mt={4}>
-                        {t('No warranty')}
+                <Fragment key={item.id}>
+                  <Table.Tr
+                    style={lineWarranties === undefined ? undefined : { borderBottom: 'none' }}
+                  >
+                    <Table.Td>
+                      <Text size="xs" fw={600}>
+                        {item.name}
                       </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
-                  <Table.Td style={TABULAR}>{formatMoney(item.unitPriceCents)}</Table.Td>
-                  <Table.Td style={{ fontWeight: 700, ...TABULAR }}>
-                    {formatMoney(item.totalCents)}
-                  </Table.Td>
-                </Table.Tr>
+                      <Text size="3xs" c="dimmed" ff="monospace">
+                        {item.sku ? `${t('SKU:')} ${item.sku}` : null}
+                        {alreadyReturned > 0 ? (
+                          <Text
+                            span
+                            inherit
+                            fw={700}
+                            c={itemFullyReturned ? 'dimmed' : 'orange'}
+                            ff="inherit"
+                          >
+                            {item.sku ? ' · ' : ''}
+                            {itemFullyReturned
+                              ? t('Fully Returned')
+                              : `${t('Returned:')} ${alreadyReturned}`}
+                          </Text>
+                        ) : null}
+                      </Text>
+                      {lineWarranties === undefined && (
+                        <Text size="3xs" c="dimmed" mt={4}>
+                          {t('No warranty')}
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
+                    <Table.Td style={TABULAR}>{formatMoney(item.unitPriceCents)}</Table.Td>
+                    <Table.Td style={{ fontWeight: 700, ...TABULAR }}>
+                      {formatMoney(item.totalCents)}
+                    </Table.Td>
+                  </Table.Tr>
+                  {lineWarranties !== undefined && (
+                    <Table.Tr>
+                      <Table.Td colSpan={4} pt={0}>
+                        <Stack gap={6}>
+                          {lineWarranties.map((warranty) => (
+                            <Group key={warranty.key} justify="space-between" gap="xs" wrap="wrap">
+                              <Group gap={6} wrap="nowrap">
+                                <WarrantyStateDot state={warranty.state} size="xs" />
+                                <Text size="3xs" c="dimmed">
+                                  {warrantyLabel(warranty)}
+                                </Text>
+                              </Group>
+                              <ClaimLauncher
+                                warranty={warranty}
+                                compact
+                                onNestedWindowChange={onNestedWindowChange}
+                              />
+                            </Group>
+                          ))}
+                        </Stack>
+                      </Table.Td>
+                    </Table.Tr>
+                  )}
+                </Fragment>
               );
             })}
           </Table.Tbody>

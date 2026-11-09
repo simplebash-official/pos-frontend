@@ -128,6 +128,7 @@ export const InvoiceDetailDrawer = ({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [refundClaim, setRefundClaim] = useState<ClaimRefund | null>(null);
+  const [claimWindowOpen, setClaimWindowOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<InvoiceTab>('items');
 
@@ -295,6 +296,7 @@ export const InvoiceDetailDrawer = ({
         onClose={handleClose}
         width="wide"
         zIndex={zIndex ?? 300}
+        closeOnEscape={!claimWindowOpen}
         title={{
           icon: <IconFileInvoice size={20} />,
           text: `${t('Invoice #')}${invoice?.invoiceNumber ?? ''}`,
@@ -615,7 +617,14 @@ export const InvoiceDetailDrawer = ({
 
                 <AnimatedTabs<InvoiceTab> value={tab} onChange={setActiveTab} tabs={tabs}>
                   {(value) => {
-                    if (value === 'items') return <InvoiceItemsPanel invoice={inv} />;
+                    if (value === 'items') {
+                      return (
+                        <InvoiceItemsPanel
+                          invoice={inv}
+                          onNestedWindowChange={setClaimWindowOpen}
+                        />
+                      );
+                    }
                     if (value === 'payments') {
                       return (
                         <InvoicePaymentsPanel payments={payments} remainingCents={remainingCents} />

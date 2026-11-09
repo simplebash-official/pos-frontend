@@ -6,6 +6,7 @@ import type {
   ClaimListResult,
   ManagerApproval,
   OpenClaimInput,
+  QuickReplaceInput,
   ReplacementInput,
   SupplierOutcome,
   WarrantyClaim,
@@ -35,6 +36,12 @@ const step = async (key: string, path: string, body: object): Promise<WarrantyCl
 
 export const openClaim = async (input: OpenClaimInput): Promise<WarrantyClaim> => {
   const response = await apiClient.post<ApiResponse<WarrantyClaim>>(base, input);
+  return response.data;
+};
+
+/** Swaps a faulty unit for a new one in a single request; the claim comes back handed over. */
+export const quickReplaceClaim = async (input: QuickReplaceInput): Promise<WarrantyClaim> => {
+  const response = await apiClient.post<ApiResponse<WarrantyClaim>>(`${base}/quick-replace`, input);
   return response.data;
 };
 

@@ -1,9 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Alert,
   Button,
   Group,
-  Loader,
   Modal,
   Radio,
   Select,
@@ -13,17 +11,13 @@ import {
   Textarea,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { IconInfoCircle } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { usePayees } from '@/features/billing/hooks/useCashLookups';
-import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { useProductSerials } from '@/features/inventory/hooks/useProductSerials';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
-import { formatDate, toIsoDate } from '@/shared/lib/date';
+import { toIsoDate } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
-import { formatMoney } from '@/shared/lib/money';
 import { useClaimStep, type ClaimStepInput } from '../hooks/useClaims';
 import {
   DECISIONS,
@@ -35,6 +29,7 @@ import {
 } from '../lib/claimView';
 import type { ClaimDecision, SupplierOutcome, WarrantyClaim } from '../types';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
+import { ReplacementEndsNote, ReplacementPicker } from './ReplacementPicker';
 
 /** The steps that open a window here; a refund opens the credit-note window instead. */
 export type DialogAction = Exclude<ClaimAction, 'refund'>;
@@ -163,77 +158,6 @@ const ChoiceCards = <T extends string>({
 
 const optional = (text: string): string | undefined =>
   text.trim() === '' ? undefined : text.trim();
-
-/** The replacement unit: an in-stock serial of the same product, or a price to take stock from. */
-const ReplacementPicker = ({
-  claim,
-  serial,
-  onSerial,
-  priceCents,
-  onPrice,
-}: {
-  claim: WarrantyClaim;
-  serial: string | null;
-  onSerial: (serial: string | null) => void;
-  priceCents: string | null;
-  onPrice: (price: string | null) => void;
-}) => {
-  const isMobile = useIsMobile();
-  const productKey = claim.productKey;
-  const serialized = claim.serialNumber !== undefined;
-  const serials = useProductSerials(productKey, 'in_stock', { enabled: serialized });
-  // The product read route takes the database id, so the product is found by key in the list.
-  const products = useAllProducts({ enabled: productKey !== undefined && !serialized });
-  const product = products.data.find((candidate) => candidate.key === productKey);
-
-  if (productKey === undefined) {
-    return (
-      <Alert color="orange" icon={<IconInfoCircle size={16} />}>
-        {t('This item was not sold from stock, so it cannot be swapped for a new one.')}
-      </Alert>
-    );
-  }
-  if (serialized) {
-    if (serials.data === undefined) return <Loader size="sm" />;
-    return (
-      <Select
-        label={t('Which new unit is the customer getting?')}
-        placeholder={t('Scan or choose a serial number in stock')}
-        data={serials.data.map((unit) => unit.serialNumber)}
-        value={serial}
-        onChange={onSerial}
-        searchable
-        nothingFoundMessage={t('No unit of this item is in stock')}
-        size={isMobile ? 'md' : 'sm'}
-        data-barcode-scanner="true"
-        comboboxProps={{ withinPortal: true }}
-      />
-    );
-  }
-  if (products.isLoading) return <Loader size="sm" />;
-  if (product === undefined) {
-    return (
-      <Alert color="orange" icon={<IconInfoCircle size={16} />}>
-        {t('This item is no longer in the catalogue, so it cannot be swapped for a new one.')}
-      </Alert>
-    );
-  }
-  return (
-    <Select
-      label={t('Take the new unit from stock sold at')}
-      placeholder={t('Choose a price')}
-      data={product.priceTiers.map((tier) => ({
-        value: String(tier.sellingPriceCents),
-        label: `${formatMoney(tier.sellingPriceCents)} · ${tier.quantity} ${t('left')}`,
-      }))}
-      value={priceCents}
-      onChange={onPrice}
-      nothingFoundMessage={t('No unit of this item is in stock')}
-      size={isMobile ? 'md' : 'sm'}
-      comboboxProps={{ withinPortal: true }}
-    />
-  );
-};
 
 /**
  * The window for one step of a claim after it was opened: inspect, decide (manager PIN), send to
@@ -451,19 +375,14 @@ export const ClaimStepDialog = ({
           {replace && (
             <>
               <ReplacementPicker
-                claim={claim}
+                productKey={claim.productKey}
+                serialized={claim.serialNumber !== undefined}
                 serial={serial}
                 onSerial={setSerial}
                 priceCents={priceCents}
                 onPrice={setPriceCents}
               />
-              <Alert color="blue" icon={<IconInfoCircle size={16} />} p="xs">
-                {warrantyEndsOn === undefined
-                  ? t('The new unit is covered for life, like the old one.')
-                  : `${t('The new unit is covered until')} ${formatDate(warrantyEndsOn)}, ${t(
-                      'the same day as the old one.'
-                    )}`}
-              </Alert>
+              <ReplacementEndsNote endsOn={warrantyEndsOn} />
             </>
           )}
           {!replace && (

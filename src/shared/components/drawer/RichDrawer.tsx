@@ -19,6 +19,8 @@ export interface RichDrawerProps<T> {
   footer?: (item: T) => ReactNode;
   /** Custom z-index when stacking drawers (e.g. nested invoice inspection over session drawer). */
   zIndex?: number;
+  /** Pass `false` while a window opened from the drawer is up, so Escape closes only that window. */
+  closeOnEscape?: boolean;
 }
 
 /**
@@ -35,6 +37,7 @@ export const RichDrawer = <T,>({
   children,
   footer,
   zIndex,
+  closeOnEscape,
 }: RichDrawerProps<T>) => {
   const isMobile = useIsMobile();
   const [cached, setCached] = useState<T | null>(data);
@@ -47,6 +50,7 @@ export const RichDrawer = <T,>({
       onClose={onClose}
       position="right"
       zIndex={zIndex}
+      closeOnEscape={closeOnEscape}
       size={isMobile ? '100%' : 'md'}
       classNames={{ content: `rich-drawer rich-drawer--${width}` }}
       title={

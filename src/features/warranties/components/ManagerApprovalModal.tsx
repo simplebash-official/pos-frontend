@@ -79,10 +79,14 @@ export const ManagerApprovalModal = ({
       size="lg"
       centered
       fullScreen={isMobile}
+      zIndex={400}
     >
       <form
         onSubmit={(event) => {
           event.preventDefault();
+          // This window is a React child of whatever opened it; its submit must not reach a form
+          // around that (a repair job's own form saved itself when a claim was started).
+          event.stopPropagation();
           submit();
         }}
       >

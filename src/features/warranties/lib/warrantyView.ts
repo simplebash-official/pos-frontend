@@ -157,3 +157,16 @@ export const endsOnIfStartedToday = (coverage: WarrantyCoverage): string | null 
   const reply = calc_warranty({ startsOn: toIsoDate(new Date()), coverage });
   return reply.kind === 'until' ? reply.endsOn : null;
 };
+
+/** A claim can be started on a warranty that is in force, or one that has ended (a manager honours it). */
+export const canStartClaim = (warranty: Pick<Warranty, 'state'>): boolean =>
+  warranty.state === 'active' || warranty.state === 'expiring_soon' || warranty.state === 'expired';
+
+/**
+ * A unit sold from stock, still in force, can be swapped for a new one in one window. An ended
+ * warranty goes through the normal claim, where a manager accepts it, and repair work has no
+ * product to take from stock.
+ */
+export const canQuickReplace = (warranty: Pick<Warranty, 'state' | 'sourceType'>): boolean =>
+  warranty.sourceType === 'product_sale' &&
+  (warranty.state === 'active' || warranty.state === 'expiring_soon');

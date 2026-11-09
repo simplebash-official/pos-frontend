@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canQuickReplace,
+  canStartClaim,
   coverageLabel,
   daysLeftLabel,
   endsOnIfStartedToday,
@@ -90,5 +92,24 @@ describe('warranty view rules', () => {
     const today = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     expect(end).toBe(`${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`);
+  });
+
+  it('lets a claim start on a warranty in force or one that has ended, never one under claim or cancelled', () => {
+    expect(canStartClaim({ state: 'active' })).toBe(true);
+    expect(canStartClaim({ state: 'expiring_soon' })).toBe(true);
+    expect(canStartClaim({ state: 'expired' })).toBe(true);
+    expect(canStartClaim({ state: 'under_claim' })).toBe(false);
+    expect(canStartClaim({ state: 'void' })).toBe(false);
+  });
+
+  it('offers a one-window swap only for a unit sold from stock that is still in force', () => {
+    expect(canQuickReplace({ state: 'active', sourceType: 'product_sale' })).toBe(true);
+    expect(canQuickReplace({ state: 'expiring_soon', sourceType: 'product_sale' })).toBe(true);
+    // An ended warranty needs a manager to accept it, which the normal claim asks for.
+    expect(canQuickReplace({ state: 'expired', sourceType: 'product_sale' })).toBe(false);
+    expect(canQuickReplace({ state: 'under_claim', sourceType: 'product_sale' })).toBe(false);
+    expect(canQuickReplace({ state: 'void', sourceType: 'product_sale' })).toBe(false);
+    // Repair work has no product to take from stock.
+    expect(canQuickReplace({ state: 'active', sourceType: 'repair' })).toBe(false);
   });
 });
