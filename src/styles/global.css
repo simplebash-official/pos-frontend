@@ -1142,6 +1142,16 @@ th.mantine-Table-th {
   }
 }
 
+.sidebar-link .mantine-NavLink-body {
+  min-width: 0;
+}
+
+.sidebar-link .mantine-NavLink-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sidebar-link[data-active] .mantine-NavLink-label {
   font-weight: 600;
   color: var(--text-primary);
