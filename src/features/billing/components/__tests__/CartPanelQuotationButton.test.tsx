@@ -47,12 +47,12 @@ const render = (permissions: string[]) => {
 };
 
 describe('CartPanel Quotation button', () => {
-  it('is offered to someone who can manage quotations', () => {
+  it('is offered to someone with quotations:manage permission (including staff)', () => {
     const html = render([PERMISSIONS.BILLING_WRITE, PERMISSIONS.QUOTATIONS_MANAGE]);
     expect(html).toContain('data-log-id="billing.start-quotation"');
   });
 
-  it('is not offered to staff', () => {
+  it('is not offered when token lacks quotations:manage', () => {
     const html = render([PERMISSIONS.BILLING_WRITE]);
     expect(html).not.toContain('billing.start-quotation');
     // The rest of the cart header is untouched.

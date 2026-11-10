@@ -32,11 +32,15 @@ const renderSidebar = (role: string, permissions: string[], isRail = false) => {
   );
 };
 
-const STAFF_PERMISSIONS = [PERMISSIONS.BILLING_WRITE, PERMISSIONS.CUSTOMERS_WRITE];
+const STAFF_PERMISSIONS = [
+  PERMISSIONS.BILLING_WRITE,
+  PERMISSIONS.CUSTOMERS_WRITE,
+  PERMISSIONS.QUOTATIONS_MANAGE,
+];
 
 describe('Sidebar Quotations entry', () => {
-  it('shows for a manager and an admin (their tokens carry quotations:manage)', () => {
-    for (const role of ['manager', 'admin']) {
+  it('shows for staff, a manager and an admin (their tokens carry quotations:manage)', () => {
+    for (const role of ['staff', 'manager', 'admin']) {
       const html = renderSidebar(role, [...STAFF_PERMISSIONS, PERMISSIONS.QUOTATIONS_MANAGE]);
       expect(html).toContain(`href="${ROUTES.QUOTATIONS}"`);
       expect(html).toContain('Quotations');
@@ -44,17 +48,19 @@ describe('Sidebar Quotations entry', () => {
   });
 
   it('shows in the narrow rail layout too', () => {
-    const html = renderSidebar('manager', [PERMISSIONS.QUOTATIONS_MANAGE], true);
+    const html = renderSidebar('staff', [PERMISSIONS.QUOTATIONS_MANAGE], true);
     expect(html).toContain(`href="${ROUTES.QUOTATIONS}"`);
   });
 
-  it('is hidden from staff', () => {
-    const html = renderSidebar('staff', STAFF_PERMISSIONS);
+  it('is hidden when token lacks quotations:manage', () => {
+    const html = renderSidebar('staff', [PERMISSIONS.BILLING_WRITE, PERMISSIONS.CUSTOMERS_WRITE]);
     expect(html).not.toContain(ROUTES.QUOTATIONS);
     expect(html).not.toContain('Quotations');
   });
 
-  it('is hidden in the rail layout from staff', () => {
-    expect(renderSidebar('staff', STAFF_PERMISSIONS, true)).not.toContain(ROUTES.QUOTATIONS);
+  it('is hidden in the rail layout when token lacks quotations:manage', () => {
+    expect(
+      renderSidebar('staff', [PERMISSIONS.BILLING_WRITE, PERMISSIONS.CUSTOMERS_WRITE], true)
+    ).not.toContain(ROUTES.QUOTATIONS);
   });
 });
