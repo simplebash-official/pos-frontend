@@ -23,6 +23,9 @@ interface Decision {
   disposition: CreditNoteItemDisposition | null;
 }
 
+// The approval window sits at 400; a dropdown at Mantine's default level would open behind it.
+const DROPDOWN_PROPS = { withinPortal: true, zIndex: 401 };
+
 const NOT_DECIDED: Decision = { condition: null, disposition: null };
 
 // The unit has been looked at, so "still pending" is not an answer.
@@ -102,6 +105,7 @@ export const ResolveCreditNoteModal = ({ creditNote, onClose }: ResolveCreditNot
                   </Badge>
                 </Group>
                 <Select
+                  comboboxProps={DROPDOWN_PROPS}
                   label={t('Condition')}
                   placeholder={t('Choose one')}
                   data={DECIDED_CONDITIONS.map((o) => ({ value: o.value, label: t(o.label) }))}
@@ -115,6 +119,7 @@ export const ResolveCreditNoteModal = ({ creditNote, onClose }: ResolveCreditNot
                 />
                 {condition === 'damaged' && (
                   <Select
+                    comboboxProps={DROPDOWN_PROPS}
                     label={t('What happens to it?')}
                     placeholder={t('Choose one')}
                     data={ITEM_DISPOSITION_OPTIONS.map((o) => ({

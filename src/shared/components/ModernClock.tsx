@@ -1,31 +1,26 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect } from 'react';
-import { Paper, Group, Text, Badge, ThemeIcon } from '@mantine/core';
-import { IconClock } from '@tabler/icons-react';
 import { formatClockTime, formatClockDate, parseClockTimeParts } from '@/shared/lib/date';
 
 export interface ModernClockProps {
-  variant?: 'card' | 'header' | 'compact';
+  variant: 'header' | 'compact';
   id?: string;
   className?: string;
   style?: React.CSSProperties;
-  withBorder?: boolean;
 }
 
 /**
- * Live 12-hour clock: large digit-style time (muted colons, the seconds segment picked out in the
- * theme's blue accent), an AM/PM pill and the uppercase day/date below it. Supports 'card' (default)
- * for page headers and 'header'/'compact' for the sticky top navigation bar.
+ * Split-pill live clock:
+ * - Left segment: live indicator dot + abbreviated date (e.g. 'Tue, Nov 10')
+ * - Center: 1px vertical divider
+ * - Right segment: tabular-num bold 12h time (e.g. '2:46:54') + blue period (e.g. 'AM')
+ *
+ * Supports 'header' for the standard top navigation bar (42px pill) and 'compact'
+ * for the slim billing header (28px pill).
  */
-export const ModernClock = ({
-  variant = 'card',
-  id,
-  className,
-  style,
-  withBorder = true,
-}: ModernClockProps) => {
-  const [time, setTime] = useState<string>(() => formatClockTime());
-  const [date, setDate] = useState<string>(() => formatClockDate());
+export const ModernClock = ({ variant, id, className, style }: ModernClockProps) => {
+  const [time, setTime] = useState<string>(() => formatClockTime(new Date()));
+  const [date, setDate] = useState<string>(() => formatClockDate(new Date()));
 
   useEffect(() => {
     const update = () => {
@@ -40,147 +35,106 @@ export const ModernClock = ({
   }, []);
 
   const { hours, minutes, seconds, period } = parseClockTimeParts(time);
-
-  if (variant === 'header' || variant === 'compact') {
-    return (
-      <Paper
-        id={id}
-        py={3}
-        px="xs"
-        withBorder={withBorder}
-        radius="var(--mantine-radius-default)"
-        className={className}
-        style={{
-          backgroundColor: 'var(--bg-card)',
-          borderColor: 'var(--border)',
-          userSelect: 'none',
-          ...style,
-        }}
-      >
-        <Group gap="xs" wrap="nowrap" align="center">
-          <ThemeIcon color="blue" variant="light" size={28} radius="sm">
-            <IconClock size={15} stroke={1.75} />
-          </ThemeIcon>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <Group gap={4} align="baseline" wrap="nowrap">
-              <Text
-                fw={800}
-                style={{
-                  fontSize: '0.925rem',
-                  lineHeight: 1.15,
-                  color: 'var(--text-primary)',
-                  fontVariantNumeric: 'tabular-nums',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {hours}
-                <span style={{ color: 'var(--text-muted)' }}>:</span>
-                {minutes}
-                <span style={{ color: 'var(--text-muted)' }}>:</span>
-                <span style={{ color: 'var(--mantine-color-blue-6)' }}>{seconds}</span>
-              </Text>
-              <Badge
-                variant="light"
-                color="blue"
-                size="xs"
-                px={4}
-                style={{ height: 16, fontSize: 9 }}
-              >
-                {period}
-              </Badge>
-            </Group>
-
-            <Group gap={4} align="center" wrap="nowrap">
-              <Badge
-                size="xs"
-                variant="light"
-                color="blue"
-                style={{ height: 13, fontSize: 8, padding: '0 3px' }}
-              >
-                {t('Live')}
-              </Badge>
-              <Text
-                fw={700}
-                tt="uppercase"
-                c="dimmed"
-                style={{
-                  fontSize: '9.5px',
-                  lineHeight: 1,
-                  letterSpacing: '0.03em',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {date}
-              </Text>
-            </Group>
-          </div>
-        </Group>
-      </Paper>
-    );
-  }
+  const isCompact = variant === 'compact';
+  const timeString = `${hours}:${minutes}:${seconds}`;
 
   return (
-    <Paper
+    <div
       id={id}
-      p="xs"
-      px="md"
-      withBorder={withBorder}
-      radius="var(--mantine-radius-default)"
       className={className}
+      role="timer"
+      aria-label={`${t('Live')} - ${date}, ${time}`}
       style={{
+        display: 'inline-flex',
+        alignItems: 'stretch',
+        height: isCompact ? 28 : 42,
+        borderRadius: 'var(--mantine-radius-default)',
+        border: '1px solid var(--border)',
         backgroundColor: 'var(--bg-card)',
-        borderColor: 'var(--border)',
+        overflow: 'hidden',
+        userSelect: 'none',
+        boxSizing: 'border-box',
         ...style,
       }}
     >
-      <Group gap="sm" wrap="nowrap" align="center">
-        <ThemeIcon color="blue" variant="light" size={42} radius="md">
-          <IconClock size={22} stroke={1.5} />
-        </ThemeIcon>
+      {/* Left Segment: Live Dot & Date */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: isCompact ? 6 : 9,
+          padding: isCompact ? '0 10px' : '0 16px',
+          backgroundColor: 'var(--bg-card)',
+          height: '100%',
+          flexShrink: 0,
+        }}
+      >
+        <span
+          aria-hidden="true"
+          className="pos-clock-live-dot"
+          style={{
+            width: isCompact ? 5.5 : 8,
+            height: isCompact ? 5.5 : 8,
+            borderRadius: '50%',
+            backgroundColor: 'var(--status-ok)',
+            flexShrink: 0,
+            display: 'inline-block',
+          }}
+        />
+        <span
+          style={{
+            fontSize: isCompact ? '0.72rem' : '0.9rem',
+            fontWeight: 600,
+            color: 'var(--text-secondary)',
+            letterSpacing: '-0.01em',
+            whiteSpace: 'nowrap',
+            lineHeight: 1,
+          }}
+        >
+          {date}
+        </span>
+      </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Group gap={6} align="baseline" wrap="nowrap">
-            <Text
-              fw={800}
-              style={{
-                fontSize: '1.375rem',
-                lineHeight: 1,
-                color: 'var(--text-primary)',
-                fontVariantNumeric: 'tabular-nums',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              {hours}
-              <span style={{ color: 'var(--text-muted)' }}>:</span>
-              {minutes}
-              <span style={{ color: 'var(--text-muted)' }}>:</span>
-              <span style={{ color: 'var(--mantine-color-blue-6)' }}>{seconds}</span>
-            </Text>
-            <Badge variant="light" color="blue" size="sm">
-              {period}
-            </Badge>
-          </Group>
-
-          <Group gap={6} align="center" wrap="nowrap">
-            <Badge size="xs" variant="light" color="blue">
-              {t('Live')}
-            </Badge>
-            <Text
-              fw={700}
-              tt="uppercase"
-              c="dimmed"
-              style={{
-                fontSize: '11px',
-                lineHeight: 1.15,
-                letterSpacing: '0.04em',
-              }}
-            >
-              {date}
-            </Text>
-          </Group>
-        </div>
-      </Group>
-    </Paper>
+      {/* Right Segment: Time & Period (with left divider) */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: isCompact ? 5 : 7,
+          padding: isCompact ? '0 12px' : '0 20px',
+          backgroundColor: 'var(--bg-active)',
+          borderLeft: '1px solid var(--border)',
+          height: '100%',
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            fontWeight: 800,
+            fontSize: isCompact ? '0.825rem' : '1.2rem',
+            lineHeight: 1,
+            color: 'var(--text-primary)',
+            fontVariantNumeric: 'tabular-nums',
+            letterSpacing: '-0.02em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {timeString}
+        </span>
+        <span
+          style={{
+            fontWeight: 800,
+            fontSize: isCompact ? '0.585rem' : '0.75rem',
+            lineHeight: 1,
+            color: 'var(--mantine-color-blue-5)',
+            letterSpacing: '0.02em',
+            textTransform: 'uppercase',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {period}
+        </span>
+      </div>
+    </div>
   );
 };

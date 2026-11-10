@@ -97,9 +97,15 @@ export const Header = ({
 
   if (isBillingPage) {
     return (
-      <Group h="100%" px="sm" justify="space-between" align="center" style={{ userSelect: 'none' }}>
-        {/* Left: Brand & Styled Clock */}
-        <Group gap="xs" align="center" wrap="nowrap">
+      <Group
+        h="100%"
+        px="sm"
+        justify="space-between"
+        align="center"
+        style={{ userSelect: 'none', position: 'relative' }}
+      >
+        {/* Left: Brand */}
+        <Group gap="xs" align="center" wrap="nowrap" style={{ minWidth: 0 }}>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="xs" />
           <Title
             order={5}
@@ -110,20 +116,29 @@ export const Header = ({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               maxWidth: isMobile ? 140 : 280,
+              color: 'var(--text-secondary)',
+              fontWeight: 600,
             }}
             onClick={() => navigate(ROUTES.DASHBOARD)}
             title={headerTitle}
           >
             {headerTitle}
           </Title>
-          <Box visibleFrom="xs" ml={6}>
-            <ModernClock
-              variant="compact"
-              withBorder={false}
-              style={{ backgroundColor: 'transparent', padding: 0 }}
-            />
-          </Box>
         </Group>
+
+        {/* Center: Styled Compact Clock */}
+        <Box
+          visibleFrom="sm"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            pointerEvents: 'auto',
+            zIndex: 1,
+          }}
+        >
+          <ModernClock variant="compact" />
+        </Box>
 
         {/* Right: Cashier, Held Sales, Sound, Focus Mode, Shortcuts */}
         <Group gap="xs" align="center" wrap="nowrap">
@@ -244,7 +259,14 @@ export const Header = ({
 
   // Non-billing standard header
   return (
-    <Group h="100%" px="md" justify="space-between" wrap="nowrap" align="center">
+    <Group
+      h="100%"
+      px="md"
+      justify="space-between"
+      wrap="nowrap"
+      align="center"
+      style={{ position: 'relative' }}
+    >
       <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, overflow: 'hidden' }}>
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         <Title
@@ -263,16 +285,21 @@ export const Header = ({
         </Title>
       </Group>
 
-      {/* Dynamic Header Clock: smoothly shown on scroll or on other screens */}
+      {/* Dynamic Header Clock: centered in header bar, smoothly shown on scroll or on other screens */}
       <Box
         visibleFrom="sm"
         style={{
+          position: 'absolute',
+          left: '50%',
+          transform: showHeaderClock
+            ? 'translateX(-50%) translateY(0) scale(1)'
+            : 'translateX(-50%) translateY(-6px) scale(0.96)',
           opacity: showHeaderClock ? 1 : 0,
-          transform: showHeaderClock ? 'translateY(0) scale(1)' : 'translateY(-6px) scale(0.96)',
           pointerEvents: showHeaderClock ? 'auto' : 'none',
           transition: 'opacity 220ms ease, transform 220ms ease, visibility 220ms ease',
           visibility: showHeaderClock ? 'visible' : 'hidden',
           flexShrink: 0,
+          zIndex: 1,
         }}
       >
         <ModernClock variant="header" />

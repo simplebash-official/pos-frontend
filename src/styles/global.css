@@ -1596,3 +1596,26 @@ th.mantine-Table-th {
   outline: 2px solid var(--mantine-color-blue-filled);
   outline-offset: 2px;
 }
+
+/* POS Header Split-Pill Clock Live Dot indicator */
+@keyframes pos-clock-live-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+.pos-clock-live-dot {
+  animation: pos-clock-live-dot-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pos-clock-live-dot {
+    animation: none;
+  }
+}
