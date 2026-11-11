@@ -96,3 +96,35 @@ export const ITEM_DISPOSITION_OPTIONS: { value: CreditNoteItemDisposition; label
   { value: 'write_off_scrap', label: 'Write Off' },
   { value: 'repair_pending', label: 'Repair Pending' },
 ];
+
+export interface CreditNoteCashDrawerInput {
+  netRefundCents: number;
+  refundCashCents: number;
+  isCustomerOwing: boolean;
+  refundLegs: { method: string; amountCents: number }[];
+  refundBreakdown: Record<string, number>;
+  noReceipt: boolean;
+  invoicePaymentMethod?: string;
+}
+
+/**
+ * Returns `true` when creating this credit note will move cash into or out of
+ * the active register drawer (cash refund or cash difference owed on exchange).
+ */
+export function creditNoteUsesCashDrawer(input: CreditNoteCashDrawerInput): boolean {
+  if (input.isCustomerOwing) {
+    return true;
+  }
+  if (input.netRefundCents <= 0) {
+    return false;
+  }
+  if (input.refundLegs.length > 1) {
+    return input.refundLegs.some(
+      (leg) => leg.method === 'cash' && (input.refundBreakdown[leg.method] ?? leg.amountCents) > 0
+    );
+  }
+  if (input.refundLegs.length === 1) {
+    return input.refundLegs[0].method === 'cash' && input.refundLegs[0].amountCents > 0;
+  }
+  return input.refundCashCents > 0 && (input.noReceipt || input.invoicePaymentMethod === 'cash');
+}

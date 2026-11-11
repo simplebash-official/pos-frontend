@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
-import { Alert, Button, Stack, Text, TextInput } from '@mantine/core';
-import { IconLock, IconPlus } from '@tabler/icons-react';
+import { Button, Stack, Text, TextInput } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
+import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
 import {
   sourceNeedsRegister,
   type ChargeState,
@@ -88,16 +89,11 @@ export const ExtraChargesSection = ({
           ) : null}
           {payment.source === 'drawer' ? (
             shiftClosing ? (
-              <Alert
-                color="orange"
-                variant="light"
-                icon={<IconLock size={16} />}
-                title={t('Cash Count In Progress')}
-              >
-                {t(
+              <SessionClosingAlert
+                message={t(
                   'A register cash count is in progress. Cash cannot leave the drawer until the count finishes or is cancelled.'
                 )}
-              </Alert>
+              />
             ) : (
               <Text size="xs" c="dimmed">
                 {shiftOpen

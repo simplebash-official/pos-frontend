@@ -25,7 +25,6 @@ import {
   IconLock,
   IconPrinter,
 } from '@tabler/icons-react';
-import { queryKeys } from '@/api/queryKeys';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
@@ -33,10 +32,11 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { PERMISSIONS } from '@/constants/permissions';
 import { getErrorMessage } from '@/shared/lib/error';
 import { formatMoney } from '@/shared/lib/money';
-import type { ApiError } from '@/shared/types/common';
 import { t } from '@/shared/i18n/t';
 import { AnimatedNumber, FadeIn, useMotionPresets } from '@/shared/motion';
 import { useCashCategories, useCashSettings, usePeriodStatus } from '../../hooks/useCashLookups';
+import { handleSessionClosingError } from '../../lib/sessionClosing';
+import { SessionClosingAlert } from './SessionClosingAlert';
 import { useCalc } from '@/shared/hooks/useCalc';
 import { calcCashMovement } from '../../api/calcApi';
 import {
@@ -291,21 +291,13 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       setCompleted(movement);
       onMovementCreated?.(movement);
     } catch (err) {
-      const apiError = err as Partial<ApiError> | undefined;
-      if (apiError?.code === 'SESSION_CLOSING') {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
-        const pauseMsg = getErrorMessage(
-          err,
-          t(
-            'Drawer cash count is in progress. Finish or cancel the close count before recording cash movements.'
-          )
-        );
-        setSubmitError(pauseMsg);
-        notifications.show({
-          title: t('Cash Count In Progress'),
-          message: pauseMsg,
-          color: 'orange',
-        });
+      const closingMessage = handleSessionClosingError(err, queryClient, {
+        fallbackMessage: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before recording cash movements.'
+        ),
+      });
+      if (closingMessage !== null) {
+        setSubmitError(closingMessage);
         return;
       }
       setSubmitError(
@@ -483,16 +475,12 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
         <form onSubmit={handleSubmit} noValidate autoComplete="off">
           <Stack gap="lg">
             {shiftClosing && (
-              <Alert
+              <SessionClosingAlert
                 icon={<IconClockPause size={18} />}
-                color="orange"
-                variant="light"
-                title={t('Cash Count In Progress')}
-              >
-                {t(
+                message={t(
                   'Drawer cash count is in progress. Finish or cancel the close count before recording cash movements.'
                 )}
-              </Alert>
+              />
             )}
             <MovementStep number={1} title={t('What happened?')} required={false}>
               <MovementGroupTabs value={form.type} onChange={changeType} canUse={canUseType} />

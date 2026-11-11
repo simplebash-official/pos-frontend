@@ -49,6 +49,7 @@ const closedSession: RegisterSession = {
 };
 
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useCurrentSession: () => ({ session: null, isLoading: false }),
   useReverseCashMovement: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useSessionDetail: () => ({
     session: closedSession,

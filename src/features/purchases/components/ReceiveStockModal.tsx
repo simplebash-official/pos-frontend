@@ -14,8 +14,8 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconBuildingStore, IconPlus, IconX } from '@tabler/icons-react';
-import { queryKeys } from '@/api/queryKeys';
 import { getDeviceId } from '@/api/deviceId';
+import { handleSessionClosingError } from '@/features/billing/lib/sessionClosing';
 import type { ApiError } from '@/shared/types/common';
 import { formatDate } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
@@ -211,10 +211,16 @@ export const ReceiveStockModal = ({
         onClose();
       },
       onError: (error) => {
-        const apiError = error as unknown as ApiError;
-        if (apiError?.code === 'SESSION_CLOSING') {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+        const closingMessage = handleSessionClosingError(error, queryClient, {
+          fallbackMessage: t(
+            'A register cash count is in progress. Finish or cancel the close count before taking cash from the drawer.'
+          ),
+        });
+        if (closingMessage !== null) {
+          setServerProblem({ kind: 'other', message: closingMessage });
+          return;
         }
+        const apiError = error as unknown as ApiError;
         const problemFromServer = problemFrom(apiError);
         if (problemFromServer.kind === 'approval') setApprovalRequired(true);
         setServerProblem(problemFromServer);

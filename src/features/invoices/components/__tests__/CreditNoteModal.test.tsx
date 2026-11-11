@@ -5,9 +5,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { QueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
+import { queryKeys } from '@/api/queryKeys';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
-import type { CalcCreditNoteReply, CalcCreditNoteRequest, Invoice } from '@/features/billing/types';
+import type {
+  CalcCreditNoteReply,
+  CalcCreditNoteRequest,
+  Invoice,
+  RegisterSession,
+} from '@/features/billing/types';
 import type { ClaimRefund } from '@/features/warranties';
 import { CreditNoteModal } from '../CreditNoteModal';
 
@@ -17,6 +25,14 @@ installDrawerTestEnv();
 // script the answers; nothing is worked out in the tests either.
 const calc = vi.fn();
 const createCreditNote = vi.fn();
+let CURRENT_SESSION: Partial<RegisterSession> | null = null;
+
+vi.mock('@mantine/notifications', () => ({
+  notifications: { show: vi.fn() },
+}));
+vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useCurrentSession: () => ({ session: CURRENT_SESSION, isLoading: false }),
+}));
 
 vi.mock('@/features/billing/api/calcApi', () => ({
   calcCreditNote: (request: CalcCreditNoteRequest, signal: AbortSignal) => calc(request, signal),
@@ -73,6 +89,8 @@ describe('CreditNoteModal', () => {
   let root: Root;
 
   beforeEach(() => {
+    CURRENT_SESSION = null;
+    vi.mocked(notifications.show).mockReset();
     calc.mockReset();
     createCreditNote.mockReset();
     createCreditNote.mockResolvedValue({});
@@ -184,5 +202,73 @@ describe('CreditNoteModal', () => {
     calc.mockRejectedValue({ message: 'down', statusCode: 0 });
     await open();
     expect(submitButton().disabled).toBe(true);
+  });
+
+  it('shows Cash Count In Progress pause banner and disables submit on a cash refund during closing', async () => {
+    CURRENT_SESSION = {
+      key: 'ses_1',
+      status: 'closing',
+      closingCashierNameSnapshot: 'Kasun',
+    };
+    calc.mockResolvedValue(
+      reply({
+        refundCashCents: 333,
+        refundLegs: [
+          { method: 'cash', amountCents: 200 },
+          { method: 'card', amountCents: 133 },
+        ],
+      })
+    );
+    await open();
+    await vi.waitFor(() => expect(text()).toContain('Cash Count In Progress'), { timeout: 4000 });
+    expect(text()).toContain('Kasun is counting the drawer.');
+    expect(submitButton().disabled).toBe(true);
+  });
+
+  it('keeps non-cash credit note refunds submittable when refundLegs has no cash', async () => {
+    CURRENT_SESSION = {
+      key: 'ses_1',
+      status: 'closing',
+      closingCashierNameSnapshot: 'Kasun',
+    };
+    calc.mockResolvedValue(
+      reply({
+        refundCashCents: 333,
+        refundLegs: [{ method: 'card', amountCents: 333 }],
+      })
+    );
+    await open();
+    await vi.waitFor(() => expect(submitButton().disabled).toBe(false), { timeout: 4000 });
+    expect(text()).not.toContain('Cash Count In Progress');
+  });
+
+  it('notifies Cash Count In Progress and invalidates sessions on 409 SESSION_CLOSING', async () => {
+    CURRENT_SESSION = { key: 'ses_1', status: 'open' };
+    const invalidateSpy = vi.spyOn(QueryClient.prototype, 'invalidateQueries').mockResolvedValue();
+    createCreditNote.mockRejectedValueOnce({
+      statusCode: 409,
+      code: 'SESSION_CLOSING',
+      message: 'Cash count is in progress for this register session',
+    });
+
+    try {
+      await open();
+      await vi.waitFor(() => expect(submitButton().disabled).toBe(false), { timeout: 4000 });
+      await act(async () => submitButton().click());
+
+      await vi.waitFor(
+        () =>
+          expect(notifications.show).toHaveBeenCalledWith({
+            title: 'Cash Count In Progress',
+            message: 'Cash count is in progress for this register session',
+            color: 'orange',
+          }),
+        { timeout: 4000 }
+      );
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });
+      expect(text()).toContain('Cash Count In Progress');
+    } finally {
+      invalidateSpy.mockRestore();
+    }
   });
 });

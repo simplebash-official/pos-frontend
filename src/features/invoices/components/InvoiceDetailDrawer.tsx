@@ -1,6 +1,7 @@
 import { useInvoiceBalance } from '@/features/billing/hooks/useInvoiceBalance';
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, Group, Stack, Text } from '@mantine/core';
 import {
   IconActivity,
@@ -27,6 +28,10 @@ import { getInvoiceStatusMeta, getOverdueMeta } from '../lib/invoiceStatus';
 import { useInvoicePayments, useRecordPayment } from '@/features/billing/hooks/usePayments';
 import { useInvoiceCreditNotes } from '@/features/billing/hooks/useCreditNotes';
 import { useVoidInvoice, useCloseInvoice } from '@/features/billing/hooks/useInvoices';
+import { useCurrentSession } from '@/features/billing/hooks/useRegisterSession';
+import { handleSessionClosingError } from '@/features/billing/lib/sessionClosing';
+import { getDeviceId } from '@/api/deviceId';
+import { getErrorMessage } from '@/shared/lib/error';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useIsAdmin } from '@/shared/hooks/usePermissions';
 import {
@@ -145,6 +150,11 @@ export const InvoiceDetailDrawer = ({
   const [payMethod, setPayMethod] = useState<string>('cash');
   const [payNotes, setPayNotes] = useState('');
   const [isSubmittingPay, setIsSubmittingPay] = useState(false);
+  const [paymentClosingError, setPaymentClosingError] = useState<string | null>(null);
+
+  const queryClient = useQueryClient();
+  const { session } = useCurrentSession(getDeviceId());
+  const isClosingSession = session?.status === 'closing';
 
   // Void Modal State
   const [voidModalOpen, setVoidModalOpen] = useState(false);
@@ -179,6 +189,7 @@ export const InvoiceDetailDrawer = ({
   };
 
   const handleOpenPaymentModal = () => {
+    setPaymentClosingError(null);
     setPayAmountRupees(Math.round(remainingCents / 100));
     setPaymentModalOpen(true);
   };
@@ -216,14 +227,24 @@ export const InvoiceDetailDrawer = ({
         message: `Payment of ${formatMoney(cents)} recorded successfully. Customer balance updated.`,
         color: 'green',
       });
+      setPaymentClosingError(null);
       setPaymentModalOpen(false);
       setPayNotes('');
       onRefresh?.();
       handleClose();
-    } catch {
+    } catch (err) {
+      const closingMessage = handleSessionClosingError(err, queryClient, {
+        fallbackMessage: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before recording invoice payments.'
+        ),
+      });
+      if (closingMessage !== null) {
+        setPaymentClosingError(closingMessage);
+        return;
+      }
       notifications.show({
-        title: 'Payment Error',
-        message: 'Failed to record payment',
+        title: t('Payment Error'),
+        message: getErrorMessage(err, t('Failed to record payment')),
         color: 'red',
       });
     } finally {
@@ -670,17 +691,26 @@ export const InvoiceDetailDrawer = ({
 
       <InvoicePaymentModal
         opened={paymentModalOpen}
-        onClose={() => setPaymentModalOpen(false)}
+        onClose={() => {
+          setPaymentModalOpen(false);
+          setPaymentClosingError(null);
+        }}
         invoiceNumber={invoice?.invoiceNumber}
         amountRupees={payAmountRupees}
         onAmountChange={setPayAmountRupees}
         method={payMethod}
-        onMethodChange={setPayMethod}
+        onMethodChange={(nextMethod) => {
+          setPayMethod(nextMethod);
+          setPaymentClosingError(null);
+        }}
         notes={payNotes}
         onNotesChange={setPayNotes}
         submitting={isSubmittingPay}
         onConfirm={handleRecordPayment}
         fullScreen={isMobile}
+        shiftClosing={isClosingSession}
+        closingCashierName={session?.closingCashierNameSnapshot}
+        closingError={paymentClosingError}
       />
 
       <InvoiceVoidModal

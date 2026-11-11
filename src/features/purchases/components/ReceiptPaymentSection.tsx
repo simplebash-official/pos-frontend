@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
-import { Alert, Select, Stack, Text, TextInput } from '@mantine/core';
-import { IconLock } from '@tabler/icons-react';
+import { Select, Stack, Text, TextInput } from '@mantine/core';
+import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import {
   ChoiceCard,
@@ -102,16 +102,11 @@ export const ReceiptPaymentSection = ({
 
           {payment.source === 'drawer' ? (
             shiftClosing ? (
-              <Alert
-                color="orange"
-                variant="light"
-                icon={<IconLock size={16} />}
-                title={t('Cash Count In Progress')}
-              >
-                {t(
+              <SessionClosingAlert
+                message={t(
                   'A register cash count is in progress. Cash cannot leave the drawer until the count finishes or is cancelled.'
                 )}
-              </Alert>
+              />
             ) : (
               <Text size="xs" c="dimmed">
                 {shiftOpen

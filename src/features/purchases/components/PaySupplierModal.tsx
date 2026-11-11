@@ -3,15 +3,10 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Group, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-  IconBuildingBank,
-  IconCash,
-  IconCreditCard,
-  IconDeviceMobile,
-  IconLock,
-} from '@tabler/icons-react';
-import { queryKeys } from '@/api/queryKeys';
+import { IconBuildingBank, IconCash, IconCreditCard, IconDeviceMobile } from '@tabler/icons-react';
 import { getDeviceId } from '@/api/deviceId';
+import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
+import { handleSessionClosingError } from '@/features/billing/lib/sessionClosing';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { formatDate } from '@/shared/lib/date';
 import { formatMoney } from '@/shared/lib/money';
@@ -179,10 +174,16 @@ export const PaySupplierModal = ({
       });
       onClose();
     } catch (error) {
-      const code = (error as { code?: string }).code;
-      if (code === 'SESSION_CLOSING') {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      const closingMessage = handleSessionClosingError(error, queryClient, {
+        fallbackMessage: t(
+          'A register cash count is in progress. Finish or cancel the close count before paying from the drawer.'
+        ),
+      });
+      if (closingMessage !== null) {
+        setProblem(closingMessage);
+        return;
       }
+      const code = (error as { code?: string }).code;
       if (code !== undefined && APPROVAL_CODES.has(code)) setApprovalRequired(true);
       setProblem(getErrorMessage(error, t('The payment could not be saved. Please try again.')));
     }
@@ -232,16 +233,11 @@ export const PaySupplierModal = ({
             </ChoiceGroup>
             {form.source === 'drawer' ? (
               isClosingSession ? (
-                <Alert
-                  color="orange"
-                  variant="light"
-                  icon={<IconLock size={16} />}
-                  title={t('Cash Count In Progress')}
-                >
-                  {t(
+                <SessionClosingAlert
+                  message={t(
                     'A register cash count is in progress. Finish or cancel the close count before paying from the drawer, or choose Bank / Card.'
                   )}
-                </Alert>
+                />
               ) : (
                 <Text size="xs" c="dimmed">
                   {session === null

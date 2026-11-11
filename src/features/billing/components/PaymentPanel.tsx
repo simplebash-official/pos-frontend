@@ -42,6 +42,7 @@ import {
 import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
+import { SessionClosingAlert } from './sessions/SessionClosingAlert';
 
 import { useCartItems, useCartCustomer, useCartCheckout } from '../hooks/useCart';
 import { WarrantySummarySection } from '@/features/warranties/components/WarrantySummarySection';
@@ -1745,17 +1746,11 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
           )}
 
           {isClosingSession && !isCartEmpty && (
-            <Alert
-              icon={<IconLock size={16} />}
-              color="orange"
-              variant="light"
+            <SessionClosingAlert
+              closingCashierName={activeSession?.closingCashierNameSnapshot}
+              message={t('Sales are paused until the count is finished or cancelled.')}
               mb="xs"
-              title={t('Cash Count In Progress')}
-            >
-              {activeSession?.closingCashierNameSnapshot
-                ? `${activeSession.closingCashierNameSnapshot} ${t('is counting the drawer.')} ${t('Sales are paused until the count is finished or cancelled.')}`
-                : t('Sales are paused until the count is finished or cancelled.')}
-            </Alert>
+            />
           )}
 
           <Button

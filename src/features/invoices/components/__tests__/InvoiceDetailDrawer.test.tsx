@@ -5,21 +5,35 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { QueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
+import { queryKeys } from '@/api/queryKeys';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import { InvoiceDetailDrawer } from '../InvoiceDetailDrawer';
-import type { Invoice } from '@/features/billing/types';
+import type { Invoice, RegisterSession } from '@/features/billing/types';
 
 installDrawerTestEnv();
+if (typeof Element.prototype.scrollIntoView !== 'function') {
+  Element.prototype.scrollIntoView = vi.fn();
+}
 
 const recordPayment = vi.fn();
 const voidInvoice = vi.fn();
 const closeInvoice = vi.fn();
 
+let CURRENT_SESSION: Partial<RegisterSession> | null = null;
 let PAYMENTS: unknown[] = [];
 let CREDIT_NOTES: unknown[] = [];
 // What the server says is still owed on the invoice (`POST /calc/invoice-balance`), set per test.
 let BALANCE_DUE_CENTS = 0;
+
+vi.mock('@mantine/notifications', () => ({
+  notifications: { show: vi.fn() },
+}));
+vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
+  useCurrentSession: () => ({ session: CURRENT_SESSION, isLoading: false }),
+}));
 
 vi.mock('@/features/billing/hooks/useInvoiceBalance', () => ({
   useInvoiceBalance: () => ({
@@ -90,6 +104,8 @@ describe('InvoiceDetailDrawer', () => {
 
   beforeEach(() => {
     BALANCE_DUE_CENTS = 0;
+    CURRENT_SESSION = null;
+    vi.mocked(notifications.show).mockReset();
     [onClose, onRefresh, recordPayment, voidInvoice, closeInvoice].forEach((fn) => fn.mockReset());
     recordPayment.mockResolvedValue({});
     voidInvoice.mockResolvedValue({});
@@ -326,5 +342,74 @@ describe('InvoiceDetailDrawer', () => {
     ) as HTMLButtonElement;
     await act(async () => close.click());
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('pauses cash payments during a close count and unlocks when switched to Card', async () => {
+    CURRENT_SESSION = {
+      key: 'ses_1',
+      status: 'closing',
+      closingCashierNameSnapshot: 'Kasun',
+    };
+    BALANCE_DUE_CENTS = 70_000;
+    await open(credit());
+    await act(async () => button('Record Payment')!.click());
+    await until(() => expect(text()).toContain('Record Payment — #INV-000001'));
+
+    expect(text()).toContain('Cash Count In Progress');
+    expect(text()).toContain('Kasun is counting the drawer.');
+    const pausedBtn = button('Cash Count In Progress');
+    expect(pausedBtn?.disabled).toBe(true);
+
+    const methodInput = document.body.querySelector(
+      'input[value="Cash"]'
+    ) as HTMLInputElement | null;
+    expect(methodInput).not.toBeNull();
+    await act(async () => methodInput!.click());
+    await until(() =>
+      expect(
+        Array.from(document.body.querySelectorAll('[role="option"]')).find((el) =>
+          el.textContent?.includes('Card')
+        )
+      ).toBeDefined()
+    );
+    const cardOption = Array.from(document.body.querySelectorAll('[role="option"]')).find((el) =>
+      el.textContent?.includes('Card')
+    ) as HTMLElement;
+    await act(async () => cardOption.click());
+
+    await until(() => expect(button('Confirm & Update Balance')?.disabled).toBe(false));
+    expect(text()).not.toContain('Kasun is counting the drawer.');
+  });
+
+  it('notifies Cash Count In Progress and invalidates sessions on 409 SESSION_CLOSING', async () => {
+    CURRENT_SESSION = { key: 'ses_1', status: 'open' };
+    BALANCE_DUE_CENTS = 70_000;
+    const invalidateSpy = vi.spyOn(QueryClient.prototype, 'invalidateQueries').mockResolvedValue();
+    recordPayment.mockRejectedValueOnce({
+      statusCode: 409,
+      code: 'SESSION_CLOSING',
+      message: 'Cash count is in progress for this register session',
+    });
+
+    try {
+      await open(credit());
+      await act(async () => button('Record Payment')!.click());
+      await until(() => expect(text()).toContain('Record Payment — #INV-000001'));
+      await act(async () => button('Confirm & Update Balance')!.click());
+
+      await until(() =>
+        expect(notifications.show).toHaveBeenCalledWith({
+          title: 'Cash Count In Progress',
+          message: 'Cash count is in progress for this register session',
+          color: 'orange',
+        })
+      );
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });
+      expect(text()).toContain('Cash Count In Progress');
+      expect(onClose).not.toHaveBeenCalled();
+      expect(onRefresh).not.toHaveBeenCalled();
+    } finally {
+      invalidateSpy.mockRestore();
+    }
   });
 });

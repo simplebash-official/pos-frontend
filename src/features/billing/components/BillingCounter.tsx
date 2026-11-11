@@ -3,7 +3,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
-import { queryKeys } from '@/api/queryKeys';
 
 import {
   useCartItems,
@@ -42,6 +41,7 @@ import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
+import { handleSessionClosingError } from '../lib/sessionClosing';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
 import { t } from '@/shared/i18n/t';
 import type { ApiError } from '@/shared/types/common';
@@ -323,20 +323,15 @@ export const BillingCounter = () => {
         setActivePane('pay');
       }
     } catch (err) {
-      const apiErr = err as ApiError;
-      if (apiErr?.code === 'SESSION_CLOSING') {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
-        notifications.show({
-          title: t('Cash Count In Progress'),
-          message:
-            apiErr.message ||
-            t(
-              'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
-            ),
-          color: 'orange',
-        });
+      const closingMessage = handleSessionClosingError(err, queryClient, {
+        fallbackMessage: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
+        ),
+      });
+      if (closingMessage !== null) {
         return;
       }
+      const apiErr = err as ApiError;
       const isNotFound = apiErr?.statusCode === 404;
       notifications.show({
         title: isNotFound ? 'Item No Longer Available' : 'Checkout Error',
