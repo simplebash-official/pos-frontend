@@ -134,6 +134,9 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
   ],
   payees: [queryKeys.billing.cash.all],
   users: [queryKeys.users.all],
+  shopProfiles: [queryKeys.settings.all],
+  registerSessions: [queryKeys.billing.sessions.all, queryKeys.accounts.all],
+  drawerState: [queryKeys.billing.sessions.all, queryKeys.accounts.all],
 };
 
 /** `"*"` (everything was replaced, e.g. a full re-download) or an unknown type. */

@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   TextInput,
@@ -23,7 +23,7 @@ import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from '../CreateShopLink';
 import { ShopCodeField } from '../ShopCodeField';
 import { useLoginShopCode } from '../../lib/useLoginShopCode';
-import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import { selectShopProfile } from '@/store/slices/settingsSlice';
 import {
   getShopNameFromLink,
   isShopCodeRequired,
@@ -63,12 +63,6 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   const navigate = useNavigate();
   const shopProfile = useAppSelector(selectShopProfile);
   const linkName = getShopNameFromLink(location.search);
-
-  useEffect(() => {
-    if (linkName) {
-      dispatch(updateShopProfile({ tradingName: linkName }));
-    }
-  }, [linkName, dispatch]);
 
   const shopName =
     linkName ||
@@ -111,10 +105,6 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       if (needsShopCode) {
         rememberShopCode(shopCode);
         logger.event('app', 'auth/login.shop_code', { shopCode: normalizeShopCode(shopCode) });
-      }
-      const incomingShopName = data.shopName || linkName;
-      if (incomingShopName) {
-        dispatch(updateShopProfile({ tradingName: incomingShopName }));
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 

@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
-import { Select, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Select, Stack, Text, TextInput } from '@mantine/core';
+import { IconLock } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import {
   ChoiceCard,
@@ -17,6 +18,7 @@ export interface ReceiptPaymentSectionProps {
   categories: CashCategory[];
   /** Whether a shift is open on this register, for the line under the cash choices. */
   shiftOpen: boolean;
+  shiftClosing?: boolean;
   isMobile: boolean;
 }
 
@@ -32,6 +34,7 @@ export const ReceiptPaymentSection = ({
   onChange,
   categories,
   shiftOpen,
+  shiftClosing = false,
   isMobile,
 }: ReceiptPaymentSectionProps) => {
   const fieldSize = isMobile ? 'md' : 'sm';
@@ -98,11 +101,24 @@ export const ReceiptPaymentSection = ({
           ) : null}
 
           {payment.source === 'drawer' ? (
-            <Text size="xs" c="dimmed">
-              {shiftOpen
-                ? t('The cash is taken out of the open shift now.')
-                : t('No shift is open, so the cash is taken out of the drawer between shifts.')}
-            </Text>
+            shiftClosing ? (
+              <Alert
+                color="orange"
+                variant="light"
+                icon={<IconLock size={16} />}
+                title={t('Cash Count In Progress')}
+              >
+                {t(
+                  'A register cash count is in progress. Cash cannot leave the drawer until the count finishes or is cancelled.'
+                )}
+              </Alert>
+            ) : (
+              <Text size="xs" c="dimmed">
+                {shiftOpen
+                  ? t('The cash is taken out of the open shift now.')
+                  : t('No shift is open, so the cash is taken out of the drawer between shifts.')}
+              </Text>
+            )
           ) : null}
           {payment.source === 'owner_pocket' ? (
             <Text size="xs" c="dimmed">

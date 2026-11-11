@@ -15,11 +15,14 @@ import { DesignUnavailableAlert } from '@/features/billing/components/DesignUnav
 import { DocumentDesignPicker } from '@/features/billing/components/DocumentDesignPicker';
 import { ReprintDesignDialog } from '@/features/billing/components/ReprintDesignDialog';
 import { useDocumentTemplateSettings } from '@/features/settings/hooks/useDocumentTemplates';
+import { useShopProfile } from '@/features/settings';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
 import { printPdfBlob } from '@/shared/print/printService';
 import { downloadPdfBlob, pdfFileName } from '@/shared/print/pdfFileName';
+import { useAppSelector } from '@/store/hooks';
+import type { SettingsState } from '@/store/slices/settingsSlice';
 
 export interface ZReportModalProps {
   opened: boolean;
@@ -32,6 +35,11 @@ export interface ZReportModalProps {
 export const ZReportModal = ({ opened, onClose, sessionKey }: ZReportModalProps) => {
   const isMobile = useIsMobile();
   const { data: report, isLoading: sessionLoading } = useZReport(opened ? sessionKey : undefined);
+  const { shopProfile: fetchedProfile } = useShopProfile({ enabled: opened });
+  const storeProfile = useAppSelector(
+    (state: { settings?: SettingsState }) => state.settings?.shopProfile ?? null
+  );
+  const isSharedShop = (fetchedProfile ?? storeProfile)?.allowSharedUserSessions === true;
 
   const designKind = designKindFor('z-report');
   const designSettings = useDocumentTemplateSettings(opened);
@@ -127,10 +135,19 @@ export const ZReportModal = ({ opened, onClose, sessionKey }: ZReportModalProps)
                 {isClosed ? t('Closed') : t('Active Shift')}
               </Badge>
             )}
+            {report?.session && isSharedShop && !isClosed && (
+              <Badge size="xs" color="cyan" variant="light">
+                {t('Shop Shift')}
+              </Badge>
+            )}
           </Group>
           {report?.session && (
             <Text size="xs" c="dimmed" truncate>
-              {report.session.terminalId} · {t('Cashier')}: {report.session.cashierNameSnapshot}
+              {report.session.terminalId} · {t('Opened By')}: {report.session.cashierNameSnapshot}
+              {report.session.closingCashierNameSnapshot &&
+              report.session.closingCashierNameSnapshot !== report.session.cashierNameSnapshot
+                ? ` · ${isClosed ? t('Closed By') : t('Counting By')}: ${report.session.closingCashierNameSnapshot}`
+                : ''}
             </Text>
           )}
         </Stack>

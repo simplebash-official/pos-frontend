@@ -8,7 +8,7 @@ import { toCloudError } from '../lib/accountView';
 import { clearShopScopedStorage } from '../lib/switchShop';
 import { useCloudLinkCancel, useCloudLinkStart, useCloudState } from './useCloudState';
 import { store } from '@/store';
-import { updateShopProfile } from '@/store/slices/settingsSlice';
+import { setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
 import { updateShopProfileApi } from '@/features/settings/api/settingsApi';
 
 const EXPIRED_CODES = ['LINK_EXPIRED', 'LINK_NOT_FOUND'];
@@ -50,7 +50,12 @@ export const useBrowserSignIn = (options: { onLinked?: () => void } = {}) => {
             if (result.state.shopName) {
               const name = result.state.shopName.trim();
               store.dispatch(updateShopProfile({ tradingName: name }));
-              void updateShopProfileApi({ tradingName: name }).catch(() => {});
+              void updateShopProfileApi({ tradingName: name })
+                .then((persisted) => {
+                  store.dispatch(setShopProfile(persisted));
+                  queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
+                })
+                .catch(() => {});
             }
             if (result.switched) {
               // The shell restarts the app in a moment. Drop the old shop's browser data now so

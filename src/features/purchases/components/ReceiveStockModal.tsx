@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   ActionIcon,
   Alert,
@@ -13,6 +14,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconBuildingStore, IconPlus, IconX } from '@tabler/icons-react';
+import { queryKeys } from '@/api/queryKeys';
 import { getDeviceId } from '@/api/deviceId';
 import type { ApiError } from '@/shared/types/common';
 import { formatDate } from '@/shared/lib/date';
@@ -120,8 +122,11 @@ export const ReceiveStockModal = ({
   const { data: suppliers } = useAllSuppliers({ enabled: opened });
   const categoriesQuery = useCashCategories({ movementType: 'supplier_payment' }, opened);
   const categories = categoriesQuery.data === undefined ? NO_CATEGORIES : categoriesQuery.data;
+  const queryClient = useQueryClient();
   const terminalId = getDeviceId();
   const { session } = useCurrentSession(terminalId);
+  const isClosingSession = session?.status === 'closing';
+  const shiftOpen = session !== null && !isClosingSession;
   const { mutate: createReceipt, isPending } = useCreateReceipt();
 
   const productByKey = useMemo(() => new Map(products.map((p) => [p.key, p])), [products]);
@@ -133,7 +138,7 @@ export const ReceiveStockModal = ({
   const context: ReceiptFormContext = {
     serializedProductKeys,
     terminalId,
-    sessionKey: session === null ? null : session.key,
+    sessionKey: shiftOpen ? session.key : null,
   };
 
   // Every figure and rule comes from the server; the form only holds what was typed.
@@ -179,6 +184,19 @@ export const ReceiveStockModal = ({
       setClientProblem(blockerMessage(answer.blockers[0]));
       return;
     }
+    const usesDrawerNow =
+      (form.payment.mode !== 'credit' && form.payment.source === 'drawer') ||
+      (form.charges.some((charge) => charge.billedBy === 'third_party') &&
+        form.chargesPayment.source === 'drawer') ||
+      answer.involvesCash;
+    if (isClosingSession && usesDrawerNow) {
+      setClientProblem(
+        t(
+          'A register cash count is in progress. Finish or cancel the close count before taking cash from the drawer.'
+        )
+      );
+      return;
+    }
     setClientProblem(null);
     createReceipt(toReceiptInput(toSend, context, answer), {
       onSuccess: (receipt) => {
@@ -193,7 +211,11 @@ export const ReceiveStockModal = ({
         onClose();
       },
       onError: (error) => {
-        const problemFromServer = problemFrom(error as unknown as ApiError);
+        const apiError = error as unknown as ApiError;
+        if (apiError?.code === 'SESSION_CLOSING') {
+          void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+        }
+        const problemFromServer = problemFrom(apiError);
         if (problemFromServer.kind === 'approval') setApprovalRequired(true);
         setServerProblem(problemFromServer);
       },
@@ -365,7 +387,8 @@ export const ReceiveStockModal = ({
               charges={form.charges}
               lineCount={form.lines.length}
               payment={form.chargesPayment}
-              shiftOpen={session !== null}
+              shiftOpen={shiftOpen}
+              shiftClosing={isClosingSession}
               onChangeCharge={changeCharge}
               onAdd={() =>
                 setForm((prev) => ({ ...prev, charges: [...prev.charges, emptyCharge()] }))
@@ -384,7 +407,8 @@ export const ReceiveStockModal = ({
               payment={form.payment}
               onChange={changePayment}
               categories={categories}
-              shiftOpen={session !== null}
+              shiftOpen={shiftOpen}
+              shiftClosing={isClosingSession}
               isMobile={isMobile}
             />
 

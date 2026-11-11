@@ -12,7 +12,6 @@ import {
   Text,
   Textarea,
   TextInput,
-  ThemeIcon,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -42,6 +41,8 @@ import { t } from '@/shared/i18n/t';
 import { StepSwitch } from '@/shared/motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCalc } from '@/shared/hooks/useCalc';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { queryKeys } from '@/api/queryKeys';
 import { calcShiftCount } from '../../api/calcApi';
 import { getSession } from '../../api/sessionsApi';
 import { useCashCount } from '../../hooks/useCashCount';
@@ -88,9 +89,13 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
   const convertVarianceMutation = useConvertVariance();
   const verifyPinMutation = useVerifyPin();
 
+  // Set only if THIS modal instance submitted a new blind count.
+  const [submittedHere, setSubmittedHere] = useState(false);
+
   // A session already counted ("closing") picks up at Reconcile with the figure it recorded.
   const [activeStep, setActiveStep] = useState(initialSession.status === 'closing' ? 2 : 0);
   const [session, setSession] = useState<RegisterSession>(initialSession);
+  const cancelCloseMutation = useCancelClose();
 
   // Step 2: Blind Count
   const [countMode, setCountMode] = useState<'total' | 'denominations'>('total');
@@ -166,6 +171,31 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
     }
   };
 
+  const syncLatestAfterConflict = async (err: unknown): Promise<boolean> => {
+    const code = err && typeof err === 'object' && 'code' in err ? err.code : undefined;
+    if (code !== 'VERSION_CONFLICT') return false;
+
+    await queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+    const latest = await getSession(session.key).catch(() => null);
+    if (latest) {
+      setSession(latest);
+      if (latest.status === 'closed') {
+        notifications.show({
+          title: t('Shift Already Closed'),
+          message: `${latest.sessionNumber} ${t('was already closed and locked.')}`,
+          color: 'teal',
+        });
+        onClose();
+        return true;
+      }
+      setActiveStep(latest.status === 'closing' ? 2 : 0);
+      setError(t('This shift was updated on another device. Loaded the latest shift details.'));
+      return true;
+    }
+    setError(t('This shift changed while you were working. Please review and try again.'));
+    return true;
+  };
+
   const handleSubmitBlindCount = async () => {
     setError(null);
     if (enteredCents === null) return;
@@ -178,14 +208,36 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         },
       });
       setSession(updated);
+      setSubmittedHere(true);
       onCountSubmitted();
       setClosingFloatChoice(null);
       setActiveStep(2); // Move to reconciliation step
     } catch (err: unknown) {
+      if (await syncLatestAfterConflict(err)) return;
       const message =
         err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
           ? err.message
           : t('Failed to submit blind count');
+      setError(message);
+    }
+  };
+
+  const handleCancelMidCount = async () => {
+    setError(null);
+    try {
+      await cancelCloseMutation.mutateAsync(session.key);
+      notifications.show({
+        title: t('Count Cancelled'),
+        message: `${session.sessionNumber} ${t('is open for selling again.')}`,
+        color: 'teal',
+      });
+      onClose();
+    } catch (err: unknown) {
+      if (await syncLatestAfterConflict(err)) return;
+      const message =
+        err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
+          ? err.message
+          : t('Could not cancel the close count right now.');
       setError(message);
     }
   };
@@ -226,6 +278,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
       await queryClient.invalidateQueries({ queryKey: ['calc', 'shift-count'] });
       setShowConvertVariance(false);
     } catch (err: unknown) {
+      if (await syncLatestAfterConflict(err)) return;
       const message =
         err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
           ? err.message
@@ -275,6 +328,7 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
       onSessionClosed?.(closed);
       onClose();
     } catch (err: unknown) {
+      if (await syncLatestAfterConflict(err)) return;
       // The server words this one in raw cents; say it in plain words instead.
       const needsReason =
         err &&
@@ -298,11 +352,65 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
     </Text>
   );
 
+  const showMidCountBanner = session.status === 'closing' && !submittedHere;
+  const canContinueToFloat =
+    activeStep === 2 &&
+    Boolean(shift.isCurrent && figures !== undefined) &&
+    !(
+      figures?.reasonRequired &&
+      (!varianceReason.trim() || (figures.pinRequired && !managerPin.trim()))
+    );
+
   return (
     <Stack gap="md">
       {error && (
         <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light" title={t('Error')}>
           {error}
+        </Alert>
+      )}
+
+      {showMidCountBanner && (
+        <Alert
+          icon={<IconLock size={18} />}
+          color="orange"
+          variant="light"
+          title={t('Cash Count In Progress')}
+        >
+          <Stack gap="xs">
+            <Text size="sm">
+              {session.closingCashierNameSnapshot
+                ? `${session.closingCashierNameSnapshot} ${t('started counting the drawer')}`
+                : t('A drawer cash count has already been started')}
+              {session.countedCashCents !== undefined
+                ? ` (${formatMoney(session.countedCashCents)}). `
+                : '. '}
+              {t('Sales and cash payouts are paused until the count finishes or is cancelled.')}
+            </Text>
+            <Group gap="xs" wrap="wrap">
+              <Button
+                size="xs"
+                color="blue"
+                onClick={() => {
+                  if (activeStep !== 2) {
+                    setActiveStep(2);
+                  } else if (canContinueToFloat) {
+                    setActiveStep(3);
+                  }
+                }}
+              >
+                {t('Continue & Finalize')}
+              </Button>
+              <Button
+                size="xs"
+                variant="light"
+                color="orange"
+                loading={cancelCloseMutation.isPending}
+                onClick={() => void handleCancelMidCount()}
+              >
+                {t('Cancel Close & Resume Selling')}
+              </Button>
+            </Group>
+          </Stack>
         </Alert>
       )}
 
@@ -771,9 +879,10 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
   session,
   onSessionClosed,
 }) => {
+  const isMobile = useIsMobile();
   const cancelCloseMutation = useCancelClose();
-  // Set once the count is saved: the server then holds the shift as "closing" until it is closed
-  // or this window is dismissed. A ref, because the shift prop only catches up after a refetch.
+  // Set only when THIS window saves a new blind count: if dismissed without finishing, we revert
+  // the count we just started. A pre-existing `closing` shift started elsewhere is never auto-cancelled.
   const countSubmitted = useRef(false);
 
   const finish = () => {
@@ -781,9 +890,9 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
     onClose();
   };
 
-  // Dismissing a counted shift puts it back to open, so the header stops saying "Closing...".
+  // Dismissing a shift counted in this window puts it back to open, so the header stops saying "Closing".
   const dismiss = async () => {
-    if (countSubmitted.current || session.status === 'closing') {
+    if (countSubmitted.current) {
       try {
         await cancelCloseMutation.mutateAsync(session.key);
       } catch {
@@ -804,17 +913,13 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
       opened={opened}
       onClose={() => void dismiss()}
       title={
-        <Group gap="xs">
-          <ThemeIcon variant="light" color="orange" size={34}>
-            <IconLock size={20} />
-          </ThemeIcon>
-          <Text fw={700} size="lg">
-            {t('Close Register Session')} — {session.sessionNumber}
-          </Text>
-        </Group>
+        <Text fw={700} size="lg">
+          {`${t('Close Register Session')} — ${session.sessionNumber}`}
+        </Text>
       }
       size="lg"
       centered
+      fullScreen={isMobile}
     >
       {opened && (
         <CloseSessionForm

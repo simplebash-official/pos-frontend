@@ -5,8 +5,29 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { Header } from '../Header';
 import { SERVICE_CENTER_NAME, PRODUCT_NAME } from '@/config/branding';
-import { DEFAULT_SHOP_PROFILE } from '@/features/settings/constants';
 import type { ShopProfile } from '@/features/settings/types';
+
+const TEST_SHOP_PROFILE: ShopProfile = {
+  id: 'main',
+  version: 1,
+  legalName: 'SimpleBash Retail (Pvt) Ltd',
+  tradingName: 'SimpleBash POS',
+  addressLines: ['123 Galle Road', 'Colombo 03'],
+  primaryPhone: '0112345678',
+  secondaryPhone: '',
+  email: 'info@simplebash.lk',
+  website: '',
+  businessRegNo: '',
+  bankName: '',
+  bankBranch: '',
+  accountName: '',
+  accountNumber: '',
+  logoBase64: '',
+  defaultWarrantyText: '',
+  defaultFooterText: 'Thank you for your business!',
+  receiptFooterText: 'Thank you for shopping with us!',
+  allowSharedUserSessions: false,
+};
 
 let mockPathname = '/dashboard';
 let mockIsMobile = false;
@@ -55,7 +76,7 @@ const createMockStore = (
     reducer: {
       settings: () => ({
         shopProfile: {
-          ...DEFAULT_SHOP_PROFILE,
+          ...TEST_SHOP_PROFILE,
           ...shopProfile,
         },
       }),

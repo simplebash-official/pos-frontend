@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useReducedMotion } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { AppShell as MantineAppShell } from '@mantine/core';
 import { useDisclosure, useLocalStorage } from '@mantine/hooks';
 import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -17,10 +18,11 @@ import { ROUTES } from '@/constants/routes';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { STORAGE_KEYS } from '@/constants/storage';
+import { queryKeys } from '@/api/queryKeys';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
-import { selectShopProfile, setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
-import { getShopProfileApi, updateShopProfileApi } from '@/features/settings/api/settingsApi';
+import { setShopProfile } from '@/store/slices/settingsSlice';
+import { updateShopProfileApi, useShopProfile } from '@/features/settings';
 import { useCloudState } from '@/features/account';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
@@ -79,8 +81,9 @@ export const AppShell = () => {
 
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const shopProfile = useAppSelector(selectShopProfile);
+  const { shopProfile } = useShopProfile({ enabled: isAuthenticated });
   const { state: cloudState } = useCloudState();
   const isBillingPage = location.pathname === ROUTES.BILLING;
   const tier = useLayoutTier();
@@ -88,41 +91,27 @@ export const AppShell = () => {
   const navbarRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    getShopProfileApi()
-      .then((profile) => {
-        const hasNoName = !profile.tradingName?.trim() || profile.tradingName === 'SimpleBash POS';
-        if (hasNoName && cloudState.linked && cloudState.shopName?.trim()) {
-          const linkedName = cloudState.shopName.trim();
-          const seededProfile = { ...profile, tradingName: linkedName };
-          dispatch(setShopProfile(seededProfile));
-          void updateShopProfileApi({ tradingName: linkedName }).catch((err) => {
-            console.warn('Failed to seed linked shop name to local backend:', err);
-          });
-        } else {
-          dispatch(setShopProfile(profile));
-        }
-      })
-      .catch((err) => {
-        console.warn('Failed to load shop profile from backend:', err);
-      });
-  }, [isAuthenticated, dispatch, cloudState.linked, cloudState.shopName]);
-
   // When device is linked to a cloud account, seed trading name if current profile is still unset
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !shopProfile) return;
     if (cloudState.linked && cloudState.shopName?.trim()) {
       const linkedName = cloudState.shopName.trim();
       const currentName = shopProfile.tradingName?.trim();
       if (!currentName || currentName === 'SimpleBash POS') {
-        dispatch(updateShopProfile({ tradingName: linkedName }));
-        void updateShopProfileApi({ tradingName: linkedName }).catch((err) => {
-          console.warn('Failed to seed linked shop name to local backend on cloud link:', err);
-        });
+        const seededProfile = { ...shopProfile, tradingName: linkedName };
+        dispatch(setShopProfile(seededProfile));
+        queryClient.setQueryData(queryKeys.settings.shopProfile(), seededProfile);
+        void updateShopProfileApi({ tradingName: linkedName })
+          .then((persisted) => {
+            dispatch(setShopProfile(persisted));
+            queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
+          })
+          .catch((err) => {
+            console.warn('Failed to seed linked shop name to local backend:', err);
+          });
       }
     }
-  }, [isAuthenticated, cloudState.linked, cloudState.shopName, shopProfile.tradingName, dispatch]);
+  }, [isAuthenticated, shopProfile, cloudState.linked, cloudState.shopName, dispatch, queryClient]);
 
   // Entering/leaving billing is a navigation, not a resize: the header/navbar
   // dimension change should snap instantly instead of racing billing's heavy

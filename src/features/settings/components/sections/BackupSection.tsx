@@ -124,7 +124,7 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
     try {
       const payloadSettings = includeSettings
         ? {
-            shopProfile,
+            shopProfile: shopProfile ?? undefined,
             printSettings,
           }
         : undefined;

@@ -6,6 +6,7 @@ import {
   convertVariance,
   createCashMovement,
   reverseCashMovement,
+  getActiveSessionsSummary,
   getCurrentSession,
   getDrawerState,
   getSession,
@@ -49,6 +50,14 @@ export const useDrawerState = () => {
   return { ...query, drawerState: query.data ?? null };
 };
 
+export const useActiveSessionsSummary = () => {
+  return useQuery({
+    queryKey: queryKeys.billing.sessions.activeSummary(),
+    queryFn: getActiveSessionsSummary,
+    refetchOnWindowFocus: true,
+  });
+};
+
 export const useSessionDetail = (key?: string) => {
   const query = useQuery({
     queryKey: queryKeys.billing.sessions.detail(key ?? ''),
@@ -86,6 +95,7 @@ export const useOpenSession = () => {
     mutationFn: (input: OpenSessionInput) => openSession(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     },
   });
 };
@@ -118,6 +128,7 @@ export const useCloseSession = () => {
       closeSession(key, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     },
   });
 };
@@ -129,6 +140,7 @@ export const useReopenSession = () => {
       reopenSession(key, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     },
   });
 };

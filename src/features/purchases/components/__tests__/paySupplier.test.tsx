@@ -64,8 +64,11 @@ vi.mock('../../hooks/usePurchases', () => ({
 vi.mock('@/features/billing/hooks/useCashLookups', () => ({
   useCashCategories: () => ({ data: [{ key: 'ccat_settle', name: 'Settle credit balance' }] }),
 }));
+let currentSession: { key: string; status?: string; closingCashierNameSnapshot?: string } | null = {
+  key: 'sess_1',
+};
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
-  useCurrentSession: () => ({ session: { key: 'sess_1' } }),
+  useCurrentSession: () => ({ session: currentSession }),
   useCreateCashMovement: () => ({ mutateAsync: createMovement, isPending: false }),
 }));
 vi.mock('@/features/expenses/hooks/useExpenses', () => ({
@@ -78,6 +81,7 @@ describe('paying a supplier and recording a credit', () => {
   const onClose = vi.fn();
 
   beforeEach(() => {
+    currentSession = { key: 'sess_1' };
     [createMovement, createExpense, createCredit, onClose].forEach((fn) => fn.mockReset());
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -237,6 +241,25 @@ describe('paying a supplier and recording a credit', () => {
       expect(text()).toContain('Please pick where the money comes from.');
       expect(createMovement).not.toHaveBeenCalled();
       expect(createExpense).not.toHaveBeenCalled();
+    });
+
+    it('blocks drawer payouts cleanly when a cash count is in progress', async () => {
+      currentSession = {
+        key: 'sess_1',
+        status: 'closing',
+        closingCashierNameSnapshot: 'Kasun',
+      };
+      await open();
+      await radio('Cash drawer');
+      expect(text()).toContain('Cash Count In Progress');
+
+      await typeInto(field('How much are you paying'), '500');
+      await submit();
+
+      expect(text()).toContain(
+        'A register cash count is in progress. Finish or cancel the close count before paying from the drawer.'
+      );
+      expect(createMovement).not.toHaveBeenCalled();
     });
   });
 

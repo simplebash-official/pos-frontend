@@ -12,29 +12,33 @@ import {
   Tooltip,
 } from '@mantine/core';
 import {
+  IconBuildingStore,
   IconCash,
   IconCashRegister,
   IconCoins,
   IconDoorExit,
-  IconLayersLinked,
   IconLock,
   IconLockOpen,
   IconReceipt,
 } from '@tabler/icons-react';
 import { getDeviceId } from '@/api/deviceId';
-import { useCurrentSession } from '../../hooks/useRegisterSession';
-import { OpenSessionModal } from './OpenSessionModal';
-import { CloseSessionModal } from './CloseSessionModal';
-import { CashMovementModal } from './CashMovementModal';
-import { ZReportModal } from './ZReportModal';
+import { useShopProfile } from '@/features/settings';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
 import { FadeIn } from '@/shared/motion';
+import { useAppSelector } from '@/store/hooks';
+import type { SettingsState } from '@/store/slices/settingsSlice';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useCurrentSession } from '../../hooks/useRegisterSession';
 import type { RegisterSession } from '../../types';
+import { CashMovementModal } from './CashMovementModal';
+import { CloseSessionModal } from './CloseSessionModal';
+import { OpenSessionModal } from './OpenSessionModal';
+import { ZReportModal } from './ZReportModal';
 
 /** A small dot that breathes (opacity only) while the shift is open. */
-const LiveDot = ({ isShared = false }: { isShared?: boolean }) => {
+const LiveDot = ({ isShopShift = false }: { isShopShift?: boolean }) => {
   const reduceMotion = useReducedMotion();
   return (
     <motion.span
@@ -45,7 +49,7 @@ const LiveDot = ({ isShared = false }: { isShared?: boolean }) => {
         width: 6,
         height: 6,
         borderRadius: '50%',
-        background: isShared ? 'var(--mantine-color-cyan-6)' : 'var(--mantine-color-teal-6)',
+        background: isShopShift ? 'var(--mantine-color-cyan-6)' : 'var(--mantine-color-teal-6)',
         display: 'inline-block',
       }}
     />
@@ -73,7 +77,13 @@ const ShiftFigure = ({ label, cents }: { label: string; cents: number }) => (
 
 export const RegisterSessionBadge: React.FC = () => {
   const terminalId = getDeviceId();
+  const isMobile = useIsMobile();
   const { session, isLoading } = useCurrentSession(terminalId);
+  const { shopProfile: fetchedProfile } = useShopProfile();
+  const storeProfile = useAppSelector(
+    (state: { settings?: SettingsState }) => state.settings?.shopProfile ?? null
+  );
+  const shopProfile = fetchedProfile ?? storeProfile;
 
   const [openModalOpen, setOpenModalOpen] = useState(false);
   const [closeModalOpen, setCloseModalOpen] = useState(false);
@@ -97,8 +107,17 @@ export const RegisterSessionBadge: React.FC = () => {
   const isOpen = session?.status === 'open' || session?.status === 'reopened';
   const isClosing = session?.status === 'closing';
   const isReopened = session?.status === 'reopened';
-  const isShared = Boolean(session && session.terminalId !== terminalId);
-  const badgeColor = isReopened ? 'grape' : isShared ? 'cyan' : 'teal';
+  const isShopShift = shopProfile?.allowSharedUserSessions === true;
+  const isPersonalOtherDevice =
+    shopProfile !== null &&
+    !shopProfile.allowSharedUserSessions &&
+    Boolean(session && session.terminalId !== terminalId);
+  const showDeviceDetails = Boolean(session && (isShopShift || isPersonalOtherDevice));
+  const badgeColor = isReopened ? 'grape' : isShopShift ? 'cyan' : 'teal';
+
+  const closingTooltip = session?.closingCashierNameSnapshot
+    ? `${t('Cash count in progress by')} ${session.closingCashierNameSnapshot}. ${t('New sales and payouts are paused until finished or cancelled.')}`
+    : t('Cash count in progress. New sales and payouts are paused until finished or cancelled.');
 
   // One return for every status: the modals keep the same place in the tree, so the
   // Close window is not remounted (and its step and counted cash lost) when the
@@ -110,21 +129,22 @@ export const RegisterSessionBadge: React.FC = () => {
           <Menu shadow="md" width={320} position="bottom-end" radius="md">
             <Menu.Target>
               <Button
-                size="xs"
+                size={isMobile ? 'sm' : 'xs'}
                 variant="light"
                 color={badgeColor}
+                style={isMobile ? { minHeight: 44 } : undefined}
                 leftSection={
                   isReopened ? (
                     <IconLockOpen size={14} color="var(--mantine-color-grape-6)" />
-                  ) : isShared ? (
-                    <IconLayersLinked size={14} color="var(--mantine-color-cyan-6)" />
+                  ) : isShopShift ? (
+                    <IconBuildingStore size={14} color="var(--mantine-color-cyan-6)" />
                   ) : (
                     <IconLockOpen size={14} color="var(--mantine-color-teal-6)" />
                   )
                 }
               >
                 <Group gap={6} wrap="nowrap">
-                  <LiveDot isShared={isShared} />
+                  <LiveDot isShopShift={isShopShift} />
                   <Text size="xs" fw={700}>
                     {session.sessionNumber}
                   </Text>
@@ -133,14 +153,14 @@ export const RegisterSessionBadge: React.FC = () => {
                       {t('Reopened')}
                     </Badge>
                   )}
-                  {isShared && (
+                  {isShopShift && (
                     <Badge
                       size="xs"
                       variant="light"
                       color="cyan"
-                      leftSection={<IconLayersLinked size={12} />}
+                      leftSection={<IconBuildingStore size={12} />}
                     >
-                      {t('Shared')}
+                      {t('Shop Shift')}
                     </Badge>
                   )}
                 </Group>
@@ -161,8 +181,8 @@ export const RegisterSessionBadge: React.FC = () => {
                   <ThemeIcon variant="light" color={badgeColor} size={36}>
                     {isReopened ? (
                       <IconCashRegister size={20} />
-                    ) : isShared ? (
-                      <IconLayersLinked size={20} />
+                    ) : isShopShift ? (
+                      <IconBuildingStore size={20} />
                     ) : (
                       <IconCash size={20} />
                     )}
@@ -177,25 +197,27 @@ export const RegisterSessionBadge: React.FC = () => {
                           {t('Reopened')}
                         </Badge>
                       )}
-                      {isShared && (
+                      {isShopShift && (
                         <Badge size="xs" variant="light" color="cyan">
-                          {t('Shared')}
+                          {t('Shop Shift')}
                         </Badge>
                       )}
                     </Group>
                     <Group gap={6} wrap="nowrap">
-                      <LiveDot isShared={isShared} />
+                      <LiveDot isShopShift={isShopShift} />
                       <Text
                         size="xs"
-                        c={isReopened ? 'grape' : isShared ? 'cyan' : 'dimmed'}
+                        c={isReopened ? 'grape' : isShopShift ? 'cyan' : 'dimmed'}
                         truncate
-                        fw={isShared || isReopened ? 600 : 400}
+                        fw={isShopShift || isReopened ? 600 : 400}
                       >
                         {isReopened
                           ? t('Reopened for Audit')
-                          : isShared
-                            ? t('Active (Shared Shift)')
-                            : t('Shift open')}
+                          : isShopShift
+                            ? t('Shared Shop Shift')
+                            : isPersonalOtherDevice
+                              ? t('Personal Shift (Other Device)')
+                              : t('Shift open')}
                         {session.cashierNameSnapshot ? ` · ${session.cashierNameSnapshot}` : ''}
                       </Text>
                     </Group>
@@ -205,7 +227,7 @@ export const RegisterSessionBadge: React.FC = () => {
                   <ShiftFigure label={t('Float')} cents={session.openingFloatCents} />
                   <ShiftFigure label={t('Cash sales')} cents={session.totalCashSalesCents} />
                 </SimpleGrid>
-                {isShared && (
+                {showDeviceDetails && (
                   <Box mt="xs" pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
                     <SimpleGrid cols={2} spacing="xs">
                       <div>
@@ -216,7 +238,26 @@ export const RegisterSessionBadge: React.FC = () => {
                           tt="uppercase"
                           style={{ letterSpacing: '0.05em' }}
                         >
-                          {t('Drawer Terminal')}
+                          {t('Opened By')}
+                        </Text>
+                        <Text
+                          size="xs"
+                          fw={700}
+                          truncate
+                          title={`${session.cashierNameSnapshot || session.cashierId} (${session.terminalId})`}
+                        >
+                          {session.cashierNameSnapshot || session.cashierId}
+                        </Text>
+                      </div>
+                      <div>
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          fw={600}
+                          tt="uppercase"
+                          style={{ letterSpacing: '0.05em' }}
+                        >
+                          {t('Opened On')}
                         </Text>
                         <Text size="xs" fw={700} truncate title={session.terminalId}>
                           {session.terminalId}
@@ -291,26 +332,32 @@ export const RegisterSessionBadge: React.FC = () => {
       )}
       {isClosing && (
         <FadeIn style={{ display: 'inline-block' }}>
-          <Button
-            size="xs"
-            variant="light"
-            color="orange"
-            leftSection={<IconLock size={14} color="var(--mantine-color-orange-6)" />}
-            onClick={() => setCloseModalOpen(true)}
-          >
-            <Text size="xs" fw={700}>
-              {session.sessionNumber} · {t('Closing...')}
-            </Text>
-          </Button>
+          <Tooltip label={closingTooltip}>
+            <Button
+              size={isMobile ? 'sm' : 'xs'}
+              variant="light"
+              color="orange"
+              style={isMobile ? { minHeight: 44 } : undefined}
+              leftSection={<IconLock size={14} color="var(--mantine-color-orange-6)" />}
+              onClick={() => setCloseModalOpen(true)}
+            >
+              <Text size="xs" fw={700}>
+                {session.closingCashierNameSnapshot
+                  ? `${session.sessionNumber} · ${t('Closing')} (${session.closingCashierNameSnapshot})`
+                  : `${session.sessionNumber} · ${t('Closing...')}`}
+              </Text>
+            </Button>
+          </Tooltip>
         </FadeIn>
       )}
       {!isOpen && !isClosing && (
         <FadeIn style={{ display: 'inline-block' }}>
           <Tooltip label={t('Register shift is closed. Click to count float and open session.')}>
             <Button
-              size="xs"
+              size={isMobile ? 'sm' : 'xs'}
               variant="filled"
               color="red"
+              style={isMobile ? { minHeight: 44 } : undefined}
               leftSection={<IconLock size={14} />}
               onClick={() => setOpenModalOpen(true)}
             >
@@ -320,12 +367,13 @@ export const RegisterSessionBadge: React.FC = () => {
         </FadeIn>
       )}
 
-      {isOpen && (
+      {(isOpen || (isClosing && movementModalOpen)) && session && (
         <CashMovementModal
           opened={movementModalOpen}
           onClose={() => setMovementModalOpen(false)}
           terminalId={terminalId}
           sessionKey={session.key}
+          shiftClosing={isClosing}
         />
       )}
 

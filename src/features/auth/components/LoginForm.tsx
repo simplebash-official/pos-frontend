@@ -15,7 +15,7 @@ import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from './CreateShopLink';
 import { ShopCodeField } from './ShopCodeField';
 import { useLoginShopCode } from '../lib/useLoginShopCode';
-import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import { selectShopProfile } from '@/store/slices/settingsSlice';
 import {
   getShopNameFromLink,
   isShopCodeRequired,
@@ -65,13 +65,6 @@ export const LoginForm = () => {
 
   const linkName = getShopNameFromLink(location.search);
 
-  // If linkName is in URL, keep Redux shopProfile updated
-  useEffect(() => {
-    if (linkName) {
-      dispatch(updateShopProfile({ tradingName: linkName }));
-    }
-  }, [linkName, dispatch]);
-
   // If shopCode is present and valid, but linkName was not passed in URL, query the shop name for branding
   useEffect(() => {
     if (!linkName && shopCode && isValidShopCode(shopCode)) {
@@ -80,7 +73,6 @@ export const LoginForm = () => {
         .then((data) => {
           if (active && data.name) {
             setApiShopName(data.name);
-            dispatch(updateShopProfile({ tradingName: data.name }));
           }
         })
         .catch(() => {});
@@ -88,7 +80,7 @@ export const LoginForm = () => {
         active = false;
       };
     }
-  }, [shopCode, linkName, dispatch]);
+  }, [shopCode, linkName]);
 
   const displayShopName =
     linkName ||
@@ -132,11 +124,6 @@ export const LoginForm = () => {
       if (needsShopCode) {
         rememberShopCode(shopCode);
         logger.event('app', 'auth/login.shop_code', { shopCode: normalizeShopCode(shopCode) });
-      }
-      const linkName = getShopNameFromLink(location.search);
-      const incomingShopName = data.shopName || linkName || apiShopName;
-      if (incomingShopName) {
-        dispatch(updateShopProfile({ tradingName: incomingShopName }));
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 

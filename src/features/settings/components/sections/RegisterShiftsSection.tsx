@@ -1,98 +1,157 @@
 import { t } from '@/shared/i18n/t';
-import { useEffect, useState } from 'react';
-import { Alert, Badge, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
+import { useEffect, useState, type KeyboardEvent } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Group,
+  Paper,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Text,
+  ThemeIcon,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   IconAlertTriangle,
+  IconBuildingStore,
+  IconCash,
   IconCheck,
-  IconDeviceDesktop,
-  IconLayersLinked,
+  IconUserCheck,
 } from '@tabler/icons-react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { selectShopProfile, setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
-import { selectUserRole } from '@/store/slices/authSlice';
+import { queryKeys } from '@/api/queryKeys';
 import { USER_ROLES } from '@/constants/roles';
+import { useActiveSessionsSummary } from '@/features/billing/hooks/useRegisterSession';
 import { getErrorMessage } from '@/shared/lib/error';
+import { formatMoney } from '@/shared/lib/money';
+import { SPRING } from '@/shared/motion';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectUserRole } from '@/store/slices/authSlice';
+import { selectShopProfile, setShopProfile } from '@/store/slices/settingsSlice';
+import { updateShopProfileApi } from '../../api/settingsApi';
+import { useShopProfile } from '../../hooks/useShopProfile';
 import { SectionShell } from '../SectionShell';
-import { getShopProfileApi, updateShopProfileApi } from '../../api/settingsApi';
-import { useSessionList } from '@/features/billing/hooks/useRegisterSession';
 
 export interface SectionProps {
   onDirtyChange: (dirty: boolean) => void;
 }
 
+interface ModeOption {
+  value: boolean;
+  dataMode: 'personal' | 'shared';
+  title: string;
+  badge: string;
+  accent: 'blue' | 'cyan';
+  summary: string;
+  bullets: readonly string[];
+}
+
 export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
-  const shopProfile = useAppSelector(selectShopProfile);
+  const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
   const userRole = useAppSelector(selectUserRole);
   const isAdmin = userRole === USER_ROLES.ADMIN;
 
+  const {
+    shopProfile: fetchedProfile,
+    isLoading: isProfileLoading,
+    refetch: refetchProfile,
+  } = useShopProfile();
+  const storeProfile = useAppSelector(selectShopProfile);
+  const shopProfile = fetchedProfile ?? storeProfile;
+
+  const { data: activeSummary, refetch: refetchSummary } = useActiveSessionsSummary();
+
   const [saving, setSaving] = useState(false);
-  const [allowShared, setAllowShared] = useState<boolean>(
-    shopProfile.allowSharedUserSessions ?? false
-  );
+  const [draftAllowShared, setDraftAllowShared] = useState<boolean | null>(null);
 
-  // Mid-shift Active Shift Guard: Query active open sessions shop-wide
-  const { data: sessionListData } = useSessionList({ status: 'open' });
-  const hasActiveShifts = (sessionListData?.sessions?.length ?? 0) > 0;
-
-  // Sync with shop profile on initial load
-  useEffect(() => {
-    let isMounted = true;
-    getShopProfileApi()
-      .then((profile) => {
-        if (!isMounted) return;
-        dispatch(setShopProfile(profile));
-        setAllowShared(profile.allowSharedUserSessions ?? false);
-      })
-      .catch((err) => {
-        console.warn('Failed to load shop profile from server:', err);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [dispatch]);
-
-  const persistedValue = shopProfile.allowSharedUserSessions ?? false;
-  const isDirty = allowShared !== persistedValue;
+  const persistedValue = shopProfile ? shopProfile.allowSharedUserSessions : null;
+  const selectedValue = draftAllowShared !== null ? draftAllowShared : persistedValue;
+  const isDirty =
+    draftAllowShared !== null && persistedValue !== null && draftAllowShared !== persistedValue;
 
   useEffect(() => {
     onDirtyChange(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const switchDisabled = !isAdmin || hasActiveShifts || saving;
+  const activeSessions = activeSummary?.activeSessions ?? [];
+  const drawerBalanceTotalCents = activeSummary?.drawerBalanceTotalCents ?? 0;
+  const hasActiveShifts = activeSessions.length > 0;
+  const hasNonZeroDrawer = drawerBalanceTotalCents !== 0;
+  const hasSwitchBlockers = hasActiveShifts || hasNonZeroDrawer;
+  const switchDisabled = !isAdmin || persistedValue === null || hasSwitchBlockers || saving;
+
+  const chooseMode = (nextValue: boolean) => {
+    if (switchDisabled) return;
+    setDraftAllowShared(nextValue === persistedValue ? null : nextValue);
+  };
+
+  const handleRadioKeyDown = (event: KeyboardEvent<HTMLDivElement>, currentValue: boolean) => {
+    if (switchDisabled) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      chooseMode(currentValue);
+    } else if (
+      event.key === 'ArrowRight' ||
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowLeft' ||
+      event.key === 'ArrowUp'
+    ) {
+      event.preventDefault();
+      chooseMode(!currentValue);
+    }
+  };
 
   const handleSave = async () => {
-    if (switchDisabled && !isDirty) return;
+    if (selectedValue === null || switchDisabled || !isDirty) return;
     setSaving(true);
     try {
       const persisted = await updateShopProfileApi({
-        allowSharedUserSessions: allowShared,
+        allowSharedUserSessions: selectedValue,
       });
-      dispatch(updateShopProfile(persisted));
-      setAllowShared(persisted.allowSharedUserSessions ?? false);
+      dispatch(setShopProfile(persisted));
+      queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
+      setDraftAllowShared(null);
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.settings.shopProfile() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all }),
+      ]);
+
       notifications.show({
         title: t('Settings Saved'),
         message: t('Register shift mode updated successfully.'),
         color: 'teal',
       });
     } catch (err: unknown) {
-      const status =
-        (err as { statusCode?: number; status?: number; response?: { status?: number } })
-          ?.statusCode ??
-        (err as { status?: number })?.status ??
-        (err as { response?: { status?: number } })?.response?.status;
+      const apiErr = err as {
+        code?: string;
+        statusCode?: number;
+        status?: number;
+        response?: { status?: number };
+      };
+      const status = apiErr?.statusCode ?? apiErr?.status ?? apiErr?.response?.status;
+      const code = apiErr?.code;
 
-      if (status === 409) {
+      if (status === 409 || code === 'ACTIVE_SESSIONS_EXIST' || code === 'DRAWER_BALANCE_NONZERO') {
+        void refetchSummary();
+        const fallbackMsg =
+          code === 'DRAWER_BALANCE_NONZERO'
+            ? t('Drop all remaining cash from the drawer to the safe before switching shift mode.')
+            : t(
+                'Close every open, closing, or reopened shift before switching register shift mode.'
+              );
         notifications.show({
           title: t('Cannot Change Mode'),
-          message: getErrorMessage(
-            err,
-            t(
-              'Cannot change register shift mode while shifts are active. Please close all open shifts in the shop first.'
-            )
-          ),
+          message: getErrorMessage(err, fallbackMsg),
           color: 'red',
         });
       } else {
@@ -108,13 +167,48 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
   };
 
   const handleCancel = () => {
-    setAllowShared(persistedValue);
+    setDraftAllowShared(null);
+  };
+
+  const modeOptions: readonly ModeOption[] = [
+    {
+      value: false,
+      dataMode: 'personal',
+      title: t('Personal Shifts'),
+      badge: t('Per Person'),
+      accent: 'blue',
+      summary: t('Each staff member opens, sells from, and counts their own cash shift.'),
+      bullets: [
+        t('Best when cashiers carry separate tills or change floats'),
+        t('Each person closes and counts only their own shift'),
+      ],
+    },
+    {
+      value: true,
+      dataMode: 'shared',
+      title: t('Shared Shop Shift'),
+      badge: t('Whole Shop'),
+      accent: 'cyan',
+      summary: t('All staff and devices sell into one shared shop shift and one cash drawer.'),
+      bullets: [
+        t('Best when the whole shop shares one cash drawer across counters or phones'),
+        t('Any permitted staff member or manager can count and close the shift'),
+      ],
+    },
+  ];
+
+  const statusLabel = (status: string) => {
+    if (status === 'closing') return t('Closing');
+    if (status === 'reopened') return t('Reopened');
+    return t('Open');
   };
 
   return (
     <SectionShell
       title={t('Registers & Shifts')}
-      description={t('Configure multi-device shift sharing and cash drawer isolation')}
+      description={t(
+        'Choose whether each person runs their own register shift or everyone shares one shop cash drawer.'
+      )}
       isDirty={isDirty}
       saving={saving}
       onSave={() => void handleSave()}
@@ -122,21 +216,51 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
       saveLabel={t('Save Changes')}
     >
       <Stack gap="lg">
-        {/* Mid-shift Active Shift Guard Alert */}
         {hasActiveShifts && (
           <Alert
             icon={<IconAlertTriangle size={18} />}
             color="orange"
             variant="light"
-            title={t('Active Shifts Detected')}
+            title={t('Close Active Shifts First')}
           >
-            {t(
-              'Cannot change register shift mode while shifts are active. Please close all open shifts in the shop first.'
-            )}
+            <Stack gap="xs">
+              <Text size="sm">
+                {t(
+                  'All active shifts (open, closing, or reopened) must be closed before changing register shift mode.'
+                )}
+              </Text>
+              <Group gap="xs" wrap="wrap">
+                {activeSessions.map((session) => (
+                  <Badge
+                    key={session.key}
+                    variant="outline"
+                    color="orange"
+                    size="sm"
+                    styles={{ label: { textTransform: 'none' } }}
+                  >
+                    {`${session.sessionNumber} · ${session.cashierNameSnapshot} (${statusLabel(session.status)})`}
+                  </Badge>
+                ))}
+              </Group>
+            </Stack>
           </Alert>
         )}
 
-        {/* Non-Admin Informational Notice */}
+        {hasNonZeroDrawer && (
+          <Alert
+            icon={<IconCash size={18} />}
+            color="orange"
+            variant="light"
+            title={t('Drop Drawer Cash to Safe First')}
+          >
+            <Text size="sm">
+              {`${t('Current cash across drawers:')} ${formatMoney(drawerBalanceTotalCents)}. ${t(
+                'Drop remaining drawer cash to the safe during shift close so the closing float is 0 before switching modes.'
+              )}`}
+            </Text>
+          </Alert>
+        )}
+
         {!isAdmin && (
           <Group>
             <Badge size="md" variant="light" color="gray">
@@ -145,162 +269,181 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
           </Group>
         )}
 
-        {/* Mode Selection Cards */}
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          {/* Card 1: Isolated Register Mode */}
-          <Paper
-            data-mode="isolated"
-            withBorder
-            p="md"
-            radius="md"
-            role="radio"
-            aria-checked={!allowShared}
-            tabIndex={switchDisabled ? -1 : 0}
-            style={{
-              backgroundColor: !allowShared ? 'var(--mantine-color-blue-light)' : 'var(--bg-app)',
-              borderColor: !allowShared ? 'var(--mantine-color-blue-filled)' : 'var(--border)',
-              borderWidth: !allowShared ? 2 : 1,
-              cursor: switchDisabled ? 'not-allowed' : 'pointer',
-              opacity: switchDisabled ? 0.65 : 1,
-              transition: 'all 0.15s ease',
-            }}
-            onClick={() => {
-              if (!switchDisabled) setAllowShared(false);
-            }}
-            onKeyDown={(e) => {
-              if (!switchDisabled && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault();
-                setAllowShared(false);
-              }
-            }}
+        {persistedValue === null && isProfileLoading ? (
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+            <Skeleton height={168} radius="md" />
+            <Skeleton height={168} radius="md" />
+          </SimpleGrid>
+        ) : persistedValue === null ? (
+          <Alert
+            icon={<IconAlertTriangle size={18} />}
+            color="red"
+            variant="light"
+            title={t('Unable to load register shift settings')}
           >
-            <Stack gap="sm">
-              <Group justify="space-between" align="center" wrap="nowrap">
-                <Group gap="xs" wrap="nowrap">
-                  <ThemeIcon
-                    variant={!allowShared ? 'filled' : 'light'}
-                    color="blue"
-                    size="lg"
-                    radius="md"
-                  >
-                    <IconDeviceDesktop size={20} />
-                  </ThemeIcon>
-                  <Text fw={700} size="sm">
-                    {t('Isolated Register Mode (Default)')}
-                  </Text>
-                </Group>
-                <Badge
-                  variant={!allowShared ? 'filled' : 'light'}
-                  color="blue"
-                  size="sm"
-                  style={{ flexShrink: 0 }}
-                >
-                  {t('Multi-Counter Standard')}
-                </Badge>
-              </Group>
-
-              <Text size="sm" c="dimmed">
-                {t(
-                  'Each terminal has its own independent shift, physical cash drawer, and Z-report.'
-                )}
+            <Group justify="space-between" align="center" gap="sm" wrap="wrap">
+              <Text size="sm">
+                {t('Could not fetch the current shop register mode from the server. Try again.')}
               </Text>
+              <Button
+                size="xs"
+                variant="light"
+                color="red"
+                h={isMobile ? 44 : undefined}
+                onClick={() => void refetchProfile()}
+              >
+                {t('Retry')}
+              </Button>
+            </Group>
+          </Alert>
+        ) : (
+          <Box role="radiogroup" aria-label={t('Register Shift Mode')} style={{ width: '100%' }}>
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+              {modeOptions.map((option) => {
+                const isSelected = selectedValue === option.value;
+                const Icon = option.value ? IconBuildingStore : IconUserCheck;
 
-              <Group justify="space-between" align="center" mt="xs">
-                {!allowShared ? (
-                  <Badge
-                    size="sm"
-                    color="blue"
-                    variant="filled"
-                    leftSection={<IconCheck size={12} />}
+                return (
+                  <motion.div
+                    key={option.dataMode}
+                    animate={reduceMotion ? undefined : { scale: isSelected ? 1 : 0.992 }}
+                    transition={reduceMotion ? { duration: 0 } : SPRING}
+                    style={{ display: 'flex' }}
                   >
-                    {t('Active Selection')}
-                  </Badge>
-                ) : (
-                  <Badge size="xs" color="gray" variant="light">
-                    {switchDisabled ? t('Isolated Mode') : t('Click to Select')}
-                  </Badge>
-                )}
-              </Group>
-            </Stack>
-          </Paper>
+                    <Paper
+                      data-mode={option.dataMode}
+                      withBorder
+                      p={isMobile ? 'md' : 'lg'}
+                      radius="md"
+                      role="radio"
+                      aria-checked={isSelected}
+                      aria-disabled={switchDisabled}
+                      tabIndex={switchDisabled ? -1 : 0}
+                      onClick={() => chooseMode(option.value)}
+                      onKeyDown={(e) => handleRadioKeyDown(e, option.value)}
+                      style={{
+                        width: '100%',
+                        minHeight: 48,
+                        backgroundColor: isSelected
+                          ? `var(--mantine-color-${option.accent}-light)`
+                          : 'var(--bg-card)',
+                        borderColor: isSelected
+                          ? `var(--mantine-color-${option.accent}-filled)`
+                          : 'var(--border)',
+                        borderWidth: isSelected ? 2 : 1,
+                        cursor: switchDisabled ? 'not-allowed' : 'pointer',
+                        opacity: switchDisabled && !isSelected ? 0.6 : 1,
+                        transition: 'border-color 0.15s ease, background-color 0.15s ease',
+                      }}
+                    >
+                      <Stack gap="sm" justify="space-between" style={{ height: '100%' }}>
+                        <Stack gap="sm">
+                          <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+                            <Group gap="xs" wrap="nowrap">
+                              <ThemeIcon
+                                variant={isSelected ? 'filled' : 'light'}
+                                color={option.accent}
+                                size="lg"
+                                radius="md"
+                              >
+                                <Icon size={20} />
+                              </ThemeIcon>
+                              <Text fw={700} size="sm" style={{ color: 'var(--text-primary)' }}>
+                                {option.title}
+                              </Text>
+                            </Group>
+                            <Badge
+                              variant={isSelected ? 'filled' : 'light'}
+                              color={option.accent}
+                              size="sm"
+                              style={{ flexShrink: 0 }}
+                            >
+                              {option.badge}
+                            </Badge>
+                          </Group>
 
-          {/* Card 2: Shared Shift Mode */}
-          <Paper
-            data-mode="shared"
-            withBorder
-            p="md"
-            radius="md"
-            role="radio"
-            aria-checked={allowShared}
-            tabIndex={switchDisabled ? -1 : 0}
-            style={{
-              backgroundColor: allowShared ? 'var(--mantine-color-cyan-light)' : 'var(--bg-app)',
-              borderColor: allowShared ? 'var(--mantine-color-cyan-filled)' : 'var(--border)',
-              borderWidth: allowShared ? 2 : 1,
-              cursor: switchDisabled ? 'not-allowed' : 'pointer',
-              opacity: switchDisabled ? 0.65 : 1,
-              transition: 'all 0.15s ease',
-            }}
-            onClick={() => {
-              if (!switchDisabled) setAllowShared(true);
-            }}
-            onKeyDown={(e) => {
-              if (!switchDisabled && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault();
-                setAllowShared(true);
-              }
-            }}
-          >
-            <Stack gap="sm">
-              <Group justify="space-between" align="center" wrap="nowrap">
-                <Group gap="xs" wrap="nowrap">
-                  <ThemeIcon
-                    variant={allowShared ? 'filled' : 'light'}
-                    color="cyan"
-                    size="lg"
-                    radius="md"
-                  >
-                    <IconLayersLinked size={20} />
-                  </ThemeIcon>
-                  <Text fw={700} size="sm">
-                    {t('Shared Shift Mode')}
-                  </Text>
-                </Group>
-                <Badge
-                  variant={allowShared ? 'filled' : 'light'}
-                  color="cyan"
-                  size="sm"
-                  style={{ flexShrink: 0 }}
-                >
-                  {t('Single-Counter Convenience')}
-                </Badge>
-              </Group>
+                          <Text size="sm" c="dimmed">
+                            {option.summary}
+                          </Text>
 
-              <Text size="sm" c="dimmed">
-                {t(
-                  "Secondary laptops or tablets share the counter's active shift and cash drawer float."
-                )}
-              </Text>
+                          <Stack gap={4}>
+                            {option.bullets.map((bullet) => (
+                              <Text key={bullet} size="xs" c="dimmed">
+                                • {bullet}
+                              </Text>
+                            ))}
+                          </Stack>
+                        </Stack>
 
-              <Group justify="space-between" align="center" mt="xs">
-                {allowShared ? (
-                  <Badge
-                    size="sm"
-                    color="cyan"
-                    variant="filled"
-                    leftSection={<IconCheck size={12} />}
-                  >
-                    {t('Active Selection')}
-                  </Badge>
-                ) : (
-                  <Badge size="xs" color="gray" variant="light">
-                    {switchDisabled ? t('Shared Mode') : t('Click to Select')}
-                  </Badge>
-                )}
-              </Group>
-            </Stack>
-          </Paper>
-        </SimpleGrid>
+                        <Group justify="space-between" align="center" pt="xs">
+                          {isSelected ? (
+                            <Badge
+                              size="sm"
+                              color={option.accent}
+                              variant="filled"
+                              leftSection={<IconCheck size={12} />}
+                            >
+                              {t('Active Selection')}
+                            </Badge>
+                          ) : (
+                            <Badge size="xs" color="gray" variant="light">
+                              {switchDisabled ? t('Locked while active') : t('Click to Select')}
+                            </Badge>
+                          )}
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  </motion.div>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
+        )}
+
+        <Paper
+          withBorder
+          p="md"
+          radius="md"
+          style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border)' }}
+        >
+          <Stack gap="xs">
+            <Text size="xs" fw={700} tt="uppercase" c="dimmed" style={{ letterSpacing: '0.04em' }}>
+              {t('What changes')}
+            </Text>
+            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
+              <Stack gap={2}>
+                <Text size="xs" fw={600} style={{ color: 'var(--text-primary)' }}>
+                  {t('Opening a shift')}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {selectedValue
+                    ? t('First person opens one shift; every other counter joins automatically.')
+                    : t('Each staff member starts their own shift when taking cash.')}
+                </Text>
+              </Stack>
+              <Stack gap={2}>
+                <Text size="xs" fw={600} style={{ color: 'var(--text-primary)' }}>
+                  {t('Counting & closing')}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {selectedValue
+                    ? t('Any permitted cashier or manager can count and close the shop drawer.')
+                    : t('Only the cashier who opened the shift (or manager) closes it.')}
+                </Text>
+              </Stack>
+              <Stack gap={2}>
+                <Text size="xs" fw={600} style={{ color: 'var(--text-primary)' }}>
+                  {t('Mid-count lock')}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {t(
+                    'While cash is being counted, new sales and cash payouts pause until the count finishes or is cancelled.'
+                  )}
+                </Text>
+              </Stack>
+            </SimpleGrid>
+          </Stack>
+        </Paper>
       </Stack>
     </SectionShell>
   );

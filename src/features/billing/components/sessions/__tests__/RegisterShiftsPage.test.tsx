@@ -135,6 +135,13 @@ vi.mock('@/features/billing/hooks/useZReportDocument', () => ({
   }),
 }));
 
+vi.mock('@/features/settings', () => ({
+  useShopProfile: () => ({
+    shopProfile: { allowSharedUserSessions: false },
+    isLoading: false,
+  }),
+}));
+
 vi.mock('@/shared/components/PdfCanvasViewer', () => ({
   PdfCanvasViewer: () => null,
 }));

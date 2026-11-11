@@ -1,7 +1,7 @@
 import { createSlice, createSelector, PayloadAction } from '@reduxjs/toolkit';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { ShopProfile, PrintSettings } from '@/features/settings/types';
-import { DEFAULT_SHOP_PROFILE, DEFAULT_PRINT_SETTINGS } from '@/features/settings/constants';
+import { DEFAULT_PRINT_SETTINGS } from '@/features/settings/constants';
 import type { LabelPrintSettings } from '@/features/labels/types';
 import { parseLabelPrintSettings } from '@/features/labels/lib/printSettings';
 
@@ -13,75 +13,47 @@ import { parseLabelPrintSettings } from '@/features/labels/lib/printSettings';
  */
 type StoredShopProfileVersion = ShopProfile & { logoVersionRef: number };
 
-interface SettingsState {
-  shopProfile: ShopProfile;
+export interface SettingsState {
+  /** Authoritative shop profile from `/settings/shop-profile`; `null` until loaded. */
+  shopProfile: ShopProfile | null;
   shopProfileVersions: Record<number, StoredShopProfileVersion>;
-  latestLogoVersionRef: number;
+  latestLogoVersionRef: number | null;
   printSettings: PrintSettings;
   /** How labels print on this computer; `null` until the person sets it up. */
   labelPrint: LabelPrintSettings | null;
   appLanguage: 'en' | 'si';
 }
 
-const sanitizeLegacyProfile = (profile: ShopProfile): ShopProfile => {
-  const isLegacyAddress =
-    Array.isArray(profile.addressLines) &&
-    profile.addressLines.length === 2 &&
-    profile.addressLines[0] === 'No. 12, Main Street' &&
-    profile.addressLines[1] === 'Colombo 04, Sri Lanka';
-
-  const isLegacyTradingName = profile.tradingName === 'SimpleBash POS';
-
-  return {
-    ...DEFAULT_SHOP_PROFILE,
-    ...profile,
-    legalName:
-      profile.legalName === 'SimpleBash POS' ||
-      profile.legalName === 'SimpleBash POS Service Center'
-        ? ''
-        : profile.legalName || '',
-    tradingName: isLegacyTradingName ? '' : profile.tradingName || '',
-    addressLines: isLegacyAddress ? [] : profile.addressLines || [],
-    primaryPhone:
-      profile.primaryPhone === '077 123 4567' || profile.primaryPhone === '077 123 45673'
-        ? ''
-        : profile.primaryPhone || '',
-    secondaryPhone: profile.secondaryPhone === '011 234 5678' ? '' : profile.secondaryPhone || '',
-    email: profile.email === 'info@simplebash.com' ? '' : profile.email || '',
-    website: profile.website === 'www.simplebash.com' ? '' : profile.website || '',
-    businessRegNo: profile.businessRegNo === 'PV-123456' ? '' : profile.businessRegNo || '',
-    bankName: profile.bankName === 'Commercial Bank of Ceylon' ? '' : profile.bankName || '',
-    bankBranch: profile.bankBranch === 'Bambalapitiya' ? '' : profile.bankBranch || '',
-    accountName:
-      profile.accountName === 'SimpleBash POS (Pvt) Ltd' ? '' : profile.accountName || '',
-    accountNumber: profile.accountNumber === '8001234567' ? '' : profile.accountNumber || '',
-    allowSharedUserSessions: profile.allowSharedUserSessions ?? false,
-  };
-};
+const isLoadedShopProfile = (value: unknown): value is ShopProfile =>
+  value !== null &&
+  typeof value === 'object' &&
+  typeof (value as ShopProfile).allowSharedUserSessions === 'boolean';
 
 const loadSettingsFromStorage = (): SettingsState => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const profile: ShopProfile = sanitizeLegacyProfile(
-        parsed.shopProfile || DEFAULT_SHOP_PROFILE
-      );
+      const profile: ShopProfile | null = isLoadedShopProfile(parsed.shopProfile)
+        ? parsed.shopProfile
+        : null;
       const rawVersions: Record<number, ShopProfile & { logoVersionRef?: number }> =
-        parsed.shopProfileVersions || {
-          [profile.version || 1]: profile,
-        };
-      // Legacy persisted data has no `logoVersionRef` — every entry already carries its own full,
-      // non-blanked logo, so each one safely self-references.
+        profile && parsed.shopProfileVersions
+          ? parsed.shopProfileVersions
+          : profile
+            ? { [profile.version || 1]: profile }
+            : {};
       const versions: Record<number, StoredShopProfileVersion> = {};
       for (const [key, entry] of Object.entries(rawVersions)) {
-        const version = Number(key);
-        versions[version] = { ...entry, logoVersionRef: entry.logoVersionRef ?? version };
+        if (isLoadedShopProfile(entry)) {
+          const version = Number(key);
+          versions[version] = { ...entry, logoVersionRef: entry.logoVersionRef ?? version };
+        }
       }
       return {
         shopProfile: profile,
         shopProfileVersions: versions,
-        latestLogoVersionRef: profile.version,
+        latestLogoVersionRef: profile ? profile.version : null,
         printSettings: { ...DEFAULT_PRINT_SETTINGS, ...(parsed.printSettings || {}) },
         labelPrint: parseLabelPrintSettings(parsed.labelPrint),
         appLanguage: parsed.appLanguage === 'si' ? 'si' : 'en',
@@ -91,14 +63,9 @@ const loadSettingsFromStorage = (): SettingsState => {
     // Ignore storage errors
   }
   return {
-    shopProfile: DEFAULT_SHOP_PROFILE,
-    shopProfileVersions: {
-      [DEFAULT_SHOP_PROFILE.version]: {
-        ...DEFAULT_SHOP_PROFILE,
-        logoVersionRef: DEFAULT_SHOP_PROFILE.version,
-      },
-    },
-    latestLogoVersionRef: DEFAULT_SHOP_PROFILE.version,
+    shopProfile: null,
+    shopProfileVersions: {},
+    latestLogoVersionRef: null,
     printSettings: DEFAULT_PRINT_SETTINGS,
     labelPrint: null,
     appLanguage: 'en',
@@ -120,9 +87,12 @@ const settingsSlice = createSlice({
   initialState,
   reducers: {
     updateShopProfile: (state, action: PayloadAction<Partial<ShopProfile>>) => {
+      const current = state.shopProfile;
+      if (!current) {
+        return;
+      }
       // Check if anything actually changed before bumping version
       const payload = action.payload;
-      const current = state.shopProfile;
       const hasChanges = Object.keys(payload).some((key) => {
         const k = key as keyof ShopProfile;
         const newVal = payload[k];
@@ -153,7 +123,7 @@ const settingsSlice = createSlice({
       state.shopProfileVersions[nextVersion] = {
         ...updatedProfile,
         logoBase64: logoChanged ? updatedProfile.logoBase64 : '',
-        logoVersionRef: logoChanged ? nextVersion : state.latestLogoVersionRef,
+        logoVersionRef: logoChanged ? nextVersion : (state.latestLogoVersionRef ?? nextVersion),
       };
       if (logoChanged) {
         state.latestLogoVersionRef = nextVersion;
@@ -172,14 +142,9 @@ const settingsSlice = createSlice({
       saveSettingsToStorage(state);
     },
     resetSettings: (state) => {
-      state.shopProfile = DEFAULT_SHOP_PROFILE;
-      state.shopProfileVersions = {
-        [DEFAULT_SHOP_PROFILE.version]: {
-          ...DEFAULT_SHOP_PROFILE,
-          logoVersionRef: DEFAULT_SHOP_PROFILE.version,
-        },
-      };
-      state.latestLogoVersionRef = DEFAULT_SHOP_PROFILE.version;
+      state.shopProfile = null;
+      state.shopProfileVersions = {};
+      state.latestLogoVersionRef = null;
       state.printSettings = DEFAULT_PRINT_SETTINGS;
       state.labelPrint = null;
       state.appLanguage = 'en';
@@ -190,7 +155,9 @@ const settingsSlice = createSlice({
       saveSettingsToStorage(state);
     },
     restoreSettings: (state, action: PayloadAction<Partial<SettingsState>>) => {
-      if (action.payload.shopProfile) {
+      if (action.payload.shopProfile === null) {
+        state.shopProfile = null;
+      } else if (isLoadedShopProfile(action.payload.shopProfile)) {
         state.shopProfile = action.payload.shopProfile;
       }
       if (action.payload.shopProfileVersions) {

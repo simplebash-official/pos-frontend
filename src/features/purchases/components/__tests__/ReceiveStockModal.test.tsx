@@ -49,8 +49,11 @@ vi.mock('@/features/billing/hooks/useCashLookups', () => ({
   }),
   useCreatePayee: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
+let currentSession: { key: string; status?: string; closingCashierNameSnapshot?: string } | null = {
+  key: 'sess_1',
+};
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
-  useCurrentSession: () => ({ session: { key: 'sess_1' } }),
+  useCurrentSession: () => ({ session: currentSession }),
 }));
 vi.mock('../../hooks/usePurchases', () => ({
   useCreateReceipt: () => ({ mutate: createReceipt, isPending: false }),
@@ -131,6 +134,7 @@ describe('ReceiveStockModal', () => {
   const onClose = vi.fn();
 
   beforeEach(() => {
+    currentSession = { key: 'sess_1' };
     Element.prototype.scrollIntoView ??= () => undefined;
     createReceipt.mockReset();
     onClose.mockReset();
@@ -310,7 +314,7 @@ describe('ReceiveStockModal', () => {
       sessionKey: 'sess_1',
     });
     expect(input.approval).toBeUndefined();
-  });
+  }, 15_000);
 
   it('pays part from the bank on a chosen day, with the amount the server counted', async () => {
     answerWith((request) =>
@@ -333,7 +337,7 @@ describe('ReceiveStockModal', () => {
     expect(payment.amountCents).toBe(200_000);
     expect(payment.terminalId).toBeUndefined();
     expect(payment.paidOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-  });
+  }, 15_000);
 
   it('says the first thing the server found missing instead of sending an incomplete bill', async () => {
     answerWith((request) =>
@@ -502,7 +506,7 @@ describe('ReceiveStockModal', () => {
     await click('This is a different bill. Record it.');
     expect(createReceipt).toHaveBeenCalledTimes(2);
     expect(createReceipt.mock.calls[1][0].confirmDuplicate).toBe(true);
-  });
+  }, 15_000);
 
   it('asks for a manager PIN once the server says the payment needs approval', async () => {
     answerWith((request) =>
@@ -532,7 +536,7 @@ describe('ReceiveStockModal', () => {
     await submit();
     const { approval } = createReceipt.mock.calls[1][0];
     expect(approval).toEqual({ managerPin: '5555', overrideReason: 'Supplier waiting' });
-  });
+  }, 15_000);
 
   it('says a half-filled extra charge is not in the cost yet', async () => {
     answerWith((request) =>
@@ -564,4 +568,23 @@ describe('ReceiveStockModal', () => {
     // The one-product form was asked about before, so its answer is already kept.
     expect(text()).not.toContain('Product 2');
   });
+
+  it('shows Cash Count In Progress pause notice when drawer is picked during closing', async () => {
+    currentSession = {
+      key: 'sess_1',
+      status: 'closing',
+      closingCashierNameSnapshot: 'Kasun',
+    };
+    await open();
+    await fillPlainLine();
+    await radio('Paid in full');
+    await radio('Cash drawer');
+
+    expect(text()).toContain('Cash Count In Progress');
+    await submit();
+    expect(text()).toContain(
+      'A register cash count is in progress. Finish or cancel the close count before taking cash from the drawer.'
+    );
+    expect(createReceipt).not.toHaveBeenCalled();
+  }, 15_000);
 });

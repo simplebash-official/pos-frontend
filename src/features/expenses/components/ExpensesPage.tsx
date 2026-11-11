@@ -107,11 +107,19 @@ export const ExpensesPage = () => {
   ):
     | { kind: 'cash'; prefill: CashMovementPrefill }
     | { kind: 'expense'; prefill: ExpensePrefill }
+    | { kind: 'closing' }
     | { kind: 'needs-shift' } => {
     const { template } = bill;
     if (template.paidFrom === 'drawer') {
       const category = categories.find((c) => c.key === template.categoryKey);
-      if (session === null || category === undefined) return { kind: 'needs-shift' };
+      if (session?.status === 'closing') return { kind: 'closing' };
+      if (
+        session === null ||
+        (session.status !== 'open' && session.status !== 'reopened') ||
+        category === undefined
+      ) {
+        return { kind: 'needs-shift' };
+      }
       return {
         kind: 'cash',
         prefill: {
@@ -139,7 +147,15 @@ export const ExpensesPage = () => {
 
   const startPayment = (bill: RecurringBill) => {
     const plan = planPayment(bill);
-    if (plan.kind === 'needs-shift') {
+    if (plan.kind === 'closing') {
+      notifications.show({
+        title: t('Cash Count In Progress'),
+        message: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before paying from the drawer.'
+        ),
+        color: 'orange',
+      });
+    } else if (plan.kind === 'needs-shift') {
       notifications.show({
         title: t('Open a shift first'),
         message: t('Paying from the drawer needs an open shift on this register.'),
@@ -458,7 +474,7 @@ export const ExpensesPage = () => {
           onClose={() => setRecurringForm(null)}
         />
       )}
-      {cashPrefill !== null && session !== null && (
+      {cashPrefill !== null && session !== null && session.status !== 'closing' && (
         <CashMovementModal
           opened
           prefill={cashPrefill}

@@ -27,6 +27,7 @@ describe('settingsApi', () => {
     defaultWarrantyText: '',
     defaultFooterText: '',
     receiptFooterText: '',
+    allowSharedUserSessions: false,
   };
 
   it('calls GET /settings/shop-profile and returns data', async () => {

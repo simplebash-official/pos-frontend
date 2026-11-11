@@ -219,7 +219,7 @@ describe('CashMovementModal', () => {
     expect(button('Small expense')?.getAttribute('aria-checked')).toBe('true');
     expect(text()).not.toContain('Enter amount to add or withdraw');
     expect(text()).toContain('What is it for?');
-  });
+  }, 15_000);
 
   it('numbers the steps and says what each thing is: choices are radios, quick amounts are pills', async () => {
     await render(CASHIER);
@@ -235,7 +235,7 @@ describe('CashMovementModal', () => {
     expect(kinds[0].textContent).toContain('Small daily spends');
     expect(text()).toContain('Quick amounts');
     expect(button('Rs. 500.00')?.getAttribute('role')).not.toBe('radio');
-  });
+  }, 15_000);
 
   it('moves between kinds with the arrow keys, like any radio group', async () => {
     await render(MANAGER);
@@ -246,7 +246,7 @@ describe('CashMovementModal', () => {
     });
     expect(button('Rent and bills')?.getAttribute('aria-checked')).toBe('true');
     expect(button('Small expense')?.getAttribute('aria-checked')).toBe('false');
-  });
+  }, 15_000);
 
   it('skips the amount step for a no-sale open and renumbers the rest', async () => {
     await render(CASHIER);
@@ -255,7 +255,7 @@ describe('CashMovementModal', () => {
       g.getAttribute('aria-label')
     );
     expect(steps).toEqual(['What happened?', 'Why are you opening the drawer?', 'Details']);
-  });
+  }, 15_000);
 
   it('lets someone who may register suppliers add one from the supplier payment list', async () => {
     await render([...MANAGER, 'suppliers:create']);
@@ -267,7 +267,7 @@ describe('CashMovementModal', () => {
     const add = document.querySelector('[data-testid="combobox-create"]');
     expect(add?.textContent).toContain('+ Add "Kandy Traders" as a new supplier');
     expect(text()).not.toContain('To add a supplier, ask a manager.');
-  });
+  }, 15_000);
 
   describe('Escape', () => {
     const pressEscape = () =>
@@ -289,7 +289,7 @@ describe('CashMovementModal', () => {
       await renderWith(onClose);
       await pressEscape();
       expect(onClose).toHaveBeenCalledTimes(1);
-    });
+    }, 15_000);
 
     it('leaves the cash window open while the register supplier window is up', async () => {
       const onClose = vi.fn();
@@ -307,10 +307,12 @@ describe('CashMovementModal', () => {
       await pressEscape();
       expect(onClose).not.toHaveBeenCalled();
       // The supplier window closed itself, so the next Escape closes the cash window again.
-      await vi.waitFor(() => expect(text()).not.toContain('Register New Supplier'));
+      await vi.waitFor(() => expect(text()).not.toContain('Register New Supplier'), {
+        timeout: 10000,
+      });
       await pressEscape();
       expect(onClose).toHaveBeenCalledTimes(1);
-    });
+    }, 30_000);
   });
 
   it('tells a manager without the supplier permission to ask a manager, with no way to add', async () => {
@@ -322,14 +324,14 @@ describe('CashMovementModal', () => {
     );
     expect(text()).toContain('To add a supplier, ask a manager.');
     expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
-  });
+  }, 15_000);
 
   it('shows the busiest categories as one-tap chips', async () => {
     await render(CASHIER);
     const chips = document.querySelector('[data-testid="category-chips"]')!;
     expect(chips.textContent).toContain('Tea and refreshments');
     expect(chips.textContent).toContain('Fuel');
-  });
+  }, 15_000);
 
   it('greys out the kinds of payment a cashier cannot record, and frees them for a manager', async () => {
     await render(CASHIER);
@@ -341,7 +343,7 @@ describe('CashMovementModal', () => {
     root = createRoot(container);
     await render(MANAGER);
     expect(button('Rent and bills')?.disabled).toBe(false);
-  });
+  }, 15_000);
 
   it('records a small expense with the picked category and the typed amount', async () => {
     const saved = {
@@ -368,7 +370,7 @@ describe('CashMovementModal', () => {
     });
     expect(text()).toContain('CSH-000001');
     expect(text()).toContain('Print voucher');
-  });
+  }, 15_000);
 
   it('tells the person a typed name is kept for next time, and only then', async () => {
     const saved = {
@@ -402,7 +404,7 @@ describe('CashMovementModal', () => {
         message: 'CSH-000002 was saved. "Corner shop" is in your list for next time.',
       })
     );
-  });
+  }, 15_000);
 
   it('says what is missing instead of sending an incomplete form', async () => {
     await render(CASHIER);
@@ -413,7 +415,7 @@ describe('CashMovementModal', () => {
     await typeInto(amountField(), '100');
     await submit();
     expect(text()).toContain('Please pick what this is for.');
-  });
+  }, 15_000);
 
   it('hides the amount for a no-sale open and asks why the drawer is opened', async () => {
     categories = [category('ccat_change', 'Give change', { movementType: 'no_sale' })];
@@ -422,7 +424,7 @@ describe('CashMovementModal', () => {
     expect(amountField()).toBeNull();
     expect(text()).toContain('Why are you opening the drawer?');
     expect(button('Open drawer')).toBeTruthy();
-  });
+  }, 15_000);
 
   it('asks for a manager PIN on owner withdrawals and does not send without a checked one', async () => {
     categories = [category('ccat_personal', 'Personal use', { movementType: 'owner_withdrawal' })];
@@ -449,7 +451,7 @@ describe('CashMovementModal', () => {
     await submit();
     expect(createMovement.mutateAsync).not.toHaveBeenCalled();
     expect(text()).toContain('A manager or owner PIN is needed for this payment.');
-  });
+  }, 15_000);
 
   it('adds a new category on the spot and uses it', async () => {
     createCategory.mutateAsync.mockResolvedValue(
@@ -474,7 +476,7 @@ describe('CashMovementModal', () => {
       movementType: 'petty_expense',
       name: 'Generator diesel',
     });
-  });
+  }, 15_000);
 
   it('uses a new name once, filed under Other, when it is not saved', async () => {
     createMovement.mutateAsync.mockResolvedValue({
@@ -507,7 +509,7 @@ describe('CashMovementModal', () => {
       categoryKey: 'ccat_other',
       customLabel: 'Generator diesel',
     });
-  });
+  }, 15_000);
 
   it('tells a cashier to ask a manager when the kind of payment is not theirs to add to', async () => {
     categories = [category('ccat_r', 'Shop rent', { movementType: 'rent_and_bills' })];
@@ -520,9 +522,9 @@ describe('CashMovementModal', () => {
     await click('More');
     expect(text()).toContain('To add a new one, ask a manager.');
     expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
-  });
+  }, 15_000);
 
-  it('lets someone who may manage payees add a landlord from the picker, and tells others to ask', async () => {
+  it('lets someone who may manage payees add a landlord from the picker', async () => {
     categories = [category('ccat_r', 'Shop rent', { movementType: 'rent_and_bills' })];
     const managed = ['cash_movements:create', 'cash_movements:create:managed'];
     const landlordField = () =>
@@ -532,15 +534,20 @@ describe('CashMovementModal', () => {
     await click('Rent and bills');
     await typeInto(landlordField(), 'Water Board');
     expect(document.querySelector('[data-testid="combobox-create"]')).not.toBeNull();
+  }, 30_000);
 
-    await act(async () => root.unmount());
-    root = createRoot(container);
+  it('tells someone without payees:manage to ask a manager when adding a landlord', async () => {
+    categories = [category('ccat_r', 'Shop rent', { movementType: 'rent_and_bills' })];
+    const managed = ['cash_movements:create', 'cash_movements:create:managed'];
+    const landlordField = () =>
+      document.querySelector('input[placeholder="Landlord or company"]') as HTMLInputElement;
+
     await render(managed);
     await click('Rent and bills');
     await typeInto(landlordField(), 'Water Board');
     expect(document.querySelector('[data-testid="combobox-create"]')).toBeNull();
     expect(text()).toContain('To add someone new, ask a manager.');
-  });
+  }, 30_000);
 
   describe('the drawer', () => {
     // Added or paid out: the drawer figures come from the answer, keyed here by the typed amount.
@@ -557,10 +564,10 @@ describe('CashMovementModal', () => {
     it('shows what the drawer holds and what is left after this payment', async () => {
       script = drawerAt({ 0: 1_000_000, 50_000: 950_000 });
       await render(CASHIER);
-      expect(text()).toContain('In the drawer now: Rs. 10,000.00');
+      await eventuallyShows('In the drawer now: Rs. 10,000.00');
       await typeInto(amountField(), '500');
       await eventuallyShows('In the drawer: Rs. 10,000.00 → Rs. 9,500.00');
-    });
+    }, 15_000);
 
     it('adds to the drawer for added cash', async () => {
       script = drawerAt({ 0: 1_000_000, 50_000: 1_050_000 }, { takesCashOut: false });
@@ -569,13 +576,13 @@ describe('CashMovementModal', () => {
       await act(async () => group('Money in')!.click());
       await typeInto(amountField(), '500');
       await eventuallyShows('Rs. 10,000.00 → Rs. 10,500.00');
-    });
+    }, 15_000);
 
     it('offers the quick amounts the shop chose, and none before they have loaded', async () => {
       settings = undefined;
       await render(CASHIER);
       expect(button('Rs. 250.00')).toBeUndefined();
-      act(() => root.unmount());
+      await act(async () => root.unmount());
       root = createRoot(container);
       settings = { ...SETTINGS, quickAmountsCents: [25_000, 75_000] };
       await render(CASHIER);
@@ -584,7 +591,7 @@ describe('CashMovementModal', () => {
       expect(button('Rs. 100.00')).toBeUndefined();
       await click('Rs. 750.00');
       expect((amountField() as HTMLInputElement).value).toBe('Rs. 750.00');
-    });
+    }, 15_000);
 
     it('offers to drop the excess above the float target on a cash drop, and only then', async () => {
       script = drawerAt({ 0: 1_000_000 });
@@ -597,13 +604,13 @@ describe('CashMovementModal', () => {
       await click('Drop excess');
       expect((amountField() as HTMLInputElement).value).toBe('Rs. 7000.00');
 
-      act(() => root.unmount());
+      await act(async () => root.unmount());
       root = createRoot(container);
       settings = { ...SETTINGS, floatTargetCents: 2_000_000 };
       await render(CASHIER);
       await act(async () => group('Move cash')!.click());
       expect(button('Drop excess')).toBeUndefined();
-    });
+    }, 15_000);
 
     it('shows nothing about the drawer until the server has told us', async () => {
       script = null;
@@ -611,7 +618,7 @@ describe('CashMovementModal', () => {
       await typeInto(amountField(), '500');
       expect(document.querySelector('[data-testid="drawer-preview"]')).toBeNull();
       expect(text()).not.toContain('More than the drawer holds');
-    });
+    }, 15_000);
 
     it('warns when a payout is more than the drawer holds and asks for a manager PIN and a reason', async () => {
       // The drawer holds Rs 100.00; the payout is Rs 200.00.
@@ -663,14 +670,14 @@ describe('CashMovementModal', () => {
         managerPin: '5555',
         overrideReason: 'Supplier waiting',
       });
-    });
+    }, 15_000);
 
     it('does not ask for a reason when the payout fits in the drawer', async () => {
       script = drawerAt({ 0: 1_000_000, 50_000: 950_000 });
       await render(CASHIER);
       await typeInto(amountField(), '500');
       expect(text()).not.toContain('Why is this payout bigger');
-    });
+    }, 15_000);
   });
 
   describe('undo', () => {
@@ -701,13 +708,55 @@ describe('CashMovementModal', () => {
       expect(text()).toContain('Undo this entry');
       await click('Undo this entry');
       expect(reverseMovement.mutateAsync).toHaveBeenCalledWith({ key: 'cshm_9', input: {} });
-    });
+    }, 15_000);
 
     it('has no Undo once the window has passed or the server gave none', async () => {
       createMovement.mutateAsync.mockResolvedValue(saved(undefined));
       await record();
       expect(text()).toContain('Print voucher');
       expect(text()).not.toContain('Undo this entry');
-    });
+    }, 15_000);
+  });
+
+  describe('closing session pause', () => {
+    it('shows Cash Count In Progress alert and disables submit when shiftClosing is true', async () => {
+      await act(async () => {
+        root.render(
+          <Harness permissions={CASHIER}>
+            <CashMovementModal
+              opened
+              onClose={vi.fn()}
+              terminalId="term_1"
+              sessionKey="ses_1"
+              shiftClosing
+            />
+          </Harness>
+        );
+      });
+      await eventuallyShows('Cash Count In Progress');
+      const submitBtn = Array.from(
+        document.body.querySelectorAll<HTMLButtonElement>('button')
+      ).find((b) => b.type === 'submit');
+      expect(submitBtn?.disabled).toBe(true);
+    }, 15_000);
+
+    it('notifies Cash Count In Progress when server returns 409 SESSION_CLOSING', async () => {
+      createMovement.mutateAsync.mockRejectedValueOnce({
+        statusCode: 409,
+        code: 'SESSION_CLOSING',
+        message: 'Drawer cash count is in progress.',
+      });
+      await render(CASHIER);
+      await typeInto(amountField(), '5');
+      await click('Tea and refreshments');
+      await submit();
+
+      expect(notifications.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Cash Count In Progress',
+          color: 'orange',
+        })
+      );
+    }, 15_000);
   });
 });

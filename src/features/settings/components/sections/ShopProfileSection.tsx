@@ -1,18 +1,20 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { SimpleGrid, TextInput, SegmentedControl, Text, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { queryKeys } from '@/api/queryKeys';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectShopProfile,
   selectAppLanguage,
-  updateShopProfile,
   setShopProfile,
   setAppLanguage,
 } from '@/store/slices/settingsSlice';
 import { SectionShell } from '../SectionShell';
-import { getShopProfileApi, updateShopProfileApi } from '../../api/settingsApi';
+import { updateShopProfileApi } from '../../api/settingsApi';
+import { useShopProfile } from '../../hooks/useShopProfile';
 import { useCloudState } from '@/features/account';
 
 interface ShopProfileFormValues {
@@ -32,24 +34,27 @@ export interface SectionProps {
 
 export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
-  const shopProfile = useAppSelector(selectShopProfile);
+  const queryClient = useQueryClient();
+  const { shopProfile: fetchedProfile } = useShopProfile();
+  const storeProfile = useAppSelector(selectShopProfile);
+  const shopProfile = fetchedProfile ?? storeProfile;
   const appLanguage = useAppSelector(selectAppLanguage);
   const { state: cloudState } = useCloudState();
   const [saving, setSaving] = useState(false);
 
   const initialTradingName =
-    shopProfile.tradingName || (cloudState.linked ? cloudState.shopName?.trim() || '' : '') || '';
+    shopProfile?.tradingName || (cloudState.linked ? cloudState.shopName?.trim() || '' : '') || '';
 
   const form = useForm<ShopProfileFormValues>({
     initialValues: {
-      legalName: shopProfile.legalName || '',
+      legalName: shopProfile?.legalName || '',
       tradingName: initialTradingName,
-      addressLine1: shopProfile.addressLines?.[0] || '',
-      addressLine2: shopProfile.addressLines?.[1] || '',
-      primaryPhone: shopProfile.primaryPhone || '',
-      secondaryPhone: shopProfile.secondaryPhone || '',
-      email: shopProfile.email || '',
-      website: shopProfile.website || '',
+      addressLine1: shopProfile?.addressLines?.[0] || '',
+      addressLine2: shopProfile?.addressLines?.[1] || '',
+      primaryPhone: shopProfile?.primaryPhone || '',
+      secondaryPhone: shopProfile?.secondaryPhone || '',
+      email: shopProfile?.email || '',
+      website: shopProfile?.website || '',
     },
     validate: {
       tradingName: (val) => (val.trim() ? null : t('Enter your store or trading name.')),
@@ -61,41 +66,26 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
   });
 
   useEffect(() => {
-    let isMounted = true;
-    getShopProfileApi()
-      .then((profile) => {
-        if (!isMounted) return;
-        const effectiveTradingName =
-          profile.tradingName?.trim() ||
-          (cloudState.linked ? cloudState.shopName?.trim() || '' : '') ||
-          '';
-        const populatedProfile = { ...profile, tradingName: effectiveTradingName };
-        dispatch(setShopProfile(populatedProfile));
-        if (!form.isDirty()) {
-          const freshValues: ShopProfileFormValues = {
-            legalName: profile.legalName || '',
-            tradingName: effectiveTradingName,
-            addressLine1: profile.addressLines?.[0] || '',
-            addressLine2: profile.addressLines?.[1] || '',
-            primaryPhone: profile.primaryPhone || '',
-            secondaryPhone: profile.secondaryPhone || '',
-            email: profile.email || '',
-            website: profile.website || '',
-          };
-          form.setInitialValues(freshValues);
-          form.setValues(freshValues);
-          form.resetDirty();
-        }
-      })
-      .catch((err) => {
-        console.warn('Failed to load shop profile from server:', err);
-      });
-
-    return () => {
-      isMounted = false;
+    if (!shopProfile || form.isDirty()) return;
+    const effectiveTradingName =
+      shopProfile.tradingName?.trim() ||
+      (cloudState.linked ? cloudState.shopName?.trim() || '' : '') ||
+      '';
+    const freshValues: ShopProfileFormValues = {
+      legalName: shopProfile.legalName || '',
+      tradingName: effectiveTradingName,
+      addressLine1: shopProfile.addressLines?.[0] || '',
+      addressLine2: shopProfile.addressLines?.[1] || '',
+      primaryPhone: shopProfile.primaryPhone || '',
+      secondaryPhone: shopProfile.secondaryPhone || '',
+      email: shopProfile.email || '',
+      website: shopProfile.website || '',
     };
+    form.setInitialValues(freshValues);
+    form.setValues(freshValues);
+    form.resetDirty(freshValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, cloudState.linked, cloudState.shopName]);
+  }, [shopProfile, cloudState.linked, cloudState.shopName]);
 
   const isDirty = form.isDirty();
   useEffect(() => {
@@ -121,7 +111,8 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
 
     try {
       const persisted = await updateShopProfileApi(updatedPayload);
-      dispatch(updateShopProfile(persisted));
+      dispatch(setShopProfile(persisted));
+      queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
       const freshValues: ShopProfileFormValues = {
         legalName: persisted.legalName || '',
         tradingName: persisted.tradingName || '',
@@ -134,7 +125,7 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
       };
       form.setInitialValues(freshValues);
       form.setValues(freshValues);
-      form.resetDirty();
+      form.resetDirty(freshValues);
       notifications.show({
         title: t('Settings Saved'),
         message: t('Shop profile updated successfully.'),

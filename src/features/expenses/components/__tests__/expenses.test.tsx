@@ -149,8 +149,10 @@ vi.mock('@/features/expenses/hooks/useRecurring', () => ({
   useCreateRecurringExpense: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useUpdateRecurringExpense: () => ({ mutate: vi.fn(), mutateAsync: vi.fn(), isPending: false }),
 }));
+let currentSession: { key: string; status?: string; closingCashierNameSnapshot?: string } | null =
+  null;
 vi.mock('@/features/billing/hooks/useRegisterSession', () => ({
-  useCurrentSession: () => ({ session: null }),
+  useCurrentSession: () => ({ session: currentSession }),
 }));
 vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
 
@@ -186,6 +188,7 @@ describe('Expenses', () => {
   let root: Root;
 
   beforeEach(() => {
+    currentSession = null;
     Element.prototype.scrollIntoView ??= () => undefined;
     createExpense.mutateAsync.mockReset();
     addPayment.mutateAsync.mockReset();
@@ -416,6 +419,21 @@ describe('Expenses', () => {
       const { notifications } = await import('@mantine/notifications');
       expect(notifications.show).toHaveBeenCalledWith(
         expect.objectContaining({ title: 'Open a shift first' })
+      );
+    });
+
+    it('pauses drawer regular-bill payments with Cash Count In Progress while closing', async () => {
+      currentSession = {
+        key: 'ses_1',
+        status: 'closing',
+        closingCashierNameSnapshot: 'Kasun',
+      };
+      BILLS = [bill({ template: { ...bill({}).template, paidFrom: 'drawer' } })];
+      await openBills(MANAGE);
+      await click('Pay Rs. 20,000.00');
+      const { notifications } = await import('@mantine/notifications');
+      expect(notifications.show).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Cash Count In Progress', color: 'orange' })
       );
     });
 

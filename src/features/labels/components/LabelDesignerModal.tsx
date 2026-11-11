@@ -406,7 +406,7 @@ export const LabelDesignerModal = ({
                 onChange={setElements}
                 onRemove={remove}
                 sample={sample}
-                shopName={shopProfile.tradingName}
+                shopName={shopProfile?.tradingName ?? ''}
                 scale={scale}
               />
             )}

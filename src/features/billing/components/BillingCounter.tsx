@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { queryKeys } from '@/api/queryKeys';
 
 import {
   useCartItems,
@@ -46,6 +48,7 @@ import type { ApiError } from '@/shared/types/common';
 import type { Invoice } from '../types';
 
 export const BillingCounter = () => {
+  const queryClient = useQueryClient();
   const completeSaleMutation = useCompleteSale();
   const authUser = useAppSelector(selectAuthUser);
   const shopProfile = useAppSelector(selectShopProfile);
@@ -161,6 +164,19 @@ export const BillingCounter = () => {
     // The sale is sent with the server's figures for this exact cart, so wait for them.
     if (checkout === undefined || !isCurrent) return;
 
+    if (activeSession?.status === 'closing') {
+      notifications.show({
+        title: t('Cash Count In Progress'),
+        message: activeSession.closingCashierNameSnapshot
+          ? `${activeSession.closingCashierNameSnapshot} ${t('is counting the drawer. Finish or cancel the close count before completing sales.')}`
+          : t(
+              'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
+            ),
+        color: 'orange',
+      });
+      return;
+    }
+
     if (
       !activeSession ||
       (activeSession.status !== 'open' && activeSession.status !== 'reopened')
@@ -271,8 +287,8 @@ export const BillingCounter = () => {
         },
         notes,
         quotationKey: activeQuotationKey || undefined,
-        shopProfileSnapshot: shopProfile,
-        warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
+        shopProfileSnapshot: shopProfile ?? undefined,
+        warrantyTermsSnapshot: shopProfile?.defaultWarrantyText ?? '',
         documentSelection,
       };
 
@@ -308,6 +324,19 @@ export const BillingCounter = () => {
       }
     } catch (err) {
       const apiErr = err as ApiError;
+      if (apiErr?.code === 'SESSION_CLOSING') {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+        notifications.show({
+          title: t('Cash Count In Progress'),
+          message:
+            apiErr.message ||
+            t(
+              'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
+            ),
+          color: 'orange',
+        });
+        return;
+      }
       const isNotFound = apiErr?.statusCode === 404;
       notifications.show({
         title: isNotFound ? 'Item No Longer Available' : 'Checkout Error',
@@ -351,6 +380,7 @@ export const BillingCounter = () => {
     markSaleCompleted,
     isMobile,
     activeSession,
+    queryClient,
   ]);
 
   // Global Cashier Focus & Hotkeys
