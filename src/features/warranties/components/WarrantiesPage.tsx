@@ -16,8 +16,10 @@ import {
 import {
   IconAlertTriangle,
   IconBarcode,
+  IconClipboardList,
   IconFileInvoice,
   IconHash,
+  IconHourglass,
   IconPhone,
   IconScan,
   IconShieldCheck,
@@ -29,7 +31,7 @@ import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
-import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { AnimatedTabs } from '@/shared/components/drawer';
 import { LOOKUP_MIN_LENGTH, useWarrantyLookup, useWarrantyStats } from '../hooks/useWarranties';
 import { matchLabel } from '../lib/warrantyView';
 import { ClaimDetailDrawer } from './ClaimDetailDrawer';
@@ -114,138 +116,138 @@ export const WarrantiesPage = () => {
       {/* On a phone the scan box comes first; the numbers wait on the other views. */}
       {(!isMobile || view !== 'lookup') && <WarrantyMetrics />}
 
-      <SegmentedToggle
+      <AnimatedTabs<PageView>
         value={view}
-        onChange={(value) => setView(value as PageView)}
-        data={[
-          { value: 'lookup', label: t('Look up') },
-          { value: 'claims', label: t('Claims') },
-          { value: 'ending', label: t('Ending soon') },
+        onChange={setView}
+        tabs={[
+          { value: 'lookup', label: t('Look up'), icon: <IconShieldSearch size={16} /> },
+          { value: 'claims', label: t('Claims'), icon: <IconClipboardList size={16} /> },
+          { value: 'ending', label: t('Ending soon'), icon: <IconHourglass size={16} /> },
         ]}
-        size={isMobile ? 'md' : 'sm'}
-        fullWidth={isMobile}
-      />
-
-      {view === 'claims' ? (
-        <ClaimsQueue onOpen={openClaim} />
-      ) : view === 'ending' ? (
-        <EndingSoonList
-          until={stats.data === undefined ? null : stats.data.endingSoonUntil}
-          onOpen={openWarranty}
-        />
-      ) : (
-        <>
-          <Paper
-            p={isMobile ? 'md' : 'lg'}
-            shadow="xs"
-            style={{
-              background:
-                'linear-gradient(135deg, var(--mantine-color-blue-light) 0%, var(--bg-card) 65%)',
-            }}
-          >
-            <Stack gap="sm">
-              <Group gap="sm" wrap="nowrap">
-                <ThemeIcon size={40} variant="filled" color="blue">
-                  <IconShieldSearch size={22} />
-                </ThemeIcon>
-                <Box>
-                  <Text fw={800} size="lg">
-                    {t('Check a warranty')}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {t('Point the scanner at the serial or the receipt, or type it.')}
-                  </Text>
-                </Box>
-              </Group>
-              <SearchHistoryInput
-                ref={inputRef}
-                namespace="warranty-lookup"
-                size={isMobile ? 'md' : 'lg'}
-                value={text}
-                onValueChange={setText}
-                onSearchSubmit={(value) => {
-                  setText(value);
-                  setSubmitted(value);
+      >
+        {(active) =>
+          active === 'claims' ? (
+            <ClaimsQueue onOpen={openClaim} />
+          ) : active === 'ending' ? (
+            <EndingSoonList
+              until={stats.data === undefined ? null : stats.data.endingSoonUntil}
+              onOpen={openWarranty}
+            />
+          ) : (
+            <Stack gap="md">
+              <Paper
+                p={isMobile ? 'md' : 'lg'}
+                shadow="xs"
+                style={{
+                  background:
+                    'linear-gradient(135deg, var(--mantine-color-blue-light) 0%, var(--bg-card) 65%)',
                 }}
-                placeholder={t('Serial / IMEI, invoice, warranty number or phone')}
-                leftSection={<IconScan size={20} />}
-                rightSection={lookup.isFetching ? <Loader size="xs" /> : undefined}
-                data-barcode-scanner="true"
-                aria-label={t('Serial / IMEI, invoice, warranty number or phone')}
-              />
-              <Group gap="md" wrap="wrap">
-                {HINTS.map((hint) => (
-                  <Group key={hint.label} gap={4} wrap="nowrap" c="dimmed">
-                    {hint.icon}
-                    <Text size="xs" c="dimmed">
-                      {t(hint.label)}
-                    </Text>
+              >
+                <Stack gap="sm">
+                  <Group gap="sm" wrap="nowrap">
+                    <ThemeIcon size={40} variant="filled" color="blue">
+                      <IconShieldSearch size={22} />
+                    </ThemeIcon>
+                    <Box>
+                      <Text fw={800} size="lg">
+                        {t('Check a warranty')}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {t('Point the scanner at the serial or the receipt, or type it.')}
+                      </Text>
+                    </Box>
                   </Group>
-                ))}
-                <Group gap={4} wrap="nowrap" visibleFrom="sm" ml="auto">
-                  <Text size="xs" c="dimmed">
-                    {t('From anywhere')}
-                  </Text>
-                  <Kbd size="xs">Alt</Kbd>
-                  <Text size="xs" c="dimmed">
-                    +
-                  </Text>
-                  <Kbd size="xs">W</Kbd>
-                </Group>
-              </Group>
-            </Stack>
-          </Paper>
-
-          {lookup.isError && searching && (
-            <Alert color="red" icon={<IconAlertTriangle size={18} />}>
-              {getErrorMessage(lookup.error)}
-            </Alert>
-          )}
-
-          {!searching ? (
-            <EmptyState
-              icon={
-                <ThemeIcon size={56} variant="light" color="blue">
-                  <IconShieldCheck size={30} />
-                </ThemeIcon>
-              }
-              title={t('Ready when the customer is')}
-              description={t(
-                'Every item sold with a warranty is here. Scan its serial, the invoice, or type the phone number the customer gave.'
-              )}
-            />
-          ) : result !== undefined && result.matchedBy === 'nothing' ? (
-            <EmptyState
-              icon={
-                <ThemeIcon size={56} variant="light" color="gray">
-                  <IconShieldSearch size={30} />
-                </ThemeIcon>
-              }
-              title={t('No warranty found')}
-              description={t(
-                'Check the number, or try the invoice number or the phone number. Items sold without a warranty do not show here.'
-              )}
-            />
-          ) : result !== undefined ? (
-            <Stack gap="sm">
-              <Text size="sm" c="dimmed">
-                {matchLabel(result.matchedBy)} · {groups.length}{' '}
-                {groups.length === 1 ? t('item') : t('items')}
-              </Text>
-              <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
-                {groups.map((group, index) => (
-                  <WarrantyGroupCard
-                    key={group.serialNumber ?? group.warranties[0].key}
-                    group={group}
-                    index={index}
-                    onOpen={openWarranty}
+                  <SearchHistoryInput
+                    ref={inputRef}
+                    namespace="warranty-lookup"
+                    size={isMobile ? 'md' : 'lg'}
+                    value={text}
+                    onValueChange={setText}
+                    onSearchSubmit={(value) => {
+                      setText(value);
+                      setSubmitted(value);
+                    }}
+                    placeholder={t('Serial / IMEI, invoice, warranty number or phone')}
+                    leftSection={<IconScan size={20} />}
+                    rightSection={lookup.isFetching ? <Loader size="xs" /> : undefined}
+                    data-barcode-scanner="true"
+                    aria-label={t('Serial / IMEI, invoice, warranty number or phone')}
                   />
-                ))}
-              </SimpleGrid>
+                  <Group gap="md" wrap="wrap">
+                    {HINTS.map((hint) => (
+                      <Group key={hint.label} gap={4} wrap="nowrap" c="dimmed">
+                        {hint.icon}
+                        <Text size="xs" c="dimmed">
+                          {t(hint.label)}
+                        </Text>
+                      </Group>
+                    ))}
+                    <Group gap={4} wrap="nowrap" visibleFrom="sm" ml="auto">
+                      <Text size="xs" c="dimmed">
+                        {t('From anywhere')}
+                      </Text>
+                      <Kbd size="xs">Alt</Kbd>
+                      <Text size="xs" c="dimmed">
+                        +
+                      </Text>
+                      <Kbd size="xs">W</Kbd>
+                    </Group>
+                  </Group>
+                </Stack>
+              </Paper>
+
+              {lookup.isError && searching && (
+                <Alert color="red" icon={<IconAlertTriangle size={18} />}>
+                  {getErrorMessage(lookup.error)}
+                </Alert>
+              )}
+
+              {!searching ? (
+                <EmptyState
+                  icon={
+                    <ThemeIcon size={56} variant="light" color="blue">
+                      <IconShieldCheck size={30} />
+                    </ThemeIcon>
+                  }
+                  title={t('Ready when the customer is')}
+                  description={t(
+                    'Every item sold with a warranty is here. Scan its serial, the invoice, or type the phone number the customer gave.'
+                  )}
+                />
+              ) : result !== undefined && result.matchedBy === 'nothing' ? (
+                <EmptyState
+                  icon={
+                    <ThemeIcon size={56} variant="light" color="gray">
+                      <IconShieldSearch size={30} />
+                    </ThemeIcon>
+                  }
+                  title={t('No warranty found')}
+                  description={t(
+                    'Check the number, or try the invoice number or the phone number. Items sold without a warranty do not show here.'
+                  )}
+                />
+              ) : result !== undefined ? (
+                <Stack gap="sm">
+                  <Text size="sm" c="dimmed">
+                    {matchLabel(result.matchedBy)} · {groups.length}{' '}
+                    {groups.length === 1 ? t('item') : t('items')}
+                  </Text>
+                  <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+                    {groups.map((group, index) => (
+                      <WarrantyGroupCard
+                        key={group.serialNumber ?? group.warranties[0].key}
+                        group={group}
+                        index={index}
+                        onOpen={openWarranty}
+                      />
+                    ))}
+                  </SimpleGrid>
+                </Stack>
+              ) : null}
             </Stack>
-          ) : null}
-        </>
-      )}
+          )
+        }
+      </AnimatedTabs>
 
       <WarrantyDetailDrawer
         warrantyKey={openKey}
