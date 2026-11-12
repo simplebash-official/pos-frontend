@@ -1,10 +1,17 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
 import {
   extendWarranty,
   fetchWarranties,
+  fetchWarrantyPage,
   fetchWarranty,
   fetchWarrantyStats,
   getWarrantyCard,
@@ -29,6 +36,18 @@ export const useWarrantyLookup = (q: string) => {
     placeholderData: keepPreviousData,
   });
 };
+
+/** How many warranties the browse list loads at a time. */
+export const BROWSE_PAGE_SIZE = 24;
+
+/** Every warranty, newest first, a page at a time, for the list shown before anyone searches. */
+export const useAllWarranties = () =>
+  useInfiniteQuery({
+    queryKey: queryKeys.warranties.list({ browse: true }),
+    queryFn: ({ pageParam }) => fetchWarrantyPage(pageParam, BROWSE_PAGE_SIZE),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.page * last.limit < last.total ? last.page + 1 : undefined),
+  });
 
 /** One customer's or one invoice's warranties. Pass `null` to wait. */
 export const useWarranties = (filter: WarrantyListFilter | null) =>

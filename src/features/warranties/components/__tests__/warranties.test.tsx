@@ -83,6 +83,7 @@ const DETAIL: WarrantyDetail = {
 vi.mock('../../api/warrantiesApi', () => ({
   lookupWarranties: vi.fn(),
   fetchWarranties: vi.fn(),
+  fetchWarrantyPage: vi.fn(),
   fetchWarranty: vi.fn(),
   fetchWarrantyStats: vi.fn(),
   voidWarranty: vi.fn(),
@@ -100,6 +101,7 @@ const api = {
   lookup: vi.mocked(warrantiesApi.lookupWarranties),
   detail: vi.mocked(warrantiesApi.fetchWarranty),
   list: vi.mocked(warrantiesApi.fetchWarranties),
+  page: vi.mocked(warrantiesApi.fetchWarrantyPage),
   stats: vi.mocked(warrantiesApi.fetchWarrantyStats),
   voidWarranty: vi.mocked(warrantiesApi.voidWarranty),
 };
@@ -188,11 +190,42 @@ describe('warranty screens', () => {
     });
   };
 
-  it('starts ready for a scan and shows what it accepts', async () => {
+  it('lists every warranty before anyone searches, and opens one', async () => {
+    api.page.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 24 });
+    api.detail.mockReturnValue(new Promise(() => undefined));
     await render(<WarrantiesPage />);
-    expect(document.body.textContent).toContain('Ready when the customer is');
-    expect(document.body.textContent).toContain('Serial or IMEI');
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Galaxy A55'));
+    expect(document.body.textContent).toContain('Showing 1 of 1 warranties');
+    expect(document.body.textContent).not.toContain('Show more');
     expect(api.lookup).not.toHaveBeenCalled();
+    expect(api.page).toHaveBeenCalledWith(1, 24);
+    const open = document.querySelector<HTMLButtonElement>(
+      'button[aria-label="Open warranty WTY-000001"]'
+    );
+    await act(async () => open?.click());
+    await vi.waitFor(() => expect(api.detail).toHaveBeenCalledWith('wty_1'));
+  });
+
+  it('loads the next page on Show more', async () => {
+    const second: Warranty = { ...WARRANTY, key: 'wty_2', warrantyNumber: 'WTY-000002' };
+    api.page
+      .mockResolvedValueOnce({ items: [WARRANTY], total: 2, page: 1, limit: 1 })
+      .mockResolvedValueOnce({ items: [second], total: 2, page: 2, limit: 1 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 1 of 2'));
+    const more = Array.from(document.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Show more'
+    );
+    await act(async () => more?.click());
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 2 of 2'));
+    expect(api.page).toHaveBeenLastCalledWith(2, 24);
+    expect(document.body.textContent).not.toContain('Show more');
+  });
+
+  it('says so when the shop has no warranties yet', async () => {
+    api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('No warranties yet'));
   });
 
   it('shows the desk numbers the server worked out', async () => {

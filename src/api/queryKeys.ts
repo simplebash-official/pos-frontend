@@ -98,6 +98,7 @@ export const queryKeys = {
       invoiceKey?: string;
       repairKey?: string;
       state?: string;
+      browse?: boolean;
     }) => ['warranties', 'list', filters] as const,
     stats: () => ['warranties', 'stats'] as const,
     detail: (key: string) => ['warranties', 'detail', key] as const,

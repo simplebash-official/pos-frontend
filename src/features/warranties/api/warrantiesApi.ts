@@ -38,6 +38,17 @@ export const fetchWarranties = async (filter: WarrantyListFilter): Promise<Warra
   return response.data;
 };
 
+/** One page of every warranty the shop has issued, newest first. */
+export const fetchWarrantyPage = async (
+  page: number,
+  limit: number
+): Promise<WarrantyListResult> => {
+  const response = await apiClient.get<ApiResponse<WarrantyListResult>>('/warranties', {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
 /** The warranty desk's headline numbers. */
 export const fetchWarrantyStats = async (): Promise<WarrantyStats> => {
   const response = await apiClient.get<ApiResponse<WarrantyStats>>('/warranties/stats');

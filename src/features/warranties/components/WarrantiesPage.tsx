@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useDebouncedValue } from '@mantine/hooks';
 import {
   Alert,
-  Box,
   Group,
   Kbd,
   Loader,
@@ -15,14 +14,9 @@ import {
 } from '@mantine/core';
 import {
   IconAlertTriangle,
-  IconBarcode,
   IconClipboardList,
-  IconFileInvoice,
-  IconHash,
   IconHourglass,
-  IconPhone,
   IconScan,
-  IconShieldCheck,
   IconShieldSearch,
 } from '@tabler/icons-react';
 import { EmptyState } from '@/shared/components/EmptyState';
@@ -39,19 +33,12 @@ import { ClaimsQueue } from './ClaimsQueue';
 import { EndingSoonList } from './EndingSoonList';
 import { WarrantyDetailDrawer } from './WarrantyDetailDrawer';
 import { WarrantyGroupCard } from './WarrantyGroupCard';
+import { AllWarranties } from './AllWarranties';
 import { WarrantyMetrics } from './WarrantyMetrics';
 
 type PageView = 'lookup' | 'claims' | 'ending';
 
 const VIEWS: PageView[] = ['lookup', 'claims', 'ending'];
-
-/** What the search box accepts, shown as hints under it. */
-const HINTS = [
-  { icon: <IconBarcode size={14} />, label: 'Serial or IMEI' },
-  { icon: <IconFileInvoice size={14} />, label: 'Invoice number' },
-  { icon: <IconHash size={14} />, label: 'Warranty number' },
-  { icon: <IconPhone size={14} />, label: 'Phone number' },
-];
 
 /**
  * The counter tool: scan or type anything that identifies a sale or a device and see its
@@ -135,65 +122,36 @@ export const WarrantiesPage = () => {
             />
           ) : (
             <Stack gap="md">
-              <Paper
-                p={isMobile ? 'md' : 'lg'}
-                shadow="xs"
-                style={{
-                  background:
-                    'linear-gradient(135deg, var(--mantine-color-blue-light) 0%, var(--bg-card) 65%)',
-                }}
-              >
-                <Stack gap="sm">
-                  <Group gap="sm" wrap="nowrap">
-                    <ThemeIcon size={40} variant="filled" color="blue">
-                      <IconShieldSearch size={22} />
-                    </ThemeIcon>
-                    <Box>
-                      <Text fw={800} size="lg">
-                        {t('Check a warranty')}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t('Point the scanner at the serial or the receipt, or type it.')}
-                      </Text>
-                    </Box>
-                  </Group>
-                  <SearchHistoryInput
-                    ref={inputRef}
-                    namespace="warranty-lookup"
-                    size={isMobile ? 'md' : 'lg'}
-                    value={text}
-                    onValueChange={setText}
-                    onSearchSubmit={(value) => {
-                      setText(value);
-                      setSubmitted(value);
-                    }}
-                    placeholder={t('Serial / IMEI, invoice, warranty number or phone')}
-                    leftSection={<IconScan size={20} />}
-                    rightSection={lookup.isFetching ? <Loader size="xs" /> : undefined}
-                    data-barcode-scanner="true"
-                    aria-label={t('Serial / IMEI, invoice, warranty number or phone')}
-                  />
-                  <Group gap="md" wrap="wrap">
-                    {HINTS.map((hint) => (
-                      <Group key={hint.label} gap={4} wrap="nowrap" c="dimmed">
-                        {hint.icon}
+              <Paper p="xs" shadow="xs">
+                <SearchHistoryInput
+                  ref={inputRef}
+                  namespace="warranty-lookup"
+                  size="md"
+                  value={text}
+                  onValueChange={setText}
+                  onSearchSubmit={(value) => {
+                    setText(value);
+                    setSubmitted(value);
+                  }}
+                  placeholder={t('Serial / IMEI, invoice, warranty number or phone')}
+                  leftSection={<IconScan size={20} />}
+                  rightSectionWidth={isMobile ? 36 : 120}
+                  rightSection={
+                    lookup.isFetching ? (
+                      <Loader size="xs" />
+                    ) : (
+                      <Group gap={4} wrap="nowrap" visibleFrom="sm">
+                        <Kbd size="xs">Alt</Kbd>
                         <Text size="xs" c="dimmed">
-                          {t(hint.label)}
+                          +
                         </Text>
+                        <Kbd size="xs">W</Kbd>
                       </Group>
-                    ))}
-                    <Group gap={4} wrap="nowrap" visibleFrom="sm" ml="auto">
-                      <Text size="xs" c="dimmed">
-                        {t('From anywhere')}
-                      </Text>
-                      <Kbd size="xs">Alt</Kbd>
-                      <Text size="xs" c="dimmed">
-                        +
-                      </Text>
-                      <Kbd size="xs">W</Kbd>
-                    </Group>
-                  </Group>
-                </Stack>
+                    )
+                  }
+                  data-barcode-scanner="true"
+                  aria-label={t('Serial / IMEI, invoice, warranty number or phone')}
+                />
               </Paper>
 
               {lookup.isError && searching && (
@@ -203,17 +161,7 @@ export const WarrantiesPage = () => {
               )}
 
               {!searching ? (
-                <EmptyState
-                  icon={
-                    <ThemeIcon size={56} variant="light" color="blue">
-                      <IconShieldCheck size={30} />
-                    </ThemeIcon>
-                  }
-                  title={t('Ready when the customer is')}
-                  description={t(
-                    'Every item sold with a warranty is here. Scan its serial, the invoice, or type the phone number the customer gave.'
-                  )}
-                />
+                <AllWarranties onOpen={openWarranty} />
               ) : result !== undefined && result.matchedBy === 'nothing' ? (
                 <EmptyState
                   icon={

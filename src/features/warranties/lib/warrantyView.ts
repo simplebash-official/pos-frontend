@@ -6,6 +6,7 @@ import type {
   Warranty,
   WarrantyCoverage,
   WarrantyEventKind,
+  WarrantyGroup,
   WarrantyLookupMatch,
   WarrantyState,
   WarrantyType,
@@ -170,3 +171,12 @@ export const canStartClaim = (warranty: Pick<Warranty, 'state'>): boolean =>
 export const canQuickReplace = (warranty: Pick<Warranty, 'state' | 'sourceType'>): boolean =>
   warranty.sourceType === 'product_sale' &&
   (warranty.state === 'active' || warranty.state === 'expiring_soon');
+
+/** A warranty shown on its own card, as the browse list does. */
+export const toSingleGroup = (warranty: Warranty): WarrantyGroup => ({
+  serialNumber: warranty.serialNumber,
+  itemName: warranty.itemName,
+  customerName: warranty.customerName,
+  customerPhone: warranty.customerPhone,
+  warranties: [warranty],
+});
