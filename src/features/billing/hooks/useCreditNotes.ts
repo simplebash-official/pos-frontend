@@ -37,6 +37,8 @@ export const useCreateCreditNote = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+      // What came back has its warranty cancelled.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all });
     },
   });
 };

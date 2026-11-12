@@ -46,6 +46,7 @@ export const useAllWarranties = () =>
     queryKey: queryKeys.warranties.list({ browse: true }),
     queryFn: ({ pageParam }) => fetchWarrantyPage(pageParam, BROWSE_PAGE_SIZE),
     initialPageParam: 1,
+    staleTime: 0,
     getNextPageParam: (last) => (last.page * last.limit < last.total ? last.page + 1 : undefined),
   });
 
@@ -59,7 +60,9 @@ export const useWarranties = (filter: WarrantyListFilter | null) =>
 
 /** The warranty desk's headline numbers, kept for offline as the other KPI strips are. */
 export const useWarrantyStats = () =>
-  useModuleStats<WarrantyStats>('warranties', queryKeys.warranties.stats(), fetchWarrantyStats);
+  useModuleStats<WarrantyStats>('warranties', queryKeys.warranties.stats(), fetchWarrantyStats, {
+    staleTime: 0,
+  });
 
 /** Warranties in force that end within the week, soonest first. */
 export const useEndingSoonWarranties = (enabled: boolean) =>
@@ -67,6 +70,7 @@ export const useEndingSoonWarranties = (enabled: boolean) =>
     queryKey: queryKeys.warranties.list({ state: 'expiring_soon' }),
     queryFn: () => fetchWarranties({ state: 'expiring_soon' }),
     enabled,
+    staleTime: 0,
   });
 
 /** One warranty in full. Pass `null` to wait. */

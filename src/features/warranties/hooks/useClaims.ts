@@ -37,6 +37,7 @@ export const useClaims = (filter: ClaimListFilter | null) =>
     queryKey: queryKeys.warrantyClaims.list({ ...filter }),
     queryFn: () => fetchClaims(filter as ClaimListFilter),
     enabled: filter !== null,
+    staleTime: 0,
   });
 
 /** One claim. Pass `null` to wait. */

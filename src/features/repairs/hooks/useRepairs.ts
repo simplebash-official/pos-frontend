@@ -44,8 +44,9 @@ export const useUpdateRepairJob = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
       // Handing back a warranty rework takes its parts out of stock.
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      // A rework's parts are this month's warranty cost on the warranty desk.
-      void queryClient.invalidateQueries({ queryKey: queryKeys.warranties.stats() });
+      // Handing a job back issues its work warranties, and a rework's parts are this month's
+      // warranty cost on the warranty desk.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all });
     },
   });
 };

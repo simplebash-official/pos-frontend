@@ -30,9 +30,16 @@ export function useModuleStats<T>(
     | 'income'
     | 'warranties',
   queryKey: readonly unknown[],
-  fetchFn: () => Promise<T>
+  fetchFn: () => Promise<T>,
+  options?: { staleTime: number }
 ): ModuleStatsResult<T> {
-  const query = useQuery({ queryKey, queryFn: fetchFn, retry: 1 });
+  const query = useQuery({
+    queryKey,
+    queryFn: fetchFn,
+    retry: 1,
+    // Left out entirely when unset: an explicit `undefined` would replace the client default.
+    ...(options === undefined ? {} : { staleTime: options.staleTime }),
+  });
 
   useEffect(() => {
     if (query.data === undefined) {

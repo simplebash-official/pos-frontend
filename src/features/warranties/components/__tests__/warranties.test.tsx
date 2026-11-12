@@ -21,6 +21,7 @@ import { CoverageEditor } from '../CoverageEditor';
 import * as warrantiesApi from '../../api/warrantiesApi';
 import { db } from '@/offline/db/schema';
 import { formatMoney } from '@/shared/lib/money';
+import { getActionShortcut, getShortcutKeyParts } from '@/shared/lib/shortcuts';
 
 installDrawerTestEnv();
 
@@ -189,6 +190,45 @@ describe('warranty screens', () => {
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
   };
+
+  it('reloads the list and the numbers each time the page is opened', async () => {
+    const second: Warranty = { ...WARRANTY, key: 'wty_2', warrantyNumber: 'WTY-000002' };
+    api.page.mockResolvedValueOnce({ items: [WARRANTY], total: 1, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 1 of 1'));
+    const statsCalls = api.stats.mock.calls.length;
+    await render(null);
+    api.page.mockResolvedValueOnce({ items: [second, WARRANTY], total: 2, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 2 of 2'));
+    expect(api.page).toHaveBeenCalledTimes(2);
+    expect(api.stats.mock.calls.length).toBeGreaterThan(statsCalls);
+  });
+
+  it('shows the warranty shortcut the way this computer writes it', async () => {
+    api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    const shown = Array.from(document.querySelectorAll('kbd')).map((kbd) => kbd.textContent);
+    const expected = getShortcutKeyParts(getActionShortcut('warrantyLookup').primary).map(
+      (part) => part.text
+    );
+    expect(shown).toEqual(expected);
+  });
+
+  it('lets the person choose how many cards sit in a row, and remembers it', async () => {
+    localStorage.removeItem('pos-warranty-columns');
+    api.page.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Galaxy A55'));
+    const choice = (n: string) =>
+      document.querySelector<HTMLInputElement>(`input[type="radio"][value="${n}"]`);
+    // jsdom reports no screen size, so which choices show depends on the tier; the stored
+    // number is what the person picked.
+    const three = choice('3');
+    if (three === null) throw new Error('the cards-per-row choices are not shown');
+    await act(async () => three.click());
+    expect(localStorage.getItem('pos-warranty-columns')).toBe('3');
+  });
 
   it('lists every warranty before anyone searches, and opens one', async () => {
     api.page.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 24 });

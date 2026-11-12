@@ -9,7 +9,13 @@ import { toSingleGroup } from '../lib/warrantyView';
 import { WarrantyGroupCard } from './WarrantyGroupCard';
 
 /** Every warranty the shop has issued, newest first, shown before anyone searches. */
-export const AllWarranties = ({ onOpen }: { onOpen: (warrantyKey: string) => void }) => {
+export const AllWarranties = ({
+  onOpen,
+  perRow,
+}: {
+  onOpen: (warrantyKey: string) => void;
+  perRow: number;
+}) => {
   const isMobile = useIsMobile();
   const query = useAllWarranties();
 
@@ -22,7 +28,7 @@ export const AllWarranties = ({ onOpen }: { onOpen: (warrantyKey: string) => voi
   }
   if (query.data === undefined) {
     return (
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+      <SimpleGrid cols={perRow} spacing="md">
         {[0, 1, 2, 3].map((slot) => (
           <Skeleton key={slot} height={120} />
         ))}
@@ -51,7 +57,7 @@ export const AllWarranties = ({ onOpen }: { onOpen: (warrantyKey: string) => voi
       <Text size="sm" c="dimmed">
         {t('Showing')} {warranties.length} {t('of')} {total} {t('warranties')}
       </Text>
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+      <SimpleGrid cols={perRow} spacing="md">
         {warranties.map((warranty, index) => (
           <WarrantyGroupCard
             key={warranty.key}

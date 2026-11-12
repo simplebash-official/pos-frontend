@@ -1,17 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDebouncedValue } from '@mantine/hooks';
-import {
-  Alert,
-  Group,
-  Kbd,
-  Loader,
-  Paper,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { Alert, Group, Loader, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
   IconAlertTriangle,
   IconClipboardList,
@@ -21,6 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { PageHeader } from '@/shared/components/PageHeader';
+import { KbdAction } from '@/shared/components/KbdShortcut';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
@@ -33,6 +24,8 @@ import { ClaimsQueue } from './ClaimsQueue';
 import { EndingSoonList } from './EndingSoonList';
 import { WarrantyDetailDrawer } from './WarrantyDetailDrawer';
 import { WarrantyGroupCard } from './WarrantyGroupCard';
+import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import { useWarrantyColumns, type WarrantyColumns } from '../hooks/useWarrantyColumns';
 import { AllWarranties } from './AllWarranties';
 import { WarrantyMetrics } from './WarrantyMetrics';
 
@@ -47,6 +40,7 @@ const VIEWS: PageView[] = ['lookup', 'claims', 'ending'];
  */
 export const WarrantiesPage = () => {
   const isMobile = useIsMobile();
+  const { perRow, choices, choose } = useWarrantyColumns();
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const openKey = searchParams.get('key');
@@ -122,37 +116,51 @@ export const WarrantiesPage = () => {
             />
           ) : (
             <Stack gap="md">
-              <Paper p="xs" shadow="xs">
-                <SearchHistoryInput
-                  ref={inputRef}
-                  namespace="warranty-lookup"
-                  size="md"
-                  value={text}
-                  onValueChange={setText}
-                  onSearchSubmit={(value) => {
-                    setText(value);
-                    setSubmitted(value);
-                  }}
-                  placeholder={t('Serial / IMEI, invoice, warranty number or phone')}
-                  leftSection={<IconScan size={20} />}
-                  rightSectionWidth={isMobile ? 36 : 120}
-                  rightSection={
-                    lookup.isFetching ? (
-                      <Loader size="xs" />
-                    ) : (
-                      <Group gap={4} wrap="nowrap" visibleFrom="sm">
-                        <Kbd size="xs">Alt</Kbd>
-                        <Text size="xs" c="dimmed">
-                          +
-                        </Text>
-                        <Kbd size="xs">W</Kbd>
-                      </Group>
-                    )
-                  }
-                  data-barcode-scanner="true"
-                  aria-label={t('Serial / IMEI, invoice, warranty number or phone')}
-                />
-              </Paper>
+              <Group gap="sm" wrap="nowrap" align="stretch">
+                <Paper p="xs" shadow="xs" style={{ flex: 1, minWidth: 0 }}>
+                  <SearchHistoryInput
+                    ref={inputRef}
+                    namespace="warranty-lookup"
+                    size="md"
+                    value={text}
+                    onValueChange={setText}
+                    onSearchSubmit={(value) => {
+                      setText(value);
+                      setSubmitted(value);
+                    }}
+                    placeholder={t('Serial / IMEI, invoice, warranty number or phone')}
+                    leftSection={<IconScan size={20} />}
+                    rightSectionWidth={isMobile ? 36 : 120}
+                    rightSection={
+                      lookup.isFetching ? (
+                        <Loader size="xs" />
+                      ) : (
+                        <Group gap={4} wrap="nowrap" visibleFrom="sm">
+                          <KbdAction actionId="warrantyLookup" />
+                        </Group>
+                      )
+                    }
+                    data-barcode-scanner="true"
+                    aria-label={t('Serial / IMEI, invoice, warranty number or phone')}
+                  />
+                </Paper>
+                {choices.length > 1 && (
+                  <Paper p="xs" shadow="xs" visibleFrom="sm">
+                    <Group gap="xs" wrap="nowrap" h="100%">
+                      <Text size="xs" c="dimmed">
+                        {t('Cards per row')}
+                      </Text>
+                      <SegmentedToggle
+                        size="sm"
+                        value={String(perRow)}
+                        onChange={(value) => choose(Number(value) as WarrantyColumns)}
+                        data={choices.map((option) => String(option))}
+                        aria-label={t('Cards per row')}
+                      />
+                    </Group>
+                  </Paper>
+                )}
+              </Group>
 
               {lookup.isError && searching && (
                 <Alert color="red" icon={<IconAlertTriangle size={18} />}>
@@ -161,7 +169,7 @@ export const WarrantiesPage = () => {
               )}
 
               {!searching ? (
-                <AllWarranties onOpen={openWarranty} />
+                <AllWarranties onOpen={openWarranty} perRow={perRow} />
               ) : result !== undefined && result.matchedBy === 'nothing' ? (
                 <EmptyState
                   icon={
@@ -180,7 +188,7 @@ export const WarrantiesPage = () => {
                     {matchLabel(result.matchedBy)} · {groups.length}{' '}
                     {groups.length === 1 ? t('item') : t('items')}
                   </Text>
-                  <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+                  <SimpleGrid cols={perRow} spacing="md">
                     {groups.map((group, index) => (
                       <WarrantyGroupCard
                         key={group.serialNumber ?? group.warranties[0].key}

@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   SIDEBAR_COLLAPSED: 'pos-sidebar-collapsed',
   /** Ids of sidebar sections the user folded shut. */
   SIDEBAR_FOLDED: 'pos-sidebar-folded',
+  /** How many warranty cards the Warranties page shows in a row. */
+  WARRANTY_COLUMNS: 'pos-warranty-columns',
   CUSTOMERS: 'pos_customers_data',
   HELD_CARTS: 'pos_held_carts_data',
   SETTINGS: 'pos_settings_data',

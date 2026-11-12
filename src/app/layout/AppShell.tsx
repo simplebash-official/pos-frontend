@@ -26,6 +26,7 @@ import { updateShopProfileApi, useShopProfile } from '@/features/settings';
 import { useCloudState } from '@/features/account';
 import { GlobalQuickSearchModal } from '@/shared/components/GlobalQuickSearchModal';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
+import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { PRODUCT_NAME } from '@/config/branding';
 
@@ -147,7 +148,13 @@ export const AppShell = () => {
   const navigate = useNavigate();
   const canCheckWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
   useAppShortcuts(
-    [{ key: 'Alt+W', ignoreInput: true, handler: () => navigate(ROUTES.WARRANTIES) }],
+    [
+      {
+        key: getActionShortcut('warrantyLookup').primary,
+        ignoreInput: true,
+        handler: () => navigate(ROUTES.WARRANTIES),
+      },
+    ],
     canCheckWarranties
   );
 
