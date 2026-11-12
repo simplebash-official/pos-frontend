@@ -105,21 +105,16 @@ export const WarrantiesPage = () => {
   const groups = searching && result !== undefined ? result.groups : [];
 
   return (
-    <Box>
+    <Stack gap="lg">
       <PageHeader
         title={t('Warranties')}
         description={t('Scan or type to check a warranty while the customer waits.')}
       />
 
       {/* On a phone the scan box comes first; the numbers wait on the other views. */}
-      {(!isMobile || view !== 'lookup') && (
-        <Box mb="md">
-          <WarrantyMetrics />
-        </Box>
-      )}
+      {(!isMobile || view !== 'lookup') && <WarrantyMetrics />}
 
       <SegmentedToggle
-        mb="md"
         value={view}
         onChange={(value) => setView(value as PageView)}
         data={[
@@ -142,7 +137,6 @@ export const WarrantiesPage = () => {
         <>
           <Paper
             p={isMobile ? 'md' : 'lg'}
-            mb="lg"
             shadow="xs"
             style={{
               background:
@@ -203,7 +197,7 @@ export const WarrantiesPage = () => {
           </Paper>
 
           {lookup.isError && searching && (
-            <Alert color="red" icon={<IconAlertTriangle size={18} />} mb="md">
+            <Alert color="red" icon={<IconAlertTriangle size={18} />}>
               {getErrorMessage(lookup.error)}
             </Alert>
           )}
@@ -264,6 +258,6 @@ export const WarrantiesPage = () => {
         onClose={() => close('claim')}
         onOpenWarranty={openWarranty}
       />
-    </Box>
+    </Stack>
   );
 };

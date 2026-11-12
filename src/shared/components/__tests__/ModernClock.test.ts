@@ -56,6 +56,15 @@ describe('ModernClock component', () => {
     expect(html).toContain('var(--mantine-color-blue-5)');
   });
 
+  it('renders hero variant for the dashboard cockpit', () => {
+    const html = renderToString(
+      React.createElement(ModernClock, { variant: 'hero', id: 'test-hero-clock' })
+    );
+    expect(html).toContain('id="test-hero-clock"');
+    expect(html).toContain('height:64px');
+    expect(html).toContain('font-size:2rem');
+  });
+
   it('renders compact split pill variant with compact styling for billing header', () => {
     const html = renderToString(
       React.createElement(ModernClock, { variant: 'compact', id: 'test-compact-clock' })

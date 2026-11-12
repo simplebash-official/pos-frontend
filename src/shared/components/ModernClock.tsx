@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { formatClockTime, formatClockDate, parseClockTimeParts } from '@/shared/lib/date';
 
 export interface ModernClockProps {
-  variant: 'header' | 'compact';
+  variant: 'hero' | 'header' | 'compact';
   id?: string;
   className?: string;
   style?: React.CSSProperties;
@@ -15,9 +15,45 @@ export interface ModernClockProps {
  * - Center: 1px vertical divider
  * - Right segment: tabular-num bold 12h time (e.g. '2:46:54') + blue period (e.g. 'AM')
  *
- * Supports 'header' for the standard top navigation bar (42px pill) and 'compact'
- * for the slim billing header (28px pill).
+ * Supports 'hero' for the dashboard cockpit (64px pill), 'header' for the standard top
+ * navigation bar (46px pill) and 'compact' for the slim billing header (28px pill).
  */
+const SIZES = {
+  hero: {
+    h: 64,
+    dot: 10,
+    gap: 11,
+    padL: '0 22px',
+    date: '1.05rem',
+    gapR: 9,
+    padR: '0 26px',
+    time: '2rem',
+    period: '0.95rem',
+  },
+  header: {
+    h: 46,
+    dot: 8,
+    gap: 9,
+    padL: '0 16px',
+    date: '0.95rem',
+    gapR: 7,
+    padR: '0 20px',
+    time: '1.35rem',
+    period: '0.8rem',
+  },
+  compact: {
+    h: 28,
+    dot: 5.5,
+    gap: 6,
+    padL: '0 10px',
+    date: '0.72rem',
+    gapR: 5,
+    padR: '0 12px',
+    time: '0.9rem',
+    period: '0.585rem',
+  },
+} as const;
+
 export const ModernClock = ({ variant, id, className, style }: ModernClockProps) => {
   const [time, setTime] = useState<string>(() => formatClockTime(new Date()));
   const [date, setDate] = useState<string>(() => formatClockDate(new Date()));
@@ -35,7 +71,7 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
   }, []);
 
   const { hours, minutes, seconds, period } = parseClockTimeParts(time);
-  const isCompact = variant === 'compact';
+  const z = SIZES[variant];
   const timeString = `${hours}:${minutes}:${seconds}`;
 
   return (
@@ -47,7 +83,7 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
       style={{
         display: 'inline-flex',
         alignItems: 'stretch',
-        height: isCompact ? 28 : 42,
+        height: z.h,
         borderRadius: 'var(--mantine-radius-default)',
         border: '1px solid var(--border)',
         backgroundColor: 'var(--bg-card)',
@@ -62,8 +98,8 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: isCompact ? 6 : 9,
-          padding: isCompact ? '0 10px' : '0 16px',
+          gap: z.gap,
+          padding: z.padL,
           backgroundColor: 'var(--bg-card)',
           height: '100%',
           flexShrink: 0,
@@ -73,8 +109,8 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
           aria-hidden="true"
           className="pos-clock-live-dot"
           style={{
-            width: isCompact ? 5.5 : 8,
-            height: isCompact ? 5.5 : 8,
+            width: z.dot,
+            height: z.dot,
             borderRadius: '50%',
             backgroundColor: 'var(--status-ok)',
             flexShrink: 0,
@@ -83,7 +119,7 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
         />
         <span
           style={{
-            fontSize: isCompact ? '0.72rem' : '0.9rem',
+            fontSize: z.date,
             fontWeight: 600,
             color: 'var(--text-secondary)',
             letterSpacing: '-0.01em',
@@ -100,8 +136,8 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: isCompact ? 5 : 7,
-          padding: isCompact ? '0 12px' : '0 20px',
+          gap: z.gapR,
+          padding: z.padR,
           backgroundColor: 'var(--bg-active)',
           borderLeft: '1px solid var(--border)',
           height: '100%',
@@ -111,7 +147,7 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
         <span
           style={{
             fontWeight: 800,
-            fontSize: isCompact ? '0.825rem' : '1.2rem',
+            fontSize: z.time,
             lineHeight: 1,
             color: 'var(--text-primary)',
             fontVariantNumeric: 'tabular-nums',
@@ -124,7 +160,7 @@ export const ModernClock = ({ variant, id, className, style }: ModernClockProps)
         <span
           style={{
             fontWeight: 800,
-            fontSize: isCompact ? '0.585rem' : '0.75rem',
+            fontSize: z.period,
             lineHeight: 1,
             color: 'var(--mantine-color-blue-5)',
             letterSpacing: '0.02em',
