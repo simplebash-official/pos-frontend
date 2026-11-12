@@ -205,6 +205,20 @@ describe('warranty screens', () => {
     expect(api.stats.mock.calls.length).toBeGreaterThan(statsCalls);
   });
 
+  it('Option+W on the page puts the cursor back in the search box', async () => {
+    api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
+    await render(<WarrantiesPage />, '/warranties?view=claims');
+    expect(document.querySelector('input[data-barcode-scanner="true"]')).toBeNull();
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: '∑', code: 'KeyW', altKey: true, bubbles: true })
+      );
+    });
+    const input = document.querySelector<HTMLInputElement>('input[data-barcode-scanner="true"]');
+    expect(input).not.toBeNull();
+    await vi.waitFor(() => expect(document.activeElement).toBe(input));
+  });
+
   it('shows the warranty shortcut the way this computer writes it', async () => {
     api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
     await render(<WarrantiesPage />);

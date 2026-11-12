@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDebouncedValue } from '@mantine/hooks';
 import { Alert, Group, Loader, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
@@ -13,6 +13,8 @@ import { EmptyState } from '@/shared/components/EmptyState';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { KbdAction } from '@/shared/components/KbdShortcut';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
+import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
+import { getActionShortcut } from '@/shared/lib/shortcuts';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -41,7 +43,18 @@ const VIEWS: PageView[] = ['lookup', 'claims', 'ending'];
 export const WarrantiesPage = () => {
   const isMobile = useIsMobile();
   const { perRow, choices, choose } = useWarrantyColumns();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  // Set by the shortcut: the box may not be on screen yet (another tab is open), so it takes the
+  // cursor as soon as it appears.
+  const focusWhenShown = useRef(false);
+  const setInput = useCallback((element: HTMLInputElement | null) => {
+    inputRef.current = element;
+    if (element !== null && focusWhenShown.current) {
+      focusWhenShown.current = false;
+      element.focus();
+      element.select();
+    }
+  }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const openKey = searchParams.get('key');
   const openClaimKey = searchParams.get('claim');
@@ -84,6 +97,24 @@ export const WarrantiesPage = () => {
     setSearchParams(next, { replace: true });
   };
 
+  // Alt/Option+W while already here: back to the look-up with the search box ready for a scan.
+  // (From any other page the shell's binding opens this page, which focuses the box itself.)
+  useAppShortcuts([
+    {
+      key: getActionShortcut('warrantyLookup').primary,
+      ignoreInput: true,
+      handler: () => {
+        const next = new URLSearchParams(searchParams);
+        next.delete('view');
+        next.delete('key');
+        next.delete('claim');
+        setSearchParams(next, { replace: true });
+        focusWhenShown.current = true;
+        setInput(inputRef.current);
+      },
+    },
+  ]);
+
   const result = lookup.data;
   const groups = searching && result !== undefined ? result.groups : [];
 
@@ -119,7 +150,7 @@ export const WarrantiesPage = () => {
               <Group gap="sm" wrap="nowrap" align="stretch">
                 <Paper p="xs" shadow="xs" style={{ flex: 1, minWidth: 0 }}>
                   <SearchHistoryInput
-                    ref={inputRef}
+                    ref={setInput}
                     namespace="warranty-lookup"
                     size="md"
                     value={text}
