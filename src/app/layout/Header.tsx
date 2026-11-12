@@ -373,17 +373,6 @@ export const Header = ({
             )}
           </Button>
         )}
-
-        <Tooltip label={`Active User: ${userLabel}`}>
-          <Avatar
-            size={isMobile ? 28 : 32}
-            radius="xl"
-            color="blue"
-            aria-label={`Active User: ${userLabel}`}
-          >
-            {initial}
-          </Avatar>
-        </Tooltip>
       </Group>
     </Group>
   );
