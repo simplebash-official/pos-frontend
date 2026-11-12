@@ -78,6 +78,10 @@ export const isShopCodeRejection = (err: unknown): boolean => {
   return status === 400 || status === 401;
 };
 
+/** True when login was blocked because a staff user's personal shift is open on another device. */
+export const isSessionOpenOnOtherDeviceError = (err: unknown): boolean =>
+  ((err ?? {}) as Partial<ApiError>).code === 'SESSION_OPEN_ON_OTHER_DEVICE';
+
 /** Friendly text for a failed login, including the multi-tenant cases. */
 export const loginErrorMessage = (err: unknown, fallback: string): string => {
   const api = (err ?? {}) as Partial<ApiError>;

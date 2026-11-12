@@ -32,6 +32,7 @@ const makeProfile = (over: Partial<ShopProfile> = {}): ShopProfile => ({
   defaultFooterText: 'Thank you for your business!',
   receiptFooterText: 'Thank you for shopping with us!',
   allowSharedUserSessions: false,
+  allowStaffMultiDeviceSessions: false,
   ...over,
 });
 
@@ -59,6 +60,13 @@ describe('settingsSlice', () => {
     const updated = reducer(hydrated, updateShopProfile({ allowSharedUserSessions: true }));
     expect(updated.shopProfile?.allowSharedUserSessions).toBe(true);
     expect(updated.shopProfile?.version).toBe(4);
+
+    const updatedStaffMulti = reducer(
+      updated,
+      updateShopProfile({ allowStaffMultiDeviceSessions: true })
+    );
+    expect(updatedStaffMulti.shopProfile?.allowStaffMultiDeviceSessions).toBe(true);
+    expect(updatedStaffMulti.shopProfile?.version).toBe(5);
   });
 
   it('updates trading fields and bumps version only when values actually change', () => {
@@ -109,6 +117,16 @@ describe('settingsSlice', () => {
       })
     );
     expect(restoredLegacy.shopProfile).toBeNull();
+
+    const preStaffPolicyPartial = { ...valid } as Record<string, unknown>;
+    delete preStaffPolicyPartial.allowStaffMultiDeviceSessions;
+    const restoredMissingStaffPolicy = reducer(
+      undefined,
+      restoreSettings({
+        shopProfile: preStaffPolicyPartial as unknown as ShopProfile,
+      })
+    );
+    expect(restoredMissingStaffPolicy.shopProfile).toBeNull();
   });
 
   it('resets shopProfile back to null and restores default print settings on resetSettings', () => {

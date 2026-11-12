@@ -27,6 +27,7 @@ const TEST_SHOP_PROFILE: ShopProfile = {
   defaultFooterText: 'Thank you for your business!',
   receiptFooterText: 'Thank you for shopping with us!',
   allowSharedUserSessions: false,
+  allowStaffMultiDeviceSessions: false,
 };
 
 let mockPathname = '/dashboard';

@@ -221,6 +221,11 @@ export const RegisterSessionBadge: React.FC = () => {
                         {session.cashierNameSnapshot ? ` · ${session.cashierNameSnapshot}` : ''}
                       </Text>
                     </Group>
+                    {isPersonalOtherDevice && (
+                      <Text size="11px" c="dimmed" mt={2}>
+                        {t('Personal shift active across your signed-in devices')}
+                      </Text>
+                    )}
                   </div>
                 </Group>
                 <SimpleGrid cols={2} spacing="xs">

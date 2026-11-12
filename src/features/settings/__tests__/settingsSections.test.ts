@@ -74,7 +74,7 @@ describe('settingsSections desktop filtering', () => {
     expect(regSection?.label).toBe('Registers & Shifts');
     expect(regSection?.shortLabel).toBe('Registers');
     expect(regSection?.description).toBe(
-      'Multi-device shift sharing and cash drawer isolation mode'
+      'Personal or shop-wide shifts, cash drawer scope, and multi-device access'
     );
     expect(regSection?.desktopOnly).toBeFalsy();
     expect(getVisibleSettingsSections(false).some((s) => s.id === 'register-shifts')).toBe(true);

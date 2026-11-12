@@ -82,6 +82,7 @@ const makeProfile = (over: Partial<ShopProfile> = {}): ShopProfile => ({
   defaultFooterText: '',
   receiptFooterText: '',
   allowSharedUserSessions: false,
+  allowStaffMultiDeviceSessions: false,
   ...over,
 });
 
@@ -233,18 +234,24 @@ describe('RegisterSessionBadge', () => {
     expect(text()).not.toContain('Personal Shift (Other Device)');
   });
 
-  it('keeps Personal multi-device view distinct and never calls it Shared Shop when allowSharedUserSessions is false', async () => {
+  it('keeps Personal multi-device view distinct and explains roaming device continuity clearly', async () => {
     mockDeviceId = 'counter-2';
     mockCurrentSession = makeSession({
       terminalId: 'counter-1',
-      cashierNameSnapshot: 'Nimali Silva',
+      cashierNameSnapshot: 'Kasun Perera',
     });
 
-    await renderBadge(makeProfile({ allowSharedUserSessions: false }));
+    await renderBadge(
+      makeProfile({ allowSharedUserSessions: false, allowStaffMultiDeviceSessions: true })
+    );
     expect(text()).not.toContain('Shop Shift');
 
     await openMenu();
     expect(text()).toContain('Personal Shift (Other Device)');
+    expect(text()).toContain('Personal shift active across your signed-in devices');
+    expect(text()).toContain('Kasun Perera');
+    expect(text()).toContain('counter-1');
+    expect(text()).toContain('counter-2');
     expect(text()).not.toContain('Shared Shop Shift');
   });
 

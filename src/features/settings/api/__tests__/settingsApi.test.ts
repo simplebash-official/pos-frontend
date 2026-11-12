@@ -28,6 +28,7 @@ describe('settingsApi', () => {
     defaultFooterText: '',
     receiptFooterText: '',
     allowSharedUserSessions: false,
+    allowStaffMultiDeviceSessions: false,
   };
 
   it('calls GET /settings/shop-profile and returns data', async () => {

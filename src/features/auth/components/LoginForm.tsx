@@ -13,11 +13,13 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { logger } from '@/shared/logging';
 import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from './CreateShopLink';
+import { DeviceShiftLockAlert } from './DeviceShiftLockAlert';
 import { ShopCodeField } from './ShopCodeField';
 import { useLoginShopCode } from '../lib/useLoginShopCode';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
 import {
   getShopNameFromLink,
+  isSessionOpenOnOtherDeviceError,
   isShopCodeRequired,
   isShopCodeRejection,
   isValidShopCode,
@@ -57,6 +59,7 @@ export const LoginForm = () => {
     revealField,
   } = useLoginShopCode(location.search);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deviceLockMessage, setDeviceLockMessage] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -112,6 +115,7 @@ export const LoginForm = () => {
       return;
     }
     setShopCodeError(null);
+    setDeviceLockMessage(null);
 
     setIsSubmitting(true);
 
@@ -137,9 +141,13 @@ export const LoginForm = () => {
     } catch (err: unknown) {
       // A wrong code from a link is hidden; show the field so it can be fixed.
       if (shopCodeLocked && isShopCodeRejection(err)) revealField();
+      const message = loginErrorMessage(err, 'Invalid username or password. Please try again.');
+      if (isSessionOpenOnOtherDeviceError(err)) {
+        setDeviceLockMessage(message);
+      }
       notifications.show({
         title: 'Login Failed',
-        message: loginErrorMessage(err, 'Invalid username or password. Please try again.'),
+        message,
         color: 'red',
       });
     } finally {
@@ -171,6 +179,11 @@ export const LoginForm = () => {
         </Title>
 
         <ShopAccountCard />
+
+        <DeviceShiftLockAlert
+          message={deviceLockMessage}
+          onClose={() => setDeviceLockMessage(null)}
+        />
 
         {/* Form Fields */}
         <Box component="form" onSubmit={handleLogin} w="100%">

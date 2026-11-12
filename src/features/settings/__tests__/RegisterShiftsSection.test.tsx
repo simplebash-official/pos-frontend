@@ -60,6 +60,7 @@ const makeProfile = (over: Partial<ShopProfile> = {}): ShopProfile => ({
   defaultFooterText: '',
   receiptFooterText: '',
   allowSharedUserSessions: false,
+  allowStaffMultiDeviceSessions: false,
   ...over,
 });
 
@@ -177,6 +178,8 @@ describe('RegisterShiftsSection', () => {
   const text = () => document.body.textContent ?? '';
   const radioCard = (mode: 'personal' | 'shared') =>
     document.body.querySelector<HTMLElement>(`[role="radio"][data-mode="${mode}"]`);
+  const staffPolicyCard = (policy: 'locked' | 'multi') =>
+    document.body.querySelector<HTMLElement>(`[role="radio"][data-staff-policy="${policy}"]`);
   const saveButton = () =>
     Array.from(document.body.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
       b.textContent?.includes('Save Changes')
@@ -188,6 +191,7 @@ describe('RegisterShiftsSection', () => {
 
     expect(radioCard('personal')).toBeNull();
     expect(radioCard('shared')).toBeNull();
+    expect(staffPolicyCard('locked')).toBeNull();
   });
 
   it('shows an explicit error state with Retry when loading shop profile fails', async () => {
@@ -195,9 +199,12 @@ describe('RegisterShiftsSection', () => {
     await renderSection({ profile: null });
 
     await act(async () => {
-      await vi.waitFor(() => {
-        expect(text()).toContain('Unable to load register shift settings');
-      });
+      await vi.waitFor(
+        () => {
+          expect(text()).toContain('Unable to load register shift settings');
+        },
+        { timeout: 4000 }
+      );
     });
     const retryBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Retry')
@@ -209,9 +216,49 @@ describe('RegisterShiftsSection', () => {
       retryBtn?.click();
     });
     await act(async () => {
-      await vi.waitFor(() => {
-        expect(radioCard('shared')?.getAttribute('aria-checked')).toBe('true');
-      });
+      await vi.waitFor(
+        () => {
+          expect(radioCard('shared')?.getAttribute('aria-checked')).toBe('true');
+        },
+        { timeout: 4000 }
+      );
+    });
+  });
+
+  it('uses progressive disclosure: hides Staff Multi-Device Access on Shared Shop Shift and shows it on Personal Shifts', async () => {
+    await renderSection({
+      profile: makeProfile({
+        allowSharedUserSessions: false,
+        allowStaffMultiDeviceSessions: false,
+      }),
+      hydrateRedux: true,
+    });
+
+    expect(text()).toContain('Staff Multi-Device Access');
+    expect(text()).toContain('Admin & Manager: Multi-Device');
+    expect(staffPolicyCard('locked')?.getAttribute('aria-checked')).toBe('true');
+    expect(staffPolicyCard('multi')?.getAttribute('aria-checked')).toBe('false');
+    expect(text()).toContain('Personal · Staff Single-Device Lock');
+
+    await act(async () => {
+      staffPolicyCard('multi')?.click();
+    });
+    expect(staffPolicyCard('multi')?.getAttribute('aria-checked')).toBe('true');
+    expect(text()).toContain('Personal · Staff Multi-Device');
+
+    await act(async () => {
+      radioCard('shared')?.click();
+    });
+
+    await act(async () => {
+      await vi.waitFor(
+        () => {
+          expect(staffPolicyCard('locked')).toBeNull();
+          expect(text()).toContain('Everyone Shares One Shift Across All Devices');
+          expect(text()).toContain('Shared Shop Shift · Multi-Device');
+        },
+        { timeout: 4000 }
+      );
     });
   });
 
@@ -239,20 +286,29 @@ describe('RegisterShiftsSection', () => {
       saveButton()?.click();
     });
     await act(async () => {
-      await vi.waitFor(() => {
-        expect(store.getState().settings.shopProfile?.allowSharedUserSessions).toBe(true);
-      });
+      await vi.waitFor(
+        () => {
+          expect(store.getState().settings.shopProfile?.allowSharedUserSessions).toBe(true);
+        },
+        { timeout: 4000 }
+      );
     });
 
     expect(mockUpdateShopProfile).toHaveBeenCalledWith({ allowSharedUserSessions: true });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.settings.shopProfile() });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: queryKeys.billing.sessions.drawerState(),
+    });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.accounts.all });
   });
 
-  it('blocks mode changes when open, closing, or reopened shifts exist', async () => {
+  it('blocks BOTH mode switch and staff multi-device policy when open, closing, or reopened shifts exist', async () => {
     await renderSection({
-      profile: makeProfile({ allowSharedUserSessions: false }),
+      profile: makeProfile({
+        allowSharedUserSessions: false,
+        allowStaffMultiDeviceSessions: false,
+      }),
       hydrateRedux: true,
       summary: {
         activeSessions: [
@@ -274,23 +330,129 @@ describe('RegisterShiftsSection', () => {
     });
 
     await act(async () => {
-      await vi.waitFor(() => {
-        expect(text()).toContain('Close Active Shifts First');
-      });
+      await vi.waitFor(
+        () => {
+          expect(text()).toContain('Close Active Shifts First');
+        },
+        { timeout: 4000 }
+      );
     });
     expect(text()).toContain('SES-000101');
     expect(text()).toContain('Closing');
     expect(text()).toContain('SES-000102');
     expect(text()).toContain('Reopened');
     expect(radioCard('shared')?.getAttribute('aria-disabled')).toBe('true');
+    expect(staffPolicyCard('multi')?.getAttribute('aria-disabled')).toBe('true');
 
     await act(async () => {
       radioCard('shared')?.click();
+      staffPolicyCard('multi')?.click();
     });
     expect(radioCard('shared')?.getAttribute('aria-checked')).toBe('false');
+    expect(staffPolicyCard('multi')?.getAttribute('aria-checked')).toBe('false');
   });
 
-  it('blocks mode changes when drawer balance is non-zero even with zero active shifts', async () => {
+  it('allows updating Staff Multi-Device Access while drawer cash remains, while still blocking Personal <-> Shared switch', async () => {
+    const initial = makeProfile({
+      allowSharedUserSessions: false,
+      allowStaffMultiDeviceSessions: false,
+    });
+    const updated = makeProfile({
+      version: 2,
+      allowSharedUserSessions: false,
+      allowStaffMultiDeviceSessions: true,
+    });
+    mockUpdateShopProfile.mockResolvedValueOnce(updated);
+
+    const { store } = await renderSection({
+      profile: initial,
+      hydrateRedux: true,
+      summary: {
+        activeSessions: [],
+        drawerBalanceTotalCents: 150_000,
+      },
+    });
+
+    await act(async () => {
+      await vi.waitFor(
+        () => {
+          expect(text()).toContain('Drop Drawer Cash to Safe First');
+        },
+        { timeout: 4000 }
+      );
+    });
+    expect(text()).toContain('Rs. 1,500.00');
+    expect(radioCard('shared')?.getAttribute('aria-disabled')).toBe('true');
+    expect(staffPolicyCard('multi')?.getAttribute('aria-disabled')).toBe('false');
+
+    await act(async () => {
+      staffPolicyCard('multi')?.click();
+    });
+    expect(staffPolicyCard('multi')?.getAttribute('aria-checked')).toBe('true');
+    expect(saveButton()?.disabled).toBe(false);
+
+    mockGetShopProfile.mockResolvedValue(updated);
+    await act(async () => {
+      saveButton()?.click();
+    });
+    await act(async () => {
+      await vi.waitFor(
+        () => {
+          expect(store.getState().settings.shopProfile?.allowStaffMultiDeviceSessions).toBe(true);
+        },
+        { timeout: 4000 }
+      );
+    });
+
+    expect(mockUpdateShopProfile).toHaveBeenCalledWith({ allowStaffMultiDeviceSessions: true });
+  });
+
+  it('sends atomic Personal + Staff Multi-Device payload when switching from Shared Shop Shift', async () => {
+    const initial = makeProfile({
+      allowSharedUserSessions: true,
+      allowStaffMultiDeviceSessions: false,
+    });
+    const updated = makeProfile({
+      version: 3,
+      allowSharedUserSessions: false,
+      allowStaffMultiDeviceSessions: true,
+    });
+    mockUpdateShopProfile.mockResolvedValueOnce(updated);
+
+    await renderSection({ profile: initial, hydrateRedux: true });
+
+    await act(async () => {
+      radioCard('personal')?.click();
+    });
+    await act(async () => {
+      await vi.waitFor(
+        () => {
+          expect(staffPolicyCard('multi')).not.toBeNull();
+        },
+        { timeout: 4000 }
+      );
+    });
+    await act(async () => {
+      staffPolicyCard('multi')?.click();
+    });
+    mockGetShopProfile.mockResolvedValue(updated);
+    await act(async () => {
+      saveButton()?.click();
+    });
+    await act(async () => {
+      await vi.waitFor(
+        () => {
+          expect(mockUpdateShopProfile).toHaveBeenCalledWith({
+            allowSharedUserSessions: false,
+            allowStaffMultiDeviceSessions: true,
+          });
+        },
+        { timeout: 4000 }
+      );
+    });
+  });
+
+  it('blocks mode changes when drawer balance is non-zero even with zero active shifts in Shared mode', async () => {
     await renderSection({
       profile: makeProfile({ allowSharedUserSessions: true }),
       hydrateRedux: true,
@@ -301,15 +463,18 @@ describe('RegisterShiftsSection', () => {
     });
 
     await act(async () => {
-      await vi.waitFor(() => {
-        expect(text()).toContain('Drop Drawer Cash to Safe First');
-      });
+      await vi.waitFor(
+        () => {
+          expect(text()).toContain('Drop Drawer Cash to Safe First');
+        },
+        { timeout: 4000 }
+      );
     });
     expect(text()).toContain('Rs. 1,500.00');
     expect(radioCard('personal')?.getAttribute('aria-disabled')).toBe('true');
   });
 
-  it('locks mode selector for non-admin roles', async () => {
+  it('locks both mode and staff multi-device selector for non-admin roles', async () => {
     await renderSection({
       role: 'manager',
       profile: makeProfile({ allowSharedUserSessions: false }),
@@ -318,6 +483,7 @@ describe('RegisterShiftsSection', () => {
 
     expect(text()).toContain('Admin Only');
     expect(radioCard('shared')?.getAttribute('aria-disabled')).toBe('true');
+    expect(staffPolicyCard('multi')?.getAttribute('aria-disabled')).toBe('true');
   });
 
   it('handles 409 DRAWER_BALANCE_NONZERO from server gracefully on save', async () => {

@@ -19,6 +19,7 @@ import {
   IconAlertTriangle,
   IconBuildingStore,
   IconCheck,
+  IconInfoCircle,
   IconKey,
   IconLock,
 } from '@tabler/icons-react';
@@ -44,6 +45,7 @@ interface OpenSessionFormProps {
   drawerState: DrawerState | null;
   isDrawerLoading: boolean;
   isSharedShop: boolean;
+  allowStaffMultiDeviceSessions: boolean | null;
   onClose: () => void;
   onSessionOpened?: (session: RegisterSession) => void;
 }
@@ -53,6 +55,7 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
   drawerState,
   isDrawerLoading,
   isSharedShop,
+  allowStaffMultiDeviceSessions,
   onClose,
   onSessionOpened,
 }) => {
@@ -242,6 +245,25 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
           </Group>
         </Card>
 
+        {!isSharedShop && allowStaffMultiDeviceSessions !== null && (
+          <Group gap="xs" wrap="nowrap" align="flex-start">
+            <IconInfoCircle
+              size={15}
+              color="var(--mantine-color-dimmed)"
+              style={{ flexShrink: 0, marginTop: 2 }}
+            />
+            <Text size="xs" c="dimmed">
+              {allowStaffMultiDeviceSessions
+                ? t(
+                    'Personal shift: you can sign in and continue this shift across your other devices until closed.'
+                  )
+                : t(
+                    'Personal shift: Managers & Admins can use multiple devices; Staff stay on this device until closed.'
+                  )}
+            </Text>
+          </Group>
+        )}
+
         {/* Count Mode Toggle */}
         <CountMethodToggle label={t('Count Opening Float')} value={mode} onChange={setMode} />
 
@@ -374,6 +396,10 @@ export const OpenSessionModal: React.FC<OpenSessionModalProps> = ({
   );
   const shopProfile = fetchedProfile ?? storeProfile;
   const isSharedShop = shopProfile?.allowSharedUserSessions === true;
+  const allowStaffMultiDeviceSessions =
+    shopProfile && typeof shopProfile.allowStaffMultiDeviceSessions === 'boolean'
+      ? shopProfile.allowStaffMultiDeviceSessions
+      : null;
 
   return (
     <Modal
@@ -395,6 +421,7 @@ export const OpenSessionModal: React.FC<OpenSessionModalProps> = ({
           drawerState={drawerState}
           isDrawerLoading={isDrawerLoading}
           isSharedShop={isSharedShop}
+          allowStaffMultiDeviceSessions={allowStaffMultiDeviceSessions}
           onClose={onClose}
           onSessionOpened={onSessionOpened}
         />

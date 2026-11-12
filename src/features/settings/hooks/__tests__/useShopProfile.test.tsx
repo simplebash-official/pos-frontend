@@ -43,6 +43,7 @@ const makeProfile = (over: Partial<ShopProfile> = {}): ShopProfile => ({
   defaultFooterText: '',
   receiptFooterText: '',
   allowSharedUserSessions: true,
+  allowStaffMultiDeviceSessions: false,
   ...over,
 });
 

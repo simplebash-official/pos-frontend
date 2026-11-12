@@ -21,11 +21,13 @@ import { loginApi } from '../../api/authApi';
 import { logger } from '@/shared/logging';
 import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from '../CreateShopLink';
+import { DeviceShiftLockAlert } from '../DeviceShiftLockAlert';
 import { ShopCodeField } from '../ShopCodeField';
 import { useLoginShopCode } from '../../lib/useLoginShopCode';
 import { selectShopProfile } from '@/store/slices/settingsSlice';
 import {
   getShopNameFromLink,
+  isSessionOpenOnOtherDeviceError,
   isShopCodeRequired,
   isShopCodeRejection,
   isValidShopCode,
@@ -58,6 +60,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   } = useLoginShopCode(location.search);
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deviceLockMessage, setDeviceLockMessage] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -93,6 +96,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       return;
     }
     setShopCodeError(null);
+    setDeviceLockMessage(null);
 
     setIsSubmitting(true);
 
@@ -118,9 +122,13 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
     } catch (err: unknown) {
       // A wrong code from a link is hidden; show the field so it can be fixed.
       if (shopCodeLocked && isShopCodeRejection(err)) revealField();
+      const message = loginErrorMessage(err, 'Invalid username or password. Please try again.');
+      if (isSessionOpenOnOtherDeviceError(err)) {
+        setDeviceLockMessage(message);
+      }
       notifications.show({
         title: 'Login Failed',
-        message: loginErrorMessage(err, 'Invalid username or password. Please try again.'),
+        message,
         color: 'red',
       });
     } finally {
@@ -173,6 +181,10 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
         <form onSubmit={handleLogin} noValidate>
           <Stack gap="md">
             <ShopAccountCard />
+            <DeviceShiftLockAlert
+              message={deviceLockMessage}
+              onClose={() => setDeviceLockMessage(null)}
+            />
             <ShopCodeField
               value={shopCode}
               onChange={(v) => {

@@ -49,7 +49,8 @@ export const RegisterShiftsPage = () => {
   const storeProfile = useAppSelector(
     (state: { settings?: SettingsState }) => state.settings?.shopProfile ?? null
   );
-  const isSharedShopMode = (fetchedProfile ?? storeProfile)?.allowSharedUserSessions === true;
+  const activeProfile = fetchedProfile ?? storeProfile;
+  const isSharedShopMode = activeProfile?.allowSharedUserSessions === true;
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -448,9 +449,23 @@ export const RegisterShiftsPage = () => {
               {t('Refresh')}
             </Button>
 
-            {isSharedShopMode && (
-              <Badge color="cyan" variant="light" size="md">
-                {t('Shared Shop Shift')}
+            {activeProfile && (
+              <Badge
+                color={
+                  activeProfile.allowSharedUserSessions
+                    ? 'cyan'
+                    : activeProfile.allowStaffMultiDeviceSessions
+                      ? 'blue'
+                      : 'teal'
+                }
+                variant="light"
+                size="md"
+              >
+                {activeProfile.allowSharedUserSessions
+                  ? t('Shared Shop Shift')
+                  : activeProfile.allowStaffMultiDeviceSessions
+                    ? t('Personal · Staff Multi-Device')
+                    : t('Personal · Staff Locked')}
               </Badge>
             )}
             {currentSession && (

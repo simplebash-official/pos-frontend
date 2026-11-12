@@ -135,9 +135,15 @@ vi.mock('@/features/billing/hooks/useZReportDocument', () => ({
   }),
 }));
 
+let mockAllowShared = false;
+let mockAllowStaffMulti = false;
+
 vi.mock('@/features/settings', () => ({
   useShopProfile: () => ({
-    shopProfile: { allowSharedUserSessions: false },
+    shopProfile: {
+      allowSharedUserSessions: mockAllowShared,
+      allowStaffMultiDeviceSessions: mockAllowStaffMulti,
+    },
     isLoading: false,
   }),
 }));
@@ -151,6 +157,8 @@ describe('RegisterShiftsPage', () => {
   let root: Root;
 
   beforeEach(() => {
+    mockAllowShared = false;
+    mockAllowStaffMulti = false;
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -217,5 +225,20 @@ describe('RegisterShiftsPage', () => {
 
     expect(text()).toContain('Shift Session Details');
     expect(text()).toContain('Terminal / Register');
+  });
+
+  it('renders active shift policy pill matching Personal or Shared Shop mode', async () => {
+    mockAllowShared = false;
+    mockAllowStaffMulti = false;
+    await renderComponent();
+    expect(text()).toContain('Personal · Staff Locked');
+
+    mockAllowStaffMulti = true;
+    await renderComponent();
+    expect(text()).toContain('Personal · Staff Multi-Device');
+
+    mockAllowShared = true;
+    await renderComponent();
+    expect(text()).toContain('Shared Shop Shift');
   });
 });

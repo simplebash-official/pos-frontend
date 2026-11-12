@@ -27,7 +27,8 @@ export interface SettingsState {
 const isLoadedShopProfile = (value: unknown): value is ShopProfile =>
   value !== null &&
   typeof value === 'object' &&
-  typeof (value as ShopProfile).allowSharedUserSessions === 'boolean';
+  typeof (value as ShopProfile).allowSharedUserSessions === 'boolean' &&
+  typeof (value as ShopProfile).allowStaffMultiDeviceSessions === 'boolean';
 
 const loadSettingsFromStorage = (): SettingsState => {
   try {

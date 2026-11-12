@@ -54,7 +54,10 @@ const mockGetSession = vi.fn();
 
 vi.mock('@/features/settings', () => ({
   useShopProfile: () => ({
-    shopProfile: { allowSharedUserSessions: true },
+    shopProfile: {
+      allowSharedUserSessions: true,
+      allowStaffMultiDeviceSessions: false,
+    },
     isLoading: false,
   }),
 }));

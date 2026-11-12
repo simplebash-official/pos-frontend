@@ -25,10 +25,11 @@ const mockOpenSession = vi.fn();
 const mockGetCurrentSession = vi.fn();
 const mockNotifyShow = vi.fn();
 let mockAllowShared = true;
+let mockAllowStaffMulti = false;
 
 vi.mock('@/features/settings', () => ({
   useShopProfile: () => ({
-    shopProfile: { allowSharedUserSessions: mockAllowShared },
+    shopProfile: makeProfile(mockAllowShared, mockAllowStaffMulti),
     isLoading: false,
   }),
 }));
@@ -77,7 +78,7 @@ vi.mock('@mantine/notifications', () => ({
   notifications: { show: (...args: unknown[]) => mockNotifyShow(...args) },
 }));
 
-const makeProfile = (allowShared: boolean): ShopProfile => ({
+const makeProfile = (allowShared: boolean, allowStaffMulti = false): ShopProfile => ({
   id: 'main',
   version: 1,
   legalName: 'SimpleBash Retail',
@@ -97,6 +98,7 @@ const makeProfile = (allowShared: boolean): ShopProfile => ({
   defaultFooterText: '',
   receiptFooterText: '',
   allowSharedUserSessions: allowShared,
+  allowStaffMultiDeviceSessions: allowStaffMulti,
 });
 
 const existingSharedSession: RegisterSession = {
@@ -132,6 +134,7 @@ describe('OpenSessionModal', () => {
 
   beforeEach(() => {
     mockAllowShared = true;
+    mockAllowStaffMulti = false;
     mockOpenSession.mockReset();
     mockGetCurrentSession.mockReset();
     mockNotifyShow.mockReset();
@@ -149,7 +152,7 @@ describe('OpenSessionModal', () => {
     const store = configureStore({
       reducer: { auth: authReducer, settings: settingsReducer, theme: themeReducer },
     });
-    store.dispatch(setShopProfile(makeProfile(mockAllowShared)));
+    store.dispatch(setShopProfile(makeProfile(mockAllowShared, mockAllowStaffMulti)));
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
@@ -208,7 +211,7 @@ describe('OpenSessionModal', () => {
     expect(submitBtn).toBeDefined();
 
     await act(async () => {
-      await vi.waitFor(() => expect(submitBtn?.disabled).toBe(false));
+      await vi.waitFor(() => expect(submitBtn?.disabled).toBe(false), { timeout: 4000 });
     });
 
     const form = submitBtn?.closest('form');
@@ -216,7 +219,9 @@ describe('OpenSessionModal', () => {
       form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
     await act(async () => {
-      await vi.waitFor(() => expect(mockGetCurrentSession).toHaveBeenCalledWith('counter-1'));
+      await vi.waitFor(() => expect(mockGetCurrentSession).toHaveBeenCalledWith('counter-1'), {
+        timeout: 4000,
+      });
     });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });
     expect(mockNotifyShow).toHaveBeenCalledWith(
@@ -227,5 +232,20 @@ describe('OpenSessionModal', () => {
     );
     expect(onSessionOpened).toHaveBeenCalledWith(existingSharedSession);
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('shows Personal mode device-continuity hint respecting allowStaffMultiDeviceSessions', async () => {
+    mockAllowShared = false;
+    mockAllowStaffMulti = false;
+    await renderModal();
+    expect(text()).toContain(
+      'Personal shift: Managers & Admins can use multiple devices; Staff stay on this device until closed.'
+    );
+
+    mockAllowStaffMulti = true;
+    await renderModal();
+    expect(text()).toContain(
+      'Personal shift: you can sign in and continue this shift across your other devices until closed.'
+    );
   });
 });

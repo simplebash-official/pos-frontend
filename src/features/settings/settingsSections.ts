@@ -75,7 +75,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     id: 'register-shifts',
     label: 'Registers & Shifts',
     shortLabel: 'Registers',
-    description: 'Multi-device shift sharing and cash drawer isolation mode',
+    description: 'Personal or shop-wide shifts, cash drawer scope, and multi-device access',
     icon: IconCashRegister,
   },
   {
