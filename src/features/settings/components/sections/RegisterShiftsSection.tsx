@@ -86,6 +86,7 @@ const RadioOptionCard = ({
   >
     <Box
       role="radio"
+      className="shift-policy-card"
       aria-checked={checked}
       aria-disabled={disabled}
       tabIndex={disabled ? -1 : checked ? 0 : -1}
@@ -103,7 +104,6 @@ const RadioOptionCard = ({
         backgroundColor: checked ? `var(--mantine-color-${color}-light)` : 'var(--bg-app)',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.72 : 1,
-        outline: 'none',
         transition: 'border-color 150ms ease, background-color 150ms ease',
       }}
     >
@@ -173,7 +173,9 @@ const handlePairRadioKeyDown = (
     e.preventDefault();
     const nextValue = !currentValue;
     onChange(nextValue);
-    const cards = e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="radio"]');
+    const cards = e.currentTarget
+      .closest('[role="radiogroup"]')
+      ?.querySelectorAll<HTMLElement>('[role="radio"]');
     const targetCard = cards?.[nextValue ? 1 : 0];
     targetCard?.focus();
   }

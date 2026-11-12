@@ -520,4 +520,72 @@ describe('RegisterShiftsSection', () => {
       );
     });
   });
+
+  it('moves selection and DOM focus between radiogroup cards on Arrow keys and supports Enter/Space', async () => {
+    await renderSection({
+      profile: makeProfile({
+        allowSharedUserSessions: false,
+        allowStaffMultiDeviceSessions: false,
+      }),
+      hydrateRedux: true,
+    });
+
+    const personal = radioCard('personal');
+    const shared = radioCard('shared');
+    expect(personal).not.toBeNull();
+    expect(shared).not.toBeNull();
+    expect(personal?.className).toContain('shift-policy-card');
+
+    await act(async () => {
+      personal?.focus();
+    });
+    expect(document.activeElement).toBe(personal);
+
+    await act(async () => {
+      personal?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    });
+    expect(shared?.getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(shared);
+
+    await act(async () => {
+      shared?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    });
+    expect(personal?.getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(personal);
+
+    await act(async () => {
+      await vi.waitFor(
+        () => {
+          expect(staffPolicyCard('locked')).not.toBeNull();
+          expect(staffPolicyCard('multi')).not.toBeNull();
+        },
+        { timeout: 4000 }
+      );
+    });
+
+    const lockedPolicy = staffPolicyCard('locked');
+    const multiPolicy = staffPolicyCard('multi');
+    await act(async () => {
+      lockedPolicy?.focus();
+    });
+    expect(document.activeElement).toBe(lockedPolicy);
+
+    await act(async () => {
+      lockedPolicy?.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })
+      );
+    });
+    expect(multiPolicy?.getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(multiPolicy);
+
+    await act(async () => {
+      lockedPolicy?.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+    });
+    expect(lockedPolicy?.getAttribute('aria-checked')).toBe('true');
+
+    await act(async () => {
+      multiPolicy?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+    expect(multiPolicy?.getAttribute('aria-checked')).toBe('true');
+  });
 });
