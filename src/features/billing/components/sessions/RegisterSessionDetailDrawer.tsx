@@ -67,6 +67,8 @@ import { getInvoiceStatusMeta } from '@/features/invoices/lib/invoiceStatus';
 import type { Invoice } from '@/features/billing/types';
 import { useAppSelector } from '@/store/hooks';
 import { selectUserPermissions, selectUserRole } from '@/store/slices/authSlice';
+import type { SettingsState } from '@/store/slices/settingsSlice';
+import { useShopProfile } from '@/features/settings';
 import { PERMISSIONS } from '@/constants/permissions';
 import { USER_ROLES } from '@/constants/roles';
 import { formatMoney } from '@/shared/lib/money';
@@ -198,6 +200,11 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
   // Keep live/cached detail in sync with backend
   const { session: liveSession } = useSessionDetail(opened ? initialSession?.key : undefined);
   const session = liveSession ?? initialSession;
+  const { shopProfile: fetchedProfile } = useShopProfile();
+  const storeProfile = useAppSelector(
+    (state: { settings?: SettingsState }) => state.settings?.shopProfile ?? null
+  );
+  const isSharedShop = (fetchedProfile ?? storeProfile)?.allowSharedUserSessions === true;
 
   const [activeTab, setActiveTab] = useState<ShiftTab>('overview');
   const [zReportModalOpened, setZReportModalOpened] = useState(false);
@@ -313,7 +320,10 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
         title={{
           icon: <IconCashRegister size={22} />,
           text: session.sessionNumber,
-          subtitle: `${t('Terminal')}: ${session.terminalId} · ${statusMeta.label}`,
+          subtitle:
+            isSharedShop && session.status !== 'closed'
+              ? `${t('Terminal')}: ${session.terminalId} · ${statusMeta.label} · ${t('Shared Shop Shift')}`
+              : `${t('Terminal')}: ${session.terminalId} · ${statusMeta.label}`,
         }}
         footer={(s) => (
           <DrawerFooter
@@ -444,10 +454,21 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                 }}
                 title={s.cashierNameSnapshot || s.cashierId || t('Register Shift')}
                 subtitle={
-                  <Stack gap={2}>
+                  <Stack gap={4}>
+                    {isSharedShop && s.status !== 'closed' && (
+                      <Badge size="xs" color="cyan" variant="light" w="fit-content">
+                        {t('Shared Shop Shift')}
+                      </Badge>
+                    )}
                     <Text size="xs" c="dimmed">
                       {t('Terminal')}: <strong>{s.terminalId}</strong>
                     </Text>
+                    {(s.closingCashierNameSnapshot || s.closingCashierId) && (
+                      <Text size="xs" c={s.status === 'closing' ? 'orange' : 'dimmed'}>
+                        {s.status === 'closing' ? t('Counting By') : t('Closing Cashier')}:{' '}
+                        <strong>{s.closingCashierNameSnapshot || s.closingCashierId}</strong>
+                      </Text>
+                    )}
                     <Text size="xs" c="dimmed">
                       {formatDateTime(s.openedAt)}{' '}
                       {s.closedAt ? `→ ${formatDateTime(s.closedAt)}` : `(${t('In Progress')})`} ·{' '}
@@ -507,6 +528,12 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                     <InfoRow icon={<IconClockPlay size={14} />} label={t('Opened At')}>
                       {formatDateTime(s.openedAt)}
                     </InfoRow>
+
+                    {!s.closedAt && (s.closingCashierNameSnapshot || s.closingCashierId) && (
+                      <InfoRow icon={<IconUser size={14} />} label={t('Counting By')}>
+                        {s.closingCashierNameSnapshot || s.closingCashierId}
+                      </InfoRow>
+                    )}
 
                     {s.closedAt && (
                       <>
@@ -715,6 +742,16 @@ export const RegisterSessionDetailDrawer: React.FC<RegisterSessionDetailDrawerPr
                                             <Text size="xs" c="dimmed" truncate maw={160}>
                                               {inv.customerName || t('Walk-in Customer')}
                                             </Text>
+                                            {inv.cashierName && (
+                                              <>
+                                                <Text size="xs" c="dimmed">
+                                                  ·
+                                                </Text>
+                                                <Text size="xs" c="dimmed" truncate maw={120}>
+                                                  {inv.cashierName}
+                                                </Text>
+                                              </>
+                                            )}
                                             <Text size="xs" c="dimmed">
                                               ·
                                             </Text>

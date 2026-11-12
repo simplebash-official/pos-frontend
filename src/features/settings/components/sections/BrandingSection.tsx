@@ -17,8 +17,16 @@ export const BrandingSection = ({ onDirtyChange }: SectionProps) => {
   const shopProfile = useAppSelector(selectShopProfile);
 
   const form = useForm<BrandingFormValues>({
-    initialValues: { logoBase64: shopProfile.logoBase64 },
+    initialValues: { logoBase64: shopProfile?.logoBase64 ?? '' },
   });
+
+  useEffect(() => {
+    if (!shopProfile || form.isDirty()) return;
+    const loaded = { logoBase64: shopProfile.logoBase64 };
+    form.setInitialValues(loaded);
+    form.setValues(loaded);
+    form.resetDirty(loaded);
+  }, [shopProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isDirty = form.isDirty();
   useEffect(() => {

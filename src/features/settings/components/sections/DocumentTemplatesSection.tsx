@@ -1,12 +1,15 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { queryKeys } from '@/api/queryKeys';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import { selectShopProfile, setShopProfile } from '@/store/slices/settingsSlice';
 import { getErrorMessage } from '@/shared/lib/error';
 import { updateShopProfileApi } from '../../api/settingsApi';
+import { useShopProfile } from '../../hooks/useShopProfile';
 import { SectionShell } from '../SectionShell';
 import type { SectionProps } from './ShopProfileSection';
 
@@ -24,16 +27,31 @@ interface DocumentTemplatesFormValues {
  */
 export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
   const dispatch = useAppDispatch();
-  const shopProfile = useAppSelector(selectShopProfile);
+  const queryClient = useQueryClient();
+  const { shopProfile: fetchedProfile } = useShopProfile();
+  const storeProfile = useAppSelector(selectShopProfile);
+  const shopProfile = fetchedProfile ?? storeProfile;
   const [saving, setSaving] = useState(false);
 
   const form = useForm<DocumentTemplatesFormValues>({
     initialValues: {
+      defaultWarrantyText: shopProfile?.defaultWarrantyText ?? '',
+      defaultFooterText: shopProfile?.defaultFooterText ?? '',
+      receiptFooterText: shopProfile?.receiptFooterText ?? '',
+    },
+  });
+
+  useEffect(() => {
+    if (!shopProfile || form.isDirty()) return;
+    const loaded: DocumentTemplatesFormValues = {
       defaultWarrantyText: shopProfile.defaultWarrantyText,
       defaultFooterText: shopProfile.defaultFooterText,
       receiptFooterText: shopProfile.receiptFooterText,
-    },
-  });
+    };
+    form.setInitialValues(loaded);
+    form.setValues(loaded);
+    form.resetDirty(loaded);
+  }, [shopProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isDirty = form.isDirty();
   useEffect(() => {
@@ -48,7 +66,8 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
         defaultFooterText: form.values.defaultFooterText.trim(),
         receiptFooterText: form.values.receiptFooterText.trim(),
       });
-      dispatch(updateShopProfile(persisted));
+      dispatch(setShopProfile(persisted));
+      queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
       const saved: DocumentTemplatesFormValues = {
         defaultWarrantyText: persisted.defaultWarrantyText,
         defaultFooterText: persisted.defaultFooterText,

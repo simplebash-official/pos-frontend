@@ -1,5 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useCallback, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Modal,
   Stack,
@@ -40,6 +41,11 @@ import {
 } from '@/features/inventory/lib/priceTiers';
 import type { PriceTier, Product } from '@/features/inventory/types';
 import { useCreateCreditNote } from '@/features/billing/hooks/useCreditNotes';
+import { useCurrentSession } from '@/features/billing/hooks/useRegisterSession';
+import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
+import { handleSessionClosingError } from '@/features/billing/lib/sessionClosing';
+import { getDeviceId } from '@/api/deviceId';
+import { getErrorMessage } from '@/shared/lib/error';
 import { useCalc } from '@/shared/hooks/useCalc';
 import { calcCreditNote } from '@/features/billing/api/calcApi';
 import type {
@@ -48,6 +54,7 @@ import type {
   CreateCreditNoteRefundBreakdownInput,
 } from '@/features/billing/api/creditNotesApi';
 import {
+  creditNoteUsesCashDrawer,
   ITEM_CONDITION_OPTIONS,
   ITEM_DISPOSITION_OPTIONS,
   RETURN_REASON_OPTIONS,
@@ -104,6 +111,9 @@ export const CreditNoteModal = ({
   // for a follow-up decision (extend to Manager, or fix the copy) rather
   // than silently resolved here.
   const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
+  const { session } = useCurrentSession(getDeviceId());
+  const isClosingSession = session?.status === 'closing';
   const createCreditNoteMutation = useCreateCreditNote();
   const { data: products } = useAllProducts();
 
@@ -119,6 +129,7 @@ export const CreditNoteModal = ({
   const [exchangeProductKey, setExchangeProductKey] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [closingError, setClosingError] = useState<string | null>(null);
 
   const [prevInvoiceId, setPrevInvoiceId] = useState(invoice?.id);
   if (invoice?.id !== prevInvoiceId) {
@@ -133,6 +144,7 @@ export const CreditNoteModal = ({
     setExchangeLines([]);
     setExchangeProductKey(null);
     setNotes('');
+    setClosingError(null);
   }
 
   const items = useMemo(() => invoice?.items ?? [], [invoice?.items]);
@@ -148,6 +160,7 @@ export const CreditNoteModal = ({
     setExchangeLines([]);
     setExchangeProductKey(null);
     setNotes('');
+    setClosingError(null);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -359,10 +372,23 @@ export const CreditNoteModal = ({
     !hasMissingDisposition &&
     (!needsOverride || (isAdmin && overrideReason.trim().length > 0));
 
+  const usesCashDrawer =
+    answer !== undefined &&
+    creditNoteUsesCashDrawer({
+      netRefundCents: answer.netRefundCents,
+      refundCashCents: answer.refundCashCents,
+      isCustomerOwing: answer.isCustomerOwing,
+      refundLegs: refundLegTargets,
+      refundBreakdown,
+      noReceipt,
+      invoicePaymentMethod: invoice?.paymentMethod,
+    });
+  const isCashPaused = isClosingSession && usesCashDrawer;
+
   if (!invoice) return null;
 
   const handleSubmit = async () => {
-    if (!canSubmit || isSubmitting || answer === undefined) return;
+    if (!canSubmit || isCashPaused || isSubmitting || answer === undefined) return;
     setIsSubmitting(true);
     try {
       const returnedItems: CreateCreditNoteItemInput[] = noReceipt
@@ -454,10 +480,19 @@ export const CreditNoteModal = ({
       onCreditNoteSuccess?.();
       onClose();
     } catch (error) {
+      const closingMessage = handleSessionClosingError(error, queryClient, {
+        fallbackMessage: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before processing cash credit notes.'
+        ),
+      });
+      if (closingMessage !== null) {
+        setClosingError(closingMessage);
+        return;
+      }
       console.error('Failed to create credit note', error);
       notifications.show({
-        title: 'Could Not Create Credit Note',
-        message: 'Please check the details and try again.',
+        title: t('Could Not Create Credit Note'),
+        message: getErrorMessage(error, t('Please check the details and try again.')),
         color: 'red',
       });
     } finally {
@@ -1005,6 +1040,18 @@ export const CreditNoteModal = ({
           </Paper>
         )}
 
+        {(isCashPaused || closingError !== null) && (
+          <SessionClosingAlert
+            closingCashierName={closingError ? undefined : session?.closingCashierNameSnapshot}
+            message={
+              closingError ??
+              t(
+                'Cash refunds and cash adjustments are paused until the count is finished or cancelled.'
+              )
+            }
+          />
+        )}
+
         <Paper p="sm" withBorder bg="var(--bg-app)">
           <Stack gap="xs">
             <Group justify="space-between">
@@ -1031,7 +1078,12 @@ export const CreditNoteModal = ({
           <Button variant="default" onClick={handleClose} disabled={isSubmitting}>
             {t('Cancel')}
           </Button>
-          <Button color="blue" loading={isSubmitting} disabled={!canSubmit} onClick={handleSubmit}>
+          <Button
+            color="blue"
+            loading={isSubmitting}
+            disabled={!canSubmit || isCashPaused}
+            onClick={handleSubmit}
+          >
             {t('Create Credit Note')}
           </Button>
         </Group>

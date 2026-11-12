@@ -1619,3 +1619,12 @@ th.mantine-Table-th {
     animation: none;
   }
 }
+
+/* Settings -> Registers & Shifts interactive policy cards: visible keyboard focus ring. */
+.shift-policy-card:focus:not(:focus-visible) {
+  outline: none;
+}
+.shift-policy-card:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

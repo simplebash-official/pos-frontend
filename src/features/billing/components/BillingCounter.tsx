@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
@@ -40,12 +41,14 @@ import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
+import { handleSessionClosingError } from '../lib/sessionClosing';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
 import { t } from '@/shared/i18n/t';
 import type { ApiError } from '@/shared/types/common';
 import type { Invoice } from '../types';
 
 export const BillingCounter = () => {
+  const queryClient = useQueryClient();
   const completeSaleMutation = useCompleteSale();
   const authUser = useAppSelector(selectAuthUser);
   const shopProfile = useAppSelector(selectShopProfile);
@@ -161,6 +164,19 @@ export const BillingCounter = () => {
     // The sale is sent with the server's figures for this exact cart, so wait for them.
     if (checkout === undefined || !isCurrent) return;
 
+    if (activeSession?.status === 'closing') {
+      notifications.show({
+        title: t('Cash Count In Progress'),
+        message: activeSession.closingCashierNameSnapshot
+          ? `${activeSession.closingCashierNameSnapshot} ${t('is counting the drawer. Finish or cancel the close count before completing sales.')}`
+          : t(
+              'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
+            ),
+        color: 'orange',
+      });
+      return;
+    }
+
     if (
       !activeSession ||
       (activeSession.status !== 'open' && activeSession.status !== 'reopened')
@@ -271,8 +287,8 @@ export const BillingCounter = () => {
         },
         notes,
         quotationKey: activeQuotationKey || undefined,
-        shopProfileSnapshot: shopProfile,
-        warrantyTermsSnapshot: shopProfile.defaultWarrantyText,
+        shopProfileSnapshot: shopProfile ?? undefined,
+        warrantyTermsSnapshot: shopProfile?.defaultWarrantyText ?? '',
         documentSelection,
       };
 
@@ -307,6 +323,14 @@ export const BillingCounter = () => {
         setActivePane('pay');
       }
     } catch (err) {
+      const closingMessage = handleSessionClosingError(err, queryClient, {
+        fallbackMessage: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
+        ),
+      });
+      if (closingMessage !== null) {
+        return;
+      }
       const apiErr = err as ApiError;
       const isNotFound = apiErr?.statusCode === 404;
       notifications.show({
@@ -351,6 +375,7 @@ export const BillingCounter = () => {
     markSaleCompleted,
     isMobile,
     activeSession,
+    queryClient,
   ]);
 
   // Global Cashier Focus & Hotkeys

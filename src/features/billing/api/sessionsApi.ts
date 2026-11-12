@@ -1,6 +1,7 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import type {
+  ActiveSessionsSummary,
   CashMovement,
   CashMovementListQuery,
   CloseSessionInput,
@@ -141,9 +142,17 @@ export const listCashMovements = async (
   return response.data;
 };
 
-/** The signed-in user's own drawer balance (it follows the user, not the machine). */
+/** The signed-in user's own drawer balance, or `'shop'` in Shared Shop mode. */
 export const getDrawerState = async (): Promise<DrawerState | null> => {
   const response = await apiClient.get<ApiResponse<DrawerState | null>>('/sessions/drawer-state');
+  return response.data;
+};
+
+/** All active shifts (open, closing, reopened) and total drawer cash balance across drawers. */
+export const getActiveSessionsSummary = async (): Promise<ActiveSessionsSummary> => {
+  const response = await apiClient.get<ApiResponse<ActiveSessionsSummary>>(
+    '/sessions/active-summary'
+  );
   return response.data;
 };
 

@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { Button, Stack, Text, TextInput } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
+import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
 import {
   sourceNeedsRegister,
   type ChargeState,
@@ -16,6 +17,7 @@ export interface ExtraChargesSectionProps {
   payment: ChargesPaymentState;
   /** Whether a shift is open on this register, for the line under the cash choices. */
   shiftOpen: boolean;
+  shiftClosing?: boolean;
   onChangeCharge: (charge: ChargeState) => void;
   onAdd: () => void;
   onRemove: (id: number) => void;
@@ -29,6 +31,7 @@ export const ExtraChargesSection = ({
   lineCount,
   payment,
   shiftOpen,
+  shiftClosing = false,
   onChangeCharge,
   onAdd,
   onRemove,
@@ -85,11 +88,19 @@ export const ExtraChargesSection = ({
             />
           ) : null}
           {payment.source === 'drawer' ? (
-            <Text size="xs" c="dimmed">
-              {shiftOpen
-                ? t('The cash is taken out of the open shift now.')
-                : t('No shift is open, so the cash is taken out of the drawer between shifts.')}
-            </Text>
+            shiftClosing ? (
+              <SessionClosingAlert
+                message={t(
+                  'A register cash count is in progress. Cash cannot leave the drawer until the count finishes or is cancelled.'
+                )}
+              />
+            ) : (
+              <Text size="xs" c="dimmed">
+                {shiftOpen
+                  ? t('The cash is taken out of the open shift now.')
+                  : t('No shift is open, so the cash is taken out of the drawer between shifts.')}
+              </Text>
+            )
           ) : null}
           {payment.source === 'owner_pocket' ? (
             <Text size="xs" c="dimmed">

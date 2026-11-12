@@ -1,6 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { Button, Group, Modal, NumberInput, Select, Stack, Text, TextInput } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconLock } from '@tabler/icons-react';
+import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
 
 export interface InvoicePaymentModalProps {
   opened: boolean;
@@ -15,6 +16,9 @@ export interface InvoicePaymentModalProps {
   submitting: boolean;
   onConfirm: () => void;
   fullScreen: boolean;
+  shiftClosing?: boolean;
+  closingCashierName?: string | null;
+  closingError?: string | null;
 }
 
 /** The Record Payment dialog for a credit invoice. The drawer owns the values and the save. */
@@ -31,60 +35,81 @@ export const InvoicePaymentModal = ({
   submitting,
   onConfirm,
   fullScreen,
-}: InvoicePaymentModalProps) => (
-  <Modal
-    opened={opened}
-    onClose={onClose}
-    zIndex={400}
-    title={
-      <Text fw={700} size="lg">
-        {t('Record Payment — #')}
-        {invoiceNumber}
-      </Text>
-    }
-    centered
-    fullScreen={fullScreen}
-  >
-    <Stack gap="md">
-      <NumberInput
-        label={t('Payment Amount (Rs.)')}
-        prefix="Rs. "
-        min={1}
-        value={amountRupees}
-        onChange={(val) => onAmountChange(typeof val === 'number' ? val : '')}
-      />
+  shiftClosing = false,
+  closingCashierName,
+  closingError = null,
+}: InvoicePaymentModalProps) => {
+  const isCashPaused = shiftClosing && method === 'cash';
+  const showClosingBanner = isCashPaused || Boolean(closingError);
 
-      <Select
-        label={t('Payment Method')}
-        value={method}
-        onChange={(v) => onMethodChange(v || 'cash')}
-        data={[
-          { label: 'Cash', value: 'cash' },
-          { label: 'Online / Bank Transfer', value: 'online' },
-          { label: 'Card', value: 'card' },
-        ]}
-      />
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      zIndex={400}
+      title={
+        <Text fw={700} size="lg">
+          {t('Record Payment — #')}
+          {invoiceNumber}
+        </Text>
+      }
+      centered
+      fullScreen={fullScreen}
+    >
+      <Stack gap="md">
+        <NumberInput
+          label={t('Payment Amount (Rs.)')}
+          prefix="Rs. "
+          min={1}
+          value={amountRupees}
+          onChange={(val) => onAmountChange(typeof val === 'number' ? val : '')}
+        />
 
-      <TextInput
-        label={t('Note / Transaction Ref (Optional)')}
-        placeholder={t('e.g. Slip TRX-12345')}
-        value={notes}
-        onChange={(e) => onNotesChange(e.currentTarget.value)}
-      />
+        <Select
+          label={t('Payment Method')}
+          value={method}
+          onChange={(v) => onMethodChange(v || 'cash')}
+          data={[
+            { label: t('Cash'), value: 'cash' },
+            { label: t('Online / Bank Transfer'), value: 'online' },
+            { label: t('Card'), value: 'card' },
+          ]}
+        />
 
-      <Group justify="flex-end" mt="md" gap="sm">
-        <Button variant="default" onClick={onClose} disabled={submitting}>
-          {t('Cancel')}
-        </Button>
-        <Button
-          color="blue"
-          loading={submitting}
-          onClick={onConfirm}
-          leftSection={<IconCheck size={16} />}
-        >
-          {t('Confirm & Update Balance')}
-        </Button>
-      </Group>
-    </Stack>
-  </Modal>
-);
+        {showClosingBanner && (
+          <SessionClosingAlert
+            closingCashierName={closingError ? undefined : closingCashierName}
+            message={
+              closingError ??
+              t(
+                'A register cash count is in progress. Finish or cancel the close count before taking cash payments, or choose Online / Card.'
+              )
+            }
+          />
+        )}
+
+        <TextInput
+          label={t('Note / Transaction Ref (Optional)')}
+          placeholder={t('e.g. Slip TRX-12345')}
+          value={notes}
+          onChange={(e) => onNotesChange(e.currentTarget.value)}
+        />
+
+        <Group justify="flex-end" mt="md" gap="sm">
+          <Button variant="default" onClick={onClose} disabled={submitting}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            color={isCashPaused ? 'orange' : 'blue'}
+            loading={submitting}
+            disabled={isCashPaused}
+            onClick={onConfirm}
+            leftSection={isCashPaused ? <IconLock size={16} /> : <IconCheck size={16} />}
+          >
+            {isCashPaused ? t('Cash Count In Progress') : t('Confirm & Update Balance')}
+          </Button>
+        </Group>
+      </Stack>
+    </Modal>
+  );
+};

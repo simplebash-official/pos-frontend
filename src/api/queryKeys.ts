@@ -1,5 +1,7 @@
 export const queryKeys = {
   settings: {
+    all: ['settings'] as const,
+    shopProfile: () => ['settings', 'shopProfile'] as const,
     documentTemplates: () => ['settings', 'documentTemplates'] as const,
     documentTemplatePreview: (family: string, version: number) =>
       ['settings', 'documentTemplatePreview', family, version] as const,
@@ -34,6 +36,7 @@ export const queryKeys = {
       zReportDocumentDesign: (key: string, template?: string, version?: number | string) =>
         ['billing', 'sessions', 'zReportDocumentDesign', key, template, version] as const,
       drawerState: () => ['billing', 'sessions', 'drawerState'] as const,
+      activeSummary: () => ['billing', 'sessions', 'activeSummary'] as const,
       movements: (filters?: Record<string, unknown>) =>
         ['billing', 'sessions', 'movements', filters] as const,
     },

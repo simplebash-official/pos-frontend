@@ -183,6 +183,12 @@ export const MODULES: readonly ModuleDef[] = [
   { id: 'suppliers', label: 'Suppliers', resources: ['suppliers'] },
   { id: 'employees', label: 'Employees', resources: ['employees'] },
   { id: 'users', label: 'Login Accounts', resources: ['users'] },
+  {
+    id: 'shifts',
+    label: 'Register Shifts & Cash',
+    resources: ['registerSessions', 'drawerState', 'cashMovements'],
+  },
+  { id: 'settings', label: 'Shop Settings', resources: ['shopProfiles'] },
 ];
 
 const OTHER_MODULE: ModuleDef = { id: 'other', label: 'Other records', resources: [] };
@@ -213,6 +219,10 @@ const RECORD_NAMES: Record<string, string> = {
   suppliers: 'Supplier',
   employees: 'Employee',
   users: 'Login account',
+  registerSessions: 'Register shift',
+  drawerState: 'Drawer balance',
+  cashMovements: 'Cash movement',
+  shopProfiles: 'Shop profile',
 };
 
 export const recordName = (resource: string): string => RECORD_NAMES[resource] ?? 'Record';

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Alert,
   Badge,
@@ -20,6 +21,7 @@ import {
   IconArrowBackUp,
   IconCash,
   IconCheck,
+  IconClockPause,
   IconLock,
   IconPrinter,
 } from '@tabler/icons-react';
@@ -33,6 +35,8 @@ import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
 import { AnimatedNumber, FadeIn, useMotionPresets } from '@/shared/motion';
 import { useCashCategories, useCashSettings, usePeriodStatus } from '../../hooks/useCashLookups';
+import { handleSessionClosingError } from '../../lib/sessionClosing';
+import { SessionClosingAlert } from './SessionClosingAlert';
 import { useCalc } from '@/shared/hooks/useCalc';
 import { calcCashMovement } from '../../api/calcApi';
 import {
@@ -82,6 +86,8 @@ export interface CashMovementModalProps {
   onClose: () => void;
   terminalId: string;
   sessionKey?: string;
+  /** True while the active shift is in closing cash-count state (`status === 'closing'`). */
+  shiftClosing?: boolean;
   /** Opens the window with these values filled in; they can all still be changed. */
   prefill?: CashMovementPrefill;
   onMovementCreated?: (movement: CashMovement) => void;
@@ -111,9 +117,11 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   onClose,
   terminalId,
   sessionKey,
+  shiftClosing = false,
   prefill,
   onMovementCreated,
 }) => {
+  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { data: cashSettings } = useCashSettings(opened);
   const createMovement = useCreateCashMovement();
@@ -243,6 +251,14 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (shiftClosing) {
+      setSubmitError(
+        t(
+          'Drawer cash count is in progress. Finish or cancel the close count before recording cash movements.'
+        )
+      );
+      return;
+    }
     if (figures === undefined || !calc.isCurrent) {
       setSubmitError(
         calc.error === null
@@ -275,6 +291,15 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       setCompleted(movement);
       onMovementCreated?.(movement);
     } catch (err) {
+      const closingMessage = handleSessionClosingError(err, queryClient, {
+        fallbackMessage: t(
+          'Drawer cash count is in progress. Finish or cancel the close count before recording cash movements.'
+        ),
+      });
+      if (closingMessage !== null) {
+        setSubmitError(closingMessage);
+        return;
+      }
       setSubmitError(
         getErrorMessage(err, t('The cash movement could not be saved. Please try again.'))
       );
@@ -449,6 +474,14 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       ) : (
         <form onSubmit={handleSubmit} noValidate autoComplete="off">
           <Stack gap="lg">
+            {shiftClosing && (
+              <SessionClosingAlert
+                icon={<IconClockPause size={18} />}
+                message={t(
+                  'Drawer cash count is in progress. Finish or cancel the close count before recording cash movements.'
+                )}
+              />
+            )}
             <MovementStep number={1} title={t('What happened?')} required={false}>
               <MovementGroupTabs value={form.type} onChange={changeType} canUse={canUseType} />
             </MovementStep>
@@ -676,6 +709,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
               <Button
                 type="submit"
                 color="blue"
+                disabled={shiftClosing}
                 loading={createMovement.isPending}
                 h={isMobile ? 44 : undefined}
               >

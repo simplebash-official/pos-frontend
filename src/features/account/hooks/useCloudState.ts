@@ -26,7 +26,7 @@ import type {
 import { DISABLED_CLOUD_STATE } from '../types';
 import { syncNow } from '@/features/sync-status/api/syncStatusApi';
 import { store } from '@/store';
-import { updateShopProfile } from '@/store/slices/settingsSlice';
+import { setShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
 import { updateShopProfileApi } from '@/features/settings/api/settingsApi';
 
 /** Cloud link state from the desktop shell. Disabled (and inert) on web. */
@@ -48,6 +48,7 @@ export const useCloudRegister = () =>
   useMutation<RegisterResult, CloudCommandError, RegisterPayload>({ mutationFn: cloudRegister });
 
 export const useCloudLogin = () => {
+  const queryClient = useQueryClient();
   const write = useCloudStateWriter();
   return useMutation<CloudState, CloudCommandError, LoginPayload>({
     mutationFn: cloudLoginAndLink,
@@ -56,7 +57,12 @@ export const useCloudLogin = () => {
       if (data.shopName) {
         const name = data.shopName.trim();
         store.dispatch(updateShopProfile({ tradingName: name }));
-        void updateShopProfileApi({ tradingName: name }).catch(() => {});
+        void updateShopProfileApi({ tradingName: name })
+          .then((persisted) => {
+            store.dispatch(setShopProfile(persisted));
+            queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
+          })
+          .catch(() => {});
       }
       void syncNow().catch(() => {});
     },

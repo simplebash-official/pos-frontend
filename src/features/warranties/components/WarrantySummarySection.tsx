@@ -53,13 +53,7 @@ export const WarrantySummarySection = ({ lines }: { lines: WarrantySummaryLine[]
       >
         <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
           <Group gap={8} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-            <ThemeIcon
-              size={22}
-              radius="sm"
-              variant="light"
-              color="teal"
-              style={{ flexShrink: 0 }}
-            >
+            <ThemeIcon size={22} radius="sm" variant="light" color="teal" style={{ flexShrink: 0 }}>
               <IconShieldCheck size={13} />
             </ThemeIcon>
             <Text

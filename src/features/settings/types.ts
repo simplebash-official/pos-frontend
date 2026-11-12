@@ -17,7 +17,8 @@ export interface ShopProfile {
   defaultWarrantyText: string;
   defaultFooterText: string;
   receiptFooterText: string;
-  allowSharedUserSessions?: boolean;
+  allowSharedUserSessions: boolean;
+  allowStaffMultiDeviceSessions: boolean;
 }
 
 export type UpdateShopProfileInput = Partial<ShopProfile>;

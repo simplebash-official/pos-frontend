@@ -12,9 +12,18 @@ const SYNCED = MODULES.flatMap((m) => m.resources);
 
 describe('resource → screens map', () => {
   it('covers every synced record type', () => {
-    expect(SYNCED).toHaveLength(21);
+    expect(SYNCED).toHaveLength(25);
     const missing = SYNCED.filter((resource) => !RESOURCE_QUERY_ROOTS[resource]);
     expect(missing).toEqual([]);
+  });
+
+  it('maps synced shift, drawer, and shop profile collections to their screen query roots', () => {
+    const roots = queryRootsFor(['shopProfiles', 'drawerState', 'registerSessions']);
+    expect(roots).not.toBeNull();
+    const keys = roots!.map((r) => JSON.stringify(r));
+    expect(keys).toContain(JSON.stringify(queryKeys.settings.all));
+    expect(keys).toContain(JSON.stringify(queryKeys.billing.sessions.all));
+    expect(keys).toContain(JSON.stringify(queryKeys.accounts.all));
   });
 
   it('merges and de-duplicates roots across record types', () => {

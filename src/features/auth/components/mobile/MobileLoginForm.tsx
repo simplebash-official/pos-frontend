@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   TextInput,
@@ -21,11 +21,13 @@ import { loginApi } from '../../api/authApi';
 import { logger } from '@/shared/logging';
 import { ShopAccountCard } from '@/features/account';
 import { CreateShopLink } from '../CreateShopLink';
+import { DeviceShiftLockAlert } from '../DeviceShiftLockAlert';
 import { ShopCodeField } from '../ShopCodeField';
 import { useLoginShopCode } from '../../lib/useLoginShopCode';
-import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
+import { selectShopProfile } from '@/store/slices/settingsSlice';
 import {
   getShopNameFromLink,
+  isSessionOpenOnOtherDeviceError,
   isShopCodeRequired,
   isShopCodeRejection,
   isValidShopCode,
@@ -58,17 +60,12 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   } = useLoginShopCode(location.search);
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deviceLockMessage, setDeviceLockMessage] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const shopProfile = useAppSelector(selectShopProfile);
   const linkName = getShopNameFromLink(location.search);
-
-  useEffect(() => {
-    if (linkName) {
-      dispatch(updateShopProfile({ tradingName: linkName }));
-    }
-  }, [linkName, dispatch]);
 
   const shopName =
     linkName ||
@@ -103,6 +100,7 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       return;
     }
     setShopCodeError(null);
+    setDeviceLockMessage(null);
 
     setIsSubmitting(true);
 
@@ -116,10 +114,6 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
         rememberShopCode(shopCode);
         logger.event('app', 'auth/login.shop_code', { shopCode: normalizeShopCode(shopCode) });
       }
-      const incomingShopName = data.shopName || linkName;
-      if (incomingShopName) {
-        dispatch(updateShopProfile({ tradingName: incomingShopName }));
-      }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
       notifications.show({
@@ -132,9 +126,13 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
     } catch (err: unknown) {
       // A wrong code from a link is hidden; show the field so it can be fixed.
       if (shopCodeLocked && isShopCodeRejection(err)) revealField();
+      const message = loginErrorMessage(err, 'Invalid username or password. Please try again.');
+      if (isSessionOpenOnOtherDeviceError(err)) {
+        setDeviceLockMessage(message);
+      }
       notifications.show({
         title: 'Login Failed',
-        message: loginErrorMessage(err, 'Invalid username or password. Please try again.'),
+        message,
         color: 'red',
       });
     } finally {
@@ -178,6 +176,10 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
         <form onSubmit={handleLogin} noValidate>
           <Stack gap="md">
             <ShopAccountCard />
+            <DeviceShiftLockAlert
+              message={deviceLockMessage}
+              onClose={() => setDeviceLockMessage(null)}
+            />
             <ShopCodeField
               value={shopCode}
               onChange={(v) => {

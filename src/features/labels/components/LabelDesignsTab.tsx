@@ -119,7 +119,7 @@ export const LabelDesignsTab = () => {
             <FadeIn key={template.key} index={index}>
               <Paper p="sm" withBorder>
                 <Stack gap="xs">
-                  <DesignThumbnail template={template} shopName={shopProfile.tradingName} />
+                  <DesignThumbnail template={template} shopName={shopProfile?.tradingName ?? ''} />
                   <Group justify="space-between" wrap="nowrap" gap="xs" align="flex-start">
                     <Box style={{ minWidth: 0 }}>
                       <Text fw={600} size="sm" truncate>

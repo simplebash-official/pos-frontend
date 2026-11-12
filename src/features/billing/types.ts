@@ -413,12 +413,17 @@ export interface CashMovement {
 }
 
 export interface DrawerState {
-  /** The user the balance belongs to (the shift owner). */
+  /** The user the balance belongs to (or `'shop'` in Shared Shop mode). */
   userKey: string;
   currentBalanceCents: number;
   lastSessionKey?: string;
   lastClosingFloatCents: number;
   updatedAt: string;
+}
+
+export interface ActiveSessionsSummary {
+  activeSessions: RegisterSession[];
+  drawerBalanceTotalCents: number;
 }
 
 export interface ZReportPaymentMethodSummary {

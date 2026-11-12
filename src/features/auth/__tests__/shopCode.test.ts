@@ -7,6 +7,7 @@ import {
   getRememberedShopCode,
   getShopCodeFromLink,
   getShopNameFromLink,
+  isSessionOpenOnOtherDeviceError,
   isShopCodeRejection,
   isShopCodeRequired,
   isValidShopCode,
@@ -157,6 +158,8 @@ describe('loginErrorMessage', () => {
     expect(loginErrorMessage(err, 'fallback')).toBe(err.message);
     vi.stubEnv('VITE_MULTI_TENANT', 'true');
     expect(loginErrorMessage(err, 'fallback')).toBe(err.message);
+    expect(isSessionOpenOnOtherDeviceError(err)).toBe(true);
+    expect(isSessionOpenOnOtherDeviceError({ statusCode: 401, code: 'UNAUTHORIZED' })).toBe(false);
   });
 });
 

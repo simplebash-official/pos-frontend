@@ -14,10 +14,14 @@ import { ROUTES } from '@/constants/routes';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-// What the backend puts in each role's token (see `core::constants::roles`): only Admin and
-// Manager hold `quotations:manage`.
-const STAFF = [PERMISSIONS.BILLING_WRITE, PERMISSIONS.CUSTOMERS_WRITE];
-const MANAGER = [...STAFF, PERMISSIONS.REPORTS_VIEW, PERMISSIONS.QUOTATIONS_MANAGE];
+// What the backend puts in each role's token (see `core::constants::roles`): Admin, Manager
+// and Staff hold `quotations:manage`.
+const STAFF = [
+  PERMISSIONS.BILLING_WRITE,
+  PERMISSIONS.CUSTOMERS_WRITE,
+  PERMISSIONS.QUOTATIONS_MANAGE,
+];
+const MANAGER = [...STAFF, PERMISSIONS.REPORTS_VIEW];
 
 const createMockStore = (permissions: string[]) =>
   configureStore({
@@ -69,13 +73,15 @@ describe('Quotations route guarding by permission', () => {
     await flush();
   };
 
-  it('lets someone with the quotations permission in (admin and manager tokens carry it)', async () => {
-    await renderAtQuotations(MANAGER);
-    expect(container.textContent).toContain('Quotations Protected Area');
+  it('lets someone with the quotations permission in (staff, manager, and admin tokens carry it)', async () => {
+    for (const perms of [STAFF, MANAGER]) {
+      await renderAtQuotations(perms);
+      expect(container.textContent).toContain('Quotations Protected Area');
+    }
   });
 
-  it('sends staff to the dashboard', async () => {
-    await renderAtQuotations(STAFF);
+  it('sends someone without the quotations permission to the dashboard', async () => {
+    await renderAtQuotations([PERMISSIONS.BILLING_WRITE, PERMISSIONS.CUSTOMERS_WRITE]);
     expect(container.textContent).not.toContain('Quotations Protected Area');
     expect(container.textContent).toContain('Dashboard Fallback Area');
   });

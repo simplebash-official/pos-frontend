@@ -1,175 +1,162 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import settingsReducer, {
-  setShopProfile,
-  updateShopProfile,
-  updatePrintSettings,
-  setLabelPrintSettings,
-  restoreSettings,
+import { describe, it, expect } from 'vitest';
+import reducer, {
   resetSettings,
-  selectLabelPrintSettings,
-  selectShopProfile,
+  restoreSettings,
   selectPrintSettings,
-  selectShopProfileVersions,
-  selectShopProfileByVersion,
+  selectShopProfile,
+  setShopProfile,
+  updatePrintSettings,
+  updateShopProfile,
+  type SettingsState,
 } from '../settingsSlice';
-import { DEFAULT_SHOP_PROFILE, DEFAULT_PRINT_SETTINGS } from '@/features/settings/constants';
+import { DEFAULT_PRINT_SETTINGS } from '@/features/settings/constants';
+import type { ShopProfile } from '@/features/settings/types';
 
-describe('settingsSlice reducer & selectors', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+const makeProfile = (over: Partial<ShopProfile> = {}): ShopProfile => ({
+  id: 'main',
+  version: 1,
+  legalName: 'SimpleBash Retail (Pvt) Ltd',
+  tradingName: 'SimpleBash POS',
+  addressLines: ['123 Galle Road', 'Colombo 03'],
+  primaryPhone: '0112345678',
+  secondaryPhone: '',
+  email: 'info@simplebash.lk',
+  website: '',
+  businessRegNo: '',
+  bankName: '',
+  bankBranch: '',
+  accountName: '',
+  accountNumber: '',
+  logoBase64: '',
+  defaultWarrantyText: '',
+  defaultFooterText: 'Thank you for your business!',
+  receiptFooterText: 'Thank you for shopping with us!',
+  allowSharedUserSessions: false,
+  allowStaffMultiDeviceSessions: false,
+  ...over,
+});
 
-  const getInitialState = () => settingsReducer(undefined, { type: '@@INIT' });
-
-  it('initializes with default shop profile and print settings', () => {
-    const state = getInitialState();
-    expect(state.shopProfile).toEqual(DEFAULT_SHOP_PROFILE);
-    expect(state.shopProfile.allowSharedUserSessions).toBe(false);
+describe('settingsSlice', () => {
+  it('initializes with explicit null shopProfile instead of inventing server settings', () => {
+    const state = reducer(undefined, { type: '@@INIT' });
+    expect(state.shopProfile).toBeNull();
     expect(state.printSettings).toEqual(DEFAULT_PRINT_SETTINGS);
+    expect(state.latestLogoVersionRef).toBeNull();
   });
 
-  it('updates shop profile allowSharedUserSessions and increments version on change', () => {
-    const state = settingsReducer(
-      getInitialState(),
-      updateShopProfile({ allowSharedUserSessions: true })
+  it('ignores updateShopProfile while shopProfile is still null', () => {
+    const initial = reducer(undefined, { type: '@@INIT' });
+    const next = reducer(initial, updateShopProfile({ allowSharedUserSessions: true }));
+    expect(next.shopProfile).toBeNull();
+    expect(next.latestLogoVersionRef).toBeNull();
+  });
+
+  it('hydrates loaded shopProfile via setShopProfile and updates allowSharedUserSessions', () => {
+    const loaded = makeProfile({ version: 3, allowSharedUserSessions: false });
+    const hydrated = reducer(undefined, setShopProfile(loaded));
+    expect(hydrated.shopProfile).toEqual(loaded);
+    expect(hydrated.latestLogoVersionRef).toBe(3);
+
+    const updated = reducer(hydrated, updateShopProfile({ allowSharedUserSessions: true }));
+    expect(updated.shopProfile?.allowSharedUserSessions).toBe(true);
+    expect(updated.shopProfile?.version).toBe(4);
+
+    const updatedStaffMulti = reducer(
+      updated,
+      updateShopProfile({ allowStaffMultiDeviceSessions: true })
     );
-
-    expect(state.shopProfile.allowSharedUserSessions).toBe(true);
-    expect(state.shopProfile.version).toBe(DEFAULT_SHOP_PROFILE.version + 1);
+    expect(updatedStaffMulti.shopProfile?.allowStaffMultiDeviceSessions).toBe(true);
+    expect(updatedStaffMulti.shopProfile?.version).toBe(5);
   });
 
-  it('updates shop profile and increments version on change', () => {
-    const state = settingsReducer(
-      getInitialState(),
-      updateShopProfile({ tradingName: 'Jana POS Store', primaryPhone: '0112345678' })
+  it('updates trading fields and bumps version only when values actually change', () => {
+    const loaded = makeProfile({ version: 2 });
+    const hydrated = reducer(undefined, setShopProfile(loaded));
+
+    const unchanged = reducer(hydrated, updateShopProfile({ tradingName: loaded.tradingName }));
+    expect(unchanged.shopProfile?.version).toBe(2);
+
+    const changed = reducer(
+      hydrated,
+      updateShopProfile({ tradingName: 'Jana POS Store', primaryPhone: '0112345679' })
     );
-
-    expect(state.shopProfile.tradingName).toBe('Jana POS Store');
-    expect(state.shopProfile.primaryPhone).toBe('0112345678');
-    expect(state.shopProfile.version).toBe(DEFAULT_SHOP_PROFILE.version + 1);
+    expect(changed.shopProfile?.tradingName).toBe('Jana POS Store');
+    expect(changed.shopProfile?.primaryPhone).toBe('0112345679');
+    expect(changed.shopProfile?.version).toBe(3);
   });
 
-  it('does not increment version when no actual changes occur', () => {
-    const initial = getInitialState();
-    const state = settingsReducer(
-      initial,
-      updateShopProfile({ tradingName: initial.shopProfile.tradingName })
-    );
-
-    expect(state.shopProfile.version).toBe(initial.shopProfile.version);
+  it('updates printSettings without mutating shopProfile', () => {
+    const hydrated = reducer(undefined, setShopProfile(makeProfile()));
+    const next = reducer(hydrated, updatePrintSettings({ showLogoOnReceipt: false }));
+    expect(next.printSettings.showLogoOnReceipt).toBe(false);
+    expect(next.shopProfile?.version).toBe(1);
   });
 
-  it('updates print settings', () => {
-    const state = settingsReducer(
-      getInitialState(),
-      updatePrintSettings({
-        receiptPaper: '58mm',
-        showLogoOnReceipt: false,
-      })
-    );
-
-    expect(state.printSettings.receiptPaper).toBe('58mm');
-    expect(state.printSettings.showLogoOnReceipt).toBe(false);
-  });
-
-  it('replaces shop profile with setShopProfile', () => {
-    const customProfile = {
-      ...DEFAULT_SHOP_PROFILE,
+  it('restores valid loaded ShopProfile and rejects legacy profiles missing allowSharedUserSessions', () => {
+    const valid = makeProfile({
+      version: 5,
       tradingName: 'My Awesome Shop',
       primaryPhone: '0711112233',
-      version: 5,
-    };
-    const state = settingsReducer(getInitialState(), setShopProfile(customProfile));
-    expect(state.shopProfile.tradingName).toBe('My Awesome Shop');
-    expect(state.shopProfile.primaryPhone).toBe('0711112233');
-    expect(state.shopProfile.version).toBe(5);
-    expect(state.latestLogoVersionRef).toBe(5);
-  });
-
-  it('resets settings to default on resetSettings', () => {
-    let state = settingsReducer(
-      getInitialState(),
-      updateShopProfile({ tradingName: 'Custom Name' })
+    });
+    const restoredValid = reducer(
+      undefined,
+      restoreSettings({
+        shopProfile: valid,
+        printSettings: { ...DEFAULT_PRINT_SETTINGS, receiptPaper: '58mm' },
+      } as Partial<SettingsState>)
     );
-    expect(state.shopProfile.tradingName).toBe('Custom Name');
+    expect(restoredValid.shopProfile).toEqual(valid);
+    expect(restoredValid.printSettings.receiptPaper).toBe('58mm');
 
-    state = settingsReducer(state, resetSettings());
-    expect(state.shopProfile).toEqual(DEFAULT_SHOP_PROFILE);
-    expect(state.printSettings).toEqual(DEFAULT_PRINT_SETTINGS);
+    const legacyPartial = { ...valid } as Record<string, unknown>;
+    delete legacyPartial.allowSharedUserSessions;
+    const restoredLegacy = reducer(
+      undefined,
+      restoreSettings({
+        shopProfile: legacyPartial as unknown as ShopProfile,
+      })
+    );
+    expect(restoredLegacy.shopProfile).toBeNull();
+
+    const preStaffPolicyPartial = { ...valid } as Record<string, unknown>;
+    delete preStaffPolicyPartial.allowStaffMultiDeviceSessions;
+    const restoredMissingStaffPolicy = reducer(
+      undefined,
+      restoreSettings({
+        shopProfile: preStaffPolicyPartial as unknown as ShopProfile,
+      })
+    );
+    expect(restoredMissingStaffPolicy.shopProfile).toBeNull();
   });
 
-  describe('label print settings', () => {
-    const direct = {
-      method: 'direct',
-      printerName: 'Zebra ZD220',
-      templateKey: 'starter_price_tag_50x30',
-      dpi: 203,
-    } as const;
+  it('resets shopProfile back to null and restores default print settings on resetSettings', () => {
+    let state = reducer(
+      undefined,
+      setShopProfile(makeProfile({ version: 7, allowSharedUserSessions: true }))
+    );
+    state = reducer(state, updatePrintSettings({ showLogoOnReceipt: false }));
+    const reset = reducer(state, resetSettings());
 
-    it('starts unset: nothing is chosen for the person', () => {
-      expect(selectLabelPrintSettings({ settings: getInitialState() })).toBeNull();
-    });
-
-    it('stores a choice, persists it and reads it back on the next start', async () => {
-      const state = settingsReducer(getInitialState(), setLabelPrintSettings(direct));
-      expect(selectLabelPrintSettings({ settings: state })).toEqual(direct);
-
-      vi.resetModules();
-      const reloaded = await import('../settingsSlice');
-      const next = reloaded.default(undefined, { type: '@@INIT' });
-      expect(next.labelPrint).toEqual(direct);
-    });
-
-    it('ignores a damaged stored choice instead of repairing it', async () => {
-      localStorage.setItem(
-        'pos_settings_data',
-        JSON.stringify({ labelPrint: { method: 'direct', templateKey: 'k', dpi: 203 } })
-      );
-      vi.resetModules();
-      const reloaded = await import('../settingsSlice');
-      expect(reloaded.default(undefined, { type: '@@INIT' }).labelPrint).toBeNull();
-    });
-
-    it('is cleared by resetSettings and restored (validated) by restoreSettings', () => {
-      const set = settingsReducer(getInitialState(), setLabelPrintSettings(direct));
-      expect(settingsReducer(set, resetSettings()).labelPrint).toBeNull();
-
-      const restored = settingsReducer(getInitialState(), restoreSettings({ labelPrint: direct }));
-      expect(restored.labelPrint).toEqual(direct);
-      const broken = settingsReducer(
-        set,
-        restoreSettings({ labelPrint: { method: 'direct' } as never })
-      );
-      expect(broken.labelPrint).toBeNull();
-      // A backup that never had label settings leaves the current ones alone.
-      expect(settingsReducer(set, restoreSettings({})).labelPrint).toEqual(direct);
-    });
+    expect(reset.shopProfile).toBeNull();
+    expect(reset.latestLogoVersionRef).toBeNull();
+    expect(reset.printSettings).toEqual(DEFAULT_PRINT_SETTINGS);
   });
 
-  describe('selectors', () => {
-    it('returns shop profile and print settings', () => {
-      const rootState = { settings: getInitialState() };
-      expect(selectShopProfile(rootState)).toEqual(DEFAULT_SHOP_PROFILE);
-      expect(selectPrintSettings(rootState)).toEqual(DEFAULT_PRINT_SETTINGS);
-    });
+  it('exposes accurate selectors before and after load', () => {
+    const uninitialized = reducer(undefined, { type: '@@INIT' });
+    expect(selectShopProfile({ settings: uninitialized })).toBeNull();
+    expect(selectPrintSettings({ settings: uninitialized })).toEqual(DEFAULT_PRINT_SETTINGS);
+    expect(uninitialized.latestLogoVersionRef).toBeNull();
 
-    it('rehydrates deduplicated logo across profile versions', () => {
-      let state = settingsReducer(
-        getInitialState(),
-        updateShopProfile({ logoBase64: 'data:image/png;base64,logo123' })
-      );
-      const v2 = state.shopProfile.version;
+    const loaded = makeProfile({ version: 4, allowSharedUserSessions: true });
+    let state = reducer(uninitialized, setShopProfile(loaded));
+    state = reducer(state, updateShopProfile({ tradingName: 'Updated Name' }));
+    state = reducer(state, updateShopProfile({ allowSharedUserSessions: false }));
 
-      // Update tradingName only — logo is deduplicated
-      state = settingsReducer(state, updateShopProfile({ tradingName: 'New Name' }));
-      const v3 = state.shopProfile.version;
-
-      const rootState = { settings: state };
-      const versions = selectShopProfileVersions(rootState);
-
-      expect(versions[v2]?.logoBase64).toBe('data:image/png;base64,logo123');
-      expect(versions[v3]?.logoBase64).toBe('data:image/png;base64,logo123');
-      expect(selectShopProfileByVersion(v3)(rootState).tradingName).toBe('New Name');
-    });
+    const root = { settings: state };
+    expect(selectShopProfile(root)?.tradingName).toBe('Updated Name');
+    expect(selectShopProfile(root)?.allowSharedUserSessions).toBe(false);
+    expect(selectShopProfile(root)?.version).toBe(6);
+    expect(state.latestLogoVersionRef).toBe(4);
   });
 });

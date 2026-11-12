@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Alert,
   Badge,
@@ -14,22 +15,37 @@ import {
   TextInput,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconAlertTriangle, IconCheck, IconCash, IconKey, IconLock } from '@tabler/icons-react';
-import { useDrawerState, useOpenSession, useVerifyPin } from '../../hooks/useRegisterSession';
+import {
+  IconAlertTriangle,
+  IconBuildingStore,
+  IconCheck,
+  IconInfoCircle,
+  IconKey,
+  IconLock,
+} from '@tabler/icons-react';
+import { queryKeys } from '@/api/queryKeys';
+import { useShopProfile } from '@/features/settings';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useCalc } from '@/shared/hooks/useCalc';
-import { calcShiftCount } from '../../api/calcApi';
-import { useCashCount } from '../../hooks/useCashCount';
-import { DenominationCounter } from './DenominationCounter';
-import { CountMethodToggle } from './CountMethodToggle';
-import { MoneyInput } from '@/shared/components/MoneyInput';
 import { formatMoney } from '@/shared/lib/money';
 import { t } from '@/shared/i18n/t';
+import { useAppSelector } from '@/store/hooks';
+import type { SettingsState } from '@/store/slices/settingsSlice';
+import { calcShiftCount } from '../../api/calcApi';
+import { getCurrentSession } from '../../api/sessionsApi';
+import { useCashCount } from '../../hooks/useCashCount';
+import { useDrawerState, useOpenSession, useVerifyPin } from '../../hooks/useRegisterSession';
 import type { DrawerState, RegisterSession } from '../../types';
+import { CountMethodToggle } from './CountMethodToggle';
+import { DenominationCounter } from './DenominationCounter';
+import { MoneyInput } from '@/shared/components/MoneyInput';
 
 interface OpenSessionFormProps {
   terminalId: string;
   drawerState: DrawerState | null;
   isDrawerLoading: boolean;
+  isSharedShop: boolean;
+  allowStaffMultiDeviceSessions: boolean | null;
   onClose: () => void;
   onSessionOpened?: (session: RegisterSession) => void;
 }
@@ -38,9 +54,12 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
   terminalId,
   drawerState,
   isDrawerLoading,
+  isSharedShop,
+  allowStaffMultiDeviceSessions,
   onClose,
   onSessionOpened,
 }) => {
+  const queryClient = useQueryClient();
   const openSessionMutation = useOpenSession();
   const verifyPinMutation = useVerifyPin();
 
@@ -144,6 +163,21 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
       onSessionOpened?.(session);
       onClose();
     } catch (err: unknown) {
+      const apiErr = err as { statusCode?: number; code?: string; message?: string };
+      if (apiErr?.code === 'SESSION_ALREADY_OPEN' || apiErr?.statusCode === 409) {
+        const existing = await getCurrentSession(terminalId).catch(() => null);
+        await queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
+        if (existing) {
+          notifications.show({
+            title: t('Joined Open Shop Shift'),
+            message: `${existing.sessionNumber} ${t('was already opened by')} ${existing.cashierNameSnapshot}. ${t('Joined active shift automatically.')}`,
+            color: 'cyan',
+          });
+          onSessionOpened?.(existing);
+          onClose();
+          return;
+        }
+      }
       const message =
         err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
           ? err.message
@@ -166,14 +200,40 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
           </Alert>
         )}
 
+        {isSharedShop && (
+          <Alert
+            icon={<IconBuildingStore size={18} />}
+            color="cyan"
+            variant="light"
+            title={t('Shared Shop Shift')}
+          >
+            <Text size="sm">
+              {t('Opening this shift starts one shared shop shift for all counters and staff.')}
+            </Text>
+          </Alert>
+        )}
+
         {/* Previous Close Drawer Balance Info */}
         <Card withBorder padding="sm" radius="md" bg="var(--bg-app)">
-          <Group justify="space-between" align="center">
+          <Group justify="space-between" align="center" wrap="nowrap">
             <div>
-              <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                {t('Expected Drawer Balance (From Last Close)')}
-              </Text>
-              <Text size="xl" fw={700} c={isDrawerLoading ? 'dimmed' : 'blue'}>
+              <Group gap="xs" align="center">
+                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+                  {isSharedShop
+                    ? t('Expected Shop Drawer Balance (From Last Close)')
+                    : t('Expected Drawer Balance (From Last Close)')}
+                </Text>
+                {isSharedShop && (
+                  <Badge size="xs" variant="light" color="cyan">
+                    {t('Shared Shop Float')}
+                  </Badge>
+                )}
+              </Group>
+              <Text
+                size="xl"
+                fw={700}
+                c={isDrawerLoading ? 'dimmed' : isSharedShop ? 'cyan' : 'blue'}
+              >
                 {formatMoney(expectedFloatCents)}
               </Text>
               {!isDrawerLoading && expectedFloatCents === 0 && drawerState?.lastSessionKey && (
@@ -184,6 +244,25 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
             </div>
           </Group>
         </Card>
+
+        {!isSharedShop && allowStaffMultiDeviceSessions !== null && (
+          <Group gap="xs" wrap="nowrap" align="flex-start">
+            <IconInfoCircle
+              size={15}
+              color="var(--mantine-color-dimmed)"
+              style={{ flexShrink: 0, marginTop: 2 }}
+            />
+            <Text size="xs" c="dimmed">
+              {allowStaffMultiDeviceSessions
+                ? t(
+                    'Personal shift: you can sign in and continue this shift across your other devices until closed.'
+                  )
+                : t(
+                    'Personal shift: Managers & Admins can use multiple devices; Staff stay on this device until closed.'
+                  )}
+            </Text>
+          </Group>
+        )}
 
         {/* Count Mode Toggle */}
         <CountMethodToggle label={t('Count Opening Float')} value={mode} onChange={setMode} />
@@ -314,22 +393,31 @@ export const OpenSessionModal: React.FC<OpenSessionModalProps> = ({
   terminalId,
   onSessionOpened,
 }) => {
+  const isMobile = useIsMobile();
   const { drawerState, isLoading: isDrawerLoading } = useDrawerState();
+  const { shopProfile: fetchedProfile } = useShopProfile();
+  const storeProfile = useAppSelector(
+    (state: { settings?: SettingsState }) => state.settings?.shopProfile ?? null
+  );
+  const shopProfile = fetchedProfile ?? storeProfile;
+  const isSharedShop = shopProfile?.allowSharedUserSessions === true;
+  const allowStaffMultiDeviceSessions =
+    shopProfile && typeof shopProfile.allowStaffMultiDeviceSessions === 'boolean'
+      ? shopProfile.allowStaffMultiDeviceSessions
+      : null;
 
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       title={
-        <Group gap="xs">
-          <IconCash size={22} color="var(--mantine-color-teal-6)" />
-          <Text fw={700} size="lg">
-            {t('Open Register Session')}
-          </Text>
-        </Group>
+        <Text fw={700} size="lg">
+          {t('Open Register Session')}
+        </Text>
       }
       size="lg"
       centered
+      fullScreen={isMobile}
     >
       {opened && (
         <OpenSessionForm
@@ -337,6 +425,8 @@ export const OpenSessionModal: React.FC<OpenSessionModalProps> = ({
           terminalId={terminalId}
           drawerState={drawerState}
           isDrawerLoading={isDrawerLoading}
+          isSharedShop={isSharedShop}
+          allowStaffMultiDeviceSessions={allowStaffMultiDeviceSessions}
           onClose={onClose}
           onSessionOpened={onSessionOpened}
         />

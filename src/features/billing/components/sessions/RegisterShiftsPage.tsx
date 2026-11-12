@@ -15,9 +15,12 @@ import { DataTable, type Column } from '@/shared/components/DataTable';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { useCurrentSession, useSessionList } from '../../hooks/useRegisterSession';
 import { useShiftTotals } from '../../hooks/useShiftTotals';
+import { useShopProfile } from '@/features/settings';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDateTime } from '@/shared/lib/date';
+import { useAppSelector } from '@/store/hooks';
+import type { SettingsState } from '@/store/slices/settingsSlice';
 import { RegisterSessionDetailDrawer } from './RegisterSessionDetailDrawer';
 import type { RegisterSession } from '../../types';
 
@@ -40,8 +43,14 @@ const DATE_OPTIONS = [
 export const RegisterShiftsPage = () => {
   const isMobile = useIsMobile();
 
-  // Active session on this terminal for quick shortcut
+  // Active session on this terminal or shared shop for quick shortcut
   const { session: currentSession } = useCurrentSession();
+  const { shopProfile: fetchedProfile } = useShopProfile();
+  const storeProfile = useAppSelector(
+    (state: { settings?: SettingsState }) => state.settings?.shopProfile ?? null
+  );
+  const activeProfile = fetchedProfile ?? storeProfile;
+  const isSharedShopMode = activeProfile?.allowSharedUserSessions === true;
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -131,6 +140,11 @@ export const RegisterShiftsPage = () => {
       if (query) {
         const sessionNum = (session.sessionNumber || '').toLowerCase();
         const cashier = (session.cashierNameSnapshot || session.cashierId || '').toLowerCase();
+        const closingCashier = (
+          session.closingCashierNameSnapshot ||
+          session.closingCashierId ||
+          ''
+        ).toLowerCase();
         const terminal = (session.terminalId || '').toLowerCase();
         const openNote = (session.openingNote || '').toLowerCase();
         const closeNote = (session.closingNote || '').toLowerCase();
@@ -138,6 +152,7 @@ export const RegisterShiftsPage = () => {
         return (
           sessionNum.includes(query) ||
           cashier.includes(query) ||
+          closingCashier.includes(query) ||
           terminal.includes(query) ||
           openNote.includes(query) ||
           closeNote.includes(query)
@@ -213,38 +228,59 @@ export const RegisterShiftsPage = () => {
       key: 'sessionNumber',
       header: t('Session #'),
       align: 'left',
-      width: 140,
+      width: 150,
       render: (s) => (
-        <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
-          {s.sessionNumber}
-        </Text>
+        <Stack gap={1}>
+          <Text size="xs" fw={700} style={{ fontFamily: 'monospace' }}>
+            {s.sessionNumber}
+          </Text>
+          <Text size="11px" c="dimmed">
+            {s.terminalId}
+          </Text>
+        </Stack>
       ),
     },
     {
       key: 'status',
       header: t('Status'),
       align: 'center',
-      width: 110,
+      width: 120,
       render: (s) => {
+        const activeShopPill =
+          isSharedShopMode && s.status !== 'closed' ? (
+            <Badge variant="light" color="cyan" size="xs">
+              {t('Shop Shift')}
+            </Badge>
+          ) : null;
+
         if (s.status === 'open') {
           return (
-            <Badge variant="dot" color="teal" size="sm">
-              {t('Open')}
-            </Badge>
+            <Stack gap={3} align="center">
+              <Badge variant="dot" color="teal" size="sm">
+                {t('Open')}
+              </Badge>
+              {activeShopPill}
+            </Stack>
           );
         }
         if (s.status === 'closing') {
           return (
-            <Badge variant="light" color="amber" size="sm">
-              {t('Closing')}
-            </Badge>
+            <Stack gap={3} align="center">
+              <Badge variant="light" color="amber" size="sm">
+                {t('Closing')}
+              </Badge>
+              {activeShopPill}
+            </Stack>
           );
         }
         if (s.status === 'reopened') {
           return (
-            <Badge variant="light" color="grape" size="sm">
-              {t('Reopened')}
-            </Badge>
+            <Stack gap={3} align="center">
+              <Badge variant="light" color="grape" size="sm">
+                {t('Reopened')}
+              </Badge>
+              {activeShopPill}
+            </Stack>
           );
         }
         return (
@@ -256,7 +292,7 @@ export const RegisterShiftsPage = () => {
     },
     {
       key: 'cashier',
-      header: t('Cashier'),
+      header: t('Opened By'),
       align: 'left',
       width: 140,
       render: (s) => (
@@ -280,12 +316,36 @@ export const RegisterShiftsPage = () => {
       key: 'closedAt',
       header: t('Closed At'),
       align: 'left',
-      width: 160,
-      render: (s) => (
-        <Text size="xs" c="dimmed">
-          {s.closedAt ? formatDateTime(s.closedAt) : '-'}
-        </Text>
-      ),
+      width: 175,
+      render: (s) => {
+        const closer = s.closingCashierNameSnapshot || s.closingCashierId;
+        if (s.closedAt) {
+          return (
+            <Stack gap={1}>
+              <Text size="xs" c="dimmed">
+                {formatDateTime(s.closedAt)}
+              </Text>
+              {closer && (
+                <Text size="11px" c="dimmed">
+                  {`${t('Closed by')} ${closer}`}
+                </Text>
+              )}
+            </Stack>
+          );
+        }
+        if (s.status === 'closing' && closer) {
+          return (
+            <Text size="xs" c="orange" fw={500}>
+              {`${t('Counting by')} ${closer}`}
+            </Text>
+          );
+        }
+        return (
+          <Text size="xs" c="dimmed">
+            -
+          </Text>
+        );
+      },
     },
     {
       key: 'openingFloat',
@@ -389,10 +449,35 @@ export const RegisterShiftsPage = () => {
               {t('Refresh')}
             </Button>
 
+            {activeProfile && (
+              <Badge
+                color={
+                  activeProfile.allowSharedUserSessions
+                    ? 'cyan'
+                    : activeProfile.allowStaffMultiDeviceSessions
+                      ? 'blue'
+                      : 'teal'
+                }
+                variant="light"
+                size="md"
+              >
+                {activeProfile.allowSharedUserSessions
+                  ? t('Shared Shop Shift')
+                  : activeProfile.allowStaffMultiDeviceSessions
+                    ? t('Personal · Staff Multi-Device')
+                    : t('Personal · Staff Locked')}
+              </Badge>
+            )}
             {currentSession && (
               <Button
                 variant="filled"
-                color="teal"
+                color={
+                  currentSession.status === 'closing'
+                    ? 'orange'
+                    : isSharedShopMode
+                      ? 'cyan'
+                      : 'teal'
+                }
                 size="sm"
                 leftSection={<IconClockPlay size={16} />}
                 onClick={() => handleOpenDetail(currentSession)}

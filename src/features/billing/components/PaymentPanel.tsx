@@ -42,6 +42,7 @@ import {
 import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
+import { SessionClosingAlert } from './sessions/SessionClosingAlert';
 
 import { useCartItems, useCartCustomer, useCartCheckout } from '../hooks/useCart';
 import { WarrantySummarySection } from '@/features/warranties/components/WarrantySummarySection';
@@ -159,6 +160,7 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
 
     const terminalId = getDeviceId();
     const { session: activeSession } = useCurrentSession(terminalId);
+    const isClosingSession = activeSession?.status === 'closing';
     const hasActiveSession = Boolean(
       activeSession && (activeSession.status === 'open' || activeSession.status === 'reopened')
     );
@@ -411,6 +413,9 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
 
     // Handle Primary Action Click / F2
     const handlePrimaryAction = () => {
+      if (isClosingSession) {
+        return;
+      }
       if (!hasActiveSession) {
         setOpenSessionModalOpen(true);
         return;
@@ -1740,26 +1745,40 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
             </Alert>
           )}
 
+          {isClosingSession && !isCartEmpty && (
+            <SessionClosingAlert
+              closingCashierName={activeSession?.closingCashierNameSnapshot}
+              message={t('Sales are paused until the count is finished or cancelled.')}
+              mb="xs"
+            />
+          )}
+
           <Button
             fullWidth
             size="lg"
             color={
-              !hasActiveSession && !isCartEmpty
+              isClosingSession && !isCartEmpty
                 ? 'orange'
-                : hasOutOfStockItems
-                  ? 'red'
-                  : isRefundDue
-                    ? 'orange'
-                    : isEvenExchange
-                      ? 'blue'
-                      : isCredit
-                        ? confirmCreditRequired
-                          ? 'orange'
-                          : 'amber'
-                        : 'blue'
+                : !hasActiveSession && !isCartEmpty
+                  ? 'orange'
+                  : hasOutOfStockItems
+                    ? 'red'
+                    : isRefundDue
+                      ? 'orange'
+                      : isEvenExchange
+                        ? 'blue'
+                        : isCredit
+                          ? confirmCreditRequired
+                            ? 'orange'
+                            : 'amber'
+                          : 'blue'
             }
-            disabled={!hasActiveSession ? isCartEmpty : isButtonDisabled}
-            leftSection={!hasActiveSession && !isCartEmpty ? <IconLock size={18} /> : undefined}
+            disabled={isClosingSession || (!hasActiveSession ? isCartEmpty : isButtonDisabled)}
+            leftSection={
+              (isClosingSession || !hasActiveSession) && !isCartEmpty ? (
+                <IconLock size={18} />
+              ) : undefined
+            }
             loading={isProcessing}
             onClick={handlePrimaryAction}
             style={{
@@ -1767,56 +1786,69 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
               fontSize: 16,
               fontWeight: 700,
               borderRadius: 'var(--mantine-radius-default)',
-              opacity: (!hasActiveSession ? isCartEmpty : isButtonDisabled) ? 0.6 : 1,
+              opacity:
+                isClosingSession || (!hasActiveSession ? isCartEmpty : isButtonDisabled) ? 0.6 : 1,
               transition: 'all 0.15s ease',
             }}
           >
             {isCartEmpty
               ? 'Add items to begin'
-              : !hasActiveSession
-                ? t('Open Shift to Complete Sale')
-                : hasOutOfStockItems
-                  ? t('Out of Stock Items in Cart')
-                  : isRefundDue
-                    ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
-                    : isEvenExchange
-                      ? `Complete Even Exchange`
-                      : isCredit
-                        ? confirmCreditRequired
-                          ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
-                          : creditPaidNowCents > 0
-                            ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
-                            : `Issue on Credit · ${formatMoney(totalCents)}`
-                        : isCashShort || isCardShort
-                          ? `Short by ${formatMoney(shortByCents)}`
-                          : isCardDigitsMissing || isSplitCardDigitsMissing
-                            ? 'Enter Card Last 4 Digits'
-                            : `Complete · ${formatMoney(totalCents)}`}
+              : isClosingSession
+                ? t('Cash Count In Progress')
+                : !hasActiveSession
+                  ? t('Open Shift to Complete Sale')
+                  : hasOutOfStockItems
+                    ? t('Out of Stock Items in Cart')
+                    : isRefundDue
+                      ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
+                      : isEvenExchange
+                        ? `Complete Even Exchange`
+                        : isCredit
+                          ? confirmCreditRequired
+                            ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
+                            : creditPaidNowCents > 0
+                              ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
+                              : `Issue on Credit · ${formatMoney(totalCents)}`
+                          : isCashShort || isCardShort
+                            ? `Short by ${formatMoney(shortByCents)}`
+                            : isCardDigitsMissing || isSplitCardDigitsMissing
+                              ? 'Enter Card Last 4 Digits'
+                              : `Complete · ${formatMoney(totalCents)}`}
           </Button>
-          <Text size="xs" c="dimmed" ta="center" mt={4} style={{ fontSize: 11 }}>
-            {!hasActiveSession && !isCartEmpty
-              ? t('Register shift is closed. Click to count float and open shift.')
-              : hasOutOfStockItems
-                ? t(
-                    'Cannot complete sale: Cart contains out-of-stock items. Adjust quantities or click Quotation.'
-                  )
-                : isRefundDue
-                  ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
-                  : isEvenExchange
-                    ? 'No payment or refund required · Press F2'
-                    : confirmCreditRequired
-                      ? isMobile
-                        ? 'Customer has existing debt. Tap again to confirm credit sale.'
-                        : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
-                      : isButtonDisabled
-                        ? isCashShort
-                          ? 'Enter tendered cash amount to complete'
-                          : isCardDigitsMissing || isSplitCardDigitsMissing
-                            ? 'Card last 4 digits required to complete payment'
-                            : isSplitIncomplete
-                              ? 'Allocate the full total across split payments'
-                              : 'Complete disabled'
-                        : `${printConsequenceText} · Press F2`}
+          <Text
+            size="xs"
+            c={isClosingSession && !isCartEmpty ? 'orange' : 'dimmed'}
+            ta="center"
+            mt={4}
+            style={{ fontSize: 11 }}
+          >
+            {isClosingSession && !isCartEmpty
+              ? t(
+                  'Finish or cancel the drawer count from the shift badge in the top bar before taking new sales.'
+                )
+              : !hasActiveSession && !isCartEmpty
+                ? t('Register shift is closed. Click to count float and open shift.')
+                : hasOutOfStockItems
+                  ? t(
+                      'Cannot complete sale: Cart contains out-of-stock items. Adjust quantities or click Quotation.'
+                    )
+                  : isRefundDue
+                    ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
+                    : isEvenExchange
+                      ? 'No payment or refund required · Press F2'
+                      : confirmCreditRequired
+                        ? isMobile
+                          ? 'Customer has existing debt. Tap again to confirm credit sale.'
+                          : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
+                        : isButtonDisabled
+                          ? isCashShort
+                            ? 'Enter tendered cash amount to complete'
+                            : isCardDigitsMissing || isSplitCardDigitsMissing
+                              ? 'Card last 4 digits required to complete payment'
+                              : isSplitIncomplete
+                                ? 'Allocate the full total across split payments'
+                                : 'Complete disabled'
+                          : `${printConsequenceText} · Press F2`}
           </Text>
         </Box>
         <OpenSessionModal

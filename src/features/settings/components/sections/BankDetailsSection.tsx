@@ -28,10 +28,10 @@ export const BankDetailsSection = ({ onDirtyChange }: SectionProps) => {
 
   const form = useForm<BankDetailsFormValues>({
     initialValues: {
-      bankName: shopProfile.bankName,
-      bankBranch: shopProfile.bankBranch,
-      accountName: shopProfile.accountName,
-      accountNumber: shopProfile.accountNumber,
+      bankName: shopProfile?.bankName ?? '',
+      bankBranch: shopProfile?.bankBranch ?? '',
+      accountName: shopProfile?.accountName ?? '',
+      accountNumber: shopProfile?.accountNumber ?? '',
       showBankDetails: printSettings.showBankDetails,
     },
     validate: {
@@ -41,6 +41,20 @@ export const BankDetailsSection = ({ onDirtyChange }: SectionProps) => {
           : 'Enter an account number using only numbers.',
     },
   });
+
+  useEffect(() => {
+    if (!shopProfile || form.isDirty()) return;
+    const loaded: BankDetailsFormValues = {
+      bankName: shopProfile.bankName,
+      bankBranch: shopProfile.bankBranch,
+      accountName: shopProfile.accountName,
+      accountNumber: shopProfile.accountNumber,
+      showBankDetails: printSettings.showBankDetails,
+    };
+    form.setInitialValues(loaded);
+    form.setValues(loaded);
+    form.resetDirty(loaded);
+  }, [shopProfile, printSettings.showBankDetails]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isDirty = form.isDirty();
   useEffect(() => {

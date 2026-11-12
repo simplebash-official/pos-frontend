@@ -1,26 +1,4 @@
-import type { ShopProfile, PrintSettings } from './types';
-
-export const DEFAULT_SHOP_PROFILE: ShopProfile = {
-  id: 'shop-main',
-  version: 1,
-  legalName: '',
-  tradingName: '',
-  addressLines: [],
-  primaryPhone: '',
-  secondaryPhone: '',
-  email: '',
-  website: '',
-  businessRegNo: '',
-  logoBase64: '',
-  bankName: '',
-  bankBranch: '',
-  accountName: '',
-  accountNumber: '',
-  defaultWarrantyText: '',
-  defaultFooterText: '',
-  receiptFooterText: '',
-  allowSharedUserSessions: false,
-};
+import type { PrintSettings } from './types';
 
 export const DEFAULT_PRINT_SETTINGS: PrintSettings = {
   receiptPaper: '80mm',
