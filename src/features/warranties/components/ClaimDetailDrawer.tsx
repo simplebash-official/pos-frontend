@@ -96,7 +96,6 @@ export const ClaimDetailDrawer = ({
   const selfApproves = useCanSelfApprove();
   const canRepair = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const canSeePhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_VIEW);
-  const canAddPhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_CREATE);
   const [dialog, setDialog] = useState<DialogAction | null>(null);
   const [photosOpen, setPhotosOpen] = useState(false);
 
@@ -477,8 +476,8 @@ export const ClaimDetailDrawer = ({
           ownerKind="warranty_claim"
           ownerKey={claim.key}
           title={`${t('Photos')} — ${claim.claimNumber}`}
-          emptyText={t('No photos of this item yet. Take some when it comes in.')}
-          canAdd={canAddPhotos && canRecord}
+          emptyText={t('No photos of this item yet.')}
+          canAdd={false}
           onClose={() => setPhotosOpen(false)}
         />
       )}
