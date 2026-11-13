@@ -236,6 +236,7 @@ describe('claiming from anywhere', () => {
       document.querySelector('textarea') as HTMLTextAreaElement,
       'Turns off after ten minutes'
     );
+    await act(async () => button('Undamaged')?.click());
     await act(async () => button('Start the claim')?.click());
     await vi.waitFor(() => expect(onStarted).toHaveBeenCalled());
     await vi.waitFor(() => expect(text()).toContain('Open claim WCL-000001'));
@@ -253,6 +254,7 @@ describe('claiming from anywhere', () => {
     await act(async () => button('Start claim')?.click());
     await vi.waitFor(() => expect(text()).toContain('What is wrong with it?'));
     await typeInto(document.querySelector('textarea') as HTMLTextAreaElement, 'Stops charging');
+    await act(async () => button('Undamaged')?.click());
     await act(async () => button('Start the claim')?.click());
     await vi.waitFor(() => expect(api.open).toHaveBeenCalled());
     expect(outerSubmit).not.toHaveBeenCalled();
@@ -266,6 +268,7 @@ describe('claiming from anywhere', () => {
     };
     const fill = async () => {
       await typeInto(textarea('What is wrong with it?'), 'Will not switch on');
+      await act(async () => button('Undamaged')?.click());
       await typeInto(textarea('What did you find?'), 'Board is dead');
     };
     const approve = async () => {

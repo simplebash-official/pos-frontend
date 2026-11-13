@@ -94,6 +94,7 @@ export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplac
         value={intake}
         onChange={setIntake}
         issueError={null}
+        damageError={null}
       />
       <Textarea
         label={t('What did you find?')}

@@ -171,6 +171,8 @@ const button = (label: string) =>
   [...document.querySelectorAll('button')].find((b) => b.textContent === label) as
     HTMLButtonElement | undefined;
 
+const press = (label: string) => act(async () => button(label)?.click());
+
 describe('warranty claim screens', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -218,6 +220,15 @@ describe('warranty claim screens', () => {
       setter?.call(issue, 'Turns off after ten minutes');
       issue.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    // Nor without saying whether the item is damaged.
+    await press('Start the claim');
+    expect(api.open).not.toHaveBeenCalled();
+    expect(text()).toContain('Say whether the item is damaged.');
+    expect(text()).not.toContain('Liquid damage');
+    await press('Has damage');
+    await press('Start the claim');
+    expect(api.open).not.toHaveBeenCalled();
+    expect(text()).toContain('Tick what is damaged, or choose Undamaged.');
     const liquid = [...document.querySelectorAll('button')].find((b) =>
       b.textContent?.includes('Liquid damage')
     ) as HTMLButtonElement;
@@ -246,6 +257,7 @@ describe('warranty claim screens', () => {
     const onStarted = vi.fn();
     await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={onStarted} />);
     await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+    await press('Has damage');
 
     const addInput = document.querySelector(
       'input[placeholder*="Add new condition"]'
@@ -299,6 +311,7 @@ describe('warranty claim screens', () => {
         setter?.call(issue, 'Turns off after ten minutes');
         issue.dispatchEvent(new Event('input', { bubbles: true }));
       });
+      await press('Undamaged');
       await act(async () => button('Start the claim')?.click());
       await vi.waitFor(() => expect(api.open).toHaveBeenCalledTimes(1));
       expect(api.open.mock.calls[0][0].approval).toBeUndefined();
@@ -371,6 +384,7 @@ describe('warranty claim screens', () => {
       setter?.call(issue, 'Two of the cameras broke');
       issue.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    await press('Undamaged');
 
     await act(async () => button('Start the claim')?.click());
     await vi.waitFor(() => expect(onStarted).toHaveBeenCalled());

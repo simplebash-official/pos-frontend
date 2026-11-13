@@ -9,7 +9,9 @@ import { useUploadClaimPhotos } from '../hooks/useClaimPhotos';
 import {
   emptyIntake,
   intakeClaimFields,
+  damageProblem,
   intakeProblem,
+  issueProblem,
   type IntakeState,
 } from '../lib/claimIntake';
 import type { ManagerApproval, Warranty, WarrantyClaim } from '../types';
@@ -44,14 +46,14 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
 
   if (warranty === null) return null;
 
-  const issueProblem = intakeProblem(state);
+  const problem = intakeProblem(state);
   const expired = warranty.state === 'expired';
   const error = open.isError ? getErrorMessage(open.error) : null;
   const isBusy = open.isPending || photos.uploading;
 
   const submit = (approval: ManagerApproval | undefined) => {
     setTried(true);
-    if (issueProblem !== null) return;
+    if (problem !== null) return;
     open.mutate(
       {
         ...intakeClaimFields(warranty, state),
@@ -74,7 +76,8 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
       warranty={warranty}
       value={state}
       onChange={setState}
-      issueError={tried ? issueProblem : null}
+      issueError={tried ? issueProblem(state) : null}
+      damageError={tried ? damageProblem(state) : null}
     />
   );
 
@@ -90,7 +93,7 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
         reasonLabel={t('Why is it being accepted?')}
         confirmLabel={t('Start the claim')}
         confirmColor="blue"
-        blocker={issueProblem}
+        blocker={problem}
         loading={isBusy}
         error={error}
         onConfirm={(approval) => submit(approval)}

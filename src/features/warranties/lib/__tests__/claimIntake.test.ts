@@ -3,9 +3,12 @@ import type { Warranty } from '../../types';
 import {
   emptyIntake,
   intakeClaimFields,
+  damageProblem,
   intakeProblem,
+  issueProblem,
   unclaimedUnits,
   withConditions,
+  withDamage,
 } from '../claimIntake';
 
 const warranty = (overrides: Partial<Warranty>): Warranty => ({
@@ -35,14 +38,41 @@ describe('claim intake', () => {
   it('starts empty, with the serial number the warranty already names', () => {
     expect(emptyIntake(null).serialNumber).toBe('');
     expect(emptyIntake(warranty({ serialNumber: 'SN-1' })).serialNumber).toBe('SN-1');
-    expect(emptyIntake(null)).toMatchObject({ quantity: 1, issue: '', conditions: [], photos: [] });
+    expect(emptyIntake(null)).toMatchObject({
+      quantity: 1,
+      issue: '',
+      damage: null,
+      conditions: [],
+      photos: [],
+    });
   });
 
   it('needs the customer to say what is wrong', () => {
     const state = emptyIntake(null);
-    expect(intakeProblem(state)).toBe('Please say what is wrong with it.');
-    expect(intakeProblem({ ...state, issue: '   ' })).toBe('Please say what is wrong with it.');
-    expect(intakeProblem({ ...state, issue: 'Will not charge' })).toBeNull();
+    expect(issueProblem(state)).toBe('Please say what is wrong with it.');
+    expect(issueProblem({ ...state, issue: '   ' })).toBe('Please say what is wrong with it.');
+    expect(issueProblem({ ...state, issue: 'Will not charge' })).toBeNull();
+  });
+
+  it('needs staff to say whether the item is damaged, and what is damaged', () => {
+    const state = { ...emptyIntake(null), issue: 'Will not charge' };
+    expect(damageProblem(state)).toBe('Say whether the item is damaged.');
+    expect(intakeProblem(state)).toBe('Say whether the item is damaged.');
+    expect(damageProblem({ ...state, damage: 'damaged' })).toBe(
+      'Tick what is damaged, or choose Undamaged.'
+    );
+    expect(damageProblem({ ...state, damage: 'damaged', conditions: ['Scratched'] })).toBeNull();
+    expect(intakeProblem({ ...state, damage: 'undamaged' })).toBeNull();
+  });
+
+  it('forgets the ticks when the item is marked undamaged', () => {
+    const ticked = withConditions({ ...emptyIntake(null), damage: 'damaged' as const }, [
+      'Liquid damage',
+    ]);
+    const undamaged = withDamage(ticked, 'undamaged');
+    expect(undamaged).toMatchObject({ damage: 'undamaged', conditions: [] });
+    expect(undamaged.checks.liquidDamage).toBe(false);
+    expect(withDamage(undamaged, 'damaged')).toMatchObject({ damage: 'damaged', conditions: [] });
   });
 
   it('describes the claim to open from what was typed', () => {

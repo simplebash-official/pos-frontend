@@ -32,7 +32,7 @@ const warranty = (overrides: Partial<Warranty>): Warranty => ({
   ...overrides,
 });
 
-const shared = { ...emptyIntake(null), issue: 'Stops charging' };
+const shared = { ...emptyIntake(null), issue: 'Stops charging', damage: 'undamaged' as const };
 
 describe('batch claim items', () => {
   it('starts sharing the story of the whole batch, with the serial the warranty names', () => {
@@ -51,7 +51,12 @@ describe('batch claim items', () => {
       warrantyKey: 'wty_1',
       issueDescription: 'Stops charging',
     });
-    const own = { ...emptyIntake(charger), issue: 'Gets hot', conditions: ['Liquid damage'] };
+    const own = {
+      ...emptyIntake(charger),
+      issue: 'Gets hot',
+      damage: 'damaged' as const,
+      conditions: ['Liquid damage'],
+    };
     expect(batchItemFields(charger, { ...emptyBatchItem(charger), own }, shared)).toMatchObject({
       warrantyKey: 'wty_2',
       issueDescription: 'Gets hot',
@@ -87,7 +92,7 @@ describe('batch claim items', () => {
     expect(batchHasProblem([a, b], items, shared)).toBe(false);
 
     // Every item with its own note no longer needs the shared one...
-    const own = { ...emptyIntake(null), issue: 'Own' };
+    const own = { ...emptyIntake(null), issue: 'Own', damage: 'undamaged' as const };
     const allOwn = { a: { ...items.a, own }, b: { ...items.b, own } };
     expect(batchHasProblem([a, b], allOwn, blank)).toBe(false);
     // ...but an own note left blank is still missing.

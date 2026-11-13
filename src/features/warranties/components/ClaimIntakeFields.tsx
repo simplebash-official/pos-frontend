@@ -24,7 +24,13 @@ import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { useCreateWarrantyCondition, useWarrantyConditions } from '../hooks/useClaims';
-import { unclaimedUnits, withConditions, type IntakeState } from '../lib/claimIntake';
+import {
+  unclaimedUnits,
+  withConditions,
+  withDamage,
+  type Damage,
+  type IntakeState,
+} from '../lib/claimIntake';
 import type { Warranty } from '../types';
 import { WarrantyStateDot } from './WarrantyStateDot';
 
@@ -163,9 +169,11 @@ export const IssueField = ({
 export const ConditionsField = ({
   value,
   onChange,
+  error,
 }: {
   value: IntakeState;
   onChange: (next: IntakeState) => void;
+  error: string | null;
 }) => {
   const isMobile = useIsMobile();
   // Whoever can approve reviews the claim themselves, so the hint is for staff only.
@@ -173,6 +181,10 @@ export const ConditionsField = ({
   const conditionsQuery = useWarrantyConditions();
   const createConditionMutation = useCreateWarrantyCondition();
   const [newConditionInput, setNewConditionInput] = useState('');
+  const damageChoices: { damage: Damage; label: string; color: string }[] = [
+    { damage: 'undamaged', label: t('Undamaged'), color: 'teal' },
+    { damage: 'damaged', label: t('Has damage'), color: 'orange' },
+  ];
 
   const availableOptions = useMemo(() => {
     const list: string[] = [];
@@ -213,77 +225,105 @@ export const ConditionsField = ({
 
   return (
     <Stack gap="xs">
-      <Group justify="space-between" align="center">
-        {sectionLabel(t('Condition checklist'))}
-        <Text size="xs" c="dimmed">
-          {t('Leave all empty if undamaged')}
-        </Text>
-      </Group>
+      {sectionLabel(t('Condition checklist'))}
 
-      <Group gap="xs" wrap="wrap">
-        {availableOptions.map((name) => {
-          const isSelected = value.conditions.includes(name);
+      <Group gap="xs" grow>
+        {damageChoices.map(({ damage, label, color }) => {
+          const isChosen = value.damage === damage;
           return (
             <Button
-              key={name}
+              key={damage}
               type="button"
-              size="xs"
-              variant={isSelected ? 'light' : 'default'}
-              color={isSelected ? 'orange' : 'gray'}
-              leftSection={isSelected ? <IconCheck size={14} /> : undefined}
-              onClick={() => toggleCondition(name)}
+              variant={isChosen ? 'light' : 'default'}
+              color={isChosen ? color : 'gray'}
+              leftSection={isChosen ? <IconCheck size={16} /> : undefined}
+              aria-pressed={isChosen}
+              onClick={() => onChange(withDamage(value, damage))}
               style={{
-                minHeight: 36,
-                borderColor: isSelected ? 'var(--mantine-color-orange-filled)' : undefined,
-                fontWeight: isSelected ? 600 : 500,
+                minHeight: isMobile ? 44 : 36,
+                borderColor: isChosen ? `var(--mantine-color-${color}-filled)` : undefined,
+                fontWeight: isChosen ? 600 : 500,
               }}
             >
-              {t(name)}
+              {label}
             </Button>
           );
         })}
       </Group>
+      {error !== null && (
+        <Text size="xs" c="red" role="alert">
+          {error}
+        </Text>
+      )}
 
-      <TextInput
-        placeholder={t('+ Add new condition (e.g. Scratched lens) and press Enter')}
-        value={newConditionInput}
-        onChange={(event) => setNewConditionInput(event.currentTarget.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            handleAddCondition();
-          }
-        }}
-        rightSection={
-          newConditionInput.trim() ? (
-            <ActionIcon
-              size="sm"
-              variant="light"
-              color="blue"
-              onClick={handleAddCondition}
-              aria-label={t('Add condition')}
-            >
-              <IconPlus size={14} />
-            </ActionIcon>
-          ) : null
-        }
-        size={isMobile ? 'md' : 'sm'}
-      />
+      {value.damage === 'damaged' && (
+        <>
+          <Group gap="xs" wrap="wrap">
+            {availableOptions.map((name) => {
+              const isSelected = value.conditions.includes(name);
+              return (
+                <Button
+                  key={name}
+                  type="button"
+                  size="xs"
+                  variant={isSelected ? 'light' : 'default'}
+                  color={isSelected ? 'orange' : 'gray'}
+                  leftSection={isSelected ? <IconCheck size={14} /> : undefined}
+                  onClick={() => toggleCondition(name)}
+                  style={{
+                    minHeight: 36,
+                    borderColor: isSelected ? 'var(--mantine-color-orange-filled)' : undefined,
+                    fontWeight: isSelected ? 600 : 500,
+                  }}
+                >
+                  {t(name)}
+                </Button>
+              );
+            })}
+          </Group>
 
-      {value.conditions.length > 0 ? (
-        <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
-          {t(
-            'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
+          <TextInput
+            placeholder={t('+ Add new condition (e.g. Scratched lens) and press Enter')}
+            value={newConditionInput}
+            onChange={(event) => setNewConditionInput(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                handleAddCondition();
+              }
+            }}
+            rightSection={
+              newConditionInput.trim() ? (
+                <ActionIcon
+                  size="sm"
+                  variant="light"
+                  color="blue"
+                  onClick={handleAddCondition}
+                  aria-label={t('Add condition')}
+                >
+                  <IconPlus size={14} />
+                </ActionIcon>
+              ) : null
+            }
+            size={isMobile ? 'md' : 'sm'}
+          />
+
+          {value.conditions.length > 0 ? (
+            <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
+              {t(
+                'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
+              )}
+            </Alert>
+          ) : (
+            !selfApproves && (
+              <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
+                {t(
+                  'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
+                )}
+              </Alert>
+            )
           )}
-        </Alert>
-      ) : (
-        !selfApproves && (
-          <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
-            {t(
-              'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
-            )}
-          </Alert>
-        )
+        </>
       )}
     </Stack>
   );
@@ -372,11 +412,13 @@ export const ClaimIntakeFields = ({
   value,
   onChange,
   issueError,
+  damageError,
 }: {
   warranty: Warranty;
   value: IntakeState;
   onChange: (next: IntakeState) => void;
   issueError: string | null;
+  damageError: string | null;
 }) => (
   <Stack gap="md">
     <ClaimItemSummary warranty={warranty} />
@@ -393,7 +435,7 @@ export const ClaimIntakeFields = ({
       error={issueError}
       autoFocus
     />
-    <ConditionsField value={value} onChange={onChange} />
+    <ConditionsField value={value} onChange={onChange} error={damageError} />
     <PhotosField value={value} onChange={onChange} />
   </Stack>
 );

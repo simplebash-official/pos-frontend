@@ -11,12 +11,11 @@ import { useOpenClaimsBatch } from '../hooks/useClaims';
 import {
   batchHasProblem,
   batchItemFields,
-  batchItemProblem,
   emptyBatchItem,
   needsApproval,
   type BatchItemState,
 } from '../lib/batchClaim';
-import { emptyIntake, intakeProblem, type IntakeState } from '../lib/claimIntake';
+import { damageProblem, emptyIntake, issueProblem, type IntakeState } from '../lib/claimIntake';
 import { validUntil } from '../lib/warrantyView';
 import type { ManagerApproval, Warranty, WarrantyClaim } from '../types';
 import { ConditionsField, IssueField, PhotosField, UnitsFields } from './ClaimIntakeFields';
@@ -161,10 +160,14 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
         label={t('What is wrong with these items?')}
         value={shared}
         onChange={setShared}
-        error={tried && sharedNeeded ? intakeProblem(shared) : null}
+        error={tried && sharedNeeded ? issueProblem(shared) : null}
         autoFocus
       />
-      <ConditionsField value={shared} onChange={setShared} />
+      <ConditionsField
+        value={shared}
+        onChange={setShared}
+        error={tried && sharedNeeded ? damageProblem(shared) : null}
+      />
 
       <Stack gap="sm">
         <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
@@ -223,12 +226,13 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                       label={t('What is wrong with this item?')}
                       value={own}
                       onChange={(next) => setItem(warranty.key, { ...item, own: next })}
-                      error={tried ? batchItemProblem(item, shared) : null}
+                      error={tried ? issueProblem(own) : null}
                       autoFocus={false}
                     />
                     <ConditionsField
                       value={own}
                       onChange={(next) => setItem(warranty.key, { ...item, own: next })}
+                      error={tried ? damageProblem(own) : null}
                     />
                     <PhotosField
                       value={own}

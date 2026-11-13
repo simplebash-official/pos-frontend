@@ -211,8 +211,10 @@ describe('claiming several warranties at once', () => {
     });
   };
 
-  const writeSharedIssue = (value: string) =>
-    typeInto(textareaByLabel('What is wrong with these items?'), value);
+  const writeSharedIssue = async (value: string) => {
+    await typeInto(textareaByLabel('What is wrong with these items?'), value);
+    await act(async () => button('Undamaged')?.click());
+  };
 
   it('starts one claim per warranty from the one story, and closes when all opened', async () => {
     batch.mockResolvedValue(
@@ -253,6 +255,12 @@ describe('claiming several warranties at once', () => {
     expect(switches).toHaveLength(2);
     await act(async () => switches[1].click());
     await typeInto(textareaByLabel('What is wrong with this item?'), 'Screen flickers');
+    // The item's own story needs its own answer; its box is the last one on the page.
+    const undamaged = [...document.querySelectorAll('button')].filter(
+      (b) => b.textContent === 'Undamaged'
+    );
+    expect(undamaged).toHaveLength(2);
+    await act(async () => undamaged[1].click());
     await act(async () => button('Start claims (2)')?.click());
 
     await vi.waitFor(() => expect(batch).toHaveBeenCalled());
