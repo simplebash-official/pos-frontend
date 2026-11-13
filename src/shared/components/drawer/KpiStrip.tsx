@@ -16,28 +16,40 @@ export interface KpiTileProps {
   children: ReactNode;
 }
 
-/** One headline number: a tinted icon and a small uppercase label above the figure. */
+/**
+ * One headline number as a slim row: a tinted icon on the left, a small uppercase label above the
+ * figure on the right. A tile narrower than about 170px (two to a row on a phone) puts the figure
+ * under the icon and label instead, so a long amount keeps the whole width (`.kpi-tile` in
+ * `global.css`).
+ */
 export const KpiTile = ({ icon, color, label, children }: KpiTileProps) => (
-  <Paper p="md" bg="var(--bg-card)" shadow="xs">
-    <Group gap="xs" wrap="nowrap" mb={8}>
-      <ThemeIcon variant="light" color={color} size="md">
+  <Paper className="kpi-tile" px="sm" py="xs" bg="var(--bg-card)" shadow="xs">
+    <div className="kpi-tile-body">
+      <ThemeIcon className="kpi-tile-icon" variant="light" color={color} size="lg">
         {icon}
       </ThemeIcon>
-      <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+      <Text
+        className="kpi-tile-label"
+        size="xs"
+        fw={700}
+        c="dimmed"
+        tt="uppercase"
+        style={{ letterSpacing: '0.05em' }}
+      >
         {label}
       </Text>
-    </Group>
-    {children}
+      <div className="kpi-tile-value">{children}</div>
+    </div>
   </Paper>
 );
 
-/** One big figure with a small line under it. */
+/** One figure with a small line under it. */
 export const Figure = ({ value, hint, color }: { value: string; hint: string; color: string }) => (
   <>
-    <Text fw={800} size="xl" c={color} lh={1.15} style={{ whiteSpace: 'nowrap' }}>
+    <Text fw={800} size="lg" c={color} lh={1.15} style={{ whiteSpace: 'nowrap' }}>
       {value}
     </Text>
-    <Text size="xs" c="dimmed" mt={2} lh={1.3} style={{ whiteSpace: 'nowrap' }}>
+    <Text size="xs" c="dimmed" lh={1.3} style={{ whiteSpace: 'nowrap' }}>
       {hint}
     </Text>
   </>

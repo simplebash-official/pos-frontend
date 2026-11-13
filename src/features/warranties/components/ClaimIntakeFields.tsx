@@ -20,6 +20,7 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { useCreateWarrantyCondition, useWarrantyConditions } from '../hooks/useClaims';
@@ -167,6 +168,8 @@ export const ConditionsField = ({
   onChange: (next: IntakeState) => void;
 }) => {
   const isMobile = useIsMobile();
+  // Whoever can approve reviews the claim themselves, so the hint is for staff only.
+  const selfApproves = useCanSelfApprove();
   const conditionsQuery = useWarrantyConditions();
   const createConditionMutation = useCreateWarrantyCondition();
   const [newConditionInput, setNewConditionInput] = useState('');
@@ -274,11 +277,13 @@ export const ConditionsField = ({
           )}
         </Alert>
       ) : (
-        <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
-          {t(
-            'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
-          )}
-        </Alert>
+        !selfApproves && (
+          <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
+            {t(
+              'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
+            )}
+          </Alert>
+        )
       )}
     </Stack>
   );

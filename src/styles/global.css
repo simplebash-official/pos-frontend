@@ -911,7 +911,47 @@ th.mantine-Table-th {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
-  gap: var(--mantine-spacing-md);
+  gap: var(--mantine-spacing-sm);
+}
+
+/* One headline number as a slim row: the icon spans the label and the figure. A tile narrower than
+   170px (two to a row on a phone) puts the figure under the icon and label so an amount keeps the
+   whole width. It reacts to its own width, so it also works outside a drawer. */
+.kpi-tile {
+  container-type: inline-size;
+  container-name: kpi;
+}
+
+.kpi-tile-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'icon label'
+    'icon value';
+  align-items: center;
+  column-gap: var(--mantine-spacing-sm);
+}
+
+.kpi-tile-icon {
+  grid-area: icon;
+}
+
+.kpi-tile-label {
+  grid-area: label;
+}
+
+.kpi-tile-value {
+  grid-area: value;
+  min-width: 0;
+}
+
+@container kpi (max-width: 170px) {
+  .kpi-tile-body {
+    grid-template-areas:
+      'icon label'
+      'value value';
+    row-gap: 4px;
+  }
 }
 
 /* Narrow: one column, ordered hero, headline numbers, main content, then the other left cards. */

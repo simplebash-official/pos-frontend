@@ -203,7 +203,7 @@ describe('InvoiceItemsPanel warranties', () => {
       await render(CAN_CLAIM);
       await vi.waitFor(() => expect(tickBoxes()).toHaveLength(2));
       expect(buttons('Claim selected (0)')[0].disabled).toBe(true);
-      expect(text()).toContain('Tick the items the customer is bringing back');
+      expect(text()).toContain('Select all');
 
       await act(async () => tickBoxes()[0].click());
       expect(buttons('Claim selected (1)')[0].disabled).toBe(false);

@@ -48,7 +48,6 @@ export const BatchClaimBar = ({
     <Checkbox
       size={isMobile ? 'md' : 'sm'}
       label={count > 0 ? `${count} ${t('selected')}` : t('Select all')}
-      description={count === 0 ? t('Tick the items the customer is bringing back') : undefined}
       checked={all}
       indeterminate={count > 0 && !all}
       onChange={() => onSelectionChange(all ? new Set() : new Set(claimable.map((w) => w.key)))}
