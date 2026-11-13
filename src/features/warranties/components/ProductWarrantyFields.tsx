@@ -119,7 +119,7 @@ export const ProductWarrantyFields = ({
             <ThemeIcon variant="light" color="green" size="sm">
               <IconCalendarCheck size={14} />
             </ThemeIcon>
-            <Text size="xs" c="var(--text-secondary)">
+            <Text size="xs" fw={500} c="var(--status-ok)">
               {t('A unit sold today is covered until')} <b>{formatDate(endsOn)}</b>.
             </Text>
           </Group>
