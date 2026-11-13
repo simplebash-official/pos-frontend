@@ -1,11 +1,31 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { t } from '@/shared/i18n/t';
-import { Divider, Group, Paper, ScrollArea, Stack, Table, Text } from '@mantine/core';
+import {
+  Box,
+  Checkbox,
+  Divider,
+  Group,
+  Paper,
+  ScrollArea,
+  Stack,
+  Table,
+  Text,
+} from '@mantine/core';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { calcItemReturnedUnits, isItemFullyReturned } from '@/shared/calculations';
-import { ClaimLauncher, useWarranties, validUntil, WarrantyStateDot } from '@/features/warranties';
+import {
+  BatchClaimBar,
+  canStartClaim,
+  ClaimLauncher,
+  useWarranties,
+  validUntil,
+  WarrantyStateDot,
+} from '@/features/warranties';
 import type { Warranty } from '@/features/warranties';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 const TABULAR = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' } as const;
 
@@ -20,6 +40,19 @@ const warrantyLabel = (warranty: Warranty): string => {
   return validUntil(warranty);
 };
 
+/** The warranty's state, and under it which unit it is for and how long it lasts. */
+const WarrantyRowInfo = ({ warranty }: { warranty: Warranty }) => (
+  <Stack gap={0} style={{ minWidth: 0 }}>
+    <WarrantyStateDot state={warranty.state} size="xs" />
+    <Text size="3xs" c="dimmed" lineClamp={2} title={warrantyLabel(warranty)}>
+      {warrantyLabel(warranty)}
+    </Text>
+  </Stack>
+);
+
+/** Width of the tick box, so a row without one still lines up with the rows that have it. */
+const checkboxWidth = (isMobile: boolean) => (isMobile ? 24 : 20);
+
 /** What was sold, with anything returned marked in plain words, and the totals that make up the bill. */
 export const InvoiceItemsPanel = ({
   invoice,
@@ -29,21 +62,57 @@ export const InvoiceItemsPanel = ({
   /** A claim window is open over the drawer, so the drawer must not close on Escape. */
   onNestedWindowChange: (open: boolean) => void;
 }) => {
+  const isMobile = useIsMobile();
+  const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
   const { data: warranties } = useWarranties({ invoiceKey: invoice.id });
+  const [ticked, setTicked] = useState<Set<string>>(new Set());
+  const [claimWindowOpen, setClaimWindowOpen] = useState(false);
   const warrantiesByLine = new Map<number, Warranty[]>();
   for (const warranty of warranties?.items ?? []) {
     const line = warrantiesByLine.get(warranty.lineIndex) ?? [];
     line.push(warranty);
     warrantiesByLine.set(warranty.lineIndex, line);
   }
+  const claimable = canRecord
+    ? (warranties?.items ?? [])
+        .filter(canStartClaim)
+        .sort((first, second) => first.lineIndex - second.lineIndex)
+    : [];
+  // Picking several only helps with two or more; the bar also stays while its window is open,
+  // because claiming some of them can leave fewer than two.
+  const showSelection = claimable.length >= 2 || claimWindowOpen;
+  const selected = new Set(claimable.filter((w) => ticked.has(w.key)).map((w) => w.key));
+  const windowChanged = (open: boolean) => {
+    setClaimWindowOpen(open);
+    onNestedWindowChange(open);
+  };
+  const toggle = (key: string, on: boolean) =>
+    setTicked((previous) => {
+      const next = new Set(previous);
+      if (on) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+
   return (
     <Stack gap="md">
+      {showSelection && (
+        <BatchClaimBar
+          claimable={claimable}
+          selected={selected}
+          onSelectionChange={setTicked}
+          onOpened={(keys) =>
+            setTicked((previous) => new Set([...previous].filter((key) => !keys.includes(key))))
+          }
+          onNestedWindowChange={windowChanged}
+        />
+      )}
       <ScrollArea.Autosize
         mah="40dvh"
         offsetScrollbars
         classNames={{ viewport: 'scrollarea-fluid-content' }}
       >
-        <Table highlightOnHover>
+        <Table highlightOnHover={false} horizontalSpacing={isMobile ? 6 : undefined}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>{t('Item')}</Table.Th>
@@ -99,21 +168,57 @@ export const InvoiceItemsPanel = ({
                     <Table.Tr>
                       <Table.Td colSpan={4} pt={0}>
                         <Stack gap={6}>
-                          {lineWarranties.map((warranty) => (
-                            <Group key={warranty.key} justify="space-between" gap="xs" wrap="wrap">
-                              <Group gap={6} wrap="nowrap">
-                                <WarrantyStateDot state={warranty.state} size="xs" />
-                                <Text size="3xs" c="dimmed">
-                                  {warrantyLabel(warranty)}
-                                </Text>
+                          {lineWarranties.map((warranty) => {
+                            const canTick = showSelection && canRecord && canStartClaim(warranty);
+                            return (
+                              <Group
+                                key={warranty.key}
+                                justify="space-between"
+                                align="center"
+                                gap="sm"
+                                wrap={isMobile ? 'wrap' : 'nowrap'}
+                                px={6}
+                                py={6}
+                                mx={-6}
+                                style={{
+                                  borderRadius: 'var(--mantine-radius-default)',
+                                  background: selected.has(warranty.key)
+                                    ? 'color-mix(in srgb, var(--mantine-primary-color-filled) 7%, transparent)'
+                                    : undefined,
+                                  minHeight: isMobile ? 44 : undefined,
+                                }}
+                              >
+                                <Group
+                                  gap="sm"
+                                  wrap="nowrap"
+                                  align="center"
+                                  style={{ flex: 1, minWidth: 0 }}
+                                >
+                                  {canTick && (
+                                    <Checkbox
+                                      size={isMobile ? 'md' : 'sm'}
+                                      checked={selected.has(warranty.key)}
+                                      onChange={(event) =>
+                                        toggle(warranty.key, event.currentTarget.checked)
+                                      }
+                                      aria-label={`${t('Select')} ${warranty.itemName} ${warranty.warrantyNumber}`}
+                                    />
+                                  )}
+                                  {showSelection && !canTick && (
+                                    <Box w={checkboxWidth(isMobile)} style={{ flexShrink: 0 }} />
+                                  )}
+                                  <WarrantyRowInfo warranty={warranty} />
+                                </Group>
+                                <Box w={isMobile ? '100%' : undefined} style={{ flexShrink: 0 }}>
+                                  <ClaimLauncher
+                                    warranty={warranty}
+                                    compact
+                                    onNestedWindowChange={onNestedWindowChange}
+                                  />
+                                </Box>
                               </Group>
-                              <ClaimLauncher
-                                warranty={warranty}
-                                compact
-                                onNestedWindowChange={onNestedWindowChange}
-                              />
-                            </Group>
-                          ))}
+                            );
+                          })}
                         </Stack>
                       </Table.Td>
                     </Table.Tr>

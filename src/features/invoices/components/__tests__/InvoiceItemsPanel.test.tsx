@@ -24,7 +24,15 @@ vi.mock('@/features/warranties/api/warrantiesApi', () => ({
 }));
 vi.mock('@/features/warranties/api/claimsApi', () => ({
   fetchConditions: vi.fn().mockResolvedValue([]),
+  openClaimsBatch: vi.fn(),
 }));
+
+// jsdom has no font loading API; Mantine's growing text box listens to it.
+if (!('fonts' in document)) {
+  Object.defineProperty(document, 'fonts', {
+    value: { addEventListener: () => undefined, removeEventListener: () => undefined },
+  });
+}
 
 const warranty = (overrides: Partial<Warranty>): Warranty => ({
   id: '1',
@@ -129,11 +137,11 @@ describe('InvoiceItemsPanel warranties', () => {
     container.remove();
   });
 
-  const render = async (permissions: string[]) => {
+  const render = async (permissions: string[], onNestedWindowChange = vi.fn()) => {
     await act(async () => {
       root.render(
         <Harness permissions={permissions}>
-          <InvoiceItemsPanel invoice={invoice} onNestedWindowChange={vi.fn()} />
+          <InvoiceItemsPanel invoice={invoice} onNestedWindowChange={onNestedWindowChange} />
         </Harness>
       );
     });
@@ -174,5 +182,97 @@ describe('InvoiceItemsPanel warranties', () => {
     WARRANTIES = [warranty({ key: 'wty_1', serialNumber: undefined, quantity: 2 })];
     await render(['warranties:view', 'warranty_claims:record']);
     await vi.waitFor(() => expect(text()).toContain('2 units covered'));
+  });
+  describe('claiming several at once', () => {
+    const CAN_CLAIM = ['warranties:view', 'warranty_claims:record'];
+    const tickBoxes = () =>
+      [...document.querySelectorAll('input[type="checkbox"]')].filter((box) =>
+        box.getAttribute('aria-label')?.startsWith('Select Phone')
+      ) as HTMLInputElement[];
+    // The toolbar's box is the only one named by its visible label, not by an aria-label.
+    const selectAll = () =>
+      [...document.querySelectorAll('input[type="checkbox"]')].find(
+        (box) => box.getAttribute('aria-label') === null
+      ) as HTMLInputElement;
+
+    it('offers a tick on each claimable warranty and a way to claim the ticked ones', async () => {
+      WARRANTIES = [
+        warranty({ key: 'wty_1', serialNumber: 'IMEI-1' }),
+        warranty({ key: 'wty_2', serialNumber: 'IMEI-2' }),
+      ];
+      await render(CAN_CLAIM);
+      await vi.waitFor(() => expect(tickBoxes()).toHaveLength(2));
+      expect(buttons('Claim selected (0)')[0].disabled).toBe(true);
+      expect(text()).toContain('Tick the items the customer is bringing back');
+
+      await act(async () => tickBoxes()[0].click());
+      expect(buttons('Claim selected (1)')[0].disabled).toBe(false);
+      expect(text()).toContain('1 selected');
+
+      await act(async () => selectAll().click());
+      expect(buttons('Claim selected (2)')).toHaveLength(1);
+      expect(tickBoxes().every((box) => box.checked)).toBe(true);
+
+      // The same box again clears everything.
+      await act(async () => selectAll().click());
+      expect(buttons('Claim selected (0)')).toHaveLength(1);
+    });
+
+    it('leaves out warranties that cannot be claimed', async () => {
+      WARRANTIES = [
+        warranty({ key: 'wty_1', serialNumber: 'IMEI-1' }),
+        warranty({ key: 'wty_2', serialNumber: 'IMEI-2' }),
+        warranty({ key: 'wty_3', serialNumber: 'IMEI-3', state: 'void', status: 'void' }),
+        warranty({ key: 'wty_4', serialNumber: 'IMEI-4', state: 'under_claim' }),
+      ];
+      await render(CAN_CLAIM);
+      await vi.waitFor(() => expect(tickBoxes()).toHaveLength(2));
+      await act(async () => selectAll().click());
+      expect(buttons('Claim selected (2)')).toHaveLength(1);
+    });
+
+    it('does not bother with ticks when only one warranty can be claimed', async () => {
+      WARRANTIES = [
+        warranty({ key: 'wty_1', serialNumber: 'IMEI-1' }),
+        warranty({ key: 'wty_2', serialNumber: 'IMEI-2', state: 'void', status: 'void' }),
+      ];
+      await render(CAN_CLAIM);
+      await vi.waitFor(() => expect(text()).toContain('IMEI-1'));
+      expect(tickBoxes()).toHaveLength(0);
+      expect(text()).not.toContain('Claim selected');
+      expect(buttons('Start claim')).toHaveLength(1);
+    });
+
+    it('shows no ticks to someone who may not record claims', async () => {
+      WARRANTIES = [
+        warranty({ key: 'wty_1', serialNumber: 'IMEI-1' }),
+        warranty({ key: 'wty_2', serialNumber: 'IMEI-2' }),
+      ];
+      await render(['warranties:view']);
+      await vi.waitFor(() => expect(text()).toContain('IMEI-2'));
+      expect(tickBoxes()).toHaveLength(0);
+      expect(text()).not.toContain('Claim selected');
+    });
+
+    it('opens the claim window for the ticked ones and tells the drawer around it', async () => {
+      WARRANTIES = [
+        warranty({ key: 'wty_1', serialNumber: 'IMEI-1' }),
+        warranty({ key: 'wty_2', serialNumber: 'IMEI-2' }),
+      ];
+      const onNestedWindowChange = vi.fn();
+      await render(CAN_CLAIM, onNestedWindowChange);
+      await vi.waitFor(() => expect(tickBoxes()).toHaveLength(2));
+      await act(async () => tickBoxes()[1].click());
+      await act(async () => buttons('Claim selected (1)')[0].click());
+
+      await vi.waitFor(() => expect(text()).toContain('Start warranty claims'));
+      expect(onNestedWindowChange).toHaveBeenLastCalledWith(true);
+      // Only the ticked warranty is in the window.
+      expect(text()).toContain('IMEI-2 · WTY-000001');
+      expect(text()).not.toContain('IMEI-1 · WTY-000001');
+
+      await act(async () => buttons('Cancel')[0].click());
+      expect(onNestedWindowChange).toHaveBeenLastCalledWith(false);
+    });
   });
 });

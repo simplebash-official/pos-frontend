@@ -277,6 +277,37 @@ export interface OpenClaimInput {
   approval?: ManagerApproval;
 }
 
+/** One warranty of a batch: what a single claim would carry, fully filled in by the client. */
+export type BatchClaimItemInput = Pick<
+  OpenClaimInput,
+  'warrantyKey' | 'quantity' | 'serialNumber' | 'issueDescription' | 'voidChecks' | 'conditions'
+>;
+
+/** Several claims on the warranties of one invoice, opened by a single request. */
+export interface OpenClaimsBatchInput {
+  items: BatchClaimItemInput[];
+  /** Once for the whole batch, and only when at least one warranty has already run out. */
+  approval?: ManagerApproval;
+}
+
+/** Why one warranty of a batch was not claimed, as the server worded it. */
+export interface BatchClaimError {
+  status: number;
+  code: string;
+  message: string;
+}
+
+/** What happened to one warranty of a batch; a failed one never undoes an opened one. */
+export type BatchClaimResult =
+  | { outcome: 'opened'; warrantyKey: string; claim: WarrantyClaim }
+  | { outcome: 'failed'; warrantyKey: string; error: BatchClaimError };
+
+export interface OpenClaimsBatchResponse {
+  results: BatchClaimResult[];
+  openedCount: number;
+  failedCount: number;
+}
+
 export interface ReplacementInput {
   /** A serialized product: the in-stock serial handed over. */
   serialNumber?: string;

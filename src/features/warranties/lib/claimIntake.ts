@@ -23,6 +23,22 @@ export const emptyIntake = (warranty: Warranty | null): IntakeState => ({
   photos: [],
 });
 
+/** The units of a warranty nobody has claimed yet; at least one so the field always has a range. */
+export const unclaimedUnits = (warranty: Warranty): number =>
+  Math.max(1, warranty.quantity - (warranty.claimedQuantity ?? 0));
+
+/** The same intake with these conditions ticked, and the void checks they imply. */
+export const withConditions = (state: IntakeState, conditions: string[]): IntakeState => ({
+  ...state,
+  conditions,
+  checks: {
+    physicalDamage: conditions.some((c) => /physical|crack|broken/i.test(c)),
+    liquidDamage: conditions.some((c) => /liquid|water/i.test(c)),
+    sealBroken: conditions.some((c) => /seal/i.test(c)),
+    tampered: conditions.some((c) => /tamper|opened/i.test(c)),
+  },
+});
+
 /** Why the intake cannot be sent yet, in plain words, or `null` when it can. */
 export const intakeProblem = (state: IntakeState): string | null =>
   state.issue.trim() === '' ? t('Please say what is wrong with it.') : null;

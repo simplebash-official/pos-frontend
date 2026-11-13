@@ -6,6 +6,8 @@ import type {
   ClaimListResult,
   ManagerApproval,
   OpenClaimInput,
+  OpenClaimsBatchInput,
+  OpenClaimsBatchResponse,
   QuickReplaceInput,
   ReplacementInput,
   SupplierOutcome,
@@ -36,6 +38,17 @@ const step = async (key: string, path: string, body: object): Promise<WarrantyCl
 
 export const openClaim = async (input: OpenClaimInput): Promise<WarrantyClaim> => {
   const response = await apiClient.post<ApiResponse<WarrantyClaim>>(base, input);
+  return response.data;
+};
+
+/** Opens a claim on each warranty of one invoice; every warranty answers on its own. */
+export const openClaimsBatch = async (
+  input: OpenClaimsBatchInput
+): Promise<OpenClaimsBatchResponse> => {
+  const response = await apiClient.post<ApiResponse<OpenClaimsBatchResponse>>(
+    `${base}/batch`,
+    input
+  );
   return response.data;
 };
 

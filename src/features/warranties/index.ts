@@ -7,12 +7,14 @@ export { WarrantyStateDot } from './components/WarrantyStateDot';
 export { ProductWarrantyFields } from './components/ProductWarrantyFields';
 export { CoverageEditor } from './components/CoverageEditor';
 export { ClaimLauncher } from './components/ClaimLauncher';
+export { BatchClaimBar } from './components/BatchClaimBar';
 export { WarrantyMetrics } from './components/WarrantyMetrics';
 export { useWarranties } from './hooks/useWarranties';
 export { useClaims } from './hooks/useClaims';
 export { fetchWarrantyStats } from './api/warrantiesApi';
 export {
   coverageLabel,
+  canStartClaim,
   endsOnIfStartedToday,
   profileProblem,
   toProfileInput,

@@ -644,6 +644,7 @@ export const InvoiceDetailDrawer = ({
                     if (value === 'items') {
                       return (
                         <InvoiceItemsPanel
+                          key={inv.id}
                           invoice={inv}
                           onNestedWindowChange={setClaimWindowOpen}
                         />

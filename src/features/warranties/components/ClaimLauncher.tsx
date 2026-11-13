@@ -54,9 +54,9 @@ export const ClaimLauncher = ({
     if (onStarted !== undefined) onStarted(claim);
   };
 
-  const size = compact ? (isMobile ? 'md' : 'xs') : 'sm';
+  const size = compact ? (isMobile ? 'sm' : 'xs') : 'sm';
   const variant = compact ? 'light' : 'filled';
-  // A phone needs a 44px target; Mantine's `md` button is 42px.
+  // A phone needs a 44px target; Mantine's `sm` button is 36px, so the height is set.
   const height = compact && isMobile ? 44 : undefined;
 
   return (

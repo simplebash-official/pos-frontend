@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { queryKeys } from '@/api/queryKeys';
 import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
@@ -13,6 +14,7 @@ import {
   fetchClaims,
   inspectClaim,
   openClaim,
+  openClaimsBatch,
   quickReplaceClaim,
   recordSupplierReturn,
   resolveClaim,
@@ -25,6 +27,8 @@ import type {
   ClaimListFilter,
   ManagerApproval,
   OpenClaimInput,
+  OpenClaimsBatchInput,
+  OpenClaimsBatchResponse,
   QuickReplaceInput,
   ReplacementInput,
   SupplierOutcome,
@@ -76,6 +80,31 @@ export const useOpenClaim = () => {
       successMessage: claimNumber,
       failureTitle: t('The claim was not started'),
     }),
+  });
+};
+
+/**
+ * Opens a claim on each warranty of one invoice. Every warranty answers on its own, so the
+ * window that sent the batch shows what failed; the green notification here only names the claims
+ * that did start (and is left out when none did).
+ */
+export const useOpenClaimsBatch = () => {
+  const refresh = useRefreshClaims();
+  return useMutation({
+    mutationFn: (input: OpenClaimsBatchInput) => openClaimsBatch(input),
+    onSuccess: async (response: OpenClaimsBatchResponse) => {
+      await refresh();
+      const numbers = response.results.flatMap((result) =>
+        result.outcome === 'opened' ? [result.claim.claimNumber] : []
+      );
+      if (numbers.length > 0) {
+        notifications.show({
+          title: t('Claims started'),
+          message: numbers.join(', '),
+          color: 'teal',
+        });
+      }
+    },
   });
 };
 

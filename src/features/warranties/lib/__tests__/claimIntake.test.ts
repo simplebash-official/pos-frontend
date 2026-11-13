@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { Warranty } from '../../types';
-import { emptyIntake, intakeClaimFields, intakeProblem } from '../claimIntake';
+import {
+  emptyIntake,
+  intakeClaimFields,
+  intakeProblem,
+  unclaimedUnits,
+  withConditions,
+} from '../claimIntake';
 
 const warranty = (overrides: Partial<Warranty>): Warranty => ({
   id: '1',
@@ -62,5 +68,26 @@ describe('claim intake', () => {
     expect(
       intakeClaimFields(warranty({ quantity: 4, serialNumber: 'SN-1' }), state).serialNumber
     ).toBeUndefined();
+  });
+  it('works out the void checks from the ticked conditions in one place', () => {
+    const state = emptyIntake(null);
+    const ticked = withConditions(state, ['Physical damage / cracks', 'Opened or tampered with']);
+    expect(ticked.conditions).toEqual(['Physical damage / cracks', 'Opened or tampered with']);
+    expect(ticked.checks).toMatchObject({
+      physicalDamage: true,
+      liquidDamage: false,
+      sealBroken: false,
+      tampered: true,
+    });
+    // Untick everything and the checks clear again; the rest of the intake is untouched.
+    const cleared = withConditions({ ...ticked, issue: 'Cracked' }, []);
+    expect(cleared.checks).toMatchObject({ physicalDamage: false, tampered: false });
+    expect(cleared.issue).toBe('Cracked');
+  });
+
+  it('counts the units nobody has claimed yet, never below one', () => {
+    expect(unclaimedUnits(warranty({ quantity: 4 }))).toBe(4);
+    expect(unclaimedUnits(warranty({ quantity: 4, claimedQuantity: 3 }))).toBe(1);
+    expect(unclaimedUnits(warranty({ quantity: 2, claimedQuantity: 2 }))).toBe(1);
   });
 });

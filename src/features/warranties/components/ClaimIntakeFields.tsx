@@ -23,8 +23,8 @@ import {
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { useCreateWarrantyCondition, useWarrantyConditions } from '../hooks/useClaims';
-import type { IntakeState } from '../lib/claimIntake';
-import type { VoidChecks, Warranty } from '../types';
+import { unclaimedUnits, withConditions, type IntakeState } from '../lib/claimIntake';
+import type { Warranty } from '../types';
 import { WarrantyStateDot } from './WarrantyStateDot';
 
 const sectionLabel = (text: string) => (
@@ -40,26 +40,136 @@ const DEFAULT_STARTER_CONDITIONS = [
   'Opened or tampered with',
 ];
 
-/** The item, what is wrong with it, and what staff can see on it. */
-export const ClaimIntakeFields = ({
+/** The item's name, serial, customer, invoice and how many units are claimed already. */
+export const ClaimItemSummary = ({ warranty }: { warranty: Warranty }) => {
+  const isMultiUnit = warranty.quantity > 1;
+  return (
+    <Paper withBorder p="sm" bg="var(--bg-app)">
+      <Group justify="space-between" wrap="nowrap" align="flex-start" gap="sm">
+        <Box style={{ minWidth: 0 }}>
+          <Text fw={700} lineClamp={2}>
+            {warranty.itemName}
+          </Text>
+          <Text size="xs" c="dimmed" ff="monospace" style={{ overflowWrap: 'anywhere' }}>
+            {warranty.serialNumber === undefined
+              ? warranty.warrantyNumber
+              : `${warranty.serialNumber} · ${warranty.warrantyNumber}`}
+          </Text>
+          <Text size="xs" c="dimmed">
+            {warranty.customerName === undefined ? t('Walk-in customer') : warranty.customerName}
+            {' · '}
+            {warranty.invoiceNumber}
+            {isMultiUnit && (
+              <>
+                {' · '}
+                <Text
+                  component="span"
+                  fw={600}
+                  c={(warranty.claimedQuantity ?? 0) > 0 ? 'orange' : 'dimmed'}
+                >
+                  {(warranty.claimedQuantity ?? 0) > 0
+                    ? `${warranty.claimedQuantity} of ${warranty.quantity} ${t('units claimed')}`
+                    : `${warranty.quantity} ${t('units covered')}`}
+                </Text>
+              </>
+            )}
+          </Text>
+        </Box>
+        <WarrantyStateDot state={warranty.state} size="xs" />
+      </Group>
+    </Paper>
+  );
+};
+
+/** How many units are claimed, and the unit's own serial when the warranty names none. */
+export const UnitsFields = ({
   warranty,
-  value,
+  quantity,
+  serialNumber,
   onChange,
-  issueError,
 }: {
   warranty: Warranty;
-  value: IntakeState;
-  onChange: (next: IntakeState) => void;
-  issueError: string | null;
+  quantity: number;
+  serialNumber: string;
+  onChange: (next: { quantity: number; serialNumber: string }) => void;
 }) => {
   const isMobile = useIsMobile();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  if (warranty.quantity <= 1) return null;
+  const available = unclaimedUnits(warranty);
+  return (
+    <Group grow align="flex-start" gap="sm">
+      <NumberInput
+        label={t('Units to claim')}
+        description={`${available} of ${warranty.quantity} ${t('units available to claim')}`}
+        min={1}
+        max={available}
+        step={1}
+        value={quantity}
+        onChange={(val) =>
+          onChange({
+            quantity: typeof val === 'number' && val >= 1 ? Math.min(val, available) : 1,
+            serialNumber,
+          })
+        }
+        size={isMobile ? 'md' : 'sm'}
+      />
+      {warranty.serialNumber === undefined && (
+        <TextInput
+          label={t('Specific serial / IMEI (optional)')}
+          placeholder={t('e.g. SN-098234')}
+          description={t('If this unit has its own serial')}
+          value={serialNumber}
+          onChange={(event) => onChange({ quantity, serialNumber: event.currentTarget.value })}
+          size={isMobile ? 'md' : 'sm'}
+        />
+      )}
+    </Group>
+  );
+};
+
+/** What is wrong, in the customer's words. */
+export const IssueField = ({
+  label,
+  value,
+  onChange,
+  error,
+  autoFocus,
+}: {
+  label: string;
+  value: IntakeState;
+  onChange: (next: IntakeState) => void;
+  error: string | null;
+  autoFocus: boolean;
+}) => {
+  const isMobile = useIsMobile();
+  return (
+    <Textarea
+      label={label}
+      placeholder={t('In the customer’s words, e.g. “Turns off after ten minutes”')}
+      autosize
+      minRows={3}
+      maxLength={1000}
+      value={value.issue}
+      onChange={(event) => onChange({ ...value, issue: event.currentTarget.value })}
+      error={error}
+      size={isMobile ? 'md' : 'sm'}
+      data-autofocus={autoFocus && !isMobile ? true : undefined}
+    />
+  );
+};
+
+/** The condition checklist: what staff can see on the item, plus any new condition to remember. */
+export const ConditionsField = ({
+  value,
+  onChange,
+}: {
+  value: IntakeState;
+  onChange: (next: IntakeState) => void;
+}) => {
+  const isMobile = useIsMobile();
   const conditionsQuery = useWarrantyConditions();
   const createConditionMutation = useCreateWarrantyCondition();
   const [newConditionInput, setNewConditionInput] = useState('');
-
-  const unclaimedUnits = Math.max(1, warranty.quantity - (warranty.claimedQuantity ?? 0));
-  const isMultiUnit = warranty.quantity > 1;
 
   const availableOptions = useMemo(() => {
     const list: string[] = [];
@@ -78,261 +188,207 @@ export const ClaimIntakeFields = ({
     return list;
   }, [conditionsQuery.data, value.conditions]);
 
-  const toggleCondition = (name: string) => {
-    const nextConditions = value.conditions.includes(name)
-      ? value.conditions.filter((c) => c !== name)
-      : [...value.conditions, name];
-    const nextChecks: VoidChecks = {
-      physicalDamage: nextConditions.some((c) => /physical|crack|broken/i.test(c)),
-      liquidDamage: nextConditions.some((c) => /liquid|water/i.test(c)),
-      sealBroken: nextConditions.some((c) => /seal/i.test(c)),
-      tampered: nextConditions.some((c) => /tamper|opened/i.test(c)),
-    };
-    onChange({
-      ...value,
-      conditions: nextConditions,
-      checks: nextChecks,
-    });
-  };
+  const toggleCondition = (name: string) =>
+    onChange(
+      withConditions(
+        value,
+        value.conditions.includes(name)
+          ? value.conditions.filter((c) => c !== name)
+          : [...value.conditions, name]
+      )
+    );
 
   const handleAddCondition = () => {
     const trimmed = newConditionInput.trim();
     if (!trimmed) return;
     if (!value.conditions.includes(trimmed)) {
-      const nextConditions = [...value.conditions, trimmed];
-      const nextChecks: VoidChecks = {
-        physicalDamage: nextConditions.some((c) => /physical|crack|broken/i.test(c)),
-        liquidDamage: nextConditions.some((c) => /liquid|water/i.test(c)),
-        sealBroken: nextConditions.some((c) => /seal/i.test(c)),
-        tampered: nextConditions.some((c) => /tamper|opened/i.test(c)),
-      };
-      onChange({
-        ...value,
-        conditions: nextConditions,
-        checks: nextChecks,
-      });
+      onChange(withConditions(value, [...value.conditions, trimmed]));
       createConditionMutation.mutate(trimmed);
     }
     setNewConditionInput('');
   };
 
   return (
-    <Stack gap="md">
-      <Paper withBorder p="sm" bg="var(--bg-app)">
-        <Group justify="space-between" wrap="nowrap" align="flex-start" gap="sm">
-          <Box style={{ minWidth: 0 }}>
-            <Text fw={700} lineClamp={2}>
-              {warranty.itemName}
-            </Text>
-            <Text size="xs" c="dimmed" ff="monospace" style={{ overflowWrap: 'anywhere' }}>
-              {warranty.serialNumber === undefined
-                ? warranty.warrantyNumber
-                : `${warranty.serialNumber} · ${warranty.warrantyNumber}`}
-            </Text>
-            <Text size="xs" c="dimmed">
-              {warranty.customerName === undefined ? t('Walk-in customer') : warranty.customerName}
-              {' · '}
-              {warranty.invoiceNumber}
-              {isMultiUnit && (
-                <>
-                  {' · '}
-                  <Text
-                    component="span"
-                    fw={600}
-                    c={(warranty.claimedQuantity ?? 0) > 0 ? 'orange' : 'dimmed'}
-                  >
-                    {(warranty.claimedQuantity ?? 0) > 0
-                      ? `${warranty.claimedQuantity} of ${warranty.quantity} ${t('units claimed')}`
-                      : `${warranty.quantity} ${t('units covered')}`}
-                  </Text>
-                </>
-              )}
-            </Text>
-          </Box>
-          <WarrantyStateDot state={warranty.state} size="xs" />
-        </Group>
-      </Paper>
+    <Stack gap="xs">
+      <Group justify="space-between" align="center">
+        {sectionLabel(t('Condition checklist'))}
+        <Text size="xs" c="dimmed">
+          {t('Leave all empty if undamaged')}
+        </Text>
+      </Group>
 
-      {isMultiUnit && (
-        <Group grow align="flex-start" gap="sm">
-          <NumberInput
-            label={t('Units to claim')}
-            description={`${unclaimedUnits} of ${warranty.quantity} ${t('units available to claim')}`}
-            min={1}
-            max={unclaimedUnits}
-            step={1}
-            value={value.quantity}
-            onChange={(val) =>
-              onChange({
-                ...value,
-                quantity: typeof val === 'number' && val >= 1 ? Math.min(val, unclaimedUnits) : 1,
-              })
-            }
-            size={isMobile ? 'md' : 'sm'}
-          />
-          {warranty.serialNumber === undefined && (
-            <TextInput
-              label={t('Specific serial / IMEI (optional)')}
-              placeholder={t('e.g. SN-098234')}
-              description={t('If this unit has its own serial')}
-              value={value.serialNumber}
-              onChange={(event) => onChange({ ...value, serialNumber: event.currentTarget.value })}
-              size={isMobile ? 'md' : 'sm'}
-            />
-          )}
-        </Group>
-      )}
+      <Group gap="xs" wrap="wrap">
+        {availableOptions.map((name) => {
+          const isSelected = value.conditions.includes(name);
+          return (
+            <Button
+              key={name}
+              type="button"
+              size="xs"
+              variant={isSelected ? 'light' : 'default'}
+              color={isSelected ? 'orange' : 'gray'}
+              leftSection={isSelected ? <IconCheck size={14} /> : undefined}
+              onClick={() => toggleCondition(name)}
+              style={{
+                minHeight: 36,
+                borderColor: isSelected ? 'var(--mantine-color-orange-filled)' : undefined,
+                fontWeight: isSelected ? 600 : 500,
+              }}
+            >
+              {t(name)}
+            </Button>
+          );
+        })}
+      </Group>
 
-      <Textarea
-        label={t('What is wrong with it?')}
-        placeholder={t('In the customer’s words, e.g. “Turns off after ten minutes”')}
-        autosize
-        minRows={3}
-        maxLength={1000}
-        value={value.issue}
-        onChange={(event) => onChange({ ...value, issue: event.currentTarget.value })}
-        error={issueError}
+      <TextInput
+        placeholder={t('+ Add new condition (e.g. Scratched lens) and press Enter')}
+        value={newConditionInput}
+        onChange={(event) => setNewConditionInput(event.currentTarget.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            handleAddCondition();
+          }
+        }}
+        rightSection={
+          newConditionInput.trim() ? (
+            <ActionIcon
+              size="sm"
+              variant="light"
+              color="blue"
+              onClick={handleAddCondition}
+              aria-label={t('Add condition')}
+            >
+              <IconPlus size={14} />
+            </ActionIcon>
+          ) : null
+        }
         size={isMobile ? 'md' : 'sm'}
-        data-autofocus={isMobile ? undefined : true}
       />
 
-      <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          {sectionLabel(t('Condition checklist'))}
-          <Text size="xs" c="dimmed">
-            {t('Leave all empty if undamaged')}
-          </Text>
-        </Group>
-
-        <Group gap="xs" wrap="wrap">
-          {availableOptions.map((name) => {
-            const isSelected = value.conditions.includes(name);
-            return (
-              <Button
-                key={name}
-                type="button"
-                size="xs"
-                variant={isSelected ? 'light' : 'default'}
-                color={isSelected ? 'orange' : 'gray'}
-                leftSection={isSelected ? <IconCheck size={14} /> : undefined}
-                onClick={() => toggleCondition(name)}
-                style={{
-                  minHeight: 36,
-                  borderColor: isSelected ? 'var(--mantine-color-orange-filled)' : undefined,
-                  fontWeight: isSelected ? 600 : 500,
-                }}
-              >
-                {t(name)}
-              </Button>
-            );
-          })}
-        </Group>
-
-        <TextInput
-          placeholder={t('+ Add new condition (e.g. Scratched lens) and press Enter')}
-          value={newConditionInput}
-          onChange={(event) => setNewConditionInput(event.currentTarget.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              handleAddCondition();
-            }
-          }}
-          rightSection={
-            newConditionInput.trim() ? (
-              <ActionIcon
-                size="sm"
-                variant="light"
-                color="blue"
-                onClick={handleAddCondition}
-                aria-label={t('Add condition')}
-              >
-                <IconPlus size={14} />
-              </ActionIcon>
-            ) : null
-          }
-          size={isMobile ? 'md' : 'sm'}
-        />
-
-        {value.conditions.length > 0 ? (
-          <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
-            {t(
-              'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
-            )}
-          </Alert>
-        ) : (
-          <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
-            {t(
-              'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
-            )}
-          </Alert>
-        )}
-      </Stack>
-
-      <Stack gap="xs">
-        {sectionLabel(t('Photos / Attachments (optional)'))}
-        <Group gap="xs" wrap="wrap">
-          {value.photos.map((file, idx) => {
-            const previewUrl = URL.createObjectURL(file);
-            return (
-              <Box
-                key={idx}
-                style={{
-                  position: 'relative',
-                  width: 72,
-                  height: 72,
-                  borderRadius: 6,
-                  overflow: 'hidden',
-                  border: '1px solid var(--mantine-color-default-border)',
-                }}
-              >
-                <img
-                  src={previewUrl}
-                  alt={file.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <ActionIcon
-                  size="xs"
-                  color="red"
-                  variant="filled"
-                  style={{ position: 'absolute', top: 2, right: 2 }}
-                  onClick={() => {
-                    const next = [...value.photos];
-                    next.splice(idx, 1);
-                    onChange({ ...value, photos: next });
-                  }}
-                  aria-label={t('Remove photo')}
-                >
-                  <IconTrash size={12} />
-                </ActionIcon>
-              </Box>
-            );
-          })}
-          <Button
-            variant="default"
-            size="xs"
-            leftSection={<IconPhoto size={14} />}
-            onClick={() => fileInputRef.current?.click()}
-            style={{ height: 72, minWidth: 72 }}
-          >
-            {value.photos.length === 0 ? t('Add photos') : t('Add more')}
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const files = Array.from(e.currentTarget.files ?? []);
-              e.currentTarget.value = '';
-              if (files.length > 0) {
-                onChange({ ...value, photos: [...value.photos, ...files] });
-              }
-            }}
-          />
-        </Group>
-      </Stack>
+      {value.conditions.length > 0 ? (
+        <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
+          {t(
+            'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
+          )}
+        </Alert>
+      ) : (
+        <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
+          {t(
+            'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
+          )}
+        </Alert>
+      )}
     </Stack>
   );
 };
+
+/** Photos taken at the counter, uploaded once the claim exists. */
+export const PhotosField = ({
+  value,
+  onChange,
+}: {
+  value: IntakeState;
+  onChange: (next: IntakeState) => void;
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  return (
+    <Stack gap="xs">
+      {sectionLabel(t('Photos / Attachments (optional)'))}
+      <Group gap="xs" wrap="wrap">
+        {value.photos.map((file, idx) => {
+          const previewUrl = URL.createObjectURL(file);
+          return (
+            <Box
+              key={idx}
+              style={{
+                position: 'relative',
+                width: 72,
+                height: 72,
+                borderRadius: 6,
+                overflow: 'hidden',
+                border: '1px solid var(--mantine-color-default-border)',
+              }}
+            >
+              <img
+                src={previewUrl}
+                alt={file.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <ActionIcon
+                size="xs"
+                color="red"
+                variant="filled"
+                style={{ position: 'absolute', top: 2, right: 2 }}
+                onClick={() => {
+                  const next = [...value.photos];
+                  next.splice(idx, 1);
+                  onChange({ ...value, photos: next });
+                }}
+                aria-label={t('Remove photo')}
+              >
+                <IconTrash size={12} />
+              </ActionIcon>
+            </Box>
+          );
+        })}
+        <Button
+          variant="default"
+          size="xs"
+          leftSection={<IconPhoto size={14} />}
+          onClick={() => fileInputRef.current?.click()}
+          style={{ height: 72, minWidth: 72 }}
+        >
+          {value.photos.length === 0 ? t('Add photos') : t('Add more')}
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const files = Array.from(e.currentTarget.files ?? []);
+            e.currentTarget.value = '';
+            if (files.length > 0) {
+              onChange({ ...value, photos: [...value.photos, ...files] });
+            }
+          }}
+        />
+      </Group>
+    </Stack>
+  );
+};
+
+/** The item, what is wrong with it, and what staff can see on it. */
+export const ClaimIntakeFields = ({
+  warranty,
+  value,
+  onChange,
+  issueError,
+}: {
+  warranty: Warranty;
+  value: IntakeState;
+  onChange: (next: IntakeState) => void;
+  issueError: string | null;
+}) => (
+  <Stack gap="md">
+    <ClaimItemSummary warranty={warranty} />
+    <UnitsFields
+      warranty={warranty}
+      quantity={value.quantity}
+      serialNumber={value.serialNumber}
+      onChange={(units) => onChange({ ...value, ...units })}
+    />
+    <IssueField
+      label={t('What is wrong with it?')}
+      value={value}
+      onChange={onChange}
+      error={issueError}
+      autoFocus
+    />
+    <ConditionsField value={value} onChange={onChange} />
+    <PhotosField value={value} onChange={onChange} />
+  </Stack>
+);
