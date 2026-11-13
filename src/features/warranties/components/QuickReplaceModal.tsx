@@ -3,7 +3,7 @@ import { Textarea } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
-import { useQuickReplace } from '../hooks/useClaims';
+import { useProcessClaim } from '../hooks/useClaims';
 import {
   emptyIntake,
   intakeClaimFields,
@@ -29,7 +29,7 @@ export interface QuickReplaceModalProps {
  */
 export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplaceModalProps) => {
   const isMobile = useIsMobile();
-  const replace = useQuickReplace();
+  const replace = useProcessClaim();
   const [intake, setIntake] = useState<IntakeState>(emptyIntake(warranty));
   const [found, setFound] = useState('');
   const [serial, setSerial] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplac
       {
         ...intakeClaimFields(warranty, intake),
         inspectionNotes: found.trim(),
-        replacement,
+        outcome: { decision: 'replace', replacement },
         approval,
       },
       {

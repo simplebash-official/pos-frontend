@@ -320,7 +320,7 @@ describe('repair jobs as items', () => {
     expect(button('Add work')).toBeUndefined();
     await vi.waitFor(() => expect(text()).toContain('Replace screen (Galaxy A55)'));
     expect(api.warranties).toHaveBeenCalledWith({ repairKey: 'rep_1' });
-    expect(button('Start claim')).toBeDefined();
+    expect(button('Process claim')).toBeDefined();
 
     await act(async () => button('Update Ticket')?.click());
     await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));

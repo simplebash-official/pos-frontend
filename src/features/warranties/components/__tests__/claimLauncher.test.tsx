@@ -20,7 +20,7 @@ installDrawerTestEnv();
 
 vi.mock('../../api/claimsApi', () => ({
   openClaim: vi.fn(),
-  quickReplaceClaim: vi.fn(),
+  processClaim: vi.fn(),
   fetchClaims: vi.fn(),
   fetchClaim: vi.fn(),
   fetchConditions: vi.fn().mockResolvedValue([]),
@@ -48,7 +48,7 @@ if (!('fonts' in document)) {
 
 const api = {
   open: vi.mocked(claimsApi.openClaim),
-  quick: vi.mocked(claimsApi.quickReplaceClaim),
+  quick: vi.mocked(claimsApi.processClaim),
 };
 
 const WARRANTY: Warranty = {
@@ -99,12 +99,20 @@ const CLAIM: WarrantyClaim = {
   updatedAt: '2026-11-08T05:00:00Z',
 };
 
-const Harness = ({ permissions, children }: { permissions: string[]; children: ReactNode }) => {
+const Harness = ({
+  permissions,
+  role,
+  children,
+}: {
+  permissions: string[];
+  role: 'staff' | 'manager' | 'admin';
+  children: ReactNode;
+}) => {
   const [store] = useState(() =>
     configureStore({
       reducer: {
         auth: () => ({
-          user: { id: 'u1', name: 'T', username: 't', role: 'staff', permissions },
+          user: { id: 'u1', name: 'T', username: 't', role, permissions },
         }),
       },
     })
@@ -180,9 +188,17 @@ describe('claiming from anywhere', () => {
     container.remove();
   });
 
-  const render = async (node: ReactNode, permissions: string[] = CAN_CLAIM) => {
+  const render = async (
+    node: ReactNode,
+    permissions: string[] = CAN_CLAIM,
+    role: 'staff' | 'manager' | 'admin' = 'staff'
+  ) => {
     await act(async () => {
-      root.render(<Harness permissions={permissions}>{node}</Harness>);
+      root.render(
+        <Harness permissions={permissions} role={role}>
+          {node}
+        </Harness>
+      );
     });
   };
 
@@ -262,6 +278,36 @@ describe('claiming from anywhere', () => {
     expect(outerSubmit).not.toHaveBeenCalled();
   });
 
+  it('gives an Admin or Manager one Process claim button instead of the Staff steps', async () => {
+    for (const role of ['admin', 'manager'] as const) {
+      await render(<ClaimLauncher warranty={WARRANTY} compact />, CAN_CLAIM, role);
+      expect(button('Process claim')).toBeDefined();
+      expect(button('Take in for later')).toBeDefined();
+      expect(button('Start claim')).toBeUndefined();
+      expect(button('Replace now')).toBeUndefined();
+
+      // An ended warranty is processed the same way, with no manager wording.
+      await render(
+        <ClaimLauncher warranty={{ ...WARRANTY, state: 'expired' }} compact />,
+        CAN_CLAIM,
+        role
+      );
+      expect(button('Process claim')).toBeDefined();
+      expect(text()).not.toMatch(/manager/i);
+    }
+    await render(
+      <ClaimLauncher warranty={{ ...WARRANTY, state: 'void' }} compact />,
+      CAN_CLAIM,
+      'admin'
+    );
+    expect(button('Process claim')).toBeUndefined();
+  });
+
+  it('shows an Admin no Process claim button without the permission to record claims', async () => {
+    await render(<ClaimLauncher warranty={WARRANTY} compact />, ['warranties:view'], 'admin');
+    expect(button('Process claim')).toBeUndefined();
+  });
+
   describe('replacing a unit in one window', () => {
     const open = async (warranty: Warranty, onStarted = vi.fn()) => {
       await render(<ClaimLauncher warranty={warranty} compact onStarted={onStarted} />);
@@ -297,7 +343,7 @@ describe('claiming from anywhere', () => {
           warrantyKey: 'wty_1',
           issueDescription: 'Will not switch on',
           inspectionNotes: 'Board is dead',
-          replacement: { serialNumber: 'IMEI-NEW-1' },
+          outcome: { decision: 'replace', replacement: { serialNumber: 'IMEI-NEW-1' } },
           approval: { managerPin: '1234', reason: 'Dead board' },
         })
       );
@@ -314,7 +360,9 @@ describe('claiming from anywhere', () => {
       await act(async () => button('Hand over the new unit')?.click());
       await vi.waitFor(() => expect(api.quick).toHaveBeenCalled());
       expect(api.quick).toHaveBeenCalledWith(
-        expect.objectContaining({ replacement: { sellingPriceCents: 150_000 } })
+        expect.objectContaining({
+          outcome: { decision: 'replace', replacement: { sellingPriceCents: 150_000 } },
+        })
       );
     });
 

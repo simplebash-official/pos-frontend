@@ -8,7 +8,7 @@ import type {
   OpenClaimInput,
   OpenClaimsBatchInput,
   OpenClaimsBatchResponse,
-  QuickReplaceInput,
+  ProcessClaimInput,
   ReplacementInput,
   SupplierOutcome,
   WarrantyClaim,
@@ -52,9 +52,9 @@ export const openClaimsBatch = async (
   return response.data;
 };
 
-/** Swaps a faulty unit for a new one in a single request; the claim comes back handed over. */
-export const quickReplaceClaim = async (input: QuickReplaceInput): Promise<WarrantyClaim> => {
-  const response = await apiClient.post<ApiResponse<WarrantyClaim>>(`${base}/quick-replace`, input);
+/** Takes a claim to its decision and as far on as the outcome goes in a single request. */
+export const processClaim = async (input: ProcessClaimInput): Promise<WarrantyClaim> => {
+  const response = await apiClient.post<ApiResponse<WarrantyClaim>>(`${base}/process`, input);
   return response.data;
 };
 

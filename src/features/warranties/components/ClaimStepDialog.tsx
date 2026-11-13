@@ -1,15 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import {
-  Button,
-  Group,
-  Modal,
-  Radio,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
+import { Button, Group, Modal, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { usePayees } from '@/features/billing/hooks/useCashLookups';
@@ -28,6 +18,7 @@ import {
   type ClaimAction,
 } from '../lib/claimView';
 import type { ClaimDecision, SupplierOutcome, WarrantyClaim } from '../types';
+import { ChoiceCards } from './ChoiceCards';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
 import { ReplacementEndsNote, ReplacementPicker } from './ReplacementPicker';
 
@@ -102,59 +93,6 @@ const StepModal = ({
     </Modal>
   );
 };
-
-/** Radio cards: the one "choose one" look for a few options with a line of help each. */
-const ChoiceCards = <T extends string>({
-  value,
-  onChange,
-  options,
-  label,
-  hint,
-}: {
-  value: T | null;
-  onChange: (value: T) => void;
-  options: T[];
-  label: (value: T) => string;
-  hint: ((value: T) => string) | null;
-}) => (
-  <Radio.Group value={value} onChange={(next) => onChange(next as T)}>
-    <Stack gap="xs">
-      {options.map((option) => {
-        const chosen = option === value;
-        return (
-          <Radio.Card
-            key={option}
-            value={option}
-            p="sm"
-            style={{
-              minHeight: 44,
-              borderWidth: 1,
-              borderStyle: 'solid',
-              borderColor: chosen
-                ? 'var(--mantine-color-blue-filled)'
-                : 'var(--mantine-color-default-border)',
-              backgroundColor: chosen ? 'var(--mantine-color-blue-light)' : 'var(--bg-card)',
-            }}
-          >
-            <Group wrap="nowrap" align="flex-start" gap="sm">
-              <Radio.Indicator mt={2} />
-              <Stack gap={2}>
-                <Text fw={700} size="sm">
-                  {label(option)}
-                </Text>
-                {hint !== null && (
-                  <Text size="xs" c="dimmed">
-                    {hint(option)}
-                  </Text>
-                )}
-              </Stack>
-            </Group>
-          </Radio.Card>
-        );
-      })}
-    </Stack>
-  </Radio.Group>
-);
 
 const optional = (text: string): string | undefined =>
   text.trim() === '' ? undefined : text.trim();
@@ -241,11 +179,13 @@ export const ClaimStepDialog = ({
           }}
         >
           <ChoiceCards
+            groupLabel={t('What to do')}
             value={decision}
             onChange={setDecision}
             options={DECISIONS}
             label={decisionLabel}
             hint={decisionHint}
+            unavailable={null}
           />
         </ManagerApprovalModal>
       );
@@ -326,11 +266,13 @@ export const ClaimStepDialog = ({
           }}
         >
           <ChoiceCards
+            groupLabel={t('What the supplier did')}
             value={outcome}
             onChange={setOutcome}
             options={OUTCOMES}
             label={outcomeLabel}
             hint={null}
+            unavailable={null}
           />
           <Textarea
             label={t('Note (optional)')}

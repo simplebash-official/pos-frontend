@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Anchor, Button, Group } from '@mantine/core';
-import { IconClipboardCheck, IconReplace } from '@tabler/icons-react';
+import { IconClipboardCheck, IconListCheck, IconReplace } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
@@ -9,10 +9,11 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { canQuickReplace, canStartClaim } from '../lib/warrantyView';
 import type { Warranty, WarrantyClaim } from '../types';
+import { ClaimWizardModal } from './ClaimWizardModal';
 import { QuickReplaceModal } from './QuickReplaceModal';
 import { StartClaimModal } from './StartClaimModal';
 
-type OpenWindow = 'start' | 'replace' | null;
+type OpenWindow = 'start' | 'replace' | 'process' | null;
 
 export interface ClaimLauncherProps {
   warranty: Warranty;
@@ -72,35 +73,65 @@ export const ClaimLauncher = ({
             {`${t('Open claim')} ${started.claimNumber}`}
           </Anchor>
         )}
-        {canQuickReplace(warranty) && (
-          <Button
-            size={size}
-            h={height}
-            variant={compact ? 'light' : 'default'}
-            leftSection={compact ? undefined : <IconReplace size={16} />}
-            onClick={() => show('replace')}
-            data-log-id="warranties.open-quick-replace"
-          >
-            {t('Replace now')}
-          </Button>
-        )}
-        {canStartClaim(warranty) && (
-          <Button
-            size={size}
-            h={height}
-            variant={variant}
-            leftSection={compact ? undefined : <IconClipboardCheck size={16} />}
-            onClick={() => show('start')}
-            data-log-id="warranties.open-start-claim"
-          >
-            {warranty.state === 'expired' && !selfApproves
-              ? t('Claim with manager approval')
-              : t('Start claim')}
-          </Button>
+        {selfApproves ? (
+          canStartClaim(warranty) && (
+            <>
+              <Button
+                size={size}
+                h={height}
+                variant="default"
+                leftSection={compact ? undefined : <IconClipboardCheck size={16} />}
+                onClick={() => show('start')}
+                data-log-id="warranties.open-start-claim"
+              >
+                {t('Take in for later')}
+              </Button>
+              <Button
+                size={size}
+                h={height}
+                variant="filled"
+                leftSection={compact ? undefined : <IconListCheck size={16} />}
+                onClick={() => show('process')}
+                data-log-id="warranties.open-process-claim"
+              >
+                {t('Process claim')}
+              </Button>
+            </>
+          )
+        ) : (
+          <>
+            {canQuickReplace(warranty) && (
+              <Button
+                size={size}
+                h={height}
+                variant={compact ? 'light' : 'default'}
+                leftSection={compact ? undefined : <IconReplace size={16} />}
+                onClick={() => show('replace')}
+                data-log-id="warranties.open-quick-replace"
+              >
+                {t('Replace now')}
+              </Button>
+            )}
+            {canStartClaim(warranty) && (
+              <Button
+                size={size}
+                h={height}
+                variant={variant}
+                leftSection={compact ? undefined : <IconClipboardCheck size={16} />}
+                onClick={() => show('start')}
+                data-log-id="warranties.open-start-claim"
+              >
+                {warranty.state === 'expired' ? t('Claim with manager approval') : t('Start claim')}
+              </Button>
+            )}
+          </>
         )}
       </Group>
       {openWindow === 'start' && (
         <StartClaimModal warranty={warranty} onClose={() => show(null)} onStarted={done} />
+      )}
+      {openWindow === 'process' && (
+        <ClaimWizardModal warranty={warranty} onClose={() => show(null)} onDone={done} />
       )}
       {openWindow === 'replace' && (
         <QuickReplaceModal warranty={warranty} onClose={() => show(null)} onReplaced={done} />

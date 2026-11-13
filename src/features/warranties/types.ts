@@ -315,8 +315,18 @@ export interface ReplacementInput {
   sellingPriceCents?: number;
 }
 
-/** One window that swaps a unit: the intake, what was found, the new unit and a manager's PIN. */
-export interface QuickReplaceInput {
+/** How a repair decided in one go ends: finished and handed back now, or left open for later. */
+export type RepairFinishInput = { when: 'now'; resolutionNote?: string } | { when: 'later' };
+
+/** What a claim processed in one request is decided as, and what is done about it straight away. */
+export type ProcessOutcomeInput =
+  | { decision: 'replace'; replacement: ReplacementInput; resolutionNote?: string }
+  | { decision: 'repair'; finish: RepairFinishInput }
+  | { decision: 'refund' }
+  | { decision: 'reject'; handBack: boolean };
+
+/** A claim taken in, inspected and decided, with the outcome carried out, by one request. */
+export interface ProcessClaimInput {
   warrantyKey: string;
   quantity?: number;
   serialNumber?: string;
@@ -324,8 +334,7 @@ export interface QuickReplaceInput {
   voidChecks: VoidChecks;
   conditions?: string[];
   inspectionNotes: string;
-  replacement: ReplacementInput;
-  resolutionNote?: string;
+  outcome: ProcessOutcomeInput;
   /** Staff send a manager's PIN and reason; a signed-in Admin or Manager sends none. */
   approval?: ManagerApproval;
 }

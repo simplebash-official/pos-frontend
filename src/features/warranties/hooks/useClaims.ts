@@ -15,7 +15,7 @@ import {
   inspectClaim,
   openClaim,
   openClaimsBatch,
-  quickReplaceClaim,
+  processClaim,
   recordSupplierReturn,
   resolveClaim,
   returnClaimToCustomer,
@@ -29,7 +29,7 @@ import type {
   OpenClaimInput,
   OpenClaimsBatchInput,
   OpenClaimsBatchResponse,
-  QuickReplaceInput,
+  ProcessClaimInput,
   ReplacementInput,
   SupplierOutcome,
   WarrantyClaim,
@@ -108,15 +108,16 @@ export const useOpenClaimsBatch = () => {
   });
 };
 
-export const useQuickReplace = () => {
+/** A claim taken from the counter to its decision, and on through its outcome, in one request. */
+export const useProcessClaim = () => {
   const refresh = useRefreshClaims();
   return useMutation({
-    mutationFn: (input: QuickReplaceInput) => quickReplaceClaim(input),
+    mutationFn: (input: ProcessClaimInput) => processClaim(input),
     onSuccess: () => refresh(),
     meta: feedbackMeta<WarrantyClaim>({
-      successTitle: t('Unit replaced'),
+      successTitle: t('Claim processed'),
       successMessage: claimNumber,
-      failureTitle: t('The unit was not replaced'),
+      failureTitle: t('The claim was not processed'),
     }),
   });
 };

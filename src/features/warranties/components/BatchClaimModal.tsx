@@ -32,6 +32,7 @@ import {
 } from '../lib/batchClaim';
 import { damageProblem, emptyStory, issueProblem, type Story } from '../lib/claimIntake';
 import { validUntil } from '../lib/warrantyView';
+import { focusFirstInvalid } from '../lib/focusFirstInvalid';
 import type { ManagerApproval, Warranty, WarrantyClaim } from '../types';
 import { ConditionsField, IssueField, UnitsFields } from './ClaimIntakeFields';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
@@ -97,18 +98,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
       ? `${incomplete} ${incomplete === 1 ? t('item needs details') : t('items need details')}`
       : null;
 
-  // Take the person to the first thing still missing instead of leaving them to hunt for it.
-  const showFirstProblem = () =>
-    requestAnimationFrame(() => {
-      const field = bodyRef.current?.querySelector<HTMLElement>(
-        '[aria-invalid="true"], [data-invalid="true"]'
-      );
-      const target = field?.matches('input, textarea, button')
-        ? field
-        : field?.querySelector<HTMLElement>('button');
-      target?.scrollIntoView({ block: 'center' });
-      target?.focus({ preventScroll: true });
-    });
+  const showFirstProblem = () => focusFirstInvalid(bodyRef.current);
 
   const submit = (approval: ManagerApproval | undefined) => {
     setTried(true);

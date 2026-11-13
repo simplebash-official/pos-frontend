@@ -1,3 +1,4 @@
+import { ROUTES } from '@/constants';
 import { t } from '@/shared/i18n/t';
 import type {
   ClaimDecision,
@@ -201,3 +202,7 @@ export const claimActions = (claim: WarrantyClaim, onRepairWork: boolean): Claim
       return paidRepair;
   }
 };
+
+/** Where a claim decided as a refund goes to give the money back: its invoice, with the credit note ready. */
+export const refundPath = (claim: Pick<WarrantyClaim, 'invoiceKey' | 'key'>): string =>
+  `${ROUTES.INVOICES}?invoiceKey=${claim.invoiceKey}&refundClaim=${claim.key}`;

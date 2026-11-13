@@ -47,6 +47,7 @@ import {
   decisionLabel,
   needsAttention,
   outcomeLabel,
+  refundPath,
   tickedChecks,
   type ClaimAction,
 } from '../lib/claimView';
@@ -110,7 +111,7 @@ export const ClaimDetailDrawer = ({
 
   const start = (action: ClaimAction, current: WarrantyClaim) => {
     if (action === 'refund') {
-      navigate(`${ROUTES.INVOICES}?invoiceKey=${current.invoiceKey}&refundClaim=${current.key}`);
+      navigate(refundPath(current));
       return;
     }
     setDialog(action);
