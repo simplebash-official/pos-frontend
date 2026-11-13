@@ -98,6 +98,7 @@ export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplac
       />
       <Textarea
         label={t('What did you find?')}
+        withAsterisk
         placeholder={t('e.g. Battery swollen, no liquid marks, seal intact')}
         autosize
         minRows={2}

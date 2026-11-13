@@ -30,13 +30,19 @@ import {
   withDamage,
   type Damage,
   type IntakeState,
+  type Story,
 } from '../lib/claimIntake';
 import type { Warranty } from '../types';
 import { WarrantyStateDot } from './WarrantyStateDot';
 
-const sectionLabel = (text: string) => (
+const sectionLabel = (text: string, required = false) => (
   <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
     {text}
+    {required && (
+      <span aria-hidden style={{ color: 'var(--mantine-color-error)', marginInlineStart: 4 }}>
+        *
+      </span>
+    )}
   </Text>
 );
 
@@ -135,7 +141,7 @@ export const UnitsFields = ({
 };
 
 /** What is wrong, in the customer's words. */
-export const IssueField = ({
+export const IssueField = <T extends Story>({
   label,
   value,
   onChange,
@@ -143,8 +149,8 @@ export const IssueField = ({
   autoFocus,
 }: {
   label: string;
-  value: IntakeState;
-  onChange: (next: IntakeState) => void;
+  value: T;
+  onChange: (next: T) => void;
   error: string | null;
   autoFocus: boolean;
 }) => {
@@ -152,6 +158,7 @@ export const IssueField = ({
   return (
     <Textarea
       label={label}
+      withAsterisk
       placeholder={t('In the customer’s words, e.g. “Turns off after ten minutes”')}
       autosize
       minRows={3}
@@ -166,13 +173,13 @@ export const IssueField = ({
 };
 
 /** The condition checklist: what staff can see on the item, plus any new condition to remember. */
-export const ConditionsField = ({
+export const ConditionsField = <T extends Story>({
   value,
   onChange,
   error,
 }: {
-  value: IntakeState;
-  onChange: (next: IntakeState) => void;
+  value: T;
+  onChange: (next: T) => void;
   error: string | null;
 }) => {
   const isMobile = useIsMobile();
@@ -225,9 +232,9 @@ export const ConditionsField = ({
 
   return (
     <Stack gap="xs">
-      {sectionLabel(t('Condition checklist'))}
+      {sectionLabel(t('Condition checklist'), true)}
 
-      <Group gap="xs" grow>
+      <Group gap="xs" grow data-invalid={error !== null ? 'true' : undefined}>
         {damageChoices.map(({ damage, label, color }) => {
           const isChosen = value.damage === damage;
           return (
@@ -331,18 +338,18 @@ export const ConditionsField = ({
 
 /** Photos taken at the counter, uploaded once the claim exists. */
 export const PhotosField = ({
-  value,
+  photos,
   onChange,
 }: {
-  value: IntakeState;
-  onChange: (next: IntakeState) => void;
+  photos: File[];
+  onChange: (next: File[]) => void;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <Stack gap="xs">
       {sectionLabel(t('Photos / Attachments (optional)'))}
       <Group gap="xs" wrap="wrap">
-        {value.photos.map((file, idx) => {
+        {photos.map((file, idx) => {
           const previewUrl = URL.createObjectURL(file);
           return (
             <Box
@@ -367,9 +374,9 @@ export const PhotosField = ({
                 variant="filled"
                 style={{ position: 'absolute', top: 2, right: 2 }}
                 onClick={() => {
-                  const next = [...value.photos];
+                  const next = [...photos];
                   next.splice(idx, 1);
-                  onChange({ ...value, photos: next });
+                  onChange(next);
                 }}
                 aria-label={t('Remove photo')}
               >
@@ -385,7 +392,7 @@ export const PhotosField = ({
           onClick={() => fileInputRef.current?.click()}
           style={{ height: 72, minWidth: 72 }}
         >
-          {value.photos.length === 0 ? t('Add photos') : t('Add more')}
+          {photos.length === 0 ? t('Add photos') : t('Add more')}
         </Button>
         <input
           ref={fileInputRef}
@@ -397,7 +404,7 @@ export const PhotosField = ({
             const files = Array.from(e.currentTarget.files ?? []);
             e.currentTarget.value = '';
             if (files.length > 0) {
-              onChange({ ...value, photos: [...value.photos, ...files] });
+              onChange([...photos, ...files]);
             }
           }}
         />
@@ -436,6 +443,6 @@ export const ClaimIntakeFields = ({
       autoFocus
     />
     <ConditionsField value={value} onChange={onChange} error={damageError} />
-    <PhotosField value={value} onChange={onChange} />
+    <PhotosField photos={value.photos} onChange={(photos) => onChange({ ...value, photos })} />
   </Stack>
 );

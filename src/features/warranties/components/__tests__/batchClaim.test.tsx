@@ -155,6 +155,8 @@ const Harness = ({ role, children }: { role: 'staff' | 'manager'; children: Reac
 };
 
 const text = () => document.body.textContent ?? '';
+const buttons = (label: string) =>
+  [...document.querySelectorAll('button')].filter((b) => b.textContent === label);
 const button = (label: string) =>
   [...document.querySelectorAll('button')].find((b) => b.textContent === label) as
     HTMLButtonElement | undefined;
@@ -171,9 +173,20 @@ const typeInto = async (element: HTMLInputElement | HTMLTextAreaElement, value: 
 };
 
 const textareaByLabel = (label: string) => {
-  const found = [...document.querySelectorAll('label')].find((l) => l.textContent === label);
+  const found = [...document.querySelectorAll('label')].find(
+    (l) => l.textContent?.replace(/ ?\*$/, '') === label
+  );
   return document.getElementById(found?.getAttribute('for') ?? '') as HTMLTextAreaElement;
 };
+
+/** Switches the item at this position to its own problem. */
+const differentProblem = (position: number) =>
+  act(async () => {
+    const labels = [...document.querySelectorAll('label')].filter(
+      (l) => l.textContent === 'Different problem'
+    );
+    (labels[position] as HTMLLabelElement).click();
+  });
 
 describe('claiming several warranties at once', () => {
   let container: HTMLDivElement;
@@ -211,8 +224,9 @@ describe('claiming several warranties at once', () => {
     });
   };
 
+  // The shared question is the first box on the page; only the items' own boxes come after it.
   const writeSharedIssue = async (value: string) => {
-    await typeInto(textareaByLabel('What is wrong with these items?'), value);
+    await typeInto(document.querySelector('textarea') as HTMLTextAreaElement, value);
     await act(async () => button('Undamaged')?.click());
   };
 
@@ -251,9 +265,7 @@ describe('claiming several warranties at once', () => {
     );
     await render([PHONE, WATCH]);
     await writeSharedIssue('Stops charging');
-    const switches = [...document.querySelectorAll('input[type="checkbox"]')] as HTMLInputElement[];
-    expect(switches).toHaveLength(2);
-    await act(async () => switches[1].click());
+    await differentProblem(1);
     await typeInto(textareaByLabel('What is wrong with this item?'), 'Screen flickers');
     // The item's own story needs its own answer; its box is the last one on the page.
     const undamaged = [...document.querySelectorAll('button')].filter(
@@ -290,8 +302,10 @@ describe('claiming several warranties at once', () => {
     await render([PHONE, WATCH]);
     await act(async () => button('Start claims (2)')?.click());
     expect(text()).toContain('Please say what is wrong with it.');
-    expect(text()).toContain('Some details are missing');
+    expect(text()).toContain('2 items need details');
     expect(batch).not.toHaveBeenCalled();
+    // The first thing missing is where the cursor lands.
+    await vi.waitFor(() => expect(document.activeElement).toBe(document.querySelector('textarea')));
   });
 
   it('asks Staff for one manager PIN when a warranty has ended, and sends it once', async () => {
@@ -388,5 +402,46 @@ describe('claiming several warranties at once', () => {
     await act(async () => button('Start the claim')?.click());
     await vi.waitFor(() => expect(batch).toHaveBeenCalled());
     expect(outerSubmit).not.toHaveBeenCalled();
+  });
+  it('says which items the shared description covers, and drops it when none are left', async () => {
+    await render([PHONE, WATCH]);
+    expect(text()).toContain('What is wrong with these items?');
+    expect(text()).not.toContain('Applies to:');
+
+    await writeSharedIssue('Stops charging');
+    await differentProblem(1);
+    expect(text()).toContain('What is wrong with the other items?');
+    expect(text()).toContain('Applies to:');
+    expect(text()).not.toContain('What is wrong with these items?');
+
+    await differentProblem(0);
+    expect(text()).not.toContain('Applies to:');
+    expect(text()).not.toContain('What is wrong with the other items?');
+    expect(text()).not.toContain('What is wrong with these items?');
+    expect(document.querySelectorAll('textarea')).toHaveLength(2);
+
+    // Going back to "Same as above" brings the shared description back, as it was typed.
+    const sameAsAbove = [...document.querySelectorAll('label')].filter(
+      (l) => l.textContent === 'Same as above'
+    );
+    await act(async () => (sameAsAbove[0] as HTMLLabelElement).click());
+    expect(text()).toContain('What is wrong with the other items?');
+    expect((document.querySelector('textarea') as HTMLTextAreaElement).value).toBe(
+      'Stops charging'
+    );
+  });
+
+  it('shows what each sharing item will carry, and offers photos on every item', async () => {
+    await render([PHONE, WATCH]);
+    await writeSharedIssue('Stops charging');
+    expect(text()).toContain('“Stops charging” · Undamaged');
+    expect(buttons('Add photos')).toHaveLength(2);
+  });
+
+  it('asks for no choice when only one item is left', async () => {
+    await render([PHONE]);
+    expect(text()).toContain('What is wrong with it?');
+    expect(text()).not.toContain('Same as above');
+    expect(text()).not.toContain('Applies to:');
   });
 });

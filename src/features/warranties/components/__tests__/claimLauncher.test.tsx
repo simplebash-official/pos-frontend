@@ -143,7 +143,9 @@ const typeInto = async (element: HTMLInputElement | HTMLTextAreaElement, value: 
 };
 
 const textarea = (label: string) => {
-  const found = [...document.querySelectorAll('label')].find((l) => l.textContent === label);
+  const found = [...document.querySelectorAll('label')].find(
+    (l) => l.textContent?.replace(/ ?\*$/, '') === label
+  );
   return document.getElementById(found?.getAttribute('for') ?? '') as HTMLTextAreaElement;
 };
 

@@ -6,8 +6,10 @@ import {
   batchItemProblem,
   emptyBatchItem,
   needsApproval,
+  sharingWarranties,
+  storySummary,
 } from '../batchClaim';
-import { emptyIntake } from '../claimIntake';
+import { emptyIntake, emptyStory } from '../claimIntake';
 
 const warranty = (overrides: Partial<Warranty>): Warranty => ({
   id: '1',
@@ -39,6 +41,7 @@ describe('batch claim items', () => {
     expect(emptyBatchItem(warranty({ serialNumber: 'SN-1' }))).toEqual({
       quantity: 1,
       serialNumber: 'SN-1',
+      photos: [],
       own: null,
     });
     expect(emptyBatchItem(warranty({})).serialNumber).toBe('');
@@ -106,5 +109,27 @@ describe('batch claim items', () => {
     for (const state of ['active', 'expiring_soon', 'under_claim', 'void'] as const) {
       expect(needsApproval({ state })).toBe(false);
     }
+  });
+
+  it('knows which warranties tell the shared story', () => {
+    const a = warranty({ key: 'a' });
+    const b = warranty({ key: 'b' });
+    const items = { a: emptyBatchItem(a), b: emptyBatchItem(b) };
+    expect(sharingWarranties([a, b], items)).toEqual([a, b]);
+    const own = { ...emptyStory(), issue: 'Own', damage: 'undamaged' as const };
+    expect(sharingWarranties([a, b], { ...items, b: { ...items.b, own } })).toEqual([a]);
+    expect(sharingWarranties([a, b], { a: { ...items.a, own }, b: { ...items.b, own } })).toEqual(
+      []
+    );
+  });
+
+  it('sums a story up in one line only once it is complete', () => {
+    expect(storySummary(emptyStory())).toBeNull();
+    const story = { ...emptyStory(), issue: ' Stops charging ' };
+    expect(storySummary(story)).toBeNull();
+    expect(storySummary({ ...story, damage: 'undamaged' })).toBe('“Stops charging” · Undamaged');
+    expect(
+      storySummary({ ...story, damage: 'damaged', conditions: ['Scratched', 'Liquid damage'] })
+    ).toBe('“Stops charging” · Scratched, Liquid damage');
   });
 });

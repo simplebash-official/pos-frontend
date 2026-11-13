@@ -1,5 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Anchor, Button, Group, Modal, Paper, Stack, Switch, Text } from '@mantine/core';
+import {
+  Alert,
+  Anchor,
+  Badge,
+  Button,
+  Group,
+  Modal,
+  Paper,
+  SegmentedControl,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
@@ -11,15 +22,19 @@ import { useOpenClaimsBatch } from '../hooks/useClaims';
 import {
   batchHasProblem,
   batchItemFields,
+  batchItemProblem,
   emptyBatchItem,
   needsApproval,
+  sharingWarranties,
+  storySummary,
   type BatchItemState,
 } from '../lib/batchClaim';
-import { damageProblem, emptyIntake, issueProblem, type IntakeState } from '../lib/claimIntake';
+import { damageProblem, emptyStory, issueProblem, type Story } from '../lib/claimIntake';
 import { validUntil } from '../lib/warrantyView';
 import type { ManagerApproval, Warranty, WarrantyClaim } from '../types';
 import { ConditionsField, IssueField, PhotosField, UnitsFields } from './ClaimIntakeFields';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
+import { ModalFooter } from './ModalFooter';
 import { WarrantyStateDot } from './WarrantyStateDot';
 
 export interface BatchClaimModalProps {
@@ -42,7 +57,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
   const send = useOpenClaimsBatch();
   const photos = useUploadClaimPhotos();
   const [pending, setPending] = useState<Warranty[]>(warranties);
-  const [shared, setShared] = useState<IntakeState>(emptyIntake(null));
+  const [shared, setShared] = useState<Story>(emptyStory());
   const [items, setItems] = useState<Record<string, BatchItemState>>(() =>
     Object.fromEntries(warranties.map((w) => [w.key, emptyBatchItem(w)]))
   );
@@ -50,6 +65,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
   const [failures, setFailures] = useState<Record<string, string>>({});
   const [tried, setTried] = useState(false);
   const startedRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   // The window keeps its scroll position when only the failed items are left, so bring the
   // list of claims that did start back into view.
@@ -67,17 +83,37 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
 
   const isBusy = send.isPending || photos.uploading;
   const approvalNeeded = pending.some(needsApproval);
-  const sharedNeeded = pending.some((w) => items[w.key].own === null);
-  const missing = batchHasProblem(pending, items, shared);
+  const sharing = sharingWarranties(pending, items);
+  const single = pending.length === 1;
+  const someOwn = sharing.length < pending.length;
+  const incomplete = tried
+    ? pending.filter((w) => batchItemProblem(items[w.key], shared) !== null).length
+    : 0;
   const error = send.isError
     ? getErrorMessage(send.error)
-    : tried && missing
-      ? t('Some details are missing. Check the items marked in red.')
+    : incomplete > 0
+      ? `${incomplete} ${incomplete === 1 ? t('item needs details') : t('items need details')}`
       : null;
+
+  // Take the person to the first thing still missing instead of leaving them to hunt for it.
+  const showFirstProblem = () =>
+    requestAnimationFrame(() => {
+      const field = bodyRef.current?.querySelector<HTMLElement>(
+        '[aria-invalid="true"], [data-invalid="true"]'
+      );
+      const target = field?.matches('input, textarea, button')
+        ? field
+        : field?.querySelector<HTMLElement>('button');
+      target?.scrollIntoView({ block: 'center' });
+      target?.focus({ preventScroll: true });
+    });
 
   const submit = (approval: ManagerApproval | undefined) => {
     setTried(true);
-    if (missing) return;
+    if (batchHasProblem(pending, items, shared)) {
+      showFirstProblem();
+      return;
+    }
     const sent = pending;
     send.mutate(
       { items: sent.map((w) => batchItemFields(w, items[w.key], shared)), approval },
@@ -88,8 +124,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
           for (const result of response.results) {
             if (result.outcome === 'opened') {
               started.push(result.claim);
-              const own = items[result.warrantyKey].own;
-              if (own !== null) await photos.upload(result.claim.key, own.photos);
+              await photos.upload(result.claim.key, items[result.warrantyKey].photos);
             } else {
               reasons[result.warrantyKey] = result.error.message;
             }
@@ -119,7 +154,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
         : `${t('Start claims')} (${pending.length})`;
 
   const body = (
-    <Stack gap="md">
+    <Stack gap="md" ref={bodyRef}>
       {opened.length > 0 && (
         <Alert
           ref={startedRef}
@@ -156,18 +191,40 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
         </Text>
       </Paper>
 
-      <IssueField
-        label={t('What is wrong with these items?')}
-        value={shared}
-        onChange={setShared}
-        error={tried && sharedNeeded ? issueProblem(shared) : null}
-        autoFocus
-      />
-      <ConditionsField
-        value={shared}
-        onChange={setShared}
-        error={tried && sharedNeeded ? damageProblem(shared) : null}
-      />
+      {sharing.length > 0 && (
+        <Stack gap="xs">
+          {someOwn && (
+            <Group gap={6} align="center">
+              <Text size="xs" c="dimmed">
+                {t('Applies to:')}
+              </Text>
+              {sharing.map((warranty) => (
+                <Badge key={warranty.key} variant="light" tt="none" fw={600}>
+                  {warranty.itemName}
+                </Badge>
+              ))}
+            </Group>
+          )}
+          <IssueField
+            label={
+              single
+                ? t('What is wrong with it?')
+                : someOwn
+                  ? t('What is wrong with the other items?')
+                  : t('What is wrong with these items?')
+            }
+            value={shared}
+            onChange={setShared}
+            error={tried ? issueProblem(shared) : null}
+            autoFocus
+          />
+          <ConditionsField
+            value={shared}
+            onChange={setShared}
+            error={tried ? damageProblem(shared) : null}
+          />
+        </Stack>
+      )}
 
       <Stack gap="sm">
         <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
@@ -177,6 +234,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
           const item = items[warranty.key];
           const own = item.own;
           const failure = warranty.key in failures ? failures[warranty.key] : null;
+          const summary = storySummary(shared);
           return (
             <Paper key={warranty.key} withBorder p="sm">
               <Stack gap="sm">
@@ -209,19 +267,36 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                   onChange={(units) => setItem(warranty.key, { ...item, ...units })}
                 />
 
-                <Switch
-                  label={t('Different problem for this item')}
-                  size={isMobile ? 'md' : 'sm'}
-                  checked={own !== null}
-                  onChange={(event) =>
-                    setItem(warranty.key, {
-                      ...item,
-                      own: event.currentTarget.checked ? emptyIntake(warranty) : null,
-                    })
-                  }
-                />
+                {!single && (
+                  <SegmentedControl
+                    fullWidth
+                    size={isMobile ? 'md' : 'sm'}
+                    value={own === null ? 'shared' : 'own'}
+                    onChange={(choice) =>
+                      setItem(warranty.key, {
+                        ...item,
+                        own: choice === 'own' ? emptyStory() : null,
+                      })
+                    }
+                    data={[
+                      { value: 'shared', label: t('Same as above') },
+                      { value: 'own', label: t('Different problem') },
+                    ]}
+                  />
+                )}
+                {own === null && !single && (
+                  <Text size="sm" c={summary === null ? 'red' : 'dimmed'} lineClamp={2}>
+                    {summary ?? (tried ? t('Not filled in yet') : null)}
+                  </Text>
+                )}
                 {own !== null && (
-                  <Stack gap="md">
+                  <Stack
+                    gap="md"
+                    pl="sm"
+                    style={{
+                      borderInlineStart: '3px solid var(--mantine-primary-color-filled)',
+                    }}
+                  >
                     <IssueField
                       label={t('What is wrong with this item?')}
                       value={own}
@@ -234,12 +309,12 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                       onChange={(next) => setItem(warranty.key, { ...item, own: next })}
                       error={tried ? damageProblem(own) : null}
                     />
-                    <PhotosField
-                      value={own}
-                      onChange={(next) => setItem(warranty.key, { ...item, own: next })}
-                    />
                   </Stack>
                 )}
+                <PhotosField
+                  photos={item.photos}
+                  onChange={(next) => setItem(warranty.key, { ...item, photos: next })}
+                />
 
                 {failure !== null && (
                   <Text size="sm" c="red" role="alert">
@@ -300,19 +375,14 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
       >
         <Stack gap="md">
           {body}
-          {error !== null && (
-            <Text size="sm" c="red" role="alert">
-              {error}
-            </Text>
-          )}
-          <Group justify="flex-end" mt="md" gap="sm">
+          <ModalFooter note={error}>
             <Button variant="default" onClick={close} disabled={isBusy}>
               {opened.length > 0 ? t('Close') : t('Cancel')}
             </Button>
             <Button type="submit" loading={isBusy} data-log-id="warranties.start-claims-batch">
               {startLabel}
             </Button>
-          </Group>
+          </ModalFooter>
         </Stack>
       </form>
     </Modal>

@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from 'react';
-import { Alert, Button, Group, Modal, PasswordInput, Stack, Text, Textarea } from '@mantine/core';
+import { Alert, Button, Modal, PasswordInput, Stack, Text, Textarea } from '@mantine/core';
 import { IconLock } from '@tabler/icons-react';
 import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import type { ManagerApproval } from '../types';
+import { ModalFooter } from './ModalFooter';
 
 export interface ManagerApprovalModalProps {
   opened: boolean;
@@ -137,12 +138,7 @@ export const ManagerApprovalModal = ({
               </Stack>
             </Alert>
           )}
-          {error !== null && (
-            <Text size="sm" c="red" role="alert">
-              {error}
-            </Text>
-          )}
-          <Group justify="flex-end" mt="md" gap="sm">
+          <ModalFooter note={error}>
             <Button variant="default" onClick={close} disabled={loading}>
               {t('Cancel')}
             </Button>
@@ -154,7 +150,7 @@ export const ManagerApprovalModal = ({
             >
               {confirmLabel}
             </Button>
-          </Group>
+          </ModalFooter>
         </Stack>
       </form>
     </Modal>
