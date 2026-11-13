@@ -34,7 +34,7 @@ import {
   KpiTile,
   RichDrawer,
 } from '@/shared/components/drawer';
-import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { useCanSelfApprove, useHasPermission } from '@/shared/hooks/usePermissions';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -93,6 +93,7 @@ export const ClaimDetailDrawer = ({
   const claim = query.data;
   const warranty = useWarranty(claim === undefined ? null : claim.warrantyKey);
   const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
+  const selfApproves = useCanSelfApprove();
   const canRepair = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const canSeePhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_VIEW);
   const canAddPhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_CREATE);
@@ -219,7 +220,9 @@ export const ClaimDetailDrawer = ({
                     value={c.decision === undefined ? t('Not yet') : decisionLabel(c.decision)}
                     hint={
                       c.decidedByName === undefined
-                        ? t('A manager decides')
+                        ? selfApproves
+                          ? t('Waiting for a decision')
+                          : t('A manager decides')
                         : `${t('By')} ${c.decidedByName}`
                     }
                     color="grape"

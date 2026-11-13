@@ -6,8 +6,6 @@ import { intakeClaimFields, intakeProblem, type Story } from './claimIntake';
 export interface BatchItemState {
   quantity: number;
   serialNumber: string;
-  /** Photos of this item, whichever story it tells. */
-  photos: File[];
   /** This item's own story; `null` means it shares what was written for the other items. */
   own: Story | null;
 }
@@ -15,7 +13,6 @@ export interface BatchItemState {
 export const emptyBatchItem = (warranty: Warranty): BatchItemState => ({
   quantity: 1,
   serialNumber: warranty.serialNumber ?? '',
-  photos: [],
   own: null,
 });
 

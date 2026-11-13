@@ -3,7 +3,6 @@ import { Textarea } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
-import { useUploadClaimPhotos } from '../hooks/useClaimPhotos';
 import { useQuickReplace } from '../hooks/useClaims';
 import {
   emptyIntake,
@@ -31,7 +30,6 @@ export interface QuickReplaceModalProps {
 export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplaceModalProps) => {
   const isMobile = useIsMobile();
   const replace = useQuickReplace();
-  const photos = useUploadClaimPhotos();
   const [intake, setIntake] = useState<IntakeState>(emptyIntake(warranty));
   const [found, setFound] = useState('');
   const [serial, setSerial] = useState<string | null>(null);
@@ -65,8 +63,7 @@ export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplac
         approval,
       },
       {
-        onSuccess: async (claim) => {
-          await photos.upload(claim.key, intake.photos);
+        onSuccess: (claim) => {
           onReplaced(claim);
         },
       }
@@ -85,7 +82,7 @@ export const QuickReplaceModal = ({ warranty, onClose, onReplaced }: QuickReplac
       confirmLabel={t('Hand over the new unit')}
       confirmColor="blue"
       blocker={problem()}
-      loading={replace.isPending || photos.uploading}
+      loading={replace.isPending}
       error={replace.isError ? getErrorMessage(replace.error) : null}
       onConfirm={submit}
     >

@@ -43,7 +43,6 @@ describe('claim intake', () => {
       issue: '',
       damage: null,
       conditions: [],
-      photos: [],
     });
   });
 

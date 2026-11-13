@@ -10,14 +10,15 @@ import {
   SegmentedControl,
   Stack,
   Text,
+  useMantineTheme,
 } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
+import { IconAlertCircle, IconCheck, IconCircleCheck } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
-import { useUploadClaimPhotos } from '../hooks/useClaimPhotos';
 import { useOpenClaimsBatch } from '../hooks/useClaims';
 import {
   batchHasProblem,
@@ -32,7 +33,7 @@ import {
 import { damageProblem, emptyStory, issueProblem, type Story } from '../lib/claimIntake';
 import { validUntil } from '../lib/warrantyView';
 import type { ManagerApproval, Warranty, WarrantyClaim } from '../types';
-import { ConditionsField, IssueField, PhotosField, UnitsFields } from './ClaimIntakeFields';
+import { ConditionsField, IssueField, UnitsFields } from './ClaimIntakeFields';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
 import { ModalFooter } from './ModalFooter';
 import { WarrantyStateDot } from './WarrantyStateDot';
@@ -53,9 +54,10 @@ export interface BatchClaimModalProps {
  */
 export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimModalProps) => {
   const isMobile = useIsMobile();
+  const theme = useMantineTheme();
+  const selfApproves = useCanSelfApprove();
   const navigate = useNavigate();
   const send = useOpenClaimsBatch();
-  const photos = useUploadClaimPhotos();
   const [pending, setPending] = useState<Warranty[]>(warranties);
   const [shared, setShared] = useState<Story>(emptyStory());
   const [items, setItems] = useState<Record<string, BatchItemState>>(() =>
@@ -81,7 +83,7 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
   const setItem = (key: string, next: BatchItemState) =>
     setItems((previous) => ({ ...previous, [key]: next }));
 
-  const isBusy = send.isPending || photos.uploading;
+  const isBusy = send.isPending;
   const approvalNeeded = pending.some(needsApproval);
   const sharing = sharingWarranties(pending, items);
   const single = pending.length === 1;
@@ -118,13 +120,12 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
     send.mutate(
       { items: sent.map((w) => batchItemFields(w, items[w.key], shared)), approval },
       {
-        onSuccess: async (response) => {
+        onSuccess: (response) => {
           const started: WarrantyClaim[] = [];
           const reasons: Record<string, string> = {};
           for (const result of response.results) {
             if (result.outcome === 'opened') {
               started.push(result.claim);
-              await photos.upload(result.claim.key, items[result.warrantyKey].photos);
             } else {
               reasons[result.warrantyKey] = result.error.message;
             }
@@ -253,7 +254,9 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                     </Text>
                     {needsApproval(warranty) && (
                       <Text size="xs" c="orange" fw={600}>
-                        {t('Ended. A manager or owner must accept it.')}
+                        {selfApproves
+                          ? t('Warranty ended')
+                          : t('Ended. A manager or owner must accept it.')}
                       </Text>
                     )}
                   </Stack>
@@ -270,7 +273,10 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                 {!single && (
                   <SegmentedControl
                     fullWidth
+                    radius="md"
+                    color={theme.primaryColor}
                     size={isMobile ? 'md' : 'sm'}
+                    styles={{ label: { fontWeight: 600 } }}
                     value={own === null ? 'shared' : 'own'}
                     onChange={(choice) =>
                       setItem(warranty.key, {
@@ -285,9 +291,25 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                   />
                 )}
                 {own === null && !single && (
-                  <Text size="sm" c={summary === null ? 'red' : 'dimmed'} lineClamp={2}>
-                    {summary ?? (tried ? t('Not filled in yet') : null)}
-                  </Text>
+                  <Group gap={6} wrap="nowrap" align="flex-start">
+                    {summary !== null ? (
+                      <IconCircleCheck
+                        size={16}
+                        color="var(--mantine-color-teal-filled)"
+                        style={{ flexShrink: 0, marginTop: 2 }}
+                      />
+                    ) : tried ? (
+                      <IconAlertCircle
+                        size={16}
+                        color="var(--mantine-color-red-filled)"
+                        style={{ flexShrink: 0, marginTop: 2 }}
+                      />
+                    ) : null}
+                    <Text size="sm" c={summary === null && tried ? 'red' : 'dimmed'} lineClamp={2}>
+                      {summary ??
+                        (tried ? t('Not filled in yet') : t('Uses the description above'))}
+                    </Text>
+                  </Group>
                 )}
                 {own !== null && (
                   <Stack
@@ -311,10 +333,6 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
                     />
                   </Stack>
                 )}
-                <PhotosField
-                  photos={item.photos}
-                  onChange={(next) => setItem(warranty.key, { ...item, photos: next })}
-                />
 
                 {failure !== null && (
                   <Text size="sm" c="red" role="alert">
@@ -335,9 +353,13 @@ export const BatchClaimModal = ({ warranties, onClose, onOpened }: BatchClaimMod
         opened
         onClose={close}
         title={t('Start warranty claims')}
-        description={`${t('Some of these warranties have ended.')} ${t(
-          'A manager or owner can still accept their claims as a goodwill gesture.'
-        )}`}
+        description={
+          selfApproves
+            ? t('Some of these warranties have ended.')
+            : `${t('Some of these warranties have ended.')} ${t(
+                'A manager or owner can still accept their claims as a goodwill gesture.'
+              )}`
+        }
         reasonLabel={t('Why are they being accepted?')}
         confirmLabel={startLabel}
         confirmColor="blue"

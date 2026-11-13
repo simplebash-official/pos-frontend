@@ -40,14 +40,14 @@ const warrantyLabel = (warranty: Warranty): string => {
   return validUntil(warranty);
 };
 
-/** The warranty's state, and under it which unit it is for and how long it lasts. */
+/** The warranty's state with which unit it is for and how long it lasts, on one line (wrapping when narrow). */
 const WarrantyRowInfo = ({ warranty }: { warranty: Warranty }) => (
-  <Stack gap={0} style={{ minWidth: 0 }}>
+  <Group gap="xs" align="baseline" wrap="wrap" style={{ minWidth: 0 }}>
     <WarrantyStateDot state={warranty.state} size="xs" />
-    <Text size="3xs" c="dimmed" lineClamp={2} title={warrantyLabel(warranty)}>
+    <Text size="3xs" c="dimmed" title={warrantyLabel(warranty)}>
       {warrantyLabel(warranty)}
     </Text>
-  </Stack>
+  </Group>
 );
 
 /** Width of the tick box, so a row without one still lines up with the rows that have it. */

@@ -41,7 +41,6 @@ describe('batch claim items', () => {
     expect(emptyBatchItem(warranty({ serialNumber: 'SN-1' }))).toEqual({
       quantity: 1,
       serialNumber: 'SN-1',
-      photos: [],
       own: null,
     });
     expect(emptyBatchItem(warranty({})).serialNumber).toBe('');

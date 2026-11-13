@@ -86,7 +86,7 @@ export const InvoiceClaimsCard = ({
                     {t('Give the refund')}
                   </Button>
                 ) : (
-                  <Button size="xs" variant="subtle" onClick={() => onOpen(claim.key)}>
+                  <Button size="xs" variant="default" onClick={() => onOpen(claim.key)}>
                     {t('Open')}
                   </Button>
                 )}

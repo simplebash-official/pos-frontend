@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
 import { useOpenClaim } from '../hooks/useClaims';
-import { useUploadClaimPhotos } from '../hooks/useClaimPhotos';
 import {
   emptyIntake,
   intakeClaimFields,
@@ -33,7 +33,7 @@ export interface StartClaimModalProps {
 export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModalProps) => {
   const isMobile = useIsMobile();
   const open = useOpenClaim();
-  const photos = useUploadClaimPhotos();
+  const selfApproves = useCanSelfApprove();
   const [state, setState] = useState<IntakeState>(emptyIntake(warranty));
   const [tried, setTried] = useState(false);
 
@@ -49,7 +49,7 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
   const problem = intakeProblem(state);
   const expired = warranty.state === 'expired';
   const error = open.isError ? getErrorMessage(open.error) : null;
-  const isBusy = open.isPending || photos.uploading;
+  const isBusy = open.isPending;
 
   const submit = (approval: ManagerApproval | undefined) => {
     setTried(true);
@@ -61,8 +61,7 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
         approval,
       },
       {
-        onSuccess: async (claim) => {
-          await photos.upload(claim.key, state.photos);
+        onSuccess: (claim) => {
           setState(emptyIntake(null));
           setTried(false);
           onStarted(claim);
@@ -87,9 +86,11 @@ export const StartClaimModal = ({ warranty, onClose, onStarted }: StartClaimModa
         opened
         onClose={close}
         title={t('Start a claim on an ended warranty')}
-        description={`${t('This warranty ended on')} ${formatDate(
-          warranty.endsOn as string
-        )}. ${t('A manager or owner can still accept the claim as a goodwill gesture.')}`}
+        description={`${t('This warranty ended on')} ${formatDate(warranty.endsOn as string)}.${
+          selfApproves
+            ? ''
+            : ` ${t('A manager or owner can still accept the claim as a goodwill gesture.')}`
+        }`}
         reasonLabel={t('Why is it being accepted?')}
         confirmLabel={t('Start the claim')}
         confirmColor="blue"

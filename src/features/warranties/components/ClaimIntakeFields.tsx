@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActionIcon,
   Alert,
@@ -15,10 +15,9 @@ import {
 import {
   IconAlertTriangle,
   IconCheck,
+  IconCircleCheck,
   IconInfoCircle,
-  IconPhoto,
   IconPlus,
-  IconTrash,
 } from '@tabler/icons-react';
 import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -183,7 +182,7 @@ export const ConditionsField = <T extends Story>({
   error: string | null;
 }) => {
   const isMobile = useIsMobile();
-  // Whoever can approve reviews the claim themselves, so the hint is for staff only.
+  // Whoever can approve reviews the claim themselves, so these notes are for staff only.
   const selfApproves = useCanSelfApprove();
   const conditionsQuery = useWarrantyConditions();
   const createConditionMutation = useCreateWarrantyCondition();
@@ -243,11 +242,18 @@ export const ConditionsField = <T extends Story>({
               type="button"
               variant={isChosen ? 'light' : 'default'}
               color={isChosen ? color : 'gray'}
-              leftSection={isChosen ? <IconCheck size={16} /> : undefined}
+              leftSection={
+                damage === 'undamaged' ? (
+                  <IconCircleCheck size={18} />
+                ) : (
+                  <IconAlertTriangle size={18} />
+                )
+              }
+              radius="md"
               aria-pressed={isChosen}
               onClick={() => onChange(withDamage(value, damage))}
               style={{
-                minHeight: isMobile ? 44 : 36,
+                minHeight: isMobile ? 44 : 40,
                 borderColor: isChosen ? `var(--mantine-color-${color}-filled)` : undefined,
                 fontWeight: isChosen ? 600 : 500,
               }}
@@ -315,100 +321,22 @@ export const ConditionsField = <T extends Story>({
             size={isMobile ? 'md' : 'sm'}
           />
 
-          {value.conditions.length > 0 ? (
-            <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
-              {t(
-                'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
-              )}
-            </Alert>
-          ) : (
-            !selfApproves && (
+          {!selfApproves &&
+            (value.conditions.length > 0 ? (
+              <Alert color="orange" icon={<IconAlertTriangle size={16} />} p="xs">
+                {t(
+                  'This may mean the warranty does not cover the fault. Selecting an item flags the claim for manager review during inspection, rather than auto-rejecting it.'
+                )}
+              </Alert>
+            ) : (
               <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />} p="xs">
                 {t(
                   'Ticking any item flags the claim for manager review during inspection; it does not automatically reject the claim.'
                 )}
               </Alert>
-            )
-          )}
+            ))}
         </>
       )}
-    </Stack>
-  );
-};
-
-/** Photos taken at the counter, uploaded once the claim exists. */
-export const PhotosField = ({
-  photos,
-  onChange,
-}: {
-  photos: File[];
-  onChange: (next: File[]) => void;
-}) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  return (
-    <Stack gap="xs">
-      {sectionLabel(t('Photos / Attachments (optional)'))}
-      <Group gap="xs" wrap="wrap">
-        {photos.map((file, idx) => {
-          const previewUrl = URL.createObjectURL(file);
-          return (
-            <Box
-              key={idx}
-              style={{
-                position: 'relative',
-                width: 72,
-                height: 72,
-                borderRadius: 6,
-                overflow: 'hidden',
-                border: '1px solid var(--mantine-color-default-border)',
-              }}
-            >
-              <img
-                src={previewUrl}
-                alt={file.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <ActionIcon
-                size="xs"
-                color="red"
-                variant="filled"
-                style={{ position: 'absolute', top: 2, right: 2 }}
-                onClick={() => {
-                  const next = [...photos];
-                  next.splice(idx, 1);
-                  onChange(next);
-                }}
-                aria-label={t('Remove photo')}
-              >
-                <IconTrash size={12} />
-              </ActionIcon>
-            </Box>
-          );
-        })}
-        <Button
-          variant="default"
-          size="xs"
-          leftSection={<IconPhoto size={14} />}
-          onClick={() => fileInputRef.current?.click()}
-          style={{ height: 72, minWidth: 72 }}
-        >
-          {photos.length === 0 ? t('Add photos') : t('Add more')}
-        </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const files = Array.from(e.currentTarget.files ?? []);
-            e.currentTarget.value = '';
-            if (files.length > 0) {
-              onChange([...photos, ...files]);
-            }
-          }}
-        />
-      </Group>
     </Stack>
   );
 };
@@ -443,6 +371,5 @@ export const ClaimIntakeFields = ({
       autoFocus
     />
     <ConditionsField value={value} onChange={onChange} error={damageError} />
-    <PhotosField photos={value.photos} onChange={(photos) => onChange({ ...value, photos })} />
   </Stack>
 );

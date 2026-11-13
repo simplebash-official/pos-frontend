@@ -304,6 +304,8 @@ describe('warranty claim screens', () => {
       expect(text()).not.toContain('A manager or owner must approve this');
       expect(text()).not.toContain('Manager or owner PIN');
       expect(text()).toContain('This will be recorded as approved by you.');
+      expect(text()).toContain('This warranty ended on');
+      expect(text()).not.toContain('goodwill');
 
       const issue = document.querySelector('textarea') as HTMLTextAreaElement;
       await act(async () => {
@@ -317,6 +319,51 @@ describe('warranty claim screens', () => {
       expect(api.open.mock.calls[0][0].approval).toBeUndefined();
     }
   );
+
+  it.each(['manager', 'admin'] as const)(
+    'tells a signed-in %s nothing about manager review while ticking conditions',
+    async (role) => {
+      await render(
+        <StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={vi.fn()} />,
+        role
+      );
+      await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+      await press('Has damage');
+      expect(text()).not.toContain('manager review');
+      const liquid = [...document.querySelectorAll('button')].find((b) =>
+        b.textContent?.includes('Liquid damage')
+      ) as HTMLButtonElement;
+      await act(async () => liquid.click());
+      expect(text()).not.toContain('manager review');
+      expect(text()).not.toContain('does not cover the fault');
+    }
+  );
+
+  it('tells Staff that a ticked condition goes to a manager', async () => {
+    await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={vi.fn()} />);
+    await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+    await press('Has damage');
+    expect(text()).toContain('flags the claim for manager review');
+    const liquid = [...document.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Liquid damage')
+    ) as HTMLButtonElement;
+    await act(async () => liquid.click());
+    expect(text()).toContain('does not cover the fault');
+  });
+
+  it('says who decides a claim only to Staff', async () => {
+    api.detail.mockResolvedValue(CLAIM);
+    await render(<ClaimDetailDrawer claimKey="wcl_1" onClose={vi.fn()} onOpenWarranty={vi.fn()} />);
+    await vi.waitFor(() => expect(text()).toContain('A manager decides'));
+    act(() => root.unmount());
+    root = createRoot(container);
+    await render(
+      <ClaimDetailDrawer claimKey="wcl_1" onClose={vi.fn()} onOpenWarranty={vi.fn()} />,
+      'manager'
+    );
+    await vi.waitFor(() => expect(text()).toContain('Waiting for a decision'));
+    expect(text()).not.toContain('A manager decides');
+  });
 
   it('shows where a claim is and offers its next step', async () => {
     api.detail.mockResolvedValue(CLAIM);

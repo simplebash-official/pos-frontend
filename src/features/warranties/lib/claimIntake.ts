@@ -19,7 +19,6 @@ export interface IntakeState extends Story {
   quantity: number;
   serialNumber: string;
   technicianKey: string | null;
-  photos: File[];
 }
 
 export const emptyStory = (): Story => ({
@@ -34,7 +33,6 @@ export const emptyIntake = (warranty: Warranty | null): IntakeState => ({
   quantity: 1,
   serialNumber: warranty?.serialNumber ?? '',
   technicianKey: null,
-  photos: [],
 });
 
 /** The units of a warranty nobody has claimed yet; at least one so the field always has a range. */

@@ -155,8 +155,6 @@ const Harness = ({ role, children }: { role: 'staff' | 'manager'; children: Reac
 };
 
 const text = () => document.body.textContent ?? '';
-const buttons = (label: string) =>
-  [...document.querySelectorAll('button')].filter((b) => b.textContent === label);
 const button = (label: string) =>
   [...document.querySelectorAll('button')].find((b) => b.textContent === label) as
     HTMLButtonElement | undefined;
@@ -317,6 +315,7 @@ describe('claiming several warranties at once', () => {
     );
     await render([PHONE, ENDED]);
     expect(text()).toContain('Ended. A manager or owner must accept it.');
+    expect(text()).toContain('can still accept their claims as a goodwill gesture');
     await writeSharedIssue('Dead');
     // The PIN comes first: nothing is sent without it.
     await act(async () => button('Start claims (2)')?.click());
@@ -344,6 +343,11 @@ describe('claiming several warranties at once', () => {
     await render([PHONE, ENDED], 'manager');
     expect(document.querySelector('input[type="password"]')).toBeNull();
     expect(text()).toContain('recorded as approved by you');
+    // Nothing in the window sends a manager to a manager.
+    expect(text()).toContain('Warranty ended');
+    expect(text()).toContain('Some of these warranties have ended.');
+    expect(text()).not.toMatch(/manager or owner/i);
+    expect(text()).not.toContain('goodwill');
     await writeSharedIssue('Dead');
     await act(async () => button('Start claims (2)')?.click());
     await vi.waitFor(() => expect(batch).toHaveBeenCalled());
@@ -431,11 +435,10 @@ describe('claiming several warranties at once', () => {
     );
   });
 
-  it('shows what each sharing item will carry, and offers photos on every item', async () => {
+  it('shows what each sharing item will carry', async () => {
     await render([PHONE, WATCH]);
     await writeSharedIssue('Stops charging');
     expect(text()).toContain('“Stops charging” · Undamaged');
-    expect(buttons('Add photos')).toHaveLength(2);
   });
 
   it('asks for no choice when only one item is left', async () => {
