@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import { t } from '@/shared/i18n/t';
 import {
+  Badge,
   Box,
   Checkbox,
   Divider,
@@ -18,6 +19,7 @@ import {
   BatchClaimBar,
   canStartClaim,
   ClaimLauncher,
+  stateLook,
   useWarranties,
   validUntil,
   WarrantyStateDot,
@@ -29,26 +31,43 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 const TABULAR = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' } as const;
 
-/** Which unit a warranty is for (its serial number, or how many units), then how long it lasts. */
-const warrantyLabel = (warranty: Warranty): string => {
-  if (warranty.serialNumber !== undefined) {
-    return `${warranty.serialNumber} · ${validUntil(warranty)}`;
-  }
-  if (warranty.quantity > 1) {
-    return `${warranty.quantity} ${t('units covered')} · ${validUntil(warranty)}`;
-  }
-  return validUntil(warranty);
+/** Which unit a warranty is for (its serial number, or how many units), or `null` when it covers one plain unit. */
+const unitLabel = (warranty: Warranty): string | null => {
+  if (warranty.serialNumber !== undefined) return warranty.serialNumber;
+  if (warranty.quantity > 1) return `${warranty.quantity} ${t('units covered')}`;
+  return null;
 };
 
-/** The warranty's state with which unit it is for and how long it lasts, on one line (wrapping when narrow). */
-const WarrantyRowInfo = ({ warranty }: { warranty: Warranty }) => (
-  <Group gap="xs" align="baseline" wrap="wrap" style={{ minWidth: 0 }}>
-    <WarrantyStateDot state={warranty.state} size="xs" />
-    <Text size="3xs" c="dimmed" title={warrantyLabel(warranty)}>
-      {warrantyLabel(warranty)}
-    </Text>
-  </Group>
-);
+/** The warranty's state and unit on the left, and how long it lasts as a badge in the right corner. */
+const WarrantyRowInfo = ({ warranty }: { warranty: Warranty }) => {
+  const unit = unitLabel(warranty);
+  return (
+    <Group
+      gap="xs"
+      align="center"
+      justify="space-between"
+      wrap="wrap"
+      style={{ flex: 1, minWidth: 0 }}
+    >
+      <Group gap="xs" align="baseline" wrap="wrap" style={{ minWidth: 0 }}>
+        <WarrantyStateDot state={warranty.state} size="xs" />
+        {unit !== null && (
+          <Text size="3xs" c="dimmed" title={unit}>
+            {unit}
+          </Text>
+        )}
+      </Group>
+      <Badge
+        variant="light"
+        color={stateLook(warranty.state).color}
+        size="md"
+        style={{ flexShrink: 0, textTransform: 'none' }}
+      >
+        {validUntil(warranty)}
+      </Badge>
+    </Group>
+  );
+};
 
 /** Width of the tick box, so a row without one still lines up with the rows that have it. */
 const checkboxWidth = (isMobile: boolean) => (isMobile ? 24 : 20);
@@ -153,9 +172,15 @@ export const InvoiceItemsPanel = ({
                         ) : null}
                       </Text>
                       {lineWarranties === undefined && (
-                        <Text size="3xs" c="dimmed" mt={4}>
+                        <Badge
+                          variant="light"
+                          color="violet"
+                          size="md"
+                          mt={6}
+                          style={{ textTransform: 'none' }}
+                        >
                           {t('No warranty')}
-                        </Text>
+                        </Badge>
                       )}
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>

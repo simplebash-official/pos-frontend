@@ -17,6 +17,7 @@ export {
   canStartClaim,
   endsOnIfStartedToday,
   profileProblem,
+  stateLook,
   toProfileInput,
   validUntil,
 } from './lib/warrantyView';
