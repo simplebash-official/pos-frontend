@@ -1,7 +1,8 @@
 import type { PaymentMethod } from '@/constants/payment';
 import type { ReceiptSettlementInput } from '@/features/purchases/types';
 
-export type LineSourceType = 'retail' | 'repair' | 'print';
+/** `charge`: a one-time charge (a service or fee) with no stock, ticket or cost behind it. */
+export type LineSourceType = 'retail' | 'repair' | 'print' | 'charge';
 
 export interface InvoiceItem {
   id: string;
@@ -643,7 +644,12 @@ export interface CalcCheckoutReply {
   subtotalCents: number;
   orderDiscountCents: number;
   totalCents: number;
-  sourceBreakdown: { retailCents: number; repairsCents: number; printCents: number };
+  sourceBreakdown: {
+    retailCents: number;
+    repairsCents: number;
+    printCents: number;
+    chargesCents: number;
+  };
   payment: CalcCheckoutPaymentReply;
   /** Cash amounts to offer as quick buttons, smallest first. */
   quickTenderCents: number[];

@@ -243,7 +243,10 @@ const cartSlice = createSlice({
 
       // Check existing line item
       let existingIndex = -1;
-      if (sourceType === 'repair' || sourceType === 'print') {
+      if (sourceType === 'charge') {
+        // Each charge is its own line: two fees with the same name are still two fees.
+        existingIndex = -1;
+      } else if (sourceType === 'repair' || sourceType === 'print') {
         if (item.sourceTicketNumber) {
           existingIndex = state.items.findIndex(
             (i) => i.sourceTicketNumber === item.sourceTicketNumber

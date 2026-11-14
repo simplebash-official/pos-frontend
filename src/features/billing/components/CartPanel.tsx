@@ -171,6 +171,7 @@ export const CartPanel = memo(function CartPanel({
       sourceBreakdown.retailCents > 0,
       sourceBreakdown.repairsCents > 0,
       sourceBreakdown.printCents > 0,
+      sourceBreakdown.chargesCents > 0,
     ].filter(Boolean).length > 1;
 
   return (
@@ -505,6 +506,11 @@ export const CartPanel = memo(function CartPanel({
             {sourceBreakdown.printCents > 0 && (
               <Text size="xs" c="teal.7" fw={600}>
                 {t('Print:')} <b>{formatMoney(sourceBreakdown.printCents)}</b>
+              </Text>
+            )}
+            {sourceBreakdown.chargesCents > 0 && (
+              <Text size="xs" c="grape.7" fw={600}>
+                {t('Charges:')} <b>{formatMoney(sourceBreakdown.chargesCents)}</b>
               </Text>
             )}
           </Group>

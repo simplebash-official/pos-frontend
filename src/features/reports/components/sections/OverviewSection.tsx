@@ -153,7 +153,7 @@ export const OverviewSection = ({
 
         <ChartCard
           title="Revenue by stream"
-          subtitle="Retail, repairs and print over time"
+          subtitle="Retail, repairs, print and charges over time"
           loading={isLoading}
           empty={trend.length === 0}
         >
@@ -169,6 +169,7 @@ export const OverviewSection = ({
               { name: 'retail', label: t('Retail'), color: SERIES.retail },
               { name: 'repair', label: t('Repairs'), color: SERIES.repair },
               { name: 'print', label: t('Print'), color: SERIES.print },
+              { name: 'charge', label: t('Charges'), color: SERIES.charge },
             ]}
           />
         </ChartCard>

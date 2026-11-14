@@ -1,7 +1,14 @@
 import { t } from '@/shared/i18n/t';
 import { useState, memo } from 'react';
 import { Paper, Group, Box, Text, ActionIcon, Tooltip, Badge, ThemeIcon } from '@mantine/core';
-import { IconTrash, IconTools, IconPrinter, IconAlertTriangle, IconTag } from '@tabler/icons-react';
+import {
+  IconTrash,
+  IconTools,
+  IconPrinter,
+  IconAlertTriangle,
+  IconTag,
+  IconReceipt2,
+} from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
 import { formatCentsRange } from '@/features/inventory/lib/priceTiers';
@@ -73,7 +80,9 @@ export const CartLineItem = memo(function CartLineItem({
       ? 'var(--mantine-color-orange-6)'
       : sourceType === 'print'
         ? 'var(--mantine-color-teal-6)'
-        : `var(--mantine-color-${catColor}-6)`;
+        : sourceType === 'charge'
+          ? 'var(--mantine-color-grape-6)'
+          : `var(--mantine-color-${catColor}-6)`;
 
   return (
     <Paper
@@ -139,6 +148,17 @@ export const CartLineItem = memo(function CartLineItem({
                   style={{ flexShrink: 0 }}
                 >
                   {t('Print')}
+                </Badge>
+              )}
+              {sourceType === 'charge' && (
+                <Badge
+                  size="xs"
+                  color="grape"
+                  variant="light"
+                  leftSection={<IconReceipt2 size={10} />}
+                  style={{ flexShrink: 0 }}
+                >
+                  {t('Charge')}
                 </Badge>
               )}
               {sourceType === 'retail' && item.warranty !== undefined && (
