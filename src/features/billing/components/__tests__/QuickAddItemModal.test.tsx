@@ -20,7 +20,11 @@ import { QuickAddItemModal } from '../QuickAddItemModal';
 installDrawerTestEnv();
 
 let isAdmin = false;
-vi.mock('@/shared/hooks/usePermissions', () => ({ useIsAdmin: () => isAdmin }));
+let granted = new Set<string>();
+vi.mock('@/shared/hooks/usePermissions', () => ({
+  useIsAdmin: () => isAdmin,
+  useHasPermission: (permission: string) => granted.has(permission),
+}));
 
 vi.mock('@/features/inventory/hooks/useCategories', () => ({
   useCategories: () => ({ data: [], isLoading: false }),
@@ -62,10 +66,13 @@ describe('QuickAddItemModal', () => {
   let root: Root;
   const onClose = vi.fn();
   const onCreated = vi.fn();
+  const onChargeAdded = vi.fn();
 
   beforeEach(() => {
     Element.prototype.scrollIntoView ??= () => undefined;
     isAdmin = false;
+    granted = new Set(['inventory:write', 'billing:write']);
+    onChargeAdded.mockReset();
     save.mockReset();
     onClose.mockReset();
     onCreated.mockReset();
@@ -85,7 +92,13 @@ describe('QuickAddItemModal', () => {
       root.render(
         <MantineProvider env="test">
           <LayoutTierProvider>
-            <QuickAddItemModal opened onClose={onClose} seed={seed} onCreated={onCreated} />
+            <QuickAddItemModal
+              opened
+              onClose={onClose}
+              seed={seed}
+              onCreated={onCreated}
+              onChargeAdded={onChargeAdded}
+            />
           </LayoutTierProvider>
         </MantineProvider>
       );
@@ -113,6 +126,8 @@ describe('QuickAddItemModal', () => {
     Array.from(document.body.querySelectorAll<HTMLButtonElement>('button')).find(
       (b) => (b.textContent ?? '').trim() === label
     ) ?? null;
+  const modeSwitch = (value: 'item' | 'charge') =>
+    document.querySelector<HTMLInputElement>(`input[type="radio"][value="${value}"]`);
   const uncategorized = () => document.querySelector('[data-testid="quick-add-uncategorized"]');
 
   const fillTheBasics = async () => {
@@ -209,5 +224,67 @@ describe('QuickAddItemModal', () => {
     expect(text()).toContain('New category');
     expect(field('Category name').value).toBe('Gadgets');
     expect(field('First subcategory')).toBeTruthy();
+  });
+
+  describe('one-time charge', () => {
+    it('adds a charge to the cart without saving anything', async () => {
+      await render();
+      await click(modeSwitch('charge'));
+      expect(text()).toContain('Add a One-time Charge');
+      await setValue(field('What is the charge for?'), '  Delivery fee ');
+      await setValue(field('Price each'), '150');
+      await setValue(field('How many?'), '2');
+      expect(
+        document.querySelector('[data-testid="quick-add-charge-total"]')?.textContent
+      ).toContain('300');
+      await click(button('Add to cart'));
+
+      expect(onChargeAdded).toHaveBeenCalledWith({
+        name: 'Delivery fee',
+        unitPriceCents: 15000,
+        quantity: 2,
+      });
+      expect(save).not.toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('says what is missing and adds nothing', async () => {
+      await render();
+      await click(modeSwitch('charge'));
+      await click(button('Add to cart'));
+
+      expect(onChargeAdded).not.toHaveBeenCalled();
+      expect(text()).toContain('Enter what the charge is for');
+      expect(text()).toContain('Price must be greater than 0');
+    });
+
+    it('keeps the name and the price when switching between the two modes', async () => {
+      await render();
+      await setValue(field('Item name'), 'Cable fitting');
+      await setValue(field('Selling price each'), '500');
+      await click(modeSwitch('charge'));
+      expect(field('What is the charge for?').value).toBe('Cable fitting');
+      expect(field('Price each').value).toBe('500');
+
+      await setValue(field('Price each'), '650');
+      await click(modeSwitch('item'));
+      expect(field('Item name').value).toBe('Cable fitting');
+      expect(field('Selling price each').value).toBe('650');
+    });
+
+    it('shows no switch to someone who can only add a charge', async () => {
+      granted = new Set(['billing:write']);
+      await render();
+      expect(modeSwitch('item')).toBeNull();
+      expect(text()).toContain('Add a One-time Charge');
+      expect(field('What is the charge for?')).toBeTruthy();
+    });
+
+    it('shows no switch to someone who can only add a stock item', async () => {
+      granted = new Set(['inventory:write']);
+      await render();
+      expect(modeSwitch('charge')).toBeNull();
+      expect(text()).toContain('Add a New Item');
+    });
   });
 });

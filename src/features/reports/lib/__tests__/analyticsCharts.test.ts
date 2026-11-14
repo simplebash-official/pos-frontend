@@ -35,6 +35,7 @@ describe('toTrendData', () => {
     retailRevenueCents: 0,
     repairRevenueCents: 0,
     printRevenueCents: 0,
+    chargeRevenueCents: 0,
     discountCents: 0,
     cogsCents: 0,
     grossProfitCents: 0,
@@ -50,6 +51,11 @@ describe('toTrendData', () => {
       point({ revenueCents: 500_000, grossProfitCents: 200_000, grossMarginBps: 4000 }),
     ]);
     expect(row).toMatchObject({ label: '1 Aug', revenue: 5000, grossProfit: 2000, margin: 40 });
+  });
+
+  it('carries one-time charges as their own stream', () => {
+    const [row] = toTrendData([point({ revenueCents: 130_000, chargeRevenueCents: 30_000 })]);
+    expect(row).toMatchObject({ revenue: 1300, charge: 300 });
   });
 });
 

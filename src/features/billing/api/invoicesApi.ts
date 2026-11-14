@@ -1,7 +1,13 @@
 import type { ProductWarranty } from '@/features/warranties/types';
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
-import type { Invoice, InvoiceItem, InvoiceStatus, SplitPaymentDetail } from '../types';
+import type {
+  Invoice,
+  InvoiceItem,
+  InvoiceStatus,
+  LineSourceType,
+  SplitPaymentDetail,
+} from '../types';
 
 // Request shape for `POST /billing/sales` — mirrors the backend's
 // `domain::billing::CreateSaleRequest`. `cashierId` is deliberately absent:
@@ -21,7 +27,7 @@ export interface CompleteSaleItemInput {
   sourceTicketKey?: string;
   quantity: number;
   discountCents: number;
-  sourceType: 'retail' | 'repair' | 'print';
+  sourceType: LineSourceType;
   name?: string;
   sku?: string;
   unitPriceCents?: number;

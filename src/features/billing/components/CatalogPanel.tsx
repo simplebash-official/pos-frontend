@@ -69,6 +69,7 @@ import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import { seedFromTerm, type QuickAddSeed } from '@/features/inventory/lib/quickAddItem';
+import type { ChargeLine } from '../lib/quickAddCharge';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { SerialNumberPickerModal } from '@/features/inventory/components/SerialNumberPickerModal';
 import { PriceTierPickerModal } from '@/features/inventory/components/PriceTierPickerModal';
@@ -161,7 +162,11 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   const tier = useLayoutTier();
   const isAdmin = useIsAdmin();
-  const canQuickAdd = useHasPermission(PERMISSIONS.INVENTORY_WRITE);
+  // The quick-add window adds a stock item (inventory) or a one-time charge (billing); a cashier
+  // with only one of the two sees just that one.
+  const canQuickAddItem = useHasPermission(PERMISSIONS.INVENTORY_WRITE);
+  const canQuickAddCharge = useHasPermission(PERMISSIONS.BILLING_WRITE);
+  const canQuickAdd = canQuickAddItem || canQuickAddCharge;
   const isMobile = tier === 'mobile';
 
   // On a phone the scan bar is a soft-keyboard trigger, not a barcode target — stealing focus would
@@ -546,6 +551,28 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     notifications.show({
       title: t('Item added'),
       message: `"${product.name}" ${t('was saved and added to the cart.')}`,
+      color: 'green',
+    });
+  };
+
+  // A charge is not tracked in stock, so it goes straight into the cart as its own line.
+  const handleChargeAdded = (charge: ChargeLine) => {
+    const id = `item-${Date.now()}-${Math.random()}`;
+    add({
+      id,
+      productId: `charge-${id}`,
+      name: charge.name,
+      unitPriceCents: charge.unitPriceCents,
+      originalUnitPriceCents: charge.unitPriceCents,
+      quantity: charge.quantity,
+      discount: null,
+      sourceType: 'charge',
+    });
+    playScanSuccessSound(soundEnabled);
+    clearScan();
+    notifications.show({
+      title: t('Charge added'),
+      message: `"${charge.name}" ${t('was added to the cart.')}`,
       color: 'green',
     });
   };
@@ -968,13 +995,13 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
                   {canQuickAdd && (
                     <Tooltip
-                      label={isMobile ? t('Add a new item') : `${t('Add a new item')} (Alt+N)`}
+                      label={`${canQuickAddItem ? t('Add a new item') : t('Add a new charge')}${isMobile ? '' : ' (Alt+N)'}`}
                     >
                       <Button
                         type="button"
                         variant="default"
                         leftSection={<IconPlus size={18} />}
-                        aria-label={t('Add a new item')}
+                        aria-label={canQuickAddItem ? t('Add a new item') : t('Add a new charge')}
                         data-log-id="billing.quick-add-open"
                         onMouseDown={(e) => {
                           // Prevent barcode scanner input blur on desktop
@@ -983,7 +1010,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                         onClick={() => openQuickAdd(scanQuery)}
                         style={{ flexShrink: 0, height: 44 }}
                       >
-                        {isMobile ? undefined : t('New item')}
+                        {isMobile ? undefined : canQuickAddItem ? t('New item') : t('New charge')}
                       </Button>
                     </Tooltip>
                   )}
@@ -1076,7 +1103,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                       data-log-id="billing.quick-add-from-miss"
                       onClick={() => openQuickAdd(shakeError)}
                     >
-                      {t('Add as new item')}
+                      {canQuickAddItem ? t('Add as new item') : t('Add as a charge')}
                     </Anchor>
                   )}
                 </Group>
@@ -1758,6 +1785,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
             onClose={closeQuickAdd}
             seed={quickAddSeed}
             onCreated={handleQuickAdded}
+            onChargeAdded={handleChargeAdded}
           />
         </Suspense>
       )}

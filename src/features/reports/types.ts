@@ -49,6 +49,7 @@ export interface AnalyticsKpis {
   retailRevenueCents: number;
   repairRevenueCents: number;
   printRevenueCents: number;
+  chargeRevenueCents: number;
   invoiceCount: number;
   itemsSold: number;
   avgBasketCents: number;
@@ -93,6 +94,7 @@ export interface TimeSeriesPoint {
   retailRevenueCents: number;
   repairRevenueCents: number;
   printRevenueCents: number;
+  chargeRevenueCents: number;
   discountCents: number;
   cogsCents: number;
   grossProfitCents: number;
@@ -341,6 +343,7 @@ export interface DailySalesReportSummary {
   totalInvoices: number;
   repairRevenueCents: number;
   printRevenueCents: number;
+  chargeRevenueCents: number;
   retailRevenueCents: number;
   paymentMethods: PaymentMethodBreakdown;
 }
@@ -351,6 +354,7 @@ export interface DailySalesReportResponse {
   totalInvoices: number;
   totalRepairRevenueCents: number;
   totalPrintRevenueCents: number;
+  totalChargeRevenueCents: number;
   totalRetailRevenueCents: number;
   totalDiscountsCents: number;
   paymentMethods: PaymentMethodBreakdown;
@@ -373,6 +377,7 @@ export interface MonthlyProfitReportResponse {
   retailRevenueCents: number;
   repairRevenueCents: number;
   printRevenueCents: number;
+  chargeRevenueCents: number;
   totalDiscountsCents: number;
   cogsCents: number;
   grossProfitCents: number;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Anchor,
   Box,
@@ -17,7 +17,8 @@ import { notifications } from '@mantine/notifications';
 import { t } from '@/shared/i18n/t';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { useIsAdmin } from '@/shared/hooks/usePermissions';
+import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { CURRENCY } from '@/constants';
 import type { ApiError } from '@/shared/types/common';
@@ -34,8 +35,10 @@ import {
 } from '@/features/inventory/lib/quickAddItem';
 import { ProductWarrantyFields, coverageLabel } from '@/features/warranties';
 import type { ProductWarranty } from '@/features/warranties';
+import type { ChargeLine } from '../lib/quickAddCharge';
 import { useQuickAddItem } from '../hooks/useQuickAddItem';
 import { QuickAddCategoryFields } from './QuickAddCategoryFields';
+import { QuickAddChargeForm } from './QuickAddChargeForm';
 
 const sectionLabelStyle = { letterSpacing: '0.05em' } as const;
 
@@ -51,13 +54,36 @@ export interface QuickAddItemModalProps {
   seed: QuickAddSeed;
   /** Called with the saved item, before the window closes, to put it in the cart. */
   onCreated: (product: Product) => void;
+  /** Called with a one-time charge, before the window closes, to put it in the cart. */
+  onChargeAdded: (charge: ChargeLine) => void;
 }
 
-interface ContentProps extends Omit<QuickAddItemModalProps, 'opened'> {
+/** What is being added: a new stock item, or a one-time charge with nothing to track. */
+type AddMode = 'item' | 'charge';
+
+/** The name and price typed so far, kept while the person switches between the two modes. */
+interface Basics {
+  name: string;
+  price: number | '';
+}
+
+interface ContentProps {
+  onClose: () => void;
+  seed: QuickAddSeed;
+  onCreated: (product: Product) => void;
+  initialPrice: number | '';
+  onBasics: (basics: Basics) => void;
   isMobile: boolean;
 }
 
-const QuickAddItemContent = ({ onClose, seed, onCreated, isMobile }: ContentProps) => {
+const QuickAddItemContent = ({
+  onClose,
+  seed,
+  onCreated,
+  initialPrice,
+  onBasics,
+  isMobile,
+}: ContentProps) => {
   const isAdmin = useIsAdmin();
   const { data: categoryList } = useCategories();
   const { save, isSaving } = useQuickAddItem();
@@ -70,10 +96,14 @@ const QuickAddItemContent = ({ onClose, seed, onCreated, isMobile }: ContentProp
     subcategory: null,
     quantity: '',
     costPrice: '',
-    sellingPrice: '',
+    sellingPrice: initialPrice,
     warranty: NO_WARRANTY,
   });
   const [errors, setErrors] = useState<QuickAddErrors>({});
+
+  useEffect(() => {
+    onBasics({ name: draft.name, price: draft.sellingPrice });
+  }, [draft.name, draft.sellingPrice, onBasics]);
   const [warrantyOpen, setWarrantyOpen] = useState(false);
   // A new item takes its category's warranty until the person changes it themselves.
   const [warrantyTouched, setWarrantyTouched] = useState(false);
@@ -361,15 +391,29 @@ const QuickAddItemContent = ({ onClose, seed, onCreated, isMobile }: ContentProp
   );
 };
 
-export const QuickAddItemModal = ({ opened, onClose, seed, onCreated }: QuickAddItemModalProps) => {
+export const QuickAddItemModal = ({
+  opened,
+  onClose,
+  seed,
+  onCreated,
+  onChargeAdded,
+}: QuickAddItemModalProps) => {
   const isMobile = useIsMobile();
+  const canAddItem = useHasPermission(PERMISSIONS.INVENTORY_WRITE);
+  const canAddCharge = useHasPermission(PERMISSIONS.BILLING_WRITE);
+  // A scanned barcode means a real product, so a stock item is the way in whenever it is allowed.
+  const [mode, setMode] = useState<AddMode>(canAddItem ? 'item' : 'charge');
+  const [basics, setBasics] = useState<Basics>({ name: seed.name, price: '' });
+
+  const canSwitch = canAddItem && canAddCharge;
+
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          {t('Add a New Item')}
+          {mode === 'item' ? t('Add a New Item') : t('Add a One-time Charge')}
         </Text>
       }
       size="lg"
@@ -377,14 +421,52 @@ export const QuickAddItemModal = ({ opened, onClose, seed, onCreated }: QuickAdd
       fullScreen={isMobile}
     >
       {opened && (
-        <QuickAddItemContent
-          // A fresh form for every opening, so nothing typed last time comes back.
-          key={`${seed.barcode}|${seed.name}|${seed.barcodeMode}`}
-          onClose={onClose}
-          seed={seed}
-          onCreated={onCreated}
-          isMobile={isMobile}
-        />
+        <Stack gap="md">
+          {canSwitch && (
+            <Stack gap={6}>
+              <SegmentedToggle
+                fullWidth
+                value={mode}
+                onChange={(value) => setMode(value === 'charge' ? 'charge' : 'item')}
+                data={[
+                  { value: 'item', label: t('Stock item') },
+                  { value: 'charge', label: t('One-time charge') },
+                ]}
+                aria-label={t('What are you adding?')}
+              />
+              <Text size="xs" c="dimmed">
+                {mode === 'item'
+                  ? t('Something you keep in stock and sell again.')
+                  : t('Not tracked in stock. For services and one-off fees.')}
+              </Text>
+            </Stack>
+          )}
+          {mode === 'item' ? (
+            <QuickAddItemContent
+              // A fresh form for every opening and every switch, so nothing stale comes back.
+              key={`item|${seed.barcode}|${seed.barcodeMode}`}
+              onClose={onClose}
+              seed={{ ...seed, name: basics.name }}
+              initialPrice={basics.price}
+              onBasics={setBasics}
+              onCreated={onCreated}
+              isMobile={isMobile}
+            />
+          ) : (
+            <QuickAddChargeForm
+              key="charge"
+              initialName={basics.name}
+              initialPrice={basics.price}
+              onBasics={setBasics}
+              onClose={onClose}
+              onAdd={(charge) => {
+                onChargeAdded(charge);
+                onClose();
+              }}
+              isMobile={isMobile}
+            />
+          )}
+        </Stack>
       )}
     </Modal>
   );

@@ -125,6 +125,29 @@ describe('cartSlice reducer & selectors', () => {
       expect(state.items).toHaveLength(1);
       expect(state.items[0].quantity).toBe(1);
     });
+
+    it('keeps every one-time charge as its own line, never merging two alike', () => {
+      const charge: CartItem = {
+        id: 'charge-1',
+        productId: 'charge-1',
+        name: 'Delivery fee',
+        unitPriceCents: 30000,
+        quantity: 1,
+        discount: null,
+        sourceType: 'charge',
+      };
+
+      let state = cartReducer(getInitialState(), addItem(charge));
+      state = cartReducer(state, addItem({ ...charge, id: 'charge-2', productId: 'charge-2' }));
+      state = cartReducer(state, addItem(sampleItem));
+
+      expect(state.items).toHaveLength(3);
+      expect(state.items.filter((line) => line.sourceType === 'charge')).toHaveLength(2);
+
+      state = cartReducer(state, updateQuantity({ id: 'charge-1', quantity: 3 }));
+      expect(state.items.find((line) => line.id === 'charge-1')?.quantity).toBe(3);
+      expect(selectReservedQuantityByProductId({ cart: state }).has('charge-1')).toBe(false);
+    });
   });
 
   describe('updating and removing items', () => {

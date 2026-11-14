@@ -11,6 +11,7 @@ export const SERIES = {
   retail: 'indigo.5',
   repair: 'orange.6',
   print: 'teal.6',
+  charge: 'grape.6',
   profit: 'green.6',
   cogs: 'red.6',
   commission: 'grape.5',
@@ -113,6 +114,7 @@ export interface TrendDatum {
   retail: number;
   repair: number;
   print: number;
+  charge: number;
 }
 
 export const toTrendData = (points: TimeSeriesPoint[]): TrendDatum[] =>
@@ -127,4 +129,5 @@ export const toTrendData = (points: TimeSeriesPoint[]): TrendDatum[] =>
     retail: rupees(p.retailRevenueCents),
     repair: rupees(p.repairRevenueCents),
     print: rupees(p.printRevenueCents),
+    charge: rupees(p.chargeRevenueCents),
   }));
