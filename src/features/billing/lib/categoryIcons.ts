@@ -1,4 +1,4 @@
-import { IconTools, IconPrinter } from '@tabler/icons-react';
+import { IconTools, IconPrinter, IconReceipt2 } from '@tabler/icons-react';
 
 import { Category } from '@/features/inventory/types';
 import {
@@ -47,6 +47,9 @@ export const getCategoryIconInfo = (params: {
   }
   if (sourceType === 'print') {
     return { Icon: IconPrinter, color: 'teal', label: 'Print Service Job' };
+  }
+  if (sourceType === 'charge') {
+    return { Icon: IconReceipt2, color: 'grape', label: 'One-time charge' };
   }
 
   if (category) {

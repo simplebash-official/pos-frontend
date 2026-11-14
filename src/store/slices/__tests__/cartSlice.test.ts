@@ -125,6 +125,29 @@ describe('cartSlice reducer & selectors', () => {
       expect(state.items).toHaveLength(1);
       expect(state.items[0].quantity).toBe(1);
     });
+
+    it('keeps every one-time charge as its own line, never merging two alike', () => {
+      const charge: CartItem = {
+        id: 'charge-1',
+        productId: 'charge-1',
+        name: 'Delivery fee',
+        unitPriceCents: 30000,
+        quantity: 1,
+        discount: null,
+        sourceType: 'charge',
+      };
+
+      let state = cartReducer(getInitialState(), addItem(charge));
+      state = cartReducer(state, addItem({ ...charge, id: 'charge-2', productId: 'charge-2' }));
+      state = cartReducer(state, addItem(sampleItem));
+
+      expect(state.items).toHaveLength(3);
+      expect(state.items.filter((line) => line.sourceType === 'charge')).toHaveLength(2);
+
+      state = cartReducer(state, updateQuantity({ id: 'charge-1', quantity: 3 }));
+      expect(state.items.find((line) => line.id === 'charge-1')?.quantity).toBe(3);
+      expect(selectReservedQuantityByProductId({ cart: state }).has('charge-1')).toBe(false);
+    });
   });
 
   describe('updating and removing items', () => {
@@ -451,6 +474,62 @@ describe('cartSlice reducer & selectors', () => {
       // Clearing cart or starting new sale resets activeQuotationKey
       const cleared = cartReducer(state, clearCart());
       expect(selectActiveQuotationKey({ cart: cleared })).toBeNull();
+    });
+
+    it('loads a quotation line with no product as a one-time charge, not an out-of-stock item', () => {
+      const quotation: Quotation = {
+        id: 'q2',
+        key: 'quo_456',
+        quotationNumber: 'QUO-0002',
+        status: 'active',
+        isExpired: false,
+        customerName: 'Sachini Alwis',
+        discountType: 'percentage',
+        discountValue: 0,
+        discountCents: 0,
+        subtotalCents: 51000,
+        totalCents: 51000,
+        validUntil: '2026-11-26',
+        createdAt: '2026-11-14T12:00:00Z',
+        updatedAt: '2026-11-14T12:00:00Z',
+        items: [
+          {
+            productKey: 'prod_aux',
+            name: '3.5mm AUX Adapter',
+            sku: 'AUX-01',
+            quantity: 1,
+            unitPriceCents: 1000,
+            discountCents: 0,
+            totalCents: 1000,
+          },
+          {
+            name: 'Software Installation',
+            quantity: 2,
+            unitPriceCents: 25000,
+            discountCents: 1000,
+            totalCents: 49000,
+          },
+        ],
+      };
+
+      const state = cartReducer(
+        getInitialState(),
+        loadQuotationIntoCart({ quotation, catalogProducts: [] })
+      );
+
+      const [stockLine, chargeLine] = state.items;
+      expect(stockLine.sourceType).toBe('retail');
+      expect(stockLine.productKey).toBe('prod_aux');
+
+      expect(chargeLine.sourceType).toBe('charge');
+      expect(chargeLine.productId.startsWith('charge-')).toBe(true);
+      expect(chargeLine.productKey).toBeUndefined();
+      expect(chargeLine.sku).toBeUndefined();
+      expect(chargeLine.stockQuantity).toBeUndefined();
+      expect(chargeLine.warranty).toBeUndefined();
+      expect(chargeLine.quantity).toBe(2);
+      expect(chargeLine.unitPriceCents).toBe(25000);
+      expect(chargeLine.discount).toEqual({ type: 'fixed', value: 1000 });
     });
   });
 });

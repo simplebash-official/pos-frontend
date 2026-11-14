@@ -248,6 +248,7 @@ export interface CalcSourceBreakdown {
   retailCents: number;
   repairsCents: number;
   printCents: number;
+  chargesCents: number;
 }
 
 export interface CalcWarrantyRequest {
@@ -271,6 +272,7 @@ export interface CartTotals {
   retail_cents: number;
   repairs_cents: number;
   print_cents: number;
+  charges_cents: number;
 }
 
 export interface CashCountLine {
@@ -384,7 +386,7 @@ export type CalcDiscountType = 'percentage' | 'fixed';
 
 export type CalcPaymentMethod = 'cash' | 'card' | 'online' | 'split';
 
-export type CalcSource = 'retail' | 'repair' | 'print';
+export type CalcSource = 'retail' | 'repair' | 'print' | 'charge';
 
 export type CalcWarrantyReply =
   { kind: 'not_covered' } | { kind: 'lifetime' } | { kind: 'until'; endsOn: string };
@@ -396,7 +398,7 @@ export type CostMode = 'unit' | 'lot';
 export type LineDiscount =
   { type: 'none' } | { type: 'fixed'; value: number } | { type: 'percentage'; value: number };
 
-export type LineSource = 'retail' | 'repair' | 'print';
+export type LineSource = 'retail' | 'repair' | 'print' | 'charge';
 
 export type PaymentMode = 'credit' | 'full' | 'part';
 

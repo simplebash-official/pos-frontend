@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useRef, useEffect, useMemo, memo } from 'react';
+import { useState, useRef, useEffect, useMemo, memo, lazy, Suspense } from 'react';
 import {
   Stack,
   Paper,
@@ -66,7 +66,11 @@ import { useCatalogColumns } from '../hooks/useCatalogColumns';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
 import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
-import { useIsAdmin } from '@/shared/hooks/usePermissions';
+import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
+import { seedFromTerm, type QuickAddSeed } from '@/features/inventory/lib/quickAddItem';
+import type { ChargeLine } from '../lib/quickAddCharge';
+import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { SerialNumberPickerModal } from '@/features/inventory/components/SerialNumberPickerModal';
 import { PriceTierPickerModal } from '@/features/inventory/components/PriceTierPickerModal';
 import {
@@ -123,6 +127,10 @@ const generateServiceJobId = (type: string, id: string): string => {
   return `svc-${type}-${id}-${Math.random().toString(36).substring(2, 9)}`;
 };
 
+const QuickAddItemModal = lazy(() =>
+  import('./QuickAddItemModal').then((m) => ({ default: m.QuickAddItemModal }))
+);
+
 export interface CatalogPanelProps {
   mode: CatalogMode;
   onModeChange: (mode: CatalogMode) => void;
@@ -137,6 +145,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const [shakeError, setShakeError] = useState<string | null>(null);
   const [serialPickerProduct, setSerialPickerProduct] = useState<Product | null>(null);
   const [pricePickerProduct, setPricePickerProduct] = useState<Product | null>(null);
+  // Set while the quick-add window is open: what the scan bar held when it was opened.
+  const [quickAddSeed, setQuickAddSeed] = useState<QuickAddSeed | null>(null);
 
   const {
     add,
@@ -152,6 +162,11 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   const tier = useLayoutTier();
   const isAdmin = useIsAdmin();
+  // The quick-add window adds a stock item (inventory) or a one-time charge (billing); a cashier
+  // with only one of the two sees just that one.
+  const canQuickAddItem = useHasPermission(PERMISSIONS.INVENTORY_WRITE);
+  const canQuickAddCharge = useHasPermission(PERMISSIONS.BILLING_WRITE);
+  const canQuickAdd = canQuickAddItem || canQuickAddCharge;
   const isMobile = tier === 'mobile';
 
   // On a phone the scan bar is a soft-keyboard trigger, not a barcode target — stealing focus would
@@ -507,6 +522,65 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     setSearch('');
     setSelectedIndex(null);
   };
+
+  const openQuickAdd = (term: string) => {
+    setQuickAddSeed(seedFromTerm(term));
+    setShakeError(null);
+  };
+
+  const closeQuickAdd = () => {
+    setQuickAddSeed(null);
+    if (keepScanInputFocused) {
+      setTimeout(() => scanInputRef.current?.focus(), 50);
+    }
+  };
+
+  // A freshly saved item is in stock at exactly one price, so it goes straight into the cart.
+  const handleQuickAdded = (product: Product) => {
+    const newTier = product.priceTiers[0];
+    if (newTier === undefined) {
+      notifications.show({
+        title: t('Item saved'),
+        message: `"${product.name}" ${t('was saved but could not be added to the cart. Search for it to add it.')}`,
+        color: 'orange',
+      });
+      return;
+    }
+    addProductToCart(product, newTier, 1);
+    clearScan();
+    notifications.show({
+      title: t('Item added'),
+      message: `"${product.name}" ${t('was saved and added to the cart.')}`,
+      color: 'green',
+    });
+  };
+
+  // A charge is not tracked in stock, so it goes straight into the cart as its own line.
+  const handleChargeAdded = (charge: ChargeLine) => {
+    const id = `item-${Date.now()}-${Math.random()}`;
+    add({
+      id,
+      productId: `charge-${id}`,
+      name: charge.name,
+      unitPriceCents: charge.unitPriceCents,
+      originalUnitPriceCents: charge.unitPriceCents,
+      quantity: charge.quantity,
+      discount: null,
+      sourceType: 'charge',
+    });
+    playScanSuccessSound(soundEnabled);
+    clearScan();
+    notifications.show({
+      title: t('Charge added'),
+      message: `"${charge.name}" ${t('was added to the cart.')}`,
+      color: 'green',
+    });
+  };
+
+  useAppShortcuts(
+    [{ key: ['Alt+N'], ignoreInput: true, handler: () => openQuickAdd(scanQuery) }],
+    canQuickAdd && mode === 'goods' && quickAddSeed === null
+  );
 
   // Handle direct barcode or SKU scan
   const handleScanSubmit = async (e: React.FormEvent) => {
@@ -919,6 +993,28 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                     />
                   </Box>
 
+                  {canQuickAdd && (
+                    <Tooltip
+                      label={`${canQuickAddItem ? t('Add a new item') : t('Add a new charge')}${isMobile ? '' : ' (Alt+N)'}`}
+                    >
+                      <Button
+                        type="button"
+                        variant="default"
+                        leftSection={<IconPlus size={18} />}
+                        aria-label={canQuickAddItem ? t('Add a new item') : t('Add a new charge')}
+                        data-log-id="billing.quick-add-open"
+                        onMouseDown={(e) => {
+                          // Prevent barcode scanner input blur on desktop
+                          e.preventDefault();
+                        }}
+                        onClick={() => openQuickAdd(scanQuery)}
+                        style={{ flexShrink: 0, height: 44 }}
+                      >
+                        {isMobile ? undefined : canQuickAddItem ? t('New item') : t('New charge')}
+                      </Button>
+                    </Tooltip>
+                  )}
+
                   <Menu
                     position="bottom-end"
                     withinPortal
@@ -999,6 +1095,17 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                   >
                     {t('Search manually')}
                   </Anchor>
+                  {canQuickAdd && (
+                    <Anchor
+                      size="xs"
+                      c="blue"
+                      underline="always"
+                      data-log-id="billing.quick-add-from-miss"
+                      onClick={() => openQuickAdd(shakeError)}
+                    >
+                      {canQuickAddItem ? t('Add as new item') : t('Add as a charge')}
+                    </Anchor>
+                  )}
                 </Group>
               )}
             </Paper>
@@ -1670,6 +1777,18 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           if (tier) addProductToCart(serialPickerProduct, tier, 1, serialNumber);
         }}
       />
+
+      {quickAddSeed !== null && (
+        <Suspense fallback={null}>
+          <QuickAddItemModal
+            opened
+            onClose={closeQuickAdd}
+            seed={quickAddSeed}
+            onCreated={handleQuickAdded}
+            onChargeAdded={handleChargeAdded}
+          />
+        </Suspense>
+      )}
 
       {pricePickerProduct !== null && (
         <PriceTierPickerModal

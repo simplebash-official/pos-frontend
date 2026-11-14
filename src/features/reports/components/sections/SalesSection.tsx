@@ -153,6 +153,12 @@ export const SalesSection = ({
             csv: (r) => csvRupees(r.printRevenueCents),
           },
           {
+            header: 'Charges',
+            align: 'right',
+            cell: (r) => formatMoney(r.chargeRevenueCents),
+            csv: (r) => csvRupees(r.chargeRevenueCents),
+          },
+          {
             header: 'Discounts',
             align: 'right',
             cell: (r) => formatMoney(r.discountCents),

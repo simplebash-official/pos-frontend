@@ -6,6 +6,7 @@ export type ShortcutActionId =
   | 'focusScan'
   | 'completeCheckout'
   | 'attachCustomer'
+  | 'quickAddItem'
   | 'catalogJobs'
   | 'catalogGoods'
   | 'cyclePaymentMethod'
@@ -72,6 +73,14 @@ export const SHORTCUT_REGISTRY: Record<ShortcutActionId, ShortcutDefinition> = {
     description: 'Open customer picker modal to link sale to profile or credit account',
     windows: { primary: 'F3', alias: 'Alt+A' },
     mac: { primary: 'F3', alias: 'Alt+A' },
+  },
+  quickAddItem: {
+    id: 'quickAddItem',
+    category: 'cashier',
+    title: 'Add a new item',
+    description: 'Create an item that is not in the catalog yet and put it straight in the cart',
+    windows: { primary: 'Alt+N' },
+    mac: { primary: 'Alt+N' },
   },
   catalogJobs: {
     id: 'catalogJobs',

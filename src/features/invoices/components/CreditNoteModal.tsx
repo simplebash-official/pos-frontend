@@ -409,14 +409,18 @@ export const CreditNoteModal = ({
                   ? item.productId || undefined
                   : undefined,
               sourceTicketKey:
-                item.sourceType && item.sourceType !== 'retail'
+                item.sourceType && item.sourceType !== 'retail' && item.sourceType !== 'charge'
                   ? item.productId || undefined
                   : undefined,
               name: item.name,
               quantity,
               reason: state.reason,
-              condition: state.condition,
-              disposition: state.condition === 'damaged' ? state.disposition! : undefined,
+              // A charge has no physical item to inspect: it is only refunded.
+              condition: item.sourceType === 'charge' ? 'resalable' : state.condition,
+              disposition:
+                item.sourceType !== 'charge' && state.condition === 'damaged'
+                  ? state.disposition!
+                  : undefined,
               unitPriceCents: item.unitPriceCents,
               sellingPriceCents:
                 item.sourceType === 'retail' || !item.sourceType ? item.unitPriceCents : undefined,
@@ -819,19 +823,21 @@ export const CreditNoteModal = ({
                                   }
                                 />
                               )}
-                              <Select
-                                size="xs"
-                                label={t('Condition')}
-                                data={ITEM_CONDITION_OPTIONS}
-                                value={state.condition}
-                                onChange={(v) =>
-                                  updateLine(item.id, {
-                                    condition: (v as CreditNoteItemCondition) || 'resalable',
-                                    disposition: v === 'damaged' ? state.disposition : null,
-                                  })
-                                }
-                              />
-                              {state.condition === 'damaged' && (
+                              {item.sourceType !== 'charge' && (
+                                <Select
+                                  size="xs"
+                                  label={t('Condition')}
+                                  data={ITEM_CONDITION_OPTIONS}
+                                  value={state.condition}
+                                  onChange={(v) =>
+                                    updateLine(item.id, {
+                                      condition: (v as CreditNoteItemCondition) || 'resalable',
+                                      disposition: v === 'damaged' ? state.disposition : null,
+                                    })
+                                  }
+                                />
+                              )}
+                              {item.sourceType !== 'charge' && state.condition === 'damaged' && (
                                 <Select
                                   size="xs"
                                   label={t('What happens to it?')}

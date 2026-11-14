@@ -45,7 +45,7 @@ export interface CategoryManagerModalProps {
   onClose: () => void;
 }
 
-const CategoryColorPicker = ({
+export const CategoryColorPicker = ({
   value,
   onChange,
   label = 'Color',
