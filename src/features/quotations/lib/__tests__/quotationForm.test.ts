@@ -235,6 +235,14 @@ describe('draftFromCart', () => {
     expect(lines.map((l) => l.name)).toEqual(['Screen repair', 'Mugs']);
   });
 
+  it('sends a one-time charge as a plain named line, so it loads back as a charge', () => {
+    const [first] = seed([
+      cartItem({ productKey: undefined, sourceType: 'charge', name: 'Software Installation' }),
+    ]).lines;
+    expect(first.productKey).toBeUndefined();
+    expect(first.name).toBe('Software Installation');
+  });
+
   it('carries the customer, quantities, line discounts and the order discount over', () => {
     const draft = seed([cartItem({ quantity: 3, discount: { type: 'fixed', value: 200 } })], [200]);
     expect(draft).toMatchObject({
