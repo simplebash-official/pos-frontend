@@ -576,10 +576,24 @@ const cartSlice = createSlice({
       catalogProducts.forEach((p) => productsByKey.set(p.key, p));
 
       state.items = quotation.items.map((item, index) => {
-        const prod = item.productKey ? productsByKey.get(item.productKey) : undefined;
+        const id = `quote_item_${index}_${Date.now()}`;
+        if (item.productKey === undefined) {
+          // A line with no product is a service or fee: a one-time charge, not an untracked stock item.
+          return {
+            id,
+            productId: `charge-${id}`,
+            name: item.name,
+            unitPriceCents: item.unitPriceCents,
+            originalUnitPriceCents: item.unitPriceCents,
+            quantity: item.quantity,
+            discount: item.discountCents > 0 ? { type: 'fixed', value: item.discountCents } : null,
+            sourceType: 'charge' as LineSourceType,
+          };
+        }
+        const prod = productsByKey.get(item.productKey);
         return {
-          id: `quote_item_${index}_${Date.now()}`,
-          productId: prod ? prod.id : (item.productKey ?? `manual_${index}`),
+          id,
+          productId: prod ? prod.id : item.productKey,
           productKey: item.productKey,
           name: item.name,
           sku: item.sku ?? prod?.sku,
