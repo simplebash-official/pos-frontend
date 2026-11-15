@@ -58,6 +58,7 @@ vi.mock('@/features/customers/components/CustomerPickerModal', () => ({
 }));
 vi.mock('@/features/employees/hooks/useEmployees', () => ({
   useAllEmployees: () => ({ data: [] }),
+  useCreateOwnerProfile: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 // jsdom has no font loading API; Mantine's growing text box listens to it.

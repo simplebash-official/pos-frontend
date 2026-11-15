@@ -17,7 +17,7 @@ import {
 import { useForm } from '@mantine/form';
 import { IconUser, IconPhone, IconPercentage, IconCoin, IconId } from '@tabler/icons-react';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
-import { Employee, EmployeeInput, SplitType } from '../types';
+import { EMPLOYEE_ROLE_LABELS, Employee, EmployeeInput, EmployeeRole, SplitType } from '../types';
 import { EmployeeFormValues, fromEmployee, toEmployeeInput } from '@/shared/lib/moneyFormUtils';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -119,12 +119,10 @@ export const EmployeeFormModal = ({
 
             <Select
               label={t('Job Role / Category')}
-              data={[
-                { value: 'technician', label: 'Repair Technician' },
-                { value: 'printer', label: 'Print Designer / Machine Operator' },
-                { value: 'sales', label: 'Sales & Billing Staff' },
-                { value: 'general', label: 'General Employee' },
-              ]}
+              // An owner profile is made only by the owner's own "Add me as a technician".
+              data={(Object.keys(EMPLOYEE_ROLE_LABELS) as EmployeeRole[])
+                .filter((role) => role !== 'owner' || employeeToEdit?.role === 'owner')
+                .map((role) => ({ value: role, label: EMPLOYEE_ROLE_LABELS[role] }))}
               required
               {...form.getInputProps('role')}
             />

@@ -5,27 +5,17 @@ import {
   Modal,
   TextInput,
   Select,
-  NumberInput,
   Textarea,
   Button,
   Group,
   Stack,
   Text,
-  Paper,
-  Badge,
   Alert,
   Anchor,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
-import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
-import {
-  IconPercentage,
-  IconCoin,
-  IconAlertTriangle,
-  IconBarcode,
-  IconShieldCheck,
-} from '@tabler/icons-react';
+import { IconBarcode, IconShieldCheck } from '@tabler/icons-react';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { useNavigate } from 'react-router-dom';
@@ -40,10 +30,9 @@ import {
 } from '../lib/repairItems';
 import { RepairItemsEditor } from './RepairItemsEditor';
 import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
-import { useAllEmployees } from '@/features/employees/hooks/useEmployees';
+import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus, ROUTES } from '@/constants';
-import { formatMoney, toCents } from '@/shared/lib/money';
-import { SplitType } from '@/features/employees/types';
+import { formatMoney } from '@/shared/lib/money';
 import { RepairFormValues, fromRepairJob, toRepairInput } from '@/shared/lib/moneyFormUtils';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -64,8 +53,6 @@ export const RepairFormModal = ({
 }: RepairFormModalProps) => {
   const isEditing = Boolean(jobToEdit);
   const isMobile = useIsMobile();
-
-  const { data: employees = [] } = useAllEmployees();
 
   const form = useForm<RepairFormValues>({
     initialValues: fromRepairJob(null),
@@ -108,24 +95,6 @@ export const RepairFormModal = ({
   const hasStockPart = drafts.some((draft) => draft.part?.source === 'stock');
   const navigate = useNavigate();
 
-  const handleEmployeeChange = (employeeKey: string) => {
-    const emp = employees.find((e) => e.key === employeeKey);
-    if (emp) {
-      // The backend resolves `assignedEmployeeId` by business key, not the
-      // local mirror id — see `employees::service::get_employee_by_key`.
-      form.setFieldValue('assignedEmployeeId', emp.key);
-      form.setFieldValue('assignedEmployeeName', emp.name);
-      form.setFieldValue('splitType', emp.defaultSplitType);
-      form.setFieldValue(
-        'splitValueRupeesOrPercent',
-        emp.defaultSplitType === 'fixed' ? emp.defaultSplitValue / 100 : emp.defaultSplitValue
-      );
-    } else {
-      form.setFieldValue('assignedEmployeeId', '');
-      form.setFieldValue('assignedEmployeeName', '');
-    }
-  };
-
   // Profit and commission are the server's figures for what is typed so far.
   const split = toEarningsRequest({
     estimatedPriceRupees: '',
@@ -144,7 +113,6 @@ export const RepairFormModal = ({
   const profitCents = figures === undefined ? 0 : figures.profitCents;
   const calculatedEarningsCents = figures === undefined ? 0 : figures.commissionCents;
   const isFixedSplitCapped = figures !== undefined && figures.capped;
-  const splitVal = Number(form.values.splitValueRupeesOrPercent) || 0;
 
   const handleSubmit = async (values: RepairFormValues) => {
     setTried(true);
@@ -315,110 +283,22 @@ export const RepairFormModal = ({
             <RepairWarrantiesPanel repairKey={jobToEdit.id} onNestedWindowChange={setNestedOpen} />
           )}
 
-          {/* Assigned Employee & Profit Split */}
-          <Paper p="sm" withBorder>
-            <Stack gap="xs">
-              <Group justify="space-between" align="center">
-                <Text size="xs" fw={700} tt="uppercase" c="blue">
-                  {t('Employee Assignment & Profit Split')}
-                </Text>
-                <Badge color="blue" variant="light" size="xs">
-                  {t('Commission Payout')}
-                </Badge>
-              </Group>
-
-              <Select
-                label={t('Assign Technician / Employee')}
-                placeholder={t('Select an employee for this repair...')}
-                data={[
-                  { value: '', label: 'Unassigned (No Employee)' },
-                  ...employees.map((e) => ({
-                    value: e.key,
-                    label: `${e.name} (${e.role.toUpperCase()})`,
-                  })),
-                ]}
-                value={form.values.assignedEmployeeId}
-                onChange={(val) => handleEmployeeChange(val || '')}
-              />
-
-              {form.values.assignedEmployeeId && (
-                <>
-                  <Group align="flex-end" grow mt="xs">
-                    <div>
-                      <Text size="xs" fw={600} mb={4}>
-                        {t('Split Type')}
-                      </Text>
-                      <SegmentedToggle
-                        value={form.values.splitType}
-                        onChange={(val) => form.setFieldValue('splitType', val as SplitType)}
-                        data={[
-                          {
-                            label: (
-                              <Group gap={4} justify="center" wrap="nowrap">
-                                <IconPercentage size={14} style={{ flexShrink: 0 }} />
-                                <span style={{ whiteSpace: 'nowrap' }}>{t('Percentage (%)')}</span>
-                              </Group>
-                            ),
-                            value: 'percentage',
-                          },
-                          {
-                            label: (
-                              <Group gap={4} justify="center" wrap="nowrap">
-                                <IconCoin size={14} style={{ flexShrink: 0 }} />
-                                <span style={{ whiteSpace: 'nowrap' }}>{t('Fixed (LKR)')}</span>
-                              </Group>
-                            ),
-                            value: 'fixed',
-                          },
-                        ]}
-                        fullWidth
-                        size="sm"
-                      />
-                    </div>
-
-                    <NumberInput
-                      label={
-                        form.values.splitType === 'percentage'
-                          ? 'Employee Split (%)'
-                          : 'Fixed Commission (LKR)'
-                      }
-                      min={0}
-                      max={form.values.splitType === 'percentage' ? 100 : 1000000}
-                      {...form.getInputProps('splitValueRupeesOrPercent')}
-                    />
-                  </Group>
-
-                  {isFixedSplitCapped && (
-                    <Alert
-                      color="orange"
-                      icon={<IconAlertTriangle size={16} />}
-                      title={t('Fixed Commission Capped')}
-                      p="xs"
-                    >
-                      {t('Fixed split (')}
-                      {formatMoney(toCents(splitVal))}
-                      {t(') exceeds the repair net profit (')}
-                      {formatMoney(profitCents)}
-                      {t(
-                        '). Commission will be capped at the total\n                                                                profit.'
-                      )}
-                    </Alert>
-                  )}
-
-                  <Paper p="xs" withBorder mt="xs">
-                    <Group justify="space-between">
-                      <Text size="xs" fw={600}>
-                        {t('Employee Commission Payout:')}
-                      </Text>
-                      <Text fw={800} size="md" c={priced ? 'blue' : 'dimmed'}>
-                        {priced ? formatMoney(calculatedEarningsCents) : priceHint}
-                      </Text>
-                    </Group>
-                  </Paper>
-                </>
-              )}
-            </Stack>
-          </Paper>
+          <AssigneeSection
+            heading={t('Employee Assignment & Profit Split')}
+            label={t('Assign Technician / Employee')}
+            placeholder={t('Select an employee for this repair...')}
+            profitNoun="repair"
+            values={form.values}
+            onChange={(changes) => form.setValues(changes)}
+            figures={{
+              priced,
+              hint: priceHint,
+              profitCents,
+              payoutCents: calculatedEarningsCents,
+              capped: isFixedSplitCapped,
+            }}
+            onNestedWindowChange={setNestedOpen}
+          />
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose} disabled={loading}>

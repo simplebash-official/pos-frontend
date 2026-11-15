@@ -38,8 +38,9 @@ if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === 'unde
   (globalThis as { ResizeObserver?: unknown }).ResizeObserver = ResizeObserverStub;
 }
 
-vi.mock('@/features/employees/hooks/useEmployees', () => ({
-  useAllEmployees: () => ({ data: [] }),
+// The assignment block has its own tests; this file is about the customer and price rules.
+vi.mock('@/features/employees/components/AssigneeSection', () => ({
+  AssigneeSection: () => null,
 }));
 
 vi.mock('@/shared/hooks/useResponsive', () => ({

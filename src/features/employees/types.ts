@@ -2,9 +2,10 @@ import type { SyncedEntityFields } from '@/shared/types/common';
 
 export type SplitType = 'percentage' | 'fixed';
 
-export type EmployeeRole = 'technician' | 'printer' | 'sales' | 'general';
+export type EmployeeRole = 'owner' | 'technician' | 'printer' | 'sales' | 'general';
 
 export const EMPLOYEE_ROLE_LABELS: Record<EmployeeRole, string> = {
+  owner: 'Shop Owner',
   technician: 'Repair Technician',
   printer: 'Print Designer / Machine Operator',
   sales: 'Sales & Billing Staff',

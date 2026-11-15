@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import {
   createEmployee,
+  createOwnerProfile,
   deleteEmployee,
   deleteEmployees,
   fetchEmployees,
@@ -34,6 +35,16 @@ export const useCreateEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: EmployeeInput) => createEmployee(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
+};
+
+export const useCreateOwnerProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { phone: string }) => createOwnerProfile(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
     },

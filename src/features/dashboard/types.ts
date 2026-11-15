@@ -156,7 +156,7 @@ export interface PulseStage {
 export interface PulseTechnician {
   employeeKey: string;
   name: string;
-  role: 'technician' | 'printer';
+  role: 'owner' | 'technician' | 'printer';
   activeJobsCount: number;
   completedTodayCount: number;
   capacityPercent: number;
