@@ -56,7 +56,7 @@ const AgeText = ({ claim }: { claim: WarrantyClaim }) => (
   </Text>
 );
 
-/** One claim as a card; an orange left edge when it has waited too long. */
+/** One claim as a card; an orange left edge inside the outline when it has waited too long. */
 const ClaimCard = ({
   claim,
   index,
@@ -78,10 +78,10 @@ const ClaimCard = ({
       <Paper
         withBorder
         p="sm"
+        className="picker-card"
         style={{
-          borderLeft: needsAttention(claim)
-            ? '4px solid var(--status-warn)'
-            : '4px solid transparent',
+          // Drawn inside the outline, so the border stays an even 1px all round.
+          boxShadow: needsAttention(claim) ? 'inset 4px 0 0 var(--status-warn)' : undefined,
           minHeight: 44,
         }}
       >
