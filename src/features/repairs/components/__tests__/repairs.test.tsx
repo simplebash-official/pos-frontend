@@ -36,6 +36,26 @@ vi.mock('@/features/warranties/api/warrantiesApi', () => ({
   voidWarranty: vi.fn(),
   extendWarranty: vi.fn(),
 }));
+// The real picker has its own tests; here it just hands back one customer.
+vi.mock('@/features/customers/components/CustomerPickerModal', () => ({
+  CustomerPickerModal: ({
+    opened,
+    onSelectCustomer,
+  }: {
+    opened: boolean;
+    onSelectCustomer: (customer: unknown) => void;
+  }) =>
+    opened ? (
+      <button
+        type="button"
+        onClick={() =>
+          onSelectCustomer({ key: 'cust_1', name: 'Sunil Silva', primaryPhone: '0777654321' })
+        }
+      >
+        pick Sunil
+      </button>
+    ) : null,
+}));
 vi.mock('@/features/employees/hooks/useEmployees', () => ({
   useAllEmployees: () => ({ data: [] }),
 }));
@@ -244,6 +264,35 @@ describe('repair jobs as items', () => {
     expect(labour?.disabled).toBe(true);
     expect(text()).toContain('Covered by the original warranty');
     expect(text()).toContain('Customer pays (warranty)');
+  });
+
+  it('asks for a customer to be chosen, with no name or phone to type', async () => {
+    const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
+    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} />);
+    expect(text()).toContain('No customer chosen');
+    expect(document.querySelector('input[placeholder="e.g. Saman Perera"]')).toBeNull();
+    expect(document.querySelector('input[placeholder="e.g. 0771234567"]')).toBeNull();
+
+    // The other required boxes are empty, so the browser's own check would stop a click first.
+    await act(async () => {
+      document
+        .querySelector('form')
+        ?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await vi.waitFor(() => expect(text()).toContain('Choose the customer for this repair.'));
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    await act(async () => button('Choose customer')?.click());
+    await act(async () => button('pick Sunil')?.click());
+    expect(text()).toContain('Sunil Silva');
+    expect(text()).toContain('0777654321');
+    expect(text()).toContain('Change customer');
+  });
+
+  it('shows the saved customer of a ticket being edited, who can be changed', async () => {
+    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={vi.fn()} jobToEdit={JOB} />);
+    expect(text()).toContain(JOB.customerName);
+    expect(button('Change customer')).toBeDefined();
   });
 
   it('will not mark a job ready without any work on it', async () => {

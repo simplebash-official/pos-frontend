@@ -20,14 +20,14 @@ import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import {
-  IconUser,
-  IconPhone,
   IconPercentage,
   IconCoin,
   IconAlertTriangle,
   IconBarcode,
   IconShieldCheck,
 } from '@tabler/icons-react';
+import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
+import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { useNavigate } from 'react-router-dom';
 import { RepairJob, RepairJobInput } from '../types';
 import {
@@ -70,9 +70,10 @@ export const RepairFormModal = ({
   const form = useForm<RepairFormValues>({
     initialValues: fromRepairJob(null),
     validate: {
-      customerName: (val) => (val.trim() ? null : 'Customer name is required'),
-      customerPhone: (val) =>
-        /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
+      customerName: (val, values) =>
+        val.trim() !== '' && /^[0-9+\s-]{9,15}$/.test(values.customerPhone.trim())
+          ? null
+          : t('Choose the customer for this repair.'),
       deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
       issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
     },
@@ -81,6 +82,7 @@ export const RepairFormModal = ({
   const [drafts, setDrafts] = useState<ItemDraft[]>([]);
   const [tried, setTried] = useState(false);
   const [nestedOpen, setNestedOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     if (opened) {
@@ -212,23 +214,18 @@ export const RepairFormModal = ({
               </Alert>
             )}
           {/* Customer Details */}
-          <Group grow align="flex-start">
-            <TextInput
-              label={t('Customer Name')}
-              placeholder={t('e.g. Saman Perera')}
-              leftSection={<IconUser size={16} />}
-              required
-              {...form.getInputProps('customerName')}
-            />
-
-            <TextInput
-              label={t('Customer Phone')}
-              placeholder={t('e.g. 0771234567')}
-              leftSection={<IconPhone size={16} />}
-              required
-              {...form.getInputProps('customerPhone')}
-            />
-          </Group>
+          <CustomerChoiceCard
+            customer={
+              form.values.customerName.trim() === ''
+                ? null
+                : { name: form.values.customerName, phone: form.values.customerPhone }
+            }
+            onChoose={() => {
+              setPickerOpen(true);
+              setNestedOpen(true);
+            }}
+            error={form.errors.customerName as string | undefined}
+          />
 
           {/* Device & Issue */}
           <Group grow align="flex-start">
@@ -433,6 +430,21 @@ export const RepairFormModal = ({
           </Group>
         </Stack>
       </form>
+      <CustomerPickerModal
+        opened={pickerOpen}
+        onClose={() => {
+          setPickerOpen(false);
+          setNestedOpen(false);
+        }}
+        onSelectCustomer={(customer) => {
+          if (customer !== null) {
+            form.setFieldValue('customerName', customer.name);
+            form.setFieldValue('customerPhone', customer.primaryPhone);
+          }
+          setPickerOpen(false);
+          setNestedOpen(false);
+        }}
+      />
     </Modal>
   );
 };

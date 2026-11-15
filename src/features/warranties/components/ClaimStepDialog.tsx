@@ -1,16 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import {
-  Button,
-  Group,
-  Modal,
-  Paper,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
-import { IconUser } from '@tabler/icons-react';
+import { Button, Group, Modal, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import type { Customer } from '@/features/customers/types';
 import { DateInput } from '@mantine/dates';
@@ -436,31 +426,12 @@ export const ClaimStepDialog = ({
               <Text size="sm" c="dimmed">
                 {t('This sale had no customer, so choose who the repair job is for.')}
               </Text>
-              <Paper withBorder p="sm">
-                <Group justify="space-between" wrap="nowrap" gap="sm">
-                  <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
-                    <IconUser size={20} />
-                    <div style={{ minWidth: 0 }}>
-                      <Text size="sm" fw={600} lineClamp={1}>
-                        {customer === null ? t('No customer chosen') : customer.name}
-                      </Text>
-                      {customer !== null && (
-                        <Text size="xs" c="dimmed">
-                          {customer.primaryPhone}
-                        </Text>
-                      )}
-                    </div>
-                  </Group>
-                  <Button
-                    variant="light"
-                    size="xs"
-                    onClick={() => setPickerOpen(true)}
-                    style={{ flexShrink: 0 }}
-                  >
-                    {customer === null ? t('Choose customer') : t('Change customer')}
-                  </Button>
-                </Group>
-              </Paper>
+              <CustomerChoiceCard
+                customer={
+                  customer === null ? null : { name: customer.name, phone: customer.primaryPhone }
+                }
+                onChoose={() => setPickerOpen(true)}
+              />
             </StepModal>
             <CustomerPickerModal
               opened={pickerOpen}
