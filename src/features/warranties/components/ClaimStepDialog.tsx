@@ -1,5 +1,18 @@
 import { useState, type ReactNode } from 'react';
-import { Button, Group, Modal, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import {
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Textarea,
+} from '@mantine/core';
+import { IconUser } from '@tabler/icons-react';
+import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
+import type { Customer } from '@/features/customers/types';
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { usePayees } from '@/features/billing/hooks/useCashLookups';
@@ -42,6 +55,7 @@ const StepModal = ({
   onClose,
   onSubmit,
   disabled,
+  closeOnEscape = true,
   children,
 }: {
   title: string;
@@ -51,6 +65,8 @@ const StepModal = ({
   onClose: () => void;
   onSubmit: () => void;
   disabled: boolean;
+  /** False while a window opened from this one is showing, so Escape closes only that one. */
+  closeOnEscape?: boolean;
   children: ReactNode;
 }) => {
   const isMobile = useIsMobile();
@@ -58,6 +74,7 @@ const StepModal = ({
     <Modal
       opened
       onClose={onClose}
+      closeOnEscape={closeOnEscape}
       title={
         <Text fw={700} size="lg">
           {title}
@@ -118,6 +135,8 @@ export const ClaimStepDialog = ({
   const [outcome, setOutcome] = useState<SupplierOutcome | null>(null);
   const [serial, setSerial] = useState<string | null>(null);
   const [priceCents, setPriceCents] = useState<string | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const suppliers = usePayees({ payeeType: 'supplier' }, action === 'sendToSupplier');
 
   const loading = mutation.isPending;
@@ -389,7 +408,69 @@ export const ClaimStepDialog = ({
         </ConfirmDialog>
       );
 
-    case 'paidRepair':
+    case 'paidRepair': {
+      // A walk-in sale leaves the claim without a customer, so the repair job needs one here.
+      const needsCustomer =
+        claim.customerKey === undefined &&
+        (claim.customerName === undefined || claim.customerPhone === undefined);
+      if (needsCustomer) {
+        return (
+          <>
+            <StepModal
+              title={t('Make a paid repair job?')}
+              confirmLabel={t('Make the repair job')}
+              loading={loading}
+              error={error}
+              onClose={close}
+              closeOnEscape={!pickerOpen}
+              disabled={customer === null}
+              onSubmit={() => {
+                if (customer !== null) run({ kind: 'paidRepair', key, customerKey: customer.key });
+              }}
+            >
+              <Text size="sm">
+                {t(
+                  'The fault is not covered. A repair job the customer pays for is made for this item.'
+                )}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {t('This sale had no customer, so choose who the repair job is for.')}
+              </Text>
+              <Paper withBorder p="sm">
+                <Group justify="space-between" wrap="nowrap" gap="sm">
+                  <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+                    <IconUser size={20} />
+                    <div style={{ minWidth: 0 }}>
+                      <Text size="sm" fw={600} lineClamp={1}>
+                        {customer === null ? t('No customer chosen') : customer.name}
+                      </Text>
+                      {customer !== null && (
+                        <Text size="xs" c="dimmed">
+                          {customer.primaryPhone}
+                        </Text>
+                      )}
+                    </div>
+                  </Group>
+                  <Button
+                    variant="light"
+                    size="xs"
+                    onClick={() => setPickerOpen(true)}
+                    style={{ flexShrink: 0 }}
+                  >
+                    {customer === null ? t('Choose customer') : t('Change customer')}
+                  </Button>
+                </Group>
+              </Paper>
+            </StepModal>
+            <CustomerPickerModal
+              opened={pickerOpen}
+              onClose={() => setPickerOpen(false)}
+              onSelectCustomer={setCustomer}
+              selectedCustomerId={customer?.key}
+            />
+          </>
+        );
+      }
       return (
         <ConfirmDialog
           opened
@@ -412,5 +493,6 @@ export const ClaimStepDialog = ({
           )}
         </ConfirmDialog>
       );
+    }
   }
 };

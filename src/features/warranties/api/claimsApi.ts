@@ -84,7 +84,13 @@ export const resolveClaim = (
 
 export const returnClaimToCustomer = (key: string) => step(key, 'return', {});
 
-export const convertClaimToPaidRepair = (key: string) => step(key, 'paid-repair', {});
+/** The customer is only needed when the claim's sale had none (a walk-in). */
+export interface PaidRepairCustomer {
+  customerKey?: string;
+}
+
+export const convertClaimToPaidRepair = (key: string, customer: PaidRepairCustomer) =>
+  step(key, 'paid-repair', customer);
 
 /** Opens the free rework job for a claim on repair work decided as a repair. */
 export const openClaimRework = (key: string) => step(key, 'rework', {});

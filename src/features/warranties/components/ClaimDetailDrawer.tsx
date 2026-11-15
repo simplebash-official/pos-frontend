@@ -128,6 +128,8 @@ export const ClaimDetailDrawer = ({
         data={data}
         opened={claimKey !== null}
         onClose={onClose}
+        // Escape closes the window on top (a step, the photos), never the drawer under it.
+        closeOnEscape={dialog === null && !photosOpen}
         width="wide"
         title={{
           icon: <IconClipboardCheck size={20} />,

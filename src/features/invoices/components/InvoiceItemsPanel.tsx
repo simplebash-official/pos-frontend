@@ -53,7 +53,7 @@ const WarrantyChip = ({ warranty }: { warranty: Warranty }) => {
       color={stateLook(warranty.state).color}
       size="md"
       leftSection={<Icon size={12} />}
-      style={{ textTransform: 'none' }}
+      style={{ textTransform: 'none', flexShrink: 0 }}
     >
       {warrantyChipLabel(warranty)}
     </Badge>
@@ -86,8 +86,9 @@ const Row = ({
   return (
     <Group
       gap="sm"
-      // A phone has no room to keep the buttons beside the amounts, so they drop to their own line.
-      wrap={isMobile ? 'wrap' : 'nowrap'}
+      // Wraps when the right side does not fit (a phone, or an open-claim link beside the buttons),
+      // so the name and the warranty chip always keep their room.
+      wrap="wrap"
       align="center"
       px="sm"
       py="sm"
@@ -104,14 +105,12 @@ const Row = ({
         gap="sm"
         wrap="nowrap"
         align="center"
-        style={{ flex: isMobile ? '1 1 100%' : '1 1 0', minWidth: 0 }}
+        style={{ flex: isMobile ? '1 1 100%' : '1 1 18rem', minWidth: 0 }}
       >
         {select}
         <Box style={{ minWidth: 0, flex: 1 }}>{children}</Box>
-        {!isMobile && amounts}
       </Group>
-      {/* A phone keeps the name and badge the full width, with the amounts and buttons below. */}
-      {isMobile && amounts}
+      {amounts !== undefined && <Box style={{ flexShrink: 0 }}>{amounts}</Box>}
       {actions !== undefined && (
         <Box style={{ marginLeft: 'auto', maxWidth: '100%' }}>{actions}</Box>
       )}
