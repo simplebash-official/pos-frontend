@@ -181,6 +181,15 @@ export const InvoiceDetailDrawer = ({
   const balance = useInvoiceBalance(invoice ? invoice.id : '', Boolean(invoice));
   const remainingCents = balance.data === undefined ? 0 : balance.data.balanceDueCents;
 
+  // Deep link (a claim decided as a refund): the claim card that starts the refund lives on the
+  // Activity tab, and only the open tab is mounted.
+  useEffect(() => {
+    if (opened && refundClaimOnMount !== undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab('activity');
+    }
+  }, [opened, refundClaimOnMount]);
+
   const handleClose = () => {
     setActiveTab('items');
     onClose();
@@ -427,7 +436,12 @@ export const InvoiceDetailDrawer = ({
                   },
                 ]
               : []),
-            { value: 'activity', label: t('Activity'), icon: <IconActivity size={16} /> },
+            {
+              value: 'activity',
+              label: t('Activity'),
+              icon: <IconActivity size={16} />,
+              count: claimCount + (invoiceCreditNotes?.length ?? 0) || undefined,
+            },
           ];
           // A credit invoice with no payments has no Payments tab, so fall back if it was selected.
           const tab: InvoiceTab = tabs.some((x) => x.value === activeTab) ? activeTab : 'items';
@@ -620,25 +634,6 @@ export const InvoiceDetailDrawer = ({
               </DrawerRail>
 
               <DrawerMain>
-                <InvoiceClaimsCard
-                  invoiceKey={inv.id}
-                  refundOnLoad={refundClaimOnMount}
-                  onRefund={(refund) => {
-                    setRefundClaim(refund);
-                    setCreditNoteModalOpen(true);
-                  }}
-                  onOpen={(claimKey) =>
-                    navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${claimKey}`)
-                  }
-                />
-                <InvoiceCreditNotesCard
-                  creditNotes={invoiceCreditNotes}
-                  isFullyReturned={d.isFullyReturned}
-                  onPreview={setPreviewCreditNote}
-                  onResolve={setResolvingCreditNote}
-                  onProcessReturn={() => setCreditNoteModalOpen(true)}
-                />
-
                 <AnimatedTabs<InvoiceTab> value={tab} onChange={setActiveTab} tabs={tabs}>
                   {(value) => {
                     if (value === 'items') {
@@ -656,22 +651,42 @@ export const InvoiceDetailDrawer = ({
                       );
                     }
                     return (
-                      <Stack gap="xs">
-                        <Text size="sm" fw={700}>
-                          {t('Print History')}
-                        </Text>
-                        {logs.length === 0 ? (
-                          <Text size="xs" c="dimmed">
-                            {t('No print logs recorded yet.')}
+                      <Stack gap="md">
+                        <InvoiceClaimsCard
+                          invoiceKey={inv.id}
+                          refundOnLoad={refundClaimOnMount}
+                          onRefund={(refund) => {
+                            setRefundClaim(refund);
+                            setCreditNoteModalOpen(true);
+                          }}
+                          onOpen={(claimKey) =>
+                            navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${claimKey}`)
+                          }
+                        />
+                        <InvoiceCreditNotesCard
+                          creditNotes={invoiceCreditNotes}
+                          isFullyReturned={d.isFullyReturned}
+                          onPreview={setPreviewCreditNote}
+                          onResolve={setResolvingCreditNote}
+                          onProcessReturn={() => setCreditNoteModalOpen(true)}
+                        />
+                        <Stack gap="xs">
+                          <Text size="sm" fw={700}>
+                            {t('Print History')}
                           </Text>
-                        ) : (
-                          <Text size="xs" c="dimmed">
-                            {t('Printed')} {logs.length}
-                            {t('× · Last printed')}{' '}
-                            {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} ({lastLog?.format}
-                            )
-                          </Text>
-                        )}
+                          {logs.length === 0 ? (
+                            <Text size="xs" c="dimmed">
+                              {t('No print logs recorded yet.')}
+                            </Text>
+                          ) : (
+                            <Text size="xs" c="dimmed">
+                              {t('Printed')} {logs.length}
+                              {t('× · Last printed')}{' '}
+                              {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} (
+                              {lastLog?.format})
+                            </Text>
+                          )}
+                        </Stack>
                       </Stack>
                     );
                   }}

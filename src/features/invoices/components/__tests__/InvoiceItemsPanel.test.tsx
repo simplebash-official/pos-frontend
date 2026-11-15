@@ -201,6 +201,21 @@ describe('InvoiceItemsPanel warranties', () => {
     expect(text()).not.toContain('Valid until');
   });
 
+  it('shows a warranty ended by a replacement as "Replaced"', async () => {
+    WARRANTIES = [
+      warranty({
+        key: 'wty_1',
+        state: 'void',
+        status: 'void',
+        lineIndex: 1,
+        replacedByWarrantyKey: 'wty_2',
+      }),
+    ];
+    await render(['warranties:view', 'warranty_claims:record']);
+    await vi.waitFor(() => expect(text()).toContain('Replaced'));
+    expect(text()).not.toContain('Cancelled');
+  });
+
   describe('claiming several at once', () => {
     const CAN_CLAIM = ['warranties:view', 'warranty_claims:record'];
     const tickBoxes = () =>

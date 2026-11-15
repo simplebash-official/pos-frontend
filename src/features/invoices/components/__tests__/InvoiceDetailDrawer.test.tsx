@@ -124,7 +124,7 @@ describe('InvoiceDetailDrawer', () => {
 
   const open = async (
     invoice: Invoice | null,
-    options: { role?: string; deepLink?: boolean } = {}
+    options: { role?: string; deepLink?: boolean; refundClaim?: string } = {}
   ) => {
     await act(async () => {
       root.render(
@@ -135,6 +135,7 @@ describe('InvoiceDetailDrawer', () => {
             invoice={invoice}
             onRefresh={onRefresh}
             openPaymentModalOnMount={options.deepLink}
+            refundClaimOnMount={options.refundClaim}
           />
         </TestHarness>
       );
@@ -303,7 +304,7 @@ describe('InvoiceDetailDrawer', () => {
     expect(text()).toContain('a return or refund recorded against it');
   });
 
-  it('keeps credit notes in view, with a way to start a return', async () => {
+  it('keeps credit notes on the Activity tab, with a way to start a return', async () => {
     CREDIT_NOTES = [
       {
         id: 'cn1',
@@ -315,6 +316,10 @@ describe('InvoiceDetailDrawer', () => {
       },
     ];
     await open(makeInvoice({ hasCreditNotes: true, creditNoteCount: 1 }));
+    expect(text()).not.toContain('CN-0001');
+    expect(tab('Activity')!.textContent).toContain('1');
+    await act(async () => tab('Activity')!.click());
+    await until(() => expect(text()).toContain('CN-0001'));
     expect(text()).toContain('Refunded');
     expect(text()).toContain('Rs. 500.00');
     expect(text()).toContain('CN-0001');
@@ -322,10 +327,16 @@ describe('InvoiceDetailDrawer', () => {
     await until(() => expect(text()).toContain('credit note modal'));
   });
 
+  it('opens on the Activity tab for a refund deep link, where the claim card lives', async () => {
+    await open(makeInvoice(), { refundClaim: 'claim1' });
+    expect(tab('Activity')!.getAttribute('aria-selected')).toBe('true');
+  });
+
   it('shows no return button once every unit has come back', async () => {
     const invoice = makeInvoice();
     invoice.items[0].returnedQuantity = 2;
     await open(invoice);
+    await act(async () => tab('Activity')!.click());
     expect(button('Process Return / Exchange')).toBeUndefined();
     expect(text()).toContain('All items on this invoice have already been returned.');
   });

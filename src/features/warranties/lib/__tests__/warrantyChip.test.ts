@@ -13,6 +13,9 @@ describe('warrantyChipLabel', () => {
       'Expired 13 Dec 2026'
     );
     expect(warrantyChipLabel({ state: 'void', endsOn: '2026-12-13' })).toBe('Cancelled');
+    expect(
+      warrantyChipLabel({ state: 'void', endsOn: '2026-12-13', replacedByWarrantyKey: 'wty_2' })
+    ).toBe('Replaced');
     expect(warrantyChipLabel({ state: 'under_claim', endsOn: '2026-12-13' })).toBe('Under claim');
     expect(warrantyChipLabel({ state: 'active' })).toBe('Covered for life');
   });
