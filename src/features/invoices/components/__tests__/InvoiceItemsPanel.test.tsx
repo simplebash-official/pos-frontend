@@ -183,6 +183,24 @@ describe('InvoiceItemsPanel warranties', () => {
     await render(['warranties:view', 'warranty_claims:record']);
     await vi.waitFor(() => expect(text()).toContain('2 units covered'));
   });
+
+  it('puts quantity and price over the line total, with the warranty chip on the item', async () => {
+    WARRANTIES = [warranty({ key: 'wty_1', lineIndex: 1, serialNumber: undefined })];
+    await render(['warranties:view', 'warranty_claims:record']);
+    await vi.waitFor(() => expect(text()).toContain('Warranty until'));
+    expect(text()).toContain('2 x ');
+    expect(text()).toContain('1 x ');
+    expect(document.querySelector('table')).toBeNull();
+  });
+
+  it('shows a cancelled warranty as "Cancelled" with no date', async () => {
+    WARRANTIES = [warranty({ key: 'wty_1', state: 'void', status: 'void', lineIndex: 1 })];
+    await render(['warranties:view', 'warranty_claims:record']);
+    await vi.waitFor(() => expect(text()).toContain('Cancelled'));
+    expect(text()).not.toContain('Warranty until');
+    expect(text()).not.toContain('Valid until');
+  });
+
   describe('claiming several at once', () => {
     const CAN_CLAIM = ['warranties:view', 'warranty_claims:record'];
     const tickBoxes = () =>

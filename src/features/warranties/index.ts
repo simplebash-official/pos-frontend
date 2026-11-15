@@ -20,5 +20,6 @@ export {
   stateLook,
   toProfileInput,
   validUntil,
+  warrantyChipLabel,
 } from './lib/warrantyView';
 export * from './types';

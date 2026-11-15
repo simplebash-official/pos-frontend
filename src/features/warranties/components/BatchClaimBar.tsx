@@ -17,6 +17,8 @@ export interface BatchClaimBarProps {
   onOpened: (warrantyKeys: string[]) => void;
   /** Told when the claim window opens or closes, so a drawer around it ignores Escape. */
   onNestedWindowChange: (open: boolean) => void;
+  /** Drawn as the top row of a card that has its own border, so it adds none. */
+  embedded?: boolean;
 }
 
 /**
@@ -31,6 +33,7 @@ export const BatchClaimBar = ({
   onSelectionChange,
   onOpened,
   onNestedWindowChange,
+  embedded = false,
 }: BatchClaimBarProps) => {
   const isMobile = useIsMobile();
   const [batch, setBatch] = useState<Warranty[] | null>(null);
@@ -85,7 +88,16 @@ export const BatchClaimBar = ({
 
   return (
     <>
-      <Paper withBorder px="sm" py="xs" bg="var(--bg-card)">
+      <Paper
+        withBorder={!embedded}
+        radius={embedded ? 0 : undefined}
+        px="sm"
+        py="xs"
+        bg="var(--bg-card)"
+        style={
+          embedded ? { borderBottom: '1px solid var(--mantine-color-default-border)' } : undefined
+        }
+      >
         {isMobile ? (
           <Stack gap="xs">
             <Group justify="space-between" align="center" wrap="nowrap">

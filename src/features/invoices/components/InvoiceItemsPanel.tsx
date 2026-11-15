@@ -1,4 +1,5 @@
-import { Fragment, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { t } from '@/shared/i18n/t';
 import {
   Badge,
@@ -9,9 +10,9 @@ import {
   Paper,
   ScrollArea,
   Stack,
-  Table,
   Text,
 } from '@mantine/core';
+import { IconShieldCheck, IconShieldOff, IconShieldX } from '@tabler/icons-react';
 import type { Invoice } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { calcItemReturnedUnits, isItemFullyReturned } from '@/shared/calculations';
@@ -21,8 +22,7 @@ import {
   ClaimLauncher,
   stateLook,
   useWarranties,
-  validUntil,
-  WarrantyStateDot,
+  warrantyChipLabel,
 } from '@/features/warranties';
 import type { Warranty } from '@/features/warranties';
 import { PERMISSIONS } from '@/constants/permissions';
@@ -30,6 +30,7 @@ import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 const TABULAR = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' } as const;
+const ROW_DIVIDER = '1px solid var(--mantine-color-default-border)';
 
 /** Which unit a warranty is for (its serial number, or how many units), or `null` when it covers one plain unit. */
 const unitLabel = (warranty: Warranty): string | null => {
@@ -38,39 +39,85 @@ const unitLabel = (warranty: Warranty): string | null => {
   return null;
 };
 
-/** The warranty's state and unit on the left, and how long it lasts as a badge in the right corner. */
-const WarrantyRowInfo = ({ warranty }: { warranty: Warranty }) => {
-  const unit = unitLabel(warranty);
+/** How long a warranty lasts (or that it was cancelled), coloured by where it stands. */
+const WarrantyChip = ({ warranty }: { warranty: Warranty }) => {
+  const Icon =
+    warranty.state === 'void'
+      ? IconShieldOff
+      : warranty.state === 'expired'
+        ? IconShieldX
+        : IconShieldCheck;
   return (
-    <Group
-      gap="xs"
-      align="center"
-      justify="space-between"
-      wrap="wrap"
-      style={{ flex: 1, minWidth: 0 }}
+    <Badge
+      variant="light"
+      color={stateLook(warranty.state).color}
+      size="md"
+      leftSection={<Icon size={12} />}
+      style={{ textTransform: 'none' }}
     >
-      <Group gap="xs" align="baseline" wrap="wrap" style={{ minWidth: 0 }}>
-        <WarrantyStateDot state={warranty.state} size="xs" />
-        {unit !== null && (
-          <Text size="3xs" c="dimmed" title={unit}>
-            {unit}
-          </Text>
-        )}
-      </Group>
-      <Badge
-        variant="light"
-        color={stateLook(warranty.state).color}
-        size="md"
-        style={{ flexShrink: 0, textTransform: 'none' }}
-      >
-        {validUntil(warranty)}
-      </Badge>
-    </Group>
+      {warrantyChipLabel(warranty)}
+    </Badge>
   );
 };
 
 /** Width of the tick box, so a row without one still lines up with the rows that have it. */
 const checkboxWidth = (isMobile: boolean) => (isMobile ? 24 : 20);
+
+/** One row of the card: tick column, what it is, and the right-hand side (amounts, buttons). */
+const Row = ({
+  select,
+  selected = false,
+  dimmed = false,
+  indent = false,
+  children,
+  amounts,
+  actions,
+}: {
+  /** The tick box or its spacer; `null` when the card has no tick column. */
+  select: ReactNode;
+  selected?: boolean;
+  dimmed?: boolean;
+  indent?: boolean;
+  children: ReactNode;
+  amounts?: ReactNode;
+  actions?: ReactNode;
+}) => {
+  const isMobile = useIsMobile();
+  return (
+    <Group
+      gap="sm"
+      // A phone has no room to keep the buttons beside the amounts, so they drop to their own line.
+      wrap={isMobile ? 'wrap' : 'nowrap'}
+      align="center"
+      px="sm"
+      py="sm"
+      pl={indent ? 'xl' : undefined}
+      style={{
+        borderTop: ROW_DIVIDER,
+        opacity: dimmed ? 0.65 : undefined,
+        background: selected
+          ? 'color-mix(in srgb, var(--mantine-primary-color-filled) 7%, transparent)'
+          : undefined,
+      }}
+    >
+      <Group
+        gap="sm"
+        wrap="nowrap"
+        align="center"
+        style={{ flex: isMobile ? '1 1 100%' : '1 1 0', minWidth: 0 }}
+      >
+        {select}
+        <Box style={{ minWidth: 0, flex: 1 }}>{children}</Box>
+        {!isMobile && amounts}
+      </Group>
+      {/* A phone keeps the name and badge the full width, with the amounts and buttons below. */}
+      {isMobile && amounts}
+      {actions !== undefined && (
+        <Box style={{ marginLeft: 'auto', maxWidth: '100%' }}>{actions}</Box>
+      )}
+    </Group>
+  );
+};
 
 /** What was sold, with anything returned marked in plain words, and the totals that make up the bill. */
 export const InvoiceItemsPanel = ({
@@ -113,147 +160,165 @@ export const InvoiceItemsPanel = ({
       return next;
     });
 
+  /** The tick box of a claimable warranty, a spacer for any other row, nothing without a tick column. */
+  const selectCell = (warranty: Warranty | null): ReactNode => {
+    if (!showSelection) return null;
+    if (warranty === null || !canRecord || !canStartClaim(warranty)) {
+      return <Box w={checkboxWidth(isMobile)} style={{ flexShrink: 0 }} />;
+    }
+    return (
+      <Checkbox
+        size={isMobile ? 'md' : 'sm'}
+        checked={selected.has(warranty.key)}
+        onChange={(event) => toggle(warranty.key, event.currentTarget.checked)}
+        aria-label={`${t('Select')} ${warranty.itemName} ${warranty.warrantyNumber}`}
+      />
+    );
+  };
+  const launcher = (warranty: Warranty) => (
+    <ClaimLauncher
+      warranty={warranty}
+      compact
+      slimLater
+      onNestedWindowChange={onNestedWindowChange}
+    />
+  );
+
   return (
     <Stack gap="md">
-      {showSelection && (
-        <BatchClaimBar
-          claimable={claimable}
-          selected={selected}
-          onSelectionChange={setTicked}
-          onOpened={(keys) =>
-            setTicked((previous) => new Set([...previous].filter((key) => !keys.includes(key))))
-          }
-          onNestedWindowChange={windowChanged}
-        />
-      )}
-      <ScrollArea.Autosize
-        mah="40dvh"
-        offsetScrollbars
-        classNames={{ viewport: 'scrollarea-fluid-content' }}
+      <Paper
+        withBorder
+        radius="md"
+        p={0}
+        style={{ overflow: 'hidden', background: 'var(--bg-card)' }}
       >
-        <Table highlightOnHover={false} horizontalSpacing={isMobile ? 6 : undefined}>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{t('Item')}</Table.Th>
-              <Table.Th style={{ textAlign: 'center' }}>{t('Qty')}</Table.Th>
-              <Table.Th>{t('Price')}</Table.Th>
-              <Table.Th>{t('Total')}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {invoice.items.map((item, lineIndex) => {
-              const lineWarranties = warrantiesByLine.get(lineIndex);
-              const alreadyReturned = calcItemReturnedUnits(item);
-              const itemFullyReturned = isItemFullyReturned(item);
-              return (
-                <Fragment key={item.id}>
-                  <Table.Tr
-                    style={lineWarranties === undefined ? undefined : { borderBottom: 'none' }}
-                  >
-                    <Table.Td>
-                      <Text size="xs" fw={600}>
-                        {item.name}
-                      </Text>
-                      <Text size="3xs" c="dimmed" ff="monospace">
-                        {item.sku ? `${t('SKU:')} ${item.sku}` : null}
-                        {alreadyReturned > 0 ? (
-                          <Text
-                            span
-                            inherit
-                            fw={700}
-                            c={itemFullyReturned ? 'dimmed' : 'orange'}
-                            ff="inherit"
-                          >
-                            {item.sku ? ' · ' : ''}
-                            {itemFullyReturned
-                              ? t('Fully Returned')
-                              : `${t('Returned:')} ${alreadyReturned}`}
-                          </Text>
-                        ) : null}
-                      </Text>
-                      {lineWarranties === undefined && (
-                        <Badge
-                          variant="light"
-                          color="violet"
-                          size="md"
-                          mt={6}
-                          style={{ textTransform: 'none' }}
-                        >
-                          {t('No warranty')}
-                        </Badge>
-                      )}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>{item.quantity}</Table.Td>
-                    <Table.Td style={TABULAR}>{formatMoney(item.unitPriceCents)}</Table.Td>
-                    <Table.Td style={{ fontWeight: 700, ...TABULAR }}>
-                      {formatMoney(item.totalCents)}
-                    </Table.Td>
-                  </Table.Tr>
-                  {lineWarranties !== undefined && (
-                    <Table.Tr>
-                      <Table.Td colSpan={4} pt={0}>
-                        <Stack gap={6}>
-                          {lineWarranties.map((warranty) => {
-                            const canTick = showSelection && canRecord && canStartClaim(warranty);
-                            return (
-                              <Group
-                                key={warranty.key}
-                                justify="space-between"
-                                align="center"
-                                gap="sm"
-                                wrap={isMobile ? 'wrap' : 'nowrap'}
-                                px={6}
-                                py={6}
-                                mx={-6}
-                                style={{
-                                  borderRadius: 'var(--mantine-radius-default)',
-                                  background: selected.has(warranty.key)
-                                    ? 'color-mix(in srgb, var(--mantine-primary-color-filled) 7%, transparent)'
-                                    : undefined,
-                                  minHeight: isMobile ? 44 : undefined,
-                                }}
-                              >
-                                <Group
-                                  gap="sm"
-                                  wrap="nowrap"
-                                  align="center"
-                                  style={{ flex: 1, minWidth: 0 }}
-                                >
-                                  {canTick && (
-                                    <Checkbox
-                                      size={isMobile ? 'md' : 'sm'}
-                                      checked={selected.has(warranty.key)}
-                                      onChange={(event) =>
-                                        toggle(warranty.key, event.currentTarget.checked)
-                                      }
-                                      aria-label={`${t('Select')} ${warranty.itemName} ${warranty.warrantyNumber}`}
-                                    />
-                                  )}
-                                  {showSelection && !canTick && (
-                                    <Box w={checkboxWidth(isMobile)} style={{ flexShrink: 0 }} />
-                                  )}
-                                  <WarrantyRowInfo warranty={warranty} />
-                                </Group>
-                                <Box w={isMobile ? '100%' : undefined} style={{ flexShrink: 0 }}>
-                                  <ClaimLauncher
-                                    warranty={warranty}
-                                    compact
-                                    onNestedWindowChange={onNestedWindowChange}
-                                  />
-                                </Box>
-                              </Group>
-                            );
-                          })}
-                        </Stack>
-                      </Table.Td>
-                    </Table.Tr>
+        {showSelection && (
+          <BatchClaimBar
+            embedded
+            claimable={claimable}
+            selected={selected}
+            onSelectionChange={setTicked}
+            onOpened={(keys) =>
+              setTicked((previous) => new Set([...previous].filter((key) => !keys.includes(key))))
+            }
+            onNestedWindowChange={windowChanged}
+          />
+        )}
+        <ScrollArea.Autosize
+          mah="50dvh"
+          classNames={{ viewport: 'scrollarea-fluid-content' }}
+          style={{ marginTop: -1 }}
+        >
+          {invoice.items.map((item, lineIndex) => {
+            const lineWarranties = warrantiesByLine.get(lineIndex);
+            // A replaced warranty leaves a cancelled one on the same line: the one still running is
+            // the line's warranty, and the cancelled ones are only history beside it.
+            const live = lineWarranties?.filter((w) => w.state !== 'void') ?? [];
+            const single =
+              live.length === 1 ? live[0] : lineWarranties?.length === 1 ? lineWarranties[0] : null;
+            const history =
+              single === null ? [] : (lineWarranties ?? []).filter((w) => w !== single);
+            const alreadyReturned = calcItemReturnedUnits(item);
+            const itemFullyReturned = isItemFullyReturned(item);
+            const name = (
+              <>
+                <Text size="sm" fw={600} c={single?.state === 'void' ? 'dimmed' : undefined}>
+                  {item.name}
+                </Text>
+                <Text size="3xs" c="dimmed" ff="monospace">
+                  {item.sku ? `${t('SKU:')} ${item.sku}` : null}
+                  {alreadyReturned > 0 ? (
+                    <Text
+                      span
+                      inherit
+                      fw={700}
+                      c={itemFullyReturned ? 'dimmed' : 'orange'}
+                      ff="inherit"
+                    >
+                      {item.sku ? ' · ' : ''}
+                      {itemFullyReturned
+                        ? t('Fully Returned')
+                        : `${t('Returned:')} ${alreadyReturned}`}
+                    </Text>
+                  ) : null}
+                </Text>
+              </>
+            );
+            const amounts = (
+              <Box style={{ textAlign: isMobile ? 'left' : 'right', ...TABULAR }}>
+                <Text size="xs" c="dimmed" inherit>
+                  {item.quantity} x {formatMoney(item.unitPriceCents)}
+                </Text>
+                <Text size="md" fw={700} inherit>
+                  {formatMoney(item.totalCents)}
+                </Text>
+              </Box>
+            );
+            const unit = single === null ? null : unitLabel(single);
+            return (
+              <Box key={item.id}>
+                <Row
+                  select={selectCell(single)}
+                  selected={single !== null && selected.has(single.key)}
+                  dimmed={single?.state === 'void'}
+                  amounts={amounts}
+                  actions={single === null ? undefined : launcher(single)}
+                >
+                  {name}
+                  {lineWarranties === undefined && (
+                    <Badge
+                      variant="light"
+                      color="violet"
+                      size="md"
+                      mt={6}
+                      style={{ textTransform: 'none' }}
+                    >
+                      {t('No warranty')}
+                    </Badge>
                   )}
-                </Fragment>
-              );
-            })}
-          </Table.Tbody>
-        </Table>
-      </ScrollArea.Autosize>
+                  {single !== null && (
+                    <Group gap="xs" mt={6} wrap="wrap" align="center">
+                      <WarrantyChip warranty={single} />
+                      {history.map((past) => (
+                        <WarrantyChip key={past.key} warranty={past} />
+                      ))}
+                      {unit !== null && (
+                        <Text size="3xs" c="dimmed" truncate title={unit}>
+                          {unit}
+                        </Text>
+                      )}
+                    </Group>
+                  )}
+                </Row>
+                {lineWarranties !== undefined &&
+                  single === null &&
+                  lineWarranties.map((warranty) => {
+                    const unitText = unitLabel(warranty);
+                    return (
+                      <Row
+                        key={warranty.key}
+                        indent
+                        select={selectCell(warranty)}
+                        selected={selected.has(warranty.key)}
+                        dimmed={warranty.state === 'void'}
+                        actions={launcher(warranty)}
+                      >
+                        <Group gap="xs" wrap="wrap" align="center">
+                          {unitText !== null && (
+                            <Text size="xs" fw={600} truncate title={unitText}>
+                              {unitText}
+                            </Text>
+                          )}
+                          <WarrantyChip warranty={warranty} />
+                        </Group>
+                      </Row>
+                    );
+                  })}
+              </Box>
+            );
+          })}
+        </ScrollArea.Autosize>
+      </Paper>
 
       <Paper p="sm" bg="var(--bg-app)">
         <Stack gap="xs">

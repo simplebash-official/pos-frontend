@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Anchor, Button, Group } from '@mantine/core';
-import { IconClipboardCheck, IconListCheck, IconReplace } from '@tabler/icons-react';
+import { ActionIcon, Anchor, Button, Group, Tooltip } from '@mantine/core';
+import { IconClipboardCheck, IconClock, IconListCheck, IconReplace } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
@@ -19,6 +19,8 @@ export interface ClaimLauncherProps {
   warranty: Warranty;
   /** A row (small, light buttons) or a window footer (regular buttons with an icon). */
   compact: boolean;
+  /** "Take in for later" becomes a clock icon with the words as its label, to save room in a row. */
+  slimLater?: boolean;
   /** Called with the claim once it was started, e.g. to open it where the person already is. */
   onStarted?: (claim: WarrantyClaim) => void;
   /** Told when a claim window opens or closes, so a window around it can ignore Escape. */
@@ -33,6 +35,7 @@ export interface ClaimLauncherProps {
 export const ClaimLauncher = ({
   warranty,
   compact,
+  slimLater = false,
   onStarted,
   onNestedWindowChange,
 }: ClaimLauncherProps) => {
@@ -76,16 +79,30 @@ export const ClaimLauncher = ({
         {selfApproves ? (
           canStartClaim(warranty) && (
             <>
-              <Button
-                size={size}
-                h={height}
-                variant="default"
-                leftSection={compact ? undefined : <IconClipboardCheck size={16} />}
-                onClick={() => show('start')}
-                data-log-id="warranties.open-start-claim"
-              >
-                {t('Take in for later')}
-              </Button>
+              {slimLater ? (
+                <Tooltip label={t('Take in for later')}>
+                  <ActionIcon
+                    size={isMobile ? 44 : 'md'}
+                    variant="default"
+                    aria-label={t('Take in for later')}
+                    onClick={() => show('start')}
+                    data-log-id="warranties.open-start-claim"
+                  >
+                    <IconClock size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              ) : (
+                <Button
+                  size={size}
+                  h={height}
+                  variant="default"
+                  leftSection={compact ? undefined : <IconClipboardCheck size={16} />}
+                  onClick={() => show('start')}
+                  data-log-id="warranties.open-start-claim"
+                >
+                  {t('Take in for later')}
+                </Button>
+              )}
               <Button
                 size={size}
                 h={height}

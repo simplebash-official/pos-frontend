@@ -67,6 +67,15 @@ export const validUntil = (warranty: Pick<Warranty, 'endsOn'>): string =>
     ? t('Covered for life')
     : `${t('Valid until')} ${formatDate(warranty.endsOn)}`;
 
+/** The badge on an invoice line: "Warranty until 13 Dec 2026", "Expired 13 Dec 2026", "Under claim", "Cancelled". */
+export const warrantyChipLabel = (warranty: Pick<Warranty, 'state' | 'endsOn'>): string => {
+  if (warranty.state === 'void') return t('Cancelled');
+  if (warranty.state === 'under_claim') return t('Under claim');
+  if (warranty.endsOn === undefined) return t('Covered for life');
+  const day = formatDate(warranty.endsOn);
+  return warranty.state === 'expired' ? `${t('Expired')} ${day}` : `${t('Warranty until')} ${day}`;
+};
+
 /** "45 days left", "Last day today", "Ended", or "" for lifetime. */
 export const daysLeftLabel = (warranty: Pick<Warranty, 'daysRemaining' | 'state'>): string => {
   if (warranty.daysRemaining === undefined) return '';

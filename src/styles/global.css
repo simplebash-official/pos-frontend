@@ -865,6 +865,10 @@ th.mantine-Table-th {
    two-column layout that folds to one by the drawer's own width (container query, not the
    viewport), a sticky left rail, a pinned footer and animated pill tabs. */
 @media (min-width: 48em) {
+  .mantine-Drawer-content.rich-drawer--xwide {
+    --drawer-size: min(1160px, calc(100vw - 2 * var(--mantine-spacing-md)));
+  }
+
   .mantine-Drawer-content.rich-drawer--wide {
     --drawer-size: min(900px, calc(100vw - 2 * var(--mantine-spacing-md)));
   }

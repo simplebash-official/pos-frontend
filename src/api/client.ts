@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { env } from '@/config/env';
 import { STORAGE_KEYS } from '@/constants';
 import {
@@ -72,6 +72,25 @@ const buildParams = (params?: RequestOptions['params']) => {
   );
 };
 
+let onSessionExpired: (() => void) | null = null;
+
+/** The app's answer to a rejected login token (sign out); set once by the store. */
+export const setSessionExpiredHandler = (handler: () => void): void => {
+  onSessionExpired = handler;
+};
+
+/** A 401 for the signed-in user's own token. A wrong password at the login form is not one. */
+const isRejectedSessionToken = (error: AxiosError): boolean => {
+  const sent = error.config?.headers?.Authorization;
+  const stored = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  return (
+    error.response?.status === 401 &&
+    stored !== null &&
+    sent === `Bearer ${stored}` &&
+    error.config?.url !== '/auth/login'
+  );
+};
+
 class ApiClient {
   private axiosInstance: AxiosInstance;
 
@@ -124,6 +143,8 @@ class ApiClient {
       async (error: unknown) => {
         if (axios.isAxiosError(error)) {
           if (error.response) {
+            // The login has run out (or was ended elsewhere): sign out so the app asks for it again.
+            if (isRejectedSessionToken(error)) onSessionExpired?.();
             // The server answered, so the network is fine — this is a real API error.
             reportNetworkObservation('reachable', readServerTime(error.response.headers));
             const data = await readErrorBody(error.response.data);
