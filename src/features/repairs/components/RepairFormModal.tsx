@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { RepairJob, RepairJobInput } from '../types';
 import {
   isRework,
-  itemFromSaved,
+  itemsFromSaved,
   itemsProblem,
   toItemInputs,
   useRepairTotals,
@@ -75,7 +75,7 @@ export const RepairFormModal = ({
       form.setValues(fromRepairJob(jobToEdit));
       // Loading the job being edited into local state when the window opens.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDrafts(jobToEdit ? jobToEdit.items.map(itemFromSaved) : []);
+      setDrafts(jobToEdit ? itemsFromSaved(jobToEdit.items) : []);
     } else {
       form.reset();
       setDrafts([]);
@@ -91,7 +91,7 @@ export const RepairFormModal = ({
   const workLocked = jobToEdit?.status === 'delivered';
   const totals = useRepairTotals(drafts, rework);
   const workProblem = workLocked ? null : itemsProblem(drafts, kind, form.values.status);
-  const hasStockPart = drafts.some((draft) => draft.part?.source === 'stock');
+  const hasStockPart = drafts.some((draft) => draft.kind === 'part' && draft.part.source === 'stock');
   const navigate = useNavigate();
 
   // Profit and commission are the server's figures for what is typed so far.

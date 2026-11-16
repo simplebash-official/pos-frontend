@@ -62,7 +62,7 @@ export const RepairServicesSection = () => {
       <SectionShell
         title={t('Repair Services')}
         description={t(
-          'The work you do often, with its usual labour and warranty. Add one to a repair job in one tap.'
+          'The work you do often, with its usual fee and warranty. Add one to a repair job in one tap.'
         )}
         isDirty={false}
         onSave={() => undefined}
@@ -123,7 +123,7 @@ export const RepairServicesSection = () => {
                           )}
                         </Group>
                         <Text size="xs" c="dimmed">
-                          {`${t('Labour')} ${formatMoney(service.laborCents)} · ${coverageLabel(service.warranty.coverage)}`}
+                          {`${t('Fee')} ${formatMoney(service.laborCents)} · ${coverageLabel(service.warranty.coverage)}`}
                         </Text>
                       </Stack>
                       <Group gap={4} wrap="nowrap">

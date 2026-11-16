@@ -40,7 +40,7 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
   const saving = create.isPending || update.isPending;
   const failure = create.error ?? update.error;
   const nameProblem = name.trim() === '' ? t('Give the service a name.') : null;
-  const laborProblem = labor !== '' && Number(labor) < 0 ? t('Labour cannot be below zero.') : null;
+  const laborProblem = labor !== '' && Number(labor) < 0 ? t('Fee cannot be below zero.') : null;
   const warrantyProblem = profileProblem(warranty);
 
   const save = async () => {
@@ -97,7 +97,7 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
             data-autofocus={isMobile ? undefined : true}
           />
           <NumberInput
-            label={t('Usual labour')}
+            label={t('Usual fee')}
             description={t(
               'Filled in when the service is added to a job; you can change it there.'
             )}

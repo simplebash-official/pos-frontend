@@ -227,18 +227,18 @@ describe('repair jobs as items', () => {
     });
   };
 
-  it('adds work and a ready-made service, and shows what the customer pays', async () => {
+  it('adds a fee and a ready-made service, and shows what the customer pays', async () => {
     await render(<EditorHost rework={false} start={[]} />);
     expect(text()).toContain('Leave this empty until the device is checked.');
 
-    await act(async () => button('Add work')?.click());
+    await act(async () => button('Add other fee')?.click());
     const description = document.querySelector<HTMLInputElement>(
-      'input[aria-label="What is done 1"]'
+      'input[aria-label="Fee description 1"]'
     );
     expect(description).not.toBeNull();
     await typeInto(description as HTMLInputElement, 'Clean ports');
-    // An empty labour box is fine; a row with no description shows its problem.
-    expect(text()).not.toContain('Say what work is done.');
+    // An empty fee box is fine; a row with no description shows its problem.
+    expect(text()).not.toContain('Say what fee or service this is.');
 
     await vi.waitFor(() => expect(button('Add a service')).toBeDefined());
     await act(async () => button('Add a service')?.click());
@@ -252,7 +252,7 @@ describe('repair jobs as items', () => {
     await act(async () => item.click());
 
     expect(
-      document.querySelector<HTMLInputElement>('input[aria-label="What is done 2"]')?.value
+      document.querySelector<HTMLInputElement>('input[aria-label="Fee description 2"]')?.value
     ).toBe('Screen replacement');
     expect(text()).toContain('3 months');
     expect(text()).toContain('Customer pays');
@@ -272,20 +272,20 @@ describe('repair jobs as items', () => {
 
   it('shows a missing description on the description box itself', async () => {
     await render(<EditorHost rework={false} start={[]} />);
-    await act(async () => button('Add work')?.click());
+    await act(async () => button('Add other fee')?.click());
     const description = document.querySelector<HTMLInputElement>(
-      'input[aria-label="What is done 1"]'
+      'input[aria-label="Fee description 1"]'
     );
     expect(description?.getAttribute('aria-invalid')).toBe('true');
-    expect(text()).toContain('Say what work is done.');
+    expect(text()).toContain('Say what fee or service this is.');
     await typeInto(description as HTMLInputElement, 'Clean ports');
     expect(description?.getAttribute('aria-invalid')).not.toBe('true');
   });
 
-  it('keeps a rework free: labour is off and there is no warranty to give', async () => {
+  it('keeps a rework free: fee is off and there is no warranty to give', async () => {
     await render(<EditorHost rework start={[{ ...blankItem(), description: 'Refit screen' }]} />);
-    const labour = document.querySelector<HTMLInputElement>('input[aria-label="Labour 1"]');
-    expect(labour?.disabled).toBe(true);
+    const fee = document.querySelector<HTMLInputElement>('input[aria-label="Fee 1"]');
+    expect(fee?.disabled).toBe(true);
     expect(text()).toContain('Covered by the original warranty');
     expect(text()).toContain('Customer pays (warranty)');
   });
@@ -331,7 +331,7 @@ describe('repair jobs as items', () => {
     );
     await act(async () => button('Update Ticket')?.click());
     await vi.waitFor(() =>
-      expect(text()).toContain('Add the work done before marking this job ready or delivered.')
+      expect(text()).toContain('Add the parts or fees before marking this job ready or delivered.')
     );
     expect(onSubmit).not.toHaveBeenCalled();
   });
