@@ -259,6 +259,18 @@ describe('repair jobs as items', () => {
     expect(text()).toContain(formatMoney(250_000));
   });
 
+  it('shows a missing description on the description box itself', async () => {
+    await render(<EditorHost rework={false} start={[]} />);
+    await act(async () => button('Add work')?.click());
+    const description = document.querySelector<HTMLInputElement>(
+      'input[aria-label="What is done 1"]'
+    );
+    expect(description?.getAttribute('aria-invalid')).toBe('true');
+    expect(text()).toContain('Say what work is done.');
+    await typeInto(description as HTMLInputElement, 'Clean ports');
+    expect(description?.getAttribute('aria-invalid')).not.toBe('true');
+  });
+
   it('keeps a rework free: labour is off and there is no warranty to give', async () => {
     await render(<EditorHost rework start={[{ ...blankItem(), description: 'Refit screen' }]} />);
     const labour = document.querySelector<HTMLInputElement>('input[aria-label="Labour 1"]');

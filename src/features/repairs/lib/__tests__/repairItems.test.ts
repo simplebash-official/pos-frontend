@@ -105,10 +105,14 @@ describe('repair item rows', () => {
   });
 
   it('says plainly what stops a row or the job being saved', () => {
-    expect(rowProblem(draft({ description: ' ' }), false)).toBe('Say what work is done.');
-    expect(rowProblem(draft({ description: 'Fix', laborRupees: -1 }), false)).toBe(
-      'Labour cannot be below zero.'
-    );
+    expect(rowProblem(draft({ description: ' ' }), false)).toEqual({
+      field: 'description',
+      message: 'Say what work is done.',
+    });
+    expect(rowProblem(draft({ description: 'Fix', laborRupees: -1 }), false)).toEqual({
+      field: 'labour',
+      message: 'Labour cannot be below zero.',
+    });
     expect(
       rowProblem(
         draft({
@@ -117,10 +121,10 @@ describe('repair item rows', () => {
         }),
         false
       )
-    ).toBe('Say what the part is.');
+    ).toEqual({ field: 'part', message: 'Say what the part is.' });
     expect(
       rowProblem(draft({ description: 'Fix', warranty: { coverage: { kind: 'lifetime' } } }), false)
-    ).toBe('Choose who gives the warranty.');
+    ).toEqual({ field: 'warranty', message: 'Choose who gives the warranty.' });
     expect(itemsProblem([], STANDARD, 'ready')).toBe(
       'Add the work done before marking this job ready or delivered.'
     );

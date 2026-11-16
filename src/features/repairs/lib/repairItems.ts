@@ -142,18 +142,33 @@ const STATUSES_NEEDING_WORK: JobStatus[] = ['ready', 'delivered'];
 
 const negative = (value: number | string): boolean => value !== '' && Number(value) < 0;
 
+/** Which box of a row a problem is about, so the message can sit right under it. */
+export type RowProblemField = 'description' | 'labour' | 'part' | 'warranty';
+
+export interface RowProblem {
+  field: RowProblemField;
+  message: string;
+}
+
 /** What stops one row being saved, in plain words (`null` when nothing). */
-export const rowProblem = (draft: ItemDraft, rework: boolean): string | null => {
-  if (draft.description.trim() === '') return t('Say what work is done.');
-  if (negative(draft.laborRupees)) return t('Labour cannot be below zero.');
+export const rowProblem = (draft: ItemDraft, rework: boolean): RowProblem | null => {
+  if (draft.description.trim() === '') {
+    return { field: 'description', message: t('Say what work is done.') };
+  }
+  if (negative(draft.laborRupees)) {
+    return { field: 'labour', message: t('Labour cannot be below zero.') };
+  }
   const part = draft.part;
   if (part !== null && part.source === 'outside') {
-    if (part.name.trim() === '') return t('Say what the part is.');
+    if (part.name.trim() === '') return { field: 'part', message: t('Say what the part is.') };
     if (negative(part.priceRupees) || negative(part.costRupees)) {
-      return t('A part price or cost cannot be below zero.');
+      return { field: 'part', message: t('A part price or cost cannot be below zero.') };
     }
   }
-  if (!rework) return profileProblem(draft.warranty);
+  if (!rework) {
+    const message = profileProblem(draft.warranty);
+    return message === null ? null : { field: 'warranty', message };
+  }
   return null;
 };
 
@@ -169,7 +184,7 @@ export const itemsProblem = (
   }
   for (const draft of drafts) {
     const problem = rowProblem(draft, rework);
-    if (problem !== null) return problem;
+    if (problem !== null) return problem.message;
   }
   return null;
 };

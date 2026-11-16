@@ -4,6 +4,7 @@ import {
   Button,
   Divider,
   Group,
+  Input,
   Menu,
   NumberInput,
   Paper,
@@ -33,6 +34,7 @@ import {
   partPriceCents,
   rowProblem,
   type ItemDraft,
+  type RowProblemField,
   type LiveRepairTotals,
   type PartDraft,
 } from '../lib/repairItems';
@@ -118,112 +120,129 @@ const ItemRow = ({
     );
   }
 
+  const fieldProblem = (field: RowProblemField): string | undefined =>
+    problem !== null && problem.field === field ? problem.message : undefined;
+  const lowProblem = problem !== null && (problem.field === 'part' || problem.field === 'warranty');
+
   return (
     <Paper withBorder p="sm" bg="var(--bg-card)">
-      <Stack gap="xs">
-        <Group gap="xs" wrap="nowrap" align="flex-start">
-          <Text
-            size="xs"
-            fw={700}
-            c="dimmed"
-            mt={isMobile ? 12 : 8}
-            style={{ width: 18, flexShrink: 0 }}
-          >
-            {index + 1}
-          </Text>
-          <TextInput
-            aria-label={`${t('What is done')} ${index + 1}`}
-            placeholder={t('What is done, e.g. Replace screen')}
-            value={draft.description}
-            onChange={(event) => onChange({ ...draft, description: event.currentTarget.value })}
-            maxLength={200}
-            size={size}
-            style={{ flex: 1, minWidth: 0 }}
-          />
-          <IconAction
-            kind="danger"
-            label={t('Remove this work')}
-            icon={<IconTrash size={16} />}
-            onClick={onRemove}
-          />
-        </Group>
-        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs" pl={isMobile ? 0 : 26}>
-          <NumberInput
-            aria-label={`${t('Labour')} ${index + 1}`}
-            label={isMobile ? t('Labour') : undefined}
-            placeholder={rework ? t('Free under warranty') : t('Labour, e.g. 2500')}
-            prefix="Rs. "
-            min={0}
-            thousandSeparator=","
-            value={rework ? '' : draft.laborRupees}
-            onChange={(value) => onChange({ ...draft, laborRupees: value })}
-            disabled={rework}
-            size={size}
-          />
-          {draft.part === null ? (
-            <Button
-              variant="light"
-              leftSection={<IconPackage size={16} />}
-              onClick={onEditPart}
+      <Group align="flex-start" gap="sm" wrap="nowrap">
+        {/* One left column for the number, so every field below starts at the same place. */}
+        <Text
+          size="xs"
+          fw={700}
+          c="dimmed"
+          style={{ width: 18, flexShrink: 0, lineHeight: `${isMobile ? 42 : 36}px` }}
+        >
+          {index + 1}
+        </Text>
+        <Stack gap="sm" style={{ flex: 1, minWidth: 0 }}>
+          <Group gap="xs" wrap="nowrap" align="flex-start">
+            <TextInput
+              aria-label={`${t('What is done')} ${index + 1}`}
+              placeholder={t('What is done, e.g. Replace screen')}
+              value={draft.description}
+              onChange={(event) => onChange({ ...draft, description: event.currentTarget.value })}
+              error={fieldProblem('description')}
+              maxLength={200}
               size={size}
-              justify="flex-start"
-            >
-              {t('Add a part')}
-            </Button>
-          ) : (
-            <Group
-              gap={6}
-              wrap="nowrap"
-              px="xs"
-              style={{
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--mantine-radius-default)',
-                minHeight: isMobile ? 42 : 36,
-                minWidth: 0,
-              }}
-            >
-              <IconPackage size={16} style={{ flexShrink: 0, color: 'var(--text-muted)' }} />
-              <UnstyledButton
-                onClick={onEditPart}
-                style={{ flex: 1, minWidth: 0 }}
-                aria-label={t('Change the part')}
-              >
-                <Text size="sm" truncate="end">
-                  {partLabel(draft.part, rework)}
-                </Text>
-              </UnstyledButton>
-              <UnstyledButton
-                onClick={() => onChange({ ...draft, part: null })}
-                aria-label={t('Remove the part')}
-                style={{ display: 'inline-flex', padding: 6, flexShrink: 0 }}
-              >
-                <IconX size={14} />
-              </UnstyledButton>
-            </Group>
-          )}
-        </SimpleGrid>
-        <Group justify="space-between" gap="xs" pl={isMobile ? 0 : 26} wrap="nowrap">
-          {rework ? (
-            <Text size="xs" c="dimmed">
-              {t('Covered by the original warranty')}
-            </Text>
-          ) : (
-            <ItemWarrantyChip
-              value={draft.warranty}
-              onChange={(warranty) => onChange({ ...draft, warranty })}
-              readOnly={false}
+              style={{ flex: 1, minWidth: 0 }}
             />
+            {/* Same height as the description box, so the button sits level with it. */}
+            <Box style={{ height: isMobile ? 42 : 36, display: 'flex', alignItems: 'center' }}>
+              <IconAction
+                kind="danger"
+                label={t('Remove this work')}
+                icon={<IconTrash size={16} />}
+                onClick={onRemove}
+              />
+            </Box>
+          </Group>
+          <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs">
+            <NumberInput
+              label={t('Labour (Rs.)')}
+              aria-label={`${t('Labour')} ${index + 1}`}
+              placeholder={rework ? t('Free under warranty') : t('e.g. 2500')}
+              prefix="Rs. "
+              min={0}
+              thousandSeparator=","
+              value={rework ? '' : draft.laborRupees}
+              onChange={(value) => onChange({ ...draft, laborRupees: value })}
+              error={fieldProblem('labour')}
+              disabled={rework}
+              size={size}
+            />
+            <Input.Wrapper label={t('Part (optional)')} size={size}>
+              <Box>
+                {draft.part === null ? (
+                  <Button
+                    fullWidth
+                    variant="light"
+                    leftSection={<IconPackage size={16} />}
+                    onClick={onEditPart}
+                    size={size}
+                    justify="flex-start"
+                  >
+                    {t('Add a part')}
+                  </Button>
+                ) : (
+                  <Group
+                    gap={6}
+                    wrap="nowrap"
+                    px="xs"
+                    style={{
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--mantine-radius-default)',
+                      minHeight: isMobile ? 42 : 36,
+                      minWidth: 0,
+                    }}
+                  >
+                    <IconPackage size={16} style={{ flexShrink: 0, color: 'var(--text-muted)' }} />
+                    <UnstyledButton
+                      onClick={onEditPart}
+                      style={{ flex: 1, minWidth: 0 }}
+                      aria-label={t('Change the part')}
+                    >
+                      <Text size="sm" truncate="end">
+                        {partLabel(draft.part, rework)}
+                      </Text>
+                    </UnstyledButton>
+                    <UnstyledButton
+                      onClick={() => onChange({ ...draft, part: null })}
+                      aria-label={t('Remove the part')}
+                      style={{ display: 'inline-flex', padding: 6, flexShrink: 0 }}
+                    >
+                      <IconX size={14} />
+                    </UnstyledButton>
+                  </Group>
+                )}
+              </Box>
+            </Input.Wrapper>
+          </SimpleGrid>
+          <Divider />
+          <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
+            {rework ? (
+              <Text size="xs" c="dimmed">
+                {t('Covered by the original warranty')}
+              </Text>
+            ) : (
+              <ItemWarrantyChip
+                value={draft.warranty}
+                onChange={(warranty) => onChange({ ...draft, warranty })}
+                readOnly={false}
+              />
+            )}
+            <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {formatMoney(lineCents)}
+            </Text>
+          </Group>
+          {lowProblem && (
+            <Text size="xs" c="red" role="alert">
+              {problem.message}
+            </Text>
           )}
-          <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-            {formatMoney(lineCents)}
-          </Text>
-        </Group>
-        {problem !== null && (
-          <Text size="xs" c="red" pl={isMobile ? 0 : 26} role="alert">
-            {problem}
-          </Text>
-        )}
-      </Stack>
+        </Stack>
+      </Group>
     </Paper>
   );
 };

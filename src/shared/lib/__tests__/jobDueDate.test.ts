@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { getJobDueMeta } from '../jobDueDate';
+import dayjs from 'dayjs';
+import {
+  describeDueDate,
+  fromDateValue,
+  getJobDueMeta,
+  quickDates,
+  toDateValue,
+} from '../jobDueDate';
 
 const iso = (offsetDays: number): string => {
   const d = new Date();
@@ -38,5 +45,30 @@ describe('getJobDueMeta', () => {
 
   it('returns null when there is no promised date', () => {
     expect(getJobDueMeta({ status: 'in_repair' })).toBeNull();
+  });
+});
+
+describe('promised date helpers', () => {
+  it('keeps the calendar day a person picked, whatever the time zone', () => {
+    expect(toDateValue(new Date(2026, 10, 20, 0, 0, 0))).toBe('2026-11-20');
+    expect(toDateValue(fromDateValue('2026-11-20'))).toBe('2026-11-20');
+  });
+
+  it('says how far away the date is', () => {
+    expect(describeDueDate(iso(0))).toEqual({ label: 'Today', color: 'orange' });
+    expect(describeDueDate(iso(1)).label).toBe('Tomorrow');
+    expect(describeDueDate(iso(5))).toEqual({ label: '5 days to go', color: 'blue' });
+    expect(describeDueDate(iso(-1))).toEqual({ label: 'Yesterday', color: 'red' });
+    expect(describeDueDate(iso(-4))).toEqual({ label: '4 days late', color: 'red' });
+  });
+
+  it('offers today, tomorrow, in 3 days, next week and next month', () => {
+    expect(quickDates()).toEqual([
+      { label: 'Today', value: iso(0) },
+      { label: 'Tomorrow', value: iso(1) },
+      { label: 'In 3 days', value: iso(3) },
+      { label: 'Next week', value: iso(7) },
+      { label: 'Next month', value: toDateValue(dayjs().add(1, 'month').toDate()) },
+    ]);
   });
 });

@@ -13,7 +13,7 @@ import {
   Paper,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { DateInput } from '@mantine/dates';
+import { PromisedDatePicker } from '@/shared/components/PromisedDatePicker';
 import { IconUser, IconPhone } from '@tabler/icons-react';
 import { PrintJob, PrintJobInput } from '../types';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
@@ -153,21 +153,11 @@ export const PrintJobFormModal = ({
               required
               {...form.getInputProps('status')}
             />
-            <DateInput
+            <PromisedDatePicker
               label={t('Promised ready by')}
-              placeholder={t('Pick a date (optional)')}
-              clearable
-              popoverProps={{ width: 'target' }}
-              value={form.values.promisedReadyAt ? new Date(form.values.promisedReadyAt) : null}
-              onChange={(d: Date | string | null) => {
-                if (!d) {
-                  form.setFieldValue('promisedReadyAt', null);
-                } else if (typeof d === 'string') {
-                  form.setFieldValue('promisedReadyAt', d.slice(0, 10));
-                } else {
-                  form.setFieldValue('promisedReadyAt', d.toISOString().split('T')[0]);
-                }
-              }}
+              value={form.values.promisedReadyAt}
+              onChange={(next) => form.setFieldValue('promisedReadyAt', next)}
+              onNestedWindowChange={setNestedOpen}
             />
           </Group>
 
