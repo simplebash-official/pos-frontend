@@ -68,7 +68,7 @@ export const RepairPartPicker = ({
         }
       : NO_STOCK
   );
-  const [scan, setScan] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [scanError, setScanError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [name, setName] = useState(initial?.source === 'outside' ? initial.name : '');
@@ -90,6 +90,25 @@ export const RepairPartPicker = ({
     candidate.isSerialized ? candidate.stockQuantity > 0 : candidate.priceTiers.length > 0
   );
 
+  const handleSelectProduct = (productKey: string | null) => {
+    setLookupError(null);
+    setScanError(null);
+    if (!productKey) {
+      setStock(NO_STOCK);
+      return;
+    }
+    const chosen = inStock.find((p) => p.key === productKey);
+    if (chosen && !chosen.isSerialized && chosen.priceTiers.length === 1) {
+      setStock({
+        productKey,
+        serialNumber: null,
+        priceCents: chosen.priceTiers[0].sellingPriceCents,
+      });
+    } else {
+      setStock({ productKey, serialNumber: null, priceCents: null });
+    }
+  };
+
   const chooseSerial = async (serialNumber: string | null) => {
     setLookupError(null);
     setStock({ ...stock, serialNumber, priceCents: null });
@@ -106,9 +125,23 @@ export const RepairPartPicker = ({
     }
   };
 
-  const runScan = async () => {
-    const text = scan.trim();
+  const handleScanOrSubmit = async (rawText: string) => {
+    const text = rawText.trim();
     if (text === '') return;
+
+    // 1. Check if the text matches a product SKU, barcode, or exact name
+    const directMatch = inStock.find(
+      (p) =>
+        p.sku?.toLowerCase() === text.toLowerCase() ||
+        p.barcode === text ||
+        p.name.toLowerCase() === text.toLowerCase()
+    );
+    if (directMatch) {
+      handleSelectProduct(directMatch.key);
+      return;
+    }
+
+    // 2. Look up as a serial number
     setScanning(true);
     setScanError(null);
     try {
@@ -118,7 +151,7 @@ export const RepairPartPicker = ({
         serialNumber: found.serial.serialNumber,
         priceCents: found.sellingPriceCents,
       });
-      setScan('');
+      setSearchQuery('');
     } catch (error) {
       setScanError(getErrorMessage(error));
     } finally {
@@ -189,39 +222,47 @@ export const RepairPartPicker = ({
 
         {source === 'stock' ? (
           <Stack gap="sm">
-            <TextInput
-              label={t('Scan a serial number')}
-              placeholder={t('Scan or type it, then press Enter')}
+            <Select
+              label={t('Part from stock')}
+              placeholder={
+                products.isLoading
+                  ? t('Loading items…')
+                  : t('Scan serial / barcode, or search item name...')
+              }
               leftSection={<IconBarcode size={16} />}
               rightSection={scanning ? <Loader size="xs" /> : null}
-              value={scan}
-              onChange={(event) => setScan(event.currentTarget.value)}
+              data={inStock.map((candidate) => {
+                const priceInfo =
+                  candidate.priceTiers.length === 1
+                    ? ` · ${formatMoney(candidate.priceTiers[0].sellingPriceCents)}`
+                    : candidate.priceTiers.length > 1
+                      ? ` · ${t('from')} ${formatMoney(candidate.priceTiers[0].sellingPriceCents)}`
+                      : '';
+                return {
+                  value: candidate.key,
+                  label: `${candidate.name} · ${candidate.stockQuantity} ${t('in stock')}${priceInfo}`,
+                };
+              })}
+              value={stock.productKey}
+              onSearchChange={(query) => {
+                setSearchQuery(query);
+                setScanError(null);
+                setLookupError(null);
+              }}
+              onChange={(productKey) => handleSelectProduct(productKey)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
-                  event.preventDefault();
-                  void runScan();
+                  const text = (event.currentTarget.value || searchQuery).trim();
+                  if (text) {
+                    void handleScanOrSubmit(text);
+                  }
                 }
               }}
-              error={scanError}
-              data-barcode-scanner="true"
-              size={size}
-            />
-            <Select
-              label={t('Or choose the item')}
-              placeholder={
-                products.isLoading ? t('Loading items…') : t('Search items that are in stock')
-              }
-              data={inStock.map((candidate) => ({
-                value: candidate.key,
-                label: `${candidate.name} · ${candidate.stockQuantity} ${t('in stock')}`,
-              }))}
-              value={stock.productKey}
-              onChange={(productKey) => {
-                setLookupError(null);
-                setStock({ productKey, serialNumber: null, priceCents: null });
-              }}
               searchable
-              nothingFoundMessage={t('No item in stock matches')}
+              clearable
+              nothingFoundMessage={t('No item matches (press Enter to scan as serial/barcode)')}
+              error={scanError || lookupError}
+              data-barcode-scanner="true"
               size={size}
               comboboxProps={{ withinPortal: true }}
             />
@@ -241,7 +282,7 @@ export const RepairPartPicker = ({
                 comboboxProps={{ withinPortal: true }}
               />
             )}
-            {product !== undefined && !product.isSerialized && (
+            {product !== undefined && !product.isSerialized && product.priceTiers.length > 1 && (
               <Select
                 label={t('Take it from stock sold at')}
                 placeholder={t('Choose a price')}

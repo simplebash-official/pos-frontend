@@ -259,6 +259,17 @@ describe('repair jobs as items', () => {
     expect(text()).toContain(formatMoney(250_000));
   });
 
+  it('opens the part picker from "+ Add part from stock" with a single unified stock search field', async () => {
+    await render(<EditorHost rework={false} start={[]} />);
+    expect(button('Add part from stock')).toBeDefined();
+    await act(async () => button('Add part from stock')?.click());
+
+    // Single unified stock input exists with barcode scanner attribute
+    const scannerInputs = document.querySelectorAll('input[data-barcode-scanner="true"]');
+    expect(scannerInputs.length).toBe(1);
+    expect(text()).toContain('Part from stock');
+  });
+
   it('shows a missing description on the description box itself', async () => {
     await render(<EditorHost rework={false} start={[]} />);
     await act(async () => button('Add work')?.click());
