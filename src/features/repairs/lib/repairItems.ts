@@ -67,6 +67,19 @@ export const itemFromService = (service: RepairService, rework: boolean): ItemDr
   warranty: rework ? NO_COVER : service.warranty,
 });
 
+/** A row created directly from an inventory or outside part. */
+export const itemFromPart = (
+  part: PartDraft,
+  warranty: ProductWarranty = NO_COVER,
+  rework = false
+): ItemDraft => ({
+  uid: uid(),
+  description: part.source === 'stock' ? part.productName : part.name,
+  laborRupees: '',
+  part,
+  warranty: rework ? NO_COVER : warranty,
+});
+
 /** A saved item as an editable row. */
 export const itemFromSaved = (item: RepairItem): ItemDraft => ({
   uid: uid(),
@@ -115,28 +128,34 @@ export const partCostCents = (part: PartDraft | null): number | null => {
 
 /** The rows as the server wants them; it prices stock parts itself. */
 export const toItemInputs = (drafts: ItemDraft[], rework: boolean): RepairItemInput[] =>
-  drafts.map((draft) => ({
-    key: draft.key,
-    description: draft.description.trim(),
-    laborCents: rework ? 0 : rupees(draft.laborRupees),
-    part:
-      draft.part === null
-        ? undefined
-        : draft.part.source === 'stock'
-          ? {
-              source: 'stock',
-              productKey: draft.part.productKey,
-              serialNumber: draft.part.serialNumber,
-              sellingPriceCents: draft.part.sellingPriceCents,
-            }
-          : {
-              source: 'outside',
-              name: draft.part.name.trim(),
-              priceCents: rework ? 0 : rupees(draft.part.priceRupees),
-              costCents: rupees(draft.part.costRupees),
-            },
-    warranty: rework ? NO_COVER : draft.warranty,
-  }));
+  drafts.map((draft) => {
+    const fallbackDesc = draft.part
+      ? (draft.part.source === 'stock' ? draft.part.productName : draft.part.name)
+      : '';
+    const description = (draft.description.trim() || fallbackDesc).trim();
+    return {
+      key: draft.key,
+      description,
+      laborCents: rework ? 0 : rupees(draft.laborRupees),
+      part:
+        draft.part === null
+          ? undefined
+          : draft.part.source === 'stock'
+            ? {
+                source: 'stock',
+                productKey: draft.part.productKey,
+                serialNumber: draft.part.serialNumber,
+                sellingPriceCents: draft.part.sellingPriceCents,
+              }
+            : {
+                source: 'outside',
+                name: draft.part.name.trim(),
+                priceCents: rework ? 0 : rupees(draft.part.priceRupees),
+                costCents: rupees(draft.part.costRupees),
+              },
+      warranty: rework ? NO_COVER : draft.warranty,
+    };
+  });
 
 const STATUSES_NEEDING_WORK: JobStatus[] = ['ready', 'delivered'];
 
@@ -152,7 +171,10 @@ export interface RowProblem {
 
 /** What stops one row being saved, in plain words (`null` when nothing). */
 export const rowProblem = (draft: ItemDraft, rework: boolean): RowProblem | null => {
-  if (draft.description.trim() === '') {
+  const fallbackDesc = draft.part
+    ? (draft.part.source === 'stock' ? draft.part.productName : draft.part.name)
+    : '';
+  if ((draft.description.trim() || fallbackDesc).trim() === '') {
     return { field: 'description', message: t('Say what work is done.') };
   }
   if (negative(draft.laborRupees)) {

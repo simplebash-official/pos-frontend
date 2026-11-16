@@ -30,6 +30,7 @@ import { AnimatedNumber, FadeIn } from '@/shared/motion';
 import { useRepairServices } from '../hooks/useRepairServices';
 import {
   blankItem,
+  itemFromPart,
   itemFromService,
   partPriceCents,
   rowProblem,
@@ -100,8 +101,9 @@ const ItemRow = ({
                 {draft.description}
               </Text>
               <Text size="xs" c="dimmed">
-                {`${t('Labour')} ${formatMoney(labourCents)}`}
-                {draft.part === null ? '' : ` · ${partLabel(draft.part, rework)}`}
+                {labourCents > 0 || draft.part === null
+                  ? `${t('Labour')} ${formatMoney(labourCents)}${draft.part === null ? '' : ` · ${partLabel(draft.part, rework)}`}`
+                  : partLabel(draft.part, rework)}
               </Text>
               {rework ? (
                 <Text size="xs" c="dimmed">
@@ -256,6 +258,11 @@ export interface RepairItemsEditorProps {
   /** Show each row's problem (after a save was tried). */
   showProblems: boolean;
   totals: LiveRepairTotals | null;
+  profit?: {
+    priced: boolean;
+    profitCents: number;
+    hint: string | null;
+  };
   /** The part window is open, so the job window must not close on Escape. */
   onNestedWindowChange: (open: boolean) => void;
 }
@@ -272,20 +279,25 @@ export const RepairItemsEditor = ({
   readOnly,
   showProblems,
   totals,
+  profit,
   onNestedWindowChange,
 }: RepairItemsEditorProps) => {
   const services = useRepairServices(false, !readOnly);
-  const [partRow, setPartRow] = useState<string | null>(null);
-  const editing = drafts.find((draft) => draft.uid === partRow);
+  const [partTarget, setPartTarget] = useState<string | 'new' | null>(null);
+  const editing = drafts.find((draft) => draft.uid === partTarget);
 
   const replace = (uid: string, next: ItemDraft) =>
     onChange(drafts.map((draft) => (draft.uid === uid ? next : draft)));
+  const openNewPart = () => {
+    setPartTarget('new');
+    onNestedWindowChange(true);
+  };
   const openPart = (uid: string) => {
-    setPartRow(uid);
+    setPartTarget(uid);
     onNestedWindowChange(true);
   };
   const closePart = () => {
-    setPartRow(null);
+    setPartTarget(null);
     onNestedWindowChange(false);
   };
 
@@ -322,7 +334,16 @@ export const RepairItemsEditor = ({
       ))}
 
       {!readOnly && (
-        <Group gap="xs">
+        <Group gap="xs" wrap="wrap">
+          <Button
+            variant="light"
+            color="blue"
+            leftSection={<IconPackage size={16} />}
+            onClick={openNewPart}
+            data-log-id="repairs.add-part-from-stock"
+          >
+            {t('Add part from stock')}
+          </Button>
           <Button
             variant="light"
             leftSection={<IconPlus size={16} />}
@@ -369,22 +390,26 @@ export const RepairItemsEditor = ({
       {drafts.length > 0 && totals !== null && (
         <Paper withBorder p="sm" bg="var(--bg-app)">
           <Stack gap={4}>
-            <Group justify="space-between">
-              <Text size="sm" c="dimmed">
-                {t('Labour')}
-              </Text>
-              <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {formatMoney(totals.totals.laborCents)}
-              </Text>
-            </Group>
-            <Group justify="space-between">
-              <Text size="sm" c="dimmed">
-                {t('Parts')}
-              </Text>
-              <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {formatMoney(totals.totals.partsCents)}
-              </Text>
-            </Group>
+            {(totals.totals.laborCents > 0 || totals.totals.partsCents === 0) && (
+              <Group justify="space-between">
+                <Text size="sm" c="dimmed">
+                  {t('Labour')}
+                </Text>
+                <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {formatMoney(totals.totals.laborCents)}
+                </Text>
+              </Group>
+            )}
+            {totals.totals.partsCents > 0 && (
+              <Group justify="space-between">
+                <Text size="sm" c="dimmed">
+                  {t('Parts')}
+                </Text>
+                <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {formatMoney(totals.totals.partsCents)}
+                </Text>
+              </Group>
+            )}
             <Divider my={4} />
             <Group justify="space-between">
               <Text fw={700}>{rework ? t('Customer pays (warranty)') : t('Customer pays')}</Text>
@@ -392,19 +417,53 @@ export const RepairItemsEditor = ({
                 <AnimatedNumber value={totals.totals.priceCents} format={formatMoney} />
               </Text>
             </Group>
+            {!rework && profit !== undefined && (
+              <Group justify="space-between" mt={4}>
+                <Text size="xs" c="dimmed">
+                  {t('Estimated Repair Net Profit:')}
+                </Text>
+                <Text
+                  size="xs"
+                  fw={700}
+                  c={profit.priced ? 'teal.7' : 'dimmed'}
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {profit.priced ? formatMoney(profit.profitCents) : profit.hint}
+                </Text>
+              </Group>
+            )}
           </Stack>
         </Paper>
       )}
 
-      {editing !== undefined && (
+      {partTarget !== null && (
         <RepairPartPicker
-          key={editing.uid}
+          key={partTarget}
           opened
-          initial={editing.part}
+          initial={editing ? editing.part : null}
           rework={rework}
           onClose={closePart}
-          onPick={(part) => {
-            replace(editing.uid, { ...editing, part });
+          onPick={(part, warranty) => {
+            if (partTarget === 'new') {
+              onChange([...drafts, itemFromPart(part, warranty, rework)]);
+            } else if (editing !== undefined) {
+              const autoDesc =
+                editing.description.trim() === ''
+                  ? part.source === 'stock'
+                    ? part.productName
+                    : part.name
+                  : editing.description;
+              const autoWarranty =
+                !rework && editing.warranty.coverage.kind === 'none' && warranty
+                  ? warranty
+                  : editing.warranty;
+              replace(editing.uid, {
+                ...editing,
+                description: autoDesc,
+                part,
+                warranty: autoWarranty,
+              });
+            }
             closePart();
           }}
         />

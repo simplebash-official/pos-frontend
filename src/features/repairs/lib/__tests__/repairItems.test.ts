@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RepairItem, RepairService } from '../../types';
 import {
   blankItem,
+  itemFromPart,
   itemFromSaved,
   itemFromService,
   itemsProblem,
@@ -91,6 +92,43 @@ describe('repair item rows', () => {
     expect(free.warranty).toEqual({ coverage: { kind: 'none' } });
   });
 
+  it('fills a row directly from a stock or outside part with zero labour', () => {
+    const partDraft = {
+      source: 'stock' as const,
+      productKey: 'prod_bat',
+      productName: 'iPhone 13 Battery',
+      priceCents: 500_000,
+      costCents: 300_000,
+    };
+    const row = itemFromPart(partDraft, THREE_MONTHS, false);
+    expect(row.description).toBe('iPhone 13 Battery');
+    expect(row.laborRupees).toBe('');
+    expect(row.part).toEqual(partDraft);
+    expect(row.warranty).toEqual(THREE_MONTHS);
+
+    // Converts cleanly to item inputs with 0 labor
+    const [input] = toItemInputs([row], false);
+    expect(input.description).toBe('iPhone 13 Battery');
+    expect(input.laborCents).toBe(0);
+  });
+
+  it('falls back to part name if description is left empty', () => {
+    const row = draft({
+      description: '',
+      laborRupees: '',
+      part: {
+        source: 'stock',
+        productKey: 'prod_screen',
+        productName: 'OLED Display',
+        priceCents: 1_200_000,
+        costCents: 800_000,
+      },
+    });
+    expect(rowProblem(row, false)).toBeNull();
+    const [input] = toItemInputs([row], false);
+    expect(input.description).toBe('OLED Display');
+  });
+
   it('sends a rework free: no labour, no outside part price, no warranty', () => {
     const row = draft({
       description: 'Refit',
@@ -166,6 +204,44 @@ describe('repair totals', () => {
     const live = repairTotals([row], false);
     expect(live.totals.priceCents).toBe(1_200_000);
     expect(live.costKnown).toBe(false);
+  });
+
+  it('computes parts-only repairs where final amount is display + battery and profit is parts profit', () => {
+    const display = draft({
+      description: 'Display Replacement',
+      laborRupees: '',
+      part: {
+        source: 'stock',
+        productKey: 'prod_screen',
+        productName: 'iPhone 13 Display',
+        sellingPriceCents: 1_500_000,
+        priceCents: 1_500_000,
+        costCents: 1_000_000,
+      },
+    });
+    const battery = draft({
+      description: 'Battery Replacement',
+      laborRupees: '',
+      part: {
+        source: 'stock',
+        productKey: 'prod_battery',
+        productName: 'iPhone 13 Battery',
+        sellingPriceCents: 500_000,
+        priceCents: 500_000,
+        costCents: 300_000,
+      },
+    });
+
+    const live = repairTotals([display, battery], false);
+    expect(live.totals.laborCents).toBe(0);
+    expect(live.totals.partsCents).toBe(2_000_000);
+    expect(live.totals.priceCents).toBe(2_000_000);
+    expect(live.totals.costCents).toBe(1_300_000);
+    expect(live.costKnown).toBe(true);
+
+    // Net profit for this job is exactly Display Profit (500,000) + Battery Profit (200,000) = 700,000
+    const profitCents = live.totals.priceCents - live.totals.costCents;
+    expect(profitCents).toBe(700_000);
   });
 
   it('charges nothing on a rework', () => {

@@ -32,7 +32,6 @@ import { RepairItemsEditor } from './RepairItemsEditor';
 import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus, ROUTES } from '@/constants';
-import { formatMoney } from '@/shared/lib/money';
 import { RepairFormValues, fromRepairJob, toRepairInput } from '@/shared/lib/moneyFormUtils';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -250,23 +249,13 @@ export const RepairFormModal = ({
             readOnly={workLocked}
             showProblems={tried}
             totals={totals}
+            profit={{ priced, profitCents, hint: priceHint }}
             onNestedWindowChange={setNestedOpen}
           />
           {tried && workProblem !== null && drafts.length === 0 && (
             <Text size="sm" c="red" role="alert">
               {workProblem}
             </Text>
-          )}
-
-          {!rework && drafts.length > 0 && (
-            <Group justify="space-between">
-              <Text size="sm" c="dimmed">
-                {t('Estimated Repair Net Profit:')}
-              </Text>
-              <Text size="sm" fw={800} c={priced ? 'green' : 'dimmed'}>
-                {priced ? formatMoney(profitCents) : priceHint}
-              </Text>
-            </Group>
           )}
 
           {workLocked && jobToEdit !== null && jobToEdit !== undefined && !rework && (

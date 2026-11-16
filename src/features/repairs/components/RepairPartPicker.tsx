@@ -21,6 +21,7 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
 import { formatMoney } from '@/shared/lib/money';
+import type { ProductWarranty } from '@/features/warranties';
 import type { PartDraft } from '../lib/repairItems';
 
 type Source = 'stock' | 'outside';
@@ -32,7 +33,7 @@ export interface RepairPartPickerProps {
   /** A warranty rework charges nothing for its parts. */
   rework: boolean;
   onClose: () => void;
-  onPick: (part: PartDraft) => void;
+  onPick: (part: PartDraft, warranty?: ProductWarranty) => void;
 }
 
 interface StockChoice {
@@ -147,7 +148,7 @@ export const RepairPartPicker = ({
 
   const pick = () => {
     if (source === 'stock') {
-      if (stockPart !== null) onPick(stockPart);
+      if (stockPart !== null) onPick(stockPart, product?.warranty);
       return;
     }
     if (outsideProblem !== null) return;
