@@ -18,11 +18,19 @@ export type PartDraft =
       productKey: string;
       productName: string;
       serialNumber?: string;
+      stockQuantity?: number;
+      sku?: string;
       sellingPriceCents?: number;
       priceCents: number;
       costCents: number | null;
     }
   | { source: 'outside'; name: string; priceRupees: number | string; costRupees: number | string };
+
+export const DEFAULT_QUICK_FEES = [
+  'Diagnostic fee',
+  'Software',
+  'Cleaning',
+] as const;
 
 /** A physical part used in the repair (from inventory or outside). Has no fee/labour field. */
 export interface PartItemDraft {
@@ -212,6 +220,36 @@ export const partLabel = (part: PartDraft, rework: boolean): string => {
   }
   const price = rework || part.priceRupees === '' ? '' : ` · ${formatMoney(rupees(part.priceRupees))}`;
   return `${part.name}${price}`;
+};
+
+/** Calculates the profit margin for an outside part in rupees. */
+export const calculateOutsideProfit = (
+  priceRupees: number | string,
+  costRupees: number | string
+): number | null => {
+  if (priceRupees === '' || costRupees === '') return null;
+  const p = Number(priceRupees);
+  const c = Number(costRupees);
+  if (isNaN(p) || isNaN(c)) return null;
+  return p - c;
+};
+
+/** Calculates the total net profit on all parts (in cents), or null if any stock part cost is unknown. */
+export const calculatePartsProfitCents = (drafts: ItemDraft[]): number | null => {
+  let totalProfit = 0;
+  for (const draft of drafts) {
+    if (draft.kind === 'part') {
+      if (draft.part.source === 'stock') {
+        if (draft.part.costCents === null) return null;
+        totalProfit += draft.part.priceCents - draft.part.costCents;
+      } else {
+        const p = rupees(draft.part.priceRupees);
+        const c = rupees(draft.part.costRupees);
+        totalProfit += p - c;
+      }
+    }
+  }
+  return totalProfit;
 };
 
 /** The rows as the server wants them; it prices stock parts itself. */

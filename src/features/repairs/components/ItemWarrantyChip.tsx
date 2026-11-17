@@ -26,10 +26,19 @@ export const ItemWarrantyChip = ({ value, onChange, readOnly }: ItemWarrantyChip
   const tag = (
     <Badge
       size="sm"
-      variant="light"
+      variant="outline"
       color={covered ? 'teal' : 'gray'}
+      radius="xl"
       leftSection={covered ? <IconShieldCheck size={12} /> : <IconShieldOff size={12} />}
-      style={{ textTransform: 'none', flexShrink: 0, cursor: readOnly ? 'default' : 'pointer' }}
+      style={{
+        textTransform: 'none',
+        flexShrink: 0,
+        cursor: readOnly ? 'default' : 'pointer',
+        fontWeight: 500,
+        backgroundColor: covered
+          ? 'light-dark(var(--mantine-color-teal-0), rgba(18, 184, 134, 0.12))'
+          : 'light-dark(var(--mantine-color-gray-0), rgba(255, 255, 255, 0.04))',
+      }}
     >
       {coverageLabel(value.coverage)}
     </Badge>

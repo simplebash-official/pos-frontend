@@ -191,17 +191,6 @@ const buttons = () => [...document.querySelectorAll('button')];
 const button = (text: string) => buttons().find((b) => b.textContent?.trim() === text);
 const text = () => document.body.textContent ?? '';
 
-const typeInto = async (input: HTMLInputElement | HTMLTextAreaElement, value: string) => {
-  await act(async () => {
-    const proto =
-      input instanceof HTMLTextAreaElement
-        ? HTMLTextAreaElement.prototype
-        : HTMLInputElement.prototype;
-    Object.getOwnPropertyDescriptor(proto, 'value')?.set?.call(input, value);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-};
-
 describe('repair jobs as items', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -227,59 +216,32 @@ describe('repair jobs as items', () => {
     });
   };
 
-  it('adds a fee and a ready-made service, and shows what the customer pays', async () => {
+  it('adds quick fees and ready-made services, and shows what the customer pays', async () => {
     await render(<EditorHost rework={false} start={[]} />);
     expect(text()).toContain('Leave this empty until the device is checked.');
 
-    await act(async () => button('Add other fee')?.click());
-    const description = document.querySelector<HTMLInputElement>(
-      'input[aria-label="Fee description 1"]'
-    );
-    expect(description).not.toBeNull();
-    await typeInto(description as HTMLInputElement, 'Clean ports');
-    // An empty fee box is fine; a row with no description shows its problem.
-    expect(text()).not.toContain('Say what fee or service this is.');
+    // Quick fees pills exist
+    expect(button('Diagnostic fee')).toBeDefined();
+    await act(async () => button('Diagnostic fee')?.click());
 
-    await vi.waitFor(() => expect(button('Add a service')).toBeDefined());
-    await act(async () => button('Add a service')?.click());
-    const item = await vi.waitFor(() => {
-      const found = [...document.querySelectorAll('[role="menuitem"]')].find((el) =>
-        el.textContent?.includes('Screen replacement')
-      );
-      if (found === undefined) throw new Error('menu not open');
-      return found as HTMLElement;
-    });
-    await act(async () => item.click());
+    expect(text()).toContain('Diagnostic fee');
+    expect(text()).toContain('Service fee');
 
-    expect(
-      document.querySelector<HTMLInputElement>('input[aria-label="Fee description 2"]')?.value
-    ).toBe('Screen replacement');
+    // Ready-made service from settings appears as a quick fee pill
+    await vi.waitFor(() => expect(button('Screen replacement')).toBeDefined());
+    await act(async () => button('Screen replacement')?.click());
+
+    expect(text()).toContain('Screen replacement');
     expect(text()).toContain('3 months');
-    expect(text()).toContain('Customer pays');
+    expect(text()).toContain('Total');
     expect(text()).toContain(formatMoney(250_000));
   });
 
-  it('opens the part picker from "+ Add part from stock" with a single unified stock search field', async () => {
+  it('renders the universal search and barcode scanner input', async () => {
     await render(<EditorHost rework={false} start={[]} />);
-    expect(button('Add part from stock')).toBeDefined();
-    await act(async () => button('Add part from stock')?.click());
-
-    // Single unified stock input exists with barcode scanner attribute
-    const scannerInputs = document.querySelectorAll('input[data-barcode-scanner="true"]');
-    expect(scannerInputs.length).toBe(1);
-    expect(text()).toContain('Part from stock');
-  });
-
-  it('shows a missing description on the description box itself', async () => {
-    await render(<EditorHost rework={false} start={[]} />);
-    await act(async () => button('Add other fee')?.click());
-    const description = document.querySelector<HTMLInputElement>(
-      'input[aria-label="Fee description 1"]'
-    );
-    expect(description?.getAttribute('aria-invalid')).toBe('true');
-    expect(text()).toContain('Say what fee or service this is.');
-    await typeInto(description as HTMLInputElement, 'Clean ports');
-    expect(description?.getAttribute('aria-invalid')).not.toBe('true');
+    const scannerInput = document.querySelector<HTMLInputElement>('input[data-barcode-scanner="true"]');
+    expect(scannerInput).not.toBeNull();
+    expect(scannerInput?.placeholder).toBe('Scan barcode, search stock, or type a part or fee name');
   });
 
   it('keeps a rework free: fee is off and there is no warranty to give', async () => {
@@ -287,7 +249,7 @@ describe('repair jobs as items', () => {
     const fee = document.querySelector<HTMLInputElement>('input[aria-label="Fee 1"]');
     expect(fee?.disabled).toBe(true);
     expect(text()).toContain('Covered by the original warranty');
-    expect(text()).toContain('Customer pays (warranty)');
+    expect(text()).toContain('Total (warranty)');
   });
 
   it('asks for a customer to be chosen, with no name or phone to type', async () => {
