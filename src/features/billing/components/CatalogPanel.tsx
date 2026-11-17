@@ -54,17 +54,20 @@ import {
   useCategoryLookup,
 } from '@/features/inventory/hooks/useCategories';
 import { fetchRepairs } from '@/features/repairs/api/repairsApi';
+import { billBlocker, billBlockerNotice } from '@/features/repairs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/printJobsApi';
-import { useCreateCustomer } from '@/features/customers';
 import { formatMoney } from '@/shared/lib/money';
+import { randomUuid } from '@/shared/lib/id';
 import { Product } from '@/features/inventory/types';
-import { useCartItems, useCartCustomer, useCartSound } from '../hooks/useCart';
+import type { CartItem } from '@/store/slices/cartSlice';
+import { useCartItems, useCartSound } from '../hooks/useCart';
+import { useServiceJobCart } from '../hooks/useServiceJobCart';
 import { useCatalogSort } from '../hooks/useCatalogSort';
 import { CATALOG_SORTS, catalogSortParams } from '../lib/catalogSort';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { useCatalogColumns } from '../hooks/useCatalogColumns';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
-import { resolveOrCreateCustomer } from '../lib/resolveOrCreateCustomer';
+import { repairCartLine } from '../lib/repairCartLine';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
@@ -109,6 +112,8 @@ export interface CombinedServiceJob {
   costCents?: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
+  /** The bill line this job becomes. */
+  line: CartItem;
 }
 
 /**
@@ -122,10 +127,6 @@ const SERVICE_JOB_SEARCH_FIELDS: readonly SearchField<CombinedServiceJob>[] = [
   { get: (j) => j.title, weight: 2, kind: 'text' },
   { get: (j) => j.description, weight: 1, kind: 'text' },
 ];
-
-const generateServiceJobId = (type: string, id: string): string => {
-  return `svc-${type}-${id}-${Math.random().toString(36).substring(2, 9)}`;
-};
 
 const QuickAddItemModal = lazy(() =>
   import('./QuickAddItemModal').then((m) => ({ default: m.QuickAddItemModal }))
@@ -156,9 +157,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     items,
     updateQty,
   } = useCartItems();
-  const { customerId, attachCustomer } = useCartCustomer();
   const { soundEnabled } = useCartSound();
-  const { mutateAsync: createCustomerAsync } = useCreateCustomer();
+  const addServiceJob = useServiceJobCart();
 
   const tier = useLayoutTier();
   const isAdmin = useIsAdmin();
@@ -257,9 +257,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     let printCount = 0;
 
     for (const r of repairs) {
-      if (r.status === 'delivered' || r.status === 'cancelled') continue;
-      // A warranty rework is free and handed back from the repair screen, never billed.
-      if (r.kind.kind === 'warranty_rework') continue;
+      // A job with no work on it stays listed (unpriced); every other blocker hides it.
+      const blocker = billBlocker(r);
+      if (blocker !== null && blocker !== 'no_work') continue;
       list.push({
         id: r.id,
         ticketNumber: r.ticketNumber,
@@ -273,6 +273,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         costCents: r.items.length === 0 ? undefined : r.priceCents,
         assignedEmployeeId: r.assignedEmployeeId,
         assignedEmployeeName: r.assignedEmployeeName,
+        line: repairCartLine(r),
       });
       repairsCount += 1;
     }
@@ -291,6 +292,19 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         costCents: p.estimatedCostCents,
         assignedEmployeeId: p.assignedEmployeeId,
         assignedEmployeeName: p.assignedEmployeeName,
+        line: {
+          id: `svc-print-${p.id}-${randomUuid()}`,
+          productId: p.id,
+          name: `${p.ticketNumber}: ${p.jobType.charAt(0).toUpperCase() + p.jobType.slice(1)} printing (${p.quantity} units)`,
+          sku: p.ticketNumber,
+          unitPriceCents: p.estimatedCostCents,
+          quantity: 1,
+          discount: null,
+          sourceType: 'print',
+          sourceTicketNumber: p.ticketNumber,
+          assignedEmployeeId: p.assignedEmployeeId,
+          assignedEmployeeName: p.assignedEmployeeName,
+        },
       });
       printCount += 1;
     }
@@ -327,44 +341,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       return;
     }
 
-    const uniqueId = generateServiceJobId(job.type, job.id);
-    add({
-      id: uniqueId,
-      productId: job.id,
-      name: `${job.ticketNumber}: ${job.title}`,
-      sku: job.ticketNumber,
-      unitPriceCents: job.costCents,
-      quantity: 1,
-      discount: null,
-      sourceType: job.type,
-      sourceTicketNumber: job.ticketNumber,
-      assignedEmployeeId: job.assignedEmployeeId,
-      assignedEmployeeName: job.assignedEmployeeName,
-    });
-
-    // Auto-attach customer if not already attached. Resolved against the real backend (search by
-    // phone, else create) rather than fabricated — a synthesized id here would leave the
-    // invoice's `customerKey` pointing at nothing. Fired off in the background so picking a
-    // ticket stays instant; the cart's customer field updates a moment later.
-    if (job.customerName && (!customerId || customerId === '')) {
-      void resolveOrCreateCustomer(job.customerName, job.customerPhone, createCustomerAsync)
-        .then((customer) => {
-          if (customer) {
-            attachCustomer(
-              customer.key,
-              customer.name,
-              customer.primaryPhone,
-              customer.address,
-              customer.outstandingBalanceCents
-            );
-          } else {
-            attachCustomer(null, job.customerName, job.customerPhone);
-          }
-        })
-        .catch(() => {
-          attachCustomer(null, job.customerName, job.customerPhone);
-        });
-    }
+    addServiceJob(job.line, job.customerName, job.customerPhone);
 
     playScanSuccessSound(soundEnabled);
     if (!isMobile) {
@@ -592,17 +569,11 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     if (term.startsWith('rep-') || term.startsWith('rep')) {
       const matchRep = repairs.find((r) => r.ticketNumber.toLowerCase() === term);
       if (matchRep) {
-        if (matchRep.kind.kind === 'warranty_rework' || matchRep.items.length === 0) {
+        const blocker = billBlocker(matchRep);
+        if (blocker !== null) {
           playErrorSound(soundEnabled);
           notifications.show({
-            title:
-              matchRep.kind.kind === 'warranty_rework'
-                ? t('Warranty rework')
-                : t('No work added yet'),
-            message:
-              matchRep.kind.kind === 'warranty_rework'
-                ? `${matchRep.ticketNumber}: ${t('free under warranty. Hand it back from the repair screen.')}`
-                : `${matchRep.ticketNumber}: ${t('add the work done before billing it.')}`,
+            ...billBlockerNotice(blocker, matchRep.ticketNumber),
             color: 'red',
           });
           setScanQuery('');
@@ -610,38 +581,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           setSelectedIndex(null);
           return;
         }
-        add({
-          id: `svc-repair-${matchRep.id}-${Date.now()}`,
-          productId: matchRep.id,
-          name: `${matchRep.ticketNumber}: ${matchRep.deviceModel} Repair`,
-          sku: matchRep.ticketNumber,
-          unitPriceCents: matchRep.priceCents,
-          quantity: 1,
-          discount: null,
-          sourceType: 'repair',
-          sourceTicketNumber: matchRep.ticketNumber,
-          assignedEmployeeId: matchRep.assignedEmployeeId,
-          assignedEmployeeName: matchRep.assignedEmployeeName,
-        });
-        if (matchRep.customerName && (!customerId || customerId === '')) {
-          const repCustomerName = matchRep.customerName;
-          const repCustomerPhone = matchRep.customerPhone;
-          void resolveOrCreateCustomer(repCustomerName, repCustomerPhone, createCustomerAsync)
-            .then((customer) => {
-              if (customer) {
-                attachCustomer(
-                  customer.key,
-                  customer.name,
-                  customer.primaryPhone,
-                  customer.address,
-                  customer.outstandingBalanceCents
-                );
-              } else {
-                attachCustomer(null, repCustomerName, repCustomerPhone);
-              }
-            })
-            .catch(() => attachCustomer(null, repCustomerName, repCustomerPhone));
-        }
+        addServiceJob(repairCartLine(matchRep), matchRep.customerName, matchRep.customerPhone);
         playScanSuccessSound(soundEnabled);
         setScanQuery('');
         setSearch('');
@@ -659,38 +599,23 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     ) {
       const matchPrt = printJobs.find((p) => p.ticketNumber.toLowerCase() === term);
       if (matchPrt) {
-        add({
-          id: `svc-print-${matchPrt.id}-${Date.now()}`,
-          productId: matchPrt.id,
-          name: `${matchPrt.ticketNumber}: ${matchPrt.jobType.toUpperCase()} Printing`,
-          sku: matchPrt.ticketNumber,
-          unitPriceCents: matchPrt.estimatedCostCents,
-          quantity: 1,
-          discount: null,
-          sourceType: 'print',
-          sourceTicketNumber: matchPrt.ticketNumber,
-          assignedEmployeeId: matchPrt.assignedEmployeeId,
-          assignedEmployeeName: matchPrt.assignedEmployeeName,
-        });
-        if (matchPrt.customerName && (!customerId || customerId === '')) {
-          const prtCustomerName = matchPrt.customerName;
-          const prtCustomerPhone = matchPrt.customerPhone;
-          void resolveOrCreateCustomer(prtCustomerName, prtCustomerPhone, createCustomerAsync)
-            .then((customer) => {
-              if (customer) {
-                attachCustomer(
-                  customer.key,
-                  customer.name,
-                  customer.primaryPhone,
-                  customer.address,
-                  customer.outstandingBalanceCents
-                );
-              } else {
-                attachCustomer(null, prtCustomerName, prtCustomerPhone);
-              }
-            })
-            .catch(() => attachCustomer(null, prtCustomerName, prtCustomerPhone));
-        }
+        addServiceJob(
+          {
+            id: `svc-print-${matchPrt.id}-${randomUuid()}`,
+            productId: matchPrt.id,
+            name: `${matchPrt.ticketNumber}: ${matchPrt.jobType.toUpperCase()} Printing`,
+            sku: matchPrt.ticketNumber,
+            unitPriceCents: matchPrt.estimatedCostCents,
+            quantity: 1,
+            discount: null,
+            sourceType: 'print',
+            sourceTicketNumber: matchPrt.ticketNumber,
+            assignedEmployeeId: matchPrt.assignedEmployeeId,
+            assignedEmployeeName: matchPrt.assignedEmployeeName,
+          },
+          matchPrt.customerName,
+          matchPrt.customerPhone
+        );
         playScanSuccessSound(soundEnabled);
         setScanQuery('');
         setSearch('');

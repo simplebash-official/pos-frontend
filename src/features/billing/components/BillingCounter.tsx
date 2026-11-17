@@ -12,6 +12,7 @@ import {
   useCartSound,
 } from '../hooks/useCart';
 import { useCheckout } from '../hooks/useCheckout';
+import { useBillRepairLink } from '../hooks/useBillRepairLink';
 import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
@@ -153,6 +154,8 @@ export const BillingCounter = () => {
       isCancelled = true;
     };
   }, [fillQuotationKey, allProducts, dispatch, setSearchParams]);
+
+  useBillRepairLink();
 
   // Lets F2 run PaymentPanel's own guardrailed primary-action path (see the F2 shortcut below)
   // instead of jumping straight to checkout and bypassing the credit-limit confirmation.

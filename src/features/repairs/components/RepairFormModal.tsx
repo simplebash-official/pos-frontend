@@ -14,6 +14,8 @@ import {
   Anchor,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { getErrorMessage } from '@/shared/lib/error';
 import { PromisedDatePicker } from '@/shared/components/PromisedDatePicker';
 import { IconBarcode, IconShieldCheck } from '@tabler/icons-react';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
@@ -32,6 +34,7 @@ import { RepairItemsEditor } from './RepairItemsEditor';
 import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus, ROUTES } from '@/constants';
+import { billBlocker } from '../lib/billable';
 import { RepairFormValues, fromRepairJob, toRepairInput } from '@/shared/lib/moneyFormUtils';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 
@@ -113,14 +116,33 @@ export const RepairFormModal = ({
   const calculatedEarningsCents = figures === undefined ? 0 : figures.commissionCents;
   const isFixedSplitCapped = figures !== undefined && figures.capped;
 
-  const handleSubmit = async (values: RepairFormValues) => {
+  // "Update & bill": what is typed is saved first, so the bill carries the saved price. A failed
+  // save throws before we leave this screen.
+  const billJobId =
+    jobToEdit &&
+    billBlocker({ kind: jobToEdit.kind, status: form.values.status, items: drafts }) === null
+      ? jobToEdit.id
+      : null;
+
+  const handleSubmit = async (values: RepairFormValues, billAfterSave: string | null) => {
     setTried(true);
     if (workProblem !== null) return;
     const payload = toRepairInput(values, workLocked ? undefined : toItemInputs(drafts, rework));
     await onSubmit(payload);
     form.reset();
     onClose();
+    if (billAfterSave !== null) navigate(`${ROUTES.BILLING}?billRepair=${billAfterSave}`);
   };
+
+  // The Update Ticket button leaves a failed save to the page; this one must say it stayed here.
+  const billAfterSave = (values: RepairFormValues, jobId: string) =>
+    handleSubmit(values, jobId).catch((error: unknown) =>
+      notifications.show({
+        title: t('Could not save the repair'),
+        message: getErrorMessage(error),
+        color: 'red',
+      })
+    );
 
   const statusOptions = Object.values(JOB_STATUS).map((status: JobStatus) => ({
     value: status,
@@ -149,7 +171,7 @@ export const RepairFormModal = ({
       fullScreen={isMobile}
       closeOnEscape={!nestedOpen}
     >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
+      <form onSubmit={form.onSubmit((values) => handleSubmit(values, null))}>
         <Stack gap="md">
           {jobToEdit !== null &&
             jobToEdit !== undefined &&
@@ -219,7 +241,7 @@ export const RepairFormModal = ({
             description={
               !rework && hasStockPart && jobToEdit?.status !== 'delivered'
                 ? t(
-                    'Bill this job to hand it back: its parts from stock leave stock with the bill.'
+                    "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
                   )
                 : undefined
             }
@@ -286,6 +308,16 @@ export const RepairFormModal = ({
             <Button type="submit" color="blue" loading={loading}>
               {isEditing ? 'Update Ticket' : 'Create Repair Ticket'}
             </Button>
+            {billJobId !== null && (
+              <Button
+                variant="light"
+                color="blue"
+                loading={loading}
+                onClick={() => form.onSubmit((values) => billAfterSave(values, billJobId))()}
+              >
+                {t('Update & bill')}
+              </Button>
+            )}
           </Group>
         </Stack>
       </form>

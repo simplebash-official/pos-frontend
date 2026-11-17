@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
@@ -14,6 +14,7 @@ import {
   IconChartPie,
   IconSearch,
   IconShieldCheck,
+  IconReceipt,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
@@ -39,6 +40,8 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { REPAIR_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
+import { IconAction } from '@/shared/components/drawer';
+import { billBlocker } from '../lib/billable';
 import { RepairFormModal } from './RepairFormModal';
 
 interface RepairFilters {
@@ -118,6 +121,7 @@ export const RepairJobList = () => {
 
   // Deep link from the dashboard reminders: /repairs?jobKey=<key>
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   useEffect(() => {
     const key = searchParams.get('jobKey');
     if (!key || !repairJobs) return;
@@ -310,6 +314,23 @@ export const RepairJobList = () => {
       align: 'left',
       sortable: true,
       render: (job) => formatDate(job.createdAt),
+    },
+    {
+      key: 'bill',
+      header: t('Bill'),
+      align: 'right',
+      render: (job) =>
+        billBlocker(job) === null ? (
+          // The row opens the edit window when clicked; this button must not.
+          <div onClick={(event) => event.stopPropagation()}>
+            <IconAction
+              kind="edit"
+              label={t('Bill this repair')}
+              icon={<IconReceipt size={16} />}
+              onClick={() => navigate(`${ROUTES.BILLING}?billRepair=${job.id}`)}
+            />
+          </div>
+        ) : null,
     },
   ];
 
