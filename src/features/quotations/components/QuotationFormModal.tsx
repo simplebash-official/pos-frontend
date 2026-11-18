@@ -20,7 +20,7 @@ import {
   Textarea,
   ThemeIcon,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconCalendar,
   IconFileText,
@@ -241,17 +241,15 @@ export const QuotationFormModal = ({
     if (found !== null) return;
     try {
       const created = await create.mutateAsync(buildCreateInput(draft, answer, authUser?.name));
-      notifications.show({
+      notify.success({
         title: t('Quotation created'),
         message: created.quotationNumber,
-        color: 'green',
       });
       onCreated(created);
     } catch (error) {
-      notifications.show({
+      notify.error({
         title: t('Could not create the quotation'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     }
   };

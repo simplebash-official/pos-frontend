@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import {
   getSyncStatus,
@@ -35,8 +35,7 @@ export const startSyncStatusStore = () => {
       // The shell tells us once when the cloud copy must replace local data; the
       // badge and Sync screen show it, this makes sure nobody misses it.
       return listenBootstrapRequired(() => {
-        notifications.show({
-          color: 'orange',
+        notify.warning({
           title: t('Your confirmation is needed'),
           message: t('Open Settings and choose Cloud Sync to continue.'),
         });

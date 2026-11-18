@@ -109,7 +109,7 @@ describe('useBillRepairLink', () => {
       quantity: 1,
     });
     expect(show).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Repair added to the bill', color: 'green' })
+      expect.objectContaining({ title: 'Repair added to the bill', color: 'teal' })
     );
     expect(search()).toBe('');
     expect(store.getState().cart.customerId).toBe('cust_1');

@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { IconLock, IconCheck, IconX, IconAlertCircle, IconArrowLeft } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import { ROUTES } from '@/constants/routes';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -123,19 +123,17 @@ export const ResetPasswordScreen = () => {
     e.preventDefault();
 
     if (!hasMinLength) {
-      notifications.show({
+      notify.error({
         title: 'Password Too Short',
         message: 'Password must be at least 8 characters long.',
-        color: 'red',
       });
       return;
     }
 
     if (!passwordsMatch) {
-      notifications.show({
+      notify.error({
         title: 'Passwords Do Not Match',
         message: 'Please ensure both password entries match exactly.',
-        color: 'red',
       });
       return;
     }
@@ -147,21 +145,19 @@ export const ResetPasswordScreen = () => {
         newPassword,
       });
 
-      notifications.show({
+      notify.success({
         title: 'Password Reset Successful',
         message: 'Your password has been reset. Please sign in with your new password.',
-        color: 'green',
       });
 
       navigate(loginUrl, { replace: true });
     } catch (err: unknown) {
-      notifications.show({
+      notify.error({
         title: 'Reset Failed',
         message: loginErrorMessage(
           err,
           'Unable to reset your password. The reset link may have expired.'
         ),
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);

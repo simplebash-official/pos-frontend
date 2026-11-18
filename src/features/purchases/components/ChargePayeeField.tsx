@@ -3,7 +3,7 @@ import { SearchCombobox, type SearchComboboxItem } from '@/shared/components/Sea
 import { PERMISSIONS } from '@/constants/permissions';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { getErrorMessage } from '@/shared/lib/error';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import { useCreatePayee, usePayees } from '@/features/billing/hooks/useCashLookups';
 import { cleanPayeeName, payeeNameError } from '@/features/billing/lib/payeeName';
@@ -35,10 +35,9 @@ export const ChargePayeeField = ({ value, onChange }: ChargePayeeFieldProps) => 
   const addNew = async (typed: string) => {
     const problem = payeeNameError(typed);
     if (problem !== null) {
-      notifications.show({
+      notify.error({
         title: t('Could not add the courier or agent'),
         message: problem,
-        color: 'red',
       });
       return;
     }
@@ -49,10 +48,9 @@ export const ChargePayeeField = ({ value, onChange }: ChargePayeeFieldProps) => 
       });
       onChange(created.key);
     } catch (error) {
-      notifications.show({
+      notify.error({
         title: t('Could not add the courier or agent'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     }
   };

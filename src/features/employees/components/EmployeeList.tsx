@@ -27,14 +27,13 @@ import {
   IconEdit,
   IconTrash,
   IconEye,
-  IconCheck,
   IconTools,
   IconUsers,
   IconSearch,
   IconLayoutGrid,
   IconList,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -107,19 +106,15 @@ export const EmployeeList = () => {
         employeeKey: employeeToEdit.id,
         input: values,
       });
-      notifications.show({
+      notify.success({
         title: 'Employee Updated',
         message: `Updated details for ${updated.name}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
       });
     } else {
       const created = await createMutation.mutateAsync(values);
-      notifications.show({
+      notify.success({
         title: 'Employee Registered',
         message: `Saved ${created.name} to employee directory`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
       });
     }
   };
@@ -127,10 +122,9 @@ export const EmployeeList = () => {
   const handleConfirmDelete = async () => {
     if (employeeToDelete) {
       await deleteMutation.mutateAsync({ employeeKey: employeeToDelete.id });
-      notifications.show({
+      notify.info({
         title: 'Employee Deleted',
         message: 'Employee record removed successfully',
-        color: 'blue',
       });
       if (selectedEmployeeForDrawer?.id === employeeToDelete.id) {
         setSelectedEmployeeForDrawer(null);

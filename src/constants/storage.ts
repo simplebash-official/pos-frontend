@@ -15,7 +15,6 @@ export const STORAGE_KEYS = {
   CUSTOMERS: 'pos_customers_data',
   HELD_CARTS: 'pos_held_carts_data',
   SETTINGS: 'pos_settings_data',
-  NOTIFICATIONS: 'pos_notifications_data',
   /** Per-install device identity, minted once and never rotated. See src/offline/ids/deviceId.ts */
   DEVICE_ID: 'pos_device_id',
   /** Dev-only offline simulator override. See src/offline/connectivity/ConnectivityMonitor.ts */

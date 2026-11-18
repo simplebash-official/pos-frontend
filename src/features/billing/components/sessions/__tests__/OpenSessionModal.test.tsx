@@ -227,7 +227,7 @@ describe('OpenSessionModal', () => {
     expect(mockNotifyShow).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Joined Open Shop Shift',
-        color: 'cyan',
+        color: 'blue',
       })
     );
     expect(onSessionOpened).toHaveBeenCalledWith(existingSharedSession);

@@ -2,8 +2,8 @@ import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { IconArrowRight, IconCheck } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
+import { IconArrowRight } from '@tabler/icons-react';
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectLabelPrintSettings, setLabelPrintSettings } from '@/store/slices/settingsSlice';
@@ -40,19 +40,16 @@ export const LabelsSection = ({ onDirtyChange }: SectionProps) => {
 
   const handleSave = () => {
     if (completed === null) {
-      notifications.show({
+      notify.warning({
         title: t('Choose every option first'),
         message: t('Pick a design, how to print, and the printer detail.'),
-        color: 'orange',
       });
       return;
     }
     dispatch(setLabelPrintSettings(completed));
-    notifications.show({
+    notify.success({
       title: t('Label printing saved'),
       message: t('Your label settings were updated.'),
-      color: 'green',
-      icon: <IconCheck size={16} />,
     });
   };
 

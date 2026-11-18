@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Badge, Button, Group, Text, ActionIcon, Tooltip, Stack } from '@mantine/core';
 import { IconPlus, IconTrash, IconKey } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -42,10 +42,9 @@ export const UsersList = () => {
   const handleConfirmDelete = async () => {
     if (!userToDelete) return;
     await deleteMutation.mutateAsync(userToDelete.id);
-    notifications.show({
+    notify.info({
       title: 'Login Removed',
       message: `${userToDelete.name}'s login has been removed`,
-      color: 'blue',
     });
     setUserToDelete(null);
   };

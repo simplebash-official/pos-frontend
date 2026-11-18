@@ -17,7 +17,7 @@ import {
   Skeleton,
 } from '@mantine/core';
 import { IconPlus, IconTrash, IconCategory, IconEdit, IconX, IconCheck } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   useCategories,
   useCategoryIcons,
@@ -91,10 +91,9 @@ const AddSubcategoryRow = ({ categoryKey }: { categoryKey: string }) => {
       {
         onSuccess: () => setName(''),
         onError: (err) => {
-          notifications.show({
+          notify.error({
             title: 'Could not add subcategory',
             message: (err as ApiError).message,
-            color: 'red',
           });
         },
       }
@@ -190,10 +189,9 @@ const CategoryItem = ({
       {
         onSuccess: () => {
           setIsEditing(false);
-          notifications.show({
+          notify.success({
             title: 'Category Updated',
             message: `Saved changes to ${editName.trim()}`,
-            color: 'teal',
           });
         },
         onError: (err) => {
@@ -201,10 +199,9 @@ const CategoryItem = ({
           if (apiError.code === 'CATEGORY_ALREADY_EXISTS') {
             setEditNameError(apiError.message);
           }
-          notifications.show({
+          notify.error({
             title: 'Could not update category',
             message: apiError.message,
-            color: 'red',
           });
         },
       }
@@ -374,10 +371,9 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
           setNewName('');
           setNewSubcategories([]);
           setNewNameError(undefined);
-          notifications.show({
+          notify.success({
             title: 'Category Created',
             message: `${newName.trim()} added to the catalog`,
-            color: 'green',
           });
         },
         onError: (err) => {
@@ -385,10 +381,9 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
           if (apiError.code === 'CATEGORY_ALREADY_EXISTS') {
             setNewNameError(apiError.message);
           }
-          notifications.show({
+          notify.error({
             title: 'Could not create category',
             message: apiError.message,
-            color: 'red',
           });
         },
       }
@@ -400,10 +395,9 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
       { categoryKey },
       {
         onError: (err) => {
-          notifications.show({
+          notify.error({
             title: 'Could not delete category',
             message: (err as ApiError).message,
-            color: 'red',
           });
         },
       }
@@ -415,10 +409,9 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
       { categoryKey, subcategoryKey },
       {
         onError: (err) => {
-          notifications.show({
+          notify.error({
             title: 'Could not delete subcategory',
             message: (err as ApiError).message,
-            color: 'red',
           });
         },
       }

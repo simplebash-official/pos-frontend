@@ -19,11 +19,10 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconArrowBackUp,
   IconArrowForwardUp,
-  IconCheck,
   IconCopy,
   IconLayoutAlignBottom,
   IconLayoutAlignCenter,
@@ -289,20 +288,17 @@ export const LabelDesignerModal = ({
       },
       {
         onSuccess: (saved) => {
-          notifications.show({
+          notify.success({
             title: t('Label design saved'),
             message: saved.name,
-            color: 'green',
-            icon: <IconCheck size={16} />,
           });
           onSaved?.(saved);
           onClose();
         },
         onError: (error) => {
-          notifications.show({
+          notify.error({
             title: t('Could not save the design'),
             message: getErrorMessage(error),
-            color: 'red',
           });
         },
       }

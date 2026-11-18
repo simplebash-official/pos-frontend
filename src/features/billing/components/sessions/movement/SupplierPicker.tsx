@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { notifications } from '@mantine/notifications';
-import { IconCheck } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
 import { SearchCombobox, type SearchComboboxItem } from '@/shared/components/SearchCombobox';
 import { t } from '@/shared/i18n/t';
 import { SupplierFormModal } from '@/features/suppliers/components/SupplierFormModal';
@@ -48,11 +47,9 @@ export const SupplierPicker = ({
   const handleSubmit = async (values: SupplierInput) => {
     const created = await createSupplier.mutateAsync(values);
     onChange(created.key);
-    notifications.show({
+    notify.success({
       title: t('Supplier Created'),
       message: created.name,
-      color: 'green',
-      icon: <IconCheck size={16} />,
     });
   };
 

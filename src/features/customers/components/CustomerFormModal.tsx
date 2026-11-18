@@ -22,7 +22,7 @@ import {
   IconMapPin,
   IconTag,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { Customer, CustomerInput } from '../types';
 import { useCustomerTags } from '../hooks/useCustomers';
@@ -136,10 +136,9 @@ const CustomerFormContent = ({
     } else if (message.toLowerCase().includes('name')) {
       setErrors((prev) => ({ ...prev, name: message }));
     } else {
-      notifications.show({
+      notify.error({
         title: 'Error Saving Customer',
         message,
-        color: 'red',
       });
     }
   };

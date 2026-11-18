@@ -43,6 +43,29 @@ export default tseslint.config(
         },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
+      // Every toast goes through `notify` (`@/shared/notify`) so all of them look and read alike.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@mantine/notifications',
+              message: "Use `notify` from '@/shared/notify' for toasts.",
+            },
+          ],
+        },
+      ],
     },
+  },
+  {
+    // The toast engine itself, the provider that mounts the container, the activity log that
+    // records each toast, and tests that mock Mantine.
+    files: [
+      'src/shared/notify/**',
+      'src/app/providers.tsx',
+      'src/shared/logging/capture/app.ts',
+      '**/__tests__/**',
+    ],
+    rules: { 'no-restricted-imports': 'off' },
   }
 );

@@ -23,7 +23,7 @@ import {
   IconServer,
   IconWorld,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import type { Update } from '@tauri-apps/plugin-updater';
 import { env } from '@/config/env';
 import { formatDateTime } from '@/shared/lib/date';
@@ -331,8 +331,7 @@ const DesktopAbout = () => {
       logger.error('updater', 'check.error', err);
       const message = err instanceof Error ? err.message : String(err);
       setStatus({ kind: 'error', message });
-      notifications.show({
-        color: 'red',
+      notify.error({
         title: t('Could not check for updates'),
         message: t('Please check your internet connection and try again.'),
       });
@@ -381,8 +380,7 @@ const DesktopAbout = () => {
       logger.error('updater', 'download.error', err, { version, downloaded, total });
       const message = err instanceof Error ? err.message : String(err);
       setStatus({ kind: 'error', message });
-      notifications.show({
-        color: 'red',
+      notify.error({
         title: t('The update could not be installed'),
         message: t('Nothing on this computer was changed. Please try again later.'),
       });

@@ -39,7 +39,9 @@ export const DEFAULT_QUICK_FEES = ['Diagnostic fee', 'Software', 'Cleaning'] as 
 export interface PartItemDraft {
   uid: string;
   key?: string;
+  keys?: string[];
   kind: 'part';
+  quantity: number;
   description: string;
   part: PartDraft;
   /** The discount typed on this item; `null` for none. */
@@ -103,10 +105,12 @@ export const itemFromService = (service: RepairService, rework: boolean): FeeIte
 export const itemFromPart = (
   part: PartDraft,
   warranty: ProductWarranty = NO_COVER,
-  rework = false
+  rework = false,
+  quantity = 1
 ): PartItemDraft => ({
   uid: uid(),
   kind: 'part',
+  quantity,
   description: part.source === 'stock' ? part.productName : part.name,
   part,
   discount: null,
@@ -119,7 +123,9 @@ export const itemFromSaved = (item: RepairItem): ItemDraft => {
     return {
       uid: uid(),
       key: item.key,
+      keys: [item.key],
       kind: 'part',
+      quantity: 1,
       description: item.description,
       part:
         item.part.source === 'stock'
@@ -153,15 +159,41 @@ export const itemFromSaved = (item: RepairItem): ItemDraft => {
   };
 };
 
-/** Convert a list of saved items into editable drafts, splitting legacy dual-cost items if needed. */
+/** Convert a list of saved items into editable drafts, grouping identical items and splitting legacy dual-cost items if needed. */
 export const itemsFromSaved = (items: RepairItem[]): ItemDraft[] => {
   const drafts: ItemDraft[] = [];
   for (const item of items) {
     if (item.part !== undefined) {
+      if (item.part.source === 'stock' && !item.part.serialNumber && item.discount === undefined) {
+        const stockPart = item.part;
+        const existingIndex = drafts.findIndex(
+          (d) =>
+            d.kind === 'part' &&
+            d.part.source === 'stock' &&
+            !d.part.serialNumber &&
+            d.part.productKey === stockPart.productKey &&
+            d.part.sellingPriceCents === stockPart.sellingPriceCents &&
+            d.discount === null &&
+            JSON.stringify(d.warranty) === JSON.stringify(item.warranty)
+        );
+        if (existingIndex >= 0) {
+          const existing = drafts[existingIndex] as PartItemDraft;
+          existing.quantity += 1;
+          if (existing.keys !== undefined) {
+            existing.keys.push(item.key);
+          } else {
+            existing.keys = existing.key !== undefined ? [existing.key, item.key] : [item.key];
+          }
+          continue;
+        }
+      }
+
       drafts.push({
         uid: uid(),
         key: item.key,
+        keys: [item.key],
         kind: 'part',
+        quantity: 1,
         description: item.description,
         part:
           item.part.source === 'stock'
@@ -245,13 +277,14 @@ export const partLabel = (part: PartDraft, rework: boolean): string => {
 export const calculateOutsideProfit = (
   priceRupees: number | string,
   costRupees: number | string,
-  discountCents: number | null
+  discountCents: number | null,
+  quantity = 1
 ): number | null => {
   if (priceRupees === '' || costRupees === '' || discountCents === null) return null;
   const p = Number(priceRupees);
   const c = Number(costRupees);
   if (isNaN(p) || isNaN(c)) return null;
-  return p - c - fromCents(discountCents);
+  return (p - c) * quantity - fromCents(discountCents);
 };
 
 /**
@@ -265,13 +298,14 @@ export const calculatePartsProfitCents = (
   let totalProfit = 0;
   for (const [index, draft] of drafts.entries()) {
     if (draft.kind === 'part') {
+      const qty = Math.max(1, draft.quantity);
       if (draft.part.source === 'stock') {
         if (draft.part.costCents === null) return null;
-        totalProfit += draft.part.priceCents - draft.part.costCents;
+        totalProfit += (draft.part.priceCents - draft.part.costCents) * qty;
       } else {
         const p = rupees(draft.part.priceRupees);
         const c = rupees(draft.part.costRupees);
-        totalProfit += p - c;
+        totalProfit += (p - c) * qty;
       }
       totalProfit -= itemDiscountsCents[index];
     }
@@ -280,47 +314,77 @@ export const calculatePartsProfitCents = (
 };
 
 /** The rows as the server wants them; it prices stock parts itself. */
-export const toItemInputs = (drafts: ItemDraft[], rework: boolean): RepairItemInput[] =>
-  drafts.map((draft) => {
+export const toItemInputs = (drafts: ItemDraft[], rework: boolean): RepairItemInput[] => {
+  const inputs: RepairItemInput[] = [];
+  for (const draft of drafts) {
     if (draft.kind === 'part') {
-      const fallbackDesc = draft.part.source === 'stock' ? draft.part.productName : draft.part.name;
-      const description = (draft.description.trim() || fallbackDesc).trim();
-      return {
+      const rawDesc = draft.description.trim();
+      const partDesc = draft.part.source === 'stock' ? draft.part.productName : draft.part.name;
+      const description = rawDesc.length > 0 ? rawDesc : partDesc.trim();
+      const qty = Math.max(1, draft.quantity);
+      const keys =
+        draft.keys !== undefined ? draft.keys : draft.key !== undefined ? [draft.key] : [];
+
+      let remainingFixedDiscount =
+        !rework && draft.discount !== null && draft.discount.type === 'fixed'
+          ? draft.discount.cents
+          : 0;
+
+      const unitPriceCents = partPriceCents(draft.part, rework);
+
+      for (let i = 0; i < qty; i++) {
+        const itemKey = i < keys.length ? keys[i] : undefined;
+        let unitDiscount: ItemDiscount | undefined = undefined;
+
+        if (!rework && draft.discount !== null) {
+          if (draft.discount.type === 'percentage') {
+            unitDiscount = draft.discount;
+          } else if (remainingFixedDiscount > 0) {
+            const alloc = Math.min(remainingFixedDiscount, unitPriceCents);
+            unitDiscount = { type: 'fixed', cents: alloc };
+            remainingFixedDiscount -= alloc;
+          }
+        }
+
+        inputs.push({
+          key: itemKey,
+          description,
+          laborCents: 0,
+          part:
+            draft.part.source === 'stock'
+              ? {
+                  source: 'stock',
+                  productKey: draft.part.productKey,
+                  serialNumber: draft.part.serialNumber,
+                  sellingPriceCents: draft.part.sellingPriceCents,
+                }
+              : {
+                  source: 'outside',
+                  name: draft.part.name.trim(),
+                  priceCents: rework ? 0 : rupees(draft.part.priceRupees),
+                  costCents: rupees(draft.part.costRupees),
+                },
+          discount: unitDiscount,
+          warranty: rework ? NO_COVER : draft.warranty,
+        });
+      }
+    } else {
+      inputs.push({
         key: draft.key,
-        description,
-        laborCents: 0,
-        part:
-          draft.part.source === 'stock'
-            ? {
-                source: 'stock',
-                productKey: draft.part.productKey,
-                serialNumber: draft.part.serialNumber,
-                sellingPriceCents: draft.part.sellingPriceCents,
-              }
-            : {
-                source: 'outside',
-                name: draft.part.name.trim(),
-                priceCents: rework ? 0 : rupees(draft.part.priceRupees),
-                costCents: rupees(draft.part.costRupees),
-              },
+        description: draft.description.trim(),
+        laborCents: rework ? 0 : rupees(draft.feeRupees),
+        part: undefined,
         discount: draft.discount === null ? undefined : draft.discount,
         warranty: rework ? NO_COVER : draft.warranty,
-      };
+      });
     }
-
-    return {
-      key: draft.key,
-      description: draft.description.trim(),
-      laborCents: rework ? 0 : rupees(draft.feeRupees),
-      part: undefined,
-      discount: draft.discount === null ? undefined : draft.discount,
-      warranty: rework ? NO_COVER : draft.warranty,
-    };
-  });
+  }
+  return inputs;
+};
 
 const STATUSES_NEEDING_WORK: JobStatus[] = ['ready', 'delivered'];
 
-const negative = (value: number | string): boolean => value !== '' && Number(value) < 0;
+export const negative = (value: number | string): boolean => value !== '' && Number(value) < 0;
 
 /** Which box of a row a problem is about, so the message can sit right under it. */
 export type RowProblemField = 'description' | 'fee' | 'part' | 'warranty';
@@ -339,9 +403,17 @@ export const rowProblem = (draft: ItemDraft, rework: boolean): RowProblem | null
       if (negative(part.priceRupees) || negative(part.costRupees)) {
         return { field: 'part', message: t('A part price or cost cannot be below zero.') };
       }
+      if (part.costRupees === '') {
+        return { field: 'part', message: t('Enter the cost of the part to the shop.') };
+      }
+      if (!rework && (part.priceRupees === '' || Number(part.priceRupees) <= 0)) {
+        return { field: 'part', message: t('Enter what the customer pays for the part.') };
+      }
     }
-    const fallbackDesc = draft.part.source === 'stock' ? draft.part.productName : draft.part.name;
-    if ((draft.description.trim() || fallbackDesc).trim() === '') {
+    const rawDesc = draft.description.trim();
+    const partDesc = draft.part.source === 'stock' ? draft.part.productName : draft.part.name;
+    const finalDesc = rawDesc.length > 0 ? rawDesc : partDesc.trim();
+    if (finalDesc === '') {
       return { field: 'description', message: t('Say what the part is.') };
     }
     if (!rework) {
@@ -357,6 +429,9 @@ export const rowProblem = (draft: ItemDraft, rework: boolean): RowProblem | null
   }
   if (negative(draft.feeRupees)) {
     return { field: 'fee', message: t('Fee cannot be below zero.') };
+  }
+  if (!rework && (draft.feeRupees === '' || Number(draft.feeRupees) <= 0)) {
+    return { field: 'fee', message: t('Enter the fee amount.') };
   }
   if (!rework) {
     const message = profileProblem(draft.warranty);
@@ -420,12 +495,14 @@ export const repairTotals = (drafts: ItemDraft[], rework: boolean): LiveRepairTo
   let costKnown = true;
   const items = drafts.map((draft) => {
     if (draft.kind === 'part') {
-      const cost = partCostCents(draft.part);
-      if (cost === null) costKnown = false;
+      const qty = Math.max(1, draft.quantity);
+      const unitPrice = partPriceCents(draft.part, rework);
+      const unitCost = partCostCents(draft.part);
+      if (unitCost === null) costKnown = false;
       return {
         laborCents: undefined,
-        partCents: partPriceCents(draft.part, rework),
-        partCostCents: cost === null ? undefined : cost,
+        partCents: unitPrice * qty,
+        partCostCents: unitCost === null ? undefined : unitCost * qty,
         discount: draft.discount === null ? undefined : draft.discount,
       };
     }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -59,7 +59,7 @@ export const BalanceOpeningModal: React.FC<BalanceOpeningModalProps> = ({
     }
     try {
       await setOpening.mutateAsync({ subject, key: subjectKey, input: toOpeningInput(form) });
-      notifications.show({ title: t('Opening balance saved'), message: name, color: 'green' });
+      notify.success({ title: t('Opening balance saved'), message: name });
       onClose();
     } catch (err) {
       setError(

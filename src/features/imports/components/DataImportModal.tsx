@@ -35,7 +35,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { queryKeys } from '@/api/queryKeys';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
@@ -371,11 +371,10 @@ export function DataImportModal({ opened, onClose, config, onSuccess }: DataImpo
       );
     } catch (err) {
       setIsImporting(false);
-      notifications.show({
+      notify.error({
         title: t('Import Error'),
         message:
           err instanceof Error ? err.message : t('Failed to process categories or import batch'),
-        color: 'red',
       });
     }
   };

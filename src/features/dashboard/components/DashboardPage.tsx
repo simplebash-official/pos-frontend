@@ -1,6 +1,5 @@
 import { Stack, SimpleGrid } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { IconCheck } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
 import { useDashboardLivePulse } from '../hooks/useDashboardLivePulse';
 import { CockpitHeader } from './CockpitHeader';
 import { DashboardKpiStrip } from './DashboardKpiStrip';
@@ -20,11 +19,9 @@ export const DashboardPage = () => {
 
   const handleRefresh = async () => {
     await refresh();
-    notifications.show({
+    notify.success({
       title: 'Store Pulse Synced',
       message: 'Pulled latest cloud transactions and local store activity.',
-      color: 'teal',
-      icon: <IconCheck size={16} />,
     });
   };
 

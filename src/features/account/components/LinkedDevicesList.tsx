@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Badge, Button, Group, Loader, Paper, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/logging';
@@ -78,7 +78,7 @@ export const LinkedDevicesList = ({ thisDeviceId }: { thisDeviceId: string | nul
         setTarget(null);
       },
       onError: (err) => {
-        notifications.show({ color: 'red', message: toCloudError(err).message });
+        notify.error({ message: toCloudError(err).message });
         setTarget(null);
       },
     });

@@ -189,6 +189,11 @@ export const MODULES: readonly ModuleDef[] = [
     resources: ['registerSessions', 'drawerState', 'cashMovements'],
   },
   { id: 'settings', label: 'Shop Settings', resources: ['shopProfiles'] },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    resources: ['notifications', 'notificationReads'],
+  },
 ];
 
 const OTHER_MODULE: ModuleDef = { id: 'other', label: 'Other records', resources: [] };
@@ -207,6 +212,8 @@ const RECORD_NAMES: Record<string, string> = {
   warrantyClaims: 'Warranty claim',
   repairs: 'Repair job',
   repairServices: 'Repair service',
+  notifications: 'Notification',
+  notificationReads: 'Notification read',
   printJobs: 'Print job',
   products: 'Product',
   categories: 'Category',

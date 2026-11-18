@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { queryKeys } from '@/api/queryKeys';
 import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
@@ -98,10 +98,9 @@ export const useOpenClaimsBatch = () => {
         result.outcome === 'opened' ? [result.claim.claimNumber] : []
       );
       if (numbers.length > 0) {
-        notifications.show({
+        notify.success({
           title: t('Claims started'),
           message: numbers.join(', '),
-          color: 'teal',
         });
       }
     },

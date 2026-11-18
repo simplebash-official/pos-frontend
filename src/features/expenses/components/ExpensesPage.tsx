@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ActionIcon, Badge, Button, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconAlertTriangle,
   IconCalendarRepeat,
@@ -148,18 +148,16 @@ export const ExpensesPage = () => {
   const startPayment = (bill: RecurringBill) => {
     const plan = planPayment(bill);
     if (plan.kind === 'closing') {
-      notifications.show({
+      notify.warning({
         title: t('Cash Count In Progress'),
         message: t(
           'Drawer cash count is in progress. Finish or cancel the close count before paying from the drawer.'
         ),
-        color: 'orange',
       });
     } else if (plan.kind === 'needs-shift') {
-      notifications.show({
+      notify.warning({
         title: t('Open a shift first'),
         message: t('Paying from the drawer needs an open shift on this register.'),
-        color: 'orange',
       });
     } else if (plan.kind === 'cash') {
       setCashPrefill(plan.prefill);

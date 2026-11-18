@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import type { CalculatorOperator, CalculatorHistoryItem, CalculatorState } from './types';
 
 const STORAGE_KEY = 'simplebash_calculator_history';
@@ -445,10 +445,9 @@ export const useCalculator = (initialValue?: string) => {
 
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(state.display);
-      notifications.show({
+      notify.success({
         title: 'Copied to clipboard',
         message: `${state.display} is ready to paste`,
-        color: 'teal',
         autoClose: 2000,
       });
     }

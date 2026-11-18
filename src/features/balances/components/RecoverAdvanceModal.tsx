@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -42,7 +42,7 @@ export const RecoverAdvanceModal: React.FC<RecoverAdvanceModalProps> = ({ advanc
     }
     try {
       await recover.mutateAsync({ employeeKey: advance.employeeKey, input: toRecoveryInput(form) });
-      notifications.show({ title: t('Recovery saved'), message: advance.name, color: 'green' });
+      notify.success({ title: t('Recovery saved'), message: advance.name });
       onClose();
     } catch (err) {
       setError(getErrorMessage(err, t('The recovery could not be saved. Please try again.')));

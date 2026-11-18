@@ -14,7 +14,7 @@ import {
   Textarea,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconAlertTriangle,
   IconBuildingStore,
@@ -154,10 +154,9 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
         managerPin: needsPin ? managerPin.trim() : undefined,
       });
 
-      notifications.show({
+      notify.success({
         title: t('Shift Opened'),
         message: `${t('Session')} ${session.sessionNumber} ${t('started successfully.')}`,
-        color: 'teal',
       });
 
       onSessionOpened?.(session);
@@ -168,10 +167,9 @@ const OpenSessionForm: React.FC<OpenSessionFormProps> = ({
         const existing = await getCurrentSession(terminalId).catch(() => null);
         await queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.all });
         if (existing) {
-          notifications.show({
+          notify.info({
             title: t('Joined Open Shop Shift'),
             message: `${existing.sessionNumber} ${t('was already opened by')} ${existing.cashierNameSnapshot}. ${t('Joined active shift automatically.')}`,
-            color: 'cyan',
           });
           onSessionOpened?.(existing);
           onClose();

@@ -410,11 +410,13 @@ describe('InvoiceDetailDrawer', () => {
       await act(async () => button('Confirm & Update Balance')!.click());
 
       await until(() =>
-        expect(notifications.show).toHaveBeenCalledWith({
-          title: 'Cash Count In Progress',
-          message: 'Cash count is in progress for this register session',
-          color: 'orange',
-        })
+        expect(notifications.show).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Cash Count In Progress',
+            message: 'Cash count is in progress for this register session',
+            color: 'orange',
+          })
+        )
       );
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });
       expect(text()).toContain('Cash Count In Progress');

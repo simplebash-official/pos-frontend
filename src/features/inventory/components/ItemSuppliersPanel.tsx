@@ -16,7 +16,7 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconLink, IconPlus, IconUnlink } from '@tabler/icons-react';
 import { formatMoney } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -69,10 +69,9 @@ export const ItemSuppliersPanel = ({
       { supplierKey, productKey: product.key, supplierSku: supplierSku.trim() || undefined },
       {
         onSuccess: () => {
-          notifications.show({
+          notify.success({
             title: 'Supplier Linked',
             message: 'Supplier has been linked to this product.',
-            color: 'teal',
           });
           closeForm();
         },
@@ -85,10 +84,9 @@ export const ItemSuppliersPanel = ({
       { supplierKey: key, productKey: product.key },
       {
         onSuccess: () => {
-          notifications.show({
+          notify.warning({
             title: 'Supplier Unlinked',
             message: 'Supplier has been removed from this product.',
-            color: 'orange',
           });
         },
       }

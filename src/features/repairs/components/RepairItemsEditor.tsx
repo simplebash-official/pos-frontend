@@ -29,10 +29,16 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { IconAction } from '@/shared/components/drawer';
+import { QuantityInput } from '@/shared/components/QuantityInput';
 import { fetchSerialByNumber } from '@/features/inventory/api/productsApi';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { useCategories, useCategoryIcons } from '@/features/inventory/hooks/useCategories';
+import {
+  useCategories,
+  useCategoryIcons,
+  useCategoryLookup,
+} from '@/features/inventory/hooks/useCategories';
 import { resolveCategoryIcon } from '@/features/inventory';
+import type { TablerIcon } from '@/features/inventory/constants';
 import type { Product } from '@/features/inventory/types';
 import type { ProductWarranty } from '@/features/warranties';
 import type { ItemDiscount } from '@/wasm';
@@ -46,8 +52,10 @@ import {
   calculatePartsProfitCents,
   DEFAULT_QUICK_FEES,
   feePriceCents,
+  negative,
   partPriceCents,
   rowDiscountProblem,
+  rowProblem,
   type FeeItemDraft,
   type ItemDraft,
   type LiveRepairTotals,
@@ -89,6 +97,7 @@ export const RepairItemsEditor = ({
   onChange,
   rework,
   readOnly,
+  showProblems,
   totals,
   profit,
 }: RepairItemsEditorProps) => {
@@ -107,6 +116,7 @@ export const RepairItemsEditor = ({
   const products = useAllProducts({ enabled: !readOnly });
   const { data: categories } = useCategories();
   const iconMap = useCategoryIcons();
+  const { getCategory } = useCategoryLookup();
 
   const isProductInStock = (p: Product): boolean => {
     if (p.isSerialized) {
@@ -197,6 +207,36 @@ export const RepairItemsEditor = ({
   };
 
   const handleSelectStockProduct = (product: Product) => {
+    if (!product.isSerialized) {
+      const existingIndex = drafts.findIndex(
+        (d) =>
+          d.kind === 'part' &&
+          d.part.source === 'stock' &&
+          !d.part.serialNumber &&
+          d.part.productKey === product.key
+      );
+      if (existingIndex >= 0) {
+        const existing = drafts[existingIndex];
+        if (existing.kind === 'part' && existing.part.source === 'stock') {
+          const maxStock =
+            typeof existing.part.stockQuantity === 'number'
+              ? existing.part.stockQuantity
+              : product.stockQuantity;
+          if (existing.quantity < maxStock) {
+            const nextDrafts = [...drafts];
+            nextDrafts[existingIndex] = {
+              ...existing,
+              quantity: existing.quantity + 1,
+            };
+            onChange(nextDrafts);
+          }
+          setSearchQuery('');
+          setDropdownOpened(false);
+          return;
+        }
+      }
+    }
+
     let priceCents = 0;
     let costCents: number | null = null;
     if (product.priceTiers.length > 0) {
@@ -228,6 +268,7 @@ export const RepairItemsEditor = ({
     const newRow: PartItemDraft = {
       uid: genUid(),
       kind: 'part',
+      quantity: 1,
       description: product.name,
       part: partDraft,
       discount: null,
@@ -245,6 +286,7 @@ export const RepairItemsEditor = ({
     const newRow: PartItemDraft = {
       uid: genUid(),
       kind: 'part',
+      quantity: 1,
       description: trimmed,
       part: {
         source: 'outside',
@@ -320,6 +362,7 @@ export const RepairItemsEditor = ({
       const newRow: PartItemDraft = {
         uid: genUid(),
         kind: 'part',
+        quantity: 1,
         description: found.product.name,
         part: partDraft,
         discount: null,
@@ -335,6 +378,23 @@ export const RepairItemsEditor = ({
     } finally {
       setScanning(false);
     }
+  };
+
+  const updateDraftQuantity = (uid: string, nextQty: number) => {
+    onChange(
+      drafts.map((d) => {
+        if (d.uid !== uid || d.kind !== 'part') return d;
+        let clamped = Math.max(1, nextQty);
+        if (
+          d.part.source === 'stock' &&
+          typeof d.part.stockQuantity === 'number' &&
+          d.part.stockQuantity >= 1
+        ) {
+          clamped = Math.min(d.part.stockQuantity, clamped);
+        }
+        return { ...d, quantity: clamped };
+      })
+    );
   };
 
   const updateDraftWarranty = (uid: string, warranty: ProductWarranty) => {
@@ -395,8 +455,28 @@ export const RepairItemsEditor = ({
   /** One piece of work as a card: what and how much on top, then the two buttons. */
   const renderCard = (draft: ItemDraft, index: number) => {
     const label = draft.kind === 'fee' ? t('Service fee') : null;
-    const priceCents =
+    const unitPriceCents =
       draft.kind === 'fee' ? feePriceCents(draft) : partPriceCents(draft.part, rework);
+    const linePriceCents = draft.kind === 'part' ? unitPriceCents * draft.quantity : unitPriceCents;
+    const isSerialized =
+      draft.kind === 'part' &&
+      draft.part.source === 'stock' &&
+      typeof draft.part.serialNumber === 'string';
+    const problem = showProblems ? rowProblem(draft, rework) : null;
+
+    let PartIcon: TablerIcon = IconPackage;
+    let partColor = 'blue';
+    if (draft.kind === 'part' && draft.part.source === 'stock') {
+      const stockProdKey = draft.part.productKey;
+      const product = products.data.find((p) => p.key === stockProdKey);
+      if (product !== undefined) {
+        const category = getCategory(product.categoryKey);
+        if (category !== undefined) {
+          PartIcon = resolveCategoryIcon(iconMap, category.icon);
+          partColor = category.color;
+        }
+      }
+    }
 
     const icon =
       draft.kind === 'fee' ? (
@@ -404,8 +484,14 @@ export const RepairItemsEditor = ({
           <IconTool size={18} />
         </ThemeIcon>
       ) : draft.part.source === 'stock' ? (
-        <ThemeIcon size={36} radius="md" variant="light" color="blue" style={{ flexShrink: 0 }}>
-          <IconPackage size={18} />
+        <ThemeIcon
+          size={36}
+          radius="md"
+          variant="light"
+          color={partColor}
+          style={{ flexShrink: 0 }}
+        >
+          <PartIcon size={18} />
         </ThemeIcon>
       ) : (
         <ThemeIcon size={36} radius="md" variant="light" color="yellow" style={{ flexShrink: 0 }}>
@@ -436,6 +522,11 @@ export const RepairItemsEditor = ({
             min={0}
             styles={{ input: { height: inputHeight, fontSize: isMobile ? 16 : undefined } }}
             value={draft.part.costRupees}
+            error={
+              problem !== null &&
+              problem.field === 'part' &&
+              (draft.part.costRupees === '' || negative(draft.part.costRupees))
+            }
             onChange={(val) => updateOutsidePart(draft.uid, 'costRupees', val)}
             disabled={readOnly}
           />
@@ -443,7 +534,8 @@ export const RepairItemsEditor = ({
             const rowProfit = calculateOutsideProfit(
               draft.part.priceRupees,
               draft.part.costRupees,
-              totals === null ? null : totals.itemDiscountsCents[index]
+              totals === null ? null : totals.itemDiscountsCents[index],
+              draft.quantity
             );
             if (rowProfit === null) return null;
             return (
@@ -469,10 +561,10 @@ export const RepairItemsEditor = ({
         <Text
           size="sm"
           fw={600}
-          w={isMobile ? '100%' : 150}
+          w={isMobile ? '100%' : 'auto'}
           style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}
         >
-          {formatMoney(priceCents)}
+          {formatMoney(linePriceCents)}
         </Text>
       ) : (
         <NumberInput
@@ -488,6 +580,16 @@ export const RepairItemsEditor = ({
           thousandSeparator=","
           styles={moneyInputStyles}
           value={rework ? 0 : typedPrice}
+          error={
+            problem !== null &&
+            (draft.kind === 'fee'
+              ? problem.field === 'fee'
+              : problem.field === 'part' &&
+                draft.part.source === 'outside' &&
+                (draft.part.priceRupees === '' ||
+                  Number(draft.part.priceRupees) <= 0 ||
+                  negative(draft.part.priceRupees)))
+          }
           onChange={(val) =>
             draft.kind === 'fee'
               ? updateFeeRupees(draft.uid, val)
@@ -515,7 +617,36 @@ export const RepairItemsEditor = ({
               </Text>
               {subline}
             </Stack>
-            {!isMobile && price}
+            {!isMobile && (
+              <Group gap="sm" align="center" wrap="nowrap" style={{ flexShrink: 0 }}>
+                {draft.kind === 'part' && !isSerialized && (
+                  <QuantityInput
+                    value={draft.quantity}
+                    onChange={(val) =>
+                      updateDraftQuantity(draft.uid, typeof val === 'number' ? val : 1)
+                    }
+                    min={1}
+                    max={
+                      draft.part.source === 'stock' && typeof draft.part.stockQuantity === 'number'
+                        ? draft.part.stockQuantity
+                        : undefined
+                    }
+                    size="xs"
+                    disabled={readOnly}
+                  />
+                )}
+                <Stack gap={2} align="flex-end" style={{ flexShrink: 0, minWidth: 100 }}>
+                  {price}
+                  {draft.kind === 'part' && draft.quantity > 1 && (
+                    <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+                      {draft.part.source === 'stock'
+                        ? `${formatMoney(unitPriceCents)} ${t('each')}`
+                        : `${t('Total:')} ${formatMoney(linePriceCents)}`}
+                    </Text>
+                  )}
+                </Stack>
+              </Group>
+            )}
             {!readOnly && (
               <IconAction
                 kind="danger"
@@ -527,12 +658,50 @@ export const RepairItemsEditor = ({
           </Group>
 
           {isMobile && (
-            <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
-              <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
-                {t('Customer pays')}
-              </Text>
-              <Box style={{ flex: 1, maxWidth: 200 }}>{price}</Box>
-            </Group>
+            <Stack gap="xs">
+              {draft.kind === 'part' && !isSerialized && (
+                <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
+                  <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+                    {t('Quantity')}
+                  </Text>
+                  <QuantityInput
+                    value={draft.quantity}
+                    onChange={(val) =>
+                      updateDraftQuantity(draft.uid, typeof val === 'number' ? val : 1)
+                    }
+                    min={1}
+                    max={
+                      draft.part.source === 'stock' && typeof draft.part.stockQuantity === 'number'
+                        ? draft.part.stockQuantity
+                        : undefined
+                    }
+                    size="sm"
+                    disabled={readOnly}
+                  />
+                </Group>
+              )}
+              <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
+                <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+                  {t('Customer pays')}
+                </Text>
+                <Stack gap={2} align="flex-end" style={{ flex: 1, maxWidth: 200 }}>
+                  {price}
+                  {draft.kind === 'part' && draft.quantity > 1 && (
+                    <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
+                      {draft.part.source === 'stock'
+                        ? `${formatMoney(unitPriceCents)} ${t('each')}`
+                        : `${t('Total:')} ${formatMoney(linePriceCents)}`}
+                    </Text>
+                  )}
+                </Stack>
+              </Group>
+            </Stack>
+          )}
+
+          {problem !== null && (
+            <Text size="xs" c="red" fw={500} role="alert">
+              {problem.message}
+            </Text>
           )}
 
           {rework ? (
@@ -550,7 +719,7 @@ export const RepairItemsEditor = ({
                 targetName={draft.description}
                 discount={draft.discount}
                 amountCents={totals === null ? null : totals.itemDiscountsCents[index]}
-                originalCents={priceCents}
+                originalCents={linePriceCents}
                 problem={totals === null ? null : rowDiscountProblem(index, totals.blockers)}
                 onChange={(discount) => updateDraftDiscount(draft.uid, discount)}
                 readOnly={readOnly}
@@ -561,6 +730,8 @@ export const RepairItemsEditor = ({
       </Paper>
     );
   };
+
+  const totalItemCount = drafts.reduce((sum, d) => sum + (d.kind === 'part' ? d.quantity : 1), 0);
 
   return (
     <Paper withBorder p="md" bg="var(--bg-card)" radius="md">
@@ -576,7 +747,7 @@ export const RepairItemsEditor = ({
             </Text>
           </Box>
           <Badge variant="light" color="gray" radius="xl" size="sm">
-            {drafts.length} {drafts.length === 1 ? t('item') : t('items')}
+            {totalItemCount} {totalItemCount === 1 ? t('item') : t('items')}
           </Badge>
         </Group>
 
@@ -718,6 +889,14 @@ export const RepairItemsEditor = ({
                     ) : (
                       displayedProducts.map((prod) => {
                         const inStock = isProductInStock(prod);
+                        let ItemIcon: TablerIcon = IconPackage;
+                        let itemColor = 'blue';
+                        const category = getCategory(prod.categoryKey);
+                        if (category !== undefined) {
+                          ItemIcon = resolveCategoryIcon(iconMap, category.icon);
+                          itemColor = category.color;
+                        }
+
                         let code: string | null = null;
                         if (typeof prod.sku === 'string' && prod.sku.length > 0) {
                           code = prod.sku;
@@ -773,10 +952,10 @@ export const RepairItemsEditor = ({
                                   size={32}
                                   radius="md"
                                   variant="light"
-                                  color={inStock ? 'blue' : 'gray'}
+                                  color={inStock ? itemColor : 'gray'}
                                   style={{ flexShrink: 0 }}
                                 >
-                                  <IconPackage size={16} />
+                                  <ItemIcon size={16} />
                                 </ThemeIcon>
                                 <Stack gap={0} style={{ minWidth: 0, flex: 1 }}>
                                   <Group gap="xs" align="center" wrap="nowrap">

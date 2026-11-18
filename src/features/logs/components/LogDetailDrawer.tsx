@@ -10,7 +10,7 @@ import {
   IconUser,
   IconWorld,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   CopyIconButton,
   DrawerCard,
@@ -54,9 +54,9 @@ export const LogDetailDrawer = ({ record, onClose, onTraceRequest }: LogDetailDr
   const copy = async (entry: LogRecord) => {
     try {
       await navigator.clipboard.writeText(JSON.stringify(entry, null, 2));
-      notifications.show({ color: 'green', message: t('Log entry copied') });
+      notify.success({ message: t('Log entry copied') });
     } catch {
-      notifications.show({ color: 'red', message: t('Could not copy the log entry') });
+      notify.error({ message: t('Could not copy the log entry') });
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -45,10 +45,9 @@ export const ReverseMovementModal: React.FC<ReverseMovementModalProps> = ({
     }
     try {
       await reverse.mutateAsync({ key: movement.key, input: { reason: reason.trim() } });
-      notifications.show({
+      notify.success({
         title: t('Entry reversed'),
         message: movement.movementNumber,
-        color: 'teal',
       });
       handleClose();
     } catch (err) {

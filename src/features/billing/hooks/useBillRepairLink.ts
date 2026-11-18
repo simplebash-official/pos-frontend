@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
 import { billBlocker, billBlockerNotice } from '@/features/repairs';
@@ -39,23 +39,21 @@ export const useBillRepairLink = () => {
         if (isCancelled) return;
         const blocker = billBlocker(job);
         if (blocker !== null) {
-          notifications.show({ ...billBlockerNotice(blocker, job.ticketNumber), color: 'red' });
+          notify.error({ ...billBlockerNotice(blocker, job.ticketNumber) });
         } else {
           addServiceJobRef.current(repairCartLine(job), job.customerName, job.customerPhone);
-          notifications.show({
+          notify.success({
             title: t('Repair added to the bill'),
             message: `${job.ticketNumber}: ${job.deviceModel}`,
-            color: 'green',
           });
         }
         clearParam();
       })
       .catch((err: unknown) => {
         if (isCancelled) return;
-        notifications.show({
+        notify.error({
           title: t('Could not add the repair'),
           message: getErrorMessage(err),
-          color: 'red',
         });
         clearParam();
       });

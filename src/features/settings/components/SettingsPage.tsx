@@ -21,6 +21,7 @@ import { LabelsSection } from '@/features/labels/components/LabelsSection';
 import { CashCategoriesSection } from './sections/CashCategoriesSection';
 import { PayeesSection } from './sections/PayeesSection';
 import { RepairServicesSection } from '@/features/repairs';
+import { NotificationHistorySection } from '@/features/notifications';
 import { CashRulesSection } from './sections/CashRulesSection';
 import { AboutSection } from './sections/AboutSection';
 import { BackupSection } from './sections/BackupSection';
@@ -81,6 +82,8 @@ const renderSection = (
       return <CashCategoriesSection />;
     case 'payees':
       return <PayeesSection />;
+    case 'notifications':
+      return <NotificationHistorySection />;
     case 'repair-services':
       return <RepairServicesSection />;
     case 'branding':

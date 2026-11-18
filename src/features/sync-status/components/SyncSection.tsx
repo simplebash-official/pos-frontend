@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Alert, Box, Button, Divider, Group, Paper, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { logger } from '@/shared/logging';
 import type { SectionProps } from '@/features/settings/components/sections/ShopProfileSection';
@@ -34,7 +34,7 @@ export const SyncSection = ({ onOpenSection }: SyncSectionProps) => {
       setSyncStatus(await action());
       logger.info('app', `sync.${name}`);
     } catch (err) {
-      notifications.show({ color: 'red', message: toSyncError(err).message });
+      notify.error({ message: toSyncError(err).message });
     } finally {
       setBusy(false);
     }

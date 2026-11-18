@@ -49,8 +49,8 @@ vi.mock('@/features/billing/hooks/useCart', () => ({
   useCartSound: () => ({ soundEnabled: false, toggleSoundFeedback: vi.fn() }),
 }));
 
-vi.mock('@/features/notifications/components/NotificationPopover', () => ({
-  NotificationPopover: () => <div data-testid="notification-popover" />,
+vi.mock('@/features/notifications', () => ({
+  NotificationCenter: () => <div data-testid="notification-popover" />,
 }));
 
 vi.mock('@/shared/components/ModernClock', () => ({

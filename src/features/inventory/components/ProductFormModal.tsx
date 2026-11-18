@@ -30,7 +30,7 @@ import {
   IconTrendingUp,
   IconCalculator,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useAllSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { Product, CreateProductInput, UpdateProductInput, ProductSupplierIntake } from '../types';
 import { isValidManualBarcode } from '../lib/barcode';
@@ -464,16 +464,14 @@ const ProductFormContent = ({
     ) {
       setErrors((prev) => ({ ...prev, categoryKey: message }));
     } else if (message.toLowerCase().includes('supplier')) {
-      notifications.show({
+      notify.error({
         title: 'Please check the supplier details',
         message,
-        color: 'red',
       });
     } else {
-      notifications.show({
+      notify.error({
         title: 'Error Saving Product',
         message,
-        color: 'red',
       });
     }
   };

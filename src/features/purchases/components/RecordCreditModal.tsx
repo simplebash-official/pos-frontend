@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Alert, Button, Group, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { formatMoney } from '@/shared/lib/money';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -94,10 +94,9 @@ export const RecordCreditModal = ({
         reason,
         note: note.trim() || undefined,
       });
-      notifications.show({
+      notify.success({
         title: t('Credit recorded'),
         message: `${supplierName}: ${formatMoney(amountCents)}`,
-        color: 'teal',
       });
       onClose();
     } catch (error) {

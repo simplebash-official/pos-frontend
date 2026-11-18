@@ -16,7 +16,7 @@ import {
   TextInput,
   ThemeIcon,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconAlertCircle,
   IconFileDescription,
@@ -96,26 +96,23 @@ export const DocumentDesignsSection = ({ onDirtyChange }: SectionProps) => {
 
   const handleSave = async () => {
     if (!editsAreValid(kinds, edits)) {
-      notifications.show({
+      notify.error({
         title: t('Check the settings'),
         message: t('One of the settings is not valid yet.'),
-        color: 'red',
       });
       return;
     }
     try {
       await update.mutateAsync(buildRequest(kinds, edits));
       setEdits(NO_EDITS);
-      notifications.show({
+      notify.success({
         title: t('Designs saved'),
         message: t('New prints use the designs you chose.'),
-        color: 'green',
       });
     } catch (error) {
-      notifications.show({
+      notify.error({
         title: t('Could not save the designs'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     }
   };

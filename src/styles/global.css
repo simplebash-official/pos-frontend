@@ -1672,3 +1672,265 @@ th.mantine-Table-th {
   outline: 2px solid var(--mantine-primary-color-filled);
   outline-offset: 2px;
 }
+
+/* ---------------------------------------------------------------------------------------------
+   Notifications (features/notifications): the header bell, its panel and the history rows.
+   Colours come from scheme-aware tokens only; motion is transform/opacity (framer-motion).
+   --------------------------------------------------------------------------------------------- */
+.ntf-bell {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.ntf-bell-icon {
+  display: inline-flex;
+  transform-origin: 50% 12%;
+}
+
+.ntf-badge {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--mantine-color-white);
+  background: var(--mantine-color-red-filled);
+  box-shadow: 0 0 0 2px var(--mantine-color-body);
+  pointer-events: none;
+}
+
+.ntf-dropdown {
+  overflow: hidden;
+  background-color: var(--bg-card);
+  border-color: var(--border);
+}
+
+.ntf-panel {
+  min-width: 0;
+}
+
+.ntf-panel[data-mobile] {
+  height: 100dvh;
+}
+
+.ntf-panel[data-mobile] .ntf-panel-list {
+  flex: 1;
+  min-height: 0;
+}
+
+.ntf-panel-footer {
+  border-top: 1px solid var(--border);
+}
+
+.ntf-unread-pill {
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--mantine-color-blue-light-color);
+  background: var(--mantine-color-blue-light);
+}
+
+/* Segmented switch with a gliding highlight. */
+.ntf-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--mantine-radius-default);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+}
+
+.ntf-switch[data-grow] {
+  display: flex;
+}
+
+.ntf-switch[data-grow] .ntf-switch-option {
+  flex: 1;
+}
+
+.ntf-switch-option {
+  position: relative;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: var(--mantine-radius-default);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.ntf-switch-option[data-active] {
+  color: var(--text-primary);
+}
+
+.ntf-switch-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mantine-radius-default);
+  background: var(--bg-card);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 12%),
+    0 1px 6px rgb(0 0 0 / 6%);
+}
+
+.ntf-switch-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.ntf-switch-count,
+.ntf-chip-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--mantine-color-blue-light-color);
+  background: var(--mantine-color-blue-light);
+}
+
+/* Category chips in the bell. */
+.ntf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.ntf-chip:hover {
+  background: var(--bg-hover);
+}
+
+.ntf-chip[data-active] {
+  color: var(--mantine-color-blue-light-color);
+  background: var(--mantine-color-blue-light);
+  border-color: transparent;
+}
+
+/* Sticky day headings. */
+.ntf-day {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 10px 10px 6px;
+  letter-spacing: 0.04em;
+  background: var(--bg-card);
+}
+
+/* One notification. */
+.ntf-row {
+  position: relative;
+  border-radius: var(--mantine-radius-default);
+}
+
+.ntf-row-main {
+  display: block;
+  width: 100%;
+  padding: 10px 44px 10px 10px;
+  border-radius: var(--mantine-radius-default);
+  transition: background-color 0.15s ease;
+}
+
+.ntf-row-main:hover,
+.ntf-row-main:focus-visible {
+  background: var(--bg-hover);
+}
+
+.ntf-row[data-unread] .ntf-row-main {
+  background: color-mix(in srgb, var(--mantine-color-blue-light) 45%, transparent);
+}
+
+.ntf-row[data-unread] .ntf-row-main:hover,
+.ntf-row[data-unread] .ntf-row-main:focus-visible {
+  background: var(--mantine-color-blue-light);
+}
+
+.ntf-tile {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--mantine-radius-default);
+}
+
+.ntf-row-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ntf-row-side {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ntf-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.ntf-row-action {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ntf-row:hover .ntf-row-action,
+.ntf-row:focus-within .ntf-row-action,
+.ntf-row[data-touch] .ntf-row-action {
+  opacity: 1;
+}
+
+.ntf-row[data-touch] .ntf-row-main {
+  padding-right: 56px;
+}
+
+/* The bell's phone sheet: the panel brings its own header and padding. */
+.mantine-Drawer-header.ntf-drawer-header {
+  display: none !important;
+}
+
+.mantine-Drawer-body.ntf-drawer-body {
+  padding: 0 !important;
+  overflow: hidden !important;
+}

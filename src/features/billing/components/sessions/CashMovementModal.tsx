@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   IconAlertCircle,
@@ -281,12 +281,11 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
         (form.type === 'petty_expense' || form.type === 'add_cash') &&
         form.payeeKey === null &&
         typedName !== '';
-      notifications.show({
+      notify.success({
         title: t('Cash movement recorded'),
         message: nameSaved
           ? `${movement.movementNumber} ${t('was saved.')} "${typedName}" ${t('is in your list for next time.')}`
           : `${movement.movementNumber} ${t('was saved.')}`,
-        color: 'teal',
       });
       setCompleted(movement);
       onMovementCreated?.(movement);
@@ -310,10 +309,9 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
     if (completed === null) return;
     try {
       await reverseMovement.mutateAsync({ key: completed.key, input: {} });
-      notifications.show({
+      notify.success({
         title: t('Entry undone'),
         message: completed.movementNumber,
-        color: 'teal',
       });
       handleClose();
     } catch (err) {

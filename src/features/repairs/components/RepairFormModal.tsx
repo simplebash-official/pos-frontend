@@ -14,10 +14,10 @@ import {
   Anchor,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { getErrorMessage } from '@/shared/lib/error';
 import { PromisedDatePicker } from '@/shared/components/PromisedDatePicker';
-import { IconBarcode, IconShieldCheck } from '@tabler/icons-react';
+import { IconArrowRight, IconBarcode, IconShieldCheck } from '@tabler/icons-react';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { useNavigate } from 'react-router-dom';
@@ -128,7 +128,13 @@ export const RepairFormModal = ({
 
   const handleSubmit = async (values: RepairFormValues, billAfterSave: string | null) => {
     setTried(true);
-    if (workProblem !== null) return;
+    if (workProblem !== null) {
+      notify.error({
+        title: t('Cannot save repair'),
+        message: workProblem,
+      });
+      return;
+    }
     const payload = toRepairInput(values, workLocked ? undefined : toItemInputs(drafts, rework));
     await onSubmit(payload);
     form.reset();
@@ -139,10 +145,9 @@ export const RepairFormModal = ({
   // The Update Ticket button leaves a failed save to the page; this one must say it stayed here.
   const billAfterSave = (values: RepairFormValues, jobId: string) =>
     handleSubmit(values, jobId).catch((error: unknown) =>
-      notifications.show({
+      notify.error({
         title: t('Could not save the repair'),
         message: getErrorMessage(error),
-        color: 'red',
       })
     );
 
@@ -276,7 +281,7 @@ export const RepairFormModal = ({
             profit={{ priced, profitCents, hint: priceHint }}
             onNestedWindowChange={setNestedOpen}
           />
-          {tried && workProblem !== null && drafts.length === 0 && (
+          {tried && workProblem !== null && (
             <Text size="sm" c="red" role="alert">
               {workProblem}
             </Text>
@@ -316,6 +321,7 @@ export const RepairFormModal = ({
                 color="blue"
                 loading={loading}
                 onClick={() => form.onSubmit((values) => billAfterSave(values, billJobId))()}
+                rightSection={<IconArrowRight size={16} />}
               >
                 {t('Update & bill')}
               </Button>

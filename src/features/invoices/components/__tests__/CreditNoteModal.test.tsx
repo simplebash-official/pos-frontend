@@ -287,11 +287,13 @@ describe('CreditNoteModal', () => {
 
       await vi.waitFor(
         () =>
-          expect(notifications.show).toHaveBeenCalledWith({
-            title: 'Cash Count In Progress',
-            message: 'Cash count is in progress for this register session',
-            color: 'orange',
-          }),
+          expect(notifications.show).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'Cash Count In Progress',
+              message: 'Cash count is in progress for this register session',
+              color: 'orange',
+            })
+          ),
         { timeout: 4000 }
       );
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });

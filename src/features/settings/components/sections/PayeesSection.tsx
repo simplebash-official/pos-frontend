@@ -12,7 +12,7 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconEye, IconEyeOff, IconPencil, IconPlus, IconSearch } from '@tabler/icons-react';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -48,10 +48,9 @@ export const PayeesSection = () => {
     try {
       await update.mutateAsync({ key: p.key, input: { active: !p.active } });
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Save Failed'),
         message: getErrorMessage(err, t('This could not be saved. Please try again.')),
-        color: 'red',
       });
     }
   };

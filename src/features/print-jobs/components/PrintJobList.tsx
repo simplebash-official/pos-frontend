@@ -6,7 +6,6 @@ import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core'
 import {
   IconPlus,
   IconRefresh,
-  IconCheck,
   IconUser,
   IconPrinter,
   IconCash,
@@ -15,7 +14,7 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
 import {
@@ -26,12 +25,10 @@ import {
 } from '../hooks/usePrintJobs';
 import { usePrintJobStats } from '../hooks/usePrintJobStats';
 import { fetchPrintJobs } from '../api/printJobsApi';
-import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
+import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import { formatDate } from '@/shared/lib/date';
 import { getJobDueMeta } from '@/shared/lib/jobDueDate';
-import { useAppDispatch } from '@/store/hooks';
-import { addNotification } from '@/store/slices/notificationSlice';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
@@ -70,7 +67,6 @@ const applyLocalPrintJobFilters = (items: PrintJob[], f: PrintJobFilters) =>
 
 export const PrintJobList = () => {
   const queryClient = useQueryClient();
-  const dispatch = useAppDispatch();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
@@ -133,51 +129,30 @@ export const PrintJobList = () => {
 
   const handleFormSubmit = async (values: PrintJobInput) => {
     if (jobToEdit) {
-      const previousStatus = jobToEdit.status;
       const updatedJob = await updateMutation.mutateAsync({
         printJobKey: jobToEdit.id,
         input: values,
       });
-      notifications.show({
+      notify.success({
         title: 'Print Order Updated',
         message: `Updated order ${updatedJob.ticketNumber || jobToEdit.ticketNumber}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
       });
-      if (
-        previousStatus !== updatedJob.status &&
-        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
-      ) {
-        dispatch(
-          addNotification({
-            category: 'print',
-            actionIconType: 'printer',
-            title: updatedJob.status === 'delivered' ? 'Print Job Delivered' : 'Print Job Ready',
-            message: `${updatedJob.jobType.toUpperCase()} order (${updatedJob.ticketNumber || jobToEdit.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
-            link: ROUTES.PRINT_JOBS,
-          })
-        );
-      }
     } else {
       const newJob = await createMutation.mutateAsync(values);
-      notifications.show({
+      notify.success({
         title: 'Print Order Created',
         message: newJob.ticketNumber
           ? `Saved order ${newJob.ticketNumber} successfully`
           : 'Order saved — it will get its number once back online',
-        color: 'teal',
-        icon: <IconCheck size={16} />,
       });
     }
   };
 
   const handleDeleteSelected = async (ids: string[]) => {
     await deleteBatchMutation.mutateAsync({ printJobKeys: ids });
-    notifications.show({
+    notify.success({
       title: 'Print Jobs Deleted',
       message: 'Selected print orders removed',
-      color: 'teal',
-      icon: <IconCheck size={16} />,
     });
   };
 

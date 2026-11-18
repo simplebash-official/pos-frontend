@@ -13,7 +13,7 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconAlertCircle,
   IconAlertTriangle,
@@ -420,7 +420,7 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all }),
       ]);
 
-      notifications.show({
+      notify.success({
         title: t('Register Shift Policy Updated'),
         message: persisted.allowSharedUserSessions
           ? t('Your shop now runs on one Shared Shop Shift across all counters and devices.')
@@ -429,7 +429,6 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
             : t(
                 'Personal Shifts active. Staff with an open shift are locked to that opening device.'
               ),
-        color: 'teal',
       });
     } catch (err: unknown) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.billing.sessions.activeSummary() });
@@ -440,10 +439,9 @@ export const RegisterShiftsSection = ({ onDirtyChange }: SectionProps) => {
       } else if (apiErr?.code === 'DRAWER_BALANCE_NONZERO') {
         message = t('Drop remaining cash in register drawers to Rs. 0.00 before switching modes.');
       }
-      notifications.show({
+      notify.error({
         title: t('Cannot Change Mode'),
         message,
-        color: 'red',
       });
     } finally {
       setSaving(false);

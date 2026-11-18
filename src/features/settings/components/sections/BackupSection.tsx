@@ -19,13 +19,12 @@ import {
 import {
   IconAlertCircle,
   IconAlertTriangle,
-  IconCheck,
   IconDownload,
   IconInfoCircle,
   IconRefresh,
   IconUpload,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { isTauri } from '@/shared/lib/runtime';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -136,19 +135,15 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
 
       downloadBackupFile(backup);
 
-      notifications.show({
+      notify.success({
         title: t('Backup Downloaded'),
         message: t('Your shop data backup file was created and downloaded successfully.'),
-        color: 'green',
-        icon: <IconCheck size={16} />,
       });
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Export Failed'),
         message:
           err instanceof Error ? err.message : t('Could not export shop data. Please try again.'),
-        color: 'red',
-        icon: <IconAlertCircle size={16} />,
       });
     } finally {
       setIsExporting(false);
@@ -216,11 +211,9 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
       // Invalidate all TanStack Query caches so every screen refreshes
       await queryClient.invalidateQueries();
 
-      notifications.show({
+      notify.success({
         title: t('Data Restored Successfully'),
         message: `${t('Your shop data has been restored.')} (${result.totalRecords.toLocaleString()} ${t('records across')} ${result.totalTables} ${t('tables')})`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
         autoClose: 8000,
       });
 
@@ -228,14 +221,12 @@ export const BackupSection = ({ onDirtyChange: _onDirtyChange }: SectionProps) =
       setParsedBackup(null);
       setSelectedFile(null);
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Restore Failed'),
         message:
           err instanceof Error
             ? err.message
             : t('Failed to restore data. No changes were applied.'),
-        color: 'red',
-        icon: <IconAlertCircle size={16} />,
         autoClose: false,
       });
     } finally {

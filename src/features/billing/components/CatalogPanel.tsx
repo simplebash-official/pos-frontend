@@ -35,7 +35,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SearchHighlight } from '@/shared/components/SearchHighlight';
@@ -333,10 +333,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const handleBillJob = (job: CombinedServiceJob) => {
     if (job.costCents === undefined) {
       playErrorSound(soundEnabled);
-      notifications.show({
+      notify.error({
         title: 'Not priced yet',
         message: `"${job.title}" hasn't been priced yet. Add a price before billing it.`,
-        color: 'red',
       });
       return;
     }
@@ -451,18 +450,16 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
           warranty: p.warranty,
         });
         playScanSuccessSound(soundEnabled);
-        notifications.show({
+        notify.info({
           title: t('Added (Out of Stock)'),
           message: `"${p.name}" added to cart for quotation.`,
-          color: 'blue',
         });
         return;
       }
       playErrorSound(soundEnabled);
-      notifications.show({
+      notify.warning({
         title: t('Price Required'),
         message: `"${p.name}" has never been received and has no historical price. Create a quotation in the Quotations screen to set a custom price.`,
-        color: 'orange',
       });
       return;
     }
@@ -516,19 +513,17 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
   const handleQuickAdded = (product: Product) => {
     const newTier = product.priceTiers[0];
     if (newTier === undefined) {
-      notifications.show({
+      notify.warning({
         title: t('Item saved'),
         message: `"${product.name}" ${t('was saved but could not be added to the cart. Search for it to add it.')}`,
-        color: 'orange',
       });
       return;
     }
     addProductToCart(product, newTier, 1);
     clearScan();
-    notifications.show({
+    notify.success({
       title: t('Item added'),
       message: `"${product.name}" ${t('was saved and added to the cart.')}`,
-      color: 'green',
     });
   };
 
@@ -547,10 +542,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     });
     playScanSuccessSound(soundEnabled);
     clearScan();
-    notifications.show({
+    notify.success({
       title: t('Charge added'),
       message: `"${charge.name}" ${t('was added to the cart.')}`,
-      color: 'green',
     });
   };
 
@@ -572,9 +566,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         const blocker = billBlocker(matchRep);
         if (blocker !== null) {
           playErrorSound(soundEnabled);
-          notifications.show({
+          notify.error({
             ...billBlockerNotice(blocker, matchRep.ticketNumber),
-            color: 'red',
           });
           setScanQuery('');
           setSearch('');
@@ -658,10 +651,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       const { product, serial, sellingPriceCents } = unit.lookup;
       if (alreadyPickedSerialsForProduct(product.key).includes(serial.serialNumber)) {
         playErrorSound(soundEnabled);
-        notifications.show({
+        notify.warning({
           title: 'Already in this sale',
           message: `${serial.serialNumber} is already on the bill.`,
-          color: 'orange',
         });
         clearScan();
         return;
@@ -677,10 +669,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     }
     if (unit.kind === 'sold') {
       playErrorSound(soundEnabled);
-      notifications.show({
+      notify.error({
         title: 'Already sold',
         message: `${scanned} is not in stock any more.`,
-        color: 'red',
       });
       clearScan();
       return;

@@ -1,5 +1,5 @@
 import type { MutationCache } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { getErrorMessage } from '@/shared/lib/error';
 
 /**
@@ -32,17 +32,15 @@ export const attachMutationFeedback = (cache: MutationCache): MutationCache => {
     const feedback = event.mutation.meta?.feedback;
     if (feedback === undefined) return;
     if (event.action.type === 'success') {
-      notifications.show({
+      notify.success({
         title: feedback.successTitle,
         // `never` in the shared type; the hook that declared it passes its own result type.
         message: feedback.successMessage(event.mutation.state.data as never),
-        color: 'teal',
       });
     } else if (event.action.type === 'error') {
-      notifications.show({
+      notify.error({
         title: feedback.failureTitle,
         message: getErrorMessage(event.action.error),
-        color: 'red',
       });
     }
   });

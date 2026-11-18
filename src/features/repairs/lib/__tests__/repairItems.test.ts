@@ -181,6 +181,36 @@ describe('repair parts and other fees', () => {
       field: 'fee',
       message: 'Fee cannot be below zero.',
     });
+    expect(rowProblem(feeDraft({ description: 'Inspection', feeRupees: '' }), false)).toEqual({
+      field: 'fee',
+      message: 'Enter the fee amount.',
+    });
+    expect(rowProblem(feeDraft({ description: 'Inspection', feeRupees: 0 }), false)).toEqual({
+      field: 'fee',
+      message: 'Enter the fee amount.',
+    });
+
+    const outsidePartNoCost = itemFromPart({
+      source: 'outside',
+      name: 'Glass protector',
+      priceRupees: 500,
+      costRupees: '',
+    });
+    expect(rowProblem(outsidePartNoCost, false)).toEqual({
+      field: 'part',
+      message: 'Enter the cost of the part to the shop.',
+    });
+
+    const outsidePartNoPrice = itemFromPart({
+      source: 'outside',
+      name: 'Glass protector',
+      priceRupees: '',
+      costRupees: 200,
+    });
+    expect(rowProblem(outsidePartNoPrice, false)).toEqual({
+      field: 'part',
+      message: 'Enter what the customer pays for the part.',
+    });
 
     const outsidePart = itemFromPart({
       source: 'outside',
@@ -323,5 +353,73 @@ describe('item discounts', () => {
     expect(calculateOutsideProfit(100, 40, 1_000)).toBe(50);
     expect(calculateOutsideProfit(100, 40, null)).toBeNull();
     expect(feePriceCents(feeDraft({ feeRupees: 12.5 }))).toBe(1_250);
+  });
+
+  it('groups identical non-serialized stock parts in itemsFromSaved and expands them in toItemInputs', () => {
+    const mug1: RepairItem = {
+      key: 'rit_mug1',
+      description: '11oz White Ceramic Sublimation Mug',
+      laborCents: 0,
+      part: {
+        source: 'stock',
+        productKey: 'prod_mug',
+        productName: '11oz White Ceramic Sublimation Mug',
+        sellingPriceCents: 500,
+      },
+      partCents: 500,
+      partCostCents: 120,
+      warranty: { coverage: { kind: 'none' } },
+    };
+    const mug2: RepairItem = {
+      key: 'rit_mug2',
+      description: '11oz White Ceramic Sublimation Mug',
+      laborCents: 0,
+      part: {
+        source: 'stock',
+        productKey: 'prod_mug',
+        productName: '11oz White Ceramic Sublimation Mug',
+        sellingPriceCents: 500,
+      },
+      partCents: 500,
+      partCostCents: 120,
+      warranty: { coverage: { kind: 'none' } },
+    };
+
+    const drafts = itemsFromSaved([mug1, mug2]);
+    expect(drafts).toHaveLength(1);
+    const draft = drafts[0] as PartItemDraft;
+    expect(draft.quantity).toBe(2);
+    expect(draft.keys).toEqual(['rit_mug1', 'rit_mug2']);
+
+    const inputs = toItemInputs(drafts, false);
+    expect(inputs).toHaveLength(2);
+    expect(inputs[0].key).toBe('rit_mug1');
+    expect(inputs[1].key).toBe('rit_mug2');
+    expect(inputs[0].part).toMatchObject({ source: 'stock', sellingPriceCents: 500 });
+    expect(inputs[1].part).toMatchObject({ source: 'stock', sellingPriceCents: 500 });
+  });
+
+  it('multiplies parts totals and profit for multi-quantity items', () => {
+    const partDraft = {
+      source: 'stock' as const,
+      productKey: 'prod_mug',
+      productName: '11oz White Ceramic Sublimation Mug',
+      sellingPriceCents: 500,
+      priceCents: 500,
+      costCents: 120,
+    };
+    const row = itemFromPart(partDraft, { coverage: { kind: 'none' } }, false, 3);
+    expect(row.quantity).toBe(3);
+
+    const live = repairTotals([row], false);
+    expect(live.totals.partsCents).toBe(1_500); // 3 * 500
+    expect(live.totals.costCents).toBe(360); // 3 * 120
+    expect(live.totals.priceCents).toBe(1_500);
+
+    const profit = calculatePartsProfitCents([row], [0]);
+    expect(profit).toBe(1_140); // 3 * (500 - 120)
+
+    const outsideProfit = calculateOutsideProfit(100, 40, 0, 3);
+    expect(outsideProfit).toBe(180); // 3 * (100 - 40)
   });
 });

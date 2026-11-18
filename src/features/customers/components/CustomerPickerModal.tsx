@@ -26,7 +26,7 @@ import {
   IconX,
   IconUserPlus,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 
 import { useAllCustomers, useCreateCustomer } from '../hooks/useCustomers';
 import { Customer } from '../types';
@@ -81,19 +81,17 @@ export const CustomerPickerModal = ({
     const trimmedPhone = newPhone.trim();
 
     if (!trimmedName || !trimmedPhone) {
-      notifications.show({
+      notify.error({
         title: 'Please check the details',
         message: 'Both customer name and phone number are required.',
-        color: 'red',
       });
       return;
     }
 
     if (trimmedName.length < 2) {
-      notifications.show({
+      notify.error({
         title: 'Please check the details',
         message: 'Customer name must be at least 2 characters.',
-        color: 'red',
       });
       return;
     }
@@ -106,10 +104,9 @@ export const CustomerPickerModal = ({
       });
 
       onSelectCustomer(created);
-      notifications.show({
+      notify.info({
         title: 'Customer Added',
         message: `Attached ${created.name} (${created.primaryPhone}) to current sale.`,
-        color: 'blue',
       });
 
       setNewName('');
@@ -118,10 +115,9 @@ export const CustomerPickerModal = ({
       setSearch('');
       onClose();
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Error',
         message: 'Could not create customer. Please try again.',
-        color: 'red',
       });
     }
   };

@@ -308,7 +308,7 @@ describe('ResetPasswordScreen', () => {
     expect(notifications.show).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Password Reset Successful',
-        color: 'green',
+        color: 'teal',
       })
     );
 

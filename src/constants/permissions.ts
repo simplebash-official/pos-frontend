@@ -45,6 +45,8 @@ export const PERMISSIONS = {
   WARRANTY_CLAIMS_RECORD: 'warranty_claims:record',
   WARRANTIES_ADJUST_AT_SALE: 'warranties:adjust_at_sale',
   WARRANTY_REPORTS_VIEW: 'warranty_reports:view',
+  /** Your own notifications: the bell, the history, marking read. Every role. */
+  NOTIFICATIONS_VIEW: 'notifications:view',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

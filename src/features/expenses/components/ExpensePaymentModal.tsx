@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -71,10 +71,9 @@ export const ExpensePaymentModal: React.FC<ExpensePaymentModalProps> = ({ expens
     }
     try {
       const saved = await addPayment.mutateAsync({ key: expense.key, input: toPaymentInput(form) });
-      notifications.show({
+      notify.success({
         title: t('Payment saved'),
         message: saved.expense.balanceCents === 0 ? t('This bill is now paid.') : expense.number,
-        color: 'green',
       });
       handleClose();
     } catch (err) {

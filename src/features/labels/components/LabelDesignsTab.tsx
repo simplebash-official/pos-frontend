@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { lazy, Suspense, useState } from 'react';
 import { Box, Button, Group, Paper, SimpleGrid, Skeleton, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconCopy, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { IconAction } from '@/shared/components/drawer';
@@ -83,10 +83,9 @@ export const LabelDesignsTab = () => {
       onSuccess: () => setToDelete(null),
       onError: (error) => {
         setToDelete(null);
-        notifications.show({
+        notify.error({
           title: t('Could not delete the design'),
           message: getErrorMessage(error),
-          color: 'red',
         });
       },
     });

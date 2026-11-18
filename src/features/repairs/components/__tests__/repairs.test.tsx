@@ -35,6 +35,13 @@ vi.mock('@/features/inventory/hooks/useProducts', () => ({
 vi.mock('@/features/inventory/hooks/useCategories', () => ({
   useCategories: () => ({ data: mockCategories, isLoading: false }),
   useCategoryIcons: () => null,
+  useCategoryLookup: () => ({
+    getCategory: (key: string) => mockCategories.find((c) => c.key === key),
+    getCategoryName: (key: string) => {
+      const cat = mockCategories.find((c) => c.key === key);
+      return cat !== undefined ? cat.name : 'Unknown Category';
+    },
+  }),
 }));
 
 vi.mock('../../api/repairServicesApi', () => ({
@@ -350,6 +357,34 @@ describe('repair jobs as items', () => {
     await vi.waitFor(() =>
       expect(text()).toContain('Add the parts or fees before marking this job ready or delivered.')
     );
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('blocks update and displays error when a fee is added without adding an amount', async () => {
+    const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
+    await render(
+      <RepairFormModal
+        opened
+        onClose={vi.fn()}
+        onSubmit={onSubmit}
+        jobToEdit={{
+          ...JOB,
+          items: [
+            {
+              key: 'rit_diag',
+              description: 'Diagnostic fee',
+              laborCents: 0,
+              partCents: 0,
+              partCostCents: 0,
+              warranty: { coverage: { kind: 'none' } },
+            },
+          ],
+          priceCents: 0,
+        }}
+      />
+    );
+    await act(async () => button('Update Ticket')?.click());
+    await vi.waitFor(() => expect(text()).toContain('Enter the fee amount.'));
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
@@ -824,5 +859,154 @@ describe('repair jobs as items', () => {
       'input[aria-label="Price of Rare Power IC"]'
     );
     expect(priceInput).not.toBeNull();
+  });
+
+  it('renders products with their relevant category icon and palette color styling', async () => {
+    mockCategories.length = 0;
+    mockCategories.push(
+      {
+        key: 'cat_print',
+        name: 'Custom Printing & Gifts',
+        icon: 'Shirt',
+        color: 'grape',
+        subcategories: [],
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
+      {
+        key: 'cat_hardware',
+        name: 'Computer & Laptop Parts',
+        icon: 'DeviceLaptop',
+        color: 'teal',
+        subcategories: [],
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      }
+    );
+
+    mockProducts.length = 0;
+    mockProducts.push(
+      createMockProduct({
+        key: 'prod_tshirt',
+        name: 'Cotton T-Shirt',
+        categoryKey: 'cat_print',
+        stockQuantity: 10,
+        priceTiers: [{ sellingPriceCents: 50_000, quantity: 10, oldestReceivedAt: '2026-01-01' }],
+      }),
+      createMockProduct({
+        key: 'prod_ssd',
+        name: 'SATA SSD 512GB',
+        categoryKey: 'cat_hardware',
+        stockQuantity: 5,
+        priceTiers: [{ sellingPriceCents: 80_000, quantity: 5, oldestReceivedAt: '2026-01-01' }],
+      })
+    );
+
+    await render(<EditorHost rework={false} start={[]} />);
+    const searchInput = document.querySelector<HTMLInputElement>(
+      'input[data-barcode-scanner="true"]'
+    );
+    await act(async () => {
+      searchInput?.focus();
+    });
+    await vi.waitFor(() => expect(text()).toContain('IN STOCK'));
+
+    expect(text()).toContain('Cotton T-Shirt');
+    expect(text()).toContain('SATA SSD 512GB');
+
+    // Both products are in the dropdown
+    const productButtons = buttons().filter(
+      (b) => b.textContent?.includes('Cotton T-Shirt') || b.textContent?.includes('SATA SSD 512GB')
+    );
+    expect(productButtons).toHaveLength(2);
+
+    // Click the t-shirt to add to draft items
+    await act(async () => {
+      productButtons[0]?.click();
+    });
+
+    // The draft item card appears in the list
+    expect(text()).toContain('Cotton T-Shirt');
+  });
+
+  it('increments quantity when existing stock product is chosen again, and supports quantity stepper', async () => {
+    mockCategories.length = 0;
+    mockProducts.length = 0;
+    mockProducts.push(
+      createMockProduct({
+        key: 'prod_mug',
+        name: '11oz Ceramic Mug',
+        categoryKey: 'cat_default',
+        stockQuantity: 5,
+        priceTiers: [{ sellingPriceCents: 500, quantity: 5, oldestReceivedAt: '2026-01-01' }],
+      })
+    );
+
+    await render(<EditorHost rework={false} start={[]} />);
+    const searchInput = document.querySelector<HTMLInputElement>(
+      'input[data-barcode-scanner="true"]'
+    );
+    await act(async () => {
+      searchInput?.focus();
+    });
+    await vi.waitFor(() => expect(text()).toContain('IN STOCK'));
+
+    const mugBtn = buttons().find((b) => b.textContent?.includes('11oz Ceramic Mug'));
+    expect(mugBtn).toBeDefined();
+
+    // 1. Add mug first time
+    await act(async () => {
+      mugBtn?.click();
+    });
+
+    // Verify 1 card with quantity 1
+    expect(text()).toContain('11oz Ceramic Mug');
+    expect(text()).toContain('1 item');
+    expect(text()).toContain('Rs. 5.00');
+    expect(text()).not.toContain('Rs. 5.00 each');
+
+    // 2. Select mug again from dropdown
+    await act(async () => {
+      searchInput?.focus();
+    });
+    await vi.waitFor(() => expect(text()).toContain('IN STOCK'));
+    const mugBtnAgain = buttons().find((b) => b.textContent?.includes('11oz Ceramic Mug'));
+    await act(async () => {
+      mugBtnAgain?.click();
+    });
+
+    // Still only 1 card, but quantity is now 2
+    expect(text()).toContain('2 items');
+    expect(text()).toContain('Rs. 10.00');
+    expect(text()).toContain('Rs. 5.00 each');
+
+    // 3. Test decrement quantity stepper
+    const decreaseBtn = document.querySelector<HTMLButtonElement>(
+      'button[aria-label="Decrease quantity"]'
+    );
+    expect(decreaseBtn).not.toBeNull();
+    await act(async () => {
+      decreaseBtn?.click();
+    });
+
+    // Quantity decreases back to 1
+    expect(text()).toContain('1 item');
+    expect(text()).toContain('Rs. 5.00');
+    expect(text()).not.toContain('Rs. 5.00 each');
+
+    // Decrement button should be disabled at min=1
+    expect(decreaseBtn?.disabled).toBe(true);
+
+    // 4. Test increment quantity stepper
+    const increaseBtn = document.querySelector<HTMLButtonElement>(
+      'button[aria-label="Increase quantity"]'
+    );
+    expect(increaseBtn).not.toBeNull();
+    await act(async () => {
+      increaseBtn?.click();
+    });
+    expect(text()).toContain('2 items');
+    expect(text()).toContain('Rs. 10.00');
+    expect(text()).toContain('Rs. 5.00 each');
   });
 });

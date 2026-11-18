@@ -98,12 +98,25 @@ describe('settingsSections access', () => {
   const manager = { isAdmin: false, permissions: ['payees:manage', 'expenses:manage'] };
   const cashier = { isAdmin: false, permissions: ['cash_movements:create'] };
 
-  it('gives only the payees and repair services sections a permission; the rest stay Admin-only', () => {
+  it('gives only notifications, payees and repair services a permission; the rest stay Admin-only', () => {
     expect(SETTINGS_SECTIONS.filter((s) => s.permission !== undefined).map((s) => s.id)).toEqual([
+      'notifications',
       'payees',
       'repair-services',
     ]);
-    expect(SETTINGS_PERMISSIONS).toEqual(['payees:manage', 'repair_services:manage']);
+    expect(SETTINGS_PERMISSIONS).toEqual([
+      'notifications:view',
+      'payees:manage',
+      'repair_services:manage',
+    ]);
+  });
+
+  it('shows every user their notification history, and nothing else they cannot manage', () => {
+    expect(
+      sectionsForAccess(web(), { isAdmin: false, permissions: ['notifications:view'] }).map(
+        (s) => s.id
+      )
+    ).toEqual(['notifications']);
   });
 
   it('shows someone with repair_services:manage only the repair services section', () => {

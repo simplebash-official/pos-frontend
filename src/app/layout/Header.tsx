@@ -27,7 +27,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useMantineColorScheme } from '@mantine/core';
 
 import { useCartItems, useHeldCarts, useCartSound } from '@/features/billing/hooks/useCart';
-import { NotificationPopover } from '@/features/notifications/components/NotificationPopover';
+import { NotificationCenter } from '@/features/notifications';
 import { ROUTES } from '@/constants/routes';
 import { formatUserRole } from '@/constants/roles';
 import { useAppSelector } from '@/store/hooks';
@@ -235,7 +235,7 @@ export const Header = ({
 
           <HeaderUpdateIndicator cartItemsCount={cartItemsCount} />
           <SyncBadge />
-          <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
+          <NotificationCenter />
 
           <Tooltip label={`Cashier: ${userLabel}`}>
             <Group
@@ -321,7 +321,7 @@ export const Header = ({
 
         <HeaderUpdateIndicator cartItemsCount={cartItemsCount} />
         <SyncBadge />
-        <NotificationPopover size={isMobile ? 44 : 32} variant="subtle" color="gray" />
+        <NotificationCenter />
 
         {isMobile ? (
           <Tooltip label={t('Billing Counter')}>

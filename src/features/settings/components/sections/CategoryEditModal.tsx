@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -59,7 +59,7 @@ export const CategoryEditModal: React.FC<CategoryEditModalProps> = ({ category, 
     }
     try {
       await update.mutateAsync({ key: category.key, input });
-      notifications.show({ title: t('Category saved'), message: name, color: 'green' });
+      notify.success({ title: t('Category saved'), message: name });
       onClose();
     } catch (err) {
       setError(getErrorMessage(err, t('The category could not be saved. Please try again.')));

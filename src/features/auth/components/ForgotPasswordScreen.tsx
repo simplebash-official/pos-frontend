@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Title, Text, TextInput, Button, Stack, Alert, Anchor, Group } from '@mantine/core';
 import { IconArrowLeft, IconCheck, IconMail, IconInfoCircle } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import { ROUTES } from '@/constants/routes';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -46,10 +46,9 @@ export const ForgotPasswordScreen = () => {
 
     const trimmedIdentifier = identifier.trim();
     if (!trimmedIdentifier) {
-      notifications.show({
+      notify.error({
         title: 'Information Required',
         message: 'Please enter your registered admin username or email.',
-        color: 'red',
       });
       return;
     }
@@ -69,13 +68,12 @@ export const ForgotPasswordScreen = () => {
       });
       setIsSubmitted(true);
     } catch (err: unknown) {
-      notifications.show({
+      notify.error({
         title: 'Request Failed',
         message: loginErrorMessage(
           err,
           'Unable to send password reset instructions. Please verify your details and try again.'
         ),
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);

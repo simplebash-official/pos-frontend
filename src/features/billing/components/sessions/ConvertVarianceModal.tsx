@@ -11,7 +11,7 @@ import {
   Textarea,
   ThemeIcon,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle, IconCheck, IconScale } from '@tabler/icons-react';
 import { useConvertVariance } from '../../hooks/useRegisterSession';
 import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
@@ -48,28 +48,25 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
 
   const handleConvert = async () => {
     if (!recipient.trim()) {
-      notifications.show({
+      notify.error({
         title: t('Recipient Required'),
         message: t('Please specify recipient or owner name.'),
-        color: 'red',
       });
       return;
     }
 
     if (!reason.trim()) {
-      notifications.show({
+      notify.error({
         title: t('Reason Required'),
         message: t('Please provide an accounting reason.'),
-        color: 'red',
       });
       return;
     }
 
     if (!selfApproves && !managerPin.trim()) {
-      notifications.show({
+      notify.error({
         title: t('Manager PIN Required'),
         message: t('Manager PIN is required to authorize variance conversion.'),
-        color: 'red',
       });
       return;
     }
@@ -84,10 +81,9 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: t('Variance Converted'),
         message: t('Shift cash discrepancy converted successfully.'),
-        color: 'teal',
       });
 
       setRecipient('');
@@ -96,10 +92,9 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
       onSuccess?.();
       onClose();
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Conversion Failed'),
         message: getErrorMessage(err, t('Could not convert variance.')),
-        color: 'red',
       });
     }
   };

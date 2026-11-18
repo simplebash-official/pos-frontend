@@ -21,8 +21,6 @@ import {
 } from '@mantine/core';
 import { BarChart } from '@mantine/charts';
 import {
-  IconAlertCircle,
-  IconCheck,
   IconClipboardCopy,
   IconDeviceDesktopAnalytics,
   IconDownload,
@@ -33,7 +31,7 @@ import {
   IconRefresh,
   IconServer,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { isTauri } from '@/shared/lib/runtime';
 import { formatDateTime } from '@/shared/lib/date';
 import {
@@ -95,21 +93,17 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
 
       setReport(result);
       setPhase('complete');
-      notifications.show({
+      notify.success({
         title: t('Benchmark Completed'),
         message: `${t('Your computer scored')} ${result.overallScore}/100 (${t('Grade')} ${result.grade})`,
-        color: 'teal',
-        icon: <IconCheck size={18} />,
       });
     } catch (err: unknown) {
       setPhase('error');
       const errorMessage =
         err instanceof Error ? err.message : t('An error occurred during benchmark testing');
-      notifications.show({
+      notify.error({
         title: t('Benchmark Failed'),
         message: errorMessage,
-        color: 'red',
-        icon: <IconAlertCircle size={18} />,
       });
     }
   };
@@ -136,19 +130,15 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
         return updated;
       });
       setPhase(report ? 'complete' : 'idle');
-      notifications.show({
+      notify.success({
         title: t('Activity log measured'),
         message: `${t('Full logging CPU overhead')}: ${logging.overhead.full.cpuPercentOverBaseline}%`,
-        color: 'teal',
-        icon: <IconCheck size={18} />,
       });
     } catch (err: unknown) {
       setPhase('error');
-      notifications.show({
+      notify.error({
         title: t('Could not measure the activity log'),
         message: err instanceof Error ? err.message : t('Please try again.'),
-        color: 'red',
-        icon: <IconAlertCircle size={18} />,
       });
     }
   };
@@ -157,11 +147,9 @@ export const BenchmarkSection = ({ onDirtyChange: _onDirtyChange }: SectionProps
     if (!report) return;
     const md = formatMarkdownReport(report);
     navigator.clipboard.writeText(md).then(() => {
-      notifications.show({
+      notify.info({
         title: t('Copied to Clipboard'),
         message: t('Benchmark markdown report copied successfully.'),
-        color: 'blue',
-        icon: <IconClipboardCopy size={18} />,
       });
     });
   };

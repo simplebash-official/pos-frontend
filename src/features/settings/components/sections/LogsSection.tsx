@@ -16,7 +16,7 @@ import {
   Text,
 } from '@mantine/core';
 import { IconAlertCircle, IconDownload, IconFolderOpen, IconInfoCircle } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useState } from 'react';
 import { isTauri } from '@/shared/lib/runtime';
 import { useAppSelector } from '@/store/hooks';
@@ -97,12 +97,11 @@ const LogSummary = () => {
     try {
       const path = await exportLogs(undefined, undefined);
       if (path !== null) {
-        notifications.show({ color: 'green', title: t('Log saved'), message: path });
+        notify.success({ title: t('Log saved'), message: path });
       }
     } catch (err) {
       logger.error('app', 'log.export_failed', err);
-      notifications.show({
-        color: 'red',
+      notify.error({
         title: t('Could not save the log'),
         message: t('Please choose another folder and try again.'),
       });
@@ -116,7 +115,7 @@ const LogSummary = () => {
       await openLogFolder();
     } catch (err) {
       logger.error('app', 'log.open_folder_failed', err);
-      notifications.show({ color: 'red', message: t('Could not open the log folder.') });
+      notify.error({ message: t('Could not open the log folder.') });
     }
   };
 
@@ -178,8 +177,7 @@ const LogOptions = () => {
     save.mutate(
       { ...current, ...patch },
       {
-        onError: () =>
-          notifications.show({ color: 'red', message: t('Could not save the logging options.') }),
+        onError: () => notify.error({ message: t('Could not save the logging options.') }),
       }
     );
   };

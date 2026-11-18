@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Group, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconBuildingBank, IconCash, IconCreditCard, IconDeviceMobile } from '@tabler/icons-react';
 import { getDeviceId } from '@/api/deviceId';
 import { SessionClosingAlert } from '@/features/billing/components/sessions/SessionClosingAlert';
@@ -167,10 +167,9 @@ export const PaySupplierModal = ({
       } else {
         await createExpense.mutateAsync(toExpenseInput(form, supplierKey));
       }
-      notifications.show({
+      notify.success({
         title: t('Payment recorded'),
         message: `${supplierName}: ${formatMoney(form.amountCents)}`,
-        color: 'teal',
       });
       onClose();
     } catch (error) {

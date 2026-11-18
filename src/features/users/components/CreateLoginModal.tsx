@@ -2,8 +2,8 @@ import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Modal, TextInput, PasswordInput, Select, Button, Group, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconUser, IconLock, IconUserCheck } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { IconUser, IconLock } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
 import { useAppSelector } from '@/store/hooks';
 import { selectUserRole } from '@/store/slices/authSlice';
 import { USER_ROLES, USER_ROLE_LABELS, type UserRole } from '@/constants/roles';
@@ -87,11 +87,9 @@ export const CreateLoginModal = ({ opened, onClose, employee }: CreateLoginModal
       role: values.role,
       employeeKey: target.key,
     });
-    notifications.show({
+    notify.success({
       title: 'Login Created',
       message: `${target.name} can now sign in with the username ${values.username.trim().toLowerCase()}`,
-      color: 'green',
-      icon: <IconUserCheck size={16} />,
     });
     form.reset();
     onClose();

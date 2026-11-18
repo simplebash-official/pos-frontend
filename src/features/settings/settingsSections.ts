@@ -1,5 +1,6 @@
 import {
   IconAlertTriangle,
+  IconBell,
   IconBuildingBank,
   IconBuildingStore,
   IconCashRegister,
@@ -23,6 +24,7 @@ import { PERMISSIONS, type Permission } from '@/constants/permissions';
 
 export type SettingsSectionId =
   | 'shop-profile'
+  | 'notifications'
   | 'register-shifts'
   | 'cash-rules'
   | 'cash-categories'
@@ -70,6 +72,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     shortLabel: 'Profile',
     description: 'Business name, address and contact details',
     icon: IconBuildingStore,
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    shortLabel: 'Alerts',
+    description: 'Everything that happened in your shop, with filters',
+    icon: IconBell,
+    permission: PERMISSIONS.NOTIFICATIONS_VIEW,
   },
   {
     id: 'register-shifts',

@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { getErrorMessage } from '@/shared/lib/error';
 import { fetchLabelCoverage } from '../api/labelsApi';
 import { rowsFromJob, type LabelRow } from '../lib/printJob';
@@ -26,18 +26,16 @@ export const usePrintAgain = (onRows: (rows: LabelRow[]) => void) => {
         coverage.items.map((row) => row.product)
       );
       if (missing > 0) {
-        notifications.show({
+        notify.warning({
           title: t('Some items are no longer in your stock list'),
           message: `${missing} ${t('left out of this print.')}`,
-          color: 'orange',
         });
       }
       if (rows.length > 0) onRows(rows);
     } catch (error) {
-      notifications.show({
+      notify.error({
         title: t('Could not load that print'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     } finally {
       setLoadingKey(null);

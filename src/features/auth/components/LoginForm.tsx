@@ -12,7 +12,7 @@ import {
   Group,
 } from '@mantine/core';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { BusyOverlay } from '@/shared/components/BusyOverlay';
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -115,10 +115,9 @@ export const LoginForm = () => {
 
     const trimmedUsername = username.trim();
     if (!trimmedUsername || !password) {
-      notifications.show({
+      notify.error({
         title: 'Authentication Required',
         message: 'Please enter both your username and password to continue.',
-        color: 'red',
       });
       return;
     }
@@ -145,10 +144,9 @@ export const LoginForm = () => {
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
-      notifications.show({
+      notify.success({
         title: 'Logged In Successfully',
         message: `Welcome back, ${data.user.name || data.user.username}! Redirecting to POS console...`,
-        color: 'green',
       });
 
       navigate(from, { replace: true });
@@ -159,10 +157,9 @@ export const LoginForm = () => {
       if (isSessionOpenOnOtherDeviceError(err)) {
         setDeviceLockMessage(message);
       }
-      notifications.show({
+      notify.error({
         title: 'Login Failed',
         message,
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);

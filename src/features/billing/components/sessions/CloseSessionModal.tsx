@@ -13,7 +13,7 @@ import {
   Textarea,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconAlertCircle,
   IconAlertTriangle,
@@ -183,10 +183,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
     if (latest) {
       setSession(latest);
       if (latest.status === 'closed') {
-        notifications.show({
+        notify.success({
           title: t('Shift Already Closed'),
           message: `${latest.sessionNumber} ${t('was already closed and locked.')}`,
-          color: 'teal',
         });
         onClose();
         return true;
@@ -229,10 +228,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
     setError(null);
     try {
       await cancelCloseMutation.mutateAsync(session.key);
-      notifications.show({
+      notify.success({
         title: t('Count Cancelled'),
         message: `${session.sessionNumber} ${t('is open for selling again.')}`,
-        color: 'teal',
       });
       onClose();
     } catch (err: unknown) {
@@ -270,10 +268,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: t('Variance Converted'),
         message: t('Late owner withdrawal recorded. Variance has been cleared.'),
-        color: 'teal',
       });
 
       // The shift now holds the withdrawal; ask the server for it and for the figures again.
@@ -322,10 +319,9 @@ const CloseSessionForm: React.FC<CloseSessionFormProps> = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: t('Shift Closed'),
         message: `${t('Session')} ${closed.sessionNumber} ${t('closed and locked.')}`,
-        color: 'teal',
       });
 
       onSessionClosed?.(closed);
@@ -903,12 +899,11 @@ export const CloseSessionModal: React.FC<CloseSessionModalProps> = ({
       try {
         await cancelCloseMutation.mutateAsync(session.key);
       } catch {
-        notifications.show({
+        notify.warning({
           title: t('Shift still shows as closing'),
           message: t(
             'We could not put the shift back. Open Close Shift again to finish or cancel it.'
           ),
-          color: 'orange',
         });
       }
     }

@@ -117,6 +117,11 @@ export const queryKeys = {
     detail: (id: string) => ['repairs', 'detail', id] as const,
     stats: () => ['repairs', 'stats'] as const,
   },
+  notifications: {
+    all: ['notifications'] as const,
+    summary: () => ['notifications', 'summary'] as const,
+    history: (filters: Record<string, unknown>) => ['notifications', 'history', filters] as const,
+  },
   repairServices: {
     all: ['repairServices'] as const,
     list: (includeHidden: boolean) => ['repairServices', 'list', includeHidden] as const,

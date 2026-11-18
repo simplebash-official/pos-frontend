@@ -13,7 +13,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { formatDateTime } from '@/shared/lib/date';
@@ -102,19 +102,18 @@ export const ConflictsSection = (_props: SectionProps) => {
       logger.info('app', 'sync.conflict_reviewed');
       return queryClient.invalidateQueries({ queryKey: queryKeys.syncStatus.conflicts() });
     },
-    onError: (err) => notifications.show({ color: 'red', message: toSyncError(err).message }),
+    onError: (err) => notify.error({ message: toSyncError(err).message }),
   });
   const resolveAll = useMutation({
     mutationFn: (keys: string[]) => resolveAllConflicts(keys, 'reviewed'),
     onSuccess: () => {
       logger.info('app', 'sync.conflicts_all_reviewed');
-      notifications.show({
-        color: 'teal',
+      notify.success({
         message: t('All conflicts marked as reviewed'),
       });
       return queryClient.invalidateQueries({ queryKey: queryKeys.syncStatus.conflicts() });
     },
-    onError: (err) => notifications.show({ color: 'red', message: toSyncError(err).message }),
+    onError: (err) => notify.error({ message: toSyncError(err).message }),
   });
 
   const open = openConflicts(data ?? []);

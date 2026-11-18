@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SimpleGrid, TextInput, SegmentedControl, Text, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { queryKeys } from '@/api/queryKeys';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -126,18 +126,16 @@ export const ShopProfileSection = ({ onDirtyChange }: SectionProps) => {
       form.setInitialValues(freshValues);
       form.setValues(freshValues);
       form.resetDirty(freshValues);
-      notifications.show({
+      notify.success({
         title: t('Settings Saved'),
         message: t('Shop profile updated successfully.'),
-        color: 'green',
       });
     } catch (error: unknown) {
       const errMessage =
         (error as { message?: string })?.message || t('Failed to save shop profile.');
-      notifications.show({
+      notify.error({
         title: t('Save Failed'),
         message: errMessage,
-        color: 'red',
       });
     } finally {
       setSaving(false);

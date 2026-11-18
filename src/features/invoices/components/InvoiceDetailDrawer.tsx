@@ -19,7 +19,7 @@ import {
   IconSquareCheck,
   IconWallet,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import type { Invoice, CreditNote } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { describeInvoiceUnits } from '@/shared/calculations';
@@ -198,10 +198,9 @@ export const InvoiceDetailDrawer = ({
   const handleCopyInvoiceNumber = () => {
     if (!invoice) return;
     navigator.clipboard.writeText(invoice.invoiceNumber);
-    notifications.show({
+    notify.success({
       title: 'Copied',
       message: `Invoice #${invoice.invoiceNumber} copied to clipboard`,
-      color: 'green',
     });
   };
 
@@ -239,10 +238,9 @@ export const InvoiceDetailDrawer = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: 'Payment Recorded',
         message: `Payment of ${formatMoney(cents)} recorded successfully. Customer balance updated.`,
-        color: 'green',
       });
       setPaymentClosingError(null);
       setPaymentModalOpen(false);
@@ -259,10 +257,9 @@ export const InvoiceDetailDrawer = ({
         setPaymentClosingError(closingMessage);
         return;
       }
-      notifications.show({
+      notify.error({
         title: t('Payment Error'),
         message: getErrorMessage(err, t('Failed to record payment')),
-        color: 'red',
       });
     } finally {
       setIsSubmittingPay(false);
@@ -277,20 +274,18 @@ export const InvoiceDetailDrawer = ({
         invoiceKey: invoice.id,
         reason: voidReason.trim(),
       });
-      notifications.show({
+      notify.info({
         title: 'Invoice Voided',
         message: `Invoice #${invoice.invoiceNumber} has been voided and its stock/payment effects reversed.`,
-        color: 'gray',
       });
       setVoidModalOpen(false);
       setVoidReason('');
       onRefresh?.();
       handleClose();
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Could Not Void Invoice',
         message: 'Please try again.',
-        color: 'red',
       });
     } finally {
       setIsVoiding(false);
@@ -302,18 +297,16 @@ export const InvoiceDetailDrawer = ({
     setIsClosing(true);
     try {
       await closeInvoiceMutation.mutateAsync({ invoiceKey: invoice.id });
-      notifications.show({
+      notify.info({
         title: 'Invoice Closed',
         message: `Invoice #${invoice.invoiceNumber} is now marked closed.`,
-        color: 'violet',
       });
       onRefresh?.();
       handleClose();
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Could Not Close Invoice',
         message: 'This invoice may still have an open credit note against it.',
-        color: 'red',
       });
     } finally {
       setIsClosing(false);

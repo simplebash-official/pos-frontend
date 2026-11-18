@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { queryKeys } from '@/api/queryKeys';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectShopProfile, setShopProfile } from '@/store/slices/settingsSlice';
@@ -76,16 +76,14 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
       form.setInitialValues(saved);
       form.setValues(saved);
       form.resetDirty(saved);
-      notifications.show({
+      notify.success({
         title: t('Settings Saved'),
         message: t('The text on your documents is saved.'),
-        color: 'green',
       });
     } catch (error: unknown) {
-      notifications.show({
+      notify.error({
         title: t('Save Failed'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     } finally {
       setSaving(false);

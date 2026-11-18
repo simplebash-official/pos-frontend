@@ -19,7 +19,7 @@ import {
   Badge,
 } from '@mantine/core';
 import { IconAlertTriangle, IconInfoCircle, IconShieldLock } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import type {
   Invoice,
   InvoiceItem,
@@ -470,7 +470,7 @@ export const CreditNoteModal = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: 'Credit Note Created',
         message:
           answer.netRefundCents > 0
@@ -478,7 +478,6 @@ export const CreditNoteModal = ({
             : answer.netRefundCents < 0
               ? `Customer owes ${formatMoney(-answer.netRefundCents)} for the exchange.`
               : 'Exchange settled — no money changed hands.',
-        color: 'green',
       });
       resetForm();
       onCreditNoteSuccess?.();
@@ -494,10 +493,9 @@ export const CreditNoteModal = ({
         return;
       }
       console.error('Failed to create credit note', error);
-      notifications.show({
+      notify.error({
         title: t('Could Not Create Credit Note'),
         message: getErrorMessage(error, t('Please check the details and try again.')),
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);
@@ -558,10 +556,9 @@ export const CreditNoteModal = ({
       (tier) => tier.left > 0
     );
     if (withRoom.length === 0) {
-      notifications.show({
+      notify.error({
         title: t('Out of stock'),
         message: `${product.name}: ${t('no more units left to give.')}`,
-        color: 'red',
       });
       return;
     }

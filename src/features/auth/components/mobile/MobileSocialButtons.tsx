@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { BRAND_NAME } from '@/config/branding';
 import {
   IconBrandFacebook,
@@ -14,10 +14,9 @@ interface MobileSocialButtonsProps {
 
 export const MobileSocialButtons = ({ mode = 'signin' }: MobileSocialButtonsProps) => {
   const handleSocialClick = (provider: string) => {
-    notifications.show({
+    notify.info({
       title: `${provider} Authentication`,
       message: `${provider} SSO sign-${mode === 'signin' ? 'in' : 'up'} is configured for ${BRAND_NAME} organization credentials. Please sign in with your employee email.`,
-      color: 'blue',
     });
   };
 
