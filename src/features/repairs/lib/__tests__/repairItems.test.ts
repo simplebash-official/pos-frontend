@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest';
 import type { RepairItem, RepairService } from '../../types';
 import {
   blankFee,
+  calculateOutsideProfit,
+  calculatePartsProfitCents,
+  feePriceCents,
   itemFromPart,
   itemFromSaved,
   itemsFromSaved,
   itemFromService,
   itemsProblem,
   repairTotals,
+  rowDiscountProblem,
   rowProblem,
   toItemInputs,
   type FeeItemDraft,
@@ -189,11 +193,11 @@ describe('repair parts and other fees', () => {
       message: 'Say what the part is.',
     });
 
-    expect(itemsProblem([], STANDARD, 'ready')).toBe(
+    expect(itemsProblem([], STANDARD, 'ready', null)).toBe(
       'Add the parts or fees before marking this job ready or delivered.'
     );
-    expect(itemsProblem([], STANDARD, 'received')).toBeNull();
-    expect(itemsProblem([], REWORK, 'delivered')).toBeNull();
+    expect(itemsProblem([], STANDARD, 'received', null)).toBeNull();
+    expect(itemsProblem([], REWORK, 'delivered', null)).toBeNull();
   });
 });
 
@@ -248,5 +252,76 @@ describe('repair totals calculation', () => {
     const live = repairTotals([itemFromSaved(SAVED_SCREEN)], true);
     expect(live.totals.priceCents).toBe(0);
     expect(live.totals.costCents).toBe(850_000);
+  });
+});
+
+describe('item discounts', () => {
+  const SAVED_DISCOUNTED: RepairItem = {
+    ...SAVED_SERVICE,
+    discount: { type: 'percentage', basisPoints: 1_250, amountCents: 18_750 },
+  };
+
+  it('keeps a saved discount as typed (without the amount) and sends it back', () => {
+    const row = itemFromSaved(SAVED_DISCOUNTED) as FeeItemDraft;
+    expect(row.discount).toEqual({ type: 'percentage', basisPoints: 1_250 });
+    expect(toItemInputs([row], false)[0].discount).toEqual({
+      type: 'percentage',
+      basisPoints: 1_250,
+    });
+    expect(itemsFromSaved([SAVED_DISCOUNTED])[0]).toMatchObject({
+      discount: { type: 'percentage', basisPoints: 1_250 },
+    });
+    expect(toItemInputs([itemFromSaved(SAVED_SERVICE)], false)[0].discount).toBeUndefined();
+  });
+
+  it('starts every new row with no discount', () => {
+    expect(blankFee().discount).toBeNull();
+    expect(
+      itemFromPart({ source: 'outside', name: 'Glue', priceRupees: '', costRupees: '' }).discount
+    ).toBeNull();
+  });
+
+  it('takes the discount off the price through the shared calculation', () => {
+    const rows: ItemDraft[] = [
+      feeDraft({ feeRupees: 1000, discount: { type: 'fixed', cents: 20_000 } }),
+      itemFromSaved({
+        ...SAVED_SCREEN,
+        discount: { type: 'percentage', basisPoints: 1_000, amountCents: 120_000 },
+      }),
+    ];
+    const live = repairTotals(rows, false);
+    expect(live.itemDiscountsCents).toEqual([20_000, 120_000]);
+    expect(live.totals.discountCents).toBe(140_000);
+    expect(live.totals.laborCents).toBe(100_000);
+    expect(live.totals.partsCents).toBe(1_200_000);
+    expect(live.totals.priceCents).toBe(1_300_000 - 140_000);
+    expect(live.blockers).toEqual([]);
+  });
+
+  it('blocks Save with a plain message when a discount is more than the item', () => {
+    const rows: ItemDraft[] = [
+      feeDraft({
+        description: 'Cleaning',
+        feeRupees: 100,
+        discount: { type: 'fixed', cents: 20_000 },
+      }),
+    ];
+    const live = repairTotals(rows, false);
+    expect(live.blockers).toEqual([{ itemIndex: 0, code: 'discount_more_than_item' }]);
+    expect(live.totals.priceCents).toBe(10_000);
+    expect(itemsProblem(rows, STANDARD, 'received', live)).toBe(
+      'The discount is more than this item costs.'
+    );
+    expect(rowDiscountProblem(0, live.blockers)).toBe('The discount is more than this item costs.');
+    expect(rowDiscountProblem(1, live.blockers)).toBeNull();
+  });
+
+  it('shows part profit after each item discount', () => {
+    const screen = itemFromSaved(SAVED_SCREEN);
+    expect(calculatePartsProfitCents([screen], [0])).toBe(350_000);
+    expect(calculatePartsProfitCents([screen], [120_000])).toBe(230_000);
+    expect(calculateOutsideProfit(100, 40, 1_000)).toBe(50);
+    expect(calculateOutsideProfit(100, 40, null)).toBeNull();
+    expect(feePriceCents(feeDraft({ feeRupees: 12.5 }))).toBe(1_250);
   });
 });

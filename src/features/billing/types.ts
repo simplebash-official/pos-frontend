@@ -1,5 +1,6 @@
 import type { PaymentMethod } from '@/constants/payment';
 import type { ReceiptSettlementInput } from '@/features/purchases/types';
+import type { CalcDiscount } from '@/shared/types/discount';
 
 /** `charge`: a one-time charge (a service or fee) with no stock, ticket or cost behind it. */
 export type LineSourceType = 'retail' | 'repair' | 'print' | 'charge';
@@ -597,12 +598,6 @@ export interface PeriodStatus {
 // ---------------------------------------------------------------------------
 // Live calculation of the cart and payment (`POST /calc/checkout`)
 // ---------------------------------------------------------------------------
-
-/** A discount as typed: a percentage (0-100) or, for `fixed`, cents. */
-export interface CalcDiscount {
-  type: 'percentage' | 'fixed';
-  value: number;
-}
 
 export interface CalcCartLineRequest {
   /** The cart line's id, echoed in its answer so a reply can be matched to its line. */

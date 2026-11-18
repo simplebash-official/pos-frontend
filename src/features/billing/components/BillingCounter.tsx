@@ -18,7 +18,7 @@ import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
 import type { CatalogMode } from './CatalogPanel';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
-import { DiscountPopover } from './DiscountPopover';
+import { DiscountPopover } from '@/shared/components/DiscountPopover';
 import type { PaymentPanelHandle } from './PaymentPanel';
 import { focusBarcodeScanner, focusQuickAdjustQuantity } from '../lib/focusScanner';
 

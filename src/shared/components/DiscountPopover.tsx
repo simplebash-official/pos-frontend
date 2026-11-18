@@ -2,9 +2,10 @@ import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { Popover, Stack, Group, Button, Text } from '@mantine/core';
 import { formatMoney, fromCents } from '@/shared/lib/money';
-import type { CalcDiscount } from '../types';
-import { AmountInput } from '@/shared/components/AmountInput';
-import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
+import type { CalcDiscount } from '@/shared/types/discount';
+import { AmountInput } from './AmountInput';
+import { SegmentedToggle } from './SegmentedToggle';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 
 export interface DiscountPopoverProps {
   opened: boolean;
@@ -19,6 +20,10 @@ export interface DiscountPopoverProps {
   children: React.ReactNode;
 }
 
+/**
+ * Typed discount for one target (a cart line, the whole order, a repair item): a percentage or an
+ * amount, with the price it comes off shown as a reference. The caller works out what it comes to.
+ */
 export const DiscountPopover = ({
   opened,
   onClose,
@@ -28,6 +33,8 @@ export const DiscountPopover = ({
   onApplyDiscount,
   children,
 }: DiscountPopoverProps) => {
+  const isMobile = useIsMobile();
+  const size = isMobile ? 'md' : 'sm';
   const [mode, setMode] = useState<'percentage' | 'amount'>(
     currentDiscount !== null && currentDiscount.type === 'fixed' ? 'amount' : 'percentage'
   );
@@ -75,7 +82,15 @@ export const DiscountPopover = ({
 
           <SegmentedToggle
             fullWidth
-            size="xs"
+            size="sm"
+            styles={{
+              label: {
+                minHeight: isMobile ? 40 : undefined,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            }}
             value={mode}
             onChange={(m) => {
               const nextMode = m as 'percentage' | 'amount';
@@ -91,7 +106,7 @@ export const DiscountPopover = ({
           />
 
           <AmountInput
-            size="sm"
+            size={size}
             mode={mode}
             onModeChange={setMode}
             value={val}
@@ -105,11 +120,23 @@ export const DiscountPopover = ({
             {t('Original:')} {originalCents === null ? '' : formatMoney(originalCents)}
           </Text>
 
-          <Group justify="space-between" mt="xs">
-            <Button size="xs" variant="subtle" color="red" onClick={handleClear}>
+          <Group justify="space-between" mt="xs" wrap="nowrap">
+            <Button
+              size="sm"
+              h={isMobile ? 44 : undefined}
+              variant="subtle"
+              color="red"
+              onClick={handleClear}
+            >
               {t('Remove')}
             </Button>
-            <Button size="xs" color="blue" onClick={handleApply}>
+            <Button
+              size="sm"
+              h={isMobile ? 44 : undefined}
+              color="blue"
+              onClick={handleApply}
+              style={{ flex: 1 }}
+            >
               {t('Apply Discount')}
             </Button>
           </Group>

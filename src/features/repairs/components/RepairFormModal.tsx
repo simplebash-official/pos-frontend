@@ -93,8 +93,10 @@ export const RepairFormModal = ({
   // A handed-back job's work no longer changes (the server refuses it too).
   const workLocked = jobToEdit?.status === 'delivered';
   const totals = useRepairTotals(drafts, rework);
-  const workProblem = workLocked ? null : itemsProblem(drafts, kind, form.values.status);
-  const hasStockPart = drafts.some((draft) => draft.kind === 'part' && draft.part.source === 'stock');
+  const workProblem = workLocked ? null : itemsProblem(drafts, kind, form.values.status, totals);
+  const hasStockPart = drafts.some(
+    (draft) => draft.kind === 'part' && draft.part.source === 'stock'
+  );
   const navigate = useNavigate();
 
   // Profit and commission are the server's figures for what is typed so far.

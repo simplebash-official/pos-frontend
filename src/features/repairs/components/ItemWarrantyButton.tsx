@@ -1,49 +1,43 @@
 import { useState } from 'react';
-import { Badge, Button, Group, Popover, Stack, Text, UnstyledButton } from '@mantine/core';
+import { Button, Group, Popover, Stack, Text } from '@mantine/core';
 import { IconShieldCheck, IconShieldOff } from '@tabler/icons-react';
 import { coverageLabel, profileProblem, type ProductWarranty } from '@/features/warranties';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { cleanWarranty } from '../lib/repairItems';
+import { ItemActionButton } from './ItemActionButton';
 import { WorkWarrantyFields } from './WorkWarrantyFields';
 
-export interface ItemWarrantyChipProps {
+export interface ItemWarrantyButtonProps {
   value: ProductWarranty;
   onChange: (warranty: ProductWarranty) => void;
-  /** A finished job or a warranty rework shows the tag only. */
+  /** A finished job shows the warranty only. */
   readOnly: boolean;
 }
 
 /**
- * The warranty tag on one piece of repair work ("3 months", "No warranty"). Tapping it opens a
+ * The warranty button on one piece of repair work ("3 months", "No warranty"). Tapping it opens a
  * small editor: how long, who gives it, and what it covers.
  */
-export const ItemWarrantyChip = ({ value, onChange, readOnly }: ItemWarrantyChipProps) => {
+export const ItemWarrantyButton = ({ value, onChange, readOnly }: ItemWarrantyButtonProps) => {
+  const isMobile = useIsMobile();
   const [opened, setOpened] = useState(false);
   const [draft, setDraft] = useState<ProductWarranty>(value);
   const covered = value.coverage.kind !== 'none';
   const problem = profileProblem(draft);
 
-  const tag = (
-    <Badge
-      size="sm"
-      variant="outline"
-      color={covered ? 'teal' : 'gray'}
-      radius="xl"
-      leftSection={covered ? <IconShieldCheck size={12} /> : <IconShieldOff size={12} />}
-      style={{
-        textTransform: 'none',
-        flexShrink: 0,
-        cursor: readOnly ? 'default' : 'pointer',
-        fontWeight: 500,
-        backgroundColor: covered
-          ? 'light-dark(var(--mantine-color-teal-0), rgba(18, 184, 134, 0.12))'
-          : 'light-dark(var(--mantine-color-gray-0), rgba(255, 255, 255, 0.04))',
-      }}
-    >
-      {coverageLabel(value.coverage)}
-    </Badge>
+  const face = (onClick?: () => void) => (
+    <ItemActionButton
+      label={t('Warranty')}
+      value={coverageLabel(value.coverage)}
+      icon={covered ? <IconShieldCheck size={14} /> : <IconShieldOff size={14} />}
+      tone={covered ? 'teal' : 'none'}
+      readOnly={readOnly}
+      onClick={onClick}
+      aria-label={t('Change the warranty for this work')}
+    />
   );
-  if (readOnly) return tag;
+  if (readOnly) return face();
 
   return (
     <Popover
@@ -55,16 +49,12 @@ export const ItemWarrantyChip = ({ value, onChange, readOnly }: ItemWarrantyChip
       trapFocus
     >
       <Popover.Target>
-        <UnstyledButton
-          onClick={() => {
+        <div>
+          {face(() => {
             setDraft(value);
             setOpened((open) => !open);
-          }}
-          aria-label={t('Change the warranty for this work')}
-          style={{ display: 'inline-flex', alignItems: 'center', minHeight: 32, flexShrink: 0 }}
-        >
-          {tag}
-        </UnstyledButton>
+          })}
+        </div>
       </Popover.Target>
       <Popover.Dropdown style={{ width: 'min(340px, calc(100vw - 32px))' }}>
         <Stack gap="sm">
@@ -78,11 +68,15 @@ export const ItemWarrantyChip = ({ value, onChange, readOnly }: ItemWarrantyChip
             </Text>
           )}
           <Group justify="flex-end" gap="xs">
-            <Button variant="default" size="xs" onClick={() => setOpened(false)}>
+            <Button
+              variant="default"
+              size={isMobile ? 'md' : 'sm'}
+              onClick={() => setOpened(false)}
+            >
               {t('Cancel')}
             </Button>
             <Button
-              size="xs"
+              size={isMobile ? 'md' : 'sm'}
               disabled={problem !== null}
               onClick={() => {
                 onChange(cleanWarranty(draft));
