@@ -27,7 +27,7 @@ type Sheet = 'a5' | 'receipt';
 
 const isSheet = (value: string | null): value is Sheet => value === 'a5' || value === 'receipt';
 
-/** The sheet this computer printed on last; an A5 sheet the first time. */
+/** The sheet this computer printed on last; the receipt roll the first time. */
 const rememberedSheet = (): Sheet => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.JOB_RECEIPT_SHEET);
@@ -35,7 +35,7 @@ const rememberedSheet = (): Sheet => {
   } catch {
     // Storage can be blocked; the choice then lasts until the window closes.
   }
-  return 'a5';
+  return 'receipt';
 };
 
 const rememberSheet = (sheet: Sheet) => {
@@ -80,7 +80,7 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
 
   const ticketNumber = job?.ticketNumber ?? '';
   const fileName = pdfFileName(`receipt-${ticketNumber}`);
-  const printTitle = `${t('Job receipt')} — ${ticketNumber}`;
+  const printTitle = `${t('Job receipt')} ${ticketNumber}`;
 
   const handlePrint = () => {
     if (!blob) return;
@@ -135,7 +135,7 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
           <Group gap="xs" wrap="nowrap">
             <IconReceipt size={20} color="var(--mantine-color-blue-6)" />
             <Text fw={700} size="sm" truncate>
-              {t('Job receipt')} — {ticketNumber}
+              {t('Job receipt')} {ticketNumber}
             </Text>
           </Group>
           {job !== null && (
@@ -152,8 +152,8 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
             size={isMobile ? 'sm' : 'md'}
             aria-label={t('Paper')}
             data={[
-              { value: 'a5', label: t('A5 sheet') },
               { value: 'receipt', label: t('Receipt roll') },
+              { value: 'a5', label: t('A5 sheet') },
             ]}
           />
           <Button

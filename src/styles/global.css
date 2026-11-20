@@ -290,13 +290,13 @@ body,
 
 .segmented-toggle-label {
   color: var(--text-secondary);
-  font-weight: 500;
+  /* One weight for both states: a bolder active label is wider and made the control resize. */
+  font-weight: 600;
   transition: color 0.15s ease;
 }
 
 .segmented-toggle-label[data-active] {
   color: var(--text-primary);
-  font-weight: 700;
 }
 
 [data-mantine-color-scheme='dark'] .segmented-toggle-root {
@@ -316,7 +316,6 @@ body,
 
 [data-mantine-color-scheme='dark'] .segmented-toggle-label[data-active] {
   color: var(--mantine-color-white);
-  font-weight: 700;
 }
 
 /* Analytics & Reports segmented pill tabs with white active button */

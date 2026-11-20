@@ -124,7 +124,7 @@ describe('job receipt preview', () => {
       )
     );
     await vi.waitFor(() => expect(viewerText()).toBe('shown'));
-    expect(document.body.textContent).toContain('Job receipt — REP-000123');
+    expect(document.body.textContent).toContain('Job receipt REP-000123');
     expect(document.body.textContent).toContain('Nimal Perera');
 
     await act(async () => button('Receipt roll')?.click());
@@ -147,7 +147,7 @@ describe('job receipt preview', () => {
         undefined
       )
     );
-    expect(document.body.textContent).toContain('Job receipt — PRN-000045');
+    expect(document.body.textContent).toContain('Job receipt PRN-000045');
   });
 
   it('remembers the sheet this computer printed on last', async () => {
