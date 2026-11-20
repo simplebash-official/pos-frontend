@@ -114,20 +114,8 @@ describe('job receipt preview', () => {
     expect(receipt).not.toHaveBeenCalled();
   });
 
-  it('prints a repair on A5 first, then on this computer’s receipt roll', async () => {
+  it('prints a repair on this computer’s receipt roll first, then on A5', async () => {
     await render(REPAIR);
-    await vi.waitFor(() =>
-      expect(receipt).toHaveBeenCalledWith(
-        expect.objectContaining({ kind: 'repair', id: 'rep_1' }),
-        'a5',
-        undefined
-      )
-    );
-    await vi.waitFor(() => expect(viewerText()).toBe('shown'));
-    expect(document.body.textContent).toContain('Job receipt REP-000123');
-    expect(document.body.textContent).toContain('Nimal Perera');
-
-    await act(async () => button('Receipt roll')?.click());
     await vi.waitFor(() =>
       expect(receipt).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'repair', id: 'rep_1' }),
@@ -135,11 +123,25 @@ describe('job receipt preview', () => {
         undefined
       )
     );
+    await vi.waitFor(() => expect(viewerText()).toBe('shown'));
+    expect(document.body.textContent).toContain('Job receipt REP-000123');
+    expect(document.body.textContent).toContain('Nimal Perera');
+
+    expect(button('Receipt roll')?.getAttribute('aria-pressed')).toBe('true');
+    expect(button('A5 sheet')?.getAttribute('aria-pressed')).toBe('false');
+    await act(async () => button('A5 sheet')?.click());
+    expect(button('A5 sheet')?.getAttribute('aria-pressed')).toBe('true');
+    await vi.waitFor(() =>
+      expect(receipt).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'repair', id: 'rep_1' }),
+        'a5',
+        undefined
+      )
+    );
   });
 
   it('uses the 80 mm roll when this computer prints on 80 mm', async () => {
     await render(PRINT, '80mm');
-    await act(async () => button('Receipt roll')?.click());
     await vi.waitFor(() =>
       expect(receipt).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'print', id: 'prn_1' }),
@@ -152,8 +154,8 @@ describe('job receipt preview', () => {
 
   it('remembers the sheet this computer printed on last', async () => {
     await render(REPAIR, '80mm');
-    await act(async () => button('Receipt roll')?.click());
-    expect(localStorage.getItem(STORAGE_KEYS.JOB_RECEIPT_SHEET)).toBe('receipt');
+    await act(async () => button('A5 sheet')?.click());
+    expect(localStorage.getItem(STORAGE_KEYS.JOB_RECEIPT_SHEET)).toBe('a5');
 
     act(() => root.unmount());
     root = createRoot(container);
@@ -162,7 +164,7 @@ describe('job receipt preview', () => {
     await vi.waitFor(() =>
       expect(receipt).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'print', id: 'prn_1' }),
-        'thermal-80',
+        'a5',
         undefined
       )
     );

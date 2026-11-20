@@ -12,7 +12,6 @@ import { DesignUnavailableAlert } from '@/features/billing/components/DesignUnav
 import { DocumentDesignPicker } from '@/features/billing/components/DocumentDesignPicker';
 import { useDocumentTemplateSettings } from '@/features/settings/hooks/useDocumentTemplates';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
-import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { t } from '@/shared/i18n/t';
@@ -90,6 +89,10 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
     if (!blob) return;
     downloadPdfBlob(blob, fileName);
   };
+  const sheetChoices: { value: Sheet; label: string }[] = [
+    { value: 'receipt', label: t('Receipt roll') },
+    { value: 'a5', label: t('A5 sheet') },
+  ];
   const handleSheetChange = (value: string) => {
     if (!isSheet(value)) return;
     setSheet(value);
@@ -146,16 +149,23 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
         </Stack>
 
         <Group gap="sm" wrap="nowrap" style={{ flexShrink: 0 }}>
-          <SegmentedToggle
-            value={sheet}
-            onChange={handleSheetChange}
-            size={isMobile ? 'sm' : 'md'}
-            aria-label={t('Paper')}
-            data={[
-              { value: 'receipt', label: t('Receipt roll') },
-              { value: 'a5', label: t('A5 sheet') },
-            ]}
-          />
+          {/* Two plain buttons: no measured sliding pill, so the highlight can never be misaligned. */}
+          <Button.Group aria-label={t('Paper')}>
+            {sheetChoices.map(({ value, label }) => (
+              <Button
+                key={value}
+                size={isMobile ? 'sm' : 'md'}
+                color="gray"
+                variant={sheet === value ? 'filled' : 'default'}
+                aria-pressed={sheet === value}
+                onClick={() => handleSheetChange(value)}
+                style={{ minWidth: isMobile ? 96 : 120, minHeight: isMobile ? 44 : undefined }}
+                data-log-id={`job-receipts.sheet-${value}`}
+              >
+                {label}
+              </Button>
+            ))}
+          </Button.Group>
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="blue"
