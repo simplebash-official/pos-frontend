@@ -36,6 +36,10 @@ import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRINT_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
 import { PrintJobFormModal } from './PrintJobFormModal';
+import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
+import { IconAction } from '@/shared/components/drawer';
 
 interface PrintJobFilters {
   search: string;
@@ -70,6 +74,8 @@ export const PrintJobList = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
+  const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
+  const canPrintReceipt = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
@@ -145,6 +151,8 @@ export const PrintJobList = () => {
           ? `Saved order ${newJob.ticketNumber} successfully`
           : 'Order saved — it will get its number once back online',
       });
+      // The customer gets a receipt for what they handed in.
+      if (canPrintReceipt) setReceiptJob(receiptTarget('print', newJob));
     }
   };
 
@@ -264,6 +272,26 @@ export const PrintJobList = () => {
       sortable: true,
       render: (job) => formatDate(job.createdAt),
     },
+    ...(canPrintReceipt
+      ? [
+          {
+            key: 'receipt',
+            header: t('Receipt'),
+            align: 'right' as const,
+            render: (job: PrintJob) => (
+              // The row opens the edit window when clicked; this button must not.
+              <div onClick={(event) => event.stopPropagation()}>
+                <IconAction
+                  kind="neutral"
+                  label={t('Print receipt')}
+                  icon={<IconPrinter size={16} />}
+                  onClick={() => setReceiptJob(receiptTarget('print', job))}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -397,6 +425,8 @@ export const PrintJobList = () => {
         jobToEdit={jobToEdit}
         loading={createMutation.isPending || updateMutation.isPending}
       />
+
+      <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
     </Stack>
   );
 };

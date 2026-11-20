@@ -66,6 +66,7 @@ export type RepairKind =
 export interface RepairJob {
   id: string;
   ticketNumber: string;
+  customerKey: string;
   customerName: string;
   customerPhone: string;
   deviceModel: string;

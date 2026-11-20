@@ -12,6 +12,8 @@ export const STORAGE_KEYS = {
   SIDEBAR_FOLDED: 'pos-sidebar-folded',
   /** How many warranty cards the Warranties page shows in a row. */
   WARRANTY_COLUMNS: 'pos-warranty-columns',
+  /** Whether this computer prints job receipts on an A5 sheet or the receipt roll. */
+  JOB_RECEIPT_SHEET: 'pos-job-receipt-sheet',
   CUSTOMERS: 'pos_customers_data',
   HELD_CARTS: 'pos_held_carts_data',
   SETTINGS: 'pos_settings_data',

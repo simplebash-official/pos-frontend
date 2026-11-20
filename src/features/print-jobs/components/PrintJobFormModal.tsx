@@ -1,20 +1,11 @@
 import { toEarningsRequest, useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
-import {
-  Modal,
-  TextInput,
-  Select,
-  NumberInput,
-  Button,
-  Group,
-  Stack,
-  Text,
-  Paper,
-} from '@mantine/core';
+import { Modal, Select, NumberInput, Button, Group, Stack, Text, Paper } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { PromisedDatePicker } from '@/shared/components/PromisedDatePicker';
-import { IconUser, IconPhone } from '@tabler/icons-react';
+import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
+import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { PrintJob, PrintJobInput } from '../types';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
 import { JOB_STATUS, JOB_STATUS_LABELS, JobStatus } from '@/constants';
@@ -41,13 +32,12 @@ export const PrintJobFormModal = ({
   const isMobile = useIsMobile();
 
   const [nestedOpen, setNestedOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const form = useForm<PrintJobFormValues>({
     initialValues: fromPrintJob(null),
     validate: {
-      customerName: (val) => (val.trim() ? null : 'Customer name is required'),
-      customerPhone: (val) =>
-        /^[0-9+\s-]{9,15}$/.test(val.trim()) ? null : 'Enter a valid phone number',
+      customerKey: (val) => (val === '' ? t('Choose the customer for this print order.') : null),
       quantity: (val) => (Number(val) >= 1 ? null : 'Quantity must be at least 1'),
       estimatedPriceRupees: (val) => {
         if (val === '' || val === undefined || val === null) {
@@ -102,23 +92,19 @@ export const PrintJobFormModal = ({
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
           {/* Customer Details */}
-          <Group grow align="flex-start">
-            <TextInput
-              label={t('Customer Name')}
-              placeholder={t('e.g. Dhanushka Fernando')}
-              leftSection={<IconUser size={16} />}
-              required
-              {...form.getInputProps('customerName')}
-            />
-
-            <TextInput
-              label={t('Customer Phone')}
-              placeholder={t('e.g. 0712345678')}
-              leftSection={<IconPhone size={16} />}
-              required
-              {...form.getInputProps('customerPhone')}
-            />
-          </Group>
+          <CustomerChoiceCard
+            customer={
+              form.values.customerKey === ''
+                ? null
+                : { name: form.values.customerName, phone: form.values.customerPhone }
+            }
+            onChoose={() => {
+              setPickerOpen(true);
+              setNestedOpen(true);
+            }}
+            required
+            error={form.errors.customerKey as string | undefined}
+          />
 
           {/* Print Specification */}
           <Group grow align="flex-start">
@@ -224,6 +210,22 @@ export const PrintJobFormModal = ({
           </Group>
         </Stack>
       </form>
+      <CustomerPickerModal
+        opened={pickerOpen}
+        onClose={() => {
+          setPickerOpen(false);
+          setNestedOpen(false);
+        }}
+        onSelectCustomer={(customer) => {
+          if (customer !== null) {
+            form.setFieldValue('customerKey', customer.key);
+            form.setFieldValue('customerName', customer.name);
+            form.setFieldValue('customerPhone', customer.primaryPhone);
+          }
+          setPickerOpen(false);
+          setNestedOpen(false);
+        }}
+      />
     </Modal>
   );
 };

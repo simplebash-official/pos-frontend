@@ -97,6 +97,8 @@ const makeProfile = (allowShared: boolean, allowStaffMulti = false): ShopProfile
   defaultWarrantyText: '',
   defaultFooterText: '',
   receiptFooterText: '',
+  jobReceiptTermsText: '',
+  uncollectedAfterDays: null,
   allowSharedUserSessions: allowShared,
   allowStaffMultiDeviceSessions: allowStaffMulti,
 });

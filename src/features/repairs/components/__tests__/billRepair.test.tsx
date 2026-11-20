@@ -67,6 +67,7 @@ const NO_WARRANTY = { coverage: { kind: 'none' }, warrantyType: 'shop' } as cons
 const JOB: RepairJob = {
   id: 'rep_1',
   ticketNumber: 'REP-000001',
+  customerKey: 'cus_nimal',
   customerName: 'Nimal Perera',
   customerPhone: '0771234567',
   deviceModel: 'Galaxy A55',
@@ -138,6 +139,8 @@ const Harness = ({ children }: { children: ReactNode }) => {
             permissions: ['repairs:write', 'warranties:view', 'warranty_claims:record'],
           },
         }),
+        // The receipt preview on the list reads this computer's receipt paper.
+        settings: () => ({ printSettings: { receiptPaper: '80mm' } }),
       },
     })
   );

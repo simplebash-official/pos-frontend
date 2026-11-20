@@ -8,7 +8,7 @@ export interface BackendPrintJob {
   id: string;
   key: string;
   ticketNumber: string;
-  customerKey?: string;
+  customerKey: string;
   customerName: string;
   customerPhone: string;
   jobType: PrintJobType;
@@ -37,6 +37,7 @@ interface PrintJobListResponseData {
 export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   id: job.key,
   ticketNumber: job.ticketNumber,
+  customerKey: job.customerKey,
   customerName: job.customerName,
   customerPhone: job.customerPhone,
   jobType: job.jobType,

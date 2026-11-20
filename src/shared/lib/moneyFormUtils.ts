@@ -25,6 +25,9 @@ const toAssignmentInput = (form: {
 };
 
 export interface RepairFormValues {
+  /** The registered customer chosen for the ticket; empty until one is chosen. */
+  customerKey: string;
+  /** Shown beside the choice only; the server reads the name and phone from the customer. */
   customerName: string;
   customerPhone: string;
   deviceModel: string;
@@ -42,6 +45,7 @@ export interface RepairFormValues {
 export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
   if (!job) {
     return {
+      customerKey: '',
       customerName: '',
       customerPhone: '',
       deviceModel: '',
@@ -54,6 +58,7 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
     };
   }
   return {
+    customerKey: job.customerKey,
     customerName: job.customerName,
     customerPhone: job.customerPhone,
     deviceModel: job.deviceModel,
@@ -80,10 +85,7 @@ export const toRepairInput = (
   const serial = form.serialNumber.trim();
 
   return {
-    customer: {
-      customerName: form.customerName,
-      customerPhone: form.customerPhone,
-    },
+    customer: { customerKey: form.customerKey },
     assignment: toAssignmentInput(form),
     deviceModel: form.deviceModel,
     serialNumber: serial === '' ? undefined : serial,
@@ -95,6 +97,9 @@ export const toRepairInput = (
 };
 
 export interface PrintJobFormValues {
+  /** The registered customer chosen for the job; empty until one is chosen. */
+  customerKey: string;
+  /** Shown beside the choice only; the server reads the name and phone from the customer. */
   customerName: string;
   customerPhone: string;
   jobType: PrintJob['jobType'];
@@ -112,6 +117,7 @@ export interface PrintJobFormValues {
 export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
   if (!job) {
     return {
+      customerKey: '',
       customerName: '',
       customerPhone: '',
       jobType: 'mug',
@@ -125,6 +131,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
     };
   }
   return {
+    customerKey: job.customerKey,
     customerName: job.customerName,
     customerPhone: job.customerPhone,
     jobType: job.jobType,
@@ -143,10 +150,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
 
 export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
   return {
-    customer: {
-      customerName: form.customerName,
-      customerPhone: form.customerPhone,
-    },
+    customer: { customerKey: form.customerKey },
     assignment: toAssignmentInput(form),
     jobType: form.jobType,
     quantity: Number(form.quantity) || 1,

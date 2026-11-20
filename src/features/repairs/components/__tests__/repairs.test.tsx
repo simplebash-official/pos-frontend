@@ -109,6 +109,7 @@ const SCREEN_SERVICE: RepairService = {
 const JOB: RepairJob = {
   id: 'rep_1',
   ticketNumber: 'REP-000001',
+  customerKey: 'cus_nimal',
   customerName: 'Nimal Perera',
   customerPhone: '0771234567',
   deviceModel: 'Galaxy A55',
@@ -318,6 +319,7 @@ describe('repair jobs as items', () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
     await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} />);
     expect(text()).toContain('No customer chosen');
+    expect(text()).toContain('Customer *');
     expect(document.querySelector('input[placeholder="e.g. Saman Perera"]')).toBeNull();
     expect(document.querySelector('input[placeholder="e.g. 0771234567"]')).toBeNull();
 
@@ -335,6 +337,20 @@ describe('repair jobs as items', () => {
     expect(text()).toContain('Sunil Silva');
     expect(text()).toContain('0777654321');
     expect(text()).toContain('Change customer');
+  });
+
+  it('sends only the key of the customer when a ticket is saved', async () => {
+    const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
+    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
+    await act(async () => button('Change customer')?.click());
+    await act(async () => button('pick Sunil')?.click());
+    await act(async () => {
+      document
+        .querySelector('form')
+        ?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0][0].customer).toEqual({ customerKey: 'cust_1' });
   });
 
   it('shows the saved customer of a ticket being edited, who can be changed', async () => {

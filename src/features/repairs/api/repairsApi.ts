@@ -10,7 +10,7 @@ export interface BackendRepair {
   id: string;
   key: string;
   ticketNumber: string;
-  customerKey?: string;
+  customerKey: string;
   customerName: string;
   customerPhone: string;
   deviceModel: string;
@@ -46,6 +46,7 @@ interface RepairListResponseData {
 export const toRepairJob = (repair: BackendRepair): RepairJob => ({
   id: repair.key,
   ticketNumber: repair.ticketNumber,
+  customerKey: repair.customerKey,
   customerName: repair.customerName,
   customerPhone: repair.customerPhone,
   deviceModel: repair.deviceModel,

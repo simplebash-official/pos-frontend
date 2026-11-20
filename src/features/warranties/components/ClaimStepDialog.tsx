@@ -431,6 +431,7 @@ export const ClaimStepDialog = ({
                   customer === null ? null : { name: customer.name, phone: customer.primaryPhone }
                 }
                 onChoose={() => setPickerOpen(true)}
+                required
               />
             </StepModal>
             <CustomerPickerModal

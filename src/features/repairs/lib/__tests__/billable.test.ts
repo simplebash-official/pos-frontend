@@ -18,6 +18,7 @@ const ITEM: RepairItem = {
 const JOB: RepairJob = {
   id: 'rep_1',
   ticketNumber: 'REP-000001',
+  customerKey: 'cus_nimal',
   customerName: 'Nimal Perera',
   customerPhone: '0771234567',
   deviceModel: 'Galaxy A55',

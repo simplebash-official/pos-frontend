@@ -27,6 +27,8 @@ describe('settingsApi', () => {
     defaultWarrantyText: '',
     defaultFooterText: '',
     receiptFooterText: '',
+    jobReceiptTermsText: '',
+    uncollectedAfterDays: null,
     allowSharedUserSessions: false,
     allowStaffMultiDeviceSessions: false,
   };

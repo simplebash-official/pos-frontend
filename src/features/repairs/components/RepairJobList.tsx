@@ -14,6 +14,7 @@ import {
   IconSearch,
   IconShieldCheck,
   IconReceipt,
+  IconPrinter,
 } from '@tabler/icons-react';
 import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,6 +41,9 @@ import { queryKeys } from '@/api/queryKeys';
 import { IconAction } from '@/shared/components/drawer';
 import { billBlocker } from '../lib/billable';
 import { RepairFormModal } from './RepairFormModal';
+import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
 
 interface RepairFilters {
   search: string;
@@ -74,6 +78,8 @@ export const RepairJobList = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
+  const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
+  const canPrintReceipt = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
@@ -150,6 +156,8 @@ export const RepairJobList = () => {
           ? `Registered ticket ${newJob.ticketNumber} successfully`
           : 'Ticket saved — it will get its number once back online',
       });
+      // The customer gets a receipt for what they handed in.
+      if (canPrintReceipt) setReceiptJob(receiptTarget('repair', newJob));
     }
   };
 
@@ -290,6 +298,26 @@ export const RepairJobList = () => {
       sortable: true,
       render: (job) => formatDate(job.createdAt),
     },
+    ...(canPrintReceipt
+      ? [
+          {
+            key: 'receipt',
+            header: t('Receipt'),
+            align: 'right' as const,
+            render: (job: RepairJob) => (
+              // The row opens the edit window when clicked; this button must not.
+              <div onClick={(event) => event.stopPropagation()}>
+                <IconAction
+                  kind="neutral"
+                  label={t('Print receipt')}
+                  icon={<IconPrinter size={16} />}
+                  onClick={() => setReceiptJob(receiptTarget('repair', job))}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       key: 'bill',
       header: t('Bill'),
@@ -440,6 +468,8 @@ export const RepairJobList = () => {
         jobToEdit={jobToEdit}
         loading={createMutation.isPending || updateMutation.isPending}
       />
+
+      <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
     </Stack>
   );
 };

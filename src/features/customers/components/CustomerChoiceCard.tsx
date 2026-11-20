@@ -6,13 +6,28 @@ export interface CustomerChoiceCardProps {
   /** The chosen customer, or `null` until one is chosen. */
   customer: { name: string; phone: string } | null;
   onChoose: () => void;
+  /** Whether the record cannot be saved without a customer: adds a red star to the heading. */
+  required: boolean;
   /** Why no customer can be accepted yet, shown in red under the card. */
   error?: string;
 }
 
 /** Shows who a record is for and opens the customer list to choose or change them. */
-export const CustomerChoiceCard = ({ customer, onChoose, error }: CustomerChoiceCardProps) => (
+export const CustomerChoiceCard = ({
+  customer,
+  onChoose,
+  required,
+  error,
+}: CustomerChoiceCardProps) => (
   <div>
+    <Text size="sm" fw={500} mb={4}>
+      {t('Customer')}
+      {required && (
+        <Text component="span" c="red" aria-hidden="true">
+          {' *'}
+        </Text>
+      )}
+    </Text>
     <Paper
       withBorder
       p="sm"

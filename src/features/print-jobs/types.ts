@@ -7,6 +7,7 @@ export type PrintJobType = 'mug' | 't-shirt' | 'handbill' | 'banner' | 'custom';
 export interface PrintJob {
   id: string;
   ticketNumber: string;
+  customerKey: string;
   customerName: string;
   customerPhone: string;
   jobType: PrintJobType;

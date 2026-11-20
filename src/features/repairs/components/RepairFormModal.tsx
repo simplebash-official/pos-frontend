@@ -59,10 +59,7 @@ export const RepairFormModal = ({
   const form = useForm<RepairFormValues>({
     initialValues: fromRepairJob(null),
     validate: {
-      customerName: (val, values) =>
-        val.trim() !== '' && /^[0-9+\s-]{9,15}$/.test(values.customerPhone.trim())
-          ? null
-          : t('Choose the customer for this repair.'),
+      customerKey: (val) => (val === '' ? t('Choose the customer for this repair.') : null),
       deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
       issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
     },
@@ -212,7 +209,7 @@ export const RepairFormModal = ({
           {/* Customer Details */}
           <CustomerChoiceCard
             customer={
-              form.values.customerName.trim() === ''
+              form.values.customerKey === ''
                 ? null
                 : { name: form.values.customerName, phone: form.values.customerPhone }
             }
@@ -220,7 +217,8 @@ export const RepairFormModal = ({
               setPickerOpen(true);
               setNestedOpen(true);
             }}
-            error={form.errors.customerName as string | undefined}
+            required
+            error={form.errors.customerKey as string | undefined}
           />
 
           {/* Device & Issue */}
@@ -337,6 +335,7 @@ export const RepairFormModal = ({
         }}
         onSelectCustomer={(customer) => {
           if (customer !== null) {
+            form.setFieldValue('customerKey', customer.key);
             form.setFieldValue('customerName', customer.name);
             form.setFieldValue('customerPhone', customer.primaryPhone);
           }

@@ -26,6 +26,8 @@ const TEST_SHOP_PROFILE: ShopProfile = {
   defaultWarrantyText: '',
   defaultFooterText: 'Thank you for your business!',
   receiptFooterText: 'Thank you for shopping with us!',
+  jobReceiptTermsText: '',
+  uncollectedAfterDays: null,
   allowSharedUserSessions: false,
   allowStaffMultiDeviceSessions: false,
 };

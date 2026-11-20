@@ -2,7 +2,13 @@ import type { DocumentDesignFamily, DocumentKindSettings } from '@/features/sett
 import type { DocumentDesign, DocumentDesignStatus } from '../api/documentsApi';
 
 export type PreviewDocumentKind =
-  'invoice' | 'receipt' | 'credit-note' | 'quotation' | 'z-report' | 'warranty-card';
+  | 'invoice'
+  | 'receipt'
+  | 'credit-note'
+  | 'quotation'
+  | 'z-report'
+  | 'warranty-card'
+  | 'job-receipt';
 
 // The document kind (as the Settings → Document Designs screen and the backend know it) behind
 // each document the print preview can show.
@@ -13,6 +19,7 @@ const DESIGN_KIND: Record<PreviewDocumentKind, string> = {
   quotation: 'quotation',
   'z-report': 'z-report',
   'warranty-card': 'warranty-card',
+  'job-receipt': 'job-receipt',
 };
 
 export const designKindFor = (documentKind: PreviewDocumentKind): string =>

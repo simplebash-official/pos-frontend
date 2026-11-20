@@ -43,6 +43,27 @@ vi.mock('@/features/employees/components/AssigneeSection', () => ({
   AssigneeSection: () => null,
 }));
 
+// The real picker has its own tests; here it just hands back one customer.
+vi.mock('@/features/customers/components/CustomerPickerModal', () => ({
+  CustomerPickerModal: ({
+    opened,
+    onSelectCustomer,
+  }: {
+    opened: boolean;
+    onSelectCustomer: (customer: unknown) => void;
+  }) =>
+    opened ? (
+      <button
+        type="button"
+        onClick={() =>
+          onSelectCustomer({ key: 'cust_1', name: 'Sunil Silva', primaryPhone: '0777654321' })
+        }
+      >
+        pick Sunil
+      </button>
+    ) : null,
+}));
+
 vi.mock('@/shared/hooks/useResponsive', () => ({
   useIsMobile: () => false,
 }));
@@ -56,7 +77,7 @@ vi.mock('@/shared/i18n/t', () => ({
   t: (key: string) => key,
 }));
 
-describe('PrintJobFormModal validation', () => {
+describe('PrintJobFormModal customer', () => {
   let container: HTMLDivElement | null = null;
   let root: Root | null = null;
 
@@ -107,11 +128,41 @@ describe('PrintJobFormModal validation', () => {
     return defaultProps;
   };
 
-  it('validates customer phone as mandatory', async () => {
+  const buttons = () => [...document.querySelectorAll('button')];
+  const button = (label: string) => buttons().find((b) => b.textContent?.trim() === label);
+  const submitForm = async () => {
+    await act(async () => {
+      document
+        .querySelector('form')
+        ?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    });
+  };
+
+  it('asks for a registered customer to be chosen, with no name or phone to type', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit });
+
+    expect(document.body.textContent).toContain('No customer chosen');
+    expect(document.body.textContent).toContain('Customer *');
+    expect(document.querySelector('input[placeholder="e.g. 0712345678"]')).toBeNull();
+
+    await submitForm();
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain('Choose the customer for this print order.');
+
+    await act(async () => button('Choose customer')?.click());
+    await act(async () => button('pick Sunil')?.click());
+    expect(document.body.textContent).toContain('Sunil Silva');
+    expect(document.body.textContent).toContain('0777654321');
+    expect(document.body.textContent).toContain('Change customer');
+  });
+
+  it('sends only the key of the customer when a job is saved', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const existingJob = {
       id: 'prn_1',
       ticketNumber: 'PRN-001',
+      customerKey: 'cus_dhanushka',
       customerName: 'Dhanushka Fernando',
       customerPhone: '0712345678',
       jobType: 'mug' as const,
@@ -120,52 +171,14 @@ describe('PrintJobFormModal validation', () => {
       estimatedCostCents: 2500000,
       createdAt: '2026-08-20T10:00:00.000Z',
     };
-
     renderModal({ onSubmit, jobToEdit: existingJob });
+    expect(document.body.textContent).toContain('Dhanushka Fernando');
 
-    const phoneInput = document.querySelector(
-      'input[placeholder="e.g. 0712345678"]'
-    ) as HTMLInputElement;
-    const formEl = document.querySelector('form') as HTMLFormElement;
-
-    expect(phoneInput).toBeTruthy();
-    expect(phoneInput.required).toBe(true);
-    expect(phoneInput.value).toBe('0712345678');
-
-    const setInputValue = (input: HTMLInputElement, value: string) => {
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value'
-      )!.set!;
-      nativeSetter.call(input, value);
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    };
-
-    // 1. Submit with empty phone
-    await act(async () => {
-      setInputValue(phoneInput, '');
-      formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    });
-
-    expect(onSubmit).not.toHaveBeenCalled();
-    expect(document.body.textContent).toContain('Enter a valid phone number');
-
-    // 2. Submit with invalid short phone
-    await act(async () => {
-      setInputValue(phoneInput, '123');
-      formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    });
-
-    expect(onSubmit).not.toHaveBeenCalled();
-
-    // 3. Submit with valid phone
-    await act(async () => {
-      setInputValue(phoneInput, '0779998877');
-      formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    });
+    await act(async () => button('Change customer')?.click());
+    await act(async () => button('pick Sunil')?.click());
+    await submitForm();
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    expect(onSubmit.mock.calls[0][0].customer.customerPhone).toBe('0779998877');
+    expect(onSubmit.mock.calls[0][0].customer).toEqual({ customerKey: 'cust_1' });
   });
 });
