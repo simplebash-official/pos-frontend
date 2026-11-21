@@ -159,22 +159,30 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                 />
               </SimpleGrid>
 
-              {/* A new ticket is always Received, so there is nothing to choose yet. */}
-              {job !== null && (
-                <Select
-                  label={t('Ticket Status')}
-                  data={statusOptions}
-                  required
-                  description={
-                    !rework && hasStockPart && job.status !== 'delivered'
-                      ? t(
-                          "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
-                        )
-                      : undefined
-                  }
-                  {...form.getInputProps('status')}
-                />
-              )}
+              {/* A new ticket is always Received, so only an edit has a status to choose. */}
+              <PromisedDatePicker
+                label={t('Promised ready by')}
+                value={form.values.promisedReadyAt}
+                onChange={(next) => form.setFieldValue('promisedReadyAt', next)}
+                onNestedWindowChange={setNestedOpen}
+                leading={
+                  job === null ? undefined : (
+                    <Select
+                      label={t('Ticket Status')}
+                      data={statusOptions}
+                      required
+                      description={
+                        !rework && hasStockPart && job.status !== 'delivered'
+                          ? t(
+                              "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
+                            )
+                          : undefined
+                      }
+                      {...form.getInputProps('status')}
+                    />
+                  )
+                }
+              />
 
               <Textarea
                 label={t('Issue & Diagnosis Description')}
@@ -184,13 +192,6 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                 maxRows={5}
                 required
                 {...form.getInputProps('issueDescription')}
-              />
-
-              <PromisedDatePicker
-                label={t('Promised ready by')}
-                value={form.values.promisedReadyAt}
-                onChange={(next) => form.setFieldValue('promisedReadyAt', next)}
-                onNestedWindowChange={setNestedOpen}
               />
             </Stack>
           </DrawerCard>

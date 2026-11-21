@@ -1,5 +1,16 @@
-import { useState } from 'react';
-import { ActionIcon, Badge, Button, Chip, Group, Modal, Popover, Stack, Text } from '@mantine/core';
+import { useState, type ReactNode } from 'react';
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Chip,
+  Group,
+  Modal,
+  Popover,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { DatePicker, DatesProvider } from '@mantine/dates';
 import { IconCalendar, IconX } from '@tabler/icons-react';
 import { t } from '@/shared/i18n/t';
@@ -14,6 +25,8 @@ export interface PromisedDatePickerProps {
   onChange: (value: string | null) => void;
   /** The calendar is open (the window around it must not close on Escape). */
   onNestedWindowChange: (open: boolean) => void;
+  /** A field shown beside the date field, with the quick days under both. */
+  leading?: ReactNode;
 }
 
 /** Picks the day a job is promised: one tap for the usual choices, or a calendar for any day. */
@@ -22,6 +35,7 @@ export const PromisedDatePicker = ({
   value,
   onChange,
   onNestedWindowChange,
+  leading,
 }: PromisedDatePickerProps) => {
   const isMobile = useIsMobile();
   const [open, setOpenState] = useState(false);
@@ -102,11 +116,81 @@ export const PromisedDatePicker = ({
     </Button>
   );
 
+  const labelText = (
+    <Text size="sm" fw={500}>
+      {label}
+    </Text>
+  );
+
+  if (leading !== undefined) {
+    return (
+      <Stack gap={6}>
+        <SimpleGrid cols={{ base: 1, xs: 2 }} style={{ alignItems: 'start' }}>
+          {leading}
+          <Stack gap={4}>
+            {labelText}
+            <Group gap={6} wrap="nowrap" align="center">
+              {isMobile ? (
+                <>
+                  <div style={{ flex: 1 }}>{trigger}</div>
+                  <Modal
+                    opened={open}
+                    onClose={() => setOpen(false)}
+                    title={label}
+                    size="sm"
+                    centered
+                    zIndex={400}
+                  >
+                    {calendar}
+                  </Modal>
+                </>
+              ) : (
+                <Popover
+                  opened={open}
+                  onChange={setOpen}
+                  position="bottom-start"
+                  shadow="xl"
+                  radius="md"
+                  offset={6}
+                  middlewares={{ flip: true, shift: true }}
+                  withinPortal
+                >
+                  <Popover.Target>
+                    <div style={{ flex: 1 }}>{trigger}</div>
+                  </Popover.Target>
+                  <Popover.Dropdown>{calendar}</Popover.Dropdown>
+                </Popover>
+              )}
+              {value !== null && (
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="lg"
+                  aria-label={t('Clear')}
+                  onClick={() => onChange(null)}
+                >
+                  <IconX size={16} />
+                </ActionIcon>
+              )}
+            </Group>
+          </Stack>
+        </SimpleGrid>
+        <Chip.Group multiple={false} value={value ?? ''} onChange={(next) => choose(next || null)}>
+          <Group gap={6} justify="flex-end">
+            {quickDates().map((quick) => (
+              <Chip key={quick.label} value={quick.value} size="xs" variant="light">
+                {quick.label}
+              </Chip>
+            ))}
+          </Group>
+        </Chip.Group>
+      </Stack>
+    );
+  }
+
   return (
     <Stack gap={6}>
-      <Text size="sm" fw={500}>
-        {label}
-      </Text>
+      {labelText}
       <Chip.Group multiple={false} value={value ?? ''} onChange={(next) => choose(next || null)}>
         <Group gap={6}>
           {quickDates().map((quick) => (
