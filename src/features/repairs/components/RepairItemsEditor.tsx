@@ -734,18 +734,13 @@ export const RepairItemsEditor = ({
   const totalItemCount = drafts.reduce((sum, d) => sum + (d.kind === 'part' ? d.quantity : 1), 0);
 
   return (
-    <Paper withBorder p="md" bg="var(--bg-card)" radius="md">
+    <Box>
       <Stack gap="md">
-        {/* Header */}
+        {/* The card around this editor carries the title; this row is the hint and the count. */}
         <Group justify="space-between" align="center" wrap="nowrap">
-          <Box>
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
-              {t('PARTS AND OTHER FEES')}
-            </Text>
-            <Text size="xs" c="dimmed" mt={2}>
-              {t('Leave this empty until the device is checked.')}
-            </Text>
-          </Box>
+          <Text size="xs" c="dimmed">
+            {drafts.length === 0 ? t('Leave this empty until the device is checked.') : ''}
+          </Text>
           <Badge variant="light" color="gray" radius="xl" size="sm">
             {totalItemCount} {totalItemCount === 1 ? t('item') : t('items')}
           </Badge>
@@ -1077,24 +1072,13 @@ export const RepairItemsEditor = ({
 
         {/* Table Container */}
         {drafts.length > 0 && (
-          <Paper
-            withBorder
-            radius="md"
-            p={0}
-            bg="light-dark(var(--bg-card), var(--mantine-color-dark-8))"
-            style={{
-              overflow: 'hidden',
-              borderColor: 'var(--border)',
-            }}
-          >
+          <Box>
             {/* One card per piece of work */}
-            <Stack gap="sm" p="sm">
-              {drafts.map((draft, index) => renderCard(draft, index))}
-            </Stack>
+            <Stack gap="sm">{drafts.map((draft, index) => renderCard(draft, index))}</Stack>
 
             {/* Footer / Summary */}
             {totals !== null && (
-              <Box px="md" py="md" bg="light-dark(var(--bg-app), rgba(255, 255, 255, 0.02))">
+              <Box pt="md" mt="md" style={{ borderTop: '1px solid var(--border)' }}>
                 <Group justify="space-between" align="flex-end" wrap="wrap" gap="md">
                   {/* Left Column: Profit on parts */}
                   <Stack gap={2}>
@@ -1160,9 +1144,9 @@ export const RepairItemsEditor = ({
                 </Group>
               </Box>
             )}
-          </Paper>
+          </Box>
         )}
       </Stack>
-    </Paper>
+    </Box>
   );
 };

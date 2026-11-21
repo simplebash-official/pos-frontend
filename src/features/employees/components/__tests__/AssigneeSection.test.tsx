@@ -78,7 +78,6 @@ describe('AssigneeSection', () => {
     const [values, setValues] = useState(start);
     return (
       <AssigneeSection
-        heading="Assignment"
         label="Assign"
         placeholder="Pick someone"
         profitNoun="repair"

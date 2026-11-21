@@ -339,6 +339,22 @@ describe('repair jobs as items', () => {
     expect(text()).toContain('Change customer');
   });
 
+  it('shows our own red messages for empty fields, and no status choice on a new ticket', async () => {
+    const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
+    await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} />);
+    expect(text()).not.toContain('Ticket Status');
+    expect(document.querySelector('form')?.noValidate).toBe(true);
+
+    await act(async () => {
+      document
+        .querySelector('form')
+        ?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await vi.waitFor(() => expect(text()).toContain('Enter the device model.'));
+    expect(text()).toContain('Describe the problem.');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('sends only the key of the customer when a ticket is saved', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
     await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);

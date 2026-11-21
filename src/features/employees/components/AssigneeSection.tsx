@@ -31,7 +31,6 @@ export interface AssigneeFigures {
 }
 
 export interface AssigneeSectionProps {
-  heading: string;
   label: string;
   placeholder: string;
   /** Which word the "capped" notice uses for the job. */
@@ -68,7 +67,6 @@ const selection = (employee: Employee): AssigneeValues =>
 
 /** Picks who does the job, with the owner able to pick themselves and no commission for them. */
 export const AssigneeSection = ({
-  heading,
   label,
   placeholder,
   profitNoun,
@@ -124,22 +122,21 @@ export const AssigneeSection = ({
       : Number(values.splitValueRupeesOrPercent);
 
   return (
-    <Paper p="sm" withBorder>
+    <div>
       <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          <Text size="xs" fw={700} tt="uppercase" c="blue">
-            {heading}
-          </Text>
-          {!chosenIsOwner && (
-            <Badge color="blue" variant="light" size="xs">
-              {t('Commission Payout')}
-            </Badge>
-          )}
-        </Group>
-
         <Select
           key={listKey}
-          label={label}
+          label={
+            <Group justify="space-between" wrap="nowrap" gap="xs" component="span">
+              <span>{label}</span>
+              {!chosenIsOwner && (
+                <Badge color="blue" variant="light" size="xs">
+                  {t('Commission Payout')}
+                </Badge>
+              )}
+            </Group>
+          }
+          styles={{ label: { display: 'block', width: '100%' } }}
           placeholder={placeholder}
           data={options}
           value={values.assignedEmployeeId}
@@ -239,6 +236,6 @@ export const AssigneeSection = ({
           setWindowOpen(false);
         }}
       />
-    </Paper>
+    </div>
   );
 };

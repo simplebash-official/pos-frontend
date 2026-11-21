@@ -40,8 +40,8 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
     initialValues: fromRepairJob(null),
     validate: {
       customerKey: (val) => (val === '' ? t('Choose the customer for this repair.') : null),
-      deviceModel: (val) => (val.trim() ? null : 'Device model is required'),
-      issueDescription: (val) => (val.trim() ? null : 'Issue description is required'),
+      deviceModel: (val) => (val.trim() ? null : t('Enter the device model.')),
+      issueDescription: (val) => (val.trim() ? null : t('Describe the problem.')),
     },
   });
 
@@ -135,6 +135,14 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
       notify.error({ title: t('Could not save the repair'), message: getErrorMessage(error) })
     );
 
+  // The customer card sits at the top of the form, already in view; the other fields may not be.
+  const focusFirstError = (keys: string[]) => {
+    const key = keys.find(
+      (k) => form.getInputNode(k) !== null && form.getInputNode(k) !== undefined
+    );
+    if (key !== undefined) form.getInputNode(key)?.focus();
+  };
+
   const statusOptions = Object.values(JOB_STATUS).map((status: JobStatus) => ({
     value: status,
     label: JOB_STATUS_LABELS[status],
@@ -156,6 +164,7 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
     pickerOpen,
     setPickerOpen,
     dirty,
+    focusFirstError,
     rework,
     workLocked,
     totals,

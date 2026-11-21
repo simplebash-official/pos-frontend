@@ -1,13 +1,24 @@
 import { useNavigate } from 'react-router-dom';
-import { Alert, Anchor, Group, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
-import { IconBarcode, IconShieldCheck, IconTool } from '@tabler/icons-react';
+import { Alert, Anchor, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from '@mantine/core';
+import {
+  IconBarcode,
+  IconCash,
+  IconDeviceMobile,
+  IconShieldCheck,
+  IconTool,
+  IconUser,
+  IconUsers,
+  IconWallet,
+} from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
-import { DrawerCard } from '@/shared/components/drawer';
+import { DrawerCard, Figure, KpiStrip, KpiTile } from '@/shared/components/drawer';
 import { PromisedDatePicker } from '@/shared/components/PromisedDatePicker';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
+import { formatMoney } from '@/shared/lib/money';
 import type { RepairEditor } from '../hooks/useRepairEditor';
 import type { RepairJob } from '../types';
 import { RepairItemsEditor } from './RepairItemsEditor';
@@ -25,6 +36,7 @@ export interface RepairEditFormProps {
 /** The repair form, laid out as cards on the side panel's canvas. */
 export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const {
     form,
     drafts,
@@ -50,10 +62,40 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
     <>
       <form
         id={REPAIR_FORM_ID}
-        onSubmit={form.onSubmit((values) => editor.handleSubmit(values, null))}
+        noValidate
+        onSubmit={form.onSubmit(
+          (values) => editor.handleSubmit(values, null),
+          (errors) => editor.focusFirstError(Object.keys(errors))
+        )}
       >
         <Stack gap="md">
-          <DrawerCard label={t('Customer and device')} icon={<IconTool size={14} />}>
+          {!isMobile && (
+            <KpiStrip>
+              <KpiTile icon={<IconCash size={18} />} color="blue" label={t('Total')}>
+                <Figure
+                  value={totals === null ? '—' : formatMoney(totals.totals.priceCents)}
+                  hint={priced ? t('Customer pays') : (priceHint ?? t('Not priced yet'))}
+                  color="blue"
+                />
+              </KpiTile>
+              <KpiTile icon={<IconWallet size={18} />} color="teal" label={t('Profit')}>
+                <Figure
+                  value={priced ? formatMoney(profitCents) : '—'}
+                  hint={t('Only you see this')}
+                  color="teal"
+                />
+              </KpiTile>
+              <KpiTile icon={<IconUsers size={18} />} color="grape" label={t('Technician earns')}>
+                <Figure
+                  value={priced ? formatMoney(payoutCents) : '—'}
+                  hint={capped ? t('Capped at the profit') : t('Commission')}
+                  color="grape"
+                />
+              </KpiTile>
+            </KpiStrip>
+          )}
+
+          <DrawerCard label={t('Customer')} icon={<IconUser size={14} />}>
             <Stack gap="md">
               {job !== null && job.kind.kind === 'warranty_rework' && (
                 <Alert color="blue" icon={<IconShieldCheck size={16} />} p="sm">
@@ -96,8 +138,12 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                 required
                 error={form.errors.customerKey as string | undefined}
               />
+            </Stack>
+          </DrawerCard>
 
-              <Group grow align="flex-start">
+          <DrawerCard label={t('Device and problem')} icon={<IconDeviceMobile size={14} />}>
+            <Stack gap="md">
+              <SimpleGrid cols={{ base: 1, xs: 2 }}>
                 <TextInput
                   label={t('Device Model')}
                   placeholder={t('e.g. iPhone 13 Pro / Asus ROG Laptop')}
@@ -111,26 +157,31 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                   data-barcode-scanner="true"
                   {...form.getInputProps('serialNumber')}
                 />
-              </Group>
+              </SimpleGrid>
 
-              <Select
-                label={t('Ticket Status')}
-                data={statusOptions}
-                required
-                description={
-                  !rework && hasStockPart && (job === null || job.status !== 'delivered')
-                    ? t(
-                        "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
-                      )
-                    : undefined
-                }
-                {...form.getInputProps('status')}
-              />
+              {/* A new ticket is always Received, so there is nothing to choose yet. */}
+              {job !== null && (
+                <Select
+                  label={t('Ticket Status')}
+                  data={statusOptions}
+                  required
+                  description={
+                    !rework && hasStockPart && job.status !== 'delivered'
+                      ? t(
+                          "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
+                        )
+                      : undefined
+                  }
+                  {...form.getInputProps('status')}
+                />
+              )}
 
               <Textarea
                 label={t('Issue & Diagnosis Description')}
                 placeholder={t('e.g. Broken OLED panel, battery drain issues...')}
-                rows={2}
+                autosize
+                minRows={2}
+                maxRows={5}
                 required
                 {...form.getInputProps('issueDescription')}
               />
@@ -144,7 +195,7 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
             </Stack>
           </DrawerCard>
 
-          <DrawerCard>
+          <DrawerCard label={t('Parts and other fees')} icon={<IconTool size={14} />}>
             <Stack gap="md">
               <RepairItemsEditor
                 drafts={drafts}
@@ -167,9 +218,8 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
             </Stack>
           </DrawerCard>
 
-          <DrawerCard>
+          <DrawerCard label={t('Technician and profit split')} icon={<IconUsers size={14} />}>
             <AssigneeSection
-              heading={t('Employee Assignment & Profit Split')}
               label={t('Assign Technician / Employee')}
               placeholder={t('Select an employee for this repair...')}
               profitNoun="repair"

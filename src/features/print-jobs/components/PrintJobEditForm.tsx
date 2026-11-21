@@ -1,5 +1,5 @@
-import { Group, NumberInput, Paper, Select, Stack, Text } from '@mantine/core';
-import { IconPrinter } from '@tabler/icons-react';
+import { Group, NumberInput, Select, Stack, Text } from '@mantine/core';
+import { IconCash, IconPrinter, IconUsers } from '@tabler/icons-react';
 import { JOB_STATUS, JOB_STATUS_LABELS, type JobStatus } from '@/constants';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
@@ -24,7 +24,7 @@ export const PrintJobEditForm = ({ editor }: PrintJobEditFormProps) => {
 
   return (
     <>
-      <form id={PRINT_JOB_FORM_ID} onSubmit={form.onSubmit(editor.handleSubmit)}>
+      <form id={PRINT_JOB_FORM_ID} noValidate onSubmit={form.onSubmit(editor.handleSubmit)}>
         <Stack gap="md">
           <DrawerCard label={t('Customer and order')} icon={<IconPrinter size={14} />}>
             <Stack gap="md">
@@ -83,12 +83,12 @@ export const PrintJobEditForm = ({ editor }: PrintJobEditFormProps) => {
             </Stack>
           </DrawerCard>
 
-          <DrawerCard>
-            <Paper p="sm" withBorder>
+          <DrawerCard
+            label={t('Pricing & Material Blank Costs (LKR)')}
+            icon={<IconCash size={14} />}
+          >
+            <div>
               <Stack gap="xs">
-                <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                  {t('Pricing & Material Blank Costs (LKR)')}
-                </Text>
                 <Group grow align="flex-start">
                   <NumberInput
                     label={t('Total Print Order Price (LKR)')}
@@ -115,12 +115,14 @@ export const PrintJobEditForm = ({ editor }: PrintJobEditFormProps) => {
                   </Text>
                 </Group>
               </Stack>
-            </Paper>
+            </div>
           </DrawerCard>
 
-          <DrawerCard>
+          <DrawerCard
+            label={t('Designer and printer, profit split')}
+            icon={<IconUsers size={14} />}
+          >
             <AssigneeSection
-              heading={t('Designer / Printer Assignment & Profit Split')}
               label={t('Assign Designer / Machine Operator')}
               placeholder={t('Select an employee for this print job...')}
               profitNoun="job"
