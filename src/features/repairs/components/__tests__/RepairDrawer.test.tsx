@@ -8,7 +8,8 @@ import { createRoot, type Root } from 'react-dom/client';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import type { RepairItem, RepairJob } from '../../types';
-import { RepairDetailDrawer } from '../RepairDetailDrawer';
+import { closePanel, editPanel, viewPanel } from '@/shared/lib/jobPanelState';
+import { RepairDrawer } from '../RepairDrawer';
 
 installDrawerTestEnv();
 
@@ -17,6 +18,12 @@ vi.mock('../../hooks/useRepairs', () => ({
   useUpdateRepairJob: () => ({ mutateAsync: update, isPending: false }),
 }));
 vi.mock('@/shared/hooks/useJobEarnings', () => ({
+  toEarningsRequest: () => ({
+    priceCents: null,
+    materialCostCents: 0,
+    splitType: null,
+    splitValue: 0,
+  }),
   useJobEarnings: () => ({
     data: { profitCents: 60_000, commissionCents: 18_000, capped: false },
     isCurrent: true,
@@ -54,16 +61,15 @@ const makeJob = (overrides: Partial<RepairJob> = {}): RepairJob => ({
   ...overrides,
 });
 
-describe('RepairDetailDrawer', () => {
+describe('RepairDrawer in view mode', () => {
   let container: HTMLDivElement;
   let root: Root;
-  const onClose = vi.fn();
-  const onEdit = vi.fn();
+  const onPanelChange = vi.fn();
   const onPrintReceipt = vi.fn();
   const onBill = vi.fn();
 
   beforeEach(() => {
-    [update, onClose, onEdit, onPrintReceipt, onBill].forEach((fn) => fn.mockReset());
+    [update, onPanelChange, onPrintReceipt, onBill].forEach((fn) => fn.mockReset());
     update.mockResolvedValue(undefined);
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -79,11 +85,12 @@ describe('RepairDetailDrawer', () => {
     await act(async () => {
       root.render(
         <TestHarness role="admin">
-          <RepairDetailDrawer
+          <RepairDrawer
+            panel={job === null ? closePanel(viewPanel('none')) : viewPanel(job.id)}
+            onPanelChange={onPanelChange}
             job={job}
-            opened={job !== null}
-            onClose={onClose}
-            onEdit={onEdit}
+            onSubmit={vi.fn()}
+            loading={false}
             onPrintReceipt={canPrint ? onPrintReceipt : null}
             onBill={onBill}
             closeOnEscape
@@ -153,7 +160,7 @@ describe('RepairDetailDrawer', () => {
   it('opens Edit and the receipt, and hides the receipt without permission', async () => {
     await open(makeJob());
     await act(async () => button('Edit')?.click());
-    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onPanelChange).toHaveBeenCalledWith(editPanel('rep_1'));
     await act(async () => button('Print receipt')?.click());
     expect(onPrintReceipt).toHaveBeenCalledTimes(1);
 

@@ -43,11 +43,16 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRINT_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
-import { PrintJobDetailDrawer } from './PrintJobDetailDrawer';
-import { PrintJobFormModal } from './PrintJobFormModal';
+import { PrintJobDrawer } from './PrintJobDrawer';
 import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
+import {
+  CLOSED_PANEL,
+  createPanel,
+  viewPanel,
+  type JobPanelState,
+} from '@/shared/lib/jobPanelState';
 
 interface PrintJobFilters {
   search: string;
@@ -80,9 +85,7 @@ const applyLocalPrintJobFilters = (items: PrintJob[], f: PrintJobFilters) =>
 export const PrintJobList = () => {
   const queryClient = useQueryClient();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
-  const [openKey, setOpenKey] = useState<string | null>(null);
+  const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
   const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,7 +94,7 @@ export const PrintJobList = () => {
 
   const { data: printJobs, isLoading, isFetching } = useAllPrintJobs();
   // The panel reads the job from the list by its key, so it shows the new figures after a change.
-  const openMatch = printJobs.find((job) => job.id === openKey);
+  const openMatch = printJobs.find((job) => job.id === panel.key);
   const openJob = openMatch === undefined ? null : openMatch;
   const { data: stats, isLoading: statsLoading, staleAsOf } = usePrintJobStats();
 
@@ -119,15 +122,7 @@ export const PrintJobList = () => {
   const updateMutation = useUpdatePrintJob();
   const deleteBatchMutation = useDeletePrintJobs();
 
-  const handleOpenAdd = () => {
-    setJobToEdit(null);
-    setModalOpen(true);
-  };
-
-  const handleOpenEdit = (job: PrintJob) => {
-    setJobToEdit(job);
-    setModalOpen(true);
-  };
+  const handleOpenAdd = () => setPanel(createPanel);
 
   // Deep link from the dashboard reminders: /print-jobs?jobKey=<key>
   const [searchParams, setSearchParams] = useSearchParams();
@@ -138,7 +133,7 @@ export const PrintJobList = () => {
     if (!match) return;
     // Opening a record from a URL param is a legitimate effect use here.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOpenKey(match.id);
+    setPanel(viewPanel(match.id));
     const next = new URLSearchParams(searchParams);
     next.delete('jobKey');
     setSearchParams(next, { replace: true });
@@ -146,14 +141,14 @@ export const PrintJobList = () => {
   }, [printJobs, searchParams]);
 
   const handleFormSubmit = async (values: PrintJobInput) => {
-    if (jobToEdit) {
+    if (panel.mode === 'edit' && openJob !== null) {
       const updatedJob = await updateMutation.mutateAsync({
-        printJobKey: jobToEdit.id,
+        printJobKey: openJob.id,
         input: values,
       });
       notify.success({
         title: 'Print Order Updated',
-        message: `Updated order ${updatedJob.ticketNumber || jobToEdit.ticketNumber}`,
+        message: `Updated order ${updatedJob.ticketNumber || openJob.ticketNumber}`,
       });
     } else {
       const newJob = await createMutation.mutateAsync(values);
@@ -371,27 +366,17 @@ export const PrintJobList = () => {
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
-        onRowClick={(job) => setOpenKey(job.id)}
+        onRowClick={(job) => setPanel(viewPanel(job.id))}
         onDeleteSelected={(ids) => void handleDeleteSelected(ids)}
         emptyText="No print orders recorded yet"
       />
 
-      <PrintJobFormModal
-        opened={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        jobToEdit={jobToEdit}
-        loading={createMutation.isPending || updateMutation.isPending}
-      />
-
-      <PrintJobDetailDrawer
+      <PrintJobDrawer
+        panel={panel}
+        onPanelChange={setPanel}
         job={openJob}
-        opened={openJob !== null}
-        onClose={() => setOpenKey(null)}
-        onEdit={(job) => {
-          setOpenKey(null);
-          handleOpenEdit(job);
-        }}
+        onSubmit={handleFormSubmit}
+        loading={createMutation.isPending || updateMutation.isPending}
         onPrintReceipt={
           canPrintReceipt ? (job) => setReceiptJob(receiptTarget('print', job)) : null
         }

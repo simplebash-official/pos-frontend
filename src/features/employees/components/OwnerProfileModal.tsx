@@ -60,6 +60,7 @@ export const OwnerProfileModal = ({ opened, onClose, onCreated }: OwnerProfileMo
       size="sm"
       centered
       fullScreen={isMobile}
+      zIndex={400}
     >
       <form
         onSubmit={(event) => {

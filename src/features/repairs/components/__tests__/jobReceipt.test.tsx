@@ -12,7 +12,7 @@ import { MantineProvider } from '@mantine/core';
 import { MemoryRouter } from 'react-router-dom';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
-import type { RepairJob, RepairJobInput } from '../../types';
+import type { RepairJob } from '../../types';
 import * as repairsApi from '../../api/repairsApi';
 import { RepairJobList } from '../RepairJobList';
 
@@ -35,24 +35,24 @@ vi.mock('../../hooks/useRepairStats', () => ({
   }),
 }));
 // The form has its own tests; this one hands back the values a saved form would send.
-vi.mock('../RepairFormModal', () => ({
-  RepairFormModal: ({
-    onSubmit,
-    onClose,
-    jobToEdit,
+vi.mock('../RepairEditForm', () => ({
+  REPAIR_FORM_ID: 'repair-form',
+  RepairEditForm: ({
+    editor,
+    job,
   }: {
-    onSubmit: (values: RepairJobInput) => Promise<void>;
-    onClose: () => void;
-    jobToEdit?: RepairJob | null;
+    editor: {
+      handleSubmit: (values: unknown, bill: null) => Promise<void>;
+      form: { values: unknown };
+    };
+    job: RepairJob | null;
   }) => (
     <button
       type="button"
       data-testid="save-form"
-      onClick={() =>
-        void onSubmit({ deviceModel: 'Galaxy A55' } as RepairJobInput).then(() => onClose())
-      }
+      onClick={() => void editor.handleSubmit(editor.form.values, null)}
     >
-      {jobToEdit ? 'save edit' : 'save new'}
+      {job ? 'save edit' : 'save new'}
     </button>
   ),
 }));
@@ -152,6 +152,7 @@ describe('the receipt on the repair list', () => {
     expect(receipt()).toBeUndefined();
 
     await act(async () => button('New Repair Ticket')?.click());
+    await vi.waitFor(() => expect(button('save new')).toBeDefined());
     await act(async () => button('save new')?.click());
 
     await vi.waitFor(() => expect(receipt()).toBe('repair:rep_9:REP-000009'));
@@ -169,7 +170,9 @@ describe('the receipt on the repair list', () => {
     );
     // The row opens the side panel; its Edit button opens the form.
     expect(button('save edit')).toBeUndefined();
+    await vi.waitFor(() => expect(button('Edit')).toBeDefined());
     await act(async () => button('Edit')?.click());
+    await vi.waitFor(() => expect(button('save edit')).toBeDefined());
     await act(async () => button('save edit')?.click());
 
     await vi.waitFor(() => expect(updateJob).toHaveBeenCalledTimes(1));
@@ -185,6 +188,7 @@ describe('the receipt on the repair list', () => {
         ?.click()
     );
 
+    await vi.waitFor(() => expect(button('Print receipt')).toBeDefined());
     await act(async () => button('Print receipt')?.click());
 
     expect(receipt()).toContain('repair:');
@@ -207,6 +211,7 @@ describe('the receipt on the repair list', () => {
     expect(receiptButtons()).toHaveLength(0);
 
     await act(async () => button('New Repair Ticket')?.click());
+    await vi.waitFor(() => expect(button('save new')).toBeDefined());
     await act(async () => button('save new')?.click());
     await vi.waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));
     expect(receipt()).toBeUndefined();

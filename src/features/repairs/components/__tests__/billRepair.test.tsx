@@ -15,7 +15,7 @@ import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import type { RepairJob, RepairJobInput } from '../../types';
 import * as repairsApi from '../../api/repairsApi';
-import { RepairFormModal } from '../RepairFormModal';
+import { RepairFormHost } from '../../testing/RepairFormHost';
 import { RepairJobList } from '../RepairJobList';
 
 installDrawerTestEnv();
@@ -196,9 +196,7 @@ describe('billing a repair from the repair screen', () => {
     it('saves first, then opens the billing counter with that repair', async () => {
       const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
       const onClose = vi.fn();
-      await render(
-        <RepairFormModal opened onClose={onClose} onSubmit={onSubmit} jobToEdit={JOB} />
-      );
+      await render(<RepairFormHost opened onClose={onClose} onSubmit={onSubmit} jobToEdit={JOB} />);
 
       await act(async () => button('Update & bill')?.click());
 
@@ -212,9 +210,7 @@ describe('billing a repair from the repair screen', () => {
       const onSubmit = vi
         .fn<(values: RepairJobInput) => Promise<void>>()
         .mockRejectedValue(new Error('Version conflict'));
-      await render(
-        <RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />
-      );
+      await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
 
       await act(async () => button('Update & bill')?.click());
 
@@ -228,7 +224,7 @@ describe('billing a repair from the repair screen', () => {
     it('is offered only for a saved job that can be billed', async () => {
       const open = async (job: RepairJob | null) => {
         await render(
-          <RepairFormModal opened onClose={vi.fn()} onSubmit={vi.fn()} jobToEdit={job} />
+          <RepairFormHost opened onClose={vi.fn()} onSubmit={vi.fn()} jobToEdit={job} />
         );
         const offered = button('Update & bill') !== undefined;
         act(() => root.unmount());

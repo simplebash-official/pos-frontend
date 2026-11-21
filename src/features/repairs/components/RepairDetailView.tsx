@@ -32,7 +32,6 @@ import {
   KpiStrip,
   KpiTile,
   ListRow,
-  RichDrawer,
 } from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
@@ -52,16 +51,12 @@ import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 
 type Tab = 'work' | 'warranty';
 
-export interface RepairDetailDrawerProps {
-  job: RepairJob | null;
-  opened: boolean;
-  onClose: () => void;
+/** What the footer's buttons do; the panel that shows this view supplies them. */
+export interface RepairDetailActions {
   onEdit: (job: RepairJob) => void;
   /** `null` when this person may not print receipts. */
   onPrintReceipt: ((job: RepairJob) => void) | null;
   onBill: (job: RepairJob) => void;
-  /** Pass `false` while a window opened over this panel is up, so Escape closes only that window. */
-  closeOnEscape: boolean;
 }
 
 const itemNetCents = (item: RepairItem) =>
@@ -142,7 +137,8 @@ const WorkList = ({ job }: { job: RepairJob }) => {
   );
 };
 
-const Body = ({
+/** The panel's body for a job: figures, hero, customer, details and the work. */
+export const RepairDetailView = ({
   job,
   onNestedWindowChange,
 }: {
@@ -323,13 +319,14 @@ const Body = ({
   );
 };
 
-const Footer = ({
+/** The panel's pinned footer for a job: close, receipt, edit, bill and the next status. */
+export const RepairDetailFooter = ({
   job,
   onClose,
   onEdit,
   onPrintReceipt,
   onBill,
-}: Pick<RepairDetailDrawerProps, 'onEdit' | 'onPrintReceipt' | 'onBill'> & {
+}: RepairDetailActions & {
   job: RepairJob;
   onClose: () => void;
 }) => {
@@ -403,43 +400,5 @@ const Footer = ({
         </Tooltip>
       )}
     </DrawerFooter>
-  );
-};
-
-/** The side panel a repair row opens: what came in, the work, the money, and the next step. */
-export const RepairDetailDrawer = ({
-  job,
-  opened,
-  onClose,
-  onEdit,
-  onPrintReceipt,
-  onBill,
-  closeOnEscape,
-}: RepairDetailDrawerProps) => {
-  const [nestedOpen, setNestedOpen] = useState(false);
-  return (
-    <RichDrawer
-      data={job}
-      opened={opened}
-      onClose={onClose}
-      width="wide"
-      closeOnEscape={closeOnEscape && !nestedOpen}
-      title={{
-        icon: <IconTool size={20} />,
-        text: t('Repair Ticket'),
-        subtitle: t('What came in, the work and the money'),
-      }}
-      footer={(item) => (
-        <Footer
-          job={item}
-          onClose={onClose}
-          onEdit={onEdit}
-          onPrintReceipt={onPrintReceipt}
-          onBill={onBill}
-        />
-      )}
-    >
-      {(item) => <Body key={item.id} job={item} onNestedWindowChange={setNestedOpen} />}
-    </RichDrawer>
   );
 };

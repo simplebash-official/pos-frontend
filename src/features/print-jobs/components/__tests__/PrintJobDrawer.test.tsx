@@ -7,7 +7,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { MotionGlobalConfig } from 'framer-motion';
-import { PrintJobFormModal } from '../PrintJobFormModal';
+import { PrintJobFormHost } from '../../testing/PrintJobFormHost';
 import type { PrintJob, PrintJobInput } from '../../types';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -77,7 +77,7 @@ vi.mock('@/shared/i18n/t', () => ({
   t: (key: string) => key,
 }));
 
-describe('PrintJobFormModal customer', () => {
+describe('the print job panel form: customer', () => {
   let container: HTMLDivElement | null = null;
   let root: Root | null = null;
 
@@ -120,7 +120,7 @@ describe('PrintJobFormModal customer', () => {
     act(() => {
       root!.render(
         <MantineProvider>
-          <PrintJobFormModal {...defaultProps} />
+          <PrintJobFormHost {...defaultProps} />
         </MantineProvider>
       );
     });
@@ -137,6 +137,27 @@ describe('PrintJobFormModal customer', () => {
         ?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     });
   };
+
+  it('leaves at once when nothing was typed, and asks first when something was', async () => {
+    const onClose = vi.fn();
+    renderModal({ onClose });
+    await act(async () => button('Cancel')?.click());
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    renderModal({ onClose });
+    const price = document.querySelector<HTMLInputElement>('input[placeholder="e.g. 25000"]');
+    expect(price).not.toBeNull();
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(price, '1500');
+      price?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => button('Cancel')?.click());
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Discard unsaved changes?'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    await act(async () => button('Discard')?.click());
+    expect(onClose).toHaveBeenCalledTimes(2);
+  });
 
   it('asks for a registered customer to be chosen, with no name or phone to type', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);

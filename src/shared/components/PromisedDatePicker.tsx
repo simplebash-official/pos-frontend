@@ -120,7 +120,14 @@ export const PromisedDatePicker = ({
         {isMobile ? (
           <>
             <div style={{ flex: 1 }}>{trigger}</div>
-            <Modal opened={open} onClose={() => setOpen(false)} title={label} size="sm" centered>
+            <Modal
+              opened={open}
+              onClose={() => setOpen(false)}
+              title={label}
+              size="sm"
+              centered
+              zIndex={400}
+            >
               {calendar}
             </Modal>
           </>

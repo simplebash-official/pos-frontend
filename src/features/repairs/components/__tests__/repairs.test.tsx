@@ -19,7 +19,7 @@ import * as warrantiesApi from '@/features/warranties/api/warrantiesApi';
 import type { RepairJob, RepairJobInput, RepairService } from '../../types';
 import { blankItem, itemFromPart, repairTotals, type ItemDraft } from '../../lib/repairItems';
 import { RepairItemsEditor } from '../RepairItemsEditor';
-import { RepairFormModal } from '../RepairFormModal';
+import { RepairFormHost } from '../../testing/RepairFormHost';
 import { RepairServicesSection } from '../RepairServicesSection';
 import * as servicesApi from '../../api/repairServicesApi';
 
@@ -317,7 +317,7 @@ describe('repair jobs as items', () => {
 
   it('asks for a customer to be chosen, with no name or phone to type', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
-    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} />);
+    await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} />);
     expect(text()).toContain('No customer chosen');
     expect(text()).toContain('Customer *');
     expect(document.querySelector('input[placeholder="e.g. Saman Perera"]')).toBeNull();
@@ -341,7 +341,7 @@ describe('repair jobs as items', () => {
 
   it('sends only the key of the customer when a ticket is saved', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
-    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
+    await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
     await act(async () => button('Change customer')?.click());
     await act(async () => button('pick Sunil')?.click());
     await act(async () => {
@@ -353,8 +353,39 @@ describe('repair jobs as items', () => {
     expect(onSubmit.mock.calls[0][0].customer).toEqual({ customerKey: 'cust_1' });
   });
 
+  it('leaves the form at once when nothing was typed', async () => {
+    const onClose = vi.fn();
+    await render(<RepairFormHost opened onClose={onClose} onSubmit={vi.fn()} jobToEdit={JOB} />);
+    await act(async () => button('Cancel')?.click());
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(text()).not.toContain('Discard unsaved changes?');
+  });
+
+  it('asks before throwing away what was typed', async () => {
+    const onClose = vi.fn();
+    await render(<RepairFormHost opened onClose={onClose} onSubmit={vi.fn()} jobToEdit={JOB} />);
+    const model = document.querySelector<HTMLInputElement>('input[placeholder*="iPhone 13 Pro"]');
+    expect(model).not.toBeNull();
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(model, 'Galaxy S24');
+      model?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    await act(async () => button('Cancel')?.click());
+    await vi.waitFor(() => expect(text()).toContain('Discard unsaved changes?'));
+    expect(onClose).not.toHaveBeenCalled();
+
+    await act(async () => button('Keep editing')?.click());
+    expect(onClose).not.toHaveBeenCalled();
+
+    await act(async () => button('Cancel')?.click());
+    await act(async () => button('Discard')?.click());
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the saved customer of a ticket being edited, who can be changed', async () => {
-    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={vi.fn()} jobToEdit={JOB} />);
+    await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={vi.fn()} jobToEdit={JOB} />);
     expect(text()).toContain(JOB.customerName);
     expect(button('Change customer')).toBeDefined();
   });
@@ -362,7 +393,7 @@ describe('repair jobs as items', () => {
   it('will not mark a job ready without any work on it', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>();
     await render(
-      <RepairFormModal
+      <RepairFormHost
         opened
         onClose={vi.fn()}
         onSubmit={onSubmit}
@@ -379,7 +410,7 @@ describe('repair jobs as items', () => {
   it('blocks update and displays error when a fee is added without adding an amount', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
     await render(
-      <RepairFormModal
+      <RepairFormHost
         opened
         onClose={vi.fn()}
         onSubmit={onSubmit}
@@ -406,7 +437,7 @@ describe('repair jobs as items', () => {
 
   it('sends the whole list of work with its keys when a job is saved', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
-    await render(<RepairFormModal opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
+    await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
     await act(async () => button('Update Ticket')?.click());
     await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     const sent = onSubmit.mock.calls[0][0];
@@ -472,7 +503,7 @@ describe('repair jobs as items', () => {
 
   it('shows the values without buttons when the job can no longer change', async () => {
     await render(
-      <RepairFormModal
+      <RepairFormHost
         opened
         onClose={vi.fn()}
         onSubmit={vi.fn()}
@@ -541,7 +572,7 @@ describe('repair jobs as items', () => {
   it('sends the typed discount of an item when the job is saved', async () => {
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
     await render(
-      <RepairFormModal
+      <RepairFormHost
         opened
         onClose={vi.fn()}
         onSubmit={onSubmit}
@@ -567,7 +598,7 @@ describe('repair jobs as items', () => {
 
   it('shows a rework job as free warranty work linked to its claim', async () => {
     await render(
-      <RepairFormModal
+      <RepairFormHost
         opened
         onClose={vi.fn()}
         onSubmit={vi.fn()}
@@ -594,7 +625,7 @@ describe('repair jobs as items', () => {
     api.warranties.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 200 });
     const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
     await render(
-      <RepairFormModal
+      <RepairFormHost
         opened
         onClose={vi.fn()}
         onSubmit={onSubmit}

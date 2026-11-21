@@ -24,7 +24,6 @@ import {
   InfoRow,
   KpiStrip,
   KpiTile,
-  RichDrawer,
 } from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
@@ -39,18 +38,15 @@ import { useUpdatePrintJob } from '../hooks/usePrintJobs';
 import { printJobTypeLabel } from '../lib/jobTypeLabels';
 import type { PrintJob } from '../types';
 
-export interface PrintJobDetailDrawerProps {
-  job: PrintJob | null;
-  opened: boolean;
-  onClose: () => void;
+/** What the footer's buttons do; the panel that shows this view supplies them. */
+export interface PrintJobDetailActions {
   onEdit: (job: PrintJob) => void;
   /** `null` when this person may not print receipts. */
   onPrintReceipt: ((job: PrintJob) => void) | null;
-  /** Pass `false` while a window opened over this panel is up, so Escape closes only that window. */
-  closeOnEscape: boolean;
 }
 
-const Body = ({ job }: { job: PrintJob }) => {
+/** The panel's body for a job: figures, hero, customer, money and details. */
+export const PrintJobDetailView = ({ job }: { job: PrintJob }) => {
   const materialCents = job.materialCostCents ?? 0;
   const earnings = useJobEarnings({
     priceCents: job.estimatedCostCents,
@@ -157,12 +153,13 @@ const Body = ({ job }: { job: PrintJob }) => {
   );
 };
 
-const Footer = ({
+/** The panel's pinned footer for a job: close, receipt, edit and the next status. */
+export const PrintJobDetailFooter = ({
   job,
   onClose,
   onEdit,
   onPrintReceipt,
-}: Pick<PrintJobDetailDrawerProps, 'onEdit' | 'onPrintReceipt'> & {
+}: PrintJobDetailActions & {
   job: PrintJob;
   onClose: () => void;
 }) => {
@@ -222,31 +219,3 @@ const Footer = ({
     </DrawerFooter>
   );
 };
-
-/** The side panel a print job row opens: what was ordered, the money, and the next step. */
-export const PrintJobDetailDrawer = ({
-  job,
-  opened,
-  onClose,
-  onEdit,
-  onPrintReceipt,
-  closeOnEscape,
-}: PrintJobDetailDrawerProps) => (
-  <RichDrawer
-    data={job}
-    opened={opened}
-    onClose={onClose}
-    width="standard"
-    closeOnEscape={closeOnEscape}
-    title={{
-      icon: <IconPrinter size={20} />,
-      text: t('Print Order'),
-      subtitle: t('What was ordered and the money'),
-    }}
-    footer={(item) => (
-      <Footer job={item} onClose={onClose} onEdit={onEdit} onPrintReceipt={onPrintReceipt} />
-    )}
-  >
-    {(item) => <Body key={item.id} job={item} />}
-  </RichDrawer>
-);

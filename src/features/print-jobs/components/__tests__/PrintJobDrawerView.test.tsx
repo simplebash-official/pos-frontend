@@ -8,7 +8,8 @@ import { createRoot, type Root } from 'react-dom/client';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import type { PrintJob } from '../../types';
-import { PrintJobDetailDrawer } from '../PrintJobDetailDrawer';
+import { closePanel, editPanel, viewPanel } from '@/shared/lib/jobPanelState';
+import { PrintJobDrawer } from '../PrintJobDrawer';
 
 installDrawerTestEnv();
 
@@ -17,6 +18,12 @@ vi.mock('../../hooks/usePrintJobs', () => ({
   useUpdatePrintJob: () => ({ mutateAsync: update, isPending: false }),
 }));
 vi.mock('@/shared/hooks/useJobEarnings', () => ({
+  toEarningsRequest: () => ({
+    priceCents: null,
+    materialCostCents: 0,
+    splitType: null,
+    splitValue: 0,
+  }),
   useJobEarnings: () => ({
     data: { profitCents: 1_200_000, commissionCents: 0, capped: false },
     isCurrent: true,
@@ -39,15 +46,14 @@ const makeJob = (overrides: Partial<PrintJob> = {}): PrintJob => ({
   ...overrides,
 });
 
-describe('PrintJobDetailDrawer', () => {
+describe('PrintJobDrawer in view mode', () => {
   let container: HTMLDivElement;
   let root: Root;
-  const onClose = vi.fn();
-  const onEdit = vi.fn();
+  const onPanelChange = vi.fn();
   const onPrintReceipt = vi.fn();
 
   beforeEach(() => {
-    [update, onClose, onEdit, onPrintReceipt].forEach((fn) => fn.mockReset());
+    [update, onPanelChange, onPrintReceipt].forEach((fn) => fn.mockReset());
     update.mockResolvedValue(undefined);
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -63,11 +69,12 @@ describe('PrintJobDetailDrawer', () => {
     await act(async () => {
       root.render(
         <TestHarness role="admin">
-          <PrintJobDetailDrawer
+          <PrintJobDrawer
+            panel={job === null ? closePanel(viewPanel('none')) : viewPanel(job.id)}
+            onPanelChange={onPanelChange}
             job={job}
-            opened={job !== null}
-            onClose={onClose}
-            onEdit={onEdit}
+            onSubmit={vi.fn()}
+            loading={false}
             onPrintReceipt={onPrintReceipt}
             closeOnEscape
           />
@@ -106,7 +113,7 @@ describe('PrintJobDetailDrawer', () => {
   it('opens Edit and the receipt', async () => {
     await open(makeJob());
     await act(async () => button('Edit')?.click());
-    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onPanelChange).toHaveBeenCalledWith(editPanel('prt_1'));
     await act(async () => button('Print receipt')?.click());
     expect(onPrintReceipt).toHaveBeenCalledTimes(1);
   });

@@ -12,7 +12,7 @@ import { MantineProvider } from '@mantine/core';
 import { MemoryRouter } from 'react-router-dom';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
-import type { PrintJob, PrintJobInput } from '../../types';
+import type { PrintJob } from '../../types';
 import * as printJobsApi from '../../api/printJobsApi';
 import { PrintJobList } from '../PrintJobList';
 
@@ -35,22 +35,22 @@ vi.mock('../../hooks/usePrintJobStats', () => ({
   }),
 }));
 // The form has its own tests; this one hands back the values a saved form would send.
-vi.mock('../PrintJobFormModal', () => ({
-  PrintJobFormModal: ({
-    onSubmit,
-    onClose,
-    jobToEdit,
+vi.mock('../PrintJobEditForm', () => ({
+  PRINT_JOB_FORM_ID: 'print-job-form',
+  PrintJobEditForm: ({
+    editor,
   }: {
-    onSubmit: (values: PrintJobInput) => Promise<void>;
-    onClose: () => void;
-    jobToEdit?: PrintJob | null;
+    editor: { handleSubmit: (values: unknown) => Promise<void>; form: { values: unknown } };
   }) => (
     <button
       type="button"
       data-testid="save-form"
-      onClick={() => void onSubmit({ quantity: 20 } as PrintJobInput).then(() => onClose())}
+      onClick={() => void editor.handleSubmit(editor.form.values)}
     >
-      {jobToEdit ? 'save edit' : 'save new'}
+      {editor.form.values !== undefined &&
+      (editor.form.values as { customerKey: string }).customerKey !== ''
+        ? 'save edit'
+        : 'save new'}
     </button>
   ),
 }));
@@ -147,6 +147,7 @@ describe('the receipt on the print job list', () => {
     expect(receipt()).toBeUndefined();
 
     await act(async () => button('New Print Order')?.click());
+    await vi.waitFor(() => expect(button('save new')).toBeDefined());
     await act(async () => button('save new')?.click());
 
     await vi.waitFor(() => expect(receipt()).toBe('print:prn_9:PRN-000009'));
@@ -164,7 +165,9 @@ describe('the receipt on the print job list', () => {
     );
     // The row opens the side panel; its Edit button opens the form.
     expect(button('save edit')).toBeUndefined();
+    await vi.waitFor(() => expect(button('Edit')).toBeDefined());
     await act(async () => button('Edit')?.click());
+    await vi.waitFor(() => expect(button('save edit')).toBeDefined());
     await act(async () => button('save edit')?.click());
 
     await vi.waitFor(() => expect(updateJob).toHaveBeenCalledTimes(1));
@@ -180,6 +183,7 @@ describe('the receipt on the print job list', () => {
         ?.click()
     );
 
+    await vi.waitFor(() => expect(button('Print receipt')).toBeDefined());
     await act(async () => button('Print receipt')?.click());
 
     expect(receipt()).toContain('print:');
@@ -202,6 +206,7 @@ describe('the receipt on the print job list', () => {
     expect(receiptButtons()).toHaveLength(0);
 
     await act(async () => button('New Print Order')?.click());
+    await vi.waitFor(() => expect(button('save new')).toBeDefined());
     await act(async () => button('save new')?.click());
     await vi.waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));
     expect(receipt()).toBeUndefined();

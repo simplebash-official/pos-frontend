@@ -52,6 +52,8 @@ export interface CustomerPickerModalProps {
   onClose: () => void;
   onSelectCustomer: (customer: Customer | null) => void;
   selectedCustomerId?: string | null;
+  /** Pass a higher value when this window opens over a side panel. */
+  zIndex?: number;
 }
 
 export const CustomerPickerModal = ({
@@ -59,6 +61,7 @@ export const CustomerPickerModal = ({
   onClose,
   onSelectCustomer,
   selectedCustomerId,
+  zIndex,
 }: CustomerPickerModalProps) => {
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
@@ -190,6 +193,7 @@ export const CustomerPickerModal = ({
       centered
       fullScreen={isMobile}
       padding="lg"
+      zIndex={zIndex}
     >
       <Stack gap="md">
         {/* Search & Actions Bar: hidden while adding, the form has its own checks */}

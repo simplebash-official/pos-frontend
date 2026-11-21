@@ -46,11 +46,16 @@ import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { REPAIR_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
 import { billBlocker } from '../lib/billable';
-import { RepairDetailDrawer } from './RepairDetailDrawer';
-import { RepairFormModal } from './RepairFormModal';
+import { RepairDrawer } from './RepairDrawer';
 import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
+import {
+  CLOSED_PANEL,
+  createPanel,
+  viewPanel,
+  type JobPanelState,
+} from '@/shared/lib/jobPanelState';
 
 interface RepairFilters {
   search: string;
@@ -83,9 +88,7 @@ const applyLocalRepairFilters = (items: RepairJob[], f: RepairFilters) =>
 export const RepairJobList = () => {
   const queryClient = useQueryClient();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
-  const [openKey, setOpenKey] = useState<string | null>(null);
+  const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
   const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,7 +97,7 @@ export const RepairJobList = () => {
 
   const { data: repairJobs, isLoading, isFetching } = useAllRepairs();
   // The panel reads the job from the list by its key, so it shows the new figures after a change.
-  const openMatch = repairJobs.find((job) => job.id === openKey);
+  const openMatch = repairJobs.find((job) => job.id === panel.key);
   const openJob = openMatch === undefined ? null : openMatch;
   const { data: stats, isLoading: statsLoading, staleAsOf } = useRepairStats();
 
@@ -122,15 +125,7 @@ export const RepairJobList = () => {
   const updateMutation = useUpdateRepairJob();
   const deleteBatchMutation = useDeleteRepairs();
 
-  const handleOpenAdd = () => {
-    setJobToEdit(null);
-    setModalOpen(true);
-  };
-
-  const handleOpenEdit = (job: RepairJob) => {
-    setJobToEdit(job);
-    setModalOpen(true);
-  };
+  const handleOpenAdd = () => setPanel(createPanel);
 
   // Deep link from the dashboard reminders: /repairs?jobKey=<key>
   const [searchParams, setSearchParams] = useSearchParams();
@@ -142,7 +137,7 @@ export const RepairJobList = () => {
     if (!match) return;
     // Opening a record from a URL param is a legitimate effect use here.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOpenKey(match.id);
+    setPanel(viewPanel(match.id));
     const next = new URLSearchParams(searchParams);
     next.delete('jobKey');
     setSearchParams(next, { replace: true });
@@ -150,14 +145,14 @@ export const RepairJobList = () => {
   }, [repairJobs, searchParams]);
 
   const handleFormSubmit = async (values: RepairJobInput) => {
-    if (jobToEdit) {
+    if (panel.mode === 'edit' && openJob !== null) {
       const updatedJob = await updateMutation.mutateAsync({
-        repairKey: jobToEdit.id,
+        repairKey: openJob.id,
         input: values,
       });
       notify.success({
         title: 'Repair Ticket Updated',
-        message: `Updated ticket ${updatedJob.ticketNumber || jobToEdit.ticketNumber}`,
+        message: `Updated ticket ${updatedJob.ticketNumber || openJob.ticketNumber}`,
       });
     } else {
       const newJob = await createMutation.mutateAsync(values);
@@ -396,27 +391,17 @@ export const RepairJobList = () => {
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
-        onRowClick={(job) => setOpenKey(job.id)}
+        onRowClick={(job) => setPanel(viewPanel(job.id))}
         onDeleteSelected={(ids) => void handleDeleteSelected(ids)}
         emptyText="No repair jobs recorded yet"
       />
 
-      <RepairFormModal
-        opened={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        jobToEdit={jobToEdit}
-        loading={createMutation.isPending || updateMutation.isPending}
-      />
-
-      <RepairDetailDrawer
+      <RepairDrawer
+        panel={panel}
+        onPanelChange={setPanel}
         job={openJob}
-        opened={openJob !== null}
-        onClose={() => setOpenKey(null)}
-        onEdit={(job) => {
-          setOpenKey(null);
-          handleOpenEdit(job);
-        }}
+        onSubmit={handleFormSubmit}
+        loading={createMutation.isPending || updateMutation.isPending}
         onPrintReceipt={
           canPrintReceipt ? (job) => setReceiptJob(receiptTarget('repair', job)) : null
         }
