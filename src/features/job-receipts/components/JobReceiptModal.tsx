@@ -114,6 +114,8 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
       fullScreen
       padding={0}
       withCloseButton={false}
+      // Opened from the job's side panel (z-index 200), so it must sit above it.
+      zIndex={400}
       transitionProps={{ duration: 150 }}
       styles={{
         content: { backgroundColor: 'var(--bg-app)', display: 'flex', flexDirection: 'column' },

@@ -1,0 +1,445 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Anchor, Button, Group, Stack, Text, Tooltip } from '@mantine/core';
+import {
+  IconArrowRight,
+  IconCalendarDue,
+  IconCash,
+  IconChartPie,
+  IconClock,
+  IconEdit,
+  IconPrinter,
+  IconReceipt,
+  IconShieldCheck,
+  IconTool,
+  IconUser,
+  IconWallet,
+} from '@tabler/icons-react';
+import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
+import { PERMISSIONS } from '@/constants/permissions';
+import { coverageLabel } from '@/features/warranties';
+import {
+  AnimatedTabs,
+  DrawerAfter,
+  DrawerCard,
+  DrawerFooter,
+  DrawerGrid,
+  DrawerHero,
+  DrawerMain,
+  DrawerRail,
+  Figure,
+  InfoRow,
+  KpiStrip,
+  KpiTile,
+  ListRow,
+  RichDrawer,
+} from '@/shared/components/drawer';
+import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
+import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { t } from '@/shared/i18n/t';
+import { formatDate, formatDateTime } from '@/shared/lib/date';
+import { getJobDueMeta } from '@/shared/lib/jobDueDate';
+import { nextStatus, stepLabel } from '@/shared/lib/jobStatusFlow';
+import { getErrorMessage } from '@/shared/lib/error';
+import { formatMoney } from '@/shared/lib/money';
+import { notify } from '@/shared/notify';
+import { billBlocker } from '../lib/billable';
+import { repairStepBlock } from '../lib/statusStep';
+import { useUpdateRepairJob } from '../hooks/useRepairs';
+import type { RepairItem, RepairJob } from '../types';
+import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
+
+type Tab = 'work' | 'warranty';
+
+export interface RepairDetailDrawerProps {
+  job: RepairJob | null;
+  opened: boolean;
+  onClose: () => void;
+  onEdit: (job: RepairJob) => void;
+  /** `null` when this person may not print receipts. */
+  onPrintReceipt: ((job: RepairJob) => void) | null;
+  onBill: (job: RepairJob) => void;
+  /** Pass `false` while a window opened over this panel is up, so Escape closes only that window. */
+  closeOnEscape: boolean;
+}
+
+const itemNetCents = (item: RepairItem) =>
+  item.laborCents + item.partCents - (item.discount === undefined ? 0 : item.discount.amountCents);
+
+const partLine = (item: RepairItem): string | null => {
+  if (item.part === undefined) return null;
+  if (item.part.source === 'outside') return item.part.name;
+  return item.part.serialNumber === undefined
+    ? item.part.productName
+    : `${item.part.productName} · ${item.part.serialNumber}`;
+};
+
+const WorkList = ({ job }: { job: RepairJob }) => {
+  if (job.items.length === 0) {
+    return (
+      <Text size="sm" c="dimmed" ta="center" py="md">
+        {t('No work has been added yet. Press Edit to add the work and its price.')}
+      </Text>
+    );
+  }
+  const rework = job.kind.kind === 'warranty_rework';
+  return (
+    <Stack gap="xs">
+      <div>
+        {job.items.map((item, index) => {
+          const part = partLine(item);
+          const warranty =
+            item.warranty.coverage.kind === 'none' ? null : coverageLabel(item.warranty.coverage);
+          return (
+            <ListRow
+              key={item.key}
+              index={index}
+              first={index === 0}
+              icon={<IconTool size={20} style={{ color: 'var(--mantine-color-blue-6)' }} />}
+              title={item.description}
+              meta={
+                <>
+                  {part !== null && <div>{`${t('Part')}: ${part}`}</div>}
+                  {warranty !== null && <div>{`${t('Warranty')}: ${warranty}`}</div>}
+                </>
+              }
+              trailing={
+                <>
+                  <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {rework ? t('Free (warranty)') : formatMoney(itemNetCents(item))}
+                  </Text>
+                  {item.discount !== undefined && item.discount.amountCents > 0 && (
+                    <Text size="xs" c="dimmed">
+                      {`${t('Discount')} −${formatMoney(item.discount.amountCents)}`}
+                    </Text>
+                  )}
+                </>
+              }
+            />
+          );
+        })}
+      </div>
+      <Stack gap={4} pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
+        <Group justify="space-between">
+          <Text size="sm" c="dimmed">
+            {t('Customer pays')}
+          </Text>
+          <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {rework ? t('Free (warranty)') : formatMoney(job.priceCents)}
+          </Text>
+        </Group>
+        <Group justify="space-between">
+          <Text size="sm" c="dimmed">
+            {t('Parts cost the shop')}
+          </Text>
+          <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {formatMoney(job.costCents)}
+          </Text>
+        </Group>
+      </Stack>
+    </Stack>
+  );
+};
+
+const Body = ({
+  job,
+  onNestedWindowChange,
+}: {
+  job: RepairJob;
+  onNestedWindowChange: (open: boolean) => void;
+}) => {
+  const navigate = useNavigate();
+  const canViewWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
+  const [tab, setTab] = useState<Tab>('work');
+  const rework = job.kind.kind === 'warranty_rework';
+  const priced = job.items.length > 0;
+  const earnings = useJobEarnings({
+    priceCents: priced ? job.priceCents : null,
+    materialCostCents: job.costCents,
+    splitType: job.splitType ?? null,
+    splitValue: job.splitValue ?? 0,
+  });
+  const due = getJobDueMeta(job);
+  const showWarranties = canViewWarranties && job.status === JOB_STATUS.DELIVERED && !rework;
+  const activeTab: Tab = showWarranties ? tab : 'work';
+
+  return (
+    <DrawerGrid>
+      <KpiStrip>
+        <KpiTile icon={<IconCash size={16} />} color="blue" label={t('Amount')}>
+          {rework ? (
+            <Figure value={t('Free')} hint={t('Warranty rework')} color="teal" />
+          ) : priced ? (
+            <Figure
+              value={formatMoney(job.priceCents)}
+              hint={`${job.items.length} ${t('work item(s)')}`}
+              color="blue"
+            />
+          ) : (
+            <Figure value="—" hint={t('Pending diagnosis')} color="gray" />
+          )}
+        </KpiTile>
+        <KpiTile icon={<IconChartPie size={16} />} color="green" label={t('Profit')}>
+          {priced && earnings.data !== undefined ? (
+            <Figure
+              value={formatMoney(earnings.data.profitCents)}
+              hint={t('After parts cost')}
+              color="green"
+            />
+          ) : (
+            <Figure value="—" hint={t('Shows once work is added')} color="gray" />
+          )}
+        </KpiTile>
+        <KpiTile icon={<IconWallet size={16} />} color="indigo" label={t('Technician earns')}>
+          {job.assignedEmployeeName === undefined ? (
+            <Figure value="—" hint={t('Unassigned')} color="gray" />
+          ) : (
+            <Figure
+              value={formatMoney(job.employeeEarningsCents ?? 0)}
+              hint={job.assignedEmployeeName}
+              color="indigo"
+            />
+          )}
+        </KpiTile>
+        <KpiTile
+          icon={<IconCalendarDue size={16} />}
+          color={due === null ? 'gray' : due.color}
+          label={t('Promised')}
+        >
+          <Figure
+            value={job.promisedReadyAt === undefined ? '—' : formatDate(job.promisedReadyAt)}
+            hint={due === null ? t('No date flagged') : due.label}
+            color={due === null ? 'gray' : due.color}
+          />
+        </KpiTile>
+      </KpiStrip>
+
+      <DrawerRail>
+        <DrawerHero
+          accent={JOB_STATUS_COLORS[job.status]}
+          icon={<IconTool size={32} />}
+          eyebrow={job.ticketNumber}
+          status={{
+            color: JOB_STATUS_COLORS[job.status],
+            label: t(JOB_STATUS_LABELS[job.status]),
+          }}
+          title={job.deviceModel}
+          subtitle={
+            job.serialNumber === undefined ? undefined : (
+              <div>{`${t('Serial number or IMEI')}: ${job.serialNumber}`}</div>
+            )
+          }
+        >
+          <Stack gap={6}>
+            <Text size="xs" c="dimmed">
+              {t('The problem')}
+            </Text>
+            <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+              {job.issueDescription}
+            </Text>
+            {job.kind.kind === 'warranty_rework' && (
+              <Text size="xs" c="dimmed">
+                {`${t('Rework of')} ${job.kind.originalTicketNumber} · `}
+                <Anchor
+                  component="button"
+                  type="button"
+                  size="xs"
+                  onClick={() => {
+                    if (job.kind.kind !== 'warranty_rework') return;
+                    navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${job.kind.claimKey}`);
+                  }}
+                >
+                  {job.kind.claimNumber}
+                </Anchor>
+              </Text>
+            )}
+          </Stack>
+        </DrawerHero>
+
+        <DrawerAfter>
+          <DrawerCard label={t('Customer')} icon={<IconUser size={14} />}>
+            <Stack gap="xs">
+              <Text size="sm" fw={700}>
+                {job.customerName}
+              </Text>
+              <PhoneDisplay primaryPhone={job.customerPhone} layout="stack" />
+            </Stack>
+          </DrawerCard>
+        </DrawerAfter>
+
+        <DrawerAfter>
+          <DrawerCard label={t('Details')} icon={<IconClock size={14} />}>
+            <Stack gap="xs">
+              <InfoRow icon={<IconClock size={16} />} label={t('Received')}>
+                {formatDateTime(job.createdAt)}
+              </InfoRow>
+              <InfoRow icon={<IconCalendarDue size={16} />} label={t('Promised')}>
+                {job.promisedReadyAt === undefined ? '—' : formatDate(job.promisedReadyAt)}
+              </InfoRow>
+              <InfoRow icon={<IconUser size={16} />} label={t('Technician')}>
+                {job.assignedEmployeeName === undefined
+                  ? t('Unassigned')
+                  : job.assignedEmployeeName}
+              </InfoRow>
+            </Stack>
+          </DrawerCard>
+        </DrawerAfter>
+      </DrawerRail>
+
+      <DrawerMain>
+        {showWarranties ? (
+          <AnimatedTabs<Tab>
+            value={activeTab}
+            onChange={setTab}
+            tabs={[
+              {
+                value: 'work',
+                label: t('Work'),
+                icon: <IconTool size={16} />,
+                count: job.items.length,
+              },
+              { value: 'warranty', label: t('Warranty'), icon: <IconShieldCheck size={16} /> },
+            ]}
+          >
+            {(value) =>
+              value === 'work' ? (
+                <WorkList job={job} />
+              ) : (
+                <RepairWarrantiesPanel
+                  repairKey={job.id}
+                  onNestedWindowChange={onNestedWindowChange}
+                />
+              )
+            }
+          </AnimatedTabs>
+        ) : (
+          <DrawerCard label={t('Work')} icon={<IconTool size={14} />}>
+            <WorkList job={job} />
+          </DrawerCard>
+        )}
+      </DrawerMain>
+    </DrawerGrid>
+  );
+};
+
+const Footer = ({
+  job,
+  onClose,
+  onEdit,
+  onPrintReceipt,
+  onBill,
+}: Pick<RepairDetailDrawerProps, 'onEdit' | 'onPrintReceipt' | 'onBill'> & {
+  job: RepairJob;
+  onClose: () => void;
+}) => {
+  const update = useUpdateRepairJob();
+  const next = nextStatus(job.status);
+  const block = next === null ? null : repairStepBlock(job, next);
+  const canBill = billBlocker(job) === null;
+
+  const moveOn = async () => {
+    if (next === null) return;
+    try {
+      await update.mutateAsync({ repairKey: job.id, input: { status: next } });
+      notify.success({
+        title: t('Repair Ticket Updated'),
+        message: `${job.ticketNumber}: ${t(JOB_STATUS_LABELS[next])}`,
+      });
+    } catch (error: unknown) {
+      notify.error({ title: t('Could not update the ticket'), message: getErrorMessage(error) });
+    }
+  };
+
+  return (
+    <DrawerFooter>
+      <Button variant="default" size="sm" onClick={onClose}>
+        {t('Close')}
+      </Button>
+      {onPrintReceipt !== null && (
+        <Button
+          variant="default"
+          size="sm"
+          leftSection={<IconPrinter size={16} />}
+          onClick={() => onPrintReceipt(job)}
+        >
+          {t('Print receipt')}
+        </Button>
+      )}
+      <Button
+        variant="default"
+        size="sm"
+        leftSection={<IconEdit size={16} />}
+        onClick={() => onEdit(job)}
+      >
+        {t('Edit')}
+      </Button>
+      {canBill && (
+        <Button
+          variant={block !== null && block.reason === 'bill_first' ? 'filled' : 'default'}
+          color="blue"
+          size="sm"
+          leftSection={<IconReceipt size={16} />}
+          onClick={() => onBill(job)}
+        >
+          {t('Bill')}
+        </Button>
+      )}
+      {next !== null && !(block !== null && block.reason === 'bill_first') && (
+        <Tooltip label={block === null ? '' : block.message} disabled={block === null} withArrow>
+          <span>
+            <Button
+              color="blue"
+              size="sm"
+              disabled={block !== null}
+              loading={update.isPending}
+              leftSection={<IconArrowRight size={16} />}
+              onClick={() => void moveOn()}
+              data-log-id="repairs.next-status"
+            >
+              {stepLabel(next)}
+            </Button>
+          </span>
+        </Tooltip>
+      )}
+    </DrawerFooter>
+  );
+};
+
+/** The side panel a repair row opens: what came in, the work, the money, and the next step. */
+export const RepairDetailDrawer = ({
+  job,
+  opened,
+  onClose,
+  onEdit,
+  onPrintReceipt,
+  onBill,
+  closeOnEscape,
+}: RepairDetailDrawerProps) => {
+  const [nestedOpen, setNestedOpen] = useState(false);
+  return (
+    <RichDrawer
+      data={job}
+      opened={opened}
+      onClose={onClose}
+      width="wide"
+      closeOnEscape={closeOnEscape && !nestedOpen}
+      title={{
+        icon: <IconTool size={20} />,
+        text: t('Repair Ticket'),
+        subtitle: t('What came in, the work and the money'),
+      }}
+      footer={(item) => (
+        <Footer
+          job={item}
+          onClose={onClose}
+          onEdit={onEdit}
+          onPrintReceipt={onPrintReceipt}
+          onBill={onBill}
+        />
+      )}
+    >
+      {(item) => <Body key={item.id} job={item} onNestedWindowChange={setNestedOpen} />}
+    </RichDrawer>
+  );
+};

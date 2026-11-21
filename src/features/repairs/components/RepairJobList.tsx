@@ -1,20 +1,17 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
+import { Button, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
   IconPlus,
   IconRefresh,
-  IconUser,
   IconTool,
   IconCash,
   IconAlertCircle,
   IconChartPie,
   IconSearch,
-  IconShieldCheck,
   IconReceipt,
-  IconPrinter,
 } from '@tabler/icons-react';
 import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,18 +25,28 @@ import {
 } from '../hooks/useRepairs';
 import { useRepairStats } from '../hooks/useRepairStats';
 import { fetchRepairs } from '../api/repairsApi';
-import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
+import { JOB_STATUS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
-import { formatDate } from '@/shared/lib/date';
-import { getJobDueMeta } from '@/shared/lib/jobDueDate';
+import {
+  AmountCell,
+  CustomerCell,
+  ReceiptAction,
+  RowActions,
+  StatusCell,
+  TechnicianCell,
+  TicketCell,
+  TwoLineCell,
+} from '@/shared/components/jobTableCells';
+import { SearchHighlight } from '@/shared/components/SearchHighlight';
+import { tokenizeQuery } from '@/shared/lib/search';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { REPAIR_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
-import { IconAction } from '@/shared/components/drawer';
 import { billBlocker } from '../lib/billable';
+import { RepairDetailDrawer } from './RepairDetailDrawer';
 import { RepairFormModal } from './RepairFormModal';
 import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
@@ -78,6 +85,7 @@ export const RepairJobList = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState<RepairJob | null>(null);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,6 +93,9 @@ export const RepairJobList = () => {
   const [datePreset, setDatePreset] = useState('all');
 
   const { data: repairJobs, isLoading, isFetching } = useAllRepairs();
+  // The panel reads the job from the list by its key, so it shows the new figures after a change.
+  const openMatch = repairJobs.find((job) => job.id === openKey);
+  const openJob = openMatch === undefined ? null : openMatch;
   const { data: stats, isLoading: statsLoading, staleAsOf } = useRepairStats();
 
   const filters: RepairFilters = { search: searchQuery, status: statusFilter, datePreset };
@@ -131,7 +142,7 @@ export const RepairJobList = () => {
     if (!match) return;
     // Opening a record from a URL param is a legitimate effect use here.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    handleOpenEdit(match);
+    setOpenKey(match.id);
     const next = new URLSearchParams(searchParams);
     next.delete('jobKey');
     setSearchParams(next, { replace: true });
@@ -169,6 +180,8 @@ export const RepairJobList = () => {
     });
   };
 
+  const terms = useMemo(() => tokenizeQuery(searchQuery), [searchQuery]);
+
   const columns: Column<RepairJob>[] = [
     {
       key: 'ticketNumber',
@@ -176,164 +189,91 @@ export const RepairJobList = () => {
       align: 'left',
       sortable: true,
       render: (job) => (
-        <Stack gap={2}>
-          <strong>{job.ticketNumber}</strong>
-          {job.kind.kind === 'warranty_rework' && (
-            <Group gap={4} wrap="nowrap">
-              <IconShieldCheck size={12} style={{ color: 'var(--status-busy)', flexShrink: 0 }} />
-              <Text size="xs" c="dimmed">
-                {t('Rework of')} {job.kind.originalTicketNumber}
-              </Text>
-            </Group>
-          )}
-        </Stack>
+        <TicketCell
+          ticketNumber={job.ticketNumber}
+          createdAt={job.createdAt}
+          reworkOf={job.kind.kind === 'warranty_rework' ? job.kind.originalTicketNumber : undefined}
+          terms={terms}
+        />
       ),
     },
     {
       key: 'customerName',
+      width: '24%',
       header: 'Customer',
       align: 'left',
       sortable: true,
       render: (job) => (
-        <div>
-          <Text size="sm" fw={600}>
-            {job.customerName}
-          </Text>
-          <Text size="xs" c="dimmed">
-            {job.customerPhone}
-          </Text>
-        </div>
+        <CustomerCell name={job.customerName} phone={job.customerPhone} terms={terms} />
       ),
     },
     {
       key: 'deviceModel',
+      width: '28%',
       header: 'Device & Issue',
       align: 'left',
       sortable: true,
       render: (job) => (
-        <div>
-          <Text size="sm" fw={600}>
-            {job.deviceModel}
-          </Text>
-          <Text size="xs" c="dimmed" lineClamp={1}>
-            {job.issueDescription}
-          </Text>
-        </div>
+        <TwoLineCell
+          title={`${job.deviceModel} · ${job.issueDescription}`}
+          primary={<SearchHighlight text={job.deviceModel} terms={terms} />}
+          secondary={job.issueDescription}
+        />
       ),
     },
     {
       key: 'assignedEmployeeName',
-      header: 'Assigned Staff',
+      width: '18%',
+      header: 'Technician',
       align: 'left',
       sortable: true,
-      render: (job) =>
-        job.assignedEmployeeName ? (
-          <Stack gap={2}>
-            <Group gap={4}>
-              <IconUser size={12} style={{ color: 'var(--mantine-color-indigo-6)' }} />
-              <Text size="xs" fw={700} c="indigo">
-                {job.assignedEmployeeName}
-              </Text>
-            </Group>
-            {job.employeeEarningsCents ? (
-              <Badge size="xs" color="indigo" variant="light">
-                {t('Earned:')} {formatMoney(job.employeeEarningsCents)}
-              </Badge>
-            ) : null}
-          </Stack>
-        ) : (
-          <Text size="xs" c="dimmed" fs="italic">
-            {t('Unassigned')}
-          </Text>
-        ),
+      render: (job) => (
+        <TechnicianCell name={job.assignedEmployeeName} earnedCents={job.employeeEarningsCents} />
+      ),
     },
     {
       key: 'status',
       header: 'Status',
       align: 'left',
       sortable: true,
-      render: (job) => {
-        const dueMeta = getJobDueMeta(job);
-        return (
-          <Group gap={4} wrap="wrap">
-            <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
-            {dueMeta && (
-              <Badge color={dueMeta.color} variant="light">
-                {dueMeta.label}
-              </Badge>
-            )}
-          </Group>
-        );
-      },
+      render: (job) => <StatusCell status={job.status} promisedReadyAt={job.promisedReadyAt} />,
     },
     {
       key: 'priceCents',
-      header: 'Total Price',
-      align: 'left',
+      header: 'Amount',
+      align: 'right',
       sortable: true,
       render: (job) =>
         job.kind.kind === 'warranty_rework' ? (
-          <Text size="sm" c="dimmed">
-            {t('Free (warranty)')}
-          </Text>
+          <AmountCell note={t('Free (warranty)')} />
         ) : job.items.length > 0 ? (
-          formatMoney(job.priceCents)
+          <AmountCell cents={job.priceCents} />
         ) : (
-          <Badge color="yellow" variant="light">
-            {t('Pending diagnosis')}
-          </Badge>
+          <AmountCell note={t('Pending diagnosis')} />
         ),
     },
     {
-      key: 'promisedReadyAt',
-      header: 'Promised',
-      align: 'left',
-      sortable: true,
-      render: (job) => (job.promisedReadyAt ? formatDate(job.promisedReadyAt) : '—'),
-    },
-    {
-      key: 'createdAt',
-      header: 'Received',
-      align: 'left',
-      sortable: true,
-      render: (job) => formatDate(job.createdAt),
-    },
-    ...(canPrintReceipt
-      ? [
-          {
-            key: 'receipt',
-            header: t('Receipt'),
-            align: 'right' as const,
-            render: (job: RepairJob) => (
-              // The row opens the edit window when clicked; this button must not.
-              <div onClick={(event) => event.stopPropagation()}>
-                <IconAction
-                  kind="neutral"
-                  label={t('Print receipt')}
-                  icon={<IconPrinter size={16} />}
-                  onClick={() => setReceiptJob(receiptTarget('repair', job))}
-                />
-              </div>
-            ),
-          },
-        ]
-      : []),
-    {
-      key: 'bill',
-      header: t('Bill'),
+      key: 'actions',
+      header: t('Actions'),
       align: 'right',
-      render: (job) =>
-        billBlocker(job) === null ? (
-          // The row opens the edit window when clicked; this button must not.
-          <div onClick={(event) => event.stopPropagation()}>
-            <IconAction
-              kind="edit"
-              label={t('Bill this repair')}
-              icon={<IconReceipt size={16} />}
+      render: (job) => (
+        <RowActions>
+          {billBlocker(job) === null && (
+            <Button
+              size="compact-sm"
+              variant="default"
+              leftSection={<IconReceipt size={14} />}
+              aria-label={t('Bill this repair')}
               onClick={() => navigate(`${ROUTES.BILLING}?billRepair=${job.id}`)}
-            />
-          </div>
-        ) : null,
+            >
+              {t('Bill')}
+            </Button>
+          )}
+          {canPrintReceipt && (
+            <ReceiptAction onClick={() => setReceiptJob(receiptTarget('repair', job))} />
+          )}
+        </RowActions>
+      ),
     },
   ];
 
@@ -456,7 +396,7 @@ export const RepairJobList = () => {
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
-        onRowClick={(job) => handleOpenEdit(job)}
+        onRowClick={(job) => setOpenKey(job.id)}
         onDeleteSelected={(ids) => void handleDeleteSelected(ids)}
         emptyText="No repair jobs recorded yet"
       />
@@ -467,6 +407,21 @@ export const RepairJobList = () => {
         onSubmit={handleFormSubmit}
         jobToEdit={jobToEdit}
         loading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <RepairDetailDrawer
+        job={openJob}
+        opened={openJob !== null}
+        onClose={() => setOpenKey(null)}
+        onEdit={(job) => {
+          setOpenKey(null);
+          handleOpenEdit(job);
+        }}
+        onPrintReceipt={
+          canPrintReceipt ? (job) => setReceiptJob(receiptTarget('repair', job)) : null
+        }
+        onBill={(job) => navigate(`${ROUTES.BILLING}?billRepair=${job.id}`)}
+        closeOnEscape={receiptJob === null}
       />
 
       <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />

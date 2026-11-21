@@ -167,10 +167,27 @@ describe('the receipt on the repair list', () => {
         .find((r) => r.textContent?.includes('REP-000001'))
         ?.click()
     );
+    // The row opens the side panel; its Edit button opens the form.
+    expect(button('save edit')).toBeUndefined();
+    await act(async () => button('Edit')?.click());
     await act(async () => button('save edit')?.click());
 
     await vi.waitFor(() => expect(updateJob).toHaveBeenCalledTimes(1));
     expect(receipt()).toBeUndefined();
+  });
+
+  it('prints the receipt from the side panel a row opens', async () => {
+    await render();
+    await vi.waitFor(() => expect(document.body.textContent).toContain('REP-000001'));
+    await act(async () =>
+      [...document.querySelectorAll('tr')]
+        .find((r) => r.textContent?.includes('REP-000001'))
+        ?.click()
+    );
+
+    await act(async () => button('Print receipt')?.click());
+
+    expect(receipt()).toContain('repair:');
   });
 
   it('prints the receipt again from a row without opening the edit window', async () => {
