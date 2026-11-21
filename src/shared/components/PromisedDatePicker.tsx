@@ -163,9 +163,8 @@ export const PromisedDatePicker = ({
               )}
               {value !== null && (
                 <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="lg"
+                  variant="default"
+                  size={36}
                   aria-label={t('Clear')}
                   onClick={() => onChange(null)}
                 >
@@ -234,9 +233,8 @@ export const PromisedDatePicker = ({
         )}
         {value !== null && (
           <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="lg"
+            variant="default"
+            size={36}
             aria-label={t('Clear')}
             onClick={() => onChange(null)}
           >
