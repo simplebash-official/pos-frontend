@@ -302,9 +302,7 @@ describe('repair jobs as items', () => {
       'input[data-barcode-scanner="true"]'
     );
     expect(scannerInput).not.toBeNull();
-    expect(scannerInput?.placeholder).toBe(
-      'Scan barcode, search stock, or type a part or fee name'
-    );
+    expect(scannerInput?.placeholder).toBe('Scan or search items');
   });
 
   it('keeps a rework free: fee is off and there is no warranty to give', async () => {
@@ -583,6 +581,26 @@ describe('repair jobs as items', () => {
     );
     expect(text()).toContain(formatMoney(1_200_000));
     expect(document.querySelector('input[value^="Rs."]')).toBeNull();
+  });
+
+  it('says how many of a saved stock part are left, and never a blank number', async () => {
+    const part = itemFromPart({
+      source: 'stock',
+      productKey: 'prod_screen',
+      productName: 'A55 screen',
+      sellingPriceCents: 1_200_000,
+      priceCents: 1_200_000,
+      costCents: 850_000,
+    });
+    mockProducts.push(createMockProduct({ key: 'prod_screen', stockQuantity: 7 }));
+    await render(<EditorHost rework={false} start={[part]} />);
+    expect(text()).toContain('From stock · 7 left');
+    act(() => root.unmount());
+    root = createRoot(container);
+    mockProducts.length = 0;
+    await render(<EditorHost rework={false} start={[part]} />);
+    expect(text()).toContain('From stock');
+    expect(text()).not.toContain('left');
   });
 
   it('sends the typed discount of an item when the job is saved', async () => {

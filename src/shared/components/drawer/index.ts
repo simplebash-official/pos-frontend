@@ -3,6 +3,7 @@ export { AnimatedTabs, CountChip, type AnimatedTab } from './AnimatedTabs';
 export { CopyIconButton } from './CopyIconButton';
 export { DrawerCard } from './DrawerCard';
 export { DrawerFooter, FooterDelete } from './DrawerFooter';
+export { FooterMain, JobFooter, type FooterAction } from './JobFooter';
 export { DrawerHero, IconTile } from './DrawerHero';
 export { DrawerAfter, DrawerGrid, DrawerMain, DrawerRail, DrawerScroll } from './DrawerLayout';
 export { IconAction } from './IconAction';

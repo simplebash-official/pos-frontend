@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Anchor, Button, Group, Stack, Text, Tooltip } from '@mantine/core';
+import { Anchor, Button, Group, Stack, Text } from '@mantine/core';
 import {
   IconArrowRight,
   IconCalendarDue,
@@ -8,6 +8,7 @@ import {
   IconChartPie,
   IconClock,
   IconEdit,
+  IconDeviceFloppy,
   IconPrinter,
   IconReceipt,
   IconShieldCheck,
@@ -22,16 +23,18 @@ import {
   AnimatedTabs,
   DrawerAfter,
   DrawerCard,
-  DrawerFooter,
   DrawerGrid,
   DrawerHero,
   DrawerMain,
   DrawerRail,
   Figure,
+  FooterMain,
   InfoRow,
+  JobFooter,
   KpiStrip,
   KpiTile,
   ListRow,
+  type FooterAction,
 } from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
@@ -42,11 +45,20 @@ import { getJobDueMeta } from '@/shared/lib/jobDueDate';
 import { nextStatus, stepLabel } from '@/shared/lib/jobStatusFlow';
 import { getErrorMessage } from '@/shared/lib/error';
 import { formatMoney } from '@/shared/lib/money';
+import { snapshot } from '@/shared/lib/jobPanelState';
 import { notify } from '@/shared/notify';
 import { billBlocker } from '../lib/billable';
+import {
+  itemsFromSaved,
+  itemsProblem,
+  toItemInputs,
+  useRepairTotals,
+  type ItemDraft,
+} from '../lib/repairItems';
 import { repairStepBlock } from '../lib/statusStep';
 import { useUpdateRepairJob } from '../hooks/useRepairs';
 import type { RepairItem, RepairJob } from '../types';
+import { RepairItemsEditor } from './RepairItemsEditor';
 import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 
 type Tab = 'work' | 'warranty';
@@ -74,7 +86,7 @@ const WorkList = ({ job }: { job: RepairJob }) => {
   if (job.items.length === 0) {
     return (
       <Text size="sm" c="dimmed" ta="center" py="md">
-        {t('No work has been added yet. Press Edit to add the work and its price.')}
+        {t('No work has been added yet.')}
       </Text>
     );
   }
@@ -137,6 +149,103 @@ const WorkList = ({ job }: { job: RepairJob }) => {
   );
 };
 
+/**
+ * The work card. Someone who may edit the ticket gets the parts-and-fees editor right here
+ * (search, quick fees, rows); saving sends only the items, so the full form shows them at once.
+ * Everyone else, and a handed-back ticket, gets the plain list.
+ */
+const WorkPanel = ({
+  job,
+  onNestedWindowChange,
+}: {
+  job: RepairJob;
+  onNestedWindowChange: (open: boolean) => void;
+}) => {
+  const canWrite = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
+  const update = useUpdateRepairJob();
+  const rework = job.kind.kind === 'warranty_rework';
+  const editable = canWrite && job.status !== JOB_STATUS.DELIVERED;
+  const savedSignature = snapshot(job.items);
+  const [loaded, setLoaded] = useState(() => ({
+    signature: savedSignature,
+    drafts: itemsFromSaved(job.items),
+  }));
+  const [drafts, setDrafts] = useState<ItemDraft[]>(loaded.drafts);
+  const [tried, setTried] = useState(false);
+  const totals = useRepairTotals(drafts, rework);
+
+  const strip = (list: ItemDraft[]) => snapshot(list.map(({ uid: _uid, ...rest }) => rest));
+  const dirty = strip(drafts) !== strip(loaded.drafts);
+  // The saved work changed (a save here, or in the full form) and nothing was typed: follow it.
+  if (loaded.signature !== savedSignature && !dirty) {
+    const fresh = itemsFromSaved(job.items);
+    setLoaded({ signature: savedSignature, drafts: fresh });
+    setDrafts(fresh);
+  }
+
+  if (!editable) return <WorkList job={job} />;
+
+  const problem = itemsProblem(drafts, job.kind, job.status, totals);
+  const save = async () => {
+    setTried(true);
+    if (problem !== null) return;
+    try {
+      await update.mutateAsync({
+        repairKey: job.id,
+        input: { items: toItemInputs(drafts, rework) },
+      });
+      notify.success({ title: t('Repair Ticket Updated'), message: job.ticketNumber });
+      setTried(false);
+      // What was sent is now the saved work; the refreshed job then reloads the rows.
+      setLoaded((now) => ({ ...now, drafts }));
+    } catch (error: unknown) {
+      notify.error({ title: t('Could not update the ticket'), message: getErrorMessage(error) });
+    }
+  };
+
+  return (
+    <Stack gap="md">
+      <RepairItemsEditor
+        drafts={drafts}
+        onChange={setDrafts}
+        rework={rework}
+        readOnly={false}
+        showProblems={tried}
+        totals={totals}
+        onNestedWindowChange={onNestedWindowChange}
+      />
+      {tried && problem !== null && (
+        <Text size="sm" c="red" role="alert">
+          {problem}
+        </Text>
+      )}
+      {dirty && (
+        <Group justify="flex-end" gap="sm" pt="sm" style={{ borderTop: '1px solid var(--border)' }}>
+          <Button
+            variant="default"
+            size="sm"
+            disabled={update.isPending}
+            onClick={() => {
+              setDrafts(loaded.drafts);
+              setTried(false);
+            }}
+          >
+            {t('Cancel')}
+          </Button>
+          <Button
+            size="sm"
+            loading={update.isPending}
+            leftSection={<IconDeviceFloppy size={16} />}
+            onClick={() => void save()}
+          >
+            {t('Save work')}
+          </Button>
+        </Group>
+      )}
+    </Stack>
+  );
+};
+
 /** The panel's body for a job: figures, hero, customer, details and the work. */
 export const RepairDetailView = ({
   job,
@@ -184,7 +293,7 @@ export const RepairDetailView = ({
               color="green"
             />
           ) : (
-            <Figure value="—" hint={t('Shows once work is added')} color="gray" />
+            <Figure value="—" hint={t('Not priced yet')} color="gray" />
           )}
         </KpiTile>
         <KpiTile icon={<IconWallet size={16} />} color="indigo" label={t('Technician earns')}>
@@ -300,7 +409,7 @@ export const RepairDetailView = ({
           >
             {(value) =>
               value === 'work' ? (
-                <WorkList job={job} />
+                <WorkPanel job={job} onNestedWindowChange={onNestedWindowChange} />
               ) : (
                 <RepairWarrantiesPanel
                   repairKey={job.id}
@@ -311,7 +420,7 @@ export const RepairDetailView = ({
           </AnimatedTabs>
         ) : (
           <DrawerCard label={t('Work')} icon={<IconTool size={14} />}>
-            <WorkList job={job} />
+            <WorkPanel job={job} onNestedWindowChange={onNestedWindowChange} />
           </DrawerCard>
         )}
       </DrawerMain>
@@ -348,57 +457,65 @@ export const RepairDetailFooter = ({
     }
   };
 
-  return (
-    <DrawerFooter>
-      <Button variant="default" size="sm" onClick={onClose}>
-        {t('Close')}
-      </Button>
-      {onPrintReceipt !== null && (
-        <Button
-          variant="default"
-          size="sm"
-          leftSection={<IconPrinter size={16} />}
-          onClick={() => onPrintReceipt(job)}
-        >
-          {t('Print receipt')}
-        </Button>
-      )}
-      <Button
-        variant="default"
-        size="sm"
-        leftSection={<IconEdit size={16} />}
-        onClick={() => onEdit(job)}
-      >
-        {t('Edit')}
-      </Button>
-      {canBill && (
-        <Button
-          variant={block !== null && block.reason === 'bill_first' ? 'filled' : 'default'}
+  // A stock part must be billed before it is handed back: then Bill is the filled main action.
+  const billFirst = block !== null && block.reason === 'bill_first';
+  const billAction: FooterAction = {
+    id: 'bill',
+    label: t('Bill'),
+    icon: <IconReceipt size={16} />,
+    onClick: () => onBill(job),
+  };
+  const tools: FooterAction[] = [
+    ...(onPrintReceipt === null
+      ? []
+      : [
+          {
+            id: 'print',
+            label: t('Print receipt'),
+            icon: <IconPrinter size={16} />,
+            onClick: () => onPrintReceipt(job),
+          },
+        ]),
+    {
+      id: 'edit',
+      label: t('Edit'),
+      icon: <IconEdit size={16} />,
+      onClick: () => onEdit(job),
+    },
+  ];
+
+  let main: ReactNode = null;
+  if (billFirst) {
+    if (canBill) {
+      main = (
+        <FooterMain
+          label={billAction.label}
+          icon={billAction.icon}
           color="blue"
-          size="sm"
-          leftSection={<IconReceipt size={16} />}
-          onClick={() => onBill(job)}
-        >
-          {t('Bill')}
-        </Button>
-      )}
-      {next !== null && !(block !== null && block.reason === 'bill_first') && (
-        <Tooltip label={block === null ? '' : block.message} disabled={block === null} withArrow>
-          <span>
-            <Button
-              color="blue"
-              size="sm"
-              disabled={block !== null}
-              loading={update.isPending}
-              leftSection={<IconArrowRight size={16} />}
-              onClick={() => void moveOn()}
-              data-log-id="repairs.next-status"
-            >
-              {stepLabel(next)}
-            </Button>
-          </span>
-        </Tooltip>
-      )}
-    </DrawerFooter>
+          onClick={billAction.onClick}
+        />
+      );
+    }
+  } else if (next !== null) {
+    main = (
+      <FooterMain
+        label={stepLabel(next)}
+        icon={<IconArrowRight size={16} />}
+        color={JOB_STATUS_COLORS[next]}
+        loading={update.isPending}
+        blockedMessage={block === null ? undefined : block.message}
+        onClick={() => void moveOn()}
+        logId="repairs.next-status"
+      />
+    );
+  }
+
+  return (
+    <JobFooter
+      tools={tools}
+      bill={canBill && !billFirst ? billAction : null}
+      main={main}
+      onClose={onClose}
+    />
   );
 };

@@ -14,6 +14,24 @@ import { RepairDrawer } from '../RepairDrawer';
 installDrawerTestEnv();
 
 const update = vi.fn();
+vi.mock('@/shared/hooks/usePermissions', () => ({
+  usePermissions: () => [],
+  useHasPermission: () => true,
+  useHasAnyPermission: () => true,
+  useIsAdmin: () => true,
+  useCanSelfApprove: () => true,
+}));
+vi.mock('@/features/inventory/hooks/useProducts', () => ({
+  useAllProducts: () => ({ data: [], isLoading: false }),
+}));
+vi.mock('@/features/inventory/hooks/useCategories', () => ({
+  useCategories: () => ({ data: [], isLoading: false }),
+  useCategoryIcons: () => null,
+  useCategoryLookup: () => ({ getCategory: () => undefined, getCategoryName: () => '' }),
+}));
+vi.mock('../../hooks/useRepairServices', () => ({
+  useRepairServices: () => ({ data: [], isLoading: false }),
+}));
 vi.mock('../../hooks/useRepairs', () => ({
   useUpdateRepairJob: () => ({ mutateAsync: update, isPending: false }),
 }));
@@ -102,7 +120,7 @@ describe('RepairDrawer in view mode', () => {
   const text = () => document.body.textContent ?? '';
   const button = (label: string) =>
     Array.from(document.body.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes(label)
+      label === 'Edit' ? b.textContent === 'Edit' : b.textContent?.includes(label)
     ) as HTMLButtonElement | undefined;
 
   it('shows nothing until a job is chosen', async () => {
@@ -117,8 +135,6 @@ describe('RepairDrawer in view mode', () => {
     expect(text()).toContain('Nimal Perera');
     expect(text()).toContain('Cracked screen');
     expect(text()).toContain('Screen replacement');
-    expect(text()).toContain('OLED panel');
-    expect(text()).toContain('3 months');
     expect(text()).toContain('Rs. 5,000.00'); // what the customer pays
     expect(text()).toContain('Rs. 600.00'); // profit from the calculator
   });
@@ -126,7 +142,55 @@ describe('RepairDrawer in view mode', () => {
   it('tells a job with no work how to add it', async () => {
     await open(makeJob({ items: [], priceCents: 0, costCents: 0 }));
     expect(text()).toContain('Pending diagnosis');
-    expect(text()).toContain('Press Edit to add the work and its price');
+    expect(text()).toContain('Leave this empty until the device is checked.');
+  });
+
+  it('shows the work editor without a click and offers Save only after a change', async () => {
+    await open(makeJob());
+    expect(text()).toContain('Quick fees');
+    expect(button('Save work')).toBeUndefined();
+    await act(async () => button('Diagnostic fee')?.click());
+    expect(button('Save work')).toBeDefined();
+    await act(async () => button('Cancel')?.click());
+    expect(button('Save work')).toBeUndefined();
+  });
+
+  it('shows the full item name on hover only when the title is cut', async () => {
+    const long = 'Braided USB-C to USB-C Cable with a very long name';
+    const proto = HTMLElement.prototype;
+    const sh = Object.getOwnPropertyDescriptor(proto, 'scrollHeight');
+    const ch = Object.getOwnPropertyDescriptor(proto, 'clientHeight');
+    Object.defineProperty(proto, 'scrollHeight', { configurable: true, get: () => 80 });
+    Object.defineProperty(proto, 'clientHeight', { configurable: true, get: () => 40 });
+    await open(makeJob({ items: [{ ...WORK, description: long }] }));
+    const title = Array.from(document.body.querySelectorAll('p, div')).find(
+      (el) => el.children.length === 0 && el.textContent === long
+    ) as HTMLElement;
+    await act(async () => {
+      ['pointerenter', 'mouseenter', 'mouseover', 'mousemove'].forEach((type) =>
+        title.dispatchEvent(new MouseEvent(type, { bubbles: type === 'mouseover' }))
+      );
+    });
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="tooltip"]')?.textContent).toBe(long)
+    );
+    if (sh) Object.defineProperty(proto, 'scrollHeight', sh);
+    else Reflect.deleteProperty(proto, 'scrollHeight');
+    if (ch) Object.defineProperty(proto, 'clientHeight', ch);
+    else Reflect.deleteProperty(proto, 'clientHeight');
+  });
+
+  it('shows no tooltip for a title that is not cut', async () => {
+    await open(makeJob());
+    const title = Array.from(document.body.querySelectorAll('p, div')).find(
+      (el) => el.children.length === 0 && el.textContent === 'Screen replacement'
+    ) as HTMLElement;
+    await act(async () => {
+      ['pointerenter', 'mouseenter', 'mouseover'].forEach((type) =>
+        title.dispatchEvent(new MouseEvent(type, { bubbles: type === 'mouseover' }))
+      );
+    });
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
   });
 
   it('moves the job to its next status, sending only the status', async () => {
@@ -155,6 +219,7 @@ describe('RepairDrawer in view mode', () => {
     await open(makeJob({ status: 'delivered' }));
     expect(button('Mark handed back')).toBeUndefined();
     expect(button('Start')).toBeUndefined();
+    expect(button('Bill')).toBeUndefined();
   });
 
   it('opens Edit and the receipt, and hides the receipt without permission', async () => {

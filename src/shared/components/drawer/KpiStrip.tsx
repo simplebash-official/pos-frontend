@@ -49,7 +49,7 @@ export const Figure = ({ value, hint, color }: { value: string; hint: string; co
     <Text fw={800} size="lg" c={color} lh={1.15} style={{ whiteSpace: 'nowrap' }}>
       {value}
     </Text>
-    <Text size="xs" c="dimmed" lh={1.3} style={{ whiteSpace: 'nowrap' }}>
+    <Text size="xs" c="dimmed" lh={1.3} truncate>
       {hint}
     </Text>
   </>

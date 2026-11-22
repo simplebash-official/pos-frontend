@@ -1,4 +1,4 @@
-import { Button, Group, Stack, Text } from '@mantine/core';
+import { Stack, Text } from '@mantine/core';
 import {
   IconArrowRight,
   IconCalendarDue,
@@ -15,15 +15,17 @@ import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
 import {
   DrawerAfter,
   DrawerCard,
-  DrawerFooter,
   DrawerGrid,
   DrawerHero,
   DrawerMain,
   DrawerRail,
   Figure,
+  FooterMain,
   InfoRow,
+  JobFooter,
   KpiStrip,
   KpiTile,
+  type FooterAction,
 } from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
@@ -179,43 +181,42 @@ export const PrintJobDetailFooter = ({
     }
   };
 
+  const tools: FooterAction[] = [
+    ...(onPrintReceipt === null
+      ? []
+      : [
+          {
+            id: 'print',
+            label: t('Print receipt'),
+            icon: <IconPrinter size={16} />,
+            onClick: () => onPrintReceipt(job),
+          },
+        ]),
+    {
+      id: 'edit',
+      label: t('Edit'),
+      icon: <IconEdit size={16} />,
+      onClick: () => onEdit(job),
+    },
+  ];
+
   return (
-    <DrawerFooter>
-      <Group gap="sm" wrap="wrap" justify="flex-end">
-        <Button variant="default" size="sm" onClick={onClose}>
-          {t('Close')}
-        </Button>
-        {onPrintReceipt !== null && (
-          <Button
-            variant="default"
-            size="sm"
-            leftSection={<IconPrinter size={16} />}
-            onClick={() => onPrintReceipt(job)}
-          >
-            {t('Print receipt')}
-          </Button>
-        )}
-        <Button
-          variant="default"
-          size="sm"
-          leftSection={<IconEdit size={16} />}
-          onClick={() => onEdit(job)}
-        >
-          {t('Edit')}
-        </Button>
-        {next !== null && (
-          <Button
-            color="blue"
-            size="sm"
+    <JobFooter
+      tools={tools}
+      bill={null}
+      main={
+        next === null ? null : (
+          <FooterMain
+            label={stepLabel(next)}
+            icon={<IconArrowRight size={16} />}
+            color={JOB_STATUS_COLORS[next]}
             loading={update.isPending}
-            leftSection={<IconArrowRight size={16} />}
             onClick={() => void moveOn()}
-            data-log-id="print-jobs.next-status"
-          >
-            {stepLabel(next)}
-          </Button>
-        )}
-      </Group>
-    </DrawerFooter>
+            logId="print-jobs.next-status"
+          />
+        )
+      }
+      onClose={onClose}
+    />
   );
 };

@@ -993,6 +993,15 @@ th.mantine-Table-th {
   border-top: 1px solid var(--border);
 }
 
+/* A ticket panel's footer on a phone: the main action, then equal cells for the rest. */
+.job-footer-phone {
+  padding-bottom: max(var(--mantine-spacing-md), env(safe-area-inset-bottom));
+}
+.job-footer-grid {
+  display: grid;
+  gap: var(--mantine-spacing-xs);
+}
+
 /* Animated tabs: the blue highlight is a framer-motion element that glides between tabs, so the
    tab's own background is cleared and its icon, label and count sit above the highlight. */
 .rich-tabs .mantine-Tabs-tab {

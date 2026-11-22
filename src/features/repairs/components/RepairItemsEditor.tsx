@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Badge,
   Box,
@@ -16,6 +16,7 @@ import {
   Text,
   TextInput,
   ThemeIcon,
+  Tooltip,
   UnstyledButton,
 } from '@mantine/core';
 import {
@@ -67,6 +68,28 @@ import { ItemWarrantyButton } from './ItemWarrantyButton';
 
 const NO_COVER: ProductWarranty = { coverage: { kind: 'none' } };
 const PAGE_CHUNK_SIZE = 20;
+
+/** An item's title, cut after two lines; hovering a cut title shows the whole name. */
+const ClampedTitle = ({ text }: { text: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [cut, setCut] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setCut(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [text]);
+  return (
+    <Tooltip label={text} disabled={!cut} multiline maw={320} position="top-start" zIndex={401}>
+      <Text ref={ref} size="sm" fw={600} lineClamp={2}>
+        {text}
+      </Text>
+    </Tooltip>
+  );
+};
 
 let nextUid = 1000;
 const genUid = () => {
@@ -464,6 +487,15 @@ export const RepairItemsEditor = ({
       typeof draft.part.serialNumber === 'string';
     const problem = showProblems ? rowProblem(draft, rework) : null;
 
+    // A part already saved on the ticket does not carry its stock; read it from the item list.
+    const stockLine = (productKey: string, known: number | undefined): string => {
+      const left =
+        typeof known === 'number'
+          ? known
+          : products.data.find((p) => p.key === productKey)?.stockQuantity;
+      return left === undefined ? t('From stock') : `${t('From stock ·')} ${left} ${t('left')}`;
+    };
+
     let PartIcon: TablerIcon = IconPackage;
     let partColor = 'blue';
     if (draft.kind === 'part' && draft.part.source === 'stock') {
@@ -508,7 +540,7 @@ export const RepairItemsEditor = ({
         <Text size="xs" c="dimmed">
           {draft.part.serialNumber
             ? `${t('Serial:')} ${draft.part.serialNumber}`
-            : `${t('From stock ·')} ${typeof draft.part.stockQuantity === 'number' ? draft.part.stockQuantity : ''} ${t('left')}`}
+            : stockLine(draft.part.productKey, draft.part.stockQuantity)}
         </Text>
       ) : (
         <Group gap="xs" align="center" wrap="wrap">
@@ -612,9 +644,7 @@ export const RepairItemsEditor = ({
           <Group align="flex-start" wrap="nowrap" gap="sm">
             {icon}
             <Stack gap={4} style={{ minWidth: 0, flex: 1 }}>
-              <Text size="sm" fw={600} lineClamp={2}>
-                {draft.description}
-              </Text>
+              <ClampedTitle text={draft.description} />
               {subline}
             </Stack>
             {!isMobile && (
@@ -741,7 +771,7 @@ export const RepairItemsEditor = ({
           <Text size="xs" c="dimmed">
             {drafts.length === 0 ? t('Leave this empty until the device is checked.') : ''}
           </Text>
-          <Badge variant="light" color="gray" radius="xl" size="sm">
+          <Badge variant="light" color="gray" radius="xl" size="sm" style={{ flexShrink: 0 }}>
             {totalItemCount} {totalItemCount === 1 ? t('item') : t('items')}
           </Badge>
         </Group>
@@ -773,7 +803,7 @@ export const RepairItemsEditor = ({
                       void handleScanOrSubmit(searchQuery);
                     }
                   }}
-                  placeholder={t('Scan barcode, search stock, or type a part or fee name')}
+                  placeholder={t('Scan or search items')}
                   leftSection={<IconSearch size={16} />}
                   rightSection={scanning ? <Loader size="xs" /> : <IconScan size={16} />}
                   data-barcode-scanner="true"
