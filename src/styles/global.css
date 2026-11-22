@@ -908,9 +908,9 @@ th.mantine-Table-th {
 }
 
 /* The headline numbers run across the top of both columns. The bar pins to the top of the panel
-   once scrolled past; its tiles layer carries the canvas-coloured backing (the padding is
-   cancelled by an equal negative margin, so the resting layout is unchanged) and `KpiStrip`
-   slides that layer away on a downward scroll and back on an upward one. */
+   once scrolled past. Its tiles layer carries the backing (the padding is cancelled by an equal
+   negative margin, so the resting layout is unchanged); `KpiStrip` moves each tile with the
+   scroll and settles it with a spring. */
 .rich-drawer-kpis {
   grid-column: 1 / -1;
   position: sticky;
@@ -925,16 +925,39 @@ th.mantine-Table-th {
 }
 
 .rich-drawer-kpi-tiles {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   gap: var(--mantine-spacing-sm);
   padding-block: var(--mantine-spacing-sm);
-  background-color: var(--bg-app);
 }
 
-.rich-drawer-kpis[data-pinned='true'] .rich-drawer-kpi-tiles {
-  box-shadow: 0 6px 8px -6px rgb(0 0 0 / 0.25);
+/* The canvas-coloured backing that covers the content passing under the pinned tiles. It fades
+   with them (see `KpiStrip`), so a hidden strip leaves nothing behind. */
+.rich-drawer-kpi-backing {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-app);
+  pointer-events: none;
+}
+
+.rich-drawer-kpis[data-pinned='true'] .rich-drawer-kpi-backing {
+  /* The hairline is an inset shadow, not a border, so pinning never changes the height. */
+  box-shadow:
+    inset 0 -1px 0 var(--border),
+    0 6px 8px -6px rgb(0 0 0 / 0.25);
+}
+
+.rich-drawer-kpi-slot {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  transform-origin: 50% 0;
+}
+
+.rich-drawer-kpi-slot > .kpi-tile {
+  height: 100%;
 }
 
 /* One headline number as a slim row: the icon spans the label and the figure. A tile narrower than
