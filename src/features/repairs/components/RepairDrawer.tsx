@@ -92,7 +92,6 @@ export const RepairDrawer = ({
             job === null ? null : (
               <RepairDetailFooter
                 job={job}
-                onClose={() => onPanelChange(closePanel(panel))}
                 onEdit={(target) => onPanelChange(editPanel(target.id))}
                 onPrintReceipt={onPrintReceipt}
                 onBill={onBill}

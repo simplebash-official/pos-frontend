@@ -157,12 +157,10 @@ export const PrintJobDetailView = ({ job }: { job: PrintJob }) => {
 /** The panel's pinned footer for a job: close, receipt, edit and the next status. */
 export const PrintJobDetailFooter = ({
   job,
-  onClose,
   onEdit,
   onPrintReceipt,
 }: PrintJobDetailActions & {
   job: PrintJob;
-  onClose: () => void;
 }) => {
   const update = useUpdatePrintJob();
   const next = nextPrintJobStatus(job.status);
@@ -214,7 +212,6 @@ export const PrintJobDetailFooter = ({
           />
         )
       }
-      onClose={onClose}
     />
   );
 };

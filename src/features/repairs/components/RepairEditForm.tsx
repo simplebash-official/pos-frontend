@@ -20,7 +20,9 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import type { RepairEditor } from '../hooks/useRepairEditor';
+import { countItems } from '../lib/repairItems';
 import type { RepairJob } from '../types';
+import { ItemCountBadge } from './ItemCountBadge';
 import { RepairItemsEditor } from './RepairItemsEditor';
 import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 
@@ -196,7 +198,11 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
             </Stack>
           </DrawerCard>
 
-          <DrawerCard label={t('Parts and other fees')} icon={<IconTool size={14} />}>
+          <DrawerCard
+            label={t('Parts and other fees')}
+            icon={<IconTool size={14} />}
+            action={<ItemCountBadge count={countItems(drafts)} />}
+          >
             <Stack gap="md">
               <RepairItemsEditor
                 drafts={drafts}

@@ -49,6 +49,7 @@ import { notify } from '@/shared/notify';
 import { billBlocker } from '../lib/billable';
 import {
   itemsFromSaved,
+  countItems,
   itemsProblem,
   toItemInputs,
   useRepairTotals,
@@ -57,6 +58,7 @@ import {
 import { repairStepBlock } from '../lib/statusStep';
 import { useUpdateRepairJob } from '../hooks/useRepairs';
 import type { RepairItem, RepairJob } from '../types';
+import { ItemCountBadge } from './ItemCountBadge';
 import { RepairItemsEditor } from './RepairItemsEditor';
 import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 
@@ -155,9 +157,12 @@ const WorkList = ({ job }: { job: RepairJob }) => {
  */
 const WorkPanel = ({
   job,
+  card,
   onNestedWindowChange,
 }: {
   job: RepairJob;
+  /** The title of the card to wrap the work in, with the item count at its right; `null` when a tab already holds it. */
+  card: { label: string; icon: ReactNode } | null;
   onNestedWindowChange: (open: boolean) => void;
 }) => {
   const canWrite = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
@@ -182,7 +187,18 @@ const WorkPanel = ({
     setDrafts(fresh);
   }
 
-  if (!editable) return <WorkList job={job} />;
+  const framed = (count: number, body: ReactNode) =>
+    card === null ? (
+      body
+    ) : (
+      <DrawerCard label={card.label} icon={card.icon} action={<ItemCountBadge count={count} />}>
+        {body}
+      </DrawerCard>
+    );
+
+  if (!editable) {
+    return framed(countItems(itemsFromSaved(job.items)), <WorkList job={job} />);
+  }
 
   const problem = itemsProblem(drafts, job.kind, job.status, totals);
   const save = async () => {
@@ -202,7 +218,8 @@ const WorkPanel = ({
     }
   };
 
-  return (
+  return framed(
+    countItems(drafts),
     <Stack gap="md">
       <RepairItemsEditor
         drafts={drafts}
@@ -408,7 +425,7 @@ export const RepairDetailView = ({
           >
             {(value) =>
               value === 'work' ? (
-                <WorkPanel job={job} onNestedWindowChange={onNestedWindowChange} />
+                <WorkPanel job={job} card={null} onNestedWindowChange={onNestedWindowChange} />
               ) : (
                 <RepairWarrantiesPanel
                   repairKey={job.id}
@@ -418,9 +435,11 @@ export const RepairDetailView = ({
             }
           </AnimatedTabs>
         ) : (
-          <DrawerCard label={t('Work')} icon={<IconTool size={14} />}>
-            <WorkPanel job={job} onNestedWindowChange={onNestedWindowChange} />
-          </DrawerCard>
+          <WorkPanel
+            job={job}
+            card={{ label: t('Work'), icon: <IconTool size={14} /> }}
+            onNestedWindowChange={onNestedWindowChange}
+          />
         )}
       </DrawerMain>
     </DrawerGrid>
@@ -430,13 +449,11 @@ export const RepairDetailView = ({
 /** The panel's pinned footer for a job: close, receipt, edit, bill and the next status. */
 export const RepairDetailFooter = ({
   job,
-  onClose,
   onEdit,
   onPrintReceipt,
   onBill,
 }: RepairDetailActions & {
   job: RepairJob;
-  onClose: () => void;
 }) => {
   const update = useUpdateRepairJob();
   const next = nextStatus(job.status);
@@ -508,12 +525,5 @@ export const RepairDetailFooter = ({
     );
   }
 
-  return (
-    <JobFooter
-      tools={tools}
-      bill={canBill && !billFirst ? billAction : null}
-      main={main}
-      onClose={onClose}
-    />
-  );
+  return <JobFooter tools={tools} bill={canBill && !billFirst ? billAction : null} main={main} />;
 };

@@ -1042,7 +1042,6 @@ describe('repair jobs as items', () => {
 
     // Verify 1 card with quantity 1
     expect(text()).toContain('11oz Ceramic Mug');
-    expect(text()).toContain('1 item');
     expect(text()).toContain('Rs. 5.00');
     expect(text()).not.toContain('Rs. 5.00 each');
 
@@ -1057,7 +1056,6 @@ describe('repair jobs as items', () => {
     });
 
     // Still only 1 card, but quantity is now 2
-    expect(text()).toContain('2 items');
     expect(text()).toContain('Rs. 10.00');
     expect(text()).toContain('Rs. 5.00 each');
 
@@ -1071,7 +1069,6 @@ describe('repair jobs as items', () => {
     });
 
     // Quantity decreases back to 1
-    expect(text()).toContain('1 item');
     expect(text()).toContain('Rs. 5.00');
     expect(text()).not.toContain('Rs. 5.00 each');
 
@@ -1086,7 +1083,6 @@ describe('repair jobs as items', () => {
     await act(async () => {
       increaseBtn?.click();
     });
-    expect(text()).toContain('2 items');
     expect(text()).toContain('Rs. 10.00');
     expect(text()).toContain('Rs. 5.00 each');
   });

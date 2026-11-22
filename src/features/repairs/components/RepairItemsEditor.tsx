@@ -761,20 +761,15 @@ export const RepairItemsEditor = ({
     );
   };
 
-  const totalItemCount = drafts.reduce((sum, d) => sum + (d.kind === 'part' ? d.quantity : 1), 0);
-
   return (
     <Box>
       <Stack gap="md">
-        {/* The card around this editor carries the title; this row is the hint and the count. */}
-        <Group justify="space-between" align="center" wrap="nowrap">
+        {/* The card around this editor carries the title and the item count. */}
+        {drafts.length === 0 && (
           <Text size="xs" c="dimmed">
-            {drafts.length === 0 ? t('Leave this empty until the device is checked.') : ''}
+            {t('Leave this empty until the device is checked.')}
           </Text>
-          <Badge variant="light" color="gray" radius="xl" size="sm" style={{ flexShrink: 0 }}>
-            {totalItemCount} {totalItemCount === 1 ? t('item') : t('items')}
-          </Badge>
-        </Group>
+        )}
 
         {/* Universal Search & Barcode Input */}
         {!readOnly && (

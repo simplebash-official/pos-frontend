@@ -139,6 +139,14 @@ describe('RepairDrawer in view mode', () => {
     expect(text()).toContain('Rs. 600.00'); // profit from the calculator
   });
 
+  it('counts the items in the Work card title, and follows an unsaved change', async () => {
+    // The saved item is its labour and its part: two rows.
+    await open(makeJob());
+    expect(text()).toContain('Work2 items');
+    await act(async () => button('Diagnostic fee')?.click());
+    expect(text()).toContain('Work3 items');
+  });
+
   it('tells a job with no work how to add it', async () => {
     await open(makeJob({ items: [], priceCents: 0, costCents: 0 }));
     expect(text()).toContain('Pending diagnosis');

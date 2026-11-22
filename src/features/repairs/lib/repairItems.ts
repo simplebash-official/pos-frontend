@@ -531,3 +531,7 @@ export const useRepairTotals = (drafts: ItemDraft[], rework: boolean): LiveRepai
       return null;
     }
   }, [drafts, rework]);
+
+/** How many things are on a job: each part counts by its quantity, each fee as one. */
+export const countItems = (drafts: ItemDraft[]): number =>
+  drafts.reduce((sum, draft) => sum + (draft.kind === 'part' ? draft.quantity : 1), 0);

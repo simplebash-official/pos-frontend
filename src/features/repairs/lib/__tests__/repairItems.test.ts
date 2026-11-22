@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RepairItem, RepairService } from '../../types';
 import {
   blankFee,
+  countItems,
   calculateOutsideProfit,
   calculatePartsProfitCents,
   feePriceCents,
@@ -421,5 +422,25 @@ describe('item discounts', () => {
 
     const outsideProfit = calculateOutsideProfit(100, 40, 0, 3);
     expect(outsideProfit).toBe(180); // 3 * (100 - 40)
+  });
+});
+
+describe('countItems', () => {
+  it('counts a part by its quantity and a fee as one', () => {
+    const fee = blankFee();
+    const part = itemFromPart(
+      {
+        source: 'outside' as const,
+        name: 'Glue',
+        priceRupees: 1,
+        costRupees: 0.5,
+      },
+      undefined,
+      false,
+      3
+    );
+    expect(countItems([])).toBe(0);
+    expect(countItems([fee])).toBe(1);
+    expect(countItems([fee, part])).toBe(4);
   });
 });

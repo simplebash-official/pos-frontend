@@ -88,7 +88,6 @@ export const PrintJobDrawer = ({
             job === null ? null : (
               <PrintJobDetailFooter
                 job={job}
-                onClose={() => onPanelChange(closePanel(panel))}
                 onEdit={(target) => onPanelChange(editPanel(target.id))}
                 onPrintReceipt={onPrintReceipt}
               />

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button, Group, Stack, Tooltip } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { t } from '@/shared/i18n/t';
 
 /** A small footer action: a word, its icon (Edit has none) and what it does. */
 export interface FooterAction {
@@ -103,15 +102,14 @@ export interface JobFooterProps {
   bill: FooterAction | null;
   /** The filled next step, a `FooterMain`, or `null` when there is none. */
   main: ReactNode;
-  onClose: () => void;
 }
 
 /**
- * The pinned bar of a ticket panel. Desktop: quiet tools at the left, then Close,
- * Bill and the filled main action at the right. Phone: the main action across the
- * top, the tools and Bill in equal cells below (the header X closes the panel).
+ * The pinned bar of a ticket panel. Desktop: outlined tools at the left, then Bill and the
+ * filled main action at the right. Phone: the main action across the top, the tools and Bill
+ * in equal cells below. The header's cross closes the panel, so there is no Close here.
  */
-export const JobFooter = ({ tools, bill, main, onClose }: JobFooterProps) => {
+export const JobFooter = ({ tools, bill, main }: JobFooterProps) => {
   const isMobile = useIsMobile();
 
   if (isMobile) {
@@ -146,9 +144,6 @@ export const JobFooter = ({ tools, bill, main, onClose }: JobFooterProps) => {
         ))}
       </Group>
       <Group gap="sm" wrap="wrap" justify="flex-end" ml="auto">
-        <Button variant="default" size="sm" onClick={onClose}>
-          {t('Close')}
-        </Button>
         {bill !== null && (
           <Button variant="default" size="sm" leftSection={bill.icon} onClick={bill.onClick}>
             {bill.label}
