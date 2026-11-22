@@ -105,6 +105,19 @@ describe('PrintJobDrawer in view mode', () => {
     expect(update).toHaveBeenCalledWith({ printJobKey: 'prt_1', input: { status: 'ready' } });
   });
 
+  it('starts production from received, sending in_repair (a print job never diagnoses)', async () => {
+    await open(makeJob({ status: 'received' }));
+    expect(button('Start diagnosing')).toBeUndefined();
+    await act(async () => button('Start production')?.click());
+    expect(update).toHaveBeenCalledWith({ printJobKey: 'prt_1', input: { status: 'in_repair' } });
+  });
+
+  it('calls a job in production by that name, not In Repair', async () => {
+    await open(makeJob({ status: 'in_repair' }));
+    expect(text()).toContain('In Production');
+    expect(text()).not.toContain('In Repair');
+  });
+
   it('has no next step once handed back', async () => {
     await open(makeJob({ status: 'delivered' }));
     expect(button('Mark handed back')).toBeUndefined();

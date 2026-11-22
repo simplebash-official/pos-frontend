@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { ActionIcon, Box, Group, Stack, Text, Tooltip } from '@mantine/core';
 import { IconPrinter, IconShieldCheck } from '@tabler/icons-react';
-import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
+import { JOB_STATUS_COLORS } from '@/constants';
 import type { JobStatus } from '@/constants';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
@@ -117,7 +117,10 @@ export const TechnicianCell = ({ name, earnedCents }: TechnicianCellProps) => {
 };
 
 interface StatusCellProps {
+  /** For the dot's colour and the due date; the words come from `label`. */
   status: JobStatus;
+  /** The status in words, already translated: a print job's "In Production" is a repair's "In Repair". */
+  label: string;
   promisedReadyAt?: string;
 }
 
@@ -126,7 +129,7 @@ interface StatusCellProps {
  * up. While the job is open, a date that is near or past turns into "Due today", "Due soon" or
  * "Overdue" in colour.
  */
-export const StatusCell = ({ status, promisedReadyAt }: StatusCellProps) => {
+export const StatusCell = ({ status, label, promisedReadyAt }: StatusCellProps) => {
   const due = promisedReadyAt ? getJobDueMeta({ promisedReadyAt, status }) : null;
   let dueLine = t('No due date');
   if (promisedReadyAt) {
@@ -144,7 +147,7 @@ export const StatusCell = ({ status, promisedReadyAt }: StatusCellProps) => {
           style={{ borderRadius: '50%', flexShrink: 0 }}
         />
         <Text size="sm" fw={600}>
-          {t(JOB_STATUS_LABELS[status])}
+          {label}
         </Text>
       </Group>
       <Text

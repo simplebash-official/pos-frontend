@@ -1605,7 +1605,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                   tt="capitalize"
                                 >
                                   {job.status === 'in_repair'
-                                    ? 'In repair'
+                                    ? job.type === 'print'
+                                      ? t('In Production')
+                                      : 'In repair'
                                     : job.status.replace('_', ' ')}
                                 </Badge>
                               </Group>

@@ -24,7 +24,7 @@ import {
 } from '../hooks/usePrintJobs';
 import { usePrintJobStats } from '../hooks/usePrintJobStats';
 import { fetchPrintJobs } from '../api/printJobsApi';
-import { JOB_STATUS, JOB_STATUS_LABELS } from '@/constants';
+import { PRINT_JOB_STATUS, PRINT_JOB_STATUS_LABELS } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import {
   AmountCell,
@@ -56,7 +56,7 @@ import {
 
 interface PrintJobFilters {
   search: string;
-  /** 'all' or a JOB_STATUS value. */
+  /** 'all' or a PRINT_JOB_STATUS value. */
   status: string;
   /** 'all' | 'today' */
   datePreset: string;
@@ -222,7 +222,13 @@ export const PrintJobList = () => {
       header: 'Status',
       align: 'left',
       sortable: true,
-      render: (job) => <StatusCell status={job.status} promisedReadyAt={job.promisedReadyAt} />,
+      render: (job) => (
+        <StatusCell
+          status={job.status}
+          label={t(PRINT_JOB_STATUS_LABELS[job.status])}
+          promisedReadyAt={job.promisedReadyAt}
+        />
+      ),
     },
     {
       key: 'estimatedCostCents',
@@ -335,8 +341,8 @@ export const PrintJobList = () => {
               onChange={(v) => setStatusFilter(v || 'all')}
               data={[
                 { label: 'All Status', value: 'all' },
-                ...Object.values(JOB_STATUS).map((s) => ({
-                  label: JOB_STATUS_LABELS[s],
+                ...Object.values(PRINT_JOB_STATUS).map((s) => ({
+                  label: t(PRINT_JOB_STATUS_LABELS[s]),
                   value: s,
                 })),
               ]}

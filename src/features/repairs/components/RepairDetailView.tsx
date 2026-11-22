@@ -7,7 +7,6 @@ import {
   IconCash,
   IconChartPie,
   IconClock,
-  IconEdit,
   IconDeviceFloppy,
   IconPrinter,
   IconReceipt,
@@ -479,7 +478,6 @@ export const RepairDetailFooter = ({
     {
       id: 'edit',
       label: t('Edit'),
-      icon: <IconEdit size={16} />,
       onClick: () => onEdit(job),
     },
   ];

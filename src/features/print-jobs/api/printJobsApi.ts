@@ -63,7 +63,7 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
 export interface FetchPrintJobsParams {
   /** Free-text match against ticket number / customer name / phone / job type. */
   search?: string;
-  /** Exact status match: received | diagnosing | in_repair | ready | delivered | cancelled. */
+  /** Exact status match: received | in_repair (in production) | ready | delivered | cancelled. */
   status?: string;
   /** Only `"today"` is meaningful; omit for all time. */
   datePreset?: 'today';

@@ -5,7 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { IconEdit, IconPrinter, IconReceipt, IconArrowRight } from '@tabler/icons-react';
+import { IconPrinter, IconReceipt, IconArrowRight } from '@tabler/icons-react';
 import { installDrawerTestEnv } from '../testEnv';
 import { TestHarness } from '../TestHarness';
 import { FooterMain, JobFooter, type FooterAction } from '../JobFooter';
@@ -15,7 +15,6 @@ installDrawerTestEnv();
 const action = (id: string, label: string, onClick: () => void): FooterAction => ({
   id,
   label,
-  icon: <IconEdit size={16} />,
   onClick,
 });
 
@@ -102,7 +101,10 @@ describe('JobFooter', () => {
     expect(labels()).toEqual(['Print receipt', 'Edit', 'Close', 'Bill', 'Mark ready for pickup']);
     expect(find('Mark ready for pickup')?.getAttribute('data-variant')).toBe('filled');
     expect(find('Bill')?.getAttribute('data-variant')).toBe('default');
-    expect(find('Close')?.getAttribute('data-variant')).toBe('subtle');
+    expect(find('Close')?.getAttribute('data-variant')).toBe('default');
+    expect(find('Print receipt')?.getAttribute('data-variant')).toBe('default');
+    expect(find('Edit')?.getAttribute('data-variant')).toBe('default');
+    expect(find('Edit')?.querySelector('svg')).toBeNull();
     expect(find('Mark ready for pickup')?.getAttribute('data-log-id')).toBe('repairs.next-status');
   });
 

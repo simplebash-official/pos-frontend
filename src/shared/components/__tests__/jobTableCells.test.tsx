@@ -42,18 +42,30 @@ const yesterday = () => {
 describe('StatusCell', () => {
   it('says Overdue under a past date while the job is open', () => {
     expect(
-      render(<StatusCell promisedReadyAt={yesterday()} status={JOB_STATUS.IN_REPAIR} />)
+      render(
+        <StatusCell promisedReadyAt={yesterday()} status={JOB_STATUS.IN_REPAIR} label="In Repair" />
+      )
     ).toContain('Overdue');
   });
 
   it('shows only the date once the job is delivered', () => {
     expect(
-      render(<StatusCell promisedReadyAt={yesterday()} status={JOB_STATUS.DELIVERED} />)
+      render(
+        <StatusCell promisedReadyAt={yesterday()} status={JOB_STATUS.DELIVERED} label="Delivered" />
+      )
     ).not.toContain('Overdue');
   });
 
   it('shows only the status when no date was promised', () => {
-    expect(render(<StatusCell status={JOB_STATUS.RECEIVED} />)).toContain('No due date');
+    expect(render(<StatusCell status={JOB_STATUS.RECEIVED} label="Received" />)).toContain(
+      'No due date'
+    );
+  });
+
+  it('says the words it is given, so a print job reads In Production', () => {
+    const shown = render(<StatusCell status={JOB_STATUS.IN_REPAIR} label="In Production" />);
+    expect(shown).toContain('In Production');
+    expect(shown).not.toContain('In Repair');
   });
 });
 

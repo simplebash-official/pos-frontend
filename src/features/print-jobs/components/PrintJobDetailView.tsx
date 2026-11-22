@@ -5,13 +5,12 @@ import {
   IconCash,
   IconChartPie,
   IconClock,
-  IconEdit,
   IconPackage,
   IconPrinter,
   IconUser,
   IconWallet,
 } from '@tabler/icons-react';
-import { JOB_STATUS_COLORS, JOB_STATUS_LABELS } from '@/constants';
+import { JOB_STATUS_COLORS, PRINT_JOB_STATUS_LABELS } from '@/constants';
 import {
   DrawerAfter,
   DrawerCard,
@@ -33,7 +32,7 @@ import { t } from '@/shared/i18n/t';
 import { formatDate, formatDateTime } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
 import { getJobDueMeta } from '@/shared/lib/jobDueDate';
-import { nextStatus, stepLabel } from '@/shared/lib/jobStatusFlow';
+import { nextPrintJobStatus, printJobStepLabel } from '@/shared/lib/jobStatusFlow';
 import { formatMoney } from '@/shared/lib/money';
 import { notify } from '@/shared/notify';
 import { useUpdatePrintJob } from '../hooks/usePrintJobs';
@@ -99,7 +98,7 @@ export const PrintJobDetailView = ({ job }: { job: PrintJob }) => {
           eyebrow={job.ticketNumber}
           status={{
             color: JOB_STATUS_COLORS[job.status],
-            label: t(JOB_STATUS_LABELS[job.status]),
+            label: t(PRINT_JOB_STATUS_LABELS[job.status]),
           }}
           title={printJobTypeLabel(job.jobType)}
           subtitle={<div>{`${job.quantity} ${t('units')}`}</div>}
@@ -166,7 +165,7 @@ export const PrintJobDetailFooter = ({
   onClose: () => void;
 }) => {
   const update = useUpdatePrintJob();
-  const next = nextStatus(job.status);
+  const next = nextPrintJobStatus(job.status);
 
   const moveOn = async () => {
     if (next === null) return;
@@ -174,7 +173,7 @@ export const PrintJobDetailFooter = ({
       await update.mutateAsync({ printJobKey: job.id, input: { status: next } });
       notify.success({
         title: t('Print Job Updated'),
-        message: `${job.ticketNumber}: ${t(JOB_STATUS_LABELS[next])}`,
+        message: `${job.ticketNumber}: ${t(PRINT_JOB_STATUS_LABELS[next])}`,
       });
     } catch (error: unknown) {
       notify.error({ title: t('Could not update the ticket'), message: getErrorMessage(error) });
@@ -195,7 +194,6 @@ export const PrintJobDetailFooter = ({
     {
       id: 'edit',
       label: t('Edit'),
-      icon: <IconEdit size={16} />,
       onClick: () => onEdit(job),
     },
   ];
@@ -207,7 +205,7 @@ export const PrintJobDetailFooter = ({
       main={
         next === null ? null : (
           <FooterMain
-            label={stepLabel(next)}
+            label={printJobStepLabel(next)}
             icon={<IconArrowRight size={16} />}
             color={JOB_STATUS_COLORS[next]}
             loading={update.isPending}

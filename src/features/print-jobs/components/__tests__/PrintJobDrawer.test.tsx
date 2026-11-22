@@ -178,6 +178,43 @@ describe('the print job panel form: customer', () => {
     expect(document.body.textContent).toContain('Change customer');
   });
 
+  it('offers only the print job steps, with in production in place of in repair', async () => {
+    const existingJob = {
+      id: 'prn_2',
+      ticketNumber: 'PRN-002',
+      customerKey: 'cus_dhanushka',
+      customerName: 'Dhanushka Fernando',
+      customerPhone: '0712345678',
+      jobType: 'mug' as const,
+      quantity: 1,
+      status: 'in_repair' as const,
+      estimatedCostCents: 2500000,
+      createdAt: '2026-08-20T10:00:00.000Z',
+    };
+    renderModal({ onSubmit: vi.fn(), jobToEdit: existingJob });
+
+    const status = document.querySelector<HTMLInputElement>('input[value="In Production"]');
+    expect(status).not.toBeNull();
+    // jsdom has no layout, so the dropdown's scroll-to-selected call needs a stand-in.
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = () => undefined;
+    await act(async () => status?.click());
+    const options = Array.from(document.body.querySelectorAll('[role="option"]')).map(
+      (option) => option.textContent
+    );
+    Element.prototype.scrollIntoView = scrollIntoView;
+    // The job type's options are mounted too; the steps are the last five.
+    expect(options.slice(-5)).toEqual([
+      'Received',
+      'In Production',
+      'Ready for Pickup',
+      'Delivered',
+      'Cancelled',
+    ]);
+    expect(options).not.toContain('Diagnosing');
+    expect(options).not.toContain('In Repair');
+  });
+
   it('sends only the key of the customer when a job is saved', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const existingJob = {

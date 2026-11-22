@@ -3,11 +3,11 @@ import { Button, Group, Stack, Tooltip } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 
-/** A small footer action: a word, its icon and what it does. */
+/** A small footer action: a word, its icon (Edit has none) and what it does. */
 export interface FooterAction {
   id: string;
   label: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   onClick: () => void;
 }
 
@@ -60,12 +60,12 @@ export const FooterMain = ({
   );
 };
 
-/** A quiet footer button. On a phone it is a cell with the icon above its label. */
+/** An outlined footer button. On a phone it is a cell with the icon above its label. */
 const FooterTool = ({ label, icon, onClick }: Omit<FooterAction, 'id'>) => {
   const isMobile = useIsMobile();
   if (!isMobile) {
     return (
-      <Button variant="subtle" color="gray" size="sm" leftSection={icon} onClick={onClick}>
+      <Button variant="default" size="sm" leftSection={icon} onClick={onClick}>
         {label}
       </Button>
     );
@@ -146,7 +146,7 @@ export const JobFooter = ({ tools, bill, main, onClose }: JobFooterProps) => {
         ))}
       </Group>
       <Group gap="sm" wrap="wrap" justify="flex-end" ml="auto">
-        <Button variant="subtle" color="gray" size="sm" onClick={onClose}>
+        <Button variant="default" size="sm" onClick={onClose}>
           {t('Close')}
         </Button>
         {bill !== null && (

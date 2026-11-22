@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { JOB_STATUS } from '@/constants';
-import { nextStatus, stepLabel } from '../jobStatusFlow';
+import { JOB_STATUS, PRINT_JOB_STATUS } from '@/constants';
+import { nextPrintJobStatus, nextStatus, printJobStepLabel, stepLabel } from '../jobStatusFlow';
 
 describe('nextStatus', () => {
   it('walks received, diagnosing, in repair, ready, delivered', () => {
@@ -26,5 +26,41 @@ describe('stepLabel', () => {
 
   it('refuses a status no step leads into', () => {
     expect(() => stepLabel(JOB_STATUS.RECEIVED)).toThrow();
+  });
+});
+
+describe('nextPrintJobStatus', () => {
+  it('walks received, in production, ready, delivered, with no diagnosing', () => {
+    expect(nextPrintJobStatus(PRINT_JOB_STATUS.RECEIVED)).toBe(PRINT_JOB_STATUS.IN_PRODUCTION);
+    expect(nextPrintJobStatus(PRINT_JOB_STATUS.IN_PRODUCTION)).toBe(PRINT_JOB_STATUS.READY);
+    expect(nextPrintJobStatus(PRINT_JOB_STATUS.READY)).toBe(PRINT_JOB_STATUS.DELIVERED);
+  });
+
+  it('stores in production as the value the backend validates', () => {
+    expect(PRINT_JOB_STATUS.IN_PRODUCTION).toBe('in_repair');
+    expect(Object.values(PRINT_JOB_STATUS)).toEqual([
+      'received',
+      'in_repair',
+      'ready',
+      'delivered',
+      'cancelled',
+    ]);
+  });
+
+  it('has no step after handed back or cancelled', () => {
+    expect(nextPrintJobStatus(PRINT_JOB_STATUS.DELIVERED)).toBeNull();
+    expect(nextPrintJobStatus(PRINT_JOB_STATUS.CANCELLED)).toBeNull();
+  });
+});
+
+describe('printJobStepLabel', () => {
+  it('words each step', () => {
+    expect(printJobStepLabel(PRINT_JOB_STATUS.IN_PRODUCTION)).toBe('Start production');
+    expect(printJobStepLabel(PRINT_JOB_STATUS.READY)).toBe('Mark ready for pickup');
+    expect(printJobStepLabel(PRINT_JOB_STATUS.DELIVERED)).toBe('Mark handed back');
+  });
+
+  it('refuses a status no step leads into', () => {
+    expect(() => printJobStepLabel(PRINT_JOB_STATUS.RECEIVED)).toThrow();
   });
 });

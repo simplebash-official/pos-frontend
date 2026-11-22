@@ -231,7 +231,13 @@ export const RepairJobList = () => {
       header: 'Status',
       align: 'left',
       sortable: true,
-      render: (job) => <StatusCell status={job.status} promisedReadyAt={job.promisedReadyAt} />,
+      render: (job) => (
+        <StatusCell
+          status={job.status}
+          label={t(JOB_STATUS_LABELS[job.status])}
+          promisedReadyAt={job.promisedReadyAt}
+        />
+      ),
     },
     {
       key: 'priceCents',

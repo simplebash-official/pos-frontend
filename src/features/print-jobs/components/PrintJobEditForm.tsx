@@ -1,6 +1,6 @@
 import { Group, NumberInput, Select, Stack, Text } from '@mantine/core';
 import { IconCash, IconPrinter, IconUsers } from '@tabler/icons-react';
-import { JOB_STATUS, JOB_STATUS_LABELS, type JobStatus } from '@/constants';
+import { PRINT_JOB_STATUS, PRINT_JOB_STATUS_LABELS, type PrintJobStatus } from '@/constants';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
@@ -66,9 +66,9 @@ export const PrintJobEditForm = ({ editor }: PrintJobEditFormProps) => {
               <Group grow align="flex-start">
                 <Select
                   label={t('Job Order Status')}
-                  data={Object.values(JOB_STATUS).map((status: JobStatus) => ({
+                  data={Object.values(PRINT_JOB_STATUS).map((status: PrintJobStatus) => ({
                     value: status,
-                    label: JOB_STATUS_LABELS[status],
+                    label: t(PRINT_JOB_STATUS_LABELS[status]),
                   }))}
                   required
                   {...form.getInputProps('status')}

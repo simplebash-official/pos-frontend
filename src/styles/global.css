@@ -162,17 +162,16 @@ body,
   color: var(--text-primary) !important;
 }
 
+/* The cross is a filled red button, so closing a panel is always the one red thing in its header. */
 .mantine-Drawer-close {
-  color: var(--text-secondary) !important;
+  background-color: var(--mantine-color-red-6) !important;
+  color: var(--mantine-color-white) !important;
   border-radius: var(--mantine-radius-default) !important;
-  transition:
-    background-color 150ms ease,
-    color 150ms ease !important;
+  transition: background-color 150ms ease !important;
 }
 
 .mantine-Drawer-close:hover {
-  background-color: var(--bg-hover) !important;
-  color: var(--text-primary) !important;
+  background-color: var(--mantine-color-red-7) !important;
 }
 
 /* Billing counter root.
