@@ -1,13 +1,33 @@
 import type { ReactNode } from 'react';
-import { Box, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
+import { motion } from 'framer-motion';
+import { Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { t } from '@/shared/i18n/t';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
+import { useMotionPresets } from '@/shared/motion';
 import { formatMoney } from '@/shared/lib/money';
+import { useScrollHeadroom } from './useScrollHeadroom';
 
-/** The headline numbers across the top of a drawer; tiles share the width equally, two per row when narrow. */
-export const KpiStrip = ({ children }: { children: ReactNode }) => (
-  <Box className="rich-drawer-kpis">{children}</Box>
-);
+/**
+ * The headline numbers across the top of a drawer; tiles share the width equally, two per row
+ * when narrow. Scrolling the drawer down slides them away, scrolling up brings them back.
+ */
+export const KpiStrip = ({ children }: { children: ReactNode }) => {
+  const { ref, hidden, pinned } = useScrollHeadroom();
+  const { transition } = useMotionPresets();
+  return (
+    <div ref={ref} className="rich-drawer-kpis" data-hidden={hidden} data-pinned={pinned}>
+      <motion.div
+        className="rich-drawer-kpi-tiles"
+        animate={{ y: hidden ? '-110%' : 0, opacity: hidden ? 0 : 1 }}
+        transition={transition}
+        aria-hidden={hidden}
+        inert={hidden}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+};
 
 export interface KpiTileProps {
   icon: ReactNode;

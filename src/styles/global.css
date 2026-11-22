@@ -907,13 +907,34 @@ th.mantine-Table-th {
   min-width: 0;
 }
 
-/* The headline numbers run across the top of both columns. */
+/* The headline numbers run across the top of both columns. The bar pins to the top of the panel
+   once scrolled past; its tiles layer carries the canvas-coloured backing (the padding is
+   cancelled by an equal negative margin, so the resting layout is unchanged) and `KpiStrip`
+   slides that layer away on a downward scroll and back on an upward one. */
 .rich-drawer-kpis {
   grid-column: 1 / -1;
+  position: sticky;
+  /* Sticky offsets measure inside the scroller's padding, so reach back over it to the very top. */
+  top: calc(-1 * var(--mantine-spacing-lg));
+  z-index: 5;
+  margin-block: calc(-1 * var(--mantine-spacing-sm));
+}
+
+.rich-drawer-kpis[data-hidden='true'] {
+  pointer-events: none;
+}
+
+.rich-drawer-kpi-tiles {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   gap: var(--mantine-spacing-sm);
+  padding-block: var(--mantine-spacing-sm);
+  background-color: var(--bg-app);
+}
+
+.rich-drawer-kpis[data-pinned='true'] .rich-drawer-kpi-tiles {
+  box-shadow: 0 6px 8px -6px rgb(0 0 0 / 0.25);
 }
 
 /* One headline number as a slim row: the icon spans the label and the figure. A tile narrower than
@@ -962,7 +983,7 @@ th.mantine-Table-th {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .rich-drawer-kpis {
+  .rich-drawer-kpi-tiles {
     grid-auto-flow: row;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
