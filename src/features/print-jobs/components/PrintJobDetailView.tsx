@@ -22,6 +22,7 @@ import {
   FooterMain,
   InfoRow,
   JobFooter,
+  JobSlipButton,
   KpiStrip,
   KpiTile,
   type FooterAction,
@@ -35,6 +36,8 @@ import { getJobDueMeta } from '@/shared/lib/jobDueDate';
 import { nextPrintJobStatus, printJobStepLabel } from '@/shared/lib/jobStatusFlow';
 import { formatMoney } from '@/shared/lib/money';
 import { notify } from '@/shared/notify';
+import { useTicketInvoice } from '@/features/billing/hooks/useTicketInvoice';
+import type { Invoice } from '@/features/billing/types';
 import { useUpdatePrintJob } from '../hooks/usePrintJobs';
 import { printJobTypeLabel } from '../lib/jobTypeLabels';
 import type { PrintJob } from '../types';
@@ -42,12 +45,19 @@ import type { PrintJob } from '../types';
 /** What the footer's buttons do; the panel that shows this view supplies them. */
 export interface PrintJobDetailActions {
   onEdit: (job: PrintJob) => void;
-  /** `null` when this person may not print receipts. */
-  onPrintReceipt: ((job: PrintJob) => void) | null;
+  /** Opens the preview of the invoice that billed this job. */
+  onPrintInvoice: (invoice: Invoice) => void;
 }
 
 /** The panel's body for a job: figures, hero, customer, money and details. */
-export const PrintJobDetailView = ({ job }: { job: PrintJob }) => {
+export const PrintJobDetailView = ({
+  job,
+  onJobSlip,
+}: {
+  job: PrintJob;
+  /** `null` when this person may not print job slips. */
+  onJobSlip: ((job: PrintJob) => void) | null;
+}) => {
   const materialCents = job.materialCostCents ?? 0;
   const earnings = useJobEarnings({
     priceCents: job.estimatedCostCents,
@@ -149,19 +159,21 @@ export const PrintJobDetailView = ({ job }: { job: PrintJob }) => {
             </InfoRow>
           </Stack>
         </DrawerCard>
+        {onJobSlip === null ? null : <JobSlipButton onClick={() => onJobSlip(job)} />}
       </DrawerMain>
     </DrawerGrid>
   );
 };
 
-/** The panel's pinned footer for a job: close, receipt, edit and the next status. */
+/** The panel's pinned footer for a job: edit, invoice and the next status. */
 export const PrintJobDetailFooter = ({
   job,
   onEdit,
-  onPrintReceipt,
+  onPrintInvoice,
 }: PrintJobDetailActions & {
   job: PrintJob;
 }) => {
+  const invoice = useTicketInvoice(job.id);
   const update = useUpdatePrintJob();
   const next = nextPrintJobStatus(job.status);
 
@@ -179,21 +191,20 @@ export const PrintJobDetailFooter = ({
   };
 
   const tools: FooterAction[] = [
-    ...(onPrintReceipt === null
-      ? []
-      : [
-          {
-            id: 'print',
-            label: t('Print receipt'),
-            icon: <IconPrinter size={16} />,
-            onClick: () => onPrintReceipt(job),
-          },
-        ]),
     {
       id: 'edit',
       label: t('Edit'),
       onClick: () => onEdit(job),
     },
+    ...(invoice === null
+      ? []
+      : [
+          {
+            id: 'print-invoice',
+            label: t('Print invoice'),
+            onClick: () => onPrintInvoice(invoice),
+          },
+        ]),
   ];
 
   return (
@@ -205,6 +216,7 @@ export const PrintJobDetailFooter = ({
           <FooterMain
             label={printJobStepLabel(next)}
             icon={<IconArrowRight size={16} />}
+            iconSide="right"
             color={JOB_STATUS_COLORS[next]}
             loading={update.isPending}
             onClick={() => void moveOn()}

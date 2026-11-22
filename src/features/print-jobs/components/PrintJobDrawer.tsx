@@ -6,6 +6,7 @@ import { DrawerFooter, RichDrawer } from '@/shared/components/drawer';
 import { t } from '@/shared/i18n/t';
 import { closePanel, editPanel, viewPanel, type JobPanelState } from '@/shared/lib/jobPanelState';
 import { usePrintJobEditor } from '../hooks/usePrintJobEditor';
+import type { Invoice } from '@/features/billing/types';
 import type { PrintJob, PrintJobInput } from '../types';
 import { PRINT_JOB_FORM_ID, PrintJobEditForm } from './PrintJobEditForm';
 import { PrintJobDetailFooter, PrintJobDetailView } from './PrintJobDetailView';
@@ -18,8 +19,10 @@ export interface PrintJobDrawerProps {
   /** Saves the form: a new order when `job` is `null`, otherwise a change to `job`. */
   onSubmit: (values: PrintJobInput) => Promise<void>;
   loading: boolean;
-  /** `null` when this person may not print receipts. */
-  onPrintReceipt: ((job: PrintJob) => void) | null;
+  /** `null` when this person may not print job slips. */
+  onJobSlip: ((job: PrintJob) => void) | null;
+  /** Opens the preview of the invoice that billed the job. */
+  onPrintInvoice: (invoice: Invoice) => void;
   /** Pass `false` while a window opened over this panel is up, so Escape closes only that window. */
   closeOnEscape: boolean;
 }
@@ -34,7 +37,8 @@ export const PrintJobDrawer = ({
   job,
   onSubmit,
   loading,
-  onPrintReceipt,
+  onJobSlip,
+  onPrintInvoice,
   closeOnEscape,
 }: PrintJobDrawerProps) => {
   const editing = panel.open && panel.mode !== 'view';
@@ -89,7 +93,7 @@ export const PrintJobDrawer = ({
               <PrintJobDetailFooter
                 job={job}
                 onEdit={(target) => onPanelChange(editPanel(target.id))}
-                onPrintReceipt={onPrintReceipt}
+                onPrintInvoice={onPrintInvoice}
               />
             )
           ) : (
@@ -118,7 +122,7 @@ export const PrintJobDrawer = ({
         {(shown) =>
           shown.mode === 'view' ? (
             job === null ? null : (
-              <PrintJobDetailView key={job.id} job={job} />
+              <PrintJobDetailView key={job.id} job={job} onJobSlip={onJobSlip} />
             )
           ) : (
             <PrintJobEditForm editor={editor} />

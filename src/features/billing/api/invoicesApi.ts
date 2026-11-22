@@ -282,6 +282,8 @@ export interface FetchInvoicesParams {
   datePreset?: 'today';
   /** Exact match on the customer's server-issued key — scopes to one customer's invoices. */
   customerKey?: string;
+  /** Exact match on the key of the repair or print-job ticket a line was billed from. */
+  ticketKey?: string;
   /** Filter by register shift session key. */
   sessionKey?: string;
   /** 1-based page number. */
@@ -336,6 +338,7 @@ export const fetchInvoices = async (params?: FetchInvoicesParams): Promise<Invoi
       paymentMethod: params?.paymentMethod,
       datePreset: params?.datePreset,
       customerKey: params?.customerKey,
+      ticketKey: params?.ticketKey,
     },
   });
   return response.data.invoices.map(toInvoice);

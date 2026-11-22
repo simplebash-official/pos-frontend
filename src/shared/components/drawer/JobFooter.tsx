@@ -13,6 +13,8 @@ export interface FooterAction {
 export interface FooterMainProps {
   label: string;
   icon: ReactNode;
+  /** Which side of the word the icon sits on; a forward arrow reads best on the right. */
+  iconSide: 'left' | 'right';
   /** A Mantine colour; the next status' colour for a ticket. */
   color: string;
   onClick: () => void;
@@ -27,6 +29,7 @@ export interface FooterMainProps {
 export const FooterMain = ({
   label,
   icon,
+  iconSide,
   color,
   onClick,
   loading,
@@ -45,10 +48,14 @@ export const FooterMain = ({
           autoContrast
           size="sm"
           h={isMobile ? 44 : undefined}
+          px="xl"
+          miw={isMobile ? undefined : 140}
+          fw={600}
           fullWidth={isMobile}
           disabled={blocked}
           loading={loading}
-          leftSection={icon}
+          leftSection={iconSide === 'left' ? icon : undefined}
+          rightSection={iconSide === 'right' ? icon : undefined}
           onClick={onClick}
           data-log-id={logId}
         >

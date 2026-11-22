@@ -8,8 +8,6 @@ import {
   IconChartPie,
   IconClock,
   IconDeviceFloppy,
-  IconPrinter,
-  IconReceipt,
   IconShieldCheck,
   IconTool,
   IconUser,
@@ -30,11 +28,14 @@ import {
   FooterMain,
   InfoRow,
   JobFooter,
+  JobSlipButton,
   KpiStrip,
   KpiTile,
   ListRow,
   type FooterAction,
 } from '@/shared/components/drawer';
+import { useTicketInvoice } from '@/features/billing/hooks/useTicketInvoice';
+import type { Invoice } from '@/features/billing/types';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
@@ -67,8 +68,8 @@ type Tab = 'work' | 'warranty';
 /** What the footer's buttons do; the panel that shows this view supplies them. */
 export interface RepairDetailActions {
   onEdit: (job: RepairJob) => void;
-  /** `null` when this person may not print receipts. */
-  onPrintReceipt: ((job: RepairJob) => void) | null;
+  /** Opens the preview of the invoice that billed this job. */
+  onPrintInvoice: (invoice: Invoice) => void;
   onBill: (job: RepairJob) => void;
 }
 
@@ -265,9 +266,12 @@ const WorkPanel = ({
 /** The panel's body for a job: figures, hero, customer, details and the work. */
 export const RepairDetailView = ({
   job,
+  onJobSlip,
   onNestedWindowChange,
 }: {
   job: RepairJob;
+  /** `null` when this person may not print job slips. */
+  onJobSlip: ((job: RepairJob) => void) | null;
   onNestedWindowChange: (open: boolean) => void;
 }) => {
   const navigate = useNavigate();
@@ -390,21 +394,24 @@ export const RepairDetailView = ({
         </DrawerAfter>
 
         <DrawerAfter>
-          <DrawerCard label={t('Details')} icon={<IconClock size={14} />}>
-            <Stack gap="xs">
-              <InfoRow icon={<IconClock size={16} />} label={t('Received')}>
-                {formatDateTime(job.createdAt)}
-              </InfoRow>
-              <InfoRow icon={<IconCalendarDue size={16} />} label={t('Promised')}>
-                {job.promisedReadyAt === undefined ? '—' : formatDate(job.promisedReadyAt)}
-              </InfoRow>
-              <InfoRow icon={<IconUser size={16} />} label={t('Technician')}>
-                {job.assignedEmployeeName === undefined
-                  ? t('Unassigned')
-                  : job.assignedEmployeeName}
-              </InfoRow>
-            </Stack>
-          </DrawerCard>
+          <Stack gap="md">
+            <DrawerCard label={t('Details')} icon={<IconClock size={14} />}>
+              <Stack gap="xs">
+                <InfoRow icon={<IconClock size={16} />} label={t('Received')}>
+                  {formatDateTime(job.createdAt)}
+                </InfoRow>
+                <InfoRow icon={<IconCalendarDue size={16} />} label={t('Promised')}>
+                  {job.promisedReadyAt === undefined ? '—' : formatDate(job.promisedReadyAt)}
+                </InfoRow>
+                <InfoRow icon={<IconUser size={16} />} label={t('Technician')}>
+                  {job.assignedEmployeeName === undefined
+                    ? t('Unassigned')
+                    : job.assignedEmployeeName}
+                </InfoRow>
+              </Stack>
+            </DrawerCard>
+            {onJobSlip === null ? null : <JobSlipButton onClick={() => onJobSlip(job)} />}
+          </Stack>
         </DrawerAfter>
       </DrawerRail>
 
@@ -446,15 +453,16 @@ export const RepairDetailView = ({
   );
 };
 
-/** The panel's pinned footer for a job: close, receipt, edit, bill and the next status. */
+/** The panel's pinned footer for a job: edit, invoice, bill and the next status. */
 export const RepairDetailFooter = ({
   job,
   onEdit,
-  onPrintReceipt,
+  onPrintInvoice,
   onBill,
 }: RepairDetailActions & {
   job: RepairJob;
 }) => {
+  const invoice = useTicketInvoice(job.id);
   const update = useUpdateRepairJob();
   const next = nextStatus(job.status);
   const block = next === null ? null : repairStepBlock(job, next);
@@ -478,25 +486,24 @@ export const RepairDetailFooter = ({
   const billAction: FooterAction = {
     id: 'bill',
     label: t('Bill'),
-    icon: <IconReceipt size={16} />,
+    icon: <IconArrowRight size={16} />,
     onClick: () => onBill(job),
   };
   const tools: FooterAction[] = [
-    ...(onPrintReceipt === null
-      ? []
-      : [
-          {
-            id: 'print',
-            label: t('Print receipt'),
-            icon: <IconPrinter size={16} />,
-            onClick: () => onPrintReceipt(job),
-          },
-        ]),
     {
       id: 'edit',
       label: t('Edit'),
       onClick: () => onEdit(job),
     },
+    ...(invoice === null
+      ? []
+      : [
+          {
+            id: 'print-invoice',
+            label: t('Print invoice'),
+            onClick: () => onPrintInvoice(invoice),
+          },
+        ]),
   ];
 
   let main: ReactNode = null;
@@ -506,6 +513,7 @@ export const RepairDetailFooter = ({
         <FooterMain
           label={billAction.label}
           icon={billAction.icon}
+          iconSide="right"
           color="blue"
           onClick={billAction.onClick}
         />
@@ -516,6 +524,7 @@ export const RepairDetailFooter = ({
       <FooterMain
         label={stepLabel(next)}
         icon={<IconArrowRight size={16} />}
+        iconSide="right"
         color={JOB_STATUS_COLORS[next]}
         loading={update.isPending}
         blockedMessage={block === null ? undefined : block.message}

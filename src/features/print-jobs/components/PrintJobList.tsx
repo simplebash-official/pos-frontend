@@ -29,7 +29,7 @@ import { formatMoney } from '@/shared/lib/money';
 import {
   AmountCell,
   CustomerCell,
-  ReceiptAction,
+  JobSlipAction,
   RowActions,
   StatusCell,
   TechnicianCell,
@@ -44,6 +44,8 @@ import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRINT_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
 import { PrintJobDrawer } from './PrintJobDrawer';
+import { TicketInvoicePreview } from '@/features/billing/components/TicketInvoicePreview';
+import type { Invoice } from '@/features/billing/types';
 import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
@@ -87,6 +89,7 @@ export const PrintJobList = () => {
 
   const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
   const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
+  const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -245,7 +248,7 @@ export const PrintJobList = () => {
             align: 'right' as const,
             render: (job: PrintJob) => (
               <RowActions>
-                <ReceiptAction onClick={() => setReceiptJob(receiptTarget('print', job))} />
+                <JobSlipAction onClick={() => setReceiptJob(receiptTarget('print', job))} />
               </RowActions>
             ),
           },
@@ -383,13 +386,13 @@ export const PrintJobList = () => {
         job={openJob}
         onSubmit={handleFormSubmit}
         loading={createMutation.isPending || updateMutation.isPending}
-        onPrintReceipt={
-          canPrintReceipt ? (job) => setReceiptJob(receiptTarget('print', job)) : null
-        }
-        closeOnEscape={receiptJob === null}
+        onJobSlip={canPrintReceipt ? (job) => setReceiptJob(receiptTarget('print', job)) : null}
+        onPrintInvoice={setInvoiceToPrint}
+        closeOnEscape={receiptJob === null && invoiceToPrint === null}
       />
 
       <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
+      <TicketInvoicePreview invoice={invoiceToPrint} onClose={() => setInvoiceToPrint(null)} />
     </Stack>
   );
 };

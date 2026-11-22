@@ -188,16 +188,16 @@ export const RowActions = ({ children }: { children: ReactNode }) => (
   </Group>
 );
 
-/** The quiet print-receipt icon at the end of a row. */
-export const ReceiptAction = ({ onClick }: { onClick: () => void }) => {
+/** The quiet job-slip icon at the end of a row. */
+export const JobSlipAction = ({ onClick }: { onClick: () => void }) => {
   const isMobile = useIsMobile();
   return (
-    <Tooltip label={t('Print receipt')}>
+    <Tooltip label={t('Job slip')}>
       <ActionIcon
         variant="subtle"
         color="gray"
         size={isMobile ? 44 : 32}
-        aria-label={t('Print receipt')}
+        aria-label={t('Job slip')}
         onClick={onClick}
       >
         <IconPrinter size={18} />

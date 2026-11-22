@@ -5,6 +5,7 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DrawerFooter, RichDrawer } from '@/shared/components/drawer';
 import { t } from '@/shared/i18n/t';
 import { closePanel, editPanel, viewPanel, type JobPanelState } from '@/shared/lib/jobPanelState';
+import type { Invoice } from '@/features/billing/types';
 import { useRepairEditor } from '../hooks/useRepairEditor';
 import type { RepairJob, RepairJobInput } from '../types';
 import { REPAIR_FORM_ID, RepairEditForm } from './RepairEditForm';
@@ -18,8 +19,10 @@ export interface RepairDrawerProps {
   /** Saves the form: a new ticket when `job` is `null`, otherwise a change to `job`. */
   onSubmit: (values: RepairJobInput) => Promise<void>;
   loading: boolean;
-  /** `null` when this person may not print receipts. */
-  onPrintReceipt: ((job: RepairJob) => void) | null;
+  /** `null` when this person may not print job slips. */
+  onJobSlip: ((job: RepairJob) => void) | null;
+  /** Opens the preview of the invoice that billed the job. */
+  onPrintInvoice: (invoice: Invoice) => void;
   onBill: (job: RepairJob) => void;
   /** Pass `false` while a window opened over this panel is up, so Escape closes only that window. */
   closeOnEscape: boolean;
@@ -35,7 +38,8 @@ export const RepairDrawer = ({
   job,
   onSubmit,
   loading,
-  onPrintReceipt,
+  onJobSlip,
+  onPrintInvoice,
   onBill,
   closeOnEscape,
 }: RepairDrawerProps) => {
@@ -93,7 +97,7 @@ export const RepairDrawer = ({
               <RepairDetailFooter
                 job={job}
                 onEdit={(target) => onPanelChange(editPanel(target.id))}
-                onPrintReceipt={onPrintReceipt}
+                onPrintInvoice={onPrintInvoice}
                 onBill={onBill}
               />
             )
@@ -133,7 +137,12 @@ export const RepairDrawer = ({
         {(shown) =>
           shown.mode === 'view' ? (
             job === null ? null : (
-              <RepairDetailView key={job.id} job={job} onNestedWindowChange={setViewNested} />
+              <RepairDetailView
+                key={job.id}
+                job={job}
+                onJobSlip={onJobSlip}
+                onNestedWindowChange={setViewNested}
+              />
             )
           ) : (
             <RepairEditForm editor={editor} job={shown.mode === 'edit' ? job : null} />

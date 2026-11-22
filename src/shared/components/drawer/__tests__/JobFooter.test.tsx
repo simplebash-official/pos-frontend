@@ -65,13 +65,13 @@ describe('JobFooter', () => {
   const footer = (props: { bill?: boolean; main?: ReactNode } = {}) => (
     <JobFooter
       tools={[
+        action('edit', 'Edit', onEdit),
         {
-          id: 'print',
-          label: 'Print receipt',
+          id: 'print-invoice',
+          label: 'Print invoice',
           icon: <IconPrinter size={16} />,
           onClick: onPrint,
         },
-        action('edit', 'Edit', onEdit),
       ]}
       bill={
         props.bill === false
@@ -83,6 +83,7 @@ describe('JobFooter', () => {
           <FooterMain
             label="Mark ready for pickup"
             icon={<IconArrowRight size={16} />}
+            iconSide="right"
             color="teal"
             onClick={onMain}
             logId="repairs.next-status"
@@ -96,11 +97,11 @@ describe('JobFooter', () => {
 
   it('puts the outlined tools first, then Bill and the main action', async () => {
     await show(footer());
-    expect(labels()).toEqual(['Print receipt', 'Edit', 'Bill', 'Mark ready for pickup']);
+    expect(labels()).toEqual(['Edit', 'Print invoice', 'Bill', 'Mark ready for pickup']);
     expect(find('Mark ready for pickup')?.getAttribute('data-variant')).toBe('filled');
     expect(find('Bill')?.getAttribute('data-variant')).toBe('default');
     expect(find('Close')).toBeUndefined();
-    expect(find('Print receipt')?.getAttribute('data-variant')).toBe('default');
+    expect(find('Print invoice')?.getAttribute('data-variant')).toBe('default');
     expect(find('Edit')?.getAttribute('data-variant')).toBe('default');
     expect(find('Edit')?.querySelector('svg')).toBeNull();
     expect(find('Mark ready for pickup')?.getAttribute('data-log-id')).toBe('repairs.next-status');
@@ -108,7 +109,7 @@ describe('JobFooter', () => {
 
   it('runs each action', async () => {
     await show(footer());
-    for (const label of ['Print receipt', 'Edit', 'Bill', 'Mark ready for pickup']) {
+    for (const label of ['Edit', 'Print invoice', 'Bill', 'Mark ready for pickup']) {
       await act(async () => find(label)?.click());
     }
     expect(onPrint).toHaveBeenCalledTimes(1);
@@ -119,7 +120,7 @@ describe('JobFooter', () => {
 
   it('leaves out Bill and the main action when there are none', async () => {
     await show(footer({ bill: false, main: null }));
-    expect(labels()).toEqual(['Print receipt', 'Edit']);
+    expect(labels()).toEqual(['Edit', 'Print invoice']);
   });
 
   it('disables the main action when it is blocked', async () => {
@@ -129,6 +130,7 @@ describe('JobFooter', () => {
           <FooterMain
             label="Mark ready for pickup"
             icon={<IconArrowRight size={16} />}
+            iconSide="right"
             color="teal"
             blockedMessage="Add the work first."
             onClick={onMain}
@@ -145,7 +147,7 @@ describe('JobFooter', () => {
   it('on a phone shows the main action on top, then equal cells, and no Close', async () => {
     phone();
     await show(footer());
-    expect(labels()).toEqual(['Mark ready for pickup', 'Print receipt', 'Edit', 'Bill']);
+    expect(labels()).toEqual(['Mark ready for pickup', 'Edit', 'Print invoice', 'Bill']);
     const grid = document.body.querySelector<HTMLElement>('.job-footer-grid');
     expect(grid?.style.gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))');
     expect(find('Close')).toBeUndefined();

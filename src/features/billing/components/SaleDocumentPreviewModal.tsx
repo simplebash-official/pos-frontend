@@ -1,6 +1,16 @@
 import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
-import { Modal, Box, Group, Button, ActionIcon, Text, Stack, Divider } from '@mantine/core';
+import {
+  Modal,
+  Box,
+  Group,
+  Button,
+  ActionIcon,
+  Text,
+  Stack,
+  Divider,
+  SegmentedControl,
+} from '@mantine/core';
 import { IconX, IconPrinter, IconDownload } from '@tabler/icons-react';
 import type { Invoice, CreditNote } from '../types';
 import { getSaleHeroPresentation, isOnAccountSale } from '../lib/saleHeroPresentation';
@@ -38,6 +48,8 @@ export interface SaleDocumentPreviewModalProps {
   onClose: () => void;
   subject: DocumentPreviewSubject | null;
   documentKind: 'invoice' | 'receipt' | 'credit-note' | null;
+  /** When given, an invoice preview offers an Invoice / Receipt switch that reports the pick. */
+  onDocumentKindChange?: (kind: 'invoice' | 'receipt') => void;
 }
 
 export const SaleDocumentPreviewModal = ({
@@ -45,6 +57,7 @@ export const SaleDocumentPreviewModal = ({
   onClose,
   subject,
   documentKind,
+  onDocumentKindChange,
 }: SaleDocumentPreviewModalProps) => {
   const isMobile = useIsMobile();
   const tier = useLayoutTier();
@@ -257,6 +270,17 @@ export const SaleDocumentPreviewModal = ({
         </Group>
 
         <Group gap="sm" wrap="nowrap" style={{ flexShrink: 0 }}>
+          {onDocumentKindChange !== undefined && invoice && (
+            <SegmentedControl
+              size={isMobile ? 'sm' : 'md'}
+              value={isReceipt ? 'receipt' : 'invoice'}
+              onChange={(next) => onDocumentKindChange(next === 'receipt' ? 'receipt' : 'invoice')}
+              data={[
+                { value: 'invoice', label: t('Invoice') },
+                { value: 'receipt', label: t('Receipt') },
+              ]}
+            />
+          )}
           <Button
             size={isMobile ? 'sm' : 'md'}
             color="blue"

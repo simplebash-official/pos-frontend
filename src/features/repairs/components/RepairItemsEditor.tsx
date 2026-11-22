@@ -1125,7 +1125,7 @@ export const RepairItemsEditor = ({
                   </Stack>
 
                   {/* Right Column: Breakdown & Total */}
-                  <Stack gap={4} align="flex-end" style={{ minWidth: isMobile ? '100%' : 220 }}>
+                  <Stack gap={4} align="flex-end" style={{ flex: '1 1 220px', minWidth: 220 }}>
                     <Group justify="space-between" w="100%">
                       <Text size="sm" c="dimmed">
                         {t('Parts')}

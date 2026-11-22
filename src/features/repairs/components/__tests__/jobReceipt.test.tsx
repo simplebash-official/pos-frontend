@@ -112,7 +112,7 @@ const Harness = ({ permissions, children }: { permissions: string[]; children: R
 };
 
 const receiptButtons = () => [
-  ...document.querySelectorAll<HTMLButtonElement>('button[aria-label="Print receipt"]'),
+  ...document.querySelectorAll<HTMLButtonElement>('button[aria-label="Job slip"]'),
 ];
 const receipt = () => document.querySelector('[data-testid="receipt"]')?.textContent;
 const button = (text: string) =>
@@ -188,8 +188,8 @@ describe('the receipt on the repair list', () => {
         ?.click()
     );
 
-    await vi.waitFor(() => expect(button('Print receipt')).toBeDefined());
-    await act(async () => button('Print receipt')?.click());
+    await vi.waitFor(() => expect(button('Job slip')).toBeDefined());
+    await act(async () => button('Job slip')?.click());
 
     expect(receipt()).toContain('repair:');
   });

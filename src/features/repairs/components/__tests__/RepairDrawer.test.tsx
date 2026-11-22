@@ -7,6 +7,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
 import { TestHarness } from '@/shared/components/drawer/TestHarness';
+import type { Invoice } from '@/features/billing/types';
 import type { RepairItem, RepairJob } from '../../types';
 import { closePanel, editPanel, viewPanel } from '@/shared/lib/jobPanelState';
 import { RepairDrawer } from '../RepairDrawer';
@@ -14,6 +15,12 @@ import { RepairDrawer } from '../RepairDrawer';
 installDrawerTestEnv();
 
 const update = vi.fn();
+const INVOICE = { id: 'inv_1', invoiceNumber: 'INV-000001', status: 'paid' } as Invoice;
+// A holder object: the mock factory is hoisted above the test's own variables.
+const ticketInvoice: { current: Invoice | null } = { current: null };
+vi.mock('@/features/billing/hooks/useTicketInvoice', () => ({
+  useTicketInvoice: () => ticketInvoice.current,
+}));
 vi.mock('@/shared/hooks/usePermissions', () => ({
   usePermissions: () => [],
   useHasPermission: () => true,
@@ -83,11 +90,13 @@ describe('RepairDrawer in view mode', () => {
   let container: HTMLDivElement;
   let root: Root;
   const onPanelChange = vi.fn();
-  const onPrintReceipt = vi.fn();
+  const onJobSlip = vi.fn();
+  const onPrintInvoice = vi.fn();
   const onBill = vi.fn();
 
   beforeEach(() => {
-    [update, onPanelChange, onPrintReceipt, onBill].forEach((fn) => fn.mockReset());
+    ticketInvoice.current = null;
+    [update, onPanelChange, onJobSlip, onPrintInvoice, onBill].forEach((fn) => fn.mockReset());
     update.mockResolvedValue(undefined);
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -99,7 +108,7 @@ describe('RepairDrawer in view mode', () => {
     container.remove();
   });
 
-  const open = async (job: RepairJob | null, canPrint = true) => {
+  const open = async (job: RepairJob | null, canSlip = true) => {
     await act(async () => {
       root.render(
         <TestHarness role="admin">
@@ -109,7 +118,8 @@ describe('RepairDrawer in view mode', () => {
             job={job}
             onSubmit={vi.fn()}
             loading={false}
-            onPrintReceipt={canPrint ? onPrintReceipt : null}
+            onJobSlip={canSlip ? onJobSlip : null}
+            onPrintInvoice={onPrintInvoice}
             onBill={onBill}
             closeOnEscape
           />
@@ -230,14 +240,24 @@ describe('RepairDrawer in view mode', () => {
     expect(button('Bill')).toBeUndefined();
   });
 
-  it('opens Edit and the receipt, and hides the receipt without permission', async () => {
+  it('opens Edit and the job slip, and hides the slip without permission', async () => {
     await open(makeJob());
     await act(async () => button('Edit')?.click());
     expect(onPanelChange).toHaveBeenCalledWith(editPanel('rep_1'));
-    await act(async () => button('Print receipt')?.click());
-    expect(onPrintReceipt).toHaveBeenCalledTimes(1);
+    await act(async () => button('Job slip')?.click());
+    expect(onJobSlip).toHaveBeenCalledTimes(1);
 
     await open(makeJob(), false);
-    expect(button('Print receipt')).toBeUndefined();
+    expect(button('Job slip')).toBeUndefined();
+  });
+
+  it('offers Print invoice only once the job is billed', async () => {
+    await open(makeJob());
+    expect(button('Print invoice')).toBeUndefined();
+
+    ticketInvoice.current = INVOICE;
+    await open(makeJob());
+    await act(async () => button('Print invoice')?.click());
+    expect(onPrintInvoice).toHaveBeenCalledWith(INVOICE);
   });
 });

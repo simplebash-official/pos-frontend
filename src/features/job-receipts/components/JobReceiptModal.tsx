@@ -79,7 +79,7 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
 
   const ticketNumber = job?.ticketNumber ?? '';
   const fileName = pdfFileName(`receipt-${ticketNumber}`);
-  const printTitle = `${t('Job receipt')} ${ticketNumber}`;
+  const printTitle = `${t('Job slip')} ${ticketNumber}`;
 
   const handlePrint = () => {
     if (!blob) return;
@@ -140,7 +140,7 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
           <Group gap="xs" wrap="nowrap">
             <IconReceipt size={20} color="var(--mantine-color-blue-6)" />
             <Text fw={700} size="sm" truncate>
-              {t('Job receipt')} {ticketNumber}
+              {t('Job slip')} {ticketNumber}
             </Text>
           </Group>
           {job !== null && (

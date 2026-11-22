@@ -32,7 +32,8 @@ export const RepairFormHost = ({
       job={job}
       onSubmit={onSubmit}
       loading={loading}
-      onPrintReceipt={null}
+      onJobSlip={null}
+      onPrintInvoice={() => undefined}
       onBill={() => undefined}
       closeOnEscape
     />
