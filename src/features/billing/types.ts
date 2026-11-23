@@ -5,6 +5,13 @@ import type { CalcDiscount } from '@/shared/types/discount';
 /** `charge`: a one-time charge (a service or fee) with no stock, ticket or cost behind it. */
 export type LineSourceType = 'retail' | 'repair' | 'print' | 'charge';
 
+/**
+ * What billing a repair or print job does to it: `now` hands it to the customer with this sale
+ * (the job becomes Delivered), `later` keeps it in the shop (it is marked Billed and handed back
+ * when the customer collects it).
+ */
+export type Handover = 'now' | 'later';
+
 export interface InvoiceItem {
   id: string;
   productId: string;

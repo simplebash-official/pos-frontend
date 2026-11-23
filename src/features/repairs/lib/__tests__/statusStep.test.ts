@@ -6,9 +6,14 @@ import { repairStepBlock } from '../statusStep';
 const item = (part?: RepairItem['part']): RepairItem =>
   ({ key: 'rit_1', description: 'Screen', laborCents: 1000, part }) as RepairItem;
 
-const job = (items: RepairItem[], kind: RepairJob['kind'] = { kind: 'standard' }) => ({
+const job = (
+  items: RepairItem[],
+  kind: RepairJob['kind'] = { kind: 'standard' },
+  billedInvoiceKey?: string
+) => ({
   kind,
   items,
+  billedInvoiceKey,
 });
 
 describe('repairStepBlock', () => {
@@ -26,6 +31,13 @@ describe('repairStepBlock', () => {
     const stock = item({ source: 'stock', productKey: 'p', productName: 'Screen' });
     expect(repairStepBlock(job([stock]), JOB_STATUS.DELIVERED)?.reason).toBe('bill_first');
     expect(repairStepBlock(job([stock]), JOB_STATUS.READY)).toBeNull();
+  });
+
+  it('lets a billed job with a stock part be handed back by hand', () => {
+    const stock = item({ source: 'stock', productKey: 'p', productName: 'Screen' });
+    expect(
+      repairStepBlock(job([stock], { kind: 'standard' }, 'inv_1'), JOB_STATUS.DELIVERED)
+    ).toBeNull();
   });
 
   it('hands back a job whose part was bought in', () => {

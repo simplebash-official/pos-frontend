@@ -39,7 +39,7 @@ export const useBillRepairLink = () => {
         if (isCancelled) return;
         const blocker = billBlocker(job);
         if (blocker !== null) {
-          notify.error({ ...billBlockerNotice(blocker, job.ticketNumber) });
+          notify.error({ ...billBlockerNotice(blocker, job) });
         } else {
           addServiceJobRef.current(repairCartLine(job), job.customerName, job.customerPhone);
           notify.success({

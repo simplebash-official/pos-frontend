@@ -86,6 +86,9 @@ export interface RepairJob {
   splitType?: SplitType;
   splitValue?: number; // % or cents fixed
   employeeEarningsCents?: number; // calculated split
+  /** The invoice that billed this job; absent until it is billed. Set together with the number. */
+  billedInvoiceKey?: string;
+  billedInvoiceNumber?: string;
   createdAt: string;
 }
 

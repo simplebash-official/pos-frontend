@@ -78,8 +78,9 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
 
   const kind = job === null ? ({ kind: 'standard' } as const) : job.kind;
   const rework = isRework(kind);
-  // A handed-back job's work no longer changes (the server refuses it too).
-  const workLocked = job !== null && job.status === 'delivered';
+  // A billed or handed-back job's work no longer changes (the server refuses it too).
+  const workLocked =
+    job !== null && (job.status === 'delivered' || job.billedInvoiceNumber !== undefined);
   const totals = useRepairTotals(drafts, rework);
   const workProblem = workLocked ? null : itemsProblem(drafts, kind, form.values.status, totals);
   const hasStockPart = drafts.some(
@@ -113,7 +114,12 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
   // "Update & bill": what is typed is saved first, so the bill carries the saved price.
   const billJobId =
     job !== null &&
-    billBlocker({ kind: job.kind, status: form.values.status, items: drafts }) === null
+    billBlocker({
+      kind: job.kind,
+      status: form.values.status,
+      billedInvoiceNumber: job.billedInvoiceNumber,
+      items: drafts,
+    }) === null
       ? job.id
       : null;
 
@@ -146,12 +152,12 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
   const statusOptions = Object.values(JOB_STATUS).map((status: JobStatus) => ({
     value: status,
     label: JOB_STATUS_LABELS[status],
-    // A job with parts from stock is handed back by billing it, so its parts leave stock.
+    // A job with parts from stock is handed back once it is billed, so its parts leave stock.
     disabled:
       status === 'delivered' &&
       !rework &&
       hasStockPart &&
-      (job === null || job.status !== 'delivered'),
+      (job === null || (job.status !== 'delivered' && job.billedInvoiceKey === undefined)),
   }));
 
   return {

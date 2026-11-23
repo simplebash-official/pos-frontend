@@ -280,6 +280,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
     for (const p of printJobs) {
       if (p.status === 'delivered' || p.status === 'cancelled') continue;
+      if (p.billedInvoiceNumber !== undefined) continue;
       list.push({
         id: p.id,
         ticketNumber: p.ticketNumber,
@@ -567,7 +568,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         if (blocker !== null) {
           playErrorSound(soundEnabled);
           notify.error({
-            ...billBlockerNotice(blocker, matchRep.ticketNumber),
+            ...billBlockerNotice(blocker, matchRep),
           });
           setScanQuery('');
           setSearch('');

@@ -4,6 +4,7 @@ import {
   IconBarcode,
   IconCash,
   IconDeviceMobile,
+  IconReceipt,
   IconShieldCheck,
   IconTool,
   IconUser,
@@ -174,11 +175,13 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                       data={statusOptions}
                       required
                       description={
-                        !rework && hasStockPart && job.status !== 'delivered'
-                          ? t(
-                              "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
-                            )
-                          : undefined
+                        job.billedInvoiceNumber !== undefined && job.status !== 'delivered'
+                          ? t('Billed. Set it to Delivered when the customer collects it.')
+                          : !rework && hasStockPart && job.status !== 'delivered'
+                            ? t(
+                                "Use 'Update & bill' below to hand it back: its parts from stock leave stock with the bill."
+                              )
+                            : undefined
                       }
                       {...form.getInputProps('status')}
                     />
@@ -219,7 +222,15 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                   {workProblem}
                 </Text>
               )}
-              {workLocked && job !== null && !rework && (
+              {job !== null && job.billedInvoiceNumber !== undefined && (
+                <Alert color="teal" icon={<IconReceipt size={16} />} p="sm">
+                  <Text size="sm" fw={700}>
+                    {t('Billed on')} {job.billedInvoiceNumber}
+                  </Text>
+                  <Text size="sm">{t('Its work is locked. Void the invoice to change it.')}</Text>
+                </Alert>
+              )}
+              {workLocked && job !== null && !rework && job.status === 'delivered' && (
                 <RepairWarrantiesPanel repairKey={job.id} onNestedWindowChange={setNestedOpen} />
               )}
             </Stack>

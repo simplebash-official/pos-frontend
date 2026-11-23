@@ -36,6 +36,7 @@ import {
 } from '@/shared/components/drawer';
 import { useTicketInvoice } from '@/features/billing/hooks/useTicketInvoice';
 import type { Invoice } from '@/features/billing/types';
+import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
@@ -169,7 +170,9 @@ const WorkPanel = ({
   const canWrite = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const update = useUpdateRepairJob();
   const rework = job.kind.kind === 'warranty_rework';
-  const editable = canWrite && job.status !== JOB_STATUS.DELIVERED;
+  // A billed job's work is locked, whether or not it has been handed back.
+  const billed = job.billedInvoiceKey !== undefined;
+  const editable = canWrite && job.status !== JOB_STATUS.DELIVERED && !billed;
   const savedSignature = snapshot(job.items);
   const [loaded, setLoaded] = useState(() => ({
     signature: savedSignature,
@@ -198,7 +201,17 @@ const WorkPanel = ({
     );
 
   if (!editable) {
-    return framed(countItems(itemsFromSaved(job.items)), <WorkList job={job} />);
+    return framed(
+      countItems(itemsFromSaved(job.items)),
+      <Stack gap="sm">
+        <WorkList job={job} />
+        {billed && job.status !== JOB_STATUS.DELIVERED && (
+          <Text size="xs" c="dimmed">
+            {t('Its work is locked. Void the invoice to change it.')}
+          </Text>
+        )}
+      </Stack>
+    );
   }
 
   const problem = itemsProblem(drafts, job.kind, job.status, totals);
@@ -351,8 +364,27 @@ export const RepairDetailView = ({
           }}
           title={job.deviceModel}
           subtitle={
-            job.serialNumber === undefined ? undefined : (
-              <div>{`${t('Serial number or IMEI')}: ${job.serialNumber}`}</div>
+            job.serialNumber === undefined && job.billedInvoiceKey === undefined ? undefined : (
+              <>
+                {job.serialNumber !== undefined && (
+                  <div>{`${t('Serial number or IMEI')}: ${job.serialNumber}`}</div>
+                )}
+                {job.billedInvoiceKey !== undefined && (
+                  <div>
+                    {t('Billed on')}{' '}
+                    <Anchor
+                      component="button"
+                      type="button"
+                      size="sm"
+                      onClick={() =>
+                        navigate(`${ROUTES.INVOICES}?invoiceKey=${job.billedInvoiceKey}`)
+                      }
+                    >
+                      {job.billedInvoiceNumber}
+                    </Anchor>
+                  </div>
+                )}
+              </>
             )
           }
         >
@@ -467,6 +499,12 @@ export const RepairDetailFooter = ({
   const next = nextStatus(job.status);
   const block = next === null ? null : repairStepBlock(job, next);
   const canBill = billBlocker(job) === null;
+  const [confirmingHandBack, setConfirmingHandBack] = useState(false);
+  // A job billed with the hand-over later gets its warranties the day it is handed back.
+  const warrantiesStartToday =
+    job.billedInvoiceKey !== undefined &&
+    job.items.some((item) => item.warranty.coverage.kind !== 'none');
+  const confirmsHandBack = next === JOB_STATUS.DELIVERED && warrantiesStartToday;
 
   const moveOn = async () => {
     if (next === null) return;
@@ -528,11 +566,30 @@ export const RepairDetailFooter = ({
         color={JOB_STATUS_COLORS[next]}
         loading={update.isPending}
         blockedMessage={block === null ? undefined : block.message}
-        onClick={() => void moveOn()}
+        onClick={() => (confirmsHandBack ? setConfirmingHandBack(true) : void moveOn())}
         logId="repairs.next-status"
       />
     );
   }
 
-  return <JobFooter tools={tools} bill={canBill && !billFirst ? billAction : null} main={main} />;
+  return (
+    <>
+      <JobFooter tools={tools} bill={canBill && !billFirst ? billAction : null} main={main} />
+      <ConfirmDialog
+        opened={confirmingHandBack}
+        onClose={() => setConfirmingHandBack(false)}
+        onConfirm={() => {
+          setConfirmingHandBack(false);
+          void moveOn();
+        }}
+        title={t('Hand it back?')}
+        confirmLabel={t('Hand back')}
+        confirmColor="teal"
+        loading={update.isPending}
+        zIndex={400}
+      >
+        {`${t('Hand')} ${job.ticketNumber} ${t('back to')} ${job.customerName}? ${t('Its warranties start today.')}`}
+      </ConfirmDialog>
+    </>
+  );
 };

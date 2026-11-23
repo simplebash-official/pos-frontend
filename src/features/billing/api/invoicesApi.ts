@@ -5,6 +5,7 @@ import type {
   Invoice,
   InvoiceItem,
   InvoiceStatus,
+  Handover,
   LineSourceType,
   SplitPaymentDetail,
 } from '../types';
@@ -38,6 +39,8 @@ export interface CompleteSaleItemInput {
   serialNumbers?: string[];
   /** A different warranty for this product line (needs `warranties:adjust_at_sale`). */
   warrantyOverride?: ProductWarranty;
+  /** Required on a repair or print line that names its ticket, refused on any other line. */
+  handover?: Handover;
 }
 
 export interface CompleteSaleSplitPaymentInput {
