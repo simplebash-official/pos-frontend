@@ -170,6 +170,19 @@ describe('QuotationFormModal', () => {
     await flush();
   };
 
+  // The button stays off until the server's figures match what is on screen, so wait for that
+  // instead of clicking a disabled button on a slow machine.
+  const clickCreate = async () => {
+    await act(async () => {
+      await vi.waitFor(
+        () =>
+          expect((byText('button', 'Create Quotation') as HTMLButtonElement).disabled).toBe(false),
+        { timeout: 5000 }
+      );
+    });
+    await click(byText('button', 'Create Quotation'));
+  };
+
   const labourDraft = (extra: Partial<QuotationDraft['lines'][number]> = {}): QuotationDraft => ({
     ...emptyDraft(),
     customerName: 'Rita',
@@ -180,7 +193,7 @@ describe('QuotationFormModal', () => {
     calcAnswer = (request) =>
       answerFor(request, {}, { blockers: [{ code: 'customer_missing', line: null }] });
     await open(emptyDraft());
-    await click(byText('button', 'Create Quotation'));
+    await clickCreate();
 
     expect(body().textContent).toContain('Please choose a customer, or type the name.');
     expect(createCalls()).toHaveLength(0);
@@ -192,7 +205,7 @@ describe('QuotationFormModal', () => {
     await open(emptyDraft());
     await typeInto(inputByLabel('Customer name'), 'Nimal Perera');
     await flush();
-    await click(byText('button', 'Create Quotation'));
+    await clickCreate();
 
     expect(body().textContent).toContain('Add at least one item.');
     expect(createCalls()).toHaveLength(0);
@@ -224,7 +237,7 @@ describe('QuotationFormModal', () => {
     await click(byText('button', 'Add your own item'));
     await typeInto(inputByLabel('Item 1'), 'Screen replacement');
     await typeInto(inputByLabel('Price each'), '150');
-    await click(byText('button', 'Create Quotation'));
+    await clickCreate();
 
     expect(createCalls()).toHaveLength(1);
     const sent = createCalls()[0][1] as CreateQuotationInput;
@@ -263,7 +276,7 @@ describe('QuotationFormModal', () => {
           })
         : Promise.reject(new Error('nope'))) as never);
     await open(labourDraft());
-    await click(byText('button', 'Create Quotation'));
+    await clickCreate();
 
     expect(createCalls()).toHaveLength(1);
     expect(onCreated).not.toHaveBeenCalled();
@@ -309,7 +322,7 @@ describe('QuotationFormModal', () => {
     expect(last.orderDiscount).toEqual({ type: 'percentage', value: 10 });
     expect(body().textContent).toContain('Rs. 72.00');
 
-    await click(byText('button', 'Create Quotation'));
+    await clickCreate();
     const sent = createCalls()[0][1] as CreateQuotationInput;
     expect(sent.items[0]).toMatchObject({ discountCents: 2000 });
     expect(sent.pricingAdjustments).toEqual({ discountType: 'percentage', discountValue: 10 });
