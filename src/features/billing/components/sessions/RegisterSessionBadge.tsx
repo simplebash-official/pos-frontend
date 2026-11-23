@@ -16,6 +16,7 @@ import {
   IconCash,
   IconCashRegister,
   IconCoins,
+  IconDevices,
   IconDoorExit,
   IconLock,
   IconLockOpen,
@@ -35,6 +36,7 @@ import type { RegisterSession } from '../../types';
 import { CashMovementModal } from './CashMovementModal';
 import { CloseSessionModal } from './CloseSessionModal';
 import { OpenSessionModal } from './OpenSessionModal';
+import { ShiftOpenFor } from './ShiftOpenFor';
 import { ZReportModal } from './ZReportModal';
 
 /** A small dot that breathes (opacity only) while the shift is open. */
@@ -56,7 +58,7 @@ const LiveDot = ({ isShopShift = false }: { isShopShift?: boolean }) => {
   );
 };
 
-/** A small tinted tile that leads a menu row. */
+/** A tinted tile that leads a menu row. */
 const MenuIcon = ({ color, icon }: { color: string; icon: React.ReactNode }) => (
   <ThemeIcon variant="light" color={color} size={32}>
     {icon}
@@ -64,15 +66,41 @@ const MenuIcon = ({ color, icon }: { color: string; icon: React.ReactNode }) => 
 );
 
 /** One labelled amount in the shift card. */
-const ShiftFigure = ({ label, cents }: { label: string; cents: number }) => (
-  <div>
-    <Text size="xs" c="dimmed" fw={600} tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+const ShiftFigure = ({
+  label,
+  cents,
+  valueColor,
+}: {
+  label: string;
+  cents: number;
+  valueColor: string;
+}) => (
+  <Box
+    p="xs"
+
+    style={{
+      background: 'var(--bg-app)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--mantine-radius-default)',
+    }}
+  >
+    <Text c="dimmed" fw={600} tt="uppercase" style={{ fontSize: 10, letterSpacing: '0.06em' }}>
       {label}
     </Text>
-    <Text size="sm" fw={700} style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+    <Text
+      fw={700}
+      c={valueColor}
+      mt={2}
+      // Wraps instead of spilling out of the tile when the amount is large.
+      style={{
+        fontSize: 15,
+        fontVariantNumeric: 'tabular-nums',
+        overflowWrap: 'anywhere',
+      }}
+    >
       {formatMoney(cents)}
     </Text>
-  </div>
+  </Box>
 );
 
 export const RegisterSessionBadge: React.FC = () => {
@@ -112,8 +140,12 @@ export const RegisterSessionBadge: React.FC = () => {
     shopProfile !== null &&
     !shopProfile.allowSharedUserSessions &&
     Boolean(session && session.terminalId !== terminalId);
-  const showDeviceDetails = Boolean(session && (isShopShift || isPersonalOtherDevice));
   const badgeColor = isReopened ? 'grape' : isShopShift ? 'cyan' : 'teal';
+  const shiftKindLabel = isReopened
+    ? t('Reopened for Audit')
+    : isShopShift
+      ? t('Shared Shop Shift')
+      : t('Shift open');
 
   const closingTooltip = session?.closingCashierNameSnapshot
     ? `${t('Cash count in progress by')} ${session.closingCashierNameSnapshot}. ${t('New sales and payouts are paused until finished or cancelled.')}`
@@ -126,7 +158,12 @@ export const RegisterSessionBadge: React.FC = () => {
     <>
       {isOpen && (
         <FadeIn style={{ display: 'inline-block' }}>
-          <Menu shadow="md" width={320} position="bottom-end" radius="md">
+          <Menu
+            shadow="md"
+            width="min(340px, calc(100vw - 32px))"
+            position="bottom-end"
+            radius="md"
+          >
             <Menu.Target>
               <Button
                 size={isMobile ? 'sm' : 'xs'}
@@ -167,12 +204,12 @@ export const RegisterSessionBadge: React.FC = () => {
               </Button>
             </Menu.Target>
 
-            <Menu.Dropdown p={6}>
+            <Menu.Dropdown p="xs">
               <Box
                 p="sm"
-                mb={6}
+                mb="xs"
                 style={{
-                  background: 'var(--bg-app)',
+                  background: 'var(--bg-card)',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--mantine-radius-default)',
                 }}
@@ -188,101 +225,70 @@ export const RegisterSessionBadge: React.FC = () => {
                     )}
                   </ThemeIcon>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <Group gap={6} wrap="nowrap" justify="space-between">
-                      <Text size="sm" fw={700} truncate>
-                        {session.sessionNumber}
-                      </Text>
-                      {isReopened && (
-                        <Badge size="xs" variant="light" color="grape">
-                          {t('Reopened')}
-                        </Badge>
-                      )}
-                      {isShopShift && (
-                        <Badge size="xs" variant="light" color="cyan">
-                          {t('Shop Shift')}
-                        </Badge>
-                      )}
-                    </Group>
-                    <Group gap={6} wrap="nowrap">
-                      <LiveDot isShopShift={isShopShift} />
-                      <Text
-                        size="xs"
-                        c={isReopened ? 'grape' : isShopShift ? 'cyan' : 'dimmed'}
-                        truncate
-                        fw={isShopShift || isReopened ? 600 : 400}
+                    <Text size="sm" fw={700} truncate>
+                      {session.sessionNumber}
+                    </Text>
+                    <Group gap={6} wrap="nowrap" mt={2}>
+                      <Badge
+                        variant="light"
+                        color={badgeColor}
+                        size="sm"
+                        tt="none"
+                        fw={600}
+                        leftSection={<LiveDot isShopShift={isShopShift} />}
+                        style={{ flexShrink: 0 }}
                       >
-                        {isReopened
-                          ? t('Reopened for Audit')
-                          : isShopShift
-                            ? t('Shared Shop Shift')
-                            : isPersonalOtherDevice
-                              ? t('Personal Shift (Other Device)')
-                              : t('Shift open')}
-                        {session.cashierNameSnapshot ? ` · ${session.cashierNameSnapshot}` : ''}
+                        {shiftKindLabel}
+                      </Badge>
+                      <Text size="xs" c="dimmed" truncate>
+                        {session.cashierNameSnapshot}
                       </Text>
                     </Group>
-                    {isPersonalOtherDevice && (
-                      <Text size="11px" c="dimmed" mt={2}>
-                        {t('Personal shift active across your signed-in devices')}
-                      </Text>
-                    )}
                   </div>
                 </Group>
+                <ShiftOpenFor openedAt={session.openedAt} />
                 <SimpleGrid cols={2} spacing="xs">
-                  <ShiftFigure label={t('Float')} cents={session.openingFloatCents} />
-                  <ShiftFigure label={t('Cash sales')} cents={session.totalCashSalesCents} />
+                  <ShiftFigure
+                    label={t('Float')}
+                    cents={session.openingFloatCents}
+                    valueColor="var(--text-primary)"
+                  />
+                  <ShiftFigure
+                    label={t('Cash sales')}
+                    cents={session.totalCashSalesCents}
+                    valueColor="var(--status-ok)"
+                  />
                 </SimpleGrid>
-                {showDeviceDetails && (
-                  <Box mt="xs" pt="xs" style={{ borderTop: '1px solid var(--border)' }}>
-                    <SimpleGrid cols={2} spacing="xs">
+                {session.terminalId !== terminalId && (
+                  <Box
+                    mt="xs"
+                    p="xs"
+                    style={{
+                      background:
+                        'color-mix(in srgb, var(--mantine-color-blue-6) 16%, var(--bg-card))',
+                      border:
+                        '1px solid color-mix(in srgb, var(--mantine-color-blue-6) 45%, var(--bg-card))',
+                      borderRadius: 'var(--mantine-radius-default)',
+                    }}
+                  >
+                    <Group gap="sm" wrap="nowrap" align="flex-start">
+                      <IconDevices
+                        size={18}
+                        color="var(--mantine-color-blue-light-color)"
+                        style={{ flexShrink: 0, marginTop: 2 }}
+                        aria-hidden
+                      />
                       <div>
-                        <Text
-                          size="xs"
-                          c="dimmed"
-                          fw={600}
-                          tt="uppercase"
-                          style={{ letterSpacing: '0.05em' }}
-                        >
-                          {t('Opened By')}
+                        <Text size="sm" fw={600}>
+                          {t('Opened on another device')}
                         </Text>
-                        <Text
-                          size="xs"
-                          fw={700}
-                          truncate
-                          title={`${session.cashierNameSnapshot || session.cashierId} (${session.terminalId})`}
-                        >
-                          {session.cashierNameSnapshot || session.cashierId}
-                        </Text>
+                        {isPersonalOtherDevice && (
+                          <Text size="xs" c="dimmed">
+                            {t('Personal shift active across your signed-in devices')}
+                          </Text>
+                        )}
                       </div>
-                      <div>
-                        <Text
-                          size="xs"
-                          c="dimmed"
-                          fw={600}
-                          tt="uppercase"
-                          style={{ letterSpacing: '0.05em' }}
-                        >
-                          {t('Opened On')}
-                        </Text>
-                        <Text size="xs" fw={700} truncate title={session.terminalId}>
-                          {session.terminalId}
-                        </Text>
-                      </div>
-                      <div>
-                        <Text
-                          size="xs"
-                          c="dimmed"
-                          fw={600}
-                          tt="uppercase"
-                          style={{ letterSpacing: '0.05em' }}
-                        >
-                          {t('This Device')}
-                        </Text>
-                        <Text size="xs" fw={700} truncate title={terminalId}>
-                          {terminalId}
-                        </Text>
-                      </div>
-                    </SimpleGrid>
+                    </Group>
                   </Box>
                 )}
               </Box>
@@ -293,7 +299,7 @@ export const RegisterSessionBadge: React.FC = () => {
                 onClick={handleOpenMovementModal}
               >
                 <Text size="sm" fw={600}>
-                  {t('Cash In / Cash Out')}
+                  {t('Cash in / cash out')}
                 </Text>
                 <Text size="xs" c="dimmed">
                   {t('Add cash to the drawer or take some out')}
@@ -309,7 +315,7 @@ export const RegisterSessionBadge: React.FC = () => {
                 }}
               >
                 <Text size="sm" fw={600}>
-                  {t('View Shift Summary')}
+                  {t('View shift summary')}
                 </Text>
                 <Text size="xs" c="dimmed">
                   {t('Sales and payments so far')}
@@ -325,7 +331,7 @@ export const RegisterSessionBadge: React.FC = () => {
                 onClick={() => setCloseModalOpen(true)}
               >
                 <Text size="sm" fw={700} c="orange">
-                  {t('Close Register Shift')}
+                  {t('Close register shift')}
                 </Text>
                 <Text size="xs" c="dimmed">
                   {t('Count the drawer and end this shift')}
