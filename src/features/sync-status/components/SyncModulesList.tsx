@@ -11,7 +11,7 @@ import {
   type ModuleChip,
   type ModuleRow,
 } from '../lib/syncView';
-import { useNow } from '../hooks/useNow';
+import { useNow } from '@/shared/hooks/useNow';
 import { usePendingRecords } from '../hooks/useSyncStatus';
 import type { SyncStatus } from '../types';
 

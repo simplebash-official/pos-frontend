@@ -135,7 +135,7 @@ describe('Close shift window', () => {
   it('stays on the same step when the session flips from open to closing', async () => {
     await render();
     await click('SES-000002');
-    await click('Close Register Shift');
+    await click('Close register shift');
     await click('Proceed to Cash Count');
     await shows('Blind Count Protocol');
 
@@ -243,7 +243,7 @@ describe('Close shift window', () => {
 
     await render();
     await click('SES-000002');
-    await click('Close Register Shift');
+    await click('Close register shift');
     await shows('No Unfinished Work');
     await click('Proceed to Cash Count');
     await shows('Blind Count Protocol');
@@ -298,7 +298,7 @@ describe('Close shift window', () => {
   it('leaves an uncounted shift alone when the window is dismissed', async () => {
     await render();
     await click('SES-000002');
-    await click('Close Register Shift');
+    await click('Close register shift');
     await shows('No Unfinished Work');
 
     await dismissWindow();
@@ -309,7 +309,7 @@ describe('Close shift window', () => {
   it('does not let a tap on a later step skip ahead', async () => {
     await render();
     await click('SES-000002');
-    await click('Close Register Shift');
+    await click('Close register shift');
     await shows('No Unfinished Work');
     const steps = Array.from(document.body.querySelectorAll<HTMLElement>('[data-step]'));
     await act(async () => steps[3]?.click());

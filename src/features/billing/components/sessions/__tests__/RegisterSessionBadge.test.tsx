@@ -211,11 +211,40 @@ describe('RegisterSessionBadge', () => {
 
     await openMenu();
     expect(text()).toContain('Shared Shop Shift');
-    expect(text()).toContain('Opened By');
     expect(text()).toContain('Nimali Silva');
-    expect(text()).toContain('Opened On');
-    expect(text()).toContain('This Device');
-    expect(text()).not.toContain('Personal Shift (Other Device)');
+    expect(text()).not.toContain('counter-1');
+    expect(text()).not.toContain('Opened on another device');
+  });
+
+  it('shows the shift counting up in days, hours, minutes and seconds, and when it started', async () => {
+    const opened = new Date(2026, 10, 12, 20, 28, 0);
+    const elapsedMs = (((10 * 24 + 18) * 60 + 18) * 60 + 14) * 1000;
+    mockCurrentSession = makeSession({ openedAt: opened.toISOString() });
+    const realNow = Date.now;
+    Date.now = () => opened.getTime() + elapsedMs;
+    try {
+      await renderBadge();
+      await openMenu();
+    } finally {
+      Date.now = realNow;
+    }
+
+    const tiles = Array.from(document.body.querySelectorAll('[role="group"] > div')).map(
+      (tile) => tile.textContent
+    );
+    expect(tiles).toEqual(['10Days', '18Hrs', '18Min', '14Sec']);
+    expect(text()).toContain('Open for');
+    expect(text()).toContain('Since');
+    expect(text()).toContain('Thu, 12 Nov 2026, 08:28 PM');
+  });
+
+  it('uses sentence case for the three actions', async () => {
+    mockCurrentSession = makeSession();
+    await renderBadge();
+    await openMenu();
+    expect(text()).toContain('Cash in / cash out');
+    expect(text()).toContain('View shift summary');
+    expect(text()).toContain('Close register shift');
   });
 
   it('renders cyan Shop Shift pill on secondary counters too when Shared Shop mode is active', async () => {
@@ -232,8 +261,9 @@ describe('RegisterSessionBadge', () => {
     await openMenu();
     expect(text()).toContain('Shared Shop Shift');
     expect(text()).toContain('Nimali Silva');
-    expect(text()).toContain('counter-1');
-    expect(text()).not.toContain('Personal Shift (Other Device)');
+    expect(text()).toContain('Opened on another device');
+    expect(text()).not.toContain('counter-1');
+    expect(text()).not.toContain('counter-2');
   });
 
   it('keeps Personal multi-device view distinct and explains roaming device continuity clearly', async () => {
@@ -249,11 +279,11 @@ describe('RegisterSessionBadge', () => {
     expect(text()).not.toContain('Shop Shift');
 
     await openMenu();
-    expect(text()).toContain('Personal Shift (Other Device)');
+    expect(text()).toContain('Opened on another device');
     expect(text()).toContain('Personal shift active across your signed-in devices');
     expect(text()).toContain('Kasun Perera');
-    expect(text()).toContain('counter-1');
-    expect(text()).toContain('counter-2');
+    expect(text()).not.toContain('counter-1');
+    expect(text()).not.toContain('counter-2');
     expect(text()).not.toContain('Shared Shop Shift');
   });
 

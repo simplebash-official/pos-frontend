@@ -21,7 +21,7 @@ import {
 import { t } from '@/shared/i18n/t';
 import { formatDateTime } from '@/shared/lib/date';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
-import { useNow } from '../hooks/useNow';
+import { useNow } from '@/shared/hooks/useNow';
 import { heroView, secondsUntil, type HeroIcon } from '../lib/syncView';
 import { phraseText } from '../lib/phrase';
 import type { SyncStatus } from '../types';
