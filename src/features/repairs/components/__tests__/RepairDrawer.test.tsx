@@ -233,6 +233,38 @@ describe('RepairDrawer in view mode', () => {
     expect(onBill).toHaveBeenCalledTimes(1);
   });
 
+  it('hands back a billed job with a part from stock after one confirmation', async () => {
+    const stock = {
+      ...WORK,
+      part: { source: 'stock', productKey: 'prod_1', productName: 'Screen' },
+    } as RepairItem;
+    await open(
+      makeJob({
+        status: 'ready',
+        items: [stock],
+        billedInvoiceKey: 'inv_34',
+        billedInvoiceNumber: 'INV-000034',
+      })
+    );
+    expect(text()).toContain('INV-000034');
+    // Its work is locked: no editing, and the reason is said.
+    expect(text()).toContain('Its work is locked');
+    expect(button('Save work')).toBeUndefined();
+    expect(button('Bill')).toBeUndefined();
+
+    await act(async () => button('Mark handed back')?.click());
+    expect(update).not.toHaveBeenCalled();
+    // The question opens in its own window, outside the drawer.
+    await act(async () => {
+      await vi.waitFor(() =>
+        expect(document.body.textContent).toContain('Its warranties start today.')
+      );
+    });
+
+    await act(async () => button('Hand back')?.click());
+    expect(update).toHaveBeenCalledWith({ repairKey: 'rep_1', input: { status: 'delivered' } });
+  });
+
   it('has no next step once the job is handed back, and offers no Bill', async () => {
     await open(makeJob({ status: 'delivered' }));
     expect(button('Mark handed back')).toBeUndefined();

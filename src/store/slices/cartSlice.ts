@@ -1,7 +1,12 @@
 import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/constants/payment';
 import { STORAGE_KEYS } from '@/constants/storage';
-import type { Invoice, LineSourceType, SplitPaymentDetail } from '@/features/billing/types';
+import type {
+  Handover,
+  Invoice,
+  LineSourceType,
+  SplitPaymentDetail,
+} from '@/features/billing/types';
 import type { CentsRange } from '@/features/inventory/lib/priceTiers';
 import type { Product } from '@/features/inventory/types';
 import type { Quotation } from '@/features/quotations/types';
@@ -55,6 +60,11 @@ export interface CartItem {
   warranty?: ProductWarranty;
   /** A different warranty the cashier chose for this line (sent as `warrantyOverride`). */
   warrantyOverride?: ProductWarranty;
+  /**
+   * What the cashier chose to do with a repair or print job on this sale. Absent until they pick:
+   * a paid sale then means `now`, a credit sale asks (see `features/billing/lib/handover.ts`).
+   */
+  handover?: Handover;
 }
 
 export interface CompletedSaleData {
@@ -351,6 +361,14 @@ const cartSlice = createSlice({
       }
     },
 
+    /** Chooses whether a repair or print job is handed over with this sale or kept in the shop. */
+    setLineHandover: (state, action: PayloadAction<{ id: string; handover: Handover }>) => {
+      const item = state.items.find((i) => i.id === action.payload.id);
+      if (item) {
+        item.handover = action.payload.handover;
+      }
+    },
+
     updateLineDiscount: (
       state,
       action: PayloadAction<{ id: string; discount: LineDiscountInput | null }>
@@ -636,6 +654,7 @@ export const {
   updateQuantity,
   updateLineDiscount,
   setLineWarrantyOverride,
+  setLineHandover,
   setCustomer,
   setTenderedAmountCents,
   setCreditDepositCents,

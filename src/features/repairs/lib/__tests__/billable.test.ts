@@ -58,6 +58,12 @@ describe('billBlocker', () => {
       'warranty_rework'
     );
     expect(billBlocker({ ...JOB, status: 'delivered', items: [] })).toBe('already_handed_back');
+    expect(
+      billBlocker({ ...JOB, status: 'ready', billedInvoiceNumber: 'INV-000034', items: [{}] })
+    ).toBe('already_billed');
+    expect(
+      billBlocker({ ...JOB, status: 'delivered', billedInvoiceNumber: 'INV-000034', items: [{}] })
+    ).toBe('already_billed');
     expect(billBlocker({ ...JOB, status: 'cancelled', items: [] })).toBe('cancelled');
   });
 
@@ -71,16 +77,26 @@ describe('billBlockerNotice', () => {
   it('says which ticket and why, for every reason', () => {
     for (const blocker of [
       'warranty_rework',
+      'already_billed',
       'already_handed_back',
       'cancelled',
       'no_work',
     ] as const) {
-      const notice = billBlockerNotice(blocker, 'REP-000001');
+      const notice = billBlockerNotice(blocker, {
+        ticketNumber: 'REP-000001',
+        billedInvoiceNumber: 'INV-000034',
+      });
       expect(notice.title.length).toBeGreaterThan(0);
       expect(notice.message.startsWith('REP-000001: ')).toBe(true);
     }
-    expect(billBlockerNotice('no_work', 'REP-000001').message).toBe(
+    expect(billBlockerNotice('no_work', { ticketNumber: 'REP-000001' }).message).toBe(
       'REP-000001: add the work done before billing it.'
     );
+    expect(
+      billBlockerNotice('already_billed', {
+        ticketNumber: 'REP-000001',
+        billedInvoiceNumber: 'INV-000034',
+      }).message
+    ).toBe('REP-000001: this repair was already billed on INV-000034.');
   });
 });

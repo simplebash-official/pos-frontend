@@ -230,6 +230,7 @@ export const PrintJobList = () => {
           status={job.status}
           label={t(PRINT_JOB_STATUS_LABELS[job.status])}
           promisedReadyAt={job.promisedReadyAt}
+          billedInvoiceNumber={job.billedInvoiceNumber}
         />
       ),
     },

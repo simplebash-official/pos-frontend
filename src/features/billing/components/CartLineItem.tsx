@@ -23,7 +23,9 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useAppDispatch } from '@/store/hooks';
-import { setLineWarrantyOverride } from '@/store/slices/cartSlice';
+import { setLineHandover, setLineWarrantyOverride } from '@/store/slices/cartSlice';
+import { effectiveHandover } from '../lib/handover';
+import { LineHandoverControl } from './LineHandoverControl';
 import {
   LineWarrantyControl,
   LineWarrantyBadge,
@@ -35,6 +37,10 @@ export interface CartLineItemProps {
   lineGrossCents: number | null;
   lineTotalCents: number | null;
   isNewest?: boolean;
+  /** Whether the sale is on credit: a repair or print job then asks what happens to it. */
+  isCredit: boolean;
+  /** The sale is completed, so what happens to a repair or print job can no longer change. */
+  handoverLocked: boolean;
   onUpdateQty: (id: string, qty: number) => void;
   onUpdateLineDiscount: (id: string, discount: CalcDiscount | null) => void;
   onRemove: (id: string) => void;
@@ -45,6 +51,8 @@ export const CartLineItem = memo(function CartLineItem({
   lineGrossCents,
   lineTotalCents,
   isNewest = false,
+  isCredit,
+  handoverLocked,
   onUpdateQty,
   onUpdateLineDiscount,
   onRemove,
@@ -335,6 +343,15 @@ export const CartLineItem = memo(function CartLineItem({
           </Text>
         </Group>
       </Group>
+
+      {isServiceJob && (
+        <LineHandoverControl
+          value={effectiveHandover(item, isCredit)}
+          ticketNumber={item.sourceTicketNumber ?? item.name}
+          disabled={handoverLocked}
+          onChange={(handover) => dispatch(setLineHandover({ id: item.id, handover }))}
+        />
+      )}
     </Paper>
   );
 });

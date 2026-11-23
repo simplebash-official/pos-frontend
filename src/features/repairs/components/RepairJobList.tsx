@@ -239,6 +239,7 @@ export const RepairJobList = () => {
           status={job.status}
           label={t(JOB_STATUS_LABELS[job.status])}
           promisedReadyAt={job.promisedReadyAt}
+          billedInvoiceNumber={job.billedInvoiceNumber}
         />
       ),
     },

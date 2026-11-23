@@ -22,6 +22,9 @@ export interface PrintJob {
   splitType?: SplitType;
   splitValue?: number; // % or cents fixed
   employeeEarningsCents?: number;
+  /** The invoice that billed this job; absent until it is billed. Set together with the number. */
+  billedInvoiceKey?: string;
+  billedInvoiceNumber?: string;
   createdAt: string;
 }
 
