@@ -266,9 +266,16 @@ const cartSlice = createSlice({
       if (existingIndex >= 0) {
         const existing = state.items[existingIndex];
         // Service tickets are locked at quantity 1
-        const addQty = sourceType === 'repair' || sourceType === 'print' ? 0 : item.quantity;
-        const newQty = existing.quantity + addQty;
+        const isService = sourceType === 'repair' || sourceType === 'print';
+        const newQty = existing.quantity + (isService ? 0 : item.quantity);
         existing.quantity = newQty;
+        if (isService) {
+          // The ticket may have been re-priced or reassigned since it was first added.
+          existing.name = item.name;
+          existing.unitPriceCents = item.unitPriceCents;
+          existing.assignedEmployeeId = item.assignedEmployeeId;
+          existing.assignedEmployeeName = item.assignedEmployeeName;
+        }
         if (item.serialNumbers && item.serialNumbers.length > 0) {
           existing.serialNumbers = [...(existing.serialNumbers ?? []), ...item.serialNumbers];
         }

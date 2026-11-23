@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from 'react';
-import { Alert, Button, Group, Modal, PasswordInput, Stack, Text, Textarea } from '@mantine/core';
+import { Alert, Button, Modal, PasswordInput, Stack, Text, Textarea } from '@mantine/core';
 import { IconLock } from '@tabler/icons-react';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import type { ManagerApproval } from '../types';
+import { ModalFooter } from './ModalFooter';
 
 export interface ManagerApprovalModalProps {
   opened: boolean;
@@ -23,12 +25,14 @@ export interface ManagerApprovalModalProps {
   loading: boolean;
   /** The server's reason when it said no (wrong PIN, nothing to extend...). */
   error: string | null;
-  onConfirm: (approval: ManagerApproval) => void;
+  /** `undefined` when the signed-in user is an Admin or Manager, who approves it themselves. */
+  onConfirm: (approval: ManagerApproval | undefined) => void;
 }
 
 /**
  * A manager or owner signs off an action at the counter: their PIN and a reason. The PIN is
- * checked by the server on the request itself; this window only collects it.
+ * checked by the server on the request itself; this window only collects it. A signed-in Admin or
+ * Manager approves it themselves, so for them it asks for neither.
  */
 export const ManagerApprovalModal = ({
   opened,
@@ -45,6 +49,7 @@ export const ManagerApprovalModal = ({
   onConfirm,
 }: ManagerApprovalModalProps) => {
   const isMobile = useIsMobile();
+  const selfApproves = useCanSelfApprove();
   const [pin, setPin] = useState('');
   const [reason, setReason] = useState('');
   const [tried, setTried] = useState(false);
@@ -62,6 +67,10 @@ export const ManagerApprovalModal = ({
   const reasonProblem = reason.trim() === '' ? t('Please say why.') : null;
 
   const submit = () => {
+    if (selfApproves) {
+      if (blocker === null) onConfirm(undefined);
+      return;
+    }
     setTried(true);
     if (pinProblem !== null || reasonProblem !== null || blocker !== null) return;
     onConfirm({ managerPin: pin.trim(), reason: reason.trim() });
@@ -79,10 +88,14 @@ export const ManagerApprovalModal = ({
       size="lg"
       centered
       fullScreen={isMobile}
+      zIndex={400}
     >
       <form
         onSubmit={(event) => {
           event.preventDefault();
+          // This window is a React child of whatever opened it; its submit must not reach a form
+          // around that (a repair job's own form saved itself when a claim was started).
+          event.stopPropagation();
           submit();
         }}
       >
@@ -91,40 +104,41 @@ export const ManagerApprovalModal = ({
             {description}
           </Text>
           {children}
-          <Alert
-            color="orange"
-            icon={<IconLock size={18} />}
-            title={t('A manager or owner must approve this')}
-          >
-            <Stack gap="sm">
-              <PasswordInput
-                label={t('Manager or owner PIN')}
-                inputMode="numeric"
-                autoComplete="off"
-                data-log-redact
-                value={pin}
-                onChange={(event) => setPin(event.currentTarget.value)}
-                error={tried ? pinProblem : null}
-                size={isMobile ? 'md' : 'sm'}
-              />
-              <Textarea
-                label={reasonLabel}
-                autosize
-                minRows={2}
-                maxLength={500}
-                value={reason}
-                onChange={(event) => setReason(event.currentTarget.value)}
-                error={tried ? reasonProblem : null}
-                size={isMobile ? 'md' : 'sm'}
-              />
-            </Stack>
-          </Alert>
-          {error !== null && (
-            <Text size="sm" c="red" role="alert">
-              {error}
+          {selfApproves ? (
+            <Text size="sm" c="dimmed">
+              {t('This will be recorded as approved by you.')}
             </Text>
+          ) : (
+            <Alert
+              color="orange"
+              icon={<IconLock size={18} />}
+              title={t('A manager or owner must approve this')}
+            >
+              <Stack gap="sm">
+                <PasswordInput
+                  label={t('Manager or owner PIN')}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  data-log-redact
+                  value={pin}
+                  onChange={(event) => setPin(event.currentTarget.value)}
+                  error={tried ? pinProblem : null}
+                  size={isMobile ? 'md' : 'sm'}
+                />
+                <Textarea
+                  label={reasonLabel}
+                  autosize
+                  minRows={2}
+                  maxLength={500}
+                  value={reason}
+                  onChange={(event) => setReason(event.currentTarget.value)}
+                  error={tried ? reasonProblem : null}
+                  size={isMobile ? 'md' : 'sm'}
+                />
+              </Stack>
+            </Alert>
           )}
-          <Group justify="flex-end" mt="md" gap="sm">
+          <ModalFooter note={error}>
             <Button variant="default" onClick={close} disabled={loading}>
               {t('Cancel')}
             </Button>
@@ -136,7 +150,7 @@ export const ManagerApprovalModal = ({
             >
               {confirmLabel}
             </Button>
-          </Group>
+          </ModalFooter>
         </Stack>
       </form>
     </Modal>

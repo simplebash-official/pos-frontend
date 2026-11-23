@@ -229,6 +229,7 @@ export interface CalcRepairItem {
     laborCents: number | undefined;
     partCents: number | undefined;
     partCostCents: number | undefined;
+    discount: ItemDiscount | undefined;
 }
 
 export interface CalcRepairRequest {
@@ -272,7 +273,6 @@ export interface CartTotals {
     retail_cents: number;
     repairs_cents: number;
     print_cents: number;
-    charges_cents: number;
 }
 
 export interface CashCountLine {
@@ -327,9 +327,21 @@ export interface QuotationBlocker {
     line: number | undefined;
 }
 
+export interface RepairBlocker {
+    itemIndex: number;
+    code: RepairBlockerCode;
+}
+
+export interface RepairPreview {
+    totals: RepairTotals;
+    itemDiscountsCents: number[];
+    blockers: RepairBlocker[];
+}
+
 export interface RepairTotals {
     laborCents: number;
     partsCents: number;
+    discountCents: number;
     priceCents: number;
     costCents: number;
 }
@@ -364,9 +376,11 @@ export type ChargeKind = "shipping" | "customs" | "handling" | "insurance" | "ot
 
 export type CostMode = "unit" | "lot";
 
+export type ItemDiscount = { type: "percentage"; basisPoints: number } | { type: "fixed"; cents: number };
+
 export type LineDiscount = { type: "none" } | { type: "fixed"; value: number } | { type: "percentage"; value: number };
 
-export type LineSource = "retail" | "repair" | "print" | "charge";
+export type LineSource = "retail" | "repair" | "print";
 
 export type PaymentMode = "credit" | "full" | "part";
 
@@ -379,6 +393,8 @@ export type QuotationBlockerCode = "customer_missing" | "no_lines" | "name_missi
 export type QuotationDiscountScope = "per_unit" | "total";
 
 export type QuotationDiscountType = "percentage" | "fixed";
+
+export type RepairBlockerCode = "discount_more_than_item" | "discount_on_mixed_item";
 
 export type SplitKind = "percentage" | "fixed";
 
@@ -417,9 +433,10 @@ export function calc_quotation(request: CalcQuotationRequest): CalcQuotationRepl
 export function calc_receipt(request: CalcReceiptRequest): CalcReceiptReply;
 
 /**
- * Works out what a repair job charges and costs from its items.
+ * Works out what a repair job charges and costs from its items, each item's discount, and
+ * what stops it being saved.
  */
-export function calc_repair(request: CalcRepairRequest): RepairTotals;
+export function calc_repair(request: CalcRepairRequest): RepairPreview;
 
 /**
  * Works out each part's share of its whole.

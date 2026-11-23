@@ -19,7 +19,7 @@ import {
   Badge,
 } from '@mantine/core';
 import { IconAlertTriangle, IconInfoCircle, IconShieldLock } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import type {
   Invoice,
   InvoiceItem,
@@ -168,6 +168,10 @@ export const CreditNoteModal = ({
     onClose();
   }, [resetForm, onClose]);
 
+  // A claimed unit is faulty by definition, so it is held for inspection, never put back on sale.
+  const startCondition: CreditNoteItemCondition =
+    warrantyClaim === null ? 'resalable' : 'pending_inspection';
+
   const getLineState = useCallback(
     (item: InvoiceItem): LineState => {
       if (lineStates[item.id]) return lineStates[item.id];
@@ -180,7 +184,7 @@ export const CreditNoteModal = ({
               serial,
               {
                 selected: claimed && serial === warrantyClaim?.serialNumber,
-                condition: 'resalable' as CreditNoteItemCondition,
+                condition: startCondition,
                 disposition: null,
                 reason: 'defective',
               },
@@ -189,14 +193,16 @@ export const CreditNoteModal = ({
         : undefined;
       return {
         selected: remaining > 0 && (warrantyClaim === null || claimed),
-        quantity: Math.min(1, remaining) || 1,
-        condition: 'resalable',
+        quantity: claimed
+          ? Math.min(warrantyClaim.quantity, remaining)
+          : Math.min(1, remaining) || 1,
+        condition: startCondition,
         disposition: null,
         reason: 'defective',
         serialUnits,
       };
     },
-    [lineStates, items, warrantyClaim]
+    [lineStates, items, warrantyClaim, startCondition]
   );
 
   const updateLine = useCallback(
@@ -220,7 +226,7 @@ export const CreditNoteModal = ({
         const current = prev[item.id] || getLineState(item);
         const currentUnit = current.serialUnits?.[serial] ?? {
           selected: false,
-          condition: 'resalable' as CreditNoteItemCondition,
+          condition: startCondition,
           disposition: null,
           reason: 'defective',
         };
@@ -233,7 +239,7 @@ export const CreditNoteModal = ({
         };
       });
     },
-    [getLineState]
+    [getLineState, startCondition]
   );
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.key, p])), [products]);
@@ -464,7 +470,7 @@ export const CreditNoteModal = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: 'Credit Note Created',
         message:
           answer.netRefundCents > 0
@@ -472,7 +478,6 @@ export const CreditNoteModal = ({
             : answer.netRefundCents < 0
               ? `Customer owes ${formatMoney(-answer.netRefundCents)} for the exchange.`
               : 'Exchange settled — no money changed hands.',
-        color: 'green',
       });
       resetForm();
       onCreditNoteSuccess?.();
@@ -488,10 +493,9 @@ export const CreditNoteModal = ({
         return;
       }
       console.error('Failed to create credit note', error);
-      notifications.show({
+      notify.error({
         title: t('Could Not Create Credit Note'),
         message: getErrorMessage(error, t('Please check the details and try again.')),
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);
@@ -552,10 +556,9 @@ export const CreditNoteModal = ({
       (tier) => tier.left > 0
     );
     if (withRoom.length === 0) {
-      notifications.show({
+      notify.error({
         title: t('Out of stock'),
         message: `${product.name}: ${t('no more units left to give.')}`,
-        color: 'red',
       });
       return;
     }
@@ -697,7 +700,7 @@ export const CreditNoteModal = ({
                             {(item.serialNumbers ?? []).map((serial) => {
                               const unit = state.serialUnits?.[serial] ?? {
                                 selected: false,
-                                condition: 'resalable' as CreditNoteItemCondition,
+                                condition: startCondition,
                                 disposition: null,
                                 reason: 'defective',
                               };
@@ -709,6 +712,7 @@ export const CreditNoteModal = ({
                                       <Group gap="xs" wrap="nowrap">
                                         <Checkbox
                                           checked={unit.selected}
+                                          disabled={warrantyClaim !== null}
                                           onChange={(e) =>
                                             updateSerialUnit(item, serial, {
                                               selected: e.currentTarget.checked,
@@ -791,7 +795,7 @@ export const CreditNoteModal = ({
                       <Table.Td style={{ verticalAlign: 'top', paddingTop: 14 }}>
                         <Checkbox
                           checked={state.selected && !isFullyReturned}
-                          disabled={isFullyReturned}
+                          disabled={isFullyReturned || warrantyClaim !== null}
                           onChange={(e) =>
                             updateLine(item.id, { selected: e.currentTarget.checked })
                           }
@@ -805,13 +809,17 @@ export const CreditNoteModal = ({
                           </Text>
                           {state.selected && !isFullyReturned && (
                             <Stack gap={6} mt={4}>
-                              <Select
-                                size="xs"
-                                label={t('Reason')}
-                                data={RETURN_REASON_OPTIONS}
-                                value={state.reason}
-                                onChange={(v) => updateLine(item.id, { reason: v || 'defective' })}
-                              />
+                              {warrantyClaim === null && (
+                                <Select
+                                  size="xs"
+                                  label={t('Reason')}
+                                  data={RETURN_REASON_OPTIONS}
+                                  value={state.reason}
+                                  onChange={(v) =>
+                                    updateLine(item.id, { reason: v || 'defective' })
+                                  }
+                                />
+                              )}
                               {item.sourceType !== 'charge' && (
                                 <Select
                                   size="xs"
@@ -866,7 +874,7 @@ export const CreditNoteModal = ({
                               value={state.quantity}
                               min={1}
                               max={remaining}
-                              disabled={!state.selected}
+                              disabled={!state.selected || warrantyClaim !== null}
                               size="xs"
                               onChange={(v) =>
                                 updateLine(item.id, {
@@ -874,32 +882,42 @@ export const CreditNoteModal = ({
                                 })
                               }
                             />
-                            <Group gap={4} align="center" justify="center" wrap="nowrap">
-                              <Text
-                                size="xs"
-                                c="dimmed"
-                                style={{ fontSize: 11, whiteSpace: 'nowrap' }}
-                              >
-                                {t('Max:')} {remaining}
-                              </Text>
-                              <Button
-                                size="compact-xs"
-                                variant="light"
-                                color="blue"
-                                disabled={state.selected && state.quantity >= remaining}
-                                onClick={() =>
-                                  updateLine(item.id, { selected: true, quantity: remaining })
-                                }
-                                style={{
-                                  fontSize: 10,
-                                  height: 18,
-                                  paddingLeft: 6,
-                                  paddingRight: 6,
-                                }}
-                              >
-                                {t('Max')}
-                              </Button>
-                            </Group>
+                            {warrantyClaim !== null &&
+                            items.indexOf(item) === warrantyClaim.lineIndex ? (
+                              <Badge size="xs" color="blue" variant="light">
+                                {t('Claimed:')} {warrantyClaim.quantity}
+                              </Badge>
+                            ) : (
+                              <Group gap={4} align="center" justify="center" wrap="nowrap">
+                                <Text
+                                  size="xs"
+                                  c="dimmed"
+                                  style={{ fontSize: 11, whiteSpace: 'nowrap' }}
+                                >
+                                  {t('Max:')} {remaining}
+                                </Text>
+                                <Button
+                                  size="compact-xs"
+                                  variant="light"
+                                  color="blue"
+                                  disabled={
+                                    warrantyClaim !== null ||
+                                    (state.selected && state.quantity >= remaining)
+                                  }
+                                  onClick={() =>
+                                    updateLine(item.id, { selected: true, quantity: remaining })
+                                  }
+                                  style={{
+                                    fontSize: 10,
+                                    height: 18,
+                                    paddingLeft: 6,
+                                    paddingRight: 6,
+                                  }}
+                                >
+                                  {t('Max')}
+                                </Button>
+                              </Group>
+                            )}
                             {Boolean(item.returnedQuantity && item.returnedQuantity > 0) && (
                               <Text
                                 size="3xs"

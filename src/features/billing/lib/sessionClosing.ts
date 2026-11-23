@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { queryKeys } from '@/api/queryKeys';
 import { getErrorMessage } from '@/shared/lib/error';
 import { t } from '@/shared/i18n/t';
@@ -50,10 +50,9 @@ export function handleSessionClosingError(
   const message = getErrorMessage(err, options.fallbackMessage);
 
   if (options.notify !== false) {
-    notifications.show({
+    notify.warning({
       title: t('Cash Count In Progress'),
       message,
-      color: 'orange',
     });
   }
 

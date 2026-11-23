@@ -18,14 +18,13 @@ import {
   IconArrowsMinimize,
   IconPackage,
   IconBuildingStore,
-  IconCheck,
   IconTrash,
   IconCategory,
   IconFileSpreadsheet,
   IconTags,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { Product, CreateProductInput, UpdateProductInput } from '../types';
 import {
   useAllProducts,
@@ -98,11 +97,9 @@ export const ProductTable = () => {
       { productKeys: selectedProductIds },
       {
         onSuccess: () => {
-          notifications.show({
+          notify.error({
             title: 'Products Deleted',
             message: 'Selected inventory items removed successfully',
-            color: 'red',
-            icon: <IconCheck size={16} />,
           });
           setSelectedProductIds([]);
           setConfirmDeleteOpen(false);
@@ -148,20 +145,16 @@ export const ProductTable = () => {
         updates: values as UpdateProductInput,
       });
       setSelectedProduct(updated);
-      notifications.show({
+      notify.success({
         title: 'Product Updated',
         message: `Saved changes to ${updated.name}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
       });
     } else {
       const input = values as CreateProductInput;
       const created = await createProductMutation.mutateAsync(input);
-      notifications.show({
+      notify.success({
         title: 'Product Created',
         message: `${created.name} added to the catalog`,
-        color: 'green',
-        icon: <IconCheck size={16} />,
       });
       if (created.stockQuantity > 0) {
         offerLabelPrint({

@@ -29,14 +29,12 @@ export const formatRelativeTime = (date: string | Date | number): string => {
   return dayjs(date).fromNow();
 };
 
-export const formatClockTime = (date: string | Date | number = new Date()): string => {
-  if (!date) return '00:00:00 AM';
-  return dayjs(date).format('hh:mm:ss A');
+export const formatClockTime = (date: string | Date | number): string => {
+  return dayjs(date).format('h:mm:ss A');
 };
 
-export const formatClockDate = (date: string | Date | number = new Date()): string => {
-  if (!date) return 'TODAY';
-  return dayjs(date).format('dddd, MMM D, YYYY').toUpperCase();
+export const formatClockDate = (date: string | Date | number): string => {
+  return dayjs(date).format('ddd, MMM D');
 };
 
 export interface ClockTimeParts {

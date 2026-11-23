@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { SearchCombobox, type SearchComboboxItem } from '@/shared/components/SearchCombobox';
@@ -97,7 +97,7 @@ export const RecurringFormModal: React.FC<RecurringFormModalProps> = ({
           payeeKey: form.payeeKey ?? undefined,
         });
       }
-      notifications.show({ title: t('Regular bill saved'), message: '', color: 'green' });
+      notify.success({ title: t('Regular bill saved'), message: '' });
       onClose();
     } catch (err) {
       setError(getErrorMessage(err, t('The regular bill could not be saved. Please try again.')));

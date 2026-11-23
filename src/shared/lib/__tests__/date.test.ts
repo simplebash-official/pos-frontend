@@ -68,36 +68,28 @@ describe('date formatting utilities', () => {
   });
 
   describe('formatClockTime', () => {
-    it('formats time with hh:mm:ss A format', () => {
+    it('formats time with h:mm:ss A format', () => {
       const specificDate = new Date(2026, 7, 27, 9, 35, 56);
-      expect(formatClockTime(specificDate)).toBe('09:35:56 AM');
+      expect(formatClockTime(specificDate)).toBe('9:35:56 AM');
     });
 
     it('handles PM times correctly', () => {
       const afternoonDate = new Date(2026, 7, 27, 15, 20, 5);
-      expect(formatClockTime(afternoonDate)).toBe('03:20:05 PM');
-    });
-
-    it('returns fallback for falsy value', () => {
-      expect(formatClockTime('' as never)).toBe('00:00:00 AM');
+      expect(formatClockTime(afternoonDate)).toBe('3:20:05 PM');
     });
   });
 
   describe('formatClockDate', () => {
-    it('formats uppercase full weekday, short month, day, year', () => {
+    it('formats short weekday and short month with day', () => {
       const specificDate = new Date(2026, 7, 27); // Aug 27, 2026 is Thursday
-      expect(formatClockDate(specificDate)).toBe('THURSDAY, AUG 27, 2026');
-    });
-
-    it('returns fallback for falsy value', () => {
-      expect(formatClockDate('' as never)).toBe('TODAY');
+      expect(formatClockDate(specificDate)).toBe('Thu, Aug 27');
     });
   });
 
   describe('parseClockTimeParts', () => {
     it('splits a morning formatted clock time into its parts', () => {
-      expect(parseClockTimeParts('09:35:56 AM')).toEqual({
-        hours: '09',
+      expect(parseClockTimeParts('9:35:56 AM')).toEqual({
+        hours: '9',
         minutes: '35',
         seconds: '56',
         period: 'AM',
@@ -105,8 +97,8 @@ describe('date formatting utilities', () => {
     });
 
     it('splits a PM formatted clock time into its parts', () => {
-      expect(parseClockTimeParts('03:20:05 PM')).toEqual({
-        hours: '03',
+      expect(parseClockTimeParts('3:20:05 PM')).toEqual({
+        hours: '3',
         minutes: '20',
         seconds: '05',
         period: 'PM',

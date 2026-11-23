@@ -15,6 +15,7 @@ describe('moneyFormUtils conversions', () => {
   describe('Repair Job Conversions', () => {
     it('generates default empty form values when job is null/undefined', () => {
       const defaults = fromRepairJob(null);
+      expect(defaults.customerKey).toBe('');
       expect(defaults.customerName).toBe('');
       expect(defaults.status).toBe('received');
       expect(defaults.splitType).toBe('percentage');
@@ -25,6 +26,7 @@ describe('moneyFormUtils conversions', () => {
       const job: RepairJob = {
         id: 'rep_1',
         ticketNumber: 'REP-001',
+        customerKey: 'cus_test',
         customerName: 'Alice',
         customerPhone: '0771234567',
         deviceModel: 'iPhone 13',
@@ -43,6 +45,7 @@ describe('moneyFormUtils conversions', () => {
       };
 
       const form = fromRepairJob(job);
+      expect(form.customerKey).toBe('cus_test');
       expect(form.customerName).toBe('Alice');
       expect(form.serialNumber).toBe('IMEI-1');
       expect(form.splitValueRupeesOrPercent).toBe(20);
@@ -50,6 +53,7 @@ describe('moneyFormUtils conversions', () => {
 
     it('converts form values to repair input converting rupees to cents', () => {
       const values = {
+        customerKey: 'cus_test',
         customerName: 'Alice',
         customerPhone: '0771234567',
         deviceModel: 'iPhone 13',
@@ -71,7 +75,7 @@ describe('moneyFormUtils conversions', () => {
       ];
       const input = toRepairInput(values, items);
 
-      expect(input.customer.customerName).toBe('Alice');
+      expect(input.customer).toEqual({ customerKey: 'cus_test' });
       expect(input.serialNumber).toBeUndefined();
       expect(input.items).toEqual(items);
       // A handed-back job sends no items, so the saved ones stay as they are.
@@ -84,6 +88,7 @@ describe('moneyFormUtils conversions', () => {
   describe('Print Job Conversions', () => {
     it('generates default form values for new print job', () => {
       const defaults = fromPrintJob(null);
+      expect(defaults.customerKey).toBe('');
       expect(defaults.customerName).toBe('');
       expect(defaults.customerPhone).toBe('');
       expect(defaults.jobType).toBe('mug');
@@ -96,6 +101,7 @@ describe('moneyFormUtils conversions', () => {
       const job: PrintJob = {
         id: 'prn_1',
         ticketNumber: 'PRN-001',
+        customerKey: 'cus_test',
         customerName: 'Bob',
         customerPhone: '0711122334',
         jobType: 'mug',
@@ -106,6 +112,7 @@ describe('moneyFormUtils conversions', () => {
       };
 
       const form = fromPrintJob(job);
+      expect(form.customerKey).toBe('cus_test');
       expect(form.customerName).toBe('Bob');
       expect(form.customerPhone).toBe('0711122334');
       expect(form.jobType).toBe('mug');
@@ -114,6 +121,7 @@ describe('moneyFormUtils conversions', () => {
 
     it('converts form values to print job input with cents conversion', () => {
       const input = toPrintJobInput({
+        customerKey: 'cus_test',
         customerName: 'Charlie',
         customerPhone: '0712345678',
         jobType: 't-shirt',
@@ -128,7 +136,7 @@ describe('moneyFormUtils conversions', () => {
         splitValueRupeesOrPercent: 15,
       });
 
-      expect(input.customer.customerName).toBe('Charlie');
+      expect(input.customer).toEqual({ customerKey: 'cus_test' });
       expect(input.jobType).toBe('t-shirt');
       expect(input.quantity).toBe(5);
       expect(input.estimatedCostCents).toBe(100000);

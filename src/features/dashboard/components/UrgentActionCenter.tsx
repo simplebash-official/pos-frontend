@@ -23,6 +23,8 @@ import {
   IconFileDollar,
   IconCheck,
   IconSortDescending,
+  IconShieldExclamation,
+  IconHourglassLow,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { UrgentActionItem, UrgentItemType } from '../types';
@@ -88,6 +90,8 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
         if (filter === 'stock') return item.type === 'stockout';
         if (filter === 'credit')
           return item.type === 'credit_overdue' || item.type === 'credit_due_soon';
+        if (filter === 'warranties')
+          return item.type === 'warranty_claim_late' || item.type === 'warranties_ending';
         return true;
       }),
     [activeItems, filter]
@@ -161,6 +165,15 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
     return sortedItems.slice(start, start + PAGE_SIZE);
   }, [sortedItems, currentPage]);
 
+  const filterOptions = [
+    { label: `${t('All')} (${activeItems.length})`, value: 'all' },
+    { label: t('Quotations'), value: 'quotations' },
+    { label: t('Repairs & Pickup'), value: 'repairs' },
+    { label: t('Stockouts'), value: 'stock' },
+    { label: t('Credit'), value: 'credit' },
+    { label: t('Warranties'), value: 'warranties' },
+  ];
+
   // Nothing to act on: one quiet row instead of an empty card with filters.
   if (activeItems.length === 0) {
     return (
@@ -202,6 +215,10 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
       case 'credit_overdue':
       case 'credit_due_soon':
         return <IconFileDollar size={18} />;
+      case 'warranty_claim_late':
+        return <IconShieldExclamation size={18} />;
+      case 'warranties_ending':
+        return <IconHourglassLow size={18} />;
     }
   };
 
@@ -247,7 +264,9 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
                 </Badge>
               </Group>
               <Text size="xs" c="dimmed">
-                {t('Payments due, jobs to hand back, and low stock that needs you today')}
+                {t(
+                  'Payments due, jobs to hand back, late warranty claims and low stock that need you today'
+                )}
               </Text>
             </div>
           </Group>
@@ -257,19 +276,26 @@ export const UrgentActionCenter = ({ items }: UrgentActionCenterProps) => {
             wrap={isMobile ? 'wrap' : 'nowrap'}
             style={{ width: isMobile ? '100%' : 'auto' }}
           >
-            <SegmentedControl
-              size="xs"
-              value={filter}
-              onChange={handleFilterChange}
-              data={[
-                { label: `All (${activeItems.length})`, value: 'all' },
-                { label: t('Quotations'), value: 'quotations' },
-                { label: t('Repairs & Pickup'), value: 'repairs' },
-                { label: t('Stockouts'), value: 'stock' },
-                { label: t('Credit'), value: 'credit' },
-              ]}
-              style={{ width: isMobile ? '100%' : 'auto', flexShrink: 0 }}
-            />
+            {/* Six choices do not fit across a phone, so there they are a list. */}
+            {isMobile ? (
+              <Select
+                size="md"
+                value={filter}
+                onChange={(value) => value !== null && handleFilterChange(value)}
+                data={filterOptions}
+                allowDeselect={false}
+                aria-label={t('Show alerts for')}
+                style={{ width: '100%' }}
+              />
+            ) : (
+              <SegmentedControl
+                size="xs"
+                value={filter}
+                onChange={handleFilterChange}
+                data={filterOptions}
+                style={{ flexShrink: 0 }}
+              />
+            )}
 
             <Select
               size="xs"

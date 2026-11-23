@@ -292,6 +292,10 @@ export const SearchHistoryInput = React.forwardRef<HTMLInputElement, SearchHisto
                   }
                 }}
                 placeholder={placeholder}
+                autoComplete="nope"
+                name="search-history-query"
+                data-lpignore="true"
+                data-1p-ignore
                 leftSection={leftSection ?? <IconSearch size={16} />}
                 value={value}
                 onChange={handleChange}

@@ -1,20 +1,11 @@
-import { useState } from 'react';
-import { Anchor, Box, Button, Group, Loader, Paper, Stack, Text } from '@mantine/core';
+import { Anchor, Box, Group, Loader, Paper, Stack, Text } from '@mantine/core';
 import { IconShieldCheck } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import {
-  StartClaimModal,
-  WarrantyStateDot,
-  useWarranties,
-  validUntil,
-  type Warranty,
-} from '@/features/warranties';
+import { ClaimLauncher, WarrantyStateDot, useWarranties, validUntil } from '@/features/warranties';
 import { ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { t } from '@/shared/i18n/t';
-
-const CLAIMABLE = new Set(['active', 'expiring_soon', 'expired']);
 
 export interface RepairWarrantiesPanelProps {
   repairKey: string;
@@ -32,16 +23,9 @@ export const RepairWarrantiesPanel = ({
 }: RepairWarrantiesPanelProps) => {
   const navigate = useNavigate();
   const canView = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
-  const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
   const warranties = useWarranties(canView ? { repairKey } : null);
-  const [claiming, setClaiming] = useState<Warranty | null>(null);
 
   if (!canView) return null;
-
-  const open = (warranty: Warranty | null) => {
-    setClaiming(warranty);
-    onNestedWindowChange(warranty !== null);
-  };
 
   return (
     <Paper withBorder p="sm" bg="var(--bg-app)">
@@ -79,28 +63,15 @@ export const RepairWarrantiesPanel = ({
                   </Text>
                 </Group>
               </Box>
-              {canRecord && CLAIMABLE.has(warranty.state) && (
-                <Button
-                  size="xs"
-                  variant="light"
-                  onClick={() => open(warranty)}
-                  data-log-id="repairs.start-warranty-claim"
-                >
-                  {t('Start claim')}
-                </Button>
-              )}
+              <ClaimLauncher
+                warranty={warranty}
+                compact
+                onNestedWindowChange={onNestedWindowChange}
+              />
             </Group>
           ))
         )}
       </Stack>
-      <StartClaimModal
-        warranty={claiming}
-        onClose={() => open(null)}
-        onStarted={(claim) => {
-          open(null);
-          navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${claim.key}`);
-        }}
-      />
     </Paper>
   );
 };

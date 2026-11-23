@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Group, Loader, Progress, Stack, Text, Title } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import { ROUTES } from '@/constants/routes';
 import { queryKeys } from '@/api/queryKeys';
@@ -90,8 +90,7 @@ export const JoinCloudShopStep = ({
       void (async () => {
         await completeInstallationSetupNative(false);
         await queryClient.invalidateQueries({ queryKey: queryKeys.system.all });
-        notifications.show({
-          color: 'teal',
+        notify.success({
           message: t('Your shop is ready. Sign in as "admin" with the password you chose.'),
         });
         navigate(`${ROUTES.LOGIN}?username=admin`, { replace: true });

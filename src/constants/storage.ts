@@ -10,10 +10,13 @@ export const STORAGE_KEYS = {
   SIDEBAR_COLLAPSED: 'pos-sidebar-collapsed',
   /** Ids of sidebar sections the user folded shut. */
   SIDEBAR_FOLDED: 'pos-sidebar-folded',
+  /** How many warranty cards the Warranties page shows in a row. */
+  WARRANTY_COLUMNS: 'pos-warranty-columns',
+  /** Whether this computer prints job receipts on an A5 sheet or the receipt roll. */
+  JOB_RECEIPT_SHEET: 'pos-job-receipt-sheet',
   CUSTOMERS: 'pos_customers_data',
   HELD_CARTS: 'pos_held_carts_data',
   SETTINGS: 'pos_settings_data',
-  NOTIFICATIONS: 'pos_notifications_data',
   /** Per-install device identity, minted once and never rotated. See src/offline/ids/deviceId.ts */
   DEVICE_ID: 'pos_device_id',
   /** Dev-only offline simulator override. See src/offline/connectivity/ConnectivityMonitor.ts */

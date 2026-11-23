@@ -18,6 +18,7 @@ import type {
   TopCustomersResponse,
   TopProductsResponse,
   EngineFeedResponse,
+  WarrantyReport,
 } from '../types';
 
 /**
@@ -119,6 +120,10 @@ export const fetchAnalyticsDiscounts = (p: AnalyticsRequestParams) =>
 
 export const fetchAnalyticsRefunds = (p: AnalyticsRequestParams) =>
   get<RefundAnalyticsResponse>('/reports/analytics/refunds', analyticsParams(p));
+
+/** Claim rates, supplier trips and rework cost for the period (`warranty_reports:view`). */
+export const fetchWarrantyReport = (p: AnalyticsRequestParams) =>
+  get<WarrantyReport>('/reports/warranties', analyticsParams(p));
 
 // --- existing endpoints reused by the UI (explicit date range) -----------
 

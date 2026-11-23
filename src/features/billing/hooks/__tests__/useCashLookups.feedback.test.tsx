@@ -60,11 +60,13 @@ describe('create hooks tell the person how the save went', () => {
     await act(async () => {
       await mutations.payee.mutateAsync({ payeeType: 'vendor', name: 'Water Board' });
     });
-    expect(show).toHaveBeenLastCalledWith({
-      title: 'Landlord or company added',
-      message: 'Water Board',
-      color: 'teal',
-    });
+    expect(show).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        title: 'Landlord or company added',
+        message: 'Water Board',
+        color: 'teal',
+      })
+    );
 
     createPayee.mockRejectedValueOnce(new Error('That name is already used.'));
     await act(async () => {
@@ -72,11 +74,13 @@ describe('create hooks tell the person how the save went', () => {
         .mutateAsync({ payeeType: 'vendor', name: 'Water Board' })
         .catch(() => undefined);
     });
-    expect(show).toHaveBeenLastCalledWith({
-      title: 'Could not add the landlord or company',
-      message: 'That name is already used.',
-      color: 'red',
-    });
+    expect(show).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        title: 'Could not add the landlord or company',
+        message: 'That name is already used.',
+        color: 'red',
+      })
+    );
   });
 
   it('adding a category: green on success, red with the reason on failure', async () => {
@@ -84,11 +88,13 @@ describe('create hooks tell the person how the save went', () => {
     await act(async () => {
       await mutations.category.mutateAsync({ movementType: 'petty_expense', name: 'Courier' });
     });
-    expect(show).toHaveBeenLastCalledWith({
-      title: 'Category added',
-      message: 'Courier',
-      color: 'teal',
-    });
+    expect(show).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        title: 'Category added',
+        message: 'Courier',
+        color: 'teal',
+      })
+    );
 
     createCashCategory.mockRejectedValueOnce(new Error('That category already exists.'));
     await act(async () => {
@@ -96,10 +102,12 @@ describe('create hooks tell the person how the save went', () => {
         .mutateAsync({ movementType: 'petty_expense', name: 'Courier' })
         .catch(() => undefined);
     });
-    expect(show).toHaveBeenLastCalledWith({
-      title: 'Could not add the category',
-      message: 'That category already exists.',
-      color: 'red',
-    });
+    expect(show).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        title: 'Could not add the category',
+        message: 'That category already exists.',
+        color: 'red',
+      })
+    );
   });
 });

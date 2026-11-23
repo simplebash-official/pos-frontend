@@ -42,3 +42,9 @@ export const deleteEmployee = async (id: string): Promise<void> => {
 export const deleteEmployees = async (ids: string[]): Promise<void> => {
   await apiClient.delete('/employees/batch', { data: { ids } });
 };
+
+/** The signed-in admin's own employee profile (role owner), made from their account name. */
+export const createOwnerProfile = async (input: { phone: string }): Promise<Employee> => {
+  const response = await apiClient.post<ApiResponse<Employee>>('/employees/me', input);
+  return response.data;
+};

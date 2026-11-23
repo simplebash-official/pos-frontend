@@ -1,4 +1,4 @@
-import type { JobStatus } from '@/constants';
+import type { PrintJobStatus } from '@/constants';
 import type { SplitType } from '@/features/employees/types';
 import type { CustomerRef, AssignmentInfo } from '@/shared/types/ticketInput';
 
@@ -7,13 +7,14 @@ export type PrintJobType = 'mug' | 't-shirt' | 'handbill' | 'banner' | 'custom';
 export interface PrintJob {
   id: string;
   ticketNumber: string;
+  customerKey: string;
   customerName: string;
   customerPhone: string;
   jobType: PrintJobType;
   quantity: number;
   promisedReadyAt?: string; // "YYYY-MM-DD" — date promised to the customer
   isOverdue?: boolean; // server-computed: promised date passed and job still open
-  status: JobStatus;
+  status: PrintJobStatus;
   estimatedCostCents: number; // Customer total cost
   materialCostCents?: number; // Raw materials cost (t-shirts, mug blanks, ink)
   assignedEmployeeId?: string;
@@ -30,7 +31,7 @@ export interface PrintJobInput {
   jobType: PrintJobType;
   quantity: number;
   promisedReadyAt?: string;
-  status: JobStatus;
+  status: PrintJobStatus;
   estimatedCostCents: number;
   materialCostCents?: number;
 }

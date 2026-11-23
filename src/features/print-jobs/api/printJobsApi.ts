@@ -8,7 +8,7 @@ export interface BackendPrintJob {
   id: string;
   key: string;
   ticketNumber: string;
-  customerKey?: string;
+  customerKey: string;
   customerName: string;
   customerPhone: string;
   jobType: PrintJobType;
@@ -37,6 +37,7 @@ interface PrintJobListResponseData {
 export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   id: job.key,
   ticketNumber: job.ticketNumber,
+  customerKey: job.customerKey,
   customerName: job.customerName,
   customerPhone: job.customerPhone,
   jobType: job.jobType,
@@ -62,7 +63,7 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
 export interface FetchPrintJobsParams {
   /** Free-text match against ticket number / customer name / phone / job type. */
   search?: string;
-  /** Exact status match: received | diagnosing | in_repair | ready | delivered | cancelled. */
+  /** Exact status match: received | in_repair (in production) | ready | delivered | cancelled. */
   status?: string;
   /** Only `"today"` is meaningful; omit for all time. */
   datePreset?: 'today';

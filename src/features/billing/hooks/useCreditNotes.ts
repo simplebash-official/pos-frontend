@@ -1,9 +1,14 @@
 import { invalidateInvoiceBalance } from './useInvoiceBalance';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { createCreditNote, fetchCreditNotes, voidCreditNote } from '../api/creditNotesApi';
+import {
+  createCreditNote,
+  fetchCreditNotes,
+  resolveCreditNote,
+  voidCreditNote,
+} from '../api/creditNotesApi';
 import type { CreditNote } from '../types';
-import type { CreateCreditNoteInput } from '../api/creditNotesApi';
+import type { CreateCreditNoteInput, ResolveCreditNoteInput } from '../api/creditNotesApi';
 
 export interface CreateCreditNotePayload {
   input: CreateCreditNoteInput;
@@ -32,6 +37,8 @@ export const useCreateCreditNote = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+      // What came back has its warranty cancelled.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all });
     },
   });
 };
@@ -50,6 +57,25 @@ export const useVoidCreditNote = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
+};
+
+/** Records the inspection of a credit note held for inspection; stock and serials move on the server. */
+export const useResolveCreditNote = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      creditNoteKey,
+      input,
+    }: {
+      creditNoteKey: string;
+      input: ResolveCreditNoteInput;
+    }) => resolveCreditNote(creditNoteKey, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.creditNotes.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 };

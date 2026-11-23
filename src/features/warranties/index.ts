@@ -1,3 +1,4 @@
+export { LineWarrantyControl, LineWarrantyBadge } from './components/LineWarrantyControl';
 export { WarrantiesPage } from './components/WarrantiesPage';
 export { WarrantyDetailDrawer } from './components/WarrantyDetailDrawer';
 export { InvoiceClaimsCard } from './components/InvoiceClaimsCard';
@@ -5,13 +6,20 @@ export { WarrantyChip } from './components/WarrantyChip';
 export { WarrantyStateDot } from './components/WarrantyStateDot';
 export { ProductWarrantyFields } from './components/ProductWarrantyFields';
 export { CoverageEditor } from './components/CoverageEditor';
-export { StartClaimModal } from './components/StartClaimModal';
+export { ClaimLauncher } from './components/ClaimLauncher';
+export { BatchClaimBar } from './components/BatchClaimBar';
+export { WarrantyMetrics } from './components/WarrantyMetrics';
 export { useWarranties } from './hooks/useWarranties';
+export { useClaims } from './hooks/useClaims';
+export { fetchWarrantyStats } from './api/warrantiesApi';
 export {
   coverageLabel,
+  canStartClaim,
   endsOnIfStartedToday,
   profileProblem,
+  stateLook,
   toProfileInput,
   validUntil,
+  warrantyChipLabel,
 } from './lib/warrantyView';
 export * from './types';

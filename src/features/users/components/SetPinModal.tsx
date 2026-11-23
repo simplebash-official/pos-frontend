@@ -2,8 +2,8 @@ import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Modal, PasswordInput, Button, Group, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconKey, IconCheck } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { IconKey } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -44,11 +44,9 @@ export const SetPinModal = ({ opened, onClose, target }: SetPinModalProps) => {
       return;
     }
     void queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-    notifications.show({
+    notify.success({
       title: 'PIN Saved',
       message: target ? `${target.name}'s PIN has been set` : 'Your PIN has been set',
-      color: 'green',
-      icon: <IconCheck size={16} />,
     });
     onClose();
   };

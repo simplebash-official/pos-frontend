@@ -2,7 +2,7 @@ import { useInvoiceBalance } from '@/features/billing/hooks/useInvoiceBalance';
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Group, Stack, Text } from '@mantine/core';
+import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import {
   IconActivity,
   IconBan,
@@ -15,10 +15,11 @@ import {
   IconPackage,
   IconPrinter,
   IconReceipt,
+  IconShieldCheck,
   IconSquareCheck,
   IconWallet,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import type { Invoice, CreditNote } from '@/features/billing/types';
 import { formatMoney } from '@/shared/lib/money';
 import { describeInvoiceUnits } from '@/shared/calculations';
@@ -52,12 +53,13 @@ import {
 } from '@/shared/components/drawer';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
-import { InvoiceClaimsCard, type ClaimRefund } from '@/features/warranties';
+import { InvoiceClaimsCard, useClaims, type ClaimRefund } from '@/features/warranties';
 import { InvoiceCreditNotesCard } from './InvoiceCreditNotesCard';
 import { InvoiceItemsPanel } from './InvoiceItemsPanel';
 import { InvoicePaymentModal } from './InvoicePaymentModal';
 import { InvoicePaymentsPanel } from './InvoicePaymentsPanel';
 import { InvoiceVoidModal } from './InvoiceVoidModal';
+import { ResolveCreditNoteModal } from './ResolveCreditNoteModal';
 
 const SaleDocumentPreviewModal = lazy(() =>
   import('@/features/billing/components/SaleDocumentPreviewModal').then((m) => ({
@@ -132,6 +134,7 @@ export const InvoiceDetailDrawer = ({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [refundClaim, setRefundClaim] = useState<ClaimRefund | null>(null);
+  const [claimWindowOpen, setClaimWindowOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<InvoiceTab>('items');
 
@@ -140,6 +143,7 @@ export const InvoiceDetailDrawer = ({
     null
   );
   const [previewCreditNote, setPreviewCreditNote] = useState<CreditNote | null>(null);
+  const [resolvingCreditNote, setResolvingCreditNote] = useState<CreditNote | null>(null);
 
   // Credit Note Modal State
   const [creditNoteModalOpen, setCreditNoteModalOpen] = useState(false);
@@ -164,6 +168,10 @@ export const InvoiceDetailDrawer = ({
 
   const { data: payments } = useInvoicePayments(invoice?.id);
   const { data: invoiceCreditNotes } = useInvoiceCreditNotes(invoice?.id);
+  const { data: invoiceClaims } = useClaims(
+    invoice?.id ? { status: 'all', invoiceKey: invoice.id } : null
+  );
+  const claimCount = invoiceClaims?.total ?? invoiceClaims?.items.length ?? 0;
   const recordPaymentMutation = useRecordPayment();
   const voidInvoiceMutation = useVoidInvoice();
   const closeInvoiceMutation = useCloseInvoice();
@@ -173,6 +181,15 @@ export const InvoiceDetailDrawer = ({
   const balance = useInvoiceBalance(invoice ? invoice.id : '', Boolean(invoice));
   const remainingCents = balance.data === undefined ? 0 : balance.data.balanceDueCents;
 
+  // Deep link (a claim decided as a refund): the claim card that starts the refund lives on the
+  // Activity tab, and only the open tab is mounted.
+  useEffect(() => {
+    if (opened && refundClaimOnMount !== undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab('activity');
+    }
+  }, [opened, refundClaimOnMount]);
+
   const handleClose = () => {
     setActiveTab('items');
     onClose();
@@ -181,10 +198,9 @@ export const InvoiceDetailDrawer = ({
   const handleCopyInvoiceNumber = () => {
     if (!invoice) return;
     navigator.clipboard.writeText(invoice.invoiceNumber);
-    notifications.show({
+    notify.success({
       title: 'Copied',
       message: `Invoice #${invoice.invoiceNumber} copied to clipboard`,
-      color: 'green',
     });
   };
 
@@ -222,10 +238,9 @@ export const InvoiceDetailDrawer = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: 'Payment Recorded',
         message: `Payment of ${formatMoney(cents)} recorded successfully. Customer balance updated.`,
-        color: 'green',
       });
       setPaymentClosingError(null);
       setPaymentModalOpen(false);
@@ -242,10 +257,9 @@ export const InvoiceDetailDrawer = ({
         setPaymentClosingError(closingMessage);
         return;
       }
-      notifications.show({
+      notify.error({
         title: t('Payment Error'),
         message: getErrorMessage(err, t('Failed to record payment')),
-        color: 'red',
       });
     } finally {
       setIsSubmittingPay(false);
@@ -260,20 +274,18 @@ export const InvoiceDetailDrawer = ({
         invoiceKey: invoice.id,
         reason: voidReason.trim(),
       });
-      notifications.show({
+      notify.info({
         title: 'Invoice Voided',
         message: `Invoice #${invoice.invoiceNumber} has been voided and its stock/payment effects reversed.`,
-        color: 'gray',
       });
       setVoidModalOpen(false);
       setVoidReason('');
       onRefresh?.();
       handleClose();
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Could Not Void Invoice',
         message: 'Please try again.',
-        color: 'red',
       });
     } finally {
       setIsVoiding(false);
@@ -285,18 +297,16 @@ export const InvoiceDetailDrawer = ({
     setIsClosing(true);
     try {
       await closeInvoiceMutation.mutateAsync({ invoiceKey: invoice.id });
-      notifications.show({
+      notify.info({
         title: 'Invoice Closed',
         message: `Invoice #${invoice.invoiceNumber} is now marked closed.`,
-        color: 'violet',
       });
       onRefresh?.();
       handleClose();
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Could Not Close Invoice',
         message: 'This invoice may still have an open credit note against it.',
-        color: 'red',
       });
     } finally {
       setIsClosing(false);
@@ -309,8 +319,9 @@ export const InvoiceDetailDrawer = ({
         data={invoice}
         opened={opened}
         onClose={handleClose}
-        width="wide"
+        width="xwide"
         zIndex={zIndex ?? 300}
+        closeOnEscape={!claimWindowOpen}
         title={{
           icon: <IconFileInvoice size={20} />,
           text: `${t('Invoice #')}${invoice?.invoiceNumber ?? ''}`,
@@ -418,7 +429,12 @@ export const InvoiceDetailDrawer = ({
                   },
                 ]
               : []),
-            { value: 'activity', label: t('Activity'), icon: <IconActivity size={16} /> },
+            {
+              value: 'activity',
+              label: t('Activity'),
+              icon: <IconActivity size={16} />,
+              count: claimCount + (invoiceCreditNotes?.length ?? 0) || undefined,
+            },
           ];
           // A credit invoice with no payments has no Payments tab, so fall back if it was selected.
           const tab: InvoiceTab = tabs.some((x) => x.value === activeTab) ? activeTab : 'items';
@@ -484,16 +500,34 @@ export const InvoiceDetailDrawer = ({
                     <>
                       {inv.customerPhone ? <div>{inv.customerPhone}</div> : null}
                       {inv.customerAddress ? <div>{inv.customerAddress}</div> : null}
-                      {inv.hasCreditNotes ? (
-                        <div>
-                          {inv.creditNoteCount} {t('Credit Note')}
-                          {inv.creditNoteCount === 1 ? '' : 's'}
-                          {d.isFullyReturned
-                            ? ` · ${t('Fully Returned')}`
-                            : d.isPartiallyReturned
-                              ? ` · ${t('Partially Returned')} (${d.totalReturnedUnits})`
-                              : ''}
-                        </div>
+                      {inv.hasCreditNotes || claimCount > 0 ? (
+                        <Group gap={6} mt={4} wrap="wrap">
+                          {inv.hasCreditNotes && (
+                            <Badge size="xs" color="orange" variant="light">
+                              {inv.creditNoteCount}{' '}
+                              {inv.creditNoteCount === 1 ? t('Return') : t('Returns')}
+                              {d.isFullyReturned
+                                ? ` · ${t('Fully Returned')}`
+                                : d.isPartiallyReturned
+                                  ? ` (${d.totalReturnedUnits})`
+                                  : ''}
+                            </Badge>
+                          )}
+                          {claimCount > 0 && (
+                            <Badge
+                              size="xs"
+                              color="blue"
+                              variant="light"
+                              leftSection={<IconShieldCheck size={10} />}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() =>
+                                navigate(`${ROUTES.WARRANTIES}?view=claims&invoiceKey=${inv.id}`)
+                              }
+                            >
+                              {claimCount} {claimCount === 1 ? t('Claim') : t('Claims')}
+                            </Badge>
+                          )}
+                        </Group>
                       ) : null}
                     </>
                   }
@@ -593,49 +627,59 @@ export const InvoiceDetailDrawer = ({
               </DrawerRail>
 
               <DrawerMain>
-                <InvoiceClaimsCard
-                  invoiceKey={inv.id}
-                  refundOnLoad={refundClaimOnMount}
-                  onRefund={(refund) => {
-                    setRefundClaim(refund);
-                    setCreditNoteModalOpen(true);
-                  }}
-                  onOpen={(claimKey) =>
-                    navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${claimKey}`)
-                  }
-                />
-                <InvoiceCreditNotesCard
-                  creditNotes={invoiceCreditNotes}
-                  isFullyReturned={d.isFullyReturned}
-                  onPreview={setPreviewCreditNote}
-                  onProcessReturn={() => setCreditNoteModalOpen(true)}
-                />
-
                 <AnimatedTabs<InvoiceTab> value={tab} onChange={setActiveTab} tabs={tabs}>
                   {(value) => {
-                    if (value === 'items') return <InvoiceItemsPanel invoice={inv} />;
+                    if (value === 'items') {
+                      return (
+                        <InvoiceItemsPanel
+                          key={inv.id}
+                          invoice={inv}
+                          onNestedWindowChange={setClaimWindowOpen}
+                        />
+                      );
+                    }
                     if (value === 'payments') {
                       return (
                         <InvoicePaymentsPanel payments={payments} remainingCents={remainingCents} />
                       );
                     }
                     return (
-                      <Stack gap="xs">
-                        <Text size="sm" fw={700}>
-                          {t('Print History')}
-                        </Text>
-                        {logs.length === 0 ? (
-                          <Text size="xs" c="dimmed">
-                            {t('No print logs recorded yet.')}
+                      <Stack gap="md">
+                        <InvoiceClaimsCard
+                          invoiceKey={inv.id}
+                          refundOnLoad={refundClaimOnMount}
+                          onRefund={(refund) => {
+                            setRefundClaim(refund);
+                            setCreditNoteModalOpen(true);
+                          }}
+                          onOpen={(claimKey) =>
+                            navigate(`${ROUTES.WARRANTIES}?view=claims&claim=${claimKey}`)
+                          }
+                        />
+                        <InvoiceCreditNotesCard
+                          creditNotes={invoiceCreditNotes}
+                          isFullyReturned={d.isFullyReturned}
+                          onPreview={setPreviewCreditNote}
+                          onResolve={setResolvingCreditNote}
+                          onProcessReturn={() => setCreditNoteModalOpen(true)}
+                        />
+                        <Stack gap="xs">
+                          <Text size="sm" fw={700}>
+                            {t('Print History')}
                           </Text>
-                        ) : (
-                          <Text size="xs" c="dimmed">
-                            {t('Printed')} {logs.length}
-                            {t('× · Last printed')}{' '}
-                            {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} ({lastLog?.format}
-                            )
-                          </Text>
-                        )}
+                          {logs.length === 0 ? (
+                            <Text size="xs" c="dimmed">
+                              {t('No print logs recorded yet.')}
+                            </Text>
+                          ) : (
+                            <Text size="xs" c="dimmed">
+                              {t('Printed')} {logs.length}
+                              {t('× · Last printed')}{' '}
+                              {lastLog ? formatDateTime(lastLog.printedAt) : 'N/A'} (
+                              {lastLog?.format})
+                            </Text>
+                          )}
+                        </Stack>
                       </Stack>
                     );
                   }}
@@ -673,6 +717,14 @@ export const InvoiceDetailDrawer = ({
             }}
             subject={invoice ? { kind: 'invoice', invoice } : null}
             documentKind={previewDocumentKind}
+          />
+        )}
+
+        {/* Inspect and resolve a credit note whose units were held back */}
+        {resolvingCreditNote !== null && (
+          <ResolveCreditNoteModal
+            creditNote={resolvingCreditNote}
+            onClose={() => setResolvingCreditNote(null)}
           />
         )}
 

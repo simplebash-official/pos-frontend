@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Group, SimpleGrid, Switch, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectShopProfile,
@@ -75,10 +75,9 @@ export const BankDetailsSection = ({ onDirtyChange }: SectionProps) => {
     );
     dispatch(updatePrintSettings({ showBankDetails: form.values.showBankDetails }));
     form.resetDirty();
-    notifications.show({
+    notify.success({
       title: 'Settings Saved',
       message: 'Bank account details updated successfully.',
-      color: 'green',
     });
   };
 

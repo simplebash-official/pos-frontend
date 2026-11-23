@@ -23,3 +23,13 @@ export const useHasAnyPermission = (permissions: Permission[]): boolean => {
  * separate from `useHasPermission`/`useHasAnyPermission`.
  */
 export const useIsAdmin = (): boolean => useAppSelector(selectUserRole) === USER_ROLES.ADMIN;
+
+/**
+ * A signed-in Admin (the owner) or Manager approves their own actions, so no manager PIN or
+ * reason is asked of them; Staff are asked. Mirrors the backend's `Role::self_approves`, which
+ * stays the authority: the server refuses a PIN from one of these and requires it from Staff.
+ */
+export const useCanSelfApprove = (): boolean => {
+  const role = useAppSelector(selectUserRole);
+  return role === USER_ROLES.ADMIN || role === USER_ROLES.MANAGER;
+};

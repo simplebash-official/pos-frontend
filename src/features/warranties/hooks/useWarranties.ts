@@ -1,18 +1,27 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
 import {
   extendWarranty,
   fetchWarranties,
+  fetchWarrantyPage,
   fetchWarranty,
+  fetchWarrantyStats,
   getWarrantyCard,
   lookupWarranties,
   voidWarranty,
   type WarrantyCardPaper,
   type WarrantyListFilter,
 } from '../api/warrantiesApi';
-import type { ManagerApproval, WarrantyCoverage, WarrantyDetail } from '../types';
+import { useModuleStats } from '@/shared/hooks/useModuleStats';
+import type { ManagerApproval, WarrantyCoverage, WarrantyDetail, WarrantyStats } from '../types';
 
 /** The shortest text worth asking the server about. */
 export const LOOKUP_MIN_LENGTH = 3;
@@ -28,12 +37,40 @@ export const useWarrantyLookup = (q: string) => {
   });
 };
 
+/** How many warranties the browse list loads at a time. */
+export const BROWSE_PAGE_SIZE = 24;
+
+/** Every warranty, newest first, a page at a time, for the list shown before anyone searches. */
+export const useAllWarranties = () =>
+  useInfiniteQuery({
+    queryKey: queryKeys.warranties.list({ browse: true }),
+    queryFn: ({ pageParam }) => fetchWarrantyPage(pageParam, BROWSE_PAGE_SIZE),
+    initialPageParam: 1,
+    staleTime: 0,
+    getNextPageParam: (last) => (last.page * last.limit < last.total ? last.page + 1 : undefined),
+  });
+
 /** One customer's or one invoice's warranties. Pass `null` to wait. */
 export const useWarranties = (filter: WarrantyListFilter | null) =>
   useQuery({
     queryKey: queryKeys.warranties.list(filter ?? {}),
     queryFn: () => fetchWarranties(filter as WarrantyListFilter),
     enabled: filter !== null,
+  });
+
+/** The warranty desk's headline numbers, kept for offline as the other KPI strips are. */
+export const useWarrantyStats = () =>
+  useModuleStats<WarrantyStats>('warranties', queryKeys.warranties.stats(), fetchWarrantyStats, {
+    staleTime: 0,
+  });
+
+/** Warranties in force that end within the week, soonest first. */
+export const useEndingSoonWarranties = (enabled: boolean) =>
+  useQuery({
+    queryKey: queryKeys.warranties.list({ state: 'expiring_soon' }),
+    queryFn: () => fetchWarranties({ state: 'expiring_soon' }),
+    enabled,
+    staleTime: 0,
   });
 
 /** One warranty in full. Pass `null` to wait. */
@@ -51,7 +88,7 @@ const useRefreshWarranties = () => {
 
 export interface VoidWarrantyInput {
   key: string;
-  approval: ManagerApproval;
+  approval?: ManagerApproval;
 }
 
 export const useVoidWarranty = () => {
@@ -70,7 +107,7 @@ export const useVoidWarranty = () => {
 export interface ExtendWarrantyInput {
   key: string;
   coverage: WarrantyCoverage;
-  approval: ManagerApproval;
+  approval?: ManagerApproval;
 }
 
 export const useExtendWarranty = () => {

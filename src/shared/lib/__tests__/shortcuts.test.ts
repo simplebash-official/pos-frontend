@@ -59,6 +59,18 @@ describe('shortcuts module', () => {
     });
   });
 
+  describe('warrantyLookup', () => {
+    it('shows the Option key on a Mac and Alt on Windows and Linux', () => {
+      const keys = (os: 'macos' | 'windows' | 'linux') =>
+        getShortcutKeyParts(getActionShortcut('warrantyLookup', os).primary, { platform: os }).map(
+          (part) => part.text
+        );
+      expect(keys('macos')).toEqual(['⌥', 'W']);
+      expect(keys('windows')).toEqual(['Alt', 'W']);
+      expect(keys('linux')).toEqual(['Alt', 'W']);
+    });
+  });
+
   describe('getActionShortcut', () => {
     it('returns macOS configuration for completeCheckout', () => {
       const sc = getActionShortcut('completeCheckout', 'macos');

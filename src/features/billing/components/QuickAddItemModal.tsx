@@ -13,7 +13,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import { IconBarcode } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
 import { formatMoney, toCents } from '@/shared/lib/money';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -159,10 +159,9 @@ const QuickAddItemContent = ({
       setErrors((prev) => ({ ...prev, subcategory: apiError.message }));
       return;
     }
-    notifications.show({
+    notify.error({
       title: t('Could not save the item'),
       message: apiError.message,
-      color: 'red',
     });
   };
 

@@ -1,8 +1,8 @@
 import { t } from '@/shared/i18n/t';
 import React from 'react';
 import { Group, Stack, Badge, Text, ActionIcon, Tooltip } from '@mantine/core';
-import { IconCopy, IconCheck } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { IconCopy } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
 
 export interface PhoneDisplayProps {
   primaryPhone?: string;
@@ -25,11 +25,9 @@ export const PhoneDisplay = ({
     e.stopPropagation();
     if (!phone || phone === 'N/A') return;
     navigator.clipboard.writeText(phone);
-    notifications.show({
+    notify.success({
       title: 'Copied!',
       message: `${label} phone (${phone}) copied to clipboard`,
-      color: 'teal',
-      icon: <IconCheck size={16} />,
     });
   };
 

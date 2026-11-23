@@ -11,6 +11,8 @@ export interface ConfirmDialogProps {
   cancelLabel?: string;
   confirmColor?: string;
   loading?: boolean;
+  /** Above the window it is opened from, when that window sits above the usual layer. */
+  zIndex?: number;
 }
 
 export const ConfirmDialog = ({
@@ -23,6 +25,7 @@ export const ConfirmDialog = ({
   cancelLabel = 'Cancel',
   confirmColor = 'red',
   loading = false,
+  zIndex,
 }: ConfirmDialogProps) => {
   return (
     <Modal
@@ -35,6 +38,7 @@ export const ConfirmDialog = ({
       }
       centered
       size="sm"
+      zIndex={zIndex}
     >
       <Text size="sm" mb="lg">
         {children}

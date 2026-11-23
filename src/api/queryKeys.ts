@@ -93,22 +93,38 @@ export const queryKeys = {
   warranties: {
     all: ['warranties'] as const,
     lookup: (q: string) => ['warranties', 'lookup', q] as const,
-    list: (filters: { customerKey?: string; invoiceKey?: string }) =>
-      ['warranties', 'list', filters] as const,
+    list: (filters: {
+      customerKey?: string;
+      invoiceKey?: string;
+      repairKey?: string;
+      state?: string;
+      browse?: boolean;
+    }) => ['warranties', 'list', filters] as const,
+    stats: () => ['warranties', 'stats'] as const,
     detail: (key: string) => ['warranties', 'detail', key] as const,
     card: (key: string, paper: string, template: string | undefined, version: number) =>
       ['warranties', 'card', key, paper, template, version] as const,
+  },
+  jobReceipts: {
+    pdf: (kind: string, id: string, paper: string, template: string | undefined) =>
+      ['jobReceipts', kind, id, paper, template] as const,
   },
   warrantyClaims: {
     all: ['warrantyClaims'] as const,
     list: (filter: Record<string, unknown>) => ['warrantyClaims', 'list', filter] as const,
     detail: (key: string) => ['warrantyClaims', 'detail', key] as const,
+    conditions: () => ['warrantyClaims', 'conditions'] as const,
   },
   repairs: {
     all: ['repairs'] as const,
     list: (filters?: Record<string, unknown>) => ['repairs', 'list', filters] as const,
     detail: (id: string) => ['repairs', 'detail', id] as const,
     stats: () => ['repairs', 'stats'] as const,
+  },
+  notifications: {
+    all: ['notifications'] as const,
+    summary: () => ['notifications', 'summary'] as const,
+    history: (filters: Record<string, unknown>) => ['notifications', 'history', filters] as const,
   },
   repairServices: {
     all: ['repairServices'] as const,

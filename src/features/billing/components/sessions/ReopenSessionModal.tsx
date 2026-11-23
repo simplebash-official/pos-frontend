@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Stack, Text, Textarea, ThemeIcon } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { useReopenSession } from '../../hooks/useRegisterSession';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -29,10 +29,9 @@ export const ReopenSessionModal: React.FC<ReopenSessionModalProps> = ({
 
   const handleReopen = async () => {
     if (!reason.trim()) {
-      notifications.show({
+      notify.error({
         title: t('Reason Required'),
         message: t('Please provide a reason for reopening this shift.'),
-        color: 'red',
       });
       return;
     }
@@ -45,23 +44,21 @@ export const ReopenSessionModal: React.FC<ReopenSessionModalProps> = ({
         },
       });
 
-      notifications.show({
+      notify.success({
         title: t('Shift Reopened'),
         message: `${t('Register shift')} ${session.sessionNumber} ${t('was successfully reopened.')}`,
-        color: 'teal',
       });
 
       setReason('');
       onSuccess?.(updated);
       onClose();
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Reopen Failed'),
         message: getErrorMessage(
           err,
           t('Could not reopen shift. Please verify manager permissions.')
         ),
-        color: 'red',
       });
     }
   };

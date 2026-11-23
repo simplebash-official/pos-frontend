@@ -6,6 +6,7 @@ import type {
   WarrantyDetail,
   WarrantyListResult,
   WarrantyLookupResult,
+  WarrantyStats,
 } from '../types';
 
 /** Finds warranties from whatever was scanned or typed; the server decides what the text is. */
@@ -22,13 +23,35 @@ export interface WarrantyListFilter {
   invoiceKey?: string;
   /** The warranties of one repair job's items. */
   repairKey?: string;
+  /** Those in force and ending within the week, ending soonest first. */
+  state?: 'expiring_soon';
 }
 
-/** The warranties of one customer, invoice or repair job, newest first (one page of 200). */
+/**
+ * The warranties of one customer, invoice or repair job (newest first), or those ending this
+ * week (soonest first); one page of 200.
+ */
 export const fetchWarranties = async (filter: WarrantyListFilter): Promise<WarrantyListResult> => {
   const response = await apiClient.get<ApiResponse<WarrantyListResult>>('/warranties', {
     params: { ...filter, limit: 200 },
   });
+  return response.data;
+};
+
+/** One page of every warranty the shop has issued, newest first. */
+export const fetchWarrantyPage = async (
+  page: number,
+  limit: number
+): Promise<WarrantyListResult> => {
+  const response = await apiClient.get<ApiResponse<WarrantyListResult>>('/warranties', {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
+/** The warranty desk's headline numbers. */
+export const fetchWarrantyStats = async (): Promise<WarrantyStats> => {
+  const response = await apiClient.get<ApiResponse<WarrantyStats>>('/warranties/stats');
   return response.data;
 };
 
@@ -56,7 +79,7 @@ export const getWarrantyCard = (
 
 export const voidWarranty = async (
   key: string,
-  approval: ManagerApproval
+  approval?: ManagerApproval
 ): Promise<WarrantyDetail> => {
   const response = await apiClient.post<ApiResponse<WarrantyDetail>>(`/warranties/${key}/void`, {
     approval,
@@ -67,7 +90,7 @@ export const voidWarranty = async (
 export const extendWarranty = async (
   key: string,
   coverage: WarrantyCoverage,
-  approval: ManagerApproval
+  approval?: ManagerApproval
 ): Promise<WarrantyDetail> => {
   const response = await apiClient.post<ApiResponse<WarrantyDetail>>(`/warranties/${key}/extend`, {
     coverage,

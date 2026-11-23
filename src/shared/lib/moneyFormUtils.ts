@@ -3,7 +3,31 @@ import { RepairItemInput, RepairJob, RepairJobInput } from '@/features/repairs/t
 import { PrintJob, PrintJobInput } from '@/features/print-jobs/types';
 import { Employee, EmployeeInput } from '@/features/employees/types';
 
+/** The assignment part of a job request: nothing when nobody is picked, and no split for an owner. */
+const toAssignmentInput = (form: {
+  assignedEmployeeId?: string;
+  assignedEmployeeName?: string;
+  splitType?: 'percentage' | 'fixed';
+  splitValueRupeesOrPercent?: number | string;
+}) => {
+  if (!form.assignedEmployeeId) return undefined;
+  const base = {
+    assignedEmployeeId: form.assignedEmployeeId,
+    assignedEmployeeName: form.assignedEmployeeName,
+  };
+  if (form.splitType === undefined) return base;
+  const typed = Number(form.splitValueRupeesOrPercent) || 0;
+  return {
+    ...base,
+    splitType: form.splitType,
+    splitValue: form.splitType === 'fixed' ? toCents(typed) : typed,
+  };
+};
+
 export interface RepairFormValues {
+  /** The registered customer chosen for the ticket; empty until one is chosen. */
+  customerKey: string;
+  /** Shown beside the choice only; the server reads the name and phone from the customer. */
   customerName: string;
   customerPhone: string;
   deviceModel: string;
@@ -21,6 +45,7 @@ export interface RepairFormValues {
 export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
   if (!job) {
     return {
+      customerKey: '',
       customerName: '',
       customerPhone: '',
       deviceModel: '',
@@ -33,6 +58,7 @@ export const fromRepairJob = (job?: RepairJob | null): RepairFormValues => {
     };
   }
   return {
+    customerKey: job.customerKey,
     customerName: job.customerName,
     customerPhone: job.customerPhone,
     deviceModel: job.deviceModel,
@@ -56,23 +82,11 @@ export const toRepairInput = (
   form: RepairFormValues,
   items: RepairItemInput[] | undefined
 ): RepairJobInput => {
-  const splitValNum = Number(form.splitValueRupeesOrPercent) || 0;
-  const splitValueCentsOrPercent = form.splitType === 'fixed' ? toCents(splitValNum) : splitValNum;
   const serial = form.serialNumber.trim();
 
   return {
-    customer: {
-      customerName: form.customerName,
-      customerPhone: form.customerPhone,
-    },
-    assignment: form.assignedEmployeeId
-      ? {
-          assignedEmployeeId: form.assignedEmployeeId,
-          assignedEmployeeName: form.assignedEmployeeName,
-          splitType: form.splitType,
-          splitValue: splitValueCentsOrPercent,
-        }
-      : undefined,
+    customer: { customerKey: form.customerKey },
+    assignment: toAssignmentInput(form),
     deviceModel: form.deviceModel,
     serialNumber: serial === '' ? undefined : serial,
     issueDescription: form.issueDescription,
@@ -83,6 +97,9 @@ export const toRepairInput = (
 };
 
 export interface PrintJobFormValues {
+  /** The registered customer chosen for the job; empty until one is chosen. */
+  customerKey: string;
+  /** Shown beside the choice only; the server reads the name and phone from the customer. */
   customerName: string;
   customerPhone: string;
   jobType: PrintJob['jobType'];
@@ -100,6 +117,7 @@ export interface PrintJobFormValues {
 export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
   if (!job) {
     return {
+      customerKey: '',
       customerName: '',
       customerPhone: '',
       jobType: 'mug',
@@ -113,6 +131,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
     };
   }
   return {
+    customerKey: job.customerKey,
     customerName: job.customerName,
     customerPhone: job.customerPhone,
     jobType: job.jobType,
@@ -130,22 +149,9 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
 };
 
 export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
-  const splitValNum = Number(form.splitValueRupeesOrPercent) || 0;
-  const splitValueCentsOrPercent = form.splitType === 'fixed' ? toCents(splitValNum) : splitValNum;
-
   return {
-    customer: {
-      customerName: form.customerName,
-      customerPhone: form.customerPhone,
-    },
-    assignment: form.assignedEmployeeId
-      ? {
-          assignedEmployeeId: form.assignedEmployeeId,
-          assignedEmployeeName: form.assignedEmployeeName,
-          splitType: form.splitType,
-          splitValue: splitValueCentsOrPercent,
-        }
-      : undefined,
+    customer: { customerKey: form.customerKey },
+    assignment: toAssignmentInput(form),
     jobType: form.jobType,
     quantity: Number(form.quantity) || 1,
     promisedReadyAt: form.promisedReadyAt || undefined,

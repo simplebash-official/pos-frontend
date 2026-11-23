@@ -143,7 +143,7 @@ describe('CreditNoteModal', () => {
     calc.mockResolvedValue(
       reply({ pastReturnWindow: true, daysSinceSale: 200, returnWindowDays: 30 })
     );
-    await open({ key: 'wcl_1', claimNumber: 'WCL-000001', lineIndex: 0 });
+    await open({ key: 'wcl_1', claimNumber: 'WCL-000001', lineIndex: 0, quantity: 1 });
     expect(text()).toContain('Refund for warranty claim WCL-000001');
     expect(text()).not.toContain('This sale was made');
     expect(text()).not.toContain('This customer has no receipt');
@@ -153,6 +153,35 @@ describe('CreditNoteModal', () => {
     await vi.waitFor(() => expect(createCreditNote).toHaveBeenCalled());
     expect(createCreditNote.mock.calls[0][0].input.warrantyClaimKey).toBe('wcl_1');
     expect(createCreditNote.mock.calls[0][0].input.overrideReason).toBeUndefined();
+  });
+
+  it('refunds exact multi-unit quantity for a non-serialized warranty claim and locks quantity', async () => {
+    calc.mockResolvedValue(
+      reply({ pastReturnWindow: true, daysSinceSale: 200, returnWindowDays: 30 })
+    );
+    await open({ key: 'wcl_2', claimNumber: 'WCL-000002', lineIndex: 0, quantity: 3 });
+    expect(text()).toContain('Refund for warranty claim WCL-000002');
+    expect(lastRequest().returned).toEqual([{ lineIndex: 0, quantity: 3 }]);
+    expect(text()).toContain('Claimed: 3');
+    await vi.waitFor(() => expect(submitButton().disabled).toBe(false));
+    await act(async () => submitButton().click());
+    await vi.waitFor(() => expect(createCreditNote).toHaveBeenCalled());
+    expect(createCreditNote.mock.calls[0][0].input.warrantyClaimKey).toBe('wcl_2');
+    expect(createCreditNote.mock.calls[0][0].input.returnedItems[0].quantity).toBe(3);
+  });
+
+  it('holds a claimed unit for inspection and does not ask for a reason', async () => {
+    calc.mockResolvedValue(
+      reply({ pastReturnWindow: true, daysSinceSale: 200, returnWindowDays: 30 })
+    );
+    await open({ key: 'wcl_3', claimNumber: 'WCL-000003', lineIndex: 0, quantity: 1 });
+    expect(text()).not.toContain('Reason');
+    await vi.waitFor(() => expect(submitButton().disabled).toBe(false));
+    await act(async () => submitButton().click());
+    await vi.waitFor(() => expect(createCreditNote).toHaveBeenCalled());
+    const line = createCreditNote.mock.calls[0][0].input.returnedItems[0];
+    expect(line.reason).toBe('defective');
+    expect(line.condition).toBe('pending_inspection');
   });
 
   it("says the sale is past the return window using the server's days and window", async () => {
@@ -258,11 +287,13 @@ describe('CreditNoteModal', () => {
 
       await vi.waitFor(
         () =>
-          expect(notifications.show).toHaveBeenCalledWith({
-            title: 'Cash Count In Progress',
-            message: 'Cash count is in progress for this register session',
-            color: 'orange',
-          }),
+          expect(notifications.show).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'Cash Count In Progress',
+              message: 'Cash count is in progress for this register session',
+              color: 'orange',
+            })
+          ),
         { timeout: 4000 }
       );
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.billing.sessions.all });

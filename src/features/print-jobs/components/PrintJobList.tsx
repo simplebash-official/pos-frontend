@@ -1,21 +1,19 @@
 import { t } from '@/shared/i18n/t';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { Button, Badge, Group, Text, Stack, Paper, Select } from '@mantine/core';
+import { Button, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
   IconPlus,
-  IconRefresh,
-  IconCheck,
-  IconUser,
   IconPrinter,
+  IconRefresh,
   IconCash,
   IconAlertCircle,
   IconChartPie,
   IconSearch,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
 import {
@@ -26,23 +24,41 @@ import {
 } from '../hooks/usePrintJobs';
 import { usePrintJobStats } from '../hooks/usePrintJobStats';
 import { fetchPrintJobs } from '../api/printJobsApi';
-import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
+import { PRINT_JOB_STATUS, PRINT_JOB_STATUS_LABELS } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
-import { formatDate } from '@/shared/lib/date';
-import { getJobDueMeta } from '@/shared/lib/jobDueDate';
-import { useAppDispatch } from '@/store/hooks';
-import { addNotification } from '@/store/slices/notificationSlice';
+import {
+  AmountCell,
+  CustomerCell,
+  JobSlipAction,
+  RowActions,
+  StatusCell,
+  TechnicianCell,
+  TicketCell,
+  TwoLineCell,
+} from '@/shared/components/jobTableCells';
+import { tokenizeQuery } from '@/shared/lib/search';
 import { MetricCardRow } from '@/shared/components/MetricCard';
 import { SearchHistoryInput } from '@/shared/components/SearchHistoryInput';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRINT_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
-import { PrintJobFormModal } from './PrintJobFormModal';
+import { PrintJobDrawer } from './PrintJobDrawer';
+import { TicketInvoicePreview } from '@/features/billing/components/TicketInvoicePreview';
+import type { Invoice } from '@/features/billing/types';
+import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { PERMISSIONS } from '@/constants/permissions';
+import {
+  CLOSED_PANEL,
+  createPanel,
+  viewPanel,
+  type JobPanelState,
+} from '@/shared/lib/jobPanelState';
 
 interface PrintJobFilters {
   search: string;
-  /** 'all' or a JOB_STATUS value. */
+  /** 'all' or a PRINT_JOB_STATUS value. */
   status: string;
   /** 'all' | 'today' */
   datePreset: string;
@@ -70,15 +86,19 @@ const applyLocalPrintJobFilters = (items: PrintJob[], f: PrintJobFilters) =>
 
 export const PrintJobList = () => {
   const queryClient = useQueryClient();
-  const dispatch = useAppDispatch();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [jobToEdit, setJobToEdit] = useState<PrintJob | null>(null);
+  const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
+  const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
+  const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
+  const canPrintReceipt = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
 
   const { data: printJobs, isLoading, isFetching } = useAllPrintJobs();
+  // The panel reads the job from the list by its key, so it shows the new figures after a change.
+  const openMatch = printJobs.find((job) => job.id === panel.key);
+  const openJob = openMatch === undefined ? null : openMatch;
   const { data: stats, isLoading: statsLoading, staleAsOf } = usePrintJobStats();
 
   const filters: PrintJobFilters = { search: searchQuery, status: statusFilter, datePreset };
@@ -105,15 +125,7 @@ export const PrintJobList = () => {
   const updateMutation = useUpdatePrintJob();
   const deleteBatchMutation = useDeletePrintJobs();
 
-  const handleOpenAdd = () => {
-    setJobToEdit(null);
-    setModalOpen(true);
-  };
-
-  const handleOpenEdit = (job: PrintJob) => {
-    setJobToEdit(job);
-    setModalOpen(true);
-  };
+  const handleOpenAdd = () => setPanel(createPanel);
 
   // Deep link from the dashboard reminders: /print-jobs?jobKey=<key>
   const [searchParams, setSearchParams] = useSearchParams();
@@ -124,7 +136,7 @@ export const PrintJobList = () => {
     if (!match) return;
     // Opening a record from a URL param is a legitimate effect use here.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    handleOpenEdit(match);
+    setPanel(viewPanel(match.id));
     const next = new URLSearchParams(searchParams);
     next.delete('jobKey');
     setSearchParams(next, { replace: true });
@@ -132,54 +144,37 @@ export const PrintJobList = () => {
   }, [printJobs, searchParams]);
 
   const handleFormSubmit = async (values: PrintJobInput) => {
-    if (jobToEdit) {
-      const previousStatus = jobToEdit.status;
+    if (panel.mode === 'edit' && openJob !== null) {
       const updatedJob = await updateMutation.mutateAsync({
-        printJobKey: jobToEdit.id,
+        printJobKey: openJob.id,
         input: values,
       });
-      notifications.show({
+      notify.success({
         title: 'Print Order Updated',
-        message: `Updated order ${updatedJob.ticketNumber || jobToEdit.ticketNumber}`,
-        color: 'teal',
-        icon: <IconCheck size={16} />,
+        message: `Updated order ${updatedJob.ticketNumber || openJob.ticketNumber}`,
       });
-      if (
-        previousStatus !== updatedJob.status &&
-        (updatedJob.status === 'ready' || updatedJob.status === 'delivered')
-      ) {
-        dispatch(
-          addNotification({
-            category: 'print',
-            actionIconType: 'printer',
-            title: updatedJob.status === 'delivered' ? 'Print Job Delivered' : 'Print Job Ready',
-            message: `${updatedJob.jobType.toUpperCase()} order (${updatedJob.ticketNumber || jobToEdit.ticketNumber}) is ${JOB_STATUS_LABELS[updatedJob.status]}.`,
-            link: ROUTES.PRINT_JOBS,
-          })
-        );
-      }
     } else {
       const newJob = await createMutation.mutateAsync(values);
-      notifications.show({
+      notify.success({
         title: 'Print Order Created',
         message: newJob.ticketNumber
           ? `Saved order ${newJob.ticketNumber} successfully`
           : 'Order saved — it will get its number once back online',
-        color: 'teal',
-        icon: <IconCheck size={16} />,
       });
+      // The customer gets a receipt for what they handed in.
+      if (canPrintReceipt) setReceiptJob(receiptTarget('print', newJob));
     }
   };
 
   const handleDeleteSelected = async (ids: string[]) => {
     await deleteBatchMutation.mutateAsync({ printJobKeys: ids });
-    notifications.show({
+    notify.success({
       title: 'Print Jobs Deleted',
       message: 'Selected print orders removed',
-      color: 'teal',
-      icon: <IconCheck size={16} />,
     });
   };
+
+  const terms = useMemo(() => tokenizeQuery(searchQuery), [searchQuery]);
 
   const columns: Column<PrintJob>[] = [
     {
@@ -187,108 +182,78 @@ export const PrintJobList = () => {
       header: 'Ticket #',
       align: 'left',
       sortable: true,
-      render: (job) => <strong>{job.ticketNumber}</strong>,
+      render: (job) => (
+        <TicketCell ticketNumber={job.ticketNumber} createdAt={job.createdAt} terms={terms} />
+      ),
     },
     {
       key: 'customerName',
+      width: '24%',
       header: 'Customer',
       align: 'left',
       sortable: true,
       render: (job) => (
-        <div>
-          <Text size="sm" fw={600}>
-            {job.customerName}
-          </Text>
-          {job.customerPhone && (
-            <Text size="xs" c="dimmed">
-              {job.customerPhone}
-            </Text>
-          )}
-        </div>
+        <CustomerCell name={job.customerName} phone={job.customerPhone} terms={terms} />
       ),
     },
     {
       key: 'jobType',
+      width: '24%',
       header: 'Type & Qty',
       align: 'left',
       sortable: true,
       render: (job) => (
-        <Group gap={6}>
-          <Badge size="sm" color="teal" variant="light">
-            {job.jobType.toUpperCase()}
-          </Badge>
-          <Text size="xs" fw={700}>
-            {job.quantity} {t('units')}
-          </Text>
-        </Group>
+        <TwoLineCell
+          title={`${job.jobType} · ${job.quantity}`}
+          primary={job.jobType.charAt(0).toUpperCase() + job.jobType.slice(1)}
+          secondary={`${job.quantity} ${t('units')}`}
+        />
       ),
     },
     {
       key: 'assignedEmployeeName',
-      header: 'Assigned Staff',
+      width: '18%',
+      header: 'Technician',
       align: 'left',
       sortable: true,
-      render: (job) =>
-        job.assignedEmployeeName ? (
-          <Stack gap={2}>
-            <Group gap={4}>
-              <IconUser size={12} style={{ color: 'var(--mantine-color-indigo-6)' }} />
-              <Text size="xs" fw={700} c="indigo">
-                {job.assignedEmployeeName}
-              </Text>
-            </Group>
-            {job.employeeEarningsCents ? (
-              <Badge size="xs" color="indigo" variant="light">
-                {t('Earned:')} {formatMoney(job.employeeEarningsCents)}
-              </Badge>
-            ) : null}
-          </Stack>
-        ) : (
-          <Text size="xs" c="dimmed" fs="italic">
-            {t('Unassigned')}
-          </Text>
-        ),
+      render: (job) => (
+        <TechnicianCell name={job.assignedEmployeeName} earnedCents={job.employeeEarningsCents} />
+      ),
     },
     {
       key: 'status',
       header: 'Status',
       align: 'left',
       sortable: true,
-      render: (job) => {
-        const dueMeta = getJobDueMeta(job);
-        return (
-          <Group gap={4} wrap="wrap">
-            <Badge color={JOB_STATUS_COLORS[job.status]}>{JOB_STATUS_LABELS[job.status]}</Badge>
-            {dueMeta && (
-              <Badge color={dueMeta.color} variant="light">
-                {dueMeta.label}
-              </Badge>
-            )}
-          </Group>
-        );
-      },
+      render: (job) => (
+        <StatusCell
+          status={job.status}
+          label={t(PRINT_JOB_STATUS_LABELS[job.status])}
+          promisedReadyAt={job.promisedReadyAt}
+        />
+      ),
     },
     {
       key: 'estimatedCostCents',
-      header: 'Total Price',
-      align: 'left',
+      header: 'Amount',
+      align: 'right',
       sortable: true,
-      render: (job) => formatMoney(job.estimatedCostCents),
+      render: (job) => <AmountCell cents={job.estimatedCostCents} />,
     },
-    {
-      key: 'promisedReadyAt',
-      header: 'Promised',
-      align: 'left',
-      sortable: true,
-      render: (job) => (job.promisedReadyAt ? formatDate(job.promisedReadyAt) : '—'),
-    },
-    {
-      key: 'createdAt',
-      header: 'Created',
-      align: 'left',
-      sortable: true,
-      render: (job) => formatDate(job.createdAt),
-    },
+    ...(canPrintReceipt
+      ? [
+          {
+            key: 'actions',
+            header: t('Actions'),
+            align: 'right' as const,
+            render: (job: PrintJob) => (
+              <RowActions>
+                <JobSlipAction onClick={() => setReceiptJob(receiptTarget('print', job))} />
+              </RowActions>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -379,8 +344,8 @@ export const PrintJobList = () => {
               onChange={(v) => setStatusFilter(v || 'all')}
               data={[
                 { label: 'All Status', value: 'all' },
-                ...Object.values(JOB_STATUS).map((s) => ({
-                  label: JOB_STATUS_LABELS[s],
+                ...Object.values(PRINT_JOB_STATUS).map((s) => ({
+                  label: t(PRINT_JOB_STATUS_LABELS[s]),
                   value: s,
                 })),
               ]}
@@ -410,18 +375,24 @@ export const PrintJobList = () => {
         columns={columns}
         loading={isLoading}
         keyExtractor={(job) => job.id}
-        onRowClick={(job) => handleOpenEdit(job)}
+        onRowClick={(job) => setPanel(viewPanel(job.id))}
         onDeleteSelected={(ids) => void handleDeleteSelected(ids)}
         emptyText="No print orders recorded yet"
       />
 
-      <PrintJobFormModal
-        opened={modalOpen}
-        onClose={() => setModalOpen(false)}
+      <PrintJobDrawer
+        panel={panel}
+        onPanelChange={setPanel}
+        job={openJob}
         onSubmit={handleFormSubmit}
-        jobToEdit={jobToEdit}
         loading={createMutation.isPending || updateMutation.isPending}
+        onJobSlip={canPrintReceipt ? (job) => setReceiptJob(receiptTarget('print', job)) : null}
+        onPrintInvoice={setInvoiceToPrint}
+        closeOnEscape={receiptJob === null && invoiceToPrint === null}
       />
+
+      <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
+      <TicketInvoicePreview invoice={invoiceToPrint} onClose={() => setInvoiceToPrint(null)} />
     </Stack>
   );
 };

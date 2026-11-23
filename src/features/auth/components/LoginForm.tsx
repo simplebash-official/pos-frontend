@@ -1,8 +1,18 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect } from 'react';
-import { Box, Title, Text, TextInput, PasswordInput, Button, Stack } from '@mantine/core';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { notifications } from '@mantine/notifications';
+import {
+  Box,
+  Title,
+  Text,
+  TextInput,
+  PasswordInput,
+  Button,
+  Stack,
+  Anchor,
+  Group,
+} from '@mantine/core';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { notify } from '@/shared/notify';
 import { BusyOverlay } from '@/shared/components/BusyOverlay';
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -96,15 +106,18 @@ export const LoginForm = () => {
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
 
+  const forgotPasswordUrl = shopCode?.trim()
+    ? `${ROUTES.FORGOT_PASSWORD}?shop=${encodeURIComponent(shopCode.trim())}`
+    : ROUTES.FORGOT_PASSWORD;
+
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
     const trimmedUsername = username.trim();
     if (!trimmedUsername || !password) {
-      notifications.show({
+      notify.error({
         title: 'Authentication Required',
         message: 'Please enter both your username and password to continue.',
-        color: 'red',
       });
       return;
     }
@@ -131,10 +144,9 @@ export const LoginForm = () => {
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
-      notifications.show({
+      notify.success({
         title: 'Logged In Successfully',
         message: `Welcome back, ${data.user.name || data.user.username}! Redirecting to POS console...`,
-        color: 'green',
       });
 
       navigate(from, { replace: true });
@@ -145,10 +157,9 @@ export const LoginForm = () => {
       if (isSessionOpenOnOtherDeviceError(err)) {
         setDeviceLockMessage(message);
       }
-      notifications.show({
+      notify.error({
         title: 'Login Failed',
         message,
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);
@@ -236,6 +247,23 @@ export const LoginForm = () => {
                 },
               }}
             />
+
+            <Group justify="flex-end">
+              <Anchor
+                component={Link}
+                to={forgotPasswordUrl}
+                size="sm"
+                c="blue"
+                fw={600}
+                style={{
+                  minHeight: isMobile ? 44 : undefined,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+              >
+                {t('Forgot password?')}
+              </Anchor>
+            </Group>
 
             <Button
               type="submit"

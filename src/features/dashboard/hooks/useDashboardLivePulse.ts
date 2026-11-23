@@ -9,7 +9,11 @@ import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import type { ReminderEntry } from '@/features/reports/types';
 import { EMPLOYEE_ROLE_LABELS } from '@/features/employees/types';
-import { formatRelativeTime } from '@/shared/lib/date';
+import { formatDate, formatRelativeTime } from '@/shared/lib/date';
+import { ROUTES } from '@/constants';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { fetchWarrantyStats, type WarrantyStats } from '@/features/warranties';
 import { fetchDashboardPulse } from '../api/dashboardApi';
 import type {
   DashboardData,
@@ -282,12 +286,65 @@ const REMINDER_TYPE: Record<ReminderEntry['kind'], UrgentActionItem['type']> = {
   credit_due_soon: 'credit_due_soon',
   job_overdue: 'overdue_repair',
   job_due_soon: 'due_soon_job',
+  claim_slow: 'warranty_claim_late',
+  claim_supplier_late: 'warranty_claim_late',
+};
+
+/** A warranty claim waiting too long, as an urgent-action row. */
+const toClaimItem = (r: ReminderEntry): UrgentActionItem => {
+  const supplierLate = r.kind === 'claim_supplier_late';
+  const days = `${r.daysFromDue} ${t(r.daysFromDue === 1 ? 'day' : 'days')}`;
+  const customer = r.customerName === undefined ? t('Walk-in customer') : r.customerName;
+  return {
+    id: `${r.kind}-${r.key}`,
+    type: REMINDER_TYPE[r.kind],
+    title: `${supplierLate ? t('Supplier is late') : t('Claim waiting too long')}: ${r.title}`,
+    subtitle: `${r.referenceNumber} · ${customer} · ${
+      supplierLate
+        ? `${t('Was due back on')} ${formatDate(r.dueDate)}`
+        : t('Waiting more than a week')
+    }`,
+    severity: r.severity,
+    timestamp: `${days} ${t('late')}`,
+    rawDate: r.dueDate,
+    referenceId: r.referenceNumber,
+    referenceKey: r.key,
+    customerName: r.customerName,
+    customerPhone: r.customerPhone,
+    daysWaiting: r.daysFromDue,
+    actionLabel: t('Open claim'),
+    linkTo: r.linkTo,
+  };
+};
+
+/** One row for the warranties ending this week, opening their list; nothing when none end. */
+export const toEndingSoonItem = (stats: WarrantyStats | undefined): UrgentActionItem[] => {
+  if (stats === undefined || stats.endingSoonCount === 0) return [];
+  const count = stats.endingSoonCount;
+  return [
+    {
+      id: `warranties-ending-${stats.endingSoonUntil}`,
+      type: 'warranties_ending',
+      title:
+        count === 1 ? t('1 warranty ends this week') : `${count} ${t('warranties end this week')}`,
+      subtitle: `${t('On or before')} ${formatDate(stats.endingSoonUntil)} · ${t(
+        'Call the customers while the items are still covered'
+      )}`,
+      severity: 'info',
+      timestamp: t('This week'),
+      rawDate: stats.endingSoonUntil,
+      referenceId: stats.endingSoonUntil,
+      actionLabel: t('See the list'),
+      linkTo: `${ROUTES.WARRANTIES}?view=ending`,
+    },
+  ];
 };
 
 /** Maps the server reminders feed into the dashboard's urgent-action rows. */
 export const toReminderItems = (reminders: ReminderEntry[] | undefined): UrgentActionItem[] => {
   if (!reminders) return [];
   return reminders.map((r) => {
+    if (r.kind === 'claim_slow' || r.kind === 'claim_supplier_late') return toClaimItem(r);
     const isCredit = r.kind === 'credit_overdue' || r.kind === 'credit_due_soon';
     const isOverdue = r.kind === 'credit_overdue' || r.kind === 'job_overdue';
     const titlePrefix = isCredit
@@ -328,6 +385,12 @@ export const useDashboardLivePulse = () => {
     queryFn: fetchDashboardPulse,
   });
   const remindersQuery = useReminders({ dueWithinDays: 7, limit: 100 });
+  const canSeeWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
+  const warrantyStatsQuery = useQuery({
+    queryKey: queryKeys.warranties.stats(),
+    queryFn: fetchWarrantyStats,
+    enabled: canSeeWarranties,
+  });
   const statsQuery = useBillingStats();
   const stats = statsQuery.data;
   const { session } = useCurrentSession(getDeviceId());
@@ -356,9 +419,10 @@ export const useDashboardLivePulse = () => {
       urgentActions: [
         ...toReminderItems(remindersQuery.data?.reminders),
         ...computed.urgentActions,
+        ...toEndingSoonItem(warrantyStatsQuery.data),
       ],
     };
-  }, [pulseQuery.data, remindersQuery.data, stats, session]);
+  }, [pulseQuery.data, remindersQuery.data, warrantyStatsQuery.data, stats, session]);
 
   const isLoading = pulseQuery.isLoading || statsQuery.isLoading;
 
@@ -367,8 +431,10 @@ export const useDashboardLivePulse = () => {
   const refresh = useCallback(async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.billing.all }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboardPulse() }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.reports.reminders() }),
+      // The pulse and the reminders; `reports.reminders()` would not match the reminders query,
+      // whose key ends in its filters.
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.warranties.stats() }),
     ]);
   }, [queryClient]);
 

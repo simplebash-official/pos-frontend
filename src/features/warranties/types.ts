@@ -39,6 +39,7 @@ export interface Warranty {
   itemName: string;
   serialNumber?: string;
   quantity: number;
+  claimedQuantity?: number;
   customerKey?: string;
   customerName?: string;
   customerPhone?: string;
@@ -126,6 +127,21 @@ export interface WarrantyLookupResult {
   groups: WarrantyGroup[];
 }
 
+/** The warranty desk at a glance (`GET /warranties/stats`), worked out by the server. */
+export interface WarrantyStats {
+  /** In force today and not held by a claim (ending soon included). */
+  inForceCount: number;
+  /** Of those, the ones in their last week. */
+  endingSoonCount: number;
+  /** The last end day that still counts as ending soon (`YYYY-MM-DD`). */
+  endingSoonUntil: string;
+  openClaimCount: number;
+  /** Open over a week, or with a supplier past the day they gave. */
+  lateClaimCount: number;
+  /** Parts cost of the rework jobs opened this month. */
+  reworkCostThisMonthCents: number;
+}
+
 export interface WarrantyListResult {
   items: Warranty[];
   total: number;
@@ -148,10 +164,24 @@ export type ClaimDecision = 'repair' | 'replace' | 'refund' | 'reject';
 
 /** What staff saw on the item when it came in; any of these may void the warranty. */
 export interface VoidChecks {
-  screenCracked: boolean;
+  physicalDamage?: boolean;
   liquidDamage: boolean;
   sealBroken: boolean;
   tampered: boolean;
+  /** Legacy alias for backwards compatibility. */
+  screenCracked?: boolean;
+}
+
+/** A condition checklist item (e.g. "Physical damage / cracks", "Scratched lens"). */
+export interface WarrantyCondition {
+  key: string;
+  name: string;
+  active: boolean;
+  createdAt?: string;
+}
+
+export interface WarrantyConditionsResponse {
+  conditions: WarrantyCondition[];
 }
 
 export type SupplierOutcome = 'repaired' | 'replaced' | 'credited' | 'rejected';
@@ -176,6 +206,7 @@ export interface WarrantyClaim {
   warrantyNumber: string;
   itemName: string;
   serialNumber?: string;
+  quantity?: number;
   productKey?: string;
   invoiceKey: string;
   invoiceNumber: string;
@@ -184,6 +215,7 @@ export interface WarrantyClaim {
   customerPhone?: string;
   issueDescription: string;
   voidChecks: VoidChecks;
+  conditions?: string[];
   assignedEmployeeKey?: string;
   assignedEmployeeName?: string;
   status: ClaimStatus;
@@ -235,11 +267,45 @@ export interface ClaimListResult {
 
 export interface OpenClaimInput {
   warrantyKey: string;
+  quantity?: number;
+  serialNumber?: string;
   issueDescription: string;
   voidChecks: VoidChecks;
+  conditions?: string[];
   assignedEmployeeKey?: string;
   /** Only for a warranty that has already run out. */
   approval?: ManagerApproval;
+}
+
+/** One warranty of a batch: what a single claim would carry, fully filled in by the client. */
+export type BatchClaimItemInput = Pick<
+  OpenClaimInput,
+  'warrantyKey' | 'quantity' | 'serialNumber' | 'issueDescription' | 'voidChecks' | 'conditions'
+>;
+
+/** Several claims on the warranties of one invoice, opened by a single request. */
+export interface OpenClaimsBatchInput {
+  items: BatchClaimItemInput[];
+  /** Once for the whole batch, and only when at least one warranty has already run out. */
+  approval?: ManagerApproval;
+}
+
+/** Why one warranty of a batch was not claimed, as the server worded it. */
+export interface BatchClaimError {
+  status: number;
+  code: string;
+  message: string;
+}
+
+/** What happened to one warranty of a batch; a failed one never undoes an opened one. */
+export type BatchClaimResult =
+  | { outcome: 'opened'; warrantyKey: string; claim: WarrantyClaim }
+  | { outcome: 'failed'; warrantyKey: string; error: BatchClaimError };
+
+export interface OpenClaimsBatchResponse {
+  results: BatchClaimResult[];
+  openedCount: number;
+  failedCount: number;
 }
 
 export interface ReplacementInput {
@@ -247,6 +313,30 @@ export interface ReplacementInput {
   serialNumber?: string;
   /** A product without serials: the price tier the unit comes from. */
   sellingPriceCents?: number;
+}
+
+/** How a repair decided in one go ends: finished and handed back now, or left open for later. */
+export type RepairFinishInput = { when: 'now'; resolutionNote?: string } | { when: 'later' };
+
+/** What a claim processed in one request is decided as, and what is done about it straight away. */
+export type ProcessOutcomeInput =
+  | { decision: 'replace'; replacement: ReplacementInput; resolutionNote?: string }
+  | { decision: 'repair'; finish: RepairFinishInput }
+  | { decision: 'refund' }
+  | { decision: 'reject'; handBack: boolean };
+
+/** A claim taken in, inspected and decided, with the outcome carried out, by one request. */
+export interface ProcessClaimInput {
+  warrantyKey: string;
+  quantity?: number;
+  serialNumber?: string;
+  issueDescription: string;
+  voidChecks: VoidChecks;
+  conditions?: string[];
+  inspectionNotes: string;
+  outcome: ProcessOutcomeInput;
+  /** Staff send a manager's PIN and reason; a signed-in Admin or Manager sends none. */
+  approval?: ManagerApproval;
 }
 
 /** A claim decided as a refund, as the credit-note window needs it. */
@@ -257,4 +347,6 @@ export interface ClaimRefund {
   serialNumber?: string;
   /** The invoice line the claimed warranty came from. */
   lineIndex: number;
+  /** The exact quantity of the claim to refund. */
+  quantity: number;
 }

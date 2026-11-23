@@ -1,29 +1,16 @@
 import { useState, type ReactNode } from 'react';
-import {
-  Alert,
-  Button,
-  Group,
-  Loader,
-  Modal,
-  Radio,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
+import { Button, Group, Modal, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
+import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
+import type { Customer } from '@/features/customers/types';
 import { DateInput } from '@mantine/dates';
-import { IconInfoCircle } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { usePayees } from '@/features/billing/hooks/useCashLookups';
-import { useAllProducts } from '@/features/inventory/hooks/useProducts';
-import { useProductSerials } from '@/features/inventory/hooks/useProductSerials';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
-import { formatDate, toIsoDate } from '@/shared/lib/date';
+import { toIsoDate } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
-import { formatMoney } from '@/shared/lib/money';
 import { useClaimStep, type ClaimStepInput } from '../hooks/useClaims';
 import {
   DECISIONS,
@@ -34,7 +21,9 @@ import {
   type ClaimAction,
 } from '../lib/claimView';
 import type { ClaimDecision, SupplierOutcome, WarrantyClaim } from '../types';
+import { ChoiceCards } from './ChoiceCards';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
+import { ReplacementEndsNote, ReplacementPicker } from './ReplacementPicker';
 
 /** The steps that open a window here; a refund opens the credit-note window instead. */
 export type DialogAction = Exclude<ClaimAction, 'refund'>;
@@ -56,6 +45,7 @@ const StepModal = ({
   onClose,
   onSubmit,
   disabled,
+  closeOnEscape = true,
   children,
 }: {
   title: string;
@@ -65,6 +55,8 @@ const StepModal = ({
   onClose: () => void;
   onSubmit: () => void;
   disabled: boolean;
+  /** False while a window opened from this one is showing, so Escape closes only that one. */
+  closeOnEscape?: boolean;
   children: ReactNode;
 }) => {
   const isMobile = useIsMobile();
@@ -72,6 +64,7 @@ const StepModal = ({
     <Modal
       opened
       onClose={onClose}
+      closeOnEscape={closeOnEscape}
       title={
         <Text fw={700} size="lg">
           {title}
@@ -108,132 +101,8 @@ const StepModal = ({
   );
 };
 
-/** Radio cards: the one "choose one" look for a few options with a line of help each. */
-const ChoiceCards = <T extends string>({
-  value,
-  onChange,
-  options,
-  label,
-  hint,
-}: {
-  value: T | null;
-  onChange: (value: T) => void;
-  options: T[];
-  label: (value: T) => string;
-  hint: ((value: T) => string) | null;
-}) => (
-  <Radio.Group value={value} onChange={(next) => onChange(next as T)}>
-    <Stack gap="xs">
-      {options.map((option) => {
-        const chosen = option === value;
-        return (
-          <Radio.Card
-            key={option}
-            value={option}
-            p="sm"
-            style={{
-              minHeight: 44,
-              borderWidth: 1,
-              borderStyle: 'solid',
-              borderColor: chosen
-                ? 'var(--mantine-color-blue-filled)'
-                : 'var(--mantine-color-default-border)',
-              backgroundColor: chosen ? 'var(--mantine-color-blue-light)' : 'var(--bg-card)',
-            }}
-          >
-            <Group wrap="nowrap" align="flex-start" gap="sm">
-              <Radio.Indicator mt={2} />
-              <Stack gap={2}>
-                <Text fw={700} size="sm">
-                  {label(option)}
-                </Text>
-                {hint !== null && (
-                  <Text size="xs" c="dimmed">
-                    {hint(option)}
-                  </Text>
-                )}
-              </Stack>
-            </Group>
-          </Radio.Card>
-        );
-      })}
-    </Stack>
-  </Radio.Group>
-);
-
 const optional = (text: string): string | undefined =>
   text.trim() === '' ? undefined : text.trim();
-
-/** The replacement unit: an in-stock serial of the same product, or a price to take stock from. */
-const ReplacementPicker = ({
-  claim,
-  serial,
-  onSerial,
-  priceCents,
-  onPrice,
-}: {
-  claim: WarrantyClaim;
-  serial: string | null;
-  onSerial: (serial: string | null) => void;
-  priceCents: string | null;
-  onPrice: (price: string | null) => void;
-}) => {
-  const isMobile = useIsMobile();
-  const productKey = claim.productKey;
-  const serialized = claim.serialNumber !== undefined;
-  const serials = useProductSerials(productKey, 'in_stock', { enabled: serialized });
-  // The product read route takes the database id, so the product is found by key in the list.
-  const products = useAllProducts({ enabled: productKey !== undefined && !serialized });
-  const product = products.data.find((candidate) => candidate.key === productKey);
-
-  if (productKey === undefined) {
-    return (
-      <Alert color="orange" icon={<IconInfoCircle size={16} />}>
-        {t('This item was not sold from stock, so it cannot be swapped for a new one.')}
-      </Alert>
-    );
-  }
-  if (serialized) {
-    if (serials.data === undefined) return <Loader size="sm" />;
-    return (
-      <Select
-        label={t('Which new unit is the customer getting?')}
-        placeholder={t('Scan or choose a serial number in stock')}
-        data={serials.data.map((unit) => unit.serialNumber)}
-        value={serial}
-        onChange={onSerial}
-        searchable
-        nothingFoundMessage={t('No unit of this item is in stock')}
-        size={isMobile ? 'md' : 'sm'}
-        data-barcode-scanner="true"
-        comboboxProps={{ withinPortal: true }}
-      />
-    );
-  }
-  if (products.isLoading) return <Loader size="sm" />;
-  if (product === undefined) {
-    return (
-      <Alert color="orange" icon={<IconInfoCircle size={16} />}>
-        {t('This item is no longer in the catalogue, so it cannot be swapped for a new one.')}
-      </Alert>
-    );
-  }
-  return (
-    <Select
-      label={t('Take the new unit from stock sold at')}
-      placeholder={t('Choose a price')}
-      data={product.priceTiers.map((tier) => ({
-        value: String(tier.sellingPriceCents),
-        label: `${formatMoney(tier.sellingPriceCents)} · ${tier.quantity} ${t('left')}`,
-      }))}
-      value={priceCents}
-      onChange={onPrice}
-      nothingFoundMessage={t('No unit of this item is in stock')}
-      size={isMobile ? 'md' : 'sm'}
-      comboboxProps={{ withinPortal: true }}
-    />
-  );
-};
 
 /**
  * The window for one step of a claim after it was opened: inspect, decide (manager PIN), send to
@@ -256,6 +125,8 @@ export const ClaimStepDialog = ({
   const [outcome, setOutcome] = useState<SupplierOutcome | null>(null);
   const [serial, setSerial] = useState<string | null>(null);
   const [priceCents, setPriceCents] = useState<string | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const suppliers = usePayees({ payeeType: 'supplier' }, action === 'sendToSupplier');
 
   const loading = mutation.isPending;
@@ -317,11 +188,13 @@ export const ClaimStepDialog = ({
           }}
         >
           <ChoiceCards
+            groupLabel={t('What to do')}
             value={decision}
             onChange={setDecision}
             options={DECISIONS}
             label={decisionLabel}
             hint={decisionHint}
+            unavailable={null}
           />
         </ManagerApprovalModal>
       );
@@ -402,11 +275,13 @@ export const ClaimStepDialog = ({
           }}
         >
           <ChoiceCards
+            groupLabel={t('What the supplier did')}
             value={outcome}
             onChange={setOutcome}
             options={OUTCOMES}
             label={outcomeLabel}
             hint={null}
+            unavailable={null}
           />
           <Textarea
             label={t('Note (optional)')}
@@ -451,19 +326,14 @@ export const ClaimStepDialog = ({
           {replace && (
             <>
               <ReplacementPicker
-                claim={claim}
+                productKey={claim.productKey}
+                serialized={claim.serialNumber !== undefined}
                 serial={serial}
                 onSerial={setSerial}
                 priceCents={priceCents}
                 onPrice={setPriceCents}
               />
-              <Alert color="blue" icon={<IconInfoCircle size={16} />} p="xs">
-                {warrantyEndsOn === undefined
-                  ? t('The new unit is covered for life, like the old one.')
-                  : `${t('The new unit is covered until')} ${formatDate(warrantyEndsOn)}, ${t(
-                      'the same day as the old one.'
-                    )}`}
-              </Alert>
+              <ReplacementEndsNote endsOn={warrantyEndsOn} />
             </>
           )}
           {!replace && (
@@ -528,7 +398,51 @@ export const ClaimStepDialog = ({
         </ConfirmDialog>
       );
 
-    case 'paidRepair':
+    case 'paidRepair': {
+      // A walk-in sale leaves the claim without a customer, so the repair job needs one here.
+      const needsCustomer =
+        claim.customerKey === undefined &&
+        (claim.customerName === undefined || claim.customerPhone === undefined);
+      if (needsCustomer) {
+        return (
+          <>
+            <StepModal
+              title={t('Make a paid repair job?')}
+              confirmLabel={t('Make the repair job')}
+              loading={loading}
+              error={error}
+              onClose={close}
+              closeOnEscape={!pickerOpen}
+              disabled={customer === null}
+              onSubmit={() => {
+                if (customer !== null) run({ kind: 'paidRepair', key, customerKey: customer.key });
+              }}
+            >
+              <Text size="sm">
+                {t(
+                  'The fault is not covered. A repair job the customer pays for is made for this item.'
+                )}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {t('This sale had no customer, so choose who the repair job is for.')}
+              </Text>
+              <CustomerChoiceCard
+                customer={
+                  customer === null ? null : { name: customer.name, phone: customer.primaryPhone }
+                }
+                onChoose={() => setPickerOpen(true)}
+                required
+              />
+            </StepModal>
+            <CustomerPickerModal
+              opened={pickerOpen}
+              onClose={() => setPickerOpen(false)}
+              onSelectCustomer={setCustomer}
+              selectedCustomerId={customer?.key}
+            />
+          </>
+        );
+      }
       return (
         <ConfirmDialog
           opened
@@ -551,5 +465,6 @@ export const ClaimStepDialog = ({
           )}
         </ConfirmDialog>
       );
+    }
   }
 };

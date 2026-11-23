@@ -12,8 +12,12 @@ import { ProfitSection } from './sections/ProfitSection';
 import { CustomersSection } from './sections/CustomersSection';
 import { InventorySection } from './sections/InventorySection';
 import { StaffSection } from './sections/StaffSection';
+import { WarrantySection } from './sections/WarrantySection';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
 
-type TabValue = 'overview' | 'sales' | 'profit' | 'customers' | 'inventory' | 'staff';
+type TabValue =
+  'overview' | 'sales' | 'profit' | 'customers' | 'inventory' | 'staff' | 'warranties';
 
 const TABS: { value: TabValue; label: string }[] = [
   { value: 'overview', label: 'Overview' },
@@ -22,6 +26,7 @@ const TABS: { value: TabValue; label: string }[] = [
   { value: 'customers', label: 'Customers' },
   { value: 'inventory', label: 'Inventory' },
   { value: 'staff', label: 'Staff' },
+  { value: 'warranties', label: 'Warranties' },
 ];
 
 export const AnalyticsReportsPage = () => {
@@ -29,7 +34,9 @@ export const AnalyticsReportsPage = () => {
   const { range, requestParams } = controller;
   const periodLabel = formatRangeLabel(range);
 
-  const [tab, setTab] = useTabState();
+  const canSeeWarranties = useHasPermission(PERMISSIONS.WARRANTY_REPORTS_VIEW);
+  const tabs = canSeeWarranties ? TABS : TABS.filter((tabDef) => tabDef.value !== 'warranties');
+  const [tab, setTab] = useTabState(tabs);
 
   // Every panel stays mounted (`keepMounted`, Mantine's default) so a tab
   // revisited within the 5-minute staleTime shows cached data instantly — but
@@ -58,7 +65,7 @@ export const AnalyticsReportsPage = () => {
         }}
       >
         <Tabs.List grow>
-          {TABS.map(({ value, label }) => (
+          {tabs.map(({ value, label }) => (
             <Tabs.Tab key={value} value={value}>
               {t(label)}
             </Tabs.Tab>
@@ -91,6 +98,15 @@ export const AnalyticsReportsPage = () => {
         <Tabs.Panel value="staff" pt="md">
           <StaffSection params={requestParams} active={tab === 'staff'} periodLabel={periodLabel} />
         </Tabs.Panel>
+        {canSeeWarranties && (
+          <Tabs.Panel value="warranties" pt="md">
+            <WarrantySection
+              params={requestParams}
+              active={tab === 'warranties'}
+              periodLabel={periodLabel}
+            />
+          </Tabs.Panel>
+        )}
       </Tabs>
     </Stack>
   );
@@ -98,10 +114,12 @@ export const AnalyticsReportsPage = () => {
 
 // Keep the open tab in the URL alongside the filters so a shared link lands
 // on the same view.
-const useTabState = (): [TabValue, (v: TabValue) => void] => {
+const useTabState = (
+  tabs: { value: TabValue; label: string }[]
+): [TabValue, (v: TabValue) => void] => {
   const [sp, setSp] = useSearchParams();
   const raw = sp.get('tab');
-  const tab: TabValue = TABS.some((tabDef) => tabDef.value === raw)
+  const tab: TabValue = tabs.some((tabDef) => tabDef.value === raw)
     ? (raw as TabValue)
     : 'overview';
 

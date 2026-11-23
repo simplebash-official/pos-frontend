@@ -11,8 +11,8 @@ import {
   Stack,
 } from '@mantine/core';
 import { IconChevronLeft, IconLock } from '@tabler/icons-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { notifications } from '@mantine/notifications';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { notify } from '@/shared/notify';
 import { BusyOverlay } from '@/shared/components/BusyOverlay';
 import { ROUTES } from '@/constants/routes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -35,7 +35,7 @@ import {
   normalizeShopCode,
   rememberShopCode,
 } from '../../lib/shopCode';
-import { BRAND_NAME, SERVICE_CENTER_NAME } from '@/config/branding';
+import { SERVICE_CENTER_NAME } from '@/config/branding';
 
 interface MobileLoginFormProps {
   onBack: () => void;
@@ -77,15 +77,18 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
 
+  const forgotPasswordUrl = shopCode?.trim()
+    ? `${ROUTES.FORGOT_PASSWORD}?shop=${encodeURIComponent(shopCode.trim())}`
+    : ROUTES.FORGOT_PASSWORD;
+
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
     const trimmedUsername = username.trim();
     if (!trimmedUsername || !password) {
-      notifications.show({
+      notify.error({
         title: 'Authentication Required',
         message: 'Please enter both your username and password to continue.',
-        color: 'red',
       });
       return;
     }
@@ -112,10 +115,9 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       }
       dispatch(loginSuccess({ user: data.user, token: data.token }));
 
-      notifications.show({
+      notify.success({
         title: 'Logged In Successfully',
         message: `Welcome back, ${data.user.name || data.user.username}! Redirecting to POS console...`,
-        color: 'green',
       });
 
       navigate(from, { replace: true });
@@ -126,23 +128,13 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
       if (isSessionOpenOnOtherDeviceError(err)) {
         setDeviceLockMessage(message);
       }
-      notifications.show({
+      notify.error({
         title: 'Login Failed',
         message,
-        color: 'red',
       });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleForgotPassword = (e: React.MouseEvent) => {
-    e.preventDefault();
-    notifications.show({
-      title: 'Password Reset',
-      message: `Please contact your ${BRAND_NAME} System Administrator to reset your POS terminal access credentials.`,
-      color: 'blue',
-    });
   };
 
   return (
@@ -230,8 +222,8 @@ export const MobileLoginForm = ({ onBack }: MobileLoginFormProps) => {
                 color="blue"
               />
               <Anchor
-                href="#forgot-password"
-                onClick={handleForgotPassword}
+                component={Link}
+                to={forgotPasswordUrl}
                 size="sm"
                 fw={600}
                 c="blue"

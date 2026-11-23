@@ -21,11 +21,10 @@ import {
   Text,
   Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconBarcode,
   IconBulb,
-  IconCheck,
   IconPrinter,
   IconSettings,
   IconTestPipe,
@@ -376,19 +375,16 @@ export const LabelPrintWorkspace = ({
       return action;
     },
     onSuccess: (action) => {
-      notifications.show({
+      notify.success({
         title: action === 'print' ? t('Labels sent to print') : t('Labels downloaded'),
         message: labelCount(countLabels(items)),
-        color: 'green',
-        icon: <IconCheck size={16} />,
       });
       if (action === 'print') onPrinted();
     },
     onError: (error) => {
-      notifications.show({
+      notify.error({
         title: t('Labels were not printed'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     },
     onSettled: refreshHistory,
@@ -402,18 +398,15 @@ export const LabelPrintWorkspace = ({
       await printLabelPdf(pdf, settings, pdfFileName('label-test'));
     },
     onSuccess: () => {
-      notifications.show({
+      notify.success({
         title: t('Test label sent'),
         message: t('Check that it lines up with your label paper.'),
-        color: 'green',
-        icon: <IconCheck size={16} />,
       });
     },
     onError: (error) => {
-      notifications.show({
+      notify.error({
         title: t('The test label was not printed'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     },
   });
@@ -447,17 +440,14 @@ export const LabelPrintWorkspace = ({
           )
         );
       }
-      notifications.show({
+      notify.success({
         title: t('Barcodes created'),
         message: t('These items can now be printed.'),
-        color: 'green',
-        icon: <IconCheck size={16} />,
       });
     } catch (error) {
-      notifications.show({
+      notify.error({
         title: t('Could not create a barcode'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     } finally {
       setCreatingBarcodes(false);

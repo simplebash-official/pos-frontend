@@ -81,6 +81,8 @@ const makeProfile = (over: Partial<ShopProfile> = {}): ShopProfile => ({
   defaultWarrantyText: '',
   defaultFooterText: '',
   receiptFooterText: '',
+  jobReceiptTermsText: '',
+  uncollectedAfterDays: null,
   allowSharedUserSessions: false,
   allowStaffMultiDeviceSessions: false,
   ...over,

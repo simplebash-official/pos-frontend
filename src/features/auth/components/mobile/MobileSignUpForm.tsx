@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useState } from 'react';
 import { TextInput, PasswordInput, Checkbox, Button, Divider, Stack, Anchor } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { MobileSocialButtons } from './MobileSocialButtons';
 import { BRAND_NAME } from '@/config/branding';
 
@@ -22,19 +22,17 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
     e.preventDefault();
 
     if (!fullName.trim() || !email.trim() || !password) {
-      notifications.show({
+      notify.error({
         title: 'Registration Required',
         message: 'Please complete all required fields to register.',
-        color: 'red',
       });
       return;
     }
 
     if (!agreeToTerms) {
-      notifications.show({
+      notify.warning({
         title: 'Terms of Service',
         message: 'Please agree to the processing of personal data to continue.',
-        color: 'yellow',
       });
       return;
     }
@@ -42,11 +40,10 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      notifications.show({
+      notify.success({
         title: 'Registration Request Submitted',
         message:
           'Your employee registration request has been submitted for administrator review. Please sign in.',
-        color: 'green',
       });
       onGoToSignIn();
     }, 600);
@@ -115,10 +112,9 @@ export const MobileSignUpForm = ({ onBack, onGoToSignIn }: MobileSignUpFormProps
                     c="blue.6"
                     onClick={(e) => {
                       e.preventDefault();
-                      notifications.show({
+                      notify.info({
                         title: 'Privacy Policy',
                         message: `Personal employee information is protected under ${BRAND_NAME} Data Privacy Standards.`,
-                        color: 'blue',
                       });
                     }}
                   >

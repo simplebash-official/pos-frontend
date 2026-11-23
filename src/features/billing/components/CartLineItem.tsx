@@ -7,6 +7,7 @@ import {
   IconPrinter,
   IconAlertTriangle,
   IconTag,
+  IconShieldCheck,
   IconReceipt2,
 } from '@tabler/icons-react';
 
@@ -14,8 +15,8 @@ import { formatMoney } from '@/shared/lib/money';
 import { formatCentsRange } from '@/features/inventory/lib/priceTiers';
 import { QuantityInput } from '@/shared/components/QuantityInput';
 import { CartItem } from '@/store/slices/cartSlice';
-import type { CalcDiscount } from '../types';
-import { DiscountPopover } from './DiscountPopover';
+import type { CalcDiscount } from '@/shared/types/discount';
+import { DiscountPopover } from '@/shared/components/DiscountPopover';
 import { getCategoryIconInfo } from '../lib/categoryIcons';
 import { focusBarcodeScanner } from '../lib/focusScanner';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -23,7 +24,10 @@ import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useAppDispatch } from '@/store/hooks';
 import { setLineWarrantyOverride } from '@/store/slices/cartSlice';
-import { LineWarrantyControl } from '@/features/warranties/components/LineWarrantyControl';
+import {
+  LineWarrantyControl,
+  LineWarrantyBadge,
+} from '@/features/warranties/components/LineWarrantyControl';
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -118,6 +122,7 @@ export const CartLineItem = memo(function CartLineItem({
                 lineClamp={1}
                 c={isStockNegative ? 'red.7' : undefined}
                 style={{ flexShrink: 1, minWidth: 0 }}
+                title={item.name}
               >
                 {item.name}
               </Text>
@@ -161,19 +166,10 @@ export const CartLineItem = memo(function CartLineItem({
                   {t('Charge')}
                 </Badge>
               )}
-              {sourceType === 'retail' && item.warranty !== undefined && (
-                <LineWarrantyControl
-                  warranty={item.warranty}
-                  override={item.warrantyOverride}
-                  canAdjust={canAdjustWarranty}
-                  onOverride={(warranty) =>
-                    dispatch(setLineWarrantyOverride({ id: item.id, warranty }))
-                  }
-                />
-              )}
             </Group>
 
-            <Group gap={4} align="center" mt={2} wrap="nowrap">
+            {/* Subtitle Line: SKU, Cost, Tech & Out of Stock */}
+            <Group gap={6} align="center" mt={2} wrap="nowrap" style={{ minWidth: 0 }}>
               {item.sku && (
                 <Text
                   size="xs"
@@ -191,7 +187,7 @@ export const CartLineItem = memo(function CartLineItem({
               )}
               {isStockNegative && (
                 <Text size="xs" c="red.6" fw={600} style={{ fontSize: 11, flexShrink: 0 }}>
-                  {item.sku ? ' · ' : ''}
+                  {item.sku || (isAdmin && item.costRangeCents !== undefined) ? ' · ' : ''}
                   {t('Out of Stock')}
                 </Text>
               )}
@@ -204,8 +200,42 @@ export const CartLineItem = memo(function CartLineItem({
           </Box>
         </Group>
 
-        {/* Top Right: Discount Column Button & Delete Column Button */}
+        {/* Top Right: Warranty, Discount & Delete Column Buttons */}
         <Group gap={0} align="stretch" style={{ flexShrink: 0 }}>
+          {/* Warranty Column */}
+          {sourceType === 'retail' && item.warranty !== undefined && canAdjustWarranty && (
+            <LineWarrantyControl
+              warranty={item.warranty}
+              override={item.warrantyOverride}
+              canAdjust={canAdjustWarranty}
+              onOverride={(warranty) =>
+                dispatch(setLineWarrantyOverride({ id: item.id, warranty }))
+              }
+            >
+              <Tooltip label={isMobile ? t('Line warranty') : t('Line warranty')} position="top">
+                <ActionIcon
+                  variant="light"
+                  color={
+                    item.warrantyOverride !== undefined
+                      ? 'teal'
+                      : item.warranty.coverage.kind !== 'none'
+                        ? 'blue'
+                        : 'gray'
+                  }
+                  radius={0}
+                  style={{
+                    width: railWidth,
+                    height: '100%',
+                    borderLeft: '1px solid var(--border)',
+                  }}
+                  aria-label={t('Change the warranty for this sale')}
+                >
+                  <IconShieldCheck size={16} />
+                </ActionIcon>
+              </Tooltip>
+            </LineWarrantyControl>
+          )}
+
           {/* Discount Column */}
           <DiscountPopover
             opened={discountOpen}
@@ -254,34 +284,40 @@ export const CartLineItem = memo(function CartLineItem({
       {/* 2. HORIZONTAL DIVIDER */}
       <Box style={{ borderTop: '1px solid var(--border)' }} />
 
-      {/* 3. BOTTOM ROW: Quantity Counter (Left) & Price (Right) */}
-      <Group justify="space-between" align="center" px="xs" py={6}>
-        {/* Left: Quantity Counter */}
-        {isServiceJob ? (
-          <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
-            {t('1 (Locked)')}
-          </Badge>
-        ) : (
-          <QuantityInput
-            data-cart-newest-qty={isNewest ? 'true' : undefined}
-            value={item.quantity}
-            onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
-            min={1}
-            size={isMobile ? 'sm' : 'xs'}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                focusBarcodeScanner(true);
-              } else if (e.key === 'Escape') {
-                e.preventDefault();
-                focusBarcodeScanner(true);
-              }
-            }}
-          />
-        )}
+      {/* 3. BOTTOM ROW: Quantity Counter & Warranty (Left) & Price (Right) */}
+      <Group justify="space-between" align="center" px="xs" py={6} wrap="nowrap">
+        {/* Left: Quantity Counter & Warranty Badge */}
+        <Group gap="xs" align="center" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+          {isServiceJob ? (
+            <Badge size="sm" variant="outline" color={sourceType === 'repair' ? 'orange' : 'teal'}>
+              {t('1 (Locked)')}
+            </Badge>
+          ) : (
+            <QuantityInput
+              data-cart-newest-qty={isNewest ? 'true' : undefined}
+              value={item.quantity}
+              onChange={(val) => onUpdateQty(item.id, typeof val === 'number' ? val : 1)}
+              min={1}
+              size={isMobile ? 'sm' : 'xs'}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  focusBarcodeScanner(true);
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  focusBarcodeScanner(true);
+                }
+              }}
+            />
+          )}
+
+          {sourceType === 'retail' && item.warranty !== undefined && (
+            <LineWarrantyBadge warranty={item.warranty} override={item.warrantyOverride} />
+          )}
+        </Group>
 
         {/* Right: Price Display */}
-        <Group gap="xs" align="center">
+        <Group gap="xs" align="center" style={{ flexShrink: 0 }}>
           {!isServiceJob && item.quantity > 1 && (
             <Text size="xs" c="dimmed" style={{ fontSize: 11 }}>
               {formatMoney(item.unitPriceCents)} {t('each')}

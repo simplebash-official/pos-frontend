@@ -16,7 +16,7 @@ import { selectAppLanguage } from '@/store/slices/settingsSlice';
 import { PwaUpdateProvider } from '@/app/pwa/PwaUpdateContext';
 import { HeldCartCatchupNotifier } from '@/app/components/HeldCartCatchupNotifier';
 import { BillReminderNotifier } from '@/features/expenses/components/BillReminderNotifier';
-import { LowStockNotifier } from '@/features/inventory/components/LowStockNotifier';
+import { NotificationStream } from '@/features/notifications';
 import { LiveRefresh } from '@/features/sync-status';
 import { reduxColorSchemeManager } from '@/store/colorSchemeManager';
 import { mantineTheme } from '@/styles/theme';
@@ -89,12 +89,12 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
               colorSchemeManager={reduxColorSchemeManager}
               defaultColorScheme="light"
             >
-              <Notifications position="top-right" zIndex={1000} />
+              <Notifications position="top-right" zIndex={1000} limit={4} />
               <LayoutTierProvider>
                 <PwaUpdateProvider>
                   <HeldCartCatchupNotifier />
                   <LiveRefresh />
-                  <LowStockNotifier />
+                  <NotificationStream />
                   <BillReminderNotifier />
                   <ModalsProvider>
                     <CalculatorProvider>{children}</CalculatorProvider>

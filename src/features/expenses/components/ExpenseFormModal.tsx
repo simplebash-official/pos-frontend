@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, Button, Group, Modal, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { SearchCombobox, type SearchComboboxItem } from '@/shared/components/SearchCombobox';
@@ -113,10 +113,9 @@ export const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({ opened, onCl
     }
     try {
       const saved = await createExpense.mutateAsync(toExpenseInput(form));
-      notifications.show({
+      notify.success({
         title: t('Expense saved'),
         message: saved.expense.number,
-        color: 'green',
       });
       handleClose();
     } catch (err) {

@@ -9,7 +9,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -65,10 +65,9 @@ const Form = ({
     try {
       const next = await update.mutateAsync(toInput(form));
       setForm(fromSettings(next));
-      notifications.show({
+      notify.success({
         title: t('Settings Saved'),
         message: t('Cash drawer rules updated.'),
-        color: 'teal',
       });
     } catch (err) {
       setError(getErrorMessage(err, t('The rules could not be saved. Please try again.')));

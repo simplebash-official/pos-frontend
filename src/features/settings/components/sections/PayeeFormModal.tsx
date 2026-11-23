@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -54,10 +54,9 @@ export const PayeeFormModal: React.FC<PayeeFormModalProps> = ({ payee, onClose }
           return;
         }
         await update.mutateAsync({ key: payee.key, input });
-        notifications.show({
+        notify.success({
           title: t('Saved'),
           message: cleanPayeeName(name),
-          color: 'green',
         });
       }
       onClose();

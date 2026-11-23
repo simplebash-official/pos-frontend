@@ -26,6 +26,8 @@ const TEST_SHOP_PROFILE: ShopProfile = {
   defaultWarrantyText: '',
   defaultFooterText: 'Thank you for your business!',
   receiptFooterText: 'Thank you for shopping with us!',
+  jobReceiptTermsText: '',
+  uncollectedAfterDays: null,
   allowSharedUserSessions: false,
   allowStaffMultiDeviceSessions: false,
 };
@@ -49,8 +51,8 @@ vi.mock('@/features/billing/hooks/useCart', () => ({
   useCartSound: () => ({ soundEnabled: false, toggleSoundFeedback: vi.fn() }),
 }));
 
-vi.mock('@/features/notifications/components/NotificationPopover', () => ({
-  NotificationPopover: () => <div data-testid="notification-popover" />,
+vi.mock('@/features/notifications', () => ({
+  NotificationCenter: () => <div data-testid="notification-popover" />,
 }));
 
 vi.mock('@/shared/components/ModernClock', () => ({
@@ -182,7 +184,8 @@ describe('Header component shop name rendering', () => {
     expect(html).not.toContain(PRODUCT_NAME);
   });
 
-  it('renders Active User tooltip with capitalized role (e.g. Admin)', () => {
+  it('shows no profile avatar in the header of the other screens', () => {
+    mockPathname = '/dashboard';
     const store = createMockStore(undefined, {
       name: 'Mayura AI',
       username: 'mayura',
@@ -190,8 +193,8 @@ describe('Header component shop name rendering', () => {
     });
     const html = renderHeader(store);
 
-    expect(html).toContain('Active User: Mayura AI (Admin)');
-    expect(html).not.toContain('Active User: Mayura AI (admin)');
+    expect(html).not.toContain('Active User');
+    expect(html).not.toContain('mantine-Avatar-root');
   });
 
   it('renders Cashier tooltip with capitalized role on billing page', () => {

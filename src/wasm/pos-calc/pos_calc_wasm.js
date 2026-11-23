@@ -66,9 +66,10 @@ export function calc_receipt(request) {
 }
 
 /**
- * Works out what a repair job charges and costs from its items.
+ * Works out what a repair job charges and costs from its items, each item's discount, and
+ * what stops it being saved.
  * @param {CalcRepairRequest} request
- * @returns {RepairTotals}
+ * @returns {RepairPreview}
  */
 export function calc_repair(request) {
     const ret = wasm.calc_repair(request);

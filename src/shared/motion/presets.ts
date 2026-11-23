@@ -5,6 +5,8 @@ export const EASE = [0.22, 1, 0.36, 1] as const;
 export const DURATION = { fast: 0.15, base: 0.2 } as const;
 /** The spring the tab pill and the sidebar pill glide with. */
 export const SPRING: Transition = { type: 'spring', stiffness: 500, damping: 38 };
+/** Where a scroll-driven bar settles once the reader stops: critically damped, so no wobble. */
+export const SPRING_SETTLE: Transition = { type: 'spring', stiffness: 380, damping: 36, mass: 0.9 };
 /** A later item in a list enters a touch later, capped so a long list still settles at once. */
 export const STAGGER_STEP = 0.03;
 export const STAGGER_CAP = 8;
@@ -23,6 +25,8 @@ export interface MotionPresets {
     initial: false | { opacity: number; scale: number };
     animate: { opacity: number; scale: number };
   };
+  /** How a scroll-driven element settles; instant for reduced motion. */
+  settle: Transition;
   transition: Transition;
 }
 
@@ -36,5 +40,6 @@ export const resolvePresets = (reduced: boolean): MotionPresets => ({
     initial: reduced ? false : { opacity: 0, scale: 0.85 },
     animate: { opacity: 1, scale: 1 },
   },
+  settle: reduced ? { duration: 0 } : SPRING_SETTLE,
   transition: reduced ? { duration: 0 } : { duration: DURATION.base, ease: EASE },
 });

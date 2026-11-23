@@ -6,6 +6,7 @@ import type {
   Warranty,
   WarrantyCoverage,
   WarrantyEventKind,
+  WarrantyGroup,
   WarrantyLookupMatch,
   WarrantyState,
   WarrantyType,
@@ -65,6 +66,20 @@ export const validUntil = (warranty: Pick<Warranty, 'endsOn'>): string =>
   warranty.endsOn === undefined
     ? t('Covered for life')
     : `${t('Valid until')} ${formatDate(warranty.endsOn)}`;
+
+/** The badge on an invoice line: "Warranty until 13 Dec 2026", "Expired 13 Dec 2026", "Under claim", "Cancelled". */
+export const warrantyChipLabel = (
+  warranty: Pick<Warranty, 'state' | 'endsOn' | 'replacedByWarrantyKey'>
+): string => {
+  // A replacement ends the old warranty on purpose, so say that rather than "Cancelled".
+  if (warranty.state === 'void') {
+    return warranty.replacedByWarrantyKey === undefined ? t('Cancelled') : t('Replaced');
+  }
+  if (warranty.state === 'under_claim') return t('Under claim');
+  if (warranty.endsOn === undefined) return t('Covered for life');
+  const day = formatDate(warranty.endsOn);
+  return warranty.state === 'expired' ? `${t('Expired')} ${day}` : `${t('Warranty until')} ${day}`;
+};
 
 /** "45 days left", "Last day today", "Ended", or "" for lifetime. */
 export const daysLeftLabel = (warranty: Pick<Warranty, 'daysRemaining' | 'state'>): string => {
@@ -138,7 +153,7 @@ export const toProfileInput = (profile: ProductWarranty): ProductWarranty => {
   const terms = profile.terms?.trim();
   return {
     coverage: profile.coverage,
-    warrantyType: profile.warrantyType,
+    warrantyType: profile.warrantyType ?? 'shop',
     terms: terms === undefined || terms === '' ? undefined : terms,
   };
 };
@@ -157,3 +172,25 @@ export const endsOnIfStartedToday = (coverage: WarrantyCoverage): string | null 
   const reply = calc_warranty({ startsOn: toIsoDate(new Date()), coverage });
   return reply.kind === 'until' ? reply.endsOn : null;
 };
+
+/** A claim can be started on a warranty that is in force, or one that has ended (a manager honours it). */
+export const canStartClaim = (warranty: Pick<Warranty, 'state'>): boolean =>
+  warranty.state === 'active' || warranty.state === 'expiring_soon' || warranty.state === 'expired';
+
+/**
+ * A unit sold from stock, still in force, can be swapped for a new one in one window. An ended
+ * warranty goes through the normal claim, where a manager accepts it, and repair work has no
+ * product to take from stock.
+ */
+export const canQuickReplace = (warranty: Pick<Warranty, 'state' | 'sourceType'>): boolean =>
+  warranty.sourceType === 'product_sale' &&
+  (warranty.state === 'active' || warranty.state === 'expiring_soon');
+
+/** A warranty shown on its own card, as the browse list does. */
+export const toSingleGroup = (warranty: Warranty): WarrantyGroup => ({
+  serialNumber: warranty.serialNumber,
+  itemName: warranty.itemName,
+  customerName: warranty.customerName,
+  customerPhone: warranty.customerPhone,
+  warranties: [warranty],
+});

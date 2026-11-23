@@ -162,17 +162,16 @@ body,
   color: var(--text-primary) !important;
 }
 
+/* The cross is a filled red button, so closing a panel is always the one red thing in its header. */
 .mantine-Drawer-close {
-  color: var(--text-secondary) !important;
+  background-color: var(--mantine-color-red-6) !important;
+  color: var(--mantine-color-white) !important;
   border-radius: var(--mantine-radius-default) !important;
-  transition:
-    background-color 150ms ease,
-    color 150ms ease !important;
+  transition: background-color 150ms ease !important;
 }
 
 .mantine-Drawer-close:hover {
-  background-color: var(--bg-hover) !important;
-  color: var(--text-primary) !important;
+  background-color: var(--mantine-color-red-7) !important;
 }
 
 /* Billing counter root.
@@ -279,22 +278,43 @@ body,
   background-color: var(--bg-active);
   padding: 4px;
   border-radius: var(--mantine-radius-default);
+  border: 1px solid var(--border);
 }
 
 .segmented-toggle-indicator {
   background-color: var(--bg-card);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   border-radius: calc(var(--mantine-radius-default) - 2px);
 }
 
 .segmented-toggle-label {
-  color: var(--text-primary);
-  font-weight: 500;
+  color: var(--text-secondary);
+  /* One weight for both states: a bolder active label is wider and made the control resize. */
+  font-weight: 600;
+  transition: color 0.15s ease;
 }
 
 .segmented-toggle-label[data-active] {
   color: var(--text-primary);
-  font-weight: 600;
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-root {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-indicator {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-label {
+  color: var(--mantine-color-dark-2);
+}
+
+[data-mantine-color-scheme='dark'] .segmented-toggle-label[data-active] {
+  color: var(--mantine-color-white);
 }
 
 /* Analytics & Reports segmented pill tabs with white active button */
@@ -843,6 +863,10 @@ th.mantine-Table-th {
    two-column layout that folds to one by the drawer's own width (container query, not the
    viewport), a sticky left rail, a pinned footer and animated pill tabs. */
 @media (min-width: 48em) {
+  .mantine-Drawer-content.rich-drawer--xwide {
+    --drawer-size: min(1160px, calc(100vw - 2 * var(--mantine-spacing-md)));
+  }
+
   .mantine-Drawer-content.rich-drawer--wide {
     --drawer-size: min(900px, calc(100vw - 2 * var(--mantine-spacing-md)));
   }
@@ -883,13 +907,97 @@ th.mantine-Table-th {
   min-width: 0;
 }
 
-/* The headline numbers run across the top of both columns. */
+/* The headline numbers run across the top of both columns. The bar pins to the top of the panel
+   once scrolled past. Its tiles layer carries the backing (the padding is cancelled by an equal
+   negative margin, so the resting layout is unchanged); `KpiStrip` moves each tile with the
+   scroll and settles it with a spring. */
 .rich-drawer-kpis {
   grid-column: 1 / -1;
+  position: sticky;
+  /* Sticky offsets measure inside the scroller's padding, so reach back over it to the very top. */
+  top: calc(-1 * var(--mantine-spacing-lg));
+  z-index: 5;
+  margin-block: calc(-1 * var(--mantine-spacing-sm));
+}
+
+.rich-drawer-kpis[data-hidden='true'] {
+  pointer-events: none;
+}
+
+.rich-drawer-kpi-tiles {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
-  gap: var(--mantine-spacing-md);
+  gap: var(--mantine-spacing-sm);
+  padding-block: var(--mantine-spacing-sm);
+}
+
+/* The canvas-coloured backing that covers the content passing under the pinned tiles. It fades
+   with them (see `KpiStrip`), so a hidden strip leaves nothing behind. */
+.rich-drawer-kpi-backing {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-app);
+  pointer-events: none;
+}
+
+.rich-drawer-kpis[data-pinned='true'] .rich-drawer-kpi-backing {
+  /* The hairline is an inset shadow, not a border, so pinning never changes the height. */
+  box-shadow:
+    inset 0 -1px 0 var(--border),
+    0 6px 8px -6px rgb(0 0 0 / 0.25);
+}
+
+.rich-drawer-kpi-slot {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  transform-origin: 50% 0;
+}
+
+.rich-drawer-kpi-slot > .kpi-tile {
+  height: 100%;
+}
+
+/* One headline number as a slim row: the icon spans the label and the figure. A tile narrower than
+   170px (two to a row on a phone) puts the figure under the icon and label so an amount keeps the
+   whole width. It reacts to its own width, so it also works outside a drawer. */
+.kpi-tile {
+  container-type: inline-size;
+  container-name: kpi;
+}
+
+.kpi-tile-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'icon label'
+    'icon value';
+  align-items: center;
+  column-gap: var(--mantine-spacing-sm);
+}
+
+.kpi-tile-icon {
+  grid-area: icon;
+}
+
+.kpi-tile-label {
+  grid-area: label;
+}
+
+.kpi-tile-value {
+  grid-area: value;
+  min-width: 0;
+}
+
+@container kpi (max-width: 170px) {
+  .kpi-tile-body {
+    grid-template-areas:
+      'icon label'
+      'value value';
+    row-gap: 4px;
+  }
 }
 
 /* Narrow: one column, ordered hero, headline numbers, main content, then the other left cards. */
@@ -898,7 +1006,7 @@ th.mantine-Table-th {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .rich-drawer-kpis {
+  .rich-drawer-kpi-tiles {
     grid-auto-flow: row;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -926,6 +1034,15 @@ th.mantine-Table-th {
   padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
   background-color: var(--bg-card);
   border-top: 1px solid var(--border);
+}
+
+/* A ticket panel's footer on a phone: the main action, then equal cells for the rest. */
+.job-footer-phone {
+  padding-bottom: max(var(--mantine-spacing-md), env(safe-area-inset-bottom));
+}
+.job-footer-grid {
+  display: grid;
+  gap: var(--mantine-spacing-xs);
 }
 
 /* Animated tabs: the blue highlight is a framer-motion element that glides between tabs, so the
@@ -1118,6 +1235,16 @@ th.mantine-Table-th {
   .sidebar-link:hover .sidebar-icon-tile {
     transform: scale(1.06);
   }
+}
+
+.sidebar-link .mantine-NavLink-body {
+  min-width: 0;
+}
+
+.sidebar-link .mantine-NavLink-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-link[data-active] .mantine-NavLink-label {
@@ -1565,6 +1692,29 @@ th.mantine-Table-th {
   outline-offset: 2px;
 }
 
+/* POS Header Split-Pill Clock Live Dot indicator */
+@keyframes pos-clock-live-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+.pos-clock-live-dot {
+  animation: pos-clock-live-dot-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pos-clock-live-dot {
+    animation: none;
+  }
+}
+
 /* Settings -> Registers & Shifts interactive policy cards: visible keyboard focus ring. */
 .shift-policy-card:focus:not(:focus-visible) {
   outline: none;
@@ -1572,4 +1722,266 @@ th.mantine-Table-th {
 .shift-policy-card:focus-visible {
   outline: 2px solid var(--mantine-primary-color-filled);
   outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Notifications (features/notifications): the header bell, its panel and the history rows.
+   Colours come from scheme-aware tokens only; motion is transform/opacity (framer-motion).
+   --------------------------------------------------------------------------------------------- */
+.ntf-bell {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.ntf-bell-icon {
+  display: inline-flex;
+  transform-origin: 50% 12%;
+}
+
+.ntf-badge {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--mantine-color-white);
+  background: var(--mantine-color-red-filled);
+  box-shadow: 0 0 0 2px var(--mantine-color-body);
+  pointer-events: none;
+}
+
+.ntf-dropdown {
+  overflow: hidden;
+  background-color: var(--bg-card);
+  border-color: var(--border);
+}
+
+.ntf-panel {
+  min-width: 0;
+}
+
+.ntf-panel[data-mobile] {
+  height: 100dvh;
+}
+
+.ntf-panel[data-mobile] .ntf-panel-list {
+  flex: 1;
+  min-height: 0;
+}
+
+.ntf-panel-footer {
+  border-top: 1px solid var(--border);
+}
+
+.ntf-unread-pill {
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--mantine-color-blue-light-color);
+  background: var(--mantine-color-blue-light);
+}
+
+/* Segmented switch with a gliding highlight. */
+.ntf-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--mantine-radius-default);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+}
+
+.ntf-switch[data-grow] {
+  display: flex;
+}
+
+.ntf-switch[data-grow] .ntf-switch-option {
+  flex: 1;
+}
+
+.ntf-switch-option {
+  position: relative;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: var(--mantine-radius-default);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.ntf-switch-option[data-active] {
+  color: var(--text-primary);
+}
+
+.ntf-switch-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mantine-radius-default);
+  background: var(--bg-card);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 12%),
+    0 1px 6px rgb(0 0 0 / 6%);
+}
+
+.ntf-switch-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.ntf-switch-count,
+.ntf-chip-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--mantine-color-blue-light-color);
+  background: var(--mantine-color-blue-light);
+}
+
+/* Category chips in the bell. */
+.ntf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.ntf-chip:hover {
+  background: var(--bg-hover);
+}
+
+.ntf-chip[data-active] {
+  color: var(--mantine-color-blue-light-color);
+  background: var(--mantine-color-blue-light);
+  border-color: transparent;
+}
+
+/* Sticky day headings. */
+.ntf-day {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 10px 10px 6px;
+  letter-spacing: 0.04em;
+  background: var(--bg-card);
+}
+
+/* One notification. */
+.ntf-row {
+  position: relative;
+  border-radius: var(--mantine-radius-default);
+}
+
+.ntf-row-main {
+  display: block;
+  width: 100%;
+  padding: 10px 44px 10px 10px;
+  border-radius: var(--mantine-radius-default);
+  transition: background-color 0.15s ease;
+}
+
+.ntf-row-main:hover,
+.ntf-row-main:focus-visible {
+  background: var(--bg-hover);
+}
+
+.ntf-row[data-unread] .ntf-row-main {
+  background: color-mix(in srgb, var(--mantine-color-blue-light) 45%, transparent);
+}
+
+.ntf-row[data-unread] .ntf-row-main:hover,
+.ntf-row[data-unread] .ntf-row-main:focus-visible {
+  background: var(--mantine-color-blue-light);
+}
+
+.ntf-tile {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--mantine-radius-default);
+}
+
+.ntf-row-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ntf-row-side {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ntf-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.ntf-row-action {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ntf-row:hover .ntf-row-action,
+.ntf-row:focus-within .ntf-row-action,
+.ntf-row[data-touch] .ntf-row-action {
+  opacity: 1;
+}
+
+.ntf-row[data-touch] .ntf-row-main {
+  padding-right: 56px;
+}
+
+/* The bell's phone sheet: the panel brings its own header and padding. */
+.mantine-Drawer-header.ntf-drawer-header {
+  display: none !important;
+}
+
+.mantine-Drawer-body.ntf-drawer-body {
+  padding: 0 !important;
+  overflow: hidden !important;
 }

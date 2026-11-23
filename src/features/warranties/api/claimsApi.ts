@@ -6,9 +6,14 @@ import type {
   ClaimListResult,
   ManagerApproval,
   OpenClaimInput,
+  OpenClaimsBatchInput,
+  OpenClaimsBatchResponse,
+  ProcessClaimInput,
   ReplacementInput,
   SupplierOutcome,
   WarrantyClaim,
+  WarrantyCondition,
+  WarrantyConditionsResponse,
 } from '../types';
 
 const base = '/warranty-claims';
@@ -36,10 +41,27 @@ export const openClaim = async (input: OpenClaimInput): Promise<WarrantyClaim> =
   return response.data;
 };
 
+/** Opens a claim on each warranty of one invoice; every warranty answers on its own. */
+export const openClaimsBatch = async (
+  input: OpenClaimsBatchInput
+): Promise<OpenClaimsBatchResponse> => {
+  const response = await apiClient.post<ApiResponse<OpenClaimsBatchResponse>>(
+    `${base}/batch`,
+    input
+  );
+  return response.data;
+};
+
+/** Takes a claim to its decision and as far on as the outcome goes in a single request. */
+export const processClaim = async (input: ProcessClaimInput): Promise<WarrantyClaim> => {
+  const response = await apiClient.post<ApiResponse<WarrantyClaim>>(`${base}/process`, input);
+  return response.data;
+};
+
 export const inspectClaim = (key: string, inspectionNotes: string) =>
   step(key, 'inspect', { inspectionNotes });
 
-export const decideClaim = (key: string, decision: ClaimDecision, approval: ManagerApproval) =>
+export const decideClaim = (key: string, decision: ClaimDecision, approval?: ManagerApproval) =>
   step(key, 'decide', { decision, approval });
 
 export interface SendToSupplierInput {
@@ -62,7 +84,31 @@ export const resolveClaim = (
 
 export const returnClaimToCustomer = (key: string) => step(key, 'return', {});
 
-export const convertClaimToPaidRepair = (key: string) => step(key, 'paid-repair', {});
+/** The customer is only needed when the claim's sale had none (a walk-in). */
+export interface PaidRepairCustomer {
+  customerKey?: string;
+}
+
+export const convertClaimToPaidRepair = (key: string, customer: PaidRepairCustomer) =>
+  step(key, 'paid-repair', customer);
 
 /** Opens the free rework job for a claim on repair work decided as a repair. */
 export const openClaimRework = (key: string) => step(key, 'rework', {});
+
+export const fetchConditions = async (): Promise<WarrantyCondition[]> => {
+  const response = await apiClient.get<ApiResponse<WarrantyConditionsResponse>>(
+    `${base}/conditions`
+  );
+  return response.data.conditions;
+};
+
+export const createCondition = async (name: string): Promise<WarrantyCondition> => {
+  const response = await apiClient.post<ApiResponse<WarrantyCondition>>(`${base}/conditions`, {
+    name,
+  });
+  return response.data;
+};
+
+export const deleteCondition = async (key: string): Promise<void> => {
+  await apiClient.delete<ApiResponse<WarrantyCondition>>(`${base}/conditions/${key}`);
+};

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Box } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 
 import {
@@ -12,12 +12,13 @@ import {
   useCartSound,
 } from '../hooks/useCart';
 import { useCheckout } from '../hooks/useCheckout';
+import { useBillRepairLink } from '../hooks/useBillRepairLink';
 import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
 import type { CatalogMode } from './CatalogPanel';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
-import { DiscountPopover } from './DiscountPopover';
+import { DiscountPopover } from '@/shared/components/DiscountPopover';
 import type { PaymentPanelHandle } from './PaymentPanel';
 import { focusBarcodeScanner, focusQuickAdjustQuantity } from '../lib/focusScanner';
 
@@ -121,10 +122,9 @@ export const BillingCounter = () => {
       .then((quotation) => {
         if (isCancelled) return;
         dispatch(loadQuotationIntoCart({ quotation, catalogProducts: allProducts }));
-        notifications.show({
+        notify.info({
           title: t('Quotation Loaded'),
           message: `${quotation.quotationNumber} loaded for fulfillment. Complete sale to fulfill quotation.`,
-          color: 'blue',
         });
         setSearchParams(
           (params) => {
@@ -136,10 +136,9 @@ export const BillingCounter = () => {
       })
       .catch((err) => {
         if (isCancelled) return;
-        notifications.show({
+        notify.error({
           title: t('Failed to load quotation'),
           message: err?.message || 'Could not load quotation.',
-          color: 'red',
         });
         setSearchParams(
           (params) => {
@@ -154,6 +153,8 @@ export const BillingCounter = () => {
     };
   }, [fillQuotationKey, allProducts, dispatch, setSearchParams]);
 
+  useBillRepairLink();
+
   // Lets F2 run PaymentPanel's own guardrailed primary-action path (see the F2 shortcut below)
   // instead of jumping straight to checkout and bypassing the credit-limit confirmation.
   const paymentPanelRef = useRef<PaymentPanelHandle>(null);
@@ -165,14 +166,13 @@ export const BillingCounter = () => {
     if (checkout === undefined || !isCurrent) return;
 
     if (activeSession?.status === 'closing') {
-      notifications.show({
+      notify.warning({
         title: t('Cash Count In Progress'),
         message: activeSession.closingCashierNameSnapshot
           ? `${activeSession.closingCashierNameSnapshot} ${t('is counting the drawer. Finish or cancel the close count before completing sales.')}`
           : t(
               'Drawer cash count is in progress. Finish or cancel the close count before completing sales.'
             ),
-        color: 'orange',
       });
       return;
     }
@@ -181,10 +181,9 @@ export const BillingCounter = () => {
       !activeSession ||
       (activeSession.status !== 'open' && activeSession.status !== 'reopened')
     ) {
-      notifications.show({
+      notify.error({
         title: t('Register Shift Required'),
         message: t('Please open a register session before completing sales.'),
-        color: 'red',
       });
       setOpenSessionModalOpen(true);
       return;
@@ -295,10 +294,9 @@ export const BillingCounter = () => {
       const { invoice, warnings } = await completeSaleMutation.mutateAsync(payload);
 
       if (warnings.length > 0) {
-        notifications.show({
+        notify.warning({
           title: 'Sale Completed With Warnings',
           message: warnings.join(' '),
-          color: 'orange',
         });
       }
 
@@ -333,13 +331,12 @@ export const BillingCounter = () => {
       }
       const apiErr = err as ApiError;
       const isNotFound = apiErr?.statusCode === 404;
-      notifications.show({
+      notify.error({
         title: isNotFound ? 'Item No Longer Available' : 'Checkout Error',
         message: isNotFound
           ? apiErr.message ||
             'A product, ticket, or customer in this sale no longer exists. Please refresh and try again.'
           : apiErr?.message || 'Failed to process payment invoice',
-        color: 'red',
       });
     } finally {
       setIsProcessing(false);
@@ -569,10 +566,9 @@ export const BillingCounter = () => {
         if (targetInv) {
           openDocumentPreview(targetInv, 'receipt');
         } else {
-          notifications.show({
+          notify.warning({
             title: 'Preview Last Receipt',
             message: 'No previous invoice found to preview',
-            color: 'orange',
           });
         }
       },
@@ -585,10 +581,9 @@ export const BillingCounter = () => {
         if (targetInv) {
           openDocumentPreview(targetInv, 'invoice');
         } else {
-          notifications.show({
+          notify.warning({
             title: 'Preview Last Invoice',
             message: 'No previous invoice found to preview',
-            color: 'orange',
           });
         }
       },

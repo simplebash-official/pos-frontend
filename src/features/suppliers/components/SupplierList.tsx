@@ -19,13 +19,11 @@ import {
   Select,
 } from '@mantine/core';
 import {
-  IconAlertCircle,
   IconPlus,
   IconRefresh,
   IconBuildingStore,
   IconEdit,
   IconTrash,
-  IconCheck,
   IconTruckDelivery,
   IconTags,
   IconUserCheck,
@@ -33,7 +31,7 @@ import {
   IconLayoutGrid,
   IconList,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -136,11 +134,9 @@ export const SupplierList = () => {
           supplierKey: supplierToEdit.key,
           productKeys: linkedProductKeys,
         });
-        notifications.show({
+        notify.success({
           title: t('Supplier Updated'),
           message: `${updated.name} updated successfully`,
-          color: 'teal',
-          icon: <IconCheck size={16} />,
         });
       } else {
         const newSup = await createMutation.mutateAsync(values);
@@ -150,20 +146,16 @@ export const SupplierList = () => {
             productKeys: linkedProductKeys,
           });
         }
-        notifications.show({
+        notify.success({
           title: t('Supplier Created'),
           message: `${newSup.name} registered successfully`,
-          color: 'green',
-          icon: <IconCheck size={16} />,
         });
       }
     } catch (err) {
       const message = getErrorMessage(err);
-      notifications.show({
+      notify.error({
         title: t('Error Saving Supplier'),
         message,
-        color: 'red',
-        icon: <IconAlertCircle size={16} />,
       });
       throw err;
     }
@@ -178,10 +170,9 @@ export const SupplierList = () => {
       setSelectedSupplierForDrawer(null);
     }
     setSupplierToDelete(null);
-    notifications.show({
+    notify.info({
       title: 'Supplier Deleted',
       message: 'Supplier record removed successfully',
-      color: 'blue',
     });
   };
 
@@ -408,10 +399,9 @@ export const SupplierList = () => {
             onRowClick={(s) => setSelectedSupplierForDrawer(s)}
             onDeleteSelected={async (ids) => {
               await deleteBatchMutation.mutateAsync({ supplierKeys: ids });
-              notifications.show({
+              notify.info({
                 title: 'Suppliers Deleted',
                 message: 'Selected supplier records removed successfully',
-                color: 'blue',
               });
             }}
           />

@@ -1,58 +1,54 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { selectIsAuthenticated } from '@/store/slices/authSlice';
-import { addNotification } from '@/store/slices/notificationSlice';
 import { markHeldCartReminded, selectHeldCarts } from '@/store/slices/cartSlice';
 import { ROUTES, HELD_CART_REMINDER_MS } from '@/constants';
+import { raiseAlert, useNotificationsEnabled } from '@/features/notifications';
+import { describeError, logger } from '@/shared/logging';
+import { t } from '@/shared/i18n/t';
 
 const CHECK_INTERVAL_MS = 60 * 1000;
 
 /**
- * Catches held sales that were already stale when the app booted.
- *
- * The `parkCart` listener in listenerMiddleware.ts only starts a reminder
- * timer for carts held during the current session — a cart restored from
- * localStorage on load needs its own check, hence the periodic scan here.
+ * Reminds the cashier of a sale left on hold for more than 30 minutes, once per held sale, in
+ * their own notifications. Held sales live on this device only, so the reminder is raised from
+ * here; checked every minute, which covers sales held now and ones restored after a restart.
  */
 export const HeldCartCatchupNotifier = () => {
   const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const enabled = useNotificationsEnabled();
   const heldCarts = useAppSelector(selectHeldCarts);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
+    if (!enabled) return undefined;
 
     const check = () => {
       const now = Date.now();
-      heldCarts.forEach((cart) => {
-        if (cart.remindedAt) {
-          return;
-        }
-        const heldForMs = now - new Date(cart.heldAt).getTime();
-        if (heldForMs < HELD_CART_REMINDER_MS) {
-          return;
-        }
-        dispatch(
-          addNotification({
-            id: `held-cart-reminder-${cart.id}`,
-            category: 'billing',
-            actionIconType: 'cart',
-            priority: 'normal',
-            title: 'Held Sale Reminder',
-            message: `Held sale "${cart.label ?? 'Unlabeled Sale'}" has been on pause for over 30 minutes.`,
-            link: ROUTES.BILLING,
-          })
-        );
-        dispatch(markHeldCartReminded(cart.id));
-      });
+      for (const cart of heldCarts) {
+        if (cart.remindedAt) continue;
+        if (now - new Date(cart.heldAt).getTime() < HELD_CART_REMINDER_MS) continue;
+        // Marked only once raised, so a failed attempt is retried on the next check.
+        raiseAlert({
+          category: 'sales',
+          severity: 'info',
+          title: t('A sale is still on hold'),
+          body: cart.label
+            ? `"${cart.label}" ${t('has been on hold for more than 30 minutes.')}`
+            : t('A held sale has been waiting for more than 30 minutes.'),
+          link: { path: ROUTES.BILLING, label: t('Open billing') },
+          audience: { type: 'me' },
+          dedupeKey: `held-cart:${cart.id}`,
+        })
+          .then(() => dispatch(markHeldCartReminded(cart.id)))
+          .catch((error: unknown) =>
+            logger.warn('notification', 'held-sale-reminder.failed', describeError(error))
+          );
+      }
     };
 
     check();
     const interval = setInterval(check, CHECK_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [isAuthenticated, heldCarts, dispatch]);
+  }, [enabled, heldCarts, dispatch]);
 
   return null;
 };

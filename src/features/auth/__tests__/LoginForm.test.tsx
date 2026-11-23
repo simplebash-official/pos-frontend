@@ -111,6 +111,18 @@ describe('LoginForm', () => {
     expect(out).not.toContain('SimpleBash Service Center');
   });
 
+  it('renders a forgot password link preserving shop code in query', () => {
+    const out = renderLoginForm('/login?shop=my-shop');
+    expect(out).toContain('Forgot password?');
+    expect(out).toContain('href="/forgot-password?shop=my-shop"');
+  });
+
+  it('renders a forgot password link without shop query when no shop is set', () => {
+    const out = renderLoginForm('/login');
+    expect(out).toContain('Forgot password?');
+    expect(out).toContain('href="/forgot-password"');
+  });
+
   it('shows a dismissible inline Alert above the form on 409 SESSION_OPEN_ON_OTHER_DEVICE', async () => {
     mockLoginApi.mockRejectedValueOnce({
       statusCode: 409,

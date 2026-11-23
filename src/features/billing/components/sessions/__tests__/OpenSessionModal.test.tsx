@@ -97,6 +97,8 @@ const makeProfile = (allowShared: boolean, allowStaffMulti = false): ShopProfile
   defaultWarrantyText: '',
   defaultFooterText: '',
   receiptFooterText: '',
+  jobReceiptTermsText: '',
+  uncollectedAfterDays: null,
   allowSharedUserSessions: allowShared,
   allowStaffMultiDeviceSessions: allowStaffMulti,
 });
@@ -227,7 +229,7 @@ describe('OpenSessionModal', () => {
     expect(mockNotifyShow).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Joined Open Shop Shift',
-        color: 'cyan',
+        color: 'blue',
       })
     );
     expect(onSessionOpened).toHaveBeenCalledWith(existingSharedSession);

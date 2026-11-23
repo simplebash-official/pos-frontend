@@ -21,6 +21,8 @@ describe('presets', () => {
 
   it('moves a little by default', () => {
     expect(resolvePresets(false).fadeUp.initial).toEqual({ opacity: 0, y: 6 });
+    expect(resolvePresets(false).settle).toMatchObject({ type: 'spring' });
+    expect(resolvePresets(true).settle).toEqual({ duration: 0 });
   });
 
   it('caps the stagger', () => {

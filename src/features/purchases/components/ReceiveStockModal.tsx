@@ -12,7 +12,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconBuildingStore, IconPlus, IconX } from '@tabler/icons-react';
 import { getDeviceId } from '@/api/deviceId';
 import { handleSessionClosingError } from '@/features/billing/lib/sessionClosing';
@@ -200,13 +200,12 @@ export const ReceiveStockModal = ({
     setClientProblem(null);
     createReceipt(toReceiptInput(toSend, context, answer), {
       onSuccess: (receipt) => {
-        notifications.show({
+        notify.success({
           title: t('Stock received'),
           message:
             receipt.dueCents > 0
               ? `${receipt.receiptNumber}. ${t('Still owed to the supplier:')} ${formatMoney(receipt.dueCents)}`
               : `${receipt.receiptNumber}. ${t('Paid in full.')}`,
-          color: 'teal',
         });
         onClose();
       },

@@ -13,7 +13,7 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconArrowDown,
   IconArrowUp,
@@ -73,10 +73,9 @@ export const CashCategoriesSection = () => {
     try {
       await update.mutateAsync({ key, input });
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Save Failed'),
         message: getErrorMessage(err, t('The category could not be saved. Please try again.')),
-        color: 'red',
       });
     }
   };

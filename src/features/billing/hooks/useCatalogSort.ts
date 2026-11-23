@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { updateMyPreferencesApi } from '@/features/auth/api/authApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -50,10 +50,9 @@ export function useCatalogSort(): [CatalogSortId, (next: CatalogSortId) => void]
       dispatch(setUserPreferences({ billingCatalogSort: next }));
       updateMyPreferencesApi({ billingCatalogSort: next }).catch(() => {
         // The choice still applies on this device; it just was not saved to the account.
-        notifications.show({
+        notify.warning({
           title: 'Sort not saved',
           message: 'Could not save your sort choice to your account. It will apply on this device.',
-          color: 'yellow',
         });
       });
     },

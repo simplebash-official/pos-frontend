@@ -1,5 +1,6 @@
 import type { PaymentMethod } from '@/constants/payment';
 import type { ReceiptSettlementInput } from '@/features/purchases/types';
+import type { CalcDiscount } from '@/shared/types/discount';
 
 /** `charge`: a one-time charge (a service or fee) with no stock, ticket or cost behind it. */
 export type LineSourceType = 'retail' | 'repair' | 'print' | 'charge';
@@ -65,13 +66,29 @@ export interface CreditNoteItem {
 }
 
 /**
- * `resolved` — the normal single-atomic-write outcome (a refund/store-credit
- * decision was made at creation time). `awaitingResolution` — created with
- * at least one `pending_inspection` line and no payout decision yet, with no
- * edit-in-place workflow to move it forward — the only way out is `voided`.
- * `voided` — reversed via the admin-gated void action.
+ * `resolved` — the normal single-atomic-write outcome, or a note whose pending
+ * lines were decided at inspection. `awaiting_resolution` — created with at
+ * least one `pending_inspection` line; it leaves that state by being resolved
+ * (`CreditNoteResolution`) or voided. `voided` — reversed via the admin-gated
+ * void action.
  */
 export type CreditNoteStatus = 'resolved' | 'awaiting_resolution' | 'voided';
+
+/** What was decided for one line that was returned as `pending_inspection`. */
+export interface ResolvedLine {
+  /** Position of the line in the credit note's `items`. */
+  lineIndex: number;
+  condition: CreditNoteItemCondition;
+  disposition?: CreditNoteItemDisposition;
+}
+
+/** The recorded outcome of an inspection. The stored lines keep their original condition. */
+export interface CreditNoteResolution {
+  resolvedAt: string;
+  resolvedByName: string;
+  approvedByName: string;
+  lines: ResolvedLine[];
+}
 
 export interface CreditNote {
   id: string;
@@ -103,6 +120,8 @@ export interface CreditNote {
   /** Set whenever `exchangeItems` is non-empty — links the return and the replacement sale for reporting. */
   exchangeReference?: string;
   status: CreditNoteStatus;
+  /** Present once a note held for inspection has been resolved. */
+  resolution?: CreditNoteResolution;
   notes?: string;
   createdAt: string;
 }
@@ -512,7 +531,8 @@ export interface ReverseCashMovementInput {
 export interface ConvertVarianceInput {
   reason: string;
   recipient: string;
-  managerPin: string;
+  /** Sent by Staff only; a signed-in Admin or Manager approves the conversion themselves. */
+  managerPin?: string;
 }
 
 export interface VerifyPinInput {
@@ -578,12 +598,6 @@ export interface PeriodStatus {
 // ---------------------------------------------------------------------------
 // Live calculation of the cart and payment (`POST /calc/checkout`)
 // ---------------------------------------------------------------------------
-
-/** A discount as typed: a percentage (0-100) or, for `fixed`, cents. */
-export interface CalcDiscount {
-  type: 'percentage' | 'fixed';
-  value: number;
-}
 
 export interface CalcCartLineRequest {
   /** The cart line's id, echoed in its answer so a reply can be matched to its line. */

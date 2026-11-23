@@ -17,7 +17,11 @@ import { WarrantiesPage } from '../WarrantiesPage';
 import { WarrantyDetailDrawer } from '../WarrantyDetailDrawer';
 import { ProductWarrantyFields } from '../ProductWarrantyFields';
 import { LineWarrantyControl } from '../LineWarrantyControl';
+import { CoverageEditor } from '../CoverageEditor';
 import * as warrantiesApi from '../../api/warrantiesApi';
+import { db } from '@/offline/db/schema';
+import { formatMoney } from '@/shared/lib/money';
+import { getActionShortcut, getShortcutKeyParts } from '@/shared/lib/shortcuts';
 
 installDrawerTestEnv();
 
@@ -80,7 +84,9 @@ const DETAIL: WarrantyDetail = {
 vi.mock('../../api/warrantiesApi', () => ({
   lookupWarranties: vi.fn(),
   fetchWarranties: vi.fn(),
+  fetchWarrantyPage: vi.fn(),
   fetchWarranty: vi.fn(),
+  fetchWarrantyStats: vi.fn(),
   voidWarranty: vi.fn(),
   extendWarranty: vi.fn(),
 }));
@@ -96,6 +102,8 @@ const api = {
   lookup: vi.mocked(warrantiesApi.lookupWarranties),
   detail: vi.mocked(warrantiesApi.fetchWarranty),
   list: vi.mocked(warrantiesApi.fetchWarranties),
+  page: vi.mocked(warrantiesApi.fetchWarrantyPage),
+  stats: vi.mocked(warrantiesApi.fetchWarrantyStats),
   voidWarranty: vi.mocked(warrantiesApi.voidWarranty),
 };
 
@@ -135,6 +143,15 @@ const Harness = ({
 
 const STAFF = ['warranties:view', 'warranty_claims:record'];
 
+const STATS = {
+  inForceCount: 12,
+  endingSoonCount: 3,
+  endingSoonUntil: '2026-11-09',
+  openClaimCount: 4,
+  lateClaimCount: 2,
+  reworkCostThisMonthCents: 150_000,
+};
+
 describe('warranty screens', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -144,6 +161,8 @@ describe('warranty screens', () => {
     api.detail.mockReset();
     api.voidWarranty.mockReset();
     api.list.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 200 });
+    api.stats.mockReset();
+    api.stats.mockResolvedValue(STATS);
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -172,11 +191,143 @@ describe('warranty screens', () => {
     });
   };
 
-  it('starts ready for a scan and shows what it accepts', async () => {
+  it('reloads the list and the numbers each time the page is opened', async () => {
+    const second: Warranty = { ...WARRANTY, key: 'wty_2', warrantyNumber: 'WTY-000002' };
+    api.page.mockResolvedValueOnce({ items: [WARRANTY], total: 1, page: 1, limit: 24 });
     await render(<WarrantiesPage />);
-    expect(document.body.textContent).toContain('Ready when the customer is');
-    expect(document.body.textContent).toContain('Serial or IMEI');
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 1 of 1'));
+    const statsCalls = api.stats.mock.calls.length;
+    await render(null);
+    api.page.mockResolvedValueOnce({ items: [second, WARRANTY], total: 2, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 2 of 2'));
+    expect(api.page).toHaveBeenCalledTimes(2);
+    expect(api.stats.mock.calls.length).toBeGreaterThan(statsCalls);
+  });
+
+  it('Option+W on the page puts the cursor back in the search box', async () => {
+    api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
+    await render(<WarrantiesPage />, '/warranties?view=claims');
+    expect(document.querySelector('input[data-barcode-scanner="true"]')).toBeNull();
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: '∑', code: 'KeyW', altKey: true, bubbles: true })
+      );
+    });
+    const input = document.querySelector<HTMLInputElement>('input[data-barcode-scanner="true"]');
+    expect(input).not.toBeNull();
+    await vi.waitFor(() => expect(document.activeElement).toBe(input));
+  });
+
+  it('shows the warranty shortcut the way this computer writes it', async () => {
+    api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    const shown = Array.from(document.querySelectorAll('kbd')).map((kbd) => kbd.textContent);
+    const expected = getShortcutKeyParts(getActionShortcut('warrantyLookup').primary).map(
+      (part) => part.text
+    );
+    expect(shown).toEqual(expected);
+  });
+
+  it('lets the person choose how many cards sit in a row, and remembers it', async () => {
+    localStorage.removeItem('pos-warranty-columns');
+    api.page.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Galaxy A55'));
+    const choice = (n: string) =>
+      document.querySelector<HTMLInputElement>(`input[type="radio"][value="${n}"]`);
+    // jsdom reports no screen size, so which choices show depends on the tier; the stored
+    // number is what the person picked.
+    const three = choice('3');
+    if (three === null) throw new Error('the cards-per-row choices are not shown');
+    await act(async () => three.click());
+    expect(localStorage.getItem('pos-warranty-columns')).toBe('3');
+  });
+
+  it('lists every warranty before anyone searches, and opens one', async () => {
+    api.page.mockResolvedValue({ items: [WARRANTY], total: 1, page: 1, limit: 24 });
+    api.detail.mockReturnValue(new Promise(() => undefined));
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Galaxy A55'));
+    expect(document.body.textContent).toContain('Showing 1 of 1 warranties');
+    expect(document.body.textContent).not.toContain('Show more');
     expect(api.lookup).not.toHaveBeenCalled();
+    expect(api.page).toHaveBeenCalledWith(1, 24);
+    const open = document.querySelector<HTMLButtonElement>(
+      'button[aria-label="Open warranty WTY-000001"]'
+    );
+    await act(async () => open?.click());
+    await vi.waitFor(() => expect(api.detail).toHaveBeenCalledWith('wty_1'));
+  });
+
+  it('loads the next page on Show more', async () => {
+    const second: Warranty = { ...WARRANTY, key: 'wty_2', warrantyNumber: 'WTY-000002' };
+    api.page
+      .mockResolvedValueOnce({ items: [WARRANTY], total: 2, page: 1, limit: 1 })
+      .mockResolvedValueOnce({ items: [second], total: 2, page: 2, limit: 1 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 1 of 2'));
+    const more = Array.from(document.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Show more'
+    );
+    await act(async () => more?.click());
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Showing 2 of 2'));
+    expect(api.page).toHaveBeenLastCalledWith(2, 24);
+    expect(document.body.textContent).not.toContain('Show more');
+  });
+
+  it('says so when the shop has no warranties yet', async () => {
+    api.page.mockResolvedValue({ items: [], total: 0, page: 1, limit: 24 });
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('No warranties yet'));
+  });
+
+  it('shows the desk numbers the server worked out', async () => {
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(document.body.textContent).toContain('2 late'));
+    const text = document.body.textContent;
+    expect(text).toContain('Covered now');
+    expect(text).toContain('12');
+    expect(text).toContain('Ending this week');
+    expect(text).toContain(formatMoney(150_000));
+    expect(text).toContain('Rework this month');
+  });
+
+  it('shows a dash, not a zero, when the numbers cannot be had', async () => {
+    await db.statsCache.clear();
+    api.stats.mockRejectedValue(new Error('offline'));
+    await render(<WarrantiesPage />);
+    await vi.waitFor(() => expect(api.stats).toHaveBeenCalled());
+    await vi.waitFor(() => expect(document.body.textContent).not.toContain('2 late'));
+    // The numbers hook retries once (about a second) before giving up.
+    await vi.waitFor(() => expect(document.body.textContent).toContain('—'), { timeout: 5000 });
+  });
+
+  it('lists the warranties ending this week and opens one', async () => {
+    const ending: Warranty = {
+      ...WARRANTY,
+      state: 'expiring_soon',
+      endsOn: '2026-11-06',
+      daysRemaining: 3,
+    };
+    api.list.mockResolvedValue({ items: [ending], total: 1, page: 1, limit: 200 });
+    api.detail.mockReturnValue(new Promise(() => undefined));
+    await render(<WarrantiesPage />, '/warranties?view=ending');
+    await vi.waitFor(() => expect(api.list).toHaveBeenCalledWith({ state: 'expiring_soon' }));
+    await vi.waitFor(() => expect(document.body.textContent).toContain('3 days left'));
+    expect(document.body.textContent).toContain('A call now lets the customer');
+    const open = document.querySelector<HTMLButtonElement>('button[aria-label="Open WTY-000001"]');
+    expect(open).not.toBeNull();
+    await act(async () => open?.click());
+    await vi.waitFor(() => expect(api.detail).toHaveBeenCalledWith('wty_1'));
+  });
+
+  it('says so when no warranty ends this week', async () => {
+    api.list.mockResolvedValue({ items: [], total: 0, page: 1, limit: 200 });
+    await render(<WarrantiesPage />, '/warranties?view=ending');
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain('No warranty ends this week')
+    );
   });
 
   it('shows the warranties grouped by device, with cover left', async () => {
@@ -283,5 +434,79 @@ describe('warranty screens', () => {
     );
     expect(document.body.textContent).toContain('12 months');
     expect(document.querySelector('[aria-label="Change the warranty for this sale"]')).toBeNull();
+  });
+
+  it('shows reactive details and does not display premature error on line warranty control', async () => {
+    await render(
+      <LineWarrantyControl
+        warranty={{
+          coverage: { kind: 'none' },
+        }}
+        override={undefined}
+        canAdjust={true}
+        onOverride={vi.fn()}
+      />
+    );
+    expect(document.body.textContent).toContain('No warranty');
+    const button = document.querySelector(
+      '[aria-label="Change the warranty for this sale"]'
+    ) as HTMLElement;
+    expect(button).toBeDefined();
+    await act(async () => button.click());
+    // Should NOT show premature error before user attempts to apply
+    expect(document.body.textContent).not.toContain('Choose who gives the warranty.');
+  });
+
+  it('renders coverage editor with non-portaled combobox and allows clearing duration without showing 0', async () => {
+    const onChange = vi.fn();
+    await render(
+      <CoverageEditor
+        value={{ kind: 'limited', value: 12, unit: 'months' }}
+        onChange={onChange}
+        allowNone
+      />
+    );
+    expect(document.body.textContent).toContain('How long');
+    expect(document.body.textContent).toContain('Counted in');
+    const select = document.querySelector('input[value="Months"]');
+    expect(select).not.toBeNull();
+
+    // When value is 0 (cleared by user), input should be empty (not showing '0') with placeholder '12'
+    await render(
+      <CoverageEditor
+        value={{ kind: 'limited', value: 0, unit: 'months' }}
+        onChange={onChange}
+        allowNone
+      />
+    );
+    const durationInput = document.querySelector('input[placeholder="12"]') as HTMLInputElement;
+    expect(durationInput).not.toBeNull();
+    expect(durationInput.value).toBe('');
+  });
+
+  it('merges lifetime tiles and labels price per unit for multi-unit warranty detail', async () => {
+    api.detail.mockResolvedValue({
+      ...DETAIL,
+      warranty: {
+        ...WARRANTY,
+        quantity: 3,
+        claimedQuantity: 1,
+        coverage: { kind: 'lifetime' },
+        endsOn: undefined,
+        daysRemaining: undefined,
+      },
+    });
+    await render(
+      <WarrantyDetailDrawer
+        warrantyKey="wty_1"
+        onClose={vi.fn()}
+        onOpenWarranty={vi.fn()}
+        onOpenClaim={vi.fn()}
+      />
+    );
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Lifetime'));
+    expect(document.body.textContent).toContain('Coverage');
+    expect(document.body.textContent).toContain('Price paid (per unit)');
+    expect(document.body.textContent).toContain('1 of 3 units claimed · 2 remaining');
   });
 });

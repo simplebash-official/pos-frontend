@@ -17,6 +17,10 @@ export interface ShopProfile {
   defaultWarrantyText: string;
   defaultFooterText: string;
   receiptFooterText: string;
+  /** Terms printed on the receipt given when a job is received; empty prints none. */
+  jobReceiptTermsText: string;
+  /** Days after which the shop is no longer responsible for an uncollected job; null prints no warning. */
+  uncollectedAfterDays: number | null;
   allowSharedUserSessions: boolean;
   allowStaffMultiDeviceSessions: boolean;
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button, Group, Modal, Select, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -35,10 +35,9 @@ export const MergeCategoryModal: React.FC<MergeCategoryModalProps> = ({
     }
     try {
       await merge.mutateAsync({ key: category.key, targetKey });
-      notifications.show({
+      notify.success({
         title: t('Categories merged'),
         message: target?.name ?? '',
-        color: 'green',
       });
       onClose();
     } catch (err) {

@@ -12,6 +12,14 @@ const sha256Base64 = async (text: string): Promise<string> => {
 // theme bootstrap (a flash of the wrong colour scheme) once the policy is
 // enforced, so pin the two together here.
 describe('nginx Content-Security-Policy', () => {
+  // The sign-in token is in localStorage, so the policy must block injected scripts, not just
+  // report them, on every response (nginx repeats the header block in each location).
+  it('is enforced, never report-only, in all four header blocks', () => {
+    expect(nginxConf).not.toContain('Content-Security-Policy-Report-Only');
+    const enforced = nginxConf.match(/add_header Content-Security-Policy "default-src 'self';/g);
+    expect(enforced).toHaveLength(4);
+  });
+
   it("allows index.html's inline script by its current sha256", async () => {
     const inline = [...indexHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
     expect(inline.length).toBeGreaterThan(0);

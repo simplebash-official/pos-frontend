@@ -1,6 +1,5 @@
 import { Stack, SimpleGrid } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { IconCheck } from '@tabler/icons-react';
+import { notify } from '@/shared/notify';
 import { useDashboardLivePulse } from '../hooks/useDashboardLivePulse';
 import { CockpitHeader } from './CockpitHeader';
 import { DashboardKpiStrip } from './DashboardKpiStrip';
@@ -10,17 +9,19 @@ import { CashShiftSummaryWidget } from './CashShiftSummaryWidget';
 import { TechnicianWorkloadWidget } from './TechnicianWorkloadWidget';
 import { FastMoversWidget } from './FastMoversWidget';
 import { LiveActivityFeed } from './LiveActivityFeed';
+import { WarrantyDeskWidget } from './WarrantyDeskWidget';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
 
 export const DashboardPage = () => {
   const { data, isLoading, refresh } = useDashboardLivePulse();
+  const canSeeWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
 
   const handleRefresh = async () => {
     await refresh();
-    notifications.show({
+    notify.success({
       title: 'Store Pulse Synced',
       message: 'Pulled latest cloud transactions and local store activity.',
-      color: 'teal',
-      icon: <IconCheck size={16} />,
     });
   };
 
@@ -40,6 +41,9 @@ export const DashboardPage = () => {
         repairPipeline={data.repairPipeline}
         printPipeline={data.printPipeline}
       />
+
+      {/* Zone 4b: The warranty desk */}
+      {canSeeWarranties && <WarrantyDeskWidget />}
 
       {/* Zone 5: Cash Register Shift & Technician Capacity Matrix (2-Column Grid) */}
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">

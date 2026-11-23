@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Anchor, Button, Center, Loader, Stack, Text } from '@mantine/core';
+import { Alert, Anchor, Badge, Button, Center, Group, Loader, Stack, Text } from '@mantine/core';
 import {
   IconAlertTriangle,
+  IconBox,
   IconBuildingStore,
   IconCamera,
   IconClipboardCheck,
@@ -33,7 +34,7 @@ import {
   KpiTile,
   RichDrawer,
 } from '@/shared/components/drawer';
-import { useHasPermission } from '@/shared/hooks/usePermissions';
+import { useCanSelfApprove, useHasPermission } from '@/shared/hooks/usePermissions';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -46,6 +47,7 @@ import {
   decisionLabel,
   needsAttention,
   outcomeLabel,
+  refundPath,
   tickedChecks,
   type ClaimAction,
 } from '../lib/claimView';
@@ -92,9 +94,9 @@ export const ClaimDetailDrawer = ({
   const claim = query.data;
   const warranty = useWarranty(claim === undefined ? null : claim.warrantyKey);
   const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
+  const selfApproves = useCanSelfApprove();
   const canRepair = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
   const canSeePhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_VIEW);
-  const canAddPhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_CREATE);
   const [dialog, setDialog] = useState<DialogAction | null>(null);
   const [photosOpen, setPhotosOpen] = useState(false);
 
@@ -109,7 +111,7 @@ export const ClaimDetailDrawer = ({
 
   const start = (action: ClaimAction, current: WarrantyClaim) => {
     if (action === 'refund') {
-      navigate(`${ROUTES.INVOICES}?invoiceKey=${current.invoiceKey}&refundClaim=${current.key}`);
+      navigate(refundPath(current));
       return;
     }
     setDialog(action);
@@ -126,6 +128,8 @@ export const ClaimDetailDrawer = ({
         data={data}
         opened={claimKey !== null}
         onClose={onClose}
+        // Escape closes the window on top (a step, the photos), never the drawer under it.
+        closeOnEscape={dialog === null && !photosOpen}
         width="wide"
         title={{
           icon: <IconClipboardCheck size={20} />,
@@ -196,7 +200,8 @@ export const ClaimDetailDrawer = ({
           }
           const c = loaded.claim;
           const look = claimStatusLook(c.status);
-          const checks = tickedChecks(c.voidChecks);
+          const checks =
+            c.conditions && c.conditions.length > 0 ? c.conditions : tickedChecks(c.voidChecks);
           const slow = needsAttention(c);
           return (
             <DrawerGrid>
@@ -217,7 +222,9 @@ export const ClaimDetailDrawer = ({
                     value={c.decision === undefined ? t('Not yet') : decisionLabel(c.decision)}
                     hint={
                       c.decidedByName === undefined
-                        ? t('A manager decides')
+                        ? selfApproves
+                          ? t('Waiting for a decision')
+                          : t('A manager decides')
                         : `${t('By')} ${c.decidedByName}`
                     }
                     color="grape"
@@ -250,8 +257,21 @@ export const ClaimDetailDrawer = ({
                           {c.serialNumber}
                         </div>
                       )}
+                      {(c.quantity ?? 1) > 1 && (
+                        <div>
+                          {c.quantity} {t('units claimed')}
+                        </div>
+                      )}
                       <div>
-                        {c.warrantyNumber} · {c.invoiceNumber}
+                        {c.warrantyNumber} ·{' '}
+                        <Anchor
+                          component="a"
+                          href={`/invoices?invoiceKey=${c.invoiceKey}`}
+                          size="xs"
+                          fw={600}
+                        >
+                          {c.invoiceNumber}
+                        </Anchor>
                       </div>
                     </>
                   }
@@ -288,11 +308,28 @@ export const ClaimDetailDrawer = ({
 
                 <DrawerCard label={t('What came in')} icon={<IconSearch size={14} />}>
                   <Stack gap="xs">
+                    {(c.quantity ?? 1) > 1 && (
+                      <InfoRow icon={<IconBox size={14} />} label={t('Units claimed')}>
+                        {c.quantity}
+                      </InfoRow>
+                    )}
                     <InfoRow icon={<IconAlertTriangle size={14} />} label={t('The fault')} stacked>
                       {c.issueDescription}
                     </InfoRow>
                     <InfoRow icon={<IconSearch size={14} />} label={t('Seen on it')} stacked>
-                      {checks.length === 0 ? t('Nothing; it looked fine') : checks.join(' · ')}
+                      {checks.length === 0 ? (
+                        <Text size="sm" c="dimmed">
+                          {t('Nothing; it looked fine')}
+                        </Text>
+                      ) : (
+                        <Group gap="xs" wrap="wrap" mt={4}>
+                          {checks.map((item) => (
+                            <Badge key={item} color="orange" variant="light" size="sm">
+                              {item}
+                            </Badge>
+                          ))}
+                        </Group>
+                      )}
                     </InfoRow>
                     {c.inspectionNotes !== undefined && (
                       <InfoRow
@@ -442,8 +479,8 @@ export const ClaimDetailDrawer = ({
           ownerKind="warranty_claim"
           ownerKey={claim.key}
           title={`${t('Photos')} — ${claim.claimNumber}`}
-          emptyText={t('No photos of this item yet. Take some when it comes in.')}
-          canAdd={canAddPhotos && canRecord}
+          emptyText={t('No photos of this item yet.')}
+          canAdd={false}
           onClose={() => setPhotosOpen(false)}
         />
       )}

@@ -24,6 +24,7 @@ vi.mock('@/api/client', () => ({
     get: vi.fn(),
     post: vi.fn(),
   },
+  setSessionExpiredHandler: vi.fn(),
 }));
 
 describe('Onboarding Module Exports & Components', () => {

@@ -1,7 +1,7 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectShopProfile, updateShopProfile } from '@/store/slices/settingsSlice';
 import { SectionShell } from '../SectionShell';
@@ -36,10 +36,9 @@ export const BrandingSection = ({ onDirtyChange }: SectionProps) => {
   const handleSave = () => {
     dispatch(updateShopProfile({ logoBase64: form.values.logoBase64 }));
     form.resetDirty();
-    notifications.show({
+    notify.success({
       title: 'Settings Saved',
       message: 'Shop logo updated successfully.',
-      color: 'green',
     });
   };
 

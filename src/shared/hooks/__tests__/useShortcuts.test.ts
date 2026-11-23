@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import React from 'react';
+import { getActionShortcut } from '../../lib/shortcuts';
 import { parseCombo, matchShortcutKey, useAppShortcuts, type Shortcut } from '../useShortcuts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,6 +42,20 @@ describe('useAppShortcuts utility', () => {
 
       expect(parseCombo('Mod+Enter', winEvent, false)).toBe(true);
       expect(parseCombo('Mod+Enter', winEvent, true)).toBe(false);
+    });
+
+    it('matches the warranty lookup (Option+W, which types a sigma) on macOS only with Option held', () => {
+      const combo = getActionShortcut('warrantyLookup', 'macos').primary;
+      const optionW = {
+        key: '∑',
+        code: 'KeyW',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: true,
+        shiftKey: false,
+      } as KeyboardEvent;
+      expect(parseCombo(combo, optionW, true)).toBe(true);
+      expect(parseCombo(combo, { ...optionW, altKey: false } as KeyboardEvent, true)).toBe(false);
     });
 
     it('matches Alt/Option shortcuts on macOS despite diacritic character substitution', () => {

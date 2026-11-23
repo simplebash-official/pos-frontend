@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconAlertCircle,
   IconBan,
@@ -88,10 +88,9 @@ export const QuotationsPage = () => {
   const handleFillQuotation = useCallback(
     (quotation: Quotation) => {
       dispatch(loadQuotationIntoCart({ quotation, catalogProducts: products }));
-      notifications.show({
+      notify.info({
         title: t('Quotation Loaded'),
         message: `${quotation.quotationNumber} loaded into billing cart.`,
-        color: 'blue',
       });
       navigate('/billing');
     },
@@ -102,17 +101,15 @@ export const QuotationsPage = () => {
     if (cancelling === null) return;
     try {
       await cancelMutation.mutateAsync(cancelling.key);
-      notifications.show({
+      notify.success({
         title: t('Quotation cancelled'),
         message: cancelling.quotationNumber,
-        color: 'green',
       });
       setCancelling(null);
     } catch (error) {
-      notifications.show({
+      notify.error({
         title: t('Could not cancel the quotation'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     }
   };

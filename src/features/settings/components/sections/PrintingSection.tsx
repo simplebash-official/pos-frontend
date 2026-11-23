@@ -2,7 +2,7 @@ import { t } from '@/shared/i18n/t';
 import { useEffect } from 'react';
 import { Box, Group, NumberInput, SimpleGrid, Switch, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectPrintSettings, updatePrintSettings } from '@/store/slices/settingsSlice';
@@ -47,10 +47,9 @@ export const PrintingSection = ({ onDirtyChange }: SectionProps) => {
 
     dispatch(updatePrintSettings({ ...form.values }));
     form.resetDirty();
-    notifications.show({
+    notify.success({
       title: 'Print Preferences Saved',
       message: 'Printing defaults updated.',
-      color: 'green',
     });
   };
 

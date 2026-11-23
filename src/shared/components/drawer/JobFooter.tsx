@@ -1,0 +1,163 @@
+import type { ReactNode } from 'react';
+import { Button, Group, Stack, Tooltip } from '@mantine/core';
+import { useIsMobile } from '@/shared/hooks/useResponsive';
+
+/** A small footer action: a word, its icon (Edit has none) and what it does. */
+export interface FooterAction {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  onClick: () => void;
+}
+
+export interface FooterMainProps {
+  label: string;
+  icon: ReactNode;
+  /** Which side of the word the icon sits on; a forward arrow reads best on the right. */
+  iconSide: 'left' | 'right';
+  /** A Mantine colour; the next status' colour for a ticket. */
+  color: string;
+  onClick: () => void;
+  loading?: boolean;
+  /** When set the button is disabled and this says why, in a tooltip. */
+  blockedMessage?: string;
+  /** The `data-log-id` the click log uses. */
+  logId?: string;
+}
+
+/** The one filled action of a footer. Full width and 44px on a phone. */
+export const FooterMain = ({
+  label,
+  icon,
+  iconSide,
+  color,
+  onClick,
+  loading,
+  blockedMessage,
+  logId,
+}: FooterMainProps) => {
+  const isMobile = useIsMobile();
+  const blocked = blockedMessage !== undefined;
+  return (
+    <Tooltip label={blockedMessage ?? ''} disabled={!blocked} withArrow>
+      {/* The span lets the tooltip show on a disabled button. */}
+      <span style={isMobile ? { display: 'block' } : undefined}>
+        <Button
+          variant="filled"
+          color={color}
+          autoContrast
+          size="sm"
+          h={isMobile ? 44 : undefined}
+          px="xl"
+          miw={isMobile ? undefined : 140}
+          fw={600}
+          fullWidth={isMobile}
+          disabled={blocked}
+          loading={loading}
+          leftSection={iconSide === 'left' ? icon : undefined}
+          rightSection={iconSide === 'right' ? icon : undefined}
+          onClick={onClick}
+          data-log-id={logId}
+        >
+          {label}
+        </Button>
+      </span>
+    </Tooltip>
+  );
+};
+
+/** An outlined footer button. On a phone it is a cell with the icon above its label. */
+const FooterTool = ({ label, icon, onClick }: Omit<FooterAction, 'id'>) => {
+  const isMobile = useIsMobile();
+  if (!isMobile) {
+    return (
+      <Button variant="default" size="sm" leftSection={icon} onClick={onClick}>
+        {label}
+      </Button>
+    );
+  }
+  return (
+    <Button
+      variant="light"
+      color="gray"
+      fullWidth
+      leftSection={icon}
+      onClick={onClick}
+      styles={{
+        root: { height: 'auto', minHeight: 52, padding: '8px 4px' },
+        inner: { flexDirection: 'column', gap: 4 },
+        section: { margin: 0 },
+        label: {
+          height: 'auto',
+          overflow: 'visible',
+          whiteSpace: 'normal',
+          textAlign: 'center',
+          lineHeight: 1.2,
+          fontSize: 12,
+        },
+      }}
+    >
+      {label}
+    </Button>
+  );
+};
+
+export interface JobFooterProps {
+  /** Quiet actions, for example Print receipt and Edit. */
+  tools: FooterAction[];
+  /** Bill: outlined next to the main action on a desktop. */
+  bill: FooterAction | null;
+  /** The filled next step, a `FooterMain`, or `null` when there is none. */
+  main: ReactNode;
+}
+
+/**
+ * The pinned bar of a ticket panel. Desktop: outlined tools at the left, then Bill and the
+ * filled main action at the right. Phone: the main action across the top, the tools and Bill
+ * in equal cells below. The header's cross closes the panel, so there is no Close here.
+ */
+export const JobFooter = ({ tools, bill, main }: JobFooterProps) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    const cells = bill === null ? tools : [...tools, bill];
+    return (
+      <Stack gap="xs" className="rich-drawer-footer job-footer-phone">
+        {main}
+        {cells.length > 0 && (
+          <div
+            className="job-footer-grid"
+            style={{ gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))` }}
+          >
+            {cells.map((cell) => (
+              <FooterTool
+                key={cell.id}
+                label={cell.label}
+                icon={cell.icon}
+                onClick={cell.onClick}
+              />
+            ))}
+          </div>
+        )}
+      </Stack>
+    );
+  }
+
+  return (
+    <Group justify="space-between" gap="sm" wrap="wrap" className="rich-drawer-footer">
+      <Group gap="xs" wrap="wrap">
+        {tools.map((tool) => (
+          <FooterTool key={tool.id} label={tool.label} icon={tool.icon} onClick={tool.onClick} />
+        ))}
+      </Group>
+      <Group gap="sm" wrap="wrap" justify="flex-end" ml="auto">
+        {bill !== null && (
+          <Button variant="default" size="sm" leftSection={bill.icon} onClick={bill.onClick}>
+            {bill.label}
+          </Button>
+        )}
+        {main}
+      </Group>
+    </Group>
+  );
+};

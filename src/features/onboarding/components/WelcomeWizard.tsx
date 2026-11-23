@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   Alert,
   Box,
@@ -167,7 +167,7 @@ export const WelcomeWizard = () => {
         ) {
           // Nothing failed: this shop was set up earlier. Carry on to it.
           queryClient.invalidateQueries({ queryKey: queryKeys.system.all });
-          notifications.show({ color: 'teal', message: t('Your shop is already set up.') });
+          notify.success({ message: t('Your shop is already set up.') });
           navigate(isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN, { replace: true });
           return;
         }

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, Button, Group, Modal, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { MoneyInput } from '@/shared/components/MoneyInput';
 import { SearchCombobox, type SearchComboboxItem } from '@/shared/components/SearchCombobox';
@@ -89,7 +89,7 @@ export const IncomeFormModal: React.FC<IncomeFormModalProps> = ({ opened, onClos
     }
     try {
       const saved = await createIncome.mutateAsync(toIncomeInput(form));
-      notifications.show({ title: t('Income saved'), message: saved.number, color: 'green' });
+      notify.success({ title: t('Income saved'), message: saved.number });
       handleClose();
     } catch (err) {
       setError(getErrorMessage(err, t('The income could not be saved. Please try again.')));

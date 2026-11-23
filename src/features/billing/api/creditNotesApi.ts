@@ -6,7 +6,9 @@ import type {
   CreditNoteItem,
   CreditNoteItemCondition,
   CreditNoteItemDisposition,
+  CreditNoteResolution,
   CreditNoteStatus,
+  ResolvedLine,
   RefundBreakdownLeg,
 } from '../types';
 
@@ -119,6 +121,7 @@ export interface BackendCreditNote {
   overrideReason?: string;
   exchangeReference?: string;
   status: CreditNoteStatus;
+  resolution?: CreditNoteResolution;
   notes?: string;
   createdAt: string;
 }
@@ -185,6 +188,7 @@ export const toCreditNote = (cn: BackendCreditNote): CreditNote => ({
   overrideReason: cn.overrideReason,
   exchangeReference: cn.exchangeReference,
   status: cn.status,
+  resolution: cn.resolution,
   notes: cn.notes,
   createdAt: cn.createdAt,
 });
@@ -228,6 +232,26 @@ export const voidCreditNote = async (idOrKey: string, reason: string): Promise<C
   const response = await apiClient.post<ApiResponse<BackendCreditNote>>(
     `/billing/credit-notes/${idOrKey}/void`,
     { reason }
+  );
+  return toCreditNote(response.data);
+};
+
+export interface ResolveCreditNoteInput {
+  /** A decision for every line held for inspection, none left out. */
+  lines: ResolvedLine[];
+  /** Absent when the signed-in user is an Admin or Manager, who approves it themselves. */
+  approval?: { managerPin: string; reason: string };
+}
+
+// Decides what happens to the units a credit note holds for inspection: the server restocks,
+// writes off, returns to the supplier or parks each one and moves the note to `resolved`.
+export const resolveCreditNote = async (
+  idOrKey: string,
+  input: ResolveCreditNoteInput
+): Promise<CreditNote> => {
+  const response = await apiClient.post<ApiResponse<BackendCreditNote>>(
+    `/billing/credit-notes/${idOrKey}/resolve`,
+    input
   );
   return toCreditNote(response.data);
 };

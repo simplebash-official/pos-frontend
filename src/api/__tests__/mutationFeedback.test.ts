@@ -22,11 +22,13 @@ describe('attachMutationFeedback', () => {
   it('shows a green notification with the saved name when the save works', async () => {
     await run({ mutationFn: async () => ({ name: 'Water Board' }), meta: feedback });
     expect(show).toHaveBeenCalledTimes(1);
-    expect(show).toHaveBeenCalledWith({
-      title: 'Thing added',
-      message: 'Water Board',
-      color: 'teal',
-    });
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Thing added',
+        message: 'Water Board',
+        color: 'teal',
+      })
+    );
   });
 
   it('shows a red notification with the reason when the save fails', async () => {
@@ -37,11 +39,13 @@ describe('attachMutationFeedback', () => {
       meta: feedback,
     });
     expect(show).toHaveBeenCalledTimes(1);
-    expect(show).toHaveBeenCalledWith({
-      title: 'Could not add the thing',
-      message: 'That name is already used.',
-      color: 'red',
-    });
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Could not add the thing',
+        message: 'That name is already used.',
+        color: 'red',
+      })
+    );
   });
 
   it('leaves a mutation that declared no feedback alone', async () => {

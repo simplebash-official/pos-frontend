@@ -1,9 +1,9 @@
 import { t } from '@/shared/i18n/t';
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Stack, Text, Textarea, TextInput } from '@mantine/core';
+import { NumberInput, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { queryKeys } from '@/api/queryKeys';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectShopProfile, setShopProfile } from '@/store/slices/settingsSlice';
@@ -17,7 +17,13 @@ interface DocumentTemplatesFormValues {
   defaultWarrantyText: string;
   defaultFooterText: string;
   receiptFooterText: string;
+  jobReceiptTermsText: string;
+  /** Empty when the shop prints no pickup warning. */
+  uncollectedAfterDays: number | '';
 }
+
+const JOB_RECEIPT_TERMS_MAX = 600;
+const UNCOLLECTED_DAYS_MAX = 365;
 
 /**
  * The shop's standing text on printed documents: its general warranty policy (on invoices,
@@ -38,6 +44,8 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
       defaultWarrantyText: shopProfile?.defaultWarrantyText ?? '',
       defaultFooterText: shopProfile?.defaultFooterText ?? '',
       receiptFooterText: shopProfile?.receiptFooterText ?? '',
+      jobReceiptTermsText: shopProfile?.jobReceiptTermsText ?? '',
+      uncollectedAfterDays: shopProfile?.uncollectedAfterDays ?? '',
     },
   });
 
@@ -47,6 +55,8 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
       defaultWarrantyText: shopProfile.defaultWarrantyText,
       defaultFooterText: shopProfile.defaultFooterText,
       receiptFooterText: shopProfile.receiptFooterText,
+      jobReceiptTermsText: shopProfile.jobReceiptTermsText,
+      uncollectedAfterDays: shopProfile.uncollectedAfterDays ?? '',
     };
     form.setInitialValues(loaded);
     form.setValues(loaded);
@@ -65,6 +75,10 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
         defaultWarrantyText: form.values.defaultWarrantyText.trim(),
         defaultFooterText: form.values.defaultFooterText.trim(),
         receiptFooterText: form.values.receiptFooterText.trim(),
+        jobReceiptTermsText: form.values.jobReceiptTermsText.trim(),
+        // The server reads 0 as "no warning".
+        uncollectedAfterDays:
+          form.values.uncollectedAfterDays === '' ? 0 : form.values.uncollectedAfterDays,
       });
       dispatch(setShopProfile(persisted));
       queryClient.setQueryData(queryKeys.settings.shopProfile(), persisted);
@@ -72,20 +86,20 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
         defaultWarrantyText: persisted.defaultWarrantyText,
         defaultFooterText: persisted.defaultFooterText,
         receiptFooterText: persisted.receiptFooterText,
+        jobReceiptTermsText: persisted.jobReceiptTermsText,
+        uncollectedAfterDays: persisted.uncollectedAfterDays ?? '',
       };
       form.setInitialValues(saved);
       form.setValues(saved);
       form.resetDirty(saved);
-      notifications.show({
+      notify.success({
         title: t('Settings Saved'),
         message: t('The text on your documents is saved.'),
-        color: 'green',
       });
     } catch (error: unknown) {
-      notifications.show({
+      notify.error({
         title: t('Save Failed'),
         message: getErrorMessage(error),
-        color: 'red',
       });
     } finally {
       setSaving(false);
@@ -95,7 +109,9 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
   return (
     <SectionShell
       title={t('Document Templates')}
-      description={t('Standard text printed on invoices, receipts and warranty cards.')}
+      description={t(
+        'Standard text printed on invoices, receipts, warranty cards and job receipts.'
+      )}
       isDirty={isDirty}
       saving={saving}
       onSave={() => void handleSave()}
@@ -133,6 +149,37 @@ export const DocumentTemplatesSection = ({ onDirtyChange }: SectionProps) => {
           label={t('Receipt thank-you line')}
           description={t('The last line of a printed receipt.')}
           {...form.getInputProps('receiptFooterText')}
+        />
+
+        <div>
+          <Textarea
+            label={t('Terms on the job receipt')}
+            description={t(
+              'Printed on the receipt the customer gets when you take in a repair or a print job.'
+            )}
+            autosize
+            minRows={3}
+            maxRows={8}
+            maxLength={JOB_RECEIPT_TERMS_MAX}
+            {...form.getInputProps('jobReceiptTermsText')}
+          />
+          <Text size="xs" c="dimmed" mt={4} ta="right">
+            {form.values.jobReceiptTermsText.length} / {JOB_RECEIPT_TERMS_MAX}
+          </Text>
+        </div>
+
+        <NumberInput
+          label={t('Warn about uncollected items after (days)')}
+          description={t(
+            'The job receipt tells the customer to collect within this many days. Leave empty for no warning.'
+          )}
+          placeholder={t('No warning')}
+          min={1}
+          max={UNCOLLECTED_DAYS_MAX}
+          allowDecimal={false}
+          allowNegative={false}
+          clampBehavior="strict"
+          {...form.getInputProps('uncollectedAfterDays')}
         />
       </Stack>
     </SectionShell>

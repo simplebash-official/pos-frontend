@@ -3,8 +3,8 @@ import { Drawer, Group, Text, ThemeIcon } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { DrawerScroll } from './DrawerLayout';
 
-/** Desktop widths: wide is two columns, standard one roomy column, narrow a list. Phones are always full-screen. */
-export type RichDrawerWidth = 'wide' | 'standard' | 'narrow';
+/** Desktop widths: xwide is wide with more room for dense tables, wide is two columns, standard one roomy column, narrow a list. Phones are always full-screen. */
+export type RichDrawerWidth = 'xwide' | 'wide' | 'standard' | 'narrow';
 
 export interface RichDrawerProps<T> {
   /** The item shown. The last one is kept while the drawer slides shut, so it does not go blank. */
@@ -19,6 +19,8 @@ export interface RichDrawerProps<T> {
   footer?: (item: T) => ReactNode;
   /** Custom z-index when stacking drawers (e.g. nested invoice inspection over session drawer). */
   zIndex?: number;
+  /** Pass `false` while a window opened from the drawer is up, so Escape closes only that window. */
+  closeOnEscape?: boolean;
 }
 
 /**
@@ -35,6 +37,7 @@ export const RichDrawer = <T,>({
   children,
   footer,
   zIndex,
+  closeOnEscape,
 }: RichDrawerProps<T>) => {
   const isMobile = useIsMobile();
   const [cached, setCached] = useState<T | null>(data);
@@ -47,6 +50,7 @@ export const RichDrawer = <T,>({
       onClose={onClose}
       position="right"
       zIndex={zIndex}
+      closeOnEscape={closeOnEscape}
       size={isMobile ? '100%' : 'md'}
       classNames={{ content: `rich-drawer rich-drawer--${width}` }}
       title={

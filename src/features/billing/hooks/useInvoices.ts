@@ -53,6 +53,8 @@ const invalidateAfterSale = (queryClient: ReturnType<typeof useQueryClient>) => 
   void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.quotations.all });
+  // A sale issues warranties and voiding it cancels them.
+  void queryClient.invalidateQueries({ queryKey: queryKeys.warranties.all });
   void invalidateInvoiceBalance(queryClient);
 };
 

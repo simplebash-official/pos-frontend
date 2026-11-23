@@ -82,18 +82,18 @@ const darkTokens: Record<string, string> = {
   '--text-secondary': 'var(--mantine-color-dimmed)',
   '--text-muted': 'var(--mantine-color-placeholder)',
 
-  // Status — lighter foregrounds and darker grounds so they stay legible
-  // against the dark surfaces.
+  // Status — lighter foregrounds and translucent tint washes so they stay legible
+  // against the dark surfaces without creating harsh, opaque blocks.
   '--status-ok': 'var(--mantine-color-green-4)',
-  '--status-ok-bg': 'var(--mantine-color-green-9)',
+  '--status-ok-bg': 'rgba(46, 125, 50, 0.16)',
   '--status-busy': 'var(--mantine-color-blue-4)',
-  '--status-busy-bg': 'var(--mantine-color-blue-9)',
+  '--status-busy-bg': 'rgba(34, 139, 230, 0.15)',
   '--status-warn': 'var(--mantine-color-orange-4)',
-  '--status-warn-bg': 'var(--mantine-color-orange-9)',
+  '--status-warn-bg': 'rgba(245, 158, 11, 0.15)',
   '--status-error': 'var(--mantine-color-red-4)',
-  '--status-error-bg': 'var(--mantine-color-red-9)',
+  '--status-error-bg': 'rgba(239, 68, 68, 0.15)',
   '--status-idle': 'var(--mantine-color-dark-2)',
-  '--status-idle-bg': 'var(--mantine-color-dark-5)',
+  '--status-idle-bg': 'rgba(255, 255, 255, 0.04)',
 
   // A translucent amber wash rather than a solid one: a filled amber block is
   // far too bright against a dark surface, and light text on it fails contrast.

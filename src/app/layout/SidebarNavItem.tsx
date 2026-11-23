@@ -2,6 +2,7 @@ import { memo, type ComponentType, type CSSProperties } from 'react';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 import { ActionIcon, Badge, Indicator, NavLink, Tooltip, type NavLinkProps } from '@mantine/core';
 import { motion, useReducedMotion } from 'framer-motion';
+import { shortLabel } from './shortLabel';
 
 type NavIcon = ComponentType<{ size?: number | string; stroke?: number | string }>;
 
@@ -159,26 +160,34 @@ export const FullNavItem = memo(function FullNavItem({
       transition={{ duration: 0.18, delay: slideIn ? Math.min(enterIndex, 10) * 0.02 : 0 }}
     >
       {isActive && <SidebarPill layoutId="sidebar-pill-full" background={tint(color)} />}
-      <NavLink
-        component={RouterNavLink}
-        to={to}
+      <Tooltip
         label={label}
-        leftSection={<IconTile Icon={Icon} color={color} isActive={isActive} />}
-        rightSection={
-          badgeCount > 0 ? (
-            <Badge size="xs" color="red" variant="filled">
-              <PopCount count={badgeCount} />
-            </Badge>
-          ) : undefined
-        }
-        active={isActive}
-        color={color}
-        variant="light"
-        className="sidebar-link"
-        onClick={onClick}
-        styles={linkStyles}
-        style={style}
-      />
+        position="right"
+        withArrow
+        openDelay={300}
+        disabled={shortLabel(label) === label}
+      >
+        <NavLink
+          component={RouterNavLink}
+          to={to}
+          label={shortLabel(label)}
+          leftSection={<IconTile Icon={Icon} color={color} isActive={isActive} />}
+          rightSection={
+            badgeCount > 0 ? (
+              <Badge size="xs" color="red" variant="filled">
+                <PopCount count={badgeCount} />
+              </Badge>
+            ) : undefined
+          }
+          active={isActive}
+          color={color}
+          variant="light"
+          className="sidebar-link"
+          onClick={onClick}
+          styles={linkStyles}
+          style={style}
+        />
+      </Tooltip>
     </motion.div>
   );
 });

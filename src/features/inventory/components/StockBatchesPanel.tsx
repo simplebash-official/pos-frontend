@@ -14,7 +14,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import {
   IconCheck,
   IconPackageExport,
@@ -89,11 +89,9 @@ export const StockBatchesPanel = ({
       {
         onSuccess: () => {
           setEditingKey(null);
-          notifications.show({
+          notify.success({
             title: t('Price updated'),
             message: `${t('These units now sell for')} ${formatMoney(editPriceCents)}`,
-            color: 'green',
-            icon: <IconCheck size={16} />,
           });
         },
       }

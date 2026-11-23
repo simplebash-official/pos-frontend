@@ -33,6 +33,13 @@ vi.mock('../../api/claimsApi', () => ({
   returnClaimToCustomer: vi.fn(),
   convertClaimToPaidRepair: vi.fn(),
   openClaimRework: vi.fn(),
+  fetchConditions: vi.fn().mockResolvedValue([]),
+  createCondition: vi
+    .fn()
+    .mockImplementation((name: string) =>
+      Promise.resolve({ key: `wcon_${name}`, name, active: true })
+    ),
+  deleteCondition: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('../../api/warrantiesApi', () => ({
   lookupWarranties: vi.fn(),
@@ -124,12 +131,20 @@ const DETAIL: WarrantyDetail = {
   claims: [CLAIM],
 };
 
-const Harness = ({ permissions, children }: { permissions: string[]; children: ReactNode }) => {
+const Harness = ({
+  permissions,
+  role,
+  children,
+}: {
+  permissions: string[];
+  role: 'staff' | 'manager' | 'admin';
+  children: ReactNode;
+}) => {
   const [store] = useState(() =>
     configureStore({
       reducer: {
         auth: () => ({
-          user: { id: 'u1', name: 'T', username: 't', role: 'staff', permissions },
+          user: { id: 'u1', name: 'T', username: 't', role, permissions },
         }),
       },
     })
@@ -156,6 +171,8 @@ const button = (label: string) =>
   [...document.querySelectorAll('button')].find((b) => b.textContent === label) as
     HTMLButtonElement | undefined;
 
+const press = (label: string) => act(async () => button(label)?.click());
+
 describe('warranty claim screens', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -175,9 +192,13 @@ describe('warranty claim screens', () => {
     container.remove();
   });
 
-  const render = async (node: ReactNode) => {
+  const render = async (node: ReactNode, role: 'staff' | 'manager' | 'admin' = 'staff') => {
     await act(async () => {
-      root.render(<Harness permissions={STAFF}>{node}</Harness>);
+      root.render(
+        <Harness permissions={STAFF} role={role}>
+          {node}
+        </Harness>
+      );
     });
   };
 
@@ -186,6 +207,7 @@ describe('warranty claim screens', () => {
     const onStarted = vi.fn();
     await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={onStarted} />);
     await vi.waitFor(() => expect(text()).toContain('What is wrong with it?'));
+    expect(text()).not.toContain('Who will look at it?');
 
     // Nothing is sent without saying what is wrong.
     await act(async () => button('Start the claim')?.click());
@@ -198,6 +220,15 @@ describe('warranty claim screens', () => {
       setter?.call(issue, 'Turns off after ten minutes');
       issue.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    // Nor without saying whether the item is damaged.
+    await press('Start the claim');
+    expect(api.open).not.toHaveBeenCalled();
+    expect(text()).toContain('Say whether the item is damaged.');
+    expect(text()).not.toContain('Liquid damage');
+    await press('Has damage');
+    await press('Start the claim');
+    expect(api.open).not.toHaveBeenCalled();
+    expect(text()).toContain('Tick what is damaged, or choose Undamaged.');
     const liquid = [...document.querySelectorAll('button')].find((b) =>
       b.textContent?.includes('Liquid damage')
     ) as HTMLButtonElement;
@@ -209,10 +240,39 @@ describe('warranty claim screens', () => {
     expect(api.open).toHaveBeenCalledWith({
       warrantyKey: 'wty_1',
       issueDescription: 'Turns off after ten minutes',
-      voidChecks: { screenCracked: false, liquidDamage: true, sealBroken: false, tampered: false },
+      voidChecks: {
+        physicalDamage: false,
+        liquidDamage: true,
+        sealBroken: false,
+        tampered: false,
+      },
+      conditions: ['Liquid damage'],
       assignedEmployeeKey: undefined,
       approval: undefined,
     });
+  });
+
+  it('adds a new condition on the fly and saves it to the shop dictionary', async () => {
+    api.open.mockResolvedValue(CLAIM);
+    const onStarted = vi.fn();
+    await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={onStarted} />);
+    await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+    await press('Has damage');
+
+    const addInput = document.querySelector(
+      'input[placeholder*="Add new condition"]'
+    ) as HTMLInputElement;
+    expect(addInput).toBeTruthy();
+
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(addInput, 'Loose USB-C port');
+      addInput.dispatchEvent(new Event('input', { bubbles: true }));
+      addInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+
+    expect(text()).toContain('Loose USB-C port');
+    expect(claimsApi.createCondition).toHaveBeenCalledWith('Loose USB-C port');
   });
 
   it('asks a manager to accept a claim on an ended warranty', async () => {
@@ -226,6 +286,83 @@ describe('warranty claim screens', () => {
     await vi.waitFor(() => expect(text()).toContain('Start a claim on an ended warranty'));
     expect(text()).toContain('A manager or owner must approve this');
     expect(text()).toContain('Manager or owner PIN');
+  });
+
+  it.each(['manager', 'admin'] as const)(
+    'lets a signed-in %s accept a claim on an ended warranty without a PIN or reason',
+    async (role) => {
+      api.open.mockResolvedValue(CLAIM);
+      await render(
+        <StartClaimModal
+          warranty={{ ...WARRANTY, state: 'expired', daysRemaining: 0 }}
+          onClose={vi.fn()}
+          onStarted={vi.fn()}
+        />,
+        role
+      );
+      await vi.waitFor(() => expect(text()).toContain('Start a claim on an ended warranty'));
+      expect(text()).not.toContain('A manager or owner must approve this');
+      expect(text()).not.toContain('Manager or owner PIN');
+      expect(text()).toContain('This will be recorded as approved by you.');
+      expect(text()).toContain('This warranty ended on');
+      expect(text()).not.toContain('goodwill');
+
+      const issue = document.querySelector('textarea') as HTMLTextAreaElement;
+      await act(async () => {
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(issue, 'Turns off after ten minutes');
+        issue.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      await press('Undamaged');
+      await act(async () => button('Start the claim')?.click());
+      await vi.waitFor(() => expect(api.open).toHaveBeenCalledTimes(1));
+      expect(api.open.mock.calls[0][0].approval).toBeUndefined();
+    }
+  );
+
+  it.each(['manager', 'admin'] as const)(
+    'tells a signed-in %s nothing about manager review while ticking conditions',
+    async (role) => {
+      await render(
+        <StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={vi.fn()} />,
+        role
+      );
+      await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+      await press('Has damage');
+      expect(text()).not.toContain('manager review');
+      const liquid = [...document.querySelectorAll('button')].find((b) =>
+        b.textContent?.includes('Liquid damage')
+      ) as HTMLButtonElement;
+      await act(async () => liquid.click());
+      expect(text()).not.toContain('manager review');
+      expect(text()).not.toContain('does not cover the fault');
+    }
+  );
+
+  it('tells Staff that a ticked condition goes to a manager', async () => {
+    await render(<StartClaimModal warranty={WARRANTY} onClose={vi.fn()} onStarted={vi.fn()} />);
+    await vi.waitFor(() => expect(text()).toContain('Condition checklist'));
+    await press('Has damage');
+    expect(text()).toContain('flags the claim for manager review');
+    const liquid = [...document.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Liquid damage')
+    ) as HTMLButtonElement;
+    await act(async () => liquid.click());
+    expect(text()).toContain('does not cover the fault');
+  });
+
+  it('says who decides a claim only to Staff', async () => {
+    api.detail.mockResolvedValue(CLAIM);
+    await render(<ClaimDetailDrawer claimKey="wcl_1" onClose={vi.fn()} onOpenWarranty={vi.fn()} />);
+    await vi.waitFor(() => expect(text()).toContain('A manager decides'));
+    act(() => root.unmount());
+    root = createRoot(container);
+    await render(
+      <ClaimDetailDrawer claimKey="wcl_1" onClose={vi.fn()} onOpenWarranty={vi.fn()} />,
+      'manager'
+    );
+    await vi.waitFor(() => expect(text()).toContain('Waiting for a decision'));
+    expect(text()).not.toContain('A manager decides');
   });
 
   it('shows where a claim is and offers its next step', async () => {
@@ -271,5 +408,39 @@ describe('warranty claim screens', () => {
     await vi.waitFor(() => expect(text()).toContain('WCL-000002'));
     expect(text()).toContain('1 claim has waited too long.');
     expect(api.list).toHaveBeenCalledWith({ status: 'open', q: undefined });
+  });
+
+  it('claims partial quantity on a multi-unit warranty', async () => {
+    api.open.mockResolvedValue({ ...CLAIM, quantity: 2 });
+    const onStarted = vi.fn();
+    const multiWarranty: Warranty = {
+      ...WARRANTY,
+      quantity: 4,
+      claimedQuantity: 1,
+      serialNumber: undefined,
+    };
+    await render(
+      <StartClaimModal warranty={multiWarranty} onClose={vi.fn()} onStarted={onStarted} />
+    );
+    await vi.waitFor(() => expect(text()).toContain('Units to claim'));
+    expect(text()).toContain('1 of 4 units claimed');
+
+    const issue = document.querySelector('textarea') as HTMLTextAreaElement;
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(issue, 'Two of the cameras broke');
+      issue.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await press('Undamaged');
+
+    await act(async () => button('Start the claim')?.click());
+    await vi.waitFor(() => expect(onStarted).toHaveBeenCalled());
+    expect(api.open).toHaveBeenCalledWith(
+      expect.objectContaining({
+        warrantyKey: 'wty_1',
+        quantity: 1,
+        issueDescription: 'Two of the cameras broke',
+      })
+    );
   });
 });

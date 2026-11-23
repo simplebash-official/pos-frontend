@@ -11,9 +11,10 @@ import {
   Textarea,
   ThemeIcon,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { IconAlertCircle, IconCheck, IconScale } from '@tabler/icons-react';
 import { useConvertVariance } from '../../hooks/useRegisterSession';
+import { useCanSelfApprove } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { formatMoney } from '@/shared/lib/money';
 import { getErrorMessage } from '@/shared/lib/error';
@@ -34,6 +35,7 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
   onSuccess,
 }) => {
   const isMobile = useIsMobile();
+  const selfApproves = useCanSelfApprove();
   const convertMutation = useConvertVariance();
   const variance = session?.cashVarianceCents ?? 0;
   const isShortage = variance < 0;
@@ -46,28 +48,25 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
 
   const handleConvert = async () => {
     if (!recipient.trim()) {
-      notifications.show({
+      notify.error({
         title: t('Recipient Required'),
         message: t('Please specify recipient or owner name.'),
-        color: 'red',
       });
       return;
     }
 
     if (!reason.trim()) {
-      notifications.show({
+      notify.error({
         title: t('Reason Required'),
         message: t('Please provide an accounting reason.'),
-        color: 'red',
       });
       return;
     }
 
-    if (!managerPin.trim()) {
-      notifications.show({
+    if (!selfApproves && !managerPin.trim()) {
+      notify.error({
         title: t('Manager PIN Required'),
         message: t('Manager PIN is required to authorize variance conversion.'),
-        color: 'red',
       });
       return;
     }
@@ -78,14 +77,13 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
         input: {
           recipient: recipient.trim(),
           reason: reason.trim(),
-          managerPin: managerPin.trim(),
+          managerPin: selfApproves ? undefined : managerPin.trim(),
         },
       });
 
-      notifications.show({
+      notify.success({
         title: t('Variance Converted'),
         message: t('Shift cash discrepancy converted successfully.'),
-        color: 'teal',
       });
 
       setRecipient('');
@@ -94,10 +92,9 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
       onSuccess?.();
       onClose();
     } catch (err) {
-      notifications.show({
+      notify.error({
         title: t('Conversion Failed'),
         message: getErrorMessage(err, t('Could not convert variance.')),
-        color: 'red',
       });
     }
   };
@@ -148,13 +145,15 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
           required
         />
 
-        <PasswordInput
-          label={t('Manager PIN')}
-          placeholder={t('Enter PIN to authorize')}
-          value={managerPin}
-          onChange={(e) => setManagerPin(e.currentTarget.value)}
-          required
-        />
+        {!selfApproves && (
+          <PasswordInput
+            label={t('Manager PIN')}
+            placeholder={t('Enter PIN to authorize')}
+            value={managerPin}
+            onChange={(e) => setManagerPin(e.currentTarget.value)}
+            required
+          />
+        )}
 
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={onClose} disabled={convertMutation.isPending}>
@@ -165,7 +164,7 @@ export const ConvertVarianceModal: React.FC<ConvertVarianceModalProps> = ({
             leftSection={<IconCheck size={16} />}
             onClick={handleConvert}
             loading={convertMutation.isPending}
-            disabled={!recipient.trim() || !reason.trim() || !managerPin.trim()}
+            disabled={!recipient.trim() || !reason.trim() || (!selfApproves && !managerPin.trim())}
           >
             {t('Apply Conversion')}
           </Button>

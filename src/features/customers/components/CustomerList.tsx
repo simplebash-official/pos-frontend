@@ -31,7 +31,7 @@ import {
   IconLayoutGrid,
   IconList,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { DataTable, Column } from '@/shared/components/DataTable';
@@ -127,17 +127,15 @@ export const CustomerList = () => {
         customerKey: customerToEdit.id,
         input: values,
       });
-      notifications.show({
+      notify.success({
         title: 'Customer Updated',
         message: `${values.name} updated successfully`,
-        color: 'teal',
       });
     } else {
       const created = await createMutation.mutateAsync(values);
-      notifications.show({
+      notify.success({
         title: 'Customer Created',
         message: `${created.name} has been registered`,
-        color: 'teal',
       });
     }
   };
@@ -147,10 +145,9 @@ export const CustomerList = () => {
 
     // Financial Debt Guard Check
     if (customerToDelete.outstandingBalanceCents > 0) {
-      notifications.show({
+      notify.error({
         title: 'Deletion Blocked',
         message: `Cannot delete customer "${customerToDelete.name}" with an outstanding balance of ${formatMoney(customerToDelete.outstandingBalanceCents)}. Please settle outstanding dues first.`,
-        color: 'red',
       });
       setCustomerToDelete(null);
       return;
@@ -158,19 +155,17 @@ export const CustomerList = () => {
 
     try {
       await deleteMutation.mutateAsync({ customerKey: customerToDelete.id });
-      notifications.show({
+      notify.success({
         title: 'Customer Deleted',
         message: `${customerToDelete.name} was removed successfully`,
-        color: 'teal',
       });
       if (selectedCustomerForDrawer?.id === customerToDelete.id) {
         setSelectedCustomerForDrawer(null);
       }
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Error',
         message: 'Failed to delete customer',
-        color: 'red',
       });
     } finally {
       setCustomerToDelete(null);
@@ -185,35 +180,31 @@ export const CustomerList = () => {
     const withDebtCount = selectedCustomers.length - debtFreeIds.length;
 
     if (debtFreeIds.length === 0) {
-      notifications.show({
+      notify.error({
         title: 'Batch Deletion Blocked',
         message:
           'All selected customers have outstanding balances. Customers with debt cannot be deleted.',
-        color: 'red',
       });
       return;
     }
 
     if (withDebtCount > 0) {
-      notifications.show({
+      notify.warning({
         title: 'Partial Batch Deletion',
         message: `Skipped ${withDebtCount} customer(s) with outstanding debt. Deleting ${debtFreeIds.length} customer(s)...`,
-        color: 'yellow',
       });
     }
 
     try {
       await deleteBatchMutation.mutateAsync({ customerKeys: debtFreeIds });
-      notifications.show({
+      notify.success({
         title: 'Customers Deleted',
         message: `${debtFreeIds.length} customer record(s) removed successfully`,
-        color: 'teal',
       });
     } catch {
-      notifications.show({
+      notify.error({
         title: 'Error',
         message: 'Failed to delete selected customers',
-        color: 'red',
       });
     }
   };

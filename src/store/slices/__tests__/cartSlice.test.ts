@@ -126,6 +126,46 @@ describe('cartSlice reducer & selectors', () => {
       expect(state.items[0].quantity).toBe(1);
     });
 
+    it('refreshes a service ticket line that was re-priced or reassigned since it was added', () => {
+      const first: CartItem = {
+        id: 'rep-line-1',
+        productId: 'rep_1',
+        name: 'REP-001: Galaxy repair',
+        unitPriceCents: 4500,
+        quantity: 1,
+        discount: null,
+        sourceType: 'repair',
+        sourceTicketNumber: 'REP-001',
+        assignedEmployeeId: 'emp_1',
+        assignedEmployeeName: 'Kamal',
+      };
+
+      let state = cartReducer(getInitialState(), addItem(first));
+      state = cartReducer(state, addItem(sampleItem));
+      state = cartReducer(
+        state,
+        addItem({
+          ...first,
+          id: 'rep-line-2',
+          name: 'REP-001: Galaxy A55 repair',
+          unitPriceCents: 6500,
+          assignedEmployeeId: undefined,
+          assignedEmployeeName: undefined,
+        })
+      );
+
+      expect(state.items).toHaveLength(2);
+      // Moved to the top, still one unit, with the ticket's current price and assignee.
+      expect(state.items[0]).toMatchObject({
+        id: 'rep-line-1',
+        name: 'REP-001: Galaxy A55 repair',
+        unitPriceCents: 6500,
+        quantity: 1,
+        assignedEmployeeId: undefined,
+        assignedEmployeeName: undefined,
+      });
+    });
+
     it('keeps every one-time charge as its own line, never merging two alike', () => {
       const charge: CartItem = {
         id: 'charge-1',
