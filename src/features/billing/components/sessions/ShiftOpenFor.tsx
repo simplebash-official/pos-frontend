@@ -53,7 +53,7 @@ export const ShiftOpenFor = ({ openedAt }: { openedAt: string }) => {
   const { days, hours, minutes, seconds } = splitElapsed(openedAt, now);
 
   return (
-    <Box mb="sm">
+    <Box mb="md">
       <Group gap={6} mb={6}>
         <IconClock size={14} color="var(--text-muted)" aria-hidden />
         <Text size="xs" c="dimmed">
@@ -72,7 +72,7 @@ export const ShiftOpenFor = ({ openedAt }: { openedAt: string }) => {
         <TimeTile value={minutes} label={t('Min')} valueColor="var(--text-primary)" />
         <TimeTile value={seconds} label={t('Sec')} valueColor="var(--status-ok)" />
       </SimpleGrid>
-      <Text size="xs" c="dimmed" mt={6}>
+      <Text size="xs" c="dimmed" mt={10}>
         {t('Since')}{' '}
         <Text span fw={700} c="var(--text-primary)">
           {formatShiftStart(openedAt)}
