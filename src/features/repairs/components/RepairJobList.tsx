@@ -11,7 +11,6 @@ import {
   IconAlertCircle,
   IconChartPie,
   IconSearch,
-  IconReceipt,
 } from '@tabler/icons-react';
 import { notify } from '@/shared/notify';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,8 +29,6 @@ import { formatMoney } from '@/shared/lib/money';
 import {
   AmountCell,
   CustomerCell,
-  JobSlipAction,
-  RowActions,
   StatusCell,
   TechnicianCell,
   TicketCell,
@@ -45,7 +42,6 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { REPAIR_JOB_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { queryKeys } from '@/api/queryKeys';
-import { billBlocker } from '../lib/billable';
 import { RepairDrawer } from './RepairDrawer';
 import { TicketInvoicePreview } from '@/features/billing/components/TicketInvoicePreview';
 import type { Invoice } from '@/features/billing/types';
@@ -256,29 +252,6 @@ export const RepairJobList = () => {
         ) : (
           <AmountCell note={t('Pending diagnosis')} />
         ),
-    },
-    {
-      key: 'actions',
-      header: t('Actions'),
-      align: 'right',
-      render: (job) => (
-        <RowActions>
-          {billBlocker(job) === null && (
-            <Button
-              size="compact-sm"
-              variant="default"
-              leftSection={<IconReceipt size={14} />}
-              aria-label={t('Bill this repair')}
-              onClick={() => navigate(`${ROUTES.BILLING}?billRepair=${job.id}`)}
-            >
-              {t('Bill')}
-            </Button>
-          )}
-          {canPrintReceipt && (
-            <JobSlipAction onClick={() => setReceiptJob(receiptTarget('repair', job))} />
-          )}
-        </RowActions>
-      ),
     },
   ];
 
