@@ -241,22 +241,12 @@ describe('billing a repair from the repair screen', () => {
   });
 
   describe('the repair list', () => {
-    it('bills a repair from its row without opening the edit window', async () => {
+    it('has no Bill button on its rows; billing starts from the side panel', async () => {
       fetchRepairs.mockResolvedValue([JOB]);
       await render(<RepairJobList />);
-      await vi.waitFor(() => expect(billButtons()).toHaveLength(1));
-
-      await act(async () => billButtons()[0].click());
-
-      expect(location()).toBe('/billing?billRepair=rep_1');
-      expect(document.body.textContent).not.toContain('Edit Ticket');
-    });
-
-    it('shows the action only on repairs that can be billed', async () => {
-      fetchRepairs.mockResolvedValue([JOB, REWORK, DELIVERED, NO_WORK, CANCELLED]);
-      await render(<RepairJobList />);
-      await vi.waitFor(() => expect(document.body.textContent).toContain('REP-000005'));
-      expect(billButtons()).toHaveLength(1);
+      await vi.waitFor(() => expect(document.body.textContent).toContain('REP-000001'));
+      expect(billButtons()).toHaveLength(0);
+      expect(document.body.textContent).not.toContain('Actions');
     });
   });
 });
