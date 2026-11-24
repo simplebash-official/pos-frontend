@@ -59,3 +59,15 @@ export const deleteSubcategory = async (
   );
   return response.data;
 };
+
+export const renameSubcategory = async (
+  categoryKey: string,
+  subcategoryKey: string,
+  name: string
+): Promise<Category> => {
+  const response = await apiClient.put<ApiResponse<Category>>(
+    `/inventory/categories/${categoryKey}/subcategories/${subcategoryKey}`,
+    { name }
+  );
+  return response.data;
+};
