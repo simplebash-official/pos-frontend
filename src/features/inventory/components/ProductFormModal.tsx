@@ -178,8 +178,9 @@ const ProductFormContent = ({
   // delivery); after that each delivery is priced on its own.
   const [costPrice, setCostPrice] = useState<number | string>('');
   const [sellingPrice, setSellingPrice] = useState<number | string>('');
+  // '' means no low-stock alert.
   const [minStockThreshold, setMinStockThreshold] = useState<number | string>(
-    productToEdit ? productToEdit.minStockThreshold : ''
+    productToEdit && productToEdit.minStockThreshold !== null ? productToEdit.minStockThreshold : ''
   );
   const [stockQuantity, setStockQuantity] = useState<number | string>('');
 
@@ -303,11 +304,8 @@ const ProductFormContent = ({
         'Add the starting stock to keep this price, or clear the prices and set them when stock arrives';
     }
 
-    if (
-      minStockThreshold === '' ||
-      Number(minStockThreshold) < 0 ||
-      isNaN(Number(minStockThreshold))
-    ) {
+    // Empty means no alert; anything typed must be a whole number of at least 0.
+    if (minStockThreshold !== '' && !(Number(minStockThreshold) >= 0)) {
       newErrors.minStockThreshold = 'Enter a valid threshold';
     }
 
@@ -366,13 +364,14 @@ const ProductFormContent = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate() || !categoryKey || !subcategoryKey) return;
+    const alertLevel = minStockThreshold === '' ? null : Number(minStockThreshold);
 
     if (isEditing) {
       const payload: UpdateProductInput = {
         name: name.trim(),
         categoryKey,
         subcategoryKey,
-        minStockThreshold: Number(minStockThreshold || 0),
+        minStockThreshold: alertLevel,
         isSerialized,
         warranty: toProfileInput(warranty),
       };
@@ -416,7 +415,7 @@ const ProductFormContent = ({
                 sellingPriceCents: toCents(Number(sellingPrice)),
               }
             : undefined,
-        minStockThreshold: Number(minStockThreshold || 0),
+        minStockThreshold: alertLevel,
         suppliers: suppliersPayload.length > 0 ? suppliersPayload : undefined,
         isSerialized,
         warranty: toProfileInput(warranty),
@@ -1126,8 +1125,8 @@ const ProductFormContent = ({
         {/* Stock Metrics */}
         {hasSupplierIntakes ? (
           <NumberInput
-            label={t('Low-Stock Alert Threshold')}
-            placeholder="3"
+            label={t('Low-Stock Alert Threshold (optional)')}
+            placeholder={t('No alert')}
             min={0}
             allowDecimal={false}
             value={minStockThreshold}
@@ -1139,8 +1138,9 @@ const ProductFormContent = ({
             error={errors.minStockThreshold}
             leftSection={<IconAlertTriangle size={16} />}
             inputWrapperOrder={['label', 'input', 'description', 'error']}
-            description={t('Alerts appear when available stock falls to or below this amount.')}
-            required
+            description={t(
+              'Leave empty for no alert. Otherwise you are told when available stock falls to or below this amount.'
+            )}
           />
         ) : (
           <Group grow align="flex-start">
@@ -1161,8 +1161,8 @@ const ProductFormContent = ({
               />
             )}
             <NumberInput
-              label={t('Low-Stock Alert Threshold')}
-              placeholder="3"
+              label={t('Low-Stock Alert Threshold (optional)')}
+              placeholder={t('No alert')}
               min={0}
               allowDecimal={false}
               value={minStockThreshold}
@@ -1174,8 +1174,9 @@ const ProductFormContent = ({
               error={errors.minStockThreshold}
               leftSection={<IconAlertTriangle size={16} />}
               inputWrapperOrder={['label', 'input', 'description', 'error']}
-              description={t('Alerts appear when available stock falls to or below this amount.')}
-              required
+              description={t(
+                'Leave empty for no alert. Otherwise you are told when available stock falls to or below this amount.'
+              )}
             />
           </Group>
         )}

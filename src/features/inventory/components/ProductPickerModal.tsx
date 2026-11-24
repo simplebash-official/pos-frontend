@@ -20,6 +20,7 @@ import { useAllProducts } from '../hooks/useProducts';
 import { fetchProductByBarcode } from '../api/productsApi';
 import { looksLikeBarcode, resolveProductByBarcode } from '../lib/barcode';
 import { adminCostText } from '../lib/priceTiers';
+import { isAtOrBelowAlert } from '../lib/stockStatus';
 import { useCategoryIcons, useCategoryLookup } from '../hooks/useCategories';
 import { resolveCategoryIcon } from '../constants';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -190,7 +191,7 @@ export const ProductPickerModal = ({
                   ? resolveCategoryIcon(iconMap, category.icon)
                   : IconPackage;
                 const catColor = category?.color ?? 'blue';
-                const isLowStock = p.stockQuantity <= p.minStockThreshold;
+                const isLowStock = isAtOrBelowAlert(p.stockQuantity, p.minStockThreshold);
 
                 return (
                   <Paper

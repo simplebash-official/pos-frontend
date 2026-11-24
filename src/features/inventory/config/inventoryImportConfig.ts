@@ -114,13 +114,10 @@ export const inventoryImportConfig: ImportConfig = {
       label: 'Low Stock Alert',
       required: false,
       aliases: ['min_stock_threshold', 'min_stock', 'alert_threshold', 'min_stock_alert'],
-      description: 'Quantity threshold to trigger low stock warnings',
+      description: 'Quantity that triggers low stock warnings. Leave blank for no alert.',
       example: 5,
-      transform: (val) => {
-        if (val === undefined || val === null || val === '') return 0;
-        const num = parseInt(String(val), 10);
-        return isNaN(num) ? 0 : num;
-      },
+      // A blank cell never reaches here (the parser leaves it out), so the item has no alert.
+      transform: (val) => parseInt(String(val), 10),
       validate: (val) => {
         if (val === undefined || val === null || val === '') return null;
         const num = Number(val);

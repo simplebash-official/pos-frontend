@@ -11,9 +11,6 @@ export const UNCATEGORIZED_CATEGORY_KEY = 'cat_uncategorized';
 /** The one subcategory of [`UNCATEGORIZED_CATEGORY_KEY`]. */
 export const UNCATEGORIZED_SUBCATEGORY_KEY = 'subcat_uncategorized_general';
 
-/** A quick-added item raises no low-stock alert; an admin sets a threshold from Inventory. */
-export const QUICK_ADD_MIN_STOCK_THRESHOLD = 0;
-
 export type QuickAddCategory =
   { kind: 'existing'; key: string } | { kind: 'new'; name: string; icon: string; color: string };
 
@@ -135,7 +132,8 @@ export const buildCreateInput = (
       unitCostCents: toCents(draft.costPrice),
       sellingPriceCents: toCents(draft.sellingPrice),
     },
-    minStockThreshold: QUICK_ADD_MIN_STOCK_THRESHOLD,
+    // A quick-added item has no low-stock alert; an admin can set one from Inventory.
+    minStockThreshold: null,
     isSerialized: false,
     warranty: toProfileInput(draft.warranty),
   };

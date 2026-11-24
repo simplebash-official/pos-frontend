@@ -62,7 +62,8 @@ export interface Product extends SyncedEntityFields {
   lastSellingPriceCents?: number | null;
   /** Units in stock — the sum of every batch's remaining quantity. */
   stockQuantity: number;
-  minStockThreshold: number;
+  /** Stock level at or below which the shop is told this item is running low; null when it has no alert. */
+  minStockThreshold: number | null;
   isSerialized: boolean;
   /** The warranty each unit comes with; copied onto a warranty record for every unit sold. */
   warranty: ProductWarranty;
@@ -145,7 +146,8 @@ export interface CreateProductInput {
   categoryKey: string;
   subcategoryKey: string;
   openingStock?: OpeningStockInput;
-  minStockThreshold: number;
+  /** null = no low-stock alert for this item. */
+  minStockThreshold: number | null;
   barcode?: string;
   autoGenerateBarcode?: boolean;
   suppliers?: ProductSupplierIntake[];
@@ -158,7 +160,8 @@ export interface UpdateProductInput {
   name?: string;
   categoryKey?: string;
   subcategoryKey?: string;
-  minStockThreshold?: number;
+  /** Omit to leave the alert level as it is; a number sets it; null removes the alert. */
+  minStockThreshold?: number | null;
   /**
    * Add or correct the scannable barcode after creation (e.g. to store the
    * manufacturer barcode printed on the package). 8–14 digits; saved as a

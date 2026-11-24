@@ -22,6 +22,7 @@ import type { TablerIconMap } from '@/shared/lib/tablerIcons';
 import { resolveCategoryIcon } from '../constants';
 import type { Category, Product } from '../types';
 import { priceText } from '../lib/priceTiers';
+import { isAtOrBelowAlert } from '../lib/stockStatus';
 
 /** categoryKey -> subcategoryKey -> the products in it. */
 export type ProductHierarchy = Map<string, Map<string, Product[]>>;
@@ -93,7 +94,9 @@ export const ProductCatalogTree = memo(
 
           subcategoriesMap.forEach((prods) => {
             catTotalItems += prods.length;
-            catLowStockCount += prods.filter((p) => p.stockQuantity <= p.minStockThreshold).length;
+            catLowStockCount += prods.filter((p) =>
+              isAtOrBelowAlert(p.stockQuantity, p.minStockThreshold)
+            ).length;
           });
 
           return (
@@ -133,8 +136,8 @@ export const ProductCatalogTree = memo(
                     const subCatName = items[0]?.subcategory ?? 'Uncategorized';
                     const subKey = `${categoryKey}::${subcategoryKey}`;
                     const isSubExpanded = !!expandedSubcategories[subKey];
-                    const subLowStock = items.filter(
-                      (i) => i.stockQuantity <= i.minStockThreshold
+                    const subLowStock = items.filter((i) =>
+                      isAtOrBelowAlert(i.stockQuantity, i.minStockThreshold)
                     ).length;
 
                     const subItemIds = items.map((i) => i.id);
@@ -234,7 +237,10 @@ export const ProductCatalogTree = memo(
 
                               <Table.Tbody>
                                 {items.map((prod) => {
-                                  const isLow = prod.stockQuantity <= prod.minStockThreshold;
+                                  const isLow = isAtOrBelowAlert(
+                                    prod.stockQuantity,
+                                    prod.minStockThreshold
+                                  );
                                   const isSelected = selectedIds.has(prod.id);
 
                                   return (

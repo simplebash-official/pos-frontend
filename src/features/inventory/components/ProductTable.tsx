@@ -7,6 +7,7 @@ import { MetricCardRow } from '@/shared/components/MetricCard';
 import { useBackendFilteredList } from '@/shared/hooks/useBackendFilteredList';
 import { PRODUCT_SEARCH_FIELDS } from '@/shared/lib/searchFields';
 import { tokenizeQuery } from '@/shared/lib/search';
+import { isAtOrBelowAlert } from '../lib/stockStatus';
 import { queryKeys } from '@/api/queryKeys';
 import { Button, Badge, Group, Text, Paper, Stack, Skeleton } from '@mantine/core';
 import {
@@ -70,7 +71,7 @@ interface ProductFilters {
 const isProductFilterActive = (f: ProductFilters) => f.search.trim() !== '' || f.lowStock;
 
 const applyLocalProductFilters = (items: Product[], f: ProductFilters) =>
-  items.filter((p) => !f.lowStock || p.stockQuantity <= p.minStockThreshold);
+  items.filter((p) => !f.lowStock || isAtOrBelowAlert(p.stockQuantity, p.minStockThreshold));
 
 export const ProductTable = () => {
   const queryClient = useQueryClient();
