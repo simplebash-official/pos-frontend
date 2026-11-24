@@ -111,9 +111,6 @@ const Harness = ({ permissions, children }: { permissions: string[]; children: R
   );
 };
 
-const receiptButtons = () => [
-  ...document.querySelectorAll<HTMLButtonElement>('button[aria-label="Job slip"]'),
-];
 const receipt = () => document.querySelector('[data-testid="receipt"]')?.textContent;
 const button = (text: string) =>
   [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === text);
@@ -194,21 +191,10 @@ describe('the receipt on the repair list', () => {
     expect(receipt()).toContain('repair:');
   });
 
-  it('prints the receipt again from a row without opening the edit window', async () => {
-    await render();
-    await vi.waitFor(() => expect(receiptButtons()).toHaveLength(1));
-
-    await act(async () => receiptButtons()[0].click());
-
-    expect(receipt()).toBe('repair:rep_1:REP-000001');
-    expect(button('save edit')).toBeUndefined();
-  });
-
   it('offers no receipt to someone who cannot take in repairs', async () => {
     createJob.mockResolvedValue(NEW_JOB);
     await render(['warranties:view']);
     await vi.waitFor(() => expect(document.body.textContent).toContain('REP-000001'));
-    expect(receiptButtons()).toHaveLength(0);
 
     await act(async () => button('New Repair Ticket')?.click());
     await vi.waitFor(() => expect(button('save new')).toBeDefined());

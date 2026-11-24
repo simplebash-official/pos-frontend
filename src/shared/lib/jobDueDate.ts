@@ -1,11 +1,13 @@
 import dayjs from 'dayjs';
+import { JOB_STATUS } from '@/constants';
+import type { JobStatus } from '@/constants';
 import { t } from '@/shared/i18n/t';
 
 /**
  * A stacked badge for a repair/print job's promised-ready date — the job
  * equivalent of billing's `getOverdueMeta`. Returns `null` when there is
- * nothing to flag: no promised date, the job is already delivered/cancelled,
- * or the date is comfortably in the future.
+ * nothing to flag: no promised date, the job is already ready, delivered or
+ * cancelled, or the date is comfortably in the future.
  *
  * `dueSoonDays` is the lead-time window (default 3 days) that turns a
  * not-yet-due job amber.
@@ -15,13 +17,20 @@ export interface JobDueMeta {
   label: string;
 }
 
-const CLOSED_JOB_STATUSES = ['delivered', 'cancelled'];
+const FINISHED_JOB_STATUSES: readonly JobStatus[] = [
+  JOB_STATUS.READY,
+  JOB_STATUS.DELIVERED,
+  JOB_STATUS.CANCELLED,
+];
+
+/** From Ready on, the shop is no longer working to the promised date, so it is not shown. */
+export const isJobFinished = (status: JobStatus): boolean => FINISHED_JOB_STATUSES.includes(status);
 
 export function getJobDueMeta(
-  job: { promisedReadyAt?: string; status: string },
+  job: { promisedReadyAt?: string; status: JobStatus },
   dueSoonDays = 3
 ): JobDueMeta | null {
-  if (!job.promisedReadyAt || CLOSED_JOB_STATUSES.includes(job.status)) {
+  if (!job.promisedReadyAt || isJobFinished(job.status)) {
     return null;
   }
   const due = new Date(`${job.promisedReadyAt}T00:00:00`);

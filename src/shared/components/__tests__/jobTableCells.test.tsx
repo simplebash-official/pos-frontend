@@ -48,24 +48,50 @@ describe('StatusCell', () => {
     ).toContain('Overdue');
   });
 
-  it('shows only the date once the job is delivered', () => {
+  it('shows the date, or "No due date", while the job is open', () => {
     expect(
       render(
-        <StatusCell promisedReadyAt={yesterday()} status={JOB_STATUS.DELIVERED} label="Delivered" />
+        <StatusCell promisedReadyAt="2099-01-05" status={JOB_STATUS.RECEIVED} label="Received" />
       )
-    ).not.toContain('Overdue');
+    ).toContain('Due');
   });
 
-  it('tags a job that is billed but still in the shop', () => {
-    expect(
-      render(
-        <StatusCell
-          status={JOB_STATUS.READY}
-          label="Ready for Pickup"
-          billedInvoiceNumber="INV-000034"
-        />
-      )
-    ).toContain('Billed');
+  it.each([
+    ['ready', JOB_STATUS.READY, 'Ready for Pickup'],
+    ['delivered', JOB_STATUS.DELIVERED, 'Delivered'],
+    ['cancelled', JOB_STATUS.CANCELLED, 'Cancelled'],
+  ] as const)(
+    'shows only the status once the job is %s, whatever its date',
+    (_name, status, label) => {
+      expect(
+        render(<StatusCell promisedReadyAt={yesterday()} status={status} label={label} />)
+      ).toBe(label);
+    }
+  );
+
+  it.each([
+    ['ready', JOB_STATUS.READY, 'Ready for Pickup'],
+    ['delivered', JOB_STATUS.DELIVERED, 'Delivered'],
+    ['cancelled', JOB_STATUS.CANCELLED, 'Cancelled'],
+  ] as const)(
+    'shows no "No due date" once the job is %s and has no date',
+    (_name, status, label) => {
+      expect(render(<StatusCell status={status} label={label} />)).toBe(label);
+    }
+  );
+
+  it('tags a job that is billed but still in the shop, with no due line', () => {
+    const shown = render(
+      <StatusCell
+        promisedReadyAt={yesterday()}
+        status={JOB_STATUS.READY}
+        label="Ready for Pickup"
+        billedInvoiceNumber="INV-000034"
+      />
+    );
+    expect(shown).toContain('Billed on INV-000034');
+    expect(shown).not.toContain('Overdue');
+    expect(shown).not.toContain('Due');
   });
 
   it('has no Billed tag on an unbilled job, nor on one already handed back', () => {
