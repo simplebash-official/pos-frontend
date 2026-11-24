@@ -449,6 +449,8 @@ export const CartPanel = memo(function CartPanel({
                   lineAnswers.has(item.id) ? lineAnswers.get(item.id)!.totalCents : null
                 }
                 isNewest={index === 0}
+                isCredit={isCredit}
+                handoverLocked={Boolean(completedSale)}
                 onUpdateQty={updateQty}
                 onUpdateLineDiscount={updateLineDisc}
                 onRemove={(id) => {

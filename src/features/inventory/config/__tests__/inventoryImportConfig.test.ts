@@ -56,6 +56,21 @@ describe('inventoryImportConfig', () => {
     expect(col?.transform?.('')).toBe(0);
   });
 
+  it('treats the low-stock alert as optional: a number is kept, bad input is refused', () => {
+    const col = inventoryImportConfig.columns.find((c) => c.key === 'minStockThreshold');
+    expect(col).toBeDefined();
+    expect(col?.required).toBe(false);
+
+    expect(col?.transform?.('5')).toBe(5);
+    expect(col?.transform?.(0)).toBe(0);
+    // A blank cell is left out by the parser and has no alert; it is never turned into 0.
+    expect(col?.validate?.(undefined)).toBeNull();
+    expect(col?.validate?.('')).toBeNull();
+    expect(col?.validate?.(0)).toBeNull();
+    expect(col?.validate?.(-1)).toBe('Alert threshold cannot be negative');
+    expect(col?.validate?.(col?.transform?.('abc'))).toBe('Alert threshold cannot be negative');
+  });
+
   it('validates and transforms serialized flag', () => {
     const col = inventoryImportConfig.columns.find((c) => c.key === 'isSerialized');
     expect(col).toBeDefined();

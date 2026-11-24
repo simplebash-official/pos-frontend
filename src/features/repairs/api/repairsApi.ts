@@ -27,6 +27,8 @@ export interface BackendRepair {
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
   splitValue?: number;
+  billedInvoiceKey?: string;
+  billedInvoiceNumber?: string;
   createdAt: string;
 }
 
@@ -63,6 +65,8 @@ export const toRepairJob = (repair: BackendRepair): RepairJob => ({
   assignedEmployeeName: repair.assignedEmployeeName,
   splitType: repair.splitType,
   splitValue: repair.splitValue,
+  billedInvoiceKey: repair.billedInvoiceKey,
+  billedInvoiceNumber: repair.billedInvoiceNumber,
   employeeEarningsCents: calc_earnings({
     // A job with no work on it has no price yet, so no commission either.
     priceCents: repair.items.length === 0 ? undefined : repair.priceCents,

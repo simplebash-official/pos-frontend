@@ -42,6 +42,7 @@ import { useAppShortcuts, type Shortcut } from '@/shared/hooks/useShortcuts';
 import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
+import { effectiveHandover, isTicketLine } from '../lib/handover';
 import { handleSessionClosingError } from '../lib/sessionClosing';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
 import { t } from '@/shared/i18n/t';
@@ -248,6 +249,9 @@ export const BillingCounter = () => {
             sourceType,
             serialNumbers: i.serialNumbers,
             warrantyOverride: productKey ? i.warrantyOverride : undefined,
+            // A paid sale hands over now unless told otherwise; a credit sale cannot be completed
+            // while a ticket line is unchosen (the payment panel blocks it).
+            handover: sourceTicketKey ? (effectiveHandover(i, isCredit) ?? undefined) : undefined,
             ...(isResolved
               ? {}
               : {
@@ -297,6 +301,17 @@ export const BillingCounter = () => {
         notify.warning({
           title: 'Sale Completed With Warnings',
           message: warnings.join(' '),
+        });
+      }
+
+      // A job kept in the shop is not handed back by this sale: say so, so it is not forgotten.
+      const keptInShop = items
+        .filter((i) => isTicketLine(i) && effectiveHandover(i, isCredit) === 'later')
+        .map((i) => i.sourceTicketNumber ?? i.name);
+      if (keptInShop.length > 0) {
+        notify.info({
+          title: t('Kept in the shop'),
+          message: `${keptInShop.join(', ')}: ${t('billed, not handed back yet. Mark it handed back when the customer collects it.')}`,
         });
       }
 

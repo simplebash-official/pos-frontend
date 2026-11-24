@@ -1,4 +1,5 @@
-import { Stack, Text } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
+import { Anchor, Stack, Text } from '@mantine/core';
 import {
   IconArrowRight,
   IconCalendarDue,
@@ -10,7 +11,7 @@ import {
   IconUser,
   IconWallet,
 } from '@tabler/icons-react';
-import { JOB_STATUS_COLORS, PRINT_JOB_STATUS_LABELS } from '@/constants';
+import { JOB_STATUS_COLORS, PRINT_JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import {
   DrawerAfter,
   DrawerCard,
@@ -67,6 +68,7 @@ export const PrintJobDetailView = ({
   });
   const profit = earnings.data === undefined ? null : earnings.data.profitCents;
   const due = getJobDueMeta(job);
+  const navigate = useNavigate();
 
   return (
     <DrawerGrid>
@@ -111,7 +113,26 @@ export const PrintJobDetailView = ({
             label: t(PRINT_JOB_STATUS_LABELS[job.status]),
           }}
           title={printJobTypeLabel(job.jobType)}
-          subtitle={<div>{`${job.quantity} ${t('units')}`}</div>}
+          subtitle={
+            <>
+              <div>{`${job.quantity} ${t('units')}`}</div>
+              {job.billedInvoiceKey !== undefined && (
+                <div>
+                  {t('Billed on')}{' '}
+                  <Anchor
+                    component="button"
+                    type="button"
+                    size="sm"
+                    onClick={() =>
+                      navigate(`${ROUTES.INVOICES}?invoiceKey=${job.billedInvoiceKey}`)
+                    }
+                  >
+                    {job.billedInvoiceNumber}
+                  </Anchor>
+                </div>
+              )}
+            </>
+          }
         />
 
         <DrawerAfter>

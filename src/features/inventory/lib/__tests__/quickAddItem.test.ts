@@ -131,7 +131,7 @@ describe('buildCreateInput', () => {
       categoryKey: 'cat_a',
       subcategoryKey: 'sub_a',
       openingStock: { quantity: 4, unitCostCents: 25000, sellingPriceCents: 40000 },
-      minStockThreshold: 0,
+      minStockThreshold: null,
       isSerialized: false,
       warranty: { coverage: { kind: 'none' } },
       autoGenerateBarcode: true,

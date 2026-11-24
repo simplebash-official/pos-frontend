@@ -122,6 +122,8 @@ interface StatusCellProps {
   /** The status in words, already translated: a print job's "In Production" is a repair's "In Repair". */
   label: string;
   promisedReadyAt?: string;
+  /** The invoice that billed the job. While the job is still open it is shown under the status. */
+  billedInvoiceNumber?: string;
 }
 
 /**
@@ -129,7 +131,13 @@ interface StatusCellProps {
  * up. While the job is open, a date that is near or past turns into "Due today", "Due soon" or
  * "Overdue" in colour.
  */
-export const StatusCell = ({ status, label, promisedReadyAt }: StatusCellProps) => {
+export const StatusCell = ({
+  status,
+  label,
+  promisedReadyAt,
+  billedInvoiceNumber,
+}: StatusCellProps) => {
+  const billedAndOpen = billedInvoiceNumber !== undefined && status !== 'delivered';
   const due = promisedReadyAt ? getJobDueMeta({ promisedReadyAt, status }) : null;
   let dueLine = t('No due date');
   if (promisedReadyAt) {
@@ -158,6 +166,11 @@ export const StatusCell = ({ status, label, promisedReadyAt }: StatusCellProps) 
       >
         {dueLine}
       </Text>
+      {billedAndOpen && (
+        <Text size="xs" c="teal" fw={600} style={{ ...TABULAR, paddingLeft: 16 }}>
+          {t('Billed on')} {billedInvoiceNumber}
+        </Text>
+      )}
     </Stack>
   );
 };

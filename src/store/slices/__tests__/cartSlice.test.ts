@@ -5,6 +5,7 @@ import cartReducer, {
   undoRemoveItem,
   updateQuantity,
   updateLineDiscount,
+  setLineHandover,
   setCustomer,
   setDiscount,
   setPaymentMethod,
@@ -214,6 +215,20 @@ describe('cartSlice reducer & selectors', () => {
       state = cartReducer(state, undoRemoveItem());
       expect(state.items).toHaveLength(1);
       expect(state.items[0].name).toBe('USB-C Cable');
+    });
+
+    it('keeps what the cashier chose to do with a repair or print job, and nothing before that', () => {
+      let state = cartReducer(getInitialState(), addItem(sampleItem));
+      expect(state.items[0].handover).toBeUndefined();
+
+      state = cartReducer(state, setLineHandover({ id: 'line-1', handover: 'later' }));
+      expect(state.items[0].handover).toBe('later');
+      state = cartReducer(state, setLineHandover({ id: 'line-1', handover: 'now' }));
+      expect(state.items[0].handover).toBe('now');
+
+      // A line that is not on the bill is left alone.
+      const unchanged = cartReducer(state, setLineHandover({ id: 'missing', handover: 'later' }));
+      expect(unchanged.items[0].handover).toBe('now');
     });
 
     it("keeps the line discount as typed; what it comes to is the server's to work out", () => {

@@ -95,7 +95,9 @@ export const ItemStockCard = ({
           </Box>
 
           <Badge variant="light" color={status === 'ok' ? 'gray' : 'red'} size="sm">
-            {t('Min Threshold:')} {product.minStockThreshold} {t('units')}
+            {product.minStockThreshold === null
+              ? t('No alert set')
+              : `${t('Min Threshold:')} ${product.minStockThreshold} ${t('units')}`}
           </Badge>
         </Group>
 

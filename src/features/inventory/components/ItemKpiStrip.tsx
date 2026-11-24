@@ -19,7 +19,11 @@ export const ItemKpiStrip = ({ product }: { product: Product }) => {
       <KpiTile icon={<IconBoxSeam size={16} />} color={STATUS_COLOR[status]} label={t('Stock')}>
         <Figure
           value={`${product.stockQuantity} ${t('units')}`}
-          hint={`${t('Min Threshold:')} ${product.minStockThreshold}`}
+          hint={
+            product.minStockThreshold === null
+              ? t('No alert set')
+              : `${t('Min Threshold:')} ${product.minStockThreshold}`
+          }
           color={STATUS_COLOR[status]}
         />
       </KpiTile>

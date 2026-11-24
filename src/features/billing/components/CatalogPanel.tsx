@@ -48,6 +48,7 @@ import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import { fetchProductByBarcode, fetchSerialByNumber } from '@/features/inventory/api/productsApi';
 import { resolveSerialScan } from '@/features/inventory/lib/serialScan';
 import { looksLikeBarcode, resolveProductByBarcode } from '@/features/inventory/lib/barcode';
+import { isAtOrBelowAlert } from '@/features/inventory/lib/stockStatus';
 import {
   useCategories,
   useCategoryIcons,
@@ -280,6 +281,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
     for (const p of printJobs) {
       if (p.status === 'delivered' || p.status === 'cancelled') continue;
+      if (p.billedInvoiceNumber !== undefined) continue;
       list.push({
         id: p.id,
         ticketNumber: p.ticketNumber,
@@ -567,7 +569,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
         if (blocker !== null) {
           playErrorSound(soundEnabled);
           notify.error({
-            ...billBlockerNotice(blocker, matchRep.ticketNumber),
+            ...billBlockerNotice(blocker, matchRep),
           });
           setScanQuery('');
           setSearch('');
@@ -1189,7 +1191,8 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                           p.stockQuantity - (reservedQuantityByProductId.get(p.id) ?? 0);
                         const isZeroStock = remainingStock <= 0;
                         const isLowStock =
-                          remainingStock > 0 && remainingStock <= p.minStockThreshold;
+                          remainingStock > 0 &&
+                          isAtOrBelowAlert(remainingStock, p.minStockThreshold);
                         const isSelected = selectedIndex !== null && index === selectedIndex;
                         const priceRange = sellingPriceRange(p);
                         // Same test handleAddProduct uses to open the price picker.

@@ -34,6 +34,8 @@ const render = (role: string, line: CartItem) => {
             item={line}
             lineGrossCents={65000}
             lineTotalCents={65000}
+            isCredit={false}
+            handoverLocked={false}
             onUpdateQty={() => undefined}
             onUpdateLineDiscount={() => undefined}
             onRemove={() => undefined}

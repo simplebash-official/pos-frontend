@@ -56,6 +56,33 @@ describe('StatusCell', () => {
     ).not.toContain('Overdue');
   });
 
+  it('tags a job that is billed but still in the shop', () => {
+    expect(
+      render(
+        <StatusCell
+          status={JOB_STATUS.READY}
+          label="Ready for Pickup"
+          billedInvoiceNumber="INV-000034"
+        />
+      )
+    ).toContain('Billed');
+  });
+
+  it('has no Billed tag on an unbilled job, nor on one already handed back', () => {
+    expect(render(<StatusCell status={JOB_STATUS.READY} label="Ready for Pickup" />)).not.toContain(
+      'Billed'
+    );
+    expect(
+      render(
+        <StatusCell
+          status={JOB_STATUS.DELIVERED}
+          label="Delivered"
+          billedInvoiceNumber="INV-000034"
+        />
+      )
+    ).not.toContain('Billed');
+  });
+
   it('shows only the status when no date was promised', () => {
     expect(render(<StatusCell status={JOB_STATUS.RECEIVED} label="Received" />)).toContain(
       'No due date'

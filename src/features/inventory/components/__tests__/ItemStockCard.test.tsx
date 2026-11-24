@@ -102,7 +102,7 @@ describe('ItemStockCard', () => {
     container.remove();
   });
 
-  const open = async (role: string) => {
+  const open = async (role: string, item: Product = product) => {
     const store = configureStore({
       reducer: {
         auth: () => ({ user: { id: 'u1', name: 'T', username: 't', role, permissions: [] } }),
@@ -113,7 +113,7 @@ describe('ItemStockCard', () => {
         <Provider store={store}>
           <MantineProvider>
             <LayoutTierProvider>
-              <ItemStockCard product={product} onProductChange={() => undefined} />
+              <ItemStockCard product={item} onProductChange={() => undefined} />
             </LayoutTierProvider>
           </MantineProvider>
         </Provider>
@@ -135,6 +135,14 @@ describe('ItemStockCard', () => {
     // The stock-by-price legend lists only the prices still in stock.
     expect(text).toContain('Rs. 40.00 · 20 left');
     expect(text).not.toContain('Rs. 48.00 · ');
+  });
+
+  it('says there is no alert when the item has no alert level', async () => {
+    await open('staff', { ...product, minStockThreshold: null });
+    const text = container.textContent ?? '';
+    expect(text).toContain('No alert set');
+    expect(text).not.toContain('Min Threshold');
+    expect(text).not.toContain('null');
   });
 
   it('shows what each delivery cost to an admin only', async () => {

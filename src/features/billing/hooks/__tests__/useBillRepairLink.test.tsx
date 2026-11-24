@@ -136,7 +136,7 @@ describe('useBillRepairLink', () => {
     expect(show).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Already handed back',
-        message: 'REP-000001: this repair was already billed and handed back.',
+        message: 'REP-000001: this repair was already handed back.',
         color: 'red',
       })
     );

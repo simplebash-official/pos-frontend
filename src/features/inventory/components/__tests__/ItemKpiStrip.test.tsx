@@ -38,14 +38,14 @@ const tier = (price: number, cost: number): PriceTier => ({
   oldestReceivedAt: '2026-10-01T00:00:00Z',
 });
 
-const product = (tiers: PriceTier[], stock = 20): Product =>
+const product = (tiers: PriceTier[], stock = 20, minStockThreshold: number | null = 8): Product =>
   ({
     id: 'p1',
     key: 'prod_a',
     name: 'Item A',
     priceTiers: tiers,
     stockQuantity: stock,
-    minStockThreshold: 8,
+    minStockThreshold,
   }) as Product;
 
 describe('ItemKpiStrip', () => {
@@ -107,6 +107,19 @@ describe('ItemKpiStrip', () => {
     expect(text).toContain('Selling');
     expect(text).not.toContain('Cost');
     expect(text).not.toContain('Profit per unit');
+  });
+
+  it('shows the alert level when the item has one', async () => {
+    const text = await show('admin', product([tier(4_800, 2_500)], 20, 8));
+    expect(text).toContain('Min Threshold: 8');
+    expect(text).not.toContain('No alert set');
+  });
+
+  it('says there is no alert, never "null", when the item has none', async () => {
+    const text = await show('admin', product([tier(4_800, 2_500)], 20, null));
+    expect(text).toContain('No alert set');
+    expect(text).not.toContain('null');
+    expect(text).not.toContain('Min Threshold');
   });
 
   it('says so when nothing is in stock', async () => {

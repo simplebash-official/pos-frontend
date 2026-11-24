@@ -22,6 +22,8 @@ export interface BackendPrintJob {
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
   splitValue?: number;
+  billedInvoiceKey?: string;
+  billedInvoiceNumber?: string;
   createdAt: string;
 }
 
@@ -51,6 +53,8 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   assignedEmployeeName: job.assignedEmployeeName,
   splitType: job.splitType,
   splitValue: job.splitValue,
+  billedInvoiceKey: job.billedInvoiceKey,
+  billedInvoiceNumber: job.billedInvoiceNumber,
   employeeEarningsCents: calc_earnings({
     priceCents: job.estimatedCostCents,
     materialCostCents: job.materialCostCents ?? 0,
