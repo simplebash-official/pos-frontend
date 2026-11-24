@@ -6,7 +6,7 @@ import type { JobStatus } from '@/constants';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { formatDate } from '@/shared/lib/date';
-import { getJobDueMeta } from '@/shared/lib/jobDueDate';
+import { getJobDueMeta, isJobFinished } from '@/shared/lib/jobDueDate';
 import { formatMoney } from '@/shared/lib/money';
 import type { SearchTerm } from '@/shared/lib/search';
 import { SearchHighlight } from './SearchHighlight';
@@ -127,9 +127,9 @@ interface StatusCellProps {
 }
 
 /**
- * A coloured dot and the status in words, with the due date under it on every row so rows line
- * up. While the job is open, a date that is near or past turns into "Due today", "Due soon" or
- * "Overdue" in colour.
+ * A coloured dot and the status in words. While the job is open the due date sits under it, and a
+ * date that is near or past turns into "Due today", "Due soon" or "Overdue" in colour. From Ready
+ * on there is no due line.
  */
 export const StatusCell = ({
   status,
@@ -139,12 +139,11 @@ export const StatusCell = ({
 }: StatusCellProps) => {
   const billedAndOpen = billedInvoiceNumber !== undefined && status !== 'delivered';
   const due = promisedReadyAt ? getJobDueMeta({ promisedReadyAt, status }) : null;
-  let dueLine = t('No due date');
-  if (promisedReadyAt) {
-    dueLine = due
+  const dueLine = promisedReadyAt
+    ? due
       ? `${due.label} · ${formatDate(promisedReadyAt)}`
-      : `${t('Due')} ${formatDate(promisedReadyAt)}`;
-  }
+      : `${t('Due')} ${formatDate(promisedReadyAt)}`
+    : t('No due date');
   return (
     <Stack gap={2} style={{ whiteSpace: 'nowrap' }}>
       <Group gap={8} wrap="nowrap">
@@ -158,14 +157,16 @@ export const StatusCell = ({
           {label}
         </Text>
       </Group>
-      <Text
-        size="xs"
-        c={due ? due.color : 'dimmed'}
-        fw={due ? 600 : 400}
-        style={{ ...TABULAR, paddingLeft: 16 }}
-      >
-        {dueLine}
-      </Text>
+      {!isJobFinished(status) && (
+        <Text
+          size="xs"
+          c={due ? due.color : 'dimmed'}
+          fw={due ? 600 : 400}
+          style={{ ...TABULAR, paddingLeft: 16 }}
+        >
+          {dueLine}
+        </Text>
+      )}
       {billedAndOpen && (
         <Text size="xs" c="teal" fw={600} style={{ ...TABULAR, paddingLeft: 16 }}>
           {t('Billed on')} {billedInvoiceNumber}

@@ -4,6 +4,7 @@ import {
   describeDueDate,
   fromDateValue,
   getJobDueMeta,
+  isJobFinished,
   quickDates,
   toDateValue,
 } from '../jobDueDate';
@@ -39,12 +40,28 @@ describe('getJobDueMeta', () => {
     expect(getJobDueMeta({ promisedReadyAt: iso(30), status: 'received' })).toBeNull();
   });
 
-  it('returns null once the job is delivered even if the date passed', () => {
-    expect(getJobDueMeta({ promisedReadyAt: iso(-5), status: 'delivered' })).toBeNull();
-  });
+  it.each(['ready', 'delivered', 'cancelled'] as const)(
+    'returns null once the job is %s even if the date passed',
+    (status) => {
+      expect(getJobDueMeta({ promisedReadyAt: iso(-5), status })).toBeNull();
+    }
+  );
 
   it('returns null when there is no promised date', () => {
     expect(getJobDueMeta({ status: 'in_repair' })).toBeNull();
+  });
+});
+
+describe('isJobFinished', () => {
+  it.each([
+    ['received', false],
+    ['diagnosing', false],
+    ['in_repair', false],
+    ['ready', true],
+    ['delivered', true],
+    ['cancelled', true],
+  ] as const)('%s -> %s', (status, finished) => {
+    expect(isJobFinished(status)).toBe(finished);
   });
 });
 
