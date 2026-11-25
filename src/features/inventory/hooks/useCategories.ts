@@ -7,6 +7,7 @@ import {
   deleteCategory,
   deleteSubcategory,
   fetchCategories,
+  renameSubcategory,
   updateCategory,
 } from '../api/categoriesApi';
 import { TablerIconMap, useTablerIcons } from '@/shared/lib/tablerIcons';
@@ -26,6 +27,11 @@ export interface AddSubcategoryPayload {
 export interface RemoveSubcategoryPayload {
   categoryKey: string;
   subcategoryKey: string;
+}
+export interface RenameSubcategoryPayload {
+  categoryKey: string;
+  subcategoryKey: string;
+  name: string;
 }
 
 const NO_CATEGORIES: Category[] = [];
@@ -137,6 +143,18 @@ export const useDeleteSubcategory = () => {
   return useMutation({
     mutationFn: ({ categoryKey, subcategoryKey }: RemoveSubcategoryPayload) =>
       deleteSubcategory(categoryKey, subcategoryKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+    },
+  });
+};
+
+export const useRenameSubcategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryKey, subcategoryKey, name }: RenameSubcategoryPayload) =>
+      renameSubcategory(categoryKey, subcategoryKey, name),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });

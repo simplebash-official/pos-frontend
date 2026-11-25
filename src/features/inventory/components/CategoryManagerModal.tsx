@@ -1,5 +1,5 @@
 import { t } from '@/shared/i18n/t';
-import { createElement, useState } from 'react';
+import { createElement, useEffect, useRef, useState } from 'react';
 import {
   Modal,
   Stack,
@@ -8,7 +8,6 @@ import {
   TextInput,
   TagsInput,
   Button,
-  ActionIcon,
   Divider,
   Paper,
   Tooltip,
@@ -26,10 +25,12 @@ import {
   useCreateSubcategory,
   useDeleteCategory,
   useDeleteSubcategory,
+  useRenameSubcategory,
 } from '../hooks/useCategories';
 import { CATEGORY_COLOR_OPTIONS, DEFAULT_CATEGORY_ICON, resolveCategoryIcon } from '../constants';
-import { Category } from '../types';
+import { Category, Subcategory } from '../types';
 import { TablerIconPicker } from '@/shared/components/TablerIconPicker';
+import { IconAction } from '@/shared/components/drawer';
 import { ProductWarrantyFields, profileProblem, toProfileInput } from '@/features/warranties';
 import type { ProductWarranty } from '@/features/warranties';
 import {
@@ -122,13 +123,185 @@ const AddSubcategoryRow = ({ categoryKey }: { categoryKey: string }) => {
   );
 };
 
+/** The one place a subcategory name is typed again: in the row itself, so nothing else opens. */
+const SubcategoryNameEditor = ({
+  categoryKey,
+  subcategory,
+  siblingNames,
+  onDone,
+}: {
+  categoryKey: string;
+  subcategory: Subcategory;
+  /** Names of the other subcategories of the same category. */
+  siblingNames: string[];
+  onDone: () => void;
+}) => {
+  const isMobile = useIsMobile();
+  const renameSubcategory = useRenameSubcategory();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [name, setName] = useState(subcategory.name);
+  const [serverError, setServerError] = useState<string | undefined>();
+
+  useEffect(() => {
+    // The soft keyboard would cover the list on a phone, so only a computer focuses at once.
+    if (isMobile) return;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, [isMobile]);
+
+  const trimmed = name.trim();
+  const isDuplicate = siblingNames.includes(trimmed);
+  const error = isDuplicate ? t('This subcategory already exists in this category.') : serverError;
+  const canSave = trimmed !== '' && trimmed !== subcategory.name && !isDuplicate;
+  const isSaving = renameSubcategory.isPending;
+
+  const handleSave = () => {
+    if (!canSave || isSaving) return;
+    renameSubcategory.mutate(
+      { categoryKey, subcategoryKey: subcategory.key, name: trimmed },
+      {
+        onSuccess: () => {
+          onDone();
+          notify.success({
+            title: t('Subcategory renamed'),
+            message: `${t('New name:')} ${trimmed}`,
+          });
+        },
+        onError: (err) => {
+          const apiError = err as ApiError;
+          if (apiError.code === 'SUBCATEGORY_ALREADY_EXISTS') {
+            setServerError(apiError.message);
+          }
+          notify.error({
+            title: t('Could not rename subcategory'),
+            message: apiError.message,
+          });
+        },
+      }
+    );
+  };
+
+  return (
+    <Paper px="sm" py="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+      <Group gap="xs" wrap="nowrap" align="flex-start">
+        <TextInput
+          ref={inputRef}
+          aria-label={t('Subcategory name')}
+          size={isMobile ? 'md' : 'xs'}
+          style={{ flex: 1, minWidth: 0 }}
+          styles={{ input: { fontSize: isMobile ? 16 : undefined } }}
+          value={name}
+          error={error}
+          disabled={isSaving}
+          onChange={(e) => {
+            setName(e.currentTarget.value);
+            if (serverError) setServerError(undefined);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSave();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              if (!isSaving) onDone();
+            }
+          }}
+        />
+        <Group gap={6} wrap="nowrap">
+          <IconAction
+            kind="edit"
+            label={t('Save name')}
+            icon={<IconCheck size={16} />}
+            onClick={handleSave}
+            loading={isSaving}
+            disabled={!canSave}
+          />
+          <IconAction
+            kind="neutral"
+            label={t('Cancel')}
+            icon={<IconX size={16} />}
+            onClick={onDone}
+            disabled={isSaving}
+          />
+        </Group>
+      </Group>
+    </Paper>
+  );
+};
+
+const SubcategoryRow = ({
+  categoryKey,
+  subcategory,
+  siblingNames,
+  isRenaming,
+  onStartRenaming,
+  onStopRenaming,
+  onDelete,
+}: {
+  categoryKey: string;
+  subcategory: Subcategory;
+  siblingNames: string[];
+  isRenaming: boolean;
+  onStartRenaming: () => void;
+  onStopRenaming: () => void;
+  onDelete: () => void;
+}) => {
+  if (isRenaming) {
+    return (
+      <SubcategoryNameEditor
+        categoryKey={categoryKey}
+        subcategory={subcategory}
+        siblingNames={siblingNames}
+        onDone={onStopRenaming}
+      />
+    );
+  }
+  return (
+    <Paper
+      px="sm"
+      py="xs"
+      withBorder
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 'var(--mantine-spacing-xs)',
+        backgroundColor: 'var(--mantine-color-default-hover)',
+      }}
+    >
+      <Text size="xs" fw={500} style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+        {subcategory.name}
+      </Text>
+      <Group gap={6} wrap="nowrap">
+        <IconAction
+          kind="edit"
+          label={t('Rename subcategory')}
+          icon={<IconEdit size={16} />}
+          onClick={onStartRenaming}
+        />
+        <IconAction
+          kind="danger"
+          label={t('Delete subcategory')}
+          icon={<IconTrash size={16} />}
+          onClick={onDelete}
+        />
+      </Group>
+    </Paper>
+  );
+};
+
 const CategoryItem = ({
   category,
+  renamingKey,
+  onRenamingChange,
   onDeleteCategory,
   onDeleteSubcategory,
   onExpandCategory,
 }: {
   category: Category;
+  /** Key of the subcategory whose name is being typed, across the whole window. */
+  renamingKey: string | null;
+  onRenamingChange: (subcategoryKey: string | null) => void;
   onDeleteCategory: (categoryKey: string) => void;
   onDeleteSubcategory: (categoryKey: string, subcategoryKey: string) => void;
   onExpandCategory: (categoryKey: string) => void;
@@ -309,32 +482,18 @@ const CategoryItem = ({
             {t('Subcategories')}
           </Text>
           {category.subcategories.map((sub) => (
-            <Paper
+            <SubcategoryRow
               key={sub.key}
-              px="sm"
-              py="xs"
-              withBorder
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: 'var(--mantine-color-default-hover)',
-              }}
-            >
-              <Text size="xs" fw={500}>
-                {sub.name}
-              </Text>
-              <Tooltip label={t('Delete subcategory')} withArrow>
-                <ActionIcon
-                  variant="subtle"
-                  color="red"
-                  size="xs"
-                  onClick={() => onDeleteSubcategory(category.key, sub.key)}
-                >
-                  <IconTrash size={14} />
-                </ActionIcon>
-              </Tooltip>
-            </Paper>
+              categoryKey={category.key}
+              subcategory={sub}
+              siblingNames={category.subcategories
+                .filter((other) => other.key !== sub.key)
+                .map((other) => other.name)}
+              isRenaming={renamingKey === sub.key}
+              onStartRenaming={() => onRenamingChange(sub.key)}
+              onStopRenaming={() => onRenamingChange(null)}
+              onDelete={() => onDeleteSubcategory(category.key, sub.key)}
+            />
           ))}
           <AddSubcategoryRow categoryKey={category.key} />
         </Stack>
@@ -357,6 +516,18 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
   const [newNameError, setNewNameError] = useState<string | undefined>();
 
   const [expandedValues, setExpandedValues] = useState<string[]>([]);
+  const [renamingKey, setRenamingKey] = useState<string | null>(null);
+
+  // Escape closes every Mantine modal, so while a name is being typed it must only cancel that
+  // edit. A subcategory removed on another computer meanwhile must not leave Escape switched off.
+  const isRenaming = categories.some((category) =>
+    category.subcategories.some((sub) => sub.key === renamingKey)
+  );
+
+  const handleClose = () => {
+    setRenamingKey(null);
+    onClose();
+  };
 
   const handleExpandCategory = (key: string) => {
     setExpandedValues((prev) => (prev.includes(key) ? prev : [...prev, key]));
@@ -421,7 +592,8 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
+      closeOnEscape={!isRenaming}
       title={
         <Text fw={700} size="lg">
           {t('Manage Categories')}
@@ -488,6 +660,8 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
               <CategoryItem
                 key={cat.key}
                 category={cat}
+                renamingKey={renamingKey}
+                onRenamingChange={setRenamingKey}
                 onDeleteCategory={handleDeleteCategory}
                 onDeleteSubcategory={handleDeleteSubcategory}
                 onExpandCategory={handleExpandCategory}
@@ -504,7 +678,7 @@ export const CategoryManagerModal = ({ opened, onClose }: CategoryManagerModalPr
         )}
 
         <Group justify="flex-end">
-          <Button variant="default" onClick={onClose}>
+          <Button variant="default" onClick={handleClose}>
             {t('Close')}
           </Button>
         </Group>
