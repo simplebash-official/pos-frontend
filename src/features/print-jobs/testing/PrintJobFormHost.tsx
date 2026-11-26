@@ -34,6 +34,7 @@ export const PrintJobFormHost = ({
       loading={loading}
       onJobSlip={null}
       onPrintInvoice={() => undefined}
+      onBill={() => undefined}
       closeOnEscape
     />
   );

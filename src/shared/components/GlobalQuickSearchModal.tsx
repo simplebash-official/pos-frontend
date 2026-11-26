@@ -199,7 +199,7 @@ export const GlobalQuickSearchModal = () => {
     const printJobRows: QuickSearchResult[] = printJobHits.results.map((p) => ({
       id: p.id,
       title: `${p.ticketNumber}: ${p.jobType.toUpperCase()} (${p.quantity} units)`,
-      subtitle: `${p.customerName} · ${p.customerPhone} · ${formatMoney(p.estimatedCostCents)}`,
+      subtitle: `${p.customerName} · ${p.customerPhone} · ${p.items.length > 0 ? formatMoney(p.priceCents) : t('Not priced yet')}`,
       category: 'Print Job',
       icon: IconPrinter,
       color: 'teal',

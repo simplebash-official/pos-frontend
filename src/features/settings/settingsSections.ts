@@ -30,6 +30,7 @@ export type SettingsSectionId =
   | 'cash-categories'
   | 'payees'
   | 'repair-services'
+  | 'print-services'
   | 'branding'
   | 'bank-details'
   | 'printing'
@@ -117,6 +118,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     description: 'The repairs you do often, with their usual labour and warranty',
     icon: IconTool,
     permission: PERMISSIONS.REPAIR_SERVICES_MANAGE,
+  },
+  {
+    id: 'print-services',
+    label: 'Print Services',
+    shortLabel: 'Printing work',
+    description: 'The print work you do often, with its price for one and warranty',
+    icon: IconPrinter,
+    permission: PERMISSIONS.PRINT_SERVICES_MANAGE,
   },
   {
     id: 'branding',

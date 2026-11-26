@@ -4,6 +4,7 @@ export const memory: WebAssembly.Memory;
 export const calc_cash_count: (a: any) => [number, number, number];
 export const calc_checkout: (a: any) => [number, number, number];
 export const calc_earnings: (a: any) => [number, number, number];
+export const calc_print_job: (a: any) => [number, number, number];
 export const calc_quotation: (a: any) => [number, number, number];
 export const calc_receipt: (a: any) => [number, number, number];
 export const calc_repair: (a: any) => [number, number, number];

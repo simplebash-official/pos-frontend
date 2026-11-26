@@ -130,6 +130,10 @@ export const queryKeys = {
     all: ['repairServices'] as const,
     list: (includeHidden: boolean) => ['repairServices', 'list', includeHidden] as const,
   },
+  printServices: {
+    all: ['printServices'] as const,
+    list: (includeHidden: boolean) => ['printServices', 'list', includeHidden] as const,
+  },
   printJobs: {
     all: ['printJobs'] as const,
     list: (filters?: Record<string, unknown>) => ['printJobs', 'list', filters] as const,

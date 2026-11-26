@@ -29,45 +29,66 @@ const states = (claim: WarrantyClaim) =>
 
 describe('claimActions', () => {
   it('offers only the steps the server allows from each status', () => {
-    expect(claimActions(CLAIM, false)).toEqual(['inspect']);
-    expect(claimActions({ ...CLAIM, status: 'inspected' }, false)).toEqual([
+    expect(claimActions(CLAIM, 'product_sale')).toEqual(['inspect']);
+    expect(claimActions({ ...CLAIM, status: 'inspected' }, 'product_sale')).toEqual([
       'decide',
       'sendToSupplier',
     ]);
-    expect(claimActions({ ...CLAIM, status: 'decided', decision: 'replace' }, false)).toEqual([
-      'resolve',
-      'sendToSupplier',
+    expect(
+      claimActions({ ...CLAIM, status: 'decided', decision: 'replace' }, 'product_sale')
+    ).toEqual(['resolve', 'sendToSupplier']);
+    expect(
+      claimActions({ ...CLAIM, status: 'decided', decision: 'refund' }, 'product_sale')
+    ).toEqual(['refund']);
+    expect(claimActions({ ...CLAIM, status: 'at_supplier' }, 'product_sale')).toEqual([
+      'supplierReturn',
     ]);
-    expect(claimActions({ ...CLAIM, status: 'decided', decision: 'refund' }, false)).toEqual([
-      'refund',
-    ]);
-    expect(claimActions({ ...CLAIM, status: 'at_supplier' }, false)).toEqual(['supplierReturn']);
-    expect(claimActions({ ...CLAIM, status: 'resolved', decision: 'refund' }, false)).toEqual([]);
-    expect(claimActions({ ...CLAIM, status: 'resolved', decision: 'repair' }, false)).toEqual([
-      'return',
-    ]);
+    expect(
+      claimActions({ ...CLAIM, status: 'resolved', decision: 'refund' }, 'product_sale')
+    ).toEqual([]);
+    expect(
+      claimActions({ ...CLAIM, status: 'resolved', decision: 'repair' }, 'product_sale')
+    ).toEqual(['return']);
   });
 
   it('turns a rejected claim into a paid repair only once', () => {
     const rejected = { ...CLAIM, status: 'resolved' as const, decision: 'reject' as const };
-    expect(claimActions(rejected, false)).toEqual(['return', 'paidRepair']);
-    expect(claimActions({ ...rejected, paidRepairKey: 'rep_1' }, false)).toEqual(['return']);
-    expect(claimActions({ ...rejected, status: 'returned' }, false)).toEqual(['paidRepair']);
+    expect(claimActions(rejected, 'product_sale')).toEqual(['return', 'paidRepair']);
+    expect(claimActions({ ...rejected, paidRepairKey: 'rep_1' }, 'product_sale')).toEqual([
+      'return',
+    ]);
+    expect(claimActions({ ...rejected, status: 'returned' }, 'product_sale')).toEqual([
+      'paidRepair',
+    ]);
   });
 
   it('offers one free rework job for repair work decided as a repair', () => {
     const decided = { ...CLAIM, status: 'decided' as const, decision: 'repair' as const };
-    expect(claimActions(decided, true)).toEqual(['rework', 'resolve', 'sendToSupplier']);
-    expect(claimActions({ ...decided, reworkRepairKey: 'rep_9' }, true)).toEqual([
+    expect(claimActions(decided, 'repair')).toEqual(['rework', 'resolve', 'sendToSupplier']);
+    expect(claimActions({ ...decided, reworkRepairKey: 'rep_9' }, 'repair')).toEqual([
       'resolve',
       'sendToSupplier',
     ]);
     // A warranty that came with a product, or one not loaded yet, has no job to redo.
-    expect(claimActions(decided, false)).toEqual(['resolve', 'sendToSupplier']);
-    expect(claimActions({ ...decided, decision: 'replace' }, true)).toEqual([
+    expect(claimActions(decided, 'product_sale')).toEqual(['resolve', 'sendToSupplier']);
+    expect(claimActions({ ...decided, decision: 'replace' }, 'repair')).toEqual([
       'resolve',
       'sendToSupplier',
     ]);
+  });
+
+  it('keeps the follow-up job on print work a print job', () => {
+    const decided = { ...CLAIM, status: 'decided' as const, decision: 'repair' as const };
+    expect(claimActions(decided, 'print')).toEqual(['rework', 'resolve', 'sendToSupplier']);
+    expect(claimActions({ ...decided, reworkPrintJobKey: 'prn_9' }, 'print')).toEqual([
+      'resolve',
+      'sendToSupplier',
+    ]);
+    const rejected = { ...CLAIM, status: 'resolved' as const, decision: 'reject' as const };
+    expect(claimActions(rejected, 'print')).toEqual(['return', 'paidPrintJob']);
+    expect(claimActions({ ...rejected, paidPrintJobKey: 'prn_1' }, 'print')).toEqual(['return']);
+    // Not loaded yet: nothing to redo.
+    expect(claimActions(decided, null)).toEqual(['resolve', 'sendToSupplier']);
   });
 });
 

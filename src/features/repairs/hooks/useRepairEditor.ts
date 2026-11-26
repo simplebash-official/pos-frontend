@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { JOB_STATUS, JOB_STATUS_LABELS, ROUTES, type JobStatus } from '@/constants';
-import { toEarningsRequest, useJobEarnings } from '@/shared/hooks/useJobEarnings';
+import { toSplit, useJobEarnings } from '@/shared/hooks/useJobEarnings';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
 import { snapshot } from '@/shared/lib/jobPanelState';
@@ -88,13 +88,7 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
   );
 
   // Profit and commission are the server's figures for what is typed so far.
-  const split = toEarningsRequest({
-    estimatedPriceRupees: '',
-    materialCostRupees: '',
-    assignedEmployeeId: form.values.assignedEmployeeId,
-    splitType: form.values.splitType,
-    splitValueRupeesOrPercent: form.values.splitValueRupeesOrPercent,
-  });
+  const split = toSplit(form.values);
   const priced = drafts.length > 0 && totals !== null && totals.costKnown;
   const earnings = useJobEarnings({
     ...split,

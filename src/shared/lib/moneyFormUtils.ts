@@ -1,6 +1,6 @@
 import { fromCents, toCents } from './money';
 import { RepairItemInput, RepairJob, RepairJobInput } from '@/features/repairs/types';
-import { PrintJob, PrintJobInput } from '@/features/print-jobs/types';
+import { PrintJob, PrintJobInput, PrintJobItemInput } from '@/features/print-jobs/types';
 import { Employee, EmployeeInput } from '@/features/employees/types';
 
 /** The assignment part of a job request: nothing when nobody is picked, and no split for an owner. */
@@ -106,8 +106,8 @@ export interface PrintJobFormValues {
   quantity: number | string;
   promisedReadyAt: string | null;
   status: PrintJob['status'];
-  estimatedPriceRupees: number | string;
-  materialCostRupees: number | string;
+  /** A staff note, never printed for the customer. */
+  note: string;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
@@ -124,8 +124,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
       quantity: 1,
       promisedReadyAt: null,
       status: 'received',
-      estimatedPriceRupees: '',
-      materialCostRupees: '',
+      note: '',
       splitType: 'fixed',
       splitValueRupeesOrPercent: 500,
     };
@@ -138,8 +137,7 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
     quantity: job.quantity,
     promisedReadyAt: job.promisedReadyAt ?? null,
     status: job.status,
-    estimatedPriceRupees: fromCents(job.estimatedCostCents),
-    materialCostRupees: job.materialCostCents ? fromCents(job.materialCostCents) : '',
+    note: job.note === undefined ? '' : job.note,
     assignedEmployeeId: job.assignedEmployeeId,
     assignedEmployeeName: job.assignedEmployeeName,
     splitType: job.splitType,
@@ -148,7 +146,15 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
   };
 };
 
-export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
+/**
+ * The print job request from the form. `changes.items` is the whole list of lines, or `undefined`
+ * to leave the saved lines as they are; the note is sent only when `changes.note` says it was
+ * typed, so an untouched note is never rewritten.
+ */
+export const toPrintJobInput = (
+  form: PrintJobFormValues,
+  changes: { items: PrintJobItemInput[] | undefined; note: boolean }
+): PrintJobInput => {
   return {
     customer: { customerKey: form.customerKey },
     assignment: toAssignmentInput(form),
@@ -156,8 +162,8 @@ export const toPrintJobInput = (form: PrintJobFormValues): PrintJobInput => {
     quantity: Number(form.quantity) || 1,
     promisedReadyAt: form.promisedReadyAt || undefined,
     status: form.status,
-    estimatedCostCents: toCents(Number(form.estimatedPriceRupees) || 0),
-    materialCostCents: toCents(Number(form.materialCostRupees) || 0),
+    note: changes.note ? form.note.trim() : undefined,
+    items: changes.items,
   };
 };
 

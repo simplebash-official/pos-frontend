@@ -4,6 +4,7 @@ import {
   IconChevronRight,
   IconDeviceMobile,
   IconPackage,
+  IconPrinter,
   IconTool,
 } from '@tabler/icons-react';
 import { CopyIconButton, IconTile } from '@/shared/components/drawer';
@@ -11,11 +12,28 @@ import { FadeIn } from '@/shared/motion';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { daysLeftLabel, periodUsedPercent, stateLook, validUntil } from '../lib/warrantyView';
-import type { Warranty, WarrantyGroup } from '../types';
+import type { Warranty, WarrantyGroup, WarrantySourceType } from '../types';
 import { WarrantyStateDot } from './WarrantyStateDot';
 
-const getItemIcon = (name: string, isRepair: boolean) => {
-  if (isRepair) return <IconTool size={22} />;
+/** Where a warranty came from, as the card says it. */
+const sourceLook = (source: WarrantySourceType): { Icon: typeof IconTool; label: string } => {
+  switch (source) {
+    case 'product_sale':
+      return { Icon: IconPackage, label: t('Product sale') };
+    case 'repair':
+      return { Icon: IconTool, label: t('Repair') };
+    case 'print':
+      return { Icon: IconPrinter, label: t('Print work') };
+  }
+};
+
+const getItemIcon = (name: string, warranties: Warranty[]) => {
+  // A device with repair work done on it, or a print job's own line, shows the job's icon.
+  const job = warranties.find((w) => w.sourceType !== 'product_sale');
+  if (job !== undefined) {
+    const { Icon } = sourceLook(job.sourceType);
+    return <Icon size={22} />;
+  }
   const lower = name.toLowerCase();
   if (
     lower.includes('phone') ||
@@ -43,6 +61,7 @@ const WarrantyLine = ({
   const look = stateLook(warranty.state);
   const daysLeft = daysLeftLabel(warranty);
   const isMultiUnit = warranty.quantity > 1;
+  const source = sourceLook(warranty.sourceType);
 
   return (
     <UnstyledButton
@@ -62,13 +81,9 @@ const WarrantyLine = ({
       <Group justify="space-between" wrap="nowrap" gap="sm" align="flex-start">
         <Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
           <Group gap={8} wrap="nowrap">
-            {warranty.sourceType === 'repair' ? (
-              <IconTool size={14} color="var(--text-muted)" />
-            ) : (
-              <IconPackage size={14} color="var(--text-muted)" />
-            )}
+            <source.Icon size={14} color="var(--text-muted)" />
             <Text size="sm" fw={700} lineClamp={1}>
-              {warranty.sourceType === 'repair' ? t('Repair') : t('Product sale')}
+              {source.label}
             </Text>
           </Group>
           <Text size="xs" c="dimmed" ff="monospace" style={{ overflowWrap: 'anywhere' }}>
@@ -127,14 +142,12 @@ export const WarrantyGroupCard = ({
   index: number;
   onOpen: (key: string) => void;
 }) => {
-  const isRepairGroup = group.warranties.some((w) => w.sourceType === 'repair');
-
   return (
     <FadeIn index={index}>
       <Paper p="md" bg="var(--bg-card)" shadow="xs" h="100%">
         <Group gap="md" wrap="nowrap" align="flex-start" mb="sm">
           <IconTile color="blue" size={44}>
-            {getItemIcon(group.itemName, isRepairGroup)}
+            {getItemIcon(group.itemName, group.warranties)}
           </IconTile>
           <Box style={{ minWidth: 0, flex: 1 }}>
             <Text fw={800} size="md" lineClamp={2}>

@@ -56,9 +56,9 @@ import {
 } from '@/features/inventory/hooks/useCategories';
 import { fetchRepairs } from '@/features/repairs/api/repairsApi';
 import { billBlocker, billBlockerNotice } from '@/features/repairs';
+import { printBillBlockerNotice } from '@/features/print-jobs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/printJobsApi';
 import { formatMoney } from '@/shared/lib/money';
-import { randomUuid } from '@/shared/lib/id';
 import { Product } from '@/features/inventory/types';
 import type { CartItem } from '@/store/slices/cartSlice';
 import { useCartItems, useCartSound } from '../hooks/useCart';
@@ -68,6 +68,7 @@ import { CATALOG_SORTS, catalogSortParams } from '../lib/catalogSort';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { useCatalogColumns } from '../hooks/useCatalogColumns';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
+import { printCartLine, printJobTitle } from '../lib/printCartLine';
 import { repairCartLine } from '../lib/repairCartLine';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
@@ -224,7 +225,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
 
   const termLower = scanQuery.trim().toLowerCase();
   const isScanningRep = termLower.startsWith('rep');
-  const isScanningPrt = termLower.startsWith('prt');
+  const isScanningPrt = termLower.startsWith('prn') || termLower.startsWith('prt');
   const isJobsMode = mode === 'jobs';
 
   const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
@@ -280,33 +281,22 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     }
 
     for (const p of printJobs) {
-      if (p.status === 'delivered' || p.status === 'cancelled') continue;
-      if (p.billedInvoiceNumber !== undefined) continue;
+      const blocker = billBlocker(p);
+      if (blocker !== null && blocker !== 'no_work') continue;
       list.push({
         id: p.id,
         ticketNumber: p.ticketNumber,
         type: 'print',
-        title: `${p.jobType.charAt(0).toUpperCase() + p.jobType.slice(1)} printing (${p.quantity} units)`,
+        title: printJobTitle(p),
         description: '',
         customerName: p.customerName,
         customerPhone: p.customerPhone,
         status: p.status,
-        costCents: p.estimatedCostCents,
+        // A job with no items on it has no price yet.
+        costCents: p.items.length === 0 ? undefined : p.priceCents,
         assignedEmployeeId: p.assignedEmployeeId,
         assignedEmployeeName: p.assignedEmployeeName,
-        line: {
-          id: `svc-print-${p.id}-${randomUuid()}`,
-          productId: p.id,
-          name: `${p.ticketNumber}: ${p.jobType.charAt(0).toUpperCase() + p.jobType.slice(1)} printing (${p.quantity} units)`,
-          sku: p.ticketNumber,
-          unitPriceCents: p.estimatedCostCents,
-          quantity: 1,
-          discount: null,
-          sourceType: 'print',
-          sourceTicketNumber: p.ticketNumber,
-          assignedEmployeeId: p.assignedEmployeeId,
-          assignedEmployeeName: p.assignedEmployeeName,
-        },
+        line: printCartLine(p),
       });
       printCount += 1;
     }
@@ -594,23 +584,18 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     ) {
       const matchPrt = printJobs.find((p) => p.ticketNumber.toLowerCase() === term);
       if (matchPrt) {
-        addServiceJob(
-          {
-            id: `svc-print-${matchPrt.id}-${randomUuid()}`,
-            productId: matchPrt.id,
-            name: `${matchPrt.ticketNumber}: ${matchPrt.jobType.toUpperCase()} Printing`,
-            sku: matchPrt.ticketNumber,
-            unitPriceCents: matchPrt.estimatedCostCents,
-            quantity: 1,
-            discount: null,
-            sourceType: 'print',
-            sourceTicketNumber: matchPrt.ticketNumber,
-            assignedEmployeeId: matchPrt.assignedEmployeeId,
-            assignedEmployeeName: matchPrt.assignedEmployeeName,
-          },
-          matchPrt.customerName,
-          matchPrt.customerPhone
-        );
+        const blocker = billBlocker(matchPrt);
+        if (blocker !== null) {
+          playErrorSound(soundEnabled);
+          notify.error({
+            ...printBillBlockerNotice(blocker, matchPrt),
+          });
+          setScanQuery('');
+          setSearch('');
+          setSelectedIndex(null);
+          return;
+        }
+        addServiceJob(printCartLine(matchPrt), matchPrt.customerName, matchPrt.customerPhone);
         playScanSuccessSound(soundEnabled);
         setScanQuery('');
         setSearch('');
@@ -1639,7 +1624,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                               <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
                                 {t('Estimated Total')}
                               </Text>
-                              {job.costCents !== undefined && job.costCents > 0 ? (
+                              {/* A print job with items has a price, even when it is zero. */}
+                              {job.costCents !== undefined &&
+                              (job.costCents > 0 || job.type === 'print') ? (
                                 <Text
                                   size="sm"
                                   fw={800}
@@ -1650,7 +1637,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                 </Text>
                               ) : (
                                 <Badge size="xs" color="yellow" variant="light">
-                                  {t('Pending diagnosis')}
+                                  {job.type === 'print'
+                                    ? t('Not priced yet')
+                                    : t('Pending diagnosis')}
                                 </Badge>
                               )}
                             </Box>

@@ -43,12 +43,7 @@ vi.mock('../../hooks/useRepairs', () => ({
   useUpdateRepairJob: () => ({ mutateAsync: update, isPending: false }),
 }));
 vi.mock('@/shared/hooks/useJobEarnings', () => ({
-  toEarningsRequest: () => ({
-    priceCents: null,
-    materialCostCents: 0,
-    splitType: null,
-    splitValue: 0,
-  }),
+  toSplit: () => ({ splitType: null, splitValue: 0 }),
   useJobEarnings: () => ({
     data: { profitCents: 60_000, commissionCents: 18_000, capped: false },
     isCurrent: true,

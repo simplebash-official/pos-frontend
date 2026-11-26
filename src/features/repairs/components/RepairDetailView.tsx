@@ -15,6 +15,8 @@ import {
 } from '@tabler/icons-react';
 import { JOB_STATUS, JOB_STATUS_COLORS, JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
+import { ItemCountBadge } from '@/shared/components/ticket-items/ItemCountBadge';
+import { JobWarrantiesPanel } from '@/shared/components/ticket-items/JobWarrantiesPanel';
 import { coverageLabel } from '@/features/warranties';
 import {
   AnimatedTabs,
@@ -60,9 +62,7 @@ import {
 import { repairStepBlock } from '../lib/statusStep';
 import { useUpdateRepairJob } from '../hooks/useRepairs';
 import type { RepairItem, RepairJob } from '../types';
-import { ItemCountBadge } from './ItemCountBadge';
 import { RepairItemsEditor } from './RepairItemsEditor';
-import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 
 type Tab = 'work' | 'warranty';
 
@@ -466,8 +466,8 @@ export const RepairDetailView = ({
               value === 'work' ? (
                 <WorkPanel job={job} card={null} onNestedWindowChange={onNestedWindowChange} />
               ) : (
-                <RepairWarrantiesPanel
-                  repairKey={job.id}
+                <JobWarrantiesPanel
+                  job={{ repairKey: job.id }}
                   onNestedWindowChange={onNestedWindowChange}
                 />
               )

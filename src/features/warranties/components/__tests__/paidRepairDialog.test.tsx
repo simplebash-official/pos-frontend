@@ -94,6 +94,7 @@ describe('ClaimStepDialog: paid repair', () => {
           <ClaimStepDialog
             claim={claim}
             action="paidRepair"
+            source="product_sale"
             warrantyEndsOn={undefined}
             onClose={onClose}
           />

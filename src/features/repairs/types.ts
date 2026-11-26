@@ -2,6 +2,7 @@ import type { JobStatus } from '@/constants';
 import type { SplitType } from '@/features/employees/types';
 import type { ProductWarranty } from '@/features/warranties/types';
 import type { CustomerRef, AssignmentInfo } from '@/shared/types/ticketInput';
+import type { AppliedDiscount } from '@/shared/components/ticket-items/itemDiscount';
 import type { ItemDiscount } from '@/wasm';
 
 /** Where an item's part came from, as the server stores it. */
@@ -18,9 +19,6 @@ export type RepairPart =
     }
   | { source: 'outside'; name: string };
 
-/** What the server stores for an item's discount: as typed, and what it comes to in cents. */
-export type RepairItemDiscount = ItemDiscount & { amountCents: number };
-
 /** One piece of work on a job: labour, at most one part, and its own warranty. */
 export interface RepairItem {
   key: string;
@@ -32,7 +30,7 @@ export interface RepairItem {
   /** What the part cost the shop; worked out by the server for a stock part. */
   partCostCents: number;
   /** The discount off this item; absent for none. Never on a warranty rework. */
-  discount?: RepairItemDiscount;
+  discount?: AppliedDiscount;
   warranty: ProductWarranty;
 }
 

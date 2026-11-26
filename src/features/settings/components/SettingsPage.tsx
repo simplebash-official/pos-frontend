@@ -20,6 +20,7 @@ import { DocumentTemplatesSection } from './sections/DocumentTemplatesSection';
 import { LabelsSection } from '@/features/labels/components/LabelsSection';
 import { CashCategoriesSection } from './sections/CashCategoriesSection';
 import { PayeesSection } from './sections/PayeesSection';
+import { PrintServicesSection } from '@/features/print-jobs';
 import { RepairServicesSection } from '@/features/repairs';
 import { NotificationHistorySection } from '@/features/notifications';
 import { CashRulesSection } from './sections/CashRulesSection';
@@ -86,6 +87,8 @@ const renderSection = (
       return <NotificationHistorySection />;
     case 'repair-services':
       return <RepairServicesSection />;
+    case 'print-services':
+      return <PrintServicesSection />;
     case 'branding':
       return <BrandingSection onDirtyChange={onDirtyChange} />;
     case 'bank-details':

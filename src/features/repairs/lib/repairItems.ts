@@ -11,7 +11,8 @@ import {
   type RepairTotals,
 } from '@/wasm';
 import type { RepairItem, RepairItemInput, RepairKind, RepairService } from '../types';
-import { typedDiscount } from './repairDiscount';
+import { typedDiscount } from '@/shared/components/ticket-items/itemDiscount';
+import { NO_COVER } from '@/shared/components/ticket-items/warranty';
 
 /**
  * The repair form's items while they are being typed. Money boxes hold rupees as typed; a stock
@@ -63,8 +64,6 @@ export interface FeeItemDraft {
 
 /** A repair item is either a physical Part or an Other Fee. */
 export type ItemDraft = PartItemDraft | FeeItemDraft;
-
-const NO_COVER: ProductWarranty = { coverage: { kind: 'none' } };
 
 let nextUid = 0;
 const uid = (): string => {
@@ -240,12 +239,6 @@ export const itemsFromSaved = (items: RepairItem[]): ItemDraft[] => {
   }
   return drafts;
 };
-
-/** The warranty as it is saved: no type or terms without cover, terms trimmed. */
-export const cleanWarranty = (warranty: ProductWarranty): ProductWarranty =>
-  warranty.coverage.kind === 'none'
-    ? { coverage: warranty.coverage }
-    : { ...warranty, terms: warranty.terms?.trim() };
 
 /** What a fee row charges, in cents. */
 export const feePriceCents = (draft: FeeItemDraft): number => rupees(draft.feeRupees);

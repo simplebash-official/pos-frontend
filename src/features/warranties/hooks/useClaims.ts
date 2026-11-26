@@ -4,6 +4,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { feedbackMeta } from '@/api/mutationFeedback';
 import { t } from '@/shared/i18n/t';
 import {
+  convertClaimToPaidPrintJob,
   convertClaimToPaidRepair,
   createCondition,
   deleteCondition,
@@ -130,6 +131,7 @@ export type ClaimStepInput =
   | { kind: 'resolve'; key: string; resolutionNote?: string; replacement?: ReplacementInput }
   | { kind: 'return'; key: string }
   | { kind: 'paidRepair'; key: string; customerKey?: string }
+  | { kind: 'paidPrintJob'; key: string; customerKey?: string }
   | { kind: 'rework'; key: string };
 
 const runStep = (step: ClaimStepInput): Promise<WarrantyClaim> => {
@@ -148,6 +150,8 @@ const runStep = (step: ClaimStepInput): Promise<WarrantyClaim> => {
       return returnClaimToCustomer(step.key);
     case 'paidRepair':
       return convertClaimToPaidRepair(step.key, { customerKey: step.customerKey });
+    case 'paidPrintJob':
+      return convertClaimToPaidPrintJob(step.key, { customerKey: step.customerKey });
     case 'rework':
       return openClaimRework(step.key);
   }

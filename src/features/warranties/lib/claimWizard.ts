@@ -59,7 +59,7 @@ export const emptyWizard = (warranty: Warranty): WizardState => ({
   handBack: null,
 });
 
-/** A unit sold from stock can be swapped for a new one; repair work has no product to take from. */
+/** A unit sold from stock can be swapped for a new one; job work has no product to take from. */
 export const canReplaceFromStock = (
   warranty: Pick<Warranty, 'sourceType' | 'productKey'>
 ): boolean => warranty.sourceType === 'product_sale' && warranty.productKey !== undefined;
@@ -67,10 +67,12 @@ export const canReplaceFromStock = (
 /** Why the item cannot be replaced from stock, or `null` when it can. */
 export const replaceUnavailable = (
   warranty: Pick<Warranty, 'sourceType' | 'productKey'>
-): string | null =>
-  canReplaceFromStock(warranty)
-    ? null
+): string | null => {
+  if (canReplaceFromStock(warranty)) return null;
+  return warranty.sourceType === 'print'
+    ? t('This was print work, so there is no unit in stock to swap.')
     : t('This was repair work, so there is no unit in stock to swap.');
+};
 
 /** The new unit is chosen by serial number when the faulty one has one: the server's own rule. */
 export const isSerialized = (warranty: Warranty, state: WizardState): boolean =>

@@ -5,9 +5,8 @@ import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { getErrorMessage } from '@/shared/lib/error';
 import { fromCents, toCents } from '@/shared/lib/money';
-import { useCreateRepairService, useUpdateRepairService } from '../hooks/useRepairServices';
-import type { RepairService } from '../types';
-import { cleanWarranty } from '../lib/repairItems';
+import type { CatalogService, ServiceCatalogActions, ServiceCatalogCopy } from './serviceCatalog';
+import { cleanWarranty, NO_COVER } from './warranty';
 import { WorkWarrantyFields } from './WorkWarrantyFields';
 
 const sectionLabel = (text: string) => (
@@ -16,47 +15,44 @@ const sectionLabel = (text: string) => (
   </Text>
 );
 
-export interface RepairServiceFormModalProps {
+export interface ServiceFormModalProps {
   /** The service to edit, or `null` to add one. */
-  service: RepairService | null;
+  service: CatalogService | null;
+  copy: ServiceCatalogCopy;
+  actions: ServiceCatalogActions;
   onClose: () => void;
 }
 
-/** Adds or changes one of the shop's ready-made repair services. */
-export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormModalProps) => {
+/** Adds or changes one of the shop's ready-made services. */
+export const ServiceFormModal = ({ service, copy, actions, onClose }: ServiceFormModalProps) => {
   const isMobile = useIsMobile();
-  const create = useCreateRepairService();
-  const update = useUpdateRepairService();
   const [name, setName] = useState(service === null ? '' : service.name);
-  const [labor, setLabor] = useState<number | string>(
-    service === null ? '' : fromCents(service.laborCents)
+  const [price, setPrice] = useState<number | string>(
+    service === null ? '' : fromCents(service.priceCents)
   );
-  const [warranty, setWarranty] = useState(
-    service === null ? { coverage: { kind: 'none' as const } } : service.warranty
-  );
+  const [warranty, setWarranty] = useState(service === null ? NO_COVER : service.warranty);
   const [active, setActive] = useState(service === null ? true : service.active);
   const [tried, setTried] = useState(false);
 
-  const saving = create.isPending || update.isPending;
-  const failure = create.error ?? update.error;
   const nameProblem = name.trim() === '' ? t('Give the service a name.') : null;
-  const laborProblem = labor !== '' && Number(labor) < 0 ? t('Fee cannot be below zero.') : null;
+  const priceProblem = price !== '' && Number(price) < 0 ? copy.priceBelowZero : null;
   const warrantyProblem = profileProblem(warranty);
 
   const save = async () => {
     setTried(true);
-    if (nameProblem !== null || laborProblem !== null || warrantyProblem !== null) return;
+    if (nameProblem !== null || priceProblem !== null || warrantyProblem !== null) return;
     const input = {
       name: name.trim(),
-      laborCents: labor === '' ? 0 : toCents(Number(labor)),
+      // An empty box is a service with no usual charge: it is typed on the job.
+      priceCents: price === '' ? 0 : toCents(Number(price)),
       warranty: cleanWarranty(warranty),
       active,
     };
     try {
       if (service === null) {
-        await create.mutateAsync(input);
+        await actions.create(input);
       } else {
-        await update.mutateAsync({ key: service.key, input });
+        await actions.update(service.key, input);
       }
       onClose();
     } catch {
@@ -72,7 +68,7 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
       onClose={onClose}
       title={
         <Text fw={700} size="lg">
-          {service === null ? t('Add a repair service') : `${t('Edit:')} ${service.name}`}
+          {service === null ? copy.addTitle : `${t('Edit:')} ${service.name}`}
         </Text>
       }
       size="lg"
@@ -88,7 +84,7 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
         <Stack gap="md">
           <TextInput
             label={t('What is the service called?')}
-            placeholder={t('e.g. Screen replacement')}
+            placeholder={copy.namePlaceholder}
             value={name}
             onChange={(event) => setName(event.currentTarget.value)}
             error={tried ? nameProblem : null}
@@ -97,7 +93,7 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
             data-autofocus={isMobile ? undefined : true}
           />
           <NumberInput
-            label={t('Usual fee')}
+            label={copy.priceFieldLabel}
             description={t(
               'Filled in when the service is added to a job; you can change it there.'
             )}
@@ -105,9 +101,9 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
             prefix="Rs. "
             min={0}
             thousandSeparator=","
-            value={labor}
-            onChange={setLabor}
-            error={tried ? laborProblem : null}
+            value={price}
+            onChange={setPrice}
+            error={tried ? priceProblem : null}
             size={size}
           />
           <Stack gap="xs">
@@ -120,21 +116,21 @@ export const RepairServiceFormModal = ({ service, onClose }: RepairServiceFormMo
             )}
           </Stack>
           <Switch
-            label={t('Offer it on the repair form')}
+            label={copy.offerLabel}
             description={t('Turn off to hide a service you no longer do. Old jobs keep it.')}
             checked={active}
             onChange={(event) => setActive(event.currentTarget.checked)}
           />
-          {failure !== null && (
+          {actions.failure !== null && (
             <Text size="sm" c="red" role="alert">
-              {getErrorMessage(failure)}
+              {getErrorMessage(actions.failure)}
             </Text>
           )}
           <Group justify="flex-end" mt="md" gap="sm">
-            <Button variant="default" onClick={onClose} disabled={saving}>
+            <Button variant="default" onClick={onClose} disabled={actions.saving}>
               {t('Cancel')}
             </Button>
-            <Button type="submit" color="blue" loading={saving} data-log-id="repairs.save-service">
+            <Button type="submit" color="blue" loading={actions.saving} data-log-id={copy.logId}>
               {service === null ? t('Add the service') : t('Save Changes')}
             </Button>
           </Group>

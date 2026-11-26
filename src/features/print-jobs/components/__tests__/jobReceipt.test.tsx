@@ -26,6 +26,18 @@ vi.mock('../../api/printJobsApi', () => ({
   deletePrintJobsRaw: vi.fn(),
 }));
 vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
+// The panel's item editor loads these; the editor has its own tests.
+vi.mock('../../hooks/usePrintServices', () => ({
+  usePrintServices: () => ({ data: [], isLoading: false }),
+}));
+vi.mock('@/features/inventory/hooks/useProducts', () => ({
+  useAllProducts: () => ({ data: [], isLoading: false }),
+}));
+vi.mock('@/features/inventory/hooks/useCategories', () => ({
+  useCategories: () => ({ data: [], isLoading: false }),
+  useCategoryIcons: () => null,
+  useCategoryLookup: () => ({ getCategory: () => undefined, getCategoryName: () => '' }),
+}));
 vi.mock('../../hooks/usePrintJobStats', () => ({
   usePrintJobStats: () => ({
     data: { todayJobs: 0, todayRevenueCents: 0, openJobs: 0, avgJobValueCents: 0 },
@@ -40,12 +52,15 @@ vi.mock('../PrintJobEditForm', () => ({
   PrintJobEditForm: ({
     editor,
   }: {
-    editor: { handleSubmit: (values: unknown) => Promise<void>; form: { values: unknown } };
+    editor: {
+      handleSubmit: (values: unknown, billAfterSave: null) => Promise<void>;
+      form: { values: unknown };
+    };
   }) => (
     <button
       type="button"
       data-testid="save-form"
-      onClick={() => void editor.handleSubmit(editor.form.values)}
+      onClick={() => void editor.handleSubmit(editor.form.values, null)}
     >
       {editor.form.values !== undefined &&
       (editor.form.values as { customerKey: string }).customerKey !== ''
@@ -75,7 +90,10 @@ const JOB: PrintJob = {
   jobType: 'mug',
   quantity: 20,
   status: 'received',
-  estimatedCostCents: 800_000,
+  kind: { kind: 'standard' },
+  items: [],
+  priceCents: 0,
+  costCents: 0,
   createdAt: '2026-11-03T05:00:00Z',
 };
 const NEW_JOB: PrintJob = { ...JOB, id: 'prn_9', ticketNumber: 'PRN-000009' };

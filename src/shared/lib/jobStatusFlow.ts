@@ -1,6 +1,10 @@
 import { JOB_STATUS, PRINT_JOB_STATUS, type JobStatus, type PrintJobStatus } from '@/constants';
 import { t } from '@/shared/i18n/t';
 
+/** Why a job cannot take its next step from its panel. The server refuses the same cases. */
+export type StepBlock =
+  { reason: 'needs_work'; message: string } | { reason: 'bill_first'; message: string };
+
 /** The steps a job normally takes; a handed-back or cancelled job has no next step. */
 const NEXT: Record<JobStatus, JobStatus | null> = {
   [JOB_STATUS.RECEIVED]: JOB_STATUS.DIAGNOSING,

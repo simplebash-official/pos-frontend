@@ -64,6 +64,7 @@ export const RESOURCE_QUERY_ROOTS: Record<string, ReadonlyArray<readonly unknown
     queryKeys.moneyReports.all,
   ],
   repairServices: [queryKeys.repairServices.all],
+  printServices: [queryKeys.printServices.all],
   notifications: [queryKeys.notifications.all],
   notificationReads: [queryKeys.notifications.all],
   printJobs: [

@@ -1,24 +1,8 @@
 import { t } from '@/shared/i18n/t';
+import type { BillBlocker } from '@/shared/lib/billBlocker';
 import type { RepairJob } from '../types';
 
-/** Why a repair cannot be put on a bill; the same rules the server enforces when the sale is saved. */
-export type BillBlocker =
-  'warranty_rework' | 'already_billed' | 'already_handed_back' | 'cancelled' | 'no_work';
-
-/** What decides whether a job can be billed; a saved job, or a job as it is typed in the form. */
-export type BillableJob = Pick<RepairJob, 'kind' | 'status' | 'billedInvoiceNumber'> & {
-  items: readonly unknown[];
-};
-
-/** `null` means the job can be billed. */
-export const billBlocker = (job: BillableJob): BillBlocker | null => {
-  if (job.kind.kind === 'warranty_rework') return 'warranty_rework';
-  if (job.billedInvoiceNumber !== undefined) return 'already_billed';
-  if (job.status === 'delivered') return 'already_handed_back';
-  if (job.status === 'cancelled') return 'cancelled';
-  if (job.items.length === 0) return 'no_work';
-  return null;
-};
+export { billBlocker, type BillBlocker } from '@/shared/lib/billBlocker';
 
 /** What to tell the person when a job cannot be billed. */
 export const billBlockerNotice = (

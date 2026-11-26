@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fromPopoverDiscount, toPopoverDiscount, typedDiscount } from '../repairDiscount';
+import { fromPopoverDiscount, toPopoverDiscount, typedDiscount } from '../itemDiscount';
 
 describe('repair discount translation', () => {
   it('turns a percentage into whole basis points and back', () => {

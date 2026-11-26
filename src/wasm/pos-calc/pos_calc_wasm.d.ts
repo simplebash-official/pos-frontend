@@ -140,6 +140,26 @@ export interface CalcPaymentReply {
     maxCreditDepositCents: number;
 }
 
+export interface CalcPrintItem {
+    kind: PrintLineKind;
+    quantity: number | undefined;
+    unitPriceCents: number | undefined;
+    cost: CalcPrintCost | undefined;
+    discount: ItemDiscount | undefined;
+}
+
+export interface CalcPrintJobRequest {
+    items: CalcPrintItem[];
+}
+
+export interface CalcPrintLine {
+    grossCents: number;
+    discountCents: number;
+    netCents: number;
+    costCents: number | undefined;
+    profitCents: number | undefined;
+}
+
 export interface CalcQuotationLine {
     key: string;
     name: string;
@@ -273,6 +293,7 @@ export interface CartTotals {
     retail_cents: number;
     repairs_cents: number;
     print_cents: number;
+    charges_cents: number;
 }
 
 export interface CashCountLine {
@@ -322,6 +343,26 @@ export interface PaymentState {
     amount_received_cents: number;
 }
 
+export interface PrintBlocker {
+    itemIndex: number;
+    code: PrintBlockerCode;
+}
+
+export interface PrintJobPreview {
+    totals: PrintJobTotals;
+    lines: CalcPrintLine[];
+    blockers: PrintBlocker[];
+    costKnown: boolean;
+}
+
+export interface PrintJobTotals {
+    servicesCents: number;
+    partsCents: number;
+    discountCents: number;
+    priceCents: number;
+    costCents: number;
+}
+
 export interface QuotationBlocker {
     code: QuotationBlockerCode;
     line: number | undefined;
@@ -368,6 +409,8 @@ export type CalcDiscountType = "percentage" | "fixed";
 
 export type CalcPaymentMethod = "cash" | "card" | "online" | "split";
 
+export type CalcPrintCost = { basis: "per_unit"; cents: number } | { basis: "line"; cents: number };
+
 export type CalcSource = "retail" | "repair" | "print" | "charge";
 
 export type CalcWarrantyReply = { kind: "not_covered" } | { kind: "lifetime" } | { kind: "until"; endsOn: string };
@@ -380,13 +423,17 @@ export type ItemDiscount = { type: "percentage"; basisPoints: number } | { type:
 
 export type LineDiscount = { type: "none" } | { type: "fixed"; value: number } | { type: "percentage"; value: number };
 
-export type LineSource = "retail" | "repair" | "print";
+export type LineSource = "retail" | "repair" | "print" | "charge";
 
 export type PaymentMode = "credit" | "full" | "part";
 
 export type PaymentSource = "drawer" | "bank" | "card" | "online" | "owner_pocket";
 
 export type PricingMode = "price" | "margin";
+
+export type PrintBlockerCode = "discount_more_than_line";
+
+export type PrintLineKind = "service" | "part";
 
 export type QuotationBlockerCode = "customer_missing" | "no_lines" | "name_missing" | "quantity_invalid" | "order_discount_negative" | "order_discount_over100" | "valid_until_invalid" | "valid_until_in_past";
 
@@ -423,6 +470,12 @@ export function calc_checkout(request: CalcCheckoutRequest): CalcCheckoutReply;
 export function calc_earnings(request: CalcEarningsRequest): CalcEarningsReply;
 
 /**
+ * Works out what a print job charges and costs from its lines, each line's discount, and what
+ * stops it being saved.
+ */
+export function calc_print_job(request: CalcPrintJobRequest): PrintJobPreview;
+
+/**
  * Works out a quotation; its validity date is checked against today in the browser.
  */
 export function calc_quotation(request: CalcQuotationRequest): CalcQuotationReply;
@@ -455,6 +508,7 @@ export interface InitOutput {
     readonly calc_cash_count: (a: any) => [number, number, number];
     readonly calc_checkout: (a: any) => [number, number, number];
     readonly calc_earnings: (a: any) => [number, number, number];
+    readonly calc_print_job: (a: any) => [number, number, number];
     readonly calc_quotation: (a: any) => [number, number, number];
     readonly calc_receipt: (a: any) => [number, number, number];
     readonly calc_repair: (a: any) => [number, number, number];
