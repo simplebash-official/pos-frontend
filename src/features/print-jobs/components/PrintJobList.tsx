@@ -16,6 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { notify } from '@/shared/notify';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
+import { printJobTypeName } from '../lib/jobTypeLabels';
 import {
   useAllPrintJobs,
   useCreatePrintJob,
@@ -209,7 +210,7 @@ export const PrintJobList = () => {
       align: 'left',
       sortable: true,
       render: (job) => {
-        const kind = job.jobType.charAt(0).toUpperCase() + job.jobType.slice(1);
+        const kind = printJobTypeName(job.jobType);
         const units = `${job.quantity} ${t('units')}`;
         return (
           <TwoLineCell
@@ -293,7 +294,7 @@ export const PrintJobList = () => {
       <PageHeader
         title={t('Print Jobs & Sublimation Orders')}
         description={t(
-          'Custom mug, t-shirt, handbill, banner printing order tracking & operator profit split'
+          'Mug, t-shirt, handbill and banner printing, photo framing, and operator profit split'
         )}
         action={
           <Group gap="sm">

@@ -1,10 +1,13 @@
-import type { PrintJob } from '@/features/print-jobs';
+import { printJobTypeName, type PrintJob } from '@/features/print-jobs';
 import type { CartItem } from '@/store/slices/cartSlice';
 import { randomUuid } from '@/shared/lib/id';
 
 /** What the job is called on the bill and in the till's job list: "Mug printing (50 units)". */
-export const printJobTitle = (job: Pick<PrintJob, 'jobType' | 'quantity'>): string =>
-  `${job.jobType.charAt(0).toUpperCase()}${job.jobType.slice(1)} printing (${job.quantity} units)`;
+export const printJobTitle = (job: Pick<PrintJob, 'jobType' | 'quantity'>): string => {
+  // Framing is not "printing".
+  const work = job.jobType === 'photo-framing' ? '' : ' printing';
+  return `${printJobTypeName(job.jobType)}${work} (${job.quantity} units)`;
+};
 
 /** The bill line for a print job: one line for the whole job, priced by the server's total for it. */
 export const printCartLine = (job: PrintJob): CartItem => ({

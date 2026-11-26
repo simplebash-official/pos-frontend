@@ -39,7 +39,14 @@ import { PrintItemsEditor } from './PrintItemsEditor';
 /** The form's id, so the panel's pinned Save button can submit it from outside. */
 export const PRINT_JOB_FORM_ID = 'print-job-form';
 
-const JOB_TYPES: PrintJobType[] = ['mug', 't-shirt', 'handbill', 'banner', 'custom'];
+const JOB_TYPES: PrintJobType[] = [
+  'mug',
+  't-shirt',
+  'handbill',
+  'banner',
+  'photo-framing',
+  'custom',
+];
 
 export interface PrintJobEditFormProps {
   editor: PrintJobEditor;

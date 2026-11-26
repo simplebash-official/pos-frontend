@@ -5,7 +5,7 @@ import type { AppliedDiscount } from '@/shared/components/ticket-items/itemDisco
 import type { CustomerRef, AssignmentInfo } from '@/shared/types/ticketInput';
 import type { ItemDiscount } from '@/wasm';
 
-export type PrintJobType = 'mug' | 't-shirt' | 'handbill' | 'banner' | 'custom';
+export type PrintJobType = 'mug' | 't-shirt' | 'handbill' | 'banner' | 'photo-framing' | 'custom';
 
 /** What a line sells, as the server stores it. */
 export type PrintItemSource =

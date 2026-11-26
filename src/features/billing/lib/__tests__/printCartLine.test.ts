@@ -43,5 +43,8 @@ describe('printCartLine', () => {
 
   it('names the job after its type and how many units it is', () => {
     expect(printJobTitle({ jobType: 't-shirt', quantity: 1 })).toBe('T-shirt printing (1 units)');
+    expect(printJobTitle({ jobType: 'photo-framing', quantity: 3 })).toBe(
+      'Photo & Framing (3 units)'
+    );
   });
 });
