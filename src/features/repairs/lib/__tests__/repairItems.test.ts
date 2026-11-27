@@ -3,8 +3,6 @@ import type { RepairItem, RepairService } from '../../types';
 import {
   blankFee,
   countItems,
-  calculateOutsideProfit,
-  calculatePartsProfitCents,
   feePriceCents,
   itemFromPart,
   itemFromSaved,
@@ -347,12 +345,11 @@ describe('item discounts', () => {
     expect(rowDiscountProblem(1, live.blockers)).toBeNull();
   });
 
-  it('shows part profit after each item discount', () => {
+  it('gives each row its profit after the item discount, from the shared calculation', () => {
     const screen = itemFromSaved(SAVED_SCREEN);
-    expect(calculatePartsProfitCents([screen], [0])).toBe(350_000);
-    expect(calculatePartsProfitCents([screen], [120_000])).toBe(230_000);
-    expect(calculateOutsideProfit(100, 40, 1_000)).toBe(50);
-    expect(calculateOutsideProfit(100, 40, null)).toBeNull();
+    expect(repairTotals([screen], false).itemProfitsCents).toEqual([350_000]);
+    const discounted = { ...screen, discount: { type: 'fixed' as const, cents: 120_000 } };
+    expect(repairTotals([discounted], false).itemProfitsCents).toEqual([230_000]);
     expect(feePriceCents(feeDraft({ feeRupees: 12.5 }))).toBe(1_250);
   });
 
@@ -417,11 +414,15 @@ describe('item discounts', () => {
     expect(live.totals.costCents).toBe(360); // 3 * 120
     expect(live.totals.priceCents).toBe(1_500);
 
-    const profit = calculatePartsProfitCents([row], [0]);
-    expect(profit).toBe(1_140); // 3 * (500 - 120)
+    expect(live.itemProfitsCents).toEqual([1_140]); // 3 * (500 - 120)
 
-    const outsideProfit = calculateOutsideProfit(100, 40, 0, 3);
-    expect(outsideProfit).toBe(180); // 3 * (100 - 40)
+    const outside = itemFromPart(
+      { source: 'outside', name: 'Glass', priceRupees: 100, costRupees: 40 },
+      { coverage: { kind: 'none' } },
+      false,
+      3
+    );
+    expect(repairTotals([outside], false).itemProfitsCents).toEqual([18_000]); // 3 * (100 - 40)
   });
 });
 
@@ -442,5 +443,112 @@ describe('countItems', () => {
     expect(countItems([])).toBe(0);
     expect(countItems([fee])).toBe(1);
     expect(countItems([fee, part])).toBe(4);
+  });
+});
+
+describe('what the work cost the shop', () => {
+  const service: RepairService = {
+    id: '1',
+    key: 'rst_1',
+    name: 'Board repair',
+    laborCents: 500_000,
+    laborCostCents: 150_000,
+    warranty: THREE_MONTHS,
+    active: true,
+    version: 1,
+    createdAt: '2026-11-03T00:00:00Z',
+    updatedAt: '2026-11-03T00:00:00Z',
+  };
+
+  it('tells a recorded zero from no cost, both ways', () => {
+    const none = itemFromSaved(SAVED_SERVICE) as FeeItemDraft;
+    expect(none.costRupees).toBe('');
+    expect(toItemInputs([none], false)[0].laborCostCents).toBeUndefined();
+
+    const zero = itemFromSaved({ ...SAVED_SERVICE, laborCostCents: 0 }) as FeeItemDraft;
+    expect(zero.costRupees).toBe(0);
+    expect(toItemInputs([zero], false)[0].laborCostCents).toBe(0);
+
+    const costed = itemsFromSaved([{ ...SAVED_SERVICE, laborCostCents: 40_050 }])[0];
+    expect(costed).toMatchObject({ costRupees: 400.5 });
+    expect(toItemInputs([costed], false)[0].laborCostCents).toBe(40_050);
+  });
+
+  it('keeps a saved outside part that cost nothing ready to save again', () => {
+    const free: RepairItem = {
+      ...SAVED_SERVICE,
+      laborCents: 0,
+      part: { source: 'outside', name: 'Offcut' },
+      partCents: 10_000,
+      partCostCents: 0,
+    };
+    for (const row of [itemFromSaved(free), itemsFromSaved([free])[0]]) {
+      expect(row).toMatchObject({ part: { costRupees: 0 } });
+      expect(rowProblem(row, false)).toBeNull();
+    }
+  });
+
+  it('moves the work cost of an item with a part onto its own fee row', () => {
+    const mixed: RepairItem = { ...SAVED_SCREEN, laborCents: 200_000, laborCostCents: 70_000 };
+    const drafts = itemsFromSaved([mixed]);
+    expect(drafts).toHaveLength(2);
+    expect(drafts[1]).toMatchObject({ kind: 'fee', feeRupees: 2_000, costRupees: 700 });
+    expect(toItemInputs(drafts, false).map((input) => input.laborCostCents)).toEqual([
+      undefined,
+      70_000,
+    ]);
+  });
+
+  it('keeps a work cost saved with a part and no fee, and asks for the fee', () => {
+    // Only an outside client can save this shape; the screen must still not drop the cost.
+    const drafts = itemsFromSaved([{ ...SAVED_SCREEN, laborCostCents: 70_000 }]);
+    expect(drafts[1]).toMatchObject({ kind: 'fee', feeRupees: '', costRupees: 700 });
+    expect(rowProblem(drafts[1], false)).toEqual({
+      field: 'fee',
+      message: 'Enter the fee amount.',
+    });
+  });
+
+  it('never merges a stock part that carries work into another row', () => {
+    const second: RepairItem = { ...SAVED_SCREEN, key: 'rit_second', laborCostCents: 70_000 };
+    const drafts = itemsFromSaved([SAVED_SCREEN, second]);
+    expect(drafts.map((draft) => draft.kind)).toEqual(['part', 'part', 'fee']);
+    expect(drafts[2]).toMatchObject({ costRupees: 700 });
+  });
+
+  it('fills the cost from a quick fee, on a rework too', () => {
+    expect(itemFromService(service, false)).toMatchObject({
+      feeRupees: 5_000,
+      costRupees: 1_500,
+    });
+    expect(itemFromService(service, true)).toMatchObject({ feeRupees: '', costRupees: 1_500 });
+    expect(itemFromService({ ...service, laborCostCents: undefined }, false).costRupees).toBe('');
+    expect(blankFee().costRupees).toBe('');
+  });
+
+  it('refuses a cost below zero, on a rework too', () => {
+    const row = feeDraft({ description: 'Board repair', feeRupees: 100, costRupees: -1 });
+    for (const rework of [false, true]) {
+      expect(rowProblem(row, rework)).toEqual({
+        field: 'cost',
+        message: 'A cost cannot be below zero.',
+      });
+    }
+  });
+
+  it('takes the cost off the profit through the shared calculation', () => {
+    const rows = [feeDraft({ feeRupees: 5_000, costRupees: 1_500 })];
+    const live = repairTotals(rows, false);
+    expect(live.totals.costCents).toBe(150_000);
+    expect(live.totals.priceCents).toBe(500_000);
+    expect(live.itemProfitsCents).toEqual([350_000]);
+
+    const rework = repairTotals(rows, true);
+    expect(rework.totals.priceCents).toBe(0);
+    expect(rework.itemProfitsCents).toEqual([-150_000]);
+    expect(toItemInputs(rows, true)[0]).toMatchObject({
+      laborCents: 0,
+      laborCostCents: 150_000,
+    });
   });
 });

@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { Box, Group, NumberInput, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, NumberInput, SimpleGrid, Stack, Text } from '@mantine/core';
 import { QuantityInput } from '@/shared/components/QuantityInput';
+import { CostToShopField } from '@/shared/components/ticket-items/CostToShopField';
 import { ItemDiscountButton } from '@/shared/components/ticket-items/ItemDiscountButton';
 import { ItemIcon } from '@/shared/components/ticket-items/ItemIcon';
 import { ItemWarrantyButton } from '@/shared/components/ticket-items/ItemWarrantyButton';
@@ -14,18 +14,17 @@ import type { ProductWarranty } from '@/features/warranties';
 import type { ItemDiscount } from '@/wasm';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
-import { formatMoney, fromCents } from '@/shared/lib/money';
+import { formatMoney } from '@/shared/lib/money';
 import { useRepairServices } from '../hooks/useRepairServices';
 import {
-  calculateOutsideProfit,
-  calculatePartsProfitCents,
+  blankFee,
   DEFAULT_QUICK_FEES,
   feePriceCents,
+  itemFromService,
   negative,
   partPriceCents,
   rowDiscountProblem,
   rowProblem,
-  type FeeItemDraft,
   type ItemDraft,
   type LiveRepairTotals,
   type PartDraft,
@@ -47,11 +46,6 @@ export interface RepairItemsEditorProps {
   /** Show each row's problem (after a save was tried). */
   showProblems: boolean;
   totals: LiveRepairTotals | null;
-  profit?: {
-    priced: boolean;
-    profitCents: number;
-    hint: string | null;
-  };
   /** The part window is open, so the job window must not close on Escape. */
   onNestedWindowChange?: (open: boolean) => void;
 }
@@ -63,7 +57,6 @@ export const RepairItemsEditor = ({
   readOnly,
   showProblems,
   totals,
-  profit,
 }: RepairItemsEditorProps) => {
   const isMobile = useIsMobile();
   const services = useRepairServices(false, !readOnly);
@@ -157,16 +150,8 @@ export const RepairItemsEditor = ({
     onChange([...drafts, newRow]);
   };
 
-  const handleAddFee = (name: string, defaultCents = 0, warranty = NO_COVER) => {
-    const newRow: FeeItemDraft = {
-      uid: genUid(),
-      kind: 'fee',
-      description: name,
-      feeRupees: defaultCents > 0 ? fromCents(defaultCents) : '',
-      discount: null,
-      warranty: rework ? NO_COVER : warranty,
-    };
-    onChange([...drafts, newRow]);
+  const handleAddFee = (name: string) => {
+    onChange([...drafts, { ...blankFee(), description: name }]);
   };
 
   const handleAddSerialUnit = (found: SerialLookup) => {
@@ -208,7 +193,7 @@ export const RepairItemsEditor = ({
     ...(services.data ?? []).map((service) => ({
       id: service.key,
       label: service.name,
-      onAdd: () => handleAddFee(service.name, service.laborCents, service.warranty),
+      onAdd: () => onChange([...drafts, itemFromService(service, rework)]),
     })),
   ];
 
@@ -256,11 +241,11 @@ export const RepairItemsEditor = ({
     );
   };
 
-  const updateFeeRupees = (uid: string, feeRupees: number | string) => {
+  const updateFee = (uid: string, field: 'feeRupees' | 'costRupees', value: number | string) => {
     onChange(
       drafts.map((d) => {
         if (d.uid !== uid || d.kind !== 'fee') return d;
-        return { ...d, feeRupees };
+        return { ...d, [field]: value };
       })
     );
   };
@@ -268,11 +253,6 @@ export const RepairItemsEditor = ({
   const removeDraft = (uid: string) => {
     onChange(drafts.filter((d) => d.uid !== uid));
   };
-
-  const partsProfitCents = useMemo(
-    () => (totals === null ? null : calculatePartsProfitCents(drafts, totals.itemDiscountsCents)),
-    [drafts, totals]
-  );
 
   const inputHeight = isMobile ? 44 : 36;
   const moneyInputStyles = {
@@ -286,7 +266,6 @@ export const RepairItemsEditor = ({
 
   /** One piece of work as a card: what and how much on top, then the two buttons. */
   const renderCard = (draft: ItemDraft, index: number) => {
-    const label = draft.kind === 'fee' ? t('Service fee') : null;
     const unitPriceCents =
       draft.kind === 'fee' ? feePriceCents(draft) : partPriceCents(draft.part, rework);
     const linePriceCents = draft.kind === 'part' ? unitPriceCents * draft.quantity : unitPriceCents;
@@ -305,53 +284,64 @@ export const RepairItemsEditor = ({
       return left === undefined ? t('From stock') : `${t('From stock ·')} ${left} ${t('left')}`;
     };
 
-    const subline =
-      draft.kind === 'fee' ? (
-        <Text size="xs" c="dimmed">
-          {label}
-        </Text>
-      ) : draft.part.source === 'stock' ? (
-        <Text size="xs" c="dimmed">
-          {draft.part.serialNumber
-            ? `${t('Serial:')} ${draft.part.serialNumber}`
-            : stockLine(draft.part.productKey, draft.part.stockQuantity)}
-        </Text>
-      ) : (
-        <Group gap="xs" align="center" wrap="wrap">
+    /** A row's profit, once both its cost and what the customer pays are typed. */
+    const rowProfitCents = (
+      costRupees: number | string,
+      priceRupees: number | string
+    ): number | null =>
+      totals === null || costRupees === '' || (!rework && priceRupees === '')
+        ? null
+        : totals.itemProfitsCents[index];
+
+    const subline = () => {
+      if (draft.kind === 'fee') {
+        return (
+          <Stack gap={4}>
+            <Text size="xs" c="dimmed">
+              {t('Service fee')}
+            </Text>
+            {/* A locked job with no recorded cost shows no empty box. */}
+            {(!readOnly || draft.costRupees !== '') && (
+              <CostToShopField
+                label={t('Cost to shop')}
+                lineName={draft.description}
+                placeholder={t('Optional')}
+                value={draft.costRupees}
+                invalid={problem !== null && problem.field === 'cost'}
+                onChange={(value) => updateFee(draft.uid, 'costRupees', value)}
+                disabled={readOnly}
+                profitCents={rowProfitCents(draft.costRupees, draft.feeRupees)}
+              />
+            )}
+          </Stack>
+        );
+      }
+      if (draft.part.source === 'stock') {
+        return (
           <Text size="xs" c="dimmed">
-            {t('Cost to shop')}
+            {draft.part.serialNumber
+              ? `${t('Serial:')} ${draft.part.serialNumber}`
+              : stockLine(draft.part.productKey, draft.part.stockQuantity)}
           </Text>
-          <NumberInput
-            size="sm"
-            w={110}
-            placeholder="0"
-            min={0}
-            styles={{ input: { height: inputHeight, fontSize: isMobile ? 16 : undefined } }}
-            value={draft.part.costRupees}
-            error={
-              problem !== null &&
-              problem.field === 'part' &&
-              (draft.part.costRupees === '' || negative(draft.part.costRupees))
-            }
-            onChange={(val) => updateOutsidePart(draft.uid, 'costRupees', val)}
-            disabled={readOnly}
-          />
-          {(() => {
-            const rowProfit = calculateOutsideProfit(
-              draft.part.priceRupees,
-              draft.part.costRupees,
-              totals === null ? null : totals.itemDiscountsCents[index],
-              draft.quantity
-            );
-            if (rowProfit === null) return null;
-            return (
-              <Text size="xs" fw={700} c={rowProfit >= 0 ? 'teal' : 'red'}>
-                {t('Profit Rs.')} {rowProfit.toLocaleString()}
-              </Text>
-            );
-          })()}
-        </Group>
+        );
+      }
+      return (
+        <CostToShopField
+          label={t('Cost to shop, each')}
+          lineName={draft.description}
+          placeholder="0"
+          value={draft.part.costRupees}
+          invalid={
+            problem !== null &&
+            problem.field === 'part' &&
+            (draft.part.costRupees === '' || negative(draft.part.costRupees))
+          }
+          onChange={(value) => updateOutsidePart(draft.uid, 'costRupees', value)}
+          disabled={readOnly}
+          profitCents={rowProfitCents(draft.part.costRupees, draft.part.priceRupees)}
+        />
       );
+    };
 
     const typedPrice =
       draft.kind === 'fee'
@@ -398,7 +388,7 @@ export const RepairItemsEditor = ({
           }
           onChange={(val) =>
             draft.kind === 'fee'
-              ? updateFeeRupees(draft.uid, val)
+              ? updateFee(draft.uid, 'feeRupees', val)
               : updateOutsidePart(draft.uid, 'priceRupees', val)
           }
           disabled={rework || readOnly}
@@ -420,7 +410,7 @@ export const RepairItemsEditor = ({
           />
         }
         title={draft.description}
-        subline={subline}
+        subline={subline()}
         quantity={
           draft.kind === 'part' && !isSerialized
             ? (size) => (
@@ -514,13 +504,10 @@ export const RepairItemsEditor = ({
                   rework
                     ? null
                     : {
-                        label: t('Profit on parts:'),
-                        value:
-                          partsProfitCents !== null
-                            ? formatMoney(partsProfitCents)
-                            : profit && typeof profit.hint === 'string'
-                              ? profit.hint
-                              : '—',
+                        label: t('Profit:'),
+                        value: totals.costKnown
+                          ? formatMoney(totals.totals.priceCents - totals.totals.costCents)
+                          : t('shows once saved'),
                       }
                 }
               />

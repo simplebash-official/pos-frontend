@@ -144,7 +144,7 @@ export const WarrantySection = ({
 
       <ChartCard
         title="Rework cost by month"
-        subtitle="Parts used on free warranty repair and print work"
+        subtitle="What free warranty repair and print work cost the shop"
         loading={loading}
         empty={reworkChart.length === 0}
       >

@@ -128,7 +128,7 @@ describe('print item rows', () => {
   });
 
   it('names the first thing missing on a row', () => {
-    const service = serviceDraft('Design', null, NONE, false);
+    const service = serviceDraft('Design', null, undefined, NONE, false);
     expect(rowProblem({ ...service, description: ' ' }, false)?.field).toBe('description');
     expect(rowProblem({ ...service, quantity: '' }, false)?.field).toBe('quantity');
     expect(rowProblem(service, false)?.field).toBe('price');
@@ -150,7 +150,7 @@ describe('print item rows', () => {
     );
     expect(itemsProblem([], REWORK, 'delivered', empty)).toBeNull();
     const many: PrintDraft[] = Array.from({ length: 51 }, () =>
-      serviceDraft('Design', 100, NONE, false)
+      serviceDraft('Design', 100, undefined, NONE, false)
     );
     expect(itemsProblem(many, STANDARD, 'received', empty)).toBe(
       'A print job can have at most 50 items.'
@@ -180,6 +180,69 @@ describe('print job steps and billing words', () => {
     expect(printBillBlockerNotice('no_work', ticket)).toEqual({
       title: 'No items added yet',
       message: 'PRN-000001: add the items before billing it.',
+    });
+  });
+});
+
+describe('what a service line costs the shop', () => {
+  const savedService = (unitCostCents: number | undefined): PrintJobItem => ({
+    ...SAVED[0],
+    discount: undefined,
+    source: { type: 'service', unitCostCents },
+  });
+  const sentSource = (drafts: PrintDraft[], rework = false) =>
+    toItemInputs(drafts, rework)[0].source;
+
+  it('tells a recorded zero from no cost, both ways', () => {
+    for (const [saved, box, sent] of [
+      [undefined, '', undefined],
+      [0, 0, 0],
+      [4_050, 40.5, 4_050],
+    ] as const) {
+      const drafts = draftsFromSaved([savedService(saved)]);
+      expect(drafts[0]).toMatchObject({ unitCostRupees: box });
+      expect(sentSource(drafts)).toMatchObject({ type: 'service', unitCostCents: sent });
+    }
+  });
+
+  it('fills the cost from a quick fee, on a rework too', () => {
+    expect(serviceDraft('Design', 100_000, 40_000, NONE, false)).toMatchObject({
+      unitPriceRupees: 1_000,
+      unitCostRupees: 400,
+    });
+    expect(serviceDraft('Design', 100_000, 40_000, NONE, true)).toMatchObject({
+      unitPriceRupees: '',
+      unitCostRupees: 400,
+    });
+    expect(serviceDraft('Design', null, undefined, NONE, false).unitCostRupees).toBe('');
+  });
+
+  it('refuses a cost below zero, on a rework too', () => {
+    const line = { ...serviceDraft('Design', 100_000, undefined, NONE, false), unitCostRupees: -1 };
+    for (const rework of [false, true]) {
+      expect(rowProblem(line, rework)).toEqual({
+        field: 'cost',
+        message: 'A cost cannot be below zero.',
+      });
+    }
+  });
+
+  it('multiplies the cost by the quantity through the shared calculation', () => {
+    const drafts = [
+      { ...serviceDraft('Design', 100_000, 40_000, NONE, false), quantity: 3 },
+      serviceDraft('Setup', 5_000, undefined, NONE, false),
+    ];
+    const live = printTotals(drafts, false);
+    expect(live.totals.costCents).toBe(120_000);
+    expect(live.lines[0].profitCents).toBe(180_000);
+    expect(live.totals.priceCents - live.totals.costCents).toBe(185_000);
+    expect(live.costKnown).toBe(true);
+
+    expect(printTotals(drafts, true).lines[0].profitCents).toBe(-120_000);
+    expect(sentSource(drafts, true)).toEqual({
+      type: 'service',
+      unitPriceCents: 0,
+      unitCostCents: 40_000,
     });
   });
 });

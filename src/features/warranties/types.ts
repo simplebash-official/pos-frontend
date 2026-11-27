@@ -140,7 +140,7 @@ export interface WarrantyStats {
   openClaimCount: number;
   /** Open over a week, or with a supplier past the day they gave. */
   lateClaimCount: number;
-  /** Parts cost of the rework jobs opened this month. */
+  /** What the rework jobs opened this month cost the shop. */
   reworkCostThisMonthCents: number;
 }
 

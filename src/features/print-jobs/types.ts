@@ -9,7 +9,8 @@ export type PrintJobType = 'mug' | 't-shirt' | 'handbill' | 'banner' | 'photo-fr
 
 /** What a line sells, as the server stores it. */
 export type PrintItemSource =
-  | { type: 'service' }
+  /** `unitCostCents` is what one costs the shop; absent when none is recorded. */
+  | { type: 'service'; unitCostCents?: number }
   | {
       type: 'stock';
       productKey: string;
@@ -39,7 +40,7 @@ export interface PrintJobItem {
 
 /** A line's source as the form sends it; the server prices a stock part itself. */
 export type PrintItemSourceInput =
-  | { type: 'service'; unitPriceCents: number }
+  | { type: 'service'; unitPriceCents: number; unitCostCents?: number }
   | { type: 'stock'; productKey: string; serialNumber?: string; sellingPriceCents?: number }
   | { type: 'outside'; name: string; unitPriceCents: number; unitCostCents: number };
 
@@ -83,7 +84,7 @@ export interface PrintJob {
   items: PrintJobItem[];
   /** Every line's price less the line discounts: what the customer pays. Server-worked. */
   priceCents: number;
-  /** What the parts cost the shop. Server-worked. */
+  /** What the lines cost the shop. Server-worked. */
   costCents: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
@@ -116,6 +117,8 @@ export interface PrintService {
   name: string;
   /** The usual price of one. */
   unitPriceCents: number;
+  /** What one usually costs the shop; absent when none is saved. */
+  unitCostCents?: number;
   warranty: ProductWarranty;
   active: boolean;
   version: number;
@@ -126,6 +129,8 @@ export interface PrintService {
 export interface SavePrintServiceInput {
   name: string;
   unitPriceCents: number;
+  /** Required so a save cannot forget it; `undefined` saves no cost. */
+  unitCostCents: number | undefined;
   warranty: ProductWarranty;
   active: boolean;
 }

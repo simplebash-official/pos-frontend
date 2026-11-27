@@ -247,6 +247,7 @@ export interface CalcReceiptSummary {
 
 export interface CalcRepairItem {
     laborCents: number | undefined;
+    laborCostCents: number | undefined;
     partCents: number | undefined;
     partCostCents: number | undefined;
     discount: ItemDiscount | undefined;
@@ -376,6 +377,7 @@ export interface RepairBlocker {
 export interface RepairPreview {
     totals: RepairTotals;
     itemDiscountsCents: number[];
+    itemProfitsCents: number[];
     blockers: RepairBlocker[];
 }
 

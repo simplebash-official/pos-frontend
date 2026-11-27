@@ -24,6 +24,8 @@ export interface RepairItem {
   key: string;
   description: string;
   laborCents: number;
+  /** What the work cost the shop; absent when none is recorded. */
+  laborCostCents?: number;
   part?: RepairPart;
   /** What the customer pays for the part (always 0 on a warranty rework). */
   partCents: number;
@@ -44,6 +46,8 @@ export interface RepairItemInput {
   key?: string;
   description: string;
   laborCents: number;
+  /** What the work cost the shop; left out to record none. */
+  laborCostCents?: number;
   part?: RepairPartInput;
   /** The discount typed on this item; the server works out what it comes to. */
   discount?: ItemDiscount;
@@ -77,7 +81,7 @@ export interface RepairJob {
   items: RepairItem[];
   /** Labour and part prices less the item discounts: what the customer pays. Server-worked. */
   priceCents: number;
-  /** What the parts cost the shop. Server-worked. */
+  /** What the job cost the shop: parts and recorded work costs. Server-worked. */
   costCents: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
@@ -108,6 +112,8 @@ export interface RepairService {
   key: string;
   name: string;
   laborCents: number;
+  /** What the work usually costs the shop; absent when none is saved. */
+  laborCostCents?: number;
   warranty: ProductWarranty;
   active: boolean;
   version: number;
@@ -118,6 +124,8 @@ export interface RepairService {
 export interface SaveRepairServiceInput {
   name: string;
   laborCents: number;
+  /** Required so a save cannot forget it; `undefined` saves no cost. */
+  laborCostCents: number | undefined;
   warranty: ProductWarranty;
   active: boolean;
 }

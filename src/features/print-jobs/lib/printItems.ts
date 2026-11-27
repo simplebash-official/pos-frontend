@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { PRINT_JOB_STATUS, type PrintJobStatus } from '@/constants';
 import { profileProblem, type ProductWarranty } from '@/features/warranties';
+import { costBoxValue, typedCostCents } from '@/shared/components/ticket-items/costToShop';
 import { typedDiscount } from '@/shared/components/ticket-items/itemDiscount';
 import { cleanWarranty, NO_COVER } from '@/shared/components/ticket-items/warranty';
 import { t } from '@/shared/i18n/t';
@@ -29,6 +30,8 @@ interface DraftBase {
 export interface ServiceDraft extends DraftBase {
   kind: 'service';
   unitPriceRupees: number | string;
+  /** What one costs the shop, as typed; empty when none is recorded. */
+  unitCostRupees: number | string;
 }
 
 /** A part bought in for this job, with what one is charged and what one costs. */
@@ -68,6 +71,7 @@ export const lineQuantity = (quantity: number | ''): number | null =>
 export const serviceDraft = (
   description: string,
   unitPriceCents: number | null,
+  unitCostCents: number | undefined,
   warranty: ProductWarranty,
   rework: boolean
 ): ServiceDraft => ({
@@ -77,6 +81,8 @@ export const serviceDraft = (
   quantity: 1,
   unitPriceRupees:
     rework || unitPriceCents === null || unitPriceCents === 0 ? '' : fromCents(unitPriceCents),
+  // A rework charges nothing, but the work still costs the shop.
+  unitCostRupees: costBoxValue(unitCostCents),
   discount: null,
   warranty: rework ? NO_COVER : warranty,
 });
@@ -105,7 +111,12 @@ export const draftFromSaved = (item: PrintJobItem): PrintDraft => {
   };
   switch (item.source.type) {
     case 'service':
-      return { ...base, kind: 'service', unitPriceRupees: fromCents(item.unitPriceCents) };
+      return {
+        ...base,
+        kind: 'service',
+        unitPriceRupees: fromCents(item.unitPriceCents),
+        unitCostRupees: costBoxValue(item.source.unitCostCents),
+      };
     case 'outside':
       return {
         ...base,
@@ -162,7 +173,11 @@ export const toItemInputs = (drafts: PrintDraft[], rework: boolean): PrintJobIte
       case 'service':
         return {
           ...shared,
-          source: { type: 'service', unitPriceCents: draftUnitPriceCents(draft, rework) },
+          source: {
+            type: 'service',
+            unitPriceCents: draftUnitPriceCents(draft, rework),
+            unitCostCents: typedCostCents(draft.unitCostRupees),
+          },
         };
       case 'outside':
         return {
@@ -213,6 +228,9 @@ export const rowProblem = (draft: PrintDraft, rework: boolean): RowProblem | nul
       if (!rework && (draft.unitPriceRupees === '' || Number(draft.unitPriceRupees) <= 0)) {
         return { field: 'price', message: t('Enter the fee for one.') };
       }
+      if (negative(draft.unitCostRupees)) {
+        return { field: 'cost', message: t('A cost cannot be below zero.') };
+      }
     } else {
       if (!rework && draft.unitPriceRupees === '') {
         return { field: 'price', message: t('Enter what the customer pays for one, or 0.') };
@@ -241,7 +259,7 @@ export const printTotals = (drafts: PrintDraft[], rework: boolean): LivePrintTot
       const quantity = lineQuantity(draft.quantity);
       const typedPrice = draft.kind !== 'stock' && draft.unitPriceRupees === '' && !rework;
       let cost: { basis: 'per_unit' | 'line'; cents: number } | undefined;
-      if (draft.kind === 'outside' && draft.unitCostRupees !== '') {
+      if (draft.kind !== 'stock' && draft.unitCostRupees !== '') {
         cost = { basis: 'per_unit', cents: rupees(draft.unitCostRupees) };
       }
       if (draft.kind === 'stock') {

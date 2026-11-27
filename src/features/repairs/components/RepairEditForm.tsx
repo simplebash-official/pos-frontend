@@ -214,7 +214,6 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                 readOnly={workLocked}
                 showProblems={tried}
                 totals={totals}
-                profit={{ priced, profitCents, hint: priceHint }}
                 onNestedWindowChange={setNestedOpen}
               />
               {tried && workProblem !== null && (

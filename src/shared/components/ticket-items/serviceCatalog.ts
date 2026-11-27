@@ -6,6 +6,8 @@ export interface CatalogService {
   name: string;
   /** The usual charge: a repair's fee, or the price of one unit of print work. */
   priceCents: number;
+  /** What the work usually costs the shop (for print work, one unit); `undefined` when none. */
+  costCents: number | undefined;
   warranty: ProductWarranty;
   /** A hidden service stays on old jobs but is not offered on new ones. */
   active: boolean;
@@ -23,6 +25,9 @@ export interface ServiceCatalogCopy {
   priceLabel: string;
   priceFieldLabel: string;
   priceBelowZero: string;
+  /** The word before the cost on a service's card ("Cost to shop"). */
+  costLabel: string;
+  costFieldLabel: string;
   addTitle: string;
   namePlaceholder: string;
   offerLabel: string;

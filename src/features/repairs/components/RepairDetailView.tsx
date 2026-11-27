@@ -141,7 +141,7 @@ const WorkList = ({ job }: { job: RepairJob }) => {
         </Group>
         <Group justify="space-between">
           <Text size="sm" c="dimmed">
-            {t('Parts cost the shop')}
+            {t('Cost to shop')}
           </Text>
           <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {formatMoney(job.costCents)}
@@ -322,7 +322,7 @@ export const RepairDetailView = ({
           {priced && earnings.data !== undefined ? (
             <Figure
               value={formatMoney(earnings.data.profitCents)}
-              hint={t('After parts cost')}
+              hint={t('After costs')}
               color="green"
             />
           ) : (

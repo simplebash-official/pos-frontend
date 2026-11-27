@@ -11,9 +11,14 @@ import {
 } from '../hooks/usePrintServices';
 import type { SavePrintServiceInput } from '../types';
 
-const fromCatalog = ({ priceCents, ...rest }: CatalogServiceInput): SavePrintServiceInput => ({
+const fromCatalog = ({
+  priceCents,
+  costCents,
+  ...rest
+}: CatalogServiceInput): SavePrintServiceInput => ({
   ...rest,
   unitPriceCents: priceCents,
+  unitCostCents: costCents,
 });
 
 /** The shop's ready-made print services in Settings. */
@@ -31,6 +36,8 @@ export const PrintServicesSection = () => {
     priceLabel: t('Price for one'),
     priceFieldLabel: t('Usual price for one'),
     priceBelowZero: t('A price cannot be below zero.'),
+    costLabel: t('Cost to shop, each'),
+    costFieldLabel: t('Usual cost to shop for one'),
     addTitle: t('Add a print service'),
     namePlaceholder: t('e.g. Mug printing'),
     offerLabel: t('Offer it on the print job form'),
@@ -44,6 +51,7 @@ export const PrintServicesSection = () => {
         key: service.key,
         name: service.name,
         priceCents: service.unitPriceCents,
+        costCents: service.unitCostCents,
         warranty: service.warranty,
         active: service.active,
       }))}

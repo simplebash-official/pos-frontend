@@ -11,9 +11,14 @@ import {
 } from '../hooks/useRepairServices';
 import type { SaveRepairServiceInput } from '../types';
 
-const toInput = ({ priceCents, ...rest }: CatalogServiceInput): SaveRepairServiceInput => ({
+const toInput = ({
+  priceCents,
+  costCents,
+  ...rest
+}: CatalogServiceInput): SaveRepairServiceInput => ({
   ...rest,
   laborCents: priceCents,
+  laborCostCents: costCents,
 });
 
 /** The shop's ready-made repair services in Settings. */
@@ -31,6 +36,8 @@ export const RepairServicesSection = () => {
     priceLabel: t('Fee'),
     priceFieldLabel: t('Usual fee'),
     priceBelowZero: t('Fee cannot be below zero.'),
+    costLabel: t('Cost to shop'),
+    costFieldLabel: t('Usual cost to shop'),
     addTitle: t('Add a repair service'),
     namePlaceholder: t('e.g. Screen replacement'),
     offerLabel: t('Offer it on the repair form'),
@@ -44,6 +51,7 @@ export const RepairServicesSection = () => {
         key: service.key,
         name: service.name,
         priceCents: service.laborCents,
+        costCents: service.laborCostCents,
         warranty: service.warranty,
         active: service.active,
       }))}

@@ -127,7 +127,13 @@ export const ServiceCatalogSection = ({
                           )}
                         </Group>
                         <Text size="xs" c="dimmed">
-                          {`${copy.priceLabel} ${formatMoney(service.priceCents)} · ${coverageLabel(service.warranty.coverage)}`}
+                          {[
+                            `${copy.priceLabel} ${formatMoney(service.priceCents)}`,
+                            ...(service.costCents === undefined
+                              ? []
+                              : [`${copy.costLabel} ${formatMoney(service.costCents)}`]),
+                            coverageLabel(service.warranty.coverage),
+                          ].join(' · ')}
                         </Text>
                       </Stack>
                       <Group gap={4} wrap="nowrap">

@@ -265,6 +265,29 @@ describe('the print job panel form', () => {
     expect(sent.note).toBe('Deliver in two boxes');
   });
 
+  it('saves the optional cost of a service line, and leaves it out when empty', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit, jobToEdit: makeJob() });
+    await act(async () => fee()?.click());
+    const box = () =>
+      document.querySelector<HTMLInputElement>(
+        'input[aria-label="Cost to shop, each: Design fee"]'
+      );
+    expect(box()?.placeholder).toBe('Optional');
+    expect(document.body.textContent).not.toContain('Profit Rs.');
+
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(box(), '200');
+      box()?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(document.body.textContent).toContain('Profit Rs. 300.00');
+    await submitForm();
+    expect((onSubmit.mock.calls[0][0] as PrintJobInput).items).toMatchObject([
+      { source: { type: 'service', unitPriceCents: 50_000, unitCostCents: 20_000 } },
+    ]);
+  });
+
   it('refuses a note that is too long, and says the limit', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderModal({ onSubmit, jobToEdit: makeJob() });

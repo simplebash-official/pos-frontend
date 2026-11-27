@@ -1,8 +1,9 @@
-import { Box, Button, Group, NumberInput, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, NumberInput, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconCopy } from '@tabler/icons-react';
 import { useAllProducts } from '@/features/inventory/hooks/useProducts';
 import type { Product, SerialLookup } from '@/features/inventory/types';
 import { QuantityInput } from '@/shared/components/QuantityInput';
+import { CostToShopField } from '@/shared/components/ticket-items/CostToShopField';
 import { ItemDiscountButton } from '@/shared/components/ticket-items/ItemDiscountButton';
 import { ItemIcon } from '@/shared/components/ticket-items/ItemIcon';
 import { ItemWarrantyButton } from '@/shared/components/ticket-items/ItemWarrantyButton';
@@ -133,7 +134,15 @@ export const PrintItemsEditor = ({
           id: service.key,
           label: service.name,
           onAdd: () =>
-            add(serviceDraft(service.name, service.unitPriceCents, service.warranty, rework)),
+            add(
+              serviceDraft(
+                service.name,
+                service.unitPriceCents,
+                service.unitCostCents,
+                service.warranty,
+                rework
+              )
+            ),
         }));
 
   const moneyStyles = {
@@ -157,41 +166,36 @@ export const PrintItemsEditor = ({
       units === null ? MAX_LINE_QUANTITY : Math.max(units, quantity === null ? 0 : quantity);
 
     const subline = () => {
-      if (draft.kind === 'service') {
-        return (
-          <Text size="xs" c="dimmed">
-            {t('Service fee')}
-          </Text>
+      if (draft.kind !== 'stock') {
+        const costTyped = draft.unitCostRupees !== '';
+        const priceTyped = rework || draft.unitPriceRupees !== '';
+        const costField = (
+          <CostToShopField
+            label={t('Cost to shop, each')}
+            lineName={draft.description}
+            placeholder={draft.kind === 'service' ? t('Optional') : '0'}
+            value={draft.unitCostRupees}
+            invalid={problem !== null && problem.field === 'cost'}
+            onChange={(value) =>
+              update(draft.uid, (current) => ({ ...current, unitCostRupees: value }))
+            }
+            disabled={readOnly}
+            profitCents={
+              costTyped && priceTyped && line !== null && line.profitCents !== undefined
+                ? line.profitCents
+                : null
+            }
+          />
         );
-      }
-      if (draft.kind === 'outside') {
+        if (draft.kind === 'outside') return costField;
         return (
-          <Group gap="xs" align="center" wrap="wrap">
+          <Stack gap={4}>
             <Text size="xs" c="dimmed">
-              {t('Cost to shop, each')}
+              {t('Service fee')}
             </Text>
-            <NumberInput
-              size="sm"
-              w={120}
-              aria-label={`${t('Cost to shop, each')}: ${draft.description}`}
-              placeholder="0"
-              prefix="Rs. "
-              min={0}
-              thousandSeparator=","
-              styles={moneyStyles}
-              value={draft.unitCostRupees}
-              error={problem !== null && problem.field === 'cost'}
-              onChange={(value) =>
-                update(draft.uid, (current) => ({ ...current, unitCostRupees: value }))
-              }
-              disabled={readOnly}
-            />
-            {line !== null && line.profitCents !== undefined && (
-              <Text size="xs" fw={700} c={line.profitCents >= 0 ? 'teal' : 'red'}>
-                {`${t('Profit')} ${formatMoney(line.profitCents)}`}
-              </Text>
-            )}
-          </Group>
+            {/* A locked job with no recorded cost shows no empty box. */}
+            {(!readOnly || costTyped) && costField}
+          </Stack>
         );
       }
       if (draft.serialNumber !== undefined) {
@@ -381,7 +385,7 @@ export const PrintItemsEditor = ({
             onStockProduct={addStockProduct}
             onSerialUnit={addSerialUnit}
             onOutsidePart={(name) => add(outsideDraft(name))}
-            onFee={(name) => add(serviceDraft(name, null, NO_COVER, rework))}
+            onFee={(name) => add(serviceDraft(name, null, undefined, NO_COVER, rework))}
             quickFees={quickFees}
           />
         )}
