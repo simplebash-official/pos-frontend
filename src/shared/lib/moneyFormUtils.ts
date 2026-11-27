@@ -1,6 +1,11 @@
 import { fromCents, toCents } from './money';
 import { RepairItemInput, RepairJob, RepairJobInput } from '@/features/repairs/types';
-import { PrintJob, PrintJobInput, PrintJobItemInput } from '@/features/print-jobs/types';
+import {
+  PrintJob,
+  PrintJobInput,
+  PrintJobFrameInput,
+  PrintJobItemInput,
+} from '@/features/print-jobs/types';
 import { Employee, EmployeeInput } from '@/features/employees/types';
 
 /** The assignment part of a job request: nothing when nobody is picked, and no split for an owner. */
@@ -147,13 +152,17 @@ export const fromPrintJob = (job?: PrintJob | null): PrintJobFormValues => {
 };
 
 /**
- * The print job request from the form. `changes.items` is the whole list of lines, or `undefined`
- * to leave the saved lines as they are; the note is sent only when `changes.note` says it was
- * typed, so an untouched note is never rewritten.
+ * The print job request from the form. `changes.items` and `changes.frames` are the whole lists of
+ * lines and wanted frames, or `undefined` to leave the saved ones as they are; the note is sent only
+ * when `changes.note` says it was typed, so an untouched note is never rewritten.
  */
 export const toPrintJobInput = (
   form: PrintJobFormValues,
-  changes: { items: PrintJobItemInput[] | undefined; note: boolean }
+  changes: {
+    items: PrintJobItemInput[] | undefined;
+    frames: PrintJobFrameInput[] | undefined;
+    note: boolean;
+  }
 ): PrintJobInput => {
   return {
     customer: { customerKey: form.customerKey },
@@ -164,6 +173,7 @@ export const toPrintJobInput = (
     status: form.status,
     note: changes.note ? form.note.trim() : undefined,
     items: changes.items,
+    frames: changes.frames,
   };
 };
 

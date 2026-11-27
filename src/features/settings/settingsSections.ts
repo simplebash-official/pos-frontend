@@ -11,6 +11,7 @@ import {
   IconDatabase,
   IconDeviceDesktopAnalytics,
   IconFileText,
+  IconFrame,
   IconListDetails,
   IconPalette,
   IconTags,
@@ -31,6 +32,7 @@ export type SettingsSectionId =
   | 'payees'
   | 'repair-services'
   | 'print-services'
+  | 'frame-sizes'
   | 'branding'
   | 'bank-details'
   | 'printing'
@@ -126,6 +128,14 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     description: 'The print work you do often, with its price for one and warranty',
     icon: IconPrinter,
     permission: PERMISSIONS.PRINT_SERVICES_MANAGE,
+  },
+  {
+    id: 'frame-sizes',
+    label: 'Frame Sizes',
+    shortLabel: 'Frames',
+    description: 'Frame sizes offered on photo and framing jobs',
+    icon: IconFrame,
+    permission: PERMISSIONS.PRINT_FRAME_SIZES_MANAGE,
   },
   {
     id: 'branding',

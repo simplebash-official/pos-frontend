@@ -8,6 +8,7 @@ import {
   IconChartPie,
   IconClock,
   IconDeviceFloppy,
+  IconFrame,
   IconNote,
   IconPrinter,
   IconShieldCheck,
@@ -66,6 +67,7 @@ import {
 import { printStepBlock } from '../lib/statusStep';
 import type { PrintJob, PrintJobItem } from '../types';
 import { PrintItemsEditor } from './PrintItemsEditor';
+import { WantedFrames } from './WantedFrames';
 
 /** What the footer's buttons do; the panel that shows this view supplies them. */
 export interface PrintJobDetailActions {
@@ -418,6 +420,16 @@ export const PrintJobDetailView = ({
 
         <DrawerAfter>
           <Stack gap="md">
+            {job.frames.length > 0 && (
+              <DrawerCard label={t('Frames wanted')} icon={<IconFrame size={14} />}>
+                <WantedFrames
+                  frames={job.frames}
+                  onChange={() => undefined}
+                  readOnly
+                  showProblems={false}
+                />
+              </DrawerCard>
+            )}
             {job.note !== undefined && (
               <DrawerCard label={t('Note')} icon={<IconNote size={14} />}>
                 <Text size="sm" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>

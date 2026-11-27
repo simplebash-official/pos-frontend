@@ -24,24 +24,31 @@ git -C pos/desktop submodule status
 - Never run `tauri dev` or build an installer while the working copy is behind the pin.
 - Dev run of the desktop app against the local Docker stack: build with `CLOUD_API_URL=http://localhost:8082 CLOUD_SYNC_API_URL=http://localhost:8081` (read at compile time with `option_env!`; `touch pos/desktop/src-tauri/src/cloud/mod.rs` to force a rebuild). Use `:8081` for the Docker POS API: the Docker backend on `:8080` shares its port with the desktop's own sidecar, which answers first on loopback.
 
-## Before finishing any task: test everything that can be tested
+## Testing: related tests while working, the full gate before a push
 
-A task is not done until everything in this codebase that _can_ be tested, and everything related to the feature you implemented, has been tested and passes. Not just the lines you changed.
+### While working (every task)
 
-1. **The feature itself:** add or extend automated tests for every behaviour you added or changed (happy path, failure paths, edge cases), then run them.
-2. **Everything around it:** run this repo's full suite and quality gates (below), not only the new tests. A change can break a caller far away.
-3. **Across repos:** when a feature spans repos (backend, frontend, desktop shell, document-server, identity-server, app-frontend, deployment), run the gates in _every_ repo you touched, plus the tests that exercise the whole path end to end.
+A task is done when these pass. Do not run the full gate just to finish a task or to commit.
+
+1. **The feature itself:** add or extend automated tests for every behaviour you added or changed (happy path, failure paths, edge cases).
+2. **Run only the related tests**, not the whole suite: `npx vitest related <changed files> --run`, or `npx vitest run <test files or folders>`.
+3. **Static checks:** `npm run type-check`, and `npx eslint <changed files>` and `npx prettier --write <changed files>`.
 4. **For real:** what automated tests cannot reach (UI behaviour, a running stack, long-lived connections, a deploy) is verified by running it: the local Docker stack (`LOCAL_DOCKER_GUIDE.md` at the workspace root), the desktop app, or the browser.
-5. **Match CI's toolchain:** CI uses the latest stable Rust/Node. A lint that passes on an older local toolchain can still fail there, so update (`rustup update`) or run the gate with CI's version before calling it done.
-6. **Report honestly:** say what you ran and its result. Anything you could not test is named, with the reason, and never presented as passing. A suite that silently skips (e.g. no database configured) is not a passing suite.
 
-**This repo's gate:** `npm run test:all && npm run format && npm run lint && npm run type-check && npm run build` (both Vitest and Jest; a new test must pass under both runners). Check UI changes in the running app at the widths listed under Responsive & mobile UI.
+### Before a push (once)
+
+1. **Full gate**, in this repo: `npm test && npm run format && npm run lint && npm run type-check && npm run build`. Check UI changes in the running app at the widths listed under Responsive & mobile UI.
+2. **Across repos:** when a feature spans repos (backend, frontend, desktop shell, document-server, identity-server, app-frontend, deployment), run the full gate in _every_ repo you touched, plus the tests that exercise the whole path end to end.
+3. **Match CI's toolchain:** CI uses the latest stable Rust/Node. A lint that passes on an older local toolchain can still fail there, so update (`rustup update`) or run the gate with CI's version.
+4. After pushing, watch the run (`gh run list --limit 3`, `gh run view <id> --log-failed`) until it is green. Pushing is a separate, deliberate step, so ask first.
+
+**Report honestly:** say what you ran and its result, and say when the full gate has not been run yet. Anything you could not test is named, with the reason, and never presented as passing. A suite that silently skips (e.g. no database configured) is not a passing suite.
 
 # Commands
 
-Scripts are in `package.json`. Note this project runs **both** test runners — `npm run test:all` = Vitest (`test`) + Jest (`test:jest`).
+Scripts are in `package.json`. Tests run under Vitest (`npm test`), which is what CI runs. The Jest setup (`npm run test:jest`) is still in the repo but is not part of any gate, and new tests need not run under it.
 
-**After every change or new implementation**, create comprehensive Jest/Vitest unit tests for all modified and new parts, run `npm run test:all && npm run format && npm run lint && npm run type-check && npm run build`, and fix any errors reported before considering the work done.
+**After every change or new implementation**, add or update Vitest tests for all modified and new parts, run the related tests and static checks, and fix any errors before considering the work done. The full gate (`npm test && npm run format && npm run lint && npm run type-check && npm run build`) runs once before a push.
 
 **Every UI change must be responsive** — verify it holds up across mobile, tablet, and desktop widths (the `AppShell` navbar already collapses at the `sm` breakpoint; follow that pattern rather than hard-coding fixed widths/pixel layouts). See **Responsive & mobile UI** below for the tiers, the hook to use, and the rules every new screen has to satisfy.
 
@@ -460,6 +467,7 @@ A print job is priced like a repair: a list of **items**, each with a quantity, 
 - `lib/printItems.ts`: drafts (`service` | `outside` | `stock`), `toItemInputs`, `rowProblem` / `itemsProblem` (mirrors the server's limits) and `usePrintTotals` through `calc_print_job` in `@/wasm`; the screens multiply no money. A newly chosen stock line has no cost yet, so profit shows "once saved".
 - `hooks/usePrintJobEditor.ts` sends `items` only when the lines changed and `note` only when it was typed, so saving a note never fails because stock moved. `PrintJobDetailView` edits items in place, shows warranties after hand-over and offers **Bill** (`/billing?billPrint=<key>`); `lib/statusStep.ts` holds back Ready without items and Delivered (stock parts) before billing.
 - Settings -> **Print Services** (`PrintServicesSection`, permission `print_services:manage`, Admin and Manager) are the quick fees on the form.
+- **Frame sizes and wanted frames** (photo and framing jobs only, no prices): Settings -> **Frame Sizes** (`FrameSizesSection` + `FrameSizeModal`, permission `print_frame_sizes:manage`, Admin and Manager) is the shop's list, one row per size and frame width; a saved one can only be hidden or shown, and nothing is preloaded. The edit form shows a **Frames wanted** card (`WantedFrames` + `FrameSizePicker`, one searchable dropdown grouped by size) when the job type is `photo-framing`; each frame has a quantity and changes no money (charging is done with the items). `usePrintJobEditor` sends `frames` only when changed, sends `[]` when a job with frames changes type, and never on a billed or handed-back job; the side panel lists them read-only and the job receipt prints them. The empty state has no link out of the panel, so a half-typed job is never lost. Tests: `lib/__tests__/frameSizes.test.ts`, `components/__tests__/{frameSizes,FrameSizesSection}.test.tsx`.
 - Warranty claims on print work open a rework or paid **print** job (`claimActions(claim, source)`), which needs `print_jobs:write`.
 
 **The owner as a technician** (`features/employees/components/AssigneeSection.tsx`, used by `RepairFormModal` and `PrintJobFormModal`): the admin has no employee profile until they pick **Add me as a technician** in the assign list, which opens `OwnerProfileModal` (a phone number only; the name is the account's) and calls `POST /employees/me` (`useCreateOwnerProfile`). The profile has role `owner`; afterwards the admin's own row reads "Me (name)" (found by `employee.login.username` equal to the signed-in username). An owner takes **no commission**: choosing them clears the split in the form, hides the split fields, and `toAssignmentInput` (`shared/lib/moneyFormUtils.ts`) sends no `splitType`/`splitValue`; the server refuses one (`OWNER_HAS_NO_COMMISSION`). The Employee form never offers the Owner role. A window opened from the section reports it through `onNestedWindowChange` so Escape closes only that window. Tests: `employees/components/__tests__/AssigneeSection.test.tsx`.
@@ -541,8 +549,7 @@ Every user-facing string goes through `t()` (`@/shared/i18n/t`) with an entry ad
 
 ### How AI Agents Can Help & Verification
 
-- **Dual Test Suite Execution**: Run `npm run test:all` (runs both Vitest unit/integration tests and Jest suites). Run `npm test` for the standard test suite.
-- **Writing tests that pass under both runners**: tests are written against Vitest, and Jest runs them through shims in `src/__mocks__/`. `viTransformer.cjs` rewrites `vi.mock`/`vi.unmock` to `jest.mock`/`jest.unmock` (so they are hoisted above the imports, with paths resolved from the test file) and `import.meta.env` to `process.env`; `vitestMock.cjs` is the `vi` shim (`fn`, `spyOn`, `mock`, `mocked`, `stubEnv`/`unstubAllEnvs`, `stubGlobal`/`unstubAllGlobals`, `restoreAllMocks`/`clearAllMocks`/`resetAllMocks`, `resetModules`, `waitFor`); `envMock.cjs` stands in for `@/config/env` (add a getter there when a test needs a new `env` field); `?raw` imports and `virtual:pwa-register/react` are mapped in `jest.config.js`. Not supported under Jest: `vi.hoisted`, `vi.importActual`, `vi.doMock`, and the fake-timer APIs. A jsdom test needs both docblocks (`@vitest-environment jsdom` and `@jest-environment jsdom`). Jest only matches files under a `__tests__` directory. If you change the transformer, run `npx jest --no-cache` once.
+- **Tests**: related tests while working, `npm test` in the full gate (see _Testing_ at the top of this file).
 - **Static Verification**:
   ```bash
   npm run type-check   # Verifies TypeScript compiler without emitting JS

@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import {
   IconCash,
+  IconFrame,
   IconNote,
   IconPrinter,
   IconReceipt,
@@ -35,6 +36,7 @@ import { NOTE_MAX, type PrintJobEditor } from '../hooks/usePrintJobEditor';
 import { printJobTypeLabel } from '../lib/jobTypeLabels';
 import type { PrintJob, PrintJobType } from '../types';
 import { PrintItemsEditor } from './PrintItemsEditor';
+import { WantedFrames } from './WantedFrames';
 
 /** The form's id, so the panel's pinned Save button can submit it from outside. */
 export const PRINT_JOB_FORM_ID = 'print-job-form';
@@ -62,6 +64,9 @@ export const PrintJobEditForm = ({ editor, job }: PrintJobEditFormProps) => {
     form,
     drafts,
     setDrafts,
+    frames,
+    setFrames,
+    frameProblem,
     tried,
     setNestedOpen,
     pickerOpen,
@@ -214,6 +219,24 @@ export const PrintJobEditForm = ({ editor, job }: PrintJobEditFormProps) => {
               />
             </Stack>
           </DrawerCard>
+
+          {form.values.jobType === 'photo-framing' && (
+            <DrawerCard label={t('Frames wanted')} icon={<IconFrame size={14} />}>
+              <Stack gap="sm">
+                <WantedFrames
+                  frames={frames}
+                  onChange={setFrames}
+                  readOnly={workLocked}
+                  showProblems={tried}
+                />
+                {tried && frameProblem !== null && (
+                  <Text size="sm" c="red" role="alert">
+                    {frameProblem}
+                  </Text>
+                )}
+              </Stack>
+            </DrawerCard>
+          )}
 
           <DrawerCard
             label={t('Items and service fees')}

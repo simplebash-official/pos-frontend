@@ -160,7 +160,11 @@ export const MODULES: readonly ModuleDef[] = [
   { id: 'sales', label: 'Sales & Invoices', resources: ['invoices', 'payments', 'creditNotes'] },
   { id: 'quotations', label: 'Quotations', resources: ['quotations'] },
   { id: 'repairs', label: 'Repair Jobs', resources: ['repairs', 'repairServices'] },
-  { id: 'printJobs', label: 'Print Jobs', resources: ['printJobs', 'printServices'] },
+  {
+    id: 'printJobs',
+    label: 'Print Jobs',
+    resources: ['printJobs', 'printServices', 'printFrameSizes'],
+  },
   {
     id: 'warranties',
     label: 'Warranties',
@@ -216,6 +220,7 @@ const RECORD_NAMES: Record<string, string> = {
   notificationReads: 'Notification read',
   printJobs: 'Print job',
   printServices: 'Print service',
+  printFrameSizes: 'Frame size',
   products: 'Product',
   categories: 'Category',
   stockBatches: 'Delivery price',

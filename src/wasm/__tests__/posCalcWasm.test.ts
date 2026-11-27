@@ -333,6 +333,7 @@ describe('pos-calc-wasm calculations and integration parity', () => {
             warranty: { coverage: { kind: 'none' }, warrantyType: 'shop' },
           },
         ],
+        frames: [],
         priceCents: 8000,
         costCents: 2000, // profit = 6000 cents
         assignedEmployeeId: 'emp_2',

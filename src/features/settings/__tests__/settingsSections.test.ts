@@ -104,13 +104,24 @@ describe('settingsSections access', () => {
       'payees',
       'repair-services',
       'print-services',
+      'frame-sizes',
     ]);
     expect(SETTINGS_PERMISSIONS).toEqual([
       'notifications:view',
       'payees:manage',
       'repair_services:manage',
       'print_services:manage',
+      'print_frame_sizes:manage',
     ]);
+  });
+
+  it('shows someone with print_frame_sizes:manage only the frame sizes section', () => {
+    expect(
+      sectionsForAccess(web(), {
+        isAdmin: false,
+        permissions: ['print_frame_sizes:manage'],
+      }).map((s) => s.id)
+    ).toEqual(['frame-sizes']);
   });
 
   it('shows every user their notification history, and nothing else they cannot manage', () => {
